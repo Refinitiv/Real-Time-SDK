@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -10,6 +10,7 @@ package com.refinitiv.ema.unittest;
 import java.nio.ByteBuffer;
 
 import com.refinitiv.ema.access.*;
+import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.ema.rdm.EmaRdm;
 import com.refinitiv.ema.unittest.TestUtilities.EncodingTypeFlags;
 import com.refinitiv.eta.codec.Buffer;
@@ -301,6 +302,49 @@ public class StatusMsgTests extends TestCase
 	{
 		TestUtilities.printTestHead("testStatusMsg_EncodeDecode", "ema encoding ema decoding");
 
+		String statusMsgString = "StatusMsg\n" +
+				"    streamId=\"15\"\n" +
+				"    domain=\"MarketPrice Domain\"\n" +
+				"    state=\"Open / Ok / None / 'Status Complete'\"\n" +
+				"    name=\"ABCDEF\"\n" +
+				"    nameType=\"1\"\n" +
+				"    serviceId=\"5\"\n" +
+				"    filter=\"12\"\n" +
+				"    id=\"21\"\n" +
+				"    Attrib dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    AttribEnd\n" +
+				"    Payload dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"\n" +
+				"    PayloadEnd\n" +
+				"StatusMsgEnd\n";
+
+		String statusMsgStringEmpty = "StatusMsg\n" +
+				"    streamId=\"0\"\n" +
+				"    domain=\"MarketPrice Domain\"\n" +
+				"StatusMsgEnd\n";
+
 		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
 				.createDataDictionary();
 		TestUtilities.eta_encodeDictionaryMsg(dictionary);
@@ -310,6 +354,7 @@ public class StatusMsgTests extends TestCase
 		TestUtilities.EmaEncodeFieldListAll(fl);
 
 		com.refinitiv.ema.access.StatusMsg statusMsg = EmaFactory.createStatusMsg();
+		com.refinitiv.ema.access.StatusMsg statusMsgEmpty = EmaFactory.createStatusMsg();
 
 		System.out.println("Begin EMA StatusMsg test after constructor");
 
@@ -350,55 +395,68 @@ public class StatusMsgTests extends TestCase
 		System.out.println("End EMA StatusMsg Set");
 
 		statusMsg.domainType(com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE);
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.streamId(15);
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.name("ABCDEF");
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.nameType(com.refinitiv.eta.rdm.InstrumentNameTypes.RIC);
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.serviceId(5);
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.filter(12);
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.id(21);
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.attrib(fl);
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Status Complete");
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.clearCache(true);
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.publisherId(30, 15);
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		statusMsg.payload(fl);
-		TestUtilities.checkResult("StatusMsg.toString() == toString() not supported", statusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("StatusMsg.toString() == toString()", statusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		System.out.println("End EMA StatusMsg Set");
 		System.out.println();
 
 		System.out.println("Begin EMA StatusMsg Decoding");
 
+		DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+
+		TestUtilities.checkResult("StatusMsg.toString(dictionary) == toString(dictionary)", statusMsg.toString(emaDataDictionary).equals("\nDictionary is not loaded.\n"));
+
+		emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+		emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+
+		TestUtilities.checkResult("StatusMsg.toString(dictionary) == toString(dictionary)", statusMsgEmpty.toString(emaDataDictionary).equals(statusMsgStringEmpty));
+
+		TestUtilities.checkResult("StatusMsg.toString(dictionary) == toString(dictionary)", statusMsg.toString(emaDataDictionary).equals(statusMsgString));
+
 		com.refinitiv.ema.access.StatusMsg emaStatusMsg = JUnitTestConnect.createStatusMsg();
 
 		JUnitTestConnect.setRsslData(emaStatusMsg, statusMsg, 14, 0, dictionary, null);
 
-		// check that we can still get the toString on encoded/decoded msg.
-		TestUtilities.checkResult("StatusMsg.toString() != toString() not supported", !(emaStatusMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
+		com.refinitiv.ema.access.StatusMsg statusMsgClone = EmaFactory.createStatusMsg(statusMsg);
+		statusMsgClone.clear();
+		TestUtilities.checkResult("StatusMsg.toString(dictionary) == toString(dictionary)", statusMsgClone.toString(emaDataDictionary).equals(statusMsgStringEmpty));
 
-		
-		
+		// check that we can still get the toString on encoded/decoded msg.
+		TestUtilities.checkResult("StatusMsg.toString() != toString()", !(emaStatusMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
+
 		TestUtilities.checkResult(emaStatusMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE,
 				"StatusMsg.domainType()");
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
@@ -10,6 +10,7 @@
 #include "TestUtilities.h"
 
 using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
 TEST(VectorTests, testVectorContainsFieldListsDecodeAll)
@@ -2249,24 +2250,67 @@ TEST(VectorTests, testVectorAddEntryAfterCallingComplete_Encode)
 
 TEST(VectorTests, testVectorClear_Encode_Decode)
 {
+    // load dictionary for decoding of the field list
+    RsslDataDictionary dictionary;
+
+	const EmaString vectorString =
+		"Vector sortable=\"true\"\n"
+		"    VectorEntry action=\"Delete index=\"2\" dataType=\"NoData\"\n"
+		"        NoData\n"
+		"        NoDataEnd\n"
+		"    VectorEntryEnd\n"
+		"    VectorEntry action=\"Clear index=\"3\" dataType=\"NoData\"\n"
+		"        NoData\n"
+		"        NoDataEnd\n"
+		"    VectorEntryEnd\n"
+		"VectorEnd\n";
+
+    ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	DataDictionary emaDataDictionary, emaDataDictionaryEmpty;
+
+	try {
+		emaDataDictionary.loadFieldDictionary( "RDMFieldDictionaryTest" );
+		emaDataDictionary.loadEnumTypeDictionary( "enumtypeTest.def" );
+	}
+	catch ( const OmmException& ) {
+		ASSERT_TRUE( false ) << "DataDictionary::loadFieldDictionary() failed to load dictionary information";
+	}
+
 	try
 	{
 		FieldList fieldList;
 		fieldList.addUInt(1, 3056).complete();
 
-		Vector vector;
-		EXPECT_EQ( vector.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Vector.toString() == Decoding of just encoded object in the same application is not supported";
+		Vector vector, vectorEmpty;
+		EXPECT_EQ( vector.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "Vector.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
-		vector.totalCountHint(1).sortable(false)
-			.add(1, VectorEntry::InsertEnum, fieldList)
-			.clear().sortable(true)
-			.add(2, VectorEntry::DeleteEnum)
-			.add(3, VectorEntry::ClearEnum)
-			.complete();
-		EXPECT_EQ( vector.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Vector.toString() == Decoding of just encoded object in the same application is not supported";
+        vector.totalCountHint(1).sortable(false)
+            .add(1, VectorEntry::InsertEnum, fieldList)
+            .clear().sortable(true)
+            .add(2, VectorEntry::DeleteEnum)
+            .add(3, VectorEntry::ClearEnum);
+
+		EXPECT_EQ( vector.toString( emaDataDictionary ), "\nUnable to decode not completed Vector data.\n" ) << "Vector.toString() == Unable to decode not completed Vector data.";
+
+        vector.complete();
+
+		EXPECT_EQ( vector.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "Vector.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
+
+		EXPECT_EQ( vector.toString( emaDataDictionaryEmpty ), "\nDictionary is not loaded.\n" ) << "Vector.toString() != Dictionary is not loaded.";
+
+		EXPECT_EQ( vector.toString( emaDataDictionary ), vectorString ) << "Vector.toString() == vectorString";
+
+		vectorEmpty.add( 1, VectorEntry::InsertEnum, fieldList );
+		vectorEmpty.complete();
+		vectorEmpty.clear();
+		EXPECT_EQ( vectorEmpty.toString( emaDataDictionary ), "\nUnable to decode not completed Vector data.\n" ) << "Vector.toString() == Unable to decode not completed Vector data.";
+
+		vectorEmpty.complete();
+		EXPECT_EQ( vectorEmpty.toString( emaDataDictionary ), "Vector sortable=\"false\"\nVectorEnd\n" ) << "Vector.toString() == Vector sortable=\"false\"\nVectorEnd\n";
 
 		StaticDecoder::setData(&vector, NULL);
-		EXPECT_NE( vector.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Vector.toString() != Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( vector.toString(), vectorString ) << "Vector.toString() == vectorString";
 
 		EXPECT_FALSE(vector.hasTotalCountHint()) << "Check has total count hint attribute";
 		EXPECT_TRUE(vector.getSortable()) << "Check the sortable attribute";

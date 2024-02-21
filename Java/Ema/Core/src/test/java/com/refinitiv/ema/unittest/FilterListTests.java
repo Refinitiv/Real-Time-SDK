@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -10,6 +10,7 @@ package com.refinitiv.ema.unittest;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
+import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
@@ -56,41 +57,73 @@ public class FilterListTests extends TestCase
 	public void testFilterEntryWithNoPayload_Encode_Decode()
 	{
 		TestUtilities.printTestHead("testFilterEntryWithNoPayload_Encode_Decode","Encode multiple Filter entry with no payload");
-		
+
+		String filterListString = "FilterList\n" +
+				"    FilterEntry action=\"Set\" filterId=\"1 dataType=\"NoData\"\n" +
+				"        NoData\n" +
+				"        NoDataEnd\n" +
+				"    FilterEntryEnd\n" +
+				"    FilterEntry action=\"Update\" filterId=\"2 permissionData=\"00 00 30 39\" dataType=\"NoData\"\n" +
+				"        NoData\n" +
+				"        NoDataEnd\n" +
+				"    FilterEntryEnd\n" +
+				"    FilterEntry action=\"Set\" filterId=\"3 dataType=\"FieldList\"\n" +
+				"        FieldList\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"3056\"\n" +
+				"        FieldListEnd\n" +
+				"    FilterEntryEnd\n" +
+				"FilterListEnd\n";
+
 		com.refinitiv.eta.codec.DataDictionary dataDictionary = TestUtilities.getDataDictionary();
-		
+
 		try
 		{
 		ByteBuffer permissionData = ByteBuffer.allocate(5);
 		permissionData.putInt(12345).flip();
-		
+
 		FieldList fieldListEnc = EmaFactory.createFieldList();
 		fieldListEnc.add(EmaFactory.createFieldEntry().uintValue(1, 3056));
 		
 		FilterList filterList = EmaFactory.createFilterList();
+		FilterList filterListEmpty = EmaFactory.createFilterList();
 		
 		FilterEntry fe = EmaFactory.createFilterEntry().noData(1, FilterEntry.FilterAction.SET);
-		TestUtilities.checkResult("FilterEntry.toString() == toString() not supported", fe.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("FilterEntry.toString() == toString()", fe.toString().equals("\nEntity is not encoded yet. Complete encoding to use this method.\n"));
 		
 		filterList.add(fe);
-		TestUtilities.checkResult("FilterList.toString() == toString() not supported", filterList.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("FilterList.toString() == toString()", filterList.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		filterList.add(EmaFactory.createFilterEntry().noData(2, FilterEntry.FilterAction.UPDATE, permissionData));
-		TestUtilities.checkResult("FilterList.toString() == toString() not supported", filterList.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("FilterList.toString() == toString()", filterList.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		filterList.add(EmaFactory.createFilterEntry().fieldList(3, FilterEntry.FilterAction.SET, fieldListEnc));
-		TestUtilities.checkResult("FilterList.toString() == toString() not supported", filterList.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
-		
+		TestUtilities.checkResult("FilterList.toString() == toString()", filterList.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
+
+		DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+
+		TestUtilities.checkResult("FilterList.toString(dictionary) == toString(dictionary)", filterList.toString(emaDataDictionary).equals("\nDictionary is not loaded.\n"));
+
+		emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+		emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+
+		TestUtilities.checkResult("FilterList.toString(dictionary) == toString(dictionary)", filterList.toString(emaDataDictionary).equals(filterListString));
+
+		TestUtilities.checkResult("FilterList.toString(dictionary) == toString(dictionary)", filterListEmpty.toString(emaDataDictionary).equals("FilterList\nFilterListEnd\n"));
+
+		filterListEmpty.add(EmaFactory.createFilterEntry().fieldList(3, FilterEntry.FilterAction.SET, fieldListEnc));
+		filterListEmpty.clear();
+		TestUtilities.checkResult("FilterList.toString(dictionary) == toString(dictionary)", filterListEmpty.toString(emaDataDictionary).equals("FilterList\nFilterListEnd\n"));
+
 		FilterList filterListDec = JUnitTestConnect.createFilterList();
 		JUnitTestConnect.setRsslData(filterListDec, filterList, Codec.majorVersion(), Codec.minorVersion(), dataDictionary, null);
 		// check that we can still get the toString on encoded/decoded container.
-		TestUtilities.checkResult("FilterList.toString() != toString() not supported", !(filterListDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
+		TestUtilities.checkResult("FilterList.toString() != toString()", !(filterListDec.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 
 		Iterator<FilterEntry> filerListIt = filterListDec.iterator();
 		
 		FilterEntry filterEntry = filerListIt.next();
 		// check that we can still get the toString on encoded/decoded entry.
-		TestUtilities.checkResult("FilterEntry.toString() != toString() not supported", !(filterEntry.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+		TestUtilities.checkResult("FilterEntry.toString() != toString()", !(filterEntry.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 		
 		TestUtilities.checkResult( filterEntry.filterId() == 1, "Check the filter ID of the first entry");
 		TestUtilities.checkResult( filterEntry.action() == FilterEntry.FilterAction.SET, "Check the action of the first entry");

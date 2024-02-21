@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|        Copyright (C) 2019 Refinitiv. All rights reserved.          --
+ *|        Copyright (C) 2019, 2024 Refinitiv. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -17,8 +17,52 @@ TEST(GenericMsgTests, testGenericMsgwithRefreshMsg)
 
 	RsslDataDictionary dictionary;
 
+	const EmaString genericMsgString =
+		"GenericMsg\n"
+		"    streamId=\"0\"\n"
+		"    domain=\"MarketPrice Domain\"\n"
+		"    Payload dataType=\"RefreshMsg\"\n"
+		"        RefreshMsg\n"
+		"            streamId=\"0\"\n"
+		"            domain=\"MarketPrice Domain\"\n"
+		"            state=\"Open / Ok / None / 'Status Text'\"\n"
+		"            itemGroup=\"00 00\"\n"
+		"            Attrib dataType=\"ElementList\"\n"
+		"                ElementList\n"
+		"                    ElementEntry name=\"Int\" dataType=\"Int\" value=\"1234\"\n"
+		"                    ElementEntry name=\"Ascii\" dataType=\"Ascii\" value=\"Ascii\"\n"
+		"                ElementListEnd\n"
+		"\n"
+		"            AttribEnd\n"
+		"            Payload dataType=\"ElementList\"\n"
+		"                ElementList\n"
+		"                    ElementEntry name=\"Int\" dataType=\"Int\" value=\"1234\"\n"
+		"                    ElementEntry name=\"Ascii\" dataType=\"Ascii\" value=\"Ascii\"\n"
+		"                ElementListEnd\n"
+		"\n"
+		"            PayloadEnd\n"
+		"        RefreshMsgEnd\n"
+		"\n"
+		"    PayloadEnd\n"
+		"GenericMsgEnd\n";
+
+	const EmaString genericMsgEmptyString =
+		"GenericMsg\n"
+		"    streamId=\"0\"\n"
+		"    domain=\"MarketPrice Domain\"\n"
+		"GenericMsgEnd\n";
+
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
+	DataDictionary emaDataDictionary, emaDataDictionaryEmpty;
+
+	try {
+		emaDataDictionary.loadFieldDictionary( "RDMFieldDictionaryTest" );
+		emaDataDictionary.loadEnumTypeDictionary( "enumtypeTest.def" );
+	}
+	catch ( const OmmException& ) {
+		ASSERT_TRUE( false ) << "DataDictionary::loadFieldDictionary() failed to load dictionary information";
+	}
 	try
 	{
 		ElementList eList;
@@ -35,14 +79,23 @@ TEST(GenericMsgTests, testGenericMsgwithRefreshMsg)
 
 		StaticDecoder::setData( &refreshMsg, &dictionary );
 
-		GenericMsg genMsg;
+		GenericMsg genMsg, genMsgEmpty;
 		genMsg.payload( refreshMsg );
-		EXPECT_EQ( genMsg.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "GenericMsg.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( genMsg.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "GenericMsg.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
+
+		EXPECT_EQ( genMsg.toString( emaDataDictionaryEmpty ), "\nDictionary is not loaded.\n" ) << "GenericMsg.toString() == Dictionary is not loaded.";
+
+		EXPECT_EQ( genMsgEmpty.toString(emaDataDictionary), genericMsgEmptyString ) << "GenericMsg.toString() == genericMsgEmptyString";
+
+		EXPECT_EQ( genMsg.toString( emaDataDictionary ), genericMsgString) << "GenericMsg.toString() == genericMsgString";
 
 		StaticDecoder::setData( &genMsg, &dictionary );
-		EXPECT_NE( genMsg.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "GenericMsg.toString() != Decoding of just encoded object in the same application is not supported";
 
-		EXPECT_TRUE( true ) << "RefreshMsg as Payload of GenericMsg - exception NOT expected" ;
+		GenericMsg genMsgClone( genMsg );
+		genMsgClone.clear();
+		EXPECT_EQ( genMsgClone.toString( emaDataDictionary ), genericMsgEmptyString ) << "GenericMsg.toString() == genericMsgEmptyString";
+
+		EXPECT_EQ( genMsg.toString(), genericMsgString ) << "GenericMsg.toString() == genericMsgString";
 	}
 	catch ( const OmmException& )
 	{

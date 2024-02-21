@@ -2,13 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
 #include "TestUtilities.h"
 
 using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
 TEST(FieldListTests, testInvalidDate)
@@ -1472,16 +1473,66 @@ TEST(FieldListTests, testFieldListContainsMapDecodeAll)
 
 TEST(FieldListTests, testFieldListEncodeDecodeAll)
 {
-
 	RsslDataDictionary dictionary;
 
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
-	FieldList flEnc;
-	EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+	DataDictionary emaDataDictionary, emaDataDictionaryEmpty;
+
+	const EmaString fieldListString =
+		"FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+		"    FieldEntry fid=\"-100\" name=\"\" dataType=\"Error\"\n"
+		"        OmmError\n"
+		"            ErrorCode=\"FieldIdNotFound\"\n"
+		"        OmmErrorEnd\n"
+		"    FieldEntryEnd\n"
+		"    FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+		"    FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+		"    FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+		"    FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+		"    FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+		"    FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+		"    FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"Timeliness: 5656/Rate: 2345\"\n"
+		"    FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+		"    FieldEntry fid=\"715\" name=\"STORY_ID\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+		"    FieldEntry fid=\"28\" name=\"NEWS\" dataType=\"Rmtes\" value=\"ABCDEF\"\n"
+		"    FieldEntry fid=\"4\" name=\"RDN_EXCHID\" dataType=\"Enum\" value=\"29\"\n"
+		"    FieldEntry fid=\"-9\" name=\"MY_FLOAT\" dataType=\"Float\" value=\"11.11\"\n"
+		"    FieldEntry fid=\"-10\" name=\"MY_DOUBLE\" dataType=\"Double\" value=\"22.21999931335449\"\n"
+		"    FieldEntry fid=\"7\" name=\"TRDPRC_2\" dataType=\"Real\" value=\"(blank data)\"\n"
+		"    FieldEntry fid=\"-11\" name=\"MY_BUFFER\" dataType=\"Buffer\"\n"
+		"4142 4344 4546 4748                        ABCDEFGH\n"
+		"\n"
+		"    FieldEntry fid=\"-12\" name=\"MY_UTF8\" dataType=\"Utf8\" value=\"KLMNOPQR\"\n"
+		"    FieldEntry fid=\"-16\" name=\"MY_ARRAY\" dataType=\"OmmArray\"\n"
+		"        OmmArray with entries of dataType=\"Int\"\n"
+		"            value=\"123\"\n"
+		"            value=\"234\"\n"
+		"            value=\"345\"\n"
+		"        OmmArrayEnd\n"
+		"    FieldEntryEnd\n"
+		"    FieldEntry fid=\"-17\" name=\"MY_OPAQUE\" dataType=\"Opaque\" value=\"Opaque\n"
+		"\n"
+		"4f50 5152 5354                             OPQRST\n"
+		"\n"
+		"OpaqueEnd\n"
+		"\"\n"
+		"    FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"InexactDelayed/JustInTimeConflated\"\n"
+		"FieldListEnd\n";
+
+	try {
+		emaDataDictionary.loadFieldDictionary( "RDMFieldDictionaryTest" );
+		emaDataDictionary.loadEnumTypeDictionary( "enumtypeTest.def" );
+	}
+	catch ( const OmmException& ) {
+		ASSERT_TRUE( false ) << "DataDictionary::loadFieldDictionary() failed to load dictionary information";
+	}
+
+	FieldList flEnc, flEmpty;
+	EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 	flEnc.info( dictionary.info_DictionaryId, 65 );
-	EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+	EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 	try
 	{
@@ -1489,80 +1540,80 @@ TEST(FieldListTests, testFieldListEncodeDecodeAll)
 
 		//first entry (fid not found case)
 		flEnc.addUInt( -100, 64 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//second entry
 		flEnc.addUInt( 1, 64 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//third entry
 		flEnc.addReal( 6, 11, OmmReal::ExponentNeg2Enum );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//fourth entry
 		flEnc.addInt( -2, 32 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//fifth entry
 		flEnc.addDate( 16, 1999, 11, 7 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//sixth entry
 		flEnc.addTime( 18, 02, 03, 04, 005 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//seventh entry
 		flEnc.addDateTime( -3, 1999, 11, 7, 01, 02, 03, 000 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//eightth entry
 		flEnc.addQos( FID_QOS, 5656, 2345 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//ninth entry
 		flEnc.addState( FID_STATE, OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "Succeeded" );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//tenth entry
 		flEnc.addAscii( 715, EmaString( "ABCDEF" ) );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//eleventh entry
 		char* s1 = const_cast<char*>("ABCDEF");
 		flEnc.addRmtes( 28, EmaBuffer( s1, 6 ) );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//twelfth entry
 		flEnc.addEnum( 4, 29 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//thirteenth entry
 		flEnc.addFloat( -9, 11.11f );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//fourteenth entry
 		flEnc.addDouble( -10, 22.22f );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//fifteenth entry (blank real)
 		flEnc.addCodeReal( 7 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//sixteenth entry
 		char* s2 = const_cast<char*>("ABCDEFGH");
 		flEnc.addBuffer( -11, EmaBuffer( s2, 8 ) );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//seventeenth entry
 		char* s3 = const_cast<char*>("KLMNOPQR");
 		flEnc.addUtf8( -12, EmaBuffer( s3, 8 ) );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//eighteenth entry
 		OmmArray ar1;
 		ar1.addInt( 123 ).addInt( 234 ).addInt( 345 ).complete();
 		flEnc.addArray( -16, ar1 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//nineteenth entry
 		char* s4 = const_cast<char*>("OPQRST");
@@ -1570,18 +1621,32 @@ TEST(FieldListTests, testFieldListEncodeDecodeAll)
 		OmmOpaque opaque;
 		opaque.set( buf4 );
 		flEnc.addOpaque( -17 , opaque );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//twentyth entry
 		flEnc.addQos( FID_QOS, 756565, 1232365 );
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
+
+		EXPECT_EQ( flEnc.toString(emaDataDictionary), "\nUnable to decode not completed FieldList data.\n" ) << "FieldList.toString() == Unable to decode not completed FieldList data.";
 
 		flEnc.complete();
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "FieldList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
+
+		EXPECT_EQ( flEnc.toString( emaDataDictionaryEmpty ), "\nDictionary is not loaded.\n" ) << "FieldList.toString() == Dictionary is not loaded.";
+
+		EXPECT_EQ( flEnc.toString( emaDataDictionary ), fieldListString ) << "FieldList.toString() == fieldListString";
+
+		flEmpty.addOpaque( -17, opaque );
+		flEmpty.complete();
+		flEmpty.clear();
+		EXPECT_EQ( flEmpty.toString( emaDataDictionary ), "\nUnable to decode not completed FieldList data.\n" ) << "FieldList.toString() == Unable to decode not completed FieldList data.";
+
+		flEmpty.complete();
+		EXPECT_EQ( flEmpty.toString( emaDataDictionary ), "FieldList\nFieldListEnd\n" ) << "FieldList.toString() == FieldList\nFieldListEnd\n";
 
 		//Decoding
 		StaticDecoder::setData( &flEnc, &dictionary );
-		EXPECT_NE( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() != Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(), fieldListString ) << "FieldList.toString() == fieldListString";
 
 		EXPECT_TRUE( flEnc.hasInfo() ) << "FieldList with all data types - hasInfo()" ;
 		EXPECT_EQ( flEnc.getInfoDictionaryId(), dictionary.info_DictionaryId) << "FieldList with all data types - getInfoDictionaryId()";

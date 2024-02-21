@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -13,10 +13,11 @@ import java.util.LinkedList;
 
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.access.OmmError.ErrorCode;
+import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.eta.codec.DataDictionary;
 import com.refinitiv.eta.codec.FilterEntryActions;
+import com.refinitiv.eta.codec.Codec;
 
 class FilterListImpl extends CollectionDataImpl implements FilterList
 {
@@ -186,10 +187,34 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("FilterList collection doesn't support this operation.");
 	}
-	
-	
+
+	public String toString(DataDictionary dictionary)
+	{
+		if (_objManager == null)
+		{
+			_objManager = new EmaObjectManager();
+			_objManager.initialize(((DataImpl)this).dataType());
+		}
+
+		FilterList filterList = new FilterListImpl(_objManager);
+
+		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
+			return "\nDictionary is not loaded.\n";
+
+		((CollectionDataImpl) filterList).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
+		if (_errorCode != ErrorCode.NO_ERROR)
+		{
+			return "\nFailed to decode FilterList with error: " + ((CollectionDataImpl) filterList).errorString() + "\n";
+		}
+
+		return filterList.toString();
+	}
+
 	String toString(int indent)
 	{
+		if ( _objManager == null )
+			return "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n";
+
 		_toString.setLength(0);
 		Utilities.addIndent(_toString, indent)
 				.append("FilterList");
@@ -215,7 +240,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 		{
 			load = (DataImpl) filterEntry.load();
 			if ( load == null )
-				return "\nDecoding of just encoded object in the same application is not supported\n";
+				return "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n";
 			
 			Utilities.addIndent(_toString.append("\n"), indent).append("FilterEntry action=\"")
 																  .append(filterEntry.filterActionAsString())
@@ -246,8 +271,8 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	}
 	
 	@Override
-	void decode(Buffer rsslBuffer, int majVer, int minVer,
-			DataDictionary rsslDictionary, Object obj)
+	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, int majVer, int minVer,
+				com.refinitiv.eta.codec.DataDictionary rsslDictionary, Object obj)
 	{
 		_fillCollection = true;
 

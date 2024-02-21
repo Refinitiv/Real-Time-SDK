@@ -706,6 +706,12 @@ Series100Provider161-ProvFunc-001
     This altered code works in conjunction with Series300Consumer341-ConsFunc-001 to test off-stream posting timeout 
     functionality. 
 
+Module:	 Series200IProvider260
+---------------------------
+Series200Provider260-toStringTest-001
+	Alters Interactive Provider to encode all Container Types and Msg Types and call function .toString() and .toString(dictionary).
+
+
 Module:  Series300Provider320
 ---------------------------
 

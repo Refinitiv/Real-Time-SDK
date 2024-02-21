@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -29,12 +29,55 @@ public class ReqMsgTests extends TestCase
 	{
 		TestUtilities.printTestHead("testRequestMsg_EncodeDecode", "ema encoding ema decoding");
 
+		String reqMsgString = "ReqMsg\n" +
+				"    streamId=\"15\"\n" +
+				"    domain=\"MarketPrice Domain\"\n" +
+				"    name=\"ABCDEF\"\n" +
+				"    nameType=\"1\"\n" +
+				"    serviceId=\"5\"\n" +
+				"    filter=\"12\"\n" +
+				"    id=\"21\"\n" +
+				"    Attrib dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    AttribEnd\n" +
+				"    Payload dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"\n" +
+				"    PayloadEnd\n" +
+				"ReqMsgEnd\n";
+
+		String reqMsgEmptyString = "ReqMsg\n" +
+				"    streamId=\"0\"\n" +
+				"    domain=\"MarketPrice Domain\"\n" +
+				"ReqMsgEnd\n";
+
 	    com.refinitiv.ema.access.FieldList fl = EmaFactory.createFieldList();
 	    
 	    TestUtilities.EmaEncodeFieldListAll(fl);
 	    
 	    com.refinitiv.ema.access.ReqMsg reqMsg = EmaFactory.createReqMsg();
-	    
+	    com.refinitiv.ema.access.ReqMsg reqMsgEmpty = EmaFactory.createReqMsg();
+
 		System.out.println("Begin EMA ReqMsg test after constructor");
 
 		TestUtilities.checkResult(reqMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE, "ReqMsg.domainType()");
@@ -71,61 +114,76 @@ public class ReqMsgTests extends TestCase
 	    System.out.println("Begin EMA ReqMsg Set");
 	    
 	    reqMsg.domainType( com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE );
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 	    
 	    reqMsg.initialImage(true);
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 	    
 	    reqMsg.interestAfterRefresh(true);
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 	    reqMsg.streamId( 15 );
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 	    reqMsg.qos(OmmQos.Timeliness.REALTIME, OmmQos.Rate.TICK_BY_TICK);
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 	    reqMsg.name("ABCDEF");
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 	    reqMsg.nameType( com.refinitiv.eta.rdm.InstrumentNameTypes.RIC );
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 	    reqMsg.serviceId(5);
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 	    reqMsg.filter( 12 );
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 	
 	    reqMsg.id(21);
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 	    
 	    reqMsg.priority(5, 7);
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 	    
 	    reqMsg.qos(com.refinitiv.ema.access.ReqMsg.Timeliness.REALTIME, com.refinitiv.ema.access.ReqMsg.Rate.TICK_BY_TICK);
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 	    
 	    reqMsg.conflatedInUpdates(true);
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 	    reqMsg.attrib(fl);
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 	    reqMsg.payload(fl);
-		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("ReqMsg.toString() == toString()", reqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		System.out.println("End EMA ReqMsg Set");
 		System.out.println();
 
 		System.out.println("Begin EMA ReqMsg Decoding");
 
+		com.refinitiv.ema.rdm.DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+
+		TestUtilities.checkResult("ReqMsg.toString(dictionary) == toString(dictionary)", reqMsg.toString(emaDataDictionary).equals("\nDictionary is not loaded.\n"));
+
+		emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+		emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+
+		TestUtilities.checkResult("ReqMsg.toString(dictionary) == toString(dictionary)", reqMsgEmpty.toString(emaDataDictionary).equals(reqMsgEmptyString));
+
+		TestUtilities.checkResult("ReqMsg.toString(dictionary) == toString(dictionary)", reqMsg.toString(emaDataDictionary).equals(reqMsgString));
+
 		com.refinitiv.ema.access.ReqMsg emaReqMsg = JUnitTestConnect.createReqMsg();
 
 		JUnitTestConnect.setRsslData(emaReqMsg, reqMsg, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 
+		com.refinitiv.ema.access.ReqMsg reqMsgClone = EmaFactory.createReqMsg(reqMsg);
+		reqMsgClone.clear();
+		TestUtilities.checkResult("ReqMsg.toString(dictionary) == toString(dictionary)", reqMsgClone.toString(emaDataDictionary).equals(reqMsgEmptyString));
+
 		// check that we can still get the toString on encoded/decoded msg.
-		TestUtilities.checkResult("ReqMsg.toString() != toString() not supported", !(emaReqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
+		TestUtilities.checkResult("ReqMsg.toString() != toString()", !(emaReqMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 	
 		TestUtilities.checkResult(emaReqMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE, "ReqMsg.domainType()");
 		

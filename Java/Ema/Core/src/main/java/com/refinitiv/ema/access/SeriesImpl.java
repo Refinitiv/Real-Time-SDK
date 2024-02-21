@@ -2,17 +2,18 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.access.OmmError.ErrorCode;
+import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.eta.codec.DataDictionary;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -215,10 +216,34 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	{
 		throw new UnsupportedOperationException("Series collection doesn't support this operation.");
 	}
-	
+
+	@Override
+	public String toString(DataDictionary dictionary)
+	{
+		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
+			return "\nDictionary is not loaded.\n";
+
+		if (_objManager == null) {
+			_objManager = new EmaObjectManager();
+			_objManager.initialize(((DataImpl)this).dataType());
+		}
+
+		Series series = new SeriesImpl(_objManager);
+
+		((CollectionDataImpl) series).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
+		if (_errorCode != ErrorCode.NO_ERROR)
+		{
+			return "\nFailed to decode Series with error: " + ((CollectionDataImpl) series).errorString() + "\n";
+		}
+
+		return series.toString();
+	}
 
 	String toString(int indent)
 	{
+		if ( _objManager == null )
+			return "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n";
+
 		_toString.setLength(0);
 		Utilities.addIndent(_toString, indent).append("Series");
 				
@@ -255,7 +280,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 		{
 			load = (DataImpl) seriesEntry.load();
 			if ( load == null )
-				return "\nDecoding of just encoded object in the same application is not supported\n";
+				return "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n";
 			
 			Utilities.addIndent(_toString.append("\n"), indent)
 					 .append("SeriesEntry dataType=\"").append(DataType.asString(load.dataType())).append("\"\n");
@@ -275,8 +300,8 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	}
 	
 	@Override
-	void decode(Buffer rsslBuffer, int majVer, int minVer,
-			DataDictionary rsslDictionary, Object obj)
+	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, int majVer, int minVer,
+				com.refinitiv.eta.codec.DataDictionary rsslDictionary, Object obj)
 	{
 		_fillCollection = true;
 

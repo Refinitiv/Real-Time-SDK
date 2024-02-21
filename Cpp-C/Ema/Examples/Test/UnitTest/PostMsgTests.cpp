@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|        Copyright (C) 2019 Refinitiv. All rights reserved.          --
+ *|        Copyright (C) 2019, 2024 Refinitiv. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -165,9 +165,70 @@ TEST(PostMsgTests, testPostMsgFieldListEncodeDecode)
 
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
+	DataDictionary emaDataDictionary, emaDataDictionaryEmpty;
+
+	try {
+		emaDataDictionary.loadFieldDictionary( "RDMFieldDictionaryTest" );
+		emaDataDictionary.loadEnumTypeDictionary( "enumtypeTest.def" );
+	}
+	catch ( const OmmException& ) {
+		ASSERT_TRUE( false ) << "DataDictionary::loadFieldDictionary() failed to load dictionary information";
+	}
+
 	try
 	{
-		PostMsg post;
+		PostMsg post, postEmpty;
+
+		const EmaString postMsgString =
+			"PostMsg\n"
+			"    streamId=\"1\"\n"
+			"    domain=\"MarketPrice Domain\"\n"
+			"    publisherIdUserId=\"0\"\n"
+			"    publisherIdUserAddress=\"0\"\n"
+			"    name=\"TRI.N\"\n"
+			"    nameType=\"1\"\n"
+			"    filter=\"8\"\n"
+			"    id=\"4\"\n"
+			"    Attrib dataType=\"FieldList\"\n"
+			"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+			"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+			"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+			"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+			"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+			"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+			"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+			"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+			"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+			"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+			"        FieldListEnd\n"
+			"\n"
+			"    AttribEnd\n"
+			"    ExtendedHeader\n"
+			"        65 78 74 65 6E 64\n"
+			"    ExtendedHeaderEnd\n"
+			"    Payload dataType=\"FieldList\"\n"
+			"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+			"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+			"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+			"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+			"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+			"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+			"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+			"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+			"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+			"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+			"        FieldListEnd\n"
+			"\n"
+			"    PayloadEnd\n"
+			"PostMsgEnd\n";
+
+		const EmaString postMsgEmptyString =
+			"PostMsg\n"
+			"    streamId=\"0\"\n"
+			"    domain=\"MarketPrice Domain\"\n"
+			"    publisherIdUserId=\"0\"\n"
+			"    publisherIdUserAddress=\"0\"\n"
+			"PostMsgEnd\n";
 
 		FieldList flEnc;
 		EmaEncodeFieldListAll( flEnc );
@@ -188,11 +249,21 @@ TEST(PostMsgTests, testPostMsgFieldListEncodeDecode)
 		post.extendedHeader( extendedHeader );
 		post.attrib( flEnc );
 		post.payload( flEnc );
-		EXPECT_EQ( post.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "PostMsg.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( post.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "PostMsg.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
-		StaticDecoder::setData( &post, &dictionary );
-		EXPECT_NE( post.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "PostMsg.toString() != Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( post.toString( emaDataDictionaryEmpty ), "\nDictionary is not loaded.\n" ) << "PostMsg.toString() == Dictionary is not loaded.";
 
+		EXPECT_EQ( postEmpty.toString(emaDataDictionary), postMsgEmptyString ) << "PostMsg.toString() == postMsgEmptyString";
+
+		EXPECT_EQ( post.toString( emaDataDictionary ), postMsgString ) << "PostMsg.toString() == postMsgString";
+
+		StaticDecoder::setData(&post, &dictionary);
+
+		PostMsg postClone( post );
+		postClone.clear();
+		EXPECT_EQ( postClone.toString( emaDataDictionary ), postMsgEmptyString ) << "PostMsg.toString() == postMsgEmptyString";
+
+		EXPECT_EQ( post.toString(), postMsgString ) << "PostMsg.toString() == postMsgString";
 
 		EXPECT_TRUE( post.hasMsgKey() ) << "PostMsg::hasMsgKey() == true" ;
 

@@ -2,13 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
 #include "TestUtilities.h"
 
 using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
 TEST(FilterListTests, testFilterListContainsFieldListsDecodeAll)
@@ -684,8 +685,40 @@ TEST(FilterListTests, testFilterListEncodeDecodeAll)
 
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
-	FilterList flEnc;
-	EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FilterList.toString() == Decoding of just encoded object in the same application is not supported";
+	DataDictionary dataDictionary, dataDictionaryEmpty;
+
+	const EmaString filterListString =
+		"FilterList\n"
+		"    FilterEntry action=\"Clear\" filterId=\"1\" permissionData=\"50 45 52 4D 49 53 53 49 4F 4E 20 44 41 54 41\" dataType=\"NoData\"\n"
+		"        NoData\n"
+		"        NoDataEnd\n"
+		"    FilterEntryEnd\n"
+		"    FilterEntry action=\"Set\" filterId=\"2\" dataType=\"ElementList\"\n"
+		"        ElementList\n"
+		"            ElementEntry name=\"Element Ascii\" dataType=\"Ascii\" value=\"GHIJKL\"\n"
+		"            ElementEntry name=\"Element Real\" dataType=\"Real\" value=\"0.0000000010\"\n"
+		"            ElementEntry name=\"Element Date Time\" dataType=\"DateTime\" value=\"06 SEP 1985 11:22:33:044:000:000\"\n"
+		"        ElementListEnd\n"
+		"    FilterEntryEnd\n"
+		"    FilterEntry action=\"Update\" filterId=\"3\" permissionData=\"50 45 52 4D 49 53 53 49 4F 4E 20 44 41 54 41\" dataType=\"ElementList\"\n"
+		"        ElementList\n"
+		"            ElementEntry name=\"Element Ascii\" dataType=\"Ascii\" value=\"MNOPQR\"\n"
+		"            ElementEntry name=\"Element Real\" dataType=\"Real\" value=\"0.000000000010\"\n"
+		"            ElementEntry name=\"Element Date Time\" dataType=\"DateTime\" value=\"06 SEP 1995 11:22:33:044:000:000\"\n"
+		"        ElementListEnd\n"
+		"    FilterEntryEnd\n"
+		"FilterListEnd\n";
+
+	try {
+		dataDictionary.loadFieldDictionary("RDMFieldDictionaryTest");
+		dataDictionary.loadEnumTypeDictionary("enumtypeTest.def");
+	}
+	catch (const OmmException&) {
+		ASSERT_TRUE(false) << "DataDictionary::loadFieldDictionary() failed to load dictionary information";
+	}
+
+	FilterList flEnc, flEmpty;
+	EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "FilterList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 	char* s1 = const_cast<char*>("PERMISSION DATA");
 	EmaBuffer permission( s1, 15 );
@@ -718,19 +751,31 @@ TEST(FilterListTests, testFilterListEncodeDecodeAll)
 		//Encoding
 
 
-		flEnc.add( 1, FilterEntry::ClearEnum, ELEnc1, permission )
-		.add( 2, FilterEntry::SetEnum, ELEnc2 )
-		.add( 3, FilterEntry::UpdateEnum, ELEnc3, permission )
-		.complete();
+        flEnc.add(1, FilterEntry::ClearEnum, ELEnc1, permission)
+            .add(2, FilterEntry::SetEnum, ELEnc2)
+            .add(3, FilterEntry::UpdateEnum, ELEnc3, permission);
 
-		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FilterList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( flEnc.toString(dataDictionary), "\nUnable to decode not completed FilterList data.\n" ) << "FieldList.toString() == Unable to decode not completed FilterList data.";
 
+        flEnc.complete();
+
+		EXPECT_EQ( flEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "FilterList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
+
+		EXPECT_EQ( flEnc.toString(dataDictionaryEmpty), "\nDictionary is not loaded.\n") << "FieldList.toString() == Dictionary is not loaded.";
+
+		EXPECT_EQ( flEnc.toString(dataDictionary), filterListString ) << "FieldList.toString() == filterListString";
+
+		flEmpty.add(1, FilterEntry::ClearEnum, ELEnc1, permission);
+		flEmpty.complete();
+		flEmpty.clear();
+		EXPECT_EQ( flEmpty.toString( dataDictionary ), "\nUnable to decode not completed FilterList data.\n" ) << "FieldList.toString() == Unable to decode not completed FilterList data.";
+
+		flEmpty.complete();
+		EXPECT_EQ( flEmpty.toString( dataDictionary ), "FilterList\nFilterListEnd\n" ) << "FieldList.toString() == FilterList\nFilterListEnd\n";
 
 		//Decoding
 		StaticDecoder::setData( &flEnc, &dictionary );
-		EXPECT_NE( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FilterList.toString() != Decoding of just encoded object in the same application is not supported";
-
-
+		EXPECT_EQ( flEnc.toString(), filterListString) << "FilterList.toString() == filterListString";
 
 		try
 		{

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.rdm.EmaRdm;
+import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.ema.unittest.TestUtilities.EncodingTypeFlags;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
@@ -273,7 +274,7 @@ public class AckMsgTests extends TestCase
 
 		System.out.println(emaAckMsg);
 		// check that we can still get the toString on encoded/decoded msg.
-		TestUtilities.checkResult("AckMsg.toString() != toString() not supported", !(ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
+		TestUtilities.checkResult("AckMsg.toString() != toString()", !(emaAckMsg.toString().equals("\nString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 		
 		System.out.println("End EMA AckMsg toString");
 		System.out.println();
@@ -281,6 +282,52 @@ public class AckMsgTests extends TestCase
 	
 	public void testAckMsg_EncodeDecode()
 	{
+		String ackMsgString = "AckMsg\n" +
+				"    streamId=\"15\"\n" +
+				"    domain=\"MarketPrice Domain\"\n" +
+				"    ackId=\"123\"\n" +
+				"    seqNum=\"22\"\n" +
+				"    nackCode=\"DeniedBySource\"\n" +
+				"    text=\"denied by source\"\n" +
+				"    name=\"ABCDEF\"\n" +
+				"    nameType=\"1\"\n" +
+				"    serviceId=\"5\"\n" +
+				"    filter=\"12\"\n" +
+				"    id=\"21\"\n" +
+				"    Attrib dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    AttribEnd\n" +
+				"    Payload dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    PayloadEnd\n" +
+				"AckMsgEnd\n";
+
+		String ackMsgEmptyString = "AckMsg\n" +
+				"    streamId=\"0\"\n" +
+				"    domain=\"MarketPrice Domain\"\n" +
+				"    ackId=\"0\"\n" +
+				"AckMsgEnd\n";
+
 		TestUtilities.printTestHead("testAckMsg_EncodeDecode", "ema encoding ema decoding");
 		
 		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory.createDataDictionary();
@@ -291,6 +338,7 @@ public class AckMsgTests extends TestCase
 	    TestUtilities.EmaEncodeFieldListAll(fl);
 	    
 	    com.refinitiv.ema.access.AckMsg ackMsg = EmaFactory.createAckMsg();
+		com.refinitiv.ema.access.AckMsg ackMsgEmpty = EmaFactory.createAckMsg();
 	    
 		System.out.println("Begin EMA AckMsg test after constructor");
 
@@ -326,51 +374,66 @@ public class AckMsgTests extends TestCase
 		System.out.println();		
 		
 	    System.out.println("Begin EMA AckMsg Set");
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 	    
     	ackMsg.domainType( com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE );
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.streamId( 15 );
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.ackId(123);
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.seqNum( 22 );
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.nackCode(com.refinitiv.ema.access.AckMsg.NackCode.DENIED_BY_SOURCE);
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.text("denied by source");
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.name("ABCDEF");
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.nameType( com.refinitiv.eta.rdm.InstrumentNameTypes.RIC );
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.serviceId(5);
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.filter( 12 );
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.id(21);
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.attrib(fl);
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		ackMsg.payload(fl);
-		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		TestUtilities.checkResult("AckMsg.toString() == toString()", ackMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		System.out.println("End EMA AckMsg Set");
 		System.out.println();
 
 		System.out.println("Begin EMA AckMsg Decoding");
+
+		DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+
+		TestUtilities.checkResult("AckMsg.toString(dictionary) == toString(dictionary)", ackMsg.toString(emaDataDictionary).equals("\nDictionary is not loaded.\n"));
+
+		emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+		emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+
+		TestUtilities.checkResult("AckMsg.toString(dictionary) == toString(dictionary)", ackMsgEmpty.toString(emaDataDictionary).equals(ackMsgEmptyString));
+
+		TestUtilities.checkResult("AckMsg.toString(dictionary) == toString(dictionary)", ackMsg.toString(emaDataDictionary).equals(ackMsgString));
+
+		com.refinitiv.ema.access.AckMsg ackMsgClone = EmaFactory.createAckMsg(ackMsg);
+		ackMsgClone.clear();
+		TestUtilities.checkResult("AckMsg.toString(dictionary) == toString(dictionary)", ackMsgClone.toString(emaDataDictionary).equals(ackMsgEmptyString));
 
 		com.refinitiv.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
 

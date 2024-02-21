@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -10,6 +10,7 @@ package com.refinitiv.ema.unittest;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
+import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
@@ -237,7 +238,115 @@ public class SeriesTests extends TestCase
 	public void testSeriesContainselementLists_EncodeDecodeAll()
 	{
 		TestUtilities.printTestHead("testSeriesContainselementLists_EncodeDecodeAll","Encode Series that contains elementLists with EMA and Decode Series with EMA");
-		
+
+		String seriesString = "Series totalCountHint=\"5\"\n" +
+				"    SummaryData dataType=\"ElementList\"\n" +
+				"        ElementList ElementListNum=\"5\"\n" +
+				"            ElementEntry name=\"Element - UInt\" dataType=\"UInt\" value=\"64\"\n" +
+				"            ElementEntry name=\"Element - Real\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            ElementEntry name=\"Element - Int\" dataType=\"Int\" value=\"32\"\n" +
+				"            ElementEntry name=\"Element - Date\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            ElementEntry name=\"Element - Time\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            ElementEntry name=\"Element - DATETIME\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            ElementEntry name=\"Element - Qos\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            ElementEntry name=\"Element - State\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            ElementEntry name=\"Element - AsciiString\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"            ElementEntry name=\"Element - RmtesString\" dataType=\"Rmtes\" value=\"ABCDEF\"\n" +
+				"            ElementEntry name=\"Element - Enum\" dataType=\"Enum\" value=\"29\"\n" +
+				"            ElementEntry name=\"Element - Float\" dataType=\"Float\" value=\"11.11\"\n" +
+				"            ElementEntry name=\"Element - Double\" dataType=\"Double\" value=\"22.219999313354492\"\n" +
+				"            ElementEntry name=\"Element - RealBlank\" dataType=\"Real\" value=\"(blank data)\"\n" +
+				"            ElementEntry name=\"Element - Buffer\" dataType=\"Buffer\"\n" +
+				"4142 4344 4546 4748                            ABCDEFGH\n" +
+				"            ElementEntry name=\"Element - Utf8String\" dataType=\"Utf8\" value=\"ABCDEFGH\"\n" +
+				"        ElementListEnd\n" +
+				"    SummaryDataEnd\n" +
+				"    SeriesEntry dataType=\"ElementList\"\n" +
+				"        ElementList ElementListNum=\"5\"\n" +
+				"            ElementEntry name=\"Element - UInt\" dataType=\"UInt\" value=\"64\"\n" +
+				"            ElementEntry name=\"Element - Real\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            ElementEntry name=\"Element - Int\" dataType=\"Int\" value=\"32\"\n" +
+				"            ElementEntry name=\"Element - Date\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            ElementEntry name=\"Element - Time\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            ElementEntry name=\"Element - DATETIME\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            ElementEntry name=\"Element - Qos\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            ElementEntry name=\"Element - State\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            ElementEntry name=\"Element - AsciiString\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"            ElementEntry name=\"Element - RmtesString\" dataType=\"Rmtes\" value=\"ABCDEF\"\n" +
+				"            ElementEntry name=\"Element - Enum\" dataType=\"Enum\" value=\"29\"\n" +
+				"            ElementEntry name=\"Element - Float\" dataType=\"Float\" value=\"11.11\"\n" +
+				"            ElementEntry name=\"Element - Double\" dataType=\"Double\" value=\"22.219999313354492\"\n" +
+				"            ElementEntry name=\"Element - RealBlank\" dataType=\"Real\" value=\"(blank data)\"\n" +
+				"            ElementEntry name=\"Element - Buffer\" dataType=\"Buffer\"\n" +
+				"4142 4344 4546 4748                            ABCDEFGH\n" +
+				"            ElementEntry name=\"Element - Utf8String\" dataType=\"Utf8\" value=\"ABCDEFGH\"\n" +
+				"        ElementListEnd\n" +
+				"    SeriesEntryEnd\n" +
+				"    SeriesEntry dataType=\"ElementList\"\n" +
+				"        ElementList ElementListNum=\"5\"\n" +
+				"            ElementEntry name=\"Element - UInt\" dataType=\"UInt\" value=\"64\"\n" +
+				"            ElementEntry name=\"Element - Real\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            ElementEntry name=\"Element - Int\" dataType=\"Int\" value=\"32\"\n" +
+				"            ElementEntry name=\"Element - Date\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            ElementEntry name=\"Element - Time\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            ElementEntry name=\"Element - DATETIME\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            ElementEntry name=\"Element - Qos\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            ElementEntry name=\"Element - State\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            ElementEntry name=\"Element - AsciiString\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"            ElementEntry name=\"Element - RmtesString\" dataType=\"Rmtes\" value=\"ABCDEF\"\n" +
+				"            ElementEntry name=\"Element - Enum\" dataType=\"Enum\" value=\"29\"\n" +
+				"            ElementEntry name=\"Element - Float\" dataType=\"Float\" value=\"11.11\"\n" +
+				"            ElementEntry name=\"Element - Double\" dataType=\"Double\" value=\"22.219999313354492\"\n" +
+				"            ElementEntry name=\"Element - RealBlank\" dataType=\"Real\" value=\"(blank data)\"\n" +
+				"            ElementEntry name=\"Element - Buffer\" dataType=\"Buffer\"\n" +
+				"4142 4344 4546 4748                            ABCDEFGH\n" +
+				"            ElementEntry name=\"Element - Utf8String\" dataType=\"Utf8\" value=\"ABCDEFGH\"\n" +
+				"        ElementListEnd\n" +
+				"    SeriesEntryEnd\n" +
+				"    SeriesEntry dataType=\"ElementList\"\n" +
+				"        ElementList ElementListNum=\"5\"\n" +
+				"            ElementEntry name=\"Element - UInt\" dataType=\"UInt\" value=\"64\"\n" +
+				"            ElementEntry name=\"Element - Real\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            ElementEntry name=\"Element - Int\" dataType=\"Int\" value=\"32\"\n" +
+				"            ElementEntry name=\"Element - Date\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            ElementEntry name=\"Element - Time\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            ElementEntry name=\"Element - DATETIME\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            ElementEntry name=\"Element - Qos\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            ElementEntry name=\"Element - State\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            ElementEntry name=\"Element - AsciiString\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"            ElementEntry name=\"Element - RmtesString\" dataType=\"Rmtes\" value=\"ABCDEF\"\n" +
+				"            ElementEntry name=\"Element - Enum\" dataType=\"Enum\" value=\"29\"\n" +
+				"            ElementEntry name=\"Element - Float\" dataType=\"Float\" value=\"11.11\"\n" +
+				"            ElementEntry name=\"Element - Double\" dataType=\"Double\" value=\"22.219999313354492\"\n" +
+				"            ElementEntry name=\"Element - RealBlank\" dataType=\"Real\" value=\"(blank data)\"\n" +
+				"            ElementEntry name=\"Element - Buffer\" dataType=\"Buffer\"\n" +
+				"4142 4344 4546 4748                            ABCDEFGH\n" +
+				"            ElementEntry name=\"Element - Utf8String\" dataType=\"Utf8\" value=\"ABCDEFGH\"\n" +
+				"        ElementListEnd\n" +
+				"    SeriesEntryEnd\n" +
+				"    SeriesEntry dataType=\"ElementList\"\n" +
+				"        ElementList ElementListNum=\"5\"\n" +
+				"            ElementEntry name=\"Element - UInt\" dataType=\"UInt\" value=\"64\"\n" +
+				"            ElementEntry name=\"Element - Real\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            ElementEntry name=\"Element - Int\" dataType=\"Int\" value=\"32\"\n" +
+				"            ElementEntry name=\"Element - Date\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            ElementEntry name=\"Element - Time\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            ElementEntry name=\"Element - DATETIME\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            ElementEntry name=\"Element - Qos\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            ElementEntry name=\"Element - State\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            ElementEntry name=\"Element - AsciiString\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"            ElementEntry name=\"Element - RmtesString\" dataType=\"Rmtes\" value=\"ABCDEF\"\n" +
+				"            ElementEntry name=\"Element - Enum\" dataType=\"Enum\" value=\"29\"\n" +
+				"            ElementEntry name=\"Element - Float\" dataType=\"Float\" value=\"11.11\"\n" +
+				"            ElementEntry name=\"Element - Double\" dataType=\"Double\" value=\"22.219999313354492\"\n" +
+				"            ElementEntry name=\"Element - RealBlank\" dataType=\"Real\" value=\"(blank data)\"\n" +
+				"            ElementEntry name=\"Element - Buffer\" dataType=\"Buffer\"\n" +
+				"4142 4344 4546 4748                            ABCDEFGH\n" +
+				"            ElementEntry name=\"Element - Utf8String\" dataType=\"Utf8\" value=\"ABCDEFGH\"\n" +
+				"        ElementListEnd\n" +
+				"    SeriesEntryEnd\n" +
+				"SeriesEnd\n";
+
 		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
 				.createDataDictionary();
 		TestUtilities.eta_encodeDictionaryMsg(dictionary);
@@ -246,21 +355,37 @@ public class SeriesTests extends TestCase
 			//EMA Encoding
 			// encoding order:  SummaryData(with elementList), Delete, elementList-Add, elementList-Add, elementList-Update
 			Series seriesEnc = EmaFactory.createSeries();
+			Series seriesEmpty = EmaFactory.createSeries();
 			TestUtilities.EmaEncodeSeriesAllWithElementList( seriesEnc);
-			TestUtilities.checkResult("Series.toString() == toString() not supported", seriesEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("Series.toString() == toString()", seriesEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			ElementList elEnc = EmaFactory.createElementList(); 
 			TestUtilities.EmaEncodeElementListAll(elEnc);			
 			SeriesEntry se = EmaFactory.createSeriesEntry().elementList(elEnc);
-			TestUtilities.checkResult("SeriesEntry.toString() == toString() not supported", se.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("SeriesEntry.toString() == toString()", se.toString().equals("\nEntity is not encoded yet. Complete encoding to use this method.\n"));
 
 			seriesEnc.add(se);
-			
+
+			DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+
+			TestUtilities.checkResult("Series.toString(dictionary) == toString(dictionary)", seriesEnc.toString(emaDataDictionary).equals("\nDictionary is not loaded.\n"));
+
+			emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+			emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+
+			TestUtilities.checkResult("Series.toString(dictionary) == toString(dictionary)", seriesEnc.toString(emaDataDictionary).equals(seriesString));
+
+			TestUtilities.checkResult("Series.toString(dictionary) == toString(dictionary)", seriesEmpty.toString(emaDataDictionary).equals("Series\nSeriesEnd\n"));
+
+			seriesEmpty.add(se);
+			seriesEmpty.clear();
+			TestUtilities.checkResult("Series.toString(dictionary) == toString(dictionary)", seriesEmpty.toString(emaDataDictionary).equals("Series\nSeriesEnd\n"));
+
 			//Now do EMA decoding of Map
 			Series seriesDec = JUnitTestConnect.createSeries();
 			JUnitTestConnect.setRsslData(seriesDec, seriesEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 			// check that we can still get the toString on encoded/decoded container.
-			TestUtilities.checkResult("Series.toString() != toString() not supported", !(seriesDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
+			TestUtilities.checkResult("Series.toString() != toString()", !(seriesDec.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 
 			System.out.println(seriesDec);
 
@@ -308,7 +433,95 @@ public class SeriesTests extends TestCase
 			TestUtilities.EmaDecodeElementListAll(se4.elementList() );
 			
 			// check that we can still get the toString on encoded/decoded entry.
-			TestUtilities.checkResult("SeriesEntry.toString() != toString() not supported", !(se4.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+			TestUtilities.checkResult("SeriesEntry.toString() != toString() not supported", !(se4.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
+			
+			
+			TestUtilities.checkResult( !seriesIter.hasNext(), "Series contains elementList - final maphasNext()" );
+
+			TestUtilities.checkResult( true, "Series contains elementList - exception not expected" );
+			} catch ( OmmException excp  ) {
+				TestUtilities.checkResult( false, "Series contains elementList - exception not expected" );
+				System.out.println(excp.getMessage());
+		}
+	}
+	
+	public void testSeriesContainselementLists_EfficientDecode_EncodeDecodeAll()
+	{
+		TestUtilities.printTestHead("testSeriesContainselementLists_EfficientDecode_EncodeDecodeAll","Encode Series that contains elementLists with EMA and Decode Series with EMA using Efficient methods for iteration");
+		
+		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
+
+		try {
+			//EMA Encoding
+			// encoding order:  SummaryData(with elementList), Delete, elementList-Add, elementList-Add, elementList-Update
+			Series seriesEnc = EmaFactory.createSeries();
+			TestUtilities.EmaEncodeSeriesAllWithElementList( seriesEnc);
+			TestUtilities.checkResult("Series.toString() == toString() not supported", seriesEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
+
+			ElementList elEnc = EmaFactory.createElementList(); 
+			TestUtilities.EmaEncodeElementListAll(elEnc);			
+			SeriesEntry se = EmaFactory.createSeriesEntry().elementList(elEnc);
+			TestUtilities.checkResult("SeriesEntry.toString() == toString() not supported", se.toString().equals("\nEntity is not encoded yet. Complete encoding to use this method.\n"));
+
+			seriesEnc.add(se);
+			
+			//Now do EMA decoding of Map
+			Series seriesDec = JUnitTestConnect.createSeries();
+			JUnitTestConnect.setRsslData(seriesDec, seriesEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			// check that we can still get the toString on encoded/decoded container.
+			TestUtilities.checkResult("Series.toString() != toString() not supported", !(seriesDec.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
+
+			System.out.println(seriesDec);
+
+			Iterator<SeriesEntry> seriesIter = seriesDec.iteratorByRef();
+
+			TestUtilities.checkResult( seriesDec.hasTotalCountHint(), "Series contains elementList - hasTotalCountHint()" );
+			TestUtilities.checkResult( seriesDec.totalCountHint() == 5, "Series contains ElelementList - getTotalCountHint()" );
+
+			switch ( seriesDec.summaryData().dataType() )
+			{
+				case DataType.DataTypes.ELEMENT_LIST :
+				{
+					ElementList el = seriesDec.summaryData().elementList();
+					TestUtilities.EmaDecodeElementListAll( el );
+				}
+				break;
+				default :
+					TestUtilities.checkResult( false, "Series Decode Summary elementList - map.summaryType() not expected" );
+				break;
+			}
+			
+			TestUtilities.checkResult( seriesIter.hasNext(), "Series contains elementList - first Series hasNext()" );
+
+			SeriesEntry se1 = seriesIter.next();
+			TestUtilities.checkResult( se1.load().dataType() == DataType.DataTypes.ELEMENT_LIST, "SeriesEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
+			TestUtilities.EmaDecodeElementListAll( se1.elementList() );
+	
+			TestUtilities.checkResult( seriesIter.hasNext(), "Series contains elementList - third maphasNext()" );
+	
+			SeriesEntry se2 = seriesIter.next();
+	
+			TestUtilities.checkResult( se2.load().dataType() == DataType.DataTypes.ELEMENT_LIST, "SeriesEntry.load().dataType() == DataTypes.NO_DATA" );
+			TestUtilities.EmaDecodeElementListAll( se2.elementList() );
+			
+			TestUtilities.checkResult( seriesIter.hasNext(), "Series contains elementList - fourth maphasNext()" );
+	
+			SeriesEntry se3 = seriesIter.next();
+	
+			TestUtilities.checkResult( se3.load().dataType() == DataType.DataTypes.ELEMENT_LIST, "SeriesEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
+			TestUtilities.EmaDecodeElementListAll(se3.elementList() );
+			
+			TestUtilities.checkResult( seriesIter.hasNext(), "Series contains elementList - fifth maphasNext()" );
+		
+			SeriesEntry se4 = seriesIter.next();
+			
+			TestUtilities.checkResult( se4.load().dataType() == DataType.DataTypes.ELEMENT_LIST, "SeriesEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
+			TestUtilities.EmaDecodeElementListAll(se4.elementList() );
+			
+			// check that we can still get the toString on encoded/decoded entry.
+			TestUtilities.checkResult("SeriesEntry.toString() != toString() not supported", !(se4.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 			
 			
 			TestUtilities.checkResult( !seriesIter.hasNext(), "Series contains elementList - final maphasNext()" );

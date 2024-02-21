@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -10,6 +10,7 @@ package com.refinitiv.ema.unittest;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
+import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
@@ -284,7 +285,79 @@ public class VectorTests extends TestCase
 	public void testVectorContainsFieldLists_EncodeDecodeAll()
 	{
 		TestUtilities.printTestHead("testVectorContainsFieldLists_EncodeDecodeAll","Encode Vector that contains FieldLists with EMA and Decode Vector with EMA");
-		
+
+		String vectorString = "Vector sortable=\"false\" totalCountHint=\"5\"\n" +
+				"    SummaryData dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    SummaryDataEnd\n" +
+				"    VectorEntry action=\"Delete\" index=\"1 permissionData=\"50 45 52 4d 49 53 53 49 4f 4e 20 44 41 54 41\" dataType=\"NoData\"\n" +
+				"        NoData\n" +
+				"        NoDataEnd\n" +
+				"    VectorEntryEnd\n" +
+				"    VectorEntry action=\"Set\" index=\"1 permissionData=\"50 45 52 4d 49 53 53 49 4f 4e 20 44 41 54 41\" dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    VectorEntryEnd\n" +
+				"    VectorEntry action=\"Set\" index=\"2 permissionData=\"50 45 52 4d 49 53 53 49 4f 4e 20 44 41 54 41\" dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    VectorEntryEnd\n" +
+				"    VectorEntry action=\"Update\" index=\"3 permissionData=\"50 45 52 4d 49 53 53 49 4f 4e 20 44 41 54 41\" dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    VectorEntryEnd\n" +
+				"    VectorEntry action=\"Update\" index=\"4 dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    VectorEntryEnd\n" +
+				"VectorEnd\n";
+
 		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
 				.createDataDictionary();
 		TestUtilities.eta_encodeDictionaryMsg(dictionary);
@@ -294,22 +367,37 @@ public class VectorTests extends TestCase
 			// encoding order:  SummaryData(with FieldList), Delete, FieldList-Add, FieldList-Add, FieldList-Update
 
 			Vector vectorEnc = EmaFactory.createVector() ;
+			Vector vectorEmpty = EmaFactory.createVector() ;
 			TestUtilities.EmaEncodeVectorAllWithFieldList( vectorEnc);
-			TestUtilities.checkResult("Vector.toString() == toString() not supported", vectorEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("Vector.toString() == toString()", vectorEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			FieldList flEnc = EmaFactory.createFieldList(); 
 			TestUtilities.EmaEncodeFieldListAll(flEnc);			
 			VectorEntry ve = EmaFactory.createVectorEntry().fieldList(4, VectorEntry.VectorAction.UPDATE, flEnc);
-			TestUtilities.checkResult("VectorEntry.toString() == toString() not supported", ve.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("VectorEntry.toString() == toString()", ve.toString().equals("\nEntity is not encoded yet. Complete encoding to use this method.\n"));
 
 			vectorEnc.add(ve);
-			
-			
+
+			DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+
+			TestUtilities.checkResult("Vector.toString(dictionary) == toString(dictionary)", vectorEnc.toString(emaDataDictionary).equals("\nDictionary is not loaded.\n"));
+
+			emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+			emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+
+			TestUtilities.checkResult("Vector.toString(dictionary) == toString(dictionary)", vectorEnc.toString(emaDataDictionary).equals(vectorString));
+
+			TestUtilities.checkResult("Vector.toString(dictionary) == toString(dictionary)", vectorEmpty.toString(emaDataDictionary).equals("Vector sortable=\"false\"\nVectorEnd\n"));
+
+			vectorEmpty.add(ve);
+			vectorEmpty.clear();
+			TestUtilities.checkResult("Vector.toString(dictionary) == toString(dictionary)", vectorEmpty.toString(emaDataDictionary).equals("Vector sortable=\"false\"\nVectorEnd\n"));
+
 			//Now do EMA decoding of Vector
 			Vector vectorDec = JUnitTestConnect.createVector() ;
 			JUnitTestConnect.setRsslData(vectorDec, vectorEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 			// check that we can still get the toString on encoded/decoded container.
-			TestUtilities.checkResult("Vector.toString() != toString() not supported", !(vectorDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
+			TestUtilities.checkResult("Vector.toString() != toString()", !(vectorDec.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 
 			System.out.println(vectorDec);
 
@@ -385,7 +473,7 @@ public class VectorTests extends TestCase
 			TestUtilities.checkResult( ve5.load().dataType() == DataType.DataTypes.FIELD_LIST, "VectorEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
 
 			// check that we can still get the toString on encoded/decoded entry.
-			TestUtilities.checkResult("VectorEntry.toString() != toString() not supported", !(ve5.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+			TestUtilities.checkResult("VectorEntry.toString() != toString() not supported", !(ve5.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 			
 			
 			TestUtilities.checkResult( !vectorIter.hasNext(), "Vector contains FieldList - final vectorhasNext()" );

@@ -1,7 +1,7 @@
 /*|-----------------------------------------------------------------------------
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
  *|----------------------------------------------------------------------------- 
  */
 
@@ -42,6 +42,20 @@ class FieldListDecoder;
 class DictionaryCallbackClient;
 class OmmConsumerImpl;
 class OmmConsumerConfigImpl;
+class PostMsg;
+class AckMsg;
+class GenericMsg;
+class RefreshMsg;
+class ReqMsg;
+class StatusMsg;
+class UpdateMsg;
+class FilterList;
+class Map;
+class Series;
+class Vector;
+class ElementList;
+class FieldList;
+class OmmArray;
 }
 
 namespace rdm {
@@ -456,6 +470,20 @@ private:
 	friend class refinitiv::ema::access::FieldListDecoder;
 	friend class refinitiv::ema::access::OmmConsumerImpl;
 	friend class refinitiv::ema::access::OmmConsumerConfigImpl;
+	friend class refinitiv::ema::access::PostMsg;
+	friend class refinitiv::ema::access::AckMsg;
+	friend class refinitiv::ema::access::GenericMsg;
+	friend class refinitiv::ema::access::RefreshMsg;
+	friend class refinitiv::ema::access::ReqMsg;
+	friend class refinitiv::ema::access::StatusMsg;
+	friend class refinitiv::ema::access::UpdateMsg;
+	friend class refinitiv::ema::access::FilterList;
+	friend class refinitiv::ema::access::Map;
+	friend class refinitiv::ema::access::Series;
+	friend class refinitiv::ema::access::Vector;
+	friend class refinitiv::ema::access::ElementList;
+	friend class refinitiv::ema::access::FieldList;
+	friend class refinitiv::ema::access::OmmArray;
 
 	DataDictionary(bool);
 

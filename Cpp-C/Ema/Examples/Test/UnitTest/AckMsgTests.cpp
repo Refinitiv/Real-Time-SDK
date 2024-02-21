@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|        Copyright (C) 2019 Refinitiv. All rights reserved.          --
+ *|        Copyright (C) 2019, 2024 Refinitiv. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -16,8 +16,42 @@ TEST(AckMsgTests, testAckMsgwithElementList)
 {
 
 	RsslDataDictionary dictionary;
+	DataDictionary emaDataDictionary, emaDataDictionaryEmpty;
 
-	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
+	const EmaString ackMsgString =
+		"AckMsg\n"
+		"    streamId=\"0\"\n"
+		"    domain=\"MarketPrice Domain\"\n"
+		"    ackId=\"0\"\n"
+		"    Attrib dataType=\"ElementList\"\n"
+		"        ElementList\n"
+		"            ElementEntry name=\"Int\" dataType=\"Int\" value=\"1234\"\n"
+		"            ElementEntry name=\"Ascii\" dataType=\"Ascii\" value=\"Ascii\"\n"
+		"        ElementListEnd\n"
+		"    AttribEnd\n"
+		"    Payload dataType=\"ElementList\"\n"
+		"        ElementList\n"
+		"            ElementEntry name=\"Int\" dataType=\"Int\" value=\"1234\"\n"
+		"            ElementEntry name=\"Ascii\" dataType=\"Ascii\" value=\"Ascii\"\n"
+		"        ElementListEnd\n"
+		"    PayloadEnd\n"
+		"AckMsgEnd\n";
+
+	const EmaString ackMsgEmptyString =
+		"AckMsg\n"
+		"    streamId=\"0\"\n"
+		"    domain=\"MarketPrice Domain\"\n"
+		"    ackId=\"0\"\n"
+		"AckMsgEnd\n";
+
+	ASSERT_TRUE(loadDictionaryFromFile( &dictionary) ) << "Failed to load dictionary";
+	try {
+		emaDataDictionary.loadFieldDictionary( "RDMFieldDictionaryTest" );
+		emaDataDictionary.loadEnumTypeDictionary( "enumtypeTest.def" );
+	}
+	catch ( const OmmException& ) {
+		ASSERT_TRUE( false ) << "DataDictionary::loadFieldDictionary() failed to load dictionary information";
+	}
 
 	try
 	{
@@ -27,22 +61,32 @@ TEST(AckMsgTests, testAckMsgwithElementList)
 		.addAscii( EmaString( "Ascii" ), "Ascii" )
 		.complete();
 
-		AckMsg ackMsg;
+		AckMsg ackMsg, ackMsgEmpty;
 		ackMsg.attrib( eList );
 		ackMsg.payload( eList );
-		EXPECT_EQ( ackMsg.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "AckMsg.toString() == Decoding of just encoded object in the same application is not supported";
 
-		StaticDecoder::setData( &ackMsg, &dictionary );
-		EXPECT_NE( ackMsg.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "AckMsg.toString() != Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( ackMsg.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "AckMsg.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
+		EXPECT_EQ( ackMsg.toString( emaDataDictionaryEmpty ), "\nDictionary is not loaded.\n" ) << "AckMsg.toString() == Dictionary is not loaded.";
 
-		EXPECT_TRUE( true ) << "ElementList as Payload of AckMsg - exception NOT expected" ;
+		EXPECT_EQ( ackMsgEmpty.toString(emaDataDictionary), ackMsgEmptyString ) << "AckMsg.toString() == ackMsgEmptyString";
+
+		EXPECT_EQ( ackMsg.toString( emaDataDictionary ), ackMsgString ) << "AckMsg.toString() == AckMsgString";
+
+		StaticDecoder::setData(&ackMsg, &dictionary);
+
+		AckMsg ackClone( ackMsg );
+		ackClone.clear();
+		EXPECT_EQ( ackClone.toString( emaDataDictionary ), ackMsgEmptyString ) << "AckMsg.toString() == ackMsgEmptyString";
+
+		EXPECT_EQ( ackMsg.toString(), ackMsgString ) << "AckMsg.toString() == AckMsgString";
 	}
 	catch ( const OmmException& )
 	{
-
 		EXPECT_FALSE( true ) << "ElementList as Payload of AckMsg - exception NOT expected" ;
 	}
+
+	rsslDeleteDataDictionary(&dictionary);
 }
 
 TEST(AckMsgTests, testAckMsgwithRefreshMsg)
@@ -81,6 +125,8 @@ TEST(AckMsgTests, testAckMsgwithRefreshMsg)
 
 		EXPECT_FALSE( true ) << "RefreshMsg as Payload of AckMsg - exception NOT expected" ;
 	}
+
+	rsslDeleteDataDictionary(&dictionary);
 }
 
 TEST(AckMsgTests, testAckMsgWithOpaque)
@@ -670,6 +716,8 @@ TEST(AckMsgTests, testAckMsgtoString)
 	{
 		EXPECT_FALSE(true) << "AckMsg toString Decode - exception not expected";
 	}
+
+	rsslDeleteDataDictionary(&dictionary);
 }
 
 TEST(AckMsgTests, testAckMsgClone)

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
@@ -14,6 +14,7 @@
 #include "Utilities.h"
 #include "GlobalPool.h"
 #include "OmmInvalidUsageException.h"
+#include "StaticDecoder.h"
 
 using namespace refinitiv::ema::access;
 
@@ -76,6 +77,29 @@ void OmmArray::reset() const
 	_pDecoder->reset();
 }
 
+const EmaString& OmmArray::toString( const refinitiv::ema::rdm::DataDictionary& dictionary ) const
+{
+	OmmArray array;
+
+	if (!dictionary.isEnumTypeDefLoaded() || !dictionary.isFieldDictionaryLoaded())
+		return _toString.clear().append("\nDictionary is not loaded.\n");
+
+	if (!_pEncoder)
+		_pEncoder = g_pool.getOmmArrayEncoderItem();
+
+	if (_pEncoder->isComplete())
+	{
+		RsslBuffer& rsslBuffer = _pEncoder->getRsslBuffer();
+
+		StaticDecoder::setRsslData(&array, &rsslBuffer, RSSL_DT_ARRAY, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, dictionary._pImpl->rsslDataDictionary());
+		_toString.clear().append(array.toString());
+
+		return _toString;
+	}
+
+	return _toString.clear().append("\nUnable to decode not completed OmmArray data.\n");
+}
+
 const EmaString& OmmArray::toString() const
 {
 	return toString( 0 );
@@ -83,8 +107,8 @@ const EmaString& OmmArray::toString() const
 
 const EmaString& OmmArray::toString( UInt64 indent ) const
 {
-	if ( !_pDecoder )
-		return _toString.clear().append( "\nDecoding of just encoded object in the same application is not supported\n" );
+    if (!_pDecoder)
+        return _toString.clear().append("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n");
 
 	if ( _pDecoder->getCode() == Data::BlankEnum )
 	{

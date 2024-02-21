@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
@@ -144,6 +144,7 @@
 #include "Access/Include/OmmState.h"
 #include "Access/Include/OmmQos.h"
 #include "Access/Include/ElementEntry.h"
+#include "DataDictionary.h"
 
 namespace refinitiv {
 
@@ -212,6 +213,12 @@ public :
 		@return string representation of the class instance
 	*/
 	const EmaString& toString() const;
+
+	/** Returns a string representation of the class instance for just encoded object.
+		@param[in] dictionary use for toString() conversion
+		@return string representation of the class instance
+	*/
+	const EmaString& toString( const refinitiv::ema::rdm::DataDictionary& dictionary ) const;
 
 	/** Indicates presence of Info.
 		@return true if ElementList Info is set; false otherwise
@@ -687,7 +694,7 @@ private :
 
 	mutable EmaString			_toString;
 	ElementEntry				_entry;
-	ElementListDecoder*			_pDecoder;
+	mutable ElementListDecoder*	_pDecoder;
 	mutable ElementListEncoder*	_pEncoder;
 
 	ElementList( const ElementList& );
