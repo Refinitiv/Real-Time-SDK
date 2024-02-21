@@ -420,16 +420,12 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			krb5ConfigFile.data(consumerCmdLineParser.restProxyKrb5ConfigFile());
 			reactorOptions.restProxyOptions().proxyKrb5ConfigFile(krb5ConfigFile);
 		}
-<<<<<<< HEAD
 
 		if (consumerCmdLineParser.serviceDiscoveryURL() != null && !consumerCmdLineParser.serviceDiscoveryURL().equals(""))
 		{
 			reactorOptions.serviceDiscoveryURL().data(consumerCmdLineParser.serviceDiscoveryURL());
 		}
 
-=======
-		
->>>>>>> origin/RTSDK-1643
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
