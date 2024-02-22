@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -945,8 +945,8 @@ class WlItemHandler implements WlHandler
         {
             ret = _watchlist.reactor().populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
-                    "WlItemHandler.handleRequest",
-                    "Reissue not allowed on an unopen stream.");
+                    "WlItemHandler.handleReissue",
+                    "Reissue request not allowed on an unopen stream.");
             return ret;
         }
     	wlRequest._reissue_hasChange = (!requestMsg.checkNoRefresh() && !requestMsg.checkPause());
@@ -982,6 +982,7 @@ class WlItemHandler implements WlHandler
 
             boolean removeOldView = true;
             boolean effectiveViewChange = true;
+            boolean repooled = false;
                       
             WlRequest tempWlRequest = ReactorFactory.createWlRequest();
             
@@ -1054,7 +1055,10 @@ class WlItemHandler implements WlHandler
             }
                         
             if ( tempWlRequest != null) 
+            {
             	repoolWlRequest(tempWlRequest);
+            	repooled = true;
+            }
         
             // User requested no refresh flag, so temporarily for this message, set it and turn it off after send
             if (requestMsg.checkNoRefresh())
@@ -1116,13 +1120,16 @@ class WlItemHandler implements WlHandler
 	            			if(wlRequest._reissue_hasViewChange) wlRequest.stream()._pendingViewChange = true;
 	            			
 	            			ret = wlRequest.stream().sendMsgOutOfLoop(streamRequestMsg, submitOptions, _errorInfo);
-	              			if ( oldView!= null &&  wlRequest._reissue_hasViewChange)
+	              			
+	            			// Check if we repooled already, making the view null and already destroyed
+	            			if (!repooled && oldView!= null &&  wlRequest._reissue_hasViewChange)
 	            			{
 	               				// this stems from when no_refresh is set on request, but later still get refresh callback from Provider,
 	               				// need this flag to send fan out to all
 	              				 if (requestMsg.checkNoRefresh()) wlRequest.stream().refreshState(WlStream.RefreshStates.REFRESH_VIEW_PENDING);
 	            				_wlViewHandler.destroyView(oldView);
 	            			} 
+	            			
 	            		
 	              			// update request state to PENDING_REFRESH if refresh is desired
 	              			if (!requestMsg.checkNoRefresh())
@@ -1151,8 +1158,8 @@ class WlItemHandler implements WlHandler
 	            {
 	                ret = _watchlist.reactor().populateErrorInfo(errorInfo,
 	                                                              ReactorReturnCodes.FAILURE,
-	                                                              "WlItemHandler.handleRequest",
-	                                                              "Request reissue while stream state is known as open.");           	
+	                                                              "WlItemHandler.handleReissue",
+	                                                              "Reissue requests must occur while stream state is known as open.");           	
 	            }
 
         }
@@ -1161,8 +1168,8 @@ class WlItemHandler implements WlHandler
             // streaming flag cannot be changed for a reissue
             ret = _watchlist.reactor().populateErrorInfo(errorInfo,
                                                           ReactorReturnCodes.FAILURE,
-                                                          "WlItemHandler.handleRequest",
-                                                          "Request reissue may not alter streaming flag.");
+                                                          "WlItemHandler.handleReissue",
+                                                          "Reissue requests may not alter streaming flag.");
         }
        
         
@@ -3844,14 +3851,8 @@ class WlItemHandler implements WlHandler
                 default:
                     break;
             }
-
-            if (wlRequest._view._fieldIdList != null)
-            	_wlViewHandler._viewFieldIdListPool.add(wlRequest._view._fieldIdList);
-            if (wlRequest._view._elementNameList != null)
-            	_wlViewHandler._viewElementNameListPool.add(wlRequest._view._elementNameList);
-
-            wlRequest._view.returnToPool();
-            wlRequest._view = null;
+            
+            _wlViewHandler.destroyView(wlRequest._view);
         }
 
         wlRequest.returnToPool();

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -848,9 +848,14 @@ public class WlViewHandler
 		
 	void destroyView(WlView view)
 	{
-		_viewFieldIdListPool.add(view._fieldIdList);
-		_viewElementNameListPool.add(view._elementNameList);
-		view.returnToPool();
+		if (view != null)
+		{
+			if (view._fieldIdList != null)
+				_viewFieldIdListPool.add(view._fieldIdList);
+			if (view._elementNameList != null)
+				_viewElementNameListPool.add(view._elementNameList);
+			view.returnToPool();
+		}
 	}
 	
 	boolean resorted()

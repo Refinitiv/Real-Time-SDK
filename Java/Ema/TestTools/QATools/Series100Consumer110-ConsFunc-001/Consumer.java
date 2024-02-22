@@ -198,13 +198,13 @@ public class Consumer
 
             OmmConsumer consumer = EmaFactory.createOmmConsumer(cc);
 
-            Integer closure1 = new Integer(1);
-            Integer closure2 = new Integer(1);
-            Integer closure3 = new Integer(1);
-            Integer closure4 = new Integer(1);
-            Integer closure5 = new Integer(1);
-            Integer closure6 = new Integer(1);
-            Integer closure7 = new Integer(1);
+            Integer closure1 = Integer.valueOf(1);
+            Integer closure2 = Integer.valueOf(1);
+            Integer closure3 = Integer.valueOf(1);
+            Integer closure4 = Integer.valueOf(1);
+            Integer closure5 = Integer.valueOf(1);
+            Integer closure6 = Integer.valueOf(1);
+            Integer closure7 = Integer.valueOf(1);
             int temp = 0;
 
             if (args[0].equalsIgnoreCase("-m"))
