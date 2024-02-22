@@ -29,6 +29,34 @@ void sleep(int millisecs)
 #endif
 }
 
+class EmaMsgPackingTest : public ::testing::Test {
+public:
+	static DataDictionary dataDictionary;
+	static const char* emaConfigTest;
+
+	void SetUp()
+	{
+		try
+		{
+			dataDictionary.loadFieldDictionary("RDMFieldDictionaryTest");
+			dataDictionary.loadEnumTypeDictionary("enumtypeTest.def");
+		}
+		catch (const OmmException& excp)
+		{
+			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
+			EXPECT_TRUE(false) << "Unexpected exception in EmaMsgPackingTest load dictionary";
+		}
+	}
+
+	void TearDown()
+	{
+		dataDictionary.clear();
+	}
+};
+
+DataDictionary EmaMsgPackingTest::dataDictionary;
+const char* EmaMsgPackingTest::emaConfigTest = "./EmaConfigTest.xml";
+
 class OmmProviderTestClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
@@ -116,7 +144,7 @@ public:
 	Int32 _exponent0Enum[packedMsgNum];
 };
 
-TEST(EmaMsgPackingTest_, EmaMsgPackingTest_Encoding_Decoding)
+TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_Encoding_Decoding)
 {
 	try
 	{
@@ -124,10 +152,10 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_Encoding_Decoding)
 		itemHandle = 0;
 
 		OmmProviderTestClient providerCallback;
-		OmmProvider provider(OmmIProviderConfig().port("14003"), providerCallback);
+		OmmProvider provider(OmmIProviderConfig(emaConfigTest).port("14003"), providerCallback);
 
 		OmmConsumerTestClient consumerCallback;
-		OmmConsumer consumer(OmmConsumerConfig().operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14003").username("user"));
+		OmmConsumer consumer(OmmConsumerConfig().dataDictionary(dataDictionary).operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14003").username("user"));
 		consumer.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), consumerCallback);
 
 		Int32 count = 0;
@@ -188,7 +216,7 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_Encoding_Decoding)
 	}
 }
 
-TEST(EmaMsgPackingTest_, EmaMsgPackingTest_BufferOverflow)
+TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_BufferOverflow)
 {
 	try
 	{
@@ -196,10 +224,10 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_BufferOverflow)
 		itemHandle = 0;
 
 		OmmProviderTestClient providerCallback;
-		OmmProvider provider(OmmIProviderConfig().port("14004"), providerCallback);
+		OmmProvider provider(OmmIProviderConfig(emaConfigTest).port("14004"), providerCallback);
 
 		OmmConsumerTestClient consumerCallback;
-		OmmConsumer consumer(OmmConsumerConfig().operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14004").username("user"));
+		OmmConsumer consumer(OmmConsumerConfig().dataDictionary(dataDictionary).operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14004").username("user"));
 		consumer.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), consumerCallback);
 
 		Int32 count = 0;
@@ -243,7 +271,7 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_BufferOverflow)
 }
 
 
-TEST(EmaMsgPackingTest_, EmaMsgPackingTest_ChannelNotActive)
+TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_ChannelNotActive)
 {
 	try
 	{
@@ -251,10 +279,10 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_ChannelNotActive)
 		itemHandle = 0;
 
 		OmmProviderTestClient providerCallback;
-		OmmProvider provider(OmmIProviderConfig().port("14004"), providerCallback);
+		OmmProvider provider(OmmIProviderConfig(emaConfigTest).port("14004"), providerCallback);
 
 		OmmConsumerTestClient consumerCallback;
-		OmmConsumer consumer(OmmConsumerConfig().operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14004").username("user"));
+		OmmConsumer consumer(OmmConsumerConfig().dataDictionary(dataDictionary).operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14004").username("user"));
 		consumer.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), consumerCallback);
 
 		Int32 count = 0;
@@ -285,7 +313,7 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_ChannelNotActive)
 	}
 }
 
-TEST(EmaMsgPackingTest_, EmaMsgPackingTest_BufferNotSet)
+TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_BufferNotSet)
 {
 	try
 	{
@@ -293,10 +321,10 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_BufferNotSet)
 		itemHandle = 0;
 
 		OmmProviderTestClient providerCallback;
-		OmmProvider provider(OmmIProviderConfig().port("14004"), providerCallback);
+		OmmProvider provider(OmmIProviderConfig(emaConfigTest).port("14004"), providerCallback);
 
 		OmmConsumerTestClient consumerCallback;
-		OmmConsumer consumer(OmmConsumerConfig().operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14004").username("user"));
+		OmmConsumer consumer(OmmConsumerConfig().dataDictionary(dataDictionary).operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14004").username("user"));
 		consumer.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), consumerCallback);
 
 		Int32 count = 0;
@@ -329,7 +357,7 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_BufferNotSet)
 	}
 }
 
-TEST(EmaMsgPackingTest_, EmaMsgPackingTest_WrongClientHandle)
+TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_WrongClientHandle)
 {
 	try
 	{
@@ -337,10 +365,10 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_WrongClientHandle)
 		itemHandle = 0;
 
 		OmmProviderTestClient providerCallback;
-		OmmProvider provider(OmmIProviderConfig().port("14003"), providerCallback);
+		OmmProvider provider(OmmIProviderConfig(emaConfigTest).port("14003"), providerCallback);
 
 		OmmConsumerTestClient consumerCallback;
-		OmmConsumer consumer(OmmConsumerConfig().operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14003").username("user"));
+		OmmConsumer consumer(OmmConsumerConfig().dataDictionary(dataDictionary).operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14003").username("user"));
 		consumer.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), consumerCallback);
 
 		Int32 count = 0;
@@ -368,7 +396,7 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_WrongClientHandle)
 	}
 }
 
-TEST(EmaMsgPackingTest_, EmaMsgPackingTest_WrongItemHandle)
+TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_WrongItemHandle)
 {
 	try
 	{
@@ -376,10 +404,10 @@ TEST(EmaMsgPackingTest_, EmaMsgPackingTest_WrongItemHandle)
 		itemHandle = 0;
 
 		OmmProviderTestClient providerCallback;
-		OmmProvider provider(OmmIProviderConfig().port("14003"), providerCallback);
+		OmmProvider provider(OmmIProviderConfig(emaConfigTest).port("14003"), providerCallback);
 
 		OmmConsumerTestClient consumerCallback;
-		OmmConsumer consumer(OmmConsumerConfig().operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14003").username("user"));
+		OmmConsumer consumer(OmmConsumerConfig().dataDictionary(dataDictionary).operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14003").username("user"));
 		consumer.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), consumerCallback);
 
 		Int32 count = 0;
