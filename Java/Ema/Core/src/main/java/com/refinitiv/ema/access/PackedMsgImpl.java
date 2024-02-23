@@ -215,6 +215,30 @@ class PackedMsgImpl implements PackedMsg {
 				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
 			}
 			msgImpl._rsslMsg.streamId((int)itemInfo.streamId().value());
+			if (msgImpl.hasServiceName())
+			{
+				if ((iProviderImpl.directoryServiceStore().serviceId(msgImpl.serviceName())) != null)
+				{
+					msgImpl.msgServiceId(iProviderImpl.directoryServiceStore().serviceId(msgImpl.serviceName()).value());
+				}
+				else
+				{
+					releaseBuffer();
+					String temp = "Attempt to add " + DataType.asString(Utilities.toEmaMsgClass[msgImpl._rsslMsg.msgClass()]) + " with service name of " + msgImpl.serviceName() +
+							" that was not included in the SourceDirectory. Dropping this " + DataType.asString(Utilities.toEmaMsgClass[msgImpl._rsslMsg.msgClass()]) + ".";
+					throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+				}
+			}
+			else if (msgImpl.hasServiceId())
+			{
+				if ( iProviderImpl.directoryServiceStore().serviceName(msgImpl.serviceId()) == null )
+				{
+					releaseBuffer();
+					String temp = "Attempt to add " + DataType.asString(Utilities.toEmaMsgClass[msgImpl._rsslMsg.msgClass()]) + " with service id of " + msgImpl.serviceId() +
+							" that was not included in the SourceDirectory. Dropping this " + DataType.asString(Utilities.toEmaMsgClass[msgImpl._rsslMsg.msgClass()]) + ".";
+					throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+				}
+			}
 		}
 		else if (niProviderImpl != null)
 		{
@@ -245,6 +269,31 @@ class PackedMsgImpl implements PackedMsg {
 				niProviderStreamAdded = true;
 				niProviderStream = streamInfo;
 			}
+			
+			if (msgImpl.hasServiceName())
+			{
+				if ((niProviderImpl.directoryServiceStore().serviceId(msgImpl.serviceName())) != null)
+				{
+					msgImpl.msgServiceId(niProviderImpl.directoryServiceStore().serviceId(msgImpl.serviceName()).value());
+				}
+				else
+				{
+					releaseBuffer();
+					String temp = "Attempt to add " + DataType.asString(Utilities.toEmaMsgClass[msgImpl._rsslMsg.msgClass()]) + " with service name of " + msgImpl.serviceName() +
+							" that was not included in the SourceDirectory. Dropping this " + DataType.asString(Utilities.toEmaMsgClass[msgImpl._rsslMsg.msgClass()]) + ".";
+					throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+				}
+			}
+			else if (msgImpl.hasServiceId())
+			{		
+				if ( niProviderImpl.directoryServiceStore().serviceName(msgImpl.serviceId()) == null )
+				{
+					releaseBuffer();
+					String temp = "Attempt to add " + DataType.asString(Utilities.toEmaMsgClass[msgImpl._rsslMsg.msgClass()]) + " with service id of " + msgImpl.serviceId() +
+							" that was not included in the SourceDirectory. Dropping this " + DataType.asString(Utilities.toEmaMsgClass[msgImpl._rsslMsg.msgClass()]) + ".";
+					throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+				}
+			}
 		}
 
 		retCode = msgImpl._rsslMsg.encode(encIter);
@@ -260,7 +309,7 @@ class PackedMsgImpl implements PackedMsg {
 			if (retCode == CodecReturnCodes.BUFFER_TOO_SMALL)
 			{
 				String temp = "Not enough space remaining in this PackedMsg buffer." ;
-				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.PACKING_REMAINING_SIZE_TOO_SMALL);
+				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.BUFFER_TOO_SMALL);
 			}
 			else
 			{

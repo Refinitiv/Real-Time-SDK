@@ -258,25 +258,39 @@ public abstract class ProviderThread extends Thread {
             		{
             			provider.submit(packedMsg);
             			this.providerThreadStats.updatePackedMsgCount().increment();
-                		packedMsg.initBuffer(itemInfo.clientHandle(), baseConfig.messagePackingBufferSize);
+            			if (provider.providerRole() == OmmProviderConfig.ProviderRole.NON_INTERACTIVE)
+        				{
+            				packedMsg.initBuffer(baseConfig.messagePackingBufferSize);
+        				}
+            			else if (provider.providerRole() == OmmProviderConfig.ProviderRole.INTERACTIVE)
+            			{
+            				packedMsg.initBuffer(itemInfo.clientHandle(), baseConfig.messagePackingBufferSize);
+            			}
             		}
             	}
             	catch (OmmInvalidUsageException excp)
             	{
-            		if (excp.errorCode() == OmmInvalidUsageException.ErrorCode.PACKING_REMAINING_SIZE_TOO_SMALL)
+            		if (excp.errorCode() == OmmInvalidUsageException.ErrorCode.BUFFER_TOO_SMALL)
             		{
             			if (packedMsg.packedMsgCount() > 0)
                 		{
                 			provider.submit(packedMsg);
                 			this.providerThreadStats.updatePackedMsgCount().increment();
-                			packedMsg.initBuffer(itemInfo.clientHandle(), baseConfig.messagePackingBufferSize);
+                			if (provider.providerRole() == OmmProviderConfig.ProviderRole.NON_INTERACTIVE)
+            				{
+                				packedMsg.initBuffer(baseConfig.messagePackingBufferSize);
+            				}
+                			else if (provider.providerRole() == OmmProviderConfig.ProviderRole.INTERACTIVE)
+                			{
+                				packedMsg.initBuffer(itemInfo.clientHandle(), baseConfig.messagePackingBufferSize);
+                			}
                 		}
                     	try {
                     		packedMsg.addMsg(updateMsg, itemHandle);
                     	}
                     	catch (OmmInvalidUsageException excp2)
                     	{
-                    		if (excp.errorCode() == OmmInvalidUsageException.ErrorCode.PACKING_REMAINING_SIZE_TOO_SMALL)
+                    		if (excp.errorCode() == OmmInvalidUsageException.ErrorCode.BUFFER_TOO_SMALL)
                     		{
                     			// This packet cannot fit into the buffer, even though the buffer is empty
                     			provider.submit(updateMsg, itemHandle);

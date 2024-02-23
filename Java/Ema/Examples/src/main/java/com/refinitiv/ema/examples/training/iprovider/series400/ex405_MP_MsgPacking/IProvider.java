@@ -33,6 +33,7 @@ class AppClient implements OmmProviderClient
 {
 	public long itemHandle = 0;
 	public long clientHandle = 0;
+	OmmProvider provider = null;
 	
 	public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent event)
 	{
@@ -82,10 +83,26 @@ class AppClient implements OmmProviderClient
 		fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
 		fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
 		
-		event.provider().submit( EmaFactory.createRefreshMsg().name(reqMsg.name()).serviceId(reqMsg.serviceId()).solicited(true).
+		// Send a packed message including the first refresh and 10 updates
+		PackedMsg packedMsg = EmaFactory.createPackedMsg(provider);
+		packedMsg.initBuffer(clientHandle);
+		
+		packedMsg.addMsg(EmaFactory.createRefreshMsg().name(reqMsg.name()).serviceId(reqMsg.serviceId()).solicited(true).
 				state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Refresh Completed").
-				payload(fieldList).complete(true),
-				event.handle() );
+				payload(fieldList).complete(true), event.handle());
+		
+		for( int j = 0; j < 10; j++ )
+		{
+			fieldList.clear();
+			fieldList.add(EmaFactory.createFieldEntry().real(22, 3991 + j, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+			fieldList.add(EmaFactory.createFieldEntry().real(30, 10 + j, OmmReal.MagnitudeType.EXPONENT_0));
+			
+			UpdateMsg msg = EmaFactory.createUpdateMsg().payload( fieldList );
+			
+			packedMsg.addMsg(msg, event.handle());
+		}
+		
+		event.provider().submit( packedMsg );
 
 		itemHandle = event.handle();
 	}
@@ -102,31 +119,30 @@ public class IProvider
 {
 	public static void main(String[] args)
 	{
-		OmmProvider provider = null;
 		ArrayList<ChannelInformation> channelInformationList = new ArrayList<>();
+		AppClient appClient = new AppClient();
 		try
 		{
-			AppClient appClient = new AppClient();
 			FieldList fieldList = EmaFactory.createFieldList();
 
 			OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig();
 			
-			provider = EmaFactory.createOmmProvider(config.port("14002"), appClient);
+			appClient.provider = EmaFactory.createOmmProvider(config.port("14002"), appClient);
 			
 			while(appClient.itemHandle == 0)
 			{
-				provider.dispatch(1000);
+				appClient.provider.dispatch(1000);
 				Thread.sleep(1000);
 			}
 			
-			PackedMsg packedMsg = EmaFactory.createPackedMsg(provider);
+			PackedMsg packedMsg = EmaFactory.createPackedMsg(appClient.provider);
 			packedMsg.initBuffer(appClient.clientHandle);
 			
 			// Once connected, run application for 60 seconds, submitting 60 total packed messages.
 			for( int i = 0; i < 60; i++ )
 			{
 				// Check that our connection is still ongoing.
-				provider.connectedClientChannelInfo(channelInformationList);
+				appClient.provider.connectedClientChannelInfo(channelInformationList);
 				if (channelInformationList.size() == 0)
 				{
 					System.out.println("Our ongoing connection has been closed, ending application.");
@@ -146,7 +162,7 @@ public class IProvider
 				}
 				if (packedMsg.packedMsgCount() > 0)
 				{
-					provider.submit(packedMsg);
+					appClient.provider.submit(packedMsg);
 					packedMsg.initBuffer(appClient.clientHandle);	// Re-initialize buffer for next set of packed messages.
 				}
 				Thread.sleep(1000);
@@ -158,7 +174,7 @@ public class IProvider
 		}
 		finally 
 		{
-			if (provider != null) provider.uninitialize();
+			if (appClient.provider != null) appClient.provider.uninitialize();
 		}
 	}
 }

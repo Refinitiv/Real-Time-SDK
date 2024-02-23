@@ -80,7 +80,9 @@ public abstract class OmmInvalidUsageException extends OmmException
 	    public static final int VERSION_NOT_SUPPORTED = -16;
 		
 		/**
-		 * There are no buffers available from the buffer pool.
+		 * 
+		 * The buffer provided (or the remaining buffer space for message packing) 
+		 * does not have sufficient space to perform the operation.
 		 */
 		public final static int BUFFER_TOO_SMALL = -21;
 		
@@ -204,12 +206,7 @@ public abstract class OmmInvalidUsageException extends OmmException
 		 * Dictionary request timeout.
 		 */
 		public final static int DICTIONARY_REQUEST_TIME_OUT = -4055;
-		
-		/**
-		 * Packing failed due to insuffucient buffer size remaining.
-		 */
-		public final static int PACKING_REMAINING_SIZE_TOO_SMALL = -4056;
-		
+
 		/**
 		 * Internal Error in EMA.
 		 */

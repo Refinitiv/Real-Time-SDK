@@ -53,7 +53,9 @@ public class PackedMsgTests extends TestCase
 	{
 		public int updateMsgCount = 0;
 		public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent consumerEvent) {
-			//System.out.println(refreshMsg);
+			TestUtilities.checkResult(refreshMsg.streamId() == 5, "RefreshMsg.streamId()");
+			
+			TestUtilities.checkResult(refreshMsg.serviceId() == 1, "RefreshMsg.serviceId()");
 		}
 
 		public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent consumerEvent) {
@@ -337,6 +339,91 @@ public class PackedMsgTests extends TestCase
 		System.out.println();
 	}
 	
+	public void testPackedMsg_SendRefreshAndUpdates()
+	{
+		TestUtilities.printTestHead("testPackedMsg_Encode_Decode", "ETA handling encoding a PackedMsg using EMA OmmProvider, and decoding using EMA OmmConsumer");	
+		
+		OmmProvider provider = null;
+		OmmProviderTestClient providerClient = new OmmProviderTestClient();
+		ConsumerThread consumerThread = new ConsumerThread();
+
+		try {
+			
+			OmmIProviderConfig providerConfig = EmaFactory.createOmmIProviderConfig();
+			System.out.println("Start EMA OmmProvider");
+			provider = EmaFactory.createOmmProvider(providerConfig.port("14002").
+					adminControlDictionary(OmmIProviderConfig.AdminControl.USER_CONTROL), providerClient);
+
+			consumerThread.start();
+			
+			while(providerClient.itemHandle == 0)
+			{
+				provider.dispatch(1000);
+				Thread.sleep(1000);
+			}
+			
+			PackedMsg packedMsg = EmaFactory.createPackedMsg(provider);
+			packedMsg.initBuffer(providerClient.clientHandle);
+			
+			// Pack Refresh Message first
+			System.out.println("Begin EMA Encoding of RefreshMsg, packed into PackedMsg object");
+			
+			RefreshMsg refreshMsg = EmaFactory.createRefreshMsg();
+			FieldList fieldList = EmaFactory.createFieldList();
+			fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+			fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+			fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
+			fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
+			
+			refreshMsg = EmaFactory.createRefreshMsg().serviceName("DIRECT_FEED").name("IBM.N")
+					.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "UnSolicited Refresh Completed")
+					.payload(fieldList).complete(true);
+			
+			packedMsg.addMsg(refreshMsg, providerClient.itemHandle);
+			
+			System.out.println("Begin EMA Encoding of 10 UpdateMsgs, packed into PackedMsg object");
+			
+			for( int i = 0; i < 10; i++ )
+			{
+				fieldList.clear();
+				fieldList.add(EmaFactory.createFieldEntry().real(22, 3991 + i, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+				fieldList.add(EmaFactory.createFieldEntry().real(30, 10 + i, OmmReal.MagnitudeType.EXPONENT_0));
+				
+				UpdateMsg msg = EmaFactory.createUpdateMsg().payload( fieldList );
+				
+				packedMsg.addMsg(msg, providerClient.itemHandle);
+			}
+
+			TestUtilities.checkResult(packedMsg.remainingSize() < packedMsg.maxSize());
+			TestUtilities.checkResult(packedMsg.packedMsgCount() == 11);
+
+			System.out.println("decode PackedMsg object in EMA Consumer and ensure all messages contained in PackedMsg");
+		
+			provider.submit(packedMsg);
+			packedMsg.clear();
+			provider.dispatch(1000);
+		}
+		catch (InterruptedException | OmmException excp)
+		{
+			System.out.println(excp.getMessage());
+			TestUtilities.checkResult(false);
+		}
+		finally 
+		{
+			try {
+				Thread.sleep(3000);	// Allow time for the consumer to get the messages
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			TestUtilities.checkResult(consumerThread.getUpdateMsgCount() == 10);
+			consumerThread.shutdown();
+			if (provider != null) provider.uninitialize();
+		}
+		
+		System.out.println("End EMA PackedMsg Encoding, EMA Packed Message Decoding");
+		System.out.println();
+	}
+	
 	public void testPackedMsg_AddingMsgToFullPackedMsg()
 	{
 		TestUtilities.printTestHead("testPackedMsg_AddingMsgToFullPackedMsg", "Attempting to add a message to an already full PackedMsg should return error");	
@@ -389,7 +476,7 @@ public class PackedMsgTests extends TestCase
 		catch (InterruptedException | OmmException excp)
 		{
 			System.out.println(excp.getMessage());
-			TestUtilities.checkResult(((OmmInvalidUsageException)excp).errorCode(), OmmInvalidUsageException.ErrorCode.PACKING_REMAINING_SIZE_TOO_SMALL);
+			TestUtilities.checkResult(((OmmInvalidUsageException)excp).errorCode(), OmmInvalidUsageException.ErrorCode.BUFFER_TOO_SMALL);
 		}
 		finally 
 		{

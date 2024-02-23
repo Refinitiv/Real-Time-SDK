@@ -30,28 +30,13 @@ public class NiProvider {
 			
 			long itemHandle = 5;
 			
-			FieldList fieldList = EmaFactory.createFieldList();
-			
-			fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
-			fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
-			fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
-			fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
-
-			provider.submit( EmaFactory.createRefreshMsg().serviceName("NI_PUB").name("IBM.N")
-					.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "UnSolicited Refresh Completed")
-					.payload(fieldList).complete(true), itemHandle);
-
-			Thread.sleep(1000);
-			
-			fieldList.clear();
-			fieldList.add(EmaFactory.createFieldEntry().real(22, 3991, OmmReal.MagnitudeType.EXPONENT_NEG_2));
-			fieldList.add(EmaFactory.createFieldEntry().real(30, 10, OmmReal.MagnitudeType.EXPONENT_0));
-			
-			UpdateMsg msg = EmaFactory.createUpdateMsg().serviceName("NI_PUB").name("IBM.N").payload( fieldList );
-			provider.submit( EmaFactory.createUpdateMsg().serviceName("NI_PUB").name("IBM.N").payload( fieldList ), itemHandle );
-			
 			PackedMsg packedMsg = EmaFactory.createPackedMsg(provider);
 			packedMsg.initBuffer();
+			
+			FieldList fieldList = EmaFactory.createFieldList();
+			UpdateMsg msg;
+			
+			boolean sentRefreshMsg = false;	// Keeps track if we packed and sent our first refresh
 
 			// Once connected, run application for 60 seconds, submitting 60 packed messages total.
 			for( int i = 0; i < 60; i++ )
@@ -59,6 +44,20 @@ public class NiProvider {
 				// Each message packs 10 messages before submitting the full packed message.
 				for( int j = 0; j < 10; j++ )
 				{
+					if (!sentRefreshMsg)
+					{
+						fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+						fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+						fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
+						fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
+
+						packedMsg.addMsg( EmaFactory.createRefreshMsg().serviceName("NI_PUB").name("IBM.N")
+								.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "UnSolicited Refresh Completed")
+								.payload(fieldList).complete(true), itemHandle);
+
+						sentRefreshMsg = true;
+					}
+					
 					fieldList.clear();
 					fieldList.add(EmaFactory.createFieldEntry().real(22, 3991 + j, OmmReal.MagnitudeType.EXPONENT_NEG_2));
 					fieldList.add(EmaFactory.createFieldEntry().real(30, 10 + j, OmmReal.MagnitudeType.EXPONENT_0));
