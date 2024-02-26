@@ -248,7 +248,50 @@ void PackedMsgImpl::addMsg(const Msg& msg, UInt64 itemHandle)
 			}
 
 			rsslMsg = msg._pEncoder->getRsslMsg();
+
 			rsslMsg->msgBase.streamId = itemInfo->getStreamId();
+
+			if (msg._pEncoder->hasServiceId())
+			{
+				if (!_ommIProviderImpl->getDirectoryServiceStore().getServiceNameById(msg._pEncoder->getRsslMsg()->msgBase.msgKey.serviceId))
+				{
+					EmaString temp(0, 512);
+					temp.append("Attempt to add ");
+					temp.append(rsslMsgClassToString(rsslMsg->msgBase.msgClass));
+					temp.append(" with service id of ");
+					temp.append(msg._pEncoder->getRsslMsg()->msgBase.msgKey.serviceId);
+					temp.append(" that was not included in the SourceDirectory. Dropping this ");
+					temp.append("\"");
+					temp.append(rsslMsgClassToString(rsslMsg->msgBase.msgClass));
+					temp.append("\"").append(CR);
+
+					throwIueException(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+				}
+			}
+			else if (msg._pEncoder->hasServiceName())
+			{
+				RsslUInt64* serviceId = _ommIProviderImpl->getDirectoryServiceStore().getServiceIdByName(&msg._pEncoder->getServiceName());
+
+				if (serviceId)
+				{
+					rsslMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+					rsslMsg->msgBase.msgKey.serviceId = static_cast<RsslUInt16>(*serviceId);
+				}
+				else
+				{
+					EmaString temp(0, 512);
+					temp.append("Attempt to add ");
+					temp.append(rsslMsgClassToString(rsslMsg->msgBase.msgClass));
+					temp.append(" with service name of ");
+					temp.append(msg._pEncoder->getServiceName());
+					temp.append(" that was not included in the SourceDirectory. Dropping this ");
+					temp.append("\"");
+					temp.append(rsslMsgClassToString(rsslMsg->msgBase.msgClass));
+					temp.append("\"").append(CR);
+
+					throwIueException(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+				}
+			}
 		}
 		else
 		{
@@ -275,8 +318,50 @@ void PackedMsgImpl::addMsg(const Msg& msg, UInt64 itemHandle)
 					_ommNiProviderImpl->returnProviderStreamId(streamId);
 					reactorReleaseBuffer();
 
-					EmaString temp("Failed to allocate memory in OmmNiProviderImpl::submit( const StatusMsg& )");
+					EmaString temp("Failed to allocate memory in PackedMsgImpl::addMsg() for OmmNiProviderImpl::StreamInfo()");
 					throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
+				}
+			}
+
+			if (msg._pEncoder->hasServiceId())
+			{
+				if (!_ommNiProviderImpl->getDirectoryServiceStore().getServiceNameById(msg._pEncoder->getRsslMsg()->msgBase.msgKey.serviceId))
+				{
+					EmaString temp(0, 512);
+					temp.append("Attempt to add ");
+					temp.append(rsslMsgClassToString(rsslMsg->msgBase.msgClass));
+					temp.append(" with service id of ");
+					temp.append(msg._pEncoder->getRsslMsg()->msgBase.msgKey.serviceId);
+					temp.append(" that was not included in the SourceDirectory. Dropping this ");
+					temp.append("\"");
+					temp.append(rsslMsgClassToString(rsslMsg->msgBase.msgClass));
+					temp.append("\"").append(CR);
+
+					throwIueException(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+				}
+			}
+			else if (msg._pEncoder->hasServiceName())
+			{
+				RsslUInt64* serviceId = _ommNiProviderImpl->getDirectoryServiceStore().getServiceIdByName(&msg._pEncoder->getServiceName());
+
+				if (serviceId)
+				{
+					rsslMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+					rsslMsg->msgBase.msgKey.serviceId = static_cast<RsslUInt16>(*serviceId);
+				}
+				else
+				{
+					EmaString temp(0, 512);
+					temp.append("Attempt to add ");
+					temp.append(rsslMsgClassToString(rsslMsg->msgBase.msgClass));
+					temp.append(" with service name of ");
+					temp.append(msg._pEncoder->getServiceName());
+					temp.append(" that was not included in the SourceDirectory. Dropping this ");
+					temp.append("\"");
+					temp.append(rsslMsgClassToString(rsslMsg->msgBase.msgClass));
+					temp.append("\"").append(CR);
+
+					throwIueException(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 				}
 			}
 		}

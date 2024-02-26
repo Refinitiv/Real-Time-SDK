@@ -58,8 +58,8 @@ void EmaCppNIProvPerf::exitWithUsage()
 	logText += "  -latencyUpdateRate <updates/sec>     Latency update rate(can specify \"all\" to send latency in every update).\n";
 	logText += "  -refreshBurstSize <count>            Number of refreshes to send in a burst(controls granularity of time-checking).\n\n";
 
-	logText += "  -packBufSize <byte>                  Size of buffer for PackedMsg.";
-	logText += "  -maxPackCount  <count>               Amount of packed  Update Messages into PackedMsg";
+	logText += "  -packBufSize <byte>                  Size of buffer for PackedMsg.\n";
+	logText += "  -maxPackCount  <count>               Amount of packed  Update Messages into PackedMsg.\n\n";
 
 	logText += "  -serviceName <name>                  Service Name of the provider\n";
 	logText += "  -serviceId <ID>                      Service ID of the provider\n\n";

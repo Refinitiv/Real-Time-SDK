@@ -14,41 +14,57 @@ int main()
 {
 	try
 	{
-		OmmProvider provider( OmmNiProviderConfig().host( "localhost:14003" ).username( "user" ) );
+		OmmProvider provider( OmmNiProviderConfig().username( "user" ) );
 		UInt64 itemHandle = 5;
+		bool sentRefreshMsg = false; // Keeps track if we packed and sent our first refresh
 
-		provider.submit( RefreshMsg().serviceName( "NI_PUB" ).name( "IBM.N" )
-			.state( OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed" )
-			.payload( FieldList()
-				.addReal( 22, 3990, OmmReal::ExponentNeg2Enum )
-				.addReal( 25, 3994, OmmReal::ExponentNeg2Enum )
-				.addReal( 30, 9, OmmReal::Exponent0Enum )
-				.addReal( 31, 19, OmmReal::Exponent0Enum )
-				.complete() )
-			.complete(), itemHandle );
+		provider.submit(RefreshMsg().serviceName("NI_PUB").name("IBM.N")
+			.state(OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed")
+			.payload(FieldList()
+				.addReal(22, 3990, OmmReal::ExponentNeg2Enum)
+				.addReal(25, 3994, OmmReal::ExponentNeg2Enum)
+				.addReal(30, 9, OmmReal::Exponent0Enum)
+				.addReal(31, 19, OmmReal::Exponent0Enum)
+				.complete())
+			.complete(), itemHandle);
 
-		sleep( 1000 );
 
-		UpdateMsg msg;
+		UpdateMsg updMsg;
 		PackedMsg packedMsg(provider);
-		FieldList fileldList;
+		FieldList fieldList;
 
 		for (Int32 a = 0; a < 60; a++)
 		{
-			sleep(1000);
 			packedMsg.initBuffer();
 
 			for (Int32 i = 0; i < 10; i++)
 			{
-				msg.clear();
-				fileldList.clear();
-				fileldList.addReal(22, 3391 + i, OmmReal::ExponentNeg2Enum);
-				fileldList.addReal(30, 10 + i, OmmReal::Exponent0Enum);
-				fileldList.complete();
+				if (!sentRefreshMsg)
+				{
+					// Add RefreshMsg one time for the first PackedMsg
+					fieldList.addReal(22, 3990, OmmReal::ExponentNeg2Enum);
+					fieldList.addReal(25, 3994, OmmReal::ExponentNeg2Enum);
+					fieldList.addReal(30, 9, OmmReal::Exponent0Enum);
+					fieldList.addReal(31, 19, OmmReal::Exponent0Enum);
+					fieldList.complete();
 
-				msg.serviceName("NI_PUB").name("IBM.N").payload(fileldList);
+					packedMsg.addMsg(RefreshMsg().serviceName("NI_PUB").name("IBM.N")
+						.state(OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed")
+						.payload(fieldList)
+						.complete(), itemHandle);
 
-				packedMsg.addMsg(msg, itemHandle);
+					sentRefreshMsg = true;
+				}
+
+				updMsg.clear();
+				fieldList.clear();
+				fieldList.addReal(22, 3391 + i, OmmReal::ExponentNeg2Enum);
+				fieldList.addReal(30, 10 + i, OmmReal::Exponent0Enum);
+				fieldList.complete();
+
+				updMsg.serviceName("NI_PUB").name("IBM.N").payload(fieldList);
+
+				packedMsg.addMsg(updMsg, itemHandle);
 			}
 
 			if (packedMsg.packedMsgCount() > 0)
@@ -61,6 +77,8 @@ int main()
 				cerr << "No one message was added to the packed buffer" << endl;
 				return -1;
 			}
+
+			sleep(1000);
 		}
 	}
 	catch ( const OmmException& excp )

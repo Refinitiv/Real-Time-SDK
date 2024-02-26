@@ -170,28 +170,40 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_Encoding_Decoding)
 			count++;
 		}
 
-		FieldList flist;
+		FieldList fieldList;
 		UpdateMsg msg;
 		PackedMsg packedMsg(provider);
 		packedMsg.initBuffer(clientHandle);
 		Int32 exponent0Enum[packedMsgNum] = { 0 };
 
+		// Pack Refresh Message first
+		fieldList.addReal(22, 3990, OmmReal::ExponentNeg2Enum);
+		fieldList.addReal(25, 3994, OmmReal::ExponentNeg2Enum);
+		fieldList.addReal(30, 9, OmmReal::Exponent0Enum);
+		fieldList.addReal(31, 19, OmmReal::Exponent0Enum);
+		fieldList.complete();
+
+		packedMsg.addMsg(RefreshMsg().serviceName("DIRECT_FEED").name("IBM.N").solicited(true).
+			state(OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "Refresh Completed").
+			payload(fieldList).
+			complete(), itemHandle);
+
 		for (Int32 i = 0; i < packedMsgNum; i++)
 		{
 			msg.clear();
-			flist.clear();
-			flist.addReal(30, 10 + i, OmmReal::Exponent0Enum);
+			fieldList.clear();
+			fieldList.addReal(30, 10 + i, OmmReal::Exponent0Enum);
 			exponent0Enum[i] = 10 + i;
-			flist.complete();
+			fieldList.complete();
 
 			msg.serviceName("DIRECT_FEED").name("IBM.N");
-			msg.payload(flist);
+			msg.payload(fieldList);
 
 			(void)packedMsg.addMsg(msg, itemHandle);
 		}
 
 		EXPECT_TRUE(packedMsg.maxSize() > packedMsg.remainingSize());
-		EXPECT_TRUE(packedMsg.packedMsgCount() == packedMsgNum);
+		EXPECT_TRUE(packedMsg.packedMsgCount() == packedMsgNum + 1); // 1 RefreshMsg + 10 UpdateMsg
 
 		provider.submit(packedMsg);
 		packedMsg.clear();
@@ -444,5 +456,111 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_WrongItemHandle)
 	{
 		Int32 strPos = excp.getText().find("Incorrect handler incoming message.");
 		EXPECT_TRUE(strPos != EmaString::npos) << "Incorrect handler incoming message. != " << excp.getText();
+	}
+}
+
+TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_WrongServiceName)
+{
+	try
+	{
+		clientHandle = 0;
+		itemHandle = 0;
+
+		OmmProviderTestClient providerCallback;
+		OmmProvider provider(OmmIProviderConfig(emaConfigTest).port("14003"), providerCallback);
+
+		OmmConsumerTestClient consumerCallback;
+		OmmConsumer consumer(OmmConsumerConfig().dataDictionary(dataDictionary).operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14003").username("user"));
+		consumer.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), consumerCallback);
+
+		Int32 count = 0;
+
+
+		while (clientHandle == 0 || itemHandle == 0)
+		{
+			/*Timeout 5 sec*/
+			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLINET";
+			consumer.dispatch(500);
+			sleep(500);
+			count++;
+		}
+
+		FieldList fieldList;
+		UpdateMsg msg;
+		PackedMsg packedMsg(provider);
+		packedMsg.initBuffer(clientHandle);
+		Int32 exponent0Enum[packedMsgNum] = { 0 };
+
+		// Pack Refresh Message first
+		fieldList.addReal(22, 3990, OmmReal::ExponentNeg2Enum);
+		fieldList.addReal(25, 3994, OmmReal::ExponentNeg2Enum);
+		fieldList.addReal(30, 9, OmmReal::Exponent0Enum);
+		fieldList.addReal(31, 19, OmmReal::Exponent0Enum);
+		fieldList.complete();
+
+		packedMsg.addMsg(RefreshMsg().serviceName("DIRECT_FEED_123").name("IBM.N").solicited(true).
+			state(OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "Refresh Completed").
+			payload(fieldList).
+			complete(), itemHandle);
+
+		EXPECT_TRUE(false) << "PackedMsg wrong service name -- exception expected";
+	}
+	catch (const OmmException& excp)
+	{
+		Int32 strPos = excp.getText().find("Attempt to add RSSL_MC_REFRESH with service name of DIRECT_FEED_123 that was not included in the SourceDirectory. Dropping this \"RSSL_MC_REFRESH\"");
+		EXPECT_TRUE(strPos != EmaString::npos) << "Attempt to add RSSL_MC_REFRESH with service name of DIRECT_FEED_123 that was not included in the SourceDirectory. Dropping this \"RSSL_MC_REFRESH\" != " << excp.getText();
+	}
+}
+
+TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_WrongServiceId)
+{
+	try
+	{
+		clientHandle = 0;
+		itemHandle = 0;
+
+		OmmProviderTestClient providerCallback;
+		OmmProvider provider(OmmIProviderConfig(emaConfigTest).port("14003"), providerCallback);
+
+		OmmConsumerTestClient consumerCallback;
+		OmmConsumer consumer(OmmConsumerConfig().dataDictionary(dataDictionary).operationModel(OmmConsumerConfig::UserDispatchEnum).host("localhost:14003").username("user"));
+		consumer.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), consumerCallback);
+
+		Int32 count = 0;
+
+
+		while (clientHandle == 0 || itemHandle == 0)
+		{
+			/*Timeout 5 sec*/
+			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLINET";
+			consumer.dispatch(500);
+			sleep(500);
+			count++;
+		}
+
+		FieldList fieldList;
+		UpdateMsg msg;
+		PackedMsg packedMsg(provider);
+		packedMsg.initBuffer(clientHandle);
+		Int32 exponent0Enum[packedMsgNum] = { 0 };
+
+		// Pack Refresh Message first
+		fieldList.addReal(22, 3990, OmmReal::ExponentNeg2Enum);
+		fieldList.addReal(25, 3994, OmmReal::ExponentNeg2Enum);
+		fieldList.addReal(30, 9, OmmReal::Exponent0Enum);
+		fieldList.addReal(31, 19, OmmReal::Exponent0Enum);
+		fieldList.complete();
+
+		packedMsg.addMsg(RefreshMsg().serviceId(12345).name("IBM.N").solicited(true).
+			state(OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "Refresh Completed").
+			payload(fieldList).
+			complete(), itemHandle);
+
+		EXPECT_TRUE(false) << "PackedMsg wrong service id -- exception expected";
+	}
+	catch (const OmmException& excp)
+	{
+		Int32 strPos = excp.getText().find("Attempt to add RSSL_MC_REFRESH with service id of 12345 that was not included in the SourceDirectory. Dropping this \"RSSL_MC_REFRESH\"");
+		EXPECT_TRUE(strPos != EmaString::npos) << "Attempt to add RSSL_MC_REFRESH with service id of 12345 that was not included in the SourceDirectory. Dropping this \"RSSL_MC_REFRESH\" != " << excp.getText();
 	}
 }

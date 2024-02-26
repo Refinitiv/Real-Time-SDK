@@ -13,6 +13,7 @@ using namespace std;
 
 UInt64 itemHandle = 0;
 UInt64 clientHandle = 0;
+OmmProvider* pProvider = NULL;
 
 void AppClient::processLoginRequest( const ReqMsg& reqMsg, const OmmProviderEvent& event )
 {
@@ -31,15 +32,37 @@ void AppClient::processMarketPriceRequest( const ReqMsg& reqMsg, const OmmProvid
 		return;
 	}
 
-	event.getProvider().submit( RefreshMsg().name( reqMsg.getName() ).serviceName( reqMsg.getServiceName() ).solicited( true ).
+	PackedMsg packedMsg(*pProvider);
+	FieldList fieldList;
+	UpdateMsg updMsg;
+
+	packedMsg.initBuffer(clientHandle);
+
+	fieldList.addReal(22, 3990, OmmReal::ExponentNeg2Enum);
+	fieldList.addReal(25, 3994, OmmReal::ExponentNeg2Enum);
+	fieldList.addReal(30, 9, OmmReal::Exponent0Enum);
+	fieldList.addReal(31, 19, OmmReal::Exponent0Enum);
+	fieldList.complete();
+
+	packedMsg.addMsg( RefreshMsg().name( reqMsg.getName() ).serviceName( reqMsg.getServiceName() ).solicited( true ).
 		state( OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "Refresh Completed" ).
-		payload( FieldList().
-			addReal( 22, 3990, OmmReal::ExponentNeg2Enum ).
-			addReal( 25, 3994, OmmReal::ExponentNeg2Enum ).
-			addReal( 30, 9, OmmReal::Exponent0Enum ).
-			addReal( 31, 19, OmmReal::Exponent0Enum ).
-			complete() ).
+		payload(fieldList).
 		complete(), event.getHandle() );
+
+	for (Int32 i = 0; i < 10; i++)
+	{
+		updMsg.clear();
+		fieldList.clear();
+		fieldList.addReal(22, 3391 + i, OmmReal::ExponentNeg2Enum);
+		fieldList.addReal(30, 10 + i, OmmReal::Exponent0Enum);
+		fieldList.complete();
+
+		updMsg.payload(fieldList);
+
+		packedMsg.addMsg(updMsg, event.getHandle());
+	}
+
+	event.getProvider().submit(packedMsg);
 
 	itemHandle = event.getHandle();
 }
@@ -75,18 +98,18 @@ int main()
 		AppClient appClient;
 		FieldList flist;
 		EmaVector<ChannelInformation> channleInfoList;
-		OmmProvider provider( OmmIProviderConfig().port( "14002" ), appClient );
-		
+		pProvider = new OmmProvider( OmmIProviderConfig().port( "14002" ), appClient );
+
 		while ( itemHandle == 0 ) 
             sleep(1000);
 		
 		UpdateMsg msg;
-		PackedMsg packedMsg(provider);
+		PackedMsg packedMsg(*pProvider);
 
 		unsigned long long startTime = getCurrentTime();
 		while (startTime + 60000 > getCurrentTime())
 		{
-			provider.getConnectedClientChannelInfo(channleInfoList);
+			pProvider->getConnectedClientChannelInfo(channleInfoList);
 
 			if (channleInfoList.empty()) 
 			{
@@ -104,7 +127,6 @@ int main()
 				flist.addReal(30, 10 + i, OmmReal::Exponent0Enum);
 				flist.complete();
 
-				msg.serviceName("DIRECT_FEED").name("IBM.N");
 				msg.payload(flist);
 
 				packedMsg.addMsg(msg, itemHandle);
@@ -112,7 +134,7 @@ int main()
 
 			if (packedMsg.packedMsgCount() > 0) 
 			{
-				provider.submit(packedMsg);
+				pProvider->submit(packedMsg);
 				packedMsg.clear();
 			}
 			else
