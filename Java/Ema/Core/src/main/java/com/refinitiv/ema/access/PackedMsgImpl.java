@@ -170,13 +170,13 @@ class PackedMsgImpl implements PackedMsg {
 		if (handle == 0)
 		{
 			String temp = "Item handle must be set when calling addMsg()." ;
-			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		if (transportBuffer == null)
 		{
 			String temp = "addMsg() failed because initBuffer() was not called." ;
-			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		itemHandle = handle;
@@ -204,7 +204,7 @@ class PackedMsgImpl implements PackedMsg {
 			{
 				releaseBuffer();
 				String temp = "No item info exists for this handle." ;
-				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
+				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			iProviderImpl.userLock().unlock();
 			
@@ -212,7 +212,7 @@ class PackedMsgImpl implements PackedMsg {
 			{
 				releaseBuffer();
 				String temp = "Incoming message to pack was null." ;
-				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
+				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			msgImpl._rsslMsg.streamId((int)itemInfo.streamId().value());
 			if (msgImpl.hasServiceName())
