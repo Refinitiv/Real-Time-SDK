@@ -60,7 +60,7 @@ void EmaCppIProvPerf::exitWithUsage()
 	logText += "  -refreshBurstSize <count>            Number of refreshes to send in a burst(controls granularity of time-checking).\n\n";
 
 	logText += "  -packBufSize <byte>                  Size of buffer for PackedMsg.\n";
-	logText += "  -maxPackCount <count>                Amount of packed  Update Messages into PackedMsg.\n";
+	logText += "  -maxPackCount <count>                Amount of packed  Update Messages into PackedMsg.\n\n";
 
 	logText += "  -msgFile <file name>                 Name of the file that specifies the data content in messages.\n";
 	logText += "  -summaryFile <filename>              Name of file for logging summary info.\n";
