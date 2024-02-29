@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|        Copyright (C) 2019-2020,2024 Refinitiv. All rights reserved.       --
  *|-----------------------------------------------------------------------------
  */
 
@@ -106,6 +106,7 @@ bool jsonToRwfSimple::encodeBatchView(RsslMsg *rsslMsgPtr)
 	RsslElementList el;
 	RsslElementEntry ee = RSSL_INIT_ELEMENT_ENTRY;
 	const RsslDictionaryEntry *def;
+	bool isNotNullStreamId;
 
 
 	rsslClearElementList(&el);
@@ -269,25 +270,36 @@ bool jsonToRwfSimple::encodeBatchView(RsslMsg *rsslMsgPtr)
 		tok = _batchCloseTokPtr;
 		tok++;
 		bufPtr = &buf;
+		isNotNullStreamId = false;
 		for (int i = 0; i < _batchCloseTokPtr->size; i++)
 		{
 			if (processInteger(&tok, &bufPtr, &voidPtr) == false)
 				return false;
-			// Using the first non-zero streamId being closed as the streamId
-			// of the batch close request.
-			if (rsslMsgPtr->msgBase.streamId == 0)
+
+			if (voidPtr)
 			{
-				rsslReplaceStreamId(&_iter, *(RsslInt32*)voidPtr);
-				rsslMsgPtr->msgBase.streamId = *(RsslInt32*)voidPtr;
+				// Using the first non-zero streamId being closed as the streamId
+				// of the batch close request.
+				if (rsslMsgPtr->msgBase.streamId == 0)
+				{
+					rsslReplaceStreamId(&_iter, *(RsslInt32*)voidPtr);
+					rsslMsgPtr->msgBase.streamId = *(RsslInt32*)voidPtr;
+				}
+				isNotNullStreamId = true;
 			}
 			if ((_rsslRet = rsslEncodeArrayEntry(&_iter, bufPtr, voidPtr)) < RSSL_RET_SUCCESS)
 			{
 				error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
 				return false;
 			}
-
-
 		}
+		// when all the streamId are null we report an error
+		if (!isNotNullStreamId)
+		{
+			unexpectedParameter(_batchCloseTokPtr, __LINE__, __FILE__, &JSON_ID);
+			return false;
+		}
+
 		if ((_rsslRet = rsslEncodeArrayComplete(&_iter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
 		{
 			error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
