@@ -430,7 +430,7 @@ TEST_P(FloatTestFixture, FloatTest)
 		ASSERT_TRUE(_jsonDocument["Fields"][FLOAT_FIELD.fieldName.data].IsString());
 		EXPECT_STREQ("-Inf", _jsonDocument["Fields"][FLOAT_FIELD.fieldName.data].GetString());
 	}
-	else if (isnan(rsslFloat))
+	else if (::isnan(rsslFloat))
 	{
 		ASSERT_TRUE(_jsonDocument["Fields"][FLOAT_FIELD.fieldName.data].IsString());
 		EXPECT_STREQ("NaN", _jsonDocument["Fields"][FLOAT_FIELD.fieldName.data].GetString());
@@ -467,8 +467,8 @@ TEST_P(FloatTestFixture, FloatTest)
 	RsslFloat decodeFloat;
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeFloat(&_dIter, &decodeFloat));
 
-	if (isnan(rsslFloat))
-		EXPECT_TRUE(isnan(decodeFloat));
+	if (::isnan(rsslFloat))
+		EXPECT_TRUE(::isnan(decodeFloat));
 	else
 	{
 		/* Use an exact equality match. The test values include the infinity values, and comparing them 
@@ -560,7 +560,7 @@ TEST_P(DoubleTestFixture, DoubleTest)
 		ASSERT_TRUE(_jsonDocument["Fields"][DOUBLE_FIELD.fieldName.data].IsString());
 		EXPECT_STREQ("-Inf", _jsonDocument["Fields"][DOUBLE_FIELD.fieldName.data].GetString());
 	}
-	else if (isnan(rsslDouble))
+	else if (::isnan(rsslDouble))
 	{
 		ASSERT_TRUE(_jsonDocument["Fields"][DOUBLE_FIELD.fieldName.data].IsString());
 		EXPECT_STREQ("NaN", _jsonDocument["Fields"][DOUBLE_FIELD.fieldName.data].GetString());
@@ -597,8 +597,8 @@ TEST_P(DoubleTestFixture, DoubleTest)
 	RsslDouble decodeDouble;
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeDouble(&_dIter, &decodeDouble));
 
-	if (isnan(rsslDouble))
-		EXPECT_TRUE(isnan(decodeDouble));
+	if (::isnan(rsslDouble))
+		EXPECT_TRUE(::isnan(decodeDouble));
 	else
 	{
 		/* Use an exact equality match. The test values include the infinity values, and comparing them 
@@ -1543,8 +1543,8 @@ TEST_P(StreamIdTestFixture, StreamIdTest)
 	RsslFloat decodeFloat;
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeFloat(&_dIter, &decodeFloat));
 
-	if (isnan(rsslFloat))
-		EXPECT_TRUE(isnan(decodeFloat));
+	if (::isnan(rsslFloat))
+		EXPECT_TRUE(::isnan(decodeFloat));
 	else
 	{
 		/* Use an exact equality match. The test values include the infinity values, and comparing them
