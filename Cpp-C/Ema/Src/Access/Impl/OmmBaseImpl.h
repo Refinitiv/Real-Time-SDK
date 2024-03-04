@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+ *|        Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.       --
  *|-----------------------------------------------------------------------------
  */
 
@@ -208,6 +208,8 @@ public :
 
 	void clearSensitiveInfo();
 
+	void saveNegotiatedPingTimeout(UInt32 timeoutMs);
+
 protected:
 
 	friend class OmmBaseImplMap<OmmBaseImpl>;
@@ -332,6 +334,8 @@ protected:
 	RsslReactorLoginRequestMsgCredential** _LoginReactorConfig;
 	
 	EmaString				_cpuApiThreadBind;
+
+	UInt32					_negotiatedPingTimeout;  // This is the value of the negotiated ping timeout (in milliseconds). When processing multiple channels, it keeps the minimum timeout value.
 
 private:
 

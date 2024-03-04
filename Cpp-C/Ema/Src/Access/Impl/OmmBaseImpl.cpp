@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2024 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -93,7 +93,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_adminClosure = 0;
 	_OAuthReactorConfig = NULL;
@@ -140,7 +141,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -187,7 +189,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -234,7 +237,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -281,7 +285,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -329,7 +334,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
@@ -386,7 +392,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -443,7 +450,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -500,7 +508,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -557,7 +566,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_adminClosure = 0;
 	_OAuthReactorConfig = NULL;
@@ -613,7 +623,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
-	_bUninitializeInvoked(false)
+	_bUninitializeInvoked(false),
+	_negotiatedPingTimeout( 0 )
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -2780,13 +2791,15 @@ void OmmBaseImpl::addCommonSocket()
 #endif
 }
 
-Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& bMsgDispRcvd )
+Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOutValue, UInt32 count, bool& bMsgDispRcvd )
 {
 	bMsgDispRcvd = false;
 
 	Int64 startTime = GetTime::getMicros();
 	Int64 endTime = 0;
 	Int64 nextTimer = 0;
+
+	Int64 timeOut = timeOutValue;
 
 	bool userTimeoutExists( TimeOut::getTimeOutInMicroSeconds( *this, nextTimer ) );
 	if ( userTimeoutExists )
@@ -2803,6 +2816,15 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 
 	RsslRet reactorRetCode = RSSL_RET_SUCCESS;
 	UInt64 loopCount = 0;
+
+	Int64 negotiatedTimeOutInMicroSeconds = DEFAULT_CONNECTION_PINGTIMEOUT * 1000 / 2;
+
+	// Get the negotiated ping timeout.
+	if (_negotiatedPingTimeout > 0)
+	{
+		negotiatedTimeOutInMicroSeconds = _negotiatedPingTimeout * 1000;
+		negotiatedTimeOutInMicroSeconds /= 2;
+	}
 
 	endTime = GetTime::getMicros();
 
@@ -2829,6 +2851,11 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 		if ( ( timeOut < 0 ) && getTimeOutList().size() != 0 )
 		{
 			return bMsgDispRcvd ? 0 : -1;
+		}
+
+		if ( timeOut < 0 || negotiatedTimeOutInMicroSeconds < timeOut )
+		{
+			timeOut = negotiatedTimeOutInMicroSeconds;
 		}
 
 #if defined( USING_SELECT )
@@ -2902,6 +2929,8 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 #error "No Implementation for Operating System That Does Not Implement ppoll"
 #endif
 
+		timeOut = timeOutValue;
+
 		if ( selectRetCode > 0 )
 		{
 			loopCount = 0;
@@ -2913,54 +2942,13 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 				++loopCount;
 			}
 			while ( reactorRetCode > RSSL_RET_SUCCESS && !bMsgDispRcvd && loopCount < 10 );
-
-			if ( reactorRetCode < RSSL_RET_SUCCESS )
-			{
-				if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-				{
-					EmaString temp( "Call to rsslReactorDispatch() failed. Internal sysError='" );
-					temp.append( _reactorDispatchErrorInfo.rsslError.sysError )
-						.append( "' Error Id " ).append( _reactorDispatchErrorInfo.rsslError.rsslErrorId ).append( "' " )
-						.append( "' Error Location='" ).append( _reactorDispatchErrorInfo.errorLocation ).append( "' " )
-						.append( "' Error text='" ).append( _reactorDispatchErrorInfo.rsslError.text ).append( "'. " );
-
-					_userLock.lock();
-					if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
-					_userLock.unlock();
-				}
-
-				return -2;
-			}
-
-			if ( bMsgDispRcvd ) return 0;
-
-			TimeOut::execute( *this );
-
-			if ( bMsgDispRcvd ) return 0;
-
-			endTime = GetTime::getMicros();
-
-			if ( timeOut >= 0 )
-			{
-				if ( endTime > startTime + timeOut ) return -1;
-
-				timeOut -= ( endTime - startTime );
-			}
 		}
 		else if ( selectRetCode == 0 )
 		{
-			TimeOut::execute( *this );
-
-			if ( bMsgDispRcvd ) return 0;
-
-			endTime = GetTime::getMicros();
-
-			if ( timeOut >= 0 )
-			{
-				if ( endTime > startTime + timeOut ) return -1;
-
-				timeOut -= ( endTime - startTime );
-			}
+			// When select/ppoll breaks by timeout, it calls rsslReactorDispatch to allow check the channel Ping timeout
+			_userLock.lock();
+			reactorRetCode = _pRsslReactor ? rsslReactorDispatch( _pRsslReactor, &dispatchOpts, &_reactorDispatchErrorInfo ) : RSSL_RET_SUCCESS;
+			_userLock.unlock();
 		}
 		else if ( selectRetCode < 0 )
 		{
@@ -2993,6 +2981,40 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 			}
 #endif
 			return -2;
+		}
+
+		// Check the return code of rsslReactorDispatch()
+		if ( reactorRetCode < RSSL_RET_SUCCESS )
+		{
+			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
+			{
+				EmaString temp( "Call to rsslReactorDispatch() failed. Internal sysError='" );
+				temp.append( _reactorDispatchErrorInfo.rsslError.sysError )
+					.append( "' Error Id " ).append( _reactorDispatchErrorInfo.rsslError.rsslErrorId ).append( "' " )
+					.append( "' Error Location='" ).append( _reactorDispatchErrorInfo.errorLocation ).append( "' " )
+					.append( "' Error text='" ).append( _reactorDispatchErrorInfo.rsslError.text ).append( "'. " );
+
+				_userLock.lock();
+				if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
+				_userLock.unlock();
+			}
+
+			return -2;
+		}
+
+		if ( bMsgDispRcvd ) return 0;
+
+		TimeOut::execute( *this );
+
+		if ( bMsgDispRcvd ) return 0;
+
+		endTime = GetTime::getMicros();
+
+		if ( timeOut >= 0 )
+		{
+			if ( endTime > startTime + timeOut ) return -1;
+
+			timeOut -= ( endTime - startTime );
 		}
 	} while ( true );
 }
@@ -3590,4 +3612,13 @@ void OmmBaseImpl::modifyReactorIOCtl(Int32 code, Int32 value)
 
 	_userLock.unlock();
 	return;
+}
+
+void OmmBaseImpl::saveNegotiatedPingTimeout(UInt32 timeoutMs)
+{
+	if ( timeoutMs > 0 )
+	{
+		if ( _negotiatedPingTimeout == 0 || timeoutMs < _negotiatedPingTimeout )
+			_negotiatedPingTimeout = timeoutMs;
+	}
 }

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+ *|        Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.       --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1159,6 +1159,9 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			if ( i < ( channelInfo.rsslChannelInfo.componentInfoCount - 1 ) )
 				componentInfo.append( ", " );
 		}
+
+		// Save the negotiated ping timeout (in milliseconds).
+		_ommBaseImpl.saveNegotiatedPingTimeout( channelInfo.rsslChannelInfo.pingTimeout * 1000 );
 
 		_pReconnectingReactorChannel = NULL;
 #ifdef WIN32
