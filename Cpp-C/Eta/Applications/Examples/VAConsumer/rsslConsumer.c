@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2023 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2024 Refinitiv. All rights reserved.
 */
 
 /*
@@ -1925,9 +1925,6 @@ int main(int argc, char **argv)
 	if (password.length)
 	{
 		oAuthCredential.password = password;
-
-		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If a client ID was specified */
@@ -1936,24 +1933,21 @@ int main(int argc, char **argv)
 		oAuthCredential.clientId = clientId;
 		/* This is only used with Refinitiv token service V1 */
 		oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
+		
+		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If a client secret was specified */
 	if (clientSecret.length)
 	{
 		oAuthCredential.clientSecret = clientSecret;
-
-		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If a JWK was specified */
 	if (clientJWK.length)
 	{
 		oAuthCredential.clientJWK = clientJWK;
-
-		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If an audience was specified */

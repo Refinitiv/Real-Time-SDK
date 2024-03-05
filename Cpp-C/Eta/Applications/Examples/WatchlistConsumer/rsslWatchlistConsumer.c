@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2021-2023 Refinitiv. All rights reserved.
+ * Copyright (C) 2021-2024 Refinitiv. All rights reserved.
 */
 
 /*
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
 			serviceDiscoveryOpts.password = loginRequest.password;
 	}
 
-	/* Set login password if specified. */
+	/* Set client Id if specified. */
 	if (watchlistConsumerConfig.clientId.length)
 	{
 		if (watchlistConsumerConfig.queryEndpoint)
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 			serviceDiscoveryOpts.clientJWK = watchlistConsumerConfig.clientJWK;
 	}
 
-	/* Set JWK if specified. */
+	/* Set Audience if specified. */
 	if (watchlistConsumerConfig.audience.length)
 	{
 		if (watchlistConsumerConfig.queryEndpoint)
@@ -245,8 +245,10 @@ int main(int argc, char **argv)
 		if (watchlistConsumerConfig.tokenScope.data)
 			oauthCredential.tokenScope = watchlistConsumerConfig.tokenScope;
 		consumerRole.pOAuthCredential = &oauthCredential;
+		
+		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+		consumerRole.pOAuthCredential->pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
-
 
 
 	/* Create Reactor. */
@@ -1304,6 +1306,30 @@ static RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor *pReactor, RsslR
 	}
 
 	printf("\n");
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+/* Callback function for authentication credential events, particularily credential renewal */
+static RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor* pReactor, RsslReactorOAuthCredentialEvent* pOAuthCredentialEvent)
+{
+	RsslReactorOAuthCredentialRenewalOptions renewalOptions;
+	RsslReactorOAuthCredentialRenewal reactorOAuthCredentialRenewal;
+	RsslErrorInfo rsslError;
+
+	rsslClearReactorOAuthCredentialRenewalOptions(&renewalOptions);
+	renewalOptions.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
+
+	rsslClearReactorOAuthCredentialRenewal(&reactorOAuthCredentialRenewal);
+
+	if (watchlistConsumerConfig.password.length != 0)
+		reactorOAuthCredentialRenewal.password = watchlistConsumerConfig.password; /* Specified password as needed */
+	else if (watchlistConsumerConfig.clientSecret.length != 0)
+		reactorOAuthCredentialRenewal.clientSecret = watchlistConsumerConfig.clientSecret;
+	else
+		reactorOAuthCredentialRenewal.clientJWK = watchlistConsumerConfig.clientJWK;
+
+	rsslReactorSubmitOAuthCredentialRenewal(pReactor, &renewalOptions, &reactorOAuthCredentialRenewal, &rsslError);
 
 	return RSSL_RC_CRET_SUCCESS;
 }

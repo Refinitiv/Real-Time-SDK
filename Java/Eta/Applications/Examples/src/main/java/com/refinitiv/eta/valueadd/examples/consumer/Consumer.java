@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -662,11 +662,15 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	{
 		ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
 		ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
-		ReactorOAuthCredential reactorOAuthCredential = (ReactorOAuthCredential)reactorOAuthCredentialEvent.userSpecObj();
 
 		renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
-		oAuthCredentialRenewal.password().data(reactorOAuthCredential.password().toString());
-
+		if (oAuthCredential.password() != null)
+			oAuthCredentialRenewal.password().data(oAuthCredential.password().toString());
+		else if (oAuthCredential.clientSecret() != null)
+			oAuthCredentialRenewal.clientSecret(oAuthCredential.clientSecret());
+		else
+			oAuthCredentialRenewal.clientJWK(oAuthCredential.clientJwk());
+		
 		reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
 
 		return ReactorCallbackReturnCodes.SUCCESS;
@@ -1555,9 +1559,6 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			loginRequest.applyHasPassword();
 
 			oAuthCredential.password().data(consumerCmdLineParser.passwd());
-
-			/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-			oAuthCredential.reactorOAuthCredentialEventCallback(this);
 		}
 		if (consumerCmdLineParser.clientId() != null && !consumerCmdLineParser.clientId().equals(""))
 		{
@@ -1571,6 +1572,9 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			{
 				oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
 			}
+			
+			/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+			oAuthCredential.reactorOAuthCredentialEventCallback(this);
 		}
 		
 		if(consumerCmdLineParser.jwkFile() != null && !consumerCmdLineParser.jwkFile().equals(""))
@@ -1582,7 +1586,6 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 				String jwkText = new String(jwkFile);
 				
 				oAuthCredential.clientJwk().data(jwkText);
-
 			}
 			catch(Exception e)
 			{
