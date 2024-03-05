@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.    --
  *|-----------------------------------------------------------------------------
  */
 
@@ -52,6 +52,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
 import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
+import com.refinitiv.eta.valueadd.reactor.ReactorTokenSession.SessionState;
 
 /**
  * Channel representing a connection handled by a Reactor.
@@ -2042,6 +2043,28 @@ public class ReactorChannel extends VaNode
                 resetCurrentChannelRetryCount();
             }
             ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
+            
+            if(_tokenSession.authTokenInfo().tokenVersion() == TokenVersion.V2)
+            {
+            	_tokenSession.resetSessionMgntState();
+            	
+            	/* This is used to check whether to callback in order to renew user's credential with ReactorOAuthCredentialEventCallback*/
+            	_tokenSession.HandleTokenRenewalCallbackForOAuthV2();
+            }
+            else
+            {
+            	/* Clears the previous access token in order to get a new one via V1 token reissue when this is not initial request. */
+            	if(_tokenSession.sessionMgntState() != SessionState.UNKNOWN && _state == State.DOWN_RECONNECTING)
+            	{
+            		_tokenSession.authTokenInfo().accessToken("");
+            		
+            		String refreshToken = _tokenSession.authTokenInfo().refreshToken();
+            		if(refreshToken != null && !refreshToken.isEmpty()) // Ensure that is a refresh token to perform token reissue.
+            		{
+            			_tokenSession.handleTokenReissue();
+            		}
+            	}
+            }
 
             /* Checks and changes the state of Reactor channel either State.EDP_RT or State.EDP_RT_DONE */
             if (_reactor.sessionManagementStartup(_tokenSession, _currentConnectInfo, _role, this, false, errorInfo) != ReactorReturnCodes.SUCCESS)

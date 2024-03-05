@@ -664,12 +664,12 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
 
 		renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
-		if (oAuthCredential.password() != null)
+		if (oAuthCredential.password() != null && oAuthCredential.password().length() != 0)
 			oAuthCredentialRenewal.password().data(oAuthCredential.password().toString());
-		else if (oAuthCredential.clientSecret() != null)
-			oAuthCredentialRenewal.clientSecret(oAuthCredential.clientSecret());
+		else if (oAuthCredential.clientSecret() != null && oAuthCredential.clientSecret().length() != 0)
+			oAuthCredentialRenewal.clientSecret().data(oAuthCredential.clientSecret().toString());
 		else
-			oAuthCredentialRenewal.clientJWK(oAuthCredential.clientJwk());
+			oAuthCredentialRenewal.clientJWK().data(oAuthCredential.clientJwk().toString());
 		
 		reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.    --
  *|-----------------------------------------------------------------------------
  */
 
@@ -934,12 +934,17 @@ public class Reactor
 				tokenSession.originalExpiresIn(tokenSession.authTokenInfo().expiresIn());
 
 				sendAuthTokenEvent = true;
+				
+				/* Sets the session state of token session */
+				tokenSession.receivedAuthToken();
 
 				/* Clears OAuth sensitive information if the callback is specified */
 				if (tokenSession.oAuthCredential().reactorOAuthCredentialEventCallback() != null)
 				{
 					tokenSession.oAuthCredential().password().clear();
 					tokenSession.oAuthCredential().clientSecret().clear();
+					tokenSession.oAuthCredential().clientJwk().clear();
+					tokenSession.authOptoins().clearSensitiveInfo();
 				}
 			}
 
@@ -1490,7 +1495,8 @@ public class Reactor
 			if (tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE
 					|| tokenSession.sessionMgntState() == SessionState.STOP_TOKEN_REQUEST
 					|| tokenSession.sessionMgntState() == SessionState.REQ_AUTH_TOKEN_USING_PASSWORD
-					|| tokenSession.sessionMgntState() == SessionState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN)
+					|| tokenSession.sessionMgntState() == SessionState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN
+					|| tokenSession.sessionMgntState() == SessionState.REQ_AUTH_TOKEN_USING_V2_CREDENTIAL)
 			{
 				return ReactorReturnCodes.SUCCESS;
 			}
@@ -1808,9 +1814,9 @@ public class Reactor
 
 			if (tokenSession == null)
 			{
-				if (oAuthCredentialRenewal.userName() == null || oAuthCredentialRenewal.userName().isBlank())
+				if (oAuthCredentialRenewal.userName() == null || oAuthCredentialRenewal.userName().length() == 0)
 				{
-					if (oAuthCredentialRenewal.clientId() == null || oAuthCredentialRenewal.clientId().isBlank())
+					if (oAuthCredentialRenewal.clientId() == null || oAuthCredentialRenewal.clientId().length() == 0)
 					{
 						return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID,
 								"Reactor.submitOAuthCredentialRenewal",
@@ -1818,7 +1824,7 @@ public class Reactor
 					}
 				}
 
-				if (oAuthCredentialRenewal.clientId() == null || oAuthCredentialRenewal.clientId().isBlank())
+				if (oAuthCredentialRenewal.clientId() == null || oAuthCredentialRenewal.clientId().length() == 0)
 				{
 					return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID,
 							"Reactor.submitOAuthCredentialRenewal",
@@ -1833,13 +1839,16 @@ public class Reactor
 				}
 			}
 
-			if ((oAuthCredentialRenewal.password() == null || oAuthCredentialRenewal.password().isBlank())
+			if ((oAuthCredentialRenewal.password() == null || oAuthCredentialRenewal.password().length() == 0)
 					&& (oAuthCredentialRenewal.clientSecret() == null
-							|| oAuthCredentialRenewal.clientSecret().isBlank()))
+							|| oAuthCredentialRenewal.clientSecret().length() == 0)
+					&& (oAuthCredentialRenewal.clientJWK() == null
+					|| oAuthCredentialRenewal.clientJWK().length() == 0)
+					)
 			{
 				return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID,
 						"Reactor.submitOAuthCredentialRenewal",
-						"ReactorOAuthCredentialRenewal.password() or clientSecret not provided, aborting.");
+						"ReactorOAuthCredentialRenewal.password(), clientSecret() or clientJWK() not provided, aborting.");
 			}
 
 			try
@@ -5871,6 +5880,8 @@ public class Reactor
 									}
 
 									standbyReactorChannel.applyAccessToken();
+									
+									tokenSession.receivedAuthToken();
 
 									/* Set original expires in when sending request using password grant type */
 									tokenSession.originalExpiresIn(tokenSession.authTokenInfo().expiresIn());
@@ -5905,6 +5916,7 @@ public class Reactor
 									{
 										tokenSession.oAuthCredential().password().clear();
 										tokenSession.oAuthCredential().clientSecret().clear();
+										tokenSession.authOptoins().clearSensitiveInfo();
 									}
 
 								}

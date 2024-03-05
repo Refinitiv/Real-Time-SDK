@@ -1505,12 +1505,12 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 		ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
 
 		renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
-		if (reactorOAuthCredential.password() != null)
+		if (reactorOAuthCredential.password() != null && reactorOAuthCredential.password().length() != 0)
 			oAuthCredentialRenewal.password().data(reactorOAuthCredential.password().toString());
-		else if (reactorOAuthCredential.clientSecret() != null)
-			oAuthCredentialRenewal.clientSecret(reactorOAuthCredential.clientSecret());
+		else if (reactorOAuthCredential.clientSecret() != null && reactorOAuthCredential.clientSecret().length() != 0)
+			oAuthCredentialRenewal.clientSecret().data(reactorOAuthCredential.clientSecret().toString());
 		else
-			oAuthCredentialRenewal.clientJWK(reactorOAuthCredential.clientJwk());
+			oAuthCredentialRenewal.clientJWK().data(reactorOAuthCredential.clientJwk().toString());
 
 		reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
 
@@ -1677,6 +1677,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 			chnlInfo.consumerRole.rdmLoginRequest().password().data(watchlistConsumerConfig.password());
 			chnlInfo.consumerRole.rdmLoginRequest().applyHasPassword();
 			reactorServiceDiscoveryOptions.password().data(watchlistConsumerConfig.password());
+			reactorOAuthCredential.password().data(watchlistConsumerConfig.password());
 		}
 
 		if (watchlistConsumerConfig.clientId() != null && !watchlistConsumerConfig.clientId().isEmpty())
