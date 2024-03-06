@@ -9,6 +9,9 @@
 #include "watchlistTestFramework.h"
 #include "gtest/gtest.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
 
 class WatchlistWarmStandbyTestParameters;
 
@@ -85,7 +88,7 @@ public:
 	}
 };
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	TestingWarmStandbyUnitTests,
 	WatchlistWarmStandbyUnitTest,
 	::testing::Values(

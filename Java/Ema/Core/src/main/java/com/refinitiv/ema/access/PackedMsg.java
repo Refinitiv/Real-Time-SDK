@@ -23,7 +23,7 @@ public interface PackedMsg {
 	 * For Non-Interactive Provider applications, initializes a new write buffer.
 	 * Also sets the maximum size of the new packed message write buffer.
 	 * Note that each packed message has an additional header length of 2.
-	 * @param int maxSize maximum size of the packed message buffer.
+	 * @param maxSize maximum size of the packed message buffer.
 	 * @throws OmmInvalidUsageException 
 	 * 	if used for incorrect client type or buffer cannot be initialized.
 	 * @return this PackedMsg
@@ -37,7 +37,7 @@ public interface PackedMsg {
 	 * Note that each packed message has an additional header length of 2.
 	 * @throws OmmInvalidUsageException 
 	 * 	if used for incorrect client type or buffer cannot be initialized.
-	 * @param long clientHandle
+	 * @param clientHandle the client handle for the PackedMsg
 	 * @return this PackedMsg
 	 */
 	public PackedMsg initBuffer(long clientHandle);
@@ -47,8 +47,8 @@ public interface PackedMsg {
 	 * before adding messages or submitting the packedMsg.
 	 * Also sets the maximum size of the new packed message write buffer.
 	 * Note that each packed message has an additional header length of 2.
-	 * @param long clientHandle
-	 * @param int maxSize maximum size of the packed message buffer.
+	 * @param clientHandle the client handle for the PackedMsg
+	 * @param maxSize maximum size of the packed message buffer.
 	 * @throws OmmInvalidUsageException 
 	 * 	if used for incorrect client type or buffer cannot be initialized.
 	 * @return this PackedMsg
@@ -57,8 +57,8 @@ public interface PackedMsg {
 	/**
 	 * Adds a Msg to the packedMsg buffer if there is enough space in the buffer to add the Msg, including header length (2).
 	 * Sets the item handle associated with the messages being sent.
-	 * @param Msg message to add to this packed Msg
-	 * @param long itemHandle
+	 * @param msg Msg object message to add to this packed Msg
+	 * @param itemHandle the item handle associated with the messages being sent
 	  * @throws OmmInvalidUsageException 
 	 * 	if used incorrectly, connection not established, or a failure occurs when packing.
 	 * @return this PackedMsg

@@ -9,6 +9,10 @@
 #include "watchlistTestFramework.h"
 #include "gtest/gtest.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 void watchlistDirectoryTest_NoRdmCallbacks(WtfCallbackAction action, RsslConnectionTypes connectionType);
 void watchlistDirectoryTest_OneService(RsslConnectionTypes connectionType);
 void watchlistDirectoryTest_ServiceUpdate(RsslConnectionTypes connectionType);
@@ -147,7 +151,7 @@ TEST_P(WatchlistDirectoryUnitTest, DuplicateServiceName)
 	watchlistDirectoryTest_DuplicateServiceName(GetParam());
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	TestingWatchlistDirectoryUnitTests,
 	WatchlistDirectoryUnitTest,
 	::testing::Values(

@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json; 
 
@@ -1146,7 +1150,7 @@ TEST_P(ArrayTypesTestFixture, ArrayTypesTest)
 
 }
 
-INSTANTIATE_TEST_CASE_P(ArrayTests, ArrayTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ArrayTests, ArrayTypesTestFixture, ::testing::Values(
 	/* Test encoding arrays containing entries of the different primitive types, and with different entry counts */
 
 	/* Int */
@@ -1225,7 +1229,7 @@ INSTANTIATE_TEST_CASE_P(ArrayTests, ArrayTypesTestFixture, ::testing::Values(
 	ArrayTypesTestParams(RSSL_JSON_JPT_JSON2, RSSL_DT_RMTES_STRING, 2)
 ));
 
-INSTANTIATE_TEST_CASE_P(ArrayTestsJson1, ArrayTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ArrayTestsJson1, ArrayTypesTestFixture, ::testing::Values(
 	/* Test encoding arrays containing entries of the different primitive types, and with different entry counts */
 
 	/* Int */
@@ -1383,7 +1387,7 @@ TEST_P(ArrayMemberOrderTestFixture, ArrayMemberOrderTest)
  * Array.itemLength in RWF.
  * The strings should all convert to the same array in RWF regardless of order (except that the itemLength
  * will be 0 in the case where it is not specified). */
-INSTANTIATE_TEST_CASE_P(ArrayTests, ArrayMemberOrderTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ArrayTests, ArrayMemberOrderTestFixture, ::testing::Values(
 		/* Data, Type , no itemLength */
 		ArrayMemberOrderTestParams("{\"ID\":4,\"Type\":\"Generic\",\"Domain\":131,\"Elements\":{\"TEST\":{\"Data\":"
 			"{\"Data\":[1],\"Type\":\"UInt\"},\"Type\":\"Array\"}}}", 0),
@@ -1588,7 +1592,7 @@ TEST_P(ArrayMemberOverflowTestFixture, ArrayMemberOverflowTest)
 
 }
 
-INSTANTIATE_TEST_CASE_P(ArrayTests, ArrayMemberOverflowTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ArrayTests, ArrayMemberOverflowTestFixture, ::testing::Values(
 	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON2, "65536", RSSL_DT_ENUM, true, 0),
 	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON, "65536", RSSL_DT_ENUM, true, 0),
 	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON2, "65535", RSSL_DT_ENUM, false, 0),

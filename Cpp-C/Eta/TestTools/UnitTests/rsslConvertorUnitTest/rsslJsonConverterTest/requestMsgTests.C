@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json; 
 
@@ -943,7 +947,7 @@ TEST_P(RequestMsgMembersTestFixture, RequestMsgMembersTest)
 	EXPECT_EQ(params.qualified, rsslRequestMsgCheckQualifiedStream(&rsslMsg.requestMsg));
 }
 
-INSTANTIATE_TEST_CASE_P(RequestMsgTests, RequestMsgMembersTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(RequestMsgTests, RequestMsgMembersTestFixture, ::testing::Values(
 	/* Test with/without ExtendedHeader, Priority, Streaming, KeyInUpdates, ConfInfoInUpdates, NoRefresh, Qos, WorstQos, 
 	 * PrivateStream, Pause, Batch, View, Qualified, KeyIdentifier */
 

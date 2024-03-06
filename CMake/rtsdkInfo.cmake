@@ -11,10 +11,10 @@ unset(rtsdk_DEPENDS_LIST)
 # rtsdk Version information
 #[====================================================================]
 set(rtsdk_INTERNAL_API_VERSION_MAJOR 3)
-set(rtsdk_INTERNAL_API_VERSION_MINOR 7)
-set(rtsdk_INTERNAL_API_VERSION_PATCH 3)
-set(rtsdk_INTERNAL_API_VERSION_TWEAK 2)
-set(rtsdk_INTERNAL_RELEASE_TWEAK E2)
+set(rtsdk_INTERNAL_API_VERSION_MINOR 8)
+set(rtsdk_INTERNAL_API_VERSION_PATCH 0)
+set(rtsdk_INTERNAL_API_VERSION_TWEAK 0)
+set(rtsdk_INTERNAL_RELEASE_TWEAK L1)
 set(rtsdk_RELEASE_TYPE rrg)
 
 set( librssl_SO_VERSION 23 )

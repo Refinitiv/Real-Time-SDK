@@ -9,6 +9,10 @@
 #include "watchlistTestFramework.h"
 #include "gtest/gtest.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 void watchlistSymbolListTest_BigList(RsslConnectionTypes connectionType);
 void watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer(RsslConnectionTypes connectionType);
 void watchlistSymbolListTest_TwoSymbols_NonStreaming(RsslConnectionTypes connectionType);
@@ -58,7 +62,7 @@ TEST_P(WatchlistSymbolListTest, DataStreamMsgKey)
 	watchlistSymbolListTest_DataStreamMsgKey(GetParam());
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	TestingWatchlistSymbolListTests,
 	WatchlistSymbolListTest,
 	::testing::Values(

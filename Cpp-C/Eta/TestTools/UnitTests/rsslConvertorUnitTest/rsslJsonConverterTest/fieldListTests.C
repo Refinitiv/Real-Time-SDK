@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json; 
 
@@ -1472,7 +1476,7 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 	ASSERT_EQ(params.json, foundJsonField);
 }
 
-INSTANTIATE_TEST_CASE_P(FieldListTestsJson2, FieldListTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(FieldListTestsJson2, FieldListTypesTestFixture, ::testing::Values(
 	/* Test encoding any of Int, UInt, Float, Double, Real, Date, Time, DateTime, QoS, State, Enum, Array, Buffer, AsciiString,
 	 * Utf8String, RmtesString, Opaque, Xml, FieldList, ElementList, FilterList, Map, Message, and Json. */
 
@@ -1565,7 +1569,7 @@ INSTANTIATE_TEST_CASE_P(FieldListTestsJson2, FieldListTypesTestFixture, ::testin
 
 ));
 
-INSTANTIATE_TEST_CASE_P(FieldListTestsJson1, FieldListTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(FieldListTestsJson1, FieldListTypesTestFixture, ::testing::Values(
 	/* Test encoding any of Int, UInt, Float, Double, Real, Date, Time, DateTime, QoS, State, Enum, Array, Buffer, AsciiString,
 	 * Utf8String, RmtesString, Opaque, Xml, FieldList, ElementList, FilterList, Map, Message, and Json. */
 
@@ -2358,7 +2362,7 @@ TEST_P(FieldListPrimitiveTypesTestFixture, FieldListBlankTests)
 	ASSERT_EQ(params.rmtesString, foundRmtesStringField);
 }
 
-INSTANTIATE_TEST_CASE_P(FieldListTestsJson2, FieldListPrimitiveTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(FieldListTestsJson2, FieldListPrimitiveTypesTestFixture, ::testing::Values(
 	/* Test encoding any of Int, UInt, Float, Double, Real, Date, Time, DateTime, QoS, State, Enum, Array, Buffer, AsciiString,
 	 * Utf8String, RmtesString, Opaque, Xml, FieldList, ElementList, FilterList, Map, Message, and Json. 
 	 * Used for both FieldListTypesTest and FieldListBlankTests */
@@ -2416,7 +2420,7 @@ INSTANTIATE_TEST_CASE_P(FieldListTestsJson2, FieldListPrimitiveTypesTestFixture,
 
 ));
 
-INSTANTIATE_TEST_CASE_P(FieldListTestsJson1, FieldListPrimitiveTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(FieldListTestsJson1, FieldListPrimitiveTypesTestFixture, ::testing::Values(
 	/* Test encoding any of Int, UInt, Float, Double, Real, Date, Time, DateTime, QoS, State, Enum, Array, Buffer, AsciiString,
 	 * Utf8String, RmtesString, Opaque, Xml, FieldList, ElementList, FilterList, Map, Message, and Json. 
 	 * Used for both FieldListTypesTest and FieldListBlankTests */

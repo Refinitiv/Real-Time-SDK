@@ -44,6 +44,10 @@
 #include <signal.h>
 #endif
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 // Select group of tests
 #define RUN_TEST_ENCRYPTED 1
 
@@ -3577,7 +3581,7 @@ TEST_P(GlobalLockTestsPackedFixture, BlockingTwoWayClientServerPacked)
 	ASSERT_FALSE(failTest) << "Test failed.";
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLength,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3586,7 +3590,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthEncrypted,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3595,7 +3599,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWF,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3605,7 +3609,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSON,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3615,7 +3619,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthEncrWebSockRWF,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3625,7 +3629,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthEncrWebSockJSON,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3636,7 +3640,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 3000
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthMSz3000,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3647,7 +3651,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWFMSz3000,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3657,7 +3661,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSONMSz3000,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3668,7 +3672,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 38750
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthMSz38750,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3678,7 +3682,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWFMSz38750,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3688,7 +3692,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSONMSz38750,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
@@ -3703,7 +3707,7 @@ INSTANTIATE_TEST_CASE_P(
 //	RsslConnectionTypes cnType, RsslUInt32 msgLen, RsslUInt32 maxFragSz, RsslUInt32 msgCount,
 //	RsslConnectionTypes encrProt, RsslUInt8 wsProt)
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLength,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3717,7 +3721,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 3000
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthMSz3000,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3734,7 +3738,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 38750
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthMSz38750,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3747,7 +3751,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthEncrypted,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3760,7 +3764,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWF,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3774,7 +3778,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 3000
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWFMSz3000,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3790,7 +3794,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 38750
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWFMSz38750,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3803,7 +3807,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSON,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3817,7 +3821,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 3000
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSONMSz3000,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3833,7 +3837,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 38750
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSONMSz38750,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3846,7 +3850,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthEncrWebSockRWF,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3859,7 +3863,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthEncrWebSockJSON,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3872,7 +3876,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	Compress,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -3884,7 +3888,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	CompressEncrypted,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
@@ -4433,7 +4437,7 @@ TEST_P(GlobalLockChannelTestsPackedFixture, BlockingTwoWayClientServerPacked)
 //	RsslConnectionTypes cnType, RsslUInt32 msgLen, RsslUInt32 maxFragSz, RsslUInt32 msgCount,
 //	RsslConnectionTypes encrProt, RsslUInt8 wsProt)
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLength,
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
@@ -4447,7 +4451,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 3000
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthMSz3000,
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
@@ -4461,7 +4465,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 38750
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthMSz38750,
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
@@ -4474,7 +4478,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthEncrypted,
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
@@ -4483,7 +4487,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWF,
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
@@ -4492,7 +4496,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSON,
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
@@ -4502,7 +4506,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLength,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
@@ -4511,7 +4515,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthEncrypted,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
@@ -4520,7 +4524,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWF,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
@@ -4529,7 +4533,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSON,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
@@ -4539,7 +4543,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 3000
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthMSz3000,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
@@ -4548,7 +4552,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWFMSz3000,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
@@ -4557,7 +4561,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSONMSz3000,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
@@ -4567,7 +4571,7 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 // maxFragmentSize = 38750
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthMSz38750,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
@@ -4576,7 +4580,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWFMSz38750,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
@@ -4585,7 +4589,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSONMSz38750,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
@@ -4820,7 +4824,7 @@ TEST_P(SystemTestsFixture, NonBlockingClientServer)
 	ASSERT_FALSE(failTest) << "Test failed.";
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSONFile,
 	SystemTestsFixture,
 	::testing::Values(
@@ -4828,7 +4832,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	ReadWriteStepsWebSockJSON,
 	SystemTestsFixture,
 	::testing::Values(
@@ -4841,7 +4845,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	ReadWriteStepsWebSockRWF,
 	SystemTestsFixture,
 	::testing::Values(
@@ -5120,7 +5124,7 @@ TEST_P(SystemTestsSendBuffersFixture, BlockingServerSendsMessagesAndFillFullInte
 	ASSERT_FALSE(failTest) << "Test failed.";
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	WebSockJSONClients,
 	SystemTestsSendBuffersFixture,
 	::testing::Values(
@@ -5129,7 +5133,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	WebSockRWFClients,
 	SystemTestsSendBuffersFixture,
 	::testing::Values(
@@ -5282,7 +5286,7 @@ TEST_P(TestEncrDecrFixture, SendReceiveMessages)
 	ASSERT_FALSE(failTest) << "Test failed.";
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	SocketClient,
 	TestEncrDecrFixture,
 	::testing::Values(
@@ -5292,7 +5296,7 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	WebSockRWFClient,
 	TestEncrDecrFixture,
 	::testing::Values(

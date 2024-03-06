@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json; 
 
@@ -577,7 +581,7 @@ TEST_P(StatusMsgMembersTestFixture, StatusMsgMembersTest)
 }
 
 
-INSTANTIATE_TEST_CASE_P(StatusMsgTests, StatusMsgMembersTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(StatusMsgTests, StatusMsgMembersTestFixture, ::testing::Values(
 	/* Test with/without ExtendedHeader, PermData, MsgKey, GroupId, State, ClearCache, PrivateStream, PostUserInfo, ReqKey, Qualified */
 
 	/* Defaults */
@@ -734,7 +738,7 @@ TEST_P(StatusMsgStateCodeParamFixture, StatusMsgStateCodeParamTest)
 	EXPECT_EQ(params.stateCode, rsslMsg.statusMsg.state.code);
 }
 
-INSTANTIATE_TEST_CASE_P(StatusMsgStateCodeFlagTests, StatusMsgStateCodeParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(StatusMsgStateCodeFlagTests, StatusMsgStateCodeParamFixture, ::testing::Values(
 	StatusMsgStateCodeTestParams(RSSL_SC_NONE, &RSSL_OMMSTR_SC_NONE),
 	StatusMsgStateCodeTestParams(RSSL_SC_NOT_FOUND, &RSSL_OMMSTR_SC_NOT_FOUND),
 	StatusMsgStateCodeTestParams(RSSL_SC_TIMEOUT, &RSSL_OMMSTR_SC_TIMEOUT),

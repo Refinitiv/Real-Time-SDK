@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.60_RealTimeDistributionSystem_23.91		11/06/2023
-!	* Modified 11/06/2023 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.60.
+!   Version	 4.20.61_RealTimeDistributionSystem_24.11		01/23/2024
+!	* Modified 01/23/2024 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.61.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.60_RealTimeDistributionSystem
+!   Version: 4.20.61_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -24,14 +24,14 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright Refinitiv 2023
+! Copyright Refinitiv 2024
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.60
+!tag Version   4.20.61
 !tag Build     1
-!tag Date      16-Oct-2023
+!tag Date      13-Dec-2023
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -8302,7 +8302,7 @@ STAND_PRC  "STANDARD PRICE"      3394  NULL        PRICE              17  REAL64
 !
 TERM       "TERM"                3395  NULL        INTEGER            15  REAL64           7
 !
-! Term to maturity of a quoted CDS (Credit Default Swaps)
+! Term to Maturity.
 !
 THEO_PRC   "THEORETICAL PRICE"   3396  NULL        PRICE              17  REAL64           7
 !
@@ -19963,8 +19963,14 @@ OB_NUMMOV  "ORD BOOK NUM MOV"    7172  NULL        INTEGER            15  INT64 
 !
 ! Number of orderbook trades.
 !
-PRE_INT294 "PRED INTEGER 294"    7173  NULL        INTEGER            15  INT64            6
-PRE_INT295 "PRED INTEGER 295"    7174  NULL        INTEGER            15  INT64            6
+TAC_NBRD   "TRD AT CLS NUM BID"  7173  NULL        INTEGER            15  INT64            6
+!
+! The number of Trade-at-Close bid orders.
+!
+TAC_NARD   "TRD AT CLS NUM ASK"  7174  NULL        INTEGER            15  INT64            6
+!
+! The number of Trade-at-Close ask orders.
+!
 PRE_INT296 "PRED INTEGER 296"    7175  NULL        INTEGER            15  INT64            6
 PRE_INT297 "PRED INTEGER 297"    7176  NULL        INTEGER            15  INT64            6
 PRE_INT298 "PRED INTEGER 298"    7177  NULL        INTEGER            15  INT64            6
@@ -32162,11 +32168,26 @@ DIV_ADJ    "DIV ADJUSTMENT"     11145  NULL        PRICE              17  REAL64
 !
 ! Dividend adjustment.
 !
-PRERL2155  "PRED REAL 2155"     11146  NULL        PRICE              17  REAL64           7
-PRERL2156  "PRED REAL 2156"     11147  NULL        PRICE              17  REAL64           7
-PRERL2157  "PRED REAL 2157"     11148  NULL        PRICE              17  REAL64           7
-PRERL2158  "PRED REAL 2158"     11149  NULL        PRICE              17  REAL64           7
-PRERL2159  "PRED REAL 2159"     11150  NULL        PRICE              17  REAL64           7
+ADJ_MIDYLD "ADJUSTED MID YLD"   11146  NULL        PRICE              17  REAL64           7
+!
+! Adjusted yield Mid.
+!
+TAC_BSIZ   "TRD AT CLS BID SZ"  11147  NULL        PRICE              17  REAL64           7
+!
+! Trade-at-Close Bid Size.
+!
+TAC_ASIZ   "TRD AT CLS ASK SZ"  11148  NULL        PRICE              17  REAL64           7
+!
+! Trade-at-Close Ask Size.
+!
+CDIST_YLD  "CASH DTB YLD"       11149  NULL        PRICE              17  REAL64           7
+!
+! Cash Distribution Yield.
+!
+12M_CDIST  "12 MTH CASH DTB"    11150  NULL        PRICE              17  REAL64           7
+!
+! 12 Month Cash Distribution.
+!
 PRERL2160  "PRED REAL 2160"     11151  NULL        PRICE              17  REAL64           7
 PRERL2161  "PRED REAL 2161"     11152  NULL        PRICE              17  REAL64           7
 PRERL2162  "PRED REAL 2162"     11153  NULL        PRICE              17  REAL64           7
@@ -32702,7 +32723,7 @@ INDAUCTP2  "IND AUC TYPE 2"     11642  NULL        ALPHANUMERIC        4  RMTES_
 !
 MID_TONE1  "MID TONE 1"         11643  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Mid price qualifier
+! Secondary Mid Price Qualifier.
 !
 SESS_FL1   "SESS STATUS FLAG1"  11644  SESS_FL2    ALPHANUMERIC        4  RMTES_STRING     4
 SESS_FL2   "SESS STATUS FLAG2"  11645  SESS_FL3    ALPHANUMERIC        4  RMTES_STRING     4
@@ -36868,10 +36889,22 @@ MET_TYP25  "METRIC TYPE 25"     13632  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Metric Type 25.
 !
-PRE_2ET312 "PRED 2 ET 312"      13633  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET313 "PRED 2 ET 313"      13634  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET314 "PRED 2 ET 314"      13635  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET315 "PRED 2 ET 315"      13636  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+CDYLD_TP   "CASH DTB YLD CP TP" 13633  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Cash Distribution Yield Computation Type.
+!
+CDYLD_PRD  "CASH DTB YLD CP CW" 13634  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Cash Distribution Yield Computation Catchment Window.
+!
+DIVYLD_TP  "DIVIDEND YLD CP TP" 13635  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Dividend Yield Computation Type (YIELD #35).
+!
+DIVYLD_PRD "DIVIDEND YLD CP CW" 13636  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Dividend Yield Computation Catchment Window (YIELD #35).
+!
 PRE_2ET316 "PRED 2 ET 316"      13637  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET317 "PRED 2 ET 317"      13638  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET318 "PRED 2 ET 318"      13639  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -37871,7 +37904,8 @@ TIMACT_NS  "TIMEACT NS"         14269  NULL        INTEGER            15  TIME  
 !
 TRD_TYP_NS "TRD TP UPT TIM NS"  14270  NULL        INTEGER            15  TIME             8
 !
-! Update time of the native instrument status code field TRD_TYPE (#3984).
+! Update time of the native instrument status code field TRD_TYPE (#3984). Where 
+! TRD_TYPE is not present, this FID will show the update time of TRD_STATUS (#6614).
 !
 IRGTIM_NS  "IRGTIM NS"          14271  NULL        INTEGER            15  TIME             8
 !
@@ -38476,7 +38510,8 @@ ORIG_TM_NS "ORIG TRD TIM NS"    14529  NULL        INTEGER            15  TIME  
 !
 PD_CDE_NS  "PERIOD CODE TM NS"  14530  NULL        INTEGER            15  TIME             8
 !
-! Update time of the native instrument phase code field PERIOD_CD2 (#8647).
+! Update time of the native instrument phase code field PERIOD_CD2 (#8647). Where 
+! PERIOD_CD2 is not present, this FID will show the update time of INST_PHASE (#8927).
 !
 PRTY_TM_NS "PARITY TIME NS"     14531  NULL        INTEGER            15  TIME             8
 !
@@ -41858,7 +41893,10 @@ QCCY_MACVL "QTE CCY MT ACVOL"   32593  NULL        PRICE              17  REAL64
 !
 ! Accumulated Matched Trade volume in Quote currency
 !
-PRE_LRL036 "PRED LRG REAL 036"  32594  NULL        PRICE              17  REAL64           8
+MKT_ACVOL  "MARKET ACVOL"       32594  NULL        PRICE              17  REAL64           8
+!
+! Market Accumulated Trade Volume.
+!
 PRE_LRL037 "PRED LRG REAL 037"  32595  NULL        PRICE              17  REAL64           8
 !
 ! TBD

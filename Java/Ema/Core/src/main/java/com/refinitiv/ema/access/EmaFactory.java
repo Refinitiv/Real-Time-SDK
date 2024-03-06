@@ -977,6 +977,7 @@ public class EmaFactory
 	
 	/**
 	 * Creates a {@link com.refinitiv.ema.access.PackedMsg}.
+	 * @param provider OmmProvider providing provider
 	 * @return {@link com.refinitiv.ema.access.PackedMsg}
 	 */
 	public static PackedMsg createPackedMsg(OmmProvider provider) {

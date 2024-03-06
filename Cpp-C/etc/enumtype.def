@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.60
-!tag Build_RDMD  4.20.60
-!tag DT_Version  23.91
-!tag Date        6-Nov-2023
+!tag RT_Version  4.20.61
+!tag Build_RDMD  4.20.61
+!tag DT_Version  24.11
+!tag Date        22-Jan-2024
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -1527,6 +1527,11 @@ LIQ_RATING 12896
     132       "MAR2"   While the degree of safety regarding timely repayment of principal and payment of interest is strong, the relative degree of safety is not as high as issues rated MARC-1.
     133       "MAR3"   The lowest investment grade category; indicates that while obligation is more susceptible to adverse developments, both internal and external, the capacity to service principal and interest on a timely basis is considered adequate.
     134       "MAR4"   The lowest category; regarded as non-investment grade and therefore uncertain in terms of capacity to service principal and interest.
+    135       "AAA+"   The obligor's capacity to pay interest & repay principal is above AAA
+    136       "AAA2"   The obligor's capacity to pay interest & repay principal is between AAA and AAA-
+    137       "AA+2"   The obligor's capacity to meet its financial commitment on the obligation is between AA+ and AA
+    138       "AA2 "   The obligor's capacity to meet its financial commitment on the obligation is between AA and AA-
+    139       "AA-2"   The obligor's capacity to meet its financial commitment on the obligation is between AA- and A+
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -1913,6 +1918,7 @@ RATING_ID6 12894
      49        "ARR"   Acuite Ratings and Research Limited
      50        "IVR"   Infomerics Valuation and Rating Pvt. Ltd
      51        "SRL"   Smera Ratings Limited
+     52        "CBI"   ChinaBond Market Implied Rating
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4277,6 +4283,7 @@ CAN_COND    6585
   32766        "DRK"   Trade on Dark Book
   32767        "AOD"   Auction on Demand
   32768        "DLT"   Delta Trade At Market
+  32769        "NPF"   Non Price Forming Trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8870,7 +8877,9 @@ CLS_A_EXID 13625
    1758        "MPX"   Montenegrin Power Exchange
    1759        "PRN"   Petronet
    1760        "EPT"   Energy Policy and Planning Office
-   1761        "UZS"   REPUBLICAN STOCK EXCHANGE (TOSHKENT)
+   1761        "UZS"   Uzbekistan Stock Exchange
+   1762        "SGS"   SGS Palm (Export Palmoil Statistics)
+   1763        "MHE"   MIAX Sapphire Options Exchange
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19064,6 +19073,33 @@ MET_TYP25  13632
     224   "IntR2Up "   InterestRate2RiskUp
     225   "IntR2Dn "   InterestRate2RiskDown
     226   "Nof_ENTI"   Number of Entities
+    227   "EV_CPRC "   Evaluated Clean Price
+    228   "EV_DPRC "   Evaluated Dirty Price
+    229   "VaR1M99 "   1-day Value-at-Risk (VaR) % with 99% confidence level
+    230   "VaR5M99 "   5-day Value-at-Risk (VaR) % with 99% confidence level
+    231   "VaR10M99"   10-day Value-at-Risk (VaR) % with 99% confidence level
+    232   "VaR1M95 "   1-day Value-at-Risk (VaR) % with 95% confidence level
+    233   "VaR5M95 "   5-day Value-at-Risk (VaR) % with 95% confidence level
+    234   "VaR10M95"   10-day Value-at-Risk (VaR) % with 95% confidence level
+    235   "CaR1M99 "   1-day conditional Value-at-Risk (VaR) % with 99% confidence level
+    236   "CaR5M99 "   5-day conditional Value-at-Risk (VaR) % with 99% confidence level
+    237   "CaR10M99"   10-day conditional Value-at-Risk (VaR) % with 99% confidence level
+    238   "CaR1M95 "   1-day conditional Value-at-Risk (VaR) % with 95% confidence level
+    239   "CaR5M95 "   5-day conditional Value-at-Risk (VaR) % with 95% confidence level
+    240   "CaR10M95"   10-day conditional Value-at-Risk (VaR) % with 95% confidence level
+    241   "LR %    "   Liquidity Ranking (%)
+    242   "LR Pos  "   Liquidity Ranking Position
+    243   "SELAVOL "   Sell-side Arbitrage Volume
+    244   "SELAVAL "   Sell-side Arbitrage Value
+    245   "SELNAVOL"   Sell-side Non-arbitrage Volume
+    246   "SELNAVAL"   Sell-side Non-arbitrage Value
+    247   "BUYAVOL "   Buy-side Arbitrage Volume
+    248   "BUYAVAL "   Buy-side Arbitrage Value
+    249   "BUYNAVOL"   Buy-side Non-arbitrage Volume
+    250   "BUYNAVAL"   Buy-side Non-arbitrage Value
+    251   "EV_YTM  "   Evaluated Yield to Maturity
+    252   "EV_ACINT"   Evaluated Accrued Interest
+    253   "EV_T2MAT"   Time to maturity (in number of years) for the evaluated values
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19632,6 +19668,8 @@ CNTR_SZ_UT 13611
     438      "M HA "   Million Hectares
     439      "mt/ha"   Tonne per Hectare
     440      "COP  "   Colombian peso
+    441      "LGC  "   Large-scale generation certificates
+    442      "EJ   "   Exajoules
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22446,6 +22484,7 @@ LMT_TYPE4  13600
       5   "Reject  "   Rejection tunnel
       6   "IPO Auc "   IPO/Relisting auction price limits
       7   "Re-val  "   Re-evaluated
+      8   "EVAL RNG"   Evaluated Price Range
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23329,6 +23368,7 @@ PRIMACT_TP 13621
      43   "AVG WGHT"   Avg Weight
      44   "CRUSHVOL"   Crushings (volume)
      45   "CRUSHCAP"   Crushings (Capacity Utilisation %)
+     46   "SUR BLCE"   SURPLUS BALANCE
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23395,10 +23435,54 @@ FIXPTL2_TP 13629
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET312 13633
-PRE_2ET313 13634
-PRE_2ET314 13635
-PRE_2ET315 13636
+CDYLD_TP   13633
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "TTM     "   Trailing 12 Months Total
+      2   "IAD     "   Indicative Annualized (Latest Payment * Frequency)
+      3   "LFY     "   Last Fiscal Year
+!
+! ACRONYM    FID
+! -------    ---
+!
+CDYLD_PRD  13634
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "FYR     "   Full Year
+      2   "PYR     "   Partial Year
+      3   "LPM     "   Latest Payment
+!
+! ACRONYM    FID
+! -------    ---
+!
+DIVYLD_TP  13635
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "TTM     "   Trailing 12 Months Total
+      2   "IAD     "   Indicative Annualized (Latest Payment * Frequency)
+      3   "LFY     "   Last Fiscal Year
+!
+! ACRONYM    FID
+! -------    ---
+!
+DIVYLD_PRD 13636
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "FYR     "   Full Year
+      2   "PYR     "   Partial Year
+      3   "LPM     "   Latest Payment
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET316 13637
 PRE_2ET317 13638
 PRE_2ET318 13639

@@ -2,20 +2,35 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022, 2024 Refinitiv. All rights reserved.        --
 #]=============================================================================]
 
 
 include(rcdevExternalUtils)
 
-if(NOT gtest_url)
-	set(gtest_url "https://github.com/abseil/googletest/archive/release-1.8.1.tar.gz")
-endif()
-if(NOT gtest_hash)
-	set(gtest_hash "MD5=2e6fbeb6a91310a16efe181886c59596")
-endif()
-if(NOT gtest_version)
-	set(gtest_version "1.8.1")
+set(gtest_version_cpp98 "1.8.1" CACHE STRING "")
+set(gtest_version_cpp11 "1.12.1" CACHE STRING "")
+
+if( UNIX AND (RCDEV_HOST_SYSTEM_FLAVOR_REL LESS_EQUAL 7) )
+	if(NOT gtest_url)
+		set(gtest_url "https://github.com/abseil/googletest/archive/release-${gtest_version_cpp98}.tar.gz")
+	endif()
+	if(NOT gtest_hash)
+		set(gtest_hash "MD5=2e6fbeb6a91310a16efe181886c59596")
+	endif()
+	if(NOT gtest_version)
+		set(gtest_version "${gtest_version_cpp98}")
+	endif()
+else()
+	if(NOT gtest_url)
+		set(gtest_url "https://github.com/abseil/googletest/archive/release-${gtest_version_cpp11}.tar.gz")
+	endif()
+	if(NOT gtest_hash)
+		set(gtest_hash "MD5=e82199374acdfda3f425331028eb4e2a")
+	endif()
+	if(NOT gtest_version)
+		set(gtest_version "${gtest_version_cpp11}")
+	endif()
 endif()
 
 # If the option for using the system installed 

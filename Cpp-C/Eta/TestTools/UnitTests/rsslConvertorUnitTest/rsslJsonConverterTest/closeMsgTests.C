@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json; 
 
@@ -361,7 +365,7 @@ TEST_P(CloseMsgMembersTestFixture, CloseMsgMembersTest)
 		EXPECT_EQ(RSSL_DT_NO_DATA, rsslMsg.msgBase.containerType);
 }
 
-INSTANTIATE_TEST_CASE_P(CloseMsgTests, CloseMsgMembersTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(CloseMsgTests, CloseMsgMembersTestFixture, ::testing::Values(
 	/* Test with/without ExtendedHeader, Ack, Batch */
 
 	/* Defaults */

@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json; 
 
@@ -489,7 +493,7 @@ TEST_P(GenericMsgMembersTestFixture, GenericMsgMembersTest)
 
 
 
-INSTANTIATE_TEST_CASE_P(GenericMsgTests, GenericMsgMembersTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(GenericMsgTests, GenericMsgMembersTestFixture, ::testing::Values(
 	/* Test with/without ExtendedHeader, PermData, MsgKey, SeqNum, Complete, SecondarySeqNum, PartNum, ReqMsgKey */
 
 	/* Defaults */
