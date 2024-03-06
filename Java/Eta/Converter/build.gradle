@@ -126,14 +126,14 @@ eclipse {
 }
 
 dependencies {
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.15.3'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.3'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.16.1'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.16.1'
 
     api project(':Eta:Core')
     api project(':Eta:AnsiPage')
 
     // needed for cobertura
-    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '2.0.9'
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '2.0.11'
 }
 
 jar {
