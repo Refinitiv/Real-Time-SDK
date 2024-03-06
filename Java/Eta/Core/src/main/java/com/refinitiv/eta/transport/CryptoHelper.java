@@ -442,6 +442,7 @@ class CryptoHelper
             catch (IOException e)
             {
                 _netSendBuffer.clear();
+                canWrite = false;
             }
             _netSendBuffer.compact();
 
