@@ -12,7 +12,7 @@ There are three types of RTSDK releases that append a letter directly followed b
 CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.3.G1 aka EMA/ETA 3.7.3.G1 aka 3.7.3.3
 ----------------------------------------------------------------------------------------
 
-In this release is a critical fix related to EMA C++ upon network non-blocking service discovery feature. 
+In this release is a critical fix related to EMA C++.  
 
 Customer Issues Resolved
 ------------------------
