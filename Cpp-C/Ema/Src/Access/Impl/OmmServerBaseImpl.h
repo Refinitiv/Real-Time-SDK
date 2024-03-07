@@ -1,9 +1,9 @@
 /*|-----------------------------------------------------------------------------
-*|            This source code is provided under the Apache 2.0 license      --
-*|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
-*|                See the project's LICENSE.md for details.                  --
-*|           Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
-*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|        Copyright (C) 2019-2020,2024 Refinitiv. All rights reserved.       --
+ *|-----------------------------------------------------------------------------
 */
 
 #ifndef __refinitiv_ema_access_OmmServerBaseImpl_h
@@ -149,6 +149,8 @@ public:
 	static RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent);
 	static RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
 
+	void saveNegotiatedPingTimeout(UInt32 timeoutMs);
+
 protected:
 
 	friend class OmmBaseImplMap<OmmServerBaseImpl>;
@@ -262,6 +264,8 @@ protected:
 	PostMsg						_postMsg;
 	RsslServer*					_pRsslServer;
 	EmaString					_cpuApiThreadBind;
+
+	UInt32						_negotiatedPingTimeout;  // This is the value of the negotiated ping timeout (in milliseconds). When processing multiple channels, it keeps the minimum timeout value.
 
 private:
 

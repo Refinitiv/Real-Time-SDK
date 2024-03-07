@@ -9,23 +9,34 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.3.E1 aka EMA/ETA 3.7.3.E1 aka 3.7.3.1
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.3.G1 aka EMA/ETA 3.7.3.G1 aka 3.7.3.3
 ----------------------------------------------------------------------------------------
 
-In this release are critical fixes related to ETAC non-blocking service discovery feature. 
-IMPORTANT NOTE: This release supersedes 2.1.3.L1 due to the issues addressed.
+In this release is a critical fix related to EMA C++ upon network non-blocking service discovery feature.
 
 Customer Issues Resolved
+------------------------
 
-- [GitHub #259] - [RTSDK-8115] - Memory leak with found in token session
+- [Case Number: 13258892] - [RTSDK-8239] - Fix to EMA C++ dispatch in API Dispath mode upon network connectivity issues
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.1.3.G1 (Mar 7, 2024)
+--------------------------------------------
+
+EMA C++ 3.7.3.G1 Issues Resolved
+--------------------------------
+- [RTSDK-8239] - Fix to EMA C++ dispatch in API Dispath mode upon network connectivity issues [Case Number: 13258892]
+
+--------------------------------------------
 RTSDK C++/C Release 2.1.3.E1 (Jan 19, 2024)
 --------------------------------------------
+
+In this release are critical fixes related to ETAC non-blocking service discovery feature. 
+IMPORTANT NOTE: This release supersedes 2.1.3.L1 due to the issues addressed.
 
 ETA C 3.7.3.E1 Issues Resolved
 --------------------------------
@@ -68,7 +79,6 @@ ETA C 3.7.3.L1 Issues Resolved
 Both ETA C and EMA C++ 3.7.3.L1 Issues Resolved
 -----------------------------------------------
 - [RTSDK-4281] - Support for TLS 1.3
-- [RTSDK-6143] - Update to supported Cipher Suites
 - [RTSDK-7615] - Pooled objects leak during destruction [GitHub #240] 
 - [RTSDK-7727] - Qualification with gcc 9.2.1 [Case Number: 12823235] 
 - [RTSDK-7766] - Update C/C++ Dependencies: cjson, curl, libxml2 & zlib
