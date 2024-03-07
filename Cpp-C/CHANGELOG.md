@@ -12,12 +12,12 @@ There are three types of RTSDK releases that append a letter directly followed b
 CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.3.G1 aka EMA/ETA 3.7.3.G1 aka 3.7.3.3
 ----------------------------------------------------------------------------------------
 
-In this release is a critical fix related to EMA C++ upon network non-blocking service discovery feature.
+In this release is a critical fix related to EMA C++ upon network non-blocking service discovery feature. 
 
 Customer Issues Resolved
 ------------------------
 
-- [Case Number: 13258892] - [RTSDK-8239] - Fix to EMA C++ dispatch in API Dispath mode upon network connectivity issues
+- [Case Number: 13258892] - [RTSDK-8239] - Fix to EMA C++ dispatch in API Dispath mode upon network connectivity issues 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
@@ -29,7 +29,7 @@ RTSDK C++/C Release 2.1.3.G1 (Mar 7, 2024)
 
 EMA C++ 3.7.3.G1 Issues Resolved
 --------------------------------
-- [RTSDK-8239] - Fix to EMA C++ dispatch in API Dispath mode upon network connectivity issues [Case Number: 13258892]
+- [RTSDK-8239] - Fix to EMA C++ dispatch in API Dispath mode upon network connectivity issues [Case Number: 13258892] 
 
 --------------------------------------------
 RTSDK C++/C Release 2.1.3.E1 (Jan 19, 2024)
