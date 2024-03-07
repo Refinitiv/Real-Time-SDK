@@ -415,7 +415,6 @@ class ReactorTokenSession implements RestCallback
 			/* Don't send token reissue request when there is no channel for this session or this Reactor is shutting down. */
 			if(_reactorChannelList.size() == 0 || _reactor.isShutdown())
 			{
-				_sessionState = SessionState.STOP_TOKEN_REQUEST;
 				return;
 			}
 		}
