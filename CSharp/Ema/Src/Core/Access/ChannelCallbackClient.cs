@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
@@ -145,6 +145,23 @@ namespace LSEG.Ema.Access
                     channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPassword = baseImpl.ConfigImpl.ProxyPassword;
                 }
 
+                if (baseImpl.ConfigImpl.ChanType != ConnectionType.UNIDENTIFIED)
+                {
+                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType = (LSEG.Eta.Transports.ConnectionType)baseImpl.ConfigImpl.ChanType;
+                }
+
+                if (baseImpl.ConfigImpl.EncProtocolType != ConnectionType.UNIDENTIFIED)
+                {
+                    if (baseImpl.ConfigImpl.ChanType != ConnectionType.ENCRYPTED)
+                    {
+                        StringBuilder strBuilder = baseImpl.GetStrBuilder();
+                        strBuilder.AppendLine("Encrypted protocol type can not be set for non-encrypted channel type.");
+
+                        throw new OmmInvalidUsageException(strBuilder.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
+                    }
+
+                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType = (LSEG.Eta.Transports.ConnectionType)baseImpl.ConfigImpl.EncProtocolType;
+                }
 
                 if (channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType == Eta.Transports.ConnectionType.SOCKET ||
                     channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType == Eta.Transports.ConnectionType.ENCRYPTED)

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2020-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2020-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -148,5 +148,7 @@
 #include "Access/Include/ProviderSessionInfo.h"
 
 #include "Access/Include/GetTime.h"
+
+#include "Access/Include/EmaConfig.h"
 
 #endif // __refinitiv_ema_Ema_h
