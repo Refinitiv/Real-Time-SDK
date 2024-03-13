@@ -146,7 +146,7 @@ using static Rdm.LoginMsgType;
 /// <li>-rtt enables rtt support by a consumer. If provider make distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.
 /// </ul>
 /// </summary>
-public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEventCallback
+public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEventCallback, IReactorOAuthCredentialEventCallback
 {
     private const string FIELD_DICTIONARY_DOWNLOAD_NAME = "RWFFld";
     private const string ENUM_TABLE_DOWNLOAD_NAME = "RWFEnum";
@@ -1196,6 +1196,31 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
         return ReactorCallbackReturnCode.SUCCESS;
     }
 
+    public ReactorCallbackReturnCode ReactorOAuthCredentialEventCallback(ReactorOAuthCredentialEvent reactorOAuthCredentialEvent)
+    {
+        ReactorOAuthCredentialRenewalOptions renewalOptions = new ReactorOAuthCredentialRenewalOptions();
+        ReactorOAuthCredentialRenewal reactorOAuthCredentialRenewal = new ReactorOAuthCredentialRenewal();
+        ReactorOAuthCredential? reactorOAuthCredential = (ReactorOAuthCredential?)reactorOAuthCredentialEvent.UserSpecObj;
+
+        if (reactorOAuthCredential is not null)
+        {
+            if (reactorOAuthCredential.ClientSecret.Length > 0)
+            {
+                renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
+                reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
+            }
+            else
+            {
+                renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_JWK;
+                reactorOAuthCredentialRenewal.ClientJwk.Data(reactorOAuthCredential.ClientJwk.ToString());
+            }
+
+            reactorOAuthCredentialEvent.Reactor!.SubmitOAuthCredentialRenewal(renewalOptions, reactorOAuthCredentialRenewal, out _);
+        }
+
+        return ReactorCallbackReturnCode.SUCCESS;
+    }
+
     private bool IsRequestedServiceUp(ChannelInfo chnlInfo)
     {
         return chnlInfo.HasServiceInfo &&
@@ -1341,6 +1366,9 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
             {
                 m_ReactorOAuthCredential.ClientSecret.Data(m_WatchlistConsumerConfig.ClientSecret);
                 m_ReactorServiceDiscoveryOptions.ClientSecret.Data(m_WatchlistConsumerConfig.ClientSecret);
+
+                /* Specified the IReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+                m_ReactorOAuthCredential.ReactorOAuthCredentialEventCallback = this;
             }
         }
 
@@ -1348,9 +1376,13 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
         {
             try
             {
-                m_ReactorOAuthCredential.ClientJwk.Data(m_WatchlistConsumerConfig.JwkFile);
+                var jwkData = File.ReadAllText(m_WatchlistConsumerConfig.JwkFile);
+                m_ReactorOAuthCredential.ClientJwk.Data(jwkData);
                 chnlInfo.ConsumerRole.ReactorOAuthCredential = m_ReactorOAuthCredential;
-                m_ReactorServiceDiscoveryOptions.ClientJwk.Data(m_WatchlistConsumerConfig.JwkFile);
+                m_ReactorServiceDiscoveryOptions.ClientJwk.Data(jwkData);
+
+                /* Specified the IReactorOAuthCredentialEventCallback to get JWK */
+                m_ReactorOAuthCredential.ReactorOAuthCredentialEventCallback = this;
             }
             catch (Exception e)
             {
@@ -1374,6 +1406,9 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
             m_ReactorServiceDiscoveryOptions.Audience.Data(m_WatchlistConsumerConfig.Audience);
             chnlInfo.ConsumerRole.ReactorOAuthCredential = m_ReactorOAuthCredential;
         }
+
+        /* Passing data to OAuth callback */
+        m_ReactorOAuthCredential.UserSpecObj = m_ReactorOAuthCredential;
 
         if (!string.IsNullOrEmpty(m_WatchlistConsumerConfig.ProxyHostname))
         {
