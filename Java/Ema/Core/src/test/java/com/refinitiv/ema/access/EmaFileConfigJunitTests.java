@@ -2376,7 +2376,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		//testcase 1: test function call for socket connection
 		//testcase 2: test function call for http/encrypted connection
 
-		int[] testCases = {ChannelTypeSocket, ChannelTypeEncrypted};
+		int[] testCases = {ChannelTypeSocket, ChannelTypeEncrypted, ChannelTypeHttp};
 		for (int testCase : testCases)
 		{
 			System.out.println("\n #####Now it is running test case " + testCase + "\n");
@@ -2474,6 +2474,12 @@ public class EmaFileConfigJunitTests extends TestCase
 					testConfig = EmaFactory.createOmmConsumerConfig(EmaConfigFileLocation).config(configDB1).config(configDB2).config(configDB3)
 							.tunnelingCredentialDomain("domain").tunnelingProxyHostName("proxyHost").tunnelingProxyPort("14032").tunnelingObjectName("objectName");
 				}
+				else if (testCase == ChannelTypeHttp)
+				{
+					testConfig = EmaFactory.createOmmConsumerConfig(EmaConfigFileLocation).config(configDB1).config(configDB2).config(configDB3)
+							.tunnelingCredentialDomain("domain").tunnelingProxyHostName("proxyHost").tunnelingProxyPort("14032").tunnelingObjectName("objectName")
+							.channelType(EmaConfig.ConnectionType.ENCRYPTED).encryptedProtocolType(EmaConfig.EncryptedProtocolType.HTTP);
+				}
 				
 				OmmConsumer cons = JUnitTestConnect.createOmmConsumer(testConfig);
 	
@@ -2530,9 +2536,11 @@ public class EmaFileConfigJunitTests extends TestCase
 				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
 				TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
 
-				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
-				TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
-				
+				if (testCase == ChannelTypeSocket || testCase == ChannelTypeEncrypted)
+				{
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
+					TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
+				}
 				
 				// Check values of Consumer_2
 				System.out.println("\nRetrieving Consumer_1 configuration values "); 
@@ -2563,27 +2571,43 @@ public class EmaFileConfigJunitTests extends TestCase
 					int channelConnType = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelType, 0);
 					TestUtilities.checkResult("channelConnType == ChannelType::RSSL_ENCRYPTED", channelConnType == ChannelTypeEncrypted);
 				}
-				
-				String strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.InterfaceName, 0);
-				TestUtilities.checkResult("InterfaceName == localhost", strValue.contentEquals("localhost"));
-				
-				intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionType, 0);
-				TestUtilities.checkResult("CompressionType == CompressionType::LZ4", intValue == CompressionTypeLZ4);
-				
-				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers, 0);
-				TestUtilities.checkResult("GuaranteedOutputBuffers == 7000", intLongValue == 7000);
-				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers, 0);
-				TestUtilities.checkResult("NumInputBuffers == 5000", intLongValue == 5000);
-				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize, 0);
-				TestUtilities.checkResult("SysRecvBufSize == 550000", intLongValue == 550000);
-				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize, 0);
-				TestUtilities.checkResult("SysSendBufSize == 700000", intLongValue == 700000);
-				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionThreshold, 0);
-				TestUtilities.checkResult("CompressionThreshold == 12758", intLongValue == 12758);
-				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ConnectionPingTimeout, 0);
-				TestUtilities.checkResult("ConnectionPingTimeout == 70000", intLongValue == 70000);
-				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.TcpNodelay, 0);
-				TestUtilities.checkResult("TcpNodelay == 1", boolValue == true);
+				else if (testCase == ChannelTypeHttp)
+				{
+					ConsChannelVal = "Channel_2";
+					System.out.println("\nRetrieving Channel_2 configuration values ");
+					ConsChannelVal = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelName, 0);
+					TestUtilities.checkResult("Channel value != null", ConsChannelVal != null);
+					TestUtilities.checkResult("Channel value == Channel_2", ConsChannelVal.contentEquals("Channel_2") );
+					int channelConnType = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelType, 0);
+					TestUtilities.checkResult("channelConnType == ChannelType::RSSL_ENCRYPTED", channelConnType == ChannelTypeEncrypted);
+					channelConnType = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.EncryptedProtocolType, 0);
+					TestUtilities.checkResult("channelConnType == ChannelType::RSSL_HTTP", channelConnType == ChannelTypeHttp);
+				}
+
+				if (testCase == ChannelTypeSocket || testCase == ChannelTypeEncrypted)
+				{
+					String strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.InterfaceName, 0);
+					TestUtilities.checkResult("InterfaceName == localhost", strValue.contentEquals("localhost"));
+
+					intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionType, 0);
+					TestUtilities.checkResult("CompressionType == CompressionType::LZ4", intValue == CompressionTypeLZ4);
+
+					intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers, 0);
+					TestUtilities.checkResult("GuaranteedOutputBuffers == 7000", intLongValue == 7000);
+					intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers, 0);
+					TestUtilities.checkResult("NumInputBuffers == 5000", intLongValue == 5000);
+					intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize, 0);
+					TestUtilities.checkResult("SysRecvBufSize == 550000", intLongValue == 550000);
+					intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize, 0);
+					TestUtilities.checkResult("SysSendBufSize == 700000", intLongValue == 700000);
+					intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionThreshold, 0);
+					TestUtilities.checkResult("CompressionThreshold == 12758", intLongValue == 12758);
+					intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ConnectionPingTimeout, 0);
+					TestUtilities.checkResult("ConnectionPingTimeout == 70000", intLongValue == 70000);
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.TcpNodelay, 0);
+					TestUtilities.checkResult("TcpNodelay == 1", boolValue == true);
+				}
+
 				if (testCase == ChannelTypeSocket)
 				{
 					String chanHost = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Host, 0);

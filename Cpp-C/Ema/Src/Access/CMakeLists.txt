@@ -334,6 +334,7 @@ else()
             Include/Vector.h
             Include/VectorEntry.h
             Include/PackedMsg.h
+            Include/EmaConfig.h
             #Domain
             ../Domain/Login/Impl/LoginRefresh.cpp
             ../Domain/Login/Impl/LoginRefreshImpl.cpp

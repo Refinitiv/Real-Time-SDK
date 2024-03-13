@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2024 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1259,6 +1259,8 @@ public:
 	void objectName(const EmaString&);
 	void libsslName(const EmaString&);
 	void libcryptoName(const EmaString&);
+	void channelType(RsslConnectionTypes);
+	void encryptedProtocolTypes(RsslConnectionTypes);
 
 	void addOAuth2Credential(const OAuth2Credential&);
 
@@ -1276,9 +1278,6 @@ public:
 	void libcurlName(const EmaString&);
 
 	void sslCAStore(const EmaString&);
-
-	void connectionType(const RsslConnectionTypes&);
-	void encryptedConnectionType(const RsslConnectionTypes&);
 
 	void protocolList(const EmaString& protocolList);
 
@@ -1310,6 +1309,16 @@ public:
 	const PortSetViaFunctionCall& getUserSpecifiedPort() const
 	{
 		return _portSetViaFunctionCall;
+	}
+
+	const RsslConnectionTypes getUserSpecifiedChannelType() const
+	{
+		return _channelTypeViaFunctionCall;
+	}
+
+	const RsslConnectionTypes getUserSpecifiedEncryptedProtocolType() const
+	{
+		return _encryptedProtocolTypeViaFunctionCall;
 	}
 
 	const EmaString& getUserSpecifiedProxyHostname() const
@@ -1442,6 +1451,8 @@ protected:
 	EmaString				_proxyPasswdSetViaFunctionCall;
 	EmaString				_proxyDomainSetViaFunctionCall;
 	EmaString				_sslCAStoreSetViaFunctionCall;
+	RsslConnectionTypes		_channelTypeViaFunctionCall;
+	RsslConnectionTypes		_encryptedProtocolTypeViaFunctionCall;
 
 	void addLoginReqMsg( RsslRequestMsg* );
 

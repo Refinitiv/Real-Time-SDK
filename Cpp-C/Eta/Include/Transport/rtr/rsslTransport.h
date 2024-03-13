@@ -966,7 +966,7 @@ typedef struct {
 	RsslBool		tcp_nodelay;			/*!< @deprecated DEPRECATED: Only used with connectionType of SOCKET.  If RSSL_TRUE, disables Nagle's Algorithm. Users should migrate to the RsslBindOptions::tcpOpts::tcp_nodelay configuration for the same behavior with current and future connection types */
 	RsslBool		serverToClientPings;	/*!< @brief If RSSL_TRUE, pings will be sent from server side to client side */
 	RsslBool		clientToServerPings;	/*!< @brief If RSSL_TRUE, pings will be sent from client side to server side */
-	RsslConnectionTypes	connectionType;		/*!< @brief If RSSL_CONN_TYPE_UNIDIR_SHMEM this will use server to client shared memory.  Setting to RSSL_CONN_TYPE_SOCKET or RSSL_CONN_TYPE_HTTP will allow for accepting both socket or HTTP connection types.  RSSL_CONN_TYPE_ENCRYPTED is currently not supported for servers  */
+	RsslConnectionTypes	connectionType;		/*!< @brief If RSSL_CONN_TYPE_UNIDIR_SHMEM this will use server to client shared memory.  Setting to RSSL_CONN_TYPE_SOCKET or RSSL_CONN_TYPE_HTTP will allow for accepting both socket or HTTP connection types. */
 	RsslUInt32		pingTimeout;			/*!< @brief Desired amount of time to use as a timeout for a connected channel. */
 	RsslUInt32		minPingTimeout;			/*!< @brief Least amount of time to use as a timeout for a connected channel. */
 	RsslUInt32		maxFragmentSize;		/*!< @brief Sets the maximum size fragment to be sent without any fragmentation or assembly of messages. */

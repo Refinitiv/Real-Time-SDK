@@ -10,13 +10,23 @@ package com.refinitiv.ema.access;
 
 /** This class contains enumerations and other configuration values used in the EMA configuration classes.
  */
-public interface EmaConfig
+public class EmaConfig
 {
+	 private EmaConfig()
+     {
+         throw new AssertionError();
+     }
+	
     /**
      * This enumeration defines the connection types available for the Channel ConnectionType configuration elements.
      */
-    public class ConnectionTypeEnum
+    public static class ConnectionType
     {
+        private ConnectionType()
+        {
+            throw new AssertionError();
+        }
+
         /**
          * This connection type uses the TCP-based ETA Socket connection protocol.
          */
@@ -41,8 +51,12 @@ public interface EmaConfig
     /**
      * This enumeration defines the protocol type available for ENCRYPTED ConnectionType.
      */
-    public class  EncryptedProtocolTypeEnum
+    public static class EncryptedProtocolType
     {
+        private EncryptedProtocolType()
+        {
+            throw new AssertionError();
+        }
         /**
          *  This encrypted protocol type uses the TCP-based ETA Socket encrypted connection protocol.
          */
