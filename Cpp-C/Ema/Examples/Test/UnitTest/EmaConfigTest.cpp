@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2024 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -14,7 +14,6 @@
 #include "OmmConsumerImpl.h"
 #include "OmmIProviderImpl.h"
 #include "OmmNiProviderImpl.h"
-#include "EmaConfig.h"
 
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
@@ -1579,11 +1578,11 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 		outermostMap.complete();
 
 		// Must load data dictionary files from current working location.
-		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).host("localhost:14002").channelType(EmaConfig::ConnectionTypeEnum::HTTP));
+		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).host("localhost:14002"));
 
 		const OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>( ommConsumerImpl.getActiveConfig() );
 
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_HTTP) << "connectionType , ChannelType::RSSL_HTTP";
+		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "connectionType , ChannelType::RSSL_SOCKET";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
 	}

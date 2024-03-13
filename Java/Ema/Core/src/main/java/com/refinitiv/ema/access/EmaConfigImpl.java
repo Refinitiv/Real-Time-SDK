@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019-2024 Refinitiv. All rights reserved.         --
+// *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -36,7 +36,6 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
-import com.refinitiv.eta.transport.ConnectionTypes;
 
 abstract class  EmaConfigBaseImpl
 {	
@@ -120,8 +119,6 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	private DecodeIterator    					_rsslDecIter;
 	private String              				_hostnameSetViaFunctionCall;
 	private String              				_portSetViaFunctionCall;
-	private int									_channelTypeSetViaFunctionCall = -1;
-	private int									_encProtocolTypeSetViaFunctionCall = -1;
 	private String								_fidDictReqServiceName;
 	private String								_enumDictReqServiceName;
 	private boolean 							_fidDictReqServiceIdSet;
@@ -344,14 +341,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 				_portSetViaFunctionCall = defaultService;
 		}
 	}
-	protected void channelTypeInt(int channelType)
-	{
-		_channelTypeSetViaFunctionCall = channelType;
-	}
-	protected void encProtocolTypeInt(int encProtocolType)
-	{
-		_encProtocolTypeSetViaFunctionCall = encProtocolType;
-	}
+	
 	protected void addAdminMsgInt(ReqMsg reqMsg)
 	{
 		RequestMsg rsslRequestMsg = ((ReqMsgImpl)reqMsg).rsslMsg();
@@ -893,9 +883,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	{
 		return _portSetViaFunctionCall; 
 	}
-	public int getUserSpecifiedChannelType() { return _channelTypeSetViaFunctionCall; }
-	public int getUserSpecifiedEncryptedProtocolType() { return _encProtocolTypeSetViaFunctionCall; }
-
+	
 	public HttpChannelConfig tunnelingChannelCfg()
 	{
 		if (_tunnelingChannelCfg == null)

@@ -1318,46 +1318,6 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		}
 	}
 
-	if (pConfigImpl->getUserSpecifiedChannelType() != RSSL_CONN_TYPE_INIT)
-	{
-		if (warmStandbyChannelSet.trimWhitespace().length() > 0)
-		{
-			EmaString temp("Specifying connection type with API call is not applicable for WarmStandby channels.");
-			throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
-		}
-
-		int size = _activeConfig.configChannelSet.size();
-
-		for (int i = 0; i < size; i++)
-		{
-			_activeConfig.configChannelSet[i]->connectionType = pConfigImpl->getUserSpecifiedChannelType();
-		}
-	}
-
-	if (pConfigImpl->getUserSpecifiedEncryptedProtocolType() != RSSL_CONN_TYPE_INIT)
-	{
-		if (warmStandbyChannelSet.trimWhitespace().length() > 0)
-		{
-			EmaString temp("Specifying encrypted connection type with API call is not applicable for WarmStandby channels.");
-			throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
-		}
-
-		ChannelConfig* chanConfig = NULL;
-		int size = _activeConfig.configChannelSet.size();
-
-		for (int i = 0; i < size; i++)
-		{
-			chanConfig = (_activeConfig.configChannelSet[i]);
-
-			if (chanConfig->connectionType != RSSL_CONN_TYPE_ENCRYPTED)
-			{
-				EmaString temp("Encrypted protocol type can not be set for non-encrypted channel type.");
-				throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
-			}
-			static_cast<SocketChannelConfig*>(chanConfig)->encryptedConnectionType = pConfigImpl->getUserSpecifiedEncryptedProtocolType();
-		}
-	}
-
 	OmmOAuth2CredentialImpl* pOAuth2Impl;
 	OAuth2Credential& oAuthCredential = pConfigImpl->getOAuthCredential();
 	int oAuthOffset = 0;

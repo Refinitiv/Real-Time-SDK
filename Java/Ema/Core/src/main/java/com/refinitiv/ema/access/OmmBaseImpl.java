@@ -1152,48 +1152,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			}
 		}
 
-		if (config.getUserSpecifiedChannelType() != -1)
-		{
-			if (warmStandbyChannelSet != null && warmStandbyChannelSet.trim().length() > 0)
-			{
-				String temp = _strBuilder.toString();
-				temp = "Specifying connection type with API call is not applicable for WarmStandby channels.";
-				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
-			}
-
-			int size = _activeConfig.channelConfigSet.size();
-
-			for (int i = 0; i < size; i++)
-				_activeConfig.channelConfigSet.get(i).rsslConnectionType = config.getUserSpecifiedChannelType();
-
-		}
-
-		if (config.getUserSpecifiedEncryptedProtocolType() != -1)
-		{
-			if (warmStandbyChannelSet != null && warmStandbyChannelSet.trim().length() > 0)
-			{
-				String temp = _strBuilder.toString();
-				temp = "Specifying encrypted connection type with API call is not applicable for WarmStandby channels.";
-				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
-			}
-
-			int connectionType = -1;
-			int size = _activeConfig.channelConfigSet.size();
-
-			for (int i = 0; i < size; i++)
-			{
-				connectionType = _activeConfig.channelConfigSet.get(i).rsslConnectionType;
-
-				if (connectionType != ConnectionTypes.ENCRYPTED) {
-					String temp = _strBuilder.toString();
-					temp = "Encrypted protocol type can not be set for non-encrypted channel type.";
-					throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
-				}
-
-				_activeConfig.channelConfigSet.get(i).encryptedProtocolType = config.getUserSpecifiedEncryptedProtocolType();
-			}
-		}
-
 		_activeConfig.userDispatch = config.operationModel();
 		_activeConfig.rsslRDMLoginRequest = config.loginReq();
 	}

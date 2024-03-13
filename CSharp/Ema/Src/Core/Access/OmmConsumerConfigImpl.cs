@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.        --
+ *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -61,11 +61,6 @@ namespace LSEG.Ema.Access
         internal string ProxyPassword { get; set; } = string.Empty;
         // DispatchModel config from OmmConsumerConfig methods.
         internal OmmConsumerConfig.OperationModelMode DispatchModel;
-        // ChannleType config from OmmConsumerConfig methods
-        internal ConnectionType ChanType { get; set; } = ConnectionType.UNIDENTIFIED;
-        // EncProtocolType config from OmmConsumerConfig methods
-        internal ConnectionType EncProtocolType { get; set; } = ConnectionType.UNIDENTIFIED;
-
         // Path of the Xml configuration file. If not specified when the OmmConsumerConfig is created, this will default to "EmaConfig.xml"
         internal string XmlConfigPath { get; set; } = string.Empty;
 
@@ -161,8 +156,6 @@ namespace LSEG.Ema.Access
             SetEncryptedProtocolFlags = OldConfigImpl.SetEncryptedProtocolFlags;
             EncryptedTLSProtocolFlags = OldConfigImpl.EncryptedTLSProtocolFlags;
             CipherSuites = OldConfigImpl.CipherSuites;
-            ChanType = OldConfigImpl.ChanType;
-            EncProtocolType = OldConfigImpl.EncProtocolType;
 
             if (OldConfigImpl.AdminDirectoryRequest != null)
             {
@@ -367,8 +360,6 @@ namespace LSEG.Ema.Access
             ConfigErrorLog?.Clear();
             SetEncryptedProtocolFlags = false;
             CipherSuites = null;
-            ChanType = ConnectionType.UNIDENTIFIED;
-            EncProtocolType = ConnectionType.UNIDENTIFIED;
         }
 
         // Takes in a host name formatted in the following way:
@@ -426,15 +417,6 @@ namespace LSEG.Ema.Access
             {
                 throw new OmmInvalidConfigurationException("Host string is malformed. This should be [hostname]:[port].");
             }
-        }
-
-        internal void ChannelType(ConnectionType channelType)
-        {
-            ChanType = channelType;
-        }
-        internal void EncryptedProtocolType(ConnectionType encProtocolType)
-        {
-            EncProtocolType = encProtocolType;
         }
 
         internal void OperationModel(OmmConsumerConfig.OperationModelMode operationModel)

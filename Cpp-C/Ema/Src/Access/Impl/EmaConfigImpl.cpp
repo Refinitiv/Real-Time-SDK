@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2024 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -817,9 +817,7 @@ EmaConfigImpl::EmaConfigImpl(const EmaString& path) :
 	_libcurlName(),
 	_tokenServiceUrlV1(),
 	_tokenServiceUrlV2(),
-	_sslCAStoreSetViaFunctionCall(),
-	_channelTypeViaFunctionCall( RSSL_CONN_TYPE_INIT ),
-	_encryptedProtocolTypeViaFunctionCall( RSSL_CONN_TYPE_INIT )
+	_sslCAStoreSetViaFunctionCall()
 {
 }
 
@@ -901,8 +899,6 @@ void EmaConfigImpl::clear()
 	_proxyUserNameSetViaFunctionCall.clear();
 	_proxyPasswdSetViaFunctionCall.clear();
 	_proxyDomainSetViaFunctionCall.clear();
-	_channelTypeViaFunctionCall = RSSL_CONN_TYPE_INIT;
-	_encryptedProtocolTypeViaFunctionCall = RSSL_CONN_TYPE_INIT;
 }
 
 void EmaConfigImpl::username( const EmaString& username )
@@ -1310,16 +1306,6 @@ void EmaConfigImpl::sslCAStore(const EmaString& sslCAStore)
 		_sslCAStoreSetViaFunctionCall = sslCAStore;
 	else
 		_sslCAStoreSetViaFunctionCall = "";
-}
-
-void EmaConfigImpl::channelType(RsslConnectionTypes channelType)
-{
-	_channelTypeViaFunctionCall = channelType;
-}
-
-void EmaConfigImpl::encryptedProtocolTypes(RsslConnectionTypes encProtocolType)
-{
-	_encryptedProtocolTypeViaFunctionCall = encProtocolType;
 }
 
 void EmaConfigImpl::objectName(const EmaString& objectName)
