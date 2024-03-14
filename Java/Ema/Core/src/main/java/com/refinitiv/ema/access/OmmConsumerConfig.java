@@ -196,7 +196,7 @@ public interface OmmConsumerConfig
 	/**
 	 * Specifies connection type. Overrides prior value.
 	 *
-	 * @param channelType specifies connection type used by application. Connection type defined in EmaConfig.ConnectionTypeEnum.
+	 * @param channelType specifies connection type used by application. Connection type defined in EmaConfig.ConnectionType.
 	 * @throws OmmInvalidUsageException if use this API with WarmStandby channel configuration.
 	 * @throws OmmInvalidUsageException if channelType is not valid.
 	 * @return reference to this object
@@ -206,7 +206,7 @@ public interface OmmConsumerConfig
 	/**
 	 * Specifies encrypted protocol type. Overrides prior value.
 	 *
-	 * @param encProtocolType specifies encrypted protocol type used by application. Encrypted protocol type defined in EmaConfig.EncryptedProtocolTypeEnum.
+	 * @param encProtocolType specifies encrypted protocol type used by application. Encrypted protocol type defined in EmaConfig.EncryptedProtocolType.
 	 * @throws OmmInvalidUsageException if use this API with WarmStandby channel configuration.
 	 * @throws OmmInvalidUsageException if use this API with not encoded channel type.
 	 * @throws OmmInvalidUsageException if encProtocolType is not valid.
