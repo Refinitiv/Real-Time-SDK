@@ -63,6 +63,8 @@ public:
 		WebSocketJSONEnum,
 		WebSocketRWFEnum
 	} websocketProtocol;
+
+	int securityProtocol;						// Specifies the cryptographic protocols to be used for an Encrypted connection. See -spTLSv1.2 and -spTLSv1.3
 };
 
 #endif // _CONS_PERF_CONFIG_H

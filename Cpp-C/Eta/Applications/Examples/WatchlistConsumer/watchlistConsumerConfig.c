@@ -111,6 +111,8 @@ void printUsageAndExit(int argc, char **argv)
 			"\n"
 			"-restEnableLog enable REST logging message"
 			"\n"
+			"-restVerbose enable verbose REST logging message"
+			"\n"
 			"-restLogFileName set REST logging output stream"
 			"\n"
 			"-restEnableLogViaCallback enable receiving REST logging messages via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage."
@@ -232,6 +234,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 	watchlistConsumerConfig.RTTSupport = RSSL_FALSE;
 	watchlistConsumerConfig.restEnableLog = RSSL_FALSE;
+	watchlistConsumerConfig.restVerboseMode = RSSL_FALSE;
 	watchlistConsumerConfig.restOutputStreamName = NULL;
 	watchlistConsumerConfig.restEnableLogViaCallback = 0U;
 
@@ -678,6 +681,10 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		{
 			watchlistConsumerConfig.restEnableLog = RSSL_TRUE;
 		}
+		else if (strcmp("-restVerbose", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.restVerboseMode = RSSL_TRUE;
+		}
 		else if (0 == strcmp(argv[i], "-restLogFileName"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
@@ -730,7 +737,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		}
 		else
 		{
-			printf("Config Error: Unknown option %s\n", argv[i]);
+			printf("Error: Unrecognized option: %s\n", argv[i]);
 			printUsageAndExit(argc, argv);
 		}
 	}

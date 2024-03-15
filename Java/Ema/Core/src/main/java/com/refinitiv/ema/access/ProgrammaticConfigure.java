@@ -1696,7 +1696,7 @@ class ProgrammaticConfigure
 			ChannelConfig currentChannelConfig = null;
 
 			if (channelType == ConnectionTypes.SOCKET || channelType == ConnectionTypes.WEBSOCKET) {
-				SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
+				SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig();
 				socketChannelConfig.serviceName = activeConfig.defaultServiceName;
 				socketChannelConfig.rsslConnectionType = channelType;
 				currentChannelConfig = socketChannelConfig;
@@ -1763,7 +1763,7 @@ class ProgrammaticConfigure
 
 				}
 			} else if (channelType == ConnectionTypes.HTTP) {
-				HttpChannelConfig httpChannelConfig = new HttpChannelConfig();
+				HttpChannelConfig httpChannelConfig = new EncryptedChannelConfig();
 				httpChannelConfig.rsslConnectionType = channelType;
 				currentChannelConfig = httpChannelConfig;
 				activeConfig.channelConfigSet.add(currentChannelConfig);

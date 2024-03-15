@@ -402,6 +402,7 @@ typedef struct {
 	RsslProxyOpts	restProxyOptions;			/*!< Specifies proxy settings for Rest requests: service discovery and auth token service. This proxy is used when both proxyHostName and proxyPort are specified to override the proxy settings in the RsslReactorConnectOptions (RsslConnectOptions.proxyOpts) and RsslReactorServiceDiscoveryOptions (proxyHostName, proxyPort, proxyUserName, proxyPasswd, proxyDomain).> */
 	RsslUInt32   debugLevel;						/*!< Configure level of debugging info> */
 	RsslUInt32	 debugBufferSize;				/*!< Configure size of debug buffer> */
+	RsslBool	restVerboseMode;				/*!< Enable Verbose REST debug messages> */
 } RsslCreateReactorOptions;
 
 /**
@@ -421,6 +422,7 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 	pReactorOpts->reissueTokenAttemptInterval = 5000;
 	pReactorOpts->restRequestTimeOut = 90;
 	pReactorOpts->restEnableLog = RSSL_FALSE;
+	pReactorOpts->restVerboseMode = RSSL_FALSE;
 	pReactorOpts->restLogOutputStream = NULL;
 	pReactorOpts->restEnableLogViaCallback = RSSL_FALSE;
 	pReactorOpts->pRestLoggingCallback = NULL;

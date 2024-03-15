@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|                Copyright (C) 2019 Refinitiv. All rights reserved                  --
+// *|            Copyright (C) 2019, 2024 Refinitiv. All rights reserved        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -832,17 +832,17 @@ class MsgImpl extends DataImpl implements Msg
 		_serviceNameSet = false;
 		_serviceName = null;
 		_domainTypeSet = false;
-		
+
+		if (_rsslEncodeIter != null)
+		{
+			_rsslMsg.clear();
+			_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType - DataType.DataTypes.REQ_MSG]);
+			_rsslMsg.domainType(DomainTypes.MARKET_PRICE);
+			_rsslMsg.containerType(com.refinitiv.eta.codec.DataTypes.NO_DATA);
+		}
+
 		if (_objManager == null)
 		{
-			if (_rsslMsg != null)
-			{
-				_rsslMsg.clear(); 
-				_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType - DataType.DataTypes.REQ_MSG]);
-				_rsslMsg.domainType(DomainTypes.MARKET_PRICE);
-				_rsslMsg.containerType(com.refinitiv.eta.codec.DataTypes.NO_DATA);
-			}
-			
 			_encodeComplete = false;
 			
 			_rsslEncodeIter.clear();

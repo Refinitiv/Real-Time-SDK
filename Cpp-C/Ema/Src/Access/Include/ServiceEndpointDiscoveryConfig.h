@@ -66,15 +66,51 @@ public:
 	*/
 	ServiceEndpointDiscoveryConfig& restEnableLog(bool restEnableLog = false);
 
+	/** Specifies whether to enable or disable verbose REST logging. If set to true, verbose REST logging is enabled. Defaults to false.
+	@param[in] restVerboseMode if true, enables verbose REST logging.
+	@return reference to this object
+	*/
+	ServiceEndpointDiscoveryConfig& restVerboseMode(bool restVerboseMode = false);
+
+	/** Specifies a name to override the default for the openSSL libssl shared library. The RSSL API will attempt to dynamically load this library for encrypted connections.
+		@param[in] libsslName specifies a name of the openSSL libssl shared library.
+		@return reference to this object
+	*/
+	ServiceEndpointDiscoveryConfig& libSslName(const EmaString& libsslName = "");
+
+	/** Specifies a name to override the default for the openSSL libcrypto shared library. The RSSL API will attempt to dynamically load this library for encrypted connections.
+		@param[in] libcryptoName specifies a name of the openSSL libcrypto shared library.
+		@return reference to this object
+	*/
+	ServiceEndpointDiscoveryConfig& libCryptoName(const EmaString& libcryptoName = "");
+
+	/** Specifies a name to override the default for the curl shared library. The RSSL API will attempt to dynamically load this library for proxy connections.
+		@param[in] libcurlName specifies a name of the curl shared library.
+		@return reference to this object
+	*/
+	ServiceEndpointDiscoveryConfig& libCurlName(const EmaString& libcurlName = "");
+
+	/** Specifies whether to enable or disable CPUID library initialization. If set to true, CPUID library is enabled. Defaults to true.
+	@param[in] shouldInitializeCPUIDlib if true, enables CPUID library.
+	@return reference to this object
+	*/
+	ServiceEndpointDiscoveryConfig& shouldInitializeCPUIDlib(bool shouldInitializeCPUIDlib = true);
+
 private:
 
 	friend class ServiceEndpointDiscoveryImpl;
 
-	const EmaString* tokenServiceURL_V1; // Defaults to empty
-	const EmaString* tokenServiceURL_V2; // Defaults to empty
-	const EmaString* serviceDiscoveryURL;// Defaults to empty
-	FILE* restLogOutputStreamFile;		 // Defaults to NULL to send logs to stdout
-	bool restEnableLogValue;			 // Defaults to false
+	const EmaString* _tokenServiceURL_V1; // Defaults to empty
+	const EmaString* _tokenServiceURL_V2; // Defaults to empty
+	const EmaString* _serviceDiscoveryURL;// Defaults to empty
+	FILE* _restLogOutputStreamFile;		 // Defaults to NULL to send logs to stdout
+	bool _restEnableLog;			 // Defaults to false
+	bool _restVerboseMode;			 // Defaults to false
+
+	const EmaString* _libsslName;		// Defaults to empty
+	const EmaString* _libcryptoName;		// Defaults to empty
+	const EmaString* _libcurlName;		// Defaults to empty
+	bool _shouldInitializeCPUIDlib;		// Defaults to true
 };
 
 }

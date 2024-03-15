@@ -54,8 +54,12 @@ void EmaCppNIProvPerf::exitWithUsage()
 	logText += "  -itemCount <count>                   Number of items to publish.\n";
 	logText += "  -tickRate <ticks per second>         Ticks per second.\n";
 	logText += "  -updateRate <updates per second>     Update rate per second.\n";
+	logText += "  -packedMsgsRate <updates per second> PackedMsg rate per second.\n";
 	logText += "  -latencyUpdateRate <updates/sec>     Latency update rate(can specify \"all\" to send latency in every update).\n";
 	logText += "  -refreshBurstSize <count>            Number of refreshes to send in a burst(controls granularity of time-checking).\n\n";
+
+	logText += "  -packBufSize <byte>                  Size of buffer for PackedMsg.\n";
+	logText += "  -maxPackCount  <count>               Amount of packed  Update Messages into PackedMsg.\n\n";
 
 	logText += "  -serviceName <name>                  Service Name of the provider\n";
 	logText += "  -serviceId <ID>                      Service ID of the provider\n\n";
@@ -402,6 +406,26 @@ bool EmaCppNIProvPerf::initNIProvPerfConfig(int argc, char* argv[])
 			}
 			niProvPerfConfig.providerName = argv[iargs++];
 		}
+		else if (0 == strcmp("-packBufSize", argv[iargs]))
+		{
+			++iargs;
+			if (iargs == argc)
+			{
+				exitOnMissingArgument(argv, iargs - 1);
+				return false;
+			}
+			niProvPerfConfig.packedMsgBufferSize = atoi(argv[iargs++]);
+		}
+		else if (0 == strcmp("-maxPackCount", argv[iargs]))
+		{
+			++iargs;
+			if (iargs == argc)
+			{
+				exitOnMissingArgument(argv, iargs - 1);
+				return false;
+			}
+			niProvPerfConfig.numberMsgInPackedMsg = atoi(argv[iargs++]);
+		}
 
 		else
 		{
@@ -556,6 +580,13 @@ void EmaCppNIProvPerf::printNIProvPerfConfig(FILE* file)
 		niProvPerfConfig.refreshBurstSize,
 		niProvPerfConfig.itemFilename.c_str(),
 		niProvPerfConfig.msgFilename.c_str());
+
+	if (niProvPerfConfig.numberMsgInPackedMsg)
+	{
+		fprintf(file,
+		"              Number Msg In Packed Msg: %d\n",
+		niProvPerfConfig.numberMsgInPackedMsg);
+	}
 
 	if (niProvPerfConfig.useServiceId)
 	{
@@ -790,6 +821,7 @@ bool EmaCppNIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 c
 {
 	UInt64 refreshMsgCount,
 		updateMsgCount,
+		packedMsgCount,
 		itemRequestCount,
 		closeMsgCount,
 		statusCount;
@@ -816,6 +848,7 @@ bool EmaCppNIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 c
 		// Collect counts.
 		refreshMsgCount = stats.refreshMsgCount.countStatGetChange();
 		updateMsgCount = stats.updateMsgCount.countStatGetChange();
+		packedMsgCount = stats.packedMsgCount.countStatGetChange();
 		itemRequestCount = stats.itemRequestCount.countStatGetChange();
 		closeMsgCount = stats.closeMsgCount.countStatGetChange();
 		statusCount = stats.statusCount.countStatGetChange();
@@ -841,6 +874,7 @@ bool EmaCppNIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 c
 		/* Add the new counts to the provider's total. */
 		totalStats.refreshMsgCount.countStatAdd(refreshMsgCount);
 		totalStats.updateMsgCount.countStatAdd(updateMsgCount);
+		totalStats.packedMsgCount.countStatAdd(packedMsgCount);
 		totalStats.itemRequestCount.countStatAdd(itemRequestCount);
 		totalStats.closeMsgCount.countStatAdd(closeMsgCount);
 		totalStats.statusCount.countStatAdd(statusCount);
@@ -882,6 +916,9 @@ bool EmaCppNIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 c
 
 			if (statusCount > 0)
 				printf("  - Received %llu status messages.\n", statusCount);
+
+			if (packedMsgCount)
+				printf("  Average update messages packed per message: %llu\n", updateMsgCount/packedMsgCount);
 
 			if (stats.intervalMsgEncodingStats.count > 0)
 			{

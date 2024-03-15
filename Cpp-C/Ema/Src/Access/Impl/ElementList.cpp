@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
@@ -15,6 +15,7 @@
 #include "Utilities.h"
 #include "GlobalPool.h"
 #include "OmmInvalidUsageException.h"
+#include "StaticDecoder.h"
 
 using namespace refinitiv::ema::access;
 
@@ -90,43 +91,66 @@ const EmaString& ElementList::toString() const
 	return toString( 0 );
 }
 
+const EmaString& ElementList::toString( const refinitiv::ema::rdm::DataDictionary& dictionary ) const
+{
+	ElementList elementList;
+
+	if (!dictionary.isEnumTypeDefLoaded() || !dictionary.isFieldDictionaryLoaded())
+		return _toString.clear().append("\nDictionary is not loaded.\n");
+
+	if (!_pEncoder)
+		_pEncoder = g_pool.getElementListEncoderItem();
+
+	if (_pEncoder->isComplete())
+	{
+		RsslBuffer& rsslBuffer = _pEncoder->getRsslBuffer();
+
+		StaticDecoder::setRsslData(&elementList, &rsslBuffer, RSSL_DT_ELEMENT_LIST, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, dictionary._pImpl->rsslDataDictionary());
+		_toString.clear().append(elementList.toString());
+
+		return _toString;
+	}
+
+	return _toString.clear().append("\nUnable to decode not completed ElementList data.\n");
+}
+
 const EmaString& ElementList::toString( UInt64 indent ) const
 {
-	if ( !_pDecoder )
-		return _toString.clear().append( "\nDecoding of just encoded object in the same application is not supported\n" );
+	if (!_pDecoder)
+		return _toString.clear().append("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n");
 
 	ElementListDecoder tempDecoder;
-	tempDecoder.clone( *_pDecoder );
+	addIndent(_toString.clear(), indent).append("ElementList");
 
-	addIndent( _toString.clear(), indent ).append( "ElementList" );
-			
-	if ( tempDecoder.hasInfo() )
-		_toString.append( " ElementListNum=\"" ).append( tempDecoder.getInfoElementListNum() ).append( "\"" );
+	tempDecoder.clone(*_pDecoder);
+
+	if (tempDecoder.hasInfo())
+		_toString.append(" ElementListNum=\"").append(tempDecoder.getInfoElementListNum()).append("\"");
 
 	++indent;
-		
-	while ( !tempDecoder.getNextData() )
-	{
-		addIndent( _toString.append( "\n" ), indent )
-			.append( "ElementEntry name=\"" ).append( tempDecoder.getName() )
-			.append( "\" dataType=\"" ).append( getDTypeAsString( tempDecoder.getLoad().getDataType() ) );
 
-		if ( tempDecoder.getLoad().getDataType() >= DataType::FieldListEnum || tempDecoder.getLoad().getDataType() == DataType::ArrayEnum )
+	while (!tempDecoder.getNextData())
+	{
+		addIndent(_toString.append("\n"), indent)
+			.append("ElementEntry name=\"").append(tempDecoder.getName())
+			.append("\" dataType=\"").append(getDTypeAsString(tempDecoder.getLoad().getDataType()));
+
+		if (tempDecoder.getLoad().getDataType() >= DataType::FieldListEnum || tempDecoder.getLoad().getDataType() == DataType::ArrayEnum)
 		{
-			++indent; 
-			_toString.append( "\"\n" ).append( tempDecoder.getLoad().toString( indent ) );
+			++indent;
+			_toString.append("\"\n").append(tempDecoder.getLoad().toString(indent));
 			--indent;
-			addIndent( _toString, indent ).append( "ElementEntryEnd" );
+			addIndent(_toString, indent).append("ElementEntryEnd");
 		}
-		else if ( tempDecoder.getLoad().getDataType() == DataType::BufferEnum )
+		else if (tempDecoder.getLoad().getDataType() == DataType::BufferEnum)
 		{
-			if ( tempDecoder.getLoad().getCode() == Data::BlankEnum )
-				_toString.append( "\" value=\"" ).append( tempDecoder.getLoad().toString() ).append( "\"" );
+			if (tempDecoder.getLoad().getCode() == Data::BlankEnum)
+				_toString.append("\" value=\"").append(tempDecoder.getLoad().toString()).append("\"");
 			else
-				_toString.append( "\"\n" ).append( tempDecoder.getLoad().toString() );
+				_toString.append("\"\n").append(tempDecoder.getLoad().toString());
 		}
 		else
-			_toString.append( "\" value=\"" ).append( tempDecoder.getLoad().toString() ).append( "\"" );
+			_toString.append("\" value=\"").append(tempDecoder.getLoad().toString()).append("\"");
 	}
 
 	--indent;

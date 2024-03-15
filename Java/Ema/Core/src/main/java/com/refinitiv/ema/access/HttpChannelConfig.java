@@ -9,23 +9,9 @@ package com.refinitiv.ema.access;
 
 import com.refinitiv.eta.transport.ConnectionTypes;
 
-class HttpChannelConfig extends ChannelConfig
+class HttpChannelConfig extends SocketChannelConfig
 {
-	String				hostName;
-	String				serviceName;
 	String				objectName;
-	Boolean				tcpNodelay;
-	Boolean 			httpProxy;
-	String 				httpProxyHostName;
-	String 				httpProxyPort;
-	EncryptionConfig encryptionConfig = new EncryptionConfig();
-	
-	/* Credential configuration parameters */
-	String				httpProxyUserName;
-	String				httpproxyPasswd;
-	String				httpProxyDomain;
-	String 				httpProxyLocalHostName;
-	String				httpProxyKRB5ConfigFile;
 	
 	HttpChannelConfig()
 	{

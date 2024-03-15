@@ -253,118 +253,118 @@ int main(int argc, char **argv)
 		{
 			if (strcmp("-libsslName", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(libsslName, 255, "%s", argv[i - 1]);
 				initOpts.jitOpts.libsslName = libsslName;
 			}
 			else if (strcmp("-libcryptoName", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(libcryptoName, 255, "%s", argv[i - 1]);
 				initOpts.jitOpts.libcryptoName = libcryptoName;
 			}
 			else if (strcmp("-libcurlName", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(libcurlName, 255, "%s", argv[i - 1]);
 				initOpts.jitOpts.libcurlName = libcurlName;
 			}
 			else if(strcmp("-uname", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				setUsername(argv[i-1]);
 			}
 			else if(strcmp("-at", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				setAuthenticationToken(argv[i-1]);
 			}
 			else if(strcmp("-ax", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				setAuthenticationExtended(argv[i-1]);
 			}
 			else if(strcmp("-aid", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				setApplicationId(argv[i-1]);
 			}
 			else if(strcmp("-h", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(infraHostname, 128, "%s", argv[i-1]);
 			}
 			else if(strcmp("-p", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(infraPortNo, 128, "%s", argv[i-1]);
 			}
 			else if(strcmp("-i", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(interfaceName, 128, "%s", argv[i-1]);
 			}
 			else if (strcmp("-ph", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyHostname, 128, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-pp", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyPort, 128, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-plogin", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyUserName, 128, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-ppasswd", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyPasswd, 128, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-pdomain", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyDomain, 128, "%s", argv[i - 1]);
 			}
 			else if(strcmp("-u", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(unicastPort, 128, "%s", argv[i-1]);
 			}
 			else if(strcmp("-s", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(serviceName, 128, "%s", argv[i-1]);
 			}
 			else if(strcmp("-id", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				serviceId = atol(argv[i-1]);
 				setServiceId(serviceId);
 			}
 			else if(strcmp("-sa", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(sendAddr, 128, "%s", argv[i-1]);
 				sAddr = RSSL_TRUE;
 			}
 			else if(strcmp("-ra", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(recvAddr, 128, "%s", argv[i-1]);
 				rAddr = RSSL_TRUE;
 			}
 			else if(strcmp("-sp", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(sendPort, 128, "%s", argv[i-1]);
 			}
 			else if(strcmp("-rp", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(recvPort, 128, "%s", argv[i-1]);
 			}
 			else if (strcmp("-c", argv[i]) == 0)
@@ -399,7 +399,7 @@ int main(int argc, char **argv)
 			}
 			else if (strcmp("-castore", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(sslCAStore, 255, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-spTLSv1.2", argv[i]) == 0)
@@ -414,31 +414,31 @@ int main(int argc, char **argv)
 			}
 			else if(strcmp("-hsmAddr", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(hsmAddress, 128, "%s", argv[i-1]);
 				enableHostStatMessages = RSSL_TRUE;
 			}
 			else if(strcmp("-hsmPort", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(hsmPort, 128, "%s", argv[i-1]);
 				enableHostStatMessages = RSSL_TRUE;
 			}
 			else if(strcmp("-hsmInterface", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(hsmInterface, 128, "%s", argv[i-1]);
 				enableHostStatMessages = RSSL_TRUE;
 			}
 			else if(strcmp("-hsmInterval", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				hsmInterval = atoi(argv[i-1]);
 				enableHostStatMessages = RSSL_TRUE;
 			}
 			else if(strcmp("-mp", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				/* add item name in market price handler */
 				addItemName(argv[i-1], RSSL_DMT_MARKET_PRICE);	
 				itemProvided = RSSL_TRUE;
@@ -446,7 +446,7 @@ int main(int argc, char **argv)
 			}
 			else if(strcmp("-mbo", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				/* add item name in market by order handler */
 				addItemName(argv[i-1], RSSL_DMT_MARKET_BY_ORDER);	
 				itemProvided = RSSL_TRUE;
@@ -465,12 +465,12 @@ int main(int argc, char **argv)
 			}
 			else if(strcmp("-runtime", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				timeToRun = atoi(argv[i-1]);
 			}
 			else if ((strcmp("-protocolList", argv[i]) == 0) || (strcmp("-pl", argv[i]) == 0))
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(protocolList, 128, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-jsonEnumExpand", argv[i]) == 0)

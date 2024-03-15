@@ -115,7 +115,7 @@ if( UNIX )
 	endif()
 
 	# flags for C++
-    set( RCDEV_CXX_FLAGS_INIT "${_compilerBitFlags} -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -Wno-ctor-dtor-privacy -Wno-deprecated -std=c++98 -pthread  -D_iso_stdcpp_ -D_DEFAULT_SOURCE=1 -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE"  CACHE STRING "" FORCE)
+    set( RCDEV_CXX_FLAGS_INIT "${_compilerBitFlags} -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -Wno-ctor-dtor-privacy -Wno-deprecated -std=c++11 -pthread  -D_iso_stdcpp_ -D_DEFAULT_SOURCE=1 -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE"  CACHE STRING "" FORCE)
 	if ( ${CMAKE_BUILD_TYPE} STREQUAL "Optimized" )
 		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING ""  FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )

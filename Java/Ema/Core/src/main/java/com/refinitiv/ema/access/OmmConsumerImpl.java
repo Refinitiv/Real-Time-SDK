@@ -731,7 +731,6 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 					channelInformation.componentInfo("unavailable");
 				else {
 					channelInformation.componentInfo(rci.channelInfo().componentInfo().get(0).componentVersion().toString());
-
 				}
 				if (rci.channelInfo() == null ||
 					rci.channelInfo().securityProtocol() == null ||
@@ -753,6 +752,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 				channelInformation.majorVersion(channel.majorVersion());
 				channelInformation.minorVersion(channel.minorVersion());
 				channelInformation.pingTimeout(channel.pingTimeout());
+				channelInformation.encryptedConnectionType(channel.encryptedConnectionType());
 			}
 			else {
 				channelInformation.channelState(ChannelState.INACTIVE);

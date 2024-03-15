@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -13,6 +13,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
@@ -178,7 +179,7 @@ public class MapTests extends TestCase
 			Map map = EmaFactory.createMap();
 			map.keyFieldId(11).totalCountHint(3).keyType(DataType.DataTypes.ASCII);
 			map.add(EmaFactory.createMapEntry().keyAscii("Key1", MapEntry.MapAction.ADD));
-			TestUtilities.checkResult("Map.toString() == toString() not supported", map.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("Map.toString() == toString()", map.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 			
 			ElementList elementList = EmaFactory.createElementList();
 			elementList.add(EmaFactory.createElementEntry().map("1", map));
@@ -270,34 +271,65 @@ public class MapTests extends TestCase
 	public void testMapEntryKeyAsciiWithNoPayload_Encode_Decode()
 	{
 		TestUtilities.printTestHead("testMapEntryKeyAsciiWithNoPayload_Encode_Decode","Encode and decode Map with no payload for ascii key entry");
-		
+
+		String mapString = "Map\n" +
+				"    MapEntry action=\"Add\" key dataType=\"Ascii\" value=\"ITEM1\" dataType=\"NoData\"\n" +
+				"        NoData\n" +
+				"        NoDataEnd\n" +
+				"    MapEntryEnd\n" +
+				"    MapEntry action=\"Update\" key dataType=\"Ascii\" value=\"ITEM2\" permissionData=\"00 00 04 d2\" dataType=\"NoData\"\n" +
+				"        NoData\n" +
+				"        NoDataEnd\n" +
+				"    MapEntryEnd\n" +
+				"    MapEntry action=\"Delete\" key dataType=\"Ascii\" value=\"ITEM3\" dataType=\"NoData\"\n" +
+				"        NoData\n" +
+				"        NoDataEnd\n" +
+				"    MapEntryEnd\n" +
+				"MapEnd\n";
+
 		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
 				.createDataDictionary();
 		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
-			
+			Map mapEmpty = EmaFactory.createMap();
+
 			ByteBuffer permissionData = ByteBuffer.allocate(4);
 			permissionData.putInt(1234).flip();
 			
 			MapEntry me = EmaFactory.createMapEntry().keyAscii("ITEM1", MapEntry.MapAction.ADD);
-			TestUtilities.checkResult("MapEntry.toString() == toString() not supported", me.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			TestUtilities.checkResult("MapEntry.toString() == toString()", me.toString().equals("\nEntity is not encoded yet. Complete encoding to use this method.\n"));
 			
 			mapEnc.add(me);
 			mapEnc.add(EmaFactory.createMapEntry().keyAscii("ITEM2", MapEntry.MapAction.UPDATE, permissionData));
 			mapEnc.add(EmaFactory.createMapEntry().keyAscii("ITEM3", MapEntry.MapAction.DELETE));
-			
+
+			DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+
+			TestUtilities.checkResult("Map.toString(dictionary) == toString(dictionary)", mapEnc.toString(emaDataDictionary).equals("\nDictionary is not loaded.\n"));
+
+			emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+			emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+
+			TestUtilities.checkResult("Map.toString(dictionary) == toString(dictionary)", mapEnc.toString(emaDataDictionary).equals(mapString));
+
+			TestUtilities.checkResult("Map.toString(dictionary) == toString(dictionary)", mapEmpty.toString(emaDataDictionary).equals("Map\nMapEnd\n"));
+
+			mapEmpty.add(me);
+			mapEmpty.clear();
+			TestUtilities.checkResult("Map.toString(dictionary) == toString(dictionary)", mapEmpty.toString(emaDataDictionary).equals("Map\nMapEnd\n"));
+
 			Map mapDec = JUnitTestConnect.createMap();
 			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 			// check that we can still get the toString on encoded/decoded container.
-			TestUtilities.checkResult("Map.toString() != toString() not supported", !(mapDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
-			
+			TestUtilities.checkResult("Map.toString() != toString()", !(mapDec.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
+
 			Iterator<MapEntry> mapIt = mapDec.iterator();
 			
 			MapEntry mapEntryA = mapIt.next();
 			// check that we can still get the toString on encoded/decoded entry.
-			TestUtilities.checkResult("MapEntry.toString() != toString() not supported", !(mapEntryA.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+			TestUtilities.checkResult("MapEntry.toString() != toString()", !(mapEntryA.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 
 			TestUtilities.checkResult( mapEntryA.key().ascii().ascii().equals("ITEM1"), "Check the key value of the first map entry");
 			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");

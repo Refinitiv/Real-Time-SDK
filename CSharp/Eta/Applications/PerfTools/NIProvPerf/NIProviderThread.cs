@@ -196,15 +196,7 @@ namespace LSEG.Eta.Perftools.NIProvPerf
             {
                 m_ConnectInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol = NIProvPerfConfig.EncryptedConnectionType;
 
-                try
-                {
-                    m_ConnectInfo.ConnectOptions.EncryptionOpts.EncryptionProtocolFlags = NIProvPerfConfig.EncryptionProtocol.Value;
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"Error: {ex.Message}.");
-                    System.Environment.Exit((int)TransportReturnCode.FAILURE);
-                }
+                m_ConnectInfo.ConnectOptions.EncryptionOpts.EncryptionProtocolFlags = NIProvPerfConfig.EncryptionProtocol;
             }
             m_ConnectInfo.ConnectOptions.TcpOpts.TcpNoDelay = NIProvPerfConfig.TcpNoDelay;
 

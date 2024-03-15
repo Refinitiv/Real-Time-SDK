@@ -42,6 +42,10 @@
 #include <unistd.h>
 #endif
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 void time_sleep(int millisec)
 {
 #ifdef WIN32
@@ -408,7 +412,7 @@ TEST_P(ReactorUtilTest, UnreachableAddress)
 	reactorUnitTests_InvalidNetworkInterface(GetParam());
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	TestingReactorUtilTests,
 	ReactorUtilTest,
 	::testing::Values(
@@ -2305,7 +2309,7 @@ public:
 	void* pErrorResult;
 };
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	TestingReactorQueryServiceDiscoveryTests,
 	ReactorQueryServiceDiscoveryTest,
 	::testing::Values(

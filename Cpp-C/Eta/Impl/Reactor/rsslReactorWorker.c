@@ -634,7 +634,7 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 				if (pRestRequestArgs)
 				{
 					_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts,
-						&pReactorImpl->restProxyOptions, pRestRequestArgs);
+						&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 					if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 						(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError);
@@ -851,7 +851,7 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 			pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
 			_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
-				&pReactorImpl->restProxyOptions, pRestRequestArgs);
+				&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 			if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 				(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
@@ -1584,7 +1584,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
 
 													_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts,
-														&pReactorImpl->restProxyOptions, pRestRequestArgs);
+														&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 
 													if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
@@ -1714,7 +1714,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 														RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
 
 														_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts,
-															&pReactorImpl->restProxyOptions, pRestRequestArgs);
+															&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 													}
 													else
 													{
@@ -1976,6 +1976,9 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 														if (pRestRequestArgs != NULL)
 														{
+															_assignServiceDiscoveryOptionsToRequestArgs(&pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions,
+																&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
+
 															if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 																(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorWorker->workerCerr.rsslError);
 
@@ -2024,7 +2027,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												if (pRestRequestArgs != NULL)
 												{
 													_assignServiceDiscoveryOptionsToRequestArgs(&pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions,
-														&pReactorImpl->restProxyOptions, pRestRequestArgs);
+														&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 													if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 														(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorWorker->workerCerr.rsslError);
@@ -2779,7 +2782,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							if (pRestRequestArgs)
 							{
 								_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts,
-									&pReactorImpl->restProxyOptions, pRestRequestArgs);
+									&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 								if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 									(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -2871,7 +2874,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						if (pRestRequestArgs)
 						{
 							_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts,
-								&pReactorImpl->restProxyOptions, pRestRequestArgs);
+								&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 							if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 								(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -3723,7 +3726,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 				}
 
 				_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
-					&pReactorImpl->restProxyOptions, pRestRequestArgs);
+					&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
@@ -3801,7 +3804,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 				}
 
 				_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
-					&pReactorImpl->restProxyOptions, pRestRequestArgs);
+					&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
@@ -4213,7 +4216,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 							}
 
 							_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
-								&pReactorImpl->restProxyOptions, pRestRequestArgs);
+								&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 							if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 								(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
@@ -4370,7 +4373,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					if (pRestRequestArgs)
 					{
 						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts,
-							&pReactorImpl->restProxyOptions, pRestRequestArgs);
+							&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 						if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 							(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -4485,7 +4488,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					if (pRestRequestArgs)
 					{
 						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts,
-							&pReactorImpl->restProxyOptions, pRestRequestArgs);
+							&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 						if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 							(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -5326,7 +5329,7 @@ static void rsslRestAuthTokenResponseCallbackForExplicitSD(RsslRestResponse* res
 			}
 
 			_assignServiceDiscoveryOptionsToRequestArgs(&pExplicitSDInfo->serviceDiscoveryOptions,
-				&pReactorImpl->restProxyOptions, pRestRequestArgs);
+				&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 			if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 				(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslErrorInfo.rsslError);
@@ -5388,7 +5391,7 @@ static void rsslRestAuthTokenResponseCallbackForExplicitSD(RsslRestResponse* res
 				{
 					RsslRestHandle* pHandle = NULL;
 					_assignServiceDiscoveryOptionsToRequestArgs(&pExplicitSDInfo->serviceDiscoveryOptions,
-						&pReactorImpl->restProxyOptions, pRestRequestArgs);
+						&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 					if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 						(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslErrorInfo.rsslError);
@@ -5625,7 +5628,7 @@ static void rsslRestServiceDiscoveryResponseCallbackForExplicitSD(RsslRestRespon
 				}
 
 				_assignServiceDiscoveryOptionsToRequestArgs(&pExplicitSDInfo->serviceDiscoveryOptions,
-					&pReactorImpl->restProxyOptions, pRestRequestArgs);
+					&pReactorImpl->restProxyOptions, pReactorImpl->restVerboseMode, pRestRequestArgs);
 
 				if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 					(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslErrorInfo.rsslError);

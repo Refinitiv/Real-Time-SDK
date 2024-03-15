@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
@@ -792,6 +792,8 @@ public class ConsumerConfigTests
         consumerConfig.ProxyPort("TestProxyPortOverride");
         consumerConfig.ProxyUserName("TestProxyUsernameOverride");
         consumerConfig.ProxyPassword("testProxyPasswordOverride");
+        consumerConfig.ChannelType(EmaConfig.ConnectionTypeEnum.ENCRYPTED);
+        consumerConfig.EncryptedProtocolType(EmaConfig.EncryptedProtocolTypeEnum.SOCKET);
 
         // Verify that the config works here
         try
@@ -837,6 +839,9 @@ public class ConsumerConfigTests
         Assert.Equal("TestProxyPortOverride", copiedConfig.ProxyPort);
         Assert.Equal("testProxyPasswordOverride", copiedConfig.ProxyPassword);
         Assert.Equal("TestProxyUsernameOverride", copiedConfig.ProxyUserName);
+        Assert.True((ConnectionType)EmaConfig.ConnectionTypeEnum.ENCRYPTED == copiedConfig.ChanType);
+        Assert.True((ConnectionType)EmaConfig.EncryptedProtocolTypeEnum.SOCKET == copiedConfig.EncProtocolType);
+
 
         // Verify that the ConsumerName has been properly set, that the copied Config has the TestConsumer in the consumer config map, and that 
         // the ConsumerConfig object referenced by ConsumerConfig is the same as in the map.

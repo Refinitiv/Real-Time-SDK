@@ -2174,6 +2174,7 @@ struct _RsslReactorImpl
 	RsslErrorInfo		*pJsonErrorInfo; /* Place holder for JSON error messages */
 	RsslBool			closeChannelFromFailure; /* This is used to indicate whether to close the channel from dispatching */
 	RsslBool			restEnableLog;	/* Enable REST interaction debug messages */
+	RsslBool			restVerboseMode;	/* Enable Verbose REST debug messages */
 	FILE				*restLogOutputStream;	/* Set output stream for REST debug message (by default is stdout) */
 	RsslBool			restEnableLogViaCallback;	/* Enable of invoking a callback specified by user to receive Rest logging message (pRestLoggingCallback). */
 	RsslReactorRestLoggingCallback	*pRestLoggingCallback;	/* Sets a callback specified by users to receive Rest logging message. */
@@ -2202,7 +2203,7 @@ RTR_C_INLINE RsslBool isReactorDebugEnabled(RsslReactorImpl *pReactorImpl)
 	return (pReactorImpl->debugLevel != RSSL_RC_DEBUG_LEVEL_NONE);
 }
 
-void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslProxyOpts* pReactorRestProxyOpts, RsslRestRequestArgs* pRestRequestArgs);
+void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslProxyOpts* pReactorRestProxyOpts, RsslBool restVerboseMode, RsslRestRequestArgs* pRestRequestArgs);
 
 /* Populates the request for v1 token handling */
 RsslRestRequestArgs* _reactorCreateTokenRequestV1(RsslReactorImpl *pReactorImpl, RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pNewPassword,
@@ -2290,7 +2291,7 @@ RsslRet _initReactorChannelDebugInfo(RsslReactorImpl *pReactorImpl, RsslReactorC
 
 void _cleanupReactorChannelDebugInfo(RsslReactorChannelImpl *pReactorChannel);
 
-void _assignServiceDiscoveryOptionsToRequestArgs(RsslReactorServiceDiscoveryOptions* pOpts, RsslProxyOpts* pReactorRestProxyOpts, RsslRestRequestArgs* pRestRequestArgs);
+void _assignServiceDiscoveryOptionsToRequestArgs(RsslReactorServiceDiscoveryOptions* pOpts, RsslProxyOpts* pReactorRestProxyOpts, RsslBool restVerboseMode, RsslRestRequestArgs* pRestRequestArgs);
 
 RsslRet _reactorSubmitWatchlistMsg(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel,
 			RsslWatchlistProcessMsgOptions *pOptions, RsslErrorInfo *pError);

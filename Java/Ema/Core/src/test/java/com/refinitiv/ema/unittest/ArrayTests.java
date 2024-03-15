@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import com.refinitiv.ema.access.*;
+import com.refinitiv.ema.rdm.DataDictionary;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Array;
@@ -2133,32 +2134,77 @@ public class ArrayTests
 
 	void testArrayBuffer_EncodeDecode( boolean fixedSize )
 	{
+		String arrayString = "OmmArray with entries of dataType=\"Buffer\"\n" +
+				"    value=\"\n" +
+				"4142 43                                          ABC\n" +
+				"    value=\"\n" +
+				"4445 4647 48                                    DEFGH\n" +
+				"    value=\"\n" +
+				"4B4C 4D4E 4F50 5152  53                       KLMNOPQRS\n" +
+				"OmmArrayEnd\n";
+
 		String appendText = fixedSize ?  "fixed size\n"  : "varying size\n";
 		TestUtilities.printTestHead("testArrayBuffer_EncodeDecode",  "Encode and Decode OmmArray Buffer  with " + appendText);
 
 		OmmArray encArray = EmaFactory.createOmmArray();
+		OmmArray encArrayEmpty = EmaFactory.createOmmArray();
 		try {
+
 			if ( fixedSize )
 				encArray.fixedWidth( 8 );
 
 			OmmArrayEntry ae = EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("ABC".getBytes()));
-			TestUtilities.checkResult("OmmArrayEntry.toString() == toString() not supported", ae.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			TestUtilities.checkResult("OmmArrayEntry.toString() == toString()", ae.toString().equals("\nEntity is not encoded yet. Complete encoding to use this method.\n"));
 			
 			encArray.add(ae);
-			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			TestUtilities.checkResult("OmmArray.toString() == toString()", encArray.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 			
 			encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("DEFGH".getBytes())));
-			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			TestUtilities.checkResult("OmmArray.toString() == toString()", encArray.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 			
 			encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("KLMNOPQRS".getBytes())));
-			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			TestUtilities.checkResult("OmmArray.toString() == toString()", encArray.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			TestUtilities.checkResult( true, "Encode OmmArray Int - exception not expected" );
+
+			if (!fixedSize)
+			{
+				DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+
+				TestUtilities.checkResult("OmmArray.toString(dictionary) == toString(dictionary)", encArray.toString(emaDataDictionary).equals("\nDictionary is not loaded.\n"));
+
+				emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+				emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+
+				TestUtilities.checkResult("OmmArray.toString(dictionary) == toString(dictionary)", encArray.toString(emaDataDictionary).equals(arrayString));
+
+				try
+				{
+					encArrayEmpty.toString(emaDataDictionary);
+					TestUtilities.checkResult( false, "OmmArray empty - exception expected" );
+				}
+				catch ( OmmException excp )
+				{
+					TestUtilities.checkResult( true, "OmmArray empty - exception expected: "  + excp.getMessage() );
+				}
+
+				try
+				{
+					encArrayEmpty.add(ae);
+					encArrayEmpty.clear();
+					encArrayEmpty.toString(emaDataDictionary);
+					TestUtilities.checkResult( false, "OmmArray after clear() - exception expected" );
+				}
+				catch ( OmmException excp )
+				{
+					TestUtilities.checkResult( true, "OmmArray after clear() - exception expected: "  + excp.getMessage() );
+				}
+			}
 
 			OmmArray decArray = JUnitTestConnect.createOmmArray();
 			JUnitTestConnect.setRsslData(decArray, encArray, Codec.majorVersion(), Codec.minorVersion(), null, null);
 			// check that we can still get the toString on encoded/decoded container.
-			TestUtilities.checkResult("OmmArray.toString() != toString() not supported", !(decArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
+			TestUtilities.checkResult("OmmArray.toString() != toString()", !(decArray.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 			
 	        TestUtilities.checkResult( decArray.hasFixedWidth() == fixedSize, "OmmArray with three Buffer - hasFixedWidth()" );
 			TestUtilities.checkResult( decArray.fixedWidth() == (fixedSize ? 8 : 0 ), "OmmArray with three Buffer - getFixedWidth()" );
@@ -2204,7 +2250,7 @@ public class ArrayTests
 				ae1 = iter.next();
 
 				// check that we can still get the toString on encoded/decoded entry.
-				TestUtilities.checkResult("OmmArrayEntry.toString() != toString() not supported", !(ae1.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+				TestUtilities.checkResult("OmmArrayEntry.toString() != toString()", !(ae1.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 				
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
 				try {
@@ -2382,23 +2428,23 @@ public class ArrayTests
 				encArray.fixedWidth( 8 );
 
 			OmmArrayEntry ae = EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("ABC".getBytes()));
-			TestUtilities.checkResult("OmmArrayEntry.toString() == toString() not supported", ae.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			TestUtilities.checkResult("OmmArrayEntry.toString() == toString() not supported", ae.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 			
 			encArray.add(ae);
-			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 			
 			encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("DEFGH".getBytes())));
-			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 			
 			encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("KLMNOPQRS".getBytes())));
-			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			TestUtilities.checkResult( true, "Encode OmmArray Int - exception not expected" );
 
 			OmmArray decArray = JUnitTestConnect.createOmmArray();
 			JUnitTestConnect.setRsslData(decArray, encArray, Codec.majorVersion(), Codec.minorVersion(), null, null);
 			// check that we can still get the toString on encoded/decoded container.
-			TestUtilities.checkResult("OmmArray.toString() != toString() not supported", !(decArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
+			TestUtilities.checkResult("OmmArray.toString() != toString() not supported", !(decArray.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 			
 	        TestUtilities.checkResult( decArray.hasFixedWidth() == fixedSize, "OmmArray with three Buffer - hasFixedWidth()" );
 			TestUtilities.checkResult( decArray.fixedWidth() == (fixedSize ? 8 : 0 ), "OmmArray with three Buffer - getFixedWidth()" );
@@ -2444,7 +2490,7 @@ public class ArrayTests
 				ae1 = iter.next();
 
 				// check that we can still get the toString on encoded/decoded entry.
-				TestUtilities.checkResult("OmmArrayEntry.toString() != toString() not supported", !(ae1.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+				TestUtilities.checkResult("OmmArrayEntry.toString() != toString() not supported", !(ae1.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 				
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
 				try {

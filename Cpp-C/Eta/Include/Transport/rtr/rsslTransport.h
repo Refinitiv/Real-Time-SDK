@@ -942,7 +942,7 @@ typedef struct {
 	char*				serverCert;					/*!< Path to this server's certificate.   */
 	char*				serverPrivateKey;			/*!< Path to the server's key file */
 	char*				cipherSuite;				/*!< Optional OpenSSL formatted cipher suite string.  ETA's default configuration is OWASP's "B" tier recommendations, which are the following:
-														DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!DSS:!RC4:!SEED:!ECDSA:!ADH:!IDEA:!3DES */
+														ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!DSS:!RC4:!SEED:!ADH:!IDEA:!3DES */
 	char*				dhParams;					/*!< Optional Diffie-Hellman parameter file.  If this is not present, RSSL will load it's default DH parameters */
 } RsslBindEncryptionOpts;
 
@@ -966,7 +966,7 @@ typedef struct {
 	RsslBool		tcp_nodelay;			/*!< @deprecated DEPRECATED: Only used with connectionType of SOCKET.  If RSSL_TRUE, disables Nagle's Algorithm. Users should migrate to the RsslBindOptions::tcpOpts::tcp_nodelay configuration for the same behavior with current and future connection types */
 	RsslBool		serverToClientPings;	/*!< @brief If RSSL_TRUE, pings will be sent from server side to client side */
 	RsslBool		clientToServerPings;	/*!< @brief If RSSL_TRUE, pings will be sent from client side to server side */
-	RsslConnectionTypes	connectionType;		/*!< @brief If RSSL_CONN_TYPE_UNIDIR_SHMEM this will use server to client shared memory.  Setting to RSSL_CONN_TYPE_SOCKET or RSSL_CONN_TYPE_HTTP will allow for accepting both socket or HTTP connection types.  RSSL_CONN_TYPE_ENCRYPTED is currently not supported for servers  */
+	RsslConnectionTypes	connectionType;		/*!< @brief If RSSL_CONN_TYPE_UNIDIR_SHMEM this will use server to client shared memory.  Setting to RSSL_CONN_TYPE_SOCKET or RSSL_CONN_TYPE_HTTP will allow for accepting both socket or HTTP connection types. */
 	RsslUInt32		pingTimeout;			/*!< @brief Desired amount of time to use as a timeout for a connected channel. */
 	RsslUInt32		minPingTimeout;			/*!< @brief Least amount of time to use as a timeout for a connected channel. */
 	RsslUInt32		maxFragmentSize;		/*!< @brief Sets the maximum size fragment to be sent without any fragmentation or assembly of messages. */

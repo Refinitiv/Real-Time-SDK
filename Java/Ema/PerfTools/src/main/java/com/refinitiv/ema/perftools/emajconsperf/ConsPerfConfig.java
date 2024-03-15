@@ -2,11 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.perftools.emajconsperf;
+
+import java.util.Arrays;
 
 import com.refinitiv.ema.perftools.common.CommandLine;
 
@@ -83,6 +85,8 @@ public class ConsPerfConfig
 	private String _keyfile;				/* Keyfile for encryption */
 	private String _keypasswd;				/* Keyfile password */
 
+	private String _securityProtocol;		/* Security Protocol to use for an encrypted connection. Defaults to TLS. */
+	private String[] _securityProtocolVersions; /* List of Security Protocol Versions to use for an encrypted connection. Defaults to 1.2 and 1.3 for TLS. */
 	
     {
         CommandLine.programName("emajConsPerf");
@@ -115,6 +119,8 @@ public class ConsPerfConfig
         CommandLine.addOption("keypasswd", "", "Keystore password");
         CommandLine.addOption("consumerName", "", "Name of the Consumer component in config file EmaConfig.xml that will be usd to configure connection.");
         CommandLine.addOption("websocket", "", "Using websocket connection with specified sub-protocol: \"rssl.json.v2\" or \"rssl.rwf\"");
+	CommandLine.addOption("spTLSv1.2", "", "Specifies for an encrypted connection to be able to use TLS 1.2, default is 1.2 and 1.3 enabled");
+	CommandLine.addOption("spTLSv1.3", "", "Specifies for an encrypted connection to be able to use TLS 1.3, default is 1.2 and 1.3 enabled");
     }
 	
     /**
@@ -137,6 +143,9 @@ public class ConsPerfConfig
         	System.err.println(CommandLine.optionHelpString());
         	System.exit(-1);
         }
+
+        boolean tlsv12 = false;
+        boolean tlsv13 = false;
 
     	_maxThreads = maxThreads;
     	_msgFilename = CommandLine.value("msgFile");
@@ -184,7 +193,28 @@ public class ConsPerfConfig
         }
         
         _consumerName = CommandLine.value("consumerName");
-        
+
+        // Set TLS versions based on arguments, or TLS 1.2 and 1.3 by default
+        if (CommandLine.hasArg("spTLSv1.2"))
+        	tlsv12 = true;
+        if (CommandLine.hasArg("spTLSv1.3"))
+        	tlsv13 = true;
+        if ((tlsv12 && tlsv13) || (!tlsv12 && !tlsv13))
+        {
+        	_securityProtocol = "TLS";
+        	_securityProtocolVersions = new String[] {"1.2", "1.3"};
+        }
+        else if (tlsv12)
+        {
+        	_securityProtocol = "TLS";
+        	_securityProtocolVersions = new String[] {"1.2"};
+        }
+        else if (tlsv13)
+        {
+        	_securityProtocol = "TLS";
+        	_securityProtocolVersions = new String[] {"1.3"};
+        }
+
         try
         {
         	_steadyStateTime = CommandLine.intValue("steadyStateTime");
@@ -359,7 +389,9 @@ public class ConsPerfConfig
 				"               Prime JVM: " + (_primeJVM ? "Yes" : "No") + "\n" +
 				"        DowncastDecoding: " + (_downcastDecoding ? "True" : "False") + "\n" +
 				"    OperationModel Usage: " + useOperationModelUsageString + "\n" +
-				"      Websocket protocol: " + WebSocketSubProtocol.convertToString(_webSocketSubProtocol) + "\n";
+				"      Websocket protocol: " + WebSocketSubProtocol.convertToString(_webSocketSubProtocol) + "\n" +
+				"       Security Protocol: " + _securityProtocol + "\n" +
+				" Security Proto Versions: " + Arrays.toString(_securityProtocolVersions) + "\n";
 	}
 
 	/* APPLICATION configuration */
@@ -690,5 +722,21 @@ public class ConsPerfConfig
     public String consumerName()
     {
     	return _consumerName;
+    }
+
+    /**
+     * The security protocol specified by users for an encrypted connection.
+     * @return the security protocol
+     */
+    public String securityProtocol() {
+    	return _securityProtocol;
+    }
+
+    /**
+     * The list of security protocol versions specified by users for the security protocol specified for an encrypted connection.
+     * @return list of security protocol versions
+     */
+    public String[] securityProtocolVersions() {
+    	return _securityProtocolVersions;
     }
 }

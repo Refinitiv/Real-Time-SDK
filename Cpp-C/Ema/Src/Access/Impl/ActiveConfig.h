@@ -134,6 +134,7 @@
 #define DEFAULT_JSON_TOKEN_INCREMENT_SIZE			  500
 #define DEFAULT_ENABLE_RTT							  false
 #define DEFAULT_REST_ENABLE_LOG						  false
+#define DEFAULT_REST_VERBOSE_MODE					  false
 #define DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK		  false
 #define DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG		  false;
 #define DEFAULT_WSB_MODE							  RSSL_RWSB_MODE_LOGIN_BASED
@@ -481,6 +482,7 @@ public:
 	bool					xmlTraceDump;
 	bool					enableRtt;
 	bool					restEnableLog;
+	bool					restVerboseMode;
 	bool					restEnableLogViaCallback;
 	bool					sendJsonConvError;
 	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider

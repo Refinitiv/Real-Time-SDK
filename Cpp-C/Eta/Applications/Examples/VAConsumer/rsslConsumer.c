@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2023 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2024 Refinitiv. All rights reserved.
 */
 
 /*
@@ -66,6 +66,7 @@ static RsslBool enableSessionMgnt = RSSL_FALSE;
 static RsslBool RTTSupport = RSSL_FALSE;
 static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
 static RsslBool restEnableLog = RSSL_FALSE;
+static RsslBool restVerboseMode = RSSL_FALSE;
 static RsslUInt restEnableLogViaCallback = 0U;  // 0: disabled, 1: enabled from the start, 2: enabled after initialization stage
 static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
 static time_t debugInfoIntervalMS = 50;
@@ -112,6 +113,7 @@ RsslBuffer appId = RSSL_INIT_BUFFER;
 RsslBuffer tokenURLV1 = RSSL_INIT_BUFFER;
 RsslBuffer tokenURLV2 = RSSL_INIT_BUFFER;
 RsslBuffer serviceDiscoveryURL = RSSL_INIT_BUFFER;
+RsslBuffer serviceDiscoveryLocation = RSSL_INIT_BUFFER;
 RsslBuffer tokenScope = RSSL_INIT_BUFFER;
 RsslReactorChannelStatistic channelStatistics;
 
@@ -122,6 +124,7 @@ static char libcurlName[255];
 static char tokenURLNameV1[255];
 static char tokenURLNameV2[255];
 static char serviceDiscoveryURLName[255];
+static char serviceDiscoveryLocationName[255];
 static char tokenScopeName[255];
 
 static char restProxyHost[256];
@@ -129,6 +132,7 @@ static char restProxyPort[256];
 static char restProxyUserName[128];
 static char restProxyPasswd[128];
 static char restProxyDomain[128];
+
 
 static char sslCAStore[255];
 static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
@@ -200,11 +204,13 @@ void printUsageAndExit(char *appName)
 			"\n -runtime adjusts the running time of the application.\n"
 			"\n -maxEventsInPool size of event pool\n"
 			"\n -restEnableLog enable REST logging message\n"
+			"\n -restVerbose enable verbose REST logging message\n"
 			"\n -restLogFileName set REST logging output stream\n"
 			"\n -restEnableLogViaCallback <type> enable an alternative way to receive REST logging messages via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage.\n"
 			"\n -tokenURLV1 token generator URL V1\n"
 			"\n -tokenURLV2 token generator URL V2\n"
 			"\n -serviceDiscoveryURL Service Discovery URL\n"
+			"\n -location specifies location/region when dogin service discovery\n"
 			"\n -tokenScope Scope for the token. Used with both V1 and V2 tokens\n"
 			"\n -restProxyHost <proxy host> Proxy host name. Used for Rest requests only: service discovery, auth\n"
 			"\n -restProxyPort <proxy port> Proxy port. Used for Rest requests only: service discovery, auth\n"
@@ -306,7 +312,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (strcmp("-clientSecret", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				clientSecret.length = snprintf(clientSecretBlock, sizeof(clientSecretBlock), "%s", argv[i - 1]);
 				clientSecret.data = clientSecretBlock;
 			}
@@ -336,31 +342,37 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (strcmp("-audience", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				audience.length = snprintf(audienceBlock, sizeof(audienceBlock), "%s", argv[i - 1]);
 				audience.data = audienceBlock;
 			}
 			else if (strcmp("-tokenURLV1", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				tokenURLV1.length = snprintf(tokenURLNameV1, sizeof(tokenURLNameV1), "%s", argv[i - 1]);
 				tokenURLV1.data = tokenURLNameV1;
 			}
 			else if (strcmp("-tokenURLV2", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				tokenURLV2.length = snprintf(tokenURLNameV2, sizeof(tokenURLNameV2), "%s", argv[i - 1]);
 				tokenURLV2.data = tokenURLNameV2;
 			}
 			else if (strcmp("-serviceDiscoveryURL", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				serviceDiscoveryURL.length = snprintf(serviceDiscoveryURLName, sizeof(serviceDiscoveryURLName), "%s", argv[i - 1]);
 				serviceDiscoveryURL.data = serviceDiscoveryURLName;
 			}
+			else if (strcmp("-location", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				serviceDiscoveryLocation.length = snprintf(serviceDiscoveryLocationName, sizeof(serviceDiscoveryLocationName), "%s", argv[i - 1]);
+				serviceDiscoveryLocation.data = serviceDiscoveryLocationName;
+			}
 			else if (strcmp("-tokenScope", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				tokenScope.length = snprintf(tokenScopeName, sizeof(tokenScopeName), "%s", argv[i - 1]);
 				tokenScope.data = tokenScopeName;
 			}
@@ -476,6 +488,11 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i++;
 				restEnableLog = RSSL_TRUE;
+			}
+			else if (strcmp("-restVerbose", argv[i]) == 0)
+			{
+				i++;
+				restVerboseMode = RSSL_TRUE;
 			}
 			else if (strcmp("-restEnableLogViaCallback", argv[i]) == 0)
 			{
@@ -1251,7 +1268,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (0 == strcmp("-debuginfoInterval", argv[i]))
 			{
-				i+=2;
+				i+=2; if (i > argc) printUsageAndExit(argv[0]);
 				reactorDebugLevel = (time_t)atoi(argv[i]);;
 			}
 			else if (strcmp("-tsServiceName", argv[i]) == 0)
@@ -1366,7 +1383,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else
 			{
-				printf("Unknown option: %s\n", argv[i]);
+				printf("Error: Unrecognized option: %s\n", argv[i]);
 				printUsageAndExit(argv[0]);
 			}
 
@@ -1498,6 +1515,7 @@ void closeConnection(RsslReactor *pReactor, RsslReactorChannel *pChannel, Channe
 	}
 
 	pCommand->reactorChannelReady = RSSL_FALSE;
+	pCommand->reactorChannelClosed = RSSL_TRUE;
 }
 
 RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorAuthTokenEvent *pAuthTokenEvent)
@@ -1907,9 +1925,6 @@ int main(int argc, char **argv)
 	if (password.length)
 	{
 		oAuthCredential.password = password;
-
-		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If a client ID was specified */
@@ -1918,24 +1933,21 @@ int main(int argc, char **argv)
 		oAuthCredential.clientId = clientId;
 		/* This is only used with Refinitiv token service V1 */
 		oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
+		
+		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If a client secret was specified */
 	if (clientSecret.length)
 	{
 		oAuthCredential.clientSecret = clientSecret;
-
-		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If a JWK was specified */
 	if (clientJWK.length)
 	{
 		oAuthCredential.clientJWK = clientJWK;
-
-		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If an audience was specified */
@@ -2098,6 +2110,11 @@ int main(int argc, char **argv)
 		pOpts->reconnectMaxDelay = 5000;
 		pOpts->reconnectMinDelay = 1000;
 
+		if (serviceDiscoveryLocation.length != 0)
+		{
+			pOpts->reactorConnectionList->location = serviceDiscoveryLocation;
+		}
+
 		/* Specify interests to get channel statistics */
 		if(statisticInterval > 0)
 			pCommand->cOpts.statisticFlags = RSSL_RC_ST_READ | RSSL_RC_ST_WRITE | RSSL_RC_ST_PING;
@@ -2114,6 +2131,7 @@ int main(int argc, char **argv)
 	reactorOpts.debugLevel = reactorDebugLevel;
 
 	reactorOpts.restEnableLog = restEnableLog;
+	reactorOpts.restVerboseMode = restVerboseMode;
 
 	if (restLogFileName)
 		reactorOpts.restLogOutputStream = restLogFileName;
@@ -2252,6 +2270,23 @@ int main(int argc, char **argv)
 
 		if (!runTimeExpired)
 		{
+			RsslBool reactorChannelsClosed = RSSL_TRUE;
+
+			for (i = 0; i < channelCommandCount; ++i)
+			{
+				if (!chanCommands[i].reactorChannelClosed)
+				{
+					reactorChannelsClosed = RSSL_FALSE;
+					break;
+				}
+			}
+
+			if (reactorChannelsClosed)
+			{
+				printf("All reactor channels closed.\n\n");
+				cleanUpAndExit(-1);
+			}
+
 			for (i = 0; i < channelCommandCount; ++i)
 			{
 				sendItemRequests(pReactor, chanCommands[i].reactorChannel);

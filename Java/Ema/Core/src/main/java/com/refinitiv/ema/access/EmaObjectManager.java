@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -144,6 +144,100 @@ class EmaObjectManager
 		}
 
 		initByteBufferList();	
+	}
+
+	<T> void initialize(int dataType)
+	{
+		if (_intialized)
+			return;
+
+		_intialized = true;
+		NoDataImpl load;
+
+		for (int index = 0; index < DATA_POOL_INITIAL_SIZE; ++index)
+		{
+			switch (dataType)
+			{
+				case DataType.DataTypes.INT:
+					_ommIntPool.add(new OmmIntImpl());
+					break;
+				case DataType.DataTypes.UINT:
+					_ommUIntPool.add(new OmmUIntImpl());
+					break;
+				case DataType.DataTypes.FLOAT:
+					_ommFloatPool.add(new OmmFloatImpl());
+					break;
+				case DataType.DataTypes.DOUBLE:
+					_ommDoublePool.add(new OmmDoubleImpl());
+					break;
+				case DataType.DataTypes.BUFFER:
+					_ommBufferPool.add(new OmmBufferImpl());
+					break;
+				case DataType.DataTypes.ASCII:
+					_ommAsciiPool.add(new OmmAsciiImpl());
+					break;
+				case DataType.DataTypes.UTF8:
+					_ommUtf8Pool.add(new OmmUtf8Impl());
+					break;
+				case DataType.DataTypes.RMTES:
+					_ommRmtesPool.add(new OmmRmtesImpl());
+					break;
+				case DataType.DataTypes.REAL:
+					_ommRealPool.add(new OmmRealImpl());
+					break;
+				case DataType.DataTypes.DATE:
+					_ommDatePool.add(new OmmDateImpl());
+					break;
+				case DataType.DataTypes.TIME:
+					_ommTimePool.add(new OmmTimeImpl());
+					break;
+				case DataType.DataTypes.DATETIME:
+					_ommDateTimePool.add(new OmmDateTimeImpl());
+					break;
+				case DataType.DataTypes.QOS:
+					_ommQosPool.add(new OmmQosImpl());
+					break;
+				case DataType.DataTypes.STATE:
+					_ommStatePool.add(new OmmStateImpl());
+					break;
+				case DataType.DataTypes.ENUM:
+					_ommEnumPool.add(new OmmEnumImpl());
+					break;
+				case DataType.DataTypes.ARRAY:
+					_ommArrayPool.add(new OmmArrayImpl(this));
+					break;
+				case DataType.DataTypes.FIELD_LIST:
+					_fieldListPool.add(new FieldListImpl(this));
+					load = new NoDataImpl();
+					_noDataPool .updatePool(load);
+					_fieldEntryPool.add(new FieldEntryImpl(com.refinitiv.eta.codec.CodecFactory.createFieldEntry(), load));
+					break;
+				case DataType.DataTypes.ELEMENT_LIST:
+					_elementListPool.add(new ElementListImpl(this));
+					load = new NoDataImpl();
+					_noDataPool .updatePool(load);
+					_elementEntryPool.add(new ElementEntryImpl(com.refinitiv.eta.codec.CodecFactory.createElementEntry(), load));
+					break;
+				case DataType.DataTypes.NO_DATA:
+					_noDataPool.add(new NoDataImpl());
+					break;
+				case DataType.DataTypes.ERROR:
+					_ommErrorPool.add(new OmmErrorImpl());
+					break;
+			}
+
+			_singleItemPool.add(new SingleItem<T>());
+			_batchItemPool.add(new BatchItem<T>());
+			_longObjectPool.add(new LongObject());
+			_intObjectPool.add(new IntObject());
+			_subItemPool.add(new SubItem<T>());
+			_tunnelItemPool.add(new TunnelItem<T>());
+
+			_timeoutEventPool.add(new TimeoutEvent(0, null));
+
+		}
+
+		initByteBufferList();
 	}
 
 	LongObject createLongObject()

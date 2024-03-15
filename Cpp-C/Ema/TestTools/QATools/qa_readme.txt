@@ -550,6 +550,12 @@ Series100IProvider170-ProvFunc-001
 	Alters Interactive Provider to parse IOControl parameters as an input argument to modify their values and get those values to display after modifying i.e.
     -maxOutputBuffers, 	-guranteedOutputBuffers, -compressionThreshold
 
+
+Module:	 Series200IProvider260
+---------------------------
+Series200Provider260-toStringTest-001
+	Alters Interactive Provider to encode all Container Types and Msg Types and call function .toString() and .toString(dictionary).
+
 Module:  Series300Provider320
 ---------------------------
 Series300Provider320-GenM-001

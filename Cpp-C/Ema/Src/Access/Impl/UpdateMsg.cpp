@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|        Copyright (C) 2019 Refinitiv. All rights reserved.          --
+ *|        Copyright (C) 2019, 2024 Refinitiv. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,6 +13,8 @@
 #include "Utilities.h"
 #include "GlobalPool.h"
 #include "RdmUtilities.h"
+#include "StaticDecoder.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
@@ -151,12 +153,35 @@ const EmaString& UpdateMsg::toString() const
 	return toString( 0 );
 }
 
+const EmaString& UpdateMsg::toString( const refinitiv::ema::rdm::DataDictionary& dictionary ) const
+{
+	UpdateMsg updateMsg;
+
+	if (!dictionary.isEnumTypeDefLoaded() || !dictionary.isFieldDictionaryLoaded())
+		return _toString.clear().append("\nDictionary is not loaded.\n");
+
+	if (!_pEncoder)
+	{
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
+		static_cast<Encoder*>(_pEncoder)->acquireEncIterator();
+	}
+	else if (!_pEncoder->ownsIterator())
+		static_cast<Encoder*>(_pEncoder)->acquireEncIterator();
+
+	RsslBuffer& rsslBuffer = _pEncoder->getRsslBuffer();
+
+	StaticDecoder::setRsslData(&updateMsg, &rsslBuffer, RSSL_DT_MSG, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, dictionary._pImpl->rsslDataDictionary());
+	_toString.clear().append(updateMsg.toString());
+
+	return _toString;
+}
+
 const EmaString& UpdateMsg::toString( UInt64 indent ) const
 {
-	if ( !_pDecoder )
-		return _toString.clear().append( "\nDecoding of just encoded object in the same application is not supported\n" );
+	if (!_pDecoder)
+		return _toString.clear().append("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n");
 
-	const UpdateMsgDecoder* pTempDecoder = static_cast<const UpdateMsgDecoder*>( _pDecoder );
+	const UpdateMsgDecoder* pTempDecoder = static_cast<const UpdateMsgDecoder*>(_pDecoder);
 
 	addIndent( _toString.clear(), indent++ ).append( "UpdateMsg" );
 	addIndent( _toString, indent, true ).append( "streamId=\"" ).append( pTempDecoder->getStreamId() ).append( "\"" );

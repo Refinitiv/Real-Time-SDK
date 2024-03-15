@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -863,8 +863,9 @@ class RestReactor
 		   	   	                	populateErrorInfo(errorInfo,
 		   	   	                		ReactorReturnCodes.FAILURE,
 		   	   	                		"RestReactor.submitAuthRequestBlocking", 
-		   	   	                		"Failed to request authentication token information. " 
-		   	   	                		+ "Malformed redirection response.");
+		   	   	                		"Failed to request authentication token information with HTTP error "
+		   	   	                		+ response.getStatusLine().getStatusCode() 
+		   	   	                		+ ". Malformed redirection response.");
 
 		   	   	                	return ReactorReturnCodes.FAILURE;
 		   	   	                }
@@ -877,7 +878,8 @@ class RestReactor
 				   				populateErrorInfo(errorInfo,
 		                                ReactorReturnCodes.FAILURE,
 		                                "RestReactor.submitAuthRequestBlocking",
-		                                "Failed to request authentication token information. Text: "
+		                                "Failed to request authentication token information with HTTP error "
+		                                + response.getStatusLine().getStatusCode() + ". Text: "
 		                                +  (Objects.nonNull(contentString) ? contentString : ""));
 				   				return ReactorReturnCodes.FAILURE;
 		   	   			}

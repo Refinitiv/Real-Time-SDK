@@ -43,7 +43,7 @@ public :
 
 		NoBuffersEnum = -4,                     /*!< There are no buffers available from the buffer pool. */
 
-		BufferTooSmallEnum = -21,               /*!< The buffer provided does not have sufficient space to perform the operation. */
+		BufferTooSmallEnum = -21,               /*!< The buffer provided (or the remaining buffer space for message packing) does not have sufficient space to perform the operation. */
 
 		InvalidArgumentEnum = -22,              /*!< An invalid argument was provided. */
 

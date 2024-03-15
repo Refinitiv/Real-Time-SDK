@@ -203,15 +203,7 @@ namespace LSEG.Eta.PerfTools.ProvPerf
                 m_BindOptions.BindEncryptionOpts.ServerCertificate = ProviderPerfConfig.Cert;
                 m_BindOptions.BindEncryptionOpts.ServerPrivateKey = ProviderPerfConfig.KeyFile;
 
-                try
-                {
-                    m_BindOptions.BindEncryptionOpts.EncryptionProtocolFlags = ProviderPerfConfig.EncryptionProtocol.Value;
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"Error: {ex.Message}.");
-                    System.Environment.Exit((int)TransportReturnCode.FAILURE);
-                }
+                m_BindOptions.BindEncryptionOpts.EncryptionProtocolFlags = ProviderPerfConfig.EncryptionProtocol;
             }
             m_BindOptions.MajorVersion = Codec.Codec.MajorVersion();
             m_BindOptions.MinorVersion = Codec.Codec.MajorVersion();

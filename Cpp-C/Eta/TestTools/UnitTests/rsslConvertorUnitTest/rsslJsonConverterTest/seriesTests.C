@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json;
 
@@ -249,7 +253,7 @@ TEST_P(SeriesMembersTestFixture, SeriesMembersTest)
 }
 
 
-INSTANTIATE_TEST_CASE_P(SeriesTests, SeriesMembersTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(SeriesTests, SeriesMembersTestFixture, ::testing::Values(
 
 	/* Test with/without SummaryData, TotalCountHint */
 
@@ -533,7 +537,7 @@ TEST_P(SeriesContainerTypesTestFixture, SeriesContainerTypesTest)
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeSeriesEntry(&_dIter, &seriesEntry));
 }
 
-INSTANTIATE_TEST_CASE_P(SeriesTests, SeriesContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(SeriesTests, SeriesContainerTypesTestFixture, ::testing::Values(
 	RsslDataTypeParam(RSSL_DT_FIELD_LIST),
 	RsslDataTypeParam(RSSL_DT_ELEMENT_LIST)
 ));

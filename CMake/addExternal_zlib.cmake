@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2023 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2024 Refinitiv. All rights reserved.         --
 #]=============================================================================]
 
 ################################################################################################
@@ -23,7 +23,7 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib C)
 
-set(VERSION \"1.3\")
+set(VERSION \"1.3.1\")
 
 option(ASM686 \"Enable building i686 assembly implementation\")
 option(AMD64 \"Enable building amd64 assembly implementation\")
@@ -185,7 +185,7 @@ endif()
 # parse the full version number from zlib.h and include in ZLIB_FULL_VERSION
 file(READ \${CMAKE_CURRENT_SOURCE_DIR}/zlib.h _zlib_h_contents)
 string(REGEX REPLACE \".*#define[ \\t]+ZLIB_VERSION[ \\t]+\\\"([-0-9A-Za-z.]+)\\\".*\"
-    \"\\\\1\" ZLIB_FULL_VERSION "\${_zlib_h_contents}")
+    \"\\\\1\" ZLIB_FULL_VERSION \"\${_zlib_h_contents}\")
 
 if(MINGW)
     # This gets us DLL resource information when compiling on MinGW.
@@ -283,13 +283,13 @@ End of work around for WIN32 zlib library naming issue
 include(rcdevExternalUtils)
 
 if(NOT zlib_url)
-	set(zlib_url "https://www.zlib.net/fossils/zlib-1.3.tar.gz")
+	set(zlib_url "https://www.zlib.net/fossils/zlib-1.3.1.tar.gz")
 endif()
 if(NOT zlib_hash)
-	set(zlib_hash "SHA256=ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e")
+	set(zlib_hash "SHA256=9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23")
 endif()
 if(NOT zlib_version)
-	set(zlib_version "1.3")
+	set(zlib_version "1.3.1")
 endif()
 	
 # If the option for using the system installed 

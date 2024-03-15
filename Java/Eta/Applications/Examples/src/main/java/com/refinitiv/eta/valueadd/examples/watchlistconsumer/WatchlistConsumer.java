@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -196,7 +196,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * </ul>
  */
 public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpointEventCallback,
-		ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback
+		ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback, ReactorOAuthCredentialEventCallback
 {
 	private final String FIELD_DICTIONARY_DOWNLOAD_NAME = "RWFFld";
 	private final String ENUM_TABLE_DOWNLOAD_NAME = "RWFEnum";
@@ -1498,6 +1498,24 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
+	
+	@Override
+	public int reactorOAuthCredentialEventCallback(ReactorOAuthCredentialEvent reactorOAuthCredentialEvent) {
+		ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+		ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
+
+		renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
+		if (reactorOAuthCredential.password() != null && reactorOAuthCredential.password().length() != 0)
+			oAuthCredentialRenewal.password().data(reactorOAuthCredential.password().toString());
+		else if (reactorOAuthCredential.clientSecret() != null && reactorOAuthCredential.clientSecret().length() != 0)
+			oAuthCredentialRenewal.clientSecret().data(reactorOAuthCredential.clientSecret().toString());
+		else
+			oAuthCredentialRenewal.clientJWK().data(reactorOAuthCredential.clientJwk().toString());
+
+		reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
 
 	public boolean isRequestedServiceUp(ChannelInfo chnlInfo)
 	{
@@ -1636,7 +1654,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 		chnlInfo.consumerRole.watchlistOptions().maxOutstandingPosts(5);
 		chnlInfo.consumerRole.watchlistOptions().obeyOpenWindow(true);
 		chnlInfo.consumerRole.watchlistOptions().channelOpenCallback(this);
-
+		
 		if (itemDecoder.fieldDictionaryLoadedFromFile == false &&
 			itemDecoder.enumTypeDictionaryLoadedFromFile == false)
 		{
@@ -1659,6 +1677,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 			chnlInfo.consumerRole.rdmLoginRequest().password().data(watchlistConsumerConfig.password());
 			chnlInfo.consumerRole.rdmLoginRequest().applyHasPassword();
 			reactorServiceDiscoveryOptions.password().data(watchlistConsumerConfig.password());
+			reactorOAuthCredential.password().data(watchlistConsumerConfig.password());
 		}
 
 		if (watchlistConsumerConfig.clientId() != null && !watchlistConsumerConfig.clientId().isEmpty())
@@ -1672,6 +1691,9 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 				reactorOAuthCredential.clientSecret().data(watchlistConsumerConfig.clientSecret());
 				reactorServiceDiscoveryOptions.clientSecret().data(watchlistConsumerConfig.clientSecret());
 			}
+			
+			/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+			reactorOAuthCredential.reactorOAuthCredentialEventCallback(this);
 			
 			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
 		}
@@ -1687,7 +1709,6 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 				reactorOAuthCredential.clientJwk().data(jwkText);
 				chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
 				reactorServiceDiscoveryOptions.clientJWK().data(jwkText);
-
 			}
 			catch(Exception e)
 			{

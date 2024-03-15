@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2023 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -18,37 +18,64 @@ ServiceEndpointDiscoveryImpl::ServiceEndpointDiscoveryImpl(ServiceEndpointDiscov
 	_pServiceEndpointDiscovery(0),
 	_pClient(0)
 {
+	RsslError rsslError;
+	RsslInitializeExOpts rsslInitOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	rsslInitOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
+	if (pServiceEndpointDiscoveryConfig->_libsslName != NULL)
+		rsslInitOpts.jitOpts.libsslName = (char*)pServiceEndpointDiscoveryConfig->_libsslName->c_str();
+	if (pServiceEndpointDiscoveryConfig->_libsslName != NULL)
+		rsslInitOpts.jitOpts.libcryptoName = (char*)pServiceEndpointDiscoveryConfig->_libcryptoName->c_str();
+	if (pServiceEndpointDiscoveryConfig->_libcurlName != NULL)
+		rsslInitOpts.jitOpts.libcurlName = (char*)pServiceEndpointDiscoveryConfig->_libcurlName->c_str();
+	if (pServiceEndpointDiscoveryConfig->_shouldInitializeCPUIDlib != DEFAULT_SHOULD_INIT_CPUID_LIB)
+		rsslInitOpts.shouldInitializeCPUIDlib = pServiceEndpointDiscoveryConfig->_shouldInitializeCPUIDlib;
+
+	RsslRet retCode = rsslInitializeEx(&rsslInitOpts, &rsslError);
+	if (retCode != RSSL_RET_SUCCESS)
+	{
+		EmaString temp("Failed to initialize ServiceEndpointDiscoveryImpl (rsslInitializeEx).");
+		temp.append("' Error Id='").append(rsslError.rsslErrorId)
+			.append("' Internal sysError='").append(rsslError.sysError)
+			.append("' Error Text='").append(rsslError.text).append("'. ");
+		throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
+	}
+
 	RsslCreateReactorOptions reactorOpts;
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo(&rsslErrorInfo);
 
 	rsslClearCreateReactorOptions(&reactorOpts);
-	if (pServiceEndpointDiscoveryConfig->tokenServiceURL_V1 != NULL)
+	if (pServiceEndpointDiscoveryConfig->_tokenServiceURL_V1 != NULL)
 	{
-		reactorOpts.tokenServiceURL_V1.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->tokenServiceURL_V1->c_str());
-		reactorOpts.tokenServiceURL_V1.length = pServiceEndpointDiscoveryConfig->tokenServiceURL_V1->length();
+		reactorOpts.tokenServiceURL_V1.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->_tokenServiceURL_V1->c_str());
+		reactorOpts.tokenServiceURL_V1.length = pServiceEndpointDiscoveryConfig->_tokenServiceURL_V1->length();
 	}
 
-	if (pServiceEndpointDiscoveryConfig->tokenServiceURL_V2 != NULL)
+	if (pServiceEndpointDiscoveryConfig->_tokenServiceURL_V2 != NULL)
 	{
-		reactorOpts.tokenServiceURL_V2.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->tokenServiceURL_V2->c_str());
-		reactorOpts.tokenServiceURL_V2.length = pServiceEndpointDiscoveryConfig->tokenServiceURL_V2->length();
+		reactorOpts.tokenServiceURL_V2.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->_tokenServiceURL_V2->c_str());
+		reactorOpts.tokenServiceURL_V2.length = pServiceEndpointDiscoveryConfig->_tokenServiceURL_V2->length();
 	}
 
-	if (pServiceEndpointDiscoveryConfig->serviceDiscoveryURL != NULL)
+	if (pServiceEndpointDiscoveryConfig->_serviceDiscoveryURL != NULL)
 	{
-		reactorOpts.serviceDiscoveryURL.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->serviceDiscoveryURL->c_str());
-		reactorOpts.serviceDiscoveryURL.length = pServiceEndpointDiscoveryConfig->serviceDiscoveryURL->length();
+		reactorOpts.serviceDiscoveryURL.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->_serviceDiscoveryURL->c_str());
+		reactorOpts.serviceDiscoveryURL.length = pServiceEndpointDiscoveryConfig->_serviceDiscoveryURL->length();
 	}
 	
-	if (pServiceEndpointDiscoveryConfig->restEnableLogValue)
+	if (pServiceEndpointDiscoveryConfig->_restEnableLog)
 	{
-		reactorOpts.restEnableLog = pServiceEndpointDiscoveryConfig->restEnableLogValue;
+		reactorOpts.restEnableLog = pServiceEndpointDiscoveryConfig->_restEnableLog;
+	}
+
+	if (pServiceEndpointDiscoveryConfig->_restVerboseMode)
+	{
+		reactorOpts.restVerboseMode = pServiceEndpointDiscoveryConfig->_restVerboseMode;
 	}
 	
-	if (pServiceEndpointDiscoveryConfig->restLogOutputStreamFile != NULL)
+	if (pServiceEndpointDiscoveryConfig->_restLogOutputStreamFile != NULL)
 	{
-		reactorOpts.restLogOutputStream = pServiceEndpointDiscoveryConfig->restLogOutputStreamFile;
+		reactorOpts.restLogOutputStream = pServiceEndpointDiscoveryConfig->_restLogOutputStreamFile;
 	}
 	reactorOpts.userSpecPtr = this;
 
@@ -76,6 +103,8 @@ ServiceEndpointDiscoveryImpl::~ServiceEndpointDiscoveryImpl()
 
 		_pReactor = 0;
 	}
+
+	rsslUninitialize();
 }
 
 void ServiceEndpointDiscoveryImpl::registerClient(const ServiceEndpointDiscoveryOption& params, ServiceEndpointDiscoveryClient& client, 

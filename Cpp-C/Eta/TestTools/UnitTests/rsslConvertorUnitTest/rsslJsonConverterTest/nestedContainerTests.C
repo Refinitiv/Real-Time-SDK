@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json; 
 
@@ -689,7 +693,7 @@ TEST_P(NestedContainerTypesTestFixture, NestedContainerTypesTest)
 	ASSERT_NO_FATAL_FAILURE(decodeContainer(&_dIter, params.outerContainerType, params.outerMsgClass, &rsslMsg.msgBase.encDataBody, params.innerContainerType, params.encodeSummaryData, false));
 }
 
-INSTANTIATE_TEST_CASE_P(MapNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(MapNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		NestedContainerTestParams(RSSL_DT_MAP, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_MAP, RSSL_DT_MAP, true),
 		NestedContainerTestParams(RSSL_DT_MAP, RSSL_DT_SERIES, false),
@@ -711,7 +715,7 @@ INSTANTIATE_TEST_CASE_P(MapNestedContainerTests, NestedContainerTypesTestFixture
 		//NestedContainerTestParams(RSSL_DT_MAP, RSSL_DT_ANSI_PAGE, true)
 ));
 
-INSTANTIATE_TEST_CASE_P(VectorNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(VectorNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		NestedContainerTestParams(RSSL_DT_VECTOR, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_VECTOR, RSSL_DT_MAP, true),
 		NestedContainerTestParams(RSSL_DT_VECTOR, RSSL_DT_SERIES, false),
@@ -733,7 +737,7 @@ INSTANTIATE_TEST_CASE_P(VectorNestedContainerTests, NestedContainerTypesTestFixt
 		//NestedContainerTestParams(RSSL_DT_VECTOR, RSSL_DT_ANSI_PAGE, true)
 ));
 
-INSTANTIATE_TEST_CASE_P(SeriesNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(SeriesNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		NestedContainerTestParams(RSSL_DT_SERIES, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_SERIES, RSSL_DT_MAP, true),
 		NestedContainerTestParams(RSSL_DT_SERIES, RSSL_DT_SERIES, false),
@@ -755,7 +759,7 @@ INSTANTIATE_TEST_CASE_P(SeriesNestedContainerTests, NestedContainerTypesTestFixt
 		//NestedContainerTestParams(RSSL_DT_SERIES, RSSL_DT_ANSI_PAGE, true)
 ));
 
-INSTANTIATE_TEST_CASE_P(FilterListNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(FilterListNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		/* FilterList cannot contain SummaryData, but the Vector/Series/Map inside it can. */
 		NestedContainerTestParams(RSSL_DT_FILTER_LIST, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_FILTER_LIST, RSSL_DT_MAP, true),
@@ -773,7 +777,7 @@ INSTANTIATE_TEST_CASE_P(FilterListNestedContainerTests, NestedContainerTypesTest
 		//NestedContainerTestParams(RSSL_DT_FILTER_LIST, RSSL_DT_ANSI_PAGE, false)
 ));
 
-INSTANTIATE_TEST_CASE_P(RequestMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(RequestMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		/* Message cannot contain SummaryData, but the Vector/Series/Map inside it can. */
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REQUEST, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REQUEST, RSSL_DT_MAP, true),
@@ -791,7 +795,7 @@ INSTANTIATE_TEST_CASE_P(RequestMsgNestedContainerTests, NestedContainerTypesTest
 		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REQUEST, RSSL_DT_ANSI_PAGE, false)
 ));
 
-INSTANTIATE_TEST_CASE_P(RefreshMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(RefreshMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		/* Message cannot contain SummaryData, but the Vector/Series/Map inside it can. */
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REFRESH, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REFRESH, RSSL_DT_MAP, true),
@@ -809,7 +813,7 @@ INSTANTIATE_TEST_CASE_P(RefreshMsgNestedContainerTests, NestedContainerTypesTest
 		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REFRESH, RSSL_DT_ANSI_PAGE, false)
 ));
 
-INSTANTIATE_TEST_CASE_P(StatusMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(StatusMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		/* Message cannot contain SummaryData, but the Vector/Series/Map inside it can. */
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_STATUS, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_STATUS, RSSL_DT_MAP, true),
@@ -827,7 +831,7 @@ INSTANTIATE_TEST_CASE_P(StatusMsgNestedContainerTests, NestedContainerTypesTestF
 		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_STATUS, RSSL_DT_ANSI_PAGE, false)
 ));
 
-INSTANTIATE_TEST_CASE_P(UpdateMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(UpdateMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		/* Message cannot contain SummaryData, but the Vector/Series/Map inside it can. */
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_UPDATE, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_UPDATE, RSSL_DT_MAP, true),
@@ -845,7 +849,7 @@ INSTANTIATE_TEST_CASE_P(UpdateMsgNestedContainerTests, NestedContainerTypesTestF
 		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_UPDATE, RSSL_DT_ANSI_PAGE, false)
 ));
 
-INSTANTIATE_TEST_CASE_P(CloseMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(CloseMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		/* Message cannot contain SummaryData, but the Vector/Series/Map inside it can. */
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_CLOSE, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_CLOSE, RSSL_DT_MAP, true),
@@ -861,7 +865,7 @@ INSTANTIATE_TEST_CASE_P(CloseMsgNestedContainerTests, NestedContainerTypesTestFi
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_CLOSE, RSSL_DT_MSG, false)
 ));
 
-INSTANTIATE_TEST_CASE_P(AckMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(AckMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		/* Message cannot contain SummaryData, but the Vector/Series/Map inside it can. */
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_ACK, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_ACK, RSSL_DT_MAP, true),
@@ -879,7 +883,7 @@ INSTANTIATE_TEST_CASE_P(AckMsgNestedContainerTests, NestedContainerTypesTestFixt
 		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_ACK, RSSL_DT_ANSI_PAGE, false)
 ));
 
-INSTANTIATE_TEST_CASE_P(GenericMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(GenericMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		/* Message cannot contain SummaryData, but the Vector/Series/Map inside it can. */
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_GENERIC, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_GENERIC, RSSL_DT_MAP, true),
@@ -897,7 +901,7 @@ INSTANTIATE_TEST_CASE_P(GenericMsgNestedContainerTests, NestedContainerTypesTest
 		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_GENERIC, RSSL_DT_ANSI_PAGE, false)
 ));
 
-INSTANTIATE_TEST_CASE_P(PostMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(PostMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
 		/* Message cannot contain SummaryData, but the Vector/Series/Map inside it can. */
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_POST, RSSL_DT_MAP, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_POST, RSSL_DT_MAP, true),

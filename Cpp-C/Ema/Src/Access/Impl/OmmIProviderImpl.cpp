@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
 */
 
@@ -27,6 +27,7 @@
 #include "RdmUtilities.h"
 #include "ExceptionTranslator.h"
 #include "OmmInvalidUsageException.h"
+#include "PackedMsgImpl.h"
 
 #ifdef WIN32
 #pragma warning( disable : 4355)
@@ -989,6 +990,60 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 	}
 
 	handleItemInfo(submitMsgOpts.pRsslMsg->msgBase.domainType, handle, submitMsgOpts.pRsslMsg->statusMsg.state);
+
+	_userLock.unlock();
+}
+
+void OmmIProviderImpl::submit(const PackedMsg& packedMsg)
+{
+	_userLock.lock();
+
+	PackedMsgImpl* packedMsgImpl = packedMsg._pImpl;
+
+	RsslReactorChannel* reactorChannel = packedMsgImpl->getRsslReactorChannel();
+
+	if (reactorChannel == 0)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit PackedMsg with non set channel");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
+	RsslBuffer*  transportBuffer = packedMsgImpl->getTransportBuffer();
+	RsslReactorSubmitOptions submitOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslRet ret = RSSL_RET_FAILURE;
+
+	if (transportBuffer == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit PackedMsg with non init transport buffer");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
+	rsslClearReactorSubmitOptions(&submitOpts);
+
+	transportBuffer->length = 0;
+
+	if (ret = rsslReactorSubmit(_pRsslReactor, reactorChannel, transportBuffer, &submitOpts, &rsslErrorInfo) < RSSL_RET_SUCCESS)
+	{
+		packedMsgImpl->clear();
+
+		EmaString temp("Internal error: rsslReactorSubmit() failed in OmmIProviderImpl::submit( const PackedMsg& ).");
+		temp.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+			.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+			.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+			.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+		_userLock.unlock();
+		handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
+		return;
+	}
+
+	packedMsgImpl->setTransportBuffer(NULL);
 
 	_userLock.unlock();
 }

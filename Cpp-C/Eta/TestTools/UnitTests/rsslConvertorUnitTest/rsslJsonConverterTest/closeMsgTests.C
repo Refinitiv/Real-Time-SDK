@@ -2,11 +2,15 @@
 *| This source code is provided under the Apache 2.0 license –
 *| and is provided AS IS with no warranty or guarantee of fit for purpose. –
 *| See the project's LICENSE.md for details. –
-*| Copyright (C) 2020 Refinitiv. All rights reserved. –
+*| Copyright (C) 2020, 2024 Refinitiv. All rights reserved. –
 *|-----------------------------------------------------------------------------
 */
 
 #include "rsslJsonConverterTestBase.h"
+
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
 
 using namespace std;
 using namespace json; 
@@ -305,6 +309,7 @@ TEST_P(CloseMsgMembersTestFixture, CloseMsgMembersTest)
 	/* Verify that RsslCloseMsg is correct. */
 	EXPECT_EQ(RSSL_MC_CLOSE, rsslMsg.msgBase.msgClass);
 	EXPECT_EQ(RSSL_DMT_MARKET_PRICE, rsslMsg.msgBase.domainType);
+	EXPECT_EQ(BATCH_STREAM_IDS[0], rsslMsg.msgBase.streamId);
 
 	/* Check ExtendedHeader. */
 	if (params.extendedHeader)
@@ -360,7 +365,7 @@ TEST_P(CloseMsgMembersTestFixture, CloseMsgMembersTest)
 		EXPECT_EQ(RSSL_DT_NO_DATA, rsslMsg.msgBase.containerType);
 }
 
-INSTANTIATE_TEST_CASE_P(CloseMsgTests, CloseMsgMembersTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(CloseMsgTests, CloseMsgMembersTestFixture, ::testing::Values(
 	/* Test with/without ExtendedHeader, Ack, Batch */
 
 	/* Defaults */
@@ -405,6 +410,7 @@ TEST_F(CloseMsgTests, BatchStreamIdArrayConversionTest)
 	EXPECT_EQ(RSSL_DMT_MARKET_PRICE, rsslMsg.msgBase.domainType);
 	EXPECT_TRUE(rsslCloseMsgCheckHasBatch(&rsslMsg.closeMsg));
 	EXPECT_EQ(RSSL_DT_ELEMENT_LIST, rsslMsg.msgBase.containerType);
+	EXPECT_EQ(BATCH_STREAM_IDS[0], rsslMsg.msgBase.streamId);
 
 	/* Decode the Stream ID element in the dataBody. */
 	RsslElementList elementList;
@@ -440,3 +446,159 @@ TEST_F(CloseMsgTests, BatchStreamIdArrayConversionTest)
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeElementEntry(&_dIter, &elementEntry));
 }
 
+TEST_F(CloseMsgTests, BatchStreamIdArrayWithNullConversionTest)
+{
+	RsslMsg rsslMsg;
+	const int MAX_ENTRIES = 8;
+	RsslRet BATCH_DECODE_RETURN[MAX_ENTRIES] = {
+						RSSL_RET_BLANK_DATA, RSSL_RET_SUCCESS, RSSL_RET_BLANK_DATA,
+						RSSL_RET_SUCCESS, RSSL_RET_SUCCESS,
+						RSSL_RET_BLANK_DATA, RSSL_RET_BLANK_DATA, RSSL_RET_BLANK_DATA };
+	RsslInt BATCH_STREAM_IDS[MAX_ENTRIES] = { 0, 5, 0, 8, 13, 0, 0, 0 };
+	_jsonBuffer.data = (char*)"{\"Type\":\"Close\",\"ID\":[null,5,null,8,13,null,null,null]}";
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
+
+	/* Convert back to RWF. */
+	ASSERT_NO_FATAL_FAILURE(convertJsonToRssl());
+
+	/* Decode the message. */
+	rsslClearDecodeIterator(&_dIter);
+	rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+	rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+	/* Verify that RsslCloseMsg is correct. */
+	EXPECT_EQ(RSSL_MC_CLOSE, rsslMsg.msgBase.msgClass);
+	EXPECT_EQ(RSSL_DMT_MARKET_PRICE, rsslMsg.msgBase.domainType);
+	EXPECT_TRUE(rsslCloseMsgCheckHasBatch(&rsslMsg.closeMsg));
+	EXPECT_EQ(RSSL_DT_ELEMENT_LIST, rsslMsg.msgBase.containerType);
+	EXPECT_EQ(5, rsslMsg.msgBase.streamId);
+
+	/* Decode the Stream ID element in the dataBody. */
+	RsslElementList elementList;
+	RsslElementEntry elementEntry;
+	RsslArray streamIdArray;
+	RsslBuffer arrayEntry;
+	RsslInt arrayValue;
+	RsslRet ret;
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeElementList(&_dIter, &elementList, NULL));
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeElementEntry(&_dIter, &elementEntry));
+	ASSERT_TRUE(rsslBufferIsEqual(&RSSL_ENAME_BATCH_STREAMID_LIST, &elementEntry.name));
+	ASSERT_EQ(RSSL_DT_ARRAY, elementEntry.dataType);
+
+	/* Decode the Stream ID array. */
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeArray(&_dIter, &streamIdArray));
+	ASSERT_EQ(RSSL_DT_INT, streamIdArray.primitiveType);
+
+	for (int i = 0; i < MAX_ENTRIES; ++i)
+	{
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeArrayEntry(&_dIter, &arrayEntry)) << "i: " << i;
+		ret = rsslDecodeInt(&_dIter, &arrayValue);
+		ASSERT_EQ(BATCH_DECODE_RETURN[i], ret) << "i: " << i << "; ret: " << ret << "; expected ret: " << BATCH_DECODE_RETURN[i];
+		if (ret != RSSL_RET_SUCCESS)
+			continue;
+		EXPECT_EQ(BATCH_STREAM_IDS[i], arrayValue) << "i: " << i << "; arrayValue: " << arrayValue << "; expected val: " << BATCH_STREAM_IDS[i];
+	}
+
+	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeArrayEntry(&_dIter, &arrayEntry));
+
+	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeElementEntry(&_dIter, &elementEntry));
+}
+
+TEST_F(CloseMsgTests, BatchStreamIdNullArray1FailTest)
+{
+	RsslDecodeJsonMsgOptions decodeJsonMsgOptions;
+	RsslJsonMsg jsonMsg;
+	RsslJsonConverterError converterError;
+	RsslParseJsonBufferOptions parseOptions;
+
+	rsslClearParseJsonBufferOptions(&parseOptions);
+	parseOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+
+	rsslClearDecodeJsonMsgOptions(&decodeJsonMsgOptions);
+	decodeJsonMsgOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+
+	/* ID with null data array */
+	_jsonBuffer.data = (char*)"{\"ID\":[null],\"Type\":\"Close\"}";
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
+
+	/* Expected an error - should be at least one non-zero streamId. */
+#ifdef _RSSLJC_SHARED_LIBRARY
+	ASSERT_GE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS) ;
+	ASSERT_NE(RSSL_RET_SUCCESS, rsslJsonConverterFunctions.rsslDecodeJsonMsg(_rsslJsonConverter, &decodeJsonMsgOptions, &jsonMsg, &_rsslDecodeBuffer,
+				&converterError));
+#else
+	ASSERT_GE(rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS) ;
+	ASSERT_NE(RSSL_RET_SUCCESS, rsslDecodeJsonMsg(_rsslJsonConverter, &decodeJsonMsgOptions, &jsonMsg, &_rsslDecodeBuffer,
+				&converterError));
+#endif
+
+	/* Check the error. */
+	ASSERT_STREQ("JSON Unexpected Value. Received \'[null]\' for key \'ID\'", converterError.text);
+}
+
+TEST_F(CloseMsgTests, BatchStreamIdNullArray2FailTest)
+{
+	RsslDecodeJsonMsgOptions decodeJsonMsgOptions;
+	RsslJsonMsg jsonMsg;
+	RsslJsonConverterError converterError;
+	RsslParseJsonBufferOptions parseOptions;
+
+	rsslClearParseJsonBufferOptions(&parseOptions);
+	parseOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+
+	rsslClearDecodeJsonMsgOptions(&decodeJsonMsgOptions);
+	decodeJsonMsgOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+
+	/* ID with null data array */
+	_jsonBuffer.data = (char*)"{\"ID\":[null,null],\"Type\":\"Close\"}";
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
+
+	/* Expected an error - should be at least one non-zero streamId */
+#ifdef _RSSLJC_SHARED_LIBRARY
+	ASSERT_GE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS);
+	ASSERT_NE(RSSL_RET_SUCCESS, rsslJsonConverterFunctions.rsslDecodeJsonMsg(_rsslJsonConverter, &decodeJsonMsgOptions, &jsonMsg, &_rsslDecodeBuffer,
+				&converterError));
+#else
+	ASSERT_GE(rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS);
+	ASSERT_NE(RSSL_RET_SUCCESS, rsslDecodeJsonMsg(_rsslJsonConverter, &decodeJsonMsgOptions, &jsonMsg, &_rsslDecodeBuffer,
+				&converterError));
+#endif
+
+	/* Check the error. */
+	ASSERT_STREQ("JSON Unexpected Value. Received \'[null,null]\' for key \'ID\'", converterError.text);
+}
+
+TEST_F(CloseMsgTests, BatchStreamIdNullFailTest)
+{
+	RsslDecodeJsonMsgOptions decodeJsonMsgOptions;
+	RsslJsonMsg jsonMsg;
+	RsslJsonConverterError converterError;
+	RsslParseJsonBufferOptions parseOptions;
+
+	rsslClearParseJsonBufferOptions(&parseOptions);
+	parseOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+
+	rsslClearDecodeJsonMsgOptions(&decodeJsonMsgOptions);
+	decodeJsonMsgOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+
+	/* ID with null */
+	_jsonBuffer.data = (char*)"{\"ID\":null,\"Type\":\"Close\"}";
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
+
+	/* Convert back to RWF. Error: Expected array. */
+#ifdef _RSSLJC_SHARED_LIBRARY
+	ASSERT_GE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS);
+	ASSERT_NE(RSSL_RET_SUCCESS, rsslJsonConverterFunctions.rsslDecodeJsonMsg(_rsslJsonConverter, &decodeJsonMsgOptions, &jsonMsg, &_rsslDecodeBuffer,
+				&converterError));
+#else
+	ASSERT_GE(rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS);
+	ASSERT_NE(RSSL_RET_SUCCESS, rsslDecodeJsonMsg(_rsslJsonConverter, &decodeJsonMsgOptions, &jsonMsg, &_rsslDecodeBuffer,
+				&converterError)) << "converterError. rsslErrorId: " << converterError.rsslErrorId << "; text: " << converterError.text;
+#endif
+
+	/* Check the error. */
+	ASSERT_STREQ("JSON Converter Token Type error: Expected \'PRIMITIVE\' for key \'ID\' Received \'PRIMITIVE\'", converterError.text);
+}

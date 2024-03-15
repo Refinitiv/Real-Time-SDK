@@ -2,12 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Collections.Generic;
 using System.Net.Security;
+using System.Text;
 
 namespace LSEG.Ema.Access
 {
@@ -246,6 +247,46 @@ namespace LSEG.Ema.Access
         public OmmConsumerConfig Host(string host = "localhost:14002")
         {
             OmmConsConfigImpl.Host(host);
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies connection type. Overrides prior value.
+        /// <param name="channelType"> specifies connection type. Connection type defined in EmaConfig.ConnectionTypeEnum </param>
+        /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
+        /// <exception cref="OmmInvalidUsageException">Thrown if channelType is not valid.</exception>
+        /// </summary>
+        public OmmConsumerConfig ChannelType(int channelType)
+        {
+            if (channelType != EmaConfig.ConnectionTypeEnum.SOCKET &&
+                channelType != EmaConfig.ConnectionTypeEnum.ENCRYPTED)
+            {
+                throw new OmmInvalidUsageException($"Try to pass invalid argument: {channelType.ToString()} to ChannelType(). " +
+					$"Please use channel types present in EmaConfig.ConnectionTypeEnum.",
+                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
+            }
+
+            OmmConsConfigImpl.ChannelType((ConnectionType)channelType);
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies encrypted protocol type. Overrides prior value.
+        /// <param name="encProtocolType"> specifies encrypted protocol type used by application. Encrypted protocol type defined in EmaConfig.EncryptedProtocolTypeEnum </param>
+        /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
+        /// <exception cref="OmmInvalidUsageException">Thrown if use this API with not encoded channel type.</exception>
+        /// <exception cref="OmmInvalidUsageException">Thrown if encProtocolType is not valid.</exception>
+        /// </summary>
+        public OmmConsumerConfig EncryptedProtocolType(int encProtocolType)
+        {
+            if (encProtocolType != EmaConfig.EncryptedProtocolTypeEnum.SOCKET)
+            {
+                throw new OmmInvalidUsageException($"Try to pass invalid argument: {encProtocolType.ToString()} to EncryptedProtocolType(). " +
+                    $"Please use channel types present in EmaConfig.EncryptedProtocolTypeEnum.",
+                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
+            }
+
+            OmmConsConfigImpl.EncryptedProtocolType((ConnectionType)encProtocolType);
             return this;
         }
 

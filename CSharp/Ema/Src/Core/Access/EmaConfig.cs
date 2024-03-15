@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -24,7 +24,7 @@ namespace LSEG.Ema.Access
             public const int SOCKET = 0;
 
             /// <summary>
-            /// This connection type uses a TLS encrypted connection.  Additional protocol configuration is defined in EncryptedProtocolType.
+            /// This connection type uses a TLS encrypted connection.  Additional protocol configuration is defined in EncryptedProtocolTypeEnum.
             /// </summary>
             public const int ENCRYPTED = 1;
 
@@ -33,6 +33,17 @@ namespace LSEG.Ema.Access
             /// </summary>
             public const int MAX_DEFINED = ENCRYPTED;
         }
+
+        /// <summary>
+        /// This enumeration defines the protocol type available for ENCRYPTED  ConnectionType.
+        /// </summary>
+        public class EncryptedProtocolTypeEnum
+        {
+            /// <summary>
+            /// This protocol type uses for encrypted socket connection.
+            /// </summary>
+            public const int SOCKET = 0;
+        };
 
         /// <summary>
         /// This enumeration defines the TLS encryption protocol versions used by the Channel EncryptedProtocolType configuration element.

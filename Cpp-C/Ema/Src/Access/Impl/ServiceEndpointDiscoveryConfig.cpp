@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2023 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -11,11 +11,16 @@
 using namespace refinitiv::ema::access;
 
 ServiceEndpointDiscoveryConfig::ServiceEndpointDiscoveryConfig() :
-	tokenServiceURL_V1(),
-	tokenServiceURL_V2(),
-	serviceDiscoveryURL(),
-	restLogOutputStreamFile(),
-	restEnableLogValue(false)
+	_tokenServiceURL_V1(),
+	_tokenServiceURL_V2(),
+	_serviceDiscoveryURL(),
+	_restLogOutputStreamFile(),
+	_restEnableLog(false),
+	_restVerboseMode(false),
+	_libsslName(),
+	_libcryptoName(),
+	_libcurlName(),
+	_shouldInitializeCPUIDlib(true)
 {
 }
 
@@ -25,35 +30,73 @@ void ServiceEndpointDiscoveryConfig::clear()
 	tokenServiceUrlV1();
 	serviceDiscoveryUrl();
 	restLogOutputStream();
-	restEnableLogValue = false;
+
+	_restEnableLog = false;
+	_restVerboseMode = false;
+
+	libSslName();
+	libCryptoName();
+	libCurlName();
+
+	_shouldInitializeCPUIDlib = true;
 }
 
 ServiceEndpointDiscoveryConfig& ServiceEndpointDiscoveryConfig::tokenServiceUrlV1(const EmaString& tokenServiceUrl)
 {
-	tokenServiceURL_V1 = &tokenServiceUrl;
+	_tokenServiceURL_V1 = &tokenServiceUrl;
 	return *this;
 }
 
 ServiceEndpointDiscoveryConfig& ServiceEndpointDiscoveryConfig::tokenServiceUrlV2(const EmaString& tokenServiceUrl)
 {
-	tokenServiceURL_V2 = &tokenServiceUrl;
+	_tokenServiceURL_V2 = &tokenServiceUrl;
 	return *this;
 }
 
 ServiceEndpointDiscoveryConfig& ServiceEndpointDiscoveryConfig::serviceDiscoveryUrl(const EmaString& serviceDiscoveryUrl)
 {
-	serviceDiscoveryURL = &serviceDiscoveryUrl;
+	_serviceDiscoveryURL = &serviceDiscoveryUrl;
 	return *this;
 }
 
 ServiceEndpointDiscoveryConfig& ServiceEndpointDiscoveryConfig::restLogOutputStream(FILE* restLogOutputStream)
 {
-	restLogOutputStreamFile = restLogOutputStream;
+	_restLogOutputStreamFile = restLogOutputStream;
 	return *this;
 }
 
 ServiceEndpointDiscoveryConfig& ServiceEndpointDiscoveryConfig::restEnableLog(bool restEnableLog)
 {
-	restEnableLogValue = restEnableLog;
+	_restEnableLog = restEnableLog;
+	return *this;
+}
+
+ServiceEndpointDiscoveryConfig& ServiceEndpointDiscoveryConfig::restVerboseMode(bool restVerboseMode)
+{
+	_restVerboseMode = restVerboseMode;
+	return *this;
+}
+
+ServiceEndpointDiscoveryConfig& ServiceEndpointDiscoveryConfig::libSslName(const EmaString& libsslName)
+{
+	_libsslName = &libsslName;
+	return *this;
+}
+
+ServiceEndpointDiscoveryConfig& ServiceEndpointDiscoveryConfig::libCryptoName(const EmaString& libcryptoName)
+{
+	_libcryptoName = &libcryptoName;
+	return *this;
+}
+
+ServiceEndpointDiscoveryConfig& ServiceEndpointDiscoveryConfig::libCurlName(const EmaString& libcurlName)
+{
+	_libcurlName = &libcurlName;
+	return *this;
+}
+
+ServiceEndpointDiscoveryConfig& ServiceEndpointDiscoveryConfig::shouldInitializeCPUIDlib(bool shouldInitializeCPUIDlib)
+{
+	_shouldInitializeCPUIDlib = shouldInitializeCPUIDlib;
 	return *this;
 }

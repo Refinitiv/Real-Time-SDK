@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -431,6 +431,8 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         	connectOptions.encryptionOptions().connectionType(_consPerfConfig.encryptedConnectionType());
         	connectOptions.encryptionOptions().KeystoreFile(_consPerfConfig.keyfile());
         	connectOptions.encryptionOptions().KeystorePasswd(_consPerfConfig.keypasswd());
+        	connectOptions.encryptionOptions().SecurityProtocol(_consPerfConfig.securityProtocol());
+        	connectOptions.encryptionOptions().SecurityProtocolVersions(_consPerfConfig.securityProtocolVersions());
         }
         
         if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use ETA Channel for sending and receiving

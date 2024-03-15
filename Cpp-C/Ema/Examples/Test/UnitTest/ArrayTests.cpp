@@ -2,13 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
 #include "TestUtilities.h"
 
 using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
 TEST(ArrayTests, testArrayAsciiDecode)
@@ -2870,27 +2871,55 @@ void testArrayReal_Encode( bool fixedSize )
 }
 
 void testArrayInt_EncodeDecode( bool fixedSize )
-
 {
+	DataDictionary emaDataDictionary, emaDataDictionaryEmpty;
 
-	OmmArray encArray;
+	EmaString arrayString;
+	if (!fixedSize)
+		arrayString = "OmmArray with entries of dataType=\"Int\"\n    value=\"-11\"\n    value=\"22\"\n    value=\"-33\"\nOmmArrayEnd\n";
+	else
+		arrayString = "OmmArray with entries of dataType=\"Int\" fixed width=\"8\"\n    value=\"-11\"\n    value=\"22\"\n    value=\"-33\"\nOmmArrayEnd\n";
+
+	try {
+		emaDataDictionary.loadFieldDictionary( "RDMFieldDictionaryTest" );
+		emaDataDictionary.loadEnumTypeDictionary( "enumtypeTest.def" );
+	}
+	catch ( const OmmException& ) {
+		ASSERT_TRUE( false ) << "DataDictionary::loadFieldDictionary() failed to load dictionary information";
+	}
+
+	OmmArray encArray, arrayEmpty;
 	try
 	{
 		if ( fixedSize )
 			encArray.fixedWidth( 8 );
 
 		encArray.addInt( -11 );
-		EXPECT_EQ( encArray.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "OmmArray.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( encArray.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "OmmArray.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 		encArray.addInt( 22 );
-		EXPECT_EQ( encArray.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "OmmArray.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( encArray.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "OmmArray.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 		encArray.addInt( -33 );
-		EXPECT_EQ( encArray.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "OmmArray.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( encArray.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "OmmArray.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
+
+		EXPECT_EQ( encArray.toString( emaDataDictionary ), "\nUnable to decode not completed OmmArray data.\n" ) << "OmmArray.toString() == Unable to decode not completed OmmArray data.";
 
 		encArray.complete();
-		EXPECT_EQ( encArray.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "OmmArray.toString() == Decoding of just encoded object in the same application is not supported";
+
+		EXPECT_EQ( encArray.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "OmmArray.toString() != toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
+
+		EXPECT_EQ( encArray.toString( emaDataDictionaryEmpty ), "\nDictionary is not loaded.\n" ) << "OmmArray.toString() == Unable to decode not completed data.";
+
+		EXPECT_EQ( encArray.toString( emaDataDictionary ), arrayString ) << "OmmArray.toString() == arrayString";
+
+		EXPECT_EQ( arrayEmpty.toString( emaDataDictionary ), "\nUnable to decode not completed OmmArray data.\n" ) << "OmmArray.toString() == Unable to decode not completed OmmArray data.";
+
+		arrayEmpty.addInt( -11 );
+		arrayEmpty.complete();
+		arrayEmpty.clear();
+		EXPECT_EQ( arrayEmpty.toString( emaDataDictionary ), "\nUnable to decode not completed OmmArray data.\n" ) << "OmmArray.toString() == Unable to decode not completed OmmArray data.";
 
 		StaticDecoder::setData( &encArray, 0 );
-		EXPECT_NE( encArray.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "OmmArray.toString() != Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( encArray.toString(), arrayString ) << "OmmArray.toString() == arrayString";
 
 		EXPECT_EQ(  encArray.hasFixedWidth(), fixedSize ) << "OmmArray with three Int - hasFixedWidth()" ;
 		EXPECT_EQ(  encArray.getFixedWidth(),  fixedSize ? 8 : 0  ) << "OmmArray with three Int - getFixedWidth()" ;

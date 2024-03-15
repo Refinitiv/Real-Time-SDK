@@ -9,6 +9,10 @@
 #include "watchlistTestFramework.h"
 #include "gtest/gtest.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 void watchlistRecoveryTest_OneItem_ClosedRecover(RsslConnectionTypes connetionType);
 void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen, RsslConnectionTypes connetionType);
 void watchlistRecoveryTest_TwoItems_RequestTimeout(RsslConnectionTypes connetionType);
@@ -249,7 +253,7 @@ TEST_P(WatchlistRecoveryTest, OneItem_Dictionary)
 	watchlistRecoveryTest_OneItem_Dictionary(GetParam());
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	TestingWatchlistRecoveryTests,
 	WatchlistRecoveryTest,
 	::testing::Values(

@@ -349,6 +349,19 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 					if (count < reactorChannelInfo.rsslChannelInfo.componentInfoCount - 1)
 						printf(", ");
 				}
+
+			switch (reactorChannelInfo.rsslChannelInfo.encryptionProtocol)
+			{
+			case RSSL_ENC_TLSV1_2:
+				printf("\n  Encryption protocol: TLSv1.2");
+				break;
+			case RSSL_ENC_TLSV1_3:
+				printf("\n  Encryption protocol: TLSv1.3");
+				break;
+			default:
+				printf("\n  Encryption protocol: unknown");
+			}
+
 			printf ("\n\n");
 
 			/* Check that we can successfully pack, if packing messages. */
@@ -890,6 +903,19 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 			if (count < channelInfo.componentInfoCount - 1)
 				printf(", ");
 		}
+
+	switch (channelInfo.encryptionProtocol)
+	{
+	case RSSL_ENC_TLSV1_2:
+		printf("\n  Encryption protocol: TLSv1.2");
+		break;
+	case RSSL_ENC_TLSV1_3:
+		printf("\n  Encryption protocol: TLSv1.3");
+		break;
+	default:
+		printf("\n  Encryption protocol: unknown");
+	}
+
 	printf ("\n\n");
 
 	/* Check that we can successfully pack, if packing messages. */

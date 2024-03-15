@@ -2,10 +2,12 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
+
+import com.refinitiv.ema.rdm.DataDictionary;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -158,6 +160,13 @@ public interface Vector extends ComplexType, Collection<VectorEntry>
 	 * @return reference to this object
 	 */
 	public Vector summaryData(ComplexType data);
+
+	/**
+	 *  Returns a string representation of the class instance.
+	 * @param dictionary use for toString() conversion
+	 * @return string representation of the class instance
+	 */
+	public String toString(DataDictionary dictionary);
 	
 	/**
 	 * A more efficient and performant iterator call, which eliminates using a collection and

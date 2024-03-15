@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+// *|           Copyright (C) 2019-2024 Refinitiv. All rights reserved.         --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -150,6 +150,43 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	public OmmConsumerConfig host(String host)
 	{
 		hostInt(host, OmmConsumerActiveConfig.DEFAULT_CONSUMER_SERVICE_NAME);
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig channelType(int connectionType)
+	{
+		if (    connectionType != EmaConfig.ConnectionType.SOCKET &&
+				connectionType != EmaConfig.ConnectionType.ENCRYPTED &&
+				connectionType != EmaConfig.ConnectionType.HTTP &&
+				connectionType != EmaConfig.ConnectionType.WEBSOCKET)
+		{
+			StringBuilder temp = new StringBuilder();
+			temp.append("Try to pass invalid argument:");
+			temp.append(connectionType);
+			temp.append(" to channelType(). Please use channel types present in EmaConfig.ConnectionTypeEnum.");
+			throw ommIUExcept().message(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+
+		channelTypeInt(connectionType);
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig encryptedProtocolType(int encProtocolType)
+	{
+		if (    encProtocolType != EmaConfig.EncryptedProtocolType.SOCKET &&
+				encProtocolType != EmaConfig.EncryptedProtocolType.HTTP &&
+				encProtocolType != EmaConfig.EncryptedProtocolType.WEBSOCKET)
+		{
+			StringBuilder temp = new StringBuilder();
+			temp.append("Try to pass invalid argument:");
+			temp.append(encProtocolType);
+			temp.append(" to encryptedProtocolType(). Please use channel types present in EmaConfig.EncryptedProtocolTypeEnum.");
+			throw ommIUExcept().message(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+
+		encProtocolTypeInt(encProtocolType);
 		return this;
 	}
 

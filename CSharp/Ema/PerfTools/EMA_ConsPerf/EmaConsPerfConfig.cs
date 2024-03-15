@@ -2,10 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
+using LSEG.Ema.Access;
 using LSEG.Ema.PerfTools.Common;
 using System;
 
@@ -56,7 +57,9 @@ namespace LSEG.Ema.PerfTools.ConsPerf
         public string? ConsumerName;           /* Name of the Consumer component in EmaConfig.xml. See -consumerName. */
 
         public string? Keyfile;                /* Keyfile for encryption */
-        public string? _keypasswd;				/* Keyfile password */
+        public string? _keypasswd;              /* Keyfile password */
+
+        public uint EncryptionProtocol; /* Tls version. */
 
         internal EmaConsPerfConfig()
         {
@@ -86,6 +89,8 @@ namespace LSEG.Ema.PerfTools.ConsPerf
             CommandLine.AddOption("useUserDispatch", false, "Use the EMA USER_DISPATCH model instead of the EMA API_DISPATCH model for sending and receiving");
             CommandLine.AddOption("downcastDecoding", false, "Turn on the EMA data load downcast feature during decoding response payload");
             CommandLine.AddOption("consumerName", "", "Name of the Consumer component in config file EmaConfig.xml that will be usd to configure connection.");
+            CommandLine.AddOption("spTLSv1.2", false, "Specifies that TLSv1.2 can be used for an encrypted connection");
+            CommandLine.AddOption("spTLSv1.3", false, "Specifies that TLSv1.3 can be used for an encrypted connection");
         }
 
         /// <summary>
@@ -124,6 +129,12 @@ namespace LSEG.Ema.PerfTools.ConsPerf
             DowncastDecoding = CommandLine.BoolValue("downcastDecoding");
 
             ConsumerName = CommandLine.Value("consumerName");
+
+            EncryptionProtocol = EmaConfig.EncryptedTLSProtocolFlags.NONE;
+            if (CommandLine.BoolValue("spTLSv1.2"))
+                EncryptionProtocol |= EmaConfig.EncryptedTLSProtocolFlags.TLSv1_2;
+            if (CommandLine.BoolValue("spTLSv1.3"))
+                EncryptionProtocol |= EmaConfig.EncryptedTLSProtocolFlags.TLSv1_3;
 
             try
             {
@@ -261,6 +272,15 @@ namespace LSEG.Ema.PerfTools.ConsPerf
             CreateConfigString();
         }
 
+        /* helper enum to make EncryptionProtocol string */
+        private enum EncryptedTLSProtocolFlags
+        {
+            TLS_DEFAULT = 0x00,
+            TLS_V1_2 = 0x04,
+            TLS_V1_3 = 0x08,
+            TLS_ALL = 0x0C
+        }
+
         /* Create config string. */
         private void CreateConfigString()
         {
@@ -297,7 +317,8 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                     "        Latency Log File: " + (LatencyLogFilename != null && LatencyLogFilename!.Length > 0 ? LatencyLogFilename : "(none)") + "\n" +
                     "               Tick Rate: " + TicksPerSec + "\n" +
                     "        DowncastDecoding: " + (DowncastDecoding ? "True" : "False") + "\n" +
-                    "    OperationModel Usage: " + useOperationModelUsageString + "\n";
+                    "    OperationModel Usage: " + useOperationModelUsageString + "\n" +
+                    "       Security Protocol: " + (EncryptedTLSProtocolFlags)EncryptionProtocol + "\n";
         }
 
         public override string ToString()

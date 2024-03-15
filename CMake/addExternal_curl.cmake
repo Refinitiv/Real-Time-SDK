@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|             Copyright (C) 2023 Refinitiv. All rights reserved.            --
+ *|             Copyright (C) 2024 Refinitiv. All rights reserved.            --
 #]=============================================================================]
 
 
 include(rcdevExternalUtils)
 
 if(NOT curl_url)
-	set(curl_url "https://github.com/curl/curl/releases/download/curl-8_4_0/curl-8.4.0.tar.xz")
+	set(curl_url "https://github.com/curl/curl/releases/download/curl-8_5_0/curl-8.5.0.tar.xz")
 endif()
 if(NOT curl_hash)
-	set(curl_hash "MD5=8424597f247da68b6041dd7f9ca367fe")
+	set(curl_hash "MD5=3e9e5c2db494e7dbd4e7024b149021c9")
 endif()
 if(NOT curl_version)
-	set(curl_version "8.4.0")
+	set(curl_version "8.5.0")
 endif()
 
 # If the option for using the system installed 

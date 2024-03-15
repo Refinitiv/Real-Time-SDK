@@ -9,6 +9,10 @@
 #include "rsslJsonConverterTestBase.h"
 #include <cstdarg>
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json; 
 
@@ -415,7 +419,7 @@ TEST_P(MapMembersTestFixture, MapMembersTest)
 }
 
 
-INSTANTIATE_TEST_CASE_P(MapTests, MapMembersTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(MapTests, MapMembersTestFixture, ::testing::Values(
 
 	/* Test with/without SummaryData, TotalCountHint, KeyFieldId, Per-Entry PermData */
 
@@ -664,7 +668,7 @@ TEST_P(MapEntryActionsTestFixture, MapEntryActionsTest)
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
 }
 
-INSTANTIATE_TEST_CASE_P(MapTests, MapEntryActionsTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(MapTests, MapEntryActionsTestFixture, ::testing::Values(
 	MapEntryActionsTestParams(2, 0, 0),
 	MapEntryActionsTestParams(3, RSSL_MPEA_ADD_ENTRY, RSSL_MPEA_UPDATE_ENTRY, RSSL_MPEA_DELETE_ENTRY),
 	MapEntryActionsTestParams(3, RSSL_MPEA_DELETE_ENTRY, RSSL_MPEA_UPDATE_ENTRY, RSSL_MPEA_ADD_ENTRY),
@@ -906,7 +910,7 @@ TEST_P(MapContainerTypesTestFixture, MapContainerTypesTest)
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
 }
 
-INSTANTIATE_TEST_CASE_P(MapTests, MapContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(MapTests, MapContainerTypesTestFixture, ::testing::Values(
 	RsslDataTypeParam(RSSL_DT_FIELD_LIST),
 	RsslDataTypeParam(RSSL_DT_ELEMENT_LIST),
 	RsslDataTypeParam(RSSL_DT_FILTER_LIST)

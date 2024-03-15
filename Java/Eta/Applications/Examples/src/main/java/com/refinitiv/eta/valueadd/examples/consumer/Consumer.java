@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -420,7 +420,12 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			krb5ConfigFile.data(consumerCmdLineParser.restProxyKrb5ConfigFile());
 			reactorOptions.restProxyOptions().proxyKrb5ConfigFile(krb5ConfigFile);
 		}
-		
+
+		if (consumerCmdLineParser.serviceDiscoveryURL() != null && !consumerCmdLineParser.serviceDiscoveryURL().equals(""))
+		{
+			reactorOptions.serviceDiscoveryURL().data(consumerCmdLineParser.serviceDiscoveryURL());
+		}
+
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
@@ -657,11 +662,15 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	{
 		ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
 		ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
-		ReactorOAuthCredential reactorOAuthCredential = (ReactorOAuthCredential)reactorOAuthCredentialEvent.userSpecObj();
 
 		renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
-		oAuthCredentialRenewal.password().data(reactorOAuthCredential.password().toString());
-
+		if (oAuthCredential.password() != null && oAuthCredential.password().length() != 0)
+			oAuthCredentialRenewal.password().data(oAuthCredential.password().toString());
+		else if (oAuthCredential.clientSecret() != null && oAuthCredential.clientSecret().length() != 0)
+			oAuthCredentialRenewal.clientSecret().data(oAuthCredential.clientSecret().toString());
+		else
+			oAuthCredentialRenewal.clientJWK().data(oAuthCredential.clientJwk().toString());
+		
 		reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
 
 		return ReactorCallbackReturnCodes.SUCCESS;
@@ -1550,9 +1559,6 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			loginRequest.applyHasPassword();
 
 			oAuthCredential.password().data(consumerCmdLineParser.passwd());
-
-			/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-			oAuthCredential.reactorOAuthCredentialEventCallback(this);
 		}
 		if (consumerCmdLineParser.clientId() != null && !consumerCmdLineParser.clientId().equals(""))
 		{
@@ -1566,6 +1572,9 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			{
 				oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
 			}
+			
+			/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+			oAuthCredential.reactorOAuthCredentialEventCallback(this);
 		}
 		
 		if(consumerCmdLineParser.jwkFile() != null && !consumerCmdLineParser.jwkFile().equals(""))
@@ -1577,7 +1586,6 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 				String jwkText = new String(jwkFile);
 				
 				oAuthCredential.clientJwk().data(jwkText);
-
 			}
 			catch(Exception e)
 			{
@@ -1695,10 +1703,18 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 
 		chnlInfo.connectOptions.connectionList().get(0).connectOptions().userSpecObject(chnlInfo);
 		chnlInfo.connectOptions.connectionList().get(0).connectOptions().guaranteedOutputBuffers(1000);
+
+		if (consumerCmdLineParser.serviceDiscoveryLocation() != null && !consumerCmdLineParser.serviceDiscoveryLocation().equals(""))
+			chnlInfo.connectOptions.connectionList().get(0).location(consumerCmdLineParser.serviceDiscoveryLocation());
+
 		// add backup connection if specified
 		if (consumerCmdLineParser.backupHostname() != null && consumerCmdLineParser.backupPort() != null)
 		{
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+
+			if (consumerCmdLineParser.serviceDiscoveryLocation() != null && !consumerCmdLineParser.serviceDiscoveryLocation().equals(""))
+				connectInfo.location(consumerCmdLineParser.serviceDiscoveryLocation());
+
 			chnlInfo.connectOptions.connectionList().add(connectInfo);
 			chnlInfo.connectOptions.connectionList().get(1).connectOptions().majorVersion(Codec.majorVersion());
 			chnlInfo.connectOptions.connectionList().get(1).connectOptions().minorVersion(Codec.minorVersion());

@@ -1316,10 +1316,11 @@ CURLcode commonCurlOptions(CURL* curl, RsslRestRequestArgs* requestArgs)
 	if ((curlCode = (*(rssl_rest_CurlJITFuncs->curl_easy_setopt))(curl, CURLOPT_SUPPRESS_CONNECT_HEADERS, 1L)) != CURLE_OK)
 		return curlCode;
 
-#ifdef RSSL_REST_CLIENT_VERBOSE
+	if (requestArgs->restVerboseMode)
+	{
 	if ((curlCode = (*(rssl_rest_CurlJITFuncs->curl_easy_setopt))(curl, CURLOPT_VERBOSE, 1L)) != CURLE_OK)
 		return curlCode;
-#endif
+	}
 
 	if ((curlCode = (*(rssl_rest_CurlJITFuncs->curl_easy_setopt))(curl, CURLOPT_TIMEOUT, timeout)) != CURLE_OK)
 		return curlCode;

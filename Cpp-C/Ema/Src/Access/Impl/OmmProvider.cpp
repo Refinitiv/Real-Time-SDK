@@ -163,6 +163,11 @@ void OmmProvider::submit( const GenericMsg& genericMsg, UInt64 handle )
 	_pImpl->submit( genericMsg, handle );
 }
 
+void OmmProvider::submit(const PackedMsg& packedMsg)
+{
+	_pImpl->submit(packedMsg);
+}
+
 Int64 OmmProvider::dispatch( Int64 timeOut )
 {
 	return _pImpl->dispatch( timeOut );

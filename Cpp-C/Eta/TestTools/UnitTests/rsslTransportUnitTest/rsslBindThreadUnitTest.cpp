@@ -1063,7 +1063,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTElements
 	// P:X C:Y T:Z
 	char sCpuCore1PCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
 
-	char bufCpuIdThreadsPCT[128];
+	char bufCpuIdThreadsPCT[256];
 
 	unsigned indCpu;
 	RsslInt32 CpuCoreId0 = 0;
@@ -1223,14 +1223,14 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 {
 	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
 
-	char bufCpuIdThreadsPCT[128];
+	char bufCpuIdThreadsPCT[256];
 
 	unsigned indCpu;
 	RsslInt32 CpuCores[64];
 	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
 	RsslRet ret = RSSL_RET_SUCCESS;
 
-	char outStr[128];
+	char outStr[256];
 	int n;
 	unsigned i;
 	unsigned nTestProcessors;
@@ -1298,7 +1298,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElements1Test)
 {
-	char bufCpuIdThreadsPCT[128];
+	char bufCpuIdThreadsPCT[256];
 
 	int indCpu;
 
@@ -1306,7 +1306,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
 	RsslRet ret = RSSL_RET_SUCCESS;
 
-	char outStr[128];
+	char outStr[256];
 	int n;
 	int i;
 	int nTestProcessors;

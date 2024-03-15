@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -28,7 +28,9 @@ public abstract class BaseProviderPerfConfig {
     protected String msgFilename;              // Data file. Describes the data to use when encoding messages.
     protected int threadCount;                 // Number of provider threads to create.
     protected int runTime;                     // Time application runs before exiting
-
+    protected int messagePackingCount;		   // Count of how many messages to pack in a single PackedMsg
+    protected int messagePackingBufferSize;	   // Size limit of the buffer for any particular PackedMsg (in bytes)
+    
     protected int writeStatsInterval;          // Controls how often statistics are written
     protected boolean displayStats;            // Controls whether stats appear on the screen\
     protected boolean useUserDispatch;         // Controls opportunity for manually dispatching of the incoming messages
@@ -49,6 +51,8 @@ public abstract class BaseProviderPerfConfig {
         CommandLine.addOption("noDisplayStats", false, "Stop printout of stats to screen");
         CommandLine.addOption("threads", 1, "Amount of executable threads");
         CommandLine.addOption("runTime", 360, "Runtime of the application, in seconds");
+        CommandLine.addOption("maxPackCount", 1, "Maximum number of messages packed in a buffer(when count > 1, eta PackBuffer() is used. Default is 1");
+        CommandLine.addOption("packBufSize", 6000, "If packing, sets size of buffer to use. Default is 6000");
 
         CommandLine.addOption("msgFile", "MsgData.xml", "Name of the file that specifies the data content in messages");
         CommandLine.addOption("writeStatsInterval", 5, "Controls how ofthen stats are written to the file.");
@@ -109,6 +113,8 @@ public abstract class BaseProviderPerfConfig {
 
             ticksPerSec = CommandLine.intValue("tickRate");
             this.useUserDispatch = CommandLine.booleanValue("useUserDispatch");
+            messagePackingCount = CommandLine.intValue("maxPackCount");
+            messagePackingBufferSize = CommandLine.intValue("packBufSize");
         } catch (NumberFormatException ile) {
             System.err.println("Invalid argument, number expected.\t");
             System.err.println(ile.getMessage());
@@ -144,6 +150,18 @@ public abstract class BaseProviderPerfConfig {
 
         if (updatesPerSec != 0 && updatesPerSec < ticksPerSec) {
             System.err.println("Config Error: Update rate cannot be less than total ticks per second (unless it is zero).\n\n");
+            System.out.println(CommandLine.optionHelpString());
+            System.exit(-1);
+        }
+        
+        if (messagePackingCount < 1) {
+            System.err.println("Config Error: Message Packing Count cannot be less than 1.\n\n");
+            System.out.println(CommandLine.optionHelpString());
+            System.exit(-1);
+        }
+        
+        if (messagePackingBufferSize < 1) {
+            System.err.println("Config Error: Message Packing Buffer Size cannot be less than 1 KB.\n\n");
             System.out.println(CommandLine.optionHelpString());
             System.exit(-1);
         }
@@ -354,6 +372,42 @@ public abstract class BaseProviderPerfConfig {
      */
     public void updatesPerTickRemainder(int updatesPerTickRemainder) {
         this.updatesPerTickRemainder = updatesPerTickRemainder;
+    }
+    
+    /**
+     * Returns message packing count.
+     *
+     * @return Message count limit for any particular packed message.
+     */
+    public int messagePackingCount() {
+        return messagePackingCount;
+    }
+    
+    /**
+     * Sets message packing count.
+     *
+     * @param messagePackingCount the message count limit for any particular packed message
+     */
+    public void messagePackingCount(int messagePackingCount) {
+        this.messagePackingCount = messagePackingCount;
+    }
+    
+    /**
+     * Returns message packing buffer size.
+     *
+     * @return Message buffer size limit for any particular packed message.
+     */
+    public int messagePackingBufferSize() {
+        return messagePackingBufferSize;
+    }
+    
+    /**
+     * Sets message packing buffer size.
+     *
+     * @param messagePackingBufferSize the message buffer size limit for any particular packed message
+     */
+    public void messagePackingBufferSize(int messagePackingBufferSize) {
+        this.messagePackingBufferSize = messagePackingBufferSize;
     }
 
     public String configString() {

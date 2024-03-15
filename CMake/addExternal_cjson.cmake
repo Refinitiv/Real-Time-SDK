@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2024 Refinitiv. All rights reserved.            --
 #]=============================================================================]
 
 
 include(rcdevExternalUtils)
 
 if(NOT cjson_url)
-	set(cjson_url "https://github.com/DaveGamble/cJSON/archive/v1.7.16.tar.gz")
+	set(cjson_url "https://github.com/DaveGamble/cJSON/archive/v1.7.17.tar.gz")
 endif()
 if(NOT cjson_hash)
-	set(cjson_hash "MD5=9422f73fb9e4e524d77d9467d4b73536")
+	set(cjson_hash "MD5=344409fa865ca3440be94089d1cc37ac")
 endif()
 if(NOT cjson_version)
-	set(cjson_version "1.7.16")
+	set(cjson_version "1.7.17")
 endif()
 	
 # If the option for using the system installed 

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019,2024 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -30,6 +30,8 @@ import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.codec.DecodeIterator;
 import com.refinitiv.eta.codec.EncodeIterator;
 import com.refinitiv.eta.codec.RefreshMsgFlags;
+import com.refinitiv.eta.transport.TransportFactory;
+import com.refinitiv.eta.transport.WriteArgs;
 import com.refinitiv.eta.transport.WritePriorities;
 import com.refinitiv.eta.valueadd.common.VaNode;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
@@ -45,7 +47,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	
 	private OmmProviderErrorClient _providerErrorClient = null;
 	private OmmNiProviderActiveConfig _activeConfig = null;
-	private HashMap<LongObject, StreamInfo> _handleToStreamInfo = new HashMap<>();
+	protected HashMap<LongObject, StreamInfo> _handleToStreamInfo = new HashMap<>();
 	private boolean _bIsStreamIdZeroRefreshSubmitted = false;
 	private ReqMsg loginRequest = EmaFactory.createReqMsg();
 	private int _nextProviderStreamId;
@@ -1617,6 +1619,66 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		handleInvalidUsage(text.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 	}
+	
+	@Override
+	public void submit(PackedMsg packedMsg)
+	{
+		PackedMsgImpl packedMsgImpl = (PackedMsgImpl)packedMsg;
+		
+		userLock().lock();
+
+		if(_activeChannelInfo == null)
+		{
+			userLock().unlock();
+			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
+			return;
+		}
+		
+		if (packedMsgImpl.getTransportBuffer() == null)
+		{
+			userLock().unlock();
+			StringBuilder temp = strBuilder();
+			temp.append("Attempt to fanout PackedMsg with an uninitialized buffer.");
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+			return;
+		}
+		
+		_rsslErrorInfo.clear();
+		int ret;
+		if (ReactorReturnCodes.SUCCESS > (ret = _activeChannelInfo.rsslReactorChannel().submit(packedMsgImpl.getTransportBuffer(), _rsslSubmitOptions, _rsslErrorInfo)))
+		{
+			if (loggerClient().isErrorEnabled())
+        	{
+				com.refinitiv.eta.transport.Error error = _rsslErrorInfo.error();
+				
+	        	strBuilder().append("Internal error: rsslChannel.submit() failed in OmmNiProviderImpl.submit(PackedMsg)")
+        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+    			.append(OmmLoggerClient.CR)
+    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+    			.append("Error Location ").append(_rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+    			.append("Error Text ").append(error.text());
+        	
+        	loggerClient().error(formatLogMessage(instanceName() , _strBuilder.toString(), Severity.ERROR));
+        	}
+			
+			packedMsgImpl.releaseBuffer();
+			
+			userLock().unlock();
+			strBuilder().append("Failed to submit ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(_rsslErrorInfo.error().text());
+			
+			handleInvalidUsage(_strBuilder.toString(), ret);
+	    }
+		else
+		{
+			packedMsgImpl.setTransportBuffer(null);
+		}
+		
+		userLock().unlock();
+	}
 
 	@Override
 	public int providerRole()
@@ -1889,5 +1951,13 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				"NIProvider applications do not support the closeChannel() method",
 				OmmInvalidUsageException.ErrorCode.INVALID_OPERATION
 		);
+	}
+	
+	public StreamInfo getStreamInfo(long handle)
+	{
+		userLock().lock();
+		StreamInfo returnStreamInfo = _handleToStreamInfo.get(_longObject.value(handle));
+		userLock().unlock();
+		return returnStreamInfo;
 	}
 }

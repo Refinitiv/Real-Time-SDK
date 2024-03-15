@@ -9,6 +9,7 @@
 #include "TestUtilities.h"
 #include "Access/Impl/OmmBaseImplMap.h"
 #include <vector>
+#include <algorithm>
 
 using namespace refinitiv::ema::access;
 using namespace std;

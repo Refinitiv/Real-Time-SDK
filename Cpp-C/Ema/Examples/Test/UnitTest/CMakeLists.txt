@@ -18,7 +18,7 @@ set(_UnitTestSrcFiles
         SeriesTests.cpp StatusMsgTests.cpp
         TestUtilities.cpp TestUtilities.h
         TunnelStreamRequestTests.cpp UpdateMsgTests.cpp
-        VectorTests.cpp
+        VectorTests.cpp PackedMsgTest.cpp
         )
 
 add_executable( EmaUnitTest ${_UnitTestSrcFiles} )

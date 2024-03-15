@@ -2,13 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
 #include "TestUtilities.h"
 
 using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
 TEST(SeriesTests, testSeriesContainsFieldListsDecodeAll)
@@ -1132,13 +1133,79 @@ TEST(SeriesTests, testSeriesContainsFieldListsEncodeDecodeAll)
 	// load dictionary for decoding of the field list
 	RsslDataDictionary dictionary;
 
+	const EmaString seriesString =
+		"Series totalCountHint=\"5\n"
+		"    SummaryData dataType=\"FieldList\"\n"
+		"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+		"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+		"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+		"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+		"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+		"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+		"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+		"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+		"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+		"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+		"        FieldListEnd\n"
+		"    SummaryDataEnd\n"
+		"    SeriesEntry dataType=\"FieldList\"\n"
+		"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+		"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+		"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+		"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+		"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+		"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+		"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+		"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+		"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+		"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+		"        FieldListEnd\n"
+		"    SeriesEntryEnd\n"
+		"    SeriesEntry dataType=\"FieldList\"\n"
+		"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+		"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+		"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+		"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+		"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+		"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+		"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+		"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+		"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+		"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+		"        FieldListEnd\n"
+		"    SeriesEntryEnd\n"
+		"    SeriesEntry dataType=\"FieldList\"\n"
+		"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+		"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+		"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+		"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+		"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+		"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+		"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+		"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+		"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+		"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+		"        FieldListEnd\n"
+		"    SeriesEntryEnd\n"
+		"SeriesEnd\n";
+
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
-	Series seriesEnc;
-	EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
+	DataDictionary emaDataDictionary, emaDataDictionaryEmpty;
+
+	try {
+		emaDataDictionary.loadFieldDictionary( "RDMFieldDictionaryTest" );
+		emaDataDictionary.loadEnumTypeDictionary( "enumtypeTest.def" );
+	}
+	catch ( const OmmException& ) {
+		ASSERT_TRUE( false ) << "DataDictionary::loadFieldDictionary() failed to load dictionary information";
+	}
+
+	Series seriesEnc, seriresEmpty;
+	EXPECT_EQ( seriesEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "Series.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 	seriesEnc.totalCountHint( 5 );
-	EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
+	EXPECT_EQ( seriesEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "Series.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 
 	try
@@ -1150,33 +1217,45 @@ TEST(SeriesTests, testSeriesContainsFieldListsEncodeDecodeAll)
 		EmaEncodeFieldListAll( flEnc );
 
 		seriesEnc.summaryData( flEnc );
-		EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( seriesEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "Series.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 
 		//first entry  //FieldList
 		FieldList flEnc1;
 		EmaEncodeFieldListAll( flEnc1 );
 		seriesEnc.add( flEnc1 );
-		EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( seriesEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "Series.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//second entry  //FieldList
 		FieldList flEnc2;
 		EmaEncodeFieldListAll( flEnc2 );
 		seriesEnc.add( flEnc2 );
-		EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( seriesEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "Series.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//third entry  //FieldList
 		seriesEnc.add( flEnc1 );
-		EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( seriesEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "Series.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
+
+		EXPECT_EQ( seriesEnc.toString( emaDataDictionary ), "\nUnable to decode not completed Series data.\n" ) << "Series.toString() == Unable to decode not completed Series data.";
 
 		seriesEnc.complete();
-		EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( seriesEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "Series.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
+		EXPECT_EQ( seriesEnc.toString( emaDataDictionaryEmpty ), "\nDictionary is not loaded.\n" ) << "Series.toString() == Dictionary is not loaded.";
+
+		EXPECT_EQ( seriesEnc.toString( emaDataDictionary ), seriesString ) << "Series.toString() == seriesString";
+
+		seriresEmpty.add( flEnc2 );
+		seriresEmpty.complete();
+		seriresEmpty.clear();
+		EXPECT_EQ( seriresEmpty.toString( emaDataDictionary ), "\nUnable to decode not completed Series data.\n" ) << "Series.toString() == Unable to decode not completed Series data.";
+
+		seriresEmpty.complete();
+		EXPECT_EQ( seriresEmpty.toString( emaDataDictionary ), "Series\nSeriesEnd\n" ) << "Series.toString() == Series\nSeriesEnd\n";
 
 		//Now do EMA decoding of Series
 		StaticDecoder::setData( &seriesEnc, &dictionary );
-		EXPECT_NE( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() != Decoding of just encoded object in the same application is not supported";
-
+		EXPECT_EQ( seriesEnc.toString(), seriesString ) << "Series.toString() == seriesString";
 
 		EXPECT_TRUE( seriesEnc.hasTotalCountHint() ) << "Series contains FieldList - hasTotalCountHint()" ;
 		EXPECT_EQ( seriesEnc.getTotalCountHint(), 5 ) << "Series contains FieldList - getTotalCountHint()" ;

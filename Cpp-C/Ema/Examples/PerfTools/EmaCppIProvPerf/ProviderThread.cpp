@@ -41,6 +41,8 @@ ProviderThread::ProviderThread(IProvPerfConfig& config, PerfMessageData* perfDat
 		provPerfConfig(config), perfMessageData(perfData),
 		providerClient(NULL),
 		provider(NULL),
+		packedMsg(NULL),
+		packCountCurrent(0),
 #if defined(WIN32)
 		_handle(NULL), _threadId(0),
 #else
@@ -65,6 +67,10 @@ void ProviderThread::clean()
 	if (provider != NULL)
 		delete provider;
 	provider = NULL;
+
+	if (packedMsg != NULL)
+		delete packedMsg;
+	packedMsg = NULL;
 
 	if (providerClient != NULL)
 		delete providerClient;
@@ -587,8 +593,12 @@ void ProviderThread::sendUpdateMessages()
 		}
 
 		if (providerClient->isActiveStream(clientHandle))
-			provider->submit(*pUpdateMsg, itemInfo->getHandle());
-
+		{
+			if (provPerfConfig.numberMsgInPackedMsg)
+				sendPackedMsg(pUpdateMsg, itemInfo);
+			else
+				provider->submit(*pUpdateMsg, itemInfo->getHandle());
+		}
 		stats.updateMsgCount.countStatIncr();
 
 	}  // for-each (updateMsg)
@@ -715,6 +725,38 @@ void ProviderThread::sendGenericMessages()
 	return;
 }
 
+void ProviderThread::sendPackedMsg(const Msg* msg, ProvItemInfo* itemInfo)
+{
+	if (!itemInfo)
+		return;
+
+	if (packCountCurrent == 0)
+	{
+		if (packedMsg == NULL)
+			packedMsg = new PackedMsg(*provider);
+
+		if (!provPerfConfig.packedMsgBufferSize)
+			packedMsg->initBuffer(itemInfo->getClientHandle());
+		else
+			packedMsg->initBuffer(itemInfo->getClientHandle(), provPerfConfig.packedMsgBufferSize);
+	}
+	
+	(void)packedMsg->addMsg(*msg, itemInfo->getHandle());
+	packCountCurrent++;
+
+	if (provPerfConfig.numberMsgInPackedMsg == packCountCurrent)
+	{
+		UInt64 clientHandle = itemInfo->getClientHandle();
+		if (providerClient->isActiveStream(clientHandle))
+		{
+			provider->submit(*packedMsg);
+			stats.packedMsgCount.countStatIncr();
+		}
+		packedMsg->clear();
+		packCountCurrent = 0;
+	}
+}
+
 void ProviderThread::sendBurstMessages()
 {
 	// the list of items is common for sending UpdateMsg and GenericMsg
@@ -723,10 +765,11 @@ void ProviderThread::sendBurstMessages()
 		{
 			sendUpdateMessages();
 			sendGenericMessages();
-
+			
 			processClosedHandles();
 		}
 		sendRefreshMessages();
+
 	}
 	catch(OmmInvalidUsageException& exp)
 	{
@@ -818,7 +861,9 @@ ProviderStats::ProviderStats(const ProviderStats& stats) :
 	genMsgSentCount(stats.genMsgSentCount),
 	genMsgRecvCount(stats.genMsgRecvCount),
 	latencyGenMsgSentCount(stats.latencyGenMsgSentCount),
-	tunnelStreamBufUsageStats(stats.tunnelStreamBufUsageStats)
+	tunnelStreamBufUsageStats(stats.tunnelStreamBufUsageStats),
+	packedMsgCount(stats.packedMsgCount)
+
 {}
 
 ProviderStats& ProviderStats::operator=(const ProviderStats& stats)
@@ -840,6 +885,7 @@ ProviderStats& ProviderStats::operator=(const ProviderStats& stats)
 	genMsgRecvCount = stats.genMsgRecvCount;
 	latencyGenMsgSentCount = stats.latencyGenMsgSentCount;
 	tunnelStreamBufUsageStats = stats.tunnelStreamBufUsageStats;
+	packedMsgCount = stats.packedMsgCount;
 
 	return *this;
 }

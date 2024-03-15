@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.    --
  *|-----------------------------------------------------------------------------
  */
 
@@ -47,6 +47,7 @@ class ReactorTokenSession implements RestCallback
 	private Buffer _tokenURLV1Buffer = CodecFactory.createBuffer();
 	private String _defaultTokenURLV2String = "https://api.refinitiv.com/auth/oauth2/v2/token";
 	private Buffer _tokenURLV2Buffer = CodecFactory.createBuffer();
+	private WorkerEvent _reissueWorkerTimerEvent;
 	
 	  /** The ReactorTokenSession's state. */
     enum SessionState
@@ -61,7 +62,8 @@ class ReactorTokenSession implements RestCallback
     	RECEIVED_AUTH_TOKEN,
     	AUTHENTICATE_USING_PASSWD_GRANT,
     	AUTHENTICATE_USING_PASSWD_REFRESH_TOKEN,
-    	STOP_TOKEN_REQUEST
+    	STOP_TOKEN_REQUEST,
+    	REQ_AUTH_TOKEN_USING_V2_CREDENTIAL
     }
     
     
@@ -296,10 +298,26 @@ class ReactorTokenSession implements RestCallback
 		return _sessionState;
 	}
 	
+
+	void receivedAuthToken()
+	{
+		_sessionState = SessionState.RECEIVED_AUTH_TOKEN;
+	}
+	
 	/* Used for V2 login on reconnect */
 	void resetSessionMgntState() {
 
 		_sessionState = SessionState.REQ_INIT_AUTH_TOKEN;
+	}
+	
+	void tokenReissueEvent(WorkerEvent tokenReissueEvent)
+	{
+		_reissueWorkerTimerEvent = tokenReissueEvent;
+	}
+	
+	WorkerEvent tokenReissueEvent()
+	{
+		return _reissueWorkerTimerEvent;
 	}
 	
 	boolean isInitialized()
@@ -363,8 +381,17 @@ class ReactorTokenSession implements RestCallback
 	int sendAuthRequestWithSensitiveInfo(String password, String newPassword, String clientSecret, String clientJwk)
 	{
 		int ret = 0;
-		_sessionState = SessionState.REQ_AUTH_TOKEN_USING_PASSWORD;
-		_restAuthRequest.grantType(RestReactor.AUTH_PASSWORD);
+		
+		if ( (clientSecret != null && !clientSecret.isEmpty()) || (clientJwk != null && !clientJwk.isEmpty()) )
+		{
+			_sessionState = SessionState.REQ_AUTH_TOKEN_USING_V2_CREDENTIAL;
+			_restAuthRequest.grantType(RestReactor.AUTH_CLIENT_CREDENTIALS_GRANT);
+		}
+		else
+		{
+			_sessionState = SessionState.REQ_AUTH_TOKEN_USING_PASSWORD;
+			_restAuthRequest.grantType(RestReactor.AUTH_PASSWORD);
+		}
 		
 		_restAuthRequest.password(password);
 		_restAuthRequest.newPassword(newPassword);
@@ -378,6 +405,7 @@ class ReactorTokenSession implements RestCallback
 		return ret;
 	}
 	
+	/* This method is called by the worker thread only as it handles worker event */
 	void handleTokenReissue()
 	{
 		_reactorChannelListLock.lock();
@@ -386,11 +414,20 @@ class ReactorTokenSession implements RestCallback
 		{
 			/* Don't send token reissue request when there is no channel for this session or this Reactor is shutting down. */
 			if(_reactorChannelList.size() == 0 || _reactor.isShutdown())
+			{
 				return;
+			}
 		}
 		finally
 		{
 			_reactorChannelListLock.unlock();
+		}
+		
+		if(_reissueWorkerTimerEvent != null)
+		{
+			_reissueWorkerTimerEvent._tokenSession = null;
+			_reissueWorkerTimerEvent.timeout(System.nanoTime()); /* let the worker thread remove it from timer queue */
+			_reissueWorkerTimerEvent = null;
 		}
 		
 		/* Changes the state to use the password grant as the previous request has been canceled. */
@@ -423,6 +460,37 @@ class ReactorTokenSession implements RestCallback
 			_sessionState = SessionState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN;
 			_restAuthRequest.grantType(RestReactor.AUTH_REFRESH_TOKEN);
 			_restReactor.submitAuthRequest(_restAuthRequest, _restConnectOptions, _authTokenInfo, _errorInfo);
+		}
+	}
+	
+	void HandleTokenRenewalCallbackForOAuthV2()
+	{
+		_reactorChannelListLock.lock();
+    	
+		try
+		{
+			/* Don't send credential renewal request when there is no channel for this session or this Reactor is shutting down. */
+			if(_reactorChannelList.size() == 0 || _reactor.isShutdown())
+			{
+				_sessionState = SessionState.STOP_TOKEN_REQUEST;
+				return;
+			}
+		}
+		finally
+		{
+			_reactorChannelListLock.unlock();
+		}
+		
+		if(_reactorOAuthCredential.reactorOAuthCredentialEventCallback() != null)
+		{
+			_reactorOAuthCredentialRenewal.clear();
+			_reactorOAuthCredentialRenewal.clientId().data(_reactorOAuthCredential.clientId().toString());
+			_reactorOAuthCredentialRenewal.tokenScope().data(_reactorOAuthCredential.tokenScope().toString());
+			
+			/* Creates the TOKEN_CREDENTIAL_RENEWAL event to the reactor for the application to submit sensitive information */
+			_reactor.sendCredentialRenewalEvent(this, _errorInfo);
+			
+			_sessionState = SessionState.REQ_AUTH_TOKEN_USING_V2_CREDENTIAL;
 		}
 	}
 	

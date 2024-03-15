@@ -9,6 +9,10 @@
 #include "watchlistTestFramework.h"
 #include "gtest/gtest.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 /* watchlistMiscTest_SeqNumCompare tests the rsslSeqNumCompare function used internally
  * by the watchlist. */
 #include "rtr/wlMsgReorderQueue.h"
@@ -68,7 +72,7 @@ TEST_P(WatchlistMiscUnitTest, AdminRsslMsgs)
 	watchlistMiscTest_AdminRsslMsgs(GetParam());
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	TestingWatchlistMiscUnitTests,
 	WatchlistMiscUnitTest,
 	::testing::Values(

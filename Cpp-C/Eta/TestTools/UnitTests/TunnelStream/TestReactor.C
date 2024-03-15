@@ -13,6 +13,8 @@
 #include "rtr/rsslGetTime.h"
 #include "gtest/gtest.h"
 
+#include <algorithm>
+
 using namespace testing;
 using namespace std;
 
@@ -234,7 +236,7 @@ TestReactorEvent* TestReactor::pollEvent()
 	
 void TestReactor::addComponent(TestReactorComponent* pComponent)
 {
-	bool found = (find(_componentList.begin(), _componentList.end(), pComponent) != _componentList.end());
+	bool found = (std::find(_componentList.begin(), _componentList.end(), pComponent) != _componentList.end());
 	ASSERT_EQ(found, false);
 	_componentList.push_back(pComponent);
 }
@@ -247,7 +249,7 @@ void TestReactor::registerComponentServer(TestReactorComponent* pComponent)
 
 void TestReactor::removeComponent(TestReactorComponent* pComponent)
 {
-	bool found = (find(_componentList.begin(), _componentList.end(), pComponent) != _componentList.end());
+	bool found = (std::find(_componentList.begin(), _componentList.end(), pComponent) != _componentList.end());
 	ASSERT_EQ(found, true);
 	_componentList.remove(pComponent);
 }

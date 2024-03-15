@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+// *|          Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.          --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -1029,7 +1029,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		}
 		else
 		{
-			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
+			SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig();
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
 			if (socketChannelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
 			{
 				String tempHost = config.getUserSpecifiedHostname();
@@ -1149,6 +1150,48 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 					if(encryptedChannelConfig.serviceName == null || encryptedChannelConfig.serviceName.isEmpty())
 						encryptedChannelConfig.serviceName = ActiveConfig.defaultServiceName;
 				}
+			}
+		}
+
+		if (config.getUserSpecifiedChannelType() != -1)
+		{
+			if (warmStandbyChannelSet != null && warmStandbyChannelSet.trim().length() > 0)
+			{
+				String temp = _strBuilder.toString();
+				temp = "Specifying connection type with API call is not applicable for WarmStandby channels.";
+				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+			}
+
+			int size = _activeConfig.channelConfigSet.size();
+
+			for (int i = 0; i < size; i++)
+				_activeConfig.channelConfigSet.get(i).rsslConnectionType = config.getUserSpecifiedChannelType();
+
+		}
+
+		if (config.getUserSpecifiedEncryptedProtocolType() != -1)
+		{
+			if (warmStandbyChannelSet != null && warmStandbyChannelSet.trim().length() > 0)
+			{
+				String temp = _strBuilder.toString();
+				temp = "Specifying encrypted connection type with API call is not applicable for WarmStandby channels.";
+				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+			}
+
+			int connectionType = -1;
+			int size = _activeConfig.channelConfigSet.size();
+
+			for (int i = 0; i < size; i++)
+			{
+				connectionType = _activeConfig.channelConfigSet.get(i).rsslConnectionType;
+
+				if (connectionType != ConnectionTypes.ENCRYPTED) {
+					String temp = _strBuilder.toString();
+					temp = "Encrypted protocol type can not be set for non-encrypted channel type.";
+					throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+				}
+
+				_activeConfig.channelConfigSet.get(i).encryptedProtocolType = config.getUserSpecifiedEncryptedProtocolType();
 			}
 		}
 
@@ -1463,7 +1506,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		case ConnectionTypes.WEBSOCKET:
 		case ConnectionTypes.SOCKET:
 		{
-			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
+			SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig();
 
 			socketChannelConfig.rsslConnectionType = connectionType;
 			readSocketChannelConfig(configImpl, attributes, socketChannelConfig);
@@ -1510,7 +1553,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		case ConnectionTypes.HTTP:
 		{
 			HttpChannelConfig tunnelingChannelCfg;
-			tunnelingChannelCfg = new HttpChannelConfig();
+			tunnelingChannelCfg = new EncryptedChannelConfig();
+			tunnelingChannelCfg.rsslConnectionType = ConnectionTypes.HTTP;
 			
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
 				tunnelingChannelCfg.hostName = ce.asciiValue();
@@ -1835,7 +1879,10 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 					try {
 						ret = _rsslReactor.dispatchAll(_selector.selectedKeys(), _rsslDispatchOptions, _rsslErrorInfo);
 					} finally {
-						_userLock.unlock();
+						if (_userLock.isHeldByCurrentThread())	// Check in case failure during dispatch unlocks this lock
+						{
+							_userLock.unlock();	
+						}
 					}
 
 					if (ret == ReactorReturnCodes.FAILURE)

@@ -2,12 +2,13 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
 import java.nio.ByteBuffer;
+import com.refinitiv.ema.rdm.DataDictionary;
 
 /**
  * GenericMsg allows applications to bidirectionally send messages without any implied
@@ -274,4 +275,11 @@ public interface GenericMsg extends Msg
 	 * @return reference to this object
 	 */
 	public GenericMsg providerDriven(boolean providerDriven);
+
+	/**
+	 *  Returns a string representation of the class instance.
+	 * @param dictionary use for toString() conversion
+	 * @return string representation of the class instance
+	 */
+	public String toString(DataDictionary dictionary);
 }

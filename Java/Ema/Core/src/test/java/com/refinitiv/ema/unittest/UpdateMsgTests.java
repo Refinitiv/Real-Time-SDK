@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 
 import com.refinitiv.ema.access.*;
+import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.ema.unittest.TestUtilities.EncodingTypeFlags;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
@@ -288,7 +289,7 @@ public class UpdateMsgTests extends TestCase
 		System.out.println(emaUpdateMsg);
 
 		// check that we can still get the toString on encoded/decoded msg.
-		TestUtilities.checkResult("UpdateMsg.toString() != toString() not supported", !(emaUpdateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
+		TestUtilities.checkResult("UpdateMsg.toString() != toString()", !(emaUpdateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 
 		System.out.println("End EMA UpdateMsg toString");
 		System.out.println();
@@ -297,7 +298,50 @@ public class UpdateMsgTests extends TestCase
 	public void testUpdateMsg_EncodeDecode()
 	{
 		TestUtilities.printTestHead("testUpdateMsg_EncodeDecode", "ema encoding ema decoding");
-		
+
+		String updateMsgString = "UpdateMsg\n" +
+				"    streamId=\"15\"\n" +
+				"    domain=\"MarketPrice Domain\"\n" +
+				"    updateTypeNum=\"0\"\n" +
+				"    name=\"ABCDEF\"\n" +
+				"    nameType=\"1\"\n" +
+				"    serviceId=\"5\"\n" +
+				"    filter=\"12\"\n" +
+				"    id=\"21\"\n" +
+				"    Attrib dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    AttribEnd\n" +
+				"    Payload dataType=\"FieldList\"\n" +
+				"        FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n" +
+				"            FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n" +
+				"            FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n" +
+				"            FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n" +
+				"            FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"            FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"            FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"            FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n" +
+				"            FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"            FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"        FieldListEnd\n" +
+				"    PayloadEnd\n" +
+				"UpdateMsgEnd\n";
+
+		String updateMsgEmptyString = "UpdateMsg\n" +
+				"    streamId=\"0\"\n" +
+				"    domain=\"MarketPrice Domain\"\n" +
+				"    updateTypeNum=\"0\"\n" +
+				"UpdateMsgEnd\n";
+
 		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory.createDataDictionary();
 		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
@@ -306,7 +350,8 @@ public class UpdateMsgTests extends TestCase
 	    TestUtilities.EmaEncodeFieldListAll(fl);
 	    
 	    com.refinitiv.ema.access.UpdateMsg updateMsg = EmaFactory.createUpdateMsg();
-	    
+	    com.refinitiv.ema.access.UpdateMsg updateMsgEmpty = EmaFactory.createUpdateMsg();
+
 		System.out.println("Begin EMA UpdateMsg test after constructor");
 
 		TestUtilities.checkResult(updateMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE, "UpdateMsg.domainType()");
@@ -345,53 +390,68 @@ public class UpdateMsgTests extends TestCase
 	    System.out.println("End EMA UpdateMsg Set");
 	    
     	updateMsg.domainType( com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE );
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		updateMsg.streamId( 15 );
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		updateMsg.seqNum( 22 );
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		updateMsg.name("ABCDEF");
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		updateMsg.nameType( com.refinitiv.eta.rdm.InstrumentNameTypes.RIC );
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		updateMsg.serviceId(5);
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		updateMsg.filter( 12 );
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 	
 		updateMsg.id(21);
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		updateMsg.attrib(fl);
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 	
 	    updateMsg.doNotCache(true);
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		updateMsg.doNotConflate(true);
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		updateMsg.doNotRipple(true);
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		updateMsg.publisherId(30,  15);
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 		
 		updateMsg.payload(fl);
-		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		TestUtilities.checkResult("UpdateMsg.toString() == toString()", updateMsg.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 		System.out.println("End EMA UpdateMsg Set");
 		System.out.println();
 
 		System.out.println("Begin EMA UpdateMsg Decoding");
 
+		DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+
+		TestUtilities.checkResult("UpdateMsg.toString(dictionary) == toString(dictionary)", updateMsg.toString(emaDataDictionary).equals("\nDictionary is not loaded.\n"));
+
+		emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+		emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+
+		TestUtilities.checkResult("UpdateMsg.toString(dictionary) == toString(dictionary)", updateMsgEmpty.toString(emaDataDictionary).equals(updateMsgEmptyString));
+
+		TestUtilities.checkResult("UpdateMsg.toString(dictionary) == toString(dictionary)", updateMsg.toString(emaDataDictionary).equals(updateMsgString));
+
 		com.refinitiv.ema.access.UpdateMsg emaUpdateMsg = JUnitTestConnect.createUpdateMsg();
 
 		JUnitTestConnect.setRsslData(emaUpdateMsg, updateMsg, 14, 0, dictionary, null);
+
+		com.refinitiv.ema.access.UpdateMsg updateMsgClone = EmaFactory.createUpdateMsg(updateMsg);
+		updateMsgClone.clear();
+		TestUtilities.checkResult("UpdateMsg.toString(dictionary) == toString(dictionary)", updateMsgClone.toString(emaDataDictionary).equals(updateMsgEmptyString));
 
 		TestUtilities.checkResult(emaUpdateMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE, "UpdateMsg.domainType()");
 		

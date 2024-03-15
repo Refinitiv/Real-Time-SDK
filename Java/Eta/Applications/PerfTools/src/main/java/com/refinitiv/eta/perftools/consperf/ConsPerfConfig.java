@@ -2,11 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.eta.perftools.consperf;
+
+import java.util.Arrays;
 
 import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.shared.CommandLine;
@@ -78,6 +80,9 @@ public class ConsPerfConfig
 	private boolean _calcRWFJSONConversionLatency; /* If set, the application will caluclate time spent on rwf-to-json conversion for WebSocket RWF protocol */
 
 	private boolean _convertJSON; /* If set, the application will do rwf-to-json conversion for WebSocket JSON protocol */
+	
+	private String _securityProtocol;		/* Security Protocol to use for an encrypted connection. Defaults to TLS. */
+	private String[] _securityProtocolVersions; /* List of Security Protocol Versions to use for an encrypted connection. Defaults to 1.2 and 1.3 for TLS. */
 
     {
         CommandLine.programName("ConsPerf");
@@ -126,6 +131,8 @@ public class ConsPerfConfig
         CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'socket', 'websocket' or 'http'");
      	CommandLine.addOption("calcRWFJSONConversionLatency", false, "Enable calculation of time which spent on rwf-json conversion for WebSocket Transport + RWF");
      	CommandLine.addOption("addConversionOverhead", false, "Enable JSON to RWF conversion");
+     	CommandLine.addOption("spTLSv1.2", "", "Specifies for an encrypted connection to be able to use TLS 1.2, default is 1.2 and 1.3 enabled");
+     	CommandLine.addOption("spTLSv1.3", "", "Specifies for an encrypted connection to be able to use TLS 1.3, default is 1.2 and 1.3 enabled");
     }
 	
     /**
@@ -148,6 +155,9 @@ public class ConsPerfConfig
         	System.err.println(CommandLine.optionHelpString());
         	System.exit(CodecReturnCodes.FAILURE);
         }
+        
+        boolean tlsv12 = false;
+        boolean tlsv13 = false;
 
     	_maxThreads = maxThreads;
     	_msgFilename = CommandLine.value("msgFile");
@@ -212,6 +222,27 @@ public class ConsPerfConfig
             		System.err.println("Config Error: Only socket, websocket or http encrypted connection type is supported.\n");
                 	System.out.println(CommandLine.optionHelpString());
                 	System.exit(-1);
+            	}
+            	
+            	// Set TLS versions based on arguments, or TLS 1.2 and 1.3 by default
+            	if (CommandLine.hasArg("spTLSv1.2"))
+            		tlsv12 = true;
+            	if (CommandLine.hasArg("spTLSv1.3"))
+            		tlsv13 = true;
+            	if ((tlsv12 && tlsv13) || (!tlsv12 && !tlsv13))
+            	{
+            		_securityProtocol = "TLS";
+            		_securityProtocolVersions = new String[] {"1.2", "1.3"};
+            	}
+            	else if (tlsv12)
+            	{
+            		_securityProtocol = "TLS";
+            		_securityProtocolVersions = new String[] {"1.2"};
+            	}
+            	else if (tlsv13)
+            	{
+            		_securityProtocol = "TLS";
+            		_securityProtocolVersions = new String[] {"1.3"};
             	}
             }
             else
@@ -408,9 +439,11 @@ public class ConsPerfConfig
             "          Steady State Time: " + _steadyStateTime + " sec\n" + 
             "    Delay Steady State Time: " + _delaySteadyStateCalc + " msec\n" + 
             "            Connection Type: " + ConnectionTypes.toString(_connectionType) + "\n" +
-            ((_connectionType == ConnectionTypes.ENCRYPTED) ? "" : 
-            " Encrypted Connection Type: " + ConnectionTypes.toString(_encryptedConnType) + "\n" + 
-            "                   keyfile: " + _keyfile + "\n") +
+            ((_connectionType == ConnectionTypes.ENCRYPTED) ?  
+            "  Encrypted Connection Type: " + ConnectionTypes.toString(_encryptedConnType) + "\n" + 
+            "                    keyfile: " + _keyfile + "\n" + 
+            "          Security Protocol: " + _securityProtocol + "\n" + 
+            " Security Protocol Versions: " + Arrays.toString(_securityProtocolVersions) + "\n" : "") +
             "                   Hostname: " + _hostName + "\n" +
             "                       Port: " + _portNo + "\n" +
             "                    Service: " + _serviceName + "\n" +
@@ -938,6 +971,22 @@ public class ConsPerfConfig
 	 */
 	public boolean convertJSON() {
 		return _convertJSON;
+	}
+	
+	/**
+	 * The security protocol specified by users for an encrypted connection.
+	 * @return the security protocol
+	 */
+	public String securityProtocol() {
+		return _securityProtocol;
+	}
+	
+	/**
+	 * The list of security protocol versions specified by users for the security protocol specified for an encrypted connection.
+	 * @return list of security protocol versions
+	 */
+	public String[] securityProtocolVersions() {
+		return _securityProtocolVersions;
 	}
 
 }

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -212,6 +212,10 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 			
 			_ommConfig.tunnelingKeyStoreFile(_consPerfConfig.keyfile());
 			_ommConfig.tunnelingKeyStorePasswd(_consPerfConfig.keypasswd());
+
+			// Set security protocol versions of TLS based on configured values, with default having TLS 1.2 and 1.3 enabled
+	        	_ommConfig.tunnelingSecurityProtocol(_consPerfConfig.securityProtocol());
+	        	_ommConfig.tunnelingSecurityProtocolVersions(_consPerfConfig.securityProtocolVersions());
 				
 			_consumer = EmaFactory.createOmmConsumer(_ommConfig);
 		}

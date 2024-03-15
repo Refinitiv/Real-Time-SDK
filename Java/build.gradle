@@ -45,8 +45,8 @@ repositories {
 ext.YEAR = '2023'
 
 ext.BuildDate = 'Thu May 31 22:00:22 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.7.3.0'
-ext.SpecificationVersionShort = '3.7.3'
+ext.SpecificationVersion = '3.8.0.0'
+ext.SpecificationVersionShort = '3.8.0'
 
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"

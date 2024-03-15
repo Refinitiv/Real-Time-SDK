@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.    --
  *|-----------------------------------------------------------------------------
  */
 
@@ -142,8 +142,17 @@ class Worker implements Runnable
                     {
                         if (event.eventType() == WorkerEventTypes.TOKEN_MGNT)
                         {
-                        	if(event._tokenSession != null && (event._tokenSession.authTokenInfo().tokenVersion() != TokenVersion.V2 || (event._reactorChannel != null && event._reactorChannel.state() != State.READY && event._reactorChannel.state() != State.UP)))
-                        		event._tokenSession.handleTokenReissue();
+                        	ReactorTokenSession tokenSession = event._tokenSession;
+                        	if(tokenSession != null && (tokenSession.authTokenInfo().tokenVersion() != TokenVersion.V2 || (event._reactorChannel != null && event._reactorChannel.state() != State.READY && event._reactorChannel.state() != State.UP)))
+                        	{
+                        		tokenSession.handleTokenReissue();
+                        	}
+                        	
+                        	/* Removes worker event from the token session */
+                        	if(tokenSession != null)
+                        	{
+                        		tokenSession.tokenReissueEvent(null);
+                        	}
 
                             _timerEventQueue.remove(event);
                             event.returnToPool();
@@ -397,6 +406,21 @@ class Worker implements Runnable
                 {
                     tokenSession.calculateNextAuthTokenRequestTime(tokenSession.authTokenInfo().expiresIn());
                     event.timeout(tokenSession.nextAuthTokenRequestTime());
+                }
+                
+                if(tokenSession.authTokenInfo().tokenVersion() == TokenVersion.V1)
+                {
+	                /* Remove token session from the previous event and set a new event to the token session */
+	                if(tokenSession.tokenReissueEvent() != null && tokenSession.tokenReissueEvent() != event)
+	                {
+	                	tokenSession.tokenReissueEvent()._tokenSession = null;
+	                	tokenSession.tokenReissueEvent().timeout(System.nanoTime());
+	                	tokenSession.tokenReissueEvent(event);
+	                }
+	                else
+	                {
+	                	tokenSession.tokenReissueEvent(event);
+	                }
                 }
 
                 _timerEventQueue.add(event);

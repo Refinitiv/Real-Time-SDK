@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -262,7 +262,7 @@ class RestHandler implements FutureCallback<HttpResponse> {
 		_resultClosure.restCallback().RestErrorCallback(_event, ex.getLocalizedMessage());
 		
 		if (loggerClient.isTraceEnabled()) {
-			loggerClient.trace("Failed to send HTTP  request, exception = " + 
+			loggerClient.trace("Failed to send HTTP request, exception = " + 
 					RestReactor.getExceptionCause(ex) + "\n");
 		}
 	}

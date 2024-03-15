@@ -9,6 +9,10 @@
 #include "watchlistTestFramework.h"
 #include "gtest/gtest.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 void watchlistAggregationTest_TwoItems(RsslConnectionTypes connectionType);
 void watchlistAggregationTest_TwoItems_CloseBothInCallback(RsslConnectionTypes connectionType);
 void watchlistAggregationTest_TwoItems_CloseFirstInCallback(RsslConnectionTypes connectionType);
@@ -212,7 +216,7 @@ TEST_P(WatchlistAggregationTest, ThreeItems_OnePrivate)
 	watchlistAggregationTest_ThreeItems_OnePrivate(GetParam());
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	TestingWatchlistAggregationTests,
 	WatchlistAggregationTest,
 	::testing::Values(

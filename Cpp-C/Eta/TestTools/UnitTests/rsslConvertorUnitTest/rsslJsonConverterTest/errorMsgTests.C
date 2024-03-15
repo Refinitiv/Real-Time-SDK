@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 /* Fixture for ErrorMsgTests that has conversion code. */
 class ErrorMsgTests : public MsgConversionTestBase
 {
@@ -363,7 +367,7 @@ TEST_P(ErrorMsgParamFixture, ErrorMsgParamTest)
 
 
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsBaseMessage, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsBaseMessage, ErrorMsgParamFixture, ::testing::Values(
 	/** BASE MESSAGE TESTS **/
 
 	/* ID with string */
@@ -387,7 +391,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsBaseMessage, ErrorMsgParamFixture, ::testing::
 
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsRequestMessage, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsRequestMessage, ErrorMsgParamFixture, ::testing::Values(
 	/** REQUEST MESSAGE TESTS **/
 
 	/* RequestMsg ConfInfoInUpdates with object */
@@ -477,7 +481,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsRequestMessage, ErrorMsgParamFixture, ::testin
 
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsRefreshMessage, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsRefreshMessage, ErrorMsgParamFixture, ::testing::Values(
 	/** REFRESH MESSAGE TESTS **/
 
 	/* RefreshMsg DoNotCache with object */
@@ -567,7 +571,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsRefreshMessage, ErrorMsgParamFixture, ::testin
 
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsStatusMessage, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsStatusMessage, ErrorMsgParamFixture, ::testing::Values(
 	/** STATUS MESSAGE TESTS **/
 
 	/* StatusMsg Key with primitive */
@@ -626,7 +630,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsStatusMessage, ErrorMsgParamFixture, ::testing
 	ErrorMsgTestParams(jsonToRwfBase::INVALID_TOKEN_TYPE, JSMN_PRIMITIVE, JSMN_STRING, 2, (char *)"{\"ID\":2,\"Type\":\"Status\",\"Qualified\":\"Test\"}", &JSON_QUALIFIED)
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsUpdateMessage, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsUpdateMessage, ErrorMsgParamFixture, ::testing::Values(
 	/** UPDATE MESSAGE TESTS **/
 
 	/* UpdateMsg Key with primitive */
@@ -695,7 +699,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsUpdateMessage, ErrorMsgParamFixture, ::testing
 	ErrorMsgTestParams(jsonToRwfBase::INVALID_TOKEN_TYPE, JSMN_STRING, JSMN_ARRAY, 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"UpdateType\":[\"Test\"]}", &JSON_UPDATETYPE)
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsCloseMessage, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsCloseMessage, ErrorMsgParamFixture, ::testing::Values(
 	/** CLOSE MESSAGE TESTS **/
 
 	/* CloseMsg ExtendedHeader with object */
@@ -707,7 +711,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsCloseMessage, ErrorMsgParamFixture, ::testing:
 
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsAckMessage, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsAckMessage, ErrorMsgParamFixture, ::testing::Values(
 	/** ACK MESSAGE TESTS **/
 
 	/* AckMsg Text with object */
@@ -758,7 +762,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsAckMessage, ErrorMsgParamFixture, ::testing::V
 	ErrorMsgTestParams(jsonToRwfBase::INVALID_TOKEN_TYPE, JSMN_STRING, JSMN_ARRAY, 2, (char *)"{\"ID\":2,\"Type\":\"Ack\",\"NakCode\":[\"Test\"],\"AckID\":1}", &JSON_NAKCODE)
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsGenericMessage, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsGenericMessage, ErrorMsgParamFixture, ::testing::Values(
 	/** GENERIC MESSAGE TESTS **/
 
 	/* GenericMsg Key with primitive */
@@ -812,7 +816,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsGenericMessage, ErrorMsgParamFixture, ::testin
 
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsPostMessage, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsPostMessage, ErrorMsgParamFixture, ::testing::Values(
 	/** POST MESSAGE TESTS **/
 
 	/* PostMsg Key with primitive */
@@ -878,7 +882,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsPostMessage, ErrorMsgParamFixture, ::testing::
 
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsMap, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsMap, ErrorMsgParamFixture, ::testing::Values(
 	/** MAP TESTS **/
 	/* Map with primitive */
 	ErrorMsgTestParams(jsonToRwfBase::INVALID_TOKEN_TYPE, JSMN_OBJECT, JSMN_PRIMITIVE, 2, (char *)"{\"ID\":2,\"Map\":1,\"Key\":{\"Name\":\"TRI.N\"}}", &JSON_MAP),
@@ -913,7 +917,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsMap, ErrorMsgParamFixture, ::testing::Values(
 ));
 
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsVector, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsVector, ErrorMsgParamFixture, ::testing::Values(
 	/** VECTOR TESTS **/
 
 	/* Vector with primitive */
@@ -967,7 +971,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsVector, ErrorMsgParamFixture, ::testing::Value
 
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsSeries, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsSeries, ErrorMsgParamFixture, ::testing::Values(
 	/** SERIES TESTS **/
 	/* Series with primitive */
 	ErrorMsgTestParams(jsonToRwfBase::INVALID_TOKEN_TYPE, JSMN_OBJECT, JSMN_PRIMITIVE, 2, (char *)"{\"ID\":2,\"Series\":1,\"Key\":{\"Name\":\"TRI.N\"}}", &JSON_SERIES),
@@ -995,7 +999,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsSeries, ErrorMsgParamFixture, ::testing::Value
 	ErrorMsgTestParams(jsonToRwfBase::INVALID_TOKEN_TYPE, JSMN_PRIMITIVE, JSMN_OBJECT, 2, (char *)"{\"ID\":2,\"Series\":{\"CountHint\":{\"Test\":1}},\"Key\":{\"Name\":\"TRI.N\"}}", &JSON_COUNTHINT)
 ));
 
-INSTANTIATE_TEST_CASE_P(ErrorTestsFilterList, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ErrorTestsFilterList, ErrorMsgParamFixture, ::testing::Values(
 	/** FILTERLIST TESTS **/
 	/* FilterList with primitive */
 	ErrorMsgTestParams(jsonToRwfBase::INVALID_TOKEN_TYPE, JSMN_OBJECT, JSMN_PRIMITIVE, 2, (char *)"{\"ID\":2,\"FilterList\":1,\"Key\":{\"Name\":\"TRI.N\"}}", &JSON_FILTERLIST),
@@ -1020,7 +1024,7 @@ INSTANTIATE_TEST_CASE_P(ErrorTestsFilterList, ErrorMsgParamFixture, ::testing::V
 /* Test unexpected keys in each type of container and entry.
  * Converter identifies parameters initially by looking at the first letter (before doing an actually string comparison). So test a word starting with each letter in the alphabet. */
 
-INSTANTIATE_TEST_CASE_P(MapUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(MapUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Map\":{\"KeyType\":\"UInt\",\"Entries\":[], \"1\":{}}}", &JSON_MAP),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Map\":{\"KeyType\":\"UInt\",\"Entries\":[], \"Alpha\":{}}}", &JSON_MAP),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Map\":{\"KeyType\":\"UInt\",\"Entries\":[], \"Bravo\":{}}}", &JSON_MAP),
@@ -1049,7 +1053,7 @@ INSTANTIATE_TEST_CASE_P(MapUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Map\":{\"KeyType\":\"UInt\",\"Entries\":[], \"Zulu\":{}}}", &JSON_MAP)
 ));
 
-INSTANTIATE_TEST_CASE_P(MapEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(MapEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Map\":{\"KeyType\":\"UInt\",\"Entries\":[{\"Action\":\"Add\", \"Key\":1,\"1\":{}}]}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Map\":{\"KeyType\":\"UInt\",\"Entries\":[{\"Action\":\"Add\", \"Key\":1,\"Alpha\":{}}]}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Map\":{\"KeyType\":\"UInt\",\"Entries\":[{\"Action\":\"Add\", \"Key\":1,\"Bravo\":{}}]}}"),
@@ -1078,7 +1082,7 @@ INSTANTIATE_TEST_CASE_P(MapEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::test
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Map\":{\"KeyType\":\"UInt\",\"Entries\":[{\"Action\":\"Add\", \"Key\":1,\"Zulu\":{}}]}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(VectorUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(VectorUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Vector\":{\"Entries\":[], \"1\":{}}}", &JSON_VECTOR),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Vector\":{\"Entries\":[], \"Alpha\":{}}}", &JSON_VECTOR),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Vector\":{\"Entries\":[], \"Bravo\":{}}}", &JSON_VECTOR),
@@ -1107,7 +1111,7 @@ INSTANTIATE_TEST_CASE_P(VectorUnexpectedKeyTests, ErrorMsgParamFixture, ::testin
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Vector\":{\"Entries\":[], \"Zulu\":{}}}", &JSON_VECTOR)
 ));
 
-INSTANTIATE_TEST_CASE_P(VectorEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(VectorEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Vector\":{\"Entries\":[{\"Action\":\"Set\",\"Index\":1, \"1\":{}}]}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Vector\":{\"Entries\":[{\"Action\":\"Set\",\"Index\":1, \"Alpha\":{}}]}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Vector\":{\"Entries\":[{\"Action\":\"Set\",\"Index\":1, \"Bravo\":{}}]}}"),
@@ -1136,7 +1140,7 @@ INSTANTIATE_TEST_CASE_P(VectorEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::t
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Vector\":{\"Entries\":[{\"Action\":\"Set\",\"Index\":1, \"Zulu\":{}}]}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(SeriesUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(SeriesUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Series\":{\"Entries\":[], \"1\":{}}}", &JSON_SERIES),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Series\":{\"Entries\":[], \"Alpha\":{}}}", &JSON_SERIES),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Series\":{\"Entries\":[], \"Bravo\":{}}}", &JSON_SERIES),
@@ -1165,7 +1169,7 @@ INSTANTIATE_TEST_CASE_P(SeriesUnexpectedKeyTests, ErrorMsgParamFixture, ::testin
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Series\":{\"Entries\":[], \"Zulu\":{}}}", &JSON_SERIES)
 ));
 
-INSTANTIATE_TEST_CASE_P(SeriesEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(SeriesEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Series\":{\"Entries\":[{\"1\":{}}]}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Series\":{\"Entries\":[{\"Alpha\":{}}]}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Series\":{\"Entries\":[{\"Bravo\":{}}]}}"),
@@ -1194,7 +1198,7 @@ INSTANTIATE_TEST_CASE_P(SeriesEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::t
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Series\":{\"Entries\":[{\"Zulu\":{}}]}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(FilterListUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(FilterListUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"FilterList\":{\"Entries\":[], \"1\":{}}}", &JSON_FILTERLIST),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"FilterList\":{\"Entries\":[], \"Alpha\":{}}}", &JSON_FILTERLIST),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"FilterList\":{\"Entries\":[], \"Bravo\":{}}}", &JSON_FILTERLIST),
@@ -1223,7 +1227,7 @@ INSTANTIATE_TEST_CASE_P(FilterListUnexpectedKeyTests, ErrorMsgParamFixture, ::te
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"FilterList\":{\"Entries\":[], \"Zulu\":{}}}", &JSON_FILTERLIST)
 ));
 
-INSTANTIATE_TEST_CASE_P(FilterEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(FilterEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"FilterList\":{\"Entries\":[{\"Action\":\"Set\",\"ID\":1, \"1\":{}}]}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"FilterList\":{\"Entries\":[{\"Action\":\"Set\",\"ID\":1, \"Alpha\":{}}]}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"FilterList\":{\"Entries\":[{\"Action\":\"Set\",\"ID\":1, \"Bravo\":{}}]}}"),
@@ -1252,7 +1256,7 @@ INSTANTIATE_TEST_CASE_P(FilterEntryUnexpectedKeyTests, ErrorMsgParamFixture, ::t
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"FilterList\":{\"Entries\":[{\"Action\":\"Set\",\"ID\":1, \"Zulu\":{}}]}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(ArrayUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ArrayUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2,  (char *)"{\"ID\":2,\"Type\":\"Update\",\"Fields\":{\"ARRAY\":{\"Type\":\"Int\",\"Data\":[], \"1\":{}}}}", &RSSL_OMMSTR_DT_ARRAY),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2,  (char *)"{\"ID\":2,\"Type\":\"Update\",\"Fields\":{\"ARRAY\":{\"Type\":\"Int\",\"Data\":[], \"Alpha\":{}}}}", &RSSL_OMMSTR_DT_ARRAY),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2,  (char *)"{\"ID\":2,\"Type\":\"Update\",\"Fields\":{\"ARRAY\":{\"Type\":\"Int\",\"Data\":[], \"Bravo\":{}}}}", &RSSL_OMMSTR_DT_ARRAY),
@@ -1281,7 +1285,7 @@ INSTANTIATE_TEST_CASE_P(ArrayUnexpectedKeyTests, ErrorMsgParamFixture, ::testing
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2,  (char *)"{\"ID\":2,\"Type\":\"Update\",\"Fields\":{\"ARRAY\":{\"Type\":\"Int\",\"Data\":[], \"Zulu\":{}}}}", &RSSL_OMMSTR_DT_ARRAY)
 ));
 
-INSTANTIATE_TEST_CASE_P(RequestMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(RequestMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Request\",\"1\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Request\",\"Alpha\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Request\",\"Bravo\":{}}"),
@@ -1310,7 +1314,7 @@ INSTANTIATE_TEST_CASE_P(RequestMessageUnexpectedKeyTests, ErrorMsgParamFixture, 
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Request\",\"Zulu\":{}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(RefreshMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(RefreshMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Refresh\",\"1\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Refresh\",\"Alpha\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Refresh\",\"Bravo\":{}}"),
@@ -1339,7 +1343,7 @@ INSTANTIATE_TEST_CASE_P(RefreshMessageUnexpectedKeyTests, ErrorMsgParamFixture, 
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Refresh\",\"Zulu\":{}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(StatusMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(StatusMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Status\",\"1\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Status\",\"Alpha\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Status\",\"Bravo\":{}}"),
@@ -1368,7 +1372,7 @@ INSTANTIATE_TEST_CASE_P(StatusMessageUnexpectedKeyTests, ErrorMsgParamFixture, :
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Status\",\"Zulu\":{}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(UpdateMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(UpdateMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"1\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Alpha\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Bravo\":{}}"),
@@ -1397,7 +1401,7 @@ INSTANTIATE_TEST_CASE_P(UpdateMessageUnexpectedKeyTests, ErrorMsgParamFixture, :
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Update\",\"Zulu\":{}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(CloseMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(CloseMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Close\",\"1\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Close\",\"Alpha\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Close\",\"Bravo\":{}}"),
@@ -1426,7 +1430,7 @@ INSTANTIATE_TEST_CASE_P(CloseMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Close\",\"Zulu\":{}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(AckMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(AckMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Ack\",\"1\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Ack\",\"Alpha\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Ack\",\"Bravo\":{}}"),
@@ -1455,7 +1459,7 @@ INSTANTIATE_TEST_CASE_P(AckMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::te
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Ack\",\"Zulu\":{}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(GenericMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(GenericMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Generic\",\"1\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Generic\",\"Alpha\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Generic\",\"Bravo\":{}}"),
@@ -1484,7 +1488,7 @@ INSTANTIATE_TEST_CASE_P(GenericMessageUnexpectedKeyTests, ErrorMsgParamFixture, 
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Zulu", 2, (char *)"{\"ID\":2,\"Type\":\"Generic\",\"Zulu\":{}}")
 ));
 
-INSTANTIATE_TEST_CASE_P(PostMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(PostMessageUnexpectedKeyTests, ErrorMsgParamFixture, ::testing::Values(
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"1", 2, (char *)"{\"ID\":2,\"Type\":\"Post\",\"1\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Alpha", 2, (char *)"{\"ID\":2,\"Type\":\"Post\",\"Alpha\":{}}"),
 	ErrorMsgTestParams(jsonToRwfBase::UNEXPECTED_KEY, (char*)"Bravo", 2, (char *)"{\"ID\":2,\"Type\":\"Post\",\"Bravo\":{}}"),

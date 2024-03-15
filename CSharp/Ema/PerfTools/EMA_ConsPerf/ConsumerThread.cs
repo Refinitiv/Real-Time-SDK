@@ -183,7 +183,10 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                     _ommConfig.OperationModel(OmmConsumerConfig.OperationModelMode.USER_DISPATCH);
                 else
                     _ommConfig.OperationModel(OmmConsumerConfig.OperationModelMode.API_DISPATCH);
-                
+
+                if (_consPerfConfig.EncryptionProtocol != EmaConfig.EncryptedTLSProtocolFlags.NONE)
+                    _ommConfig.EncryptedProtocolFlags(_consPerfConfig.EncryptionProtocol);
+
                 _consumer = new OmmConsumer(_ommConfig);
             }
             catch (Exception e)

@@ -195,8 +195,6 @@ namespace LSEG.Eta.PerfTools.ConsPerf
         /// </summary>
         public bool UseWatchlist => CommandLine.BoolValue("watchlist");
 
-        public readonly EncryptionProtocolCommandLineArg EncryptionProtocolCommandLineArg = new();
-
         public void AddDefaultOptionValues()
         {
             CommandLine.ProgName("ConsPerf");
@@ -237,6 +235,8 @@ namespace LSEG.Eta.PerfTools.ConsPerf
             CommandLine.AddOption("busyRead", false, "If set, the application will continually read rather than using notification.");
             CommandLine.AddOption("busyRead", false, "If set, the application will continually read rather than using notification."); 
             CommandLine.AddOption("watchlist", false, "Use the VA Reactor watchlist instead of the ETA Channel for sending and receiving");
+            CommandLine.AddOption("spTLSv1.2", false, "Specifies that TLSv1.2 can be used for an encrypted connection");
+            CommandLine.AddOption("spTLSv1.3", false, "Specifies that TLSv1.3 can be used for an encrypted connection");
         }
 
         /// <summary>
@@ -295,16 +295,11 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 {
                     ConnectionType = ConnectionType.ENCRYPTED;
 
-                    try
-                    {
-                        EncryptionProtocol = EncryptionProtocolCommandLineArg.Value;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"Config Error: {ex.Message}.\n");
-                        Console.Error.WriteLine(CommandLine.OptionHelpString());
-                        Environment.Exit((int)PerfToolsReturnCode.FAILURE);
-                    }
+                    EncryptionProtocol = EncryptionProtocolFlags.ENC_NONE;
+                    if (CommandLine.BoolValue("spTLSv1.2"))
+                        EncryptionProtocol |= EncryptionProtocolFlags.ENC_TLSV1_2;
+                    if (CommandLine.BoolValue("spTLSv1.3"))
+                        EncryptionProtocol |= EncryptionProtocolFlags.ENC_TLSV1_3;
                 }
                 else
                 {
@@ -454,6 +449,14 @@ namespace LSEG.Eta.PerfTools.ConsPerf
             CreateConfigString();
         }
 
+        private enum EncryptedTLSProtocolFlags
+        {
+            TLS_DEFAULT = 0x00,
+            TLS_V1_2 = 0x04,
+            TLS_V1_3 = 0x08,
+            TLS_ALL = 0x0C
+        }
+
         private void CreateConfigString()
         {
             string reactorWatchlistUsageString;
@@ -474,6 +477,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 "          Steady State Time: " + SteadyStateTime + " sec\n" +
                 "    Delay Steady State Time: " + DelaySteadyStateCalc + " msec\n" +
                 "            Connection Type: " + (ConnectionType == ConnectionType.SOCKET ? "SOCKET" : "ENCRYPTED") + "\n" +
+                "         TLS Protocol flags: " + (EncryptedTLSProtocolFlags)EncryptionProtocol + "\n" +
                 "                   Hostname: " + HostName + "\n" +
                 "                       Port: " + PortNo + "\n" +
                 "                    Service: " + ServiceName + "\n" +

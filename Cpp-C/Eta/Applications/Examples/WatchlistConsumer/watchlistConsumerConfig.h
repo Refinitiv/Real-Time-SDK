@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2023 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2024 Refinitiv. All rights reserved.
 */
 
 #ifndef WATCHLIST_CONSUMER_CONFIG_H
@@ -135,6 +135,7 @@ typedef struct
 	RsslBool			takeExclusiveSignOnControl;		/* The exclusive sign on control to force sign-out for the same credentials.*/
 
 	RsslBool			restEnableLog;					/* Enable Rest request/response logging.*/
+	RsslBool			restVerboseMode;				/* Enable verbose Rest request/response logging.*/
 	FILE				*restOutputStreamName;			/* Set output stream for Rest request/response logging.*/
 	RsslUInt			restEnableLogViaCallback;		/* Enable Rest request/response logging via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage. */
 
@@ -208,6 +209,7 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslRe
  static RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
 
  static RsslReactorCallbackRet restLoggingCallback(RsslReactor* pReactor, RsslReactorRestLoggingEvent* pLogEvent);
+ static RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor* pReactor, RsslReactorOAuthCredentialEvent* pOAuthCredentialEvent);
 #ifdef __cplusplus
 }
 #endif

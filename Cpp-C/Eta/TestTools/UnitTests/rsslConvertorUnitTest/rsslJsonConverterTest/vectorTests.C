@@ -9,6 +9,10 @@
 #include "rsslJsonConverterTestBase.h"
 #include <cstdarg>
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json;
 
@@ -377,7 +381,7 @@ TEST_P(VectorParamTestFixture, VectorMembersTest)
 }
 
 
-INSTANTIATE_TEST_CASE_P(VectorTests, VectorParamTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(VectorTests, VectorParamTestFixture, ::testing::Values(
 
 	/* Test with/without SummaryData, TotalCountHint, KeyFieldId, Per-Entry PermData */
 
@@ -876,7 +880,7 @@ TEST_P(VectorContainerTypesTestFixture, VectorContainerTypesTest)
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeVectorEntry(&_dIter, &vectorEntry));
 }
 
-INSTANTIATE_TEST_CASE_P(VectorTests, VectorContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(VectorTests, VectorContainerTypesTestFixture, ::testing::Values(
 	RsslDataTypeParam(RSSL_DT_FIELD_LIST),
 	RsslDataTypeParam(RSSL_DT_ELEMENT_LIST)
 ));
@@ -1016,7 +1020,7 @@ TEST_P(VectorEntryActionsTestFixture, VectorEntryActionsTest)
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeVectorEntry(&_dIter, &vectorEntry));
 }
 
-INSTANTIATE_TEST_CASE_P(VectorTests, VectorEntryActionsTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(VectorTests, VectorEntryActionsTestFixture, ::testing::Values(
 	VectorEntryActionsTestParams(2, 0, 0),
 	VectorEntryActionsTestParams(3, RSSL_VTEA_INSERT_ENTRY, RSSL_VTEA_UPDATE_ENTRY, RSSL_VTEA_DELETE_ENTRY),
 	VectorEntryActionsTestParams(3, RSSL_VTEA_DELETE_ENTRY, RSSL_VTEA_UPDATE_ENTRY, RSSL_VTEA_SET_ENTRY),

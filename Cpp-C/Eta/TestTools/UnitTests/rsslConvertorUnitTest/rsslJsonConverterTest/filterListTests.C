@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json; 
 
@@ -302,7 +306,7 @@ TEST_P(FilterListMembersTestFixture, FilterListMembersTest)
 }
 
 
-INSTANTIATE_TEST_CASE_P(FilterListTests, FilterListMembersTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(FilterListTests, FilterListMembersTestFixture, ::testing::Values(
 
 	/* Test with/without TotalCountHint, FilterEntry.ContainerType in RWF, Per-Entry PermData */
 
@@ -692,7 +696,7 @@ TEST_P(FilterListContainerTypesTestFixture, FilterListContainerTypesTest)
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeFilterEntry(&_dIter, &filterEntry));
 }
 
-INSTANTIATE_TEST_CASE_P(FilterListTests, FilterListContainerTypesTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(FilterListTests, FilterListContainerTypesTestFixture, ::testing::Values(
 	RsslDataTypeParam(RSSL_DT_ELEMENT_LIST),
 	RsslDataTypeParam(RSSL_DT_MAP)
 ));

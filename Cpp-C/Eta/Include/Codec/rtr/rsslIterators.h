@@ -224,8 +224,6 @@ RTR_C_ALWAYS_INLINE void rsslClearEncodeIterator( RsslEncodeIterator *pIter)
 	pIter->_minorVersion = RSSL_RWF_MINOR_VERSION;  // This should be initialized to the MINOR version of RWF being encoded
 	pIter->_pGlobalFieldListSetDb = NULL;
 	pIter->_pGlobalElemListSetDb = NULL;
-
-	memset(&pIter->_levelInfo, 0, sizeof(pIter->_levelInfo));
 }
 
 
@@ -402,8 +400,6 @@ RTR_C_ALWAYS_INLINE void rsslClearDecodeIterator(RsslDecodeIterator *pIter)
 	pIter->_pBuffer = NULL;
 	pIter->_pGlobalElemListSetDb = NULL;
 	pIter->_pGlobalFieldListSetDb = NULL;
-
-	memset(&pIter->_levelInfo, 0, sizeof(pIter->_levelInfo));
 }
 
 /* @brief Sets a global Element List Set Definition Database on the iterator.

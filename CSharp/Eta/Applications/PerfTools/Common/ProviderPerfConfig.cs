@@ -58,7 +58,7 @@ namespace LSEG.Eta.PerfTools.Common
         public static string? KeyFile { get; set; }
         public static string? Cert { get; set; }
 
-        public static readonly EncryptionProtocolCommandLineArg EncryptionProtocol = new();
+        public static EncryptionProtocolFlags EncryptionProtocol { get; set; }
 
         /// <summary>Whether to log update latency information to a file</summary>
         public static bool LogLatencyToFile
@@ -106,6 +106,9 @@ namespace LSEG.Eta.PerfTools.Common
             CommandLine.AddOption("c", "", "Provider connection type.  Either \"socket\" or \"encrypted\"");
             CommandLine.AddOption("cert", defaultValue: "", "The server certificate file");
             CommandLine.AddOption("keyfile", defaultValue: "", "The server private key file");
+
+            CommandLine.AddOption("spTLSv1.2", false, "Specifies that TLSv1.2 can be used for an encrypted connection");
+            CommandLine.AddOption("spTLSv1.3", false, "Specifies that TLSv1.3 can be used for an encrypted connection");
         }
 
         /// <summary>
@@ -144,6 +147,12 @@ namespace LSEG.Eta.PerfTools.Common
             else if (CommandLine.Value("c") != null && CommandLine.Value("c")!.Equals("encrypted"))
             {
                 ConnectionType = ConnectionType.ENCRYPTED;
+
+                EncryptionProtocol = EncryptionProtocolFlags.ENC_NONE;
+                if (CommandLine.BoolValue("spTLSv1.2"))
+                    EncryptionProtocol |= EncryptionProtocolFlags.ENC_TLSV1_2;
+                if (CommandLine.BoolValue("spTLSv1.3"))
+                    EncryptionProtocol |= EncryptionProtocolFlags.ENC_TLSV1_3;
             }
 
             // Perf Test configuration

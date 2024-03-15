@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
@@ -17,9 +17,21 @@ namespace refinitiv {
 
 namespace ema {
 
+namespace access {
+
+class RefreshMsg;
+class AckMsg;
+class UpdateMsg;
+class PostMsg;
+class StatusMsg;
+class ReqMsg;
+class RefreshMsg;
+class GenericMsg;
+}
+
 namespace rdm  {
 
-	class DataDictionaryImpl;
+class DataDictionaryImpl;
 }
 
 namespace access {
@@ -51,6 +63,13 @@ public :
 protected :
 
 	friend class refinitiv::ema::rdm::DataDictionaryImpl;
+	friend class refinitiv::ema::access::AckMsg;
+	friend class refinitiv::ema::access::UpdateMsg;
+	friend class refinitiv::ema::access::PostMsg;
+	friend class refinitiv::ema::access::StatusMsg;
+	friend class refinitiv::ema::access::ReqMsg;
+	friend class refinitiv::ema::access::RefreshMsg;
+	friend class refinitiv::ema::access::GenericMsg;
 
 	Encoder();
 

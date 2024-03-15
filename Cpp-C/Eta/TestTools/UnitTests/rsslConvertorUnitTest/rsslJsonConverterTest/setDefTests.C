@@ -8,6 +8,10 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+#ifndef INSTANTIATE_TEST_SUITE_P
+#define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
+#endif
+
 using namespace std;
 using namespace json;
 
@@ -1170,7 +1174,7 @@ TEST_P(SetDefParamTestFixture, SeriesElementSetDefTest)
 
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeSeriesEntry(&_dIter, &seriesEntry));
 }
-INSTANTIATE_TEST_CASE_P(SetDefTests, SetDefParamTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(SetDefTests, SetDefParamTestFixture, ::testing::Values(
 	SetDefTestParams(RSSL_JSON_JPT_JSON2),
 	SetDefTestParams(RSSL_JSON_JPT_JSON)
 ));

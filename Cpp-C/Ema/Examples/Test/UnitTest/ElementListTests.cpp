@@ -2,13 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
 #include "TestUtilities.h"
 
 using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
 TEST(ElementListTests, testElementListwithReal)
@@ -2564,13 +2565,110 @@ TEST(ElementListTests, testElementListContainsMapEncodeDecodeAll)
 
 	RsslDataDictionary dictionary;
 
+	const EmaString elementListString =
+		"ElementList ElementListNum=\"5\"\n"
+		"    ElementEntry name=\"Element - UInt\" dataType=\"UInt\" value=\"64\"\n"
+		"    ElementEntry name=\"Element - Real\" dataType=\"Real\" value=\"0.11\"\n"
+		"    ElementEntry name=\"Element - Int\" dataType=\"Int\" value=\"32\"\n"
+		"    ElementEntry name=\"Element - Date\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+		"    ElementEntry name=\"Element - Time\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+		"    ElementEntry name=\"Element - DateTime\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+		"    ElementEntry name=\"Element - Map\" dataType=\"Map\"\n"
+		"        Map totalCountHint=\"5\" keyFieldId=\"3426\"\n"
+		"            SummaryData dataType=\"FieldList\"\n"
+		"                FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+		"                    FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+		"                    FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+		"                    FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+		"                    FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+		"                    FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+		"                    FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+		"                    FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+		"                    FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+		"                    FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+		"                FieldListEnd\n"
+		"            SummaryDataEnd\n"
+		"            MapEntry action=\"Delete\" key dataType=\"Buffer\" value=\n"
+		"\n"
+		"4142 4344                                  ABCD\n"
+		"\n"
+		"             permissionData=\"50 45 52 4D 49 53 53 49 4F 4E 20 44 41 54 41\" dataType=\"NoData\"\n"
+		"                NoData\n"
+		"                NoDataEnd\n"
+		"            MapEntryEnd\n"
+		"            MapEntry action=\"Add\" key dataType=\"Buffer\" value=\n"
+		"\n"
+		"4142 4344                                  ABCD\n"
+		"\n"
+		"             permissionData=\"50 45 52 4D 49 53 53 49 4F 4E 20 44 41 54 41\" dataType=\"FieldList\"\n"
+		"                FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+		"                    FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+		"                    FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+		"                    FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+		"                    FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+		"                    FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+		"                    FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+		"                    FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+		"                    FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+		"                    FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+		"                FieldListEnd\n"
+		"            MapEntryEnd\n"
+		"            MapEntry action=\"Add\" key dataType=\"Buffer\" value=\n"
+		"\n"
+		"4546 4748 49                               EFGHI\n"
+		"\n"
+		"             permissionData=\"50 45 52 4D 49 53 53 49 4F 4E 20 44 41 54 41\" dataType=\"FieldList\"\n"
+		"                FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+		"                    FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+		"                    FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+		"                    FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+		"                    FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+		"                    FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+		"                    FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+		"                    FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+		"                    FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+		"                    FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+		"                FieldListEnd\n"
+		"            MapEntryEnd\n"
+		"            MapEntry action=\"Update\" key dataType=\"Buffer\" value=\n"
+		"\n"
+		"4a4b 4c4d 4e4f 50                          JKLMNOP\n"
+		"\n"
+		"             permissionData=\"50 45 52 4D 49 53 53 49 4F 4E 20 44 41 54 41\" dataType=\"FieldList\"\n"
+		"                FieldList FieldListNum=\"65\" DictionaryId=\"1\"\n"
+		"                    FieldEntry fid=\"1\" name=\"PROD_PERM\" dataType=\"UInt\" value=\"64\"\n"
+		"                    FieldEntry fid=\"6\" name=\"TRDPRC_1\" dataType=\"Real\" value=\"0.11\"\n"
+		"                    FieldEntry fid=\"-2\" name=\"INTEGER\" dataType=\"Int\" value=\"32\"\n"
+		"                    FieldEntry fid=\"16\" name=\"TRADE_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n"
+		"                    FieldEntry fid=\"18\" name=\"TRDTIM_1\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n"
+		"                    FieldEntry fid=\"-3\" name=\"TRADE_DATE\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n"
+		"                    FieldEntry fid=\"-5\" name=\"MY_QOS\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+		"                    FieldEntry fid=\"-6\" name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n"
+		"                    FieldEntry fid=\"235\" name=\"PNAC\" dataType=\"Ascii\" value=\"ABCDEF\"\n"
+		"                FieldListEnd\n"
+		"            MapEntryEnd\n"
+		"        MapEnd\n"
+		"    ElementEntryEnd\n"
+		"    ElementEntry name=\"Element - Qos\" dataType=\"Qos\" value=\"RealTime/TickByTick\"\n"
+		"ElementListEnd\n";
+
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
+	DataDictionary emaDataDictionary, emaDataDictionaryEmpty;
+
+	try {
+		emaDataDictionary.loadFieldDictionary( "RDMFieldDictionaryTest" );
+		emaDataDictionary.loadEnumTypeDictionary( "enumtypeTest.def" );
+	}
+	catch ( const OmmException& ) {
+		ASSERT_TRUE( false ) << "DataDictionary::loadFieldDictionary() failed to load dictionary information";
+	}
+
 	ElementList elEnc;
-	EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+	EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 	elEnc.info( 5 );
-	EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+	EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n") << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 	try
 	{
@@ -2579,45 +2677,60 @@ TEST(ElementListTests, testElementListContainsMapEncodeDecodeAll)
 
 		//first entry
 		elEnc.addUInt( EmaString( "Element - UInt" ), 64 );
-		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//second entry
 		elEnc.addReal( EmaString( "Element - Real" ), 11, OmmReal::ExponentNeg2Enum );
-		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//third entry
 		elEnc.addInt( EmaString( "Element - Int" ), 32 );
-		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//fourth entry
 		elEnc.addDate( EmaString( "Element - Date" ), 1999, 11, 7 );
-		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//fifth entry
 		elEnc.addTime( EmaString( "Element - Time" ), 02, 03, 04, 005 );
-		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//sixth entry
 		elEnc.addDateTime( EmaString( "Element - DateTime" ), 1999, 11, 7, 01, 02, 03, 000 );
-		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
 		//seventh entry (nested Map)
 		Map mapEnc1;
 		EmaEncodeMapAll( mapEnc1 );
 		elEnc.addMap( EmaString( "Element - Map" ), mapEnc1 );
-		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
 
-		//eightth entry
+		//eight entry
 		elEnc.addQos( EmaString( "Element - Qos" ), OmmQos::RealTimeEnum, OmmQos::TickByTickEnum );
-		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
+
+		EXPECT_EQ( elEnc.toString( emaDataDictionary ), "\nUnable to decode not completed ElementList data.\n") << "ElementList.toString() == Unable to decode not completed ElementList data.";
 
 		elEnc.complete();
-		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
+		EXPECT_EQ( elEnc.toString(), "\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n" ) << "ElementList.toString() == toString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.";
+
+		EXPECT_EQ( elEnc.toString( emaDataDictionaryEmpty ), "\nDictionary is not loaded.\n") << "ElementList.toString() == Dictionary is not loaded.";
+
+		EXPECT_EQ( elEnc.toString( emaDataDictionary ), elementListString ) << "ElementList.toString() == elementListString";
+
+		ElementList emptyEl;
+		emptyEl.addUInt( EmaString("Element - UInt"), 64 );
+		emptyEl.complete();
+		emptyEl.clear();
+		EXPECT_EQ(emptyEl.toString( emaDataDictionary ), "\nUnable to decode not completed ElementList data.\n" ) << "ElementList.toString() == Unable to decode not completed ElementList data.";
+
+		emptyEl.complete();
+		EXPECT_EQ( emptyEl.toString( emaDataDictionary ), "ElementList\nElementListEnd\n" ) << "ElementList.toString() == ElementList\nElementListEnd\n";
 
 		//Now do EMA decoding of ElementList
 		StaticDecoder::setData( &elEnc, &dictionary );
-		EXPECT_NE( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() != Decoding of just encoded object in the same application is not supported";
+		EXPECT_EQ( elEnc.toString(), elementListString ) << "ElementList.toString() == elementListString";
 
 
 		EXPECT_TRUE( elEnc.hasInfo() ) << "ElementList with primitives and ElementList - hasInfo()" ;

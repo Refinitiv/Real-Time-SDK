@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2024 Refinitiv. All rights reserved.            --
 #]=============================================================================]
 
 
@@ -13,11 +13,11 @@ if(NOT l8w8jwt_url)
 endif()
 
 if(NOT l8w8jwt_tag)
-	set(l8w8jwt_tag "2.2.0" CACHE STRING "l8w8jwt tag")
+	set(l8w8jwt_tag "2.3.2" CACHE STRING "l8w8jwt tag")
 endif()
 
 if(NOT l8w8jwt_version)
-	set(l8w8jwt_version "2.2.0" CACHE STRING "l8w8jwt version")
+	set(l8w8jwt_version "2.3.2" CACHE STRING "l8w8jwt version")
 endif()
 
 unset(_cfg_type)

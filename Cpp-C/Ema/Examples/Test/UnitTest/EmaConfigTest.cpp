@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2024 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -14,6 +14,7 @@
 #include "OmmConsumerImpl.h"
 #include "OmmIProviderImpl.h"
 #include "OmmNiProviderImpl.h"
+#include "EmaConfig.h"
 
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
@@ -515,6 +516,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 			.addAscii("Dictionary", "Dictionary_1")
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
+			.addUInt("RestVerboseMode", 1)
 			.addUInt("SendJsonConvError", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
@@ -618,6 +620,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1" ) << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE( activeConfig.restLogFileName == "Rest.log" ) << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE( activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE(activeConfig.restVerboseMode == 1) << "restVerboseMode , \"True\"";
 		EXPECT_TRUE( activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
 		EXPECT_TRUE( activeConfig.shouldInitializeCPUIDlib == 1) << "shouldInitializeCPUIDlib , \"True\"";
 		EXPECT_TRUE( activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
@@ -691,6 +694,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			.addAscii("Dictionary", "Dictionary_1")
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
+			.addUInt("RestVerboseMode", 1)
 			.addUInt("SendJsonConvError", 1)
 			.addUInt("ShouldInitializeCPUIDlib", 1)
 			.addUInt("ItemCountHint", 5000)
@@ -804,6 +808,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE(activeConfig.restVerboseMode == 1) << "restVerboseMode , \"True\"";
 		EXPECT_TRUE(activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
 		EXPECT_TRUE(activeConfig.shouldInitializeCPUIDlib == 1) << "shouldInitializeCPUIDlib , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
@@ -883,6 +888,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 			.addAscii("Dictionary", "Dictionary_1")
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
+			.addUInt("RestVerboseMode", 1)
 			.addUInt("SendJsonConvError", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
@@ -995,6 +1001,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE(activeConfig.restVerboseMode == 1) << "restVerboseMode , \"True\"";
 		EXPECT_TRUE(activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
 		EXPECT_TRUE(activeConfig.shouldInitializeCPUIDlib == 1) << "shouldInitializeCPUIDlib , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
@@ -1073,6 +1080,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			.addAscii("Dictionary", "Dictionary_1")
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
+			.addUInt("RestVerboseMode", 1)
 			.addUInt("SendJsonConvError", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
@@ -1190,6 +1198,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1" ) << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE(activeConfig.restVerboseMode == 1) << "restVerboseMode , \"True\"";
 		EXPECT_TRUE(activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE(activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
@@ -1570,11 +1579,11 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 		outermostMap.complete();
 
 		// Must load data dictionary files from current working location.
-		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).host("localhost:14002"));
+		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).host("localhost:14002").channelType(EmaConfig::ConnectionTypeEnum::HTTP));
 
 		const OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>( ommConsumerImpl.getActiveConfig() );
 
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "connectionType , ChannelType::RSSL_SOCKET";
+		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_HTTP) << "connectionType , ChannelType::RSSL_HTTP";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
 	}
@@ -1600,6 +1609,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addAscii("Dictionary", "Dictionary_2")
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
+			.addUInt("RestVerboseMode", 1)
 			.addUInt("SendJsonConvError", 0)
 			.addUInt("ItemCountHint", 9000)
 			.addUInt("ServiceCountHint", 9000)
@@ -1709,6 +1719,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.dictionaryConfig.dictionaryName == "Dictionary_2" ) << "dictionaryName , \"Dictionary_2\"";
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE(activeConfig.restVerboseMode == 1) << "restVerboseMode , \"True\"";
 		EXPECT_TRUE(activeConfig.sendJsonConvError == 0) << "SendJsonConvError , \"False\"";
 		EXPECT_TRUE( activeConfig.itemCountHint == 9000) << "itemCountHint , 9000";
 		EXPECT_TRUE( activeConfig.serviceCountHint == 9000) << "serviceCountHint , 9000";

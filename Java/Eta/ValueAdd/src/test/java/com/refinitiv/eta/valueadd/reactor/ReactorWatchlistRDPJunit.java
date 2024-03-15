@@ -4771,10 +4771,10 @@ public class ReactorWatchlistRDPJunit
 			consumerReactor = new TestReactor(reactorOptions);
 
 			Consumer consumer = new Consumer(consumerReactor);
-			setupConsumer(consumer, false);
+			setupConsumer(consumer, true);
 			
 			Consumer consumer2 = new Consumer(consumerReactor);
-			setupConsumer(consumer2, false);
+			setupConsumer(consumer2, true);
 			
 			ReactorOAuthCredential reactorOAutchCredential = ReactorFactory.createReactorOAuthCredential();
 			Buffer username = CodecFactory.createBuffer();
@@ -4894,7 +4894,7 @@ public class ReactorWatchlistRDPJunit
 			int ret = consumerReactor._reactor.submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
 			
 			assertTrue("Faield to send the token request", ret == ReactorReturnCodes.FAILURE);
-			assertEquals("Checking error text", "Failed to request authentication token information. Text: {\"error\":\"invalid_client\"  ,\"error_description\":\"Invalid Application Credential.\" } ", errorInfo.error().text());
+			assertEquals("Checking error text", "Failed to request authentication token information with HTTP error 401. Text: {\"error\":\"invalid_client\"  ,\"error_description\":\"Invalid Application Credential.\" } ", errorInfo.error().text());
 		}
 		finally
 		{
@@ -4939,7 +4939,7 @@ public class ReactorWatchlistRDPJunit
 			int ret = consumerReactor._reactor.submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
 			
 			assertTrue("Faield to send the token request", ret == ReactorReturnCodes.FAILURE);
-			assertEquals("Checking error text", "Failed to request authentication token information. Text: {\"error\":\"access_denied\"  ,\"error_description\":\"Session quota is reached.\" } ", errorInfo.error().text());
+			assertEquals("Checking error text", "Failed to request authentication token information with HTTP error 400. Text: {\"error\":\"access_denied\"  ,\"error_description\":\"Session quota is reached.\" } ", errorInfo.error().text());
 		}
 		finally
 		{

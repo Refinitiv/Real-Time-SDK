@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -328,8 +328,43 @@ public class ElementListTests extends TestCase
 	{
 		TestUtilities.printTestHead("testElementList_EncodeEMA_DecodeEMA_DecodeAll", "Encode ElementList with EMA and Decode ElementList with EMA");
 
+		String elementListString = "ElementList ElementListNum=\"555\"\n" +
+				"    ElementEntry name=\"MY_UINT\" dataType=\"UInt\" value=\"64\"\n" +
+				"    ElementEntry name=\"MY_UINT2\" dataType=\"UInt\" value=\"64\"\n" +
+				"    ElementEntry name=\"MY_REAL\" dataType=\"Real\" value=\"0.11\"\n" +
+				"    ElementEntry name=\"MY_INT\" dataType=\"Int\" value=\"32\"\n" +
+				"    ElementEntry name=\"MY_DATE\" dataType=\"Date\" value=\"07 NOV 1999\"\n" +
+				"    ElementEntry name=\"MY_TIME\" dataType=\"Time\" value=\"02:03:04:005:000:000\"\n" +
+				"    ElementEntry name=\"MY_DATETIME\" dataType=\"DateTime\" value=\"07 NOV 1999 01:02:03:000:000:000\"\n" +
+				"    ElementEntry name=\"MY_QOS\" dataType=\"Qos\" value=\"Timeliness: 5656/Rate: 2345\"\n" +
+				"    ElementEntry name=\"MY_STATE\" dataType=\"State\" value=\"Open / Ok / None / 'Succeeded'\"\n" +
+				"    ElementEntry name=\"MY_ASCII\" dataType=\"Ascii\" value=\"ABCDEF\"\n" +
+				"    ElementEntry name=\"MY_RMTES\" dataType=\"Rmtes\" value=\"ABCDEF\"\n" +
+				"    ElementEntry name=\"MY_ENUM\" dataType=\"Enum\" value=\"29\"\n" +
+				"    ElementEntry name=\"MY_FLOAT\" dataType=\"Float\" value=\"11.11\"\n" +
+				"    ElementEntry name=\"MY_DOUBLE\" dataType=\"Double\" value=\"22.219999313354492\"\n" +
+				"    ElementEntry name=\"REAL_CODE\" dataType=\"Real\" value=\"(blank data)\"\n" +
+				"    ElementEntry name=\"MY_BUFFER\" dataType=\"Buffer\"\n" +
+				"4142 4344 4546 4748                            ABCDEFGH\n" +
+				"    ElementEntry name=\"MY_UTF8\" dataType=\"Utf8\" value=\"KLMNOPQR\"\n" +
+				"    ElementEntry name=\"ARRAY\" dataType=\"OmmArray\"\n" +
+				"        OmmArray with entries of dataType=\"Int\"\n" +
+				"            value=\"\"123\"\n" +
+				"            value=\"\"234\"\n" +
+				"            value=\"\"345\"\n" +
+				"        OmmArrayEnd\n" +
+				"    ElementEntryEnd\n" +
+				"    ElementEntry name=\"MY_OPAQUE\" dataType=\"Opaque\" value=\"Opaque\n" +
+				"\n" +
+				"4F50 5152 5354                                  OPQRST\n" +
+				"OpaqueEnd\n" +
+				"\"\n" +
+				"    ElementEntry name=\"MY_QOS\" dataType=\"Qos\" value=\"InexactDelayed/JustInTimeConflated\"\n" +
+				"ElementListEnd\n";
+
 		//EMA Encode ElementList
 		ElementList elEnc = EmaFactory.createElementList();
+		ElementList elEmpty = EmaFactory.createElementList();
 		elEnc.info( 555 );
 		
 		try {
@@ -337,74 +372,74 @@ public class ElementListTests extends TestCase
 
 			//first entry
 			ElementEntry ee = EmaFactory.createElementEntry().uintValue( "MY_UINT", 64 );
-			TestUtilities.checkResult("ElementEntry.toString() == toString() not supported", ee.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementEntry.toString() == toString()", ee.toString().equals("\nEntity is not encoded yet. Complete encoding to use this method.\n"));
 
 			elEnc.add(ee);
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//second entry
 			elEnc.add(EmaFactory.createElementEntry().uintValue( "MY_UINT2", 64));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//third entry
 			elEnc.add(EmaFactory.createElementEntry().real( "MY_REAL", 11, OmmReal.MagnitudeType.EXPONENT_NEG_2));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//fourth entry
 			elEnc.add(EmaFactory.createElementEntry().intValue( "MY_INT", 32));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//fifth entry
 			elEnc.add(EmaFactory.createElementEntry().date( "MY_DATE", 1999, 11, 7));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//sixth entry
 			elEnc.add(EmaFactory.createElementEntry().time( "MY_TIME", 02, 03, 04, 005));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//seventh entry
 			elEnc.add(EmaFactory.createElementEntry().dateTime( "MY_DATETIME", 1999, 11, 7, 01, 02, 03, 000));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//eightth entry
 			elEnc.add(EmaFactory.createElementEntry().qos( "MY_QOS", 5656, 2345 ));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//ninth entry
 			elEnc.add(EmaFactory.createElementEntry().state("MY_STATE", OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Succeeded"));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 			
 			//tenth entry
 			elEnc.add(EmaFactory.createElementEntry().ascii( "MY_ASCII", "ABCDEF" ));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//eleventh entry
 			elEnc.add(EmaFactory.createElementEntry().rmtes( "MY_RMTES", ByteBuffer.wrap("ABCDEF".getBytes())));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//twelfth entry
 			elEnc.add(EmaFactory.createElementEntry().enumValue( "MY_ENUM", 29));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//thirteenth entry
 			elEnc.add(EmaFactory.createElementEntry().floatValue( "MY_FLOAT", 11.11f));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//fourteenth entry
 			elEnc.add(EmaFactory.createElementEntry().doubleValue( "MY_DOUBLE", 22.22f));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//fifteenth entry (blank real)
 			elEnc.add(EmaFactory.createElementEntry().codeReal("REAL_CODE"));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//sixteenth entry
 			elEnc.add(EmaFactory.createElementEntry().buffer( "MY_BUFFER", ByteBuffer.wrap("ABCDEFGH".getBytes())));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//seventeenth entry
 			elEnc.add(EmaFactory.createElementEntry().utf8( "MY_UTF8",ByteBuffer.wrap("KLMNOPQR".getBytes())));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//eighteenth entry
 			OmmArray ar1 = EmaFactory.createOmmArray();
@@ -412,22 +447,37 @@ public class ElementListTests extends TestCase
 			ar1.add(EmaFactory.createOmmArrayEntry().intValue(234));
 			ar1.add(EmaFactory.createOmmArrayEntry().intValue(345));
 			elEnc.add(EmaFactory.createElementEntry().array( "ARRAY", ar1));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 
 			//nineteenth entry
 			OmmOpaque opaque1 = EmaFactory.createOmmOpaque();
 			opaque1.buffer(ByteBuffer.wrap("OPQRST".getBytes()));
 			elEnc.add(EmaFactory.createElementEntry().opaque( "MY_OPAQUE", opaque1));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
 					
 			//twentyth entry
 			elEnc.add(EmaFactory.createElementEntry().qos( "MY_QOS", 756565, 1232365));
-			TestUtilities.checkResult("ElementList.toString() == toString() not supported", elEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
-			
+			TestUtilities.checkResult("ElementList.toString() == toString()", elEnc.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n"));
+
+			DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+
+			TestUtilities.checkResult("ElementList.toString(dictionary) == toString(dictionary)", elEnc.toString(emaDataDictionary).equals("\nDictionary is not loaded.\n"));
+
+			emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+			emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+
+			TestUtilities.checkResult("ElementList.toString(dictionary) == toString(dictionary)", elEnc.toString(emaDataDictionary).equals(elementListString));
+
+			TestUtilities.checkResult("ElementList.toString(dictionary) == toString(dictionary)", elEmpty.toString(emaDataDictionary).equals("ElementList\nElementListEnd\n"));
+
+			elEmpty.add(EmaFactory.createElementEntry().opaque( "MY_OPAQUE", opaque1));
+			elEmpty.clear();
+			TestUtilities.checkResult("ElementList.toString(dictionary) == toString(dictionary)", elEmpty.toString(emaDataDictionary).equals("ElementList\nElementListEnd\n"));
+
 			ElementList elDec = JUnitTestConnect.createElementList();
 			JUnitTestConnect.setRsslData(elDec, elEnc, Codec.majorVersion(), Codec.minorVersion(), null, null);
 			// check that we can still get the toString on encoded/decoded container.
-			TestUtilities.checkResult("ElementList.toString() != toString() not supported", !(elDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
+			TestUtilities.checkResult("ElementList.toString() != toString()", !(elDec.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 
 			System.out.println(elDec);
             
@@ -442,7 +492,7 @@ public class ElementListTests extends TestCase
 			ElementEntry ee1 = iter.next();
 			TestUtilities.checkResult("ElementEntry.name()", ee1.name().equals( "MY_UINT") );
 			// check that we can still get the toString on encoded/decoded entry.
-			TestUtilities.checkResult("ElementEntry.toString() != toString() not supported", !(ee1.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+			TestUtilities.checkResult("ElementEntry.toString() != toString()", !(ee1.toString().equals("\ntoString() method could not be used for just encoded object. Use toString(dictionary) for just encoded object.\n")));
 			
 			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.UINT", ee1.loadType() == DataTypes.UINT );
 			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.UINT", ee1.load().dataType()== DataTypes.UINT );

@@ -48,6 +48,8 @@ private:
 	ServiceEndpointDiscovery	*_pServiceEndpointDiscovery;
 
 	Mutex		_userLock;
+
+	const bool DEFAULT_SHOULD_INIT_CPUID_LIB = true;
 };
 
 }

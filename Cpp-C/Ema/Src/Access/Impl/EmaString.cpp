@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -17,10 +17,13 @@
 
 #include "Utilities.h"
 
+#define EMA_STRING_RESIZE_THRESHOLD    5
+
 using namespace refinitiv::ema::access;
 
 EmaString::EmaString() :
     _pString ( 0 ),
+    _resizeCounter( 0 ),
     _length ( 0 ),
     _capacity ( 0 )
 {
@@ -40,6 +43,7 @@ EmaString::EmaString() :
 //
 EmaString::EmaString ( const char* str, UInt32 length ) :
     _pString ( 0 ),
+    _resizeCounter(0),
     _length ( str ? length : 0 ),
     _capacity ( 0 )
 {
@@ -84,6 +88,7 @@ EmaString::EmaString ( const char* str, UInt32 length ) :
 
 EmaString::EmaString ( const EmaString& other ) :
     _pString ( 0 ),
+    _resizeCounter(0),
     _length ( other._length ),
     _capacity ( other._length + 1 )
 {
@@ -116,6 +121,7 @@ EmaString::~EmaString()
 EmaString& EmaString::clear()
 {
     _length = 0;
+    _resizeCounter = 0;
     if ( _pString )
         *_pString = 0x00;
 
@@ -128,6 +134,7 @@ EmaString& EmaString::secureClear()
         memset((void*)_pString, 0, (size_t)_capacity);
 
     _length = 0;
+    _resizeCounter = 0;
    
 
     return *this;
@@ -163,6 +170,9 @@ EmaString& EmaString::operator= ( const EmaString& other )
         {
             _capacity = other._length + 1;
 
+            if ( _resizeCounter > EMA_STRING_RESIZE_THRESHOLD )
+                _capacity *= 2;
+
             if ( _pString )
             {
                 free ( _pString );
@@ -184,6 +194,8 @@ EmaString& EmaString::operator= ( const EmaString& other )
             memcpy ( _pString, other._pString, _length );
 
         * ( _pString + _length ) = 0x00;
+
+        _resizeCounter++;
     }
     else
     {
@@ -307,7 +319,10 @@ EmaString& EmaString::append ( Int64 i )
 
     if ( _capacity <= _length + 21 )
     {
-	     _capacity = _length + 22;
+        _capacity = _length + 22;
+
+        if ( _resizeCounter > EMA_STRING_RESIZE_THRESHOLD )
+            _capacity *= 2;
 
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
@@ -326,6 +341,8 @@ EmaString& EmaString::append ( Int64 i )
 		_length += snprintf ( pNewString + _length,  22, "%lld", i );
 
         _pString = pNewString;
+
+        _resizeCounter++;
     }
     else
     {
@@ -349,6 +366,9 @@ EmaString& EmaString::append ( UInt64 i )
     {
         _capacity = _length + 22;
 
+        if ( _resizeCounter > EMA_STRING_RESIZE_THRESHOLD )
+            _capacity *= 2;
+
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
         {
@@ -364,6 +384,8 @@ EmaString& EmaString::append ( UInt64 i )
         }
 
         _pString = pNewString;
+
+        _resizeCounter++;
     }
 
     _length += snprintf ( _pString + _length, 22, "%llu", i );
@@ -385,6 +407,9 @@ EmaString& EmaString::append ( Int32 i )
     {
         _capacity = _length + 13;
 
+        if ( _resizeCounter > EMA_STRING_RESIZE_THRESHOLD )
+            _capacity *= 2;
+
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
         {
@@ -402,6 +427,8 @@ EmaString& EmaString::append ( Int32 i )
         _length += snprintf ( pNewString + _length, 13, "%i", i );
 
         _pString = pNewString;
+
+        _resizeCounter++;
     }
     else
     {
@@ -423,7 +450,10 @@ EmaString& EmaString::append ( UInt32 i )
 	
 	if ( _capacity <= _length + 12 )
     {
-		_capacity = _length + 13;
+        _capacity = _length + 13;
+
+        if ( _resizeCounter > EMA_STRING_RESIZE_THRESHOLD )
+            _capacity *= 2;
 
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
@@ -442,6 +472,8 @@ EmaString& EmaString::append ( UInt32 i )
         _length += snprintf ( pNewString + _length, 13, "%u", i );
 
         _pString = pNewString;
+
+        _resizeCounter++;
     }
     else
     {
@@ -465,6 +497,9 @@ EmaString& EmaString::append ( float f )
     {
         _capacity = _length + 33;
 
+        if ( _resizeCounter > EMA_STRING_RESIZE_THRESHOLD )
+            _capacity *= 2;
+
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
         {
@@ -482,6 +517,8 @@ EmaString& EmaString::append ( float f )
         _length += snprintf ( pNewString + _length, 33, "%g", f );
 
         _pString = pNewString;
+
+        _resizeCounter++;
     }
     else
     {
@@ -505,6 +542,9 @@ EmaString& EmaString::append ( double d )
     {
         _capacity = _length + 33;
 
+        if (_resizeCounter > EMA_STRING_RESIZE_THRESHOLD )
+            _capacity *= 2;
+
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
         {
@@ -522,6 +562,8 @@ EmaString& EmaString::append ( double d )
         _length += snprintf ( pNewString + _length, 33, "%lg", d );
 
         _pString = pNewString;
+
+        _resizeCounter++;
     }
     else
     {
@@ -549,6 +591,9 @@ EmaString& EmaString::append ( const char* str )
     {
         _capacity = _length + (UInt32)strLength + 1;
 
+        if ( _resizeCounter > EMA_STRING_RESIZE_THRESHOLD )
+            _capacity *= 2;
+
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
         {
@@ -570,6 +615,8 @@ EmaString& EmaString::append ( const char* str )
         * ( pNewString + _length ) = 0x00;
 
         _pString = pNewString;
+
+        _resizeCounter++;
     }
     else if ( strLength )
     {
@@ -599,6 +646,9 @@ EmaString& EmaString::append ( const EmaString& other )
     {
         _capacity = _length + other._length + 1;
 
+        if ( _resizeCounter > EMA_STRING_RESIZE_THRESHOLD )
+            _capacity *= 2;
+
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
         {
@@ -620,6 +670,8 @@ EmaString& EmaString::append ( const EmaString& other )
         * ( pNewString + _length ) = 0x00;
 
         _pString = pNewString;
+
+        _resizeCounter++;
     }
     else if ( other._length )
     {
