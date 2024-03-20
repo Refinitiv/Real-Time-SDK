@@ -26,6 +26,7 @@ namespace LSEG.Ema.Access
     public sealed class OmmConsumerConfig
     {
         internal OmmConsumerConfigImpl OmmConsConfigImpl;
+        internal string m_configPath = string.Empty;
 
         /// <summary>
         /// Defines operation model for dispatching.
@@ -49,7 +50,8 @@ namespace LSEG.Ema.Access
         /// </summary>
         public OmmConsumerConfig()
         {
-            OmmConsConfigImpl = new OmmConsumerConfigImpl(string.Empty);
+            m_configPath = string.Empty;
+            OmmConsConfigImpl = new OmmConsumerConfigImpl(m_configPath);
         }
 
         /// <summary>
@@ -65,6 +67,7 @@ namespace LSEG.Ema.Access
 
         public OmmConsumerConfig(string path)
         {
+            m_configPath = path;
             OmmConsConfigImpl = new OmmConsumerConfigImpl(path);
         }
 
@@ -75,9 +78,13 @@ namespace LSEG.Ema.Access
         /// Invoking Clear() method clears all the values and resets all the defaults.
         /// </remarks>
         /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
+        /// <remarks>
+        /// This method loads the EMA configuration file from the current working directory or specified in <see cref="OmmConsumerConfig.OmmConsumerConfig(string)"/>
+        /// </remarks>
+        /// <exception cref="OmmInvalidConfigurationException">Thrown if the Xml file is malformed or if there is a parsing error.</exception>
         public OmmConsumerConfig Clear()
         {
-            OmmConsConfigImpl.Clear();
+            OmmConsConfigImpl = new OmmConsumerConfigImpl(m_configPath);
             return this;
         }
 
