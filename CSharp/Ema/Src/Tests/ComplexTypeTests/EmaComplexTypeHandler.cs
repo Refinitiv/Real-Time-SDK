@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -3826,13 +3826,16 @@ namespace LSEG.Ema.Access.Tests
                         elementList.AddCodeState(stateName.ToString());
                         break;
                     case DataType.DataTypes.DOUBLE:
-                        elementList.AddDouble(doubleName.ToString(), dv.ToDouble());
+                        elementList.AddCodeDouble(doubleName.ToString());
                         break;
                     case DataType.DataTypes.FLOAT:
                         elementList.AddCodeFloat(floatName.ToString());
                         break;
                     case DataType.DataTypes.ENUM:
                         elementList.AddCodeEnum(enumName.ToString());
+                        break;
+                    case DataType.DataTypes.ARRAY:
+                        elementList.AddCodeArray(enumName.ToString());
                         break;
                     default:
                         break;
@@ -3891,6 +3894,7 @@ namespace LSEG.Ema.Access.Tests
                         break;
                     case DataType.DataTypes.DOUBLE:
                         Assert.Equal(doubleName.ToString(), entry.Name);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
                     case DataType.DataTypes.FLOAT:
                         Assert.Equal(floatName.ToString(), entry.Name);
@@ -3898,6 +3902,137 @@ namespace LSEG.Ema.Access.Tests
                         break;
                     case DataType.DataTypes.ENUM:
                         Assert.Equal(enumName.ToString(), entry.Name);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.ARRAY:
+                        Assert.Equal(enumName.ToString(), entry.Name);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public static void EncodeFieldListWithCodeValues(FieldList fieldList, int[] dataTypes)
+        {
+            for (int i = 0; i < dataTypes.Length; i++)
+            {
+                switch (dataTypes[i])
+                {
+                    case DataType.DataTypes.INT:
+                        fieldList.AddCodeInt(5170);
+                        break;
+                    case DataType.DataTypes.UINT:
+                        fieldList.AddCodeUInt(1);
+                        break;
+                    case DataType.DataTypes.DATE:
+                        fieldList.AddCodeDate(16);
+                        break;
+                    case DataType.DataTypes.TIME:
+                        fieldList.AddCodeTime(18);
+                        break;
+                    case DataType.DataTypes.DATETIME:
+                        fieldList.AddCodeDateTime(-1);
+                        break;
+                    case DataType.DataTypes.ASCII:
+                        fieldList.AddCodeAscii(235);
+                        break;
+                    case DataType.DataTypes.REAL:
+                        fieldList.AddCodeReal(6);
+                        break;
+                    case DataType.DataTypes.QOS:
+                        fieldList.AddCodeQos(-2);
+                        break;
+                    case DataType.DataTypes.RMTES:
+                        fieldList.AddCodeRmtes(3);
+                        break;
+                    case DataType.DataTypes.BUFFER:
+                        fieldList.AddCodeBuffer(457);
+                        break;
+                    case DataType.DataTypes.STATE:
+                        fieldList.AddCodeState(-3);
+                        break;
+                    case DataType.DataTypes.DOUBLE:
+                        fieldList.AddCodeDouble(-4);
+                        break;
+                    case DataType.DataTypes.FLOAT:
+                        fieldList.AddCodeFloat(-5);
+                        break;
+                    case DataType.DataTypes.ENUM:
+                        fieldList.AddCodeEnum(4);
+                        break;
+                    case DataType.DataTypes.ARRAY:
+                        fieldList.AddCodeArray(30015);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            fieldList.Complete();
+        }
+        public static void DecodeAndCheckFieldListWithCodeValues(FieldList fieldList)
+        {
+            foreach (var entry in fieldList)
+            {
+                switch (entry.LoadType)
+                {
+                    case DataType.DataTypes.INT:
+                        Assert.Equal(5170, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.UINT:
+                        Assert.Equal(1, entry.FieldId);
+                        break;
+                    case DataType.DataTypes.DATE:
+                        Assert.Equal(16, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.TIME:
+                        Assert.Equal(18, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.DATETIME:
+                        Assert.Equal(-1, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.ASCII:
+                        Assert.Equal(235, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.REAL:
+                        Assert.Equal(6, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.QOS:
+                        Assert.Equal(-2, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.RMTES:
+                        Assert.Equal(3, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.BUFFER:
+                        Assert.Equal(457, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.STATE:
+                        Assert.Equal(-3, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.DOUBLE:
+                        Assert.Equal(-4, entry.FieldId);
+                        break;
+                    case DataType.DataTypes.FLOAT:
+                        Assert.Equal(-5, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.ENUM:
+                        Assert.Equal(4, entry.FieldId);
+                        Assert.Equal(Data.DataCode.BLANK, entry.Code);
+                        break;
+                    case DataType.DataTypes.ARRAY:
+                        Assert.Equal(30015, entry.FieldId);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
                     default:

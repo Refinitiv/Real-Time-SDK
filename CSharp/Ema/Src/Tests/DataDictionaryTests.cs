@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -891,7 +891,7 @@ public class DataDictionaryTests
 
         string toStringValue = m_GlobalDataDictionary.ToString();
 
-        Assert.Contains("Data Dictionary Dump: MinFid=-32768 MaxFid=32767 NumEntries 15047", toStringValue);
+        Assert.Contains("Data Dictionary Dump: MinFid=-32768 MaxFid=32767 NumEntries 15052", toStringValue);
         Assert.Contains("Version=\"4.20.29\"", toStringValue);
         Assert.Contains("RT_Version=\"4.20.29\"", toStringValue);
         Assert.Contains("DT_Version=\"17.81\"", toStringValue);

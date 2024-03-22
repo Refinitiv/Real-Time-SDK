@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -55,7 +55,7 @@ public abstract class Data
     /// <summary>
     /// The Code, which indicates a special state of a DataType.
     /// </summary>
-    public DataCode Code { get; internal set; }
+    public DataCode Code { get; internal set; } = DataCode.NO_CODE;
 
     /// <summary>
     /// Returns the <see cref="Code"/> value in a string format.
@@ -100,8 +100,6 @@ public abstract class Data
     internal const string DEFAULTCODE_STRING = "Unknown DataCode value ";
 
     internal StringBuilder m_ToString = new StringBuilder();
-
-    internal DataCode m_DataCode = DataCode.NO_CODE;
 
     internal EmaBuffer? _asHex;
 

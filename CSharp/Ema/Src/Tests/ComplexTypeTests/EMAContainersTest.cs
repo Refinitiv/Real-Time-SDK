@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -495,7 +495,8 @@ namespace LSEG.Ema.Access.Tests
                 DataType.DataTypes.ENUM,
                 DataType.DataTypes.ASCII,
                 DataType.DataTypes.RMTES,
-                DataType.DataTypes.BUFFER
+                DataType.DataTypes.BUFFER,
+                DataType.DataTypes.ARRAY
             };
 
             DataDictionary dataDictionary = new DataDictionary();
@@ -510,6 +511,44 @@ namespace LSEG.Ema.Access.Tests
 
             EmaComplexTypeHandler.DecodeAndCheckElementListWithCodeValues(elementList);
             elementList.ClearAndReturnToPool_All();
+
+            CheckEmaObjectManagerPoolSizes(m_objectManager);
+            CheckEtaGlobalPoolSizes();
+        }
+
+        [Fact]
+        public void EncodeBlankEntryToFieldListTest()
+        {
+            int[] dataTypes = {
+                DataType.DataTypes.INT,
+                DataType.DataTypes.UINT,
+                DataType.DataTypes.FLOAT,
+                DataType.DataTypes.DOUBLE,
+                DataType.DataTypes.TIME,
+                DataType.DataTypes.DATETIME,
+                DataType.DataTypes.REAL,
+                DataType.DataTypes.QOS,
+                DataType.DataTypes.STATE,
+                DataType.DataTypes.ARRAY,
+                DataType.DataTypes.ENUM,
+                DataType.DataTypes.ASCII,
+                DataType.DataTypes.RMTES,
+                DataType.DataTypes.BUFFER,
+                DataType.DataTypes.ARRAY
+            };
+
+            DataDictionary dataDictionary = new DataDictionary();
+            LoadEnumTypeDictionary(dataDictionary);
+            LoadFieldDictionary(dataDictionary);
+
+            FieldList fieldList = m_objectManager.GetOmmFieldList();
+            EmaComplexTypeHandler.EncodeFieldListWithCodeValues(fieldList, dataTypes);
+
+            var buffer = fieldList.Encoder!.m_encodeIterator!.Buffer();
+            fieldList.DecodeFieldList(Codec.MajorVersion(), Codec.MinorVersion(), buffer, dataDictionary, null);
+
+            EmaComplexTypeHandler.DecodeAndCheckFieldListWithCodeValues(fieldList);
+            fieldList.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
             CheckEtaGlobalPoolSizes();
@@ -601,6 +640,117 @@ namespace LSEG.Ema.Access.Tests
             Assert.Equal(EmaObjectManager.INITIAL_POOL_SIZE, objectManager.primitivePool.Count);
             Assert.Equal(EmaObjectManager.INITIAL_POOL_SIZE, objectManager.complexTypePool.Count);
             Assert.Equal(EmaObjectManager.INITIAL_POOL_SIZE, objectManager.msgTypePool.Count);
+        }
+
+        [Fact]
+        public void OmmArrayInFieldEntryWithBlankDataFieldList_Test()
+        {
+            DataDictionary dataDictionary = new DataDictionary();
+            LoadEnumTypeDictionary(dataDictionary);
+            LoadFieldDictionary(dataDictionary);
+            FieldList fieldListEnc = new();
+            fieldListEnc.AddArray(30013, new OmmArray().AddInt(1).AddInt(2).Complete());
+            fieldListEnc.AddCodeArray(30015);
+            fieldListEnc.AddArray(30020, new OmmArray().AddUInt(3).AddUInt(4).Complete());
+            fieldListEnc.Complete();
+
+            FieldList fieldListDec = new();
+            fieldListDec.Decode(Codec.MajorVersion(), Codec.MinorVersion(), fieldListEnc.Encoder!.GetEncodedBuffer(), dataDictionary, null);
+
+            var iterator = fieldListDec.GetEnumerator();
+            Assert.True(iterator.MoveNext());
+            var fieldEntry = iterator.Current;
+            Assert.NotNull(fieldEntry);
+            Assert.Equal(30013, fieldEntry.FieldId);
+            var ommArray = fieldEntry.OmmArrayValue();
+            Assert.NotNull(ommArray);
+            var arrayIt = ommArray.GetEnumerator();
+            Assert.True(arrayIt.MoveNext());
+            var arrayEntry = arrayIt.Current;
+            Assert.Equal(1, arrayEntry.OmmIntValue().Value);
+            Assert.True(arrayIt.MoveNext());
+            arrayEntry = arrayIt.Current;
+            Assert.Equal(2, arrayEntry.OmmIntValue().Value);
+            Assert.False(arrayIt.MoveNext()); // Ensure there is no more OmmArrayEntry
+
+            // Move to next FieldEntry
+            Assert.True(iterator.MoveNext());
+            fieldEntry = iterator.Current;
+            Assert.NotNull(fieldEntry);
+            Assert.Equal(30015, fieldEntry.FieldId);
+            Assert.Equal(Data.DataCode.BLANK, fieldEntry.Code); // Check for blank OmmArray
+
+            // Move to next FieldEntry
+            Assert.True(iterator.MoveNext());
+            fieldEntry = iterator.Current;
+            Assert.NotNull(fieldEntry);
+            Assert.Equal(30020, fieldEntry.FieldId);
+            ommArray = fieldEntry.OmmArrayValue();
+            Assert.NotNull(ommArray);
+            arrayIt = ommArray.GetEnumerator();
+            Assert.True(arrayIt.MoveNext());
+            arrayEntry = arrayIt.Current;
+            Assert.Equal((ulong)3, arrayEntry.OmmUIntValue().Value);
+            Assert.True(arrayIt.MoveNext());
+            arrayEntry = arrayIt.Current;
+            Assert.Equal((ulong)4, arrayEntry.OmmUIntValue().Value);
+            Assert.False(arrayIt.MoveNext()); // Ensure there is no more OmmArrayEntry
+
+            Assert.False(iterator.MoveNext()); // Ensure there is no more FieldEntry
+        }
+
+        [Fact]
+        public void OmmArrayInFieldEntryWithBlankDataElementList_Test()
+        {
+            ElementList elementListEnc = new();
+            elementListEnc.AddArray("30013", new OmmArray().AddInt(1).AddInt(2).Complete());
+            elementListEnc.AddCodeArray("30015");
+            elementListEnc.AddArray("30020", new OmmArray().AddUInt(3).AddUInt(4).Complete());
+            elementListEnc.Complete();
+
+            ElementList elementListDec = new();
+            elementListDec.Decode(Codec.MajorVersion(), Codec.MinorVersion(), elementListEnc.Encoder!.GetEncodedBuffer(), null, null);
+
+            var iterator = elementListDec.GetEnumerator();
+            Assert.True(iterator.MoveNext());
+            var elementEntry = iterator.Current;
+            Assert.NotNull(elementEntry);
+            Assert.Equal("30013", elementEntry.Name);
+            var ommArray = elementEntry.OmmArrayValue();
+            Assert.NotNull(ommArray);
+            var arrayIt = ommArray.GetEnumerator();
+            Assert.True(arrayIt.MoveNext());
+            var arrayEntry = arrayIt.Current;
+            Assert.Equal(1, arrayEntry.OmmIntValue().Value);
+            Assert.True(arrayIt.MoveNext());
+            arrayEntry = arrayIt.Current;
+            Assert.Equal(2, arrayEntry.OmmIntValue().Value);
+            Assert.False(arrayIt.MoveNext()); // Ensure there is no more OmmArrayEntry
+
+            // Move to next ElementEntry
+            Assert.True(iterator.MoveNext());
+            elementEntry = iterator.Current;
+            Assert.NotNull(elementEntry);
+            Assert.Equal("30015", elementEntry.Name);
+            Assert.Equal(Data.DataCode.BLANK, elementEntry.Code); // Check for blank OmmArray
+
+            // Move to next ElementEntry
+            Assert.True(iterator.MoveNext());
+            elementEntry = iterator.Current;
+            Assert.NotNull(elementEntry);
+            Assert.Equal("30020", elementEntry.Name);
+            ommArray = elementEntry.OmmArrayValue();
+            Assert.NotNull(ommArray);
+            arrayIt = ommArray.GetEnumerator();
+            Assert.True(arrayIt.MoveNext());
+            arrayEntry = arrayIt.Current;
+            Assert.Equal((ulong)3, arrayEntry.OmmUIntValue().Value);
+            Assert.True(arrayIt.MoveNext());
+            arrayEntry = arrayIt.Current;
+            Assert.Equal((ulong)4, arrayEntry.OmmUIntValue().Value);
+            Assert.False(arrayIt.MoveNext()); // Ensure there is no more OmmArrayEntry
+
+            Assert.False(iterator.MoveNext()); // Ensure there is no more ElementEntry
         }
 
         private void CheckEtaGlobalPoolSizes()

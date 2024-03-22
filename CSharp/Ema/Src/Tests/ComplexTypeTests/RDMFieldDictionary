@@ -40,6 +40,16 @@
 !
 MIN_FID     "MIN_FID_DDE"         -32768  NULL        ENUMERATED    3 ( 3 )  ENUM            1
 !
+FLOAT_FID		"FLOAT_FID"		-5		NULL	PRICE	4	FLOAT			4
+!
+DOUBLE_FID		"DOUBLE_FID"		-4		NULL	PRICE	8	DOUBLE			8
+!
+STATE_FID		"STATE_FID"			-3		NULL	NONE	9	STATE			9
+!
+QOS_FID		"QOS_FID"			-2		NULL	NONE	9	QOS			9
+!
+DATETIME_FID	"DATETIME_FID"    -1	NULL	NONE	9	DATETIME	9
+!
 PROD_PERM  "PERMISSION"             1  NULL        INTEGER             5  UINT64           2
 !
 ! Product permissions information.

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -806,7 +806,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         // shortcut for the likely outcome
         if (retCode == CodecReturnCode.SUCCESS)
         {
-            m_DataCode = Data.DataCode.BLANK;
+            Code = Data.DataCode.BLANK;
             m_ErrorCode = OmmError.ErrorCodes.NO_ERROR;
             return true;
         }
@@ -815,22 +815,22 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         switch (retCode)
         {
             case CodecReturnCode.BLANK_DATA:
-                m_DataCode = Data.DataCode.BLANK;
+                Code = Data.DataCode.BLANK;
                 m_ErrorCode = OmmError.ErrorCodes.NO_ERROR;
                 return true;
 
             case CodecReturnCode.ITERATOR_OVERRUN:
-                m_DataCode = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+                Code = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
                 m_ErrorCode = OmmError.ErrorCodes.ITERATOR_OVERRUN;
                 return false;
 
             case CodecReturnCode.INCOMPLETE_DATA:
-                m_DataCode = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+                Code = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
                 m_ErrorCode = OmmError.ErrorCodes.INCOMPLETE_DATA;
                 return false;
 
             default:
-                m_DataCode = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+                Code = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
                 m_ErrorCode = OmmError.ErrorCodes.UNKNOWN_ERROR;
                 return false;
         }
@@ -849,7 +849,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         CodecReturnCode retCode = m_decodeIterator.SetBufferAndRWFVersion(m_bodyBuffer, m_MajorVersion, m_MinorVersion);
         if (CodecReturnCode.SUCCESS != retCode)
         {
-            m_DataCode = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+            Code = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
             m_ErrorCode = OmmError.ErrorCodes.ITERATOR_SET_FAILURE;
             return false;
         }
@@ -859,7 +859,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         // shortcut for the likely outcome
         if (retCode == CodecReturnCode.SUCCESS)
         {
-            m_DataCode = Data.DataCode.NO_CODE;
+            Code = Data.DataCode.NO_CODE;
             m_ErrorCode = OmmError.ErrorCodes.NO_ERROR;
             return true;
         }
@@ -873,17 +873,17 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
                 return true;
 
             case CodecReturnCode.ITERATOR_OVERRUN:
-                m_DataCode = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+                Code = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
                 m_ErrorCode = OmmError.ErrorCodes.ITERATOR_OVERRUN;
                 return false;
 
             case CodecReturnCode.INCOMPLETE_DATA:
-                m_DataCode = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+                Code = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
                 m_ErrorCode = OmmError.ErrorCodes.INCOMPLETE_DATA;
                 return false;
 
             default:
-                m_DataCode = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+                Code = (m_bodyBuffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
                 m_ErrorCode = OmmError.ErrorCodes.UNKNOWN_ERROR;
                 return false;
         }
