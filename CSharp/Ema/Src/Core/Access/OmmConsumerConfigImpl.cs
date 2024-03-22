@@ -30,9 +30,9 @@ namespace LSEG.Ema.Access
         internal string UserName = string.Empty;
         // Password config from OmmConsumerConfig methods. This is used for the login requests if session management is turned off for the connection
         internal string Password = string.Empty;
-        // Position config from OmmConsumerConfig methods. 
+        // Position config from OmmConsumerConfig methods.
         internal string Position { get; set; } = string.Empty;
-        // ApplicationId config from OmmConsumerConfig methods. 
+        // ApplicationId config from OmmConsumerConfig methods.
         internal string ApplicationId { get; set; } = string.Empty;
         // ClientId config from OmmConsumerConfig methods. This is used to get access tokens from RDP
         internal string ClientId { get; set; } = string.Empty;
@@ -126,10 +126,10 @@ namespace LSEG.Ema.Access
         // Copy Constructor that will be used in OmmBaseImpl.  This will contain only the information needed by EMA to generate
         // ReactorConnectOptions and the ReactorRole.  It will not copy everything, just:
         // the configured required Consumer(in order: ConsuemerName, DefaultConsumer, the first Consumer in the consumer list, the default consumer)
-        // any channels directly referenced by the consumer(or 
+        // any channels directly referenced by the consumer(or
         // the dictionary referenced by the consumer(or default)
-        // the 
-        // 
+        // the
+        //
         // PREREQUSITES: OldConfigImpl has been verified with VerifyConfiguration()
         internal OmmConsumerConfigImpl(OmmConsumerConfigImpl OldConfigImpl)
         {
@@ -187,7 +187,7 @@ namespace LSEG.Ema.Access
             ConsumerConfig.Clear();
 
             // If there aren't any configured consumers or the host and port have been specified, fall into the default case.  Otherwise,
-            // check to see if the ConsumerName or DefaultConsumer have been defined, and deep copy the consumer to tmpConsumerConfig 
+            // check to see if the ConsumerName or DefaultConsumer have been defined, and deep copy the consumer to tmpConsumerConfig
             if (OldConfigImpl.ConsumerConfigMap.Count > 0)
             {
                 if (string.IsNullOrEmpty(OldConfigImpl.ConsumerName) == true)
@@ -255,7 +255,7 @@ namespace LSEG.Ema.Access
                 ClientChannelConfigMap.Add(tmpChannelConfig.Name, tmpChannelConfig);
                 ConsumerConfig.ChannelSet.Add(tmpChannelConfig.Name);
             }
-            else   
+            else
             {
                 // There are channels in the channelSet, so copy them all over. Don't need to add the name because it's already in there.
                 foreach (string channelName in ConsumerConfig.ChannelSet)
@@ -291,7 +291,7 @@ namespace LSEG.Ema.Access
             }
 
             LoggerConfig.Clear();
-            
+
             if (string.IsNullOrEmpty(ConsumerConfig.Logger) == false)
             {
                 // There's a configured logger config, so copy it over.
@@ -307,7 +307,7 @@ namespace LSEG.Ema.Access
             LoggerConfigMap.Add(LoggerConfig.Name, LoggerConfig);
 
             DictionaryConfig.Clear();
-            
+
             if (!string.IsNullOrEmpty(ConsumerConfig.Dictionary))
             {
                 // There's a configured dictionary config, so copy it over.
@@ -398,7 +398,7 @@ namespace LSEG.Ema.Access
                 return;
             }
 
-            // If ':' is first, 
+            // If ':' is first,
             if(index == 0)
             {
                 HostName = ClientChannelConfig.DefaultHost;
@@ -445,7 +445,7 @@ namespace LSEG.Ema.Access
         internal void Config(Map configMap)
         {
             ProgrammaticParser ??= new ProgrammaticConfigParser(this);
-            
+
             ProgrammaticParser.ParseProgrammaticConfig(configMap);
         }
 
@@ -695,12 +695,13 @@ namespace LSEG.Ema.Access
                     }
                 }
 
-                if (string.IsNullOrEmpty(consumer.Dictionary) == false)
+                // Application can provide the DataDictionary directly with an API method call,
+                // verify configuration only when that's not the case
+                if (m_DataDictionary is null
+                    && !string.IsNullOrEmpty(consumer.Dictionary)
+                    && !DictionaryConfigMap.ContainsKey(consumer.Dictionary))
                 {
-                    if (DictionaryConfigMap.ContainsKey(consumer.Dictionary) == false)
-                    {
-                        throw new OmmInvalidConfigurationException("Dictionary " + consumer.Dictionary + " in Consumer " + consumer.Name + " is not defined in this OmmConsumerConfig");
-                    }
+                    throw new OmmInvalidConfigurationException("Dictionary " + consumer.Dictionary + " in Consumer " + consumer.Name + " is not defined in this OmmConsumerConfig");
                 }
             }
         }
@@ -820,6 +821,35 @@ namespace LSEG.Ema.Access
             }
 
             return connOpts;
+        }
+
+        private Ema.Rdm.DataDictionary? m_DataDictionary = null;
+
+        internal void DataDictionary(Ema.Rdm.DataDictionary dataDictionary, bool shouldCopyIntoAPI)
+        {
+            if (dataDictionary is not null
+                && dataDictionary.IsFieldDictionaryLoaded
+                && dataDictionary.IsEnumTypeDefLoaded)
+            {
+                if (shouldCopyIntoAPI)
+                {
+                    m_DataDictionary = new Ema.Rdm.DataDictionary(dataDictionary);
+                }
+                else
+                {
+                    m_DataDictionary = dataDictionary;
+                }
+            }
+            else
+            {
+                throw new OmmInvalidUsageException("The dictionary information is not fully loaded in the passed DataDictionary object.",
+                        OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+            }
+        }
+
+        internal Ema.Rdm.DataDictionary? DataDictionary()
+        {
+            return m_DataDictionary;
         }
     }
 }

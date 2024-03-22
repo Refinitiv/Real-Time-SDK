@@ -16,11 +16,12 @@ namespace LSEG.Ema.Access
     /// OmmConsumerConfig is used to modify configuration and behaviour of <see cref="OmmConsumer"/>.
     /// </summary>
     /// <remarks>
-    /// OmmConsumerConfig provides a default basic OmmConsumer configuration.<br/>
-    /// The default configuration may be modified and or appended by using any methods from
-    /// OmmConsumerConfg.<br/>
-    /// OmmConsumerconfig methods override or append the existing configuration.<br/>
-    /// For addtional information, please refer to the EMA C# Config Guide.
+    /// <para>OmmConsumerConfig provides a default basic OmmConsumer configuration.</para>
+    ///
+    /// <para>The default configuration may be modified and or appended by using any methods from
+    /// OmmConsumerConfg.</para>
+    ///
+    /// <para>OmmConsumerconfig methods override or append the existing configuration.</para>
     /// </remarks>
     /// <seealso cref="OmmConsumer"/>
     public sealed class OmmConsumerConfig
@@ -113,7 +114,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Specifies the username. Overrides the value specified in Login domain via the AddAdminMsg(..) method.
+        /// Specifies the username. Overrides the value specified in Login domain via the <see cref="AddAdminMsg"/> method.
         /// </summary>
         /// <param name="userName">specifies name used on login request</param>
         /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
@@ -124,7 +125,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Specifies the password. Overrides the value specified in Login domain via the AddAdminMsg(..) method.
+        /// Specifies the password. Overrides the value specified in Login domain via the <see cref="AddAdminMsg"/> method.
         /// </summary>
         /// <param name="password">specifies name used on login request</param>
         /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
@@ -135,7 +136,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Specifies the Position. Overrides the value specified in Login domain via the AddAdminMsg(..) method.
+        /// Specifies the Position. Overrides the value specified in Login domain via the <see cref="AddAdminMsg"/> method.
         /// </summary>
         /// <param name="position">specifies the position used on login request</param>
         /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
@@ -148,7 +149,7 @@ namespace LSEG.Ema.Access
         /// <summary>
         /// Specifies the authorization application identifier. Must be unique for each application.
         /// Range 257 to 65535 is available for site-specific use.Range 1 to 256 is reserved.
-        /// Overrides the value specified in Login domain via the AddAdminMsg(..) method.
+        /// Overrides the value specified in Login domain via the <see cref="AddAdminMsg"/> method.
         /// </summary>
         /// <param name="applicationId">specifies the application ID used on login request</param>
         /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
@@ -181,7 +182,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Specifies the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+        /// Specifies the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins
         /// </summary>
         /// <param name="clientJwk">specifies the client jwk string</param>
         /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
@@ -192,7 +193,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Specifies the Audience for the JWT. The JWT is used to authenticate with the RDP token service. Optional and only used for V2 logins with client JWT logins 
+        /// Specifies the Audience for the JWT. The JWT is used to authenticate with the RDP token service. Optional and only used for V2 logins with client JWT logins
         /// </summary>
         /// <param name="audience">specifies the client audience string</param>
         /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
@@ -236,7 +237,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Specifies the Host name and port that the OmmConsumer will connect to. 
+        /// Specifies the Host name and port that the OmmConsumer will connect to.
         /// This implies a TCP connection of <see cref="ConnectionType.SOCKET"/> type.
         /// </summary>
         /// <remarks>
@@ -379,7 +380,7 @@ namespace LSEG.Ema.Access
         /// <summary>
         /// Specifies an administrative request message to override the default administrative request.
         /// Application may call multiple times prior to initialization. Supported domains include Login,
-        /// Directory, and Dictionary. 
+        /// Directory, and Dictionary.
         /// </summary>
         /// <param name="requestMsg">specifies administrative domain request message</param>
         /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
@@ -387,6 +388,32 @@ namespace LSEG.Ema.Access
         public OmmConsumerConfig AddAdminMsg(RequestMsg requestMsg)
         {
             OmmConsConfigImpl.AddAdminMsg(requestMsg);
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the DataDictionary object.
+        /// </summary>
+        ///
+        /// <remarks>
+        /// <para>
+        /// Overrides DataDictionary object that is provided via EmaConfig.xml or
+        /// Programmatic configure.</para>
+        ///
+        /// <para>
+        /// If shouldCopyIntoAPI is true, the DataDictionary object will be copied
+        /// into the application space, otherwise it will be passed in as a reference.</para>
+        /// </remarks>
+        ///
+        /// <param name="dataDictionary"> specifies the DataDictionary object.</param>
+        /// <param name="shouldCopyIntoAPI"> specifies whether to copy dataDictionary
+        ///     into API or pass in as reference.</param>
+        ///
+        /// <returns> reference to this object.</returns>
+        ///
+        public OmmConsumerConfig DataDictionary(Ema.Rdm.DataDictionary dataDictionary, bool shouldCopyIntoAPI = false)
+        {
+            OmmConsConfigImpl.DataDictionary(dataDictionary, shouldCopyIntoAPI);
             return this;
         }
     }

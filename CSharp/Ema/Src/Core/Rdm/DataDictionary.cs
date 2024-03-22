@@ -40,7 +40,7 @@ public sealed class DataDictionary
     /// <remarks>
     /// This method is used to clear the existing dictionary information.
     /// </remarks>
-    internal void Clear()
+    public void Clear()
     {
         m_DictionaryLock.Enter();
         try

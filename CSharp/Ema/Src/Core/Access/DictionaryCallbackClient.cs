@@ -52,8 +52,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         {
             m_OmmBaseImpl.ConfigImpl.DictionaryConfig.IsLocalDictionary = false;
         }
-        else if (m_OmmBaseImpl.ConfigImpl.AdminFieldDictionaryRequest != null
-            && m_OmmBaseImpl.ConfigImpl.AdminEnumDictionaryRequest == null)
+        else if (m_OmmBaseImpl.ConfigImpl.DictionaryConfig.DataDictionary is null
+            && m_OmmBaseImpl.ConfigImpl.AdminFieldDictionaryRequest is not null
+            && m_OmmBaseImpl.ConfigImpl.AdminEnumDictionaryRequest is null)
         {
             StringBuilder temp = commonImpl.GetStrBuilder();
             temp.Append("Invalid dictionary configuration was specified through the AddAdminMsg() method").Append(ILoggerClient.CR)
@@ -65,8 +66,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
             return;
         }
-        else if (m_OmmBaseImpl.ConfigImpl.AdminFieldDictionaryRequest == null
-            && m_OmmBaseImpl.ConfigImpl.AdminEnumDictionaryRequest != null)
+        else if (m_OmmBaseImpl.ConfigImpl.DictionaryConfig.DataDictionary is null
+            && m_OmmBaseImpl.ConfigImpl.AdminFieldDictionaryRequest is null
+            && m_OmmBaseImpl.ConfigImpl.AdminEnumDictionaryRequest is not null)
         {
             StringBuilder temp = commonImpl.GetStrBuilder();
             temp.Append("Invalid dictionary configuration was specified through the AddAdminMsg() method").Append(ILoggerClient.CR)
@@ -78,11 +80,12 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
         }
 
-        Rdm.DataDictionary dictionary = m_OmmBaseImpl.ConfigImpl.DictionaryConfig.DataDictionary;
+        Rdm.DataDictionary? dictionary = m_OmmBaseImpl.ConfigImpl.DictionaryConfig.DataDictionary;
         if ((dictionary is Rdm.DataDictionary)
             && dictionary.rsslDataDictionary() != null)
         {
             m_rsslLocalDictionary = ((Rdm.DataDictionary)dictionary).rsslDataDictionary();
+            m_OmmBaseImpl.ConfigImpl.DictionaryConfig.IsLocalDictionary = true;
         }
         else if (m_OmmBaseImpl.ConfigImpl.DictionaryConfig.IsLocalDictionary)
             LoadDictionaryFromFile();

@@ -196,7 +196,7 @@ namespace LSEG.Ema.Access
         /* This is used for unit testing to skip generating an unique instance ID. */
         internal static bool GENERATE_INSTANCE_ID { get; set; } = true;
 
-        public OmmBaseImpl(OmmConsumerConfigImpl configImpl) 
+        public OmmBaseImpl(OmmConsumerConfigImpl configImpl)
         {
             // First, verify the configuration.  If there are exceptions, this will throw an OmmInvalidConfigurationException.
             configImpl.VerifyConfiguration();
@@ -217,6 +217,17 @@ namespace LSEG.Ema.Access
             configImpl.ConfigErrorLog?.Log(LoggerClient, LoggerClient.Level);
 
             operationModel = ConfigImpl.DispatchModel;
+
+            if (configImpl.DataDictionary() is not null)
+            {
+                ConfigImpl.DictionaryConfig.DataDictionary = configImpl.DataDictionary()!;
+
+                if (LoggerClient.IsTraceEnabled)
+                {
+                    LoggerClient.Trace(InstanceName, "The user specified DataDictionary object is used for dictionary information. "
+                        + "EMA ignores the DictionaryGroup configuration in either file and programmatic configuration database.");
+                }
+            }
         }
 
         public void Initialize()

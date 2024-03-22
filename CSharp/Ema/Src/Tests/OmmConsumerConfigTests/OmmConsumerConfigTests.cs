@@ -7,15 +7,11 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using LSEG.Eta.Codec;
-using LSEG.Eta.Common;
+
 using LSEG.Eta.Rdm;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Reactor;
-using NLog.LayoutRenderers;
-using static LSEG.Ema.Access.DictionaryConfig;
+
 using static LSEG.Ema.Access.EmaConfig;
 using static LSEG.Eta.Rdm.Directory;
 
@@ -612,7 +608,7 @@ public class ConsumerConfigTests
         Assert.Equal(string.Empty, copiedConfig.ProxyPassword);
         Assert.Equal(string.Empty, copiedConfig.ProxyUserName);
 
-        // Verify that the ConsumerName has been properly set, that the copied Config has the TestConsumer in the consumer config map, and that 
+        // Verify that the ConsumerName has been properly set, that the copied Config has the TestConsumer in the consumer config map, and that
         // the ConsumerConfig object referenced by ConsumerConfig is the same as in the map.
         Assert.Equal("TestConsumer", copiedConfig.ConsumerName);
         Assert.True(copiedConfig.ConsumerConfigMap.ContainsKey("TestConsumer"));
@@ -749,7 +745,7 @@ public class ConsumerConfigTests
 
         Assert.Single(testConnOpts.ConnectionList);
         testConnInfo = testConnOpts.ConnectionList[0];
-        
+
         Assert.Equal(copiedConfig.ConsumerConfig.ReconnectAttemptLimit, testConnOpts.GetReconnectAttemptLimit());
         Assert.Equal(copiedConfig.ConsumerConfig.ReconnectMinDelay, testConnOpts.GetReconnectMinDelay());
         Assert.Equal(copiedConfig.ConsumerConfig.ReconnectMaxDelay, testConnOpts.GetReconnectMaxDelay());
@@ -843,7 +839,7 @@ public class ConsumerConfigTests
         Assert.True((ConnectionType)EmaConfig.EncryptedProtocolTypeEnum.SOCKET == copiedConfig.EncProtocolType);
 
 
-        // Verify that the ConsumerName has been properly set, that the copied Config has the TestConsumer in the consumer config map, and that 
+        // Verify that the ConsumerName has been properly set, that the copied Config has the TestConsumer in the consumer config map, and that
         // the ConsumerConfig object referenced by ConsumerConfig is the same as in the map.
         Assert.Equal("TestConsumer_2", copiedConfig.ConsumerName);
         Assert.True(copiedConfig.ConsumerConfigMap.ContainsKey("TestConsumer_2"));
@@ -1138,7 +1134,7 @@ public class ConsumerConfigTests
         Assert.Equal("testProxyPasswordOverride", copiedConfig.ProxyPassword);
         Assert.Equal("TestProxyUsernameOverride", copiedConfig.ProxyUserName);
 
-        // Verify that the ConsumerName has been properly set to the defaultEmaConsumer, that the copied Config has the TestConsumer in the consumer config map, and that 
+        // Verify that the ConsumerName has been properly set to the defaultEmaConsumer, that the copied Config has the TestConsumer in the consumer config map, and that
         // the ConsumerConfig object referenced by ConsumerConfig is the same as in the map.
         Assert.Equal("TestConsumer_2", copiedConfig.ConsumerName);
         Assert.True(copiedConfig.ConsumerConfigMap.ContainsKey("TestConsumer_2"));
@@ -1181,7 +1177,7 @@ public class ConsumerConfigTests
         Assert.Equal(defaultConsConfig.RestRequestTimeOut, testConsConfig.RestRequestTimeOut);
         Assert.Equal(defaultConsConfig.ServiceCountHint, testConsConfig.ServiceCountHint);
         Assert.Equal(defaultConsConfig.XmlTraceDump, testConsConfig.XmlTraceDump);
-        Assert.Equal(defaultConsConfig.XmlTraceFileName, testConsConfig.XmlTraceFileName); 
+        Assert.Equal(defaultConsConfig.XmlTraceFileName, testConsConfig.XmlTraceFileName);
         Assert.Equal(defaultConsConfig.XmlTraceToStdout, testConsConfig.XmlTraceToStdout);
 
         // DefaultEmaChannel should be all defaults except for the host, port, and proxy information
@@ -1332,7 +1328,7 @@ public class ConsumerConfigTests
         Map outerMap = new Map();
         // Middle map for consumers, channels, loggers, dictionaries
         Map innerMap = new Map();
-        // Outer element list 
+        // Outer element list
         ElementList encodeGroupList = new ElementList();
         ElementList encodeObjectList = new ElementList();
 
@@ -1790,7 +1786,7 @@ public class ConsumerConfigTests
         Map outerMap = new Map();
         // Middle map for consumers, channels, loggers, dictionaries
         Map innerMap = new Map();
-        // Outer element list 
+        // Outer element list
         ElementList encodeGroupList = new ElementList();
         ElementList encodeObjectList = new ElementList();
 
@@ -2223,7 +2219,7 @@ public class ConsumerConfigTests
         catch
         {
            // Expected failure here.
-         
+
         }
     }
 
@@ -2496,7 +2492,7 @@ public class ConsumerConfigTests
 
         tmpConsumerConfig.Name = "consumer_1";
         tmpConsumerConfig.ChannelSet.Add("Bad_channel_1");
-        
+
         consConfigImpl.ConsumerConfigMap.Add(tmpConsumerConfig.Name, tmpConsumerConfig);
 
         try
@@ -2761,7 +2757,7 @@ public class ConsumerConfigTests
         // There should be two logged error in the log, both with a WARNING error level
         Assert.Equal(2, consConfigImpl.ConfigErrorLog?.Count());
 
-        
+
         for(int i = 0; i < consConfigImpl.ConfigErrorLog?.Count(); ++i)
         {
             error = consConfigImpl.ConfigErrorLog?.ErrorList[i];
@@ -3041,12 +3037,12 @@ public class ConsumerConfigTests
         Assert.Equal(ServiceFilterFlags.DATA, testRole.RdmDirectoryRequest?.Filter);
         Assert.True(testRole.RdmDirectoryRequest?.HasServiceId);
         Assert.Equal(150, testRole.RdmDirectoryRequest?.ServiceId);
-        
+
         Assert.NotNull(testRole.RdmEnumTypeDictionaryRequest);
         Assert.Equal("RWFEnum", testRole.RdmEnumTypeDictionaryRequest?.DictionaryName.ToString());
         Assert.Equal(Dictionary.VerbosityValues.VERBOSE, testRole.RdmEnumTypeDictionaryRequest?.Verbosity);
         Assert.Equal(10, testRole.RdmEnumTypeDictionaryRequest?.ServiceId);
-        
+
         Assert.NotNull(testRole.RdmFieldDictionaryRequest);
         Assert.Equal("RWFFld", testRole.RdmFieldDictionaryRequest?.DictionaryName.ToString());
         Assert.Equal(Dictionary.VerbosityValues.VERBOSE, testRole.RdmFieldDictionaryRequest?.Verbosity);
@@ -3090,5 +3086,214 @@ public class ConsumerConfigTests
         Assert.Equal(10, testRole.RdmFieldDictionaryRequest?.ServiceId);
 
     }
-}
 
+    [Fact]
+    public void Test_DataDictionarySpecifiedDirectlyToOmmConsumerConfig()
+    {
+        Rdm.DataDictionary dataDictionary = new();
+
+        try
+        {
+            dataDictionary.LoadFieldDictionary(DataDictionaryTests.FIELD_DICTIONARY_FILENAME);
+        }
+        catch (OmmException excp)
+        {
+            Assert.True(false,
+                $"DataDictionary.LoadFieldDictionary() failed to load dictionary information - exception not expected: {excp.Message}");
+        }
+
+        try
+        {
+            dataDictionary.LoadEnumTypeDictionary(DataDictionaryTests.ENUM_TABLE_FILENAME);
+        }
+        catch (OmmException excp)
+        {
+            Assert.True(false,
+                $"DataDictionary.LoadEnumTypeDictionary() failed to load denumerated types information - exception not expected: {excp.Message}");
+        }
+
+        // To specify EmaConfig.xml file location use -DEmaConfigFileLocation=EmaConfig.xml
+        OmmConsumerConfig testConfigDeepCopy = new OmmConsumerConfig("../../../OmmConsumerConfigTests/EmaTestConfig.xml");
+
+        testConfigDeepCopy.DataDictionary(dataDictionary, true);
+
+        // "Comparing DataDictionary.infoEnumDTVersion() with com.refinitiv.eta.codec.DataDictionary.infoEnumDTVersion()");
+        Assert.Equal(dataDictionary.EnumDisplayTemplateVersion, testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.EnumDisplayTemplateVersion.ToString());
+
+        // "Comparing DataDictionary.infoEnumRTVersion() with com.refinitiv.eta.codec.DataDictionary.infoEnumRTVersion()");
+        Assert.Equal(dataDictionary.EnumRecordTemplateVersion, testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.EnumRecordTemplateVersion.ToString());
+
+        // "Comparing DataDictionary.infoinfoFieldVersion() with com.refinitiv.eta.codec.DataDictionary.infoFieldVersion()");
+        Assert.Equal(dataDictionary.FieldVersion, testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.FieldVersion.ToString());
+
+        // "Comparing DataDictionary.infoDictionaryId() with com.refinitiv.eta.codec.DataDictionary.infoDictionaryId()");
+        Assert.Equal(dataDictionary.DictionaryId, testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.DictionaryId);
+
+        // "Comparing DataDictionary.entries().size() with com.refinitiv.eta.codec.DataDictionary.numberOfEntries()");
+        Assert.Equal(dataDictionary.Entries().Count, testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.Entries().Count);
+
+        // "Comparing DataDictionary.enumTables().size() with com.refinitiv.eta.codec.DataDictionary.enumTableCount()");
+        Assert.Equal(dataDictionary.EnumTables().Count, testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.EnumTables().Count);
+
+        // "Comparing DataDictionary.maxFid() with com.refinitiv.eta.codec.DataDictionary.maxFid()");
+        Assert.Equal(dataDictionary.MaxFid, testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.MaxFid);
+
+        // "Comparing DataDictionary.minFid() with com.refinitiv.eta.codec.DataDictionary.minFid()");
+        Assert.Equal(dataDictionary.MinFid, testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.MinFid);
+
+        OmmConsumerConfig testConfigReference = new OmmConsumerConfig("../../../OmmConsumerConfigTests/EmaTestConfig.xml");
+
+        testConfigReference.DataDictionary(dataDictionary, false);
+
+        // "Comparing DataDictionary.infoEnumDTVersion() with com.refinitiv.eta.codec.DataDictionary.infoEnumDTVersion()");
+        Assert.Equal(dataDictionary.EnumDisplayTemplateVersion,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.EnumDisplayTemplateVersion.ToString());
+
+        // "Comparing DataDictionary.infoEnumRTVersion() with com.refinitiv.eta.codec.DataDictionary.infoEnumRTVersion()");
+        Assert.Equal(dataDictionary.EnumRecordTemplateVersion, testConfigReference.OmmConsConfigImpl.DataDictionary()!.EnumRecordTemplateVersion.ToString());
+
+        // "Comparing DataDictionary.infoinfoFieldVersion() with com.refinitiv.eta.codec.DataDictionary.infoFieldVersion()");
+        Assert.Equal(dataDictionary.FieldVersion, testConfigReference.OmmConsConfigImpl.DataDictionary()!.FieldVersion.ToString());
+
+        // "Comparing DataDictionary.infoDictionaryId() with com.refinitiv.eta.codec.DataDictionary.infoDictionaryId()");
+        Assert.Equal(dataDictionary.DictionaryId, testConfigReference.OmmConsConfigImpl.DataDictionary()!.DictionaryId);
+
+        // "Comparing DataDictionary.entries().size() with com.refinitiv.eta.codec.DataDictionary.numberOfEntries()");
+        Assert.Equal(dataDictionary.Entries().Count, testConfigReference.OmmConsConfigImpl.DataDictionary()!.Entries().Count);
+
+        // "Comparing DataDictionary.enumTables().size() with com.refinitiv.eta.codec.DataDictionary.enumTableCount()");
+        Assert.Equal(dataDictionary.EnumTables().Count, testConfigReference.OmmConsConfigImpl.DataDictionary()!.EnumTables().Count);
+
+        // "Comparing DataDictionary.maxFid() with com.refinitiv.eta.codec.DataDictionary.maxFid()");
+        Assert.Equal(dataDictionary.MaxFid, testConfigReference.OmmConsConfigImpl.DataDictionary()!.MaxFid);
+
+        // "Comparing DataDictionary.minFid() with com.refinitiv.eta.codec.DataDictionary.minFid()");
+        Assert.Equal(dataDictionary.MinFid, testConfigReference.OmmConsConfigImpl.DataDictionary()!.MinFid);
+
+        Ema.Rdm.DataDictionary dataDictionary_2 = new Rdm.DataDictionary();
+
+        try
+        {
+            dataDictionary_2.LoadFieldDictionary(DataDictionaryTests.FIELD_DICTIONARY_FILENAME);
+        }
+        catch (OmmException excp)
+        {
+            Assert.True(false,
+                $"DataDictionary.loadFieldDictionary() failed to load dictionary information - exception not expected: {excp.Message}");
+        }
+
+        try
+        {
+            dataDictionary_2.LoadEnumTypeDictionary(DataDictionaryTests.ENUM_TABLE_FILENAME);
+        }
+        catch (OmmException excp)
+        {
+            Assert.True(false,
+                $"DataDictionary.loadEnumTypeDictionary() failed to load denumerated types information - exception not expected: {excp.Message}");
+        }
+        // Clear dataDictionary and ensure the deep copied config still works
+
+        dataDictionary.Clear();
+
+        // "Comparing DataDictionary.infoEnumDTVersion() with com.refinitiv.eta.codec.DataDictionary.infoEnumDTVersion()");
+        Assert.Equal(dataDictionary_2.EnumDisplayTemplateVersion,
+            testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.EnumDisplayTemplateVersion.ToString());
+
+        // "Comparing DataDictionary.infoEnumRTVersion() with com.refinitiv.eta.codec.DataDictionary.infoEnumRTVersion()");
+        Assert.Equal(dataDictionary_2.EnumRecordTemplateVersion,
+            testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.EnumRecordTemplateVersion.ToString());
+
+        // "Comparing DataDictionary.infoinfoFieldVersion() with com.refinitiv.eta.codec.DataDictionary.infoFieldVersion()");
+        Assert.Equal(dataDictionary_2.FieldVersion,
+            testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.FieldVersion.ToString());
+
+        // "Comparing DataDictionary.infoDictionaryId() with com.refinitiv.eta.codec.DataDictionary.infoDictionaryId()");
+        Assert.Equal(dataDictionary_2.DictionaryId,
+            testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.DictionaryId);
+
+        // "Comparing DataDictionary.entries().size() with com.refinitiv.eta.codec.DataDictionary.numberOfEntries()");
+        Assert.Equal(dataDictionary_2.Entries().Count,
+            testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.Entries().Count);
+
+        // "Comparing DataDictionary.enumTables().size() with com.refinitiv.eta.codec.DataDictionary.enumTableCount()");
+        Assert.Equal(dataDictionary_2.EnumTables().Count,
+            testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.EnumTables().Count);
+
+        // "Comparing DataDictionary.maxFid() with com.refinitiv.eta.codec.DataDictionary.maxFid()");
+        Assert.Equal(dataDictionary_2.MaxFid,
+            testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.MaxFid);
+
+        // "Comparing DataDictionary.minFid() with com.refinitiv.eta.codec.DataDictionary.minFid()");
+        Assert.Equal(dataDictionary_2.MinFid,
+            testConfigDeepCopy.OmmConsConfigImpl.DataDictionary()!.MinFid);
+
+        // Ensure that the copy done by reference is equal to the cleared DataDictionary
+
+        // "Comparing DataDictionary.infoEnumDTVersion() with com.refinitiv.eta.codec.DataDictionary.infoEnumDTVersion()");
+        Assert.Equal(dataDictionary.EnumDisplayTemplateVersion,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.EnumDisplayTemplateVersion.ToString());
+
+        // "Comparing DataDictionary.infoEnumRTVersion() with com.refinitiv.eta.codec.DataDictionary.infoEnumRTVersion()");
+        Assert.Equal(dataDictionary.EnumRecordTemplateVersion,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.EnumRecordTemplateVersion.ToString());
+
+        // "Comparing DataDictionary.infoinfoFieldVersion() with com.refinitiv.eta.codec.DataDictionary.infoFieldVersion()");
+        Assert.Equal(dataDictionary.FieldVersion,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.FieldVersion.ToString());
+
+        // "Comparing DataDictionary.infoDictionaryId() with com.refinitiv.eta.codec.DataDictionary.infoDictionaryId()");
+        Assert.Equal(dataDictionary.DictionaryId,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.DictionaryId);
+
+        // "Comparing DataDictionary.entries().size() with com.refinitiv.eta.codec.DataDictionary.numberOfEntries()");
+        Assert.Equal(dataDictionary.Entries().Count,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.Entries().Count);
+
+        // "Comparing DataDictionary.enumTables().size() with com.refinitiv.eta.codec.DataDictionary.enumTableCount()");
+        Assert.Equal(dataDictionary.EnumTables().Count,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.EnumTables().Count);
+
+        // "Comparing DataDictionary.maxFid() with com.refinitiv.eta.codec.DataDictionary.maxFid()");
+        Assert.Equal(dataDictionary.MaxFid,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.MaxFid);
+
+        // "Comparing DataDictionary.minFid() with com.refinitiv.eta.codec.DataDictionary.minFid()");
+        Assert.Equal(dataDictionary.MinFid,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.MinFid);
+
+        // Ensure that the copy done by reference is NOT equal to the full DataDictionary
+
+        // "Comparing DataDictionary.infoEnumDTVersion() with com.refinitiv.eta.codec.DataDictionary.infoEnumDTVersion()");
+        Assert.Equal(dataDictionary_2.EnumDisplayTemplateVersion,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.EnumDisplayTemplateVersion.ToString());
+
+        // "Comparing DataDictionary.infoEnumRTVersion() with com.refinitiv.eta.codec.DataDictionary.infoEnumRTVersion()");
+        Assert.Equal(dataDictionary_2.EnumRecordTemplateVersion,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.EnumRecordTemplateVersion.ToString());
+
+        // "Comparing DataDictionary.infoinfoFieldVersion() with com.refinitiv.eta.codec.DataDictionary.infoFieldVersion()");
+        Assert.Equal(dataDictionary_2.FieldVersion,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.FieldVersion.ToString());
+
+        // "Comparing DataDictionary.infoDictionaryId() with com.refinitiv.eta.codec.DataDictionary.infoDictionaryId()");
+        Assert.Equal(dataDictionary_2.DictionaryId,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.DictionaryId);
+
+        // "Comparing DataDictionary.entries().size() with com.refinitiv.eta.codec.DataDictionary.numberOfEntries()");
+        Assert.NotEqual(dataDictionary_2.Entries().Count,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.Entries().Count);
+
+        // "Comparing DataDictionary.enumTables().size() with com.refinitiv.eta.codec.DataDictionary.enumTableCount()");
+        Assert.NotEqual(dataDictionary_2.EnumTables().Count,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.EnumTables().Count);
+
+        // "Comparing DataDictionary.maxFid() with com.refinitiv.eta.codec.DataDictionary.maxFid()");
+        Assert.Equal(dataDictionary_2.MaxFid,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.MaxFid);
+
+        // "Comparing DataDictionary.minFid() with com.refinitiv.eta.codec.DataDictionary.minFid()");
+        Assert.Equal(dataDictionary_2.MinFid,
+            testConfigReference.OmmConsConfigImpl.DataDictionary()!.MinFid);
+    }
+
+}
