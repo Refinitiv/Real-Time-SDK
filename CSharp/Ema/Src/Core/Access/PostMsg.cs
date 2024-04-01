@@ -2,12 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace LSEG.Ema.Access
 {
@@ -76,19 +77,19 @@ namespace LSEG.Ema.Access
         /// Sequence number is an optional member of PostMsg.
         /// </summary>
         public bool HasSeqNum { get => m_rsslMsg.CheckHasSeqNum(); }
-        
+
         /// <summary>
         /// Indicates presence of PostId.<br/>
         /// Post id is an optional member of PostMsg.
         /// </summary>
         public bool HasPostId { get => m_rsslMsg.CheckHasPostId(); }
-        
+
         /// <summary>
         /// Indicates presence of PartNum.<br/>
         /// Part number is an optional member of PostMsg.
         /// </summary>
         public bool HasPartNum { get => m_rsslMsg.CheckHasPartNum(); }
-        
+
         /// <summary>
         /// Indicates presence of PostUserRights.<br/>
         /// Post user rights is an optional member of PostMsg.
@@ -166,8 +167,8 @@ namespace LSEG.Ema.Access
         /// Calling this method must be preceded by a call to <see cref="HasPermissionData"/>.
         /// </summary>
         /// <returns><see cref="EmaBuffer"/> containing permission data</returns>
-        public EmaBuffer PermissionData() 
-        { 
+        public EmaBuffer PermissionData()
+        {
             if (!m_rsslMsg.CheckHasPermData())
             {
                 throw new OmmInvalidUsageException("Invalid attempt to call PermissionData() while it is not set.");
@@ -175,12 +176,12 @@ namespace LSEG.Ema.Access
 
             return GetPermDataEmaBuffer();
         }
-        
+
         /// <summary>
         /// Returns the value of the post message user information's user ID.
         /// </summary>
         /// <returns>The publisher's user ID</returns>
-        public long PublisherIdUserId() 
+        public long PublisherIdUserId()
         {
             if (!m_rsslMsg.CheckHasPostUserInfo())
             {
@@ -194,8 +195,8 @@ namespace LSEG.Ema.Access
         /// Returns the value of the post message user information's user address.
         /// </summary>
         /// <returns>The publisher's user address</returns>
-        public long PublisherIdUserAddress() 
-        { 
+        public long PublisherIdUserAddress()
+        {
             if (!m_rsslMsg.CheckHasPostUserInfo())
             {
                 throw new OmmInvalidUsageException("Invalid attempt to call PublisherIdUserAddress() while PostUserInfo is not set.");
@@ -203,12 +204,12 @@ namespace LSEG.Ema.Access
 
             return m_rsslMsg.PostUserInfo.UserAddr;
         }
-        
+
         /// <summary>
         /// Indicates that acknowledgment is requested.
         /// </summary>
         /// <returns>true if acknowledgment is requested; false otherwise</returns>
-        public bool SolicitAck() 
+        public bool SolicitAck()
         {
             return m_rsslMsg.CheckAck();
         }
@@ -217,9 +218,9 @@ namespace LSEG.Ema.Access
         /// Indicates the setting of the Post Complete flag.
         /// </summary>
         /// <returns>true if this is the last part of the multi part post message, false otherwise.</returns>
-        public bool Complete() 
-        { 
-            return (m_rsslMsg.Flags & PostMsgFlags.POST_COMPLETE) > 0; 
+        public bool Complete()
+        {
+            return (m_rsslMsg.Flags & PostMsgFlags.POST_COMPLETE) > 0;
         }
 
         /// <summary>
@@ -227,7 +228,7 @@ namespace LSEG.Ema.Access
         /// Invoking Clear() method clears all the values and resets all the defaults.
         /// </summary>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg Clear() 
+        public PostMsg Clear()
         {
             Clear_All();
             DomainType(Rdm.EmaRdm.MMT_MARKET_PRICE);
@@ -239,7 +240,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="streamId">The stream ID.</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg StreamId(int streamId) 
+        public PostMsg StreamId(int streamId)
         {
             m_postMsgEncoder.StreamId(streamId);
             return this;
@@ -250,7 +251,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="domainType">The RDM domain type defined in <see cref="Rdm.EmaRdm"/> or user defined.</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg DomainType(int domainType) 
+        public PostMsg DomainType(int domainType)
         {
             m_postMsgEncoder.DomainType(domainType);
             return this;
@@ -283,8 +284,8 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="serviceId">the servicce ID</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg ServiceId(int serviceId) 
-        { 
+        public PostMsg ServiceId(int serviceId)
+        {
             m_postMsgEncoder.ServiceId(serviceId);
             return this;
         }
@@ -299,7 +300,7 @@ namespace LSEG.Ema.Access
             SetMsgServiceName(serviceName);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies Id.
         /// </summary>
@@ -310,24 +311,24 @@ namespace LSEG.Ema.Access
             m_postMsgEncoder.Identifier(id);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies Filter.
         /// </summary>
         /// <param name="filter">filter value to be set</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg Filter(long filter) 
+        public PostMsg Filter(long filter)
         {
             m_postMsgEncoder.Filter(filter);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies SeqNum.
         /// </summary>
         /// <param name="seqNum">sequence number value to be set</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg SeqNum(long seqNum) 
+        public PostMsg SeqNum(long seqNum)
         {
             m_postMsgEncoder.SeqNum(seqNum);
             return this;
@@ -338,45 +339,45 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="postId">specifies post id value to be set</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg PostId(long postId) 
+        public PostMsg PostId(long postId)
         {
             m_postMsgEncoder.PostId(postId);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies PartNum.
         /// </summary>
         /// <param name="partNum">specifies part number value</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg PartNum(int partNum) 
+        public PostMsg PartNum(int partNum)
         {
             m_postMsgEncoder.PartNum(partNum);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies PostUserRights.
         /// </summary>
         /// <param name="postUserRights">specifies post user rights value to be set</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg PostUserRights(int postUserRights) 
+        public PostMsg PostUserRights(int postUserRights)
         {
             m_postMsgEncoder.PostUserRights(postUserRights);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies PermissionData.
         /// </summary>
         /// <param name="permissionData">a <see cref="EmaBuffer"/> object with permission data information</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg PermissionData(EmaBuffer permissionData) 
+        public PostMsg PermissionData(EmaBuffer permissionData)
         {
             m_postMsgEncoder.PermissionData(permissionData);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies PublisherId.
         /// </summary>
@@ -400,7 +401,7 @@ namespace LSEG.Ema.Access
             m_postMsgEncoder.Attrib(data);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies Payload.
         /// </summary>
@@ -412,37 +413,37 @@ namespace LSEG.Ema.Access
             m_postMsgEncoder.Payload(payload);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies ExtendedHeader.
         /// </summary>
         /// <param name="buffer">a EmaBuffer containing extendedHeader information</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg ExtendedHeader(EmaBuffer buffer) 
+        public PostMsg ExtendedHeader(EmaBuffer buffer)
         {
             m_postMsgEncoder.ExtendedHeader(buffer);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies acknowledgment.
         /// </summary>
         /// <param name="ack">specifies if an acknowledgment is requested</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg SolicitAck(bool ack) 
+        public PostMsg SolicitAck(bool ack)
         {
             m_postMsgEncoder.SolicitAck(ack);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies Complete.
         /// Must be set to true for one part post message.
         /// </summary>
         /// <param name="complete">specifies if this is the last part of the multi part post message</param>
         /// <returns>Reference to current <see cref="PostMsg"/> object.</returns>
-        public PostMsg Complete(bool complete) 
-        {           
+        public PostMsg Complete(bool complete)
+        {
             m_postMsgEncoder.Complete(complete);
             return this;
         }
@@ -481,19 +482,14 @@ namespace LSEG.Ema.Access
             m_postMsgEncoder.EncodeComplete();
         }
 
-        internal override string ToString(int indent)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string FillString(int indent)
         {
-            if (m_objectManager == null)
-                return "\nDecoding of just encoded object in the same application is not supported\n";
-
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent++).Append("PostMsg");
-            Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"")
-                                                          .Append(StreamId())
-                                                          .Append("\"");
-            Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"")
-                                                          .Append(Utilities.RdmDomainAsString(DomainType()))
-                                                          .Append("\"");
+
+            Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"").Append(StreamId()).Append("\"");
+            Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"").Append(Utilities.RdmDomainAsString(DomainType())).Append("\"");
 
             if (SolicitAck())
                 Utilities.AddIndent(m_ToString, indent, true).Append("Ack Requested");
@@ -502,16 +498,13 @@ namespace LSEG.Ema.Access
                 Utilities.AddIndent(m_ToString, indent, true).Append("MessageComplete");
 
             if (HasSeqNum)
-                Utilities.AddIndent(m_ToString, indent, true).Append("seqNum=\"")
-                                                              .Append(SeqNum()).Append("\"");
+                Utilities.AddIndent(m_ToString, indent, true).Append("seqNum=\"").Append(SeqNum()).Append("\"");
 
             if (HasPartNum)
-                Utilities.AddIndent(m_ToString, indent, true).Append("partNum=\"")
-                                                                .Append(PartNum()).Append("\"");
+                Utilities.AddIndent(m_ToString, indent, true).Append("partNum=\"").Append(PartNum()).Append("\"");
 
             if (HasPostId)
-                Utilities.AddIndent(m_ToString, indent, true).Append("postId=\"")
-                                                                .Append(PostId()).Append("\"");
+                Utilities.AddIndent(m_ToString, indent, true).Append("postId=\"").Append(PostId()).Append("\"");
 
             if (HasPostUserRights)
                 Utilities.AddIndent(m_ToString, indent, true).Append("postUserRights=\"")
@@ -523,52 +516,40 @@ namespace LSEG.Ema.Access
                 Utilities.AsHexString(m_ToString, PermissionData()).Append("\"");
             }
 
-            Utilities.AddIndent(m_ToString, indent, true).Append("publisherIdUserId=\"")
-                                                          .Append(PublisherIdUserId()).Append("\"");
-            Utilities.AddIndent(m_ToString, indent, true).Append("publisherIdUserAddress=\"")
-                                                            .Append(PublisherIdUserAddress()).Append("\"");
+            if (m_rsslMsg.CheckHasPostUserInfo())
+            {
+                Utilities.AddIndent(m_ToString, indent, true).Append("publisherIdUserId=\"").Append(PublisherIdUserId()).Append("\"");
+                Utilities.AddIndent(m_ToString, indent, true).Append("publisherIdUserAddress=\"").Append(PublisherIdUserAddress()).Append("\"");
+            }
 
             indent--;
             if (HasMsgKey)
             {
                 indent++;
                 if (HasName)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("name=\"")
-                                                                 .Append(Name())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("name=\"").Append(Name()).Append("\"");
 
                 if (HasNameType)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("nameType=\"")
-                                                                 .Append(NameType())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("nameType=\"").Append(NameType()).Append("\"");
 
                 if (HasServiceId)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceId=\"")
-                                                                 .Append(ServiceId())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceId=\"").Append(ServiceId()).Append("\"");
 
                 if (HasServiceName)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceName=\"")
-                                                                 .Append(ServiceName())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceName=\"").Append(ServiceName()).Append("\"");
 
                 if (HasFilter)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("filter=\"")
-                                                                 .Append(Filter())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("filter=\"").Append(Filter()).Append("\"");
 
                 if (HasId)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("id=\"")
-                                                                 .Append(Id())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("id=\"").Append(Id()).Append("\"");
 
                 indent--;
 
                 if (HasAttrib)
                 {
                     indent++;
-                    Utilities.AddIndent(m_ToString, indent, true).Append("Attrib dataType=\"")
-                                                                 .Append(Access.DataType.AsString(Attrib().DataType))
+                    Utilities.AddIndent(m_ToString, indent, true).Append("Attrib dataType=\"").Append(Access.DataType.AsString(Attrib().DataType))
                                                                  .Append("\"\n");
 
                     indent++;
@@ -595,8 +576,7 @@ namespace LSEG.Ema.Access
             }
 
             indent++;
-            Utilities.AddIndent(m_ToString, indent, true).Append("Payload dataType=\"")
-                                                         .Append(Access.DataType.AsString(Payload().DataType))
+            Utilities.AddIndent(m_ToString, indent, true).Append("Payload dataType=\"").Append(Access.DataType.AsString(Payload().DataType))
                                                          .Append("\"\n");
 
             indent++;
@@ -607,7 +587,6 @@ namespace LSEG.Ema.Access
             indent--;
 
             Utilities.AddIndent(m_ToString, indent, true).Append("PostMsgEnd\n");
-
             return m_ToString.ToString();
         }
     }

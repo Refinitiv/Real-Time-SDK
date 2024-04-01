@@ -2,12 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
-using Microsoft.VisualBasic;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -24,7 +23,7 @@ namespace LSEG.Ema.Access
     /// Objects of this class are not cache-able.<br/>
     /// Decoding of just encoded ReqMsg in the same application is not supported.<br/></para>
     /// <para>RequestMsg may also be used to:
-    /// specify application interest in a dynamic view, 
+    /// specify application interest in a dynamic view,
     /// open a batch of items,
     /// or request a symbol list item with its data.</para>
     /// </remarks>
@@ -184,19 +183,19 @@ namespace LSEG.Ema.Access
         /// Priority is an optional member of RequestMsg.
         /// </summary>
         public bool HasPriority { get => m_rsslMsg.CheckHasPriority(); }
-        
+
         /// <summary>
         /// Indicates presence of Qos.
         /// Qos is an optional member of RequestMsg.
         /// </summary>
         public bool HasQos { get => m_rsslMsg.CheckHasQos(); }
-        
+
         /// <summary>
         /// Indicates presence of View.
         /// View specification is an optional member of RequestMsg.
         /// </summary>
         public bool HasView { get => m_rsslMsg.CheckHasView(); }
-        
+
         /// <summary>
         /// Indicates presence of Batch.
         /// Batch specification is an optional member of RequestMsg.
@@ -209,13 +208,13 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>priority class</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public int PriorityClass() 
-        { 
+        public int PriorityClass()
+        {
             if (!m_rsslMsg.CheckHasPriority())
             {
                 throw new OmmInvalidUsageException("Attempt to call PriorityClass() while it is NOT set.");
             }
-            return m_rsslMsg.Priority.PriorityClass; 
+            return m_rsslMsg.Priority.PriorityClass;
         }
 
         /// <summary>
@@ -239,7 +238,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns><see cref="OmmQos"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public OmmQos Qos() 
+        public OmmQos Qos()
         {
             if (!m_rsslMsg.CheckHasQos())
             {
@@ -261,9 +260,9 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if an initial image is requested; false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool InitialImage() 
+        public bool InitialImage()
         {
-            return m_rsslMsg.CheckNoRefresh(); 
+            return m_rsslMsg.CheckNoRefresh();
         }
 
         /// <summary>
@@ -271,9 +270,9 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if an interest after refresh is requested; false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool InterestAfterRefresh() 
-        { 
-            return m_rsslMsg.CheckStreaming(); 
+        public bool InterestAfterRefresh()
+        {
+            return m_rsslMsg.CheckStreaming();
         }
 
         /// <summary>
@@ -281,9 +280,9 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if conflation is requested; false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool ConflatedInUpdates() 
-        { 
-            return m_rsslMsg.CheckConfInfoInUpdates(); 
+        public bool ConflatedInUpdates()
+        {
+            return m_rsslMsg.CheckConfInfoInUpdates();
         }
 
         /// <summary>
@@ -291,7 +290,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if pause is requested; false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool Pause() 
+        public bool Pause()
         {
             return m_rsslMsg.CheckPause();
         }
@@ -301,9 +300,9 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if private stream is requested; false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool PrivateStream() 
-        { 
-            return m_rsslMsg.CheckPrivateStream(); 
+        public bool PrivateStream()
+        {
+            return m_rsslMsg.CheckPrivateStream();
         }
 
         /// <summary>
@@ -353,7 +352,7 @@ namespace LSEG.Ema.Access
             m_requestMsgEncoder.NameType(nameType);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies ServiceName.
         /// One service identification must be set, either id or name.
@@ -366,7 +365,7 @@ namespace LSEG.Ema.Access
             SetMsgServiceName(serviceName);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies ServiceId.
         /// One service identification must be set, either id or name.
@@ -391,7 +390,7 @@ namespace LSEG.Ema.Access
             m_requestMsgEncoder.Identifier(id);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies Filter.
         /// </summary>
@@ -411,7 +410,7 @@ namespace LSEG.Ema.Access
         /// <param name="priorityCount">specifies priority count within priority class</param>
         /// <returns>Reference to current <see cref="RequestMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RequestMsg Priority(int priorityClass, int priorityCount) 
+        public RequestMsg Priority(int priorityClass, int priorityCount)
         {
             m_requestMsgEncoder.Priority(priorityClass, priorityCount);
             return this;
@@ -424,10 +423,10 @@ namespace LSEG.Ema.Access
         /// <param name="rate">specifies Qos rate defined in <see cref="Rate"/> or time conflated in milliseconds(in the range of 0 - 65535).</param>
         /// <returns>Reference to current <see cref="RequestMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RequestMsg Qos(uint timeliness, uint rate) 
+        public RequestMsg Qos(uint timeliness, uint rate)
         {
             m_requestMsgEncoder.Qos(timeliness, rate);
-            return this; 
+            return this;
         }
 
         /// <summary>
@@ -436,11 +435,11 @@ namespace LSEG.Ema.Access
         /// <param name="data">an object of IComplexType type that contains attribute information</param>
         /// <returns>Reference to current <see cref="RequestMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RequestMsg Attrib(ComplexType data) 
+        public RequestMsg Attrib(ComplexType data)
         {
             m_attrib.SetExternalData(data);
             m_requestMsgEncoder.Attrib(data);
-            return this; 
+            return this;
         }
 
         /// <summary>
@@ -449,37 +448,37 @@ namespace LSEG.Ema.Access
         /// <param name="payload">payload to be set</param>
         /// <returns>Reference to current <see cref="RequestMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RequestMsg Payload(ComplexType payload) 
+        public RequestMsg Payload(ComplexType payload)
         {
             m_payload.SetExternalData(payload);
             m_requestMsgEncoder.RequestMsgPayload(payload);
-            return this; 
+            return this;
         }
-        
+
         /// <summary>
         /// Specifies ExtendedHeader.
         /// </summary>
         /// <param name="buffer">a EmaBuffer containing extendedHeader information</param>
         /// <returns>Reference to current <see cref="RequestMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RequestMsg ExtendedHeader(EmaBuffer buffer) 
-        { 
+        public RequestMsg ExtendedHeader(EmaBuffer buffer)
+        {
             m_requestMsgEncoder.ExtendedHeader(buffer);
-            return this; 
+            return this;
         }
-        
+
         /// <summary>
         /// Specifies InitialImage.
         /// </summary>
         /// <param name="initialImage">specifies if initial image / refresh is requested</param>
         /// <returns>Reference to current <see cref="RequestMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RequestMsg InitialImage(bool initialImage) 
+        public RequestMsg InitialImage(bool initialImage)
         {
             m_requestMsgEncoder.InitialImage(initialImage);
-            return this; 
+            return this;
         }
-        
+
         /// <summary>
         /// Specifies InterestAfterRefresh.
         /// </summary>
@@ -574,7 +573,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public uint QosRate()
         {
-            if (!HasQos) 
+            if (!HasQos)
                 throw new OmmInvalidUsageException("Attempt to QosRate while it is NOT set.", OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
 
             uint rate = RequestMsg.Rate.BEST_RATE;
@@ -591,15 +590,18 @@ namespace LSEG.Ema.Access
                         case QosRates.TICK_BY_TICK:
                             rate = Rate.TICK_BY_TICK;
                             break;
+
                         case QosRates.JIT_CONFLATED:
                             rate = Rate.JIT_CONFLATED;
                             break;
+
                         case QosRates.TIME_CONFLATED:
                             if (m_rsslMsg.Qos.RateInfo() == m_rsslMsg.WorstQos.RateInfo())
                                 rate = (uint)m_rsslMsg.Qos.RateInfo();
                             else
                                 rate = Rate.BEST_CONFLATED_RATE;
                             break;
+
                         default:
                             break;
                     }
@@ -619,12 +621,15 @@ namespace LSEG.Ema.Access
                     case QosRates.TICK_BY_TICK:
                         rate = Rate.TICK_BY_TICK;
                         break;
+
                     case QosRates.JIT_CONFLATED:
                         rate = Rate.JIT_CONFLATED;
                         break;
+
                     case QosRates.TIME_CONFLATED:
                         rate = (uint)m_rsslMsg.Qos.RateInfo();
                         break;
+
                     default:
                         break;
                 }
@@ -659,15 +664,18 @@ namespace LSEG.Ema.Access
                         case Eta.Codec.QosTimeliness.REALTIME:
                             timeliness = Timeliness.REALTIME;
                             break;
+
                         case Eta.Codec.QosTimeliness.DELAYED_UNKNOWN:
                             timeliness = Timeliness.BEST_DELAYED_TIMELINESS;
                             break;
+
                         case Eta.Codec.QosTimeliness.DELAYED:
                             if (m_rsslMsg.Qos.TimeInfo() == m_rsslMsg.WorstQos.TimeInfo())
                                 timeliness = (uint)m_rsslMsg.Qos.TimeInfo();
                             else
                                 timeliness = Timeliness.BEST_DELAYED_TIMELINESS;
                             break;
+
                         default:
                             break;
                     }
@@ -687,12 +695,15 @@ namespace LSEG.Ema.Access
                     case Eta.Codec.QosTimeliness.REALTIME:
                         timeliness = Timeliness.REALTIME;
                         break;
+
                     case Eta.Codec.QosTimeliness.DELAYED_UNKNOWN:
                         timeliness = Timeliness.BEST_DELAYED_TIMELINESS;
                         break;
+
                     case Eta.Codec.QosTimeliness.DELAYED:
                         timeliness = (uint)m_rsslMsg.Qos.TimeInfo();
                         break;
+
                     default:
                         break;
                 }
@@ -712,12 +723,16 @@ namespace LSEG.Ema.Access
             {
                 case Rate.TICK_BY_TICK:
                     return TICKBYTICK_NAME;
+
                 case Rate.JIT_CONFLATED:
                     return JUSTINTIMECONFLATEDRATE_NAME;
+
                 case Rate.BEST_CONFLATED_RATE:
                     return BESTCONFLATEDRATE_NAME;
+
                 case Rate.BEST_RATE:
                     return BESTRATE_NAME;
+
                 default:
                     return UNKNOWNREQMSGQOSRATE_NAME + QosRate();
             }
@@ -734,10 +749,13 @@ namespace LSEG.Ema.Access
             {
                 case Timeliness.REALTIME:
                     return REALTIME_NAME;
+
                 case Timeliness.BEST_DELAYED_TIMELINESS:
                     return BESTDELAYEDTIMELINESS_NAME;
+
                 case Timeliness.BEST_TIMELINESS:
                     return BESTTIMELINESS_NAME;
+
                 default:
                     return UNKNOWNREQMSGQOSTIMELINESS_NAME + QosTimeliness();
             }
@@ -780,64 +798,62 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        internal override string ToString(int indent)
+        internal override string FillString(int indent)
         {
-            if (m_objectManager == null)
-                return "\nDecoding of just encoded object in the same application is not supported\n";
-
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent++).Append("ReqMsg");
-            Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"")
-                                                         .Append(StreamId())
-                                                         .Append("\"");
-            Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"")
-                                                         .Append(Utilities.RdmDomainAsString(DomainType()))
-                                                         .Append("\"");
+
+            Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"").Append(StreamId()).Append("\"");
+            Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"").Append(Utilities.RdmDomainAsString(DomainType())).Append("\"");
 
             if (PrivateStream())
                 Utilities.AddIndent(m_ToString, indent, true).Append("privateStream");
+
+            if (InterestAfterRefresh())
+                Utilities.AddIndent(m_ToString, indent, true).Append("streaming");
+
+            if (Pause())
+                Utilities.AddIndent(m_ToString, indent, true).Append("pause");
+
+            if (HasQos)
+                Utilities.AddIndent(m_ToString, indent, true).Append("qos=\"")
+                                                         .Append(Qos().ToString())
+                                                         .Append("\"");
+            if (HasPriority)
+                Utilities.AddIndent(m_ToString, indent, true).Append("priority")
+                                                         .Append(" class=\"")
+                                                         .Append(PriorityClass()).Append("\"")
+                                                         .Append(" count=\"").Append(PriorityCount())
+                                                         .Append("\"");
 
             indent--;
             if (HasMsgKey)
             {
                 indent++;
                 if (HasName)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("name=\"")
-                                                                 .Append(Name())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("name=\"").Append(Name()).Append("\"");
 
                 if (HasNameType)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("nameType=\"")
-                                                                 .Append(NameType())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("nameType=\"").Append(NameType()).Append("\"");
 
                 if (HasServiceId)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceId=\"")
-                                                                 .Append(ServiceId())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceId=\"").Append(ServiceId()).Append("\"");
 
                 if (HasServiceName)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceName=\"")
-                                                                 .Append(ServiceName())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceName=\"").Append(ServiceName()).Append("\"");
 
                 if (HasFilter)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("filter=\"")
-                                                                 .Append(Filter())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("filter=\"").Append(Filter()).Append("\"");
 
                 if (HasId)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("id=\"")
-                                                                 .Append(Id())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("id=\"").Append(Id()).Append("\"");
 
                 indent--;
 
                 if (HasAttrib)
                 {
                     indent++;
-                    Utilities.AddIndent(m_ToString, indent, true).Append("Attrib dataType=\"")
-                                                                 .Append(Access.DataType.AsString(Attrib().DataType))
+                    Utilities.AddIndent(m_ToString, indent, true).Append("Attrib dataType=\"").Append(Access.DataType.AsString(Attrib().DataType))
                                                                  .Append("\"\n");
 
                     indent++;
@@ -864,8 +880,7 @@ namespace LSEG.Ema.Access
             }
 
             indent++;
-            Utilities.AddIndent(m_ToString, indent, true).Append("Payload dataType=\"")
-                                                         .Append(Access.DataType.AsString(Payload().DataType))
+            Utilities.AddIndent(m_ToString, indent, true).Append("Payload dataType=\"").Append(Access.DataType.AsString(Payload().DataType))
                                                          .Append("\"\n");
 
             indent++;
@@ -876,7 +891,6 @@ namespace LSEG.Ema.Access
             indent--;
 
             Utilities.AddIndent(m_ToString, indent, true).Append("ReqMsgEnd\n");
-
             return m_ToString.ToString();
         }
     }

@@ -2,12 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace LSEG.Ema.Access
 {
@@ -184,7 +185,7 @@ namespace LSEG.Ema.Access
         /// <summary>
         /// Returns ClearCache.
         /// </summary>
-        /// <returns>true if cache needs to be cleared on receipt of this status message; 
+        /// <returns>true if cache needs to be cleared on receipt of this status message;
         /// false otherwise</returns>
         public bool ClearCache()
         {
@@ -206,8 +207,8 @@ namespace LSEG.Ema.Access
         /// Invoking Clear() method clears all the values and resets all the defaults
         /// </summary>
         /// <returns>Reference to the current <see cref="StatusMsg"/> object.</returns>
-        public StatusMsg Clear() 
-        { 
+        public StatusMsg Clear()
+        {
             Clear_All();
             return this;
         }
@@ -286,7 +287,7 @@ namespace LSEG.Ema.Access
             SetMsgServiceName(serviceName);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies ServiceId.
         /// One service identification must be set, either id or name.
@@ -298,7 +299,7 @@ namespace LSEG.Ema.Access
             m_statusMsgEncoder.ServiceId(serviceId);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies Id.
         /// </summary>
@@ -309,7 +310,7 @@ namespace LSEG.Ema.Access
             m_statusMsgEncoder.Identifier(id);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies Filter.
         /// </summary>
@@ -345,7 +346,7 @@ namespace LSEG.Ema.Access
             m_statusMsgEncoder.ItemGroup(itemGroup);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies PermissionData.
         /// </summary>
@@ -380,7 +381,7 @@ namespace LSEG.Ema.Access
             m_statusMsgEncoder.Attrib(data);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies Payload.
         /// </summary>
@@ -392,7 +393,7 @@ namespace LSEG.Ema.Access
             m_statusMsgEncoder.Payload(payload);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies ExtendedHeader.
         /// </summary>
@@ -403,7 +404,7 @@ namespace LSEG.Ema.Access
             m_statusMsgEncoder.ExtendedHeader(buffer);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies ClearCache.
         /// </summary>
@@ -414,7 +415,7 @@ namespace LSEG.Ema.Access
             m_statusMsgEncoder.ClearCache(clearCache);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies PrivateStream.
         /// </summary>
@@ -460,27 +461,20 @@ namespace LSEG.Ema.Access
             m_statusMsgEncoder.EncodeComplete();
         }
 
-        internal override string ToString(int indent)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string FillString(int indent)
         {
-            if (m_objectManager == null)
-                return "\nDecoding of just encoded object in the same application is not supported\n";
-
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent++).Append("StatusMsg");
-            Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"")
-                                                         .Append(StreamId())
-                                                         .Append("\"");
-            Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"")
-                                                         .Append(Utilities.RdmDomainAsString(DomainType()))
-                                                         .Append("\"");
+
+            Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"").Append(StreamId()).Append("\"");
+            Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"").Append(Utilities.RdmDomainAsString(DomainType())).Append("\"");
 
             if (PrivateStream())
                 Utilities.AddIndent(m_ToString, indent, true).Append("privateStream");
 
             if (HasState)
-                Utilities.AddIndent(m_ToString, indent, true).Append("state=\"")
-                                                         .Append(State().ToString())
-                                                         .Append("\"");
+                Utilities.AddIndent(m_ToString, indent, true).Append("state=\"").Append(State().ToString()).Append("\"");
 
             if (HasItemGroup)
             {
@@ -494,47 +488,37 @@ namespace LSEG.Ema.Access
                 Utilities.AsHexString(m_ToString, PermissionData()).Append("\"");
             }
 
+            if (ClearCache())
+                Utilities.AddIndent(m_ToString, indent, true).Append("clearCache");
+
             indent--;
             if (HasMsgKey)
             {
                 indent++;
                 if (HasName)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("name=\"")
-                                                                 .Append(Name())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("name=\"").Append(Name()).Append("\"");
 
                 if (HasNameType)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("nameType=\"")
-                                                                 .Append(NameType())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("nameType=\"").Append(NameType()).Append("\"");
 
                 if (HasServiceId)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceId=\"")
-                                                                 .Append(ServiceId())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceId=\"").Append(ServiceId()).Append("\"");
 
                 if (HasServiceName)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceName=\"")
-                                                                 .Append(ServiceName())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceName=\"").Append(ServiceName()).Append("\"");
 
                 if (HasFilter)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("filter=\"")
-                                                                 .Append(Filter())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("filter=\"").Append(Filter()).Append("\"");
 
                 if (HasId)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("id=\"")
-                                                                 .Append(Id())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("id=\"").Append(Id()).Append("\"");
 
                 indent--;
 
                 if (HasAttrib)
                 {
                     indent++;
-                    Utilities.AddIndent(m_ToString, indent, true).Append("Attrib dataType=\"")
-                                                                 .Append(Access.DataType.AsString(Attrib().DataType))
+                    Utilities.AddIndent(m_ToString, indent, true).Append("Attrib dataType=\"").Append(Access.DataType.AsString(Attrib().DataType))
                                                                  .Append("\"\n");
 
                     indent++;
@@ -573,7 +557,6 @@ namespace LSEG.Ema.Access
             indent--;
 
             Utilities.AddIndent(m_ToString, indent, true).Append("StatusMsgEnd\n");
-
             return m_ToString.ToString();
         }
     }

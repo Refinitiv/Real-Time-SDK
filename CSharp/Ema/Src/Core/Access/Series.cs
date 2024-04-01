@@ -2,12 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -28,9 +27,7 @@ namespace LSEG.Ema.Access
     public sealed class Series : ComplexType, IEnumerable<SeriesEntry>
     {
         internal Eta.Codec.Series m_rsslSeries = new Eta.Codec.Series();
-
         private ComplexTypeData m_summaryData;
-        private DataDictionary? m_dataDictionary;
 
         private LocalFieldSetDefDb m_localFieldSetDefDb = new LocalFieldSetDefDb();
         private LocalElementSetDefDb m_localElementSetDefDb = new LocalElementSetDefDb();
@@ -69,7 +66,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>total count hint</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public int TotalCountHint() 
+        public int TotalCountHint()
         {
             if (!m_rsslSeries.CheckHasTotalCountHint())
             {
@@ -86,14 +83,15 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns><see cref="Access.ComplexTypeData"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public ComplexTypeData SummaryData() { return m_summaryData; }
+        public ComplexTypeData SummaryData()
+        { return m_summaryData; }
 
         /// <summary>
         /// Clears the Series. Invoking Clear() method clears all the values and resets all the defaults.
         /// </summary>
         /// <returns>Reference to current <see cref="Series"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public Series Clear() 
+        public Series Clear()
         {
             Clear_All();
             return this;
@@ -126,7 +124,7 @@ namespace LSEG.Ema.Access
         /// <param name="totalCountHint">total count hint value to be set</param>
         /// <returns>Reference to current <see cref="Series"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public Series TotalCountHint(int totalCountHint) 
+        public Series TotalCountHint(int totalCountHint)
         {
             m_seriesEncoder.TotalCountHint(totalCountHint);
             return this;
@@ -138,7 +136,7 @@ namespace LSEG.Ema.Access
         /// <param name="data">specifies complex type as summaryData</param>
         /// <returns>Reference to current <see cref="Series"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public Series SummaryData(ComplexType data) 
+        public Series SummaryData(ComplexType data)
         {
             m_summaryData.Clear();
             m_summaryData.m_data = data;
@@ -201,15 +199,19 @@ namespace LSEG.Ema.Access
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     m_rsslSeries.Flags = 0;
                     break;
+
                 case CodecReturnCode.SUCCESS:
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     break;
+
                 case CodecReturnCode.ITERATOR_OVERRUN:
                     m_errorCode = OmmError.ErrorCodes.ITERATOR_OVERRUN;
                     return ret;
+
                 case CodecReturnCode.INCOMPLETE_DATA:
                     m_errorCode = OmmError.ErrorCodes.INCOMPLETE_DATA;
                     return ret;
+
                 default:
                     m_errorCode = OmmError.ErrorCodes.UNKNOWN_ERROR;
                     return ret;
@@ -224,11 +226,13 @@ namespace LSEG.Ema.Access
                         m_localFieldSetDefDb.Decode(m_decodeIterator);
                         m_localDb = m_localFieldSetDefDb;
                         break;
+
                     case DataTypes.ELEMENT_LIST:
                         m_localElementSetDefDb.Clear();
                         m_localElementSetDefDb.Decode(m_decodeIterator);
                         m_localDb = m_localElementSetDefDb;
                         break;
+
                     default:
                         m_localDb = null;
                         m_errorCode = OmmError.ErrorCodes.UNSUPPORTED_DATA_TYPE;
@@ -242,10 +246,10 @@ namespace LSEG.Ema.Access
 
             if (m_rsslSeries.CheckHasSummaryData())
             {
-                return m_summaryData.Decode(m_rsslSeries.EncodedSummaryData, 
-                    m_rsslSeries.ContainerType, 
-                    m_MajorVersion, m_MinorVersion, 
-                    m_dataDictionary, 
+                return m_summaryData.Decode(m_rsslSeries.EncodedSummaryData,
+                    m_rsslSeries.ContainerType,
+                    m_MajorVersion, m_MinorVersion,
+                    m_dataDictionary,
                     m_localDb);
             }
             return ret;
@@ -264,7 +268,7 @@ namespace LSEG.Ema.Access
 
         /// <summary>
         /// Adds entry to current Series object.<br/>
-        /// In case a message type is added, the container expects that the message is either pre-encoded 
+        /// In case a message type is added, the container expects that the message is either pre-encoded
         /// or contains pre-encoded payload and attributes.
         /// </summary>
         /// <param name="value"><see cref="ComplexType"/> value</param>
@@ -287,19 +291,25 @@ namespace LSEG.Ema.Access
             return this;
         }
 
-        internal override string ToString(int indent)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string FillString(int indent)
         {
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent).Append("Series");
 
             if (m_rsslSeries.CheckHasTotalCountHint())
+            {
                 m_ToString.Append(" totalCountHint=\"").Append(m_rsslSeries.TotalCountHint).Append("\"");
+            }
 
             if (m_rsslSeries.CheckHasSummaryData())
             {
                 ++indent;
-                Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("SummaryData dataType=\"")
-                         .Append(Access.DataType.AsString(m_summaryData.DataType)).Append("\"").AppendLine();
+                Utilities.AddIndent(m_ToString.AppendLine(), indent)
+                    .Append("SummaryData dataType=\"")
+                    .Append(Access.DataType.AsString(m_summaryData.DataType))
+                    .Append("\"")
+                    .AppendLine();
 
                 ++indent;
                 m_ToString.Append(m_summaryData.ToString(indent));
@@ -314,21 +324,20 @@ namespace LSEG.Ema.Access
             foreach (SeriesEntry seriesEntry in this)
             {
                 var load = seriesEntry.Load;
-                if (load == null)
-                    return "\nDecoding of just encoded object in the same application is not supported\n";
 
-                Utilities.AddIndent(m_ToString.AppendLine(), indent)
-                         .Append("SeriesEntry dataType=\"").Append(Access.DataType.AsString(load.DataType)).Append("\"").AppendLine();
+                if (load == null)
+                    return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
+
+                Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("SeriesEntry dataType=\"").Append(Access.DataType.AsString(load.DataType)).Append("\"").AppendLine();
 
                 ++indent;
                 m_ToString.Append(load.ToString(indent));
                 --indent;
-
+                
                 Utilities.AddIndent(m_ToString, indent).Append("SeriesEntryEnd");
             }
 
             --indent;
-
             Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("SeriesEnd").AppendLine();
 
             return m_ToString.ToString();

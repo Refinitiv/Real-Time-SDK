@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -19,7 +19,7 @@ namespace LSEG.Ema.Access
     /// <para>RefreshMsg is sent when item data needs to be synchronized.<br/>
     /// This happens as a response to received ReqMsg or when upstream source requires it.<br/></para>
     /// <para>RefreshMsg sent as a response to ReqMsg is called a solicited refresh,
-    /// while an unsolicited refresh is sent when upstream source requires 
+    /// while an unsolicited refresh is sent when upstream source requires
     /// synchronization of downstream consumers.</para>
     /// <para>Objects of this class are intended to be short lived or rather transitional.<br/>
     /// This class is designed to efficiently perform setting and getting of information from RefreshMsg.<br/>
@@ -38,7 +38,7 @@ namespace LSEG.Ema.Access
         /// <summary>
         /// Constructor for RefreshMsg
         /// </summary>
-        public RefreshMsg() 
+        public RefreshMsg()
         {
             m_msgClass = MsgClasses.REFRESH;
             m_rsslMsg.MsgClass = MsgClasses.REFRESH;
@@ -81,7 +81,7 @@ namespace LSEG.Ema.Access
             ClearTypeSpecific_All = ClearRefresh_All;
             m_dataType = Access.DataType.DataTypes.REFRESH_MSG;
             State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "");
-        } 
+        }
 
         /// <summary>
         /// Indicates presence of Qos.<br/>
@@ -94,7 +94,7 @@ namespace LSEG.Ema.Access
         /// Sequence number is an optional member of RefreshMsg.
         /// </summary>
         public bool HasSeqNum { get => m_rsslMsg.CheckHasSeqNum(); }
-        
+
         /// <summary>
         /// Indicates presence of PartNum.
         /// Part number is an optional member of RefreshMsg.
@@ -118,8 +118,8 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>state of the item (e.g. Open / Ok)</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public OmmState State() 
-        { 
+        public OmmState State()
+        {
             if (!m_stateSet)
             {
                 m_state.Clear_All();
@@ -136,8 +136,8 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>Qos of item</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public OmmQos Qos() 
-        { 
+        public OmmQos Qos()
+        {
             if (!m_rsslMsg.CheckHasQos())
             {
                 throw new OmmInvalidUsageException("Invalid attempt to call Qos() while it is not set.");
@@ -247,7 +247,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if this is solicited refresh; false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool Solicited() 
+        public bool Solicited()
         {
             return m_rsslMsg.CheckSolicited();
         }
@@ -257,7 +257,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if this refresh must not be cached; false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool DoNotCache() 
+        public bool DoNotCache()
         {
             return m_rsslMsg.CheckDoNotCache();
         }
@@ -267,17 +267,18 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if this is the last part of the multi part refresh message</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool Complete() 
+        public bool Complete()
         {
             return (m_rsslMsg.Flags & RefreshMsgFlags.REFRESH_COMPLETE) > 0;
         }
+
         /// <summary>
         /// Returns ClearCache.
         /// </summary>
         /// <returns>true if cache needs to be cleared before applying this refresh;
         /// false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool ClearCache() 
+        public bool ClearCache()
         {
             return m_rsslMsg.CheckClearCache();
         }
@@ -287,7 +288,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if this is private stream item</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool PrivateStream() 
+        public bool PrivateStream()
         {
             return m_rsslMsg.CheckPrivateStream();
         }
@@ -298,7 +299,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>Reference to current <see cref="RefreshMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RefreshMsg Clear() 
+        public RefreshMsg Clear()
         {
             Clear_All();
             return this;
@@ -434,10 +435,10 @@ namespace LSEG.Ema.Access
         /// <param name="rate">specifies Qos rate</param>
         /// <returns>Reference to current <see cref="RefreshMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RefreshMsg Qos(uint timeliness, uint rate) 
+        public RefreshMsg Qos(uint timeliness, uint rate)
         {
             m_refreshMsgEncoder.Qos(timeliness, rate);
-            return this; 
+            return this;
         }
 
         /// <summary>
@@ -449,10 +450,10 @@ namespace LSEG.Ema.Access
         /// <param name="statusText">conveys item status explanation</param>
         /// <returns>Reference to current <see cref="RefreshMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RefreshMsg State(int streamState, int dataState, int statusCode = 0, string statusText = "") 
-        { 
+        public RefreshMsg State(int streamState, int dataState, int statusCode = 0, string statusText = "")
+        {
             m_refreshMsgEncoder.State(streamState, dataState, statusCode, statusText);
-            return this; 
+            return this;
         }
 
         /// <summary>
@@ -517,7 +518,6 @@ namespace LSEG.Ema.Access
             return this;
         }
 
-
         /// <summary>
         /// Specifies Attrib.
         /// </summary>
@@ -562,7 +562,7 @@ namespace LSEG.Ema.Access
         /// <param name="solicited">set to true if this refresh is solicited; false otherwise</param>
         /// <returns>Reference to current <see cref="RefreshMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RefreshMsg Solicited(bool solicited) 
+        public RefreshMsg Solicited(bool solicited)
         {
             m_refreshMsgEncoder.Solicited(solicited);
             return this;
@@ -653,19 +653,20 @@ namespace LSEG.Ema.Access
             m_refreshMsgEncoder.EncodeComplete();
         }
 
-        internal override string ToString(int indent)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string FillString(int indent)
         {
-            if (m_objectManager == null)
-                return "\nDecoding of just encoded object in the same application is not supported\n";
-
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent++).Append("RefreshMsg");
-            Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"")
-                                                         .Append(StreamId())
-                                                         .Append("\"");
-            Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"")
-                                                         .Append(Utilities.RdmDomainAsString(DomainType()))
-                                                         .Append("\"");
+
+            Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"").Append(StreamId()).Append("\"");
+            Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"").Append(Utilities.RdmDomainAsString(DomainType())).Append("\"");
+
+            if (HasSeqNum)
+                Utilities.AddIndent(m_ToString, indent, true).Append("seqNum=\"").Append(SeqNum()).Append("\"");
+
+            if (HasPartNum)
+                Utilities.AddIndent(m_ToString, indent, true).Append("partNum=\"").Append(PartNum()).Append("\"");
 
             if (Solicited())
                 Utilities.AddIndent(m_ToString, indent, true).Append("solicited");
@@ -675,6 +676,17 @@ namespace LSEG.Ema.Access
 
             if (PrivateStream())
                 Utilities.AddIndent(m_ToString, indent, true).Append("privateStream");
+
+            if (ClearCache())
+                Utilities.AddIndent(m_ToString, indent, true).Append("clearCache");
+
+            if (DoNotCache())
+                Utilities.AddIndent(m_ToString, indent, true).Append("doNotCache");
+
+            if (HasQos)
+                Utilities.AddIndent(m_ToString, indent, true).Append("qos=\"")
+                                                         .Append(Qos().ToString())
+                                                         .Append("\"");
 
             Utilities.AddIndent(m_ToString, indent, true).Append("state=\"")
                                                          .Append(State().ToString())
@@ -698,7 +710,6 @@ namespace LSEG.Ema.Access
                     Utilities.AddIndent(m_ToString, indent, true).Append("name=\"")
                                                                  .Append(Name())
                                                                  .Append("\"");
-
 
                 if (HasNameType)
                     Utilities.AddIndent(m_ToString, indent, true).Append("nameType=\"")
@@ -770,7 +781,6 @@ namespace LSEG.Ema.Access
             indent--;
 
             Utilities.AddIndent(m_ToString, indent, true).Append("RefreshMsgEnd\n");
-
             return m_ToString.ToString();
         }
     }

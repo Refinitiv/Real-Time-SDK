@@ -6,18 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-
-using System;
+using LSEG.Eta.Codec;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-
-using LSEG.Eta.Codec;
-using LSEG.Eta.Common;
-
 
 namespace LSEG.Ema.Access;
-
 
 /// <summary>
 /// OmmArray is a homogeneous container of primitive data type entries.
@@ -162,56 +155,118 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         return ToString(0);
     }
 
+    /// <summary>
+    /// Provides string representation of the current instance
+    /// </summary>
+    /// <param name="dataDictionary"><see cref="Rdm.DataDictionary"/> object used to obtain string representaiton of the Message object</param>
+    /// <returns>string representing current <see cref="OmmArray"/> object.</returns>
+    public string ToString(Rdm.DataDictionary dataDictionary)
+    {
+        if (!dataDictionary.IsEnumTypeDefLoaded || !dataDictionary.IsFieldDictionaryLoaded)
+        {
+            return "\nThe provided DataDictionary is not properly loaded.";
+        }
+
+        if (Encoder != null && Encoder.m_encodeIterator != null && Encoder.m_containerComplete)
+        {
+            var encodedBuffer = Encoder.m_encodeIterator!.Buffer();
+
+            var tmpObject = m_objectManager.GetOmmArray();
+            if (tmpObject == null)
+            {
+                return "\nToString(DataDictionary) is called on an invalid DataType.";
+            }
+
+            string result = string.Empty;
+            try
+            {
+                if (!tmpObject!.SetRsslData(Codec.MajorVersion(), Codec.MinorVersion(), encodedBuffer, dataDictionary.rsslDataDictionary()))
+                {
+                    return $"\nFailed to decode OmmArray.";
+                }
+                result = tmpObject!.ToString()!;
+            }
+            finally
+            {
+                tmpObject!.ClearAndReturnToPool_All();
+            }
+            return result;
+        }
+        else
+        {
+            return $"\nOmmArray contains no valid encoded data.";
+        }
+    }
+
     internal override string ToString(int indent)
     {
         m_ToString.Clear();
 
-        if (Code == DataCode.BLANK)
+        OmmArray? tmpArray = null;
+        bool returnTmpArrayToPool = false;
+
+        try
         {
-            Utilities.AddIndent(m_ToString, indent)
-                .Append("OmmArray");
-
-            ++indent;
-            Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("blank array");
-            --indent;
-        }
-        else
-        {
-            Utilities.AddIndent(m_ToString, indent)
-                .Append("OmmArray with entries of dataType=\"")
-                .Append(Access.DataType.AsString(m_Array.PrimitiveType)).Append('"');
-
-            if (HasFixedWidth)
-                m_ToString.Append(" fixed width=\"").Append(FixedWidth).Append('"');
-
-            if (m_Array.PrimitiveType == 0)
+            if (m_hasDecodedDataSet)
             {
-                Utilities.AddIndent(m_ToString.AppendLine(), indent).AppendLine("OmmArrayEnd");
-                return m_ToString.ToString();
+                tmpArray = this;
+            }
+            else
+            {
+                return $"\n{GetType().Name}.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.";
             }
 
-            ++indent;
-
-            foreach (OmmArrayEntry arrayEntry in this)
+            if (Code == DataCode.BLANK)
             {
-                Data load = (Data)arrayEntry.Load;
-                if (load == null)
-                    return "Decoding of just encoded object in the same application is not supported";
+                Utilities.AddIndent(m_ToString, indent).Append("OmmArray");
 
-                Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("value=\"");
+                ++indent;
+                Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("blank array");
+                --indent;
+            }
+            else
+            {
+                Utilities.AddIndent(m_ToString, indent).Append("OmmArray with entries of dataType=\"").Append(Access.DataType.AsString(tmpArray.m_Array.PrimitiveType)).Append('"');
 
-                if (load.m_dataType == Access.DataType.DataTypes.BUFFER)
-                    m_ToString.AppendLine().Append(load.ToString());
-                else if (load.m_dataType == Access.DataType.DataTypes.ERROR)
-                    m_ToString.AppendLine().Append(load.ToString(indent));
-                else
-                    m_ToString.Append('"').Append(load.ToString()).Append('"');
+                if (HasFixedWidth)
+                    m_ToString.Append(" fixed width=\"").Append(tmpArray.FixedWidth).Append('"');
+
+                if (tmpArray.m_Array.PrimitiveType == 0)
+                {
+                    Utilities.AddIndent(m_ToString.AppendLine(), indent).AppendLine("OmmArrayEnd");
+                    return m_ToString.ToString();
+                }
+
+                ++indent;
+
+                foreach (OmmArrayEntry arrayEntry in tmpArray)
+                {
+                    Data load = arrayEntry.Load;
+                    if (load == null)
+                        return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
+
+                    Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("value=\"");
+
+                    if (load.m_dataType == Access.DataType.DataTypes.BUFFER)
+                        m_ToString.AppendLine().Append(load.ToString());
+                    else if (load.m_dataType == Access.DataType.DataTypes.ERROR)
+                        m_ToString.AppendLine().Append(load.ToString(indent));
+                    else
+                        m_ToString.Append('"').Append(load.ToString()).Append('"');
+                }
+
+                --indent;
             }
 
-            --indent;
+            Utilities.AddIndent(m_ToString.AppendLine(), indent).AppendLine("OmmArrayEnd");
         }
-
-        Utilities.AddIndent(m_ToString.AppendLine(), indent).AppendLine("OmmArrayEnd");
+        finally
+        {
+            if (returnTmpArrayToPool && tmpArray != null)
+            {
+                tmpArray.ClearAndReturnToPool_All();
+            }
+        }
 
         return m_ToString.ToString();
     }
@@ -364,7 +419,6 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         m_ommArrayEncoder.AddTime(hour, minute, second, millisecond, microsecond, nanosecond);
         return this;
     }
-
 
     /// <summary>
     /// Adds a specific simple type of OMM data to the OmmArray.
@@ -751,7 +805,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         return this;
     }
 
-    #endregion
+    #endregion Blank entries
 
     /// <summary>
     /// Completes encoding of OmmArray.
@@ -766,12 +820,12 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         return this;
     }
 
-    #endregion
+    #endregion Public members
 
     #region Implementation details
 
     internal LSEG.Eta.Codec.Array m_Array = new LSEG.Eta.Codec.Array();
-    OmmArrayEncoder m_ommArrayEncoder;
+    private OmmArrayEncoder m_ommArrayEncoder;
     private EncodeIterator? m_EncodeIterator;
 
     internal OmmError.ErrorCodes m_ErrorCode = OmmError.ErrorCodes.NO_ERROR;
@@ -838,6 +892,8 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
 
     internal bool SetRsslData(int majVer, int minVer, Eta.Codec.Buffer rsslBuffer, DataDictionary? dict = null)
     {
+        m_hasDecodedDataSet = true;
+
         m_MajorVersion = majVer;
 
         m_MinorVersion = minVer;
@@ -927,5 +983,5 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         }
     }
 
-    #endregion
+    #endregion Implementation details
 }

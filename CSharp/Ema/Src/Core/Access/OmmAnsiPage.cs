@@ -2,12 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
-using LSEG.Eta.Common;
 using System;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
@@ -46,14 +45,15 @@ namespace LSEG.Ema.Access
         /// Returns a string representation of the class instance.
         /// </summary>
         /// <returns>string representation of the class object.</returns>
-        public string? GetString() { return m_buffer!.Value!.ToString(); }
+        public string? GetString()
+        { return m_buffer!.Value!.ToString(); }
 
         /// <summary>
-        /// Clears the OmmAnsiPage. 
+        /// Clears the OmmAnsiPage.
         /// Invoking Clear() method clears all the values and resets all the defaults.
         /// </summary>
         /// <returns>Reference to the current <see cref="OmmAnsiPage"/> object.</returns>
-        public OmmAnsiPage Clear() 
+        public OmmAnsiPage Clear()
         {
             Clear_All();
             return this;
@@ -130,6 +130,11 @@ namespace LSEG.Ema.Access
             Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("AnsiPageEnd").AppendLine();
 
             return m_ToString.ToString();
+        }
+
+        internal override string FillString(int indent)
+        {
+            throw new NotImplementedException();
         }
     }
 }

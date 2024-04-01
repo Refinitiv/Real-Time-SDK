@@ -8,13 +8,9 @@
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Xml.Linq;
 using Buffer = LSEG.Eta.Codec.Buffer;
 using DateTime = LSEG.Eta.Codec.DateTime;
 using Double = LSEG.Eta.Codec.Double;
@@ -33,7 +29,6 @@ namespace LSEG.Ema.Access
     public sealed class FieldList : ComplexType, IEnumerable<FieldEntry>
     {
         internal Eta.Codec.FieldList m_rsslFieldList = new Eta.Codec.FieldList();
-        internal Eta.Codec.DataDictionary? m_dataDictionary;
         private LocalFieldSetDefDb? m_localFieldSetDefDb;
 
         internal FieldListEncoder m_fieldListEncoder;
@@ -86,21 +81,23 @@ namespace LSEG.Ema.Access
         /// Returns the Info's Field List Record Template Number
         /// </summary>
         /// <returns>Field List Record Template Number</returns>
-        public int InfoFieldListNum() { return m_rsslFieldList.FieldListNum; }
-        
+        public int InfoFieldListNum()
+        { return m_rsslFieldList.FieldListNum; }
+
         /// <summary>
         /// Returns InfoDictionaryId.
         /// </summary>
         /// <returns>DictionaryId associated with this FieldList</returns>
-        public int InfoDictionaryId() { return m_rsslFieldList.DictionaryId; }
+        public int InfoDictionaryId()
+        { return m_rsslFieldList.DictionaryId; }
 
         /// <summary>
         /// Clears the FieldList. Invoking Clear() method clears all the values and resets all the defaults.
         /// </summary>
         /// <returns>Reference to the current <see cref="FieldList"/> object.</returns>
-        public FieldList Clear() 
+        public FieldList Clear()
         {
-            Clear_All(); 
+            Clear_All();
             return this;
         }
 
@@ -175,7 +172,7 @@ namespace LSEG.Ema.Access
                 return ret;
             }
             ret = m_rsslFieldList.Decode(m_decodeIterator, m_localFieldSetDefDb);
-            
+
             if (ret == CodecReturnCode.SUCCESS)
             {
                 m_errorCode = OmmError.ErrorCodes.NO_ERROR;
@@ -187,16 +184,20 @@ namespace LSEG.Ema.Access
                 case CodecReturnCode.NO_DATA:
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     m_rsslFieldList.Flags = 0;
-                    break;              
+                    break;
+
                 case CodecReturnCode.ITERATOR_OVERRUN:
                     m_errorCode = OmmError.ErrorCodes.ITERATOR_OVERRUN;
                     break;
+
                 case CodecReturnCode.INCOMPLETE_DATA:
                     m_errorCode = OmmError.ErrorCodes.INCOMPLETE_DATA;
                     break;
+
                 case CodecReturnCode.SET_SKIPPED:
                     m_errorCode = OmmError.ErrorCodes.NO_SET_DEFINITION;
                     break;
+
                 default:
                     m_errorCode = OmmError.ErrorCodes.UNKNOWN_ERROR;
                     break;
@@ -205,23 +206,23 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Specifies Info. 
+        /// Specifies Info.
         /// The FieldList Info is optional. If used, it must be set prior to adding anything to FieldList.
         /// </summary>
         /// <param name="dictionaryId">dictionary id of the RdmFieldDictioanry associated with this FieldList</param>
         /// <param name="fieldListNum">FieldList template number</param>
         /// <returns>Reference to the current <see cref="FieldList"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public FieldList Info(int dictionaryId, int fieldListNum) 
-        { 
+        public FieldList Info(int dictionaryId, int fieldListNum)
+        {
             m_fieldListEncoder.Info(dictionaryId, fieldListNum);
-            return this; 
+            return this;
         }
 
         #region Methods for adding Msg type entries
 
         /// <summary>
-        /// Adds an Request message as an element of the FieldList. 
+        /// Adds an Request message as an element of the FieldList.
         /// Assumes that the message is either pre-encoded or contains pre-encoded payload and attributes.
         /// </summary>
         /// <param name="fieldId">field id value</param>
@@ -235,7 +236,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Adds an Refresh message as an element of the FieldList. 
+        /// Adds an Refresh message as an element of the FieldList.
         /// Assumes that the message is either pre-encoded or contains pre-encoded payload and attributes.
         /// </summary>
         /// <param name="fieldId">field id value</param>
@@ -249,7 +250,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Adds an Status message as an element of the FieldList. 
+        /// Adds an Status message as an element of the FieldList.
         /// Assumes that the message is either pre-encoded or contains pre-encoded payload and attributes.
         /// </summary>
         /// <param name="fieldId">field id value</param>
@@ -263,7 +264,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Adds an Update message as an element of the FieldList. 
+        /// Adds an Update message as an element of the FieldList.
         /// Assumes that the message is either pre-encoded or contains pre-encoded payload and attributes.
         /// </summary>
         /// <param name="fieldId">field id value</param>
@@ -277,7 +278,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Adds an Post message as an element of the FieldList. 
+        /// Adds an Post message as an element of the FieldList.
         /// Assumes that the message is either pre-encoded or contains pre-encoded payload and attributes.
         /// </summary>
         /// <param name="fieldId">field id value</param>
@@ -291,7 +292,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Adds an Ack message as an element of the FieldList. 
+        /// Adds an Ack message as an element of the FieldList.
         /// Assumes that the message is either pre-encoded or contains pre-encoded payload and attributes.
         /// </summary>
         /// <param name="fieldId">field id value</param>
@@ -305,7 +306,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Adds an Generic message as an element of the FieldList. 
+        /// Adds an Generic message as an element of the FieldList.
         /// Assumes that the message is either pre-encoded or contains pre-encoded payload and attributes.
         /// </summary>
         /// <param name="fieldId">field id value</param>
@@ -318,7 +319,7 @@ namespace LSEG.Ema.Access
             return this;
         }
 
-        #endregion
+        #endregion Methods for adding Msg type entries
 
         #region Methods for adding Container type entries
 
@@ -328,7 +329,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added FieldList</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -344,7 +345,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added ElementList</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -360,7 +361,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added Map</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -376,7 +377,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added Vector</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -392,7 +393,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added Series</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -408,7 +409,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added FilterList</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -424,7 +425,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added OmmOpaque</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -440,7 +441,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added OmmXml</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -456,7 +457,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added OmmAnsiPage</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -466,7 +467,7 @@ namespace LSEG.Ema.Access
             return this;
         }
 
-        #endregion
+        #endregion Methods for adding Container type entries
 
         #region Methods for adding Primitive type entries
 
@@ -476,7 +477,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added long</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -494,7 +495,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added ulong</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -513,7 +514,7 @@ namespace LSEG.Ema.Access
         /// <param name="mantissa">OmmReal mantissa</param>
         /// <param name="magnitudeType">added <see cref="OmmReal.MagnitudeType"/></param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -535,7 +536,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added double to be converted to <see cref="OmmReal"/></param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -558,7 +559,7 @@ namespace LSEG.Ema.Access
         /// <param name="value">added double to be converted to <see cref="OmmReal"/></param>
         /// <param name="magnitudeType">added <see cref="OmmReal.MagnitudeType"/></param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -580,7 +581,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added float</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -598,7 +599,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added double</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -618,7 +619,7 @@ namespace LSEG.Ema.Access
         /// <param name="month">added OmmDate month (0 - 12 where 0 indicates blank)</param>
         /// <param name="day">added OmmDate day (0 - 31 where 0 indicates blank)</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -649,7 +650,7 @@ namespace LSEG.Ema.Access
         /// <param name="microsecond">added OmmTime microsecond (0 - 999 where 2047 indicates blank)</param>
         /// <param name="nanosecond"> added OmmTime nanosecond (0 - 999 where 2047 indicates blank)</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -674,7 +675,7 @@ namespace LSEG.Ema.Access
         /// <param name="microsecond">added OmmDateTime microsecond (0 - 999 where 2047 indicates blank)</param>
         /// <param name="nanosecond">added OmmDateTime nanosecond (0 - 999 where 2047 indicates blank)</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -693,7 +694,7 @@ namespace LSEG.Ema.Access
         /// <param name="timeliness">added <see cref="OmmQos.Timelinesses"/></param>
         /// <param name="rate">added <see cref="OmmQos.Rates"/></param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -720,7 +721,7 @@ namespace LSEG.Ema.Access
         /// <param name="statusCode">added <see cref="OmmState.StatusCodes"/></param>
         /// <param name="statusText">added status text</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -736,7 +737,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added Enum</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -758,7 +759,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added EmaBuffer as <see cref="Access.DataType.DataTypes.BUFFER"/></param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -776,7 +777,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added string as <see cref="Access.DataType.DataTypes.ASCII"/></param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -794,7 +795,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added EmaBuffer as <see cref="Access.DataType.DataTypes.UTF8"/></param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -812,7 +813,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added string as <see cref="Access.DataType.DataTypes.UTF8"/> (string has to be Utf8 charset)</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -830,7 +831,7 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added EmaBuffer as <see cref="Access.DataType.DataTypes.RMTES"/></param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -848,17 +849,17 @@ namespace LSEG.Ema.Access
         /// <param name="fieldId">field id value</param>
         /// <param name="value">added OmmArray</param>
         /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will 
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
         /// specify the cause of the error)
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public FieldList AddArray(int fieldId, OmmArray value) 
+        public FieldList AddArray(int fieldId, OmmArray value)
         {
             m_fieldListEncoder.AddArray(fieldId, value);
             return this;
         }
 
-        #endregion
+        #endregion Methods for adding Primitive type entries
 
         /// <summary>
         /// Adds a blank data code to the FieldList.
@@ -1064,6 +1065,7 @@ namespace LSEG.Ema.Access
         }
 
         #region Private methods
+
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private FieldList AddTimeEntry(int fieldId, int hour, int minute, int second, int millisecond, int microsecond, int nanosecond)
         {
@@ -1124,14 +1126,18 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        internal override string ToString(int indent)
+        internal override string FillString(int indent)
         {
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent).Append("FieldList");
 
             if (m_rsslFieldList.CheckHasInfo())
-                m_ToString.Append(" FieldListNum=\"").Append(m_rsslFieldList.FieldListNum).Append("\" DictionaryId=\"")
-                         .Append(m_rsslFieldList.DictionaryId).Append("\"");
+            {
+                m_ToString.Append(" FieldListNum=\"")
+                    .Append(m_rsslFieldList.FieldListNum)
+                    .Append("\" DictionaryId=\"")
+                    .Append(m_rsslFieldList.DictionaryId).Append("\"");
+            }
 
             ++indent;
 
@@ -1140,7 +1146,7 @@ namespace LSEG.Ema.Access
             {
                 var load = fieldEntry.Load;
                 if (load == null)
-                    return "\nDecoding of just encoded object in the same application is not supported\n";
+                    return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
 
                 loadDataType = load.m_dataType;
                 Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("FieldEntry fid=\"")
@@ -1171,7 +1177,6 @@ namespace LSEG.Ema.Access
             --indent;
 
             Utilities.AddIndent(m_ToString.Append("\n"), indent).Append("FieldListEnd").AppendLine();
-
             return m_ToString.ToString();
         }
 
@@ -1184,13 +1189,13 @@ namespace LSEG.Ema.Access
             return ToString(0);
         }
 
-        #endregion
+        #endregion Private methods
     }
 
     internal class FieldListErrorEnumerator : Decoder, IEnumerator<FieldEntry>
     {
         private FieldEntry m_fieldEntry = new FieldEntry();
-        
+
         public FieldEntry Current => m_decodingStarted ? m_fieldEntry : null!;
 
         object? IEnumerator.Current => m_decodingStarted ? m_fieldEntry : null;

@@ -8,10 +8,8 @@
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using Buffer = LSEG.Eta.Codec.Buffer;
 using DateTime = LSEG.Eta.Codec.DateTime;
@@ -21,7 +19,7 @@ using Enum = LSEG.Eta.Codec.Enum;
 namespace LSEG.Ema.Access
 {
     /// <summary>
-    /// ElementList is a heterogeneous container of complex and primitive data type entries. 
+    /// ElementList is a heterogeneous container of complex and primitive data type entries.
     /// </summary>
     /// <remarks>
     /// ElementList entries are identified by name.<br/>
@@ -32,9 +30,7 @@ namespace LSEG.Ema.Access
     public sealed class ElementList : ComplexType, IEnumerable<ElementEntry>
     {
         internal Eta.Codec.ElementList m_rsslElementList = new Eta.Codec.ElementList();
-
         private ElementListEncoder m_elementListEncoder;
-        private DataDictionary? m_dataDictionary;
         private LocalElementSetDefDb? m_localElementSetDefDb;
 
         private Int intObject = new Int();
@@ -81,7 +77,7 @@ namespace LSEG.Ema.Access
 		/// storage. Must be in the range of -32768 - 32767.
         /// </summary>
         /// <returns>ElementList number</returns>
-        public int InfoElementListNum() 
+        public int InfoElementListNum()
         {
             return m_rsslElementList.ElementListNum;
         }
@@ -90,7 +86,7 @@ namespace LSEG.Ema.Access
         /// Clears the ElementList. Allows the re-use of ElementList instance during encoding.
         /// </summary>
         /// <returns>Reference to the current <see cref="ElementList"/> object.</returns>
-        public ElementList Clear() 
+        public ElementList Clear()
         {
             Clear_All();
             return this;
@@ -183,18 +179,23 @@ namespace LSEG.Ema.Access
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     m_rsslElementList.Flags = 0;
                     break;
+
                 case CodecReturnCode.SUCCESS:
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     break;
+
                 case CodecReturnCode.ITERATOR_OVERRUN:
                     m_errorCode = OmmError.ErrorCodes.ITERATOR_OVERRUN;
                     break;
+
                 case CodecReturnCode.INCOMPLETE_DATA:
                     m_errorCode = OmmError.ErrorCodes.INCOMPLETE_DATA;
                     break;
+
                 case CodecReturnCode.SET_SKIPPED:
                     m_errorCode = OmmError.ErrorCodes.NO_SET_DEFINITION;
                     break;
+
                 default:
                     m_errorCode = OmmError.ErrorCodes.UNKNOWN_ERROR;
                     break;
@@ -302,7 +303,7 @@ namespace LSEG.Ema.Access
             return this;
         }
 
-        #endregion
+        #endregion Methods for adding Msg type entries to ElementList
 
         #region Methods for adding Container type entries to ElementList
 
@@ -313,9 +314,9 @@ namespace LSEG.Ema.Access
         /// <param name="value">added <see cref="FieldList"/> object</param>
         /// <returns>Reference to the current <see cref="ElementList"/> object.</returns>
         /// <exception cref="OmmInvalidUsageException">throws if an error is detected (exception will specify the cause of the error)</exception>
-        public ElementList AddFieldList(string name, FieldList value) 
+        public ElementList AddFieldList(string name, FieldList value)
         {
-            m_elementListEncoder.AddFieldList(name, value); 
+            m_elementListEncoder.AddFieldList(name, value);
             return this;
         }
 
@@ -423,7 +424,7 @@ namespace LSEG.Ema.Access
             return this;
         }
 
-        #endregion
+        #endregion Methods for adding Container type entries to ElementList
 
         #region Methods for adding Primitive type entries to current ElementList
 
@@ -434,7 +435,7 @@ namespace LSEG.Ema.Access
         /// <param name="value">added <see cref="long"/> value</param>
         /// <returns>Reference to the current <see cref="ElementList"/> object.</returns>
         /// <exception cref="OmmInvalidUsageException">throws if an error is detected (exception will specify the cause of the error)</exception>
-        public ElementList AddInt(string name, long value) 
+        public ElementList AddInt(string name, long value)
         {
             intObject.Clear();
             intObject.Value(value);
@@ -559,8 +560,8 @@ namespace LSEG.Ema.Access
         public ElementList AddDate(string name, int year, int month, int day)
         {
             dateObject.Clear();
-            if (dateObject.Year(year) != CodecReturnCode.SUCCESS 
-                || dateObject.Month(month) != CodecReturnCode.SUCCESS 
+            if (dateObject.Year(year) != CodecReturnCode.SUCCESS
+                || dateObject.Month(month) != CodecReturnCode.SUCCESS
                 || dateObject.Day(day) != CodecReturnCode.SUCCESS
                 || !dateObject.IsValid)
             {
@@ -678,12 +679,12 @@ namespace LSEG.Ema.Access
         /// <param name="value">added EmaBuffer as <see cref="Access.DataType.DataTypes.BUFFER"/></param>
         /// <returns>Reference to current <see cref="ElementList"/> object.</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will specify the cause of the error)</exception>
-        public ElementList AddBuffer(string name, EmaBuffer value) 
+        public ElementList AddBuffer(string name, EmaBuffer value)
         {
             bufferObject.Clear();
             bufferObject.Data(new ByteBuffer(value.AsByteArray()).Flip());
             m_elementListEncoder.AddBuffer(name, bufferObject, Access.DataType.DataTypes.BUFFER);
-            return this; 
+            return this;
         }
 
         /// <summary>
@@ -753,15 +754,16 @@ namespace LSEG.Ema.Access
         /// <param name="value">added OmmArray as as <see cref="Access.DataType.DataTypes.ARRAY"/></param>
         /// <returns>Reference to current <see cref="ElementList"/> object.</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will specify the cause of the error)</exception>
-        public ElementList AddArray(string name, OmmArray value) 
+        public ElementList AddArray(string name, OmmArray value)
         {
             m_elementListEncoder.AddArray(name, value);
             return this;
         }
 
-        #endregion
+        #endregion Methods for adding Primitive type entries to current ElementList
 
-        #region Methods for blank empty entries to ElementList 
+        #region Methods for blank empty entries to ElementList
+
         /// <summary>
         /// Adds a blank data code to the ElementEntry.
         /// </summary>
@@ -966,26 +968,27 @@ namespace LSEG.Ema.Access
             return this;
         }
 
-        #endregion
+        #endregion Methods for blank empty entries to ElementList
 
         /// <summary>
         /// Completes encoding of the ElementList entries
         /// </summary>
         /// <returns>Reference to current <see cref="ElementList"/> object.</returns>
-        public ElementList Complete() 
+        public ElementList Complete()
         {
             m_elementListEncoder.Complete();
             return this;
         }
 
         #region Private methods
+
         private ElementList AddTimeEntry(string name, int hour, int minute, int second, int millisecond, int microsecond, int nanosecond)
         {
             timeObject.Clear();
             if (timeObject.Hour(hour) != CodecReturnCode.SUCCESS
                 || timeObject.Minute(minute) != CodecReturnCode.SUCCESS
                 || timeObject.Second(second) != CodecReturnCode.SUCCESS
-                || timeObject.Millisecond(millisecond) != CodecReturnCode.SUCCESS 
+                || timeObject.Millisecond(millisecond) != CodecReturnCode.SUCCESS
                 || timeObject.Microsecond(microsecond) != CodecReturnCode.SUCCESS
                 || timeObject.Nanosecond(nanosecond) != CodecReturnCode.SUCCESS
                 || !timeObject.IsValid)
@@ -997,7 +1000,7 @@ namespace LSEG.Ema.Access
             return this;
         }
 
-        private ElementList AddDateTimeEntry(string name, 
+        private ElementList AddDateTimeEntry(string name,
             int year, int month, int day,
             int hour, int minute, int second, int millisecond, int microsecond, int nanosecond)
         {
@@ -1023,9 +1026,9 @@ namespace LSEG.Ema.Access
         private ElementList AddStateValue(string name, int streamState, int dataState, int statusCode, string statusText)
         {
             stateObject.Clear();
-            if (stateObject.StreamState(streamState) != CodecReturnCode.SUCCESS 
+            if (stateObject.StreamState(streamState) != CodecReturnCode.SUCCESS
                 || stateObject.DataState(dataState) != CodecReturnCode.SUCCESS
-                || stateObject.Code(statusCode) != CodecReturnCode.SUCCESS 
+                || stateObject.Code(statusCode) != CodecReturnCode.SUCCESS
                 || stateObject.Text().Data(statusText) != CodecReturnCode.SUCCESS)
             {
                 throw new OmmInvalidUsageException("Attempted to set invalid State value.",
@@ -1035,13 +1038,12 @@ namespace LSEG.Ema.Access
             return this;
         }
 
-        internal override string ToString(int indent)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string FillString(int indent)
         {
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent).Append("ElementList");
-
-            if (m_rsslElementList.CheckHasInfo())
-                m_ToString.Append(" ElementListNum=\"").Append(m_rsslElementList.ElementListNum).Append("\"");
+            if (m_rsslElementList.CheckHasInfo()) m_ToString.Append(" ElementListNum=\"").Append(m_rsslElementList.ElementListNum).Append("\"");
 
             ++indent;
 
@@ -1049,6 +1051,10 @@ namespace LSEG.Ema.Access
             foreach (ElementEntry elementEntry in this)
             {
                 var load = elementEntry.Load;
+
+                if(load == null)
+                    return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
+
                 loadDataType = elementEntry.LoadType;
 
                 m_ToString.AppendLine();
@@ -1081,7 +1087,16 @@ namespace LSEG.Ema.Access
             return m_ToString.ToString();
         }
 
-        #endregion
+        /// <summary>
+        /// String representation of the current instance.
+        /// </summary>
+        /// <returns>String representation of the current instance</returns>
+        public override string ToString()
+        {
+            return ToString(0);
+        }
+
+        #endregion Private methods
     }
 
     internal class ElementListErrorEnumerator : Decoder, IEnumerator<ElementEntry>

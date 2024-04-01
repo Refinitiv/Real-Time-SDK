@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -16,7 +16,7 @@ namespace LSEG.Ema.Access
     /// UpdateMsg conveys changes to item data.
     /// </summary>
     /// <remarks>
-    /// Calling an accessor method on an optional member of UpdateMsg must be 
+    /// Calling an accessor method on an optional member of UpdateMsg must be
     /// preceded by a call to respective Has*** property.<br/>
     /// Objects of this class are intended to be short lived or rather transitional.<br/>
     /// This class is designed to efficiently perform setting and getting of information from RefreshMsg.<br/>
@@ -74,18 +74,18 @@ namespace LSEG.Ema.Access
         /// Sequence number is an optional member of UpdateMsg.
         /// </summary>
         public bool HasSeqNum { get => m_rsslMsg.CheckHasSeqNum(); }
-        
+
         /// <summary>
         /// Indicates presence of PermissionData.<br/>
         /// Permission data is an optional member of UpdateMsg.
         /// </summary>
         public bool HasPermissionData { get => m_rsslMsg.CheckHasPermData(); }
-        
+
         /// <summary>
         /// Indicates presence of Conflated.
         /// </summary>
         public bool HasConflated { get => m_rsslMsg.CheckHasConfInfo(); }
-        
+
         /// <summary>
         /// Indicates presence of PublisherId.<br/>
         /// Publisher id is an optional member of UpdateMsg.
@@ -97,7 +97,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>update type number</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public int UpdateTypeNum() 
+        public int UpdateTypeNum()
         {
             return m_rsslMsg.UpdateType;
         }
@@ -108,7 +108,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>sequence number</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public long SeqNum() 
+        public long SeqNum()
         {
             if (!m_rsslMsg.CheckHasSeqNum())
             {
@@ -140,7 +140,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>time conflation was on</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public int ConflatedTime() 
+        public int ConflatedTime()
         {
             if (!m_rsslMsg.CheckHasConfInfo())
             {
@@ -202,7 +202,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if this refresh must not be cached; false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool DoNotCache() 
+        public bool DoNotCache()
         {
             return m_rsslMsg.CheckDoNotCache();
         }
@@ -212,7 +212,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if this update must not be conflated; false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool DoNotConflate() 
+        public bool DoNotConflate()
         {
             return m_rsslMsg.CheckDoNotConflate();
         }
@@ -222,7 +222,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if this update does not ripple; false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool DoNotRipple() 
+        public bool DoNotRipple()
         {
             return m_rsslMsg.CheckDoNotRipple();
         }
@@ -233,7 +233,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>Reference to current <see cref="UpdateMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public UpdateMsg Clear() 
+        public UpdateMsg Clear()
         {
             Clear_All();
             DomainType(Rdm.EmaRdm.MMT_MARKET_PRICE);
@@ -246,7 +246,7 @@ namespace LSEG.Ema.Access
         /// <param name="streamId">Stream ID to be set</param>
         /// <returns>Reference to current <see cref="StatusMsg"/> object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public UpdateMsg StreamId(int streamId) 
+        public UpdateMsg StreamId(int streamId)
         {
             m_updateMsgEncoder.StreamId(streamId);
             return this;
@@ -512,23 +512,15 @@ namespace LSEG.Ema.Access
             m_updateMsgEncoder.EncodeComplete();
         }
 
-        internal override string ToString(int indent)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string FillString(int indent)
         {
-            if (m_objectManager == null)
-                return "\nDecoding of just encoded object in the same application is not supported\n";
-            
             m_ToString.Length = 0;
-            
             Utilities.AddIndent(m_ToString, indent++).Append("UpdateMsg");
-            Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"")
-                                                         .Append(StreamId())
-                                                         .Append("\"");
-            Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"")
-                                                         .Append(Utilities.RdmDomainAsString(DomainType()))
-                                                         .Append("\"");
-            Utilities.AddIndent(m_ToString, indent, true).Append("updateTypeNum=\"")
-                                                          .Append(UpdateTypeNum())
-                                                          .Append("\"");
+
+            Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"").Append(StreamId()).Append("\"");
+            Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"").Append(Utilities.RdmDomainAsString(DomainType())).Append("\"");
+            Utilities.AddIndent(m_ToString, indent, true).Append("updateTypeNum=\"").Append(UpdateTypeNum()).Append("\"");
 
             if (HasPermissionData)
             {
@@ -536,47 +528,53 @@ namespace LSEG.Ema.Access
                 Utilities.AsHexString(m_ToString, PermissionData()).Append("\"");
             }
 
+            if (HasSeqNum)
+                Utilities.AddIndent(m_ToString, indent, true).Append("seqNum=\"").Append(SeqNum()).Append("\"");
+
+            if (DoNotCache())
+                Utilities.AddIndent(m_ToString, indent, true).Append("doNotCache");
+
+            if (DoNotRipple())
+                Utilities.AddIndent(m_ToString, indent, true).Append("doNotRipple");
+
+            if (DoNotConflate())
+                Utilities.AddIndent(m_ToString, indent, true).Append("doNotConflate");
+
+            if (HasConflated)
+                Utilities.AddIndent(m_ToString, indent, true).Append("confInfo")
+                                                         .Append(" count=\"")
+                                                         .Append(ConflatedCount()).Append("\"")
+                                                         .Append(" time=\"").Append(ConflatedTime())
+                                                         .Append("\"");
+
             indent--;
             if (HasMsgKey)
             {
                 indent++;
                 if (HasName)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("name=\"")
-                                                                 .Append(Name())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("name=\"").Append(Name()).Append("\"");
 
                 if (HasNameType)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("nameType=\"")
-                                                                 .Append(NameType())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("nameType=\"").Append(NameType()).Append("\"");
 
                 if (HasServiceId)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceId=\"")
-                                                                 .Append(ServiceId())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceId=\"").Append(ServiceId()).Append("\"");
 
                 if (HasServiceName)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceName=\"")
-                                                                 .Append(ServiceName())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceName=\"").Append(ServiceName()).Append("\"");
 
                 if (HasFilter)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("filter=\"")
-                                                                 .Append(Filter())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("filter=\"").Append(Filter()).Append("\"");
 
                 if (HasId)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("id=\"")
-                                                                 .Append(Id())
-                                                                 .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("id=\"").Append(Id()).Append("\"");
 
                 indent--;
 
                 if (HasAttrib)
                 {
                     indent++;
-                    Utilities.AddIndent(m_ToString, indent, true).Append("Attrib dataType=\"")
-                                                                 .Append(Access.DataType.AsString(Attrib().DataType))
+                    Utilities.AddIndent(m_ToString, indent, true).Append("Attrib dataType=\"").Append(Access.DataType.AsString(Attrib().DataType))
                                                                  .Append("\"\n");
 
                     indent++;
@@ -603,8 +601,7 @@ namespace LSEG.Ema.Access
             }
 
             indent++;
-            Utilities.AddIndent(m_ToString, indent, true).Append("Payload dataType=\"")
-                                                         .Append(Access.DataType.AsString(Payload().DataType))
+            Utilities.AddIndent(m_ToString, indent, true).Append("Payload dataType=\"").Append(Access.DataType.AsString(Payload().DataType))
                                                          .Append("\"\n");
 
             indent++;
@@ -615,7 +612,6 @@ namespace LSEG.Ema.Access
             indent--;
 
             Utilities.AddIndent(m_ToString, indent, true).Append("UpdateMsgEnd\n");
-
             return m_ToString.ToString();
         }
     }

@@ -2,20 +2,15 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using System.Net.Http.Headers;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 using Buffer = LSEG.Eta.Codec.Buffer;
 using DateTime = LSEG.Eta.Codec.DateTime;
 using Double = LSEG.Eta.Codec.Double;
@@ -29,7 +24,7 @@ namespace LSEG.Ema.Access
     /// <remarks>
     /// Map is a collection which provides iterator over the elements in this collection.<br/>
     /// Map entries are identified by a map key.<br/>
-    /// All entries must have key of the same primitive data type.<br/> 
+    /// All entries must have key of the same primitive data type.<br/>
     /// All entries must have same complex data type (except for delete action).<br/>
     /// Objects of this class are intended to be short lived or rather transitional.<br/>
     /// This class is designed to efficiently perform setting and extracting of Map and its content.<br/>
@@ -37,28 +32,27 @@ namespace LSEG.Ema.Access
     /// </remarks>
     public sealed class Map : ComplexType, IEnumerable<MapEntry>
     {
-		internal Eta.Codec.Map m_rsslMap = new Eta.Codec.Map();
-		private ComplexTypeData m_summaryData;
-		private DataDictionary? m_dataDictionary;
+        internal Eta.Codec.Map m_rsslMap = new Eta.Codec.Map();
+        private ComplexTypeData m_summaryData;
 
         private LocalFieldSetDefDb? m_localFieldSetDefDb;
         private LocalElementSetDefDb? m_localElementSetDefDb;
-		private object? m_localDb;
+        private object? m_localDb;
 
-		private MapEncoder m_mapEncoder;
+        private MapEncoder m_mapEncoder;
 
-		private Int intObject = new Int();
-		private UInt uintObject = new UInt();
-		private Float floatObject = new Float();
-		private Double doubleObject = new Double();
-		private Real realObject = new Real();
-		private Buffer bufferObject = new Buffer();
-		private Date dateObject = new Date();
-		private Time timeObject = new Time();
-		private DateTime dateTimeObject = new DateTime();
-		private Qos qosObject = new Qos();
-		private State stateObject = new State();
-		private Enum enumObject = new Enum();
+        private Int intObject = new Int();
+        private UInt uintObject = new UInt();
+        private Float floatObject = new Float();
+        private Double doubleObject = new Double();
+        private Real realObject = new Real();
+        private Buffer bufferObject = new Buffer();
+        private Date dateObject = new Date();
+        private Time timeObject = new Time();
+        private DateTime dateTimeObject = new DateTime();
+        private Qos qosObject = new Qos();
+        private State stateObject = new State();
+        private Enum enumObject = new Enum();
 
         internal void SetObjectManager(EmaObjectManager objectManager)
         {
@@ -70,10 +64,10 @@ namespace LSEG.Ema.Access
         /// Constructor for Map container
         /// </summary>
         public Map()
-		{
-			m_summaryData = new ComplexTypeData(m_objectManager!);
+        {
+            m_summaryData = new ComplexTypeData(m_objectManager!);
             m_mapEncoder = new MapEncoder(this);
-			Encoder = m_mapEncoder;
+            Encoder = m_mapEncoder;
             ClearTypeSpecific_All = ClearMap_All;
             ClearTypeSpecific_Decode = ClearMap_Decode;
             ReturnToPoolInternal = () => m_objectManager.ReturnToPool(this);
@@ -95,27 +89,27 @@ namespace LSEG.Ema.Access
         /// Returns KeyFieldId
         /// </summary>
         /// <returns>the key fieldId value</returns>
-        public int KeyFieldId() 
-		{ 
-			if (!m_rsslMap.CheckHasKeyFieldId())
-			{
-				throw new OmmInvalidUsageException("KeyFieldId is not present.", OmmInvalidUsageException.ErrorCodes.INVALID_USAGE);
-			}
-			return m_rsslMap.KeyFieldId; 
-		}
+        public int KeyFieldId()
+        {
+            if (!m_rsslMap.CheckHasKeyFieldId())
+            {
+                throw new OmmInvalidUsageException("KeyFieldId is not present.", OmmInvalidUsageException.ErrorCodes.INVALID_USAGE);
+            }
+            return m_rsslMap.KeyFieldId;
+        }
 
         /// <summary>
         /// Getter for TotalCountHint
         /// </summary>
         /// <returns>TotalCountHint value</returns>
-        public int TotalCountHint() 
-		{
+        public int TotalCountHint()
+        {
             if (!m_rsslMap.CheckHasTotalCountHint())
             {
                 throw new OmmInvalidUsageException("TotalCountHint is not present.", OmmInvalidUsageException.ErrorCodes.INVALID_USAGE);
             }
-            return m_rsslMap.TotalCountHint; 
-		}
+            return m_rsslMap.TotalCountHint;
+        }
 
         /// <summary>
         /// Returns the contained summaryData Data based on the summaryData DataType.
@@ -123,26 +117,26 @@ namespace LSEG.Ema.Access
         /// <see cref="DataType.DataTypes.NO_DATA"/>
         /// </summary>
         /// <returns>Summary data that the map holds</returns>
-        public ComplexTypeData SummaryData() 
-		{
-            return m_summaryData; 
-		}
+        public ComplexTypeData SummaryData()
+        {
+            return m_summaryData;
+        }
 
-		/// <summary>
-		/// Returns the primitive key type.
-		/// </summary>
-		/// <returns>int value representing the DataType of the key.</returns>
-		public int KeyType()
-		{
-			return m_rsslMap.KeyPrimitiveType;
-		}
+        /// <summary>
+        /// Returns the primitive key type.
+        /// </summary>
+        /// <returns>int value representing the DataType of the key.</returns>
+        public int KeyType()
+        {
+            return m_rsslMap.KeyPrimitiveType;
+        }
 
         /// <summary>
         /// Clears the Map. Invoking Clear() method clears all the values and resets all the defaults
         /// </summary>
-        /// <returns>Reference to the current <see cref="Map"/> object.</returns>      
-        public Map Clear() 
-		{
+        /// <returns>Reference to the current <see cref="Map"/> object.</returns>
+        public Map Clear()
+        {
             Clear_All();
             return this;
         }
@@ -166,18 +160,18 @@ namespace LSEG.Ema.Access
         /// Specifies KeyFieldId.
         /// </summary>
         /// <param name="fieldId">the fieldId to be set</param>
-        /// <returns>Reference to the current <see cref="Map"/> object.</returns>      
-        public Map KeyFieldId(int fieldId) 
-		{
-			m_mapEncoder.KeyFieldId(fieldId);
-			return this; 
-		}
+        /// <returns>Reference to the current <see cref="Map"/> object.</returns>
+        public Map KeyFieldId(int fieldId)
+        {
+            m_mapEncoder.KeyFieldId(fieldId);
+            return this;
+        }
 
         /// <summary>
         /// Specifies TotalCountHint.
         /// </summary>
         /// <param name="totalCountHint">the totalCountHint to be set</param>
-        /// <returns>Reference to the current <see cref="Map"/> object.</returns>      
+        /// <returns>Reference to the current <see cref="Map"/> object.</returns>
         public Map TotalCountHint(int totalCountHint)
         {
             m_mapEncoder.TotalCountHint(totalCountHint);
@@ -188,21 +182,21 @@ namespace LSEG.Ema.Access
         /// Specifies the SummaryData
         /// </summary>
         /// <param name="summaryData">specifies complex type as summaryData</param>
-        /// <returns>Reference to the current <see cref="Map"/> object.</returns>      
-        public Map SummaryData(ComplexType summaryData) 
-		{
-			m_summaryData.Clear();
+        /// <returns>Reference to the current <see cref="Map"/> object.</returns>
+        public Map SummaryData(ComplexType summaryData)
+        {
+            m_summaryData.Clear();
             m_summaryData.SetExternalData(summaryData);
-			m_mapEncoder.SummaryData(summaryData);
-			return this;
-		}
+            m_mapEncoder.SummaryData(summaryData);
+            return this;
+        }
 
         /// <summary>
-        /// Specifies a primitive type for Map Entry key. 
+        /// Specifies a primitive type for Map Entry key.
         /// This is used to override the default <see cref="DataType.DataTypes.BUFFER"/> type.
         /// </summary>
         /// <param name="keyPrimitiveType">specifies a key primitive type defined in <see cref="DataType.DataTypes"/></param>
-        /// <returns>Reference to the current <see cref="Map"/> object.</returns>      
+        /// <returns>Reference to the current <see cref="Map"/> object.</returns>
         public Map KeyType(int keyPrimitiveType)
         {
             m_mapEncoder.KeyType(keyPrimitiveType);
@@ -220,25 +214,25 @@ namespace LSEG.Ema.Access
                 var errorEnumerator = m_objectManager!.GetMapErrorEnumerator();
 
                 errorEnumerator.SetError(m_errorCode);
-				return errorEnumerator;
+                return errorEnumerator;
             }
 
             var enumerator = m_objectManager!.GetMapEnumerator();
-            if (!enumerator.SetData(m_MajorVersion, 
-				m_MinorVersion, 
-				m_bodyBuffer!,
-				m_dataDictionary, 
-				m_rsslMap.ContainerType, 
-				m_rsslMap.KeyPrimitiveType,
-				m_localDb))
-			{
-				enumerator.Dispose();
+            if (!enumerator.SetData(m_MajorVersion,
+                m_MinorVersion,
+                m_bodyBuffer!,
+                m_dataDictionary,
+                m_rsslMap.ContainerType,
+                m_rsslMap.KeyPrimitiveType,
+                m_localDb))
+            {
+                enumerator.Dispose();
                 var errorEnumerator = m_objectManager!.GetMapErrorEnumerator();
                 errorEnumerator.SetError(enumerator.m_decodingError.ErrorCode);
                 return errorEnumerator;
             }
 
-			return enumerator;
+            return enumerator;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -248,54 +242,59 @@ namespace LSEG.Ema.Access
 
         internal CodecReturnCode DecodeMap(int majorVersion, int minorVersion, Buffer body, DataDictionary? dictionary, object? localSetDb)
         {
-			m_hasDecodedDataSet = true;
+            m_hasDecodedDataSet = true;
 
             m_MajorVersion = majorVersion;
-			m_MinorVersion = minorVersion;
-			m_bodyBuffer = body;
-			m_dataDictionary = dictionary;
-			m_decodeIterator.Clear();
-			CodecReturnCode ret;
+            m_MinorVersion = minorVersion;
+            m_bodyBuffer = body;
+            m_dataDictionary = dictionary;
+            m_decodeIterator.Clear();
+            CodecReturnCode ret;
             if ((ret = m_decodeIterator.SetBufferAndRWFVersion(m_bodyBuffer, m_MajorVersion, m_MinorVersion)) != CodecReturnCode.SUCCESS)
-			{
-				m_errorCode = OmmError.ErrorCodes.ITERATOR_SET_FAILURE;
-				return ret;
-			}
-			ret = m_rsslMap.Decode(m_decodeIterator);
+            {
+                m_errorCode = OmmError.ErrorCodes.ITERATOR_SET_FAILURE;
+                return ret;
+            }
+            ret = m_rsslMap.Decode(m_decodeIterator);
             switch (ret)
             {
                 case CodecReturnCode.NO_DATA:
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     m_rsslMap.Flags = 0;
                     break;
+
                 case CodecReturnCode.SUCCESS:
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     break;
+
                 case CodecReturnCode.ITERATOR_OVERRUN:
                     m_errorCode = OmmError.ErrorCodes.ITERATOR_OVERRUN;
                     return ret;
+
                 case CodecReturnCode.INCOMPLETE_DATA:
                     m_errorCode = OmmError.ErrorCodes.INCOMPLETE_DATA;
                     return ret;
+
                 default:
                     m_errorCode = OmmError.ErrorCodes.UNKNOWN_ERROR;
                     return ret;
             }
 
-			if (m_rsslMap.CheckHasSetDefs())
-			{
-				switch (m_rsslMap.ContainerType)
-				{
-					case DataTypes.FIELD_LIST:
+            if (m_rsslMap.CheckHasSetDefs())
+            {
+                switch (m_rsslMap.ContainerType)
+                {
+                    case DataTypes.FIELD_LIST:
                         if (m_localFieldSetDefDb == null)
                         {
                             m_localFieldSetDefDb = new LocalFieldSetDefDb();
                         }
-						m_localFieldSetDefDb.Clear();
-						m_localFieldSetDefDb.Decode(m_decodeIterator);
-						m_localDb = m_localFieldSetDefDb;
+                        m_localFieldSetDefDb.Clear();
+                        m_localFieldSetDefDb.Decode(m_decodeIterator);
+                        m_localDb = m_localFieldSetDefDb;
                         break;
-					case DataTypes.ELEMENT_LIST:
+
+                    case DataTypes.ELEMENT_LIST:
                         if (m_localElementSetDefDb == null)
                         {
                             m_localElementSetDefDb = new LocalElementSetDefDb();
@@ -304,26 +303,27 @@ namespace LSEG.Ema.Access
                         m_localElementSetDefDb.Decode(m_decodeIterator);
                         m_localDb = m_localElementSetDefDb;
                         break;
-					default:
-						m_localDb = null;
+
+                    default:
+                        m_localDb = null;
                         m_errorCode = OmmError.ErrorCodes.UNSUPPORTED_DATA_TYPE;
-						return CodecReturnCode.FAILURE;
-				}
-			}
-			else
-			{
-				m_localDb = null;
+                        return CodecReturnCode.FAILURE;
+                }
+            }
+            else
+            {
+                m_localDb = null;
             }
 
-            if (m_rsslMap.CheckHasSummaryData()) 
-			{
-				return m_summaryData.Decode(m_rsslMap.EncodedSummaryData, 
-					m_rsslMap.ContainerType, 
-					m_MajorVersion, m_MinorVersion, 
-					m_dataDictionary,
-					m_localDb);
-            }	
-			return ret;			
+            if (m_rsslMap.CheckHasSummaryData())
+            {
+                return m_summaryData.Decode(m_rsslMap.EncodedSummaryData,
+                    m_rsslMap.ContainerType,
+                    m_MajorVersion, m_MinorVersion,
+                    m_dataDictionary,
+                    m_localDb);
+            }
+            return ret;
         }
 
         /// <summary>
@@ -338,12 +338,12 @@ namespace LSEG.Ema.Access
         /// <returns>Reference to current <see cref="Map"/> object.</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected</exception>
         public Map AddKeyInt(long key, int action, ComplexType value, EmaBuffer? permissionData = null)
-		{
+        {
             intObject.Clear();
             intObject.Value(key);
-			m_mapEncoder.Add(Access.DataType.DataTypes.INT, intObject, action, value, permissionData);
+            m_mapEncoder.Add(Access.DataType.DataTypes.INT, intObject, action, value, permissionData);
             return this;
-		}
+        }
 
         /// <summary>
         /// Adds no payload identified by a specific simple type of OMM data.
@@ -363,7 +363,7 @@ namespace LSEG.Ema.Access
 
         /// <summary>
         /// Adds complex OMM data identified by a specific simple type of OMM data.
-        /// In case a message type is added, the container expects that 
+        /// In case a message type is added, the container expects that
         /// the message is either pre-encoded or contains pre-encoded payload and attributes.
         /// </summary>
         /// <param name="key">key containing UInt key information</param>
@@ -1030,13 +1030,14 @@ namespace LSEG.Ema.Access
         /// Completes encoding of the Map entries
         /// </summary>
         /// <returns>Reference to current <see cref="Map"/> object.</returns>
-        public Map Complete() 
-		{
-			m_mapEncoder.Complete();
-			return this;
-		}
+        public Map Complete()
+        {
+            m_mapEncoder.Complete();
+            return this;
+        }
 
-        internal override string ToString(int indent)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string FillString(int indent)
         {
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent).Append("Map");
@@ -1051,10 +1052,10 @@ namespace LSEG.Ema.Access
             {
                 ++indent;
                 Utilities.AddIndent(m_ToString.AppendLine(), indent)
-					.Append("SummaryData dataType=\"")
-					.Append(Access.DataType.AsString(m_summaryData.DataType))
-					.Append("\"")
-					.AppendLine();
+                    .Append("SummaryData dataType=\"")
+                    .Append(Access.DataType.AsString(m_summaryData.DataType))
+                    .Append("\"")
+                    .AppendLine();
 
                 ++indent;
                 m_ToString.Append(m_summaryData.Data.ToString(indent));
@@ -1069,8 +1070,8 @@ namespace LSEG.Ema.Access
             foreach (MapEntry mapEntry in this)
             {
                 var load = mapEntry.Load;
-                if (load == null)
-                    return "\nDecoding of just encoded object in the same application is not supported\n";
+                if(load == null)
+                    return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
 
                 var key = mapEntry.Key.Data;
                 Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("MapEntry action=\"")
@@ -1104,7 +1105,6 @@ namespace LSEG.Ema.Access
             --indent;
 
             Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("MapEnd").AppendLine();
-
             return m_ToString.ToString();
         }
 
@@ -1113,29 +1113,29 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>string representing current <see cref="Map"/> object.</returns>
 		public override string ToString()
-		{
-			return ToString(0);
-		}
+        {
+            return ToString(0);
+        }
     }
 
     internal class MapErrorEnumerator : Decoder, IEnumerator<MapEntry>
     {
         private MapEntry m_mapEntry;
-        
-		public MapEntry Current => m_decodingStarted ? m_mapEntry : null!;
+
+        public MapEntry Current => m_decodingStarted ? m_mapEntry : null!;
 
         object? IEnumerator.Current => m_decodingStarted ? m_mapEntry : null;
 
-		public MapErrorEnumerator()
+        public MapErrorEnumerator()
         {
             m_dataType = DataType.DataTypes.MAP;
             m_isErrorDecoder = true;
-			m_mapEntry = new MapEntry(m_objectManager!);
+            m_mapEntry = new MapEntry(m_objectManager!);
         }
 
         public MapErrorEnumerator(OmmError.ErrorCodes errorCode) : this()
         {
-            base.m_decodingError.ErrorCode = errorCode;
+            m_decodingError.ErrorCode = errorCode;
             m_mapEntry!.Load = m_decodingError;
         }
 
@@ -1147,7 +1147,7 @@ namespace LSEG.Ema.Access
 
         public void Dispose()
         {
-			Reset();
+            Reset();
             ReturnMapErrorEnumeratorToPool();
         }
 
@@ -1174,7 +1174,7 @@ namespace LSEG.Ema.Access
         {
             m_decodingStarted = false;
             m_atEnd = false;
-			m_mapEntry.Clear();
+            m_mapEntry.Clear();
         }
     }
 }

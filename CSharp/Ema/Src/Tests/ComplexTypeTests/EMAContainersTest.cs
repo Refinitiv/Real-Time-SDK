@@ -17,7 +17,8 @@ namespace LSEG.Ema.Access.Tests
     public class EmaContainersTest
     {
         private EmaObjectManager m_objectManager = new EmaObjectManager();
-        int[] containerTypes = { DataType.DataTypes.FILTER_LIST,
+
+        private int[] containerTypes = { DataType.DataTypes.FILTER_LIST,
                 DataType.DataTypes.ELEMENT_LIST,
                 DataType.DataTypes.FIELD_LIST,
                 DataType.DataTypes.MAP,
@@ -27,8 +28,8 @@ namespace LSEG.Ema.Access.Tests
                 DataType.DataTypes.XML,
                 DataType.DataTypes.ANSI_PAGE
         };
-        bool[] boolValues = { true, false };
 
+        private bool[] boolValues = { true, false };
 
         private void LoadEnumTypeDictionary(DataDictionary dataDictionary)
         {
@@ -54,14 +55,14 @@ namespace LSEG.Ema.Access.Tests
             DataDictionary dataDictionary = new DataDictionary();
             LoadEnumTypeDictionary(dataDictionary);
             LoadFieldDictionary(dataDictionary);
-            
+
             int[][] dataTypesArray = {
                 new int[] { DataType.DataTypes.INT, DataType.DataTypes.QOS, DataType.DataTypes.STATE, DataType.DataTypes.ENUM, DataType.DataTypes.DATE, DataType.DataTypes.DATETIME },
                 new int[] { DataType.DataTypes.UINT, DataType.DataTypes.ASCII, DataType.DataTypes.FIELD_LIST, DataType.DataTypes.FIELD_LIST },
                 new int[] { DataType.DataTypes.DOUBLE, DataType.DataTypes.REAL, DataType.DataTypes.VECTOR },
                 new int[] { DataType.DataTypes.XML, DataType.DataTypes.OPAQUE, DataType.DataTypes.ANSI_PAGE }
             };
-         
+
             foreach (var dataTypes in dataTypesArray)
                 foreach (var preencodeEntry in boolValues)
                 {
@@ -134,7 +135,6 @@ namespace LSEG.Ema.Access.Tests
             CheckEtaGlobalPoolSizes();
         }
 
-
         [Fact]
         public void MapTest()
         {
@@ -149,7 +149,7 @@ namespace LSEG.Ema.Access.Tests
                 DataType.DataTypes.MAP,
                 DataType.DataTypes.VECTOR };
 
-            int[][] mapActionsArray = { 
+            int[][] mapActionsArray = {
                 new int[]{ MapAction.ADD, MapAction.ADD, MapAction.UPDATE },
                 new int[]{ MapAction.DELETE, MapAction.ADD, MapAction.DELETE },
                 new int[]{ MapAction.UPDATE, MapAction.DELETE, MapAction.UPDATE },
@@ -169,7 +169,6 @@ namespace LSEG.Ema.Access.Tests
                 DataType.DataTypes.QOS,
                 DataType.DataTypes.STATE
             };
-
 
             bool[][] hasPermDataArray = {
                 new bool[] { false, false, false },
@@ -199,7 +198,7 @@ namespace LSEG.Ema.Access.Tests
                                                 preencodeEntry);
 
                                             var buffer = map.Encoder!.m_encodeIterator!.Buffer();
-                                            
+
                                             Map decodedMap = m_objectManager.GetOmmMap();
                                             decodedMap.DecodeMap(Codec.MajorVersion(), Codec.MinorVersion(), buffer, dataDictionary, null);
 
@@ -252,7 +251,7 @@ namespace LSEG.Ema.Access.Tests
                 foreach (var vectorActions in vectorActionsArray)
                     foreach (var hasPermData in hasPermDataArray)
                         foreach (var summaryPresent in boolValues)
-                            foreach (var supportsSorting in boolValues) 
+                            foreach (var supportsSorting in boolValues)
                                 foreach (var hasTotalCountHint in boolValues)
                                     foreach (var preencodeEntry in boolValues)
                                         foreach (var noDataEntries in boolValues)
@@ -337,36 +336,35 @@ namespace LSEG.Ema.Access.Tests
                             foreach (var countHint in countHintArray)
                                 foreach (var preencodeEntry in boolValues)
                                     foreach (var noDataEntries in noDataEntriesArray)
-                                {
-                                    FilterList filterList = m_objectManager.GetOmmFilterList();
-                                    EmaComplexTypeHandler.EncodeFilterList(filterList,
-                                        DataType.DataTypes.NO_DATA, // variable not necessary
-                                        hasCountHint,
-                                        filterActions,
-                                        dataTypes,
-                                        hasPermData,
-                                        countHint, 
-                                        preencodeEntry,
-                                        noDataEntries);
+                                    {
+                                        FilterList filterList = m_objectManager.GetOmmFilterList();
+                                        EmaComplexTypeHandler.EncodeFilterList(filterList,
+                                            DataType.DataTypes.NO_DATA, // variable not necessary
+                                            hasCountHint,
+                                            filterActions,
+                                            dataTypes,
+                                            hasPermData,
+                                            countHint,
+                                            preencodeEntry,
+                                            noDataEntries);
 
-                                    var buffer = filterList.Encoder!.m_encodeIterator!.Buffer();
-                                    filterList.DecodeFilterList(Codec.MajorVersion(), Codec.MinorVersion(), buffer, dataDictionary, null);
+                                        var buffer = filterList.Encoder!.m_encodeIterator!.Buffer();
+                                        filterList.DecodeFilterList(Codec.MajorVersion(), Codec.MinorVersion(), buffer, dataDictionary, null);
 
-                                    EmaComplexTypeHandler.DecodeAndCheckFilterList(filterList,
-                                        DataType.DataTypes.NO_DATA, // variable not necessary
-                                        hasCountHint,
-                                        filterActions,
-                                        dataTypes,
-                                        hasPermData,
-                                        countHint,
-                                        noDataEntries);
+                                        EmaComplexTypeHandler.DecodeAndCheckFilterList(filterList,
+                                            DataType.DataTypes.NO_DATA, // variable not necessary
+                                            hasCountHint,
+                                            filterActions,
+                                            dataTypes,
+                                            hasPermData,
+                                            countHint,
+                                            noDataEntries);
 
-                                    filterList.ClearAndReturnToPool_All();
-                                    
+                                        filterList.ClearAndReturnToPool_All();
 
-                                    CheckEmaObjectManagerPoolSizes(m_objectManager);
-                                    CheckEtaGlobalPoolSizes();
-                                }
+                                        CheckEmaObjectManagerPoolSizes(m_objectManager);
+                                        CheckEtaGlobalPoolSizes();
+                                    }
         }
 
         [Fact]
@@ -469,7 +467,7 @@ namespace LSEG.Ema.Access.Tests
             var buffer = array.Encoder!.m_encodeIterator!.Buffer();
             OmmArray arr = new OmmArray();
             arr.SetRsslData(Codec.MajorVersion(), Codec.MinorVersion(), buffer);
-            
+
             EmaComplexTypeHandler.DecodeAndCheckArray(arr, DataType.DataTypes.QOS);
 
             array.ClearAndReturnToPool_All();
@@ -578,7 +576,7 @@ namespace LSEG.Ema.Access.Tests
             map.DecodeMap(Codec.MajorVersion(), Codec.MinorVersion(), mapBuffer, null, null);
 
             var mapEnumerator = map.GetEnumerator();
-            
+
             Assert.True(mapEnumerator.MoveNext());
             var el = mapEnumerator.Current;
 

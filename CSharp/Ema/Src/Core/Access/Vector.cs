@@ -2,12 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -29,7 +28,6 @@ namespace LSEG.Ema.Access
     {
         internal Eta.Codec.Vector m_rsslVector = new Eta.Codec.Vector();
         private ComplexTypeData m_summaryData;
-        private DataDictionary? m_dataDictionary;
 
         private LocalFieldSetDefDb? m_localFieldSetDefDb;
         private LocalElementSetDefDb? m_localElementSetDefDb;
@@ -42,11 +40,11 @@ namespace LSEG.Ema.Access
             m_objectManager = objectManager;
             m_summaryData.m_objectManager = objectManager;
         }
-        
+
         /// <summary>
         /// Constructor for Vector
         /// </summary>
-        public Vector() 
+        public Vector()
         {
             m_vectorEncoder = new VectorEncoder(this);
             Encoder = m_vectorEncoder;
@@ -72,14 +70,15 @@ namespace LSEG.Ema.Access
         /// Determines whether the current Vector instance is sortable
         /// </summary>
         /// <returns>true if sortable flag is set; false otherwise</returns>
-        public bool Sortable() { return m_rsslVector.CheckSupportsSorting(); }
+        public bool Sortable()
+        { return m_rsslVector.CheckSupportsSorting(); }
 
         /// <summary>
         /// Returns TotalCountHint
         /// </summary>
         /// <returns>the total count hint</returns>
-        public int TotalCountHint() 
-        { 
+        public int TotalCountHint()
+        {
             if (!m_rsslVector.CheckHasTotalCountHint())
             {
                 throw new OmmInvalidUsageException("Vector instance has no TotalCountHint set.",
@@ -90,17 +89,18 @@ namespace LSEG.Ema.Access
 
         /// <summary>
         /// Returns the contained summaryData Data based on the summaryData DataType.<br/>
-        /// SummaryData contains no data if <see cref="ComplexTypeData.DataType"/> returns 
+        /// SummaryData contains no data if <see cref="ComplexTypeData.DataType"/> returns
         /// <see cref="DataType.DataTypes.NO_DATA"/>
         /// </summary>
         /// <returns><see cref="Access.ComplexTypeData"/> object.</returns>
-        public ComplexTypeData SummaryData() { return m_summaryData; }
+        public ComplexTypeData SummaryData()
+        { return m_summaryData; }
 
         /// <summary>
         /// Clears the Vector. Invoking Clear() method clears all the values and resets all the defaults.
         /// </summary>
         /// <returns>Reference to current <see cref="Vector"/> object.</returns>
-        public Vector Clear() 
+        public Vector Clear()
         {
             Clear_All();
             return this;
@@ -126,7 +126,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="sortable">specifies whether this object is sortable</param>
         /// <returns>Reference to the current <see cref="Vector"/> object.</returns>
-        public Vector Sortable(bool sortable) 
+        public Vector Sortable(bool sortable)
         {
             m_vectorEncoder.Sortable(sortable);
             return this;
@@ -137,7 +137,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="totalCountHint">specifies whether this object is sortable</param>
         /// <returns>Reference to the current <see cref="Vector"/> object.</returns>
-        public Vector TotalCountHint(int totalCountHint) 
+        public Vector TotalCountHint(int totalCountHint)
         {
             m_vectorEncoder.TotalCountHint(totalCountHint);
             return this;
@@ -148,7 +148,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="data">specifies complex type as summaryData</param>
         /// <returns>Reference to current <see cref="Vector"/> object.</returns>
-        public Vector SummaryData(ComplexType data) 
+        public Vector SummaryData(ComplexType data)
         {
             m_summaryData.Clear();
             m_summaryData.m_data = data;
@@ -169,9 +169,9 @@ namespace LSEG.Ema.Access
                 return errorEnumerator;
             }
             var enumerator = m_objectManager!.GetVectorEnumerator();
-            if (!enumerator.SetData(m_MajorVersion, m_MinorVersion, 
+            if (!enumerator.SetData(m_MajorVersion, m_MinorVersion,
                 m_bodyBuffer!,
-                m_dataDictionary, 
+                m_dataDictionary,
                 m_rsslVector.ContainerType,
                 m_localDb))
             {
@@ -209,15 +209,19 @@ namespace LSEG.Ema.Access
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     m_rsslVector.Flags = 0;
                     break;
+
                 case CodecReturnCode.SUCCESS:
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     break;
+
                 case CodecReturnCode.ITERATOR_OVERRUN:
                     m_errorCode = OmmError.ErrorCodes.ITERATOR_OVERRUN;
                     return ret;
+
                 case CodecReturnCode.INCOMPLETE_DATA:
                     m_errorCode = OmmError.ErrorCodes.INCOMPLETE_DATA;
                     return ret;
+
                 default:
                     m_errorCode = OmmError.ErrorCodes.UNKNOWN_ERROR;
                     return ret;
@@ -236,6 +240,7 @@ namespace LSEG.Ema.Access
                         m_localFieldSetDefDb.Decode(m_decodeIterator);
                         m_localDb = m_localFieldSetDefDb;
                         break;
+
                     case DataTypes.ELEMENT_LIST:
                         if (m_localElementSetDefDb == null)
                         {
@@ -245,6 +250,7 @@ namespace LSEG.Ema.Access
                         m_localElementSetDefDb.Decode(m_decodeIterator);
                         m_localDb = m_localElementSetDefDb;
                         break;
+
                     default:
                         m_localDb = null;
                         m_errorCode = OmmError.ErrorCodes.UNSUPPORTED_DATA_TYPE;
@@ -258,9 +264,9 @@ namespace LSEG.Ema.Access
 
             if (m_rsslVector.CheckHasSummaryData())
             {
-                return m_summaryData.Decode(m_rsslVector.EncodedSummaryData, 
-                    m_rsslVector.ContainerType, 
-                    m_MajorVersion, m_MinorVersion, 
+                return m_summaryData.Decode(m_rsslVector.EncodedSummaryData,
+                    m_rsslVector.ContainerType,
+                    m_MajorVersion, m_MinorVersion,
                     m_dataDictionary,
                     m_localDb);
             }
@@ -271,15 +277,15 @@ namespace LSEG.Ema.Access
 		/// Completes encoding of the Vector entries
 		/// </summary>
 		/// <returns>Reference to current <see cref="Vector"/> object.</returns>
-		public Vector Complete() 
+		public Vector Complete()
         {
             m_vectorEncoder.Complete();
-            return this; 
+            return this;
         }
 
         /// <summary>
         /// Adds entry to current Vector object.
-        /// In case a message type is added, the container expects that 
+        /// In case a message type is added, the container expects that
         /// the message is either pre-encoded or contains pre-encoded payload and attributes.
         /// </summary>
         /// <param name="position">position of the entry</param>
@@ -287,7 +293,7 @@ namespace LSEG.Ema.Access
         /// <param name="value">entry value</param>
         /// <param name="permissionData">permission data</param>
         /// <returns>Reference to current <see cref="Vector"/> object.</returns>
-        public Vector Add(uint position, int action, ComplexType value, EmaBuffer? permissionData) 
+        public Vector Add(uint position, int action, ComplexType value, EmaBuffer? permissionData)
         {
             m_vectorEncoder.Add(position, action, value, permissionData);
             return this;
@@ -300,13 +306,13 @@ namespace LSEG.Ema.Access
         /// <param name="action">entry action</param>
         /// <param name="permissionData">permission data</param>
         /// <returns>Reference to current <see cref="Vector"/> object.</returns>
-        public Vector Add(uint position, int action, EmaBuffer? permissionData )
+        public Vector Add(uint position, int action, EmaBuffer? permissionData)
         {
             m_vectorEncoder.Add(position, action, permissionData);
             return this;
         }
 
-        internal override string ToString(int indent)
+        internal override string FillString(int indent)
         {
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent).Append("Vector");
@@ -339,10 +345,10 @@ namespace LSEG.Ema.Access
             {
                 var load = vectorEntry.Load;
                 if (load == null)
-                    return "\nDecoding of just encoded object in the same application is not supported\n";
+                    return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
 
                 Utilities.AddIndent(m_ToString.Append("\n"), indent).Append("VectorEntry action=\"")
-                        .Append(vectorEntry.VectorActionAsString()).Append("\" index=\"").Append(vectorEntry.Position);
+                        .Append(vectorEntry.VectorActionAsString()).Append("\" index=\"").Append(vectorEntry.Position).Append("\"");
 
                 if (vectorEntry.HasPermissionData)
                 {
@@ -360,9 +366,7 @@ namespace LSEG.Ema.Access
             }
 
             --indent;
-
             Utilities.AddIndent(m_ToString.Append("\n"), indent).Append("VectorEnd\n");
-
             return m_ToString.ToString();
         }
 

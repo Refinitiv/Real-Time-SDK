@@ -451,6 +451,9 @@ public sealed class OmmArrayEntry
     /// <returns>string representation of the class object.</returns>
     public override string ToString()
     {
+        if (Load == null)
+            return "\nToString() method could not be used for just encoded object.\n";
+
         return m_ToString.Clear()
             .Append("OmmArrayEntry ")
             .Append(" dataType=\"").Append(DataType.AsString(Load.DataType)).Append('"')

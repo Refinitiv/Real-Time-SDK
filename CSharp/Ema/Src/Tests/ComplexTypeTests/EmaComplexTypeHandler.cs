@@ -6,14 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Text;
-using LSEG.Eta.Codec;
-using LSEG.Eta.Common;
-using LSEG.Eta.Rdm;
 using Buffer = LSEG.Eta.Codec.Buffer;
 using DateTime = LSEG.Eta.Codec.DateTime;
 using Double = LSEG.Eta.Codec.Double;
@@ -21,7 +18,7 @@ using Enum = LSEG.Eta.Codec.Enum;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class EmaComplexTypeHandler 
+    public class EmaComplexTypeHandler
     {
         public static int length = 5;
         public static int defaultArrayDataType = DataType.DataTypes.QOS;
@@ -151,6 +148,7 @@ namespace LSEG.Ema.Access.Tests
             HasSeqNum = true,
             Solicited = false
         };
+
         public static MsgParameters defaultGenericMsgParameters = new MsgParameters()
         {
             MsgClass = MsgClasses.GENERIC,
@@ -174,6 +172,7 @@ namespace LSEG.Ema.Access.Tests
             HasPermData = true,
             ProviderDriven = true
         };
+
         public static MsgParameters defaultPostMsgParameters = new MsgParameters()
         {
             MsgClass = MsgClasses.POST,
@@ -195,6 +194,7 @@ namespace LSEG.Ema.Access.Tests
             HasPostUserRights = true,
             SolicitAck = true
         };
+
         public static MsgParameters defaultStatusMsgParameters = new MsgParameters()
         {
             MsgClass = MsgClasses.STATUS,
@@ -220,6 +220,7 @@ namespace LSEG.Ema.Access.Tests
             Solicited = false,
             HasPermData = true
         };
+
         public static MsgParameters defaultUpdateMsgParameters = new MsgParameters()
         {
             MsgClass = MsgClasses.UPDATE,
@@ -250,6 +251,7 @@ namespace LSEG.Ema.Access.Tests
             HasPermData = true,
             HasConfInfo = true
         };
+
         public static MsgParameters defaultRefreshMsgParameters = new MsgParameters()
         {
             MsgClass = MsgClasses.REFRESH,
@@ -276,6 +278,7 @@ namespace LSEG.Ema.Access.Tests
             Solicited = true,
             HasSeqNum = true
         };
+
         public static MsgParameters defaultRequestMsgParameters = new MsgParameters()
         {
             MsgClass = MsgClasses.REQUEST,
@@ -301,6 +304,7 @@ namespace LSEG.Ema.Access.Tests
         internal static EmaObjectManager m_objectManager = new EmaObjectManager();
 
         public static DataDictionary m_dataDictionary = new DataDictionary();
+
         private static void LoadDictionary()
         {
             if (m_dataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out _) < 0)
@@ -421,6 +425,7 @@ namespace LSEG.Ema.Access.Tests
             elDataTypeNameMap.Add(DataType.DataTypes.DATE, "date");
             elDataTypeNameMap.Add(DataType.DataTypes.TIME, "time");
             elDataTypeNameMap.Add(DataType.DataTypes.DATETIME, "datetime");
+            elDataTypeNameMap.Add(DataType.DataTypes.ENUM, "enum");
             elDataTypeNameMap.Add(DataType.DataTypes.MAP, "map");
             elDataTypeNameMap.Add(DataType.DataTypes.ELEMENT_LIST, "elementList");
             elDataTypeNameMap.Add(DataType.DataTypes.FIELD_LIST, "fieldList");
@@ -479,30 +484,39 @@ namespace LSEG.Ema.Access.Tests
                 case DataType.DataTypes.ELEMENT_LIST:
                     EncodeElementList((ElementList)summary!, defaultElementListTypes);
                     break;
+
                 case DataType.DataTypes.VECTOR:
                     EncodeVector((Vector)summary!, defaultVectorContainerType, false, true, true, defaultVectorActions, defaultVectorEntryHasPermData);
                     break;
+
                 case DataType.DataTypes.FIELD_LIST:
                     EncodeFieldList((FieldList)summary!, defaultFieldListTypes);
                     break;
+
                 case DataType.DataTypes.SERIES:
                     EncodeSeries((Series)summary!, defaultSeriesContainerType, true, false, defaultSeriesCountHint, defaultSeriesCountHint);
                     break;
+
                 case DataType.DataTypes.MAP:
                     EncodeMap((Map)summary!, defaultMapContainerType, defaultMapAction, defaultMapEntryHasPermData, defaultMapKeyType, false, true, true);
                     break;
+
                 case DataType.DataTypes.FILTER_LIST:
                     EncodeFilterList((FilterList)summary!, defaultFilterListContainerType, true, defaultFilterListActions, defaultFilterListDataTypes, defaultFilterEntryHasPermData, defaultFilterListCountHint);
                     break;
+
                 case DataType.DataTypes.OPAQUE:
                     EncodeDefaultOpaque((OmmOpaque)summary!);
                     break;
+
                 case DataType.DataTypes.XML:
                     EncodeDefaultXml((OmmXml)summary!);
                     break;
+
                 case DataType.DataTypes.ANSI_PAGE:
                     EncodeDefaultAnsiPage((OmmAnsiPage)summary!);
                     break;
+
                 default:
                     break;
             }
@@ -519,39 +533,51 @@ namespace LSEG.Ema.Access.Tests
                     case DataType.DataTypes.INT:
                         array.AddInt(iv.ToLong());
                         break;
+
                     case DataType.DataTypes.UINT:
                         array.AddUInt((ulong)uintv.ToLong());
                         break;
+
                     case DataType.DataTypes.DOUBLE:
                         array.AddDouble(dv.ToDouble());
                         break;
+
                     case DataType.DataTypes.FLOAT:
                         array.AddFloat(fv.ToFloat());
                         break;
+
                     case DataType.DataTypes.REAL:
                         array.AddReal(real.ToLong(), real.Hint);
                         break;
+
                     case DataType.DataTypes.ASCII:
                         array.AddAscii(ascii.ToString());
                         break;
+
                     case DataType.DataTypes.DATE:
                         array.AddDate(date.Year(), date.Month(), date.Day());
                         break;
+
                     case DataType.DataTypes.TIME:
                         array.AddTime(time.Hour(), time.Minute(), time.Second());
                         break;
+
                     case DataType.DataTypes.QOS:
                         array.AddQos((uint)qos.Timeliness(), (uint)qos.Rate());
                         break;
+
                     case DataType.DataTypes.STATE:
                         array.AddState(state.StreamState(), state.DataState());
                         break;
+
                     case DataType.DataTypes.DATETIME:
                         array.AddDateTime(dateTime.Year(), dateTime.Month(), dateTime.Day(), dateTime.Hour(), dateTime.Minute());
                         break;
+
                     case DataType.DataTypes.ENUM:
                         array.AddEnum((ushort)enumer.ToInt());
                         break;
+
                     default:
                         break;
                 }
@@ -571,27 +597,33 @@ namespace LSEG.Ema.Access.Tests
                         EncodeArray(defaultArrayDataType, array);
                         array.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.INT:
                         fieldList.AddInt(elDataTypeFidMap[dataTypes[i]], iv.ToLong());
                         break;
+
                     case DataType.DataTypes.REAL:
                         fieldList.AddReal(elDataTypeFidMap[dataTypes[i]], real.ToLong(), real.Hint);
                         break;
+
                     case DataType.DataTypes.DATE:
                         fieldList.AddDate(elDataTypeFidMap[dataTypes[i]], date.Year(), date.Month(), date.Day());
                         break;
+
                     case DataType.DataTypes.TIME:
                         fieldList.AddTime(elDataTypeFidMap[dataTypes[i]], time.Hour(), time.Minute(), time.Second());
                         break;
+
                     case DataType.DataTypes.ASCII:
                         fieldList.AddAscii(elDataTypeFidMap[dataTypes[i]], ascii.ToString());
                         break;
+
                     case DataType.DataTypes.ELEMENT_LIST:
                         ElementList elementList = m_objectManager.GetOmmElementList();
                         if (addPreencodedContainerEntries)
                         {
                             EncodeDefaultElementList(elementList);
-                            fieldList.AddElementList(elDataTypeFidMap[dataTypes[i]], elementList);                          
+                            fieldList.AddElementList(elDataTypeFidMap[dataTypes[i]], elementList);
                         }
                         else
                         {
@@ -600,6 +632,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         elementList.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.VECTOR:
                         Vector vector = m_objectManager.GetOmmVector();
                         if (addPreencodedContainerEntries)
@@ -610,10 +643,11 @@ namespace LSEG.Ema.Access.Tests
                         else
                         {
                             fieldList.AddVector(elDataTypeFidMap[dataTypes[i]], vector);
-                            EncodeDefaultVector(vector);                           
+                            EncodeDefaultVector(vector);
                         }
                         vector.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.MAP:
                         Map map = m_objectManager.GetOmmMap();
                         if (addPreencodedContainerEntries)
@@ -628,6 +662,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         map.ClearAndReturnToPool_All();
                         break;
+
                     default:
                         break;
                 }
@@ -657,7 +692,7 @@ namespace LSEG.Ema.Access.Tests
                 vector.Sortable(supportsSorting);
 
             for (uint i = 0; i < actions.Length; i++)
-            {            
+            {
                 if (entryHasNoData)
                 {
                     vector.Add(i, actions[i], hasPermData[i] ? permissionData : null);
@@ -668,7 +703,7 @@ namespace LSEG.Ema.Access.Tests
                     if (addPreencodedContainerEntries)
                     {
                         EncodeDefaultContainer(complexType!, dataType);
-                        vector.Add(i, actions[i], complexType!, hasPermData[i] ? permissionData : null);                      
+                        vector.Add(i, actions[i], complexType!, hasPermData[i] ? permissionData : null);
                     }
                     else
                     {
@@ -676,7 +711,7 @@ namespace LSEG.Ema.Access.Tests
                         EncodeDefaultContainer(complexType!, dataType);
                     }
                     complexType!.ClearAndReturnToPool_All();
-                }                            
+                }
             }
             vector.Complete();
         }
@@ -690,46 +725,58 @@ namespace LSEG.Ema.Access.Tests
                     case DataType.DataTypes.INT:
                         elementList.AddInt(intName.ToString(), iv.ToLong());
                         break;
+
                     case DataType.DataTypes.UINT:
                         elementList.AddUInt(uintName.ToString(), (uint)uintv.ToLong());
                         break;
+
                     case DataType.DataTypes.DATE:
                         elementList.AddDate(dateName.ToString(), date.Year(), date.Month(), date.Day());
                         break;
+
                     case DataType.DataTypes.TIME:
                         elementList.AddTime(timeName.ToString(), time.Hour(), time.Minute(), time.Second(), time.Millisecond());
                         break;
+
                     case DataType.DataTypes.DATETIME:
                         elementList.AddDateTime(dateTimeName.ToString(), dateTime.Year(), dateTime.Month(), dateTime.Day(), dateTime.Hour());
                         break;
+
                     case DataType.DataTypes.ASCII:
                         elementList.AddAscii(asciiName.ToString(), ascii.ToString());
                         break;
+
                     case DataType.DataTypes.REAL:
                         elementList.AddReal(realName.ToString(), real.ToLong(), real.Hint);
                         break;
+
                     case DataType.DataTypes.QOS:
                         elementList.AddQos(qosName.ToString(), (uint)qos.Timeliness(), (uint)qos.Rate());
                         break;
+
                     case DataType.DataTypes.STATE:
                         elementList.AddState(stateName.ToString(), state.StreamState(), state.DataState());
                         break;
+
                     case DataType.DataTypes.DOUBLE:
                         elementList.AddDouble(doubleName.ToString(), dv.ToDouble());
                         break;
+
                     case DataType.DataTypes.FLOAT:
                         elementList.AddFloat(floatName.ToString(), fv.ToFloat());
                         break;
+
                     case DataType.DataTypes.ENUM:
                         elementList.AddEnum(enumName.ToString(), (ushort)enumer.ToInt());
                         break;
+
                     case DataType.DataTypes.ARRAY:
                         OmmArray array = m_objectManager.GetOmmArray();
                         if (addPreencodedContainerEntries)
                         {
                             EncodeArray(defaultArrayDataType, array);
-                            elementList.AddArray(arrayName.ToString(), array);                       
-                        } 
+                            elementList.AddArray(arrayName.ToString(), array);
+                        }
                         else
                         {
                             elementList.AddArray(arrayName.ToString(), array);
@@ -737,12 +784,13 @@ namespace LSEG.Ema.Access.Tests
                         }
                         array.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.ELEMENT_LIST:
                         ElementList elementList_1 = m_objectManager.GetOmmElementList();
                         if (addPreencodedContainerEntries)
                         {
                             EncodeDefaultElementList(elementList_1);
-                            elementList.AddElementList(elDataTypeNameMap[dataTypes[i]].ToString(), elementList_1);                          
+                            elementList.AddElementList(elDataTypeNameMap[dataTypes[i]].ToString(), elementList_1);
                         }
                         else
                         {
@@ -751,12 +799,13 @@ namespace LSEG.Ema.Access.Tests
                         }
                         elementList_1.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.VECTOR:
                         Vector vector = m_objectManager.GetOmmVector();
                         if (addPreencodedContainerEntries)
                         {
                             EncodeDefaultVector(vector);
-                            elementList.AddVector(elDataTypeNameMap[dataTypes[i]].ToString(), vector);                           
+                            elementList.AddVector(elDataTypeNameMap[dataTypes[i]].ToString(), vector);
                         }
                         else
                         {
@@ -765,12 +814,13 @@ namespace LSEG.Ema.Access.Tests
                         }
                         vector.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.SERIES:
                         Series series = m_objectManager.GetOmmSeries();
                         if (addPreencodedContainerEntries)
                         {
                             EncodeDefaultSeries(series);
-                            elementList.AddSeries(elDataTypeNameMap[dataTypes[i]].ToString(), series);                         
+                            elementList.AddSeries(elDataTypeNameMap[dataTypes[i]].ToString(), series);
                         }
                         else
                         {
@@ -779,6 +829,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         series.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.MAP:
                         Map map = m_objectManager.GetOmmMap();
                         if (addPreencodedContainerEntries)
@@ -789,16 +840,17 @@ namespace LSEG.Ema.Access.Tests
                         else
                         {
                             elementList.AddMap(elDataTypeNameMap[dataTypes[i]].ToString(), map);
-                            EncodeDefaultMap(map);                          
+                            EncodeDefaultMap(map);
                         }
                         map.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.FIELD_LIST:
                         FieldList fieldList = m_objectManager.GetOmmFieldList();
                         if (addPreencodedContainerEntries)
                         {
                             EncodeDefaultFieldList(fieldList);
-                            elementList.AddFieldList(elDataTypeNameMap[dataTypes[i]].ToString(), fieldList);                           
+                            elementList.AddFieldList(elDataTypeNameMap[dataTypes[i]].ToString(), fieldList);
                         }
                         else
                         {
@@ -807,12 +859,13 @@ namespace LSEG.Ema.Access.Tests
                         }
                         fieldList.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.FILTER_LIST:
                         FilterList filterList = m_objectManager.GetOmmFilterList();
                         if (addPreencodedContainerEntries)
                         {
                             EncodeDefaultFilterList(filterList);
-                            elementList.AddFilterList(elDataTypeNameMap[dataTypes[i]].ToString(), filterList);                           
+                            elementList.AddFilterList(elDataTypeNameMap[dataTypes[i]].ToString(), filterList);
                         }
                         else
                         {
@@ -821,6 +874,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         filterList.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.OPAQUE:
                         OmmOpaque opaque = m_objectManager.GetOmmOpaque();
                         if (addPreencodedContainerEntries)
@@ -835,6 +889,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         opaque.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.XML:
                         OmmXml xml = m_objectManager.GetOmmXml();
                         if (addPreencodedContainerEntries)
@@ -849,6 +904,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         xml.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.ANSI_PAGE:
                         OmmAnsiPage ansiPage = m_objectManager.GetOmmAnsiPage();
                         if (addPreencodedContainerEntries)
@@ -863,6 +919,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         ansiPage.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.UPDATE_MSG:
                         UpdateMsg updateMsg = m_objectManager.GetOmmUpdateMsg();
                         if (addPreencodedContainerEntries)
@@ -877,6 +934,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         updateMsg.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.STATUS_MSG:
                         StatusMsg statusMsg = m_objectManager.GetOmmStatusMsg();
                         if (addPreencodedContainerEntries)
@@ -891,6 +949,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         statusMsg.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.REQ_MSG:
                         RequestMsg requestMsg = m_objectManager.GetOmmRequestMsg();
                         if (addPreencodedContainerEntries)
@@ -905,6 +964,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         requestMsg.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.REFRESH_MSG:
                         RefreshMsg refreshMsg = m_objectManager.GetOmmRefreshMsg();
                         if (addPreencodedContainerEntries)
@@ -919,6 +979,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         refreshMsg.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.POST_MSG:
                         PostMsg postMsg = m_objectManager.GetOmmPostMsg();
                         if (addPreencodedContainerEntries)
@@ -933,6 +994,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         postMsg.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.GENERIC_MSG:
                         GenericMsg genericMsg = m_objectManager.GetOmmGenericMsg();
                         if (addPreencodedContainerEntries)
@@ -947,6 +1009,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         genericMsg.ClearAndReturnToPool_All();
                         break;
+
                     case DataType.DataTypes.ACK_MSG:
                         AckMsg ackMsg = m_objectManager.GetOmmAckMsg();
                         if (addPreencodedContainerEntries)
@@ -961,6 +1024,7 @@ namespace LSEG.Ema.Access.Tests
                         }
                         ackMsg.ClearAndReturnToPool_All();
                         break;
+
                     default:
                         break;
                 }
@@ -1008,33 +1072,43 @@ namespace LSEG.Ema.Access.Tests
                     case DataType.DataTypes.INT:
                         map.AddKeyInt(1, entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
+
                     case DataType.DataTypes.UINT:
                         map.AddKeyUInt(1, entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
+
                     case DataType.DataTypes.DATE:
                         map.AddKeyDate(date.Year(), date.Month(), date.Day(), entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
+
                     case DataType.DataTypes.TIME:
                         map.AddKeyTime(time.Hour(), time.Minute(), time.Second(), time.Millisecond(), 0, 0, entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
+
                     case DataType.DataTypes.DATETIME:
                         map.AddKeyDateTime(dateTime.Year(), dateTime.Month(), dateTime.Day(), dateTime.Hour(), 0, 0, 0, 0, 0, entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
+
                     case DataType.DataTypes.ASCII:
                         map.AddKeyAscii(ascii.ToString(), entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
+
                     case DataType.DataTypes.REAL:
                         map.AddKeyReal(real.ToLong(), real.Hint, entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
+
                     case DataType.DataTypes.QOS:
                         map.AddKeyQos((uint)qos.Timeliness(), (uint)qos.Rate(), entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
+
                     case DataType.DataTypes.STATE:
                         map.AddKeyState(state.StreamState(), state.DataState(), 0, "", entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
+
                     case DataType.DataTypes.DOUBLE:
                         map.AddKeyDouble(dv.ToDouble(), entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
+
                     case DataType.DataTypes.FLOAT:
                         map.AddKeyFloat(fv.ToFloat(), entryActions[i], complexType!, permDataPresent[i] ? permissionData : null);
                         break;
@@ -1078,7 +1152,7 @@ namespace LSEG.Ema.Access.Tests
                 else
                 {
                     series.AddEntry(complexType!);
-                    EncodeDefaultContainer(complexType!, containerType);                  
+                    EncodeDefaultContainer(complexType!, containerType);
                 }
                 complexType!.ClearAndReturnToPool_All();
             }
@@ -1104,7 +1178,7 @@ namespace LSEG.Ema.Access.Tests
                 if (entryHasNoData != null && entryHasNoData[i])
                 {
                     filterList.AddEntry(i, filterActions[i], permDataPresent[i] ? permissionData : null!);
-                } 
+                }
                 else
                 {
                     ComplexType? complexType = m_objectManager.GetComplexTypeFromPool(dataTypes[i]);
@@ -1119,15 +1193,15 @@ namespace LSEG.Ema.Access.Tests
                         if (filterActions[i] != FilterAction.CLEAR)
                         {
                             EncodeDefaultContainer(complexType!, dataTypes[i]);
-                        }                       
+                        }
                     }
                     complexType!.ClearAndReturnToPool_All();
-                }                              
+                }
             }
             filterList.Complete();
         }
 
-        #endregion
+        #endregion Encode containers & Array
 
         #region Encode Messages
 
@@ -1135,27 +1209,34 @@ namespace LSEG.Ema.Access.Tests
         {
             switch (msg.DataType)
             {
-                case Access.DataType.DataTypes.ACK_MSG:              
+                case Access.DataType.DataTypes.ACK_MSG:
                     EncodeAckMessage(defaultAckMsgParameters, (AckMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.GENERIC_MSG:
                     EncodeGenericMessage(defaultGenericMsgParameters, (GenericMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.POST_MSG:
                     EncodePostMessage(defaultPostMsgParameters, (PostMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.REFRESH_MSG:
                     EncodeRefreshMessage(defaultRefreshMsgParameters, (RefreshMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.REQ_MSG:
                     EncodeRequestMessage(defaultRequestMsgParameters, (RequestMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.STATUS_MSG:
                     EncodeStatusMessage(defaultStatusMsgParameters, (StatusMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.UPDATE_MSG:
                     EncodeUpdateMessage(defaultUpdateMsgParameters, (UpdateMsg)msg);
                     break;
+
                 default:
                     break;
             }
@@ -1168,24 +1249,31 @@ namespace LSEG.Ema.Access.Tests
                 case Access.DataType.DataTypes.ACK_MSG:
                     EncodeAckMessage(msgParameters, (AckMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.GENERIC_MSG:
                     EncodeGenericMessage(msgParameters, (GenericMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.POST_MSG:
                     EncodePostMessage(msgParameters, (PostMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.REFRESH_MSG:
                     EncodeRefreshMessage(msgParameters, (RefreshMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.REQ_MSG:
                     EncodeRequestMessage(msgParameters, (RequestMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.STATUS_MSG:
                     EncodeStatusMessage(msgParameters, (StatusMsg)msg);
                     break;
+
                 case Access.DataType.DataTypes.UPDATE_MSG:
                     EncodeUpdateMessage(msgParameters, (UpdateMsg)msg);
                     break;
+
                 default:
                     break;
             }
@@ -1244,7 +1332,7 @@ namespace LSEG.Ema.Access.Tests
                 {
                     msg.Attrib(attrib!);
                     EncodeDefaultContainer(attrib!, msgParameters.AttribContainerType);
-                }           
+                }
             }
             if (msgParameters.HasPayload)
             {
@@ -1252,13 +1340,13 @@ namespace LSEG.Ema.Access.Tests
                 if (msgParameters.Preencoded)
                 {
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
-                    msg.Payload(payload!);             
+                    msg.Payload(payload!);
                 }
                 else
                 {
                     msg.Payload(payload!);
-                    EncodeDefaultContainer(payload!, msgParameters.ContainerType);   
-                }               
+                    EncodeDefaultContainer(payload!, msgParameters.ContainerType);
+                }
             }
             if (msgParameters.CompleteMsgEncoding) msg.EncodeComplete();
 
@@ -1352,7 +1440,7 @@ namespace LSEG.Ema.Access.Tests
                 {
                     msg.Attrib(attrib!);
                     EncodeDefaultContainer(attrib!, msgParameters.AttribContainerType);
-                }                
+                }
             }
             if (msgParameters.HasPayload)
             {
@@ -1360,7 +1448,7 @@ namespace LSEG.Ema.Access.Tests
                 if (msgParameters.Preencoded)
                 {
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
-                    msg.Payload(payload!);               
+                    msg.Payload(payload!);
                 }
                 else
                 {
@@ -1812,7 +1900,7 @@ namespace LSEG.Ema.Access.Tests
             payload?.ClearAndReturnToPool_All();
         }
 
-        #endregion
+        #endregion Encode Messages
 
         #region Encode default contaniers
 
@@ -1846,27 +1934,35 @@ namespace LSEG.Ema.Access.Tests
                 case DataType.DataTypes.ELEMENT_LIST:
                     EncodeDefaultElementList((ElementList)container);
                     break;
+
                 case DataType.DataTypes.VECTOR:
                     EncodeDefaultVector((Vector)container);
                     break;
+
                 case DataType.DataTypes.MAP:
                     EncodeDefaultMap((Map)container);
                     break;
+
                 case DataType.DataTypes.FIELD_LIST:
                     EncodeDefaultFieldList((FieldList)container);
                     break;
+
                 case DataType.DataTypes.FILTER_LIST:
                     EncodeDefaultFilterList((FilterList)container);
                     break;
+
                 case DataType.DataTypes.OPAQUE:
                     EncodeDefaultOpaque((OmmOpaque)container);
                     break;
+
                 case DataType.DataTypes.XML:
                     EncodeDefaultXml((OmmXml)container);
                     break;
+
                 case DataType.DataTypes.ANSI_PAGE:
                     EncodeDefaultAnsiPage((OmmAnsiPage)container);
                     break;
+
                 default:
                     break;
             }
@@ -1909,30 +2005,39 @@ namespace LSEG.Ema.Access.Tests
                 case DataType.DataTypes.ELEMENT_LIST:
                     EncodeElementList((ElementList)container, defaultElementListTypes);
                     break;
+
                 case DataType.DataTypes.VECTOR:
                     EncodeVector((Vector)container, defaultVectorContainerType, false, true, true, defaultVectorActions, defaultVectorEntryHasPermData);
                     break;
+
                 case DataType.DataTypes.FIELD_LIST:
                     EncodeFieldList((FieldList)container, defaultFieldListTypes);
                     break;
+
                 case DataType.DataTypes.SERIES:
                     EncodeSeries((Series)container, defaultSeriesContainerType, true, false, defaultSeriesCountHint, defaultSeriesCountHint);
                     break;
+
                 case DataType.DataTypes.MAP:
                     EncodeMap((Map)container, defaultMapContainerType, defaultMapAction, defaultMapEntryHasPermData, defaultMapKeyType, false, true, true);
                     break;
+
                 case DataType.DataTypes.FILTER_LIST:
                     EncodeFilterList((FilterList)container, defaultFilterListContainerType, true, defaultFilterListActions, defaultFilterListDataTypes, defaultFilterEntryHasPermData, defaultFilterListCountHint);
                     break;
+
                 case DataType.DataTypes.OPAQUE:
                     EncodeDefaultOpaque((OmmOpaque)container);
                     break;
+
                 case DataType.DataTypes.XML:
                     EncodeDefaultXml((OmmXml)container);
                     break;
+
                 case DataType.DataTypes.ANSI_PAGE:
                     EncodeDefaultAnsiPage((OmmAnsiPage)container);
                     break;
+
                 case DataType.DataTypes.ACK_MSG:
                 case DataType.DataTypes.GENERIC_MSG:
                 case DataType.DataTypes.POST_MSG:
@@ -1942,12 +2047,13 @@ namespace LSEG.Ema.Access.Tests
                 case DataType.DataTypes.STATUS_MSG:
                     EncodeDefaultMessage((Msg)container);
                     break;
+
                 default:
                     break;
             }
         }
 
-        #endregion
+        #endregion Encode default contaniers
 
         #region Decode and check containers
 
@@ -1963,10 +2069,12 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(intName.ToString(), entry.Name);
                         Assert.Equal(iv.ToLong(), entry.IntValue());
                         break;
+
                     case DataType.DataTypes.UINT:
                         Assert.Equal(uintName.ToString(), entry.Name);
                         Assert.Equal((ulong)uintv.ToLong(), entry.UIntValue());
                         break;
+
                     case DataType.DataTypes.DATE:
                         Assert.Equal(dateName.ToString(), entry.Name);
                         var resultDate = entry.OmmDateValue();
@@ -1974,6 +2082,7 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(resultDate.Month, date.Month());
                         Assert.Equal(resultDate.Day, date.Day());
                         break;
+
                     case DataType.DataTypes.TIME:
                         Assert.Equal(timeName.ToString(), entry.Name);
                         var resultTime = entry.OmmTimeValue();
@@ -1982,6 +2091,7 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(resultTime.Second, time.Second());
                         Assert.Equal(resultTime.Millisecond, time.Millisecond());
                         break;
+
                     case DataType.DataTypes.DATETIME:
                         Assert.Equal(dateTimeName.ToString(), entry.Name);
                         var resultDateTime = entry.OmmDateTimeValue();
@@ -1990,78 +2100,93 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(resultDateTime.Day, dateTime.Day());
                         Assert.Equal(resultDateTime.Hour, dateTime.Hour());
                         break;
+
                     case DataType.DataTypes.ASCII:
                         Assert.Equal(asciiName.ToString(), entry.Name);
                         Assert.Equal(ascii.ToString(), entry.OmmAsciiValue().ToString());
                         break;
+
                     case DataType.DataTypes.REAL:
                         Assert.Equal(realName.ToString(), entry.Name);
                         Assert.Equal(real.ToDouble(), entry.OmmRealValue().AsDouble());
                         break;
+
                     case DataType.DataTypes.QOS:
                         Assert.Equal(qosName.ToString(), entry.Name);
                         Assert.Equal((uint)qos.Timeliness(), entry.OmmQosValue().Timeliness);
                         Assert.Equal((uint)qos.Rate(), entry.OmmQosValue().Rate);
                         break;
+
                     case DataType.DataTypes.STATE:
                         Assert.Equal(stateName.ToString(), entry.Name);
                         var resultState = entry.OmmStateValue();
                         Assert.Equal(state.StreamState(), resultState.StreamState);
                         Assert.Equal(state.DataState(), resultState.DataState);
                         break;
+
                     case DataType.DataTypes.DOUBLE:
                         Assert.Equal(doubleName.ToString(), entry.Name);
                         var resultDouble = entry.OmmDoubleValue();
                         Assert.Equal(dv.ToDouble(), entry.DoubleValue());
                         break;
+
                     case DataType.DataTypes.FLOAT:
-                        Assert.Equal(floatName.ToString(), entry.Name); 
+                        Assert.Equal(floatName.ToString(), entry.Name);
                         var resultFloat = entry.OmmFloatValue();
                         Assert.Equal(fv.ToFloat(), resultFloat.Value);
                         break;
+
                     case DataType.DataTypes.ARRAY:
                         Assert.Equal(arrayName.ToString(), entry.Name);
                         DecodeAndCheckArray(entry.OmmArrayValue(), defaultArrayDataType);
                         break;
+
                     case DataType.DataTypes.ELEMENT_LIST:
                         Assert.Equal(elDataTypeNameMap[dataTypes[i]], entry.Name);
                         DecodeAndCheckElementList(entry.ElementList(), defaultElementListTypes);
                         break;
+
                     case DataType.DataTypes.VECTOR:
                         Assert.Equal(elDataTypeNameMap[dataTypes[i]], entry.Name);
-                        DecodeAndCheckVector(entry.Vector(), 
-                            defaultVectorContainerType, 
-                            false, true, true, 
-                            defaultVectorActions, 
+                        DecodeAndCheckVector(entry.Vector(),
+                            defaultVectorContainerType,
+                            false, true, true,
+                            defaultVectorActions,
                             defaultVectorEntryHasPermData);
                         break;
+
                     case DataType.DataTypes.SERIES:
                         Assert.Equal(elDataTypeNameMap[dataTypes[i]], entry.Name);
                         DecodeAndCheckDefaultContainer(entry.Series());
                         break;
+
                     case DataType.DataTypes.MAP:
                         Assert.Equal(elDataTypeNameMap[dataTypes[i]], entry.Name);
-                        DecodeAndCheckMap(entry.Map(), 
-                            defaultMapContainerType, 
-                            defaultMapAction, 
-                            defaultMapEntryHasPermData, 
-                            defaultMapKeyType, 
+                        DecodeAndCheckMap(entry.Map(),
+                            defaultMapContainerType,
+                            defaultMapAction,
+                            defaultMapEntryHasPermData,
+                            defaultMapKeyType,
                             false, true, true);
                         break;
+
                     case DataType.DataTypes.FIELD_LIST:
                         Assert.Equal(elDataTypeNameMap[dataTypes[i]], entry.Name);
                         DecodeAndCheckFieldList(entry.FieldList(), defaultFieldListTypes);
                         break;
+
                     case DataType.DataTypes.FILTER_LIST:
                         Assert.Equal(elDataTypeNameMap[dataTypes[i]], entry.Name);
                         DecodeAndCheckDefaultContainer(entry.FilterList());
                         break;
+
                     case DataType.DataTypes.OPAQUE:
                     case DataType.DataTypes.XML:
                     case DataType.DataTypes.ANSI_PAGE:
                         DecodeAndCheckDefaultContainer((ComplexType)entry.Load!);
                         Assert.Equal(elDataTypeNameMap[dataTypes[i]], entry.Name);
                         break;
+
                     case DataType.DataTypes.MSG:
                     case DataType.DataTypes.REFRESH_MSG:
                     case DataType.DataTypes.REQ_MSG:
@@ -2072,6 +2197,7 @@ namespace LSEG.Ema.Access.Tests
                     case DataType.DataTypes.STATUS_MSG:
                         DecodeAndCheckDefaultMessage((Msg)entry.Load!);
                         break;
+
                     default:
                         break;
                 }
@@ -2089,25 +2215,29 @@ namespace LSEG.Ema.Access.Tests
                 {
                     Assert.Equal(dictionaryEntry.GetAcronym().ToString(), entry.Name);
                     Assert.Equal(dictionaryEntry.GetRippleToField(), entry.RippleTo());
-                }             
+                }
                 Assert.Equal(elDataTypeFidMap[dataTypes[i]], entry.FieldId);
                 switch (dataTypes[i])
                 {
-                    case DataType.DataTypes.ARRAY:   
+                    case DataType.DataTypes.ARRAY:
                         DecodeAndCheckArray(entry.OmmArrayValue(), defaultArrayDataType);
                         break;
+
                     case DataType.DataTypes.INT:
                         Assert.Equal(iv.ToLong(), entry.IntValue());
                         break;
+
                     case DataType.DataTypes.REAL:
                         Assert.Equal(real.ToDouble(), entry.OmmRealValue().AsDouble());
                         break;
+
                     case DataType.DataTypes.DATE:
                         var resultDate = entry.OmmDateValue();
                         Assert.Equal(resultDate.Year, date.Year());
                         Assert.Equal(resultDate.Month, date.Month());
                         Assert.Equal(resultDate.Day, date.Day());
                         break;
+
                     case DataType.DataTypes.TIME:
                         var resultTime = entry.OmmTimeValue();
                         Assert.Equal(resultTime.Hour, time.Hour());
@@ -2115,18 +2245,23 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(resultTime.Second, time.Second());
                         Assert.Equal(resultTime.Millisecond, time.Millisecond());
                         break;
+
                     case DataType.DataTypes.ASCII:
                         Assert.Equal(ascii.ToString(), entry.OmmAsciiValue().ToString());
                         break;
+
                     case DataType.DataTypes.ELEMENT_LIST:
                         DecodeAndCheckElementList(entry.ElementList(), defaultElementListTypes);
                         break;
+
                     case DataType.DataTypes.VECTOR:
                         DecodeAndCheckDefaultContainer(entry.Vector());
                         break;
+
                     case DataType.DataTypes.MAP:
                         DecodeAndCheckDefaultContainer(entry.Map());
                         break;
+
                     default:
                         break;
                 }
@@ -2178,7 +2313,7 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(dataType, entry.LoadType);
                         DecodeAndCheckDefaultContainer((ComplexType)entry.Load!);
                     }
-                }                           
+                }
                 i++;
             }
             Assert.Equal(actions.Length, i);
@@ -2221,7 +2356,7 @@ namespace LSEG.Ema.Access.Tests
                 {
                     Assert.Equal(containerType, entry.LoadType);
                 }
-                            
+
                 Assert.Equal(permDataPresent[i], entry.HasPermissionData);
                 if (permDataPresent[i])
                 {
@@ -2233,15 +2368,18 @@ namespace LSEG.Ema.Access.Tests
                     case DataType.DataTypes.INT:
                         Assert.Equal(1, key.Int());
                         break;
+
                     case DataType.DataTypes.UINT:
                         Assert.Equal((ulong)1, key.UInt());
                         break;
+
                     case DataType.DataTypes.DATE:
                         var resultDate = key.Date();
                         Assert.Equal(resultDate.Year, date.Year());
                         Assert.Equal(resultDate.Month, date.Month());
                         Assert.Equal(resultDate.Day, date.Day());
                         break;
+
                     case DataType.DataTypes.TIME:
                         var resultTime = key.Time();
                         Assert.Equal(resultTime.Hour, time.Hour());
@@ -2249,32 +2387,39 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(resultTime.Second, time.Second());
                         Assert.Equal(resultTime.Millisecond, time.Millisecond());
                         break;
+
                     case DataType.DataTypes.DATETIME:
                         var resultDateTime = key.DateTime();
                         Assert.Equal(resultDateTime.Year, dateTime.Year());
                         Assert.Equal(resultDateTime.Month, dateTime.Month());
                         Assert.Equal(resultDateTime.Day, dateTime.Day());
-                        Assert.Equal(resultDateTime.Hour, dateTime.Hour()); 
+                        Assert.Equal(resultDateTime.Hour, dateTime.Hour());
                         break;
+
                     case DataType.DataTypes.ASCII:
-                        Assert.Equal(ascii.ToString(), key.Ascii().ToString()); 
+                        Assert.Equal(ascii.ToString(), key.Ascii().ToString());
                         break;
+
                     case DataType.DataTypes.REAL:
-                        Assert.Equal(real.ToDouble(), key.Real().AsDouble()); 
+                        Assert.Equal(real.ToDouble(), key.Real().AsDouble());
                         break;
+
                     case DataType.DataTypes.QOS:
                         var resultQos = key.Qos();
                         Assert.Equal((uint)qos.Timeliness(), resultQos.Timeliness);
-                        Assert.Equal((uint)qos.Rate(), resultQos.Rate); 
+                        Assert.Equal((uint)qos.Rate(), resultQos.Rate);
                         break;
+
                     case DataType.DataTypes.STATE:
                         var resultState = key.State();
                         Assert.Equal(state.StreamState(), resultState.StreamState);
-                        Assert.Equal(state.DataState(), resultState.DataState); 
+                        Assert.Equal(state.DataState(), resultState.DataState);
                         break;
+
                     case DataType.DataTypes.DOUBLE:
-                        Assert.Equal(dv.ToDouble(), key.Double()); 
+                        Assert.Equal(dv.ToDouble(), key.Double());
                         break;
+
                     case DataType.DataTypes.FLOAT:
                         Assert.Equal(fv.ToFloat(), key.Float());
                         break;
@@ -2282,7 +2427,7 @@ namespace LSEG.Ema.Access.Tests
                 if (entry.Action != MapAction.DELETE)
                 {
                     DecodeAndCheckDefaultContainer((ComplexType)entry.Load!);
-                }                    
+                }
                 i++;
             }
             Assert.Equal(entryActions.Length, i);
@@ -2329,7 +2474,7 @@ namespace LSEG.Ema.Access.Tests
             if (hasCountHint)
             {
                 Assert.Equal(countHint, filterList.TotalCountHint());
-            }            
+            }
             int i = 0;
             HashSet<int> foundActions = new HashSet<int>();
             foreach (var entry in filterList)
@@ -2352,17 +2497,17 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(dataTypes[i], entry.LoadType);
                         DecodeAndCheckDefaultContainer((ComplexType)entry.Load!);
                     }
-                }                        
+                }
                 i++;
             }
             Assert.Equal(filterActions.Length, i);
             foreach (var action in filterActions) Assert.Contains(action, foundActions);
         }
 
-        #endregion
+        #endregion Decode and check containers
 
         #region Decode And Check Messages
-        
+
         public static void DecodeAndCheckRequestMessage(MsgParameters msgParameters, RequestMsg msg, Buffer body, DataDictionary dataDictionary)
         {
             Assert.Equal(CodecReturnCode.SUCCESS, msg.Decode(body, Codec.MajorVersion(), Codec.MinorVersion(), dataDictionary, null));
@@ -2414,7 +2559,7 @@ namespace LSEG.Ema.Access.Tests
             }
             else
             {
-                Assert.False(msg.HasId);               
+                Assert.False(msg.HasId);
             }
             if (msgParameters.HasFilter)
             {
@@ -2658,7 +2803,7 @@ namespace LSEG.Ema.Access.Tests
             {
                 Assert.Equal(permissionData, msg.PermissionData());
             }
-            Assert.Equal(msgParameters.ClearCache, msg.ClearCache());          
+            Assert.Equal(msgParameters.ClearCache, msg.ClearCache());
             if (msgParameters.HasMsgKey)
             {
                 Assert.Equal("StatusMsg", msg.Name());
@@ -2923,8 +3068,8 @@ namespace LSEG.Ema.Access.Tests
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
         }
-        
-        #endregion
+
+        #endregion Decode And Check Messages
 
         public static void DecodeAndCheckRequestMessage(MsgParameters msgParameters, RequestMsg msg)
         {
@@ -3027,6 +3172,7 @@ namespace LSEG.Ema.Access.Tests
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
         }
+
         public static void DecodeAndCheckRefreshMessage(MsgParameters msgParameters, RefreshMsg msg)
         {
             Assert.Equal(5, msg.StreamId());
@@ -3130,6 +3276,7 @@ namespace LSEG.Ema.Access.Tests
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
         }
+
         public static void DecodeAndCheckUpdateMessage(MsgParameters msgParameters, UpdateMsg msg)
         {
             Assert.Equal(3, msg.StreamId());
@@ -3200,6 +3347,7 @@ namespace LSEG.Ema.Access.Tests
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
         }
+
         public static void DecodeAndCheckStatusMessage(MsgParameters msgParameters, StatusMsg msg)
         {
             Assert.Equal(4, msg.StreamId());
@@ -3267,6 +3415,7 @@ namespace LSEG.Ema.Access.Tests
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
         }
+
         public static void DecodeAndCheckGenericMessage(MsgParameters msgParameters, GenericMsg msg)
         {
             Assert.Equal(4, msg.StreamId());
@@ -3331,6 +3480,7 @@ namespace LSEG.Ema.Access.Tests
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
         }
+
         public static void DecodeAndCheckPostMessage(MsgParameters msgParameters, PostMsg msg)
         {
             Assert.Equal(4, msg.StreamId());
@@ -3410,6 +3560,7 @@ namespace LSEG.Ema.Access.Tests
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
         }
+
         public static void DecodeAndCheckAckMessage(MsgParameters msgParameters, AckMsg msg)
         {
             Assert.Equal(8, msg.StreamId());
@@ -3473,6 +3624,7 @@ namespace LSEG.Ema.Access.Tests
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
         }
+
         public static void DecodeAndCheckDefaultMessage(Msg msg)
         {
             switch (msg.DataType)
@@ -3480,24 +3632,31 @@ namespace LSEG.Ema.Access.Tests
                 case DataType.DataTypes.ACK_MSG:
                     DecodeAndCheckAckMessage(defaultAckMsgParameters, (AckMsg)msg);
                     break;
+
                 case DataType.DataTypes.GENERIC_MSG:
                     DecodeAndCheckGenericMessage(defaultGenericMsgParameters, (GenericMsg)msg);
                     break;
+
                 case DataType.DataTypes.POST_MSG:
                     DecodeAndCheckPostMessage(defaultPostMsgParameters, (PostMsg)msg);
                     break;
+
                 case DataType.DataTypes.REFRESH_MSG:
                     DecodeAndCheckRefreshMessage(defaultRefreshMsgParameters, (RefreshMsg)msg);
                     break;
+
                 case DataType.DataTypes.REQ_MSG:
                     DecodeAndCheckRequestMessage(defaultRequestMsgParameters, (RequestMsg)msg);
                     break;
+
                 case DataType.DataTypes.UPDATE_MSG:
                     DecodeAndCheckUpdateMessage(defaultUpdateMsgParameters, (UpdateMsg)msg);
                     break;
+
                 case DataType.DataTypes.STATUS_MSG:
                     DecodeAndCheckStatusMessage(defaultStatusMsgParameters, (StatusMsg)msg);
                     break;
+
                 default:
                     break;
             }
@@ -3511,6 +3670,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(opaqueBytes[i], buffer[i]);
             }
         }
+
         public static void DecodeAndCheckDefaultAnsiPage(OmmAnsiPage container)
         {
             var buffer = container.Buffer;
@@ -3519,6 +3679,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(ansiPageBytes[i], buffer[i]);
             }
         }
+
         public static void DecodeAndCheckDefaultXml(OmmXml container)
         {
             var buffer = container.Value;
@@ -3527,6 +3688,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(xmlBytes[i], buffer[i]);
             }
         }
+
         public static void DecodeAndCheckDefaultContainer(ComplexType container)
         {
             switch (container.DataType)
@@ -3534,38 +3696,46 @@ namespace LSEG.Ema.Access.Tests
                 case DataType.DataTypes.ELEMENT_LIST:
                     DecodeAndCheckElementList((ElementList)container, defaultElementListTypes);
                     break;
+
                 case DataType.DataTypes.VECTOR:
                     DecodeAndCheckVector((Vector)container, defaultVectorContainerType, false, true, true, defaultVectorActions, defaultVectorEntryHasPermData);
                     break;
+
                 case DataType.DataTypes.FIELD_LIST:
                     DecodeAndCheckFieldList((FieldList)container, defaultFieldListTypes);
                     break;
+
                 case DataType.DataTypes.FILTER_LIST:
-                    DecodeAndCheckFilterList((FilterList)container, 
-                        defaultFilterListContainerType, 
-                        true, 
+                    DecodeAndCheckFilterList((FilterList)container,
+                        defaultFilterListContainerType,
+                        true,
                         defaultFilterListActions,
                         defaultFilterListDataTypes,
                         defaultFilterEntryHasPermData,
                         defaultFilterListCountHint);
                     break;
+
                 case DataType.DataTypes.MAP:
-                    DecodeAndCheckMap((Map)container, 
-                        defaultMapContainerType, 
-                        defaultMapAction, 
+                    DecodeAndCheckMap((Map)container,
+                        defaultMapContainerType,
+                        defaultMapAction,
                         defaultMapEntryHasPermData,
                         defaultMapKeyType,
                         false, true, true);
                     break;
+
                 case DataType.DataTypes.SERIES:
                     DecodeAndCheckSeries((Series)container, defaultSeriesContainerType, true, false, defaultSeriesCountHint, defaultSeriesCountHint);
                     break;
+
                 case DataType.DataTypes.OPAQUE:
                     DecodeAndCheckDefaultOpaque((OmmOpaque)container);
                     break;
+
                 case DataType.DataTypes.XML:
                     DecodeAndCheckDefaultXml((OmmXml)container);
                     break;
+
                 case DataType.DataTypes.ACK_MSG:
                 case DataType.DataTypes.GENERIC_MSG:
                 case DataType.DataTypes.POST_MSG:
@@ -3575,23 +3745,25 @@ namespace LSEG.Ema.Access.Tests
                 case DataType.DataTypes.STATUS_MSG:
                     DecodeAndCheckDefaultMessage((Msg)container);
                     break;
+
                 default:
                     break;
             }
         }
 
-        static DecodeIterator primitiveTypeDecodeIterator = new DecodeIterator();
-        static Int ptIntVal = new Int();
-        static UInt ptUintVal = new UInt();
-        static Date ptDateVal = new Date();
-        static Time ptTimeVal = new Time();
-        static DateTime ptDateTimeVal = new DateTime();
-        static Qos ptQosVal = new Qos();
-        static State ptStateVal = new State();
-        static Double ptDoubleVal = new Double();
-        static Float ptFloatVal = new Float();
-        static Real ptRealVal = new Real();
-        static Buffer ptAsciiVal = new Buffer();
+        private static DecodeIterator primitiveTypeDecodeIterator = new DecodeIterator();
+        private static Int ptIntVal = new Int();
+        private static UInt ptUintVal = new UInt();
+        private static Date ptDateVal = new Date();
+        private static Time ptTimeVal = new Time();
+        private static DateTime ptDateTimeVal = new DateTime();
+        private static Qos ptQosVal = new Qos();
+        private static State ptStateVal = new State();
+        private static Double ptDoubleVal = new Double();
+        private static Float ptFloatVal = new Float();
+        private static Real ptRealVal = new Real();
+        private static Buffer ptAsciiVal = new Buffer();
+
         public static void DecodeAndCheckDefaultPrimitiveType(Buffer keyBuffer, int dataType)
         {
             primitiveTypeDecodeIterator.Clear();
@@ -3603,60 +3775,72 @@ namespace LSEG.Ema.Access.Tests
                     Assert.Equal(CodecReturnCode.SUCCESS, ptIntVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptIntVal.Equals(iv));
                     break;
+
                 case DataType.DataTypes.UINT:
                     ptUintVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptUintVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptUintVal.Equals(uintv));
                     break;
+
                 case DataType.DataTypes.DATE:
                     ptDateVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptDateVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptDateVal.Equals(date));
                     break;
+
                 case DataType.DataTypes.TIME:
                     ptTimeVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptTimeVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptTimeVal.Equals(time));
                     break;
+
                 case DataType.DataTypes.DATETIME:
                     ptDateTimeVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptDateTimeVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptDateTimeVal.Equals(dateTime));
                     break;
+
                 case DataType.DataTypes.QOS:
                     ptQosVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptQosVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptQosVal.Equals(qos));
                     break;
+
                 case DataType.DataTypes.STATE:
                     ptStateVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptStateVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptStateVal.Equals(state));
                     break;
+
                 case DataType.DataTypes.DOUBLE:
                     ptDoubleVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptDoubleVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptDoubleVal.Equals(dv));
                     break;
+
                 case DataType.DataTypes.FLOAT:
                     ptFloatVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptFloatVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptFloatVal.Equals(fv));
                     break;
+
                 case DataType.DataTypes.REAL:
                     ptRealVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptRealVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptRealVal.Equals(real));
                     break;
+
                 case DataType.DataTypes.ASCII:
                     ptAsciiVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptAsciiVal.Decode(primitiveTypeDecodeIterator));
                     Assert.True(ptAsciiVal.Equals(ascii));
                     break;
+
                 default:
                     break;
             }
         }
+
         public static void DecodeAndCheckDefaultPrimitiveType(DecodeIterator decIter, int dataType)
         {
             switch (dataType)
@@ -3666,60 +3850,72 @@ namespace LSEG.Ema.Access.Tests
                     Assert.Equal(CodecReturnCode.SUCCESS, ptIntVal.Decode(decIter));
                     Assert.True(ptIntVal.Equals(iv));
                     break;
+
                 case DataType.DataTypes.UINT:
                     ptUintVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptUintVal.Decode(decIter));
                     Assert.True(ptUintVal.Equals(uintv));
                     break;
+
                 case DataType.DataTypes.DATE:
                     ptDateVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptDateVal.Decode(decIter));
                     Assert.True(ptDateVal.Equals(date));
                     break;
+
                 case DataType.DataTypes.TIME:
                     ptTimeVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptTimeVal.Decode(decIter));
                     Assert.True(ptTimeVal.Equals(time));
                     break;
+
                 case DataType.DataTypes.DATETIME:
                     ptDateTimeVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptDateTimeVal.Decode(decIter));
                     Assert.True(ptDateTimeVal.Equals(dateTime));
                     break;
+
                 case DataType.DataTypes.QOS:
                     ptQosVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptQosVal.Decode(decIter));
                     Assert.True(ptQosVal.Equals(qos));
                     break;
+
                 case DataType.DataTypes.STATE:
                     ptStateVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptStateVal.Decode(decIter));
                     Assert.True(ptStateVal.Equals(state));
                     break;
+
                 case DataType.DataTypes.DOUBLE:
                     ptDoubleVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptDoubleVal.Decode(decIter));
                     Assert.True(ptDoubleVal.Equals(dv));
                     break;
+
                 case DataType.DataTypes.FLOAT:
                     ptFloatVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptFloatVal.Decode(decIter));
                     Assert.True(ptFloatVal.Equals(fv));
                     break;
+
                 case DataType.DataTypes.REAL:
                     ptRealVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptRealVal.Decode(decIter));
                     Assert.True(ptRealVal.Equals(real));
                     break;
+
                 case DataType.DataTypes.ASCII:
                     ptAsciiVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptAsciiVal.Decode(decIter));
                     Assert.True(ptAsciiVal.ToString().Equals(ascii.ToString()));
                     break;
+
                 default:
                     break;
             }
         }
+
         public static void DecodeAndCheckArray(OmmArray array, int dataType)
         {
             int i = 0;
@@ -3731,27 +3927,34 @@ namespace LSEG.Ema.Access.Tests
                     case DataType.DataTypes.INT:
                         Assert.Equal(iv.ToLong(), entry.OmmIntValue().Value);
                         break;
+
                     case DataType.DataTypes.UINT:
                         Assert.Equal((ulong)uintv.ToLong(), entry.OmmUIntValue().Value);
                         break;
+
                     case DataType.DataTypes.DOUBLE:
                         Assert.Equal(dv.ToDouble(), entry.OmmDoubleValue().Value);
                         break;
+
                     case DataType.DataTypes.FLOAT:
                         Assert.Equal(fv.ToFloat(), entry.OmmFloatValue().Value);
                         break;
+
                     case DataType.DataTypes.REAL:
                         Assert.Equal(real.ToDouble(), entry.OmmRealValue().AsDouble());
                         break;
+
                     case DataType.DataTypes.ASCII:
                         Assert.Equal(ascii.ToString(), entry.OmmAsciiValue().ToString());
                         break;
+
                     case DataType.DataTypes.DATE:
                         var resultDate = entry.OmmDateValue();
                         Assert.Equal(resultDate.Year, date.Year());
                         Assert.Equal(resultDate.Month, date.Month());
                         Assert.Equal(resultDate.Day, date.Day());
                         break;
+
                     case DataType.DataTypes.TIME:
                         var resultTime = entry.OmmTimeValue();
                         Assert.Equal(resultTime.Hour, time.Hour());
@@ -3759,17 +3962,20 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(resultTime.Second, time.Second());
                         Assert.Equal(resultTime.Millisecond, time.Millisecond());
                         break;
+
                     case DataType.DataTypes.QOS:
                         //Assert.Equal(qos.Timeliness() != QosTimeliness.DELAYED ? (uint)qos.Timeliness() : (uint)qos.TimeInfo(), entry.OmmQosValue.Timeliness);
                         Assert.Equal(qos.Timeliness(), (int)entry.OmmQosValue().Timeliness);
                         //Assert.Equal(qos.Rate() != QosRates.TIME_CONFLATED ? (uint)qos.Rate() : (uint)qos.RateInfo(), entry.OmmQosValue.Rate);
                         Assert.Equal(qos.Rate(), (int)entry.OmmQosValue().Rate);
                         break;
+
                     case DataType.DataTypes.STATE:
                         var resultState = entry.OmmStateValue();
                         Assert.Equal(state.StreamState(), resultState.StreamState);
                         Assert.Equal(state.DataState(), resultState.DataState);
                         break;
+
                     case DataType.DataTypes.DATETIME:
                         var resultDateTime = entry.OmmDateTimeValue();
                         Assert.Equal(resultDateTime.Year, dateTime.Year());
@@ -3777,15 +3983,18 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(resultDateTime.Day, dateTime.Day());
                         Assert.Equal(resultDateTime.Hour, dateTime.Hour());
                         break;
+
                     case DataType.DataTypes.ENUM:
                         Assert.Equal(enumer.ToInt(), entry.OmmEnumValue().Value);
                         break;
+
                     default:
                         break;
                 }
             }
             Assert.Equal(length, i);
         }
+
         public static void EncodeElementListWithCodeValues(ElementList elementList, int[] dataTypes)
         {
             for (int i = 0; i < dataTypes.Length; i++)
@@ -3795,54 +4004,69 @@ namespace LSEG.Ema.Access.Tests
                     case DataType.DataTypes.INT:
                         elementList.AddCodeInt(intName.ToString());
                         break;
+
                     case DataType.DataTypes.UINT:
                         elementList.AddCodeUInt(uintName.ToString());
                         break;
+
                     case DataType.DataTypes.DATE:
                         elementList.AddCodeDate(dateName.ToString());
                         break;
+
                     case DataType.DataTypes.TIME:
                         elementList.AddCodeTime(timeName.ToString());
                         break;
+
                     case DataType.DataTypes.DATETIME:
                         elementList.AddCodeDateTime(dateTimeName.ToString());
                         break;
+
                     case DataType.DataTypes.ASCII:
                         elementList.AddCodeAscii(asciiName.ToString());
                         break;
+
                     case DataType.DataTypes.REAL:
                         elementList.AddCodeReal(realName.ToString());
                         break;
+
                     case DataType.DataTypes.QOS:
                         elementList.AddCodeQos(qosName.ToString());
                         break;
+
                     case DataType.DataTypes.RMTES:
                         elementList.AddCodeRmtes("rmtes");
                         break;
+
                     case DataType.DataTypes.BUFFER:
                         elementList.AddCodeBuffer("buffer");
                         break;
+
                     case DataType.DataTypes.STATE:
                         elementList.AddCodeState(stateName.ToString());
                         break;
+
                     case DataType.DataTypes.DOUBLE:
                         elementList.AddCodeDouble(doubleName.ToString());
                         break;
+
                     case DataType.DataTypes.FLOAT:
                         elementList.AddCodeFloat(floatName.ToString());
                         break;
+
                     case DataType.DataTypes.ENUM:
                         elementList.AddCodeEnum(enumName.ToString());
                         break;
                     case DataType.DataTypes.ARRAY:
                         elementList.AddCodeArray(enumName.ToString());
                         break;
+
                     default:
                         break;
                 }
             }
             elementList.Complete();
         }
+
         public static void DecodeAndCheckElementListWithCodeValues(ElementList elementList)
         {
             foreach (var entry in elementList)
@@ -3853,53 +4077,66 @@ namespace LSEG.Ema.Access.Tests
                         Assert.Equal(intName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.UINT:
                         Assert.Equal(uintName.ToString(), entry.Name);
                         break;
+
                     case DataType.DataTypes.DATE:
                         Assert.Equal(dateName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.TIME:
                         Assert.Equal(timeName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.DATETIME:
                         Assert.Equal(dateTimeName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.ASCII:
                         Assert.Equal(asciiName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.REAL:
                         Assert.Equal(realName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.QOS:
                         Assert.Equal(qosName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.RMTES:
                         Assert.Equal("rmtes", entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.BUFFER:
                         Assert.Equal("buffer", entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.STATE:
                         Assert.Equal(stateName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.DOUBLE:
                         Assert.Equal(doubleName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.FLOAT:
                         Assert.Equal(floatName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
                         break;
+
                     case DataType.DataTypes.ENUM:
                         Assert.Equal(enumName.ToString(), entry.Name);
                         Assert.Equal(Data.DataCode.BLANK, entry.Code);
@@ -4040,7 +4277,6 @@ namespace LSEG.Ema.Access.Tests
                 }
             }
         }
-
     }
 
     public class MsgParameters

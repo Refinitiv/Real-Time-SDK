@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -49,15 +49,16 @@ namespace LSEG.Ema.Access
         /// Returns a string representation of the class instance.
         /// </summary>
         /// <returns>string representation of the class object.</returns>
-        public string? GetString() { return m_buffer!.Value!.ToString(); }
+        public string? GetString()
+        { return m_buffer!.Value!.ToString(); }
 
         /// <summary>
         /// Clears the OmmOpaque.
         /// Invoking Clear() method clears all the values and resets all the defaults.
         /// </summary>
         /// <returns>Reference to the current <see cref="OmmOpaque"/> object.</returns>
-        public OmmOpaque Clear() 
-        { 
+        public OmmOpaque Clear()
+        {
             Clear_All();
             return this;
         }
@@ -67,12 +68,12 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="value">specifies Opaque data using <see cref="EmaBuffer"/></param>
         /// <returns>Reference to the current <see cref="OmmOpaque"/> object.</returns>
-        public OmmOpaque SetBuffer(EmaBuffer value) 
+        public OmmOpaque SetBuffer(EmaBuffer value)
         {
             m_nonRWFEncoder.EncodeBuffer(value);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies Set.
         /// </summary>
@@ -124,7 +125,7 @@ namespace LSEG.Ema.Access
             m_ToString.Length = 0;
 
             Utilities.AddIndent(m_ToString, indent);
-            m_ToString.Append("Opaque\n\n").Append(EmaUtility.AsHexString(AsHex()));
+            m_ToString.Append("Opaque\n").Append(EmaUtility.AsHexString(AsHex()));
             Utilities.AddIndent(m_ToString.Append("\n"), indent).Append("OpaqueEnd\n");
 
             return m_ToString.ToString();
@@ -137,6 +138,11 @@ namespace LSEG.Ema.Access
         public override string ToString()
         {
             return ToString(0);
+        }
+
+        internal override string FillString(int indent)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

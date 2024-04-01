@@ -2,12 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
-using LSEG.Eta.Common;
 using System;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
@@ -30,7 +29,7 @@ namespace LSEG.Ema.Access
         /// <summary>
         /// Constructor for OmmXml class
         /// </summary>
-        public OmmXml() 
+        public OmmXml()
         {
             m_nonRWFEncoder = new OmmNonRwfEncoder();
             Encoder = m_nonRWFEncoder;
@@ -47,18 +46,19 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns><see cref="EmaBuffer"/> containing the XML data</returns>
         public EmaBuffer Value { get => m_buffer.Value; }
-        
+
         /// <summary>
         /// Returns a string representation of the class instance.
         /// </summary>
         /// <returns>string representation of the class object.</returns>
-        public string? GetString() { return m_buffer!.Value!.ToString(); }
-        
+        public string? GetString()
+        { return m_buffer!.Value!.ToString(); }
+
         /// <summary>
         /// Clears the OmmXml instance.
         /// </summary>
         /// <returns>Reference to current <see cref="OmmXml"/> object.</returns>
-        public OmmXml Clear() 
+        public OmmXml Clear()
         {
             Clear_All();
             return this;
@@ -74,18 +74,18 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="value">specifies XML data using string</param>
         /// <returns>Reference to current <see cref="OmmXml"/> object.</returns>
-        public OmmXml SetString(string value) 
+        public OmmXml SetString(string value)
         {
             m_nonRWFEncoder.EncodeBuffer(value);
             return this;
         }
-        
+
         /// <summary>
         /// Encodes specified EmaBuffer containing XML data.
         /// </summary>
         /// <param name="value"> specifies XML data using <see cref="EmaBuffer"/></param>
         /// <returns>Reference to current <see cref="OmmXml"/> object.</returns>
-        public OmmXml SetBuffer(EmaBuffer value) 
+        public OmmXml SetBuffer(EmaBuffer value)
         {
             m_nonRWFEncoder.EncodeBuffer(value);
             return this;
@@ -96,7 +96,7 @@ namespace LSEG.Ema.Access
             if (m_buffer.DecodeOmmBuffer(dIter) < CodecReturnCode.SUCCESS)
             {
                 Code = DataCode.BLANK;
-            } 
+            }
             else
             {
                 Code = DataCode.NO_CODE;
@@ -143,6 +143,11 @@ namespace LSEG.Ema.Access
             Utilities.AddIndent(m_ToString.Append("\n"), indent).Append("XmlEnd\n");
 
             return m_ToString.ToString();
+        }
+
+        internal override string FillString(int indent)
+        {
+            throw new NotImplementedException();
         }
     }
 }

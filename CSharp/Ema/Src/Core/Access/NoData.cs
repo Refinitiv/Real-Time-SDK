@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -36,10 +36,15 @@ namespace LSEG.Ema.Access
             return m_ToString.ToString();
         }
 
+        internal override string FillString(int indent)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Constructor for NoData object
         /// </summary>
-        public NoData() 
+        public NoData()
         {
             ReturnToPoolInternal = () => m_objectManager.ReturnToPool(this);
             DecodePrimitiveType = DecodeNoDataPrimitive;

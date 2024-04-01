@@ -2,12 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
-using LSEG.Eta.Common;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -18,7 +17,7 @@ namespace LSEG.Ema.Access
     /// <summary>
     /// Base message interface for all message representing classes.
     /// </summary>
-    public class Msg : ComplexType
+    public abstract class Msg : ComplexType
     {
         internal Eta.Codec.Msg m_rsslMsg = new Eta.Codec.Msg();
         internal Eta.Codec.Msg m_internalRsslMsg;
@@ -27,7 +26,6 @@ namespace LSEG.Ema.Access
         internal ComplexType? m_defaultData = new NoData();
         internal MsgEncoder m_msgEncoder;
         private DecodeIterator m_helperDecodeIterator = new DecodeIterator();
-        internal DataDictionary? m_dataDictionary;
 
         private EmaBuffer m_extendedHeader = new EmaBuffer();
         private bool m_extendedHeaderSet = false;
@@ -38,14 +36,15 @@ namespace LSEG.Ema.Access
 
         internal int m_msgClass;
 
-        string? m_serviceName = null;
+        private string? m_serviceName = null;
 
 #pragma warning disable CS8618
+
         /// <summary>
         /// Constructor for Msg instance
         /// </summary>
-        internal Msg() 
-        { 
+        internal Msg()
+        {
             ClearTypeSpecific_All = ClearMsg_All;
             ClearTypeSpecific_Decode = ClearMsg_Decode;
 
@@ -54,7 +53,6 @@ namespace LSEG.Ema.Access
             m_dataType = Access.DataType.DataTypes.MSG;
             m_internalRsslMsg = m_rsslMsg;
         }
-
 
         internal Msg(EmaObjectManager manager)
         {
@@ -70,6 +68,7 @@ namespace LSEG.Ema.Access
 
             m_internalRsslMsg = m_rsslMsg;
         }
+
 #pragma warning restore CS8618
 
         internal void SetObjectManager(EmaObjectManager manager)
@@ -132,14 +131,14 @@ namespace LSEG.Ema.Access
         /// Determines whether current Msg instance has Service name set
         /// </summary>
         /// <returns>true if the message contains a service name, false otherwise.</returns>
-        public bool HasServiceName { get => m_msgEncoder.m_serviceNameSet;}
+        public bool HasServiceName { get => m_msgEncoder.m_serviceNameSet; }
 
         /// <summary>
         /// The stream id associated with the message
         /// </summary>
         /// <returns>The stream ID.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public int StreamId() 
+        public int StreamId()
         {
             return m_rsslMsg.StreamId;
         }
@@ -160,8 +159,8 @@ namespace LSEG.Ema.Access
         /// <returns>The name string</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if the message does not have a set name, which can be verified with <see cref="Msg.HasName"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public string Name() 
-        { 
+        public string Name()
+        {
             if (!HasName)
             {
                 throw new OmmInvalidUsageException("Invalid attempt to call Name() while it is not set.");
@@ -170,7 +169,7 @@ namespace LSEG.Ema.Access
             Buffer nameBuffer = m_rsslMsg.MsgKey.Name;
             if (nameBuffer.Length == 0)
                 return string.Empty;
-            else 
+            else
                 return nameBuffer.ToString();
         }
 
@@ -180,7 +179,7 @@ namespace LSEG.Ema.Access
         /// <returns>The service ID.</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if the message does not have a set service ID, which can be verified with <see cref="Msg.HasServiceId"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public int ServiceId() 
+        public int ServiceId()
         {
             if (!HasServiceId)
             {
@@ -243,13 +242,13 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>The extended header.</returns>
         ///  <exception cref="OmmInvalidUsageException">Thrown if the message does not have a set extended header, which can be verified with <see cref="Msg.HasExtendedHeader"/></exception>
-        public EmaBuffer ExtendedHeader() 
-        { 
+        public EmaBuffer ExtendedHeader()
+        {
             if (!m_rsslMsg.CheckHasExtendedHdr())
             {
                 throw new OmmInvalidUsageException("Invalid attempt to call ExtendedHeader() while it is not set.");
             }
-            return GetExtendedHeaderEmaBuffer(); 
+            return GetExtendedHeaderEmaBuffer();
         }
 
         /// <summary>
@@ -259,11 +258,11 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>The message key attrib data.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public ComplexTypeData Attrib() 
+        public ComplexTypeData Attrib()
         {
             return m_attrib;
         }
-        
+
         /// <summary>
         /// Returns the contained payload Data based on the payload DataType.
         /// Payload contains no data if <see cref="ComplexTypeData.DataType"/> returns
@@ -298,7 +297,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void ClearMsg_All()
-        {            
+        {
             m_payload.Clear();
             m_attrib.Clear();
 
@@ -341,7 +340,6 @@ namespace LSEG.Ema.Access
             m_rsslMsg = m_internalRsslMsg;
         }
 
-
         /// <summary>
         /// Performs a deep copy of the current decoded message into the proivded <see cref="Msg"/> instance.
         /// </summary>
@@ -349,7 +347,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void CopyMsg(Msg destMsg)
         {
-            destMsg.Clear_All();                  
+            destMsg.Clear_All();
             destMsg.m_dataDictionary = m_dataDictionary;
 
             CopyFromInternalRsslMsg(m_rsslMsg, destMsg);
@@ -439,6 +437,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal CodecReturnCode Decode(int majorVersion, int minorVersion, DataDictionary? dataDictionary, object? localDb)
         {
+            m_hasDecodedDataSet = true;
             m_MajorVersion = majorVersion;
             m_MinorVersion = minorVersion;
 
@@ -463,16 +462,19 @@ namespace LSEG.Ema.Access
                 case CodecReturnCode.SUCCESS:
                     ret = DecodeAttribAndPayload(dataDictionary!, null);
                     return ret;
+
                 case CodecReturnCode.ITERATOR_OVERRUN:
                     m_errorCode = OmmError.ErrorCodes.ITERATOR_OVERRUN;
                     m_attrib.SetError(m_errorCode);
                     m_payload.SetError(m_errorCode);
                     return ret;
+
                 case CodecReturnCode.INCOMPLETE_DATA:
                     m_errorCode = OmmError.ErrorCodes.INCOMPLETE_DATA;
                     m_attrib.SetError(m_errorCode);
                     m_payload.SetError(m_errorCode);
                     return ret;
+
                 default:
                     m_errorCode = OmmError.ErrorCodes.UNKNOWN_ERROR;
                     m_attrib.SetError(m_errorCode);
@@ -497,7 +499,7 @@ namespace LSEG.Ema.Access
                 {
                     return ret;
                 }
-            }           
+            }
 
             return DecodeComplexTypeInternal(m_rsslMsg.ContainerType,
                 m_rsslMsg.EncodedDataBody,
@@ -508,9 +510,9 @@ namespace LSEG.Ema.Access
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private CodecReturnCode DecodeComplexTypeInternal(int dataType,
-            Buffer body, 
-            DataDictionary? dictionary, 
-            object? localDb, 
+            Buffer body,
+            DataDictionary? dictionary,
+            object? localDb,
             ComplexTypeData complexType)
         {
             int ommDataType = dataType;
@@ -522,11 +524,6 @@ namespace LSEG.Ema.Access
             }
 
             return complexType.Decode(body, ommDataType, m_MajorVersion, m_MinorVersion, dictionary, localDb);
-        }
-
-        internal override string ToString(int indent)
-        {
-            throw new NotImplementedException(); //This will be overrided by the actual message types.
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -554,8 +551,8 @@ namespace LSEG.Ema.Access
         {
             if (!m_extendedHeaderSet)
             {
-                m_extendedHeader.CopyFrom(m_rsslMsg.ExtendedHeader.Data().Contents, 
-                    m_rsslMsg.ExtendedHeader.Position, 
+                m_extendedHeader.CopyFrom(m_rsslMsg.ExtendedHeader.Data().Contents,
+                    m_rsslMsg.ExtendedHeader.Position,
                     m_rsslMsg.ExtendedHeader.Length);
                 m_extendedHeaderSet = true;
             }
@@ -593,8 +590,75 @@ namespace LSEG.Ema.Access
             return m_msgEncoder.EncodeComplete(encodeIterator, out error);
         }
 
-        internal virtual void EncodeComplete() { }
+        internal virtual void EncodeComplete()
+        { }
 
-        #endregion
+        /// <summary>
+        /// Obtains string representation of the current Message.
+        /// </summary>
+        /// <returns>String representation of the current Message.</returns>
+        public override string ToString()
+        {
+            return ToString(0);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string ToString(int indent)
+        {
+            if (m_hasDecodedDataSet)
+            {
+                return FillString(indent);
+            }
+
+            return $"\n{GetType().Name}.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.";
+        }
+
+        /// <summary>
+        /// Obtains string representation of the current Message
+        /// </summary>
+        /// <param name="dataDictionary"><see cref="Ema.Rdm.DataDictionary"/> object used to obtain string representaiton
+        /// of the Message object</param>
+        /// <returns><see cref="string"/> object representing current ComplexType instance</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public override string ToString(Rdm.DataDictionary dataDictionary)
+        {
+            if (!dataDictionary.IsEnumTypeDefLoaded || !dataDictionary.IsFieldDictionaryLoaded)
+            {
+                return "\nThe provided DataDictionary is not properly loaded.";
+            }
+            EncodeComplete();
+            if (Encoder != null && Encoder.m_encodeIterator != null && Encoder.m_containerComplete)
+            {
+                var encodedBuffer = Encoder.m_encodeIterator!.Buffer();
+
+                var tmpObject = (Msg?)m_objectManager.GetComplexTypeFromPool(this.DataType);
+                if (tmpObject == null)
+                {
+                    return $"\nToString(DataDictionary) is called on an invalid DataType {DataType}.";
+                }
+
+                string result = string.Empty;
+                try
+                {
+                    CodecReturnCode ret;
+                    if ((ret = tmpObject.Decode(encodedBuffer, Codec.MajorVersion(), Codec.MinorVersion(), dataDictionary.rsslDataDictionary(), null)) != CodecReturnCode.SUCCESS)
+                    {
+                        return $"\nFailed to decode Msg of type {DataType}: {ret.GetAsString()}";
+                    }
+                    result = tmpObject!.FillString(0)!;
+                }
+                finally
+                {
+                    tmpObject!.ClearAndReturnToPool_All();
+                }
+                return result;
+            }
+            else
+            {
+                return $"\nMsg instance of type {DataType} contains no valid encoded data.";
+            }
+        }
+
+        #endregion Internal methods
     }
 }

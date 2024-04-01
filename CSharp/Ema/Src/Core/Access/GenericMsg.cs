@@ -2,23 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
-using LSEG.Eta.Common;
-using LSEG.Eta.Rdm;
 using System;
-using System.IO;
-using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace LSEG.Ema.Access
 {
     /// <summary>
     /// GenericMsg allows applications to bidirectionally send messages without any implied message semantics.
     /// GenericMsg may be sent on any item stream using <see cref="OmmConsumer.Submit(GenericMsg, long)"/>.
-    /// 
+    ///
     /// Objects of this class are intended to be short lived or rather transitional.
     /// This class is designed to efficiently perform setting and getting of information from GenericMsg.
     /// Objects of this class are not cache-able.
@@ -31,7 +28,7 @@ namespace LSEG.Ema.Access
         /// <summary>
         /// Constructor for GenericMsg class.
         /// </summary>
-        public GenericMsg() 
+        public GenericMsg()
         {
             m_msgClass = MsgClasses.GENERIC;
             m_rsslMsg.MsgClass = MsgClasses.GENERIC;
@@ -77,7 +74,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if the message has a sequence number, false if not</returns>
         public bool HasSeqNum { get => m_rsslMsg.CheckHasSeqNum(); }
-        
+
         /// <summary>
         /// Indicates presence of SecondarySeqNum.
         /// Secondary sequence number is an optional member of GenericMsg.
@@ -98,7 +95,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>true if the messaage has permission data, false if not</returns>
         public bool HasPermissionData { get => m_rsslMsg.CheckHasPermData(); }
-        
+
         /// <summary>
         /// Returns SeqNum.
         /// </summary>
@@ -156,34 +153,34 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// The value is true if this is a one part generic message, false otherwise. 
+        /// The value is true if this is a one part generic message, false otherwise.
         /// </summary>
         /// <returns>Reference to current <see cref="GenericMsg"/> object.</returns>
 
-        public bool Complete() 
-        { 
-            return (m_rsslMsg.Flags & GenericMsgFlags.MESSAGE_COMPLETE) > 0; 
+        public bool Complete()
+        {
+            return (m_rsslMsg.Flags & GenericMsgFlags.MESSAGE_COMPLETE) > 0;
         }
-        
+
         /// <summary>
         /// Returns ProviderDriven.
         /// </summary>
         /// <returns>true if this is provider driven generic message.</returns>
-        public bool ProviderDriven() 
-        { 
-            return (m_rsslMsg.Flags & GenericMsgFlags.PROVIDER_DRIVEN) > 0; 
+        public bool ProviderDriven()
+        {
+            return (m_rsslMsg.Flags & GenericMsgFlags.PROVIDER_DRIVEN) > 0;
         }
-        
+
         /// <summary>
         /// Clears the GenericMsg.
         /// Invoking Clear() method clears all the values and resets all the defaults.
         /// </summary>
         /// <returns>Reference to the current <see cref="GenericMsg"/> object.</returns>
-        public GenericMsg Clear() 
+        public GenericMsg Clear()
         {
             Clear_All();
             DomainType(Rdm.EmaRdm.MMT_MARKET_PRICE);
-            return this; 
+            return this;
         }
 
         /// <summary>
@@ -191,8 +188,8 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="streamId">The Stream Id</param>
         /// <returns>Reference to current <see cref="GenericMsg"/> object.</returns>
-        public GenericMsg StreamId(int streamId) 
-        { 
+        public GenericMsg StreamId(int streamId)
+        {
             m_genericMsgEncoder.StreamId(streamId);
             return this;
         }
@@ -357,7 +354,7 @@ namespace LSEG.Ema.Access
         /// <summary>
         /// Specifies whether the message is provider driven.
         /// </summary>
-        /// <param name="providerDriven">specifies if this message is provider driven, 
+        /// <param name="providerDriven">specifies if this message is provider driven,
         /// i.e. was initiated by the provider and not the part of the response to any consumer request</param>
         /// <returns>Reference to current <see cref="GenericMsg"/> object.</returns>
         public GenericMsg ProviderDriven(bool providerDriven)
@@ -399,16 +396,15 @@ namespace LSEG.Ema.Access
             return Clone();
         }
 
-        internal override string ToString(int indent)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string FillString(int indent)
         {
-            if (m_objectManager == null)
-                return "\nDecoding of just encoded object in the same application is not supported\n";
-
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent++).Append("GenericMsg");
+
             Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"")
-                                                          .Append(StreamId())
-                                                          .Append("\"");
+                                                              .Append(StreamId())
+                                                              .Append("\"");
             Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"")
                                                           .Append(Utilities.RdmDomainAsString(DomainType()))
                                                           .Append("\"");
@@ -515,7 +511,6 @@ namespace LSEG.Ema.Access
             indent--;
 
             Utilities.AddIndent(m_ToString, indent, true).Append("GenericMsgEnd\n");
-
             return m_ToString.ToString();
         }
     }

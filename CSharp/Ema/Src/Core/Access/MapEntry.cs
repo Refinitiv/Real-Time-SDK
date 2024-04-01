@@ -119,7 +119,7 @@ namespace LSEG.Ema.Access
         public override string ToString()
         {
             if (Load == null)
-                return "\nDecoding of just encoded object in the same application is not supported\n";
+                return "\nToString() method could not be used for just encoded object.\n";
 
             m_toString.Length = 0;
             m_toString.Append("MapEntry ")

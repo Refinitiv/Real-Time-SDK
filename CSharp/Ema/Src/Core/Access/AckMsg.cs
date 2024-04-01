@@ -2,13 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
 using System;
-
+using System.Runtime.CompilerServices;
 
 namespace LSEG.Ema.Access
 {
@@ -45,7 +45,7 @@ namespace LSEG.Ema.Access
         {
             m_msgClass = MsgClasses.ACK;
             m_rsslMsg.MsgClass = MsgClasses.ACK;
-            
+
             m_ackMsgEncoder = new AckMsgEncoder(this);
             Encoder = m_ackMsgEncoder;
             m_msgEncoder = m_ackMsgEncoder;
@@ -108,8 +108,8 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns><see cref="AckMsg"/>'s sequence number</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if the sequence number has not been set.</exception>
-        public long SeqNum() 
-        { 
+        public long SeqNum()
+        {
             if (!m_rsslMsg.CheckHasSeqNum())
             {
                 throw new OmmInvalidUsageException("Invalid attempt to call SeqNum() while it is not set.");
@@ -122,8 +122,8 @@ namespace LSEG.Ema.Access
         /// The Ack Id
         /// </summary>
         /// <returns><see cref="AckMsg"/>'s ackId</returns>
-        public long AckId() 
-        { 
+        public long AckId()
+        {
             return m_rsslMsg.AckId;
         }
 
@@ -162,8 +162,8 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <returns>bool indicating if this is a private string</returns>
         public bool PrivateStream()
-        { 
-            return m_rsslMsg.CheckPrivateStream(); 
+        {
+            return m_rsslMsg.CheckPrivateStream();
         }
 
         /// <summary>
@@ -176,26 +176,37 @@ namespace LSEG.Ema.Access
             {
                 case Access.NackCode.NONE:
                     return NONE_STRING;
+
                 case Access.NackCode.ACCESS_DENIED:
                     return ACCESSDENIED_STRING;
+
                 case Access.NackCode.DENIED_BY_SOURCE:
                     return DENIEDBYSOURCE_STRING;
+
                 case Access.NackCode.SOURCE_DOWN:
                     return SOURCEDOWN_STRING;
+
                 case Access.NackCode.SOURCE_UNKNOWN:
                     return SOURCEUNKNOWN_STRING;
+
                 case Access.NackCode.NO_RESOURCES:
                     return NORESOURCES_STRING;
+
                 case Access.NackCode.NO_RESPONSE:
                     return NORESPONSE_STRING;
+
                 case Access.NackCode.GATEWAY_DOWN:
                     return GATEWAYDOWN_STRING;
+
                 case Access.NackCode.SYMBOL_UNKNOWN:
                     return SYMBOLUNKNOWN_STRING;
+
                 case Access.NackCode.NOT_OPEN:
                     return NOTOPEN_STRING;
+
                 case Access.NackCode.INVALID_CONTENT:
                     return INVALIDCONTENT_STRING;
+
                 default:
                     return UNKNOWNNACKCODE_STRING + NackCode();
             }
@@ -206,11 +217,12 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="streamId">The stream Id</param>
         /// <returns>Reference to current <see cref="AckMsg"/> object.</returns>
-        public AckMsg StreamId(int streamId) 
+        public AckMsg StreamId(int streamId)
         {
             m_ackMsgEncoder.StreamId(streamId);
             return this;
         }
+
         /// <summary>
         /// Specifies DomainType
         /// </summary>
@@ -238,7 +250,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="nameType">The RDM Instrument NameType defined in <see cref="Rdm.EmaRdm"/></param>
         /// <returns>Reference to current <see cref="AckMsg"/> object.</returns>
-        public AckMsg NameType(int nameType) 
+        public AckMsg NameType(int nameType)
         {
             m_ackMsgEncoder.NameType(nameType);
             return this;
@@ -339,7 +351,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="attrib">attributes to be set</param>
         /// <returns>Reference to current <see cref="AckMsg"/> object.</returns>
-        public AckMsg Attrib(ComplexType attrib) 
+        public AckMsg Attrib(ComplexType attrib)
         {
             m_attrib.SetExternalData(attrib);
             m_ackMsgEncoder.Attrib(attrib);
@@ -351,7 +363,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="payload">payload to be set</param>
         /// <returns>Reference to current <see cref="AckMsg"/> object.</returns>
-        public AckMsg Payload(ComplexType payload) 
+        public AckMsg Payload(ComplexType payload)
         {
             m_payload.SetExternalData(payload);
             m_ackMsgEncoder.Payload(payload);
@@ -363,7 +375,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="buffer">a EmaBuffer containing extendedHeader information</param>
         /// <returns>Reference to current <see cref="AckMsg"/> object.</returns>
-        public AckMsg ExtendedHeader(EmaBuffer buffer) 
+        public AckMsg ExtendedHeader(EmaBuffer buffer)
         {
             m_ackMsgEncoder.ExtendedHeader(buffer);
             return this;
@@ -374,8 +386,8 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="privateStream">specifies if this is a private stream (default is false)</param>
         /// <returns>Reference to current <see cref="AckMsg"/> object.</returns>
-        public AckMsg PrivateStream(bool privateStream) 
-        { 
+        public AckMsg PrivateStream(bool privateStream)
+        {
             m_ackMsgEncoder.PrivateStream(privateStream);
             return this;
         }
@@ -400,7 +412,7 @@ namespace LSEG.Ema.Access
         public override string ToString()
         {
             return ToString(0);
-        }       
+        }
 
         /// <summary>
         /// Creates object that is a copy of the current object.
@@ -418,13 +430,12 @@ namespace LSEG.Ema.Access
             return Clone();
         }
 
-        internal override string ToString(int indent)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string FillString(int indent)
         {
-            if (m_objectManager == null)
-                return "\nDecoding of just encoded object in the same application is not supported\n";
-
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent++).Append("AckMsg");
+
             Utilities.AddIndent(m_ToString, indent, true).Append("streamId=\"").Append(StreamId()).Append("\"");
             Utilities.AddIndent(m_ToString, indent, true).Append("domain=\"").Append(Utilities.RdmDomainAsString(DomainType())).Append("\"");
             Utilities.AddIndent(m_ToString, indent, true).Append("ackId=\"").Append(AckId()).Append("\"");
@@ -452,8 +463,7 @@ namespace LSEG.Ema.Access
                     Utilities.AddIndent(m_ToString, indent, true).Append("serviceId=\"").Append(ServiceId()).Append("\"");
 
                 if (HasServiceName)
-                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceName=\"").Append(ServiceName())
-                            .Append("\"");
+                    Utilities.AddIndent(m_ToString, indent, true).Append("serviceName=\"").Append(ServiceName()).Append("\"");
 
                 if (HasFilter)
                     Utilities.AddIndent(m_ToString, indent, true).Append("filter=\"").Append(Filter()).Append("\"");
@@ -504,7 +514,6 @@ namespace LSEG.Ema.Access
             indent--;
 
             Utilities.AddIndent(m_ToString, indent, true).Append("AckMsgEnd\n");
-
             return m_ToString.ToString();
         }
 

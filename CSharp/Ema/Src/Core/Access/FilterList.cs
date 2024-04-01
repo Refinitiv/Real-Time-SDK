@@ -2,13 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023, 2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
-using LSEG.Eta.Common;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -17,15 +15,13 @@ using Buffer = LSEG.Eta.Codec.Buffer;
 namespace LSEG.Ema.Access
 {
     /// <summary>
-    /// FilterList is a heterogeneous container of complex data type entries. 
-    /// Objects of this class are intended to be short lived or rather transitional. 
-    /// This class is designed to efficiently perform setting and extracting of FieldList and its content. 
+    /// FilterList is a heterogeneous container of complex data type entries.
+    /// Objects of this class are intended to be short lived or rather transitional.
+    /// This class is designed to efficiently perform setting and extracting of FieldList and its content.
     /// Objects of this class are not cache-able.
     /// </summary>
     public sealed class FilterList : ComplexType, IEnumerable<FilterEntry>
     {
-        private DataDictionary? m_dataDictionary;
-        
         internal FilterListEncoder m_filterListEncoder;
         internal Eta.Codec.FilterList m_rsslFilterList = new Eta.Codec.FilterList();
 
@@ -42,19 +38,19 @@ namespace LSEG.Ema.Access
             DecodeComplexType = DecodeFilterList;
             m_dataType = Access.DataType.DataTypes.FILTER_LIST;
         }
-        
+
         /// <summary>
         /// Indicates presence of TotalCountHint.
         /// </summary>
         public bool HasTotalCountHint { get => m_rsslFilterList.CheckHasTotalCountHint(); }
-        
+
         /// <summary>
         /// Returns TotalCountHint
         /// </summary>
         /// <returns><see cref="int"/> value representing TotalCountHint</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if HasTotalCountHint returns false</exception>
-        public int TotalCountHint() 
-        {  
+        public int TotalCountHint()
+        {
             if (!m_rsslFilterList.CheckHasTotalCountHint())
             {
                 throw new OmmInvalidUsageException("Invalid usage: FilterList has no TotalCountHint property.",
@@ -65,11 +61,11 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Clears the FilterList. 
+        /// Clears the FilterList.
         /// Invoking Clear() method clears all the values and resets all the defaults.
         /// </summary>
         /// <returns>Reference to current <see cref="FilterList"/> object.</returns>
-        public FilterList Clear() 
+        public FilterList Clear()
         {
             Clear_All();
             return this;
@@ -100,7 +96,7 @@ namespace LSEG.Ema.Access
             }
 
             var enumerator = m_objectManager.GetFilterListEnumerator();
-            if (!enumerator.SetData(m_MajorVersion, m_MinorVersion, 
+            if (!enumerator.SetData(m_MajorVersion, m_MinorVersion,
                 m_bodyBuffer!,
                 m_dataDictionary,
                 m_rsslFilterList.ContainerType))
@@ -140,15 +136,19 @@ namespace LSEG.Ema.Access
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     m_rsslFilterList.Flags = 0;
                     break;
+
                 case CodecReturnCode.SUCCESS:
                     m_errorCode = OmmError.ErrorCodes.NO_ERROR;
                     break;
+
                 case CodecReturnCode.ITERATOR_OVERRUN:
                     m_errorCode = OmmError.ErrorCodes.ITERATOR_OVERRUN;
                     break;
+
                 case CodecReturnCode.INCOMPLETE_DATA:
                     m_errorCode = OmmError.ErrorCodes.INCOMPLETE_DATA;
                     break;
+
                 default:
                     m_errorCode = OmmError.ErrorCodes.UNKNOWN_ERROR;
                     break;
@@ -161,7 +161,7 @@ namespace LSEG.Ema.Access
         /// </summary>
         /// <param name="totalCountHint">specifies estimated total number of entries</param>
         /// <returns>Reference to the current <see cref="FilterList"/> object.</returns>
-        public FilterList TotalCountHint(int totalCountHint) 
+        public FilterList TotalCountHint(int totalCountHint)
         {
             m_filterListEncoder.TotalCountHint(totalCountHint);
             return this;
@@ -174,11 +174,12 @@ namespace LSEG.Ema.Access
         /// <param name="action">filter entry action</param>
         /// <param name="permissionData">buffer containing permission data</param>
         /// <returns>Reference to current <see cref="FilterList"/> object.</returns>
-        public FilterList AddEntry(int filterId, int action, EmaBuffer permissionData) 
+        public FilterList AddEntry(int filterId, int action, EmaBuffer permissionData)
         {
             m_filterListEncoder.Add(filterId, action, permissionData);
             return this;
         }
+
         /// <summary>
         /// Adds next entry to current FilterList instance.
         /// In case a message type is added, the container expects that
@@ -194,38 +195,44 @@ namespace LSEG.Ema.Access
             m_filterListEncoder.Add(filterId, action, value, permissionData);
             return this;
         }
- 
+
         /// <summary>
-		/// Completes encoding of the FilterList entries
-		/// </summary>
-		/// <returns>Reference to current <see cref="FilterList"/> object.</returns>
-		public FilterList Complete() 
+        /// Completes encoding of the FilterList entries
+        /// </summary>
+        /// <returns>Reference to current <see cref="FilterList"/> object.</returns>
+        public FilterList Complete()
         {
             m_filterListEncoder.Complete();
-            return this; 
+            return this;
         }
 
-        internal override string ToString(int indent)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override string FillString(int indent)
         {
             m_ToString.Length = 0;
             Utilities.AddIndent(m_ToString, indent)
                     .Append("FilterList");
 
             if (m_rsslFilterList.CheckHasTotalCountHint())
+            {
                 m_ToString.Append(" totalCountHint=\"")
                          .Append(m_rsslFilterList.TotalCountHint)
                          .Append("\"");
+            }
 
             ++indent;
 
             foreach (FilterEntry filterEntry in this)
             {
                 var load = filterEntry.Load;
+                if (load == null)
+                    return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
 
                 Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("FilterEntry action=\"")
                                                                       .Append(filterEntry.FilterActionAsString())
                                                                       .Append("\" filterId=\"")
-                                                                      .Append(filterEntry.FilterId);
+                                                                      .Append(filterEntry.FilterId)
+                                                                      .Append("\"");
 
                 if (filterEntry.HasPermissionData)
                 {
@@ -242,14 +249,13 @@ namespace LSEG.Ema.Access
                     m_ToString.Append(load.ToString(indent));
                     --indent;
                 }
-                
+
                 Utilities.AddIndent(m_ToString, indent).Append("FilterEntryEnd");
             }
 
             --indent;
 
             Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("FilterListEnd").AppendLine();
-
             return m_ToString.ToString();
         }
 
@@ -271,7 +277,7 @@ namespace LSEG.Ema.Access
 
         object? IEnumerator.Current => m_decodingStarted ? m_filterEntry : null;
 
-        public FilterListErrorEnumerator() 
+        public FilterListErrorEnumerator()
         {
             m_dataType = DataType.DataTypes.FILTER_LIST;
             m_isErrorDecoder = true;

@@ -567,7 +567,6 @@ namespace LSEG.Ema.Access
         private EmaPool<RequestMsg> m_ommRequestMsgPool;
         private EmaPool<RefreshMsg> m_ommRefreshMsgPool;
         private EmaPool<StatusMsg> m_ommStatusMsgPool;
-        private EmaPool<Msg> m_ommMsgPool;
 
         #endregion
 
@@ -656,8 +655,6 @@ namespace LSEG.Ema.Access
                 o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommStatusMsgPool = new EmaPool<StatusMsg>(initialPoolSize, () => { var res = new StatusMsg(); res.m_ownedByPool = true; res.SetObjectManager(this); return res; },
                 o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
-            m_ommMsgPool = new EmaPool<Msg>(initialPoolSize, () => { var res = new Msg(); res.m_ownedByPool = true; res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
 
             m_ommErrorPool = new EmaPool<OmmError>(initialPoolSize, () => { var res = new OmmError(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
                 o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
@@ -723,7 +720,6 @@ namespace LSEG.Ema.Access
             pools[DataType.DataTypes.VECTOR] = m_ommVectorPool;
             pools[DataType.DataTypes.MAP] = m_ommMapPool;
             pools[DataType.DataTypes.SERIES] = m_ommSeriesPool;
-            pools[DataType.DataTypes.MSG] = m_ommMsgPool;
             pools[DataType.DataTypes.REQ_MSG] = m_ommRequestMsgPool;
             pools[DataType.DataTypes.REFRESH_MSG] = m_ommRefreshMsgPool;
             pools[DataType.DataTypes.UPDATE_MSG] = m_ommUpdateMsgPool;
@@ -1123,12 +1119,6 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public void ReturnToPool(Msg value)
-        {
-            m_ommMsgPool.ReturnToPool(value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void ReturnToPool(AckMsg value)
         {
             m_ommAckMsgPool.ReturnToPool(value);
@@ -1427,13 +1417,6 @@ namespace LSEG.Ema.Access
         public Map GetOmmMap()
         {
             var result = m_ommMapPool.Get();
-            result.m_inPool = false;
-            return result;
-        }
-
-        public Msg GetOmmMsg()
-        {
-            var result = m_ommMsgPool.Get();
             result.m_inPool = false;
             return result;
         }
