@@ -73,7 +73,7 @@
 			<Logger value="Logger_1"/>
 			<Dictionary value="Dictionary_2"/>
 			<XmlTraceToStdout value="0"/>
-			<RestProxyHost value="localhost"/>
+			<RestProxyHostName value="localhost"/>
 			<RestProxyPort value="3128"/>
 		</Consumer>
 	</ConsumerList>
