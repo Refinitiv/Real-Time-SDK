@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1289,6 +1289,9 @@ namespace LSEG.Eta.Codec
         {
             return ((_curBufPos + length) > _endBufPos) ? true : false;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal EncodingLevel GetCurrentLevelInfo() => _levelInfo[_encodingLevel];
 
     }
 }

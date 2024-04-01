@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1125,11 +1125,8 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
         [Fact]
         public void RegisterBatchRequestWithEmptyListTest()
         {
-            OmmException? exception = null;
-
-            try
+            var exception = Assert.ThrowsAny<OmmException>(() =>
             {
-               
                 string[] itemNames = { "", "", "", "", "", "" };
 
                 ElementList payload = new ElementList();
@@ -1141,13 +1138,8 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 RequestMsg requestMsg = new();
                 requestMsg.DomainType(EmaRdm.MMT_MARKET_PRICE).ServiceId(1)
                     .Payload(payload);
-            }
-            catch (OmmException ommException)
-            {
-                exception = ommException;
-            }
+            });
 
-            Assert.NotNull(exception);
             Assert.Equal("RequestMsgEncoder.CheckBatchView: Batch request item list is blank.", exception!.Message);
         }
 

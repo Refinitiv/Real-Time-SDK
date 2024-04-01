@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -317,6 +317,11 @@ namespace LSEG.Eta.Internal.Interfaces
 
         internal ChannelBase(ProtocolBase socketProtocol, ConnectOptions connectionOptions, ISocketChannel socketChannel)
         {
+            if (socketProtocol == null)
+            {
+                throw new ArgumentNullException(nameof(socketProtocol));
+            }
+
             m_SocketProtocol = socketProtocol;
             _socketChannel = socketChannel;
 
@@ -424,6 +429,11 @@ namespace LSEG.Eta.Internal.Interfaces
 
         internal ChannelBase(SocketProtocol socketProtocol, AcceptOptions acceptOptions, IServer server, ISocketChannel socketChannel)
         {
+            if (socketProtocol == null)
+            {
+                throw new ArgumentNullException(nameof(socketProtocol));
+            }
+
             m_SocketProtocol = socketProtocol;
             m_ServerImpl = (ServerImpl)server;
 
@@ -845,7 +855,7 @@ namespace LSEG.Eta.Internal.Interfaces
             ReleaseAllBuffers();
 
             /* Removes this Channel from the Channel list. */
-            m_SocketProtocol?.CloseChannel(this);
+            m_SocketProtocol.CloseChannel(this);
 
             DisposeInternalBuffers();
 
@@ -911,7 +921,7 @@ namespace LSEG.Eta.Internal.Interfaces
                     ReleaseAllBuffers();
 
                     /* Removes this Channel from the Channel list. */
-                    m_SocketProtocol?.CloseChannel(this);
+                    m_SocketProtocol.CloseChannel(this);
 
                     /* Closes encrypted connection streams if any */
                     if (_socketChannel.IsEncrypted)
@@ -2655,11 +2665,8 @@ namespace LSEG.Eta.Internal.Interfaces
                 // Set the shared key to 0 to cover in reconnect cases
                 Shared_Key = 0;
 
-                if(m_SocketProtocol != null)
-                {
-                    // allocate buffers to this channel, _availableBuffers size will initally be zero.
-                    GrowGuaranteedOutputBuffers(m_ChannelInfo.GuaranteedOutputBuffers);
-                }
+                // allocate buffers to this channel, _availableBuffers size will initally be zero.
+                GrowGuaranteedOutputBuffers(m_ChannelInfo.GuaranteedOutputBuffers);
 
                 if (m_SessionInDecompress > RipcCompressionTypes.NONE)
                 {

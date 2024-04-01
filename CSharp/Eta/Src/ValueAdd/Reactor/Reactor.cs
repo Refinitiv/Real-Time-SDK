@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -74,7 +74,21 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// </summary>
         public object? UserSpecObj { get; private set; }
 
-        internal int ChannelCount { get => m_ReactorChannelQueue.Count(); }
+        internal int ChannelCount
+        {
+            get
+            {
+                ReactorLock.Enter();
+                try
+                {
+                    return m_ReactorChannelQueue.Count();
+                }
+                finally
+                {
+                    ReactorLock.Exit();
+                }
+            }
+        }
 
         private ReactorOAuthCredential m_ReactorOAuthCredential = new ReactorOAuthCredential();
 
@@ -1019,7 +1033,18 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <returns><c>true</c> if the Reactor is shutdown; otherwise <c>false</c></returns>
         public bool IsShutdown
         {
-            get => !m_ReactorActive;
+            get
+            {
+                ReactorLock.Enter();
+                try
+                {
+                    return !m_ReactorActive;
+                }
+                finally
+                {
+                    ReactorLock.Exit();
+                }
+            }
         }
 
         /// <summary>
@@ -1277,9 +1302,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         m_XmlString.Length = 0;
                         m_XmlString
                                 .Append("\n<!-- Outgoing Reactor message -->\n")
-                                .Append("<!-- ").Append(reactorChannel?.Channel?.ToString()).Append(" -->\n")
+                                .Append("<!-- ").Append(reactorChannel.Channel?.ToString()).Append(" -->\n")
                                 .Append("<!-- ").Append(System.DateTime.Now.ToString()).Append(" -->\n");
-                        if (m_XmlTraceDump.DumpBuffer(reactorChannel?.Channel, (int)reactorChannel!.Channel!.ProtocolType, writeBuffer, null, m_XmlString, out dumpError) == TransportReturnCode.SUCCESS)
+                        if (m_XmlTraceDump.DumpBuffer(reactorChannel.Channel, (int?)reactorChannel.Channel?.ProtocolType ?? 0, writeBuffer, null, m_XmlString, out dumpError) == TransportReturnCode.SUCCESS)
                         {
                             Console.WriteLine(m_XmlString);
                         }

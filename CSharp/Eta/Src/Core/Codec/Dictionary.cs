@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,14 +12,8 @@ namespace LSEG.Eta.Rdm
 {
     /// <summary>
     /// Dictionary specific RDM definitions </summary>
-    sealed public class Dictionary
+    public static class Dictionary
 	{
-		// Dictionary class cannot be instantiated
-		private Dictionary()
-		{
-            throw new System.NotImplementedException();
-        }
-
         /// <summary>
         /// Enumerations describing the Type of a particular dictionary. These values are
         /// associated with the "Type" tag of a dictionary, found in the associated file
@@ -28,14 +22,8 @@ namespace LSEG.Eta.Rdm
         /// dictionary is being interpreted.
         /// </summary>
         /// <seealso cref="LSEG.Eta.Codec.DataDictionary"/>
-        public class Types
+        public static class Types
 		{
-			// Types class cannot be instantiated
-			private Types()
-			{
-                throw new System.NotImplementedException();
-            }
-
 			/// <summary>
 			/// Field Dictionary type, typically referring to an RDMFieldDictionary </summary>
 			public const int FIELD_DEFINITIONS = 1;
@@ -83,14 +71,8 @@ namespace LSEG.Eta.Rdm
         /// </summary>
         /// <seealso cref="LSEG.Eta.Codec.DataDictionary"/>
         /// <seealso cref="LSEG.Eta.Codec.MsgKey"/>
-        public class VerbosityValues
+        public static class VerbosityValues
 		{
-			// VerbosityValues class cannot be instantiated
-			private VerbosityValues()
-			{
-                throw new System.NotImplementedException();
-            }
-
 			/// <summary>
 			/// (0x00) "Dictionary Info" Verbosity, no data - version information only </summary>
 			public const int INFO = 0x00;

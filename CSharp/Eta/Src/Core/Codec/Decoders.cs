@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -3034,8 +3034,6 @@ namespace LSEG.Eta.Codec
                     /* Get the encodedSetDefs pointer out of the current container. */
                     Buffer encodedSetDefs;
 
-                    Debug.Assert(null != iter && null != localSetDb, "Invalid parameters or parameters passed in as NULL");
-
                     switch (iter._levelInfo[iter._decodingLevel]._containerType)
                     {
                         case DataTypes.MAP:
@@ -3660,7 +3658,7 @@ namespace LSEG.Eta.Codec
 			int format = iter._reader._buffer._pointer[iter._reader._position++];
 
 			int len;
-			if ((format & 0x20) == 1)
+			if ((format & 0x20) == 0x20)
 			{
 				len = 1;
 			}
@@ -3699,7 +3697,7 @@ namespace LSEG.Eta.Codec
 			int format = iter._reader._buffer._pointer[iter._reader._position++];
 
 			int len;
-			if ((format & 0x20) == 1)
+			if ((format & 0x20) == 0x20)
 			{
 				len = 1;
 			}
@@ -3810,8 +3808,6 @@ namespace LSEG.Eta.Codec
                 {
                     /* Get the encodedSetDefs pointer out of the current container. */
                     Buffer encodedSetDefs;
-
-                    Debug.Assert(null != iter && null != localSetDb, "Invalid parameters or parameters passed in as NULL");
 
                     switch (iter._levelInfo[iter._decodingLevel]._containerType)
                     {

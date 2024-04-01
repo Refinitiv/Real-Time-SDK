@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -727,11 +727,11 @@ namespace LSEG.Eta.Transports
         {
             ByteBuffer messageData = null;
 
-            if(totalMessageLength >= 0 && totalMessageLength <= int.MaxValue)
+            if (totalMessageLength >= 0)
             {
                 messageData = new ByteBuffer(totalMessageLength);
 
-                if(m_FragmentedMessagesDict.ContainsKey(fragmentId))
+                if (m_FragmentedMessagesDict.ContainsKey(fragmentId))
                 {
                     // We never receive all parts of the previous message with this fragment ID
                     ByteBuffer incompleteMsg = m_FragmentedMessagesDict[fragmentId];

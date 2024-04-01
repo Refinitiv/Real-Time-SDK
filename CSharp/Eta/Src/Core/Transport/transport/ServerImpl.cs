@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -175,6 +175,9 @@ namespace LSEG.Eta.Transports
 
         internal ServerImpl(ProtocolBase protocol)
         {
+            if (protocol == null)
+                throw new ArgumentNullException(nameof(protocol));
+
             m_ProtocolBase = protocol;
             State = ChannelState.INACTIVE;
             m_SharedPool = new SharedPool(this);
@@ -300,7 +303,7 @@ namespace LSEG.Eta.Transports
                            : ChannelState.CLOSED;
 
             ReleaseServer();
-            m_ProtocolBase?.CloseServer(this);
+            m_ProtocolBase.CloseServer(this);
 
             return TransportReturnCode.SUCCESS;
         }

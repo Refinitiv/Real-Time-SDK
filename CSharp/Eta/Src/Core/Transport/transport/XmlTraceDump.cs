@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -34,6 +34,12 @@ namespace LSEG.Eta.Transports
         /// <returns><see cref="TransportReturnCode"/></returns>
         public TransportReturnCode DumpBuffer(IChannel channel, int protocolType, ITransportBuffer buffer, DataDictionary dataDictionary, StringBuilder msgBuilder, out Error error)
         {
+            if (channel == null)
+            {
+                error = new Error(errorId: TransportReturnCode.FAILURE, text: "Input Channel must not be null.\n");
+                return TransportReturnCode.FAILURE;
+            }
+
             if (buffer == null)
             {
                 error = new Error(errorId: TransportReturnCode.FAILURE, text: "Input TransportBuffer must not be null.\n");

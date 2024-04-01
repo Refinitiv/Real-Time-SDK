@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -598,37 +598,38 @@ namespace LSEG.Eta.ValueAdd.Consumer
                     evt.ReactorErrorInfo.Error.Text, evt.ReactorErrorInfo.Location);
 
                 // unregister selectableChannel from Selector
-                if (evt.ReactorChannel!.Socket != null)
+                if (evt.ReactorChannel?.Socket != null)
                 {
                     m_ReadSockets.Remove(evt.ReactorChannel.Socket);
                     m_SocketFdValueMap.Remove(evt.ReactorChannel.Socket.Handle.ToInt32());
                 }
 
                 // close ReactorChannel
-                if (chnlInfo!.ReactorChannel != null)
-                {
-                    chnlInfo.ReactorChannel.Close(out _);
-                }
+                chnlInfo?.ReactorChannel?.Close(out _);
+
                 return ReactorCallbackReturnCode.SUCCESS;
             }
 
-            // set response message
-            chnlInfo!.ResponseMsg = msg;
-
-            // set-up decode iterator if message has message body
-            if (msg.EncodedDataBody != null
-                && msg.EncodedDataBody.Data() != null)
+            if (chnlInfo != null)
             {
-                // clear decode iterator
-                chnlInfo.DecodeIter.Clear();
+                // set response message
+                chnlInfo.ResponseMsg = msg;
 
-                // set buffer and version info
-                chnlInfo.DecodeIter.SetBufferAndRWFVersion(msg.EncodedDataBody,
-                    evt.ReactorChannel!.MajorVersion,
-                    evt.ReactorChannel.MinorVersion);
+                // set-up decode iterator if message has message body
+                if (msg.EncodedDataBody != null
+                    && msg.EncodedDataBody.Data() != null)
+                {
+                    // clear decode iterator
+                    chnlInfo.DecodeIter.Clear();
+
+                    // set buffer and version info
+                    chnlInfo.DecodeIter.SetBufferAndRWFVersion(msg.EncodedDataBody,
+                        evt.ReactorChannel!.MajorVersion,
+                        evt.ReactorChannel.MinorVersion);
+                }
+
+                ProcessResponse(chnlInfo);
             }
-
-            ProcessResponse(chnlInfo);
 
             return ReactorCallbackReturnCode.SUCCESS;
         }

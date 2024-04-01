@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -418,11 +418,11 @@ namespace LSEG.Eta.Common
         public ByteBuffer ReadBytesInto(byte[] destination, int destinationOffset, int length)
         {
             if (destination.Length < destinationOffset + length)
-                throw new ArgumentOutOfRangeException($"{nameof(destinationOffset)} + {nameof(length)} > {nameof(destination)}.Length ({destination.Length})");
+                throw new ArgumentOutOfRangeException($"{nameof(destination)}.Length", $"{nameof(destinationOffset)} + {nameof(length)} > {nameof(destination)}.Length ({destination.Length})");
             if (destinationOffset < 0)
-                throw new ArgumentOutOfRangeException($"{nameof(destinationOffset)}");
+                throw new ArgumentOutOfRangeException(nameof(destinationOffset));
             if (length < 0)
-                throw new ArgumentOutOfRangeException($"{nameof(length)}");
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             if (ReadPosition < BufferLimit())
             {

@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -136,7 +136,7 @@ namespace LSEG.Eta.ValueAdd.Common
             do
             {
                 retVal = m_Sockets[1].Send(sendData, 0, 1, SocketFlags.None, out SocketError error);
-                if (retVal == 0 && (error != SocketError.WouldBlock || error != SocketError.TryAgain))
+                if (retVal == 0 && error != SocketError.WouldBlock && error != SocketError.TryAgain)
                     return -1;
 
             } while (retVal == 0);
@@ -160,7 +160,7 @@ namespace LSEG.Eta.ValueAdd.Common
             do
             {
                 retVal = m_Sockets[0].Receive(readBuffer, 0, 1, SocketFlags.None, out SocketError error);
-                if (retVal == 0 && (error != SocketError.WouldBlock || error != SocketError.TryAgain))
+                if (retVal == 0 && error != SocketError.WouldBlock && error != SocketError.TryAgain)
                     return -1;
 
             } while (retVal == 0);

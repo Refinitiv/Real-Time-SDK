@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -46,57 +46,62 @@ namespace LSEG.Ema.Access
 
             TimeoutEvent timeout = new(timeoutInMicroSec, timeoutClient);
 
-            if (timeoutQueue.Count == 0)
+            try
             {
-                timeoutQueue.AddLast(timeout);
-                FirstTimeout = LastTimeout = timeout.ExpiredInMicroSecond;
-            }
-            else if (LastTimeout <= timeout.ExpiredInMicroSecond)
-            {
-                timeoutQueue.AddLast(timeout);
-                LastTimeout = timeout.ExpiredInMicroSecond;
-            }
-            else if(FirstTimeout > timeout.ExpiredInMicroSecond)
-            {
-                timeoutQueue.AddFirst(timeout);
-                FirstTimeout = timeout.ExpiredInMicroSecond;
-            }
-            else
-            {
-                LinkedListNode<TimeoutEvent>? currentNode = timeoutQueue.Last;
-                LinkedListNode<TimeoutEvent>? prevNode;
-                TimeoutEvent currentTimeout;
-
-                while(currentNode != null)
+                if (timeoutQueue.Count == 0)
                 {
-                    currentTimeout = currentNode.Value;
-                    prevNode = currentNode.Previous;
+                    timeoutQueue.AddLast(timeout);
+                    FirstTimeout = LastTimeout = timeout.ExpiredInMicroSecond;
+                }
+                else if (LastTimeout <= timeout.ExpiredInMicroSecond)
+                {
+                    timeoutQueue.AddLast(timeout);
+                    LastTimeout = timeout.ExpiredInMicroSecond;
+                }
+                else if (FirstTimeout > timeout.ExpiredInMicroSecond)
+                {
+                    timeoutQueue.AddFirst(timeout);
+                    FirstTimeout = timeout.ExpiredInMicroSecond;
+                }
+                else
+                {
+                    LinkedListNode<TimeoutEvent>? currentNode = timeoutQueue.Last;
+                    LinkedListNode<TimeoutEvent>? prevNode;
+                    TimeoutEvent currentTimeout;
 
-                    if(currentTimeout.ExpiredInMicroSecond <= timeout.ExpiredInMicroSecond)
+                    while (currentNode != null)
                     {
-                        timeoutQueue.AddAfter(currentNode, timeout);
-                        break;
-                    }
+                        currentTimeout = currentNode.Value;
+                        prevNode = currentNode.Previous;
 
-                    /* Moves to previous node if it is not the first node. */
-                    if (currentNode != timeoutQueue.First)
-                    {
-                        currentNode = prevNode;
-                    }
-                    else
-                    {
-                        /* The timeout must be less then the first node so add it in front of the 
-                         queue and update the first timeout. */
-                        timeoutQueue.AddBefore(currentNode, timeout);
-                        FirstTimeout = timeout.ExpiredInMicroSecond;
-                        break;
+                        if (currentTimeout.ExpiredInMicroSecond <= timeout.ExpiredInMicroSecond)
+                        {
+                            timeoutQueue.AddAfter(currentNode, timeout);
+                            break;
+                        }
+
+                        /* Moves to previous node if it is not the first node. */
+                        if (currentNode != timeoutQueue.First)
+                        {
+                            currentNode = prevNode;
+                        }
+                        else
+                        {
+                            /* The timeout must be less then the first node so add it in front of the 
+                             queue and update the first timeout. */
+                            timeoutQueue.AddBefore(currentNode, timeout);
+                            FirstTimeout = timeout.ExpiredInMicroSecond;
+                            break;
+                        }
                     }
                 }
             }
+            finally
+            {
+                queueLock.Exit();
+            }
 
-            queueLock.Exit();
-
-            if(!m_SingnalCleanup)
+            if (!m_SingnalCleanup)
                 TimeoutSignal.SetEventSignal();
 
             return timeout;
@@ -104,108 +109,119 @@ namespace LSEG.Ema.Access
 
         public long CheckUserTimeoutExist()
         {
-            if (timeoutQueue.Count == 0)
-            {
-                return -1;
-            }
-
             queueLock.Enter();
-            LinkedListNode<TimeoutEvent>? currentNode = timeoutQueue.First;
-            LinkedListNode<TimeoutEvent>? nextNode;
-            TimeoutEvent currentTimeout;
 
-            while (currentNode != null)
+            try
             {
-                currentTimeout = currentNode.Value;
-                nextNode = currentNode.Next;
-
-                if (currentTimeout.Cancelled)
+                if (timeoutQueue.Count == 0)
                 {
-                    if (currentNode != timeoutQueue.Last)
+                    return -1;
+                }
+
+                LinkedListNode<TimeoutEvent>? currentNode = timeoutQueue.First;
+                LinkedListNode<TimeoutEvent>? nextNode;
+                TimeoutEvent currentTimeout;
+
+                while (currentNode != null)
+                {
+                    currentTimeout = currentNode.Value;
+                    nextNode = currentNode.Next;
+
+                    if (currentTimeout.Cancelled)
                     {
-                        timeoutQueue.Remove(currentNode);
-                        currentNode = nextNode;
-                        continue;
+                        if (currentNode != timeoutQueue.Last)
+                        {
+                            timeoutQueue.Remove(currentNode);
+                            currentNode = nextNode;
+                            continue;
+                        }
+                        else
+                        {
+                            /* This is the last node so exits the loop */
+                            timeoutQueue.Remove(currentNode);
+                            break;
+                        }
+                    }
+
+                    long currentTime = EmaUtil.GetMicroseconds();
+                    if (currentTime >= currentTimeout.ExpiredInMicroSecond)
+                    {
+                        return 0;
                     }
                     else
                     {
-                        /* This is the last node so exits the loop */
-                        timeoutQueue.Remove(currentNode);
-                        break;
+                        return (currentTimeout.ExpiredInMicroSecond - currentTime);
                     }
                 }
 
-                long currentTime = EmaUtil.GetMicroseconds();
-                if (currentTime >= currentTimeout.ExpiredInMicroSecond)
-                {
-                    queueLock.Exit();
-                    return 0;
-                }
-                else
-                {
-                    queueLock.Exit();
-                    return (currentTimeout.ExpiredInMicroSecond - currentTime);
-                }
+                return -1;
             }
-
-            queueLock.Exit();
-            return -1;
+            finally
+            {
+                queueLock.Exit();
+            }
         }
 
         public void Execute()
         {
-            if (timeoutQueue.Count == 0)
-            {
-                return;
-            }
-
             queueLock.Enter();
-            LinkedListNode<TimeoutEvent>? currentNode = timeoutQueue.First;
-            LinkedListNode<TimeoutEvent>? nextNode;
-            TimeoutEvent currentTimeout;
 
-            long currentTime = EmaUtil.GetMicroseconds();
-            while (currentNode != null)
+            try
             {
-                currentTimeout = currentNode.Value;
-                nextNode = currentNode.Next;
-
-                if (currentTime >= currentTimeout.ExpiredInMicroSecond)
+                if (timeoutQueue.Count == 0)
                 {
-                    if (!currentTimeout.Cancelled)
-                    {
-                        m_OmmBaseImpl.ReceivedEvent();
-                        currentTimeout.Client.HandleTimeoutEvent();
-                    }
+                    return;
+                }
 
-                    if (currentNode != timeoutQueue.Last)
-                    {
-                        timeoutQueue.Remove(currentNode);
-                        currentNode = nextNode;
+                LinkedListNode<TimeoutEvent>? currentNode = timeoutQueue.First;
+                LinkedListNode<TimeoutEvent>? nextNode;
+                TimeoutEvent currentTimeout;
 
-                        /* Update the first timeout with the next node. */
-                        if (currentNode != null)
+                long currentTime = EmaUtil.GetMicroseconds();
+                while (currentNode != null)
+                {
+                    currentTimeout = currentNode.Value;
+                    nextNode = currentNode.Next;
+
+                    if (currentTime >= currentTimeout.ExpiredInMicroSecond)
+                    {
+                        if (!currentTimeout.Cancelled)
                         {
-                            FirstTimeout = currentNode.Value.ExpiredInMicroSecond;
+                            m_OmmBaseImpl.ReceivedEvent();
+                            currentTimeout.Client.HandleTimeoutEvent();
+                        }
+
+                        if (currentNode != timeoutQueue.Last)
+                        {
+                            timeoutQueue.Remove(currentNode);
+                            currentNode = nextNode;
+
+                            /* Update the first timeout with the next node. */
+                            if (currentNode != null)
+                            {
+                                FirstTimeout = currentNode.Value.ExpiredInMicroSecond;
+                            }
+                        }
+                        else
+                        {
+                            /* This is the last node so reset the signal and exit the loop. */
+                            timeoutQueue.Remove(currentNode);
+
+                            FirstTimeout = LastTimeout = 0;
+
+                            if (!m_SingnalCleanup)
+                                TimeoutSignal.ResetEventSignal();
+                            break;
                         }
                     }
                     else
-                    {
-                        /* This is the last node so reset the signal and exit the loop. */
-                        timeoutQueue.Remove(currentNode);
-
-                        FirstTimeout = LastTimeout = 0;
-
-                        if(!m_SingnalCleanup)
-                            TimeoutSignal.ResetEventSignal();
                         break;
-                    }
                 }
-                else
-                    break;
             }
-
-            queueLock.Exit();
+            finally
+            {
+                queueLock.Exit();
+            }
         }
 
         public void CleanupEventSignal()

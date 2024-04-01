@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -902,6 +902,12 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
         DirectoryMsgType msgType = reactorEvent.DirectoryMsg!.DirectoryMsgType;
         List<Service>? serviceList = null;
 
+        if (chnlInfo == null)
+        {
+            Console.WriteLine("ChannelInfo is null in passed reactorEvent.ReactorChannel.UserSpecObj");
+            return ReactorCallbackReturnCode.FAILURE;
+        }
+
         switch (msgType)
         {
             case DirectoryMsgType.REFRESH:
@@ -1025,8 +1031,19 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
         ChannelInfo? chnlInfo = (ChannelInfo?)reactorEvent.ReactorChannel?.UserSpecObj;
         DictionaryMsgType? msgType = reactorEvent.DictionaryMsg?.DictionaryMsgType;
 
+        if (chnlInfo == null)
+        {
+            Console.WriteLine("ChannelInfo is null in passed reactorEvent.ReactorChannel.UserSpecObj");
+            return ReactorCallbackReturnCode.FAILURE;
+        }
+        if (chnlInfo!.ReactorChannel == null)
+        {
+            Console.WriteLine("ReactorChannel is null in passed ChannelInfo");
+            return ReactorCallbackReturnCode.FAILURE;
+        }
+
         // initialize dictionary
-        if (chnlInfo is not null && chnlInfo.Dictionary == null)
+        if (chnlInfo.Dictionary == null)
         {
             chnlInfo.Dictionary = new();
         }
@@ -1120,7 +1137,7 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
                 }
 
                 if (m_FieldDictionaryLoaded && m_EnumDictionaryLoaded)
-                    RequestItems(chnlInfo?.ReactorChannel!);
+                    RequestItems(chnlInfo.ReactorChannel);
 
                 break;
 
@@ -1164,8 +1181,8 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
                 if (info.LocationList.Count >= 2 && m_WatchlistConsumerConfig.Location != null &&
                         info.LocationList[0].StartsWith(m_WatchlistConsumerConfig.Location)) // Get an endpoint that provides auto failover for the specified location
                 {
-                    endPoint = info?.EndPoint;
-                    port = info?.Port;
+                    endPoint = info.EndPoint;
+                    port = info.Port;
                     break;
                 }
                 // Try to get backups and keep looking for main case. Keep only the first item met.
@@ -1648,10 +1665,7 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
             CloseItemStreams(chnlInfo);
 
             // close ReactorChannel
-            if (chnlInfo.ReactorChannel != null)
-            {
-                chnlInfo?.ReactorChannel?.Close(out _);
-            }
+            chnlInfo.ReactorChannel?.Close(out _);
         }
 
         m_FileStream?.Dispose();

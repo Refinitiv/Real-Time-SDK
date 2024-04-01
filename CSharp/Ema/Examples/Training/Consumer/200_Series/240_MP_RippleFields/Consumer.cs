@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -23,7 +23,7 @@ class AppClient : IOmmConsumerClient
 		
 		Console.WriteLine("Item State: " + refreshMsg.State());
 
-		Console.WriteLine("Item Handle: " + ommConsumerEvent.Handle + " Item Closure: " + ommConsumerEvent?.Closure?.GetHashCode());
+		Console.WriteLine("Item Handle: " + ommConsumerEvent.Handle + " Item Closure: " + ommConsumerEvent.Closure?.GetHashCode());
 
 		if (DataTypes.FIELD_LIST == refreshMsg.Payload().DataType)
 			Decode(refreshMsg.Payload().FieldList());

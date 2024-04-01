@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -844,7 +844,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             // notify stream that response received
             wlStream.ResponseReceived();
 
-            if (m_LoginStatus?.LoginStatus?.HasState == true)
+            if (m_LoginStatus.LoginStatus?.HasState == true)
             {
                 m_LoginStatus.LoginStatus.State.Copy(wlStream.State);
 
@@ -1097,12 +1097,15 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 out _);
 
             // re-send login request
-            m_TempMsg.Clear();
-            int originalStreamId = loginRequest!.StreamId;       
-            loginRequest!.StreamId = Stream!.StreamId;
-            m_Watchlist.ConvertRDMToCodecMsg(loginRequest!, m_TempMsg);
-            stream.SendMsgOutOfLoop(m_TempMsg, m_SubmitOptions, out _);
-            loginRequest!.StreamId = originalStreamId;
+            if (loginRequest != null)
+            {
+                m_TempMsg.Clear();
+                int originalStreamId = loginRequest!.StreamId;
+                loginRequest!.StreamId = Stream!.StreamId;
+                m_Watchlist.ConvertRDMToCodecMsg(loginRequest!, m_TempMsg);
+                stream.SendMsgOutOfLoop(m_TempMsg, m_SubmitOptions, out _);
+                loginRequest!.StreamId = originalStreamId;
+            }
         }
 
         /// <summary>

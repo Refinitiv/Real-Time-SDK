@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -202,9 +202,22 @@ namespace LSEG.Eta.Transports
 
         public override string ToString()
         {
-            var byteStrings = (Payload.Take((Payload.Length < 32)?Payload.Length:32).Select(b => $"{b:X2}"));
-            string payload = String.Join(", ", byteStrings);
-            return $"MessageLength: {MessageLength}, Flags: {Flags}, HeaderSize: {HeaderSize}, Payload: byte[{Payload?.Length}] {{ {payload} }}";
+            string payload = "";
+            var payloadLength = 0;
+
+            if (Payload != null)
+            {
+                const int MaxSampleSize = 32;
+                const string ByteDelimiter = ", ";
+
+                payloadLength = Payload.Length;
+
+                var byteStrings = Payload.Take(MaxSampleSize).Select(b => $"{b:X2}");
+                payload = string.Join(ByteDelimiter, byteStrings) +
+                    (Payload.Length > MaxSampleSize ? ByteDelimiter + "..." : "");
+            }
+
+            return $"MessageLength: {MessageLength}, Flags: {Flags}, HeaderSize: {HeaderSize}, Payload: byte[{payloadLength}] {{ {payload} }}";
         }
     }
 }

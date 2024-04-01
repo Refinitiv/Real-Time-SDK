@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -247,7 +247,7 @@ namespace LSEG.Eta.Example.Common
                 try
                 {
                     postMsg.PostUserInfo.UserAddrFromString(Dns.GetHostAddresses(Dns.GetHostName())
-                        .Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)!.FirstOrDefault()?.ToString());
+                        .Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)!.FirstOrDefault()?.ToString() ?? "");
                 }
                 catch (Exception e)
                 {
@@ -405,7 +405,7 @@ namespace LSEG.Eta.Example.Common
                 try
                 {
                     postMsg.PostUserInfo.UserAddrFromString(Dns.GetHostAddresses(Dns.GetHostName())
-                        .Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)!.FirstOrDefault()?.ToString());
+                        .Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)!.FirstOrDefault()?.ToString() ?? "");
                 }
                 catch (Exception e)
                 {
@@ -546,7 +546,7 @@ namespace LSEG.Eta.Example.Common
                 try
                 {
                     postMsg.PostUserInfo.UserAddrFromString(Dns.GetHostAddresses(Dns.GetHostName())
-                        .Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)!.FirstOrDefault()?.ToString());
+                        .Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)!.FirstOrDefault()?.ToString() ?? "");
                 }
                 catch (Exception e)
                 {

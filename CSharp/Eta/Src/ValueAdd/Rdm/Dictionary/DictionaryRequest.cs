@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -194,32 +194,20 @@ namespace LSEG.Eta.ValueAdd.Rdm
 
             stringBuf.Append(tab);
             stringBuf.Append("verbosity: ");
-            bool addOr = false;
-            if ((Verbosity & Dictionary.VerbosityValues.INFO) != 0)
-            {
-                stringBuf.Append("INFO");
-                addOr = true;
-            }
+            // INFO verbosity is always "present"
+            stringBuf.Append("INFO");
+
             if ((Verbosity & Dictionary.VerbosityValues.MINIMAL) != 0)
             {
-                if (addOr)
-                    stringBuf.Append(" | ");
-                stringBuf.Append("MINIMAL");
-                addOr = true;
+                stringBuf.Append(" | ").Append("MINIMAL");
             }
             if ((Verbosity & Dictionary.VerbosityValues.NORMAL) != 0)
             {
-                if (addOr)
-                    stringBuf.Append(" | ");
-                stringBuf.Append("NORMAL");
-                addOr = true;
+                stringBuf.Append(" | ").Append("NORMAL");
             }
             if ((Verbosity & Dictionary.VerbosityValues.VERBOSE) != 0)
             {
-                if (addOr)
-                    stringBuf.Append(" | ");
-                stringBuf.Append("VERBOSE");
-                addOr = true;
+                stringBuf.Append(" | ").Append("VERBOSE");
             }
             stringBuf.Append(eol);
 

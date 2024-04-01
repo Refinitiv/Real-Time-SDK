@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -4840,38 +4840,43 @@ namespace LSEG.Eta.Transports.Tests
 			IChannel clientChannel = null;
 			IChannel serverChannel = null;
 
-			Task clientTask = Task.Factory.StartNew(delegate
-			{
-				clientChannel = ConnectChannel(GetDefaultConnectOptions("14034"));
-			});
+            try
+            {
+                Task clientTask = Task.Factory.StartNew(delegate
+                {
+                    clientChannel = ConnectChannel(GetDefaultConnectOptions("14034"));
+                });
 
-			Task serverTask = Task.Factory.StartNew(delegate
-			{
-				serverChannel = WaitUntilServerAcceptNoInit(s);
-			});
+                Task serverTask = Task.Factory.StartNew(delegate
+                {
+                    serverChannel = WaitUntilServerAcceptNoInit(s);
+                });
 
-			Task.WaitAll(new Task[] { clientTask,  serverTask });
+                Task.WaitAll(new Task[] { clientTask, serverTask });
 
-			byte[] connectReq = { 0x00, 0x26, 0x00, 0x00, 0x00, 0x00, 0x15, 0x00, 0x26, 0x00, 0x3C, 0x00, 0x00, 0x0E, 0x00, 0x0A, 0x58, 
-									0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x0B, 0x31, 0x30, 0x2E, 0x39, 0x31, 0x2E, 0x31, 
-									0x36, 0x31, 0x2E, 0x37 };
-			ChannelBase clientBase = (ChannelBase)clientChannel;
-			clientBase.Socket.Send(connectReq);
+                byte[] connectReq = { 0x00, 0x26, 0x00, 0x00, 0x00, 0x00, 0x15, 0x00, 0x26, 0x00, 0x3C, 0x00, 0x00, 0x0E, 0x00, 0x0A, 0x58,
+                                    0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x0B, 0x31, 0x30, 0x2E, 0x39, 0x31, 0x2E, 0x31,
+                                    0x36, 0x31, 0x2E, 0x37 };
+                ChannelBase clientBase = (ChannelBase)clientChannel;
+                clientBase.Socket.Send(connectReq);
 
-			InProgInfo inProg = new InProgInfo();
-			while (serverChannel.State != ChannelState.ACTIVE)
-			{
-				var ret = serverChannel.Init(inProg, out error);
-				Assert.True(ret >= TransportReturnCode.SUCCESS);
-			}
+                InProgInfo inProg = new InProgInfo();
+                while (serverChannel.State != ChannelState.ACTIVE)
+                {
+                    var ret = serverChannel.Init(inProg, out error);
+                    Assert.True(ret >= TransportReturnCode.SUCCESS);
+                }
 
-			Assert.True(clientBase.Socket.Poll(TIMEOUTMS, SelectMode.SelectRead));
+                Assert.True(clientBase.Socket.Poll(TIMEOUTMS, SelectMode.SelectRead));
+            }
+            finally
+            {
+                if (clientChannel != null) clientChannel.Close(out error);
+                if (serverChannel != null) serverChannel.Close(out error);
+                if (s != null) s.Close(out error);
 
-			if (clientChannel != null) clientChannel.Close(out error);
-			if (serverChannel != null) serverChannel.Close(out error);
-			if (s != null) s.Close(out error);
-
-			Transport.Uninitialize();
+                Transport.Uninitialize();
+            }
 		}
 
 		[Fact]
@@ -4901,41 +4906,48 @@ namespace LSEG.Eta.Transports.Tests
 			IChannel clientChannel = null;
 			IChannel serverChannel = null;
 
-			Task clientTask = Task.Factory.StartNew(delegate
-			{
-				clientChannel = ConnectChannel(GetDefaultConnectOptions("14034"));
-			});
+            try
+            {
 
-			Task serverTask = Task.Factory.StartNew(delegate
-			{
-				serverChannel = WaitUntilServerAcceptNoInit(s);
-			});
+                Task clientTask = Task.Factory.StartNew(delegate
+                {
+                    clientChannel = ConnectChannel(GetDefaultConnectOptions("14034"));
+                });
 
-			Task.WaitAll(new Task[] { clientTask, serverTask });
+                Task serverTask = Task.Factory.StartNew(delegate
+                {
+                    serverChannel = WaitUntilServerAcceptNoInit(s);
+                });
 
-			byte[] connectMsg = 
-			{ 
-				0x00, 0x40, 0x01, 0x01, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x09, 0x18, 0x00, 0x03, 0x3C, 0x0E, 0x01,
-				0x00, 0x00, 0x00, 0x08, 0x01, 0x18, 0x5B, 0x34, 0xE8, 0xD8, 0x31, 0xDC, 0x82, 0xDE, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x08, 0xD2, 0xCC, 0x77, 0xF6, 0x25, 0x4E, 0xC9, 0x11, 0x10,
-				0x45, 0x54, 0x41, 0x20, 0x4A, 0x61, 0x76, 0x61, 0x20, 0x45, 0x64, 0x69, 0x74, 0x69, 0x6F, 0x6E
-			};
-			InProgInfo inProg = new InProgInfo();
+                Task.WaitAll(new Task[] { clientTask, serverTask });
 
-			Assert.Equal(ChannelState.INITIALIZING, clientChannel.State);
-			Assert.Equal(TransportReturnCode.CHAN_INIT_IN_PROGRESS, clientChannel.Init(inProg, out error));
+                byte[] connectMsg =
+                {
+                    0x00, 0x40, 0x01, 0x01, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x09, 0x18, 0x00, 0x03, 0x3C, 0x0E, 0x01,
+                    0x00, 0x00, 0x00, 0x08, 0x01, 0x18, 0x5B, 0x34, 0xE8, 0xD8, 0x31, 0xDC, 0x82, 0xDE, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x08, 0xD2, 0xCC, 0x77, 0xF6, 0x25, 0x4E, 0xC9, 0x11, 0x10,
+                    0x45, 0x54, 0x41, 0x20, 0x4A, 0x61, 0x76, 0x61, 0x20, 0x45, 0x64, 0x69, 0x74, 0x69, 0x6F, 0x6E
+                };
+                InProgInfo inProg = new InProgInfo();
 
-			ChannelBase serverBase = (ChannelBase)serverChannel;
-			serverBase.Socket.Send(connectMsg);
+                Assert.Equal(ChannelState.INITIALIZING, clientChannel.State);
+                Assert.Equal(TransportReturnCode.CHAN_INIT_IN_PROGRESS, clientChannel.Init(inProg, out error));
 
-			Assert.Equal(TransportReturnCode.SUCCESS, clientChannel.Init(inProg, out error));
-			Assert.Equal(ChannelState.ACTIVE, clientChannel.State);
+                ChannelBase serverBase = (ChannelBase)serverChannel;
+                serverBase.Socket.Send(connectMsg);
 
-			if (clientChannel != null) clientChannel.Close(out error);
-			if (serverChannel != null) serverChannel.Close(out error);
-			if (s != null) s.Close(out error);
+                Assert.Equal(TransportReturnCode.SUCCESS, clientChannel.Init(inProg, out error));
+                Assert.Equal(ChannelState.ACTIVE, clientChannel.State);
 
-			Transport.Uninitialize();
+            }
+            finally
+            {
+                if (clientChannel != null) clientChannel.Close(out error);
+                if (serverChannel != null) serverChannel.Close(out error);
+                if (s != null) s.Close(out error);
+
+                Transport.Uninitialize();
+            }
 		}
 
         #endregion
@@ -5569,94 +5581,94 @@ namespace LSEG.Eta.Transports.Tests
             }
 		}
 
-		[Fact]
-		public void IOCtlVerifyChannelReset()
+        [Fact]
+        public void IOCtlVerifyChannelReset()
         {
-			Error error = new Error();
-			IChannel chnl1 = null;
-			IChannel chnl2 = null;
-			string myFlushPriority = "LMLHLM";
+            Error error = new Error();
+            IChannel chnl1 = null;
+            IChannel chnl2 = null;
+            string myFlushPriority = "LMLHLM";
 
-			BindOptions bindOpts = GetDefaultBindOptions("14042");
+            BindOptions bindOpts = GetDefaultBindOptions("14042");
 
-			ConnectOptions connectOptions = GetDefaultConnectOptions("14042");
+            ConnectOptions connectOptions = GetDefaultConnectOptions("14042");
 
-			InitArgs initArgs = new InitArgs
-			{
-				GlobalLocking = false
-			};
-
-			IServer server = null;
-
-			try
+            InitArgs initArgs = new InitArgs
             {
-				Assert.Equal(TransportReturnCode.SUCCESS, Transport.Initialize(initArgs, out error));
-				server = Transport.Bind(bindOpts, out error);
-				Assert.NotNull(server);
-				chnl1 = Transport.Connect(connectOptions, out error);
-				ChannelBase base1 = (ChannelBase)chnl1;
-				Assert.True(ChannelBase.DEFAULT_PRIORITY_FLUSH_ORDER.Equals(base1.m_ChannelInfo.PriorityFlushStrategy));
-				Assert.Equal(0, base1.ComponentInfo.ComponentVersion.Length);
+                GlobalLocking = false
+            };
 
-				// specify ComponentVersion
-				String userSpecifiedComponentVersion = "User Specified Client Version 5.43";
-				ByteBuffer componentVersionBB = new ByteBuffer(Encoding.ASCII.GetBytes(userSpecifiedComponentVersion));
-				ComponentInfo myCi = new ComponentInfo();
-				myCi.ComponentVersion.Data(componentVersionBB);
-				// Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.COMPONENT_INFO, myCi, out error));
+            IServer server = null;
 
-				// change flush priority order
-				Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.PRIORITY_FLUSH_ORDER, myFlushPriority, out error));
-				Assert.True(myFlushPriority.Equals(base1.m_ChannelInfo.PriorityFlushStrategy));
-
-				// change High Water Mark to a small value
-				Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.HIGH_WATER_MARK, 5, out error));
-				Assert.Equal(5, base1.m_highWaterMark);
-
-				// change System Read Buffer Size
-				if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-				{
-					Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.SYSTEM_READ_BUFFERS, 50000, out error));
-					Assert.Equal(50000, base1.Socket.ReceiveBufferSize);
-
-					// change System Write Buffer Size
-					Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.SYSTEM_WRITE_BUFFERS, 40000, out error));
-					Assert.Equal(40000, base1.Socket.SendBufferSize);
-				}
-
-				chnl1.Close(out error);
-				server.Close(out error);
-
-				server = Transport.Bind(bindOpts, out error);
-				Assert.NotNull(server);
-
-				chnl2 = Transport.Connect(connectOptions, out error);
-				Assert.NotNull(chnl2);
-
-				ChannelBase base2 = (ChannelBase)chnl2;
-
-				// Verify that the component version info is reset.
-				Assert.Equal(0, base2.ComponentInfo.ComponentVersion.Length);
-				// Verify that the flush priority has been reset to the default value.
-				Assert.True(ChannelBase.DEFAULT_PRIORITY_FLUSH_ORDER.Equals(base2.m_ChannelInfo.PriorityFlushStrategy));
-				// Verify that the high water mark has been reset to the default value.
-				Assert.Equal(6144, base2.m_highWaterMark);
-				// Verify that the System Read Buffer size has been reset to the default value.
-
-                                if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-				{
-					Assert.Equal(65535, base2.Socket.ReceiveBufferSize); // Equal to READ_RECEIVE_BUFFER_SIZE in Java 
-					Assert.Equal(65535, base2.Socket.SendBufferSize);
-				}
-			}
-			finally
+            try
             {
-				chnl2.Close(out error);
-				if (server != null) server.Close(out error);
+                Assert.Equal(TransportReturnCode.SUCCESS, Transport.Initialize(initArgs, out error));
+                server = Transport.Bind(bindOpts, out error);
+                Assert.NotNull(server);
+                chnl1 = Transport.Connect(connectOptions, out error);
+                ChannelBase base1 = (ChannelBase)chnl1;
+                Assert.True(ChannelBase.DEFAULT_PRIORITY_FLUSH_ORDER.Equals(base1.m_ChannelInfo.PriorityFlushStrategy));
+                Assert.Equal(0, base1.ComponentInfo.ComponentVersion.Length);
 
-				Transport.Uninitialize();
+                // specify ComponentVersion
+                String userSpecifiedComponentVersion = "User Specified Client Version 5.43";
+                ByteBuffer componentVersionBB = new ByteBuffer(Encoding.ASCII.GetBytes(userSpecifiedComponentVersion));
+                ComponentInfo myCi = new ComponentInfo();
+                myCi.ComponentVersion.Data(componentVersionBB);
+                // Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.COMPONENT_INFO, myCi, out error));
+
+                // change flush priority order
+                Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.PRIORITY_FLUSH_ORDER, myFlushPriority, out error));
+                Assert.True(myFlushPriority.Equals(base1.m_ChannelInfo.PriorityFlushStrategy));
+
+                // change High Water Mark to a small value
+                Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.HIGH_WATER_MARK, 5, out error));
+                Assert.Equal(5, base1.m_highWaterMark);
+
+                // change System Read Buffer Size
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.SYSTEM_READ_BUFFERS, 50000, out error));
+                    Assert.Equal(50000, base1.Socket.ReceiveBufferSize);
+
+                    // change System Write Buffer Size
+                    Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.SYSTEM_WRITE_BUFFERS, 40000, out error));
+                    Assert.Equal(40000, base1.Socket.SendBufferSize);
+                }
+
+                chnl1.Close(out error);
+                server.Close(out error);
+
+                server = Transport.Bind(bindOpts, out error);
+                Assert.NotNull(server);
+
+                chnl2 = Transport.Connect(connectOptions, out error);
+                Assert.NotNull(chnl2);
+
+                ChannelBase base2 = (ChannelBase)chnl2;
+
+                // Verify that the component version info is reset.
+                Assert.Equal(0, base2.ComponentInfo.ComponentVersion.Length);
+                // Verify that the flush priority has been reset to the default value.
+                Assert.True(ChannelBase.DEFAULT_PRIORITY_FLUSH_ORDER.Equals(base2.m_ChannelInfo.PriorityFlushStrategy));
+                // Verify that the high water mark has been reset to the default value.
+                Assert.Equal(6144, base2.m_highWaterMark);
+                // Verify that the System Read Buffer size has been reset to the default value.
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    Assert.Equal(65535, base2.Socket.ReceiveBufferSize); // Equal to READ_RECEIVE_BUFFER_SIZE in Java 
+                    Assert.Equal(65535, base2.Socket.SendBufferSize);
+                }
             }
-		}
+            finally
+            {
+                chnl2?.Close(out _);
+                server?.Close(out _);
+
+                Transport.Uninitialize();
+            }
+        }
 
 		[Fact]
 		public void IOCtlHighWaterMarkTest()
@@ -6208,67 +6220,76 @@ namespace LSEG.Eta.Transports.Tests
 
         #region ChannelBase.ToString Tests
 
-		[Fact]
-		public void ChannelBaseToStringTest1()
+        [Fact]
+        public void ChannelBaseToStringTest1()
         {
-			BindOptions bindOpts = new BindOptions();
-			ConnectOptions connectOpts = new ConnectOptions();
-			Error error = new Error();
-			WriteArgs writeArgs = new WriteArgs();
-			writeArgs.Priority = WritePriorities.HIGH;
-			writeArgs.Flags = WriteFlags.NO_FLAGS;
+            BindOptions bindOpts = new BindOptions();
+            ConnectOptions connectOpts = new ConnectOptions();
+            Error error = new Error();
+            WriteArgs writeArgs = new WriteArgs();
+            writeArgs.Priority = WritePriorities.HIGH;
+            writeArgs.Flags = WriteFlags.NO_FLAGS;
 
-			bindOpts.ServiceName = "14056";
-			bindOpts.MinorVersion = Codec.Codec.MinorVersion();
-			bindOpts.MajorVersion = Codec.Codec.MajorVersion();
-			bindOpts.ProtocolType = ProtocolType.RWF;
-			bindOpts.PingTimeout = 75;
+            bindOpts.ServiceName = "14056";
+            bindOpts.MinorVersion = Codec.Codec.MinorVersion();
+            bindOpts.MajorVersion = Codec.Codec.MajorVersion();
+            bindOpts.ProtocolType = ProtocolType.RWF;
+            bindOpts.PingTimeout = 75;
 
-			connectOpts.UnifiedNetworkInfo.Address = "localhost";
-			connectOpts.ProtocolType = ProtocolType.RWF;
-			connectOpts.UnifiedNetworkInfo.ServiceName = "14056";
-			connectOpts.ConnectionType = ConnectionType.SOCKET;
-			connectOpts.MajorVersion = Codec.Codec.MajorVersion();
-			connectOpts.MinorVersion = Codec.Codec.MinorVersion();
-			connectOpts.PingTimeout = 75;
+            connectOpts.UnifiedNetworkInfo.Address = "localhost";
+            connectOpts.ProtocolType = ProtocolType.RWF;
+            connectOpts.UnifiedNetworkInfo.ServiceName = "14056";
+            connectOpts.ConnectionType = ConnectionType.SOCKET;
+            connectOpts.MajorVersion = Codec.Codec.MajorVersion();
+            connectOpts.MinorVersion = Codec.Codec.MinorVersion();
+            connectOpts.PingTimeout = 75;
 
-			InitializeConnection(bindOpts, connectOpts, out IChannel clientChannel, out IChannel serverClientChannel, out IServer server);
+            IChannel clientChannel = null;
+            IChannel serverClientChannel = null;
+            IServer server = null;
 
-			// server channel test
-			string serverChannelString = serverClientChannel.ToString();
-			Assert.Contains("connectionType: SOCKET", serverChannelString);
-			Assert.Contains("connected: True", serverChannelString);
-			Assert.Contains("state: ACTIVE", serverChannelString);
-			Assert.Contains("pingTimeout: 75", serverChannelString);
-			Assert.Contains("majorVersion: 14", serverChannelString);
-			Assert.Contains("minorVersion: 1", serverChannelString);
-			Assert.Contains("protocolType: RWF", serverChannelString);
+            try
+            {
+                InitializeConnection(bindOpts, connectOpts, out clientChannel, out serverClientChannel, out server);
 
-			// client channel test
-			string clientChannelString = clientChannel.ToString();
-			Assert.Contains("connectionType: SOCKET", clientChannelString);
-			Assert.Contains("connected: True", clientChannelString);
-			Assert.Contains("state: ACTIVE", clientChannelString);
-			Assert.Contains("pingTimeout: 75", clientChannelString);
-			Assert.Contains("majorVersion: 14", clientChannelString);
-			Assert.Contains("minorVersion: 1", clientChannelString);
-			Assert.Contains("protocolType: RWF", clientChannelString);
+                // server channel test
+                string serverChannelString = serverClientChannel.ToString();
+                Assert.Contains("connectionType: SOCKET", serverChannelString);
+                Assert.Contains("connected: True", serverChannelString);
+                Assert.Contains("state: ACTIVE", serverChannelString);
+                Assert.Contains("pingTimeout: 75", serverChannelString);
+                Assert.Contains("majorVersion: 14", serverChannelString);
+                Assert.Contains("minorVersion: 1", serverChannelString);
+                Assert.Contains("protocolType: RWF", serverChannelString);
 
-			// server test
-			string serverString = server.ToString();
-			Assert.Contains("state: ACTIVE", serverString);
-			Assert.Contains("portNumber: 14056", serverString);
-			Assert.Contains("srvrSckt: " + server.Socket.Handle.ToInt64(), serverString);
-			Assert.Contains("userSpecObject: ", serverString);
+                // client channel test
+                string clientChannelString = clientChannel.ToString();
+                Assert.Contains("connectionType: SOCKET", clientChannelString);
+                Assert.Contains("connected: True", clientChannelString);
+                Assert.Contains("state: ACTIVE", clientChannelString);
+                Assert.Contains("pingTimeout: 75", clientChannelString);
+                Assert.Contains("majorVersion: 14", clientChannelString);
+                Assert.Contains("minorVersion: 1", clientChannelString);
+                Assert.Contains("protocolType: RWF", clientChannelString);
 
-			if (clientChannel != null) clientChannel.Close(out error);
-			if (serverClientChannel != null) serverClientChannel.Close(out error);
-			if (server != null) server.Close(out error);
+                // server test
+                string serverString = server.ToString();
+                Assert.Contains("state: ACTIVE", serverString);
+                Assert.Contains("portNumber: 14056", serverString);
+                Assert.Contains("srvrSckt: " + server.Socket.Handle.ToInt64(), serverString);
+                Assert.Contains("userSpecObject: ", serverString);
+            }
+            finally
+            {
+                if (clientChannel != null) clientChannel.Close(out error);
+                if (serverClientChannel != null) serverClientChannel.Close(out error);
+                if (server != null) server.Close(out error);
 
-			Transport.Uninitialize();
-		}
+                Transport.Uninitialize();
+            }
+        }
 
-		[Fact]
+        [Fact]
 		public void ChannelBaseToStringTest2()
 		{
 			BindOptions bindOpts = new BindOptions();
@@ -6300,32 +6321,39 @@ namespace LSEG.Eta.Transports.Tests
 			{
 				GlobalLocking = false
 			};
-			Transport.Initialize(initArgs, out error);
-			s = BindServer(bindOpts);
-			Assert.NotNull(s);
-			cc = ConnectChannel(connectOpts);
 
-			// client channel test
-			string clientChannelString = cc.ToString();
-			Assert.Contains("connectionType: SOCKET", clientChannelString);
-			Assert.Contains("connected: True", clientChannelString);
-			Assert.Contains("state: INITIALIZING", clientChannelString);
-			Assert.Contains("pingTimeout: 92", clientChannelString);
-			Assert.Contains("majorVersion: 14", clientChannelString);
-			Assert.Contains("minorVersion: 1", clientChannelString);
-			Assert.Contains("protocolType: RWF", clientChannelString);
+            try
+            {
+                Transport.Initialize(initArgs, out error);
+                s = BindServer(bindOpts);
+                Assert.NotNull(s);
+                cc = ConnectChannel(connectOpts);
 
-			// server test
-			string serverString = s.ToString();
-			Assert.Contains("state: ACTIVE", serverString);
-			Assert.Contains("portNumber: 14057", serverString);
-			Assert.Contains("srvrSckt: " + s.Socket.Handle.ToInt64(), serverString);
-			Assert.Contains("userSpecObject: ", serverString);
+                // client channel test
+                string clientChannelString = cc.ToString();
+                Assert.Contains("connectionType: SOCKET", clientChannelString);
+                Assert.Contains("connected: True", clientChannelString);
+                Assert.Contains("state: INITIALIZING", clientChannelString);
+                Assert.Contains("pingTimeout: 92", clientChannelString);
+                Assert.Contains("majorVersion: 14", clientChannelString);
+                Assert.Contains("minorVersion: 1", clientChannelString);
+                Assert.Contains("protocolType: RWF", clientChannelString);
 
-			if (cc != null) cc.Close(out error);
-			if (s != null) s.Close(out error);
+                // server test
+                string serverString = s.ToString();
+                Assert.Contains("state: ACTIVE", serverString);
+                Assert.Contains("portNumber: 14057", serverString);
+                Assert.Contains("srvrSckt: " + s.Socket.Handle.ToInt64(), serverString);
+                Assert.Contains("userSpecObject: ", serverString);
 
-			Transport.Uninitialize();
+            }
+            finally
+            {
+                if (cc != null) cc.Close(out error);
+                if (s != null) s.Close(out error);
+
+                Transport.Uninitialize();
+            }
 		}
 
 		[Fact]
@@ -6352,40 +6380,50 @@ namespace LSEG.Eta.Transports.Tests
 			connectOpts.MinorVersion = Codec.Codec.MinorVersion();
 			connectOpts.PingTimeout = 75;
 
-			InitializeConnection(bindOpts, connectOpts, out IChannel clientChannel, out IChannel serverClientChannel, out IServer server);
+            try
+            {
+                InitializeConnection(bindOpts, connectOpts, out IChannel clientChannel, out IChannel serverClientChannel, out IServer server);
 
-			if (clientChannel != null) clientChannel.Close(out error);
-			if (serverClientChannel != null) serverClientChannel.Close(out error);
-			if (server != null) server.Close(out error);
+                Assert.NotNull(clientChannel);
+                Assert.NotNull(serverClientChannel);
+                Assert.NotNull(server);
 
-			// server channel test
-			string serverChannelString = serverClientChannel.ToString();
-			Assert.Contains("connectionType: SOCKET", serverChannelString);
-			Assert.Contains("connected: False", serverChannelString);
-			Assert.Contains("state: CLOSED", serverChannelString);
-			Assert.Contains("pingTimeout: 75", serverChannelString);
-			Assert.Contains("majorVersion: 14", serverChannelString);
-			Assert.Contains("minorVersion: 1", serverChannelString);
-			Assert.Contains("protocolType: RWF", serverChannelString);
+                clientChannel.Close(out error);
+                serverClientChannel.Close(out error);
+                server.Close(out error);
 
-			// client channel test
-			string clientChannelString = clientChannel.ToString();
-			Assert.Contains("connectionType: SOCKET", clientChannelString);
-			Assert.Contains("connected: False", clientChannelString);
-			Assert.Contains("state: CLOSED", clientChannelString);
-			Assert.Contains("pingTimeout: 75", clientChannelString);
-			Assert.Contains("majorVersion: 14", clientChannelString);
-			Assert.Contains("minorVersion: 1", clientChannelString);
-			Assert.Contains("protocolType: RWF", clientChannelString);
+                // server channel test
+                string serverChannelString = serverClientChannel.ToString();
+                Assert.Contains("connectionType: SOCKET", serverChannelString);
+                Assert.Contains("connected: False", serverChannelString);
+                Assert.Contains("state: CLOSED", serverChannelString);
+                Assert.Contains("pingTimeout: 75", serverChannelString);
+                Assert.Contains("majorVersion: 14", serverChannelString);
+                Assert.Contains("minorVersion: 1", serverChannelString);
+                Assert.Contains("protocolType: RWF", serverChannelString);
 
-			// server test
-			string serverString = server.ToString();
-			Assert.Contains("state: CLOSED", serverString);
-			Assert.Contains("portNumber: 14056", serverString);
-			Assert.Contains("srvrSckt: null", serverString);
-			Assert.Contains("userSpecObject: ", serverString);
+                // client channel test
+                string clientChannelString = clientChannel.ToString();
+                Assert.Contains("connectionType: SOCKET", clientChannelString);
+                Assert.Contains("connected: False", clientChannelString);
+                Assert.Contains("state: CLOSED", clientChannelString);
+                Assert.Contains("pingTimeout: 75", clientChannelString);
+                Assert.Contains("majorVersion: 14", clientChannelString);
+                Assert.Contains("minorVersion: 1", clientChannelString);
+                Assert.Contains("protocolType: RWF", clientChannelString);
 
-			Transport.Uninitialize();
+                // server test
+                string serverString = server.ToString();
+                Assert.Contains("state: CLOSED", serverString);
+                Assert.Contains("portNumber: 14056", serverString);
+                Assert.Contains("srvrSckt: null", serverString);
+                Assert.Contains("userSpecObject: ", serverString);
+
+            }
+            finally
+            {
+                Transport.Uninitialize();
+            }
 		}
 
 		#endregion

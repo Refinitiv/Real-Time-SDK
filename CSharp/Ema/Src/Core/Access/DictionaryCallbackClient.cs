@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -134,7 +134,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             return true;
         }
 
-        if (directory?.ChannelInfo?.DataDictionary != null
+        if (directory.ChannelInfo?.DataDictionary != null
             || m_OmmBaseImpl.ConfigImpl.DictionaryConfig.IsLocalDictionary)
             return true;
 

@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -196,16 +196,16 @@ namespace LSEG.Eta.Transports
             error = null;
             IChannel channel = null;
 
-            if (Interlocked.Read(ref _numInitCalls) == 0)
-            {
-                error = new Error(errorId: TransportReturnCode.INIT_NOT_INITIALIZED,
-                                     text: "Transport not initialized.");
-                return null;
-            }
-
             try
             {
                 GlobalLocker.Enter();
+
+                if (Interlocked.Read(ref _numInitCalls) == 0)
+                {
+                    error = new Error(errorId: TransportReturnCode.INIT_NOT_INITIALIZED,
+                                         text: "Transport not initialized.");
+                    return null;
+                }
 
                 if (connectOptions is null)
                 {
@@ -271,18 +271,18 @@ namespace LSEG.Eta.Transports
             error = null;
             IServer server = null;
 
-            if (Interlocked.Read(ref _numInitCalls) == 0)
-            {
-                error = new Error(errorId: TransportReturnCode.INIT_NOT_INITIALIZED,
-                                     text: "Transport not initialized.");
-                return null;
-            }
-
             try
             {
                 GlobalLocker.Enter();
 
-                if(bindOptions == null)
+                if (Interlocked.Read(ref _numInitCalls) == 0)
+                {
+                    error = new Error(errorId: TransportReturnCode.INIT_NOT_INITIALIZED,
+                                         text: "Transport not initialized.");
+                    return null;
+                }
+
+                if (bindOptions == null)
                 {
                     error = new Error
                     {
@@ -310,6 +310,10 @@ namespace LSEG.Eta.Transports
                 }
 
                 server = protocol.CreateServer(bindOptions, out error);
+            }
+            catch (Exception ex)
+            {
+                error = new Error(errorId: TransportReturnCode.FAILURE, text: ex.Message);
             }
             finally
             {
