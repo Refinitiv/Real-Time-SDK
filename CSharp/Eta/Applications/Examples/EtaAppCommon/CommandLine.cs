@@ -19,9 +19,8 @@ namespace LSEG.Eta.Example.Common
         // for random option lookup when parsing command line
         private static IDictionary<string, Option> Options = new Dictionary<string, Option>();
 
-        // maintains order so help text can be constructed Can contain either
-        // Options or strings
-        private static List<Object> OptionsAndHelpText = new List<Object>();
+        // maintains order so help text can be constructed
+        private static List<Option> OptionsAndHelpText = new List<Option>();
 
         private static string ArgumentPrefix = "-";
         private static string ProgramName = " ";

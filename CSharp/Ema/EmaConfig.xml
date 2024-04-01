@@ -66,7 +66,16 @@
 			<XmlTraceToStdout value="0"/>
 			<EnableRtt value="1"/>
 		</Consumer>
-
+		<!-- Consumer with REST proxy -->
+		<Consumer>
+			<Name value="Consumer_8"/>
+			<Channel value="Channel_1"/>
+			<Logger value="Logger_1"/>
+			<Dictionary value="Dictionary_2"/>
+			<XmlTraceToStdout value="0"/>
+			<RestProxyHost value="localhost"/>
+			<RestProxyPort value="3128"/>
+		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
 

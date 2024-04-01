@@ -343,6 +343,50 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
+        /// Specifies the REST proxy host.
+        /// </summary>
+        /// <param name="restProxyHostName">specifies proxy host name</param>
+        /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
+        public OmmConsumerConfig RestProxyHostName(string restProxyHostName)
+        {
+            OmmConsConfigImpl.RestProxyHostName = restProxyHostName;
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the REST proxy port for all connections.
+        /// </summary>
+        /// <param name="restProxyPort">specifies proxy port</param>
+        /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
+        public OmmConsumerConfig RestProxyPort(string restProxyPort)
+        {
+            OmmConsConfigImpl.RestProxyPort = restProxyPort;
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the REST proxy user name.
+        /// </summary>
+        /// <param name="restProxyUserName">specifies proxy username</param>
+        /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
+        public OmmConsumerConfig RestProxyUserName(string restProxyUserName)
+        {
+            OmmConsConfigImpl.RestProxyUserName = restProxyUserName;
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the REST proxy password.
+        /// </summary>
+        /// <param name="restProxyPassword">specifies proxy password</param>
+        /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
+        public OmmConsumerConfig RestProxyPassword(string restProxyPassword)
+        {
+            OmmConsConfigImpl.RestProxyPassword = restProxyPassword;
+            return this;
+        }
+
+        /// <summary>
         /// Specifies the encrypted protocol flags.
         /// </summary>
         /// <param name="protocolFlags">the TLS encryption protocol versions 

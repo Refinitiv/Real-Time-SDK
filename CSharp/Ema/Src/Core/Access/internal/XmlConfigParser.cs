@@ -68,6 +68,8 @@ namespace LSEG.Ema.Access
             //"XmlTraceDump",
             "XmlTraceToStdout",
             //"XmlTraceFileName",
+            "RestProxyHostName",
+            "RestProxyPort",
             // Channel related strings
             "AuthenticationTimeout", // This is used only for the encrypted connection type.
             "ChannelGroup",
@@ -151,7 +153,7 @@ namespace LSEG.Ema.Access
             {
                 throw new OmmInvalidConfigurationException("Error parsing XML file. XmlException text: " + excp.Message);
             }
-            catch(Exception excp)
+            catch (Exception excp)
             {
                 throw new OmmInvalidConfigurationException("Error loading XML file. Exception text: " + excp.Message);
             }
@@ -271,6 +273,14 @@ namespace LSEG.Ema.Access
                     throw new OmmInvalidConfigurationException("Missing Name element in the Consumer Name");
                 }
 
+                // TODO: use these local functions instead of repetitive "CurrNode2 = ...; if (CurrNode2 != null)" blocks
+
+                void ParseNodeWithValueConvert<TValue>(string nodeName, Action<TValue> assign, TryParseDelegate<TValue> tryParse, string? correctValueFormatMessage) =>
+                    this.ParseNodeWithValue<TValue>(nodeName, assign, "Consumer", consumerListNode, tryParse, correctValueFormatMessage);
+
+                void ParseNodeWithValue(string nodeName, Action<string> assign) =>
+                    this.ParseNodeWithValue(nodeName, assign, "Consumer", consumerListNode);
+
                 // Channel string
                 CurrNode2 = consumerListNode.SelectSingleNode("Channel");
                 if (CurrNode2 != null)
@@ -303,7 +313,7 @@ namespace LSEG.Ema.Access
 
                         string[] channelArray = XmlAttribute.Value.Split(',');
 
-                       foreach(string channelName in channelArray)
+                        foreach (string channelName in channelArray)
                             tmpConfig.ChannelSet.Add(channelName.Trim());
                     }
                 }
@@ -335,7 +345,7 @@ namespace LSEG.Ema.Access
                         throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer DictionaryRequestTimeOut element");
                     }
                     try
-                    { 
+                    {
                         tmpConfig.DictionaryRequestTimeOut = Utilities.Convert_ulong_long(ulong.Parse(XmlAttribute.Value));
                     }
                     catch (SystemException)
@@ -358,7 +368,7 @@ namespace LSEG.Ema.Access
                     }
 
                     try
-                    { 
+                    {
                         tmpConfig.DirectoryRequestTimeOut = Utilities.Convert_ulong_long(ulong.Parse(XmlAttribute.Value));
                     }
                     catch (SystemException)
@@ -749,48 +759,10 @@ namespace LSEG.Ema.Access
                 }
 
                 // RestRequestTimeOut ulong
-                CurrNode2 = consumerListNode.SelectSingleNode("RestRequestTimeOut");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
+                ParseNodeWithValueConvert<ulong>("RestRequestTimeOut", v => tmpConfig.RestRequestTimeOut = v, ulong.TryParse, "Correct format is an unsigned numeric string.");
 
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer RestRequestTimeOut element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RestRequestTimeOut = ulong.Parse(XmlAttribute.Value);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer RestRequestTimeOut element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // ServiceCountHint uint
-                CurrNode2 = consumerListNode.SelectSingleNode("ServiceCountHint");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer ServiceCountHint element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ServiceCountHint = Utilities.Convert_ulong_int(ulong.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer ServiceCountHint element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
+                // ServiceCountHint int
+                ParseNodeWithValueConvert<ulong>("ServiceCountHint", v => tmpConfig.ServiceCountHint = Utilities.Convert_ulong_int(v), ulong.TryParse, "Correct format is an unsigned numeric string.");
 
                 // XmlTraceDump ulong
                 //CurrNode2 = consumerListNode.SelectSingleNode("XmlTraceDump");
@@ -803,7 +775,7 @@ namespace LSEG.Ema.Access
                 //    {
                 //        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer XmlTraceDump element");
                 //    }
-                    
+
                 //    try
                 //    {
                 //        tmpConfig.XmlTraceDump = ulong.Parse(XmlAttribute.Value);
@@ -849,6 +821,9 @@ namespace LSEG.Ema.Access
                 //    }
                 //    tmpConfig.XmlTraceFileName = XmlAttribute.Value;
                 //}
+
+                ParseNodeWithValue("RestProxyHostName", v => tmpConfig.RestProxyHostName = v);
+                ParseNodeWithValue("RestProxyPort", v => tmpConfig.RestProxyPort = v);
 
                 if (foundConfig == false)
                     OmmConfig.ConsumerConfigMap.Add(tmpConfig.Name, tmpConfig);
@@ -1767,5 +1742,49 @@ namespace LSEG.Ema.Access
                 }
             }
         }
+
+        private void ParseNodeWithValue(string nodeName, Action<string> assign, string prefixName, XmlNode parentNode)
+        {
+            ParseNodeWithValue(
+                nodeName,
+                assign,
+                prefixName,
+                parentNode,
+                (string s, out string value) =>
+                {
+                    value = s;
+                    return true;
+                },
+                null);
+        }
+
+        private void ParseNodeWithValue<TValue>(
+            string nodeName,
+            Action<TValue> assign,
+            string prefixName,
+            XmlNode parentNode,
+            TryParseDelegate<TValue> tryParse,
+            string? correctValueFormatMessage)
+        {
+            var currNode = parentNode.SelectSingleNode(nodeName);
+            if (currNode == null)
+                return;
+
+            var valueAttr = currNode.Attributes!["value"];
+
+            if (valueAttr == null)
+                throw new OmmInvalidConfigurationException($"Missing value attribute in the {prefixName} {nodeName} element");
+
+            if (!tryParse(valueAttr.Value, out var parsedValue))
+                throw new OmmInvalidConfigurationException(
+                    $"The value attribute in the {prefixName} {nodeName}  element is incorrectly formatted." +
+                    (!string.IsNullOrEmpty(correctValueFormatMessage)
+                        ? " " + correctValueFormatMessage
+                        : string.Empty));
+
+            assign(parsedValue);
+        }
+
+        delegate bool TryParseDelegate<TValue>(string s, out TValue value);
     }
 }

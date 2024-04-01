@@ -138,10 +138,7 @@ namespace LSEG.Ema.Access
                                 {
                                     // Channel string.  Keeping the behavior the same as XML: If ChannelSet is present, that overrides the "Channel", even if it's later in the map.
                                     case "Channel":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for consumer element Channel. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("consumer", "Channel", DataTypes.ASCII_STRING, consumerEntry);
                                         if(channelSetFound == false)
                                         {
                                             tmpConfig.ChannelSet.Clear();
@@ -150,10 +147,7 @@ namespace LSEG.Ema.Access
                                         break;
                                     // ChannelSet string containing a comma separated list of Channel names. This will override in all cases.
                                     case "ChannelSet":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for consumer element ChannelSet. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("consumer", "ChannelSet", DataTypes.ASCII_STRING, consumerEntry);
                                         tmpConfig.ChannelSet.Clear();
 
                                         string[] channelArray = consumerEntry.OmmAsciiValue().ToString().Split(',');
@@ -165,205 +159,148 @@ namespace LSEG.Ema.Access
                                         break;
                                     // Dictionary string
                                     case "Dictionary":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element Dictionary. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "Dictionary", DataTypes.ASCII_STRING, consumerEntry);
                                         tmpConfig.Dictionary = consumerEntry.OmmAsciiValue().ToString();
                                         break;
                                     // DictionaryRequestTimeOut ulong
                                     case "DictionaryRequestTimeOut":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element DictionaryRequestTimeOut. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "DictionaryRequestTimeOut", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.DictionaryRequestTimeOut = Utilities.Convert_ulong_long(consumerEntry.UIntValue());
                                         break;
                                     // DirectoryRequestTimeOut ulong
                                     case "DirectoryRequestTimeOut":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element DirectoryRequestTimeOut. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "DirectoryRequestTimeOut", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.DirectoryRequestTimeOut = Utilities.Convert_ulong_long(consumerEntry.UIntValue());
                                         break;
                                     // LoginRequestTimeOut ulong
                                     case "LoginRequestTimeOut":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element LoginRequestTimeOut. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "LoginRequestTimeOut", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.LoginRequestTimeOut = Utilities.Convert_ulong_long(consumerEntry.UIntValue());
                                         break;
                                     // DispatchTimeoutApiThread long
                                     case "DispatchTimeoutApiThread":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.INT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element DispatchTimeoutApiThread. This element entry must contain an INT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "DispatchTimeoutApiThread", DataTypes.INT, consumerEntry);
 
                                         tmpConfig.DispatchTimeoutApiThread = consumerEntry.IntValue();
                                         break;
                                     // EnableRtt bool
                                     case "EnableRtt":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element EnableRtt. This element entry must contain an INT, cannot be blank, and have a value of \"0\" or \"1\".");
-                                        }
+                                        CheckElementEntry("Consumer", "EnableRtt", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
 
                                         tmpConfig.EnableRtt = (consumerEntry.UIntValue() != 0);
                                         break;
                                     // ItemCountHint ulong
                                     case "ItemCountHint":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element ItemCountHint. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "ItemCountHint", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.ItemCountHint = Utilities.Convert_ulong_uint(consumerEntry.UIntValue());
                                         break;
                                     // Logger string
                                     case "Logger":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element Logger. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "Logger", DataTypes.ASCII_STRING, consumerEntry);
                                         tmpConfig.Logger = consumerEntry.OmmAsciiValue().ToString();
                                         break;
                                     // MaxDispatchCountApiThread ulong
                                     case "MaxDispatchCountApiThread":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element MaxDispatchCountApiThread. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "MaxDispatchCountApiThread", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.MaxDispatchCountApiThread = Utilities.Convert_ulong_int(consumerEntry.UIntValue());
                                         break;
                                     // MaxDispatchCountApiThread ulong
                                     case "MaxDispatchCountUserThread":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element MaxDispatchCountUserThread. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "MaxDispatchCountUserThread", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.MaxDispatchCountUserThread = Utilities.Convert_ulong_int(consumerEntry.UIntValue());
                                         break;
                                     // MaxOutstandingPosts ulong
                                     case "MaxOutstandingPosts":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element MaxOutstandingPosts. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "MaxOutstandingPosts", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.MaxOutstandingPosts = Utilities.Convert_ulong_uint(consumerEntry.UIntValue());
                                         break;
                                     // MsgKeyInUpdates bool
                                     case "MsgKeyInUpdates":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element MsgKeyInUpdates. This element entry must contain an INT, cannot be blank, and have a value of \"0\" or \"1\".");
-                                        }
+                                        CheckElementEntry("Consumer", "MsgKeyInUpdates", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.MsgKeyInUpdates = (consumerEntry.UIntValue() != 0);
                                         break;
                                     // ObeyOpenWindow bool
                                     case "ObeyOpenWindow":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element ObeyOpenWindow. This element entry must contain an INT, cannot be blank, and have a value of \"0\" or \"1\".");
-                                        }
+                                        CheckElementEntry("Consumer", "ObeyOpenWindow", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
 
                                         tmpConfig.ObeyOpenWindow = (consumerEntry.UIntValue() != 0);
                                         break;
                                     // PostAckTimeout uint
                                     case "PostAckTimeout":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element PostAckTimeout. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "PostAckTimeout", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.PostAckTimeout = Utilities.Convert_ulong_uint(consumerEntry.UIntValue());
                                         break;
                                     // ReconnectAttemptLimit int
                                     case "ReconnectAttemptLimit":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.INT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element ReconnectAttemptLimit. This element entry must contain an INT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "ReconnectAttemptLimit", DataTypes.INT, consumerEntry);
 
                                         tmpConfig.ReconnectAttemptLimit = Utilities.Convert_long_int(consumerEntry.IntValue());
                                         break;
                                     // ReconnectMaxDelay int
                                     case "ReconnectMaxDelay":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.INT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element ReconnectMaxDelay. This element entry must contain an INT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "ReconnectMaxDelay", DataTypes.INT, consumerEntry);
 
                                         tmpConfig.ReconnectMaxDelay = Utilities.Convert_long_int(consumerEntry.IntValue());
                                         break;
                                     // ReconnectMinDelay int
                                     case "ReconnectMinDelay":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.INT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element ReconnectMinDelay. This element entry must contain an INT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "ReconnectMinDelay", DataTypes.INT, consumerEntry);
 
                                         tmpConfig.ReconnectMinDelay = Utilities.Convert_long_int(consumerEntry.IntValue());
                                         break;
                                     // RequestTimeout uint
                                     case "RequestTimeout":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element RequestTimeout. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "RequestTimeout", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.RequestTimeout = Utilities.Convert_ulong_uint(consumerEntry.UIntValue());
                                         break;
                                     // RestEnableLog bool
                                     case "RestEnableLog":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element RestEnableLog. This element entry must contain an INT, cannot be blank, and have a value of \"0\" or \"1\".");
-                                        }
+                                        CheckElementEntry("Consumer", "RestEnableLog", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
 
                                         tmpConfig.RestEnableLog = (consumerEntry.UIntValue() != 0);
                                         break;
                                     // RestEnableLogViaCallback bool
                                     case "RestEnableLogViaCallback":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element RestEnableLogViaCallback. This element entry must contain an INT, cannot be blank, and have a value of \"0\" or \"1\".");
-                                        }
+                                        CheckElementEntry("Consumer", "RestEnableLogViaCallback", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
 
                                         tmpConfig.RestEnableLogViaCallback = (consumerEntry.UIntValue() != 0);
                                         break;
                                     // RestLogFileName string
                                     case "RestLogFileName":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element RestLogFileName. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "RestLogFileName", DataTypes.ASCII_STRING, consumerEntry);
                                         tmpConfig.RestLogFileName = consumerEntry.OmmAsciiValue().ToString();
                                         break;
                                     // RestRequestTimeOut uint
                                     case "RestRequestTimeOut":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element RestRequestTimeOut. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "RestRequestTimeOut", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.RestRequestTimeOut = consumerEntry.UIntValue();
                                         break;
+                                    // RestProxyHostName string
+                                    case "RestProxyHostName":
+                                        CheckElementEntry("Consumer", "RestProxyHostName", DataTypes.ASCII_STRING, consumerEntry);
+
+                                        tmpConfig.RestProxyHostName = consumerEntry.OmmAsciiValue().ToString();
+                                        break;
+                                    // RestProxyPort string
+                                    case "RestProxyPort":
+                                        CheckElementEntry("Consumer", "RestProxyPort", DataTypes.ASCII_STRING, consumerEntry);
+
+                                        tmpConfig.RestProxyPort = consumerEntry.OmmAsciiValue().ToString();
+                                        break;
                                     // ServiceCountHint uint
                                     case "ServiceCountHint":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element ServiceCountHint. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Consumer", "ServiceCountHint", DataTypes.UINT, consumerEntry);
 
                                         tmpConfig.ServiceCountHint = Utilities.Convert_ulong_int(consumerEntry.UIntValue());
                                         break;
@@ -378,10 +315,7 @@ namespace LSEG.Ema.Access
                                     //    break;
                                     // XmlTraceToStdout bool
                                     case "XmlTraceToStdout":
-                                        if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element XmlTraceToStdout. This element entry must contain an INT, cannot be blank, and have a value of \"0\" or \"1\".");
-                                        }
+                                        CheckElementEntry("Consumer", "XmlTraceToStdout", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
 
                                         tmpConfig.XmlTraceToStdout = (consumerEntry.UIntValue() != 0);
                                         break;
@@ -462,12 +396,7 @@ namespace LSEG.Ema.Access
                                 {
                                     // ChannelType enum
                                     case "ChannelType":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK ||
-                                            channelEntry.LoadType != DataTypes.ENUM)
-                                        {
-                                            throw new OmmInvalidConfigurationException(
-                                                "Invalid entry payload type for Channel element ChannelType. This must be an EMUM type, with one of the values found in LSEG.Ema.Access.EmaConfig.ConnectionTypeEnum.");
-                                        }
+                                        CheckElementEntry("Channel", "ChannelType", DataTypes.ENUM, channelEntry, "with one of the values found in LSEG.Ema.Access.EmaConfig.ConnectionTypeEnum.");
                                         
                                         if (channelEntry.EnumValue() < 0 || channelEntry.EnumValue() > EmaConfig.ConnectionTypeEnum.MAX_DEFINED)
                                         {
@@ -481,12 +410,7 @@ namespace LSEG.Ema.Access
                                         break;
                                     // EncryptedProtocolType enum
                                     case "EncryptedProtocolType":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK ||
-                                            channelEntry.LoadType != DataTypes.ENUM)
-                                        {
-                                            throw new OmmInvalidConfigurationException(
-                                                "Invalid entry payload type for Channel element EncryptedProtocolType. This must be an EMUM type, with one of the values found in LSEG.Ema.Access.EmaConfig.ConnectionTypeEnum, excluding ConnectionTypeEnum.ENCRYPTED.");
-                                        }
+                                        CheckElementEntry("Channel", "EncryptedProtocolType", DataTypes.ENUM, channelEntry, "with one of the values found in LSEG.Ema.Access.EmaConfig.ConnectionTypeEnum, excluding ConnectionTypeEnum.ENCRYPTED.");
 
                                         if (channelEntry.EnumValue() < 0 || channelEntry.EnumValue() > EmaConfig.ConnectionTypeEnum.MAX_DEFINED)
                                         {
@@ -499,57 +423,39 @@ namespace LSEG.Ema.Access
                                         break;
                                     // ConnectionPingTimeout uint
                                     case "ConnectionPingTimeout":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element channelEntry. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "channelEntry", DataTypes.UINT, channelEntry);
 
                                         int pingTimeout = Utilities.Convert_ulong_int(channelEntry.UIntValue());
                                         tmpConfig.ConnectInfo.ConnectOptions.PingTimeout = pingTimeout >= 1000 ? pingTimeout/1000 : 60;
                                         break;
                                     // EnableSessionManagement uint->bool
                                     case "EnableSessionManagement":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element EnableSessionManagement. This element entry must contain an UINT, cannot be blank, and have a value of \"0\" or \"1\"");
-                                        }
+                                        CheckElementEntry("Channel", "EnableSessionManagement", DataTypes.UINT, channelEntry, "and have a value of \"0\" or \"1\"");
 
                                         tmpConfig.ConnectInfo.EnableSessionManagement = (channelEntry.UIntValue() != 0);
                                         break;
                                     // GuaranteedOutputBuffers uint
                                     case "GuaranteedOutputBuffers":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element GuaranteedOutputBuffers. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "GuaranteedOutputBuffers", DataTypes.UINT, channelEntry);
 
                                         tmpConfig.ConnectInfo.ConnectOptions.GuaranteedOutputBuffers = (int)channelEntry.UIntValue();
                                         break;
 
                                     // HighWaterMark uint
                                     case "HighWaterMark":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element HighWaterMark. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "HighWaterMark", DataTypes.UINT, channelEntry);
 
                                         tmpConfig.HighWaterMark = Utilities.Convert_ulong_int(channelEntry.UIntValue());
                                         break;
                                     // InitializationTimeout uint
                                     case "InitializationTimeout":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element InitializationTimeout. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "InitializationTimeout", DataTypes.UINT, channelEntry);
 
                                         tmpConfig.ConnectInfo.SetInitTimeout((int)channelEntry.UIntValue());
                                         break;
                                     // AuthenticationTimeout uint
                                     case "AuthenticationTimeout":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element AuthenticationTimeout. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "AuthenticationTimeout", DataTypes.UINT, channelEntry);
 
                                         int temp = Utilities.Convert_ulong_int(channelEntry.UIntValue());
 
@@ -563,64 +469,41 @@ namespace LSEG.Ema.Access
                                         break;
                                     // InterfaceName string
                                     case "InterfaceName":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element InterfaceName. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "InterfaceName", DataTypes.ASCII_STRING, channelEntry);
                                         tmpConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.InterfaceName = channelEntry.OmmAsciiValue().ToString();
                                         break;
                                     // Location string
                                     case "Location":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element Location. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "Location", DataTypes.ASCII_STRING, channelEntry);
                                         tmpConfig.ConnectInfo.Location = channelEntry.OmmAsciiValue().ToString();
                                         break;
                                     // NumInputBuffers uint
                                     case "NumInputBuffers":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element NumInputBuffers. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "NumInputBuffers", DataTypes.UINT, channelEntry);
 
                                         tmpConfig.ConnectInfo.ConnectOptions.NumInputBuffers = (int)channelEntry.UIntValue();
                                         break;
                                     // ServiceDiscoveryRetryCount uint
                                     case "ServiceDiscoveryRetryCount":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element ServiceDiscoveryRetryCount. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "ServiceDiscoveryRetryCount", DataTypes.UINT, channelEntry);
 
                                         tmpConfig.ConnectInfo.ServiceDiscoveryRetryCount = Utilities.Convert_ulong_int(channelEntry.UIntValue());
                                         break;
                                     // SysRecvBufSize uint
                                     case "SysRecvBufSize":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element SysRecvBufSize. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "SysRecvBufSize", DataTypes.UINT, channelEntry);
 
                                         tmpConfig.ConnectInfo.ConnectOptions.SysRecvBufSize = Utilities.Convert_ulong_int(channelEntry.UIntValue());
                                         break;
                                     // SysSendBufSize uint
                                     case "SysSendBufSize":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element SysSendBufSize. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "SysSendBufSize", DataTypes.UINT, channelEntry);
 
                                         tmpConfig.ConnectInfo.ConnectOptions.SysSendBufSize = Utilities.Convert_ulong_int(channelEntry.UIntValue());
                                         break;
                                     // CompressionType enum
                                     case "CompressionType":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK ||
-                                            channelEntry.LoadType != DataTypes.ENUM)
-                                        {
-                                            throw new OmmInvalidConfigurationException(
-                                                "Invalid entry payload type for Channel element CompressionType. This must be an EMUM type, with one of the values found in LSEG.Ema.Access.EmaConfig.CompressionType");
-                                        }
+                                        CheckElementEntry("Channel", "CompressionType", DataTypes.ENUM, channelEntry, "with one of the values found in LSEG.Ema.Access.EmaConfig.CompressionType");
 
                                         if (channelEntry.EnumValue() < 0 || channelEntry.EnumValue() > EmaConfig.CompressionTypeEnum.MAX_DEFINED)
                                         {
@@ -633,70 +516,46 @@ namespace LSEG.Ema.Access
                                         break;
                                     // CompressionThreshold uint
                                     case "CompressionThreshold":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element CompressionThreshold. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "CompressionThreshold", DataTypes.UINT, channelEntry);
 
                                         tmpConfig.CompressionThreshold = Utilities.Convert_ulong_int(channelEntry.UIntValue());
                                         tmpConfig.CompressionThresholdSet = true;
                                         break;
                                     // DirectWrite uint->bool
                                     case "DirectWrite":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element DirectWrite. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "DirectWrite", DataTypes.UINT, channelEntry, "and have a value of \"0\" or \"1\"");
 
                                         tmpConfig.DirectWrite = (channelEntry.UIntValue() != 0);
                                         break;
                                     // Host string
                                     case "Host":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element Host. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "Host", DataTypes.ASCII_STRING, channelEntry);
                                         tmpConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address = channelEntry.OmmAsciiValue().ToString();
                                         break;
                                     // Port string
                                     case "Port":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element Port. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "Port", DataTypes.ASCII_STRING, channelEntry);
                                         tmpConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = channelEntry.OmmAsciiValue().ToString();
                                         break;
                                     // ProxyHost string
                                     case "ProxyHost":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element ProxyHost. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "ProxyHost", DataTypes.ASCII_STRING, channelEntry);
                                         tmpConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyHostName = channelEntry.OmmAsciiValue().ToString();
                                         break;
                                     // ProxyPort string
                                     case "ProxyPort":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element ProxyPort. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "ProxyPort", DataTypes.ASCII_STRING, channelEntry);
                                         tmpConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPort = channelEntry.OmmAsciiValue().ToString();
                                         break;
                                     // TcpNodelay uint->bool
                                     case "TcpNodelay":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element TcpNodelay. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "TcpNodelay", DataTypes.UINT, channelEntry, "and have a value of \"0\" or \"1\"");
 
                                         tmpConfig.ConnectInfo.ConnectOptions.TcpOpts.TcpNoDelay = (channelEntry.UIntValue() != 0);
                                         break;
                                     // SecurityProtocol uint
                                     case "SecurityProtocol":
-                                        if (channelEntry.Load == null || channelEntry.Load.Code == DataCode.BLANK || channelEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Channel element SecurityProtocol. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Channel", "SecurityProtocol", DataTypes.UINT, channelEntry);
 
                                         if (channelEntry.UIntValue() != 0 && (channelEntry.UIntValue() & EmaConfig.EncryptedTLSProtocolFlags.TLS_ALL) == 0)
                                         {
@@ -772,47 +631,30 @@ namespace LSEG.Ema.Access
                                 {
                                     // InterfaceName string
                                     case "FileName":
-                                        if (loggerEntry.Load == null || loggerEntry.Load.Code == DataCode.BLANK || loggerEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Logger element FileName. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Logger", "FileName", DataTypes.ASCII_STRING, loggerEntry);
                                         tmpConfig.FileName = loggerEntry.OmmAsciiValue().ToString();
                                         break;
                                     // IncludeDateInLoggerOutput uint
                                     case "IncludeDateInLoggerOutput":
-                                        if (loggerEntry.Load == null || loggerEntry.Load.Code == DataCode.BLANK || loggerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Logger element IncludeDateInLoggerOutput. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Logger", "IncludeDateInLoggerOutput", DataTypes.UINT, loggerEntry);
 
                                         tmpConfig.IncludeDateInLoggerOutput = loggerEntry.UIntValue();
                                         break;
                                     // NumberOfLogFiles uint
                                     case "NumberOfLogFiles":
-                                        if (loggerEntry.Load == null || loggerEntry.Load.Code == DataCode.BLANK || loggerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Logger element NumberOfLogFiles. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Logger", "NumberOfLogFiles", DataTypes.UINT, loggerEntry);
 
                                         tmpConfig.NumberOfLogFiles = loggerEntry.UIntValue();
                                         break;
                                     // MaxLogFileSize uint
                                     case "MaxLogFileSize":
-                                        if (loggerEntry.Load == null || loggerEntry.Load.Code == DataCode.BLANK || loggerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Logger element MaxLogFileSize. This element entry must contain an UINT and cannot be blank");
-                                        }
+                                        CheckElementEntry("Logger", "MaxLogFileSize", DataTypes.UINT, loggerEntry);
 
                                         tmpConfig.MaxLogFileSize = loggerEntry.UIntValue();
                                         break;
                                     // LoggerSeverity enum
                                     case "LoggerSeverity":
-                                        if (loggerEntry.Load == null || loggerEntry.Load.Code == DataCode.BLANK ||
-                                            loggerEntry.LoadType != DataTypes.ENUM)
-                                        {
-                                            throw new OmmInvalidConfigurationException(
-                                                "Invalid entry payload type for Logger element LoggerSeverity. This must be an EMUM type, with the values found in LSEG.Ema.Access.EmaConfig.LoggerLevelEnum.");
-                                        }
+                                        CheckElementEntry("Logger", "LoggerSeverity", DataTypes.ENUM, loggerEntry, "with the values found in LSEG.Ema.Access.EmaConfig.LoggerLevelEnum.");
 
                                         if (loggerEntry.EnumValue() < 0 || loggerEntry.EnumValue() > EmaConfig.LoggerLevelEnum.MAX_DEFINED)
                                         {
@@ -825,12 +667,7 @@ namespace LSEG.Ema.Access
                                         break;
                                     // LoggerType enum
                                     case "LoggerType":
-                                        if (loggerEntry.Load == null || loggerEntry.Load.Code == DataCode.BLANK ||
-                                            loggerEntry.LoadType != DataTypes.ENUM)
-                                        {
-                                            throw new OmmInvalidConfigurationException(
-                                                "Invalid entry payload type for Logger element LoggerType. This must be an EMUM type, with the values found in LSEG.Ema.Access.EmaConfig.LoggerTypeEnum.");
-                                        }
+                                        CheckElementEntry("Logger", "LoggerType", DataTypes.ENUM, loggerEntry, "with the values found in LSEG.Ema.Access.EmaConfig.LoggerTypeEnum.");
 
                                         if (loggerEntry.EnumValue() < 0 || loggerEntry.EnumValue() > EmaConfig.LoggerTypeEnum.MAX_DEFINED)
                                         {
@@ -908,45 +745,28 @@ namespace LSEG.Ema.Access
                                 {
                                     // EnumTypeDefFileName string
                                     case "EnumTypeDefFileName":
-                                        if (dictionaryEntry.Load == null || dictionaryEntry.Load.Code == DataCode.BLANK || dictionaryEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Dictionary element EnumTypeDefFileName. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Dictionary", "EnumTypeDefFileName", DataTypes.ASCII_STRING, dictionaryEntry);
                                         tmpConfig.EnumTypeDefFileName = dictionaryEntry.OmmAsciiValue().ToString();
                                         break;
                                     // EnumTypeDefItemName string
                                     case "EnumTypeDefItemName":
-                                        if (dictionaryEntry.Load == null || dictionaryEntry.Load.Code == DataCode.BLANK || dictionaryEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Dictionary element EnumTypeDefItemName. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Dictionary", "EnumTypeDefItemName", DataTypes.ASCII_STRING, dictionaryEntry);
                                         tmpConfig.EnumTypeDefItemName = dictionaryEntry.OmmAsciiValue().ToString();
                                         break;
                                     // RdmFieldDictionaryFileName string
                                     case "RdmFieldDictionaryFileName":
-                                        if (dictionaryEntry.Load == null || dictionaryEntry.Load.Code == DataCode.BLANK || dictionaryEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Dictionary element RdmFieldDictionaryFileName. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Dictionary", "RdmFieldDictionaryFileName", DataTypes.ASCII_STRING, dictionaryEntry);
                                         tmpConfig.RdmFieldDictionaryFileName = dictionaryEntry.OmmAsciiValue().ToString();
                                         break;
                                     // RdmFieldDictionaryItemName string
                                     case "RdmFieldDictionaryItemName":
-                                        if (dictionaryEntry.Load == null || dictionaryEntry.Load.Code == DataCode.BLANK || dictionaryEntry.LoadType != DataTypes.ASCII_STRING)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Dictionary element RdmFieldDictionaryItemName. This element entry must contain an ASCII string and cannot be blank");
-                                        }
+                                        CheckElementEntry("Dictionary", "RdmFieldDictionaryItemName", DataTypes.ASCII_STRING, dictionaryEntry);
                                         tmpConfig.RdmFieldDictionaryItemName = dictionaryEntry.OmmAsciiValue().ToString();
                                         break;
 
                                     // DictionaryType enum
                                     case "DictionaryType":
-                                        if (dictionaryEntry.Load == null || dictionaryEntry.Load.Code == DataCode.BLANK ||
-                                            dictionaryEntry.LoadType != DataTypes.ENUM)
-                                        {
-                                            throw new OmmInvalidConfigurationException(
-                                                "Invalid entry payload type for Dictionary element DictionaryType. This must be an EMUM type, with the values found in LSEG.Ema.Access.DictionaryConfig.DictionaryType");
-                                        }
+                                        CheckElementEntry("Dictionary", "DictionaryType", DataTypes.ENUM, dictionaryEntry, "with the values found in LSEG.Ema.Access.DictionaryConfig.DictionaryType");
 
                                         if (dictionaryEntry.EnumValue() < 0 || dictionaryEntry.EnumValue() > EmaConfig.DictionaryTypeEnum.MAX_DEFINED)
                                         {
@@ -973,6 +793,17 @@ namespace LSEG.Ema.Access
                         OmmConfig.ConfigErrorLog?.Add("Unknown Dictionary element: " + groupEntry.Name, LoggerLevel.ERROR);
                         break;
                 }
+            }
+        }
+
+        void CheckElementEntry(string groupName, string elementName, int dataType, ElementEntry elementEntry, string? errorMessageAddition = null)
+        {
+            if (elementEntry.Load == null || elementEntry.Load.Code == DataCode.BLANK || elementEntry.LoadType != dataType)
+            {
+                throw new OmmInvalidConfigurationException($"Invalid entry payload type for {groupName} element {elementName}. This element entry must contain {DataTypes.ToString(dataType)}"
+                    + (string.IsNullOrEmpty(errorMessageAddition)
+                        ? " and cannot be blank"
+                        : ", cannot be blank, " + errorMessageAddition));
             }
         }
     }

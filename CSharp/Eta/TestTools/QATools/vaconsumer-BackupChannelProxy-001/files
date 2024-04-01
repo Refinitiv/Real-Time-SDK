@@ -1,0 +1,3 @@
+# file,location
+ConsumerCmdLineParser.cs,Applications/Examples/VAConsumer/ConsumerCmdLineParser.cs
+VAConsumer.cs,Applications/Examples/VAConsumer/VAConsumer.cs

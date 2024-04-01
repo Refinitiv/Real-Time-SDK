@@ -16,6 +16,7 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
 using static LSEG.Eta.Rdm.Directory;
 using System.Net.Security;
+using System.IO;
 
 namespace LSEG.Ema.Access
 {
@@ -59,6 +60,14 @@ namespace LSEG.Ema.Access
         internal string ProxyUserName { get; set; } = string.Empty;
         // ProxyPassword config from OmmConsumerConfig methods
         internal string ProxyPassword { get; set; } = string.Empty;
+        // RestProxyHost config from OmmConsumerConfig methods
+        internal string RestProxyHostName { get; set; } = string.Empty;
+        // RestProxyPort config from OmmConsumerConfig methods
+        internal string RestProxyPort { get; set; } = string.Empty;
+        // RestProxyUserName config from OmmConsumerConfig methods
+        internal string RestProxyUserName { get; set; } = string.Empty;
+        // RestProxyPassword config from OmmConsumerConfig methods
+        internal string RestProxyPassword { get; set; } = string.Empty;
         // DispatchModel config from OmmConsumerConfig methods.
         internal OmmConsumerConfig.OperationModelMode DispatchModel;
         // ChannleType config from OmmConsumerConfig methods
@@ -156,6 +165,10 @@ namespace LSEG.Ema.Access
             ProxyPort = OldConfigImpl.ProxyPort;
             ProxyUserName = OldConfigImpl.ProxyUserName;
             ProxyPassword = OldConfigImpl.ProxyPassword;
+            RestProxyHostName = OldConfigImpl.RestProxyHostName;
+            RestProxyPort = OldConfigImpl.RestProxyPort;
+            RestProxyUserName = OldConfigImpl.RestProxyUserName;
+            RestProxyPassword = OldConfigImpl.RestProxyPassword;
             DispatchModel = OldConfigImpl.DispatchModel;
             OldConfigImpl.AdminLoginRequest.Copy(AdminLoginRequest);
             SetEncryptedProtocolFlags = OldConfigImpl.SetEncryptedProtocolFlags;
@@ -357,6 +370,10 @@ namespace LSEG.Ema.Access
             ProxyPort = string.Empty;
             ProxyUserName = string.Empty;
             ProxyPassword = string.Empty;
+            RestProxyHostName = string.Empty;
+            RestProxyPort = string.Empty;
+            RestProxyUserName = string.Empty;
+            RestProxyPassword = string.Empty;
             ConsumerConfig.Clear();
             LoggerConfig.Clear();
             DictionaryConfig.Clear();
@@ -850,6 +867,78 @@ namespace LSEG.Ema.Access
         internal Ema.Rdm.DataDictionary? DataDictionary()
         {
             return m_DataDictionary;
+        }
+
+        // Populates Reactor Options based on the Consumer Config.
+        // Prerequsites: The user-supplied OmmConsumerConfig has been verified with OmmConsumerConfigImpl.VerifyConfig and this is run on the "active" configuration copy
+        internal void PopulateReactorOptions(ReactorOptions reactorOptions)
+        {
+            // Set the REST logging options in the consumer here
+            if (ConsumerConfig.RestEnableLog)
+            {
+                reactorOptions.EnableRestLogStream = true;
+
+                if (string.IsNullOrEmpty(ConsumerConfig.RestLogFileName) == false)
+                {
+                    try
+                    {
+                        reactorOptions.RestLogOutputStream = File.OpenWrite(ConsumerConfig.RestLogFileName);
+                    }
+                    catch (SystemException excp)
+                    {
+                        throw new OmmInvalidConfigurationException("Unable to open file for REST logging. Exception message: " + excp.Message);
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(TokenUrlV2) == false)
+            {
+                reactorOptions.SetTokenServiceURL(TokenUrlV2);
+            }
+
+            if (string.IsNullOrEmpty(ServiceDiscoveryUrl) == false)
+            {
+                reactorOptions.SetServiceDiscoveryURL(ServiceDiscoveryUrl);
+            }
+
+            var rPOpt = reactorOptions.RestProxyOptions;
+
+            // Values from XML & programmatic config
+            if (string.IsNullOrEmpty(ConsumerConfig.RestProxyHostName) == false)
+            {
+                rPOpt.ProxyHostName = ConsumerConfig.RestProxyHostName;
+            }
+            if (string.IsNullOrEmpty(ConsumerConfig.RestProxyPort) == false)
+            {
+                rPOpt.ProxyPort = ConsumerConfig.RestProxyPort;
+            }
+
+            // Values from fluent interface
+            if (string.IsNullOrEmpty(RestProxyHostName) == false)
+            {
+                rPOpt.ProxyHostName = RestProxyHostName;
+            }
+            if (string.IsNullOrEmpty(RestProxyPort) == false)
+            {
+                rPOpt.ProxyPort = RestProxyPort;
+            }
+            if (string.IsNullOrEmpty(RestProxyUserName) == false)
+            {
+                rPOpt.ProxyUserName = RestProxyUserName;
+            }
+            if (string.IsNullOrEmpty(RestProxyPassword) == false)
+            {
+                rPOpt.ProxyPassword = RestProxyPassword;
+            }
+
+            int restRequsetTimeout = (int)ConsumerConfig.RestRequestTimeOut;
+            if (reactorOptions.SetRestRequestTimeout(restRequsetTimeout) != ReactorReturnCode.SUCCESS)
+            {
+                throw new OmmInvalidConfigurationException($"Failed to set REST request timeout with value: {restRequsetTimeout}");
+            }
+
+            // Enable XML tracing
+            reactorOptions.XmlTracing = ConsumerConfig.XmlTraceToStdout;
         }
     }
 }

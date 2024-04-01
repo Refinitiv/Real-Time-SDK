@@ -247,7 +247,7 @@ namespace LSEG.Ema.Access
                     throw new OmmInvalidUsageException(errorText, OmmInvalidUsageException.ErrorCodes.INTERNAL_ERROR);
                 }
 
-                if(LoggerClient.IsTraceEnabled)
+                if (LoggerClient.IsTraceEnabled)
                 {
                     LoggerClient.Trace(InstanceName, DumpActiveConfig(ConfigImpl));
                 }
@@ -255,43 +255,7 @@ namespace LSEG.Ema.Access
                 TimeoutEventManager = new TimeoutEventManager<T>(this, eventSignal);
 
                 reactorOptions.UserSpecObj = this;
-
-                // Set the REST logging options in the consumer here
-                if (ConfigImpl.ConsumerConfig.RestEnableLog)
-                {
-                    reactorOptions.EnableRestLogStream = true;
-
-                    if(string.IsNullOrEmpty(ConfigImpl.ConsumerConfig.RestLogFileName) == false)
-                    {
-                        try
-                        {
-                            reactorOptions.RestLogOutputStream = File.OpenWrite(ConfigImpl.ConsumerConfig.RestLogFileName);
-                        }
-                        catch (SystemException excp)
-                        {
-                            throw new OmmInvalidConfigurationException("Unable to open file for REST logging. Exception message: " + excp.Message);
-                        }
-                    }
-                }
-
-                if (ConfigImpl.TokenUrlV2.IsNullOrEmpty() == false)
-                {
-                    reactorOptions.SetTokenServiceURL(ConfigImpl.TokenUrlV2);
-                }
-
-                if (ConfigImpl.ServiceDiscoveryUrl.IsNullOrEmpty() == false)
-                {
-                    reactorOptions.SetServiceDiscoveryURL(ConfigImpl.ServiceDiscoveryUrl);
-                }
-
-                int restRequsetTimeout = (int)ConfigImpl.ConsumerConfig.RestRequestTimeOut;
-                if (reactorOptions.SetRestRequestTimeout(restRequsetTimeout) != ReactorReturnCode.SUCCESS)
-                {
-                    throw new OmmInvalidConfigurationException($"Failed to set REST request timeout with value: {restRequsetTimeout}");
-                }
-
-                // Enable XML tracing
-                reactorOptions.XmlTracing = ConfigImpl.ConsumerConfig.XmlTraceToStdout;
+                ConfigImpl.PopulateReactorOptions(reactorOptions);
 
                 reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo? reactorErrInfo);
 

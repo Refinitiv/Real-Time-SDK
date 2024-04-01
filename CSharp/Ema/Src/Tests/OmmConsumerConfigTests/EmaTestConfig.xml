@@ -35,7 +35,8 @@
 			<!--XmlTraceDump value="1"/-->
 			<!--XmlTraceFileName value="testXmlTrace"/-->
 			<XmlTraceToStdout value="1"/>
-
+			<RestProxyHostName value="proxy.local" />
+			<RestProxyPort value="3128" />
 		</Consumer>
 		<!-- ChannelSet should override Channel here. -->
 		<Consumer>

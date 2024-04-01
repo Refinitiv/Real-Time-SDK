@@ -124,16 +124,6 @@ namespace LSEG.Eta.Internal
             return dest;
         }
 
-        internal static ProxyOptions CopyTo(this ProxyOptions source, ProxyOptions dest)
-        {
-            dest.ProxyHostName = source.ProxyHostName;
-            dest.ProxyPort = source.ProxyPort;
-            dest.ProxyUserName = source.ProxyUserName;
-            dest.ProxyPassword = source.ProxyPassword;
-
-            return dest;
-        }
-
         internal static bool IsProxyEnabled(this ConnectOptions connectOptions)
         {
             if( !string.IsNullOrEmpty(connectOptions.ProxyOptions.ProxyHostName) &&

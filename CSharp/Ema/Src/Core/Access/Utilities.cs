@@ -208,4 +208,9 @@ internal class Utilities
     {
         return value > uint.MaxValue ? uint.MaxValue : (uint)value;
     }
+
+    internal static ushort Convert_ulong_ushort(ulong value)
+    {
+        return value > ushort.MaxValue ? ushort.MaxValue : (ushort)value;
+    }
 }

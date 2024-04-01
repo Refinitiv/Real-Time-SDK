@@ -6,6 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
+using LSEG.Eta.Transports;
+
 namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
@@ -41,6 +43,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public bool EnableRestLogStream { get; set; }
 
         /// <summary>
+        /// Gets or sets proxy settings dedicated to REST requests.
+        /// </summary>
+        public ProxyOptions RestProxyOptions { get; set; } = new();
+
+        /// <summary>
         /// Create <see cref="ReactorOptions"/>
         /// </summary>
         public ReactorOptions()
@@ -60,6 +67,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             m_RestRequestTimeout = 45000; // 45 seconds
             m_TokenExpireRatio = 0.50;
             EnableRestLogStream = false;
+            RestProxyOptions.Clear();
         }
 
         /// <summary>
@@ -188,6 +196,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             m_TokenExpireRatio = options.m_TokenExpireRatio;
             EnableRestLogStream = options.EnableRestLogStream;
             RestLogOutputStream = options.RestLogOutputStream;
+            options.RestProxyOptions.CopyTo(RestProxyOptions);
         }
     }
 }

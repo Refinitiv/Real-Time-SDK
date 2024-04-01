@@ -221,7 +221,7 @@ namespace LSEG.Eta.Internal
                     {
                         ErrorId = TransportReturnCode.FAILURE,
                         SysError = 0,
-                        Text = exp.Message
+                        Text = $"DNS resolution failure for address \"{address}\" with error text \"{exp.Message}\"."
                     };
                 }
 

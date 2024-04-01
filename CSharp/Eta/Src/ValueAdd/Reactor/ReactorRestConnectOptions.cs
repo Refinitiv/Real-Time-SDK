@@ -39,6 +39,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
             Clear();
 
+            if (ReactorOptions.RestProxyOptions.IsHostAndPortSet)
+            {
+                ReactorOptions.RestProxyOptions.CopyTo(ProxyOptions);
+            }
+
             RestLoggingHandler = new ReactorRestLogginHandler(options);
         }
 
@@ -71,18 +76,21 @@ namespace LSEG.Eta.ValueAdd.Reactor
             DataFormat = options.DataFormat;
             Transport = options.Transport;
 
-            ProxyOptions.ProxyHostName = options.ProxyHostName.ToString();
-            ProxyOptions.ProxyPort = options.ProxyPort.ToString();
-            ProxyOptions.ProxyUserName = options.ProxyUserName.ToString();
-            ProxyOptions.ProxyPassword = options.ProxyPassword.ToString();
+            if (!ProxyOptions.IsHostAndPortSet)
+            {
+                ProxyOptions.ProxyHostName = options.ProxyHostName.ToString();
+                ProxyOptions.ProxyPort = options.ProxyPort.ToString();
+                ProxyOptions.ProxyUserName = options.ProxyUserName.ToString();
+                ProxyOptions.ProxyPassword = options.ProxyPassword.ToString(); 
+            }
         }
 
         public void ApplyProxyInfo(ConnectOptions connectOptions)
         {
-            ProxyOptions.ProxyHostName = connectOptions.ProxyOptions.ProxyHostName;
-            ProxyOptions.ProxyPort = connectOptions.ProxyOptions.ProxyPort;
-            ProxyOptions.ProxyUserName = connectOptions.ProxyOptions.ProxyUserName;
-            ProxyOptions.ProxyPassword = connectOptions.ProxyOptions.ProxyPassword;
+            if (ProxyOptions.IsHostAndPortSet)
+                return;
+
+            connectOptions.ProxyOptions.CopyTo(ProxyOptions);
         }
     }
 }

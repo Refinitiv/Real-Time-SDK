@@ -1,8 +1,8 @@
-/*|-----------------------------------------------------------------------------
+﻿/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -607,38 +607,37 @@ namespace LSEG.Eta.ValueAdd.Consumer
                     evt.ReactorErrorInfo.Error.Text, evt.ReactorErrorInfo.Location);
 
                 // unregister selectableChannel from Selector
-                if (evt.ReactorChannel?.Socket != null)
+                if (evt.ReactorChannel!.Socket != null)
                 {
                     m_ReadSockets.Remove(evt.ReactorChannel.Socket);
                     m_SocketFdValueMap.Remove(evt.ReactorChannel.Socket.Handle.ToInt32());
                 }
 
                 // close ReactorChannel
-                chnlInfo?.ReactorChannel?.Close(out _);
-
+                if (chnlInfo!.ReactorChannel != null)
+                {
+                    chnlInfo.ReactorChannel.Close(out _);
+                }
                 return ReactorCallbackReturnCode.SUCCESS;
             }
 
-            if (chnlInfo != null)
+            // set response message
+            chnlInfo!.ResponseMsg = msg;
+
+            // set-up decode iterator if message has message body
+            if (msg.EncodedDataBody != null
+                && msg.EncodedDataBody.Data() != null)
             {
-                // set response message
-                chnlInfo.ResponseMsg = msg;
+                // clear decode iterator
+                chnlInfo.DecodeIter.Clear();
 
-                // set-up decode iterator if message has message body
-                if (msg.EncodedDataBody != null
-                    && msg.EncodedDataBody.Data() != null)
-                {
-                    // clear decode iterator
-                    chnlInfo.DecodeIter.Clear();
-
-                    // set buffer and version info
-                    chnlInfo.DecodeIter.SetBufferAndRWFVersion(msg.EncodedDataBody,
-                        evt.ReactorChannel!.MajorVersion,
-                        evt.ReactorChannel.MinorVersion);
-                }
-
-                ProcessResponse(chnlInfo);
+                // set buffer and version info
+                chnlInfo.DecodeIter.SetBufferAndRWFVersion(msg.EncodedDataBody,
+                    evt.ReactorChannel!.MajorVersion,
+                    evt.ReactorChannel.MinorVersion);
             }
+
+            ProcessResponse(chnlInfo);
 
             return ReactorCallbackReturnCode.SUCCESS;
         }
@@ -1357,35 +1356,60 @@ namespace LSEG.Eta.ValueAdd.Consumer
             if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.Location))
                 chnlInfo.ConnectOptions.ConnectionList[0].Location = m_ConsumerCmdLineParser.Location;
 
+            // APIQA
             // add backup connection if specified
             if (m_ConsumerCmdLineParser.BackupHostname != null
                 && m_ConsumerCmdLineParser.BackupPort != null)
             {
                 ReactorConnectInfo connectInfo = new();
+                chnlInfo.ConnectOptions.ConnectionList.Add(connectInfo);
 
                 if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.Location))
                     connectInfo.Location = m_ConsumerCmdLineParser.Location;
 
-                chnlInfo.ConnectOptions.ConnectionList.Add(connectInfo);
-                chnlInfo.ConnectOptions.ConnectionList[1].ConnectOptions.MajorVersion = Codec.Codec.MajorVersion();
-                chnlInfo.ConnectOptions.ConnectionList[1].ConnectOptions.MinorVersion = Codec.Codec.MinorVersion();
-                chnlInfo.ConnectOptions.ConnectionList[1].ConnectOptions.ConnectionType = chnlInfo.ConnectionArg.ConnectionType;
-                chnlInfo.ConnectOptions.ConnectionList[1].ConnectOptions.UnifiedNetworkInfo.ServiceName = m_ConsumerCmdLineParser.BackupPort;
-                chnlInfo.ConnectOptions.ConnectionList[1].ConnectOptions.UnifiedNetworkInfo.Address = m_ConsumerCmdLineParser.BackupHostname;
-                chnlInfo.ConnectOptions.ConnectionList[1].ConnectOptions.UserSpecObject = chnlInfo;
-                chnlInfo.ConnectOptions.ConnectionList[1].ConnectOptions.GuaranteedOutputBuffers = 1000;
+                ConnectOptions cOpt = connectInfo.ConnectOptions;
+
+                cOpt.MajorVersion = Codec.Codec.MajorVersion();
+                cOpt.MinorVersion = Codec.Codec.MinorVersion();
+                cOpt.ConnectionType = chnlInfo.ConnectionArg.ConnectionType;
+                cOpt.UnifiedNetworkInfo.ServiceName = m_ConsumerCmdLineParser.BackupPort;
+                cOpt.UnifiedNetworkInfo.Address = m_ConsumerCmdLineParser.BackupHostname;
+                cOpt.UserSpecObject = chnlInfo;
+                cOpt.GuaranteedOutputBuffers = 1000;
 
                 if (m_ConsumerCmdLineParser.EnableSessionMgnt)
                 {
-                    chnlInfo.ConnectOptions.ConnectionList[1].EnableSessionManagement = true;
+                    connectInfo.EnableSessionManagement = true;
 
-                    chnlInfo.ConnectOptions.ConnectionList[1].ReactorAuthTokenEventCallback = this;
+                    connectInfo.ReactorAuthTokenEventCallback = this;
 
-                    ConnectOptions cOpt = chnlInfo.ConnectOptions.ConnectionList[1].ConnectOptions;
                     cOpt.ConnectionType = ConnectionType.ENCRYPTED;
                     cOpt.EncryptionOpts.EncryptedProtocol = ConnectionType.SOCKET;
                 }
+
+                if (m_ConsumerCmdLineParser.EnableBackupConnectionProxy)
+                {
+                    string? proxyHostName = m_ConsumerCmdLineParser.BackupConnectionProxyHostname;
+                    if (String.IsNullOrEmpty(proxyHostName))
+                    {
+                        Console.Error.WriteLine("Error: Backup connection proxy hostname not provided.");
+                        Environment.Exit((int)CodecReturnCode.FAILURE);
+                    }
+                    string? proxyPort = m_ConsumerCmdLineParser.BackupConnectionProxyPort;
+                    if (String.IsNullOrEmpty(proxyPort))
+                    {
+                        Console.Error.WriteLine("Error: Backup connection proxy port number not provided.");
+                        Environment.Exit((int)CodecReturnCode.FAILURE);
+                    }
+
+                    ProxyOptions proxyOpt = cOpt.ProxyOptions;
+                    proxyOpt.ProxyHostName = proxyHostName;
+                    proxyOpt.ProxyPort = proxyPort;
+                    proxyOpt.ProxyUserName = m_ConsumerCmdLineParser.BackupConnectionProxyUsername;
+                    proxyOpt.ProxyPassword = m_ConsumerCmdLineParser.BackupConnectionProxyPasswd;
+                }
             }
+            // END APIQA
 
             // handler encrypted connection
             chnlInfo.ShouldEnableEncrypted = m_ConsumerCmdLineParser.EnableEncrypted;

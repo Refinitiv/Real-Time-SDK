@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -146,7 +146,7 @@ using static Rdm.LoginMsgType;
 /// <li>-rtt enables rtt support by a consumer. If provider make distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.
 /// </ul>
 /// </summary>
-public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEventCallback, IReactorOAuthCredentialEventCallback
+public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEventCallback
 {
     private const string FIELD_DICTIONARY_DOWNLOAD_NAME = "RWFFld";
     private const string ENUM_TABLE_DOWNLOAD_NAME = "RWFEnum";
@@ -911,12 +911,6 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
         DirectoryMsgType msgType = reactorEvent.DirectoryMsg!.DirectoryMsgType;
         List<Service>? serviceList = null;
 
-        if (chnlInfo == null)
-        {
-            Console.WriteLine("ChannelInfo is null in passed reactorEvent.ReactorChannel.UserSpecObj");
-            return ReactorCallbackReturnCode.FAILURE;
-        }
-
         switch (msgType)
         {
             case DirectoryMsgType.REFRESH:
@@ -1040,19 +1034,8 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
         ChannelInfo? chnlInfo = (ChannelInfo?)reactorEvent.ReactorChannel?.UserSpecObj;
         DictionaryMsgType? msgType = reactorEvent.DictionaryMsg?.DictionaryMsgType;
 
-        if (chnlInfo == null)
-        {
-            Console.WriteLine("ChannelInfo is null in passed reactorEvent.ReactorChannel.UserSpecObj");
-            return ReactorCallbackReturnCode.FAILURE;
-        }
-        if (chnlInfo!.ReactorChannel == null)
-        {
-            Console.WriteLine("ReactorChannel is null in passed ChannelInfo");
-            return ReactorCallbackReturnCode.FAILURE;
-        }
-
         // initialize dictionary
-        if (chnlInfo.Dictionary == null)
+        if (chnlInfo is not null && chnlInfo.Dictionary == null)
         {
             chnlInfo.Dictionary = new();
         }
@@ -1146,7 +1129,7 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
                 }
 
                 if (m_FieldDictionaryLoaded && m_EnumDictionaryLoaded)
-                    RequestItems(chnlInfo.ReactorChannel);
+                    RequestItems(chnlInfo?.ReactorChannel!);
 
                 break;
 
@@ -1190,8 +1173,8 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
                 if (info.LocationList.Count >= 2 && m_WatchlistConsumerConfig.Location != null &&
                         info.LocationList[0].StartsWith(m_WatchlistConsumerConfig.Location)) // Get an endpoint that provides auto failover for the specified location
                 {
-                    endPoint = info.EndPoint;
-                    port = info.Port;
+                    endPoint = info?.EndPoint;
+                    port = info?.Port;
                     break;
                 }
                 // Try to get backups and keep looking for main case. Keep only the first item met.
@@ -1217,31 +1200,6 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
         {
             Console.WriteLine("Error requesting Service Discovery Endpoint Information: " + reactorEvent.ReactorErrorInfo.ToString());
             Environment.Exit((int)ReactorReturnCode.FAILURE);
-        }
-
-        return ReactorCallbackReturnCode.SUCCESS;
-    }
-
-    public ReactorCallbackReturnCode ReactorOAuthCredentialEventCallback(ReactorOAuthCredentialEvent reactorOAuthCredentialEvent)
-    {
-        ReactorOAuthCredentialRenewalOptions renewalOptions = new ReactorOAuthCredentialRenewalOptions();
-        ReactorOAuthCredentialRenewal reactorOAuthCredentialRenewal = new ReactorOAuthCredentialRenewal();
-        ReactorOAuthCredential? reactorOAuthCredential = (ReactorOAuthCredential?)reactorOAuthCredentialEvent.UserSpecObj;
-
-        if (reactorOAuthCredential is not null)
-        {
-            if (reactorOAuthCredential.ClientSecret.Length > 0)
-            {
-                renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
-                reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
-            }
-            else
-            {
-                renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_JWK;
-                reactorOAuthCredentialRenewal.ClientJwk.Data(reactorOAuthCredential.ClientJwk.ToString());
-            }
-
-            reactorOAuthCredentialEvent.Reactor!.SubmitOAuthCredentialRenewal(renewalOptions, reactorOAuthCredentialRenewal, out _);
         }
 
         return ReactorCallbackReturnCode.SUCCESS;
@@ -1392,9 +1350,6 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
             {
                 m_ReactorOAuthCredential.ClientSecret.Data(m_WatchlistConsumerConfig.ClientSecret);
                 m_ReactorServiceDiscoveryOptions.ClientSecret.Data(m_WatchlistConsumerConfig.ClientSecret);
-
-                /* Specified the IReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-                m_ReactorOAuthCredential.ReactorOAuthCredentialEventCallback = this;
             }
         }
 
@@ -1406,9 +1361,6 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
                 m_ReactorOAuthCredential.ClientJwk.Data(jwkData);
                 chnlInfo.ConsumerRole.ReactorOAuthCredential = m_ReactorOAuthCredential;
                 m_ReactorServiceDiscoveryOptions.ClientJwk.Data(jwkData);
-
-                /* Specified the IReactorOAuthCredentialEventCallback to get JWK */
-                m_ReactorOAuthCredential.ReactorOAuthCredentialEventCallback = this;
             }
             catch (Exception e)
             {
@@ -1433,28 +1385,27 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
             chnlInfo.ConsumerRole.ReactorOAuthCredential = m_ReactorOAuthCredential;
         }
 
-        /* Passing data to OAuth callback */
-        m_ReactorOAuthCredential.UserSpecObj = m_ReactorOAuthCredential;
-
-        if (!string.IsNullOrEmpty(m_WatchlistConsumerConfig.ProxyHostname))
+        // APIQA
+        if (!string.IsNullOrEmpty(m_WatchlistConsumerConfig.QueryProxyHostname))
         {
-            m_ReactorServiceDiscoveryOptions.ProxyHostName.Data(m_WatchlistConsumerConfig.ProxyHostname);
+            m_ReactorServiceDiscoveryOptions.ProxyHostName.Data(m_WatchlistConsumerConfig.QueryProxyHostname);
         }
 
-        if (!string.IsNullOrEmpty(m_WatchlistConsumerConfig.ProxyPort))
+        if (!string.IsNullOrEmpty(m_WatchlistConsumerConfig.QueryProxyPort))
         {
-            m_ReactorServiceDiscoveryOptions.ProxyPort.Data(m_WatchlistConsumerConfig.ProxyPort);
+            m_ReactorServiceDiscoveryOptions.ProxyPort.Data(m_WatchlistConsumerConfig.QueryProxyPort);
         }
 
-        if (!string.IsNullOrEmpty(m_WatchlistConsumerConfig.ProxyUsername))
+        if (!string.IsNullOrEmpty(m_WatchlistConsumerConfig.QueryProxyUsername))
         {
-            m_ReactorServiceDiscoveryOptions.ProxyUserName.Data(m_WatchlistConsumerConfig.ProxyUsername);
+            m_ReactorServiceDiscoveryOptions.ProxyUserName.Data(m_WatchlistConsumerConfig.QueryProxyUsername);
         }
 
-        if (!string.IsNullOrEmpty(m_WatchlistConsumerConfig.ProxyPassword))
+        if (!string.IsNullOrEmpty(m_WatchlistConsumerConfig.QueryProxyPassword))
         {
-            m_ReactorServiceDiscoveryOptions.ProxyPassword.Data(m_WatchlistConsumerConfig.ProxyPassword);
+            m_ReactorServiceDiscoveryOptions.ProxyPassword.Data(m_WatchlistConsumerConfig.QueryProxyPassword);
         }
+        // END APIQA
 
         string localIPaddress = "localhost";
         string? localHostName;
@@ -1674,7 +1625,10 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
             CloseItemStreams(chnlInfo);
 
             // close ReactorChannel
-            chnlInfo.ReactorChannel?.Close(out _);
+            if (chnlInfo.ReactorChannel != null)
+            {
+                chnlInfo?.ReactorChannel?.Close(out _);
+            }
         }
 
         m_FileStream?.Dispose();

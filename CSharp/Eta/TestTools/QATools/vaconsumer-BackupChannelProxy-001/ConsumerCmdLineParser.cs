@@ -85,6 +85,18 @@ namespace LSEG.Eta.ValueAdd.Consumer
 
         internal string? RestProxyPasswd { get; private set; } = "";
 
+        // APIQA
+        internal bool EnableBackupConnectionProxy { get; private set; }
+
+        internal string? BackupConnectionProxyHostname { get; private set; }
+
+        internal string? BackupConnectionProxyPort { get; private set; }
+
+        internal string? BackupConnectionProxyUsername { get; private set; } = "";
+
+        internal string? BackupConnectionProxyPasswd { get; private set; } = "";
+        // END APIQA
+
         internal string? AuthenticationToken { get; private set; }
 
         internal string? AuthenticationExtended { get; private set; }
@@ -320,6 +332,33 @@ namespace LSEG.Eta.ValueAdd.Consumer
                     RestProxyPasswd = args[++argsCount];
                     ++argsCount;
                 }
+                // APIQA
+                else if ("-bcProxy".Equals(args[argsCount]))
+                {
+                    EnableBackupConnectionProxy = true;
+                    ++argsCount;
+                }
+                else if ("-bcProxyHostname".Equals(args[argsCount]))
+                {
+                    BackupConnectionProxyHostname = args[++argsCount];
+                    ++argsCount;
+                }
+                else if ("-bcProxyPort".Equals(args[argsCount]))
+                {
+                    BackupConnectionProxyPort = args[++argsCount];
+                    ++argsCount;
+                }
+                else if ("-bcProxyUsername".Equals(args[argsCount]))
+                {
+                    BackupConnectionProxyUsername = args[++argsCount];
+                    ++argsCount;
+                }
+                else if ("-bcProxyPasswd".Equals(args[argsCount]))
+                {
+                    BackupConnectionProxyPasswd = args[++argsCount];
+                    ++argsCount;
+                }
+                // END APIQA
                 else if ("-at".Equals(args[argsCount]))
                 {
                     AuthenticationToken = args[++argsCount];

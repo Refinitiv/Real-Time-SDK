@@ -53,6 +53,8 @@ namespace LSEG.Ema.Access
             RestEnableLogViaCallback = oldConfig.RestEnableLogViaCallback;
             RestLogFileName = oldConfig.RestLogFileName;
             RestRequestTimeOut = oldConfig.RestRequestTimeOut;
+            RestProxyHostName = oldConfig.RestProxyHostName;
+            RestProxyPort = oldConfig.RestProxyPort;
             ServiceCountHint = oldConfig.ServiceCountHint;
             XmlTraceDump = oldConfig.XmlTraceDump;
             XmlTraceFileName = oldConfig.XmlTraceFileName;
@@ -113,6 +115,10 @@ namespace LSEG.Ema.Access
 
         public ulong RestRequestTimeOut { get; set; }
 
+        public string RestProxyHostName { get; set; } = string.Empty;
+
+        public string RestProxyPort { get; set; } = string.Empty;
+
         public int ServiceCountHint { get; set; }
 
         public ulong XmlTraceDump { get; set; }
@@ -151,6 +157,8 @@ namespace LSEG.Ema.Access
             RestEnableLogViaCallback = false;
             RestLogFileName = string.Empty;
             RestRequestTimeOut = 15000;
+            RestProxyHostName = string.Empty;
+            RestProxyPort = string.Empty;
             ServiceCountHint = 513;
             XmlTraceDump = 0;
             XmlTraceFileName = string.Empty;
@@ -187,6 +195,8 @@ namespace LSEG.Ema.Access
             DestConfig.RestEnableLogViaCallback = RestEnableLogViaCallback;
             DestConfig.RestLogFileName = RestLogFileName;
             DestConfig.RestRequestTimeOut = RestRequestTimeOut;
+            DestConfig.RestProxyHostName = RestProxyHostName;
+            DestConfig.RestProxyPort = RestProxyPort;
             DestConfig.ServiceCountHint = ServiceCountHint;
             DestConfig.XmlTraceDump = XmlTraceDump;
             DestConfig.XmlTraceFileName = XmlTraceFileName;

@@ -219,14 +219,15 @@ internal class WatchlistConsumerConfig
                 EnableEncrypted = true;
             }
 
-            EncryptionProtocolFlags EncryptionProtocol = EncryptionProtocolFlags.ENC_NONE;
-            if (CommandLine.BoolValue("spTLSv1.2"))
-                EncryptionProtocol |= EncryptionProtocolFlags.ENC_TLSV1_2;
-            if (CommandLine.BoolValue("spTLSv1.3"))
-                EncryptionProtocol |= EncryptionProtocolFlags.ENC_TLSV1_3;
-
-            if (EncryptionProtocol != EncryptionProtocolFlags.ENC_NONE)
-                connectionArg.EncryptionProtocolFlags = EncryptionProtocol;
+            try
+            {
+                connectionArg.EncryptionProtocolFlags = EncryptionProtocol.Value;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error: {ex.Message}.");
+                System.Environment.Exit((int)TransportReturnCode.FAILURE);
+            }
 
             if (HasArg("encryptedProtocolType"))
             {
@@ -392,6 +393,16 @@ internal class WatchlistConsumerConfig
 
     public string? RestProxyPassword => Value("restProxyPasswd");
 
+    // APIQA
+    public string? QueryProxyHostname => Value("queryProxyHostname");
+
+    public string? QueryProxyPort => Value("queryProxyPort");
+
+    public string? QueryProxyUsername => Value("queryProxyUsername");
+
+    public string? QueryProxyPassword => Value("queryProxyPasswd");
+    // END APIQA
+
     public string? AuthenticationToken => Value("at");
 
     public string? AuthenticationExtended => Value("ax");
@@ -409,6 +420,8 @@ internal class WatchlistConsumerConfig
     public string? RestLogFileName => Value("restLogFileName");
 
     public List<ConnectionArg> ConnectionList { get; set; } = new();
+
+    public readonly EncryptionProtocolCommandLineArg EncryptionProtocol = new ();
 
     /// <summary>
     /// Publisher id.
@@ -480,6 +493,13 @@ internal class WatchlistConsumerConfig
         AddOption("restProxyUsername", "", "User Name on proxy server for REST requests");
         AddOption("restProxyPasswd", "", "Password on proxy server for REST requests");
 
+        // APIQA
+        AddOption("queryProxyHostname", "", "Proxy server host name for explicit service discovery requests");
+        AddOption("queryProxyPort", "", "Proxy port number for explicit service discovery requests");
+        AddOption("queryProxyUsername", "", "User Name on proxy server for explicit service discovery requests");
+        AddOption("queryProxyPasswd", "", "Password on proxy server for explicit service discovery requests");
+        // END APIQA
+
         AddOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
         AddOption("ax", "", "Specifies the Authentication Extended information.");
         AddOption("aid", "", "Specifies the Application ID.");
@@ -498,8 +518,5 @@ internal class WatchlistConsumerConfig
         AddOption("restLogFileName", "Set REST logging output stream");
         
         AddOption("rtt", false, "(optional) Enable RTT support in the WatchList");
-
-        AddOption("spTLSv1.2", false, "Specifies that TLSv1.2 can be used for an encrypted connection");
-        AddOption("spTLSv1.3", false, "Specifies that TLSv1.3 can be used for an encrypted connection");
     }
 }

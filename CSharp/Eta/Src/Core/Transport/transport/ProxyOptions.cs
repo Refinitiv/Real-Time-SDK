@@ -45,6 +45,11 @@ namespace LSEG.Eta.Transports
         public string ProxyPassword { get; set; }
 
         /// <summary>
+        /// Indicates that current ProxyOptions is set.
+        /// </summary>
+        public bool IsHostAndPortSet => !(string.IsNullOrEmpty(ProxyHostName) && string.IsNullOrEmpty(ProxyPort));
+
+        /// <summary>
         /// Gets the port
         /// </summary>
         /// <value>The port</value>
@@ -142,6 +147,18 @@ namespace LSEG.Eta.Transports
         {
             return (ProxyHostName ?? string.Empty).GetHashCode() ^ (ProxyPort ?? string.Empty).GetHashCode()
                 ^ (ProxyUserName ?? string.Empty).GetHashCode() ^ (ProxyPassword ?? string.Empty).GetHashCode();
+        }
+
+        /// <summary>
+        /// Performs a deep copy to a specified ProxyOptions from this ProxyOptions.
+        /// </summary>
+        /// <param name="dest">The proxy options to copy to.</param>
+        public void CopyTo(ProxyOptions dest)
+        {
+            dest.ProxyHostName = ProxyHostName;
+            dest.ProxyPort = ProxyPort;
+            dest.ProxyUserName = ProxyUserName;
+            dest.ProxyPassword = ProxyPassword;
         }
     }
 }
