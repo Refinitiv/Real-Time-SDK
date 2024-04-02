@@ -1649,55 +1649,58 @@ RsslRet processLoginResponse(RsslMsg* msg, RsslDecodeIterator* decodeIter)
 			/* get key */
 			key = (RsslMsgKey *)rsslGetMsgKey(msg);
 
-			/* decode key opaque data */
-			if ((retval = rsslDecodeMsgKeyAttrib(decodeIter, key)) != RSSL_RET_SUCCESS)
+			/* decode key attrib data, if present */
+			if (key->flags & RSSL_MKF_HAS_ATTRIB)
 			{
-				printf("rsslDecodeMsgKeyAttrib() failed with return code: %d\n", retval);
-				return retval;
-			}
-
-			/* decode element list */
-			if ((retval = rsslDecodeElementList(decodeIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
-			{
-				/* decode each element entry in list */
-				while ((retval = rsslDecodeElementEntry(decodeIter, &elementEntry)) != RSSL_RET_END_OF_CONTAINER)
+				/* decode key opaque data */
+				if ((retval = rsslDecodeMsgKeyAttrib(decodeIter, key)) != RSSL_RET_SUCCESS)
 				{
-					if (retval == RSSL_RET_SUCCESS)
+					printf("rsslDecodeMsgKeyAttrib() failed with return code: %d\n", retval);
+					return retval;
+				}
+
+				/* decode element list */
+				if ((retval = rsslDecodeElementList(decodeIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
+				{
+					/* decode each element entry in list */
+					while ((retval = rsslDecodeElementEntry(decodeIter, &elementEntry)) != RSSL_RET_END_OF_CONTAINER)
 					{
-						/* get login response information */
+						if (retval == RSSL_RET_SUCCESS)
+						{
+							/* get login response information */
 
-						/* Currently, ADH/Infra handling of login response was simpler than ADS handling -
-						 * The Only Received Login Response from ADH is ApplicationId in the current implementation of ADH.
-						 * In some cases, a lot of things don't apply (like SingleOpen, Support*, etc) as these are
-						 * consumer based behaviors so ADH does not advertise them.
-						 * Also, likely many defaults are being relied on from ADH, while ADS may be sending them even though default.
-						 */
+							/* Currently, ADH/Infra handling of login response was simpler than ADS handling -
+							 * The Only Received Login Response from ADH is ApplicationId in the current implementation of ADH.
+							 * In some cases, a lot of things don't apply (like SingleOpen, Support*, etc) as these are
+							 * consumer based behaviors so ADH does not advertise them.
+							 * Also, likely many defaults are being relied on from ADH, while ADS may be sending them even though default.
+							 */
 
-						/* ApplicationId */
-						if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_APPID))
-							printf("\tReceived Login Response for ApplicationId: %.*s\n",elementEntry.encData.length, elementEntry.encData.data);
+							 /* ApplicationId */
+							if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_APPID))
+								printf("\tReceived Login Response for ApplicationId: %.*s\n", elementEntry.encData.length, elementEntry.encData.data);
 
-						/* ApplicationName */
-						else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_APPNAME))
-							printf("\tReceived Login Response for ApplicationName: %.*s\n",elementEntry.encData.length, elementEntry.encData.data);
+							/* ApplicationName */
+							else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_APPNAME))
+								printf("\tReceived Login Response for ApplicationName: %.*s\n", elementEntry.encData.length, elementEntry.encData.data);
 
-						/* Position */
-						else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_POSITION))
-							printf("\tReceived Login Response for Position: %.*s\n",elementEntry.encData.length, elementEntry.encData.data);
-					}
-					else
-					{
-						printf("rsslDecodeElementEntry() failed with return code: %d\n", retval);
-						return retval;
+							/* Position */
+							else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_POSITION))
+								printf("\tReceived Login Response for Position: %.*s\n", elementEntry.encData.length, elementEntry.encData.data);
+						}
+						else
+						{
+							printf("rsslDecodeElementEntry() failed with return code: %d\n", retval);
+							return retval;
+						}
 					}
 				}
+				else
+				{
+					printf("rsslDecodeElementList() failed with return code: %d\n", retval);
+					return retval;
+				}
 			}
-			else
-			{
-				printf("rsslDecodeElementList() failed with return code: %d\n", retval);
-				return retval;
-			}
-
 			/* get Username */
 			if (key)
 				printf("\nReceived Login Response for Username: %.*s\n", key->name.length, key->name.data);
