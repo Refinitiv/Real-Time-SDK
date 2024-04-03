@@ -48,7 +48,7 @@ public abstract class OmmException : Exception
     }
 
     /// <summary>
-    /// Gets excpetion type
+    /// Gets exception type
     /// </summary>
     public abstract ExceptionType Type { get; }
 

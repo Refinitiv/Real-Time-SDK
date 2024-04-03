@@ -1301,9 +1301,15 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         Error dumpError;
                         m_XmlString.Length = 0;
                         m_XmlString
-                                .Append("\n<!-- Outgoing Reactor message -->\n")
-                                .Append("<!-- ").Append(reactorChannel.Channel?.ToString()).Append(" -->\n")
-                                .Append("<!-- ").Append(System.DateTime.Now.ToString()).Append(" -->\n");
+                                .AppendLine()
+                                .Append("<!-- Outgoing Reactor message -->")
+                                .AppendLine()
+                                .Append("<!-- ").Append(reactorChannel?.Channel?.ToString()).Append(" -->")
+                                .AppendLine()
+                                .Append("<!-- ").Append(System.DateTime.Now.ToString()).Append(" -->")
+                                .AppendLine()
+                                .Append("<!-- Write Flags: ").Append(submitOptions.WriteArgs.Flags.ToString()).Append(" -->")
+                                .AppendLine();
                         if (m_XmlTraceDump.DumpBuffer(reactorChannel.Channel, (int?)reactorChannel.Channel?.ProtocolType ?? 0, writeBuffer, null, m_XmlString, out dumpError) == TransportReturnCode.SUCCESS)
                         {
                             Console.WriteLine(m_XmlString);

@@ -746,6 +746,9 @@ namespace LSEG.Ema.Access
                 requestMsg.ApplyMsgKeyInUpdates();
             }
 
+            ReactorChannel reactorChannel = ChannelInfo!.ReactorChannel!;
+
+            submitOptions.ApplyClientChannelConfig(ChannelInfo!.ChannelConfig);
             submitOptions.ServiceName = serviceName;
             submitOptions.RequestMsgOptions.UserSpecObj = this;
 
@@ -765,7 +768,6 @@ namespace LSEG.Ema.Access
             else
                 requestMsg.DomainType = DomainType;
 
-            ReactorChannel reactorChannel = ChannelInfo!.ReactorChannel!;
             ReactorReturnCode ret;
             if (ReactorReturnCode.SUCCESS > (ret = reactorChannel.Submit((Eta.Codec.Msg)requestMsg, submitOptions, out var ErrorInfo)))
             {

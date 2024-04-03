@@ -165,8 +165,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         ReactorSubmitOptions rsslSubmitOptions = m_OmmBaseImpl.GetSubmitOptions();
         ReactorChannel rsslChannel = directory!.ChannelInfo!.ReactorChannel!;
 
+        rsslSubmitOptions.ApplyClientChannelConfig(directory!.ChannelInfo!.ChannelConfig);
         rsslSubmitOptions.ServiceName = directory.ServiceName;
-        rsslSubmitOptions.RequestMsgOptions.UserSpecObj = (dictionary);
+        rsslSubmitOptions.RequestMsgOptions.UserSpecObj = dictionary;
 
         int streamId = FIELD_DICTIONARY_STREAM_ID;
 
@@ -472,6 +473,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         ReactorSubmitOptions rsslSubmitOptions = m_OmmBaseImpl.GetSubmitOptions();
         ReactorChannel rsslChannel = directory.ChannelInfo!.ReactorChannel!;
 
+        rsslSubmitOptions.ApplyClientChannelConfig(directory.ChannelInfo!.ChannelConfig);
         rsslSubmitOptions.ServiceName = directory.ServiceName;
         rsslSubmitOptions.RequestMsgOptions.UserSpecObj = dictionary;
 
