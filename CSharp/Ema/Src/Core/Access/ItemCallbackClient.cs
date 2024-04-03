@@ -276,11 +276,6 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         protected bool Submit(ICloseMsg closeMsg)
         {
-            ReactorSubmitOptions submitOptions = m_OmmBaseImpl.GetSubmitOptions();
-            submitOptions.ServiceName = null;
-
-            submitOptions.RequestMsgOptions.UserSpecObj = this;
-
             if (StreamId == 0)
             {
                 if(m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
@@ -296,7 +291,14 @@ namespace LSEG.Ema.Access
                 closeMsg.StreamId = StreamId;
             }
 
+            ReactorSubmitOptions submitOptions = m_OmmBaseImpl.GetSubmitOptions();
             ReactorChannel reactorChannel = m_OmmBaseImpl.LoginCallbackClient!.ActiveChannelInfo()!.ReactorChannel!;
+
+            submitOptions.ApplyClientChannelConfig(reactorChannel.GetClientChannelConfig());
+            submitOptions.ServiceName = null;
+
+            submitOptions.RequestMsgOptions.UserSpecObj = this;
+
             ReactorReturnCode retCode = reactorChannel.Submit((Eta.Codec.Msg)closeMsg, submitOptions, out ReactorErrorInfo? errorInfo);
 
             if (retCode < ReactorReturnCode.SUCCESS)
@@ -330,16 +332,22 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal bool Submit(IRequestMsg requestMsg, string? serviceName, bool isReissue)
         {
-            ReactorSubmitOptions submitOptions = m_OmmBaseImpl.m_SubmitOptions;
+            ReactorChannel? reactorChannel = m_OmmBaseImpl.LoginCallbackClient?.ActiveChannelInfo()?.ReactorChannel;
 
-            bool removeServiceIDFlag = false;
+            ReactorSubmitOptions submitOptions = m_OmmBaseImpl.GetSubmitOptions();
+            if (reactorChannel != null)
+            {
+                submitOptions.ApplyClientChannelConfig(reactorChannel.GetClientChannelConfig());
+            }
+
+            bool restoreServiceIDFlag = false;
 
             if (m_ServiceDirectory != null && serviceName != null)
             {
                 if (requestMsg.MsgKey.CheckHasServiceId())
                 {
                     requestMsg.MsgKey.Flags &= ~MsgKeyFlags.HAS_SERVICE_ID;
-                    removeServiceIDFlag = true;
+                    restoreServiceIDFlag = true;
                 }
 
                 ServiceName = serviceName;
@@ -458,7 +466,6 @@ namespace LSEG.Ema.Access
                 requestMsg.DomainType = DomainType;
             }
 
-            ReactorChannel? reactorChannel = m_OmmBaseImpl.LoginCallbackClient?.ActiveChannelInfo()?.ReactorChannel;
  
             if (reactorChannel != null)
             {
@@ -489,7 +496,7 @@ namespace LSEG.Ema.Access
                         .Append(". Error text: ")
                         .Append(ErrorInfo?.Error.Text);
 
-                    if (removeServiceIDFlag)
+                    if (restoreServiceIDFlag)
                     {
                         requestMsg.MsgKey.Flags |= MsgKeyFlags.HAS_SERVICE_ID;
                     }
@@ -515,7 +522,7 @@ namespace LSEG.Ema.Access
 
                 message.Append("Failed to open or modify item request. Reason: ReactorChannel is not avaliable");
 
-                if (removeServiceIDFlag)
+                if (restoreServiceIDFlag)
                 {
                     requestMsg.MsgKey.Flags |= MsgKeyFlags.HAS_SERVICE_ID;
                 }
@@ -525,7 +532,7 @@ namespace LSEG.Ema.Access
                 return false;
             }
 
-            if (removeServiceIDFlag)
+            if (restoreServiceIDFlag)
             {
                 requestMsg.MsgKey.Flags |= MsgKeyFlags.HAS_SERVICE_ID;
             }
@@ -551,6 +558,8 @@ namespace LSEG.Ema.Access
 
             if (reactorChannel != null)
             {
+                submitOptions.ApplyClientChannelConfig(reactorChannel.GetClientChannelConfig());
+
                 ReactorReturnCode ret = reactorChannel.Submit(submitMsg, submitOptions, out var ErrorInfo);
 
                 if (ret < ReactorReturnCode.SUCCESS)

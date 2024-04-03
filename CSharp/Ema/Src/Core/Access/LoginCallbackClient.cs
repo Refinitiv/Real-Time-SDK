@@ -544,10 +544,13 @@ namespace LSEG.Ema.Access
             closeMsg.DomainType = (int)Eta.Rdm.DomainType.LOGIN;
 
             ReactorSubmitOptions rsslSubmitOptions = m_OmmBaseImpl.GetSubmitOptions();
-            rsslSubmitOptions.Clear();
 
             foreach (ChannelInfo entry in m_LoginChannelList)
+            {
+                rsslSubmitOptions.Clear();
+                rsslSubmitOptions.ApplyClientChannelConfig(entry.ChannelConfig);
                 entry.ReactorChannel?.Submit((Eta.Codec.Msg)closeMsg, rsslSubmitOptions, out _);
+            }
 
             return m_LoginChannelList.Count;
         }

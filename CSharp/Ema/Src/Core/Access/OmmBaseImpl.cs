@@ -92,7 +92,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal ReactorSubmitOptions GetSubmitOptions()
         {
-            m_SubmitOptions.Clear();           
+            m_SubmitOptions.Clear();
             return m_SubmitOptions;
         }
 

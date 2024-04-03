@@ -20,7 +20,6 @@ namespace LSEG.Eta.Transports
     [Flags]
     public enum WriteFlags
     {
-
         /// <summary>
         /// No modification will be performed to this <see cref="IChannel.Write(ITransportBuffer, WriteArgs, out Error)"/> operation.
         /// </summary>
@@ -41,6 +40,6 @@ namespace LSEG.Eta.Transports
         /// <summary>
         /// This is the max combined value of the bits mask that is allowed.
         /// </summary>
-        MAX_VALUE = 0x02
+        MAX_VALUE = DO_NOT_COMPRESS | DIRECT_SOCKET_WRITE
     }
 }
