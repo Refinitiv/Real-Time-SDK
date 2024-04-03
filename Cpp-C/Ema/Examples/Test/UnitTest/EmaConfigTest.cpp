@@ -1579,11 +1579,11 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 		outermostMap.complete();
 
 		// Must load data dictionary files from current working location.
-		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).host("localhost:14002").channelType(EmaConfig::ConnectionTypeEnum::HTTP));
+		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).host("localhost:14002").channelType(EmaConfig::ConnectionTypeEnum::WEBSOCKET));
 
 		const OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>( ommConsumerImpl.getActiveConfig() );
 
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_HTTP) << "connectionType , ChannelType::RSSL_HTTP";
+		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_WEBSOCKET) << "connectionType , ChannelType::RSSL_WEBSOCKET";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
 	}
