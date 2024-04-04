@@ -272,205 +272,208 @@ RsslRet decodeLoginRequest(RsslLoginRequestInfo* loginReqInfo, RsslMsg* msg, Rss
 		loginReqInfo->Username[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
 	}
 
-	/* decode key opaque data */
-	if ((ret = rsslDecodeMsgKeyAttrib(dIter, requestKey)) < RSSL_RET_SUCCESS)
+	/* decode key attrib data, if present */
+	if (requestKey->flags & RSSL_MKF_HAS_ATTRIB)
 	{
-		printf("rsslDecodeMsgKeyAttrib() failed with return code: %d\n", ret);
-		return ret;
-	}
-
-	/* decode element list */
-	if ((ret = rsslDecodeElementList(dIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
-	{
-		/* decode each element entry in list */
-		while ((ret = rsslDecodeElementEntry(dIter, &element)) != RSSL_RET_END_OF_CONTAINER)
+		/* decode key opaque data */
+		if ((ret = rsslDecodeMsgKeyAttrib(dIter, requestKey)) < RSSL_RET_SUCCESS)
 		{
-			if (ret == RSSL_RET_SUCCESS)
+			printf("rsslDecodeMsgKeyAttrib() failed with return code: %d\n", ret);
+			return ret;
+		}
+
+		/* decode element list */
+		if ((ret = rsslDecodeElementList(dIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
+		{
+			/* decode each element entry in list */
+			while ((ret = rsslDecodeElementEntry(dIter, &element)) != RSSL_RET_END_OF_CONTAINER)
 			{
-				/* get login request information */
-				/* Authentication Token */
-				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TOKEN))
+				if (ret == RSSL_RET_SUCCESS)
 				{
-					if (element.encData.length < AUTH_TOKEN_LENGTH)
+					/* get login request information */
+					/* Authentication Token */
+					if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TOKEN))
 					{
-						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, element.encData.length);
-						loginReqInfo->AuthenticationToken[element.encData.length] = '\0';
+						if (element.encData.length < AUTH_TOKEN_LENGTH)
+						{
+							strncpy(loginReqInfo->AuthenticationToken, element.encData.data, element.encData.length);
+							loginReqInfo->AuthenticationToken[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginReqInfo->AuthenticationToken, element.encData.data, AUTH_TOKEN_LENGTH - 1);
+							loginReqInfo->AuthenticationToken[AUTH_TOKEN_LENGTH - 1] = '\0';
+						}
 					}
-					else
+					/* Authentication Extended */
+					if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_EXTENDED))
 					{
-						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, AUTH_TOKEN_LENGTH - 1);
-						loginReqInfo->AuthenticationToken[AUTH_TOKEN_LENGTH - 1] = '\0';
+						if (element.encData.length < AUTH_TOKEN_LENGTH)
+						{
+							strncpy(loginReqInfo->AuthenticationToken, element.encData.data, element.encData.length);
+							loginReqInfo->AuthenticationToken[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginReqInfo->AuthenticationToken, element.encData.data, AUTH_TOKEN_LENGTH - 1);
+							loginReqInfo->AuthenticationToken[AUTH_TOKEN_LENGTH - 1] = '\0';
+						}
+					}
+
+					/* ApplicationId */
+					if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPID))
+					{
+						if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+						{
+							strncpy(loginReqInfo->ApplicationId, element.encData.data, element.encData.length);
+							loginReqInfo->ApplicationId[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginReqInfo->ApplicationId, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+							loginReqInfo->ApplicationId[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+						}
+					}
+					/* ApplicationName */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPNAME))
+					{
+						if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+						{
+							strncpy(loginReqInfo->ApplicationName, element.encData.data, element.encData.length);
+							loginReqInfo->ApplicationName[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginReqInfo->ApplicationName, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+							loginReqInfo->ApplicationName[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+						}
+					}
+					/* Position */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_POSITION))
+					{
+						if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+						{
+							strncpy(loginReqInfo->Position, element.encData.data, element.encData.length);
+							loginReqInfo->Position[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginReqInfo->Position, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+							loginReqInfo->Position[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+						}
+					}
+					/* Password */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PASSWORD))
+					{
+						if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+						{
+							strncpy(loginReqInfo->Password, element.encData.data, element.encData.length);
+							loginReqInfo->Password[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginReqInfo->Password, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+							loginReqInfo->Password[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+						}
+					}
+					/* ProvidePermissionProfile */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PROV_PERM_PROF))
+					{
+						ret = rsslDecodeUInt(dIter, &loginReqInfo->ProvidePermissionProfile);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* ProvidePermissionExpressions */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PROV_PERM_EXP))
+					{
+						ret = rsslDecodeUInt(dIter, &loginReqInfo->ProvidePermissionExpressions);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* SingleOpen */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SINGLE_OPEN))
+					{
+						ret = rsslDecodeUInt(dIter, &loginReqInfo->SingleOpen);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* SupportProviderDictionaryDownload */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD))
+					{
+						ret = rsslDecodeUInt(dIter, &loginReqInfo->SupportProviderDictionaryDownload);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* AllowSuspectData */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ALLOW_SUSPECT_DATA))
+					{
+						ret = rsslDecodeUInt(dIter, &loginReqInfo->AllowSuspectData);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* InstanceId */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_INST_ID))
+					{
+						if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+						{
+							strncpy(loginReqInfo->InstanceId, element.encData.data, element.encData.length);
+							loginReqInfo->InstanceId[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginReqInfo->InstanceId, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+							loginReqInfo->InstanceId[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+						}
+					}
+					/* Role */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ROLE))
+					{
+						ret = rsslDecodeUInt(dIter, &loginReqInfo->Role);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* DownloadConnectionConfig */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_DOWNLOAD_CON_CONFIG))
+					{
+						ret = rsslDecodeUInt(dIter, &loginReqInfo->DownloadConnectionConfig);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
 					}
 				}
-				/* Authentication Extended */
-				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_EXTENDED))
+				else
 				{
-					if (element.encData.length < AUTH_TOKEN_LENGTH)
-					{
-						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, element.encData.length);
-						loginReqInfo->AuthenticationToken[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, AUTH_TOKEN_LENGTH - 1);
-						loginReqInfo->AuthenticationToken[AUTH_TOKEN_LENGTH - 1] = '\0';
-					}
+					printf("rsslDecodeElementEntry() failed with return code: %d\n", ret);
+					return ret;
 				}
-				
-				/* ApplicationId */
-				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPID))
-				{
-					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
-					{
-						strncpy(loginReqInfo->ApplicationId, element.encData.data, element.encData.length);
-						loginReqInfo->ApplicationId[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginReqInfo->ApplicationId, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
-						loginReqInfo->ApplicationId[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
-					}
-				}
-				/* ApplicationName */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPNAME))
-				{
-					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
-					{
-						strncpy(loginReqInfo->ApplicationName, element.encData.data, element.encData.length);
-						loginReqInfo->ApplicationName[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginReqInfo->ApplicationName, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
-						loginReqInfo->ApplicationName[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
-					}
-				}
-				/* Position */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_POSITION))
-				{
-					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
-					{
-						strncpy(loginReqInfo->Position, element.encData.data, element.encData.length);
-						loginReqInfo->Position[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginReqInfo->Position, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
-						loginReqInfo->Position[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
-					}
-				}
-				/* Password */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PASSWORD))
-				{
-					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
-					{
-						strncpy(loginReqInfo->Password, element.encData.data, element.encData.length);
-						loginReqInfo->Password[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginReqInfo->Password, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
-						loginReqInfo->Password[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
-					}
-				}
-				/* ProvidePermissionProfile */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PROV_PERM_PROF))
-				{
-					ret = rsslDecodeUInt(dIter, &loginReqInfo->ProvidePermissionProfile);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* ProvidePermissionExpressions */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PROV_PERM_EXP))
-				{
-					ret = rsslDecodeUInt(dIter, &loginReqInfo->ProvidePermissionExpressions);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* SingleOpen */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SINGLE_OPEN))
-				{
-					ret = rsslDecodeUInt(dIter, &loginReqInfo->SingleOpen);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* SupportProviderDictionaryDownload */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD))
-				{
-					ret = rsslDecodeUInt(dIter, &loginReqInfo->SupportProviderDictionaryDownload);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* AllowSuspectData */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ALLOW_SUSPECT_DATA))
-				{
-					ret = rsslDecodeUInt(dIter, &loginReqInfo->AllowSuspectData);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* InstanceId */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_INST_ID))
-				{
-					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
-					{
-						strncpy(loginReqInfo->InstanceId, element.encData.data, element.encData.length);
-						loginReqInfo->InstanceId[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginReqInfo->InstanceId, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
-						loginReqInfo->InstanceId[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
-					}
-				}
-				/* Role */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ROLE))
-				{
-					ret = rsslDecodeUInt(dIter, &loginReqInfo->Role);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* DownloadConnectionConfig */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_DOWNLOAD_CON_CONFIG))
-				{
-					ret = rsslDecodeUInt(dIter, &loginReqInfo->DownloadConnectionConfig);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-			}
-			else
-			{
-				printf("rsslDecodeElementEntry() failed with return code: %d\n", ret);
-				return ret;
 			}
 		}
+		else
+		{
+			printf("rsslDecodeElementList() failed with return code: %d\n", ret);
+			return ret;
+		}
 	}
-	else
-	{
-		printf("rsslDecodeElementList() failed with return code: %d\n", ret);
-		return ret;
-	}
-
 	return RSSL_RET_SUCCESS;
 }
 
@@ -741,237 +744,240 @@ RsslRet decodeLoginResponse(RsslLoginResponseInfo* loginRespInfo, RsslMsg* msg, 
         //END APIQA
 	}
 
-	/* decode key opaque data */
-	if ((ret = rsslDecodeMsgKeyAttrib(dIter, key)) != RSSL_RET_SUCCESS)
+	/* decode key attrib data, if present */
+	if (key->flags & RSSL_MKF_HAS_ATTRIB)
 	{
-		printf("rsslDecodeMsgKeyAttrib() failed with return code: %d\n", ret);
-		return ret;
-	}
-
-	/* decode element list */
-	if ((ret = rsslDecodeElementList(dIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
-	{
-		/* decode each element entry in list */
-		while ((ret = rsslDecodeElementEntry(dIter, &element)) != RSSL_RET_END_OF_CONTAINER)
+		/* decode key opaque data */
+		if ((ret = rsslDecodeMsgKeyAttrib(dIter, key)) != RSSL_RET_SUCCESS)
 		{
-			if (ret == RSSL_RET_SUCCESS)
+			printf("rsslDecodeMsgKeyAttrib() failed with return code: %d\n", ret);
+			return ret;
+		}
+
+		/* decode element list */
+		if ((ret = rsslDecodeElementList(dIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
+		{
+			/* decode each element entry in list */
+			while ((ret = rsslDecodeElementEntry(dIter, &element)) != RSSL_RET_END_OF_CONTAINER)
 			{
-				/* get login response information */
-				/* AuthenticationTTReissue */
-				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TT_REISSUE))
+				if (ret == RSSL_RET_SUCCESS)
 				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->AuthenticationTTReissue);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+					/* get login response information */
+					/* AuthenticationTTReissue */
+					if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TT_REISSUE))
 					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->AuthenticationTTReissue);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* AuthenticationExtendedResponse */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_EXTENDED_RESP))
+					{
+						if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+						{
+							strncpy(loginRespInfo->AuthenticationExtendedResponse, element.encData.data, element.encData.length);
+							loginRespInfo->AuthenticationExtendedResponse[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginRespInfo->AuthenticationExtendedResponse, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+							loginRespInfo->AuthenticationExtendedResponse[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+						}
+					}
+					/* AuthenticationStatusErrorText */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_TEXT))
+					{
+						if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+						{
+							strncpy(loginRespInfo->AuthenticationStatusErrorText, element.encData.data, element.encData.length);
+							loginRespInfo->AuthenticationStatusErrorText[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginRespInfo->AuthenticationStatusErrorText, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+							loginRespInfo->AuthenticationStatusErrorText[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+						}
+					}
+					/* AuthenticationStatusErrorCode */
+					if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_CODE))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->AuthenticationStatusErrorCode);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+						loginRespInfo->HasAuthenticationStatusErrorCode = RSSL_TRUE;
+					}
+					/* AllowSuspectData */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ALLOW_SUSPECT_DATA))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->AllowSuspectData);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* ApplicationId */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPID))
+					{
+						if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+						{
+							strncpy(loginRespInfo->ApplicationId, element.encData.data, element.encData.length);
+							loginRespInfo->ApplicationId[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginRespInfo->ApplicationId, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+							loginRespInfo->ApplicationId[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+						}
+					}
+					/* ApplicationName */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPNAME))
+					{
+						if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+						{
+							strncpy(loginRespInfo->ApplicationName, element.encData.data, element.encData.length);
+							loginRespInfo->ApplicationName[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginRespInfo->ApplicationName, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+							loginRespInfo->ApplicationName[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+						}
+					}
+					/* Position */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_POSITION))
+					{
+						if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+						{
+							strncpy(loginRespInfo->Position, element.encData.data, element.encData.length);
+							loginRespInfo->Position[element.encData.length] = '\0';
+						}
+						else
+						{
+							strncpy(loginRespInfo->Position, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+							loginRespInfo->Position[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+						}
+					}
+					/* ProvidePermissionExpressions */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PROV_PERM_EXP))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->ProvidePermissionExpressions);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* ProvidePermissionProfile */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PROV_PERM_PROF))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->ProvidePermissionProfile);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* SingleOpen */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SINGLE_OPEN))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->SingleOpen);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* SupportOMMPost */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_POST))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportOMMPost);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* SupportPauseResume */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_PR))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportPauseResume);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* SupportStandby */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_STANDBY))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportStandby);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* SupportProviderDictionaryDownload */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportProviderDictionaryDownload);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* SupportBatchRequests */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_BATCH))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportBatchRequests);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* SupportViewRequests */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_VIEW))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportViewRequests);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* SupportOptimizedPauseResume */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_OPR))
+					{
+						ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportOptimizedPauseResume);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
 					}
 				}
-				/* AuthenticationExtendedResponse */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_EXTENDED_RESP))
+				else
 				{
-					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
-					{
-						strncpy(loginRespInfo->AuthenticationExtendedResponse, element.encData.data, element.encData.length);
-						loginRespInfo->AuthenticationExtendedResponse[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginRespInfo->AuthenticationExtendedResponse, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
-						loginRespInfo->AuthenticationExtendedResponse[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
-					}
+					printf("rsslDecodeElementEntry() failed with return code: %d\n", ret);
+					return ret;
 				}
-				/* AuthenticationStatusErrorText */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_TEXT))
-				{
-					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
-					{
-						strncpy(loginRespInfo->AuthenticationStatusErrorText, element.encData.data, element.encData.length);
-						loginRespInfo->AuthenticationStatusErrorText[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginRespInfo->AuthenticationStatusErrorText, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
-						loginRespInfo->AuthenticationStatusErrorText[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
-					}
-				}
-				/* AuthenticationStatusErrorCode */
-				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_CODE))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->AuthenticationStatusErrorCode);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-					loginRespInfo->HasAuthenticationStatusErrorCode = RSSL_TRUE;
-				}
-				/* AllowSuspectData */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ALLOW_SUSPECT_DATA))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->AllowSuspectData);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* ApplicationId */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPID))
-				{
-					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
-					{
-						strncpy(loginRespInfo->ApplicationId, element.encData.data, element.encData.length);
-						loginRespInfo->ApplicationId[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginRespInfo->ApplicationId, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
-						loginRespInfo->ApplicationId[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
-					}
-				}
-				/* ApplicationName */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPNAME))
-				{
-					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
-					{
-						strncpy(loginRespInfo->ApplicationName, element.encData.data, element.encData.length);
-						loginRespInfo->ApplicationName[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginRespInfo->ApplicationName, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
-						loginRespInfo->ApplicationName[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
-					}
-				}
-				/* Position */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_POSITION))
-				{
-					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
-					{
-						strncpy(loginRespInfo->Position, element.encData.data, element.encData.length);
-						loginRespInfo->Position[element.encData.length] = '\0';
-					}
-					else
-					{
-						strncpy(loginRespInfo->Position, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
-						loginRespInfo->Position[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
-					}
-				}
-				/* ProvidePermissionExpressions */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PROV_PERM_EXP))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->ProvidePermissionExpressions);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* ProvidePermissionProfile */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PROV_PERM_PROF))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->ProvidePermissionProfile);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* SingleOpen */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SINGLE_OPEN))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->SingleOpen);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* SupportOMMPost */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_POST))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportOMMPost);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* SupportPauseResume */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_PR))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportPauseResume);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* SupportStandby */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_STANDBY))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportStandby);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* SupportProviderDictionaryDownload */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportProviderDictionaryDownload);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* SupportBatchRequests */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_BATCH))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportBatchRequests);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* SupportViewRequests */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_VIEW))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportViewRequests);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-				/* SupportOptimizedPauseResume */
-				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_OPR))
-				{
-					ret = rsslDecodeUInt(dIter, &loginRespInfo->SupportOptimizedPauseResume);
-					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
-					{
-						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-						return ret;
-					}
-				}
-			}
-			else
-			{
-				printf("rsslDecodeElementEntry() failed with return code: %d\n", ret);
-				return ret;
 			}
 		}
+		else
+		{
+			printf("rsslDecodeElementList() failed with return code: %d\n", ret);
+			return ret;
+		}
 	}
-	else
-	{
-		printf("rsslDecodeElementList() failed with return code: %d\n", ret);
-		return ret;
-	}
-
 	return RSSL_RET_SUCCESS;
 }
 

@@ -1929,47 +1929,49 @@ RsslRet processLoginResponse(RsslMsg* msg, RsslDecodeIterator* decodeIter)
 			/* get key */
 			key = (RsslMsgKey *)rsslGetMsgKey(msg);
 
-			/* decode key opaque data */
-			if ((retval = rsslDecodeMsgKeyAttrib(decodeIter, key)) != RSSL_RET_SUCCESS)
+			if (key->flags & RSSL_MKF_HAS_ATTRIB)
 			{
-				printf("rsslDecodeMsgKeyAttrib() failed with return code: %d\n", retval);
-				return retval;
-			}
-
-			/* decode element list */
-			if ((retval = rsslDecodeElementList(decodeIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
-			{
-				/* decode each element entry in list */
-				while ((retval = rsslDecodeElementEntry(decodeIter, &elementEntry)) != RSSL_RET_END_OF_CONTAINER)
+				/* decode key opaque data */
+				if ((retval = rsslDecodeMsgKeyAttrib(decodeIter, key)) != RSSL_RET_SUCCESS)
 				{
-					if (retval == RSSL_RET_SUCCESS)
-					{
-						/* get login response information */
-						/* ApplicationId */
-						if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_APPID))
-							printf("\tReceived Login Response for ApplicationId: %.*s\n",elementEntry.encData.length, elementEntry.encData.data);
+					printf("rsslDecodeMsgKeyAttrib() failed with return code: %d\n", retval);
+					return retval;
+				}
 
-						/* ApplicationName */
-						else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_APPNAME))
-							printf("\tReceived Login Response for ApplicationName: %.*s\n",elementEntry.encData.length, elementEntry.encData.data);
-
-						/* Position */
-						else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_POSITION))
-							printf("\tReceived Login Response for Position: %.*s\n",elementEntry.encData.length, elementEntry.encData.data);
-					}
-					else
+				/* decode element list */
+				if ((retval = rsslDecodeElementList(decodeIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
+				{
+					/* decode each element entry in list */
+					while ((retval = rsslDecodeElementEntry(decodeIter, &elementEntry)) != RSSL_RET_END_OF_CONTAINER)
 					{
-						printf("rsslDecodeElementEntry() failed with return code: %d\n", retval);
-						return retval;
+						if (retval == RSSL_RET_SUCCESS)
+						{
+							/* get login response information */
+							/* ApplicationId */
+							if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_APPID))
+								printf("\tReceived Login Response for ApplicationId: %.*s\n", elementEntry.encData.length, elementEntry.encData.data);
+
+							/* ApplicationName */
+							else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_APPNAME))
+								printf("\tReceived Login Response for ApplicationName: %.*s\n", elementEntry.encData.length, elementEntry.encData.data);
+
+							/* Position */
+							else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_POSITION))
+								printf("\tReceived Login Response for Position: %.*s\n", elementEntry.encData.length, elementEntry.encData.data);
+						}
+						else
+						{
+							printf("rsslDecodeElementEntry() failed with return code: %d\n", retval);
+							return retval;
+						}
 					}
 				}
+				else
+				{
+					printf("rsslDecodeElementList() failed with return code: %d\n", retval);
+					return retval;
+				}
 			}
-			else
-			{
-				printf("rsslDecodeElementList() failed with return code: %d\n", retval);
-				return retval;
-			}
-
 			/* get Username */
 			if (key)
 				printf("\nReceived Login Response for Username: %.*s\n", key->name.length, key->name.data);
