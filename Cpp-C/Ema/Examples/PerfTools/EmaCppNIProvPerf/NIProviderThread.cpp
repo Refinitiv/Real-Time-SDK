@@ -581,7 +581,7 @@ void NIProviderThread::sendUpdateMessages()
 			stats.messageEncodeTimeRecords.updateLatencyStats(measureEncodeStartTime, measureEncodeEndTime, 1000);
 		}
 
-		if (niProvPerfConfig.numberMsgInPackedMsg)
+		if (niProvPerfConfig.numberMsgInPackedMsg > 1)
 			sendPackedMsg(pUpdateMsg, itemInfo);
 		else
 			provider->submit(*pUpdateMsg, itemInfo->getHandle());

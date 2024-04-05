@@ -610,7 +610,7 @@ void EmaCppIProvPerf::printIProvPerfConfig(FILE* file)
 		provPerfConfig.refreshBurstSize,
 		provPerfConfig.msgFilename.c_str());
 
-	if (provPerfConfig.numberMsgInPackedMsg)
+	if (provPerfConfig.numberMsgInPackedMsg > 1)
 	{
 		fprintf(file,
 		"               Number In Packed Msg: %d\n",

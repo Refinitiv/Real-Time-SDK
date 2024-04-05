@@ -594,7 +594,7 @@ void ProviderThread::sendUpdateMessages()
 
 		if (providerClient->isActiveStream(clientHandle))
 		{
-			if (provPerfConfig.numberMsgInPackedMsg)
+			if (provPerfConfig.numberMsgInPackedMsg > 1)
 				sendPackedMsg(pUpdateMsg, itemInfo);
 			else
 				provider->submit(*pUpdateMsg, itemInfo->getHandle());

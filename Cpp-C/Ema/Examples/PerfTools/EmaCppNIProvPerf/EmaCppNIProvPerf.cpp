@@ -581,7 +581,7 @@ void EmaCppNIProvPerf::printNIProvPerfConfig(FILE* file)
 		niProvPerfConfig.itemFilename.c_str(),
 		niProvPerfConfig.msgFilename.c_str());
 
-	if (niProvPerfConfig.numberMsgInPackedMsg)
+	if (niProvPerfConfig.numberMsgInPackedMsg > 1)
 	{
 		fprintf(file,
 		"              Number Msg In Packed Msg: %d\n",
