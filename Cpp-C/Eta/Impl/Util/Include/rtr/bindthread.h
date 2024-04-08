@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|         Copyright (C) 2022,2024 Refinitiv. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -57,6 +57,12 @@ RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error);
 * @return always return RSSL_RET_SUCCESS
 */
 RSSL_API RsslRet rsslBindThreadUninitialize();
+
+/**
+* @brief Dump detected Cpu topology: list of the detected Cpu cores.
+* When the initialization failed it dumps information about the error and internal details.
+*/
+RSSL_API void dumpCpuTopology();
 
 #ifdef __cplusplus
 }

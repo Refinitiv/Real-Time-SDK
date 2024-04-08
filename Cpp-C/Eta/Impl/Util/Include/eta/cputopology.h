@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|         Copyright (C) 2022,2024 Refinitiv. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -323,7 +323,10 @@ GLKTSN_T* getCpuTopology();
 
 RsslUInt32 getLogicalCpuCount();
 
-RsslErrorInfo* getErrorInitializationStage();
+RSSL_API RsslErrorInfo* getErrorInitializationStage();
+
+// Set the error state for testing purpose.
+RSSL_API void setTestErrorInitializationStage();
 
 #ifdef __cplusplus
 }

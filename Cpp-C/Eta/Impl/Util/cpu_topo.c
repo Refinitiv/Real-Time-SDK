@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|         Copyright (C) 2022,2024 Refinitiv. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -143,11 +143,24 @@ extern  void get_cpuid_info (CPUIDinfo *, const unsigned int, const unsigned int
 static RsslErrorInfo errorCpuIdInit;
 static RsslBool hasErrorInitializationStage = RSSL_FALSE;
 
-RsslErrorInfo* getErrorInitializationStage()
+void cleanErrorInitializationStage()
+{
+    hasErrorInitializationStage = RSSL_FALSE;
+    memset((void*)&errorCpuIdInit, 0, sizeof(RsslErrorInfo));
+}
+
+RSSL_API RsslErrorInfo* getErrorInitializationStage()
 {
     if (hasErrorInitializationStage)
         return &errorCpuIdInit;
     return NULL;
+}
+
+RSSL_API void setTestErrorInitializationStage()
+{
+    hasErrorInitializationStage = RSSL_TRUE;
+    rsslSetErrorInfo(&errorCpuIdInit, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+        "CpuId topology error: This is a test error.");
 }
 
 /*
@@ -1118,7 +1131,8 @@ static  int CPUTopologyParams(RsslErrorInfo* pError)
     if (glbl_ptr->error)
     {
         rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-            "CPUTopologyParams()  cpuid error=%u.", glbl_ptr->error);
+            "CPUTopologyParams()  cpuid error=%u. maxCPUID = %u (0x%X) - highest CPUID leaf index this processor supports. hasLeafB=%u",
+            glbl_ptr->error, maxCPUID, maxCPUID, glbl_ptr->hasLeafB);
         return -2;
     }
 
@@ -1361,7 +1375,16 @@ static int AnalyzeCPUHierarchy(unsigned  numMappings, RsslErrorInfo* pError)
     memset(pDetectedPkgIDs, 0xff, numMappings*sizeof(unsigned ) );
     ckDim = numMappings * ( 1 << glbl_ptr->PkgSelectMaskShift);
     if (ckDim == numMappings)
-        ckDim++;
+    {
+        if (numMappings == 1) {
+            ckDim++;
+        }
+        else {
+            // A system running on a virtual machine may have CPU configuration
+            // with multiple packages, one core per package, one thread per core.
+            ckDim *= ckDim;
+        }
+    }        
     pDetectCoreIDsperPkg = (unsigned  *)_alloca( ckDim * sizeof(unsigned ) );
     if(pDetectCoreIDsperPkg == NULL) return -1;
     // we got a 2-D array to store unique Core_ID within each Pkg_ID,
@@ -1400,8 +1423,9 @@ static int AnalyzeCPUHierarchy(unsigned  numMappings, RsslErrorInfo* pError)
                 if(glbl_ptr->perPkg_detectedCoresCount.data[h] >= glbl_ptr->perCore_detectedThreadsCount.dim[1]) {
                     // just a sanity check on the dimensions
                     rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                        "got too large 2nd dimension %u which is bigger than %u.",
-                        glbl_ptr->perPkg_detectedCoresCount.data[h], glbl_ptr->perCore_detectedThreadsCount.dim[1]);
+                        "got too large 2nd dimension %u which is bigger than %u. i=%u, h=%u, APICID=%u packageID=%u coreID=%u threadID=%u",
+                        glbl_ptr->perPkg_detectedCoresCount.data[h], glbl_ptr->perCore_detectedThreadsCount.dim[1],
+                        i, h, APICID, packageID, coreID, threadID);
                     return -2; // exit(2);
                 }
 
@@ -1429,7 +1453,8 @@ static int AnalyzeCPUHierarchy(unsigned  numMappings, RsslErrorInfo* pError)
                     unsigned  core = glbl_ptr->perPkg_detectedCoresCount.data[h];
                     if( h* numMappings + core >= ckDim) {
                         rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                            "got error. h* numMappings + core = %u and ckDim= %u.", h * numMappings + core, ckDim);
+                            "got error. h* numMappings + core = %u and ckDim= %u. i=%u, h=%u, core=%u, APICID=%u packageID=%u coreID=%u threadID=%u",
+                            h * numMappings + core, ckDim, i, h, core, APICID, packageID, coreID, threadID);
                         return -2; // exit(2);
                     }
 
@@ -1451,16 +1476,16 @@ static int AnalyzeCPUHierarchy(unsigned  numMappings, RsslErrorInfo* pError)
             pDetectedPkgIDs[maxPackageDetetcted] = packageID;
             if( maxPackageDetetcted* numMappings + 0 >= ckDim) {
                 rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                    "got error. maxPackageDetetcted= %u numMappings= %u maxPackageDetetcted* numMappings + 0 = %u and ckDim= %u.",
-                    maxPackageDetetcted, numMappings, maxPackageDetetcted * numMappings + 0, ckDim);
+                    "got error. maxPackageDetetcted= %u numMappings= %u maxPackageDetetcted* numMappings + 0 = %u and ckDim= %u. i=%u, APICID=%u packageID=%u coreID=%u threadID=%u",
+                    maxPackageDetetcted, numMappings, maxPackageDetetcted * numMappings + 0, ckDim, i, APICID, packageID, coreID, threadID);
                 return -2; // exit(2);
             }
             pDetectCoreIDsperPkg[maxPackageDetetcted* numMappings + 0] = coreID;
             // keep track of respective hierarchical counts
             if( maxPackageDetetcted >= glbl_ptr->perPkg_detectedCoresCount.dim[0]) {
                 rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                    "got error. maxPackageDetetcted(%u) >= glbl_ptr->perPkg_detectedCoresCount.dim[0](%u)",
-                    maxPackageDetetcted, glbl_ptr->perPkg_detectedCoresCount.dim[0]);
+                    "got error. maxPackageDetetcted(%u) >= glbl_ptr->perPkg_detectedCoresCount.dim[0](%u). i=%u, APICID=%u packageID=%u coreID=%u threadID=%u",
+                    maxPackageDetetcted, glbl_ptr->perPkg_detectedCoresCount.dim[0], i, APICID, packageID, coreID, threadID);
                 return -2; // exit(2);
             }
 
@@ -1846,7 +1871,6 @@ void InitCpuTopology()
 {
     RsslErrorInfo rsslErrorInfo;
     memset((void*)&rsslErrorInfo, 0, sizeof(RsslErrorInfo));
-    memset((void*)&errorCpuIdInit, 0, sizeof(RsslErrorInfo));
     initializeCpuTopology(&rsslErrorInfo);
 }
 
@@ -1876,6 +1900,7 @@ RsslRet initializeCpuTopology(RsslErrorInfo* pError)
                 return RSSL_RET_FAILURE;
             }
             memset(glbl_ptr, 0, sizeof(GLKTSN_T));
+            cleanErrorInitializationStage();
         }
 
         if (!glbl_ptr->EnumeratedPkgCount)
@@ -1924,9 +1949,7 @@ void unInitializeCpuTopology()
             free(glbl_ptr);
             glbl_ptr = NULL;
 
-            hasErrorInitializationStage = RSSL_FALSE;
-            errorCpuIdInit.rsslErrorInfoCode = RSSL_EIC_SUCCESS;
-            errorCpuIdInit.rsslError.rsslErrorId = RSSL_RET_SUCCESS;
+            cleanErrorInitializationStage();
         }
         RSSL_MUTEX_UNLOCK(&initCpuTopologyLock);
     }

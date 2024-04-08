@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|             Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -91,9 +91,9 @@ RSSL_API RsslBool rsslIsStrProcessorCoreBindValid(const char* cpuString)
 
 RsslRet checkCpuIdInitializationError(RsslErrorInfo* pError)
 {
-	if (rsslCPUTopology.cpu_topology_ptr == NULL)
+	RsslErrorInfo* pInitCpuIdLibError = getErrorInitializationStage();
+	if (rsslCPUTopology.cpu_topology_ptr == NULL || pInitCpuIdLibError != NULL)
 	{
-		RsslErrorInfo* pInitCpuIdLibError = getErrorInitializationStage();
 		if (pInitCpuIdLibError != NULL)
 		{
 			rsslCopyErrorInfo(pError, pInitCpuIdLibError);
@@ -350,6 +350,10 @@ RsslUInt64 rsslGetAffinityMaskByCpuArray(RsslUInt* cpuArray, RsslUInt cpuCount)
 
 RsslRet rsslBindThreadToCpuArray(const char* cpuString, RsslUInt* cpuArray, RsslUInt cpuCount, RsslInt procSet, RsslErrorInfo* pError)
 {
+#ifdef _DUMP_DEBUG_
+	printf("rsslBindThreadToCpuArray. dumpCpuArray: ");
+	dumpCpuArray(cpuArray, cpuCount);
+#endif // _DUMP_DEBUG_
 #if defined(Linux) && !defined(x86_Linux_2X)
 	RsslUInt i;
 	cpu_set_t currentCPUSet;
@@ -424,8 +428,7 @@ RSSL_API RsslRet rsslBindProcessorCoreThread(RsslInt32 cpuId, RsslErrorInfo* pEr
 	return RSSL_RET_SUCCESS;
 }
 
-#ifdef _DUMP_DEBUG_
-void dumpCpuTopology()
+RSSL_API void dumpCpuTopology()
 {
 	RsslUInt32 i;
 	RsslUInt32 lcl_maxcpu;
@@ -433,23 +436,53 @@ void dumpCpuTopology()
 	GLKTSN_T* pCpuTopology = rsslCPUTopology.cpu_topology_ptr;
 	lcl_maxcpu = rsslCPUTopology.logicalCpuCount; //getLogicalCpuCount();
 
-	printf("MaxCpu = %u\n", lcl_maxcpu);
-	for (i = 0; i < lcl_maxcpu; i++)
+	printf("MaxCpu = %u\n\n", lcl_maxcpu);
+
+	RsslErrorInfo* pInitCpuIdLibError = getErrorInitializationStage();
+	if (pInitCpuIdLibError != NULL)
 	{
-		printf("[%d]  P:%d C:%d T:%d | APICID=%d OrdIndexOAMsk=%d pkg_IDAPIC=%d Core_IDAPIC=%d SMT_IDAPIC=%d\n",
-			i,
-			pCpuTopology->pApicAffOrdMapping[i].packageORD,
-			pCpuTopology->pApicAffOrdMapping[i].coreORD,
-			pCpuTopology->pApicAffOrdMapping[i].threadORD,
-			pCpuTopology->pApicAffOrdMapping[i].APICID,
-			pCpuTopology->pApicAffOrdMapping[i].OrdIndexOAMsk,
-			pCpuTopology->pApicAffOrdMapping[i].pkg_IDAPIC,
-			pCpuTopology->pApicAffOrdMapping[i].Core_IDAPIC,
-			pCpuTopology->pApicAffOrdMapping[i].SMT_IDAPIC
+		printf("Error of the initialization stage.\n");
+		printf("rsslErrorInfoCode = %d\n", pInitCpuIdLibError->rsslErrorInfoCode);
+		printf("errorLocation = {%s}\n", pInitCpuIdLibError->errorLocation);
+		printf("rsslError: rsslErrorId = %d, sysError = %u, text = {%s}\n\n",
+			pInitCpuIdLibError->rsslError.rsslErrorId, pInitCpuIdLibError->rsslError.sysError, pInitCpuIdLibError->rsslError.text);
+	}
+
+	if (pCpuTopology == NULL)
+	{
+		printf("Cpu topology information is unavailable.\n");
+	}
+	else
+	{
+		// internal details
+		if (pInitCpuIdLibError != NULL)
+		{
+			printf("EnumeratedPkgCount = %u\n", pCpuTopology->EnumeratedPkgCount);
+			printf("EnumeratedCoreCount = %u\n", pCpuTopology->EnumeratedCoreCount);
+			printf("EnumeratedThreadCount = %u\n\n", pCpuTopology->EnumeratedThreadCount);
+			printf("SMTSelectMask = %u (0x%X)\n", pCpuTopology->SMTSelectMask, pCpuTopology->SMTSelectMask);
+			printf("PkgSelectMask = %u (0x%X)\n", pCpuTopology->PkgSelectMask, pCpuTopology->PkgSelectMask);
+			printf("CoreSelectMask = %u (0x%X)\n", pCpuTopology->CoreSelectMask, pCpuTopology->CoreSelectMask);
+			printf("PkgSelectMaskShift = %u\n", pCpuTopology->PkgSelectMaskShift);
+			printf("SMTMaskWidth = %u\n\n", pCpuTopology->SMTMaskWidth);
+		}
+
+		for (i = 0; i < lcl_maxcpu; i++)
+		{
+			printf("[%u]  P:%u C:%u T:%u | APICID=%u OrdIndexOAMsk=%u pkg_IDAPIC=%u Core_IDAPIC=%u SMT_IDAPIC=%u\n",
+				i,
+				pCpuTopology->pApicAffOrdMapping[i].packageORD,
+				pCpuTopology->pApicAffOrdMapping[i].coreORD,
+				pCpuTopology->pApicAffOrdMapping[i].threadORD,
+				pCpuTopology->pApicAffOrdMapping[i].APICID,
+				pCpuTopology->pApicAffOrdMapping[i].OrdIndexOAMsk,
+				pCpuTopology->pApicAffOrdMapping[i].pkg_IDAPIC,
+				pCpuTopology->pApicAffOrdMapping[i].Core_IDAPIC,
+				pCpuTopology->pApicAffOrdMapping[i].SMT_IDAPIC
 			);
+		}
 	}
 }
-#endif
 
 RsslRet rsslBindThreadWithString(const char* cpuString, RsslBuffer* pOutputResult, RsslErrorInfo* pError)
 {

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2022-2023 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2022-2024 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -48,6 +48,7 @@ const unsigned MAXLEN = 32;
 
 const char* STR_ERROR_CPU_IS_NOT_SET = "cpuString is not set.";
 const char* STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE = "Cpu topology information is unavailable.";
+const char* STR_ERROR_CPU_TOPOLOGY_TEST = "CpuId topology error: This is a test error.";
 
 typedef struct {
 	unsigned n;
@@ -1929,6 +1930,8 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadWhenSkipCpuIDTopoInitShouldRetur
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+
+	rsslUninitialize();
 }
 
 TEST(ThreadBindProcessorCoreTestInit, BindThreadExWhenSkipCpuIDTopoInitShouldReturnError)
@@ -1956,8 +1959,131 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExWhenSkipCpuIDTopoInitShouldRet
 
 	ASSERT_EQ(NULL, outputResult.data);
 	ASSERT_EQ(0, outputResult.length);
+
+	rsslUninitialize();
 }
 
+TEST(ThreadBindProcessorCoreTestInit, CpuTopologyInitializationShouldReturnOk)
+{
+	RsslError error;
+	RsslInitializeExOpts rsslInitExOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+
+	ASSERT_EQ(RSSL_TRUE, rsslInitExOpts.shouldInitializeCPUIDlib);
+
+	// Setup stage
+	ASSERT_EQ(rsslInitializeEx(&rsslInitExOpts, &error), RSSL_RET_SUCCESS);
+
+	// Test stage
+	// Dump detected Cpu topology: list of the detected Cpu cores.
+	dumpCpuTopology();
+
+	// Verify that there are no Cpu topology initialization errors.
+	RsslErrorInfo* pInitCpuIdLibError = getErrorInitializationStage();
+	ASSERT_EQ((RsslErrorInfo *)NULL, pInitCpuIdLibError) << "Please report about the CPU topology detection error to RTSDK developers.";
+
+	rsslUninitialize();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+// ETA initialization passed ok but Cpu topology initialization failed
+class ThreadBindProcessorCoreInitializationFail : public ::testing::Test {
+protected:
+	virtual void SetUp()
+	{
+		RsslError error;
+		RsslInitializeExOpts rsslInitExOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+		ASSERT_EQ(rsslInitializeEx(&rsslInitExOpts, &error), RSSL_RET_SUCCESS);
+
+		// Set up the test error in Cpu topology
+		setTestErrorInitializationStage();
+	}
+
+	virtual void TearDown()
+	{
+		rsslClearBindings();
+		rsslUninitialize();
+	}
+};
+
+TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadShouldReturnError)
+{
+	char cpuIdThreadPCT[MAXLEN] = "0";
+	RsslErrorInfo errorInfo;
+
+	// Test stage
+	ASSERT_EQ(rsslBindThread(cpuIdThreadPCT, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
+}
+
+TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadPCTShouldReturnError)
+{
+	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
+	RsslErrorInfo errorInfo;
+
+	// Test stage
+	ASSERT_EQ(rsslBindThread(sCpuCorePCT, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
+}
+
+TEST_F(ThreadBindProcessorCoreInitializationFail, BindProcessorCoreThreadShouldReturnError)
+{
+	RsslInt32 cpuIdThread = 0;
+	RsslErrorInfo errorInfo;
+
+	// Test stage
+	ASSERT_EQ(rsslBindProcessorCoreThread(cpuIdThread, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
+}
+
+TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadExShouldReturnError)
+{
+	char cpuIdThreadPCT[MAXLEN] = "0";
+	RsslErrorInfo errorInfo;
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	// Test stage
+	ASSERT_EQ(rsslBindThreadEx(cpuIdThreadPCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
+	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_TEST);
+}
+
+TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadExPCTShouldReturnError)
+{
+	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
+	RsslErrorInfo errorInfo;
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	// Test stage
+	ASSERT_EQ(rsslBindThreadEx(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
+	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_TEST);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 class ThreadBindProcessorCoreTestChangeAffinity : public ::testing::Test {
 protected:
