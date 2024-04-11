@@ -24,7 +24,7 @@ ServiceEndpointDiscovery::ServiceEndpointDiscovery()
 	}
 	catch (std::bad_alloc&)
 	{
-		throwMeeException("Failed to allocate memory for ServiceEndpointDiscoveryImpl in ServiceEndpointDiscovery( const EmaString&, const EmaString& ).");
+		throwMeeException("Failed to allocate memory for ServiceEndpointDiscoveryImpl in ServiceEndpointDiscovery().");
 	}
 }
 
@@ -37,36 +37,36 @@ ServiceEndpointDiscovery::ServiceEndpointDiscovery(const ServiceEndpointDiscover
 	}
 	catch (std::bad_alloc&)
 	{
-		throwMeeException("Failed to allocate memory for ServiceEndpointDiscoveryImpl in ServiceEndpointDiscovery( const EmaString&, const EmaString& ).");
+		throwMeeException("Failed to allocate memory for ServiceEndpointDiscoveryImpl in ServiceEndpointDiscovery( const ServiceEndpointDiscoveryConfig& ).");
 	}
 }
 
 ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenServiceURLV1)
 	: _pImpl(0)
 {
-	ServiceEndpointDiscoveryConfig* config = new ServiceEndpointDiscoveryConfig;
-	config->tokenServiceUrlV1(tokenServiceURLV1);
+	ServiceEndpointDiscoveryConfig config;
+	config.tokenServiceUrlV1(tokenServiceURLV1);
 
 	try
 	{
-		_pImpl = new ServiceEndpointDiscoveryImpl(this, config);
+		_pImpl = new ServiceEndpointDiscoveryImpl(this, &config);
 	}
 	catch (std::bad_alloc&)
 	{
-		throwMeeException("Failed to allocate memory for ServiceEndpointDiscoveryImpl in ServiceEndpointDiscovery( const EmaString&, const EmaString& ).");
+		throwMeeException("Failed to allocate memory for ServiceEndpointDiscoveryImpl in ServiceEndpointDiscovery( const EmaString& ).");
 	}
 }
 
 ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenServiceURLV1, const EmaString& serviceDiscoveryURL)
 : _pImpl(0)
 {
-	ServiceEndpointDiscoveryConfig* config = new ServiceEndpointDiscoveryConfig;
-	config->tokenServiceUrlV1(tokenServiceURLV1);
-	config->serviceDiscoveryUrl(serviceDiscoveryURL);
+	ServiceEndpointDiscoveryConfig config;
+	config.tokenServiceUrlV1(tokenServiceURLV1);
+	config.serviceDiscoveryUrl(serviceDiscoveryURL);
 
 	try
 	{
-		_pImpl = new ServiceEndpointDiscoveryImpl(this, config);
+		_pImpl = new ServiceEndpointDiscoveryImpl(this, &config);
 	}
 	catch (std::bad_alloc&)
 	{
@@ -77,19 +77,19 @@ ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenService
 ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenServiceURLV1, const EmaString& tokenServiceURLV2, const EmaString& serviceDiscoveryURL)
 	: _pImpl(0)
 {
-	ServiceEndpointDiscoveryConfig* config = new ServiceEndpointDiscoveryConfig;
-	config->tokenServiceUrlV1(tokenServiceURLV1);
-	config->tokenServiceUrlV2(tokenServiceURLV2);
-	config->serviceDiscoveryUrl(serviceDiscoveryURL);
+	ServiceEndpointDiscoveryConfig config;
+	config.tokenServiceUrlV1(tokenServiceURLV1);
+	config.tokenServiceUrlV2(tokenServiceURLV2);
+	config.serviceDiscoveryUrl(serviceDiscoveryURL);
 
 
 	try
 	{
-		_pImpl = new ServiceEndpointDiscoveryImpl(this, config);
+		_pImpl = new ServiceEndpointDiscoveryImpl(this, &config);
 	}
 	catch (std::bad_alloc&)
 	{
-		throwMeeException("Failed to allocate memory for ServiceEndpointDiscoveryImpl in ServiceEndpointDiscovery( const EmaString&, const EmaString& ).");
+		throwMeeException("Failed to allocate memory for ServiceEndpointDiscoveryImpl in ServiceEndpointDiscovery( const EmaString&, const EmaString&, const EmaString& ).");
 	}
 }
 

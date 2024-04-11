@@ -21,14 +21,17 @@ ServiceEndpointDiscoveryImpl::ServiceEndpointDiscoveryImpl(ServiceEndpointDiscov
 	RsslError rsslError;
 	RsslInitializeExOpts rsslInitOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 	rsslInitOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
-	if (pServiceEndpointDiscoveryConfig->_libsslName != NULL)
-		rsslInitOpts.jitOpts.libsslName = (char*)pServiceEndpointDiscoveryConfig->_libsslName->c_str();
-	if (pServiceEndpointDiscoveryConfig->_libsslName != NULL)
-		rsslInitOpts.jitOpts.libcryptoName = (char*)pServiceEndpointDiscoveryConfig->_libcryptoName->c_str();
-	if (pServiceEndpointDiscoveryConfig->_libcurlName != NULL)
-		rsslInitOpts.jitOpts.libcurlName = (char*)pServiceEndpointDiscoveryConfig->_libcurlName->c_str();
-	if (pServiceEndpointDiscoveryConfig->_shouldInitializeCPUIDlib != DEFAULT_SHOULD_INIT_CPUID_LIB)
-		rsslInitOpts.shouldInitializeCPUIDlib = pServiceEndpointDiscoveryConfig->_shouldInitializeCPUIDlib;
+	if (pServiceEndpointDiscoveryConfig != NULL)
+	{
+		if (pServiceEndpointDiscoveryConfig->_libsslName != NULL)
+			rsslInitOpts.jitOpts.libsslName = (char*)pServiceEndpointDiscoveryConfig->_libsslName->c_str();
+		if (pServiceEndpointDiscoveryConfig->_libsslName != NULL)
+			rsslInitOpts.jitOpts.libcryptoName = (char*)pServiceEndpointDiscoveryConfig->_libcryptoName->c_str();
+		if (pServiceEndpointDiscoveryConfig->_libcurlName != NULL)
+			rsslInitOpts.jitOpts.libcurlName = (char*)pServiceEndpointDiscoveryConfig->_libcurlName->c_str();
+		if (pServiceEndpointDiscoveryConfig->_shouldInitializeCPUIDlib != DEFAULT_SHOULD_INIT_CPUID_LIB)
+			rsslInitOpts.shouldInitializeCPUIDlib = pServiceEndpointDiscoveryConfig->_shouldInitializeCPUIDlib;
+	}
 
 	RsslRet retCode = rsslInitializeEx(&rsslInitOpts, &rsslError);
 	if (retCode != RSSL_RET_SUCCESS)
@@ -45,38 +48,42 @@ ServiceEndpointDiscoveryImpl::ServiceEndpointDiscoveryImpl(ServiceEndpointDiscov
 	clearRsslErrorInfo(&rsslErrorInfo);
 
 	rsslClearCreateReactorOptions(&reactorOpts);
-	if (pServiceEndpointDiscoveryConfig->_tokenServiceURL_V1 != NULL)
+	if (pServiceEndpointDiscoveryConfig != NULL)
 	{
-		reactorOpts.tokenServiceURL_V1.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->_tokenServiceURL_V1->c_str());
-		reactorOpts.tokenServiceURL_V1.length = pServiceEndpointDiscoveryConfig->_tokenServiceURL_V1->length();
+		if (pServiceEndpointDiscoveryConfig->_tokenServiceURL_V1 != NULL)
+		{
+			reactorOpts.tokenServiceURL_V1.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->_tokenServiceURL_V1->c_str());
+			reactorOpts.tokenServiceURL_V1.length = pServiceEndpointDiscoveryConfig->_tokenServiceURL_V1->length();
+		}
+
+		if (pServiceEndpointDiscoveryConfig->_tokenServiceURL_V2 != NULL)
+		{
+			reactorOpts.tokenServiceURL_V2.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->_tokenServiceURL_V2->c_str());
+			reactorOpts.tokenServiceURL_V2.length = pServiceEndpointDiscoveryConfig->_tokenServiceURL_V2->length();
+		}
+
+		if (pServiceEndpointDiscoveryConfig->_serviceDiscoveryURL != NULL)
+		{
+			reactorOpts.serviceDiscoveryURL.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->_serviceDiscoveryURL->c_str());
+			reactorOpts.serviceDiscoveryURL.length = pServiceEndpointDiscoveryConfig->_serviceDiscoveryURL->length();
+		}
+
+		if (pServiceEndpointDiscoveryConfig->_restEnableLog)
+		{
+			reactorOpts.restEnableLog = pServiceEndpointDiscoveryConfig->_restEnableLog;
+		}
+
+		if (pServiceEndpointDiscoveryConfig->_restVerboseMode)
+		{
+			reactorOpts.restVerboseMode = pServiceEndpointDiscoveryConfig->_restVerboseMode;
+		}
+
+		if (pServiceEndpointDiscoveryConfig->_restLogOutputStreamFile != NULL)
+		{
+			reactorOpts.restLogOutputStream = pServiceEndpointDiscoveryConfig->_restLogOutputStreamFile;
+		}
 	}
 
-	if (pServiceEndpointDiscoveryConfig->_tokenServiceURL_V2 != NULL)
-	{
-		reactorOpts.tokenServiceURL_V2.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->_tokenServiceURL_V2->c_str());
-		reactorOpts.tokenServiceURL_V2.length = pServiceEndpointDiscoveryConfig->_tokenServiceURL_V2->length();
-	}
-
-	if (pServiceEndpointDiscoveryConfig->_serviceDiscoveryURL != NULL)
-	{
-		reactorOpts.serviceDiscoveryURL.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->_serviceDiscoveryURL->c_str());
-		reactorOpts.serviceDiscoveryURL.length = pServiceEndpointDiscoveryConfig->_serviceDiscoveryURL->length();
-	}
-	
-	if (pServiceEndpointDiscoveryConfig->_restEnableLog)
-	{
-		reactorOpts.restEnableLog = pServiceEndpointDiscoveryConfig->_restEnableLog;
-	}
-
-	if (pServiceEndpointDiscoveryConfig->_restVerboseMode)
-	{
-		reactorOpts.restVerboseMode = pServiceEndpointDiscoveryConfig->_restVerboseMode;
-	}
-	
-	if (pServiceEndpointDiscoveryConfig->_restLogOutputStreamFile != NULL)
-	{
-		reactorOpts.restLogOutputStream = pServiceEndpointDiscoveryConfig->_restLogOutputStreamFile;
-	}
 	reactorOpts.userSpecPtr = this;
 
 	_pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo);
