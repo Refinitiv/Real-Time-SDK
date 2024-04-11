@@ -511,6 +511,9 @@ Series400Consumer421-PConfig-003
 Series400Consumer421-PConfig-002
     Alters consumer to add new GlobalConfig parameters EventPoolLimits for 5 types of EventPool.
 
+Series400Consumer421-NLog-001
+	Alter consumer to engage NLog as an alternative Logger to printout on Console, and Ema Log generated as on File.
+
 Module:  Series400Consumer430
 -----------------------------
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -334,6 +334,85 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             Assert.Contains("Received Delete action for RDMService", logOutput);
 
             Assert.True(logOutput.Length > 0);
+        }
+
+
+        /// <summary>
+        /// Make sure that the EMA Logger does not override NLog logger configuration for the
+        /// application.
+        /// </summary>
+        /// <remarks>
+        /// See GitHub issue #257.
+        /// </remarks>
+        [Fact]
+        public void OverrideConfig_Test()
+        {
+            // Intercept standard output (Console) to the memory buffer to examine Logger
+            // messages for expected log messages
+            MemoryStream memoryStream = new(12 * 1024);
+            StreamWriter streamWriter = new(memoryStream);
+            Console.SetOut(streamWriter);
+
+            // Application configures NLog
+            NLog.Targets.DebugTarget target = new NLog.Targets.DebugTarget() { Name = "Debug" };
+            target.Layout = "${message}";
+
+            NLog.Config.LoggingConfiguration config = new NLog.Config.LoggingConfiguration();
+            config.AddRuleForAllLevels(target);
+
+            NLog.LogManager.Configuration = config;
+
+            NLog.Logger logger = NLog.LogManager.GetLogger("Example");
+
+            // Initialise mock provider
+            ProviderSessionOptions providerSessionOpts = new();
+            providerSessionOpts.SendLoginReject = false;
+            ProviderTest providerTest = new(providerSessionOpts, output);
+            ReactorOptions reactorOptions = new();
+            providerTest.Initialize(reactorOptions);
+
+            int serverPort = providerTest.ServerPort;
+
+            string hostString = $"localhost:{serverPort}";
+
+            // Initialize EMA Consumer
+            OmmConsumerConfig consumerConfig = new OmmConsumerConfig(EMA_FILE_PATH);
+
+            consumerConfig
+                .UserName("user")
+                .Host(hostString)
+                .ConsumerName($"Consumer_1_Verbose");
+
+            // run EMA Consumer
+            {
+                OmmConsumer consumer = new OmmConsumer(consumerConfig);
+
+                // verify that the application can still log its messages to the configured output
+                // and that it did not get overridden by the EMA LoggerClient
+                logger.Debug("log message");
+                logger.Debug("another log message");
+
+                providerTest.UnInitialize();
+                consumer.Uninitialize();
+            }
+
+            // both the consumer and provider are stopped, now examine the log output to
+            // the Console and to the application-defined logger
+
+            Assert.Equal(2, target.Counter);
+            Assert.Equal("another log message", target.LastMessage);
+
+            // verify that the EMA IProvider was still able to output log messages as
+            // configured - to Console
+            string logOutput = System.Text.Encoding.ASCII.GetString(memoryStream.GetBuffer(), 0,
+                (int)memoryStream.Length);
+
+            Assert.NotNull(logOutput);
+            Assert.NotEmpty(logOutput);
+
+            Assert.StartsWith("\r\nTRACE", logOutput);
+            Assert.Contains("Successfully created Reactor", logOutput);
+            Assert.Contains("Print out active configuration detail.", logOutput);
         }
     }
 }

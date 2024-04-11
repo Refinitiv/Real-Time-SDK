@@ -1,0 +1,7 @@
+﻿<Project>
+	<Import Project="..\Consumer.props"/>
+
+	<ItemGroup>
+		<Compile Include="..\Consumer.ApiQa.cs" />
+	</ItemGroup>
+</Project>
