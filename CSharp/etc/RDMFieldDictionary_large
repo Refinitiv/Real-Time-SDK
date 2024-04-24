@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.61_RealTimeDistributionSystem_24.11		01/23/2024
-!	* Modified 01/23/2024 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.61.
+!   Version	 4.20.62_RealTimeDistributionSystem_24.31		04/08/2024
+!	* Modified 04/08/2024 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.62.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.61_RealTimeDistributionSystem
+!   Version: 4.20.62_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.61
+!tag Version   4.20.62
 !tag Build     1
-!tag Date      13-Dec-2023
+!tag Date      04-Mar-2024
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -11652,7 +11652,8 @@ ZSPREAD    "ZSPREAD"             4399  NULL        PRICE              17  REAL64
 !
 DELIV_DATE "DELIVERY DATE"       4400  NULL        DATE               11  DATE             4
 !
-! Delivery Date of the underlying of an exercized contract.
+! Delivery Date. For contract delivery that consists of a period with start and end 
+! dates, the field shows the start date of the delivery period. 
 !
 CURVE_TYPE "CURVE_TYPE"          4401  NULL        ALPHANUMERIC       18  RMTES_STRING    18
 !
@@ -26902,7 +26903,10 @@ SRC2_ES_DT "SRC2 EGRESS DATE"    9405  NULL        DATE               11  DATE  
 !
 ! Publication date from the secondary source.
 !
-PRE_DT295  "PRED DATE 295"       9406  NULL        DATE               11  DATE             4
+ALT_BAC_DT "ALT BID ASK DATE"    9406  NULL        DATE               11  DATE             4
+!
+! Alternative closing bid and ask date.
+!
 PRE_DT296  "PRED DATE 296"       9407  NULL        DATE               11  DATE             4
 PRE_DT297  "PRED DATE 297"       9408  NULL        DATE               11  DATE             4
 PRE_DT298  "PRED DATE 298"       9409  NULL        DATE               11  DATE             4
@@ -32188,8 +32192,15 @@ CDIST_YLD  "CASH DTB YLD"       11149  NULL        PRICE              17  REAL64
 !
 ! 12 Month Cash Distribution.
 !
-PRERL2160  "PRED REAL 2160"     11151  NULL        PRICE              17  REAL64           9
-PRERL2161  "PRED REAL 2161"     11152  NULL        PRICE              17  REAL64           9
+LT_MAT_AMT "LAST TRD NO AMTM"   11151  NULL        PRICE              17  REAL64           9
+!
+! Last Trade Notional Amount at Maturity.
+!
+BLK_DVA_RG "BLK DYVAL RNG"      11152  NULL        PRICE              17  REAL64           9
+!
+! Dynamic price range for block trades. The variation range combines with a reference 
+! price which determines the upper and lower price limits for block trades.
+!
 PRERL2162  "PRED REAL 2162"     11153  NULL        PRICE              17  REAL64           9
 PRERL2163  "PRED REAL 2163"     11154  NULL        PRICE              17  REAL64           9
 PRERL2164  "PRED REAL 2164"     11155  NULL        PRICE              17  REAL64           9
@@ -37482,11 +37493,11 @@ SHR_AMT_TP "SHARE AMT TYPE"     14157  NULL        ENUMERATED    3 ( 5 )  ENUM  
 !
 INGEST_TM  "INGEST_TM"          14158  NULL        INTEGER            15  TIME             8
 !
-! GMT Timestamp populated by the headend at the point of ingest.
+! Timestamp populated by the LSEG headend at the point of ingest.
 !
 INGEST_DT  "INGEST_DT"          14159  NULL        DATE               11  DATE             4
 !
-! GMT Date populated by the headend at the point of ingest.
+! Date populated by the LSEG headend at the point of ingest (paired with INGEST_NS).
 !
 A_MMID1_LL "ASK MMID LCL LANG"  14160  NULL        ALPHANUMERIC       22  RMTES_STRING    22
 !
@@ -37957,7 +37968,8 @@ BID_Y_NS   "BID YLD TIME NS"    14280  NULL        INTEGER            15  TIME  
 !
 INGEST_NS  "INGEST NS"          14281  NULL        INTEGER            15  TIME             8
 !
-! GMT Ingest timestamp supporting up to nanosecond granularity
+! Timestamp populated by the LSEG headend at the point of ingest (paired with 
+! INGEST_DT).
 !
 QUOTIM2_NS "QUOTIM NS 2"        14282  QUOTIM3_NS  INTEGER            15  TIME             8
 QUOTIM3_NS "QUOTIM NS 3"        14283  QUOTIM4_NS  INTEGER            15  TIME             8
@@ -38571,7 +38583,10 @@ RTR_NWS_NS "RTR NEWS TM NS"     14545  NULL        INTEGER            15  TIME  
 !
 ! Reuters News Time
 !
-PRE_116_NS "PRED TIME NS 116"   14546  NULL        INTEGER            15  TIME             8
+OR_TIM2_NS "ORD ACT TIME2 NS"   14546  NULL        INTEGER            15  TIME             8
+!
+! Additional order book transaction time.
+!
 PRE_117_NS "PRED TIME NS 117"   14547  NULL        INTEGER            15  TIME             8
 !
 ! TBD

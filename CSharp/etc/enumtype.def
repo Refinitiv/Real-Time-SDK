@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.61
-!tag Build_RDMD  4.20.61
-!tag DT_Version  24.11
-!tag Date        22-Jan-2024
+!tag RT_Version  4.20.62
+!tag Build_RDMD  4.20.62
+!tag DT_Version  24.31
+!tag Date        8-Apr-2024
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -4930,6 +4930,7 @@ LEG40_TYPE 12832
      14       "WNT "   Warrants
      15       "LEPO"   Low Exercise Price Options
      16       "FOPT"   Flex Option
+     17       "SHRS"   Shares
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8880,6 +8881,10 @@ CLS_A_EXID 13625
    1761        "UZS"   Uzbekistan Stock Exchange
    1762        "SGS"   SGS Palm (Export Palmoil Statistics)
    1763        "MHE"   MIAX Sapphire Options Exchange
+   1764        "GBS"   E.A. Gibson Shipbrokers
+   1765        "GFO"   GLOBAL FUTURES AND OPTIONS LTD (GFO-X)
+   1766        "LAS"   Lang & Schwarz Exchange
+   1767        "ENE"   Energy Institute
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11252,6 +11257,7 @@ OR_RNK_RUL  3425
      14       "M   "   Market Maker ID
      15       "PM  "   Price, Market Maker ID
      16       "PSM "   Price, Size, Market Maker ID
+     17       "PR  "   Price, Rank
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13480,6 +13486,7 @@ REFPRC_TP4 13491
      70   "UVWAP   "   VWAP of the underlying asset
      71   "POS IMB "   Positive Imbalance Price
      72   "NEG IMB "   Negative Imbalance Price
+     73   "PJ CLSPR"   Projected Closing Price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14161,6 +14168,7 @@ SEC_STATUS  9000
      35   "  TBM   "   To be Removed
      36   "DLN     "   Direct Listing - not eligible to be released for trading
      37   "DLY     "   Direct Listing - eligible to be released for trading
+     38   "TFLT    "   Trading Flat
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17383,6 +17391,9 @@ VESSEL_TYP 12978
      26   "Kamsmax "   Kamsarmax
      27   "Post-Pan"   Post Panamax
      28   "Ultramax"   Ultramax
+     29   "VLGC    "   Very Large Gas Carrier. They have a carrying capacity 70,000 cbm or above
+     30   "MGC     "   Medium Gas Carrier. They have a carrying capacity between 25,000-50,000 cbm
+     31   "Coaster "   Coaster. They have a carrying capacity below 15 000 DWT
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19100,6 +19111,25 @@ MET_TYP25  13632
     251   "EV_YTM  "   Evaluated Yield to Maturity
     252   "EV_ACINT"   Evaluated Accrued Interest
     253   "EV_T2MAT"   Time to maturity (in number of years) for the evaluated values
+    254   "HOACI   "   House Account - Issued (Notice Issued)
+    255   "HOACS   "   House Account - Stopped (Notice Received)
+    256   "CUACI   "   Customer Account - Issued (Notice Issued)
+    257   "CUACS   "   Customer Account - Stopped (Notice Received)
+    258   "DEPO_TTL"   Total Deposit Balance
+    259   "LOAN_TTL"   Total Loan Balance
+    260   "RMIT_TTL"   Total Remittance
+    261   "DDEP_TTL"   Total amount of demand deposit balance
+    262   "TDEP_TTL"   Total amount of term deposit balance
+    263   "CDEP_TTL"   Total amount of cross-border deposit balance
+    264   "OMO_WCM "   Weekly Open Market Operations (OMOs) capital movement
+    265   "CBBIA   "   Central Bank Bills Issue Amount
+    266   "CBBMA   "   Central Bank Bills Maturity Amount
+    267   "REPOIA  "   Repurchase Agreement Issue Amount
+    268   "REPOMA  "   Repurchase Agreement Maturity Amount
+    269   "RREPOIA "   Reverse Repurchase Agreement Issue Amount
+    270   "RREPOMA "   Reverse Repurchase Agreement Maturity Amount
+    271   "SND     "   Seasonal Normal Demand
+    272   "SNDD    "   Seasonal Normal Demand Differential
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19670,6 +19700,11 @@ CNTR_SZ_UT 13611
     440      "COP  "   Colombian peso
     441      "LGC  "   Large-scale generation certificates
     442      "EJ   "   Exajoules
+    443      "PCM  "   Per calendar month
+    444      "MCO  "   mtCO2e/MMBtu
+    445      "CD/ga"   kg CO2 equivalent/gal
+    446      "CD/mt"   kg CO2 equivalent/mt
+    447      "kUSDm"   Thousands of US dollars/month
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19831,6 +19866,10 @@ ORDER_TN   13439
       7   "IL      "   Implied and Limit Orders
       8   "MOO     "   Market-on-Open
       9   "MOC     "   Market-on-Close
+     10   "LOO     "   Limit-on-Open
+     11   "LOC     "   Limit-on-Close
+     12   "LMOC    "   Limit to Market-on-Close
+     13   "NERO    "   Non-executable Reference Order
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20204,6 +20243,7 @@ ORDBK_DEPH 13490
      13     "30_OL "   30 Order Levels
      14     "3_PL  "   3 Price Levels
      15     "1_PL  "   1 Price Level
+     16     "100_PL"   100 Price Levels
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20837,6 +20877,7 @@ SHS_PR_RUL 13563
       3   "=>HCLS  "   Equal or above the historical close price
       4   "=>CHGH  "   Equal or above current highest bid price
       5   "=>CLOW  "   Equal or above the current lowest ask price
+      6   ">LTRD   "   Above the last traded price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22689,6 +22730,7 @@ DELIV_METH 13606
      17   "DB Carr "   Dry bulk carrier
      18   "Cln Tnk "   Clean tanker
      19   "Dty Tnk "   Dirty tanker
+     20   "LPG Tnk "   LPG Tanker/Carrier
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22770,9 +22812,9 @@ CMD_TYPE   13618
    1030   "COLA    "   Cola
    1031   "COPRA   "   Copra
    1032   "COPRPEL "   Copra Pellets
-   1033   "CORN    "   Corn
+   1033   "CORN    "   Corn / Maize
    1034   "CORNF   "   Cornflour
-   1035   "CORNOIL "   Corn Oil
+   1035   "CORNOIL "   Corn Oil / Maize Oil
    1036   "COTT    "   Cotton
    1037   "COTTY   "   Cotton Yarn
    1038   "CTTNSD  "   Cottonseed
@@ -22784,7 +22826,7 @@ CMD_TYPE   13618
    1044   "EGG     "   Egg
    1045   "FATPROD "   Fat Products (Commodity)
    1046   "FDBARL  "   Feed Barley
-   1047   "FDCORN  "   Feed Corn
+   1047   "FDCORN  "   Feed Corn / Maize
    1048   "FDWHEAT "   Feed Wheat
    1049   "FEEDCON "   Feed Concentrate (Commodity)
    1050   "FERT    "   Fertilisers
@@ -22853,7 +22895,7 @@ CMD_TYPE   13618
    1113   "OTHOILCR"   Other Oil Crops (Commodity)
    1114   "OTHROOTC"   Other Root Crops (Commodity)
    1115   "OTHSEEDC"   Other Seed Crops (Commodity)
-   1116   "OTRCORN "   Other Corn
+   1116   "OTRCORN "   Other Corn / Maize
    1117   "PALMKOIL"   Palm Kernel Oil
    1118   "PALMOIL "   Palm Oil
    1119   "PAPER   "   Paper
@@ -22892,7 +22934,7 @@ CMD_TYPE   13618
    1152   "SAFFL   "   Safflower
    1153   "SAFFLOIL"   Safflower Oil
    1154   "SALT    "   Salt (Commodity)
-   1155   "SEEDCORN"   Seed Corn
+   1155   "SEEDCORN"   Seed Corn / Maize
    1156   "SEEDCROP"   Seed Crops (Commodity)
    1157   "SESAM   "   Sesame
    1158   "SGRBPL  "   Sugar Beet Pulp
@@ -22936,6 +22978,7 @@ CMD_TYPE   13618
    1196   "WOODPROD"   Wood Products (Commodity)
    1197   "WOOL    "   Wool
    1198   "YOG     "   Yoghurt
+   1199   "HSS     "   Heavy Grains, Soybeans and Sorghums
    1600   "ACEACID "   Acetic Acid (Commodity)
    1601   "ACETONE "   Acetone (Commodity)
    1602   "ACIDDERI"   Acids / Acid Derivatives (Commodity)
@@ -23396,16 +23439,6 @@ TNOV_UN3TP 13623
 ! -------    ---
 !
 ORD_SZ_QL  13626
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0   "        "   Undefined
-      1   "T       "   Continuous Trading
-      2   "AUC     "   Auctions
-!
-! ACRONYM    FID
-! -------    ---
-!
 ORD_SZ_Q2  13627
 !
 ! VALUE      DISPLAY   MEANING
@@ -23413,6 +23446,8 @@ ORD_SZ_Q2  13627
       0   "        "   Undefined
       1   "T       "   Continuous Trading
       2   "AUC     "   Auctions
+      3   "OFFBK   "   Offbook
+      4   "CAL SPR "   Calendar Spread
 !
 ! ACRONYM    FID
 ! -------    ---
