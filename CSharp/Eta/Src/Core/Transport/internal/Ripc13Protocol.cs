@@ -223,7 +223,7 @@ namespace LSEG.Eta.Internal
             if ((compBitmapSize > 0 && ProtocolOptions.SessionInDecompress > 0) || ProtocolOptions.ServerForceCompression)
             {
                 /* take bitmap off wire if its there */
-                if (compBitmapSize > 0)
+                if (!ProtocolOptions.ServerForceCompression && compBitmapSize > 0)
                 {
                     byte compbitmap;
 
