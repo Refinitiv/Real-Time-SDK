@@ -3615,7 +3615,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_ASSIGNED_HOST_PORT;
 				pReactorConnectInfoImpl->reconnectEndpointAttemptCount = 0;
 
-				if (pReactorChannel->isInitialChannelConnect = RSSL_TRUE)
+				if (pReactorChannel->isInitialChannelConnect == RSSL_TRUE)
 				{
 					pReactorChannel->isInitialChannelConnect = RSSL_FALSE;
 					/* notify application channel opened */
@@ -4256,7 +4256,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 							/* This is connection recovery after the previous connection is closed */
 							if (pReactorChannel->reactorChannel.pRsslChannel == 0)
 							{
-								if (pReactorChannel->isInitialChannelConnect = RSSL_TRUE)
+								if (pReactorChannel->isInitialChannelConnect == RSSL_TRUE)
 								{
 									pReactorChannel->isInitialChannelConnect = RSSL_FALSE;
 									/* notify application channel opened */
