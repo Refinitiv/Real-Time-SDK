@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -49,7 +49,10 @@ public class ModifyIOCtlTest
         {
             new IOCtlSetting[]
             {
-                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 1, IsValid = false }
+                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = -10, IsValid = false,
+                    Message = "value must be (0 >= value < 2^31", ErrorCode = -1 },
+                new IOCtlSetting() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = -100, IsValid = false,
+                    Message = "value must be (0 >= value < 2^31", ErrorCode = -1 }
             }
         },
 
@@ -82,22 +85,12 @@ public class ModifyIOCtlTest
         {
             new IOCtlSetting[]
             {
-                new IOCtlSetting() {
-                    Code = IOCtlCode.MAX_NUM_BUFFERS,
-                    Setting = 10,
-                    IsValid = false,
-                    Message = "Failed to modify I/O option = MAX_NUM_BUFFERS. Reason: FAILURE.",
-                    ErrorCode = OmmInvalidUsageException.ErrorCodes.FAILURE
-                },
-                new IOCtlSetting() {Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 10 },
-                new IOCtlSetting() {Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 },
-                new IOCtlSetting() {Code = IOCtlCode.SYSTEM_READ_BUFFERS, Setting = 10 },
-                new IOCtlSetting() {Code = IOCtlCode.SYSTEM_WRITE_BUFFERS, Setting = 10 },
-                new IOCtlSetting() {
-                    Code = IOCtlCode.COMPRESSION_THRESHOLD,
-                    Setting = 10,
-                    IsValid = false
-                }
+                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 10 },
+                new IOCtlSetting() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 10 },
+                new IOCtlSetting() { Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 },
+                new IOCtlSetting() { Code = IOCtlCode.SYSTEM_READ_BUFFERS, Setting = 10 },
+                new IOCtlSetting() { Code = IOCtlCode.SYSTEM_WRITE_BUFFERS, Setting = 10 },
+                new IOCtlSetting() { Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 350 }
             }
         },
 
@@ -106,12 +99,11 @@ public class ModifyIOCtlTest
             new IOCtlSetting[]
             {
                 // The compression must be enabled between provider and consumer in order
-                // to modify the COMPRESSION_THRESHOLD code. The code below is valid as it
-                // is greater than the default value for LZ4_COMPRESSION_THRESHOLD.
-                new IOCtlSetting() {
-                    Code = IOCtlCode.COMPRESSION_THRESHOLD,
-                    Setting = 350,
-                    IsValid = true
+                // to modify the COMPRESSION_THRESHOLD code. The code below is invalid as it
+                // is less than the default value for LZ4_COMPRESSION_THRESHOLD.
+                new IOCtlSetting() { Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 10, IsValid = false,
+                    Message = "Failed to modify I/O option = COMPRESSION_THRESHOLD. Reason: FAILURE. Error text: Channel.IOCtl failed, error: value must be equal to or greater than",
+                    ErrorCode = -1
                 }
             }
         }
@@ -158,23 +150,20 @@ public class ModifyIOCtlTest
             output.WriteLine($"Modify IOCtl: {setting.Code}, new value: {setting.Setting}");
             // some settings are known to be invalid and are expected to raise an exception
             if (setting.IsValid)
+            {
                 consumer.ModifyIOCtl(setting.Code, setting.Setting);
+            }
             else
             {
-                try
-                {
-                    consumer.ModifyIOCtl(setting.Code, setting.Setting);
-                    Assert.True(false, "Exception is expected");
-                }
-                catch (OmmInvalidUsageException ex)
-                {
-                    Assert.NotEmpty(ex.Message);
-                    if (setting.Message is not null)
-                        Assert.Contains(setting.Message, ex.Message);
+                OmmInvalidUsageException ex = Assert.Throws<OmmInvalidUsageException>(
+                    () => consumer.ModifyIOCtl(setting.Code, setting.Setting));
 
-                    if (setting.ErrorCode is not null)
-                        Assert.Equal(setting.ErrorCode, ex.ErrorCode);
-                }
+                Assert.NotEmpty(ex.Message);
+                if (setting.Message is not null)
+                    Assert.Contains(setting.Message, ex.Message);
+
+                if (setting.ErrorCode is not null)
+                    Assert.Equal(setting.ErrorCode, ex.ErrorCode);
             }
         }
 

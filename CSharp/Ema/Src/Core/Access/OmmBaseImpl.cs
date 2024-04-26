@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -775,23 +775,9 @@ namespace LSEG.Ema.Access
                 return;
             }
 
-            Eta.Transports.IChannel channel = activeChannelInfo.ReactorChannel.Channel!;
+            ReactorReturnCode ret = activeChannelInfo.ReactorChannel.IOCtl((Eta.Transports.IOCtlCode)(int)code, val, out var error);
 
-            Eta.Transports.TransportReturnCode ret = channel.IOCtl((Eta.Transports.IOCtlCode)(int)code, val, out var error);
-
-            if (code == IOCtlCode.MAX_NUM_BUFFERS || code == IOCtlCode.NUM_GUARANTEED_BUFFERS)
-            {
-                if ((int)ret != (int)val)
-                {
-                    ret = Eta.Transports.TransportReturnCode.FAILURE;
-                }
-                else
-                {
-                    ret = Eta.Transports.TransportReturnCode.SUCCESS;
-                }
-            }
-
-            if (ret != Eta.Transports.TransportReturnCode.SUCCESS)
+            if (ret != ReactorReturnCode.SUCCESS)
             {
                 StringBuilder strBuilder = GetStrBuilder();
 
@@ -799,7 +785,7 @@ namespace LSEG.Ema.Access
                     .Append(code).Append(". Reason: ")
                     .Append(ret.ToString())
                     .Append(". Error text: ")
-                    .Append(error?.Text ?? string.Empty);
+                    .Append(error?.Error?.Text ?? string.Empty);
 
                 HandleInvalidUsage(strBuilder.ToString(), OmmInvalidUsageException.ErrorCodes.FAILURE);
             }
