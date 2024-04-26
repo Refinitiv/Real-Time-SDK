@@ -9,23 +9,56 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.1.3.L1 aka EMA/ETA 3.7.3.L1 aka 3.7.3.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.2.0.L1 aka EMA/ETA 3.8.0.L1 aka 3.8.0.0
 ----------------------------------------------------------------------------------------
 
-In this release, support for TLS 1.3 is introduced along with updates to dependent jars due to vulnerabilities and fixes to customers issues.
+This release introduces EMA message packing feature. In addition, a number of customer issues were addressed.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [GitHub #247] - [RTSDK-7764] - Poor performance in EMAJ/ETAJ consumer unregister 
-- [GitHub #249] - [RTSDK-7524] - EMA RsslSocketChannel::fillGatheringByteArray infinite loop
+- [Case Number: 06589180] - [RTSDK-1643] - Added toString implementation for the containers and messages in EMA Java
+- [GitHub #239] - [RTSDK-7624] - EMAJ Concurrency Issue for Views causing NPE on reissue/unregister
+- [GitHub #248] - [RTSDK-7746] - Add connection type to OmmConsumerConfig
+- [GitHub #272] - [RTSDK-8361] - CryptoHelper.java not able to detect socket close due to which application hangs infinitely
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK Java Release 2.2.0.L1 (Apr 29, 2024)
+--------------------------------------------
+
+This release introduces EMA message packing feature. In addition, a number of customer issues were addressed.
+
+EMA Java 3.8.0.L1 Issues Resolved
+---------------------------------
+- [RTSDK-434] - Message packing for EMA Providers
+- [RTSDK-1643] - Added toString implementation for the containers and messages in EMA Java [Case Number: 06589180]
+- [RTSDK-7624] - EMAJ Concurrency Issue for Views causing NPE on reissue/unregister [GitHub #239]
+- [RTSDK-7746] - Add connection type to OmmConsumerConfig [GitHub #248] 
+- [RTSDK-8361] - CryptoHelper.java not able to detect socket close due to which application hangs infinitely [GitHub #272]
+- [RTSDK-8128] - Update to EMA C++ ConsPerf to add commandline option to specify TLS version
+
+ETA Java 3.8.0.L1 Issues Resolved
+---------------------------------
+- [RTSDK-6989] - Fix to Reactor getBuffer to return null upon channel down to avoid NullPointerException
+- [RTSDK-7515] - Fix to error string when setting tokenURLV2 to invalid content
+- [RTSDK-7580] - Update to VAConsumer to add commandline option to specify location/region for service discovery when connecting to RTO
+- [RTSDK-7618] - Modified ETA examples to always set CredentialRenewal callback to demonstrate secure ways to provide credentials
+- [RTSDK-8091] - Update to ETAJ ConsPerf to add commandline option to specify TLS version
+
+Both ETA Java and EMA Java 3.8.0.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-7410] - Update DACS libraries to 7.12
+- [RTSDK-8101] - Updated commons-lang to 3.3.14.0, commons-logging to 1.3.0, slf4j to 2.0.11, jose4j to 0.9.4, jackson-\* 2.16.1
+- [RTSDK-8107] - Avoid double unlock in EMA OmmBaseImpl by checking for unlock
+
+--------------------------------------------
 RTSDK Java Release 2.1.3.L1 (Dec 22, 2023)
 --------------------------------------------
+
+In this release, support for TLS 1.3 is introduced along with updates to dependent jars due to vulnerabilities and fixes to customers issues.
 
 EMA Java 3.7.3.L1 Issues Resolved
 ---------------------------------

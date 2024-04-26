@@ -6,7 +6,7 @@ ETA CSharp contains open source components. The transport, decoder, encoder, val
 
 ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
 
-Copyright (C) 2022-2023 Refinitiv. All rights reserved.
+Copyright (C) 2022-2024 Refinitiv. All rights reserved.
 
 # ETA CSharp Documentation
 
@@ -23,7 +23,7 @@ In addtion, HTML documentation is available in CSharp/Eta/Docs. For addtional do
 
 # ETA Features and Functionality
 
-- 64-bit, CSharp 10 over .NET Core 6.0 based API
+- 64-bit, CSharp over .NET Core 6.0 based API
 
 - Thread safe and thread aware
 
@@ -104,14 +104,14 @@ Users can use Transport API to write non-interactive applications that start up 
 The distribution contains several DLL files (libraries), intended to allow for ease of integration into both production and development environments.
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    LSEG.Eta.Core.dll             eta3.1.0.L1       The ETA - CSharp Edition library.  Includes
+    LSEG.Eta.Core.dll             eta3.2.0.L1       The ETA - CSharp Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    LSEG.Eta.ValueAdd.dll         eta3.1.0.L1       The Value Add library for ETA CSharp Edition.
+    LSEG.Eta.ValueAdd.dll         eta3.2.0.L1       The Value Add library for ETA CSharp Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    LSEG.Eta.Ansi.dll             eta3.1.0.L1       The ANSI decoders and encoders.
+    LSEG.Eta.Ansi.dll             eta3.2.0.L1       The ANSI decoders and encoders.
     LSEG.Eta.AnsiPage.dll     
 
                   
@@ -124,23 +124,23 @@ The distribution contains several DLL files (libraries), intended to allow for e
     I-COS Questionnaire: 6212 
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - CSharp Edition
-    Release Number: 3.1.0
+    Release Number: 3.2.0
     Load Number: 1
-    Load ID: etacsharp3.1.0.L1.all
-        Supersedes: etacsharp3.0.3.L1.all
+    Load ID: etacsharp3.2.0.L1.all
+        Supersedes: etacsharp3.1.0.L1.all
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.60_RealTimeDistributionSystem_23.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.62_RealTimeDistributionSystem_24.31 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2022.10.1.1048, https://www.blackducksoftware.com/
+    Black Duck by Synopsis, 2023.3.0.1060, https://www.blackducksoftware.com/
     Coverity, 2022.12.2, https://scan.coverity.com/ 
 
 # Notes:

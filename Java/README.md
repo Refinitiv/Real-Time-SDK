@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2023 Refinitiv. All rights reserved.
+Copyright (C) 2019-2024 Refinitiv. All rights reserved.
 
 # New In This Release
 
@@ -20,13 +20,13 @@ External modules used by this version of RTSDK Java:
 	commons-codec				1.16
 	commons-configuration2			2.9.0
 	commons-collections4			4.4	
-	commons-lang3				3.13.0
-	commons-logging				1.2
+	commons-lang3				3.14.0
+	commons-logging				1.3.0
 	commons-text		 		1.11.0
-	jackson-annotations	 		2.15.3
-	jackson-core	 			2.15.3  
-	jackson-databind 			2.15.3
-	jose4j					0.9.3
+	jackson-annotations	 		2.16.1
+	jackson-core	 			2.16.1  
+	jackson-databind 			2.16.1
+	jose4j					0.9.4
 	junit					4.13.2
 	json					20231013
 	httpclient				4.5.14
@@ -36,8 +36,8 @@ External modules used by this version of RTSDK Java:
 	httpmime				4.5.14
 	lz4-java				1.8.0
 	mockito-all				1.10.19
-	slf4j-api				2.0.9
-	slf4j-jdk14				2.0.9
+	slf4j-api				2.0.11
+	slf4j-jdk14				2.0.11
 	xpp3					1.1.4c
 
 
@@ -49,11 +49,9 @@ External modules used by this version of RTSDK Java:
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The Refinitiv Real-Time-SDK supports Oracle JDK 1.8, 1.11 & 1.17, OpenJDK 1.8, 1.11 & 1.17, Amazon Corretto 8 & 11.
+The Refinitiv Real-Time-SDK supports Oracle JDK 1.11 & 1.17, OpenJDK 1.11 & 1.17, Amazon Corretto 11.
 
-NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. JavaFX must be explicitly downloaded if using open/JDK 1.8. 
-
-NOTE: Full JWT support requires at least Java 1.8u251.
+NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. 
 
 Refinitiv fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
@@ -95,12 +93,9 @@ Platforms:
 
 This release has been tested with the following:
 
-	Oracle Java SE 8 (JDK1.8)
 	Oracle Java SE 11 (JDK1.11)
-	Oracle Open JDK (1.8)
 	Oracle Open JDK (1.11)
 	Oracle Open JDK (1.17)
-	Amazon Corretto 8
 	Amazon Corretto 11
 
 #### Proxy Authentication Support
@@ -137,9 +132,9 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.7.2
-- ADH 3.7.2
-- DACS 7.8
+- ADS 3.7.3
+- ADH 3.7.3
+- DACS 7.12
 
 # Documentation
   
@@ -219,40 +214,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.7.3.0</version>
+		<version>3.8.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.7.3.0</version>
+		<version>3.8.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.7.3.0</version>
+		<version>3.8.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.7.3.0</version>
+		<version>3.8.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.7.3.0</version>
+		<version>3.8.0.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.7.3.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.7.3.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.7.3.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.7.3.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.7.3.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.8.0.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.8.0.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.8.0.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.8.0.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.8.0.0'
 
 # Developing 
 

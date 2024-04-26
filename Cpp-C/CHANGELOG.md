@@ -9,23 +9,73 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.3.G1 aka EMA/ETA 3.7.3.G1 aka 3.7.3.3
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.0.L1 aka EMA/ETA 3.8.0.L1 aka 3.8.0.0
 ----------------------------------------------------------------------------------------
 
-In this release is a critical fix related to EMA C++.  
+This release introduces EMA message packing feature. In addition, a number of customer issues were addressed.
 
 Customer Issues Resolved
 ------------------------
+- [Case Number: 06589180] - [RTSDK-1643] - Added toString implementation for the containers and messages in EMA C++
+- [Case Number: 13272064, 13258892] - [RTSDK-8239, RTSDK-8320] - Fix to EMA C++ to disconnect upon not receiving any pings
+- [Case Number: 13376079] - [RTSDK-8389] - EMA C++ exception thrown when calling ServiceEndpointDiscovery without parameters 
+- [GitHub #241] - [RTSDK-7551] - Support for verbose logging with curl and openssl
+- [GitHub #228, #242] - [RTSDK-6608] - Update to gtest version per supported OS 
+- [GitHub #245] - [RTSDK-7670] - CMake syntax warning
+- [GitHub #248] - [RTSDK-7746] - Add connection type to OmmConsumerConfig
+- [GitHub #255] -[RTSDK-8056] - Trace file log not cycling 
 
-- [Case Number: 13258892] - [RTSDK-8239] - Fix to EMA C++ dispatch in API Dispath mode upon network connectivity issues 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.2.0.L1 (Apr 29, 2024)
+--------------------------------------------
+
+This release introduces EMA message packing feature. In addition, a number of customer issues were addressed.
+
+EMA C++ 3.8.0.L1 Issues Resolved
+--------------------------------
+- [RTSDK-1643] - Added toString implementation for the containers and messages in EMA C++ [Case Number: 06589180]
+- [RTSDK-7062] - Message packing for EMA Providers
+- [RTSDK-7746] - Add connection type to OmmConsumerConfig [GitHub #248] 
+- [RTSDK-8239, RTSDK-8320] - Fix to EMA C++ to disconnect upon not receiving any pings [Case Number: 13272064, 13258892]
+- [RTSDK-8389] - EMA C++ exception thrown when calling ServiceEndpointDiscovery without parameters [Case Number: 13376079]
+
+ETA C 3.8.0.L1 Issues Resolved
+--------------------------------
+- [RTSDK-6141] - Added LibcurlName parameter to EMA ServiceEndpointDiscovery class
+- [RTSDK-6608] - Update to gtest version per supported OS [GitHub #228, #242]
+- [RTSDK-7580] - Update to VAConsumer to add commandline option to specify location/region for service discovery when connecting to RTO
+- [RTSDK-7618] - Modified ETA examples to always set CredentialRenewal callback to demonstrate secure ways to provide credentials
+- [RTSDK-7752] - Update to unittest, ReactorSessionMgntTest, to use V2 Auth
+- [RTSDK-7978] - Create a VAProvider tool to simulate RTO forced disconnect occuring during RTO maintenance window
+- [RTSDK-8056] - Trace file log not cycling [GitHub #255]
+- [RTSDK-8161] - Fix to performance issue (higher latency) with ETAC between versions ETA 3.6.7.3 and 3.7.0.0
+- [RTSDK-8189] - Fix for valgrind warning on ETAC Reactor Ping event
+- [RTSDK-8206] - Fix to non-blocking Service Discovery to return initial access token and to set proxy options
+- [RTSDK-8231] - Fix to non-blocking Service Discovery to set restProxyHost and restProxyPort when using existing access token (V1 Auth)
+- [RTSDK-8247] - Fix to JSON conversion issues for Batch Close
+- [RTSDK-8341] - Fix to ETAC Consumer examples to decode login response with blank databody
+
+Both ETA C and EMA C++ 3.8.0.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-6143] - Update to supported TLS 1.2 Cipher Suites list
+- [RTSDK-7410] - Update DACS libraries to 7.12
+- [RTSDK-7551] - Support for verbose logging with curl and openssl [GitHub #241]
+- [RTSDK-7670] - CMake syntax warning [GitHub #245] 
+- [RTSDK-8070] - Support C++11
+- [RTSDK-8082] - Updated cjson to 1.7.17, l8w8jwt to 2.3.2, zlib to 1.3.1 and libxml2 to 2.12.5; updated minimum required cmake to 3.14.7
+- [RTSDK-8108] - Update to ETAC/EMAC++ ConsPerf to add commandline option to specify TLS version
+- [RTSDK-8514] - Updated curl to 8.7.1 to address CVE-2024-2466
+
+--------------------------------------------
 RTSDK C++/C Release 2.1.3.G1 (Mar 7, 2024)
 --------------------------------------------
+
+In this release is a critical fix for EMA C++.
 
 EMA C++ 3.7.3.G1 Issues Resolved
 --------------------------------

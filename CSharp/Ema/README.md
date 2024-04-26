@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2023 Refinitiv. All rights reserved.
+Copyright (C) 2023-2024 Refinitiv. All rights reserved.
   
 # EMA C# Documentation
 
@@ -39,7 +39,7 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
 
 - High Water Mark setting on socket channel
 
-- Parameters, reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceEnable, MsgKeyInUpdates only can be configured on Consumer instance level.
+- Parameters, reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceEnable, MsgKeyInUpdates only can be configured on Consumer/IProvider/NiProvider instance level.
 
 ## Consumer Features:
 
@@ -57,11 +57,24 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
 
 - Single Open: EMA supports application selected single open functionality
 
+## Non-Interactive Provider Features:
+
+- Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
+
+- Configurable Admin Domains: EMA provides means for modifying the default admin domain messages. 		
+
+## Interactive Provider Features:
+
+- Default Admin Domains: EMA uses default directory messages while sending to the connected client. This provides minimum configuration for applications to get up and running.
+ 
+- Configurable Admin Domains: EMA provides means for modifying the default admin domain messages. 
+
+
 # EMA CSharp Library and Version Information
 
     Library Name            Package Version
     ------------            ----------------
-    LSEG.Ema.Core.dll       ema3.1.0.L1
+    LSEG.Ema.Core.dll       ema3.2.0.L1
 
 # EMA CSharp Issues and Workarounds
 
@@ -71,24 +84,24 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
     I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - CSharp Edition
-    Release Number: 3.1.0
+    Release Number: 3.2.0
     Load Number: 1
-    Load ID: emacsharp3.1.0.L1.all
+    Load ID: emacsharp3.2.0.L1.all
+        Supersedes: emacsharp3.1.0.L1.all 
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.60_RealTimeDistributionSystem_23.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.62_RealTimeDistributionSystem_24.31 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2022.10.1.1048, https://www.blackducksoftware.com/
+    Black Duck by Synopsis, 2023.3.0.1060, https://www.blackducksoftware.com/
     Coverity, 2022.12.2, https://scan.coverity.com/ 
-    
 
 # Notes
 - This package contains APIs that are subject to proprietary and open source licenses. Please make sure to read the top level README.md files for clarification.

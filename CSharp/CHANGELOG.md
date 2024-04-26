@@ -10,18 +10,81 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.1.3.L1 aka ETA 3.1.0.L1 aka 3.1.0.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.2.0.L1 aka EMA/ETA 3.2.0.L1 aka 3.2.0.0
 ----------------------------------------------------------------------------------------
 
-This release introduces Enterprise Tranport API (ETA) C# watchlist support and Enterprise Message API (EMA) C# client side implementation. Included is support for socket encrypted and unencrypted connections, session management feature for Real-Time - Optimized (RTO) connectivity, round trip latency monitoring, and features required to consume/contribute content on multiple domains: batch, view, snapshot/streaming, etc.
+This release introduces support for Enterprise Message API (EMA) Interactive and Non-Interative Providers. In addtion, several customer issues were addressed. Also included are the following features:
+- Abilty to set proxy for REST requests separately from Reactor channel proxy
+- Ability to add connection type to OmmConsumerConfig
+- Ability to pass in a dictionary object into a newly created OMMConsumer
+- Support for XmlTrace to file parameters in ETA & EMA C#
+- Support for DirectWrite option in ETA Reactor and EMA
+- Introduction of DACSLock library and AuthLock example
+
+Customer Issues Resolved
+------------------------
+- [GitHub #248] - [RTSDK-7746] - Add connection type to OmmConsumerConfig
+- [GitHub #257] - [RTSDK-8324] - EMA: Make it possible to use logging options from NLOG configuration
+- [GitHub #269] - [RTSDK-8296] - Decoding issue with blank OmmArray in FieldEntry
+- [GitHub #277] - [RTSDK-8529] - Failed to call Unregister method on the OmmConsumer
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 ---------------------------------------------
+RTSDK CSharp Release 2.2.0.L1 (Apr 29, 2024)
+---------------------------------------------
+
+EMA CSharp 3.2.0.L1 New Features 
+--------------------------------
+- [RTSDK-7711] - OmmNiProvider Implementation: OmmNiProvider, ChannelInformation, IOCTL, Domain handlers, etc.
+- [RTSDK-7728] - NIProvider Configuration (file, programmatic, function), Unit Testing
+- [RTSDK-7731] - NIProvider Examples: 100 Series & QATools
+- [RTSDK-7732] - NIProvider Examples: 200 Series & QATools
+- [RTSDK-7733] - NIProvider Examples: 300 Series & QATools
+- [RTSDK-7734] - NIProvider Examples: 400 Series & QATools
+- [RTSDK-7735] - Create NIProvPerf
+- [RTSDK-7901] - OmmIProvider Implementation: Configuration, OmmIProvider, ChannelInformation, IOCTL, Domain Handlers, etc.
+- [RTSDK-7736] - IProvider Configuration (file, programmatic, function), Unit Testing
+- [RTSDK-7911] - IProvider Series 100 Examples & QATools
+- [RTSDK-7912] - IProvider Series 200 Examples & QATools
+- [RTSDK-7913] - IProvider Series 300 Examples & QATools
+- [RTSDK-7914] - IProvider Series 400 Examples & QATools
+- [RTSDK-7915] - Create EMA ProvPerf Tool
+- [RTSDK-8196] - Support Message Packing
+
+EMA CSharp 3.2.0.L1 Issues Resolved
+-----------------------------------
+- [RTSDK-7746] - Add connection type to OmmConsumerConfig [GitHub #248]
+- [RTSDK-7757] - Added toString implementation for the containers and messages in EMA C#
+- [RTSDK-7763] - Enhancement to pass in a dictionary into OMMConsumer
+- [RTSDK-8296] - Decoding issue with blank OmmArray in FieldEntry [GitHub #269] 
+- [RTSDK-8324] - EMA: Make it possible to use logging options from NLOG configuration [GitHub #257]
+- [RTSDK-8436] - Fixed OmmConsumerConfig.Clear() to reload Ema configuration file after clearing the existing configurations
+- [RTSDK-8529] - Failed to call Unregister method on the OmmConsumer (fix to IOCtl) [GitHub #277] 
+
+ETA CSharp 3.2.0.L1 Issues Resolved
+-----------------------------------
+- [RTSDK-7617] - Modified ETA examples to always set CredentialRenewal callback to demonstrate secure ways to provide credentials
+- [RTSDK-7786] - Remove all references to the HTTP transport type in ETA C# (HTTP is not supported)
+- [RTSDK-8553] - Client connected CompressionType does not follow Server's CompressionType when BindOptions.ForceCompression is set to true.
+
+Both ETA and EMA CSharp 3.2.0.L1 Issues Resolved
+------------------------------------------------
+- [RTSDK-7008] - Introduction of DACSLock library and AuthLock example 
+- [RTSDK-7594] - Enhancement for ability to specify proxy separately for REST requests versus reactor channels
+- [RTSDK-7947] - Updated dependency versions: nlog, microsoft.identitymodel, microsoft.netcore, system.identitymodel, system.security
+- [RTSDK-7977] - Support for XmlTrace to file parameters in ETA & EMA C#
+- [RTSDK-7984] - ETA Reactor & EMA: Support DirectWrite option
+- [RTSDK-8051] - Address issues found by Coverity scan
+- [RTSDK-8179] - Update to ConsPerf applications to add commandline option to specify TLS version
+
+---------------------------------------------
 RTSDK CSharp Release 2.1.3.L1 (Nov 6, 2023)
 ---------------------------------------------
+
+This release introduces Enterprise Tranport API (ETA) C# watchlist support and Enterprise Message API (EMA) C# client side implementation. Included is support for socket encrypted and unencrypted connections, session management feature for Real-Time - Optimized (RTO) connectivity, round trip latency monitoring, and features required to consume/contribute content on multiple domains: batch, view, snapshot/streaming, etc.
 
 EMA CSharp 3.1.0.L1 
 -------------------
@@ -46,8 +109,8 @@ ETA CSharp 3.1.0.L1 Issues Resolved
 - [RTSDK-7609] - Fix to VAProvider to change -key to -keyfile to align with other Provider examples
 - [RTSDK-7630] - Fix to non-ASCII characters encoding/decoding in ETA C#
 
-Both ETA C and EMA C++ 3.1.0.L1 Issues Resolved
------------------------------------------------
+Both ETA and EMA CSharp 3.1.0.L1 Issues Resolved
+------------------------------------------------
 - [RTSDK-7342] - Support for TLS 1.3
 
 ---------------------------------------------

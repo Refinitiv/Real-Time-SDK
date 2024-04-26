@@ -140,11 +140,11 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib*              eta3.7.3.L2
-    librsslVA.lib             eta3.7.3.L2
-    librsslVACache.lib        eta3.7.3.L2
-    libansi.lib               eta3.7.3.L2
-    libdacs.lib               eta3.7.3.L2
+    librssl.lib*              eta3.8.0.L1
+    librsslVA.lib             eta3.8.0.L1
+    librsslVACache.lib        eta3.8.0.L1
+    libansi.lib               eta3.8.0.L1
+    libdacs.lib               eta3.8.0.L1
 
     *librssl.lib includes JsonConverter
 
@@ -152,18 +152,18 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.7.3.L2
-    librssl.lib               eta3.7.3.L2
-    librssl.pdb               eta3.7.3.L2
-    librsslVA.dll             eta3.7.3.L2
-    librsslVA.lib             eta3.7.3.L2
-    librsslVA.pdb             eta3.7.3.L2
-    librsslVACache.dll        eta3.7.3.L2
-    librsslVACache.lib        eta3.7.3.L2
-    librsslVACache.pdb        eta3.7.3.L2
-    librsslJsonConverter.dll  eta3.7.3.L2
-    librsslJsonConverter.lib  eta3.7.3.L2
-    librsslJsonConverter.pdb  eta3.7.3.L2
+    librssl.dll               eta3.8.0.L1
+    librssl.lib               eta3.8.0.L1
+    librssl.pdb               eta3.8.0.L1
+    librsslVA.dll             eta3.8.0.L1
+    librsslVA.lib             eta3.8.0.L1
+    librsslVA.pdb             eta3.8.0.L1
+    librsslVACache.dll        eta3.8.0.L1
+    librsslVACache.lib        eta3.8.0.L1
+    librsslVACache.pdb        eta3.8.0.L1
+    librsslJsonConverter.dll  eta3.8.0.L1
+    librsslJsonConverter.lib  eta3.8.0.L1
+    librsslJsonConverter.pdb  eta3.8.0.L1
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
@@ -181,22 +181,22 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.7.3.L2
-    librsslVA.a                        eta3.7.3.L2
-    librsslVACache.a                   eta3.7.3.L2
-    libansi.lib                        eta3.7.3.L2
-    libdacs.lib                        eta3.7.3.L2
+    librssl.a                          eta3.8.0.L1
+    librsslVA.a                        eta3.8.0.L1
+    librsslVACache.a                   eta3.8.0.L1
+    libansi.lib                        eta3.8.0.L1
+    libdacs.lib                        eta3.8.0.L1
 
 ##### Shared Library Manifest
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.7.3.1                 librssl.so.23                   eta3.7.3.L2
-    librsslVA.so.3.7.3.1               librsslVA.so.24                 eta3.7.3.L2
-    librsslJsonConverter.so.3.7.3.1    librsslJsonConverter.so.2       eta3.7.3.L2
+    librssl.so.3.8.0.0                 librssl.so.24                   eta3.8.0.L1
+    librsslVA.so.3.8.0.0               librsslVA.so.25                 eta3.8.0.L1
+    librsslJsonConverter.so.3.8.0.0    librsslJsonConverter.so.2       eta3.8.0.L1
 
-    librsslVACache.so.3.7.3.1          librsslVACache.so.4             eta3.7.3.L2
-    librsslRelMcast.so.3.7.3.1         librsslRelMcast.so.3            eta3.7.3.L2
+    librsslVACache.so.3.8.0.0          librsslVACache.so.4             eta3.8.0.L1
+    librsslRelMcast.so.3.8.0.0         librsslRelMcast.so.3            eta3.8.0.L1
 
 
 # ETA C-Edition Issues and Workarounds
@@ -211,8 +211,6 @@ The Transport API provides a helpful script that will create soft links for the 
  
 - When using watchlist, the encDataBody member of an RsslRequestMsg is only used for retrieving data related to batch requests, view requests, and symbol list behaviour requests. No other payload is stored or forwarded for standard streams. The extendedHeader of an RsslRequestMsg is not used. When requesting with private streams, the encDataBody member of the RsslRequestMsg is stored and transmitted with the request.
 
-- ETA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr\_json2/rssl\_json protocol. This is a limitation of the simplied JSON protocol.
-
 - The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
 
 - With certain Visual Studio compiler versions, input string issues generated by the compiler result in rsslJCTest.exe to fail in some test scenarios. Unit tests will be fixed in a future release.
@@ -225,25 +223,25 @@ The Transport API provides a helpful script that will create soft links for the 
     I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - C Edition
-    Release Number: 3.7.3
-    Load Number: 2
-    Windows Load ID: eta3.7.3.L2.win
-        Supersedes: eta3.7.3.L1.win.rrg
-    Linux Load ID: eta3.7.3.L2.linux
-        Supersedes: eta3.7.3.L1.linux.rrg
+    Release Number: 3.8.0
+    Load Number: 1
+    Windows Load ID: eta3.8.0.L1.win
+        Supersedes: eta3.7.3.L2.win.rrg
+    Linux Load ID: eta3.8.0.L1.linux
+        Supersedes: eta3.7.3.L2.linux.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.60_RealTimeDistributionSystem_23.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.62_RealTimeDistributionSystem_24.31 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2022.10.1.1048, https://www.blackducksoftware.com/
+    Black Duck by Synopsis, 2023.3.0.1060, https://www.blackducksoftware.com/
     SemGrep 1.2.1, https://semgrep.dev/
 
 # Notes:

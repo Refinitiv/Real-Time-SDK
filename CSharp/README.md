@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2022-2023 Refinitiv. All rights reserved.
+Copyright (C) 2022-2024 Refinitiv. All rights reserved.
 
 # New In This Release
 
@@ -19,33 +19,29 @@ External modules used by this version of RTSDK CSharp:
         ----------                                 -------
         K4os.Compression.LZ4                       1.2.16
         Microsoft.Csharp                           4.5.0
-        Microsoft.IdentityModel.Abstractions       6.23.1
-        Microsoft.IdentityModel.Jsonwebtokends     6.23.1
-        Microsoft.IdentityModel.Logging            6.23.1
-        Microsoft.IdentityModel.Tokens             6.23.1
-        Microsoft.Netcore.Platforms                1.1.0
-        Microsoft.Netcore.Targets                  1.1.0
-        NLog                                       5.2.2
-        NLog.Extensions.Logging                    5.3.2
-        System.IdentityModel.Tokens.Jwt            6.23.1
+        Microsoft.IdentityModel.Abstractions       7.5.1 
+        Microsoft.IdentityModel.Jsonwebtokends     7.5.1 
+        Microsoft.IdentityModel.Logging            7.5.1 
+        Microsoft.IdentityModel.Tokens             7.5.1 
+        Microsoft.Netcore.Platforms                5.0.0
+        NLog                                       5.2.8
+        NLog.Extensions.Logging                    5.3.8
+        System.IdentityModel.Tokens.Jwt            7.5.1
         System.Runtime                             4.3.0
-        System.Security.Cryptography.Cng           4.5.0 
-        System.Text.Encodings                      4.3.0
-        System.Text.Encodings.Web                  4.7.2
-        System.Text.Json                           4.7.2
+        System.Security.Cryptography.Cng           5.0.0 
 
 
 # Software Requirements
 - Visual Studio 2022
 - .NET Core 6.0 
-- xUnit 2.4.1 or higher for unit testing.
+- xUnit 2.7.0 or higher for unit testing.
 
 ### Platforms and Compilers used in Test
 
         Windows Server 2016 Enterprise Edition or later 64-bit, VS2022
-        Oracle Linux Server 7.X 64-bit, .NET SDK 6.0.402
-        Red Hat Enterprise Server 7.X Release 64-bit, .NET SDK 6.0.402
-        Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 6.0.402
+        Oracle Linux Server 7.X 64-bit, .NET SDK 6.0.421
+        Red Hat Enterprise Server 7.X Release 64-bit, .NET SDK 6.0.421
+        Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 6.0.421
         Ubuntu 20.04 64-bit, .NET SDK 6.0.402
 
 ### Encryption Support
@@ -72,9 +68,9 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data. Conn
 
 This release has been tested with the following:
 
-- ADS 3.7.2
-- ADH 3.7.2
-- DACS 7.8
+- ADS 3.7.3
+- ADH 3.7.3
+- DACS 7.12
 
 # Documentation
   
@@ -174,11 +170,11 @@ You can download RTSDK libraries and dependencies from NuGet. Choose the appropr
 
         <dependency>
                 <ItemGroup>
-                    <PackageReference Include="LSEG.Eta.Core" Version="3.1.0"/>
-                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.1.0"/>
-                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.1.0"/>
-                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.1.0"/>
-                    <PackageReference Include="LSEG.Ema.Core" Version="3.1.0"/>
+                    <PackageReference Include="LSEG.Eta.Core" Version="3.2.0"/>
+                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.2.0"/>
+                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.2.0"/>
+                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.2.0"/>
+                    <PackageReference Include="LSEG.Ema.Core" Version="3.2.0"/>
                 </ItemGroup/>
         </dependency>
 

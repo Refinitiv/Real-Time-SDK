@@ -21,13 +21,13 @@ External modules used by this version of RTSDK C/C++:
      openSSL               1.1.1a
      openSSL               3.0.X  * 
      openSSL               3.1.X  ** 
-     cJSON                 1.7.16
-     curl                  8.4.0
-     googletest            release-1.8.1
-     l8w8jwt               2.2.0
-     libxml2               2.11.5
+     cJSON                 1.7.17
+     curl                  8.7.1
+     googletest            1.8.1 (for older than Linux7) and 1.12.1 
+     l8w8jwt               2.3.2
+     libxml2               2.12.5
      lz4                   1.9.4
-     zlib                  1.3
+     zlib                  1.3.1
 \* Tested on supported Linux and Windows platforms; \*\* Tested on supported Windows platform 
 
 NOTES: 
@@ -133,6 +133,7 @@ This release has been tested with the following on supported platform/OS combina
      Oracle Linux Server 7.7 64-bit               GCC 7.4.0       n/a                      OL7_64_GCC740
      Red Hat Enterprise Linux Server 7.7 64-bit   GCC 7.4.0       n/a                      RHEL7_64_GCC740
      Red Hat Enterprise Linux Server 8.0 64-bit   GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
+     Red Hat Enterprise Linux Server 8.0 64-bit   GCC 9.2.1       RHEL8_64_GCC831          RHEL8_64_GCC921
      Ubuntu 20.04 64-bit                          GCC 9.4.0       RHEL8_64_GCC831          RHEL8_64_GCC831
 
      n/a = This is not a tested combination
@@ -172,9 +173,9 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.7.2
-- ADH 3.7.2
-- DACS 7.8
+- ADS 3.7.3
+- ADH 3.7.3
+- DACS 7.12
 
 # Documentation
 
@@ -197,7 +198,7 @@ Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://m
 
 **Using CMake**:
 
-Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.12.4 (cmake_minimum_required) or later. 
+Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.14.7 (cmake_minimum_required) or later. 
 
 In addition, Python 3 is required. This can be installed either through yum or a windows installer.
 
@@ -230,7 +231,7 @@ At the same directory level as the resulting RTSDK directory, issue the followin
      # buildDir is the directory where all build output is placed. This directory is automatically created
      # "VisualStudioVersion" is the visual studio version to use for build on windows.
      # Valid values for VisualStudioVersion are 
-                # "Visual Studio 17 2022" -A x64
+          # "Visual Studio 17 2022" -A x64
           # "Visual Studio 16 2019" -A x64 
           # "Visual Studio 15 2017 Win64"
           # "Visual Studio 14 2015 Win64" 

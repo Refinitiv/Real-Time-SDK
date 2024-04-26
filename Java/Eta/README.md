@@ -121,24 +121,24 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.7.3.0.jar               eta3.7.3.L1       The ETA - Java Edition library.  Includes
+    eta-3.8.0.0.jar               eta3.8.0.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.7.3.0.jar       eta3.7.3.L1       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.8.0.0.jar       eta3.8.0.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.7.3.0.jar  eta3.7.3.L1       The Value Add payload cache library for ETA
+    etaValueAddCache-3.8.0.0.jar  eta3.8.0.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
-    etajConverter-3.7.3.0.jar     eta3.7.3.L1       The RWF/JSON Converter library.
+    etajConverter-3.8.0.0.jar     eta3.8.0.L1       The RWF/JSON Converter library.
 
-    jDacsEtalib.jar               dacs7.8           The ETA Java DACS library.
+    jDacsEtalib.jar               dacs7.12          The ETA Java DACS library.
 
-    ansipage-3.7.3.0.jar          eta3.7.3.L1       The ANSI decoders and encoders.
+    ansipage-3.8.0.0.jar          eta3.8.0.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/ETA/RSSL JNI Libs        eta3.7.3.L1       The JNI libraries for Reliable Multicast
+    ETAC/ETA/RSSL JNI Libs        eta3.8.0.L1       The JNI libraries for Reliable Multicast
                                                     Transport, Shared Memory Transport and 
                                                     ValueAdd cache.  
 
@@ -162,8 +162,6 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
 - ESDK-312 Watchlist fans out Dictionary state of Open/Suspect state instead of Closed/Recover
 
-- Users of encrypted tunneling connection type may encounter trust issues with DigiCert certificates. JRE8 update 91 and higher support DigiCert certificates. Users can upgrade to a higher JRE version if they encounter problems.
-
 - ETA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr\_json2/rssl\_json protocol. This is a limitation of the simplied JSON protocol.
 
 - The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
@@ -183,23 +181,23 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
-    Release Number: 3.7.3
+    Release Number: 3.8.0
     Load Number: 1
-    Load ID: etaj3.7.3.L1.all
-        Supersedes: etaj3.7.2.L1.all.rrg
+    Load ID: etaj3.8.0.L1.all
+        Supersedes: etaj3.7.3.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.60_RealTimeDistributionSystem_23.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.62_RealTimeDistributionSystem_24.31 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2022.10.1.1048, https://www.blackducksoftware.com/
+    Black Duck by Synopsis, 2023.3.0.1060, https://www.blackducksoftware.com/
     SemGrep 1.2.1, https://semgrep.dev/
 
 # Notes:
