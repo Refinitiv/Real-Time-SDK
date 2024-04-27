@@ -113,7 +113,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.Equal(1, receivedRequestMsg.Priority.Count);
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             Assert.True(receivedRequestMsg.CheckHasPriority());
             Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -150,7 +150,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -158,7 +158,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.Equal(5, receivedRefreshMsg.StreamId);
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             ReactorChannelInfo conChannelInfo = new();
 
@@ -296,7 +296,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.Equal(1, receivedRequestMsg.Priority.Count);
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             Assert.True(receivedRequestMsg.CheckHasPriority());
             Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -333,7 +333,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -341,7 +341,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.Equal(5, receivedRefreshMsg.StreamId);
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             ReactorChannelInfo conChannelInfo = new();
 
@@ -1040,7 +1040,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.True(receivedPostMsg.CheckHasSeqNum());
             Assert.True(receivedPostMsg.CheckHasMsgKey());
             Assert.True(receivedPostMsg.MsgKey.CheckHasName());
-            Assert.True(itemName.ToString().Equals(receivedPostMsg.MsgKey.Name.ToString()));
+            Assert.Equal(itemName.ToString(), receivedPostMsg.MsgKey.Name.ToString());
             Assert.Equal(postMsg.PostId, receivedPostMsg.PostId);
             Assert.Equal(postMsg.SeqNum, receivedPostMsg.SeqNum);
             Assert.Equal(provider.DefaultSessionLoginStreamId, receivedPostMsg.StreamId);
@@ -3170,7 +3170,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             providerStreamId = receivedRequestMsg.StreamId;
 
@@ -3193,7 +3193,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.True(receivedRequestMsg.CheckStreaming());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.True(receivedRequestMsg.CheckHasPriority());
             Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
             Assert.Equal(2, receivedRequestMsg.Priority.Count);
@@ -3223,7 +3223,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.False(receivedRequestMsg.CheckHasPriority());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             providerPrivateStreamId = receivedRequestMsg.StreamId;
 
@@ -3324,7 +3324,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             int providerStreamId = receivedRequestMsg.StreamId;
 
@@ -3361,7 +3361,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
             TestReactorComponent.CloseSession(consumer, provider);
@@ -9788,7 +9788,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             LoginRequest receivedLoginRequest = loginMsgEvent.LoginMsg.LoginRequest;
             Assert.True(receivedLoginRequest.HasUserNameType);
             Assert.Equal(Login.UserIdTypes.TOKEN, receivedLoginRequest.UserNameType);
-            Assert.True(receivedLoginRequest.UserName.ToString().Equals(userToken));
+            Assert.Equal(receivedLoginRequest.UserName.ToString(), userToken);
             int providerLoginStreamId = loginMsgEvent.LoginMsg.StreamId;
 
             LoginRefresh loginRefresh = new();
@@ -9907,7 +9907,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             receivedLoginRequest = loginMsgEvent.LoginMsg.LoginRequest;
             Assert.True(receivedLoginRequest.HasUserNameType);
             Assert.Equal(Login.UserIdTypes.TOKEN, receivedLoginRequest.UserNameType);
-            Assert.True(receivedLoginRequest.UserName.ToString().Equals(userToken2));
+            Assert.Equal(receivedLoginRequest.UserName.ToString(), userToken2);
 
             /* Provider responds to first token update. */
             loginRefresh.Clear();
@@ -9949,7 +9949,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             receivedLoginRequest = loginMsgEvent.LoginMsg.LoginRequest;
             Assert.True(receivedLoginRequest.HasUserNameType);
             Assert.Equal(Login.UserIdTypes.TOKEN, receivedLoginRequest.UserNameType);
-            Assert.True(receivedLoginRequest.UserName.ToString().Equals(userToken4));
+            Assert.Equal(receivedLoginRequest.UserName.ToString(), userToken4);
 
             /* Provider responds to final token update. */
             loginRefresh.Clear();
@@ -10082,7 +10082,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             LoginRequest receivedLoginRequest = loginMsgEvent.LoginMsg.LoginRequest;
             Assert.True(receivedLoginRequest.HasUserNameType);
             Assert.Equal(Login.UserIdTypes.AUTHN_TOKEN, receivedLoginRequest.UserNameType);
-            Assert.True(receivedLoginRequest.UserName.ToString().Equals(userToken));
+            Assert.Equal(receivedLoginRequest.UserName.ToString(), userToken);
             int providerLoginStreamId = loginMsgEvent.LoginMsg.StreamId;
 
             /* Provider sends login response. */
@@ -10201,7 +10201,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             receivedLoginRequest = loginMsgEvent.LoginMsg.LoginRequest;
             Assert.True(receivedLoginRequest.HasUserNameType);
             Assert.Equal(Login.UserIdTypes.AUTHN_TOKEN, receivedLoginRequest.UserNameType);
-            Assert.True(receivedLoginRequest.UserName.ToString().Equals(userToken2));
+            Assert.Equal(receivedLoginRequest.UserName.ToString(), userToken2);
 
             /* Provider responds to first token update. */
             loginRefresh.Clear();
@@ -10243,7 +10243,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             receivedLoginRequest = loginMsgEvent.LoginMsg.LoginRequest;
             Assert.True(receivedLoginRequest.HasUserNameType);
             Assert.Equal(Login.UserIdTypes.AUTHN_TOKEN, receivedLoginRequest.UserNameType);
-            Assert.True(receivedLoginRequest.UserName.ToString().Equals(userToken4));
+            Assert.Equal(receivedLoginRequest.UserName.ToString(), userToken4);
 
             /* Provider responds to final token update. */
             loginRefresh.Clear();

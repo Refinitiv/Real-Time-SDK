@@ -237,6 +237,18 @@ Series300Consumer331-ConsFunc-002
                  -directoryFilter 5 (SERVICE_INFO_FILTER | SERVICE_GROUP_FILTER)
                  -directoryFilter 63 (SERVICE_INFO_FILTER | SERVICE_GROUP_FILTER | SERVICE_STATE_FILTER | SERVICE_LOAD_FILTER | SERVICE_DATA_FILTER | SERVICE_LINK_FILTER)
 
+Series300Consumer331-ConsFunc-002
+    Alters consumer to request directory filters with -directoryFilter argument. 
+                 -directoryFilter 1 (SERVICE_INFO_FILTER) 
+                 -directoryFilter 2 (SERVICE_STATE_FILTER)
+                 -directoryFilter 4 (SERVICE_GROUP_FILTER)
+                 -directoryFilter 8 (SERVICE_LOAD_FILTER)
+                 -directoryFilter 16 (SERVICE_DATA_FILTER)
+                 -directoryFilter 32 (SERVICE_LINK_FILTER)
+                 -directoryFilter 3 (SERVICE_INFO_FILTER | SERVICE_STATE_FILTER)
+                 -directoryFilter 5 (SERVICE_INFO_FILTER | SERVICE_GROUP_FILTER)
+                 -directoryFilter 63 (SERVICE_INFO_FILTER | SERVICE_GROUP_FILTER | SERVICE_STATE_FILTER | SERVICE_LOAD_FILTER | SERVICE_DATA_FILTER | SERVICE_LINK_FILTER)
+
 Series300Consumer331-ConsFunc-003
     Alters consumer to request directory with interestAfterRefresh(false) 
 

@@ -574,6 +574,7 @@ namespace LSEG.Ema.Access
 
         #region Enumerator Pools
 
+        private EmaPool<OmmArrayEnumerator> m_ommArrayEnumeratorPool;
         private EmaPool<FieldListEnumerator> m_ommFieldListEnumeratorPool;
         private EmaPool<ElementListEnumerator> m_ommElementListEnumeratorPool;
         private EmaPool<FilterListEnumerator> m_ommFilterListEnumeratorPool;
@@ -581,6 +582,7 @@ namespace LSEG.Ema.Access
         private EmaPool<MapEnumerator> m_ommMapEnumeratorPool;
         private EmaPool<VectorEnumerator> m_ommVectorEnumeratorPool;
 
+        private EmaPool<OmmArrayErrorEnumerator> m_ommArrayErrorEnumeratorPool;
         private EmaPool<FieldListErrorEnumerator> m_ommFieldListErrorEnumeratorPool;
         private EmaPool<ElementListErrorEnumerator> m_ommElementListErrorEnumeratorPool;
         private EmaPool<FilterListErrorEnumerator> m_ommFilterListErrorEnumeratorPool;
@@ -608,6 +610,7 @@ namespace LSEG.Ema.Access
         {
             m_global = global;
 
+            m_ommArrayEnumeratorPool = new EmaPool<OmmArrayEnumerator>(initialPoolSize, () => { var res = new OmmArrayEnumerator(this); return res; });
             m_ommFieldListEnumeratorPool = new EmaPool<FieldListEnumerator>(initialPoolSize, () => { var res = new FieldListEnumerator(); res.m_objectManager = this; return res; });
             m_ommElementListEnumeratorPool = new EmaPool<ElementListEnumerator>(initialPoolSize, () => { var res = new ElementListEnumerator(); res.m_objectManager = this; return res; });
             m_ommFilterListEnumeratorPool = new EmaPool<FilterListEnumerator>(initialPoolSize, () => { var res = new FilterListEnumerator(); res.m_objectManager = this; return res; });
@@ -615,6 +618,7 @@ namespace LSEG.Ema.Access
             m_ommMapEnumeratorPool = new EmaPool<MapEnumerator>(initialPoolSize, () => { var res = new MapEnumerator(this); return res; });
             m_ommVectorEnumeratorPool = new EmaPool<VectorEnumerator>(initialPoolSize, () => { var res = new VectorEnumerator(); res.m_objectManager = this; return res; });
 
+            m_ommArrayErrorEnumeratorPool = new EmaPool<OmmArrayErrorEnumerator>(initialPoolSize, () => { var res = new OmmArrayErrorEnumerator(this); return res; });
             m_ommFieldListErrorEnumeratorPool = new EmaPool<FieldListErrorEnumerator>(initialPoolSize, () => { var res = new FieldListErrorEnumerator(); res.m_objectManager = this; return res; });
             m_ommElementListErrorEnumeratorPool = new EmaPool<ElementListErrorEnumerator>(initialPoolSize, () => { var res = new ElementListErrorEnumerator(); res.m_objectManager = this; return res; });
             m_ommFilterListErrorEnumeratorPool = new EmaPool<FilterListErrorEnumerator>(initialPoolSize, () => { var res = new FilterListErrorEnumerator(); res.m_objectManager = this; return res; });
@@ -1161,6 +1165,20 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void ReturnToEnumeratorPool(OmmArrayEnumerator enumerator)
+        {
+            enumerator.m_inPool = true;
+            m_ommArrayEnumeratorPool.ReturnToPool(enumerator);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void ReturnToEnumeratorPool(OmmArrayErrorEnumerator enumerator)
+        {
+            enumerator.m_inPool = true;
+            m_ommArrayErrorEnumeratorPool.ReturnToPool(enumerator);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void ReturnToEnumeratorPool(FieldListEnumerator enumerator)
         {
             enumerator.m_inPool = true;
@@ -1488,6 +1506,13 @@ namespace LSEG.Ema.Access
 
         #region Methods for getting Enumerators
 
+        public OmmArrayEnumerator GetOmmArrayEnumerator()
+        {
+            var result = (OmmArrayEnumerator)m_ommArrayEnumeratorPool.Get();
+            result.m_inPool = false;
+            return result;
+        }
+
         public ElementListEnumerator GetElementListEnumerator()
         {
             var result = (ElementListEnumerator)m_ommElementListEnumeratorPool.Get();
@@ -1526,6 +1551,13 @@ namespace LSEG.Ema.Access
         public SeriesEnumerator GetSeriesEnumerator()
         {
             var result = (SeriesEnumerator)m_ommSeriesEnumeratorPool.Get();
+            result.m_inPool = false;
+            return result;
+        }
+
+        public OmmArrayErrorEnumerator GetOmmArrayErrorEnumerator()
+        {
+            var result = (OmmArrayErrorEnumerator)m_ommArrayErrorEnumeratorPool.Get();
             result.m_inPool = false;
             return result;
         }

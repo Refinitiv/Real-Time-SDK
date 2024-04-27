@@ -3908,7 +3908,7 @@ namespace LSEG.Ema.Access.Tests
                 case DataType.DataTypes.ASCII:
                     ptAsciiVal.Clear();
                     Assert.Equal(CodecReturnCode.SUCCESS, ptAsciiVal.Decode(decIter));
-                    Assert.True(ptAsciiVal.ToString().Equals(ascii.ToString()));
+                    Assert.Equal(ptAsciiVal.ToString(), ascii.ToString());
                     break;
 
                 default:

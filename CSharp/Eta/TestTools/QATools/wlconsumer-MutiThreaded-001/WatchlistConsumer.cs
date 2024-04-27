@@ -113,13 +113,12 @@ using static Rdm.LoginMsgType;
 /// response will be used.
 /// <li>-sld Requests item on the Symbol List domain and data streams for items on that list.
 /// <li>-x Provides XML tracing of messages.
-/// <li>-c Connection Type used (Socket, http, or encrypted).
+/// <li>-c Connection Type used (Socket or encrypted).
 /// Default is <i>Socket</i>.
 /// <li>-runTime run time. Default is 600 seconds. Controls the time the
 /// application will run before exiting, in seconds.
 /// <li>-proxy proxyFlag. if provided, the application will attempt
-/// to make an http or encrypted connection through a proxy server (if
-/// connectionType is set to http or encrypted).
+/// to make a connection through a proxy server 
 /// <li>-ph Proxy host name.
 /// <li>-pp Proxy port number.
 /// <li>-plogin User name on proxy server.

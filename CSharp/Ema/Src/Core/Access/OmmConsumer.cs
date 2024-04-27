@@ -6,8 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
-using System;
-
 namespace LSEG.Ema.Access
 {
     /// <summary>
@@ -86,7 +84,7 @@ namespace LSEG.Ema.Access
     /// </remarks>
     public sealed class OmmConsumer
     {
-        private /*readonly*/ OmmConsumerImpl m_OmmConsumerImpl;
+        internal OmmConsumerImpl m_OmmConsumerImpl;
 
         /// <summary>
         /// Creates a OmmConsumer
@@ -281,7 +279,7 @@ namespace LSEG.Ema.Access
         /// <param name="dispatchTimeout">specifies time in microseconds to wait for a message to dispatch</param>
         /// <returns><see cref="DispatchReturn.TIMEOUT"/> if nothing was dispatched; <see cref="DispatchReturn.DISPATCHED"/> otherwise
         /// </returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if OperationalModel is not set to
+        /// <exception cref="OmmInvalidUsageException">Thrown if OperationModel is not set to
         /// <see cref="OmmConsumerConfig.OperationModelMode.USER_DISPATCH"/></exception>
         public int Dispatch(int dispatchTimeout = DispatchTimeout.NO_WAIT)
         {

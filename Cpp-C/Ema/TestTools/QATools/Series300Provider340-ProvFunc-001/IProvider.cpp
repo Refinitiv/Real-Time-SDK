@@ -111,8 +111,16 @@ void AppClient::onPostMsg( const PostMsg& postMsg, const OmmProviderEvent& event
 		{
 			ackMsg.seqNum(postMsg.getSeqNum());
 		}
-
-		event.getProvider().submit(ackMsg, event.getHandle());
+        //APIQA
+        try
+        {
+            event.getProvider().submit(ackMsg, event.getHandle());
+        }
+        catch ( const OmmException& excp )
+        {
+            cout << excp << endl;
+        }
+        //END APIQA
 	}
 }
 

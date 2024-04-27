@@ -225,7 +225,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             m_LoginHandler = new LoginHandler(this);
             m_DirectoryHandler = new DirectoryHandler(this);
 
-            MarketItemHandler = new MarketItemHandler(m_LoginHandler, this);
+            MarketItemHandler = new MarketItemHandler(m_LoginHandler, ProviderSessionOptions);
             if (ProviderSessionOptions.SendDictionaryResp)
             {
                 m_DictionaryHandler = new DictionaryHandler(this);
@@ -292,10 +292,10 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             bindOpts.MinPingTimeout = (int)opts.PingTimeout.TotalSeconds;
             bindOpts.GuaranteedOutputBuffers = opts.NumOfGuaranteedBuffers;
 
-            if (opts.CompressionType != CompressionType.NONE)
+            if (opts.CompressionType != Eta.Transports.CompressionType.NONE)
             {
                 bindOpts.ForceCompression = true;
-                bindOpts.CompressionType = ChannelInformation.EmaToEtaCompressionType(opts.CompressionType);
+                bindOpts.CompressionType = opts.CompressionType;
             }
 
             int port = bindPort; // Tries with the initial port from object creation;
@@ -323,7 +323,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             {
                 if (m_Reactor.Dispatch(dispatchOptions, out var errorInfo) == ReactorReturnCode.FAILURE)
                 {
-                    Assert.True(false, $"Reactor.Dispatch failed with {errorInfo}");
+                    Assert.Fail($"Reactor.Dispatch failed with {errorInfo}");
                     //threadRunning = false;
                     break;
                 }

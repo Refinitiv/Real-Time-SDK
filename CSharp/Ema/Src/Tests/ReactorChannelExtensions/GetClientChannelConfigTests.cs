@@ -41,6 +41,6 @@ namespace LSEG.Ema.Access.Tests.ReactorChannelExtensions
             new ReactorChannel() { UserSpecObj = CreateChannelInfo(clientChannelConfig) };
 
         private ChannelInfo CreateChannelInfo(ClientChannelConfig? clientChannelConfig) =>
-            new ChannelInfo(clientChannelConfig, Reactor.CreateReactor(new ReactorOptions(), out _));
+            new ChannelInfo(clientChannelConfig!, Reactor.CreateReactor(new ReactorOptions(), out _)!);
     }
 }

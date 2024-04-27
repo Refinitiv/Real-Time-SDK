@@ -18,12 +18,12 @@ namespace LSEG.Ema.PerfTools.Common
         private int m_timeInfo;
         private bool m_dynamic;
 
-        public void Rate(string value)
+        public void Rate(string? value)
         {
             m_rate = QosRateValue(value);
         }
 
-        public void RateInfo(string value)
+        public void RateInfo(string? value)
         {
             if (!int.TryParse(value, out m_rateInfo))
             {
@@ -31,12 +31,12 @@ namespace LSEG.Ema.PerfTools.Common
             }
         }
 
-        public void Timeliness(string value)
+        public void Timeliness(string? value)
         {
             m_timeliness = QosTimelinessValue(value);
         }
 
-        public void TimeInfo(string value)
+        public void TimeInfo(string? value)
         {
             if (!int.TryParse(value, out m_timeInfo))
             {
@@ -44,7 +44,7 @@ namespace LSEG.Ema.PerfTools.Common
             }
         }
 
-        public void Dynamic(string value)
+        public void Dynamic(string? value)
         {
             if (!int.TryParse(value, out var res))
             {
@@ -92,11 +92,11 @@ namespace LSEG.Ema.PerfTools.Common
         /// </summary>
         /// <param name="value">string value</param>
         /// <returns>resulting int value</returns>
-        private int QosTimelinessValue(string value)
+        private int QosTimelinessValue(string? value)
         {
             int retVal = 0;
 
-            if (value.Equals("RSSL_QOS_TIME_UNSPECIFIED"))
+            if (value == null || value.Equals("RSSL_QOS_TIME_UNSPECIFIED"))
             {
                 retVal = QosTimeliness.UNSPECIFIED;
             }
@@ -121,11 +121,11 @@ namespace LSEG.Ema.PerfTools.Common
         /// </summary>
         /// <param name="value">string value</param>
         /// <returns>resulting int value</returns>
-        private int QosRateValue(string value)
+        private int QosRateValue(string? value)
         {
             int retVal = 0;
 
-            if (value.Equals("RSSL_QOS_RATE_UNSPECIFIED"))
+            if (value == null ||value.Equals("RSSL_QOS_RATE_UNSPECIFIED"))
             {
                 retVal = QosRates.UNSPECIFIED;
             }

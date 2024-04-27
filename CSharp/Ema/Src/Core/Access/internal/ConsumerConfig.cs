@@ -2,18 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
-
-
 
 using System.Collections.Generic;
 using System.Reflection.Metadata;
 
 namespace LSEG.Ema.Access
 {
-	internal class ConsumerConfig
+	internal class ConsumerConfig : XmlTraceConfigurable
 	{
         public ConsumerConfig()
         {
@@ -25,7 +23,6 @@ namespace LSEG.Ema.Access
         public ConsumerConfig(ConsumerConfig oldConfig)
         {
             ChannelSet = new List<string>();
-
             Name = oldConfig.Name;
             Dictionary = oldConfig.Dictionary;
             Logger = oldConfig.Logger;
@@ -56,9 +53,14 @@ namespace LSEG.Ema.Access
             RestProxyHostName = oldConfig.RestProxyHostName;
             RestProxyPort = oldConfig.RestProxyPort;
             ServiceCountHint = oldConfig.ServiceCountHint;
-            XmlTraceDump = oldConfig.XmlTraceDump;
-            XmlTraceFileName = oldConfig.XmlTraceFileName;
             XmlTraceToStdout = oldConfig.XmlTraceToStdout;
+            XmlTraceToFile = oldConfig.XmlTraceToFile;
+            XmlTraceMaxFileSize = oldConfig.XmlTraceMaxFileSize;
+            XmlTraceFileName = oldConfig.XmlTraceFileName;
+            XmlTraceToMultipleFiles = oldConfig.XmlTraceToMultipleFiles;
+            XmlTraceWrite = oldConfig.XmlTraceWrite;
+            XmlTraceRead = oldConfig.XmlTraceRead;
+            XmlTracePing = oldConfig.XmlTracePing;
         }
 
         public string Name { get; set; } = string.Empty;
@@ -120,13 +122,15 @@ namespace LSEG.Ema.Access
         public string RestProxyPort { get; set; } = string.Empty;
 
         public int ServiceCountHint { get; set; }
-
-        public ulong XmlTraceDump { get; set; }
-
+        public bool XmlTraceToFile { get; set; }
         public bool XmlTraceToStdout { get; set; }
-
         public string XmlTraceFileName { get; set; } = string.Empty;
-        
+        public ulong XmlTraceMaxFileSize { get; set; }
+        public bool XmlTraceToMultipleFiles { get; set; }
+        public bool XmlTraceWrite { get; set; }
+        public bool XmlTraceRead { get; set; }
+        public bool XmlTracePing { get; set; }
+
         // Clears the Consumer structure and sets the default options.
         public void Clear()
         {
@@ -160,9 +164,13 @@ namespace LSEG.Ema.Access
             RestProxyHostName = string.Empty;
             RestProxyPort = string.Empty;
             ServiceCountHint = 513;
-            XmlTraceDump = 0;
-            XmlTraceFileName = string.Empty;
-            XmlTraceToStdout = false;
+            XmlTraceToFile = false;
+            XmlTraceMaxFileSize = 100_000_000;
+            XmlTraceFileName = "EmaTrace";
+            XmlTraceToMultipleFiles = false;
+            XmlTraceWrite = true;
+            XmlTraceRead = true;
+            XmlTracePing = false;
         }
 
         // Copy method, produces a deep copy into DestConfig.
@@ -198,9 +206,15 @@ namespace LSEG.Ema.Access
             DestConfig.RestProxyHostName = RestProxyHostName;
             DestConfig.RestProxyPort = RestProxyPort;
             DestConfig.ServiceCountHint = ServiceCountHint;
-            DestConfig.XmlTraceDump = XmlTraceDump;
-            DestConfig.XmlTraceFileName = XmlTraceFileName;
+
             DestConfig.XmlTraceToStdout = XmlTraceToStdout;
+            DestConfig.XmlTraceToFile = XmlTraceToFile;
+            DestConfig.XmlTraceMaxFileSize = XmlTraceMaxFileSize;
+            DestConfig.XmlTraceFileName = XmlTraceFileName;
+            DestConfig.XmlTraceToMultipleFiles = XmlTraceToMultipleFiles;
+            DestConfig.XmlTraceWrite = XmlTraceWrite;
+            DestConfig.XmlTraceRead = XmlTraceRead;
+            DestConfig.XmlTracePing = XmlTracePing;
         }
     }
 }

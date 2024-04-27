@@ -3207,7 +3207,7 @@ namespace LSEG.Eta.Codec
 
 		private static string XmlDumpArrayItemBegin()
         {
-            return (Encodeindents() + "<arrayEntry ");
+            return (Encodeindents() + "<arrayEntry");
         }
 
         private static string XmlDumpArrayEnd()

@@ -307,7 +307,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
             if (_totalStats.StartupLatencyStats.Count > 0)
             {
                 fileWriter.Write("  Latency avg (usec): {0:0.0}\n", _totalStats.StartupLatencyStats.Average);
-                fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", Math.Sqrt(_totalStats.StartupLatencyStats.Variance));
+                fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", _totalStats.StartupLatencyStats.StandardDeviation);
                 fileWriter.Write("  Latency max (usec): {0:0.0}\n", _totalStats.StartupLatencyStats.MaxValue);
                 fileWriter.Write("  Latency min (usec): {0:0.0}\n", _totalStats.StartupLatencyStats.MinValue);
             }
@@ -327,7 +327,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                 if (_totalStats.SteadyStateLatencyStats.Count > 0)
                 {
                     fileWriter.Write("  Latency avg (usec): {0:0.0}\n", _totalStats.SteadyStateLatencyStats.Average);
-                    fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", Math.Sqrt(_totalStats.SteadyStateLatencyStats.Variance));
+                    fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", _totalStats.SteadyStateLatencyStats.StandardDeviation);
                     fileWriter.Write("  Latency max (usec): {0:0.0}\n", _totalStats.SteadyStateLatencyStats.MaxValue);
                     fileWriter.Write("  Latency min (usec): {0:0.0}\n", _totalStats.SteadyStateLatencyStats.MinValue);
                 }
@@ -339,7 +339,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                     if (_totalStats.PostLatencyStats.Count > 0)
                     {
                         fileWriter.Write("  Posting latency avg (usec): {0:0.0}\n", _totalStats.PostLatencyStats.Average);
-                        fileWriter.Write("  Posting latency std dev (usec): {0:0.0}\n", Math.Sqrt(_totalStats.PostLatencyStats.Variance));
+                        fileWriter.Write("  Posting latency std dev (usec): {0:0.0}\n", _totalStats.PostLatencyStats.StandardDeviation);
                         fileWriter.Write("  Posting latency max (usec): {0:0.0}\n", _totalStats.PostLatencyStats.MaxValue);
                         fileWriter.Write("  Posting latency min (usec): {0:0.0}\n", _totalStats.PostLatencyStats.MinValue);
                     }
@@ -364,7 +364,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
             if (_totalStats.OverallLatencyStats.Count > 0)
             {
                 fileWriter.Write("  Latency avg (usec): {0:0.0}\n", _totalStats.OverallLatencyStats.Average);
-                fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", Math.Sqrt(_totalStats.OverallLatencyStats.Variance));
+                fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", _totalStats.OverallLatencyStats.StandardDeviation);
                 fileWriter.Write("  Latency max (usec): {0:0.0}\n", _totalStats.OverallLatencyStats.MaxValue);
                 fileWriter.Write("  Latency min (usec): {0:0.0}\n", _totalStats.OverallLatencyStats.MinValue);
             }
@@ -374,7 +374,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
             if (_totalStats.GenMsgLatencyStats.Count > 0)
             {
                 fileWriter.Write("  GenMsg latency avg (usec): {0:0.0}\n", _totalStats.GenMsgLatencyStats.Average);
-                fileWriter.Write("  GenMsg latency std dev (usec): {0:0.0}\n", Math.Sqrt(_totalStats.GenMsgLatencyStats.Variance));
+                fileWriter.Write("  GenMsg latency std dev (usec): {0:0.0}\n", _totalStats.GenMsgLatencyStats.StandardDeviation);
                 fileWriter.Write("  GenMsg latency max (usec): {0:0.0}\n", _totalStats.GenMsgLatencyStats.MaxValue);
                 fileWriter.Write("  GenMsg latency min (usec): {0:0.0}\n", _totalStats.GenMsgLatencyStats.MinValue);
             }
@@ -476,7 +476,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                     if (_consumerThreadsInfo[i].Stats!.StartupLatencyStats.Count > 0)
                     {
                         fileWriter.Write("  Latency avg (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.StartupLatencyStats.Average);
-                        fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", Math.Sqrt(_consumerThreadsInfo[i].Stats!.StartupLatencyStats.Variance));
+                        fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.StartupLatencyStats.StandardDeviation);
                         fileWriter.Write("  Latency max (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.StartupLatencyStats.MaxValue);
                         fileWriter.Write("  Latency min (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.StartupLatencyStats.MinValue);
                     }
@@ -500,7 +500,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                         if (_consumerThreadsInfo[i].Stats!.SteadyStateLatencyStats.Count > 0)
                         {
                             fileWriter.Write("  Latency avg (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.SteadyStateLatencyStats.Average);
-                            fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", Math.Sqrt(_consumerThreadsInfo[i].Stats!.SteadyStateLatencyStats.Variance));
+                            fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.SteadyStateLatencyStats.StandardDeviation);
                             fileWriter.Write("  Latency max (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.SteadyStateLatencyStats.MaxValue);
                             fileWriter.Write("  Latency min (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.SteadyStateLatencyStats.MinValue);
                         }
@@ -512,7 +512,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                             if (_consumerThreadsInfo[i].Stats!.PostLatencyStats.Count > 0)
                             {
                                 fileWriter.Write("  Posting latency avg (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.PostLatencyStats.Average);
-                                fileWriter.Write("  Posting latency std dev (usec): {0:0.0}\n", Math.Sqrt(_consumerThreadsInfo[i].Stats!.PostLatencyStats.Variance));
+                                fileWriter.Write("  Posting latency std dev (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.PostLatencyStats.StandardDeviation);
                                 fileWriter.Write("  Posting latency max (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.PostLatencyStats.MaxValue);
                                 fileWriter.Write("  Posting latency min (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.PostLatencyStats.MinValue);
                             }
@@ -539,7 +539,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                     if (_consumerThreadsInfo[i].Stats!.OverallLatencyStats.Count > 0)
                     {
                         fileWriter.Write("  Latency avg (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.OverallLatencyStats.Average);
-                        fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", Math.Sqrt(_consumerThreadsInfo[i].Stats!.OverallLatencyStats.Variance));
+                        fileWriter.Write("  Latency std dev (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.OverallLatencyStats.StandardDeviation);
                         fileWriter.Write("  Latency max (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.OverallLatencyStats.MaxValue);
                         fileWriter.Write("  Latency min (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.OverallLatencyStats.MinValue);
                     }
@@ -551,7 +551,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                         if (_consumerThreadsInfo[i].Stats!.GenMsgLatencyStats.Count > 0)
                         {
                             fileWriter.Write("  GenMsg latency avg (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.GenMsgLatencyStats.Average);
-                            fileWriter.Write("  GenMsg latency std dev (usec): {0:0.0}\n", Math.Sqrt(_consumerThreadsInfo[i].Stats!.GenMsgLatencyStats.Variance));
+                            fileWriter.Write("  GenMsg latency std dev (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.GenMsgLatencyStats.StandardDeviation);
                             fileWriter.Write("  GenMsg latency max (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.GenMsgLatencyStats.MaxValue);
                             fileWriter.Write("  GenMsg latency min (usec): {0:0.0}\n", _consumerThreadsInfo[i].Stats!.GenMsgLatencyStats.MinValue);
                         }
@@ -694,14 +694,14 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                             ", {0}, {1:0.0}, {2:0.0}, {3:0.0}, {4:0.0}, {5}, {6}, {7}, {8:0.0}, {9:0.0}, {10:0.0}, {11:0.0}, {12}, {13}, {14}, {15}, {16:0.0}, {17:0.0}, {18:0.0}, {19:0.0}, {20:0.00}, {21:0.00}\n",
                             _consumerThreadsInfo[i].Stats!.IntervalLatencyStats.Count,
                             _consumerThreadsInfo[i].Stats!.IntervalLatencyStats.Average,
-                            Math.Sqrt(_consumerThreadsInfo[i].Stats!.IntervalLatencyStats.Variance),
+                            _consumerThreadsInfo[i].Stats!.IntervalLatencyStats.StandardDeviation,
                             (_consumerThreadsInfo[i].Stats!.IntervalLatencyStats.Count > 0) ? _consumerThreadsInfo[i].Stats!.IntervalLatencyStats.MaxValue : 0.0,
                             (_consumerThreadsInfo[i].Stats!.IntervalLatencyStats.Count > 0) ? _consumerThreadsInfo[i].Stats!.IntervalLatencyStats.MinValue : 0.0,
                             refreshCount,
                             (startupUpdateCount + steadyStateUpdateCount) * 1000000L / statsInterval,
                             _consumerThreadsInfo[i].Stats!.IntervalPostLatencyStats.Count,
                             _consumerThreadsInfo[i].Stats!.IntervalPostLatencyStats.Average,
-                            Math.Sqrt(_consumerThreadsInfo[i].Stats!.IntervalPostLatencyStats.Variance),
+                            _consumerThreadsInfo[i].Stats!.IntervalPostLatencyStats.StandardDeviation,
                             (_consumerThreadsInfo[i].Stats!.IntervalPostLatencyStats.Count > 0) ? _consumerThreadsInfo[i].Stats!.IntervalPostLatencyStats.MaxValue : 0.0,
                             (_consumerThreadsInfo[i].Stats!.IntervalPostLatencyStats.Count > 0) ? _consumerThreadsInfo[i].Stats!.IntervalPostLatencyStats.MinValue : 0.0,
                             genMsgSentCount,
@@ -709,7 +709,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
                             latencyGenMsgSentCount,
                             latencyGenMsgRecvCount,
                             _consumerThreadsInfo[i].Stats!.IntervalGenMsgLatencyStats.Average,
-                            Math.Sqrt(_consumerThreadsInfo[i].Stats!.IntervalGenMsgLatencyStats.Variance),
+                            _consumerThreadsInfo[i].Stats!.IntervalGenMsgLatencyStats.StandardDeviation,
                             (_consumerThreadsInfo[i].Stats!.IntervalGenMsgLatencyStats.Count > 0) ? _consumerThreadsInfo[i].Stats!.IntervalGenMsgLatencyStats.MaxValue : 0.0,
                                     (_consumerThreadsInfo[i].Stats!.IntervalGenMsgLatencyStats.Count > 0) ? _consumerThreadsInfo[i].Stats!.IntervalGenMsgLatencyStats.MinValue : 0.0,
                             processCpuLoad,

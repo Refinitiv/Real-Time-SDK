@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\IProvider_NET6.0.props" />
+</Project>

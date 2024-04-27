@@ -49,8 +49,7 @@ On Windows:
   - Sets the user credential
   - Sets the consumer name to "Consumer_4"
   - The Consumer_4 uses the Channel_4 channel name for using the RSSL_ENCRYPTED
-	channel type and the RSSL_SOCKET encrypted protocol type.
-    or sets the consumer name to "Consumer_5" in case of the WebSocket transport protocol.
+	channel type and the RSSL_SOCKET encrypted protocol type
   - Loads configuration information for the specified consumer name
     from the EmaConfig.xml file in the application's working folder
 + Instantiates an OmmConsumer object which initializes the connection 

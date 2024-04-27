@@ -6,10 +6,13 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System.Data;
+
 namespace LSEG.Ema.Access
 {
     /// <summary>
-    /// This class contains enumerations and other configuration values used in the EMA configuration classes.
+    /// Provides additional enumerations and other definitions for the EMA configuration.
+    /// The enumerated variable names can be used as a part of the input string for their respective XML configuration values.
     /// </summary>
     public static class EmaConfig
     {
@@ -112,11 +115,13 @@ namespace LSEG.Ema.Access
             /// Default file names are RDMFieldDictionary and enumtype.def, respectively.
             /// </summary>
             public const int FILE = 0;
+
             /// <summary>
             /// Request the dictionary from the upstream provider once connected. Item names are defined by RdmFieldDictionaryItemName and EnumTypeDefItemName configuration elements.
             /// Default item names are "RWFFld" 
             /// </summary>
             public const int CHANNEL = 1;
+
             /// <summary>
             /// Max defined Dictionary loading mode type.
             /// </summary>
@@ -179,5 +184,132 @@ namespace LSEG.Ema.Access
             /// </summary>
             public const int MAX_DEFINED = STDOUT;
         }
-}
+
+        /// <summary>
+        /// This enumeration defines message model domain enumerations for the Service Capabilities configuration elements.
+        /// </summary>
+        public class CapabilitiesEnum
+        {
+
+            /// <summary>
+            /// Login Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_LOGIN = 1;
+
+            /// <summary>
+            /// Source Directory Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_DIRECTORY = 4;
+
+            /// <summary>
+            /// Dictionary Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_DICTIONARY = 5;
+
+            /// <summary>
+            /// Market Price Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_MARKET_PRICE = 6;
+
+            /// <summary>
+            /// Market by Order/Order Book Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_MARKET_BY_ORDER = 7;
+
+            /// <summary>
+            /// Market by Price/Market Depth Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_MARKET_BY_PRICE = 8;
+
+            /// <summary>
+            /// Market Maker Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_MARKET_MAKER = 9;
+
+            /// <summary>
+            /// Symbol List Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_SYMBOL_LIST = 10;
+
+            /// <summary>
+            /// Service Provider Status Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_SERVICE_PROVIDER_STATUS = 11;
+
+            /// <summary>
+            /// Historical Data Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_HISTORY = 12;
+
+            /// <summary>
+            /// Headline Message Domain Model Enumeration
+            /// </summary>
+            public const int MMT_HEADLINE = 13;
+
+            /// <summary>
+            /// Story Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_STORY = 14;
+
+            /// <summary>
+            /// Headline Replay Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_REPLAYHEADLINE = 15;
+
+            /// <summary>
+            /// Story Replay Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_REPLAYSTORY = 16;
+
+            /// <summary>
+            /// Transaction Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_TRANSACTION = 17;
+
+            /// <summary>
+            /// Yield Curve Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_YIELD_CURVE = 22;
+
+            /// <summary>
+            /// Contribution Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_CONTRIBUTION = 27;
+
+            /// <summary>
+            /// Provider Administrative Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_PROVIDER_ADMIN = 29;
+
+            /// <summary>
+            /// Analytics Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_ANALYTICS = 30;
+
+            /// <summary>
+            /// Reference Domain Data Message Model Enumeration
+            /// </summary>
+            public const int MMT_REFERENCE = 31;
+
+            /// <summary>
+            /// Machine Readable News Message Model Enumeration
+            /// </summary>
+            public const int MMT_NEWS_TEXT_ANALYTICS = 33;
+
+            /// <summary>
+            /// System Domain Message Model Enumeration
+            /// </summary>
+            public const int MMT_SYSTEM = 127;
+
+            /// <summary>
+            /// Maximum reserved domain message model enumeration
+            /// </summary>
+            public const int MMT_MAX_RESERVED = 127;
+
+            /// <summary>
+            /// Maximum domain message model type Enumeration
+            /// </summary>
+            public const int MMT_MAX_VALUE = 255;
+        }
+    }
 }

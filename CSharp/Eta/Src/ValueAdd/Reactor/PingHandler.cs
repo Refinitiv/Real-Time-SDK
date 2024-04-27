@@ -2,13 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using LSEG.Eta.Transports;
 using System;
+using System.Data.SqlTypes;
 using System.Diagnostics;
+using System.Text;
+
+using LSEG.Eta.Transports;
 
 namespace LSEG.Eta.ValueAdd.Reactor
 {
@@ -27,6 +30,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
         private volatile bool m_SentLocalMsg = false;
         private static bool TRACK_PINGS = false;
 
+        private StringBuilder m_XmlString = new StringBuilder(512);
+
         /// <summary>
         /// Re-initializes ping handler for possible reuse.
         /// </summary>
@@ -38,6 +43,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             m_NextLocalPingTime = 0;
             m_PingsReceived = 0;
             m_PingsSent = 0;
+            m_XmlString.Length = 0;
             m_ReceivedRemoteMsg = false;
             m_SentLocalMsg = false;
         }
@@ -61,8 +67,27 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <summary>
         /// Indicates that we received a message from the remote connection
         /// </summary>
-        internal void ReceivedPing()
+        internal void ReceivedPing(ReactorChannel reactorChannel)
         {
+            ReactorOptions reactorOptions = reactorChannel.Reactor!.m_ReactorOptions;
+
+            if (reactorOptions.XmlTracePing
+                && (reactorOptions.XmlTracing
+                    || reactorOptions.XmlTraceToFile))
+            {
+                m_XmlString.Length = 0;
+                m_XmlString
+                    .Append("\n<!-- Incoming Ping message -->\n<!-- ")
+                    .Append(reactorChannel.Channel)
+                    .Append("-->\n<!-- ").Append(DateTime.Now).Append(" -->\n");
+
+                if (reactorOptions.XmlTracing)
+                    Console.WriteLine(m_XmlString);
+
+                if (reactorOptions.XmlTraceToFile)
+                    reactorChannel.Reactor!.m_FileDumper!.Dump(m_XmlString);
+            }
+
             m_ReceivedRemoteMsg = true;
 
             if (TRACK_PINGS)
@@ -128,6 +153,27 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 else
                 {
                     /* send ping to remote (connection) */
+
+                    ReactorOptions reactorOptions = reactorChannel.Reactor!.m_ReactorOptions;
+
+                    if (reactorOptions.XmlTracePing
+                        && (reactorOptions.XmlTracing
+                            || reactorOptions.XmlTraceToFile))
+                    {
+                        m_XmlString.Length = 0;
+
+                        m_XmlString
+                            .Append("\n<!-- Outgoing Ping message -->\n<!-- ")
+                            .Append(reactorChannel.Channel)
+                            .Append("-->\n<!-- ").Append(DateTime.Now).Append(" -->\n");
+
+                        if (reactorOptions.XmlTracing)
+                            Console.WriteLine(m_XmlString);
+
+                        if (reactorOptions.XmlTraceToFile)
+                            reactorChannel.Reactor!.m_FileDumper!.Dump(m_XmlString);
+                    }
+
                     TransportReturnCode ret = channel!.Ping(out error);
                     if (ret < TransportReturnCode.SUCCESS)
                     {

@@ -39,7 +39,7 @@ namespace LSEG.Eta.PerfTools.TransportPerf
     /// </para>
     /// <para>
     /// For more detailed information on the performance measurement applications,
-    /// see the ETAJ Open Source Performance Tools Guide.
+    /// see the ETA C# Open Source Performance Tools Guide.
     /// </para>
     /// </summary>
     public class TransportPerf : IShutdownCallback

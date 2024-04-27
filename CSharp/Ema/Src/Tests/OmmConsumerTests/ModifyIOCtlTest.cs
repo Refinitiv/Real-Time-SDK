@@ -50,9 +50,9 @@ public class ModifyIOCtlTest
             new IOCtlSetting[]
             {
                 new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = -10, IsValid = false,
-                    Message = "value must be (0 >= value < 2^31", ErrorCode = -1 },
+                    Message = "value must be (0 >= value < 2^31", ErrorCode =  OmmInvalidUsageException.ErrorCodes.FAILURE },
                 new IOCtlSetting() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = -100, IsValid = false,
-                    Message = "value must be (0 >= value < 2^31", ErrorCode = -1 }
+                    Message = "value must be (0 >= value < 2^31", ErrorCode =  OmmInvalidUsageException.ErrorCodes.FAILURE }
             }
         },
 
@@ -60,7 +60,7 @@ public class ModifyIOCtlTest
         {
             new IOCtlSetting[]
             {
-                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 50 }
+                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 100 }
             }
         },
 
@@ -68,8 +68,8 @@ public class ModifyIOCtlTest
         {
             new IOCtlSetting[]
             {
-                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 100 },
-                new IOCtlSetting() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 100 }
+                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 200 },
+                new IOCtlSetting() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 200 }
             }
         },
 
@@ -103,7 +103,7 @@ public class ModifyIOCtlTest
                 // is less than the default value for LZ4_COMPRESSION_THRESHOLD.
                 new IOCtlSetting() { Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 10, IsValid = false,
                     Message = "Failed to modify I/O option = COMPRESSION_THRESHOLD. Reason: FAILURE. Error text: Channel.IOCtl failed, error: value must be equal to or greater than",
-                    ErrorCode = -1
+                    ErrorCode = OmmInvalidUsageException.ErrorCodes.FAILURE
                 }
             }
         }
@@ -120,7 +120,7 @@ public class ModifyIOCtlTest
         ProviderSessionOptions providerSessionOpts = new ProviderSessionOptions()
         {
             SendDictionaryResp = true,
-            CompressionType = ChannelInformation.EtaToEmaCompressionType(Eta.Transports.CompressionType.LZ4)
+            CompressionType = Eta.Transports.CompressionType.LZ4
         };
 
         providerSessionOpts.SendMarketDataItemUpdate = false;

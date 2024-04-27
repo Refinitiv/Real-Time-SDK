@@ -52,6 +52,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         private StringBuilder m_XmlString = new StringBuilder();
         private XmlTraceDump m_XmlTraceDump = new XmlTraceDump();
+        private readonly bool m_XmlTraceReadEnabled;
+        private readonly bool m_XmlTraceWriteEnabled;
 
         private IDictionary<Msg, ITransportBuffer> m_SubmitMsgMap = new Dictionary<Msg, ITransportBuffer>();
         private IDictionary<MsgBase, ITransportBuffer> m_SubmitRdmMsgMap = new Dictionary<MsgBase, ITransportBuffer>();
@@ -61,6 +63,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
         private WriteArgs m_WriteArgs = new WriteArgs();
 
         internal WlTimeoutTimerManager m_TimeoutTimerManager = new WlTimeoutTimerManager();
+
+        internal FileDumper? m_FileDumper;
 
         internal static ReactorErrorInfo m_errorInfo = new ReactorErrorInfo();
 
@@ -96,6 +100,14 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         private Reactor(ReactorOptions options, out ReactorErrorInfo? errorInfo)
         {
+            if (options.XmlTraceToFile)
+            {
+                m_FileDumper = new FileDumper(options.XmlTraceFileName, options.XmlTraceToMultipleFiles, options.XmlTraceMaxFileSize);
+            }
+
+            m_XmlTraceReadEnabled = (options.XmlTraceRead && (options.XmlTracing || options.XmlTraceToFile));
+            m_XmlTraceWriteEnabled = (options.XmlTraceWrite && (options.XmlTracing || options.XmlTraceToFile));
+
             if(InitializeTransport(out errorInfo) != ReactorReturnCode.SUCCESS )
             {
                 return;
@@ -1113,6 +1125,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     m_ReactorRestClient.Dispose();
                     m_ReactorRestClient = null;
                 }
+
+                m_FileDumper?.Close();
             }
             finally
             {
@@ -1296,23 +1310,23 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 }
                 else
                 {
-                    if (m_ReactorOptions.XmlTracing)
+                    if (m_XmlTraceWriteEnabled)
                     {
                         Error dumpError;
                         m_XmlString.Length = 0;
                         m_XmlString
-                                .AppendLine()
-                                .Append("<!-- Outgoing Reactor message -->")
-                                .AppendLine()
-                                .Append("<!-- ").Append(reactorChannel?.Channel?.ToString()).Append(" -->")
-                                .AppendLine()
-                                .Append("<!-- ").Append(System.DateTime.Now.ToString()).Append(" -->")
-                                .AppendLine()
-                                .Append("<!-- Write Flags: ").Append(submitOptions.WriteArgs.Flags.ToString()).Append(" -->")
-                                .AppendLine();
-                        if (m_XmlTraceDump.DumpBuffer(reactorChannel.Channel, (int?)reactorChannel.Channel?.ProtocolType ?? 0, writeBuffer, null, m_XmlString, out dumpError) == TransportReturnCode.SUCCESS)
+                                .Append("\n<!-- Outgoing Reactor message -->\n")
+                                .Append("<!-- ").Append(reactorChannel?.Channel?.ToString()).Append(" -->\n")
+                                .Append("<!-- ").Append(System.DateTime.Now).Append(" -->\n");
+
+                        if (TransportReturnCode.SUCCESS ==
+                                m_XmlTraceDump.DumpBuffer(reactorChannel?.Channel, (int)reactorChannel!.Channel!.ProtocolType, writeBuffer, null, m_XmlString, out dumpError))
                         {
+                            if (m_ReactorOptions.XmlTracing)
                             Console.WriteLine(m_XmlString);
+
+                            if (m_ReactorOptions.XmlTraceToFile)
+                                m_FileDumper!.Dump(m_XmlString);
                         }
                         else
                         {
@@ -1320,7 +1334,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         }
                     }
 
-                    TransportReturnCode transportReturnCode = reactorChannel.Channel!.Write(writeBuffer, submitOptions.WriteArgs, out Error transportError);
+                    TransportReturnCode transportReturnCode = reactorChannel!.Channel!.Write(writeBuffer, submitOptions.WriteArgs, out Error transportError);
                     if (transportReturnCode > TransportReturnCode.SUCCESS
                         || transportReturnCode == TransportReturnCode.WRITE_FLUSH_FAILED
                         || transportReturnCode == TransportReturnCode.WRITE_CALL_AGAIN)
@@ -1579,15 +1593,21 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
             if (msgBuf != null)
             {
-                if (m_ReactorOptions.XmlTracing)
+                if (m_XmlTraceReadEnabled)
                 {
                     m_XmlString.Length = 0;
                     m_XmlString
                             .Append("\n<!-- Incoming Reactor message -->\n")
                     .Append("<!-- ").Append(channel).Append(" -->\n")
                     .Append("<!-- ").Append(System.DateTime.Now).Append(" -->\n");
+
                     m_XmlTraceDump.DumpBuffer(channel, (int)channel.ProtocolType, msgBuf, null, m_XmlString, out error);
+
+                    if (m_ReactorOptions.XmlTracing)
                     Console.WriteLine(m_XmlString);
+
+                    if (m_ReactorOptions.XmlTraceToFile)
+                        m_FileDumper!.Dump(m_XmlString);
                 }
 
                 reactorChannel.GetPingHandler().ReceivedMsg();
@@ -1665,7 +1685,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 else if (readArgs.ReadRetVal == TransportReturnCode.READ_PING)
                 {
                     /* PingHandler.m_ReceivedRemoteMsg is set to true from the following call as well */
-                    reactorChannel.GetPingHandler().ReceivedPing();
+                    reactorChannel.GetPingHandler().ReceivedPing(reactorChannel);
                 }
             }
 
@@ -2137,17 +2157,23 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 return;
             }
 
-            if (m_ReactorOptions.XmlTracing) {
+            if (m_XmlTraceWriteEnabled)
+            {
                 m_XmlString.Length = 0;
                 m_XmlString
                     .Append("\n<!-- Outgoing Reactor message -->\n")
                     .Append("<!-- ").Append(reactorChannel.Channel).Append(" -->\n")
                     .Append("<!-- ").Append(System.DateTime.Now).Append(" -->\n");
+
                 if (m_XmlTraceDump.DumpBuffer(reactorChannel.Channel,
                     (int)reactorChannel.Channel!.ProtocolType, msgBuf, null, m_XmlString, out var dumpError)
                         == TransportReturnCode.SUCCESS)
                 {
+                    if (m_ReactorOptions.XmlTracing)
                     Console.WriteLine(m_XmlString);
+
+                    if (m_ReactorOptions.XmlTraceToFile)
+                        m_FileDumper!.Dump(m_XmlString);
                 }
                 else
                 {
@@ -2708,13 +2734,13 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
 
             Error transportError;
-            if (m_ReactorOptions.XmlTracing)
+            if (m_XmlTraceWriteEnabled)
             {
                 m_XmlString.Length = 0;
                 m_XmlString
                     .Append("\n<!-- Outgoing Reactor message -->\n")
                     .Append("<!-- ").Append(reactorChannel.Channel!.ToString()).Append(" -->\n")
-                    .Append("<!-- ").Append(new System.DateTime().ToString()).Append(" -->\n");
+                    .Append("<!-- ").Append(System.DateTime.Now).Append(" -->\n");
 
                 TransportReturnCode dumpReturnCode = m_XmlTraceDump.DumpBuffer(reactorChannel.Channel,
                     (int)reactorChannel.Channel.ProtocolType,
@@ -2727,7 +2753,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 }
                 else
                 {
+                    if (m_ReactorOptions.XmlTracing)
                     Console.WriteLine(m_XmlString);
+
+                    if (m_ReactorOptions.XmlTraceToFile)
+                        m_FileDumper!.Dump(m_XmlString);
                 }
             }
 

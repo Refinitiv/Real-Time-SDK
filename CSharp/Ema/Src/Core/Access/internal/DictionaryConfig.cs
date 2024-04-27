@@ -7,34 +7,11 @@
  */
 
 
-using LSEG.Eta.ValueAdd.Reactor;
-using System;
-
 namespace LSEG.Ema.Access
 {
     internal class DictionaryConfig
     {
-#pragma warning disable CS8618
-        public DictionaryConfig()
-#pragma warning restore CS8618
-        {
-            Clear();
-        }
-
-#pragma warning disable CS8618
-        public DictionaryConfig(DictionaryConfig oldConfig)
-#pragma warning restore CS8618
-        {
-            Name = oldConfig.Name;
-            EnumTypeDefFileName = oldConfig.EnumTypeDefFileName;
-            EnumTypeDefItemName = oldConfig.EnumTypeDefItemName;
-            RdmFieldDictionaryFileName = oldConfig.RdmFieldDictionaryFileName;
-            RdmFieldDictionaryItemName = oldConfig.RdmFieldDictionaryItemName;
-            DictionaryType = oldConfig.DictionaryType;
-        }
-
-
-        // Name of this channel
+        // Name of this dictionary
         public string Name { get; set; } = string.Empty;
 
         /// Sets the location of the EnumTypeDef file.
@@ -57,6 +34,25 @@ namespace LSEG.Ema.Access
         public bool IsLocalDictionary { get; set; } = false;
 
         internal Ema.Rdm.DataDictionary DataDictionary;
+
+#pragma warning disable CS8618
+        public DictionaryConfig()
+#pragma warning restore CS8618
+        {
+            Clear();
+        }
+
+#pragma warning disable CS8618
+        public DictionaryConfig(DictionaryConfig oldConfig)
+#pragma warning restore CS8618
+        {
+            Name = oldConfig.Name;
+            EnumTypeDefFileName = oldConfig.EnumTypeDefFileName;
+            EnumTypeDefItemName = oldConfig.EnumTypeDefItemName;
+            RdmFieldDictionaryFileName = oldConfig.RdmFieldDictionaryFileName;
+            RdmFieldDictionaryItemName = oldConfig.RdmFieldDictionaryItemName;
+            DictionaryType = oldConfig.DictionaryType;
+        }
 
         // Clears the Dictionary info and sets the default options.
         public void Clear()

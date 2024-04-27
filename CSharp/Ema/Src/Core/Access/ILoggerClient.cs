@@ -6,6 +6,7 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
 using System.Text;
 using LSEG.Ema.Access;
 
@@ -29,7 +30,13 @@ namespace LSEG.Ema.Access
 
     internal interface ILoggerClient
     {
-        public const string CR = "\n\t";
+        public static readonly string CR = Environment.NewLine + "\t";
+        public const string INFO_STRING = "Info";
+        public const string WARNING_STRING = "Warning";
+        public const string ERROR_STRING = "Error";
+        public const string DEBUG_STRING = "Debug";
+        public const string TRACE_STRING = "Trace";
+        public const string DEFAULTSEVERITY_STRING = "Unknown Severity";
 
         public bool IsTraceEnabled { get; }
 

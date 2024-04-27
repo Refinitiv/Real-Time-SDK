@@ -61,7 +61,7 @@ public sealed class OmmArrayEntry
     /// Returns the contained Data based on the DataType.
     /// </summary>
     /// <returns>Data class reference to contained object.</returns>
-    public Data Load { get; internal set; }
+    public Data Load { get => m_Load!; }
 
 
     /// <summary>
@@ -75,14 +75,15 @@ public sealed class OmmArrayEntry
 
         internal set
         {
-            if (Load == null)
+            if (Load is null)
             {
                 // init new load instance
-                Load = GetDataOfType(value);
+                m_Load = GetDataOfType(value);
             }
             else if (Load.m_dataType != value)
             {
-                Load = GetDataOfType(value);
+                Load.ClearAndReturnToPool_All();
+                m_Load = GetDataOfType(value);
             }
         }
     }
@@ -467,14 +468,21 @@ public sealed class OmmArrayEntry
 
     private StringBuilder m_ToString = new();
 
+    internal Data? m_Load;
+
+    internal readonly EmaObjectManager m_objectManager;
+
 #pragma warning disable CS8618
-    internal OmmArrayEntry()
+    internal OmmArrayEntry(EmaObjectManager objectManager)
 #pragma warning restore CS8618
-    { }
+    {
+        m_objectManager = objectManager;
+    }
 
     internal OmmArrayEntry(Data data)
     {
-        Load = data;
+        m_objectManager = EmaGlobalObjectPool.Instance;
+        m_Load = data;
     }
 
     /// <summary>
@@ -490,7 +498,7 @@ public sealed class OmmArrayEntry
         CodecReturnCode retCode = Load.Decode(dIter);
         if (retCode != CodecReturnCode.SUCCESS)
         {
-            Load = new OmmError() { ErrorCode = OmmError.ErrorCodes.UNKNOWN_ERROR };
+            m_Load = new OmmError() { ErrorCode = OmmError.ErrorCodes.UNKNOWN_ERROR };
         };
 
         return this;
@@ -503,25 +511,16 @@ public sealed class OmmArrayEntry
     /// <returns></returns>
     private Data GetDataOfType(int dataType)
     {
-        return dataType switch
+        // ensure that the Codec.DataType is correctly converted to the OMM DataType, that
+        // is expected by the object manager
+        Data? load = m_objectManager.GetDataObjectFromPool(dataType);
+
+        if (load is null)
         {
-            Eta.Codec.DataTypes.INT => new OmmInt(),
-            Eta.Codec.DataTypes.UINT => new OmmUInt(),
-            Eta.Codec.DataTypes.FLOAT => new OmmFloat(),
-            Eta.Codec.DataTypes.DOUBLE => new OmmDouble(),
-            Eta.Codec.DataTypes.REAL => new OmmReal(),
-            Eta.Codec.DataTypes.DATE => new OmmDate(),
-            Eta.Codec.DataTypes.TIME => new OmmTime(),
-            Eta.Codec.DataTypes.DATETIME => new OmmDateTime(),
-            Eta.Codec.DataTypes.QOS => new OmmQos(),
-            Eta.Codec.DataTypes.STATE => new OmmState(),
-            Eta.Codec.DataTypes.ENUM => new OmmEnum(),
-            Eta.Codec.DataTypes.BUFFER => new OmmBuffer(),
-            Eta.Codec.DataTypes.ASCII_STRING => new OmmAscii(),
-            Eta.Codec.DataTypes.UTF8_STRING => new OmmUtf8(),
-            Eta.Codec.DataTypes.RMTES_STRING => new OmmRmtes(),
-            _ => new OmmError() { ErrorCode = OmmError.ErrorCodes.UNSUPPORTED_DATA_TYPE }
-        };
+            return new OmmError() { ErrorCode = OmmError.ErrorCodes.UNSUPPORTED_DATA_TYPE };
+        }
+
+        return load;
     }
 
     /// <summary>
@@ -530,7 +529,7 @@ public sealed class OmmArrayEntry
     /// <param name="errorCode">reported error code</param>
     internal void Error(OmmError.ErrorCodes errorCode)
     {
-        Load = new OmmError()
+        m_Load = new OmmError()
         {
             ErrorCode = errorCode
         };

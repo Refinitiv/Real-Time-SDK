@@ -1,0 +1,58 @@
+<Project>
+	<PropertyGroup>
+		<OutDir>..\bin</OutDir>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Src\Core\EMA_Core_NET6.0.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\EnsureComplete.Fody\EnsureComplete.Fody.csproj" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<!-- 
+			This internal code analyser emits warning messages when Complete() is not called on ComplexTypes in Examples or QATools
+			"Attempt to add a ComplexType while Complete() was not called on this ComplexType."
+			To enable the analyser when building use "dotnet build -property:EnsureComplete=true QATools.sln"
+		-->
+		<EnsureComplete>false</EnsureComplete>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<DisableFody Condition="'$(EnsureComplete)' == 'false'">true</DisableFody>
+		<DoNotIncludeEmaConfig Condition="'$(DoNotIncludeEmaConfig)' == ''">false</DoNotIncludeEmaConfig>
+	</PropertyGroup>
+
+	<Target Name="IncludeFodyWeavers" BeforeTargets="PrepareForBuild" Condition="'$(EnsureComplete)' == 'true'">
+		<ItemGroup>
+			<None Include="..\FodyWeavers.xml">
+				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			</None>
+		</ItemGroup>
+	</Target>
+
+    <ItemGroup>
+		<None Include="..\..\..\EmaConfig.xml" Condition="'$(DoNotIncludeEmaConfig)' == 'false'">
+				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="..\..\..\..\etc\enumtype.def">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="..\..\..\..\etc\RDMFieldDictionary">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="..\..\..\..\etc\RDMFieldDictionary_large">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Fody" Version="6.8.0"/>
+	</ItemGroup>
+	
+  <ItemGroup>
+	<WeaverFiles Include="$(SolutionDir)\EnsureComplete.Fody\$(OutputPath)\EnsureComplete.Fody.dll" />
+  </ItemGroup>
+</Project>

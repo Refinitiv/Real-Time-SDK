@@ -42,8 +42,10 @@ namespace LSEG.Ema.Access
         private ReactorConnectOptions? reactorConnOptions;
         private ReactorChannelInfo m_ReactorChannelInfo = new();
         bool initialChannelReadyEventReceived;
+
         private static readonly ProxyOptions m_ProxyOptions = new();
         internal int InitialChannelConnectIndex = 0; /* This is used to keep track the channel index for the initial connection only */
+        private int m_ChannelCount;
 
         public ChannelCallbackClient(OmmBaseImpl<T> baseImpl, Reactor reactor)
         {
@@ -60,7 +62,7 @@ namespace LSEG.Ema.Access
         public void InitializeConsumerRole(IReactorOAuthCredentialEventCallback? credentialCallback = null)
         {
             // Generate the role based on the ConfigImpl.
-            ConsumerRole consumerRole = baseImpl.ConfigImpl.GenerateConsumerRole();
+            ConsumerRole consumerRole = ((OmmConsumerConfigImpl)baseImpl.OmmConfigBaseImpl).GenerateConsumerRole();
 
             LoginRequest loginReq = consumerRole.RdmLoginRequest!;
             loginReq.HasRole = true;
@@ -74,6 +76,7 @@ namespace LSEG.Ema.Access
             consumerRole.DefaultMsgCallback = baseImpl.ItemCallbackClient;
 
             // configure OAuth credential
+
             if (consumerRole.ReactorOAuthCredential != null)
                 consumerRole.ReactorOAuthCredential.ReactorOAuthCredentialEventCallback = credentialCallback;
 
@@ -86,7 +89,6 @@ namespace LSEG.Ema.Access
 
             InitializeReactor();
         }
-
         public void InitializeEmaManagerItemPools()
         {
             if (reactorRole != null && reactorRole is ConsumerRole)
@@ -97,8 +99,20 @@ namespace LSEG.Ema.Access
 
         private void InitializeReactor()
         {
+            List<string> channelSet;
             string channelNames = "";
-            reactorConnOptions = baseImpl.ConfigImpl.GenerateReactorConnectOpts();
+             reactorConnOptions = baseImpl.OmmConfigBaseImpl.GenerateReactorConnectOpts();
+            if (baseImpl.BaseType == IOmmCommonImpl.ImpleType.CONSUMER)
+            {
+                channelSet = ((OmmConsumerConfigImpl)baseImpl.OmmConfigBaseImpl).ConsumerConfig.ChannelSet;
+            }
+            else
+            {
+                channelSet = ((OmmNiProviderConfigImpl)baseImpl.OmmConfigBaseImpl).NiProviderConfig.ChannelSet;
+            }
+
+            m_ChannelCount = channelSet.Count;
+
             StringBuilder? stringBuilder = null;
             int supportedConnectionTypeChannelCount = 1;
             string channelParams;
@@ -106,7 +120,7 @@ namespace LSEG.Ema.Access
             if (baseImpl.LoggerClient.IsTraceEnabled)
             {
                 stringBuilder = new StringBuilder(2048);
-                if (baseImpl.ConfigImpl.ConsumerConfig.ChannelSet.Count > 1)
+                if (channelSet.Count > 1)
                 {
                     stringBuilder.Append("Attempt to connect using the following list");
                 }
@@ -120,39 +134,39 @@ namespace LSEG.Ema.Access
             errorStrUnsupportedConnectionType.Append("Unsupported connection type. Passed in type is ");
             int channelCount = 1;
 
-            foreach (string channelName in baseImpl.ConfigImpl.ConsumerConfig.ChannelSet)
+            foreach (string channelName in channelSet)
             {
-                ChannelInfo channelInfo = new ChannelInfo(baseImpl.ConfigImpl.ClientChannelConfigMap[channelName], reactor);
+                ChannelInfo channelInfo = new ChannelInfo(baseImpl.OmmConfigBaseImpl.ClientChannelConfigMap[channelName], reactor);
 
                 // If proxy options were set by functions, override them for all connections.
-                if (string.IsNullOrEmpty(baseImpl.ConfigImpl.ProxyHost) == false)
+                if (string.IsNullOrEmpty(baseImpl.OmmConfigBaseImpl.ProxyHost) == false)
                 {
-                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyHostName = baseImpl.ConfigImpl.ProxyHost;
+                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyHostName = baseImpl.OmmConfigBaseImpl.ProxyHost;
                 }
 
-                if (string.IsNullOrEmpty(baseImpl.ConfigImpl.ProxyPort) == false)
+                if (string.IsNullOrEmpty(baseImpl.OmmConfigBaseImpl.ProxyPort) == false)
                 {
-                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPort = baseImpl.ConfigImpl.ProxyPort;
+                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPort = baseImpl.OmmConfigBaseImpl.ProxyPort;
                 }
 
-                if (string.IsNullOrEmpty(baseImpl.ConfigImpl.ProxyUserName) == false)
+                if (string.IsNullOrEmpty(baseImpl.OmmConfigBaseImpl.ProxyUserName) == false)
                 {
-                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyUserName = baseImpl.ConfigImpl.ProxyUserName;
+                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyUserName = baseImpl.OmmConfigBaseImpl.ProxyUserName;
                 }
 
-                if (string.IsNullOrEmpty(baseImpl.ConfigImpl.ProxyPassword) == false)
+                if (string.IsNullOrEmpty(baseImpl.OmmConfigBaseImpl.ProxyPassword) == false)
                 {
-                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPassword = baseImpl.ConfigImpl.ProxyPassword;
+                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPassword = baseImpl.OmmConfigBaseImpl.ProxyPassword;
                 }
 
-                if (baseImpl.ConfigImpl.ChanType != ConnectionType.UNIDENTIFIED)
+                if (baseImpl.OmmConfigBaseImpl.ChanType != ConnectionType.UNIDENTIFIED)
                 {
-                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType = (LSEG.Eta.Transports.ConnectionType)baseImpl.ConfigImpl.ChanType;
+                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType = (LSEG.Eta.Transports.ConnectionType)baseImpl.OmmConfigBaseImpl.ChanType;
                 }
 
-                if (baseImpl.ConfigImpl.EncProtocolType != ConnectionType.UNIDENTIFIED)
+                if (baseImpl.OmmConfigBaseImpl.EncProtocolType != ConnectionType.UNIDENTIFIED)
                 {
-                    if (baseImpl.ConfigImpl.ChanType != ConnectionType.ENCRYPTED)
+                    if (baseImpl.OmmConfigBaseImpl.ChanType != ConnectionType.ENCRYPTED)
                     {
                         StringBuilder strBuilder = baseImpl.GetStrBuilder();
                         strBuilder.AppendLine("Encrypted protocol type can not be set for non-encrypted channel type.");
@@ -160,7 +174,7 @@ namespace LSEG.Ema.Access
                         throw new OmmInvalidUsageException(strBuilder.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
                     }
 
-                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol = (LSEG.Eta.Transports.ConnectionType)baseImpl.ConfigImpl.EncProtocolType;
+                    channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol = (LSEG.Eta.Transports.ConnectionType)baseImpl.OmmConfigBaseImpl.EncProtocolType;
                 }
 
                 if (channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType == Eta.Transports.ConnectionType.SOCKET ||
@@ -182,18 +196,17 @@ namespace LSEG.Ema.Access
 
                     if(channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType == Eta.Transports.ConnectionType.ENCRYPTED)
                     {
-                        /* Overrides the encryption parameters from OmmConsumerConfig */
-
-                        if(baseImpl.ConfigImpl.SetEncryptedProtocolFlags)
+                        /* Overrides the encryption parameters from OmmConsumerConfig or OmmNiProviderConfig */
+                        if (baseImpl.OmmConfigBaseImpl.SetEncryptedProtocolFlags)
                         {
-                            channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.EncryptionOpts.EncryptionProtocolFlags = 
-                                (EncryptionProtocolFlags)baseImpl.ConfigImpl.EncryptedTLSProtocolFlags;
+                            channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.EncryptionOpts.EncryptionProtocolFlags =
+                                (EncryptionProtocolFlags)((OmmConsumerConfigImpl)baseImpl.OmmConfigBaseImpl).EncryptedTLSProtocolFlags;
                         }
 
-                        if(baseImpl.ConfigImpl.CipherSuites != null)
+                        if (baseImpl.OmmConfigBaseImpl.CipherSuites != null)
                         {
                             channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.EncryptionOpts.TlsCipherSuites =
-                                baseImpl.ConfigImpl.CipherSuites;
+                                ((OmmConsumerConfigImpl)baseImpl.OmmConfigBaseImpl).CipherSuites;
                         }
                     }
 
@@ -206,7 +219,7 @@ namespace LSEG.Ema.Access
                     {
                         channelParams = ChannelParametersToString(reactorConnOptions, channelInfo.ChannelConfig);
                         stringBuilder.AppendLine().Append($"\t{supportedConnectionTypeChannelCount}] ").Append(channelParams);
-                        if (supportedConnectionTypeChannelCount == baseImpl.ConfigImpl.ConsumerConfig.ChannelSet.Count)
+                        if (supportedConnectionTypeChannelCount == channelSet.Count)
                         {
                             baseImpl.LoggerClient.Trace(CLIENT_NAME, stringBuilder.ToString());
                         }
@@ -220,7 +233,7 @@ namespace LSEG.Ema.Access
                 {
                     errorStrUnsupportedConnectionType.Append($"\t{channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType}")
                         .Append($" for {channelName}");
-                    if (channelCount < baseImpl.ConfigImpl.ConsumerConfig.ChannelSet.Count - 1)
+                    if (channelCount < channelSet.Count - 1)
                         errorStrUnsupportedConnectionType.Append(", ");
                 }
 
@@ -458,7 +471,7 @@ namespace LSEG.Ema.Access
                     }
                 case ReactorChannelEventType.CHANNEL_DOWN_RECONNECTING:
                     {
-                        if ((InitialChannelConnectIndex + 1) < baseImpl.ConfigImpl.ConsumerConfig.ChannelSet.Count)
+                        if ((InitialChannelConnectIndex + 1) < m_ChannelCount)
                         {
                             ++InitialChannelConnectIndex;
                         }
@@ -638,6 +651,25 @@ namespace LSEG.Ema.Access
             }
         }
 
+        internal void InitializeNIProviderRole()
+        {
+            // Generate the role based on the ConfigImpl.
+            NIProviderRole niProviderRole = ((OmmNiProviderConfigImpl)baseImpl.OmmConfigBaseImpl).GenerateNiProviderRole();
+
+            LoginRequest loginReq = niProviderRole.RdmLoginRequest!;
+            loginReq.HasRole = true;
+            loginReq.Role = Eta.Rdm.Login.RoleTypes.PROV;
+            niProviderRole.RdmLoginRequest = loginReq;
+            niProviderRole.DictionaryDownloadMode = DictionaryDownloadMode.NONE;
+            niProviderRole.LoginMsgCallback = baseImpl.LoginCallbackClient;
+            niProviderRole.ChannelEventCallback = baseImpl.ChannelCallbackClient;
+            niProviderRole.DefaultMsgCallback = baseImpl.ItemCallbackClient;
+
+            reactorRole = niProviderRole;
+
+            InitializeReactor();
+        }
+
         private string ChannelParametersToString(ReactorConnectOptions reactorConnectOpts, ClientChannelConfig channelConfig)
         {
             bool isValidChType = true;
@@ -669,7 +701,8 @@ namespace LSEG.Ema.Access
                     }
             }
 
-            switch(reactorConnectInfo.ConnectOptions.ConnectionType)
+
+            switch (reactorConnectInfo.ConnectOptions.ConnectionType)
             {
                 case Eta.Transports.ConnectionType.SOCKET:
                 case Eta.Transports.ConnectionType.ENCRYPTED:
@@ -728,11 +761,11 @@ namespace LSEG.Ema.Access
                     .AppendLine($"\tSysRecvBufSize {reactorConnectInfo.ConnectOptions.SysRecvBufSize}")
                     .AppendLine($"\tSysSendBufSize {reactorConnectInfo.ConnectOptions.SysSendBufSize}")
                     .AppendLine($"\tConnectionPingTimeout {reactorConnectInfo.ConnectOptions.PingTimeout} sec")
-                    .AppendLine($"\tInitializationTimeout {reactorConnectInfo.GetInitTimeout()} sec");
+                    .AppendLine($"\tInitializationTimeout {reactorConnectInfo.GetInitTimeout()} sec")
+                    .AppendLine($"\tDirectWrite {channelConfig.DirectWrite}");
             }
 
             return strBuilder.ToString();
         }
-
     }
 }

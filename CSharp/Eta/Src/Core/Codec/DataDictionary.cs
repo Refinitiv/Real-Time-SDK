@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -36,8 +36,8 @@ namespace LSEG.Eta.Codec
 	/// <seealso cref="IEnumType" />
 	/// <seealso cref="MfFieldTypes" />
 	sealed public class DataDictionary
-	{
-		private bool InstanceFieldsInitialized = false;
+    {
+        private bool InstanceFieldsInitialized = false;
 
         /// <summary>
 		/// Creates <see cref="DataDictionary"/>.
@@ -45,20 +45,20 @@ namespace LSEG.Eta.Codec
 		/// <seealso cref="Dictionary" />
 		/// <seealso cref="DataDictionary" />
 		public DataDictionary()
-		{
-			if (!InstanceFieldsInitialized)
-			{
-				InitializeInstanceFields();
-				InstanceFieldsInitialized = true;
-			}
-		}
+        {
+            if (!InstanceFieldsInitialized)
+            {
+                InitializeInstanceFields();
+                InstanceFieldsInitialized = true;
+            }
+        }
 
-		private void InitializeInstanceFields()
-		{
-			ENUM_TABLE_MAX_COUNT = ((MAX_FID) - (MIN_FID) + 1);
-			_enumTypeArray = new EnumTypeImpl[MAX_ENUM_TYPE_COUNT];
-			_referenceFidArray = new short[MAX_ENUM_TYPE_COUNT];
-			_referenceFidAcronymArray = new Buffer[MAX_ENUM_TYPE_COUNT];
+        private void InitializeInstanceFields()
+        {
+            ENUM_TABLE_MAX_COUNT = ((MAX_FID) - (MIN_FID) + 1);
+            _enumTypeArray = new EnumTypeImpl[MAX_ENUM_TYPE_COUNT];
+            _referenceFidArray = new short[MAX_ENUM_TYPE_COUNT];
+            _referenceFidAcronymArray = new Buffer[MAX_ENUM_TYPE_COUNT];
 
             ENUM_FID.Data("FID");
             VALUES.Data("VALUES");
@@ -164,115 +164,116 @@ namespace LSEG.Eta.Codec
         }
 
         private readonly int MIN_FID = -32768;
-		private readonly int MAX_FID = 32767;
-		private int ENUM_TABLE_MAX_COUNT;
-		private readonly int MAX_ENUM_TYPE_COUNT = 30000;
+        private readonly int MAX_FID = 32767;
+        private int ENUM_TABLE_MAX_COUNT;
+        private readonly int MAX_ENUM_TYPE_COUNT = 30000;
 
-		// Dictionary - Element names that should be hidden
-		private readonly Buffer ENUM_FID = new Buffer();
-		private readonly Buffer VALUES = new Buffer();
-		private readonly Buffer DISPLAYS = new Buffer();
+        // Dictionary - Element names that should be hidden
+        private readonly Buffer ENUM_FID = new Buffer();
+        private readonly Buffer VALUES = new Buffer();
+        private readonly Buffer DISPLAYS = new Buffer();
 
-		internal DictionaryEntryImpl[] _entriesArray;
-		internal bool _isInitialized;
+        internal DictionaryEntryImpl[] _entriesArray;
+        internal bool _isInitialized;
 
-		/* Field Dictionary Tags */
-		internal readonly Buffer _infoFieldVersion = new Buffer();
+        /* Field Dictionary Tags */
+        internal readonly Buffer _infoFieldVersion = new Buffer();
 
-		/* Enum Type Dictionary Tags */
-		internal readonly Buffer _infoEnumRTVersion = new Buffer();
-		internal readonly Buffer _infoEnumDTVersion = new Buffer();
+        /* Enum Type Dictionary Tags */
+        internal readonly Buffer _infoEnumRTVersion = new Buffer();
+        internal readonly Buffer _infoEnumDTVersion = new Buffer();
 
-		/* Field Dictionary Additional tags (currently these are not defined by the domain model and are not sent by the encode/decode methods) */
-		internal readonly Buffer _infoFieldFilename = new Buffer();
-		internal readonly Buffer _infoFieldDesc = new Buffer();
-		internal readonly Buffer _infoFieldBuild = new Buffer();
-		internal readonly Buffer _infoFieldDate = new Buffer();
+        /* Field Dictionary Additional tags (currently these are not defined by the domain model and are not sent by the encode/decode methods) */
+        internal readonly Buffer _infoFieldFilename = new Buffer();
+        internal readonly Buffer _infoFieldDesc = new Buffer();
+        internal readonly Buffer _infoFieldBuild = new Buffer();
+        internal readonly Buffer _infoFieldDate = new Buffer();
 
-		/* Enum Type Dictionary Additional Tags */
-		internal readonly Buffer _infoEnumFilename = new Buffer();
-		internal readonly Buffer _infoEnumDesc = new Buffer();
-		internal readonly Buffer _infoEnumDate = new Buffer();
+        /* Enum Type Dictionary Additional Tags */
+        internal readonly Buffer _infoEnumFilename = new Buffer();
+        internal readonly Buffer _infoEnumDesc = new Buffer();
+        internal readonly Buffer _infoEnumDate = new Buffer();
 
         // dictionary parsing variables
         private FileStream _fieldDictFile;
-		private FileStream _enumTypeDefFile;
-		private char[] _fieldDictFileLine, _enumTypeDefFileLine;
-		private System.IO.StreamReader _fileInput;
-		private int _startPosition, _lastPosition, _lineStartPosition;
-		private EnumTypeImpl[] _enumTypeArray;
-		private int _enumTypeArrayCount = -1;
-		private short[] _referenceFidArray;
-		private Buffer[] _referenceFidAcronymArray;
+        private FileStream _enumTypeDefFile;
+        private char[] _fieldDictFileLine, _enumTypeDefFileLine;
+        private System.IO.StreamReader _fileInput;
+        private int _startPosition, _lastPosition, _lineStartPosition;
+        private EnumTypeImpl[] _enumTypeArray;
+        private int _enumTypeArrayCount = -1;
+        private short[] _referenceFidArray;
+        private Buffer[] _referenceFidAcronymArray;
 
-		// dictionary encoding variables
-		private readonly Buffer NAME = new Buffer();
-		private readonly Buffer FID = new Buffer();
-		private readonly Buffer RIPPLETO = new Buffer();
-		private readonly Buffer TYPE = new Buffer();
-		private readonly Buffer LENGTH = new Buffer();
-		private readonly Buffer RWFTYPE = new Buffer();
-		private readonly Buffer RWFLEN = new Buffer();
-		private readonly Buffer ENUMLENGTH = new Buffer();
-		private readonly Buffer LONGNAME = new Buffer();
-		private readonly ElementSetDefEntry[] elementSetDefEntries = new ElementSetDefEntry[9];
-		private readonly ElementSetDef setDef0_Minimal = new ElementSetDef();
-		private readonly ElementSetDef setDef0_Normal = new ElementSetDef();
-		private readonly Buffer FIDS = new Buffer();
-		private readonly Buffer VALUE = new Buffer();
-		private readonly Buffer DISPLAY = new Buffer();
-		private readonly Buffer MEANING = new Buffer();
-		private readonly ElementSetDefEntry[] enumSetDefEntries = new ElementSetDefEntry[4];
-		private readonly ElementSetDef enumSetDef0_Normal = new ElementSetDef();
-		private readonly ElementSetDef enumSetDef0_Verbose = new ElementSetDef();
+        // dictionary encoding variables
+        private readonly Buffer NAME = new Buffer();
+        private readonly Buffer FID = new Buffer();
+        private readonly Buffer RIPPLETO = new Buffer();
+        private readonly Buffer TYPE = new Buffer();
+        private readonly Buffer LENGTH = new Buffer();
+        private readonly Buffer RWFTYPE = new Buffer();
+        private readonly Buffer RWFLEN = new Buffer();
+        private readonly Buffer ENUMLENGTH = new Buffer();
+        private readonly Buffer LONGNAME = new Buffer();
+        private readonly ElementSetDefEntry[] elementSetDefEntries = new ElementSetDefEntry[9];
+        private readonly ElementSetDef setDef0_Minimal = new ElementSetDef();
+        private readonly ElementSetDef setDef0_Normal = new ElementSetDef();
+        private readonly Buffer FIDS = new Buffer();
+        private readonly Buffer VALUE = new Buffer();
+        private readonly Buffer DISPLAY = new Buffer();
+        private readonly Buffer MEANING = new Buffer();
+        private readonly ElementSetDefEntry[] enumSetDefEntries = new ElementSetDefEntry[4];
+        private readonly ElementSetDef enumSetDef0_Normal = new ElementSetDef();
+        private readonly ElementSetDef enumSetDef0_Verbose = new ElementSetDef();
 
-		// dictionary encode/decode container variables
-		internal Series series = new Series();
-		internal Vector vector =new Vector();
-		internal LocalElementSetDefDb setDb = new LocalElementSetDefDb();
-		internal VectorEntry vectorEntry = new VectorEntry();
-		internal SeriesEntry seriesEntry = new SeriesEntry();
-		internal ElementList elemList = new ElementList();
-		internal ElementEntry elemEntry = new ElementEntry();
-		internal Int tmpInt = new Int();
-		internal Array arr = new Array();
-		internal ArrayEntry arrEntry = new ArrayEntry();
-		internal Buffer rippleAcronym = new Buffer();
-		internal UInt tempUInt =new UInt();
-		internal Int tempInt = new Int();
-		internal Buffer tempBuffer = new Buffer();
-		internal DecodeIterator tempDecIter = new DecodeIterator();
+        // dictionary encode/decode container variables
+        internal Series series = new Series();
+        internal Vector vector = new Vector();
+        internal LocalElementSetDefDb setDb = new LocalElementSetDefDb();
+        internal VectorEntry vectorEntry = new VectorEntry();
+        internal SeriesEntry seriesEntry = new SeriesEntry();
+        internal ElementList elemList = new ElementList();
+        internal ElementEntry elemEntry = new ElementEntry();
+        internal Int tmpInt = new Int();
+        internal Array arr = new Array();
+        internal ArrayEntry arrEntry = new ArrayEntry();
+        internal Buffer rippleAcronym = new Buffer();
+        internal UInt tempUInt = new UInt();
+        internal Int tempInt = new Int();
+        internal Buffer tempBuffer = new Buffer();
+        internal DecodeIterator tempDecIter = new DecodeIterator();
         internal Enum tempEnum = new Enum();
-		internal FieldSetDef newSetDef = new FieldSetDef();
-		internal LocalFieldSetDefDb fieldSetDef = new LocalFieldSetDefDb();
+        internal FieldSetDef newSetDef = new FieldSetDef();
+        internal LocalFieldSetDefDb fieldSetDef = new LocalFieldSetDefDb();
 
-		internal string dictionaryString; // for toString method
+        internal StringBuilder dictionaryString; // for toString method
 
         internal static Encoding EncodingChars = Encoding.GetEncoding("iso-8859-1");
 
         private class RippleDefintion
-		{
+        {
             public RippleDefintion(DataDictionary dd)
             {
                 ddImpl = dd;
             }
             private DataDictionary ddImpl;
-			public Buffer rippleAcronym = new Buffer();
-			public int rippleFid;
-			public RippleDefintion next;
-		}
+            public Buffer rippleAcronym = new Buffer();
+            public int rippleFid;
+            public RippleDefintion next;
+        }
 
-		const int c_MfeedError = -2;
-		const string c_defaultVersion = "";
+        const int c_MfeedError = -2;
+        const string c_defaultVersion = "";
 
         /// <summary>
 		/// Clears <see cref="DataDictionary"/>. This should be done prior to the first
 		/// call of a dictionary loading method, if the initializer is not used.
 		/// </summary>
 		public void Clear()
-		{
-			_isInitialized = false;
-		}
+        {
+            _isInitialized = false;
+            dictionaryString?.Clear();
+        }
 
         /// <summary>
 		/// Returns the entry in the dictionary corresponding to the given fieldId, if the entry exists.
@@ -283,14 +284,14 @@ namespace LSEG.Eta.Codec
 		/// </returns>
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public IDictionaryEntry Entry(int fieldId)
-		{
-			if (_entriesArray == null)
-			{
-				return null;
-			}
+        {
+            if (_entriesArray == null)
+            {
+                return null;
+            }
 
-			return (fieldId - MIN_FID < MAX_FID - MIN_FID + 1) ? _entriesArray[fieldId - MIN_FID] : null;
-		}
+            return (fieldId - MIN_FID < MAX_FID - MIN_FID + 1) ? _entriesArray[fieldId - MIN_FID] : null;
+        }
 
         /// <summary>
         /// Returns the corresponding enumerated type in the dictionary entry's
@@ -303,10 +304,10 @@ namespace LSEG.Eta.Codec
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public IEnumType EntryEnumType(IDictionaryEntry entry, Enum value)
-		{
-			DictionaryEntryImpl entryImpl = (DictionaryEntryImpl)entry;
-			return ((entryImpl._enumTypeTable != null) && (value.ToInt() <= entryImpl._enumTypeTable.MaxValue)) ? entryImpl._enumTypeTable.EnumTypes[value.ToInt()] : null;
-		}
+        {
+            DictionaryEntryImpl entryImpl = (DictionaryEntryImpl)entry;
+            return ((entryImpl._enumTypeTable != null) && (value.ToInt() <= entryImpl._enumTypeTable.MaxValue)) ? entryImpl._enumTypeTable.EnumTypes[value.ToInt()] : null;
+        }
 
         /// <summary>
         /// Adds information from a field dictionary file to the data dictionary
@@ -321,30 +322,31 @@ namespace LSEG.Eta.Codec
         /// </returns>
         /// <seealso cref="DataDictionary"/>
         public CodecReturnCode LoadFieldDictionary(string filename, out CodecError error)
-		{
-			int lengthRead = 0;
-			DictionaryEntryImpl newDictEntry;
-			Int16 fidNum;
-			int lineNum = 0;
+        {
+            int lengthRead = 0;
+            DictionaryEntryImpl newDictEntry;
+            Int16 fidNum;
+            int lineNum = 0;
             Int16 rippleFid = 0;
-			RippleDefintion undefinedRipples = null;
-			Byte tmpRwfType;
+            RippleDefintion undefinedRipples = null;
+            Byte tmpRwfType;
             error = null;
 
             try
-			{
-				_lastPosition = 0;
-				rippleAcronym.Clear();
+            {
+                _lastPosition = 0;
+                rippleAcronym.Clear();
+                dictionaryString?.Clear();
 
-				if (filename == null)
-				{
-					SetError(out error, "NULL Filename pointer.");
-					return CodecReturnCode.FAILURE;
-				}
+                if (filename == null)
+                {
+                    SetError(out error, "NULL Filename pointer.");
+                    return CodecReturnCode.FAILURE;
+                }
 
-                
 
-                if ( !File.Exists(filename) )
+
+                if (!File.Exists(filename))
                 {
                     SetError(out error, "Can't open file: " + filename);
                     return CodecReturnCode.FAILURE;
@@ -352,209 +354,209 @@ namespace LSEG.Eta.Codec
 
                 _fieldDictFile = File.OpenRead(filename);
 
-				if (!_isInitialized && InitDictionary() != CodecReturnCode.SUCCESS)
-				{
-					return CodecReturnCode.FAILURE;
-				}
+                if (!_isInitialized && InitDictionary() != CodecReturnCode.SUCCESS)
+                {
+                    return CodecReturnCode.FAILURE;
+                }
 
-				_fieldDictFileLine = new char[(int)_fieldDictFile.Length];
-				_fileInput = new System.IO.StreamReader(_fieldDictFile, EncodingChars);
-				lengthRead = _fileInput.Read(_fieldDictFileLine, 0, _fieldDictFileLine.Length);
-				while (_lastPosition < lengthRead - 1)
-				{
-					lineNum++;
+                _fieldDictFileLine = new char[(int)_fieldDictFile.Length];
+                _fileInput = new System.IO.StreamReader(_fieldDictFile, EncodingChars);
+                lengthRead = _fileInput.Read(_fieldDictFileLine, 0, _fieldDictFileLine.Length);
+                while (_lastPosition < lengthRead - 1)
+                {
+                    lineNum++;
 
-					FindLineStart(_fieldDictFileLine);
-					if (_lineStartPosition >= lengthRead - 1)
-					{
-						break;
-					}
+                    FindLineStart(_fieldDictFileLine);
+                    if (_lineStartPosition >= lengthRead - 1)
+                    {
+                        break;
+                    }
 
-					if (_fieldDictFileLine[_lastPosition + 0] == '!' && _fieldDictFileLine[_lastPosition + 1] == 't' && _fieldDictFileLine[_lastPosition + 2] == 'a' && _fieldDictFileLine[_lastPosition + 3] == 'g')
-					{
-						/* Tags */
-						if (CopyDictionaryTag(TagName(_fieldDictFileLine), TagValue(_fieldDictFileLine), Dictionary.Types.FIELD_DEFINITIONS, out error) != CodecReturnCode.SUCCESS)
-						{
-							_fileInput.Close();
-							return CodecReturnCode.FAILURE;
-						}
-						continue;
-					}
+                    if (_fieldDictFileLine[_lastPosition + 0] == '!' && _fieldDictFileLine[_lastPosition + 1] == 't' && _fieldDictFileLine[_lastPosition + 2] == 'a' && _fieldDictFileLine[_lastPosition + 3] == 'g')
+                    {
+                        /* Tags */
+                        if (CopyDictionaryTag(TagName(_fieldDictFileLine), TagValue(_fieldDictFileLine), Dictionary.Types.FIELD_DEFINITIONS, out error) != CodecReturnCode.SUCCESS)
+                        {
+                            _fileInput.Close();
+                            return CodecReturnCode.FAILURE;
+                        }
+                        continue;
+                    }
 
-					if (_fieldDictFileLine[_lastPosition + 0] == '!')
-					{
-						NextLine(_fieldDictFileLine);
-						continue;
-					}
+                    if (_fieldDictFileLine[_lastPosition + 0] == '!')
+                    {
+                        NextLine(_fieldDictFileLine);
+                        continue;
+                    }
 
-					newDictEntry = new DictionaryEntryImpl();
+                    newDictEntry = new DictionaryEntryImpl();
 
-					/* ACRONYM */
-					(newDictEntry._acronym).Data_internal(Acronym(_fieldDictFileLine));
-					if (newDictEntry._acronym.GetLength() == 0)
-					{
-						SetError(out error, "Cannot find Acronym (Line=" + lineNum + ").");
-						return CodecReturnCode.FAILURE;
-					}
+                    /* ACRONYM */
+                    (newDictEntry._acronym).Data_internal(Acronym(_fieldDictFileLine));
+                    if (newDictEntry._acronym.GetLength() == 0)
+                    {
+                        SetError(out error, "Cannot find Acronym (Line=" + lineNum + ").");
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					/* DDE ACRONYM */
-					(newDictEntry._ddeAcronym).Data_internal(DdeAcronym(_fieldDictFileLine));
-					if (newDictEntry._ddeAcronym.GetLength() == 0)
-					{
-						SetError(out error, "Cannot find DDE Acronym (Line=" + lineNum + ").");
-						return CodecReturnCode.FAILURE;
-					}
+                    /* DDE ACRONYM */
+                    (newDictEntry._ddeAcronym).Data_internal(DdeAcronym(_fieldDictFileLine));
+                    if (newDictEntry._ddeAcronym.GetLength() == 0)
+                    {
+                        SetError(out error, "Cannot find DDE Acronym (Line=" + lineNum + ").");
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					/* FID */
-					fidNum = (Int16)Fid(_fieldDictFileLine);
-					if ((fidNum < MIN_FID) || (fidNum > MAX_FID))
-					{
-						SetError(out error, "Illegal fid number " + fidNum + " (Line=" + lineNum + ").");
-						return CodecReturnCode.FAILURE;
-					}
-					newDictEntry._fid = fidNum;
+                    /* FID */
+                    fidNum = (Int16)Fid(_fieldDictFileLine);
+                    if ((fidNum < MIN_FID) || (fidNum > MAX_FID))
+                    {
+                        SetError(out error, "Illegal fid number " + fidNum + " (Line=" + lineNum + ").");
+                        return CodecReturnCode.FAILURE;
+                    }
+                    newDictEntry._fid = fidNum;
 
-					if (fidNum < MinFid)
-					{
+                    if (fidNum < MinFid)
+                    {
                         MinFid = fidNum;
-					}
-					else if (fidNum > MaxFid)
-					{
-						MaxFid = fidNum;
-					}
+                    }
+                    else if (fidNum > MaxFid)
+                    {
+                        MaxFid = fidNum;
+                    }
 
-					/* RIPPLES TO */
-					if (rippleAcronym.GetLength() > 0)
-					{
-						if (rippleAcronym.Equals(newDictEntry._acronym))
-						{
-							_entriesArray[rippleFid - MIN_FID]._rippleToField = fidNum;
-							rippleAcronym.Clear();
-							rippleFid = 0;
-						}
-					}
+                    /* RIPPLES TO */
+                    if (rippleAcronym.GetLength() > 0)
+                    {
+                        if (rippleAcronym.Equals(newDictEntry._acronym))
+                        {
+                            _entriesArray[rippleFid - MIN_FID]._rippleToField = fidNum;
+                            rippleAcronym.Clear();
+                            rippleFid = 0;
+                        }
+                    }
 
-					int ripplesToPos = RipplesToPosition(_fieldDictFileLine);
+                    int ripplesToPos = RipplesToPosition(_fieldDictFileLine);
 
-					if (ripplesToPos < 14)
-					{
-						SetError(out error, "Cannot find Ripples To (Line=" + lineNum + ").");
-						return CodecReturnCode.FAILURE;
-					}
+                    if (ripplesToPos < 14)
+                    {
+                        SetError(out error, "Cannot find Ripples To (Line=" + lineNum + ").");
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					/* Initialize to zero since will be filled in later, if exists */
-					newDictEntry._rippleToField = 0;
+                    /* Initialize to zero since will be filled in later, if exists */
+                    newDictEntry._rippleToField = 0;
 
-					if (_fieldDictFileLine[ripplesToPos] != 'N' && _fieldDictFileLine[ripplesToPos + 1] != 'U' && _fieldDictFileLine[ripplesToPos + 2] != 'L' && _fieldDictFileLine[ripplesToPos + 3] != 'L')
-					{
-						if (rippleAcronym.GetLength() > 0)
-						{
-							RippleDefintion newDef = new RippleDefintion(this);
-							(newDef.rippleAcronym).Data(rippleAcronym.ToString());
-							rippleAcronym.Clear();
+                    if (_fieldDictFileLine[ripplesToPos] != 'N' && _fieldDictFileLine[ripplesToPos + 1] != 'U' && _fieldDictFileLine[ripplesToPos + 2] != 'L' && _fieldDictFileLine[ripplesToPos + 3] != 'L')
+                    {
+                        if (rippleAcronym.GetLength() > 0)
+                        {
+                            RippleDefintion newDef = new RippleDefintion(this);
+                            (newDef.rippleAcronym).Data(rippleAcronym.ToString());
+                            rippleAcronym.Clear();
 
-							newDef.rippleFid = rippleFid;
-							newDef.next = undefinedRipples;
-							undefinedRipples = newDef;
+                            newDef.rippleFid = rippleFid;
+                            newDef.next = undefinedRipples;
+                            undefinedRipples = newDef;
 
-						}
-						(rippleAcronym).Data_internal(new string(_fieldDictFileLine, _startPosition, _lastPosition - _startPosition));
-						rippleFid = fidNum;
-					}
+                        }
+                        (rippleAcronym).Data_internal(new string(_fieldDictFileLine, _startPosition, _lastPosition - _startPosition));
+                        rippleFid = fidNum;
+                    }
 
-					/* FIELD TYPE */
-					FindFieldTypeStr(_fieldDictFileLine);
-					newDictEntry._fieldType = (sbyte)FieldType(_fieldDictFileLine);
-					if (newDictEntry._fieldType == c_MfeedError)
-					{
-						SetError(out error, "Unknown Field Type '" + new string(_fieldDictFileLine, _startPosition, _lastPosition - _startPosition)
-								+ "' (Line=" + lineNum + ").");
-						return CodecReturnCode.FAILURE;
-					}
+                    /* FIELD TYPE */
+                    FindFieldTypeStr(_fieldDictFileLine);
+                    newDictEntry._fieldType = (sbyte)FieldType(_fieldDictFileLine);
+                    if (newDictEntry._fieldType == c_MfeedError)
+                    {
+                        SetError(out error, "Unknown Field Type '" + new string(_fieldDictFileLine, _startPosition, _lastPosition - _startPosition)
+                                + "' (Line=" + lineNum + ").");
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					/* LENGTH */
-					newDictEntry._length = (ushort)Length(_fieldDictFileLine);
-					if (newDictEntry._length < 0)
-					{
-						SetError(out error, "Cannot find Length (Line=" + lineNum + ").");
-						return CodecReturnCode.FAILURE;
-					}
+                    /* LENGTH */
+                    newDictEntry._length = (ushort)Length(_fieldDictFileLine);
+                    if (newDictEntry._length < 0)
+                    {
+                        SetError(out error, "Cannot find Length (Line=" + lineNum + ").");
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					/* LENGTH ( ENUM ) */
-					int enumLength = EnumLength(_fieldDictFileLine);
-					if (enumLength == -1)
-					{
-						SetError(out error, "Cannot find EnumLen (Line=" + lineNum + ").");
-						return CodecReturnCode.FAILURE;
-					}
+                    /* LENGTH ( ENUM ) */
+                    int enumLength = EnumLength(_fieldDictFileLine);
+                    if (enumLength == -1)
+                    {
+                        SetError(out error, "Cannot find EnumLen (Line=" + lineNum + ").");
+                        return CodecReturnCode.FAILURE;
+                    }
                     newDictEntry._enumLength = (byte)enumLength;
 
                     /* RWF TYPE */
                     FindRwfTypeStr(_fieldDictFileLine);
-					tmpRwfType = (byte)RwfFieldType(_fieldDictFileLine);
-					if (tmpRwfType < 0)
-					{
-						SetError(out error, "Illegal Rwf Type '" + new string(_fieldDictFileLine, _startPosition, _lastPosition - _startPosition)
-								+ "' (Line=" + lineNum + ").");
-						return CodecReturnCode.FAILURE;
-					}
-					newDictEntry._rwfType = tmpRwfType;
+                    tmpRwfType = (byte)RwfFieldType(_fieldDictFileLine);
+                    if (tmpRwfType < 0)
+                    {
+                        SetError(out error, "Illegal Rwf Type '" + new string(_fieldDictFileLine, _startPosition, _lastPosition - _startPosition)
+                                + "' (Line=" + lineNum + ").");
+                        return CodecReturnCode.FAILURE;
+                    }
+                    newDictEntry._rwfType = tmpRwfType;
 
-					/* RWF LEN */
-					newDictEntry._rwfLength = (ushort)RwfLength(_fieldDictFileLine);
-					if (newDictEntry._rwfLength < 0)
-					{
-						SetError(out error, "Cannot find Rwf Length (Line=" + lineNum + ").");
-						return CodecReturnCode.FAILURE;
-					}
+                    /* RWF LEN */
+                    newDictEntry._rwfLength = (ushort)RwfLength(_fieldDictFileLine);
+                    if (newDictEntry._rwfLength < 0)
+                    {
+                        SetError(out error, "Cannot find Rwf Length (Line=" + lineNum + ").");
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					if (AddFieldToDictionary(newDictEntry, out error, lineNum) != CodecReturnCode.SUCCESS)
-					{
-						return CodecReturnCode.FAILURE;
-					}
-					newDictEntry = null;
-				}
+                    if (AddFieldToDictionary(newDictEntry, out error, lineNum) != CodecReturnCode.SUCCESS)
+                    {
+                        return CodecReturnCode.FAILURE;
+                    }
+                    newDictEntry = null;
+                }
 
-				if ((MinFid <= MAX_FID) && (MaxFid >= MIN_FID))
-				{
-					/* Go through the undefined ripplesTo fields and find */
-					while (undefinedRipples != null)
-					{
-						RippleDefintion tdef = undefinedRipples;
-						for (int j = MinFid; j <= MaxFid; j++)
-						{
-							if ((_entriesArray[j - MIN_FID] != null) && (tdef.rippleAcronym.Equals(_entriesArray[j - MIN_FID]._acronym)))
-							{
-								_entriesArray[tdef.rippleFid - MIN_FID]._rippleToField = (short)j;
-								break;
-							}
-						}
-						undefinedRipples = tdef.next;
-					}
-				}
+                if ((MinFid <= MAX_FID) && (MaxFid >= MIN_FID))
+                {
+                    /* Go through the undefined ripplesTo fields and find */
+                    while (undefinedRipples != null)
+                    {
+                        RippleDefintion tdef = undefinedRipples;
+                        for (int j = MinFid; j <= MaxFid; j++)
+                        {
+                            if ((_entriesArray[j - MIN_FID] != null) && (tdef.rippleAcronym.Equals(_entriesArray[j - MIN_FID]._acronym)))
+                            {
+                                _entriesArray[tdef.rippleFid - MIN_FID]._rippleToField = (short)j;
+                                break;
+                            }
+                        }
+                        undefinedRipples = tdef.next;
+                    }
+                }
 
-				if (_infoFieldVersion.Length == 0) // Set default if tag not found
-				{
-					(_infoFieldVersion).Data_internal(c_defaultVersion);
-				}
+                if (_infoFieldVersion.Length == 0) // Set default if tag not found
+                {
+                    (_infoFieldVersion).Data_internal(c_defaultVersion);
+                }
 
-				_fileInput.Close();
-			}
-			catch (System.IndexOutOfRangeException)
-			{
-				SetError(out error, "ArrayIndexOutOfBoundsException");
+                _fileInput.Close();
+            }
+            catch (System.IndexOutOfRangeException)
+            {
+                SetError(out error, "ArrayIndexOutOfBoundsException");
 
-				return CodecReturnCode.FAILURE;
-			}
-			catch (Exception e)
-			{
-				SetError(out error, e.Message);
+                return CodecReturnCode.FAILURE;
+            }
+            catch (Exception e)
+            {
+                SetError(out error, e.Message);
 
-				return CodecReturnCode.FAILURE;
-			}
+                return CodecReturnCode.FAILURE;
+            }
 
-			return CodecReturnCode.SUCCESS;
-		}
+            return CodecReturnCode.SUCCESS;
+        }
 
         /// <summary>
 		/// Adds information from an enumerated types dictionary file to the data
@@ -571,24 +573,25 @@ namespace LSEG.Eta.Codec
 		/// <returns> <c>CodecReturnCode.SUCCESS</c> upon successful completion.
 		/// </returns>
 		public CodecReturnCode LoadEnumTypeDictionary(string filename, out CodecError error)
-		{
-			int lengthRead = 0;
-			int lineNum = 0;
-			int value = 0;
-			bool success;
-			ushort fidsCount = 0;
-			ushort maxValue = 0;
+        {
+            int lengthRead = 0;
+            int lineNum = 0;
+            int value = 0;
+            bool success;
+            ushort fidsCount = 0;
+            ushort maxValue = 0;
             error = null;
 
             try
-			{
-				_lastPosition = 0;
+            {
+                _lastPosition = 0;
+                dictionaryString?.Clear();
 
-				if (filename == null)
-				{
-					SetError(out error, "NULL Filename pointer.");
-					return CodecReturnCode.FAILURE;
-				}
+                if (filename == null)
+                {
+                    SetError(out error, "NULL Filename pointer.");
+                    return CodecReturnCode.FAILURE;
+                }
 
                 if (!File.Exists(filename))
                 {
@@ -598,179 +601,179 @@ namespace LSEG.Eta.Codec
 
                 _enumTypeDefFile = File.OpenRead(filename);
 
-				if (!_isInitialized && InitDictionary() != CodecReturnCode.SUCCESS)
-				{
-					return CodecReturnCode.FAILURE;
-				}
+                if (!_isInitialized && InitDictionary() != CodecReturnCode.SUCCESS)
+                {
+                    return CodecReturnCode.FAILURE;
+                }
 
-				_enumTypeDefFileLine = new char[(int)_enumTypeDefFile.Length];
-				_fileInput = new System.IO.StreamReader(_enumTypeDefFile, EncodingChars);
-				lengthRead = _fileInput.Read(_enumTypeDefFileLine, 0, _enumTypeDefFileLine.Length);
-				while (_lastPosition < lengthRead - 1)
-				{
-					lineNum++;
+                _enumTypeDefFileLine = new char[(int)_enumTypeDefFile.Length];
+                _fileInput = new System.IO.StreamReader(_enumTypeDefFile, EncodingChars);
+                lengthRead = _fileInput.Read(_enumTypeDefFileLine, 0, _enumTypeDefFileLine.Length);
+                while (_lastPosition < lengthRead - 1)
+                {
+                    lineNum++;
 
-					FindLineStart(_enumTypeDefFileLine);
-					if (_lineStartPosition > lengthRead - 1)
-					{
-						break;
-					}
+                    FindLineStart(_enumTypeDefFileLine);
+                    if (_lineStartPosition > lengthRead - 1)
+                    {
+                        break;
+                    }
 
-					if (_enumTypeDefFileLine[_lastPosition + 0] == '!' && _enumTypeDefFileLine[_lastPosition + 1] == 't' && _enumTypeDefFileLine[_lastPosition + 2] == 'a' && _enumTypeDefFileLine[_lastPosition + 3] == 'g')
-					{
-						/* Tags */
-						if (lengthRead < 14)
-						{
-							continue;
-						}
+                    if (_enumTypeDefFileLine[_lastPosition + 0] == '!' && _enumTypeDefFileLine[_lastPosition + 1] == 't' && _enumTypeDefFileLine[_lastPosition + 2] == 'a' && _enumTypeDefFileLine[_lastPosition + 3] == 'g')
+                    {
+                        /* Tags */
+                        if (lengthRead < 14)
+                        {
+                            continue;
+                        }
 
-						if (CopyDictionaryTag(TagName(_enumTypeDefFileLine), TagValue(_enumTypeDefFileLine), Dictionary.Types.ENUM_TABLES, out error) != CodecReturnCode.SUCCESS)
-						{
-							_fileInput.Close();
-							return CodecReturnCode.FAILURE;
-						}
-						continue;
-					}
+                        if (CopyDictionaryTag(TagName(_enumTypeDefFileLine), TagValue(_enumTypeDefFileLine), Dictionary.Types.ENUM_TABLES, out error) != CodecReturnCode.SUCCESS)
+                        {
+                            _fileInput.Close();
+                            return CodecReturnCode.FAILURE;
+                        }
+                        continue;
+                    }
 
-					if (_enumTypeDefFileLine[_lastPosition + 0] == '!')
-					{
-						NextLine(_enumTypeDefFileLine);
-						continue;
-					}
+                    if (_enumTypeDefFileLine[_lastPosition + 0] == '!')
+                    {
+                        NextLine(_enumTypeDefFileLine);
+                        continue;
+                    }
 
-					/* Build a list of Fids. Once finished, make sure the fields point to the parsed enum table.
+                    /* Build a list of Fids. Once finished, make sure the fields point to the parsed enum table.
 					 * If the field does not exist, create it with UNKNOWN type. */
 
-					if (_enumTypeDefFileLine[0] == '"')
-					{
-						SetError(out error, "Missing keyword (Line=" + lineNum + ").");
-						return CodecReturnCode.FAILURE;
-					}
+                    if (_enumTypeDefFileLine[0] == '"')
+                    {
+                        SetError(out error, "Missing keyword (Line=" + lineNum + ").");
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					/* VALUE */
-					_lastPosition = _lineStartPosition - 1;
-					if ((value = IntField(_enumTypeDefFileLine)) >= 0)
-					{
-						success = true;
-					}
-					else if (value < MIN_FID)
-					{
-						success = false;
-					}
-					else
-					{
-						SetError(out error, "Enum value cannot be negative");
-						return CodecReturnCode.FAILURE;
-					}
+                    /* VALUE */
+                    _lastPosition = _lineStartPosition - 1;
+                    if ((value = IntField(_enumTypeDefFileLine)) >= 0)
+                    {
+                        success = true;
+                    }
+                    else if (value < MIN_FID)
+                    {
+                        success = false;
+                    }
+                    else
+                    {
+                        SetError(out error, "Enum value cannot be negative");
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					if (!success)
-					{
-						/* Must be an acronym, so still working on fids. */
+                    if (!success)
+                    {
+                        /* Must be an acronym, so still working on fids. */
 
-						/* If we were working on a value table it's finished */
-						if (_enumTypeArrayCount >= 0)
-						{
-							if (AddTableToDictionary(fidsCount, _referenceFidArray, _referenceFidAcronymArray, maxValue, _enumTypeArray, _enumTypeArrayCount, out error, lineNum) != CodecReturnCode.SUCCESS)
-							{
-								return CodecReturnCode.FAILURE;
-							}
+                        /* If we were working on a value table it's finished */
+                        if (_enumTypeArrayCount >= 0)
+                        {
+                            if (AddTableToDictionary(fidsCount, _referenceFidArray, _referenceFidAcronymArray, maxValue, _enumTypeArray, _enumTypeArrayCount, out error, lineNum) != CodecReturnCode.SUCCESS)
+                            {
+                                return CodecReturnCode.FAILURE;
+                            }
 
-							maxValue = 0;
-							fidsCount = 0;
-							_enumTypeArrayCount = -1;
-						}
+                            maxValue = 0;
+                            fidsCount = 0;
+                            _enumTypeArrayCount = -1;
+                        }
 
-						/* ACRONYM */
-						(_referenceFidAcronymArray[fidsCount]).Data_internal(Acronym(_enumTypeDefFileLine));
+                        /* ACRONYM */
+                        (_referenceFidAcronymArray[fidsCount]).Data_internal(Acronym(_enumTypeDefFileLine));
 
-						/* FID */
-						_referenceFidArray[fidsCount] = (short)Fid(_enumTypeDefFileLine);
-						if (_referenceFidArray[fidsCount] < MIN_FID)
-						{
-							SetError(out error, "Missing FID (Line=" + lineNum + ").");
-							return CodecReturnCode.FAILURE;
-						}
+                        /* FID */
+                        _referenceFidArray[fidsCount] = (short)Fid(_enumTypeDefFileLine);
+                        if (_referenceFidArray[fidsCount] < MIN_FID)
+                        {
+                            SetError(out error, "Missing FID (Line=" + lineNum + ").");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						fidsCount++;
+                        fidsCount++;
 
-						continue;
-					}
-					else
-					{
-						/* Working on values */
-						_enumTypeArrayCount++;
+                        continue;
+                    }
+                    else
+                    {
+                        /* Working on values */
+                        _enumTypeArrayCount++;
 
-						_enumTypeArray[_enumTypeArrayCount] = new EnumTypeImpl();
-					}
+                        _enumTypeArray[_enumTypeArrayCount] = new EnumTypeImpl();
+                    }
 
-					/* Parsing Enum Values */
+                    /* Parsing Enum Values */
 
-					/* Since most value lists are likely to be 1) short, 2) fairly contiguous, and 3) on the low end
+                    /* Since most value lists are likely to be 1) short, 2) fairly contiguous, and 3) on the low end
 					 * Figure out the max value and then create an appproprately-sized table. */
 
-					_enumTypeArray[_enumTypeArrayCount].Value = (ushort)value;
-					if (_enumTypeArray[_enumTypeArrayCount].Value > maxValue)
-					{
-						maxValue = _enumTypeArray[_enumTypeArrayCount].Value;
-					}
+                    _enumTypeArray[_enumTypeArrayCount].Value = (ushort)value;
+                    if (_enumTypeArray[_enumTypeArrayCount].Value > maxValue)
+                    {
+                        maxValue = _enumTypeArray[_enumTypeArrayCount].Value;
+                    }
 
-					if (!IsDisplayHex(_enumTypeDefFileLine)) // display is not hex
-					{
-						(_enumTypeArray[_enumTypeArrayCount].Display).Data_internal(Display(_enumTypeDefFileLine));
-						if (_enumTypeArray[_enumTypeArrayCount].Display.Length == 0)
-						{
-							SetError(out error, "Missing DISPLAY (Line=" + lineNum + ").");
-							return CodecReturnCode.FAILURE;
-						}
-					}
-					else
-					{
-					// display is hex
-						/* Special character -- store as binary */
-						int hexLen = HexLength(_enumTypeDefFileLine);
+                    if (!IsDisplayHex(_enumTypeDefFileLine)) // display is not hex
+                    {
+                        (_enumTypeArray[_enumTypeArrayCount].Display).Data_internal(Display(_enumTypeDefFileLine));
+                        if (_enumTypeArray[_enumTypeArrayCount].Display.Length == 0)
+                        {
+                            SetError(out error, "Missing DISPLAY (Line=" + lineNum + ").");
+                            return CodecReturnCode.FAILURE;
+                        }
+                    }
+                    else
+                    {
+                        // display is hex
+                        /* Special character -- store as binary */
+                        int hexLen = HexLength(_enumTypeDefFileLine);
 
-						if ((hexLen & 0x1) > 0) // Make sure it's even
-						{
-							SetError(out error, "Odd-length hexadecimal input (Line=" + lineNum + ").");
-							return CodecReturnCode.FAILURE;
-						}
+                        if ((hexLen & 0x1) > 0) // Make sure it's even
+                        {
+                            SetError(out error, "Odd-length hexadecimal input (Line=" + lineNum + ").");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						if (!SetDisplayToHex(_enumTypeDefFileLine, _enumTypeArray[_enumTypeArrayCount].Display, hexLen))
-						{
-							SetError(out error, "Invalid hexadecimal input (Line=" + lineNum + ").");
-							return CodecReturnCode.FAILURE;
-						}
-					}
+                        if (!SetDisplayToHex(_enumTypeDefFileLine, _enumTypeArray[_enumTypeArrayCount].Display, hexLen))
+                        {
+                            SetError(out error, "Invalid hexadecimal input (Line=" + lineNum + ").");
+                            return CodecReturnCode.FAILURE;
+                        }
+                    }
 
-					(_enumTypeArray[_enumTypeArrayCount].Meaning).Data_internal(Meaning(_enumTypeDefFileLine));
-				}
+                    (_enumTypeArray[_enumTypeArrayCount].Meaning).Data_internal(Meaning(_enumTypeDefFileLine));
+                }
 
-				/* Finish last table */
-				if (_enumTypeArrayCount == -1)
-				{
-					SetError(out error, "No EnumTable found (Line=" + lineNum + ").");
-					return CodecReturnCode.FAILURE;
-				}
+                /* Finish last table */
+                if (_enumTypeArrayCount == -1)
+                {
+                    SetError(out error, "No EnumTable found (Line=" + lineNum + ").");
+                    return CodecReturnCode.FAILURE;
+                }
 
-				if (AddTableToDictionary(fidsCount, _referenceFidArray, _referenceFidAcronymArray, maxValue, _enumTypeArray, _enumTypeArrayCount, out error, -1) != CodecReturnCode.SUCCESS)
-				{
-					return CodecReturnCode.FAILURE;
-				}
+                if (AddTableToDictionary(fidsCount, _referenceFidArray, _referenceFidAcronymArray, maxValue, _enumTypeArray, _enumTypeArrayCount, out error, -1) != CodecReturnCode.SUCCESS)
+                {
+                    return CodecReturnCode.FAILURE;
+                }
 
-				_enumTypeArrayCount = -1;
-				maxValue = 0;
-				fidsCount = 0;
+                _enumTypeArrayCount = -1;
+                maxValue = 0;
+                fidsCount = 0;
 
-				_fileInput.Close();
-			}
-			catch (Exception excp)
-			{
+                _fileInput.Close();
+            }
+            catch (Exception excp)
+            {
                 SetError(out error, excp.Message);
                 return CodecReturnCode.FAILURE;
-			}
+            }
 
-			return CodecReturnCode.SUCCESS;
-		}
+            return CodecReturnCode.SUCCESS;
+        }
 
         /// <summary>
 		/// Extract dictionary type from the encoded payload of a ETA message where
@@ -800,73 +803,73 @@ namespace LSEG.Eta.Codec
 		/// <seealso cref="DecodeIterator"/>
 		/// <seealso cref="Dictionary.Types"/>
         public CodecReturnCode ExtractDictionaryType(DecodeIterator iter, Int dictionaryType, out CodecError error)
-		{
+        {
             CodecReturnCode ret;
-            error = null; 
+            error = null;
 
             series.Clear();
-			elemList.Clear();
-			elemEntry.Clear();
-			tempUInt.Clear();
-			tempBuffer.Clear();
-			tempDecIter.Clear();
+            elemList.Clear();
+            elemEntry.Clear();
+            tempUInt.Clear();
+            tempBuffer.Clear();
+            tempDecIter.Clear();
 
-			(tempBuffer).Data_internal(iter._buffer.Data(), iter._curBufPos, (iter._buffer.Position + iter._buffer.Length) - iter._curBufPos);
-			tempDecIter.SetBufferAndRWFVersion(tempBuffer, iter._reader.MajorVersion(), iter._reader.MinorVersion());
+            (tempBuffer).Data_internal(iter._buffer.Data(), iter._curBufPos, (iter._buffer.Position + iter._buffer.Length) - iter._curBufPos);
+            tempDecIter.SetBufferAndRWFVersion(tempBuffer, iter._reader.MajorVersion(), iter._reader.MinorVersion());
 
-			if ((ret = series.Decode(tempDecIter)) < 0)
-			{
-				SetError(out error, "DecodeSeries failed " + ret);
-				return CodecReturnCode.FAILURE;
-			}
+            if ((ret = series.Decode(tempDecIter)) < 0)
+            {
+                SetError(out error, "DecodeSeries failed " + ret);
+                return CodecReturnCode.FAILURE;
+            }
 
-			/* if this is not an element list, we should fail */
-			if (series.ContainerType != DataTypes.ELEMENT_LIST)
-			{
-				SetError(out error, "Invalid container type of " + series.ContainerType + "; expecting " + DataTypes.ELEMENT_LIST + " (ELEMENT_LIST)");
-				return CodecReturnCode.FAILURE;
-			}
+            /* if this is not an element list, we should fail */
+            if (series.ContainerType != DataTypes.ELEMENT_LIST)
+            {
+                SetError(out error, "Invalid container type of " + series.ContainerType + "; expecting " + DataTypes.ELEMENT_LIST + " (ELEMENT_LIST)");
+                return CodecReturnCode.FAILURE;
+            }
 
-			/* decode summary data */
-			if (series.CheckHasSummaryData())
-			{
-				if ((ret = elemList.Decode(tempDecIter, null)) < 0)
-				{
-					SetError(out error, "DecodeElementList failed " + ret);
-					return CodecReturnCode.FAILURE;
-				}
+            /* decode summary data */
+            if (series.CheckHasSummaryData())
+            {
+                if ((ret = elemList.Decode(tempDecIter, null)) < 0)
+                {
+                    SetError(out error, "DecodeElementList failed " + ret);
+                    return CodecReturnCode.FAILURE;
+                }
 
-				while ((ret = elemEntry.Decode(tempDecIter)) != CodecReturnCode.END_OF_CONTAINER)
-				{
-					if (ret >= CodecReturnCode.SUCCESS)
-					{
-						if (elemEntry._name.Equals(ElementNames.TYPE))
-						{
-							ret = Decoders.DecodeUInt(tempDecIter, tempUInt);
-							if (ret != CodecReturnCode.SUCCESS && ret != CodecReturnCode.BLANK_DATA)
-							{
-								SetError(out error, "DecodeUInt failed " + ret);
-								return CodecReturnCode.FAILURE;
-							}
-							dictionaryType.Value(tempUInt.ToLong());
-							break;
-						}
-					}
-					else
-					{
-						SetError(out error, "DecodeElementEntry failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
-				}
-			}
-			else
-			{
-				SetError(out error, "No summary data present on message!");
-				return CodecReturnCode.FAILURE;
-			}
+                while ((ret = elemEntry.Decode(tempDecIter)) != CodecReturnCode.END_OF_CONTAINER)
+                {
+                    if (ret >= CodecReturnCode.SUCCESS)
+                    {
+                        if (elemEntry._name.Equals(ElementNames.TYPE))
+                        {
+                            ret = Decoders.DecodeUInt(tempDecIter, tempUInt);
+                            if (ret != CodecReturnCode.SUCCESS && ret != CodecReturnCode.BLANK_DATA)
+                            {
+                                SetError(out error, "DecodeUInt failed " + ret);
+                                return CodecReturnCode.FAILURE;
+                            }
+                            dictionaryType.Value(tempUInt.ToLong());
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        SetError(out error, "DecodeElementEntry failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
+                }
+            }
+            else
+            {
+                SetError(out error, "No summary data present on message!");
+                return CodecReturnCode.FAILURE;
+            }
 
-			return CodecReturnCode.SUCCESS;
-		}
+            return CodecReturnCode.SUCCESS;
+        }
 
         /// <summary>
 		/// Encode the field definitions dictionary information into a data payload
@@ -897,117 +900,117 @@ namespace LSEG.Eta.Codec
 		/// <seealso cref="EncodeIterator"/>
 		/// <seealso cref="Dictionary.VerbosityValues"/>
 		public CodecReturnCode EncodeFieldDictionary(EncodeIterator iter, Int currentFid, int verbosity, out CodecError error)
-		{
+        {
             CodecReturnCode ret;
-			long curFid = currentFid.ToLong();
+            long curFid = currentFid.ToLong();
             error = null;
 
             if (!_isInitialized)
-			{
-				SetError(out error, "Dictionary not initialized");
-				return CodecReturnCode.FAILURE;
-			}
+            {
+                SetError(out error, "Dictionary not initialized");
+                return CodecReturnCode.FAILURE;
+            }
 
-			series.Clear();
-			setDb.Clear();
-			if (verbosity >= Dictionary.VerbosityValues.NORMAL)
-			{
-				setDb.Definitions[0].Count = setDef0_Normal.Count;
-				setDb.Definitions[0].Entries = setDef0_Normal.Entries;
-				setDb.Definitions[0].SetId = setDef0_Normal.SetId;
-			}
-			else
-			{
-				setDb.Definitions[0].Count = setDef0_Minimal.Count;
-				setDb.Definitions[0].Entries = setDef0_Minimal.Entries;
-				setDb.Definitions[0].SetId = setDef0_Minimal.SetId;
-			}
+            series.Clear();
+            setDb.Clear();
+            if (verbosity >= Dictionary.VerbosityValues.NORMAL)
+            {
+                setDb.Definitions[0].Count = setDef0_Normal.Count;
+                setDb.Definitions[0].Entries = setDef0_Normal.Entries;
+                setDb.Definitions[0].SetId = setDef0_Normal.SetId;
+            }
+            else
+            {
+                setDb.Definitions[0].Count = setDef0_Minimal.Count;
+                setDb.Definitions[0].Entries = setDef0_Minimal.Entries;
+                setDb.Definitions[0].SetId = setDef0_Minimal.SetId;
+            }
 
-			/* Set the data format */
-			series.ContainerType = DataTypes.ELEMENT_LIST;
+            /* Set the data format */
+            series.ContainerType = DataTypes.ELEMENT_LIST;
 
-			/* Don't encode set definitions for info */
-			if (verbosity > Dictionary.VerbosityValues.INFO)
-			{
-				series.ApplyHasSetDefs();
-			}
+            /* Don't encode set definitions for info */
+            if (verbosity > Dictionary.VerbosityValues.INFO)
+            {
+                series.ApplyHasSetDefs();
+            }
 
-			/* If first packet, then send hint and summary data */
-			if (curFid <= MinFid)
-			{
-				/* Set the total count hint if exists */
-				if (NumberOfEntries > 0)
-				{
-					series.ApplyHasTotalCountHint();
-					series.TotalCountHint = NumberOfEntries;
-				}
-				series.ApplyHasSummaryData();
-			}
+            /* If first packet, then send hint and summary data */
+            if (curFid <= MinFid)
+            {
+                /* Set the total count hint if exists */
+                if (NumberOfEntries > 0)
+                {
+                    series.ApplyHasTotalCountHint();
+                    series.TotalCountHint = NumberOfEntries;
+                }
+                series.ApplyHasSummaryData();
+            }
 
-			if ((ret = series.EncodeInit(iter, 0, 0)) < 0)
-			{
-				SetError(out error, "encodeSeriesInit failed " + ret);
-				return CodecReturnCode.FAILURE;
-			}
+            if ((ret = series.EncodeInit(iter, 0, 0)) < 0)
+            {
+                SetError(out error, "encodeSeriesInit failed " + ret);
+                return CodecReturnCode.FAILURE;
+            }
 
-			/* Don't encode set definitions for info */
-			if (verbosity > Dictionary.VerbosityValues.INFO)
-			{
-				if ((ret = setDb.Encode(iter)) < 0)
-				{
-					SetError(out error, "encodeLocalElementSetDefDb failed " + ret);
-					return CodecReturnCode.FAILURE;
-				}
+            /* Don't encode set definitions for info */
+            if (verbosity > Dictionary.VerbosityValues.INFO)
+            {
+                if ((ret = setDb.Encode(iter)) < 0)
+                {
+                    SetError(out error, "encodeLocalElementSetDefDb failed " + ret);
+                    return CodecReturnCode.FAILURE;
+                }
 
-				if ((ret = series.EncodeSetDefsComplete(iter, true)) < 0)
-				{
-					SetError(out error, "encodeSeriesSetDefsComplete failed " + ret);
-					return CodecReturnCode.FAILURE;
-				}
-			}
+                if ((ret = series.EncodeSetDefsComplete(iter, true)) < 0)
+                {
+                    SetError(out error, "encodeSeriesSetDefsComplete failed " + ret);
+                    return CodecReturnCode.FAILURE;
+                }
+            }
 
-			/* If first packet, encode the summary data */
-			if (curFid <= MinFid)
-			{
-				if ((ret = EncodeDataDictSummaryData(iter, Dictionary.Types.FIELD_DEFINITIONS, series, out error)) < 0)
-				{
-					return CodecReturnCode.FAILURE;
-				}
-			}
+            /* If first packet, encode the summary data */
+            if (curFid <= MinFid)
+            {
+                if ((ret = EncodeDataDictSummaryData(iter, Dictionary.Types.FIELD_DEFINITIONS, series, out error)) < 0)
+                {
+                    return CodecReturnCode.FAILURE;
+                }
+            }
 
-			/* Don't encode actual entries for info */
-			if (verbosity > Dictionary.VerbosityValues.INFO)
-			{
-				while (curFid <= MaxFid)
-				{
-					/* Entries with type UNKNOWN were loaded from an enumtype.
+            while (curFid <= MaxFid)
+            {
+                /* Don't encode actual entries for info */
+                if (verbosity > Dictionary.VerbosityValues.INFO)
+                {
+                    /* Entries with type UNKNOWN were loaded from an enumtype.
 					 * Don't send them since they aren't officially defined yet. */
-					if (_entriesArray[(int)curFid - MIN_FID] != null && _entriesArray[(int)curFid - MIN_FID]._rwfType != DataTypes.UNKNOWN)
-					{
-						if ((ret = EncodeDataDictEntry(iter, _entriesArray[(int)curFid - MIN_FID], verbosity, out error, setDb)) < 0)
-						{
-							return CodecReturnCode.FAILURE;
-						}
+                    if (_entriesArray[(int)curFid - MIN_FID] != null && _entriesArray[(int)curFid - MIN_FID]._rwfType != DataTypes.UNKNOWN)
+                    {
+                        if ((ret = EncodeDataDictEntry(iter, _entriesArray[(int)curFid - MIN_FID], verbosity, out error, setDb)) < 0)
+                        {
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						/* If we have filled the buffer, then complete */
-						if (ret == CodecReturnCode.DICT_PART_ENCODED)
-						{
-							break;
-						}
-					}
-					(curFid)++;
-				}
-			}
+                        /* If we have filled the buffer, then complete */
+                        if (ret == CodecReturnCode.DICT_PART_ENCODED)
+                        {
+                            break;
+                        }
+                    }
+                }
+                (curFid)++;
+            }
 
-			if ((ret = series.EncodeComplete(iter, true)) < 0)
-			{
-				SetError(out error, "encodeSeriesComplete failed " + ret);
-				return CodecReturnCode.FAILURE;
-			}
+            if ((ret = series.EncodeComplete(iter, true)) < 0)
+            {
+                SetError(out error, "encodeSeriesComplete failed " + ret);
+                return CodecReturnCode.FAILURE;
+            }
 
-			currentFid.Value(curFid);
-			return (curFid > MaxFid ? CodecReturnCode.SUCCESS : CodecReturnCode.DICT_PART_ENCODED);
-		}
+            currentFid.Value(curFid);
+            return (curFid > MaxFid ? CodecReturnCode.SUCCESS : CodecReturnCode.DICT_PART_ENCODED);
+        }
 
         /// <summary>
 		/// Decode the field dictionary information contained in a data payload
@@ -1029,215 +1032,216 @@ namespace LSEG.Eta.Codec
 		/// <seealso cref="DecodeIterator"/>
 		/// <seealso cref="Dictionary.VerbosityValues"/>
 		public CodecReturnCode DecodeFieldDictionary(DecodeIterator iter, int verbosity, out CodecError error)
-		{
+        {
             error = null;
             CodecReturnCode ret;
-			int fid = 0;
-			DictionaryEntryImpl newDictEntry;
+            int fid = 0;
+            DictionaryEntryImpl newDictEntry;
 
-			if (!_isInitialized && InitDictionary() != CodecReturnCode.SUCCESS)
-			{
+            if (!_isInitialized && InitDictionary() != CodecReturnCode.SUCCESS)
+            {
                 SetError(out error, "Dictionary not initialized");
                 return CodecReturnCode.FAILURE;
-			}
+            }
 
-			series.Clear();
-			elemList.Clear();
-			elemEntry.Clear();
-			seriesEntry.Clear();
-			tempInt.Clear();
-			tempUInt.Clear();
+            series.Clear();
+            elemList.Clear();
+            elemEntry.Clear();
+            seriesEntry.Clear();
+            tempInt.Clear();
+            tempUInt.Clear();
+            dictionaryString?.Clear();
 
-			if (series.Decode(iter) < 0)
-			{
+            if (series.Decode(iter) < 0)
+            {
                 SetError(out error, "Series.Decode() faield");
                 return CodecReturnCode.FAILURE;
-			}
+            }
 
-			/* if this is not an element list, we should fail for now */
-			if (series.ContainerType != DataTypes.ELEMENT_LIST)
-			{
+            /* if this is not an element list, we should fail for now */
+            if (series.ContainerType != DataTypes.ELEMENT_LIST)
+            {
                 SetError(out error, "Invalid Series's container type");
                 return CodecReturnCode.FAILURE;
-			}
+            }
 
-			/* decode summary data */
-			if (series.CheckHasSummaryData())
-			{
-				/* decode summary data here */
+            /* decode summary data */
+            if (series.CheckHasSummaryData())
+            {
+                /* decode summary data here */
 
-				/* since we own dictionary, lets assume that we create memory here - 
+                /* since we own dictionary, lets assume that we create memory here - 
 				 * they should only delete this with our delete dictionary method */
 
-				if (elemList.Decode(iter, null) < 0)
-				{
+                if (elemList.Decode(iter, null) < 0)
+                {
                     SetError(out error, "ElementList.Decode() faield");
                     return CodecReturnCode.FAILURE;
-				}
+                }
 
-				while ((ret = elemEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
-				{
-					if (ret < 0)
-					{
+                while ((ret = elemEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
+                {
+                    if (ret < 0)
+                    {
                         SetError(out error, "ElementEntry.Decode() faield");
                         return ret;
-					}
+                    }
 
-					if (DecodeDictionaryTag(iter, elemEntry, Dictionary.Types.FIELD_DEFINITIONS, out error) != CodecReturnCode.SUCCESS)
-					{
-						return CodecReturnCode.FAILURE;
-					}
-				}
-			}
+                    if (DecodeDictionaryTag(iter, elemEntry, Dictionary.Types.FIELD_DEFINITIONS, out error) != CodecReturnCode.SUCCESS)
+                    {
+                        return CodecReturnCode.FAILURE;
+                    }
+                }
+            }
 
-			if (series.CheckHasSetDefs())
-			{
-				setDb.Clear();
-				if ((ret = setDb.Decode(iter)) < 0)
-				{
-					SetError(out error, "DecodeLocalElementSetDefDb failed - " + ret);
-					return ret;
-				}
-			}
+            if (series.CheckHasSetDefs())
+            {
+                setDb.Clear();
+                if ((ret = setDb.Decode(iter)) < 0)
+                {
+                    SetError(out error, "DecodeLocalElementSetDefDb failed - " + ret);
+                    return ret;
+                }
+            }
 
-			while ((ret = seriesEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
-			{
-				/* reinitialize fid */
-				fid = MAX_FID + 1;
+            while ((ret = seriesEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
+            {
+                /* reinitialize fid */
+                fid = MAX_FID + 1;
 
-				if (ret < 0)
-				{
+                if (ret < 0)
+                {
                     SetError(out error, "SeriesEntry.Decode() faield");
                     return ret;
-				}
+                }
 
-				/* decode element list here */
-				if ((ret = elemList.Decode(iter, setDb)) < 0)
-				{
+                /* decode element list here */
+                if ((ret = elemList.Decode(iter, setDb)) < 0)
+                {
                     SetError(out error, "ElementList.Decode() faield");
                     return ret;
-				}
+                }
 
-				newDictEntry = new DictionaryEntryImpl();
+                newDictEntry = new DictionaryEntryImpl();
 
-				while ((ret = elemEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
-				{
-					if (ret < 0)
-					{
+                while ((ret = elemEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
+                {
+                    if (ret < 0)
+                    {
                         SetError(out error, "ElementEntry.Decode() faield");
                         return CodecReturnCode.FAILURE;
-					}
+                    }
 
-					if (elemEntry._name.Equals(ElementNames.FIELD_NAME))
-					{
-						if (elemEntry.DataType != DataTypes.ASCII_STRING)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.FIELD_NAME.ToString() + "' element.");
-							return CodecReturnCode.FAILURE;
-						}
+                    if (elemEntry._name.Equals(ElementNames.FIELD_NAME))
+                    {
+                        if (elemEntry.DataType != DataTypes.ASCII_STRING)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.FIELD_NAME.ToString() + "' element.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						(newDictEntry._acronym).Data(elemEntry._encodedData.ToString());
-					}
-					else if (elemEntry._name.Equals(ElementNames.FIELD_ID))
-					{
-						if (elemEntry.DataType != DataTypes.INT || Decoders.DecodeInt(iter, tempInt) < 0)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.FIELD_ID.ToString() + "' element.");
-							return CodecReturnCode.FAILURE;
-						}
+                        (newDictEntry._acronym).Data(elemEntry._encodedData.ToString());
+                    }
+                    else if (elemEntry._name.Equals(ElementNames.FIELD_ID))
+                    {
+                        if (elemEntry.DataType != DataTypes.INT || Decoders.DecodeInt(iter, tempInt) < 0)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.FIELD_ID.ToString() + "' element.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						/* now populate fid */
-						newDictEntry._fid = (short)tempInt.ToLong();
+                        /* now populate fid */
+                        newDictEntry._fid = (short)tempInt.ToLong();
 
-						/* do max and min fid stuff */
-						if (newDictEntry._fid > MaxFid)
-						{
+                        /* do max and min fid stuff */
+                        if (newDictEntry._fid > MaxFid)
+                        {
                             MaxFid = newDictEntry._fid;
-						}
-						if (newDictEntry._fid < MinFid)
-						{
+                        }
+                        if (newDictEntry._fid < MinFid)
+                        {
                             MinFid = newDictEntry._fid;
-						}
-					}
-					else if (elemEntry._name.Equals(ElementNames.FIELD_RIPPLETO))
-					{
-						if (elemEntry.DataType != DataTypes.INT || Decoders.DecodeInt(iter, tempInt) < 0)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.FIELD_RIPPLETO.ToString() + "' element.");
-							return CodecReturnCode.FAILURE;
-						}
-						newDictEntry._rippleToField = (short)tempInt.ToLong();
-					}
-					else if (elemEntry._name.Equals(ElementNames.FIELD_TYPE))
-					{
-						if (elemEntry.DataType != DataTypes.INT || Decoders.DecodeInt(iter, tempInt) < 0)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.FIELD_TYPE.ToString() + "' element.");
-							return CodecReturnCode.FAILURE;
-						}
-						newDictEntry._fieldType = (sbyte)tempInt.ToLong();
-					}
-					else if (elemEntry._name.Equals(ElementNames.FIELD_LENGTH))
-					{
-						if (elemEntry.DataType != DataTypes.UINT || Decoders.DecodeUInt(iter, tempUInt) < 0)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.FIELD_LENGTH.ToString() + "' element.");
-							return CodecReturnCode.FAILURE;
-						}
-						newDictEntry._length = (ushort)tempUInt.ToLong();
-					}
-					else if (elemEntry._name.Equals(ElementNames.FIELD_RWFTYPE))
-					{
-						if (elemEntry.DataType != DataTypes.UINT || Decoders.DecodeUInt(iter, tempUInt) < 0)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.FIELD_RWFTYPE.ToString() + "' element.");
-							return CodecReturnCode.FAILURE;
-						}
+                        }
+                    }
+                    else if (elemEntry._name.Equals(ElementNames.FIELD_RIPPLETO))
+                    {
+                        if (elemEntry.DataType != DataTypes.INT || Decoders.DecodeInt(iter, tempInt) < 0)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.FIELD_RIPPLETO.ToString() + "' element.");
+                            return CodecReturnCode.FAILURE;
+                        }
+                        newDictEntry._rippleToField = (short)tempInt.ToLong();
+                    }
+                    else if (elemEntry._name.Equals(ElementNames.FIELD_TYPE))
+                    {
+                        if (elemEntry.DataType != DataTypes.INT || Decoders.DecodeInt(iter, tempInt) < 0)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.FIELD_TYPE.ToString() + "' element.");
+                            return CodecReturnCode.FAILURE;
+                        }
+                        newDictEntry._fieldType = (sbyte)tempInt.ToLong();
+                    }
+                    else if (elemEntry._name.Equals(ElementNames.FIELD_LENGTH))
+                    {
+                        if (elemEntry.DataType != DataTypes.UINT || Decoders.DecodeUInt(iter, tempUInt) < 0)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.FIELD_LENGTH.ToString() + "' element.");
+                            return CodecReturnCode.FAILURE;
+                        }
+                        newDictEntry._length = (ushort)tempUInt.ToLong();
+                    }
+                    else if (elemEntry._name.Equals(ElementNames.FIELD_RWFTYPE))
+                    {
+                        if (elemEntry.DataType != DataTypes.UINT || Decoders.DecodeUInt(iter, tempUInt) < 0)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.FIELD_RWFTYPE.ToString() + "' element.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						/* Need to do table lookup so legacy types (e.g. INT32/REAL32) are converted. */
-						newDictEntry._rwfType = (byte)Decoders.ConvertToPrimitiveType((int)tempUInt.ToLong());
-					}
-					else if (elemEntry._name.Equals(ElementNames.FIELD_RWFLEN))
-					{
-						if (elemEntry.DataType != DataTypes.UINT || Decoders.DecodeUInt(iter, tempUInt) < 0)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.FIELD_RWFLEN.ToString() + "' element.");
-							return CodecReturnCode.FAILURE;
-						}
-						newDictEntry._rwfLength = (ushort)tempUInt.ToLong();
-					}
-					else if (verbosity >= Dictionary.VerbosityValues.NORMAL) // optional elements depending on verbosity
-					{
-						if (elemEntry._name.Equals(ElementNames.FIELD_ENUMLENGTH))
-						{
-							if (elemEntry.DataType != DataTypes.UINT || Decoders.DecodeUInt(iter, tempUInt) < 0)
-							{
-								SetError(out error, "Cannot decode '" + ElementNames.FIELD_ENUMLENGTH.ToString() + "' element.");
-								return CodecReturnCode.FAILURE;
-							}
-							newDictEntry._enumLength = (byte)tempUInt.ToLong();
-						}
-						else if (elemEntry._name.Equals(ElementNames.FIELD_LONGNAME))
-						{
-							if (elemEntry.DataType != DataTypes.ASCII_STRING)
-							{
-								SetError(out error, "Cannot decode '" + ElementNames.FIELD_LONGNAME.ToString() + "' element.");
-								return CodecReturnCode.FAILURE;
-							}
-							(newDictEntry._ddeAcronym).Data(elemEntry._encodedData.ToString());
-						}
-					}
-				}
+                        /* Need to do table lookup so legacy types (e.g. INT32/REAL32) are converted. */
+                        newDictEntry._rwfType = (byte)Decoders.ConvertToPrimitiveType((int)tempUInt.ToLong());
+                    }
+                    else if (elemEntry._name.Equals(ElementNames.FIELD_RWFLEN))
+                    {
+                        if (elemEntry.DataType != DataTypes.UINT || Decoders.DecodeUInt(iter, tempUInt) < 0)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.FIELD_RWFLEN.ToString() + "' element.");
+                            return CodecReturnCode.FAILURE;
+                        }
+                        newDictEntry._rwfLength = (ushort)tempUInt.ToLong();
+                    }
+                    else if (verbosity >= Dictionary.VerbosityValues.NORMAL) // optional elements depending on verbosity
+                    {
+                        if (elemEntry._name.Equals(ElementNames.FIELD_ENUMLENGTH))
+                        {
+                            if (elemEntry.DataType != DataTypes.UINT || Decoders.DecodeUInt(iter, tempUInt) < 0)
+                            {
+                                SetError(out error, "Cannot decode '" + ElementNames.FIELD_ENUMLENGTH.ToString() + "' element.");
+                                return CodecReturnCode.FAILURE;
+                            }
+                            newDictEntry._enumLength = (byte)tempUInt.ToLong();
+                        }
+                        else if (elemEntry._name.Equals(ElementNames.FIELD_LONGNAME))
+                        {
+                            if (elemEntry.DataType != DataTypes.ASCII_STRING)
+                            {
+                                SetError(out error, "Cannot decode '" + ElementNames.FIELD_LONGNAME.ToString() + "' element.");
+                                return CodecReturnCode.FAILURE;
+                            }
+                            (newDictEntry._ddeAcronym).Data(elemEntry._encodedData.ToString());
+                        }
+                    }
+                }
 
-				if (AddFieldToDictionary(newDictEntry, out error, -1) != CodecReturnCode.SUCCESS)
-				{
-					return CodecReturnCode.FAILURE;
-				}
-				newDictEntry = null;
-			}
+                if (AddFieldToDictionary(newDictEntry, out error, -1) != CodecReturnCode.SUCCESS)
+                {
+                    return CodecReturnCode.FAILURE;
+                }
+                newDictEntry = null;
+            }
 
-			return CodecReturnCode.SUCCESS;
-		}
+            return CodecReturnCode.SUCCESS;
+        }
 
         /// <summary>
         /// Encode the enumerated types dictionary according the domain model, using
@@ -1256,245 +1260,245 @@ namespace LSEG.Eta.Codec
         /// <seealso cref="EncodeIterator"/>
         /// <seealso cref="Dictionary.VerbosityValues"/>
         public CodecReturnCode EncodeEnumTypeDictionary(EncodeIterator iter, int verbosity, CodecError error)
-		{
+        {
             CodecReturnCode ret;
 
-			if (!_isInitialized)
-			{
-				SetError(out error, "Dictionary not initialized");
-				return CodecReturnCode.FAILURE;
-			}
+            if (!_isInitialized)
+            {
+                SetError(out error, "Dictionary not initialized");
+                return CodecReturnCode.FAILURE;
+            }
 
-			series.Clear();
-			seriesEntry.Clear();
-			elemList.Clear();
-			elemEntry.Clear();
-			arr.Clear();
-			arrEntry.Clear();
-			tempInt.Clear();
-			tempEnum.Clear();
-			setDb.Clear();
-			setDb.Definitions[0].Count = enumSetDef0_Normal.Count;
-			setDb.Definitions[0].Entries = enumSetDef0_Normal.Entries;
-			setDb.Definitions[0].SetId = enumSetDef0_Normal.SetId;
+            series.Clear();
+            seriesEntry.Clear();
+            elemList.Clear();
+            elemEntry.Clear();
+            arr.Clear();
+            arrEntry.Clear();
+            tempInt.Clear();
+            tempEnum.Clear();
+            setDb.Clear();
+            setDb.Definitions[0].Count = enumSetDef0_Normal.Count;
+            setDb.Definitions[0].Entries = enumSetDef0_Normal.Entries;
+            setDb.Definitions[0].SetId = enumSetDef0_Normal.SetId;
 
-			/* Set the data format */
-			series.ContainerType = DataTypes.ELEMENT_LIST;
-			series.Flags = SeriesFlags.HAS_SUMMARY_DATA;
+            /* Set the data format */
+            series.ContainerType = DataTypes.ELEMENT_LIST;
+            series.Flags = SeriesFlags.HAS_SUMMARY_DATA;
 
-			/* Don't encode set definitions for info */
-			if (verbosity > Dictionary.VerbosityValues.INFO)
-			{
-				series.ApplyHasSetDefs();
-			}
+            /* Don't encode set definitions for info */
+            if (verbosity > Dictionary.VerbosityValues.INFO)
+            {
+                series.ApplyHasSetDefs();
+            }
 
-			/* If first packet, then send hint and summary data */
-			if ((ret = series.EncodeInit(iter, 0, 0)) < 0)
-			{
-				SetError(out error, "encodeSeriesInit failed " + ret);
-				return CodecReturnCode.FAILURE;
-			}
+            /* If first packet, then send hint and summary data */
+            if ((ret = series.EncodeInit(iter, 0, 0)) < 0)
+            {
+                SetError(out error, "encodeSeriesInit failed " + ret);
+                return CodecReturnCode.FAILURE;
+            }
 
-			if (verbosity > Dictionary.VerbosityValues.INFO)
-			{
-				/* Encode set definition */
-				if ((ret = setDb.Encode(iter)) < 0)
-				{
-					SetError(out error, "encodeLocalElementSetDefDb failed " + ret);
-					return CodecReturnCode.FAILURE;
-				}
+            if (verbosity > Dictionary.VerbosityValues.INFO)
+            {
+                /* Encode set definition */
+                if ((ret = setDb.Encode(iter)) < 0)
+                {
+                    SetError(out error, "encodeLocalElementSetDefDb failed " + ret);
+                    return CodecReturnCode.FAILURE;
+                }
 
-				if ((ret = series.EncodeSetDefsComplete(iter, true)) < 0)
-				{
-					SetError(out error, "encodeSeriesSetDefsComplete failed " + ret);
-					return CodecReturnCode.FAILURE;
-				}
-			}
+                if ((ret = series.EncodeSetDefsComplete(iter, true)) < 0)
+                {
+                    SetError(out error, "encodeSeriesSetDefsComplete failed " + ret);
+                    return CodecReturnCode.FAILURE;
+                }
+            }
 
-			/* Summary data */
-			if ((ret = EncodeDataDictSummaryData(iter, Dictionary.Types.ENUM_TABLES, series, out error)) < 0)
-			{
-				return CodecReturnCode.FAILURE;
-			}
+            /* Summary data */
+            if ((ret = EncodeDataDictSummaryData(iter, Dictionary.Types.ENUM_TABLES, series, out error)) < 0)
+            {
+                return CodecReturnCode.FAILURE;
+            }
 
-			/* Don't encode actual entries for info */
-			if (verbosity > Dictionary.VerbosityValues.INFO)
-			{
-				for (int i = 0; i < EnumTableCount; ++i)
-				{
-					/* Encode each table */
-					IEnumTypeTable table;
+            /* Don't encode actual entries for info */
+            if (verbosity > Dictionary.VerbosityValues.INFO)
+            {
+                for (int i = 0; i < EnumTableCount; ++i)
+                {
+                    /* Encode each table */
+                    IEnumTypeTable table;
 
-					seriesEntry.Clear();
+                    seriesEntry.Clear();
 
-					if ((ret = seriesEntry.EncodeInit(iter, 0)) < 0)
-					{
-						SetError(out error, "encodeSeriesEntryInit failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    if ((ret = seriesEntry.EncodeInit(iter, 0)) < 0)
+                    {
+                        SetError(out error, "encodeSeriesEntryInit failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					elemList.Clear();
-					elemList.Flags = ElementListFlags.HAS_SET_DATA | ElementListFlags.HAS_SET_ID;
-					elemList.SetId = 0;
+                    elemList.Clear();
+                    elemList.Flags = ElementListFlags.HAS_SET_DATA | ElementListFlags.HAS_SET_ID;
+                    elemList.SetId = 0;
 
-					if ((ret = elemList.EncodeInit(iter, setDb, 0)) < 0)
-					{
-						SetError(out error, "encodeElementListInit failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    if ((ret = elemList.EncodeInit(iter, setDb, 0)) < 0)
+                    {
+                        SetError(out error, "encodeElementListInit failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					table = EnumTables[i];
+                    table = EnumTables[i];
 
-					/* Fids */
-					elemEntry.Clear();
-					elemEntry.DataType = DataTypes.ARRAY;
-					elemEntry.Name = ElementNames.ENUM_FIDS;
-					if ((ret = elemEntry.EncodeInit(iter, 0)) < 0)
-					{
-						SetError(out error, "encodeElementEntryInit failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    /* Fids */
+                    elemEntry.Clear();
+                    elemEntry.DataType = DataTypes.ARRAY;
+                    elemEntry.Name = ElementNames.ENUM_FIDS;
+                    if ((ret = elemEntry.EncodeInit(iter, 0)) < 0)
+                    {
+                        SetError(out error, "encodeElementEntryInit failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					arr.Clear();
-					arr.ItemLength = 2;
-					arr.PrimitiveType = DataTypes.INT;
-					if ((ret = arr.EncodeInit(iter)) < 0)
-					{
-						SetError(out error, "encodeArrayInit failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    arr.Clear();
+                    arr.ItemLength = 2;
+                    arr.PrimitiveType = DataTypes.INT;
+                    if ((ret = arr.EncodeInit(iter)) < 0)
+                    {
+                        SetError(out error, "encodeArrayInit failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					for (int j = 0; j < table.FidReferences.Count; ++j)
-					{
-						tempInt.Value(table.FidReferences[j]);
-						arrEntry.Clear();
-						if ((ret = arrEntry.Encode(iter, tempInt)) < 0)
-						{
-							SetError(out error, "encodeArrayEntry failed " + ret);
-							return CodecReturnCode.FAILURE;
-						}
-					}
+                    for (int j = 0; j < table.FidReferences.Count; ++j)
+                    {
+                        tempInt.Value(table.FidReferences[j]);
+                        arrEntry.Clear();
+                        if ((ret = arrEntry.Encode(iter, tempInt)) < 0)
+                        {
+                            SetError(out error, "encodeArrayEntry failed " + ret);
+                            return CodecReturnCode.FAILURE;
+                        }
+                    }
 
-					if ((ret = arr.EncodeComplete(iter, true)) < 0)
-					{
-						SetError(out error, "encodeArrayComplete failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    if ((ret = arr.EncodeComplete(iter, true)) < 0)
+                    {
+                        SetError(out error, "encodeArrayComplete failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					if ((ret = elemEntry.EncodeComplete(iter, true)) < 0)
-					{
-						SetError(out error, "encodeElementEntryComplete failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    if ((ret = elemEntry.EncodeComplete(iter, true)) < 0)
+                    {
+                        SetError(out error, "encodeElementEntryComplete failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					/* Values */
-					elemEntry.Clear();
-					elemEntry.DataType = DataTypes.ARRAY;
-					elemEntry.Name = ElementNames.ENUM_VALUE;
-					if ((ret = elemEntry.EncodeInit(iter, 0)) < 0)
-					{
-						SetError(out error, "encodeElementEntryInit failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    /* Values */
+                    elemEntry.Clear();
+                    elemEntry.DataType = DataTypes.ARRAY;
+                    elemEntry.Name = ElementNames.ENUM_VALUE;
+                    if ((ret = elemEntry.EncodeInit(iter, 0)) < 0)
+                    {
+                        SetError(out error, "encodeElementEntryInit failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					arr.Clear();
-					arr.ItemLength  = 0;
-					arr.PrimitiveType = DataTypes.ENUM;
-					if ((ret = arr.EncodeInit(iter)) < 0)
-					{
-						SetError(out error, "encodeArrayInit failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    arr.Clear();
+                    arr.ItemLength = 0;
+                    arr.PrimitiveType = DataTypes.ENUM;
+                    if ((ret = arr.EncodeInit(iter)) < 0)
+                    {
+                        SetError(out error, "encodeArrayInit failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					for (int j = 0; j <= table.MaxValue; ++j)
-					{
-						arrEntry.Clear();
-						if (table.EnumTypes[j] != null)
-						{
-							tempEnum.Value(table.EnumTypes[j].Value);
-							if ((ret = arrEntry.Encode(iter, tempEnum)) < 0)
-							{
-								SetError(out error, "encodeArrayEntry failed " + ret);
-								return CodecReturnCode.FAILURE;
-							}
-						}
-					}
+                    for (int j = 0; j <= table.MaxValue; ++j)
+                    {
+                        arrEntry.Clear();
+                        if (table.EnumTypes[j] != null)
+                        {
+                            tempEnum.Value(table.EnumTypes[j].Value);
+                            if ((ret = arrEntry.Encode(iter, tempEnum)) < 0)
+                            {
+                                SetError(out error, "encodeArrayEntry failed " + ret);
+                                return CodecReturnCode.FAILURE;
+                            }
+                        }
+                    }
 
-					if ((ret = arr.EncodeComplete(iter, true)) < 0)
-					{
-						SetError(out error, "encodeArrayComplete failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    if ((ret = arr.EncodeComplete(iter, true)) < 0)
+                    {
+                        SetError(out error, "encodeArrayComplete failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					if ((ret = elemEntry.EncodeComplete(iter, true)) < 0)
-					{
-						SetError(out error, "encodeElementEntryComplete failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    if ((ret = elemEntry.EncodeComplete(iter, true)) < 0)
+                    {
+                        SetError(out error, "encodeElementEntryComplete failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					/* Display */
-					elemEntry.Clear();
-					elemEntry.DataType= DataTypes.ARRAY;
-					elemEntry.Name = ElementNames.ENUM_DISPLAY;
-					if ((ret = elemEntry.EncodeInit(iter, 0)) < 0)
-					{
-						SetError(out error, "encodeElementEntryInit failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    /* Display */
+                    elemEntry.Clear();
+                    elemEntry.DataType = DataTypes.ARRAY;
+                    elemEntry.Name = ElementNames.ENUM_DISPLAY;
+                    if ((ret = elemEntry.EncodeInit(iter, 0)) < 0)
+                    {
+                        SetError(out error, "encodeElementEntryInit failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					arr.Clear();
-					arr.ItemLength = 0;
-					arr.PrimitiveType = DataTypes.ASCII_STRING;
-					if ((ret = arr.EncodeInit(iter)) < 0)
-					{
-						SetError(out error, "encodeArrayInit failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    arr.Clear();
+                    arr.ItemLength = 0;
+                    arr.PrimitiveType = DataTypes.ASCII_STRING;
+                    if ((ret = arr.EncodeInit(iter)) < 0)
+                    {
+                        SetError(out error, "encodeArrayInit failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					for (int j = 0; j <= table.MaxValue; ++j)
-					{
-						arrEntry.Clear();
-						if (table.EnumTypes[j] != null && (ret = arrEntry.Encode(iter, table.EnumTypes[j].Display)) < 0)
-						{
-							SetError(out error, "encodeArrayEntry failed " + ret);
-							return CodecReturnCode.FAILURE;
-						}
-					}
+                    for (int j = 0; j <= table.MaxValue; ++j)
+                    {
+                        arrEntry.Clear();
+                        if (table.EnumTypes[j] != null && (ret = arrEntry.Encode(iter, table.EnumTypes[j].Display)) < 0)
+                        {
+                            SetError(out error, "encodeArrayEntry failed " + ret);
+                            return CodecReturnCode.FAILURE;
+                        }
+                    }
 
-					if ((ret = arr.EncodeComplete(iter, true)) < 0)
-					{
-						SetError(out error, "encodeArrayComplete failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    if ((ret = arr.EncodeComplete(iter, true)) < 0)
+                    {
+                        SetError(out error, "encodeArrayComplete failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					if ((ret = elemEntry.EncodeComplete(iter, true)) < 0)
-					{
-						SetError(out error, "encodeElementEntryComplete failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    if ((ret = elemEntry.EncodeComplete(iter, true)) < 0)
+                    {
+                        SetError(out error, "encodeElementEntryComplete failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					if ((ret = elemList.EncodeComplete(iter, true)) < 0)
-					{
-						SetError(out error, "encodeElementListComplete failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
+                    if ((ret = elemList.EncodeComplete(iter, true)) < 0)
+                    {
+                        SetError(out error, "encodeElementListComplete failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
 
-					if ((ret = seriesEntry.EncodeComplete(iter, true)) < 0)
-					{
-						SetError(out error, "encodeSeriesEntryComplete failed " + ret);
-						return CodecReturnCode.FAILURE;
-					}
-				}
-			}
+                    if ((ret = seriesEntry.EncodeComplete(iter, true)) < 0)
+                    {
+                        SetError(out error, "encodeSeriesEntryComplete failed " + ret);
+                        return CodecReturnCode.FAILURE;
+                    }
+                }
+            }
 
-			if ((ret = series.EncodeComplete(iter, true)) < 0)
-			{
-				SetError(out error, "encodeSeriesComplete failed " + ret);
-				return CodecReturnCode.FAILURE;
-			}
+            if ((ret = series.EncodeComplete(iter, true)) < 0)
+            {
+                SetError(out error, "encodeSeriesComplete failed " + ret);
+                return CodecReturnCode.FAILURE;
+            }
 
-			return CodecReturnCode.SUCCESS;
-		}
+            return CodecReturnCode.SUCCESS;
+        }
 
         /// <summary>
         /// Encodes the enumerated types dictionary according the domain model, using
@@ -2061,298 +2065,299 @@ namespace LSEG.Eta.Codec
 		/// <seealso cref="DecodeIterator"/>
 		/// <seealso cref="Dictionary.VerbosityValues"/>
 		public CodecReturnCode DecodeEnumTypeDictionary(DecodeIterator iter, int verbosity, out CodecError error)
-		{
+        {
             CodecReturnCode ret;
-			ushort fidsCount = 0;
-			ushort maxValue = 0;
+            ushort fidsCount = 0;
+            ushort maxValue = 0;
             error = null;
 
 
             if (!_isInitialized && InitDictionary() != CodecReturnCode.SUCCESS)
-			{
-				return CodecReturnCode.FAILURE;
-			}
+            {
+                return CodecReturnCode.FAILURE;
+            }
 
-			series.Clear();
-			elemList.Clear();
-			elemEntry.Clear();
-			seriesEntry.Clear();
-			arr.Clear();
-			arrEntry.Clear();
+            series.Clear();
+            elemList.Clear();
+            elemEntry.Clear();
+            seriesEntry.Clear();
+            arr.Clear();
+            arrEntry.Clear();
+            dictionaryString?.Clear();
 
-			if (series.Decode(iter) < 0)
-			{
-				return CodecReturnCode.FAILURE;
-			}
+            if (series.Decode(iter) < 0)
+            {
+                return CodecReturnCode.FAILURE;
+            }
 
-			/* if this is not an element list, we should fail for now */
-			if (series.ContainerType != DataTypes.ELEMENT_LIST)
-			{
-				return CodecReturnCode.FAILURE;
-			}
+            /* if this is not an element list, we should fail for now */
+            if (series.ContainerType != DataTypes.ELEMENT_LIST)
+            {
+                return CodecReturnCode.FAILURE;
+            }
 
-			/* decode summary data */
-			if (series.CheckHasSummaryData())
-			{
-				if (elemList.Decode(iter, null) < 0)
-				{
-					return CodecReturnCode.FAILURE;
-				}
+            /* decode summary data */
+            if (series.CheckHasSummaryData())
+            {
+                if (elemList.Decode(iter, null) < 0)
+                {
+                    return CodecReturnCode.FAILURE;
+                }
 
-				while ((ret = elemEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
-				{
-					if (ret < 0)
-					{
-						SetError(out error, "DecodeElementEntry failed - " + ret);
-						return ret;
-					}
+                while ((ret = elemEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
+                {
+                    if (ret < 0)
+                    {
+                        SetError(out error, "DecodeElementEntry failed - " + ret);
+                        return ret;
+                    }
 
-					if (DecodeDictionaryTag(iter, elemEntry, Dictionary.Types.ENUM_TABLES, out error) != CodecReturnCode.SUCCESS)
-					{
-						return CodecReturnCode.FAILURE;
-					}
-				}
-			}
+                    if (DecodeDictionaryTag(iter, elemEntry, Dictionary.Types.ENUM_TABLES, out error) != CodecReturnCode.SUCCESS)
+                    {
+                        return CodecReturnCode.FAILURE;
+                    }
+                }
+            }
 
-			if (series.CheckHasSetDefs())
-			{
-				setDb.Clear();
-				if ((ret = setDb.Decode(iter)) < 0)
-				{
-					SetError(out error, "DecodeLocalElementSetDefDb failed - " + ret);
-					return ret;
-				}
-			}
+            if (series.CheckHasSetDefs())
+            {
+                setDb.Clear();
+                if ((ret = setDb.Decode(iter)) < 0)
+                {
+                    SetError(out error, "DecodeLocalElementSetDefDb failed - " + ret);
+                    return ret;
+                }
+            }
 
-			while ((ret = seriesEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
-			{
-				bool haveEnumValues = false, haveEnumDisplays = false;
-				int enumValueCount = -1, enumDisplayCount = -1;
+            while ((ret = seriesEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
+            {
+                bool haveEnumValues = false, haveEnumDisplays = false;
+                int enumValueCount = -1, enumDisplayCount = -1;
 
-				if (ret < 0)
-				{
-					SetError(out error, "DecodeSeriesEntry failed - " + ret);
-					return ret;
-				}
+                if (ret < 0)
+                {
+                    SetError(out error, "DecodeSeriesEntry failed - " + ret);
+                    return ret;
+                }
 
-				/* decode element list here */
-				if ((ret = elemList.Decode(iter, setDb)) < 0)
-				{
-					SetError(out error, "DecodeElementList failed - " + ret);
-					return ret;
-				}
+                /* decode element list here */
+                if ((ret = elemList.Decode(iter, setDb)) < 0)
+                {
+                    SetError(out error, "DecodeElementList failed - " + ret);
+                    return ret;
+                }
 
-				while ((ret = elemEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
-				{
-					if (ret < 0)
-					{
-						SetError(out error, "DecodeElementEntry failed - " + ret);
-						return ret;
-					}
+                while ((ret = elemEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
+                {
+                    if (ret < 0)
+                    {
+                        SetError(out error, "DecodeElementEntry failed - " + ret);
+                        return ret;
+                    }
 
-					if ((elemEntry._name.Equals(ElementNames.ENUM_FIDS)) || (elemEntry._name.Equals(ENUM_FID)))
-					{
-						if (elemEntry.DataType != DataTypes.ARRAY)
-						{
-							SetError(out error, "'" + ElementNames.ENUM_FIDS.ToString() + "' element has wrong data type.");
-							return CodecReturnCode.FAILURE;
-						}
+                    if ((elemEntry._name.Equals(ElementNames.ENUM_FIDS)) || (elemEntry._name.Equals(ENUM_FID)))
+                    {
+                        if (elemEntry.DataType != DataTypes.ARRAY)
+                        {
+                            SetError(out error, "'" + ElementNames.ENUM_FIDS.ToString() + "' element has wrong data type.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						if ((ret = arr.Decode(iter)) < 0)
-						{
-							SetError(out error, "DecodeArray failed - " + ret);
-							return ret;
-						}
+                        if ((ret = arr.Decode(iter)) < 0)
+                        {
+                            SetError(out error, "DecodeArray failed - " + ret);
+                            return ret;
+                        }
 
-						if (arr._primitiveType != DataTypes.INT)
-						{
-							SetError(out error, "'" + ElementNames.ENUM_FIDS.ToString() + "' array has wrong primitive type.");
-							return CodecReturnCode.FAILURE;
-						}
+                        if (arr._primitiveType != DataTypes.INT)
+                        {
+                            SetError(out error, "'" + ElementNames.ENUM_FIDS.ToString() + "' array has wrong primitive type.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						while ((ret = arrEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
-						{
-							tempInt.Clear();
-							if (ret < 0 || (ret = Decoders.DecodeInt(iter, tempInt)) < 0)
-							{
-								SetError(out error, "Error while decoding '" + ElementNames.ENUM_FIDS.ToString() + "' array - " + ret);
-								return ret;
-							}
+                        while ((ret = arrEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
+                        {
+                            tempInt.Clear();
+                            if (ret < 0 || (ret = Decoders.DecodeInt(iter, tempInt)) < 0)
+                            {
+                                SetError(out error, "Error while decoding '" + ElementNames.ENUM_FIDS.ToString() + "' array - " + ret);
+                                return ret;
+                            }
 
-							_referenceFidArray[fidsCount] = (short)tempInt.ToLong();
-							++fidsCount;
-						}
+                            _referenceFidArray[fidsCount] = (short)tempInt.ToLong();
+                            ++fidsCount;
+                        }
 
-					}
-					else if ((elemEntry._name.Equals(ElementNames.ENUM_VALUE)) || (elemEntry._name.Equals(VALUES)))
-					{
-						if (haveEnumValues)
-						{
-							SetError(out error, "Duplicate '" + ElementNames.ENUM_VALUE.ToString() + "' element.");
-							return CodecReturnCode.FAILURE;
-						}
+                    }
+                    else if ((elemEntry._name.Equals(ElementNames.ENUM_VALUE)) || (elemEntry._name.Equals(VALUES)))
+                    {
+                        if (haveEnumValues)
+                        {
+                            SetError(out error, "Duplicate '" + ElementNames.ENUM_VALUE.ToString() + "' element.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						if (elemEntry.DataType != DataTypes.ARRAY)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.ENUM_VALUE.ToString() + "' element.");
-							return CodecReturnCode.FAILURE;
-						}
+                        if (elemEntry.DataType != DataTypes.ARRAY)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.ENUM_VALUE.ToString() + "' element.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						if (arr.Decode(iter) < 0)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.ENUM_VALUE.ToString() + "' array.");
-							return CodecReturnCode.FAILURE;
-						}
+                        if (arr.Decode(iter) < 0)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.ENUM_VALUE.ToString() + "' array.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						if (arr._primitiveType != DataTypes.ENUM)
-						{
-							SetError(out error, "'" + ElementNames.ENUM_VALUE.ToString() + "' array has wrong primtive type.");
-							return CodecReturnCode.FAILURE;
-						}
+                        if (arr._primitiveType != DataTypes.ENUM)
+                        {
+                            SetError(out error, "'" + ElementNames.ENUM_VALUE.ToString() + "' array has wrong primtive type.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						enumValueCount = -1;
-						while ((ret = arrEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
-						{
-							tempEnum.Clear();
-							if (ret < 0 || (ret = Decoders.DecodeEnum(iter, tempEnum)) < 0)
-							{
-								SetError(out error, "Error while decoding '" + ElementNames.ENUM_VALUE.ToString() + "' array - " + ret);
-								return ret;
-							}
+                        enumValueCount = -1;
+                        while ((ret = arrEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
+                        {
+                            tempEnum.Clear();
+                            if (ret < 0 || (ret = Decoders.DecodeEnum(iter, tempEnum)) < 0)
+                            {
+                                SetError(out error, "Error while decoding '" + ElementNames.ENUM_VALUE.ToString() + "' array - " + ret);
+                                return ret;
+                            }
 
-							enumValueCount++;
-							if (haveEnumDisplays)
-							{
-								/* Found the display values first, so go down the list filling up the entries */
-								if (_enumTypeArray[enumDisplayCount] == null)
-								{
-									SetError(out error, "Different number of display and value elements.");
-									return CodecReturnCode.FAILURE;
-								}
+                            enumValueCount++;
+                            if (haveEnumDisplays)
+                            {
+                                /* Found the display values first, so go down the list filling up the entries */
+                                if (_enumTypeArray[enumDisplayCount] == null)
+                                {
+                                    SetError(out error, "Different number of display and value elements.");
+                                    return CodecReturnCode.FAILURE;
+                                }
 
-								_enumTypeArray[enumValueCount].Value = (ushort)tempEnum.ToInt();
-							}
-							else
-							{
-								_enumTypeArray[enumValueCount] = new EnumTypeImpl();
+                                _enumTypeArray[enumValueCount].Value = (ushort)tempEnum.ToInt();
+                            }
+                            else
+                            {
+                                _enumTypeArray[enumValueCount] = new EnumTypeImpl();
 
-								_enumTypeArray[enumValueCount].Value = (ushort)tempEnum.ToInt();
-							}
+                                _enumTypeArray[enumValueCount].Value = (ushort)tempEnum.ToInt();
+                            }
 
-							if (tempEnum.ToInt() > maxValue)
-							{
-								maxValue = (ushort)tempEnum.ToInt();
-							}
-						}
+                            if (tempEnum.ToInt() > maxValue)
+                            {
+                                maxValue = (ushort)tempEnum.ToInt();
+                            }
+                        }
 
-						/* Make sure we didn't have more display elements than values */
-						if (haveEnumDisplays && enumValueCount != enumDisplayCount)
-						{
-							SetError(out error, "Different number of display and value elements.");
-							return CodecReturnCode.FAILURE;
-						}
+                        /* Make sure we didn't have more display elements than values */
+                        if (haveEnumDisplays && enumValueCount != enumDisplayCount)
+                        {
+                            SetError(out error, "Different number of display and value elements.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						haveEnumValues = true;
-					}
-					else if ((elemEntry._name.Equals(ElementNames.ENUM_DISPLAY)) || (elemEntry._name.Equals(DISPLAYS)))
-					{
+                        haveEnumValues = true;
+                    }
+                    else if ((elemEntry._name.Equals(ElementNames.ENUM_DISPLAY)) || (elemEntry._name.Equals(DISPLAYS)))
+                    {
 
-						if (elemEntry.DataType != DataTypes.ARRAY)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.ENUM_DISPLAY.ToString() + "' element.");
-							return CodecReturnCode.FAILURE;
-						}
+                        if (elemEntry.DataType != DataTypes.ARRAY)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.ENUM_DISPLAY.ToString() + "' element.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						if (arr.Decode(iter) < 0)
-						{
-							SetError(out error, "Cannot decode '" + ElementNames.ENUM_DISPLAY.ToString() + "' array.");
-							return CodecReturnCode.FAILURE;
-						}
+                        if (arr.Decode(iter) < 0)
+                        {
+                            SetError(out error, "Cannot decode '" + ElementNames.ENUM_DISPLAY.ToString() + "' array.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						if ((arr._primitiveType != DataTypes.ASCII_STRING) && (arr._primitiveType != DataTypes.RMTES_STRING) && (arr._primitiveType != DataTypes.UTF8_STRING))
-						{
-							SetError(out error, "'" + ElementNames.ENUM_DISPLAY.ToString() + "' array has wrong primtive type.");
-							return CodecReturnCode.FAILURE;
-						}
+                        if ((arr._primitiveType != DataTypes.ASCII_STRING) && (arr._primitiveType != DataTypes.RMTES_STRING) && (arr._primitiveType != DataTypes.UTF8_STRING))
+                        {
+                            SetError(out error, "'" + ElementNames.ENUM_DISPLAY.ToString() + "' array has wrong primtive type.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						enumDisplayCount = -1;
-						while ((ret = arrEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
-						{
-							if (ret < 0)
-							{
-								SetError(out error, "Error while decoding '" + ElementNames.ENUM_DISPLAY.ToString() + "' array - " + ret);
-								return ret;
-							}
+                        enumDisplayCount = -1;
+                        while ((ret = arrEntry.Decode(iter)) != CodecReturnCode.END_OF_CONTAINER)
+                        {
+                            if (ret < 0)
+                            {
+                                SetError(out error, "Error while decoding '" + ElementNames.ENUM_DISPLAY.ToString() + "' array - " + ret);
+                                return ret;
+                            }
 
-							enumDisplayCount++;
-							if (haveEnumValues)
-							{
-								/* Found the enum values first, so go down the list filling up the entries */
-								if (_enumTypeArray[enumValueCount] == null)
-								{
-									SetError(out error, "Different number of display and value elements.");
-									return CodecReturnCode.FAILURE;
-								}
+                            enumDisplayCount++;
+                            if (haveEnumValues)
+                            {
+                                /* Found the enum values first, so go down the list filling up the entries */
+                                if (_enumTypeArray[enumValueCount] == null)
+                                {
+                                    SetError(out error, "Different number of display and value elements.");
+                                    return CodecReturnCode.FAILURE;
+                                }
 
-								(_enumTypeArray[enumDisplayCount].Display).Data(arrEntry.EncodedData.Data(), arrEntry.EncodedData.Position, arrEntry.EncodedData.Length);
+                                (_enumTypeArray[enumDisplayCount].Display).Data(arrEntry.EncodedData.Data(), arrEntry.EncodedData.Position, arrEntry.EncodedData.Length);
                                 var str = (_enumTypeArray[enumDisplayCount].Display).ToString(); /* Unreferenced to the original buffer position and keeps its display value as String object. */
                                 (_enumTypeArray[enumDisplayCount].Display).Data(str);
                             }
-							else
-							{
-								_enumTypeArray[enumDisplayCount] = new EnumTypeImpl();
+                            else
+                            {
+                                _enumTypeArray[enumDisplayCount] = new EnumTypeImpl();
 
-								(_enumTypeArray[enumDisplayCount].Display).Data(arrEntry.EncodedData.Data(), arrEntry.EncodedData.Position, arrEntry.EncodedData.Length);
+                                (_enumTypeArray[enumDisplayCount].Display).Data(arrEntry.EncodedData.Data(), arrEntry.EncodedData.Position, arrEntry.EncodedData.Length);
                                 var str = (_enumTypeArray[enumDisplayCount].Display).ToString(); /* Unreferenced to the original buffer position and keeps its display value as String object. */
                                 (_enumTypeArray[enumDisplayCount].Display).Data(str);
                             }
-						}
+                        }
 
-						/* Make sure we didn't have more value elements than displays */
-						if (haveEnumValues && enumDisplayCount != enumValueCount)
-						{
-							SetError(out error, "Different number of display and value elements.");
-							return CodecReturnCode.FAILURE;
-						}
+                        /* Make sure we didn't have more value elements than displays */
+                        if (haveEnumValues && enumDisplayCount != enumValueCount)
+                        {
+                            SetError(out error, "Different number of display and value elements.");
+                            return CodecReturnCode.FAILURE;
+                        }
 
-						haveEnumDisplays = true;
-					}
-				}
+                        haveEnumDisplays = true;
+                    }
+                }
 
-				if (!haveEnumValues)
-				{
-					SetError(out error, "\"" + ElementNames.ENUM_VALUE.ToString() + "\" element not found");
-					return CodecReturnCode.FAILURE;
-				}
+                if (!haveEnumValues)
+                {
+                    SetError(out error, "\"" + ElementNames.ENUM_VALUE.ToString() + "\" element not found");
+                    return CodecReturnCode.FAILURE;
+                }
 
-				if (!haveEnumDisplays)
-				{
-					SetError(out error, "\"" + ElementNames.ENUM_DISPLAY.ToString() + "\" element not found");
-					return CodecReturnCode.FAILURE;
-				}
+                if (!haveEnumDisplays)
+                {
+                    SetError(out error, "\"" + ElementNames.ENUM_DISPLAY.ToString() + "\" element not found");
+                    return CodecReturnCode.FAILURE;
+                }
 
-				_enumTypeArrayCount = enumValueCount;
-				if (AddTableToDictionary(fidsCount, _referenceFidArray, _referenceFidAcronymArray, maxValue, _enumTypeArray, _enumTypeArrayCount, out error, -1) != CodecReturnCode.SUCCESS)
-				{
-					return CodecReturnCode.FAILURE;
-				}
+                _enumTypeArrayCount = enumValueCount;
+                if (AddTableToDictionary(fidsCount, _referenceFidArray, _referenceFidAcronymArray, maxValue, _enumTypeArray, _enumTypeArrayCount, out error, -1) != CodecReturnCode.SUCCESS)
+                {
+                    return CodecReturnCode.FAILURE;
+                }
 
-				maxValue = 0;
-				fidsCount = 0;
-				_enumTypeArrayCount = -1;
-			}
+                maxValue = 0;
+                fidsCount = 0;
+                _enumTypeArrayCount = -1;
+            }
 
-			return CodecReturnCode.SUCCESS;
-		}
+            return CodecReturnCode.SUCCESS;
+        }
 
         /// <summary>
 		/// Field set def dictionary.
 		/// </summary>
 		/// <returns> the field set definition dictionary </returns>
 		public FieldSetDefDb FieldSetDef()
-		{
-			return fieldSetDef;
-		}
+        {
+            return fieldSetDef;
+        }
 
         /// <summary>
         /// Gets the lowest fieldId present in the dictionary.
@@ -2457,89 +2462,60 @@ namespace LSEG.Eta.Codec
 		/// <returns> the string representation of this <see cref="DataDictionary"/>.
 		/// </returns>
 		public override string ToString()
-		{
-			if (!_isInitialized)
-			{
-				return null;
-			}
+        {
+            if (!_isInitialized)
+            {
+                return null;
+            }
 
-			if (string.ReferenceEquals(dictionaryString, null))
-			{
-				StringBuilder sb = new StringBuilder();
+            dictionaryString ??= new StringBuilder();
 
-				sb.Append("Data Dictionary Dump: MinFid=" + MinFid + " MaxFid=" + MaxFid + " NumEntries " + NumberOfEntries + "\n\n");
+            if (dictionaryString.Length == 0)
+            {
+                dictionaryString
+                    .Append("Data Dictionary Dump: MinFid=" + MinFid + " MaxFid=" + MaxFid + " NumEntries " + NumberOfEntries + "\n\n")
+                    .Append("Tags:\n  DictionaryId=\"" + InfoDictionaryId + "\"\n\n")
+                    .Append("  [Field Dictionary Tags]\n" + "      Filename=\"" + _infoFieldFilename + "\"\n" + "          Desc=\"" + _infoFieldDesc + "\"\n" + "       Version=\"" + _infoFieldVersion + "\"\n" + "         Build=\"" + _infoFieldBuild + "\"\n" + "          Date=\"" + _infoFieldDate + "\"\n\n")
+                    .Append("  [Enum Type Dictionary Tags]\n" + "      Filename=\"" + _infoEnumFilename + "\"\n" + "          Desc=\"" + _infoEnumDesc + "\"\n" + "    RT_Version=\"" + _infoEnumRTVersion + "\"\n" + "    DT_Version=\"" + _infoEnumDTVersion + "\"\n" + "          Date=\"" + _infoEnumDate + "\"\n\n")
+                    .Append("Field Dictionary:\n");
 
-				sb.Append("Tags:\n  DictionaryId=\"" + InfoDictionaryId + "\"\n\n");
+                for (int i = 0; i <= MAX_FID - MIN_FID; i++)
+                {
+                    if (_entriesArray[i] != null && _entriesArray[i]._rwfType != DataTypes.UNKNOWN)
+                    {
+                        dictionaryString.Append("  Fid=" + _entriesArray[i]._fid + " '" + _entriesArray[i]._acronym + "' '" + _entriesArray[i]._ddeAcronym + "' Type=" + _entriesArray[i]._fieldType + " RippleTo=" + _entriesArray[i]._rippleToField + " Len=" + _entriesArray[i]._length + " EnumLen=" + _entriesArray[i]._enumLength + " RwfType=" + _entriesArray[i]._rwfType + " RwfLen=" + _entriesArray[i]._rwfLength + "\n");
+                    }
+                }
 
-				sb.Append("  [Field Dictionary Tags]\n" + "      Filename=\"" + _infoFieldFilename + "\"\n" + "          Desc=\"" + _infoFieldDesc + "\"\n" + "       Version=\"" + _infoFieldVersion + "\"\n" + "         Build=\"" + _infoFieldBuild + "\"\n" + "          Date=\"" + _infoFieldDate + "\"\n\n");
+                /* Enum Tables Dump */
 
-				sb.Append("  [Enum Type Dictionary Tags]\n" + "      Filename=\"" + _infoEnumFilename + "\"\n" + "          Desc=\"" + _infoEnumDesc + "\"\n" + "    RT_Version=\"" + _infoEnumRTVersion + "\"\n" + "    DT_Version=\"" + _infoEnumDTVersion + "\"\n" + "          Date=\"" + _infoEnumDate + "\"\n\n");
+                dictionaryString.Append("\nEnum Type Tables:\n");
 
-				sb.Append("Field Dictionary:\n");
+                for (int i = 0; i < EnumTableCount; ++i)
+                {
+                    IEnumTypeTable table = EnumTables[i];
 
-				for (int i = 0; i <= MAX_FID - MIN_FID; i++)
-				{
-					if (_entriesArray[i] != null && _entriesArray[i]._rwfType != DataTypes.UNKNOWN)
-					{
-						sb.Append("  Fid=" + _entriesArray[i]._fid + " '" + _entriesArray[i]._acronym + "' '" + _entriesArray[i]._ddeAcronym + "' Type=" + _entriesArray[i]._fieldType + " RippleTo=" + _entriesArray[i]._rippleToField + " Len=" + _entriesArray[i]._length + " EnumLen=" + _entriesArray[i]._enumLength + " RwfType=" + _entriesArray[i]._rwfType + " RwfLen=" + _entriesArray[i]._rwfLength + "\n");
-					}
-				}
+                    for (int j = 0; j < table.FidReferences.Count; ++j)
+                    {
+                        dictionaryString.Append("(Referenced by Fid " + table.FidReferences[j] + ")\n");
+                    }
 
-				/* Enum Tables Dump */
+                    for (int j = 0; j <= table.MaxValue; ++j)
+                    {
+                        IEnumType enumType = table.EnumTypes[j];
 
-				sb.Append("\nEnum Type Tables:\n");
+                        if (enumType != null)
+                        {
+                            dictionaryString.Append("value=" + enumType.Value + " display=\"" + enumType.Display + "\" meaning=\"" + enumType.Meaning + "\"\n");
+                        }
+                    }
 
-				for (int i = 0; i < EnumTableCount; ++i)
-				{
-					IEnumTypeTable table = EnumTables[i];
+                    dictionaryString.Append("\n");
+                }
+            }
 
-					for (int j = 0; j < table.FidReferences.Count; ++j)
-					{
-						sb.Append("(Referenced by Fid " + table.FidReferences[j] + ")\n");
-					}
-
-					for (int j = 0; j <= table.MaxValue; ++j)
-					{
-						IEnumType enumType = table.EnumTypes[j];
-
-						if (enumType != null)
-						{
-							sb.Append("value=" + enumType.Value + " display=\"" + enumType.Display + "\" meaning=\"" + enumType.Meaning + "\"\n");
-						}
-					}
-
-					sb.Append("\n");
-				}
-
-				sb.Append("\nField Set Defs Tables:\n");
-
-				for (int i = 1; i < EnumTableCount; ++i)
-				{
-					IEnumTypeTable table = EnumTables[i];
-
-					for (int j = 0; j < table.FidReferences.Count; ++j)
-					{
-						sb.Append("(Referenced by Fid " + table.FidReferences[j] + ")\n");
-					}
-
-					for (int j = 0; j <= table.MaxValue; ++j)
-					{
-						IEnumType enumType = table.EnumTypes[j];
-
-						if (enumType != null)
-						{
-							sb.Append("value=" + enumType.Value + " display=\"" + enumType.Display + "\" meaning=\"" + enumType.Meaning + "\"\n");
-						}
-					}
-
-					sb.Append("\n");
-				}
-
-				dictionaryString = sb.ToString();
-			}
-
-			return dictionaryString;
-		}
+            return dictionaryString.ToString();
+        }
 
         /* gets the start of data from a line of data */
         private void FindLineStart(char[] fileData)
@@ -3307,6 +3283,7 @@ namespace LSEG.Eta.Codec
 
             tempUInt.Clear();
             tempInt.Clear();
+            dictionaryString?.Clear();
 
             switch (type)
             {

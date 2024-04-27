@@ -35,8 +35,6 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
         /// </summary>
         DICTIONARY_MSG,
 
-        STATUS_MSG,
-
         /// <summary>
         /// ReactorMsgEvent
         /// </summary>

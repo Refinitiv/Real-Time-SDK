@@ -10,18 +10,27 @@ using LSEG.Ema.Access;
 using LSEG.Eta.Codec;
 using System.Text;
 using DateTime = LSEG.Eta.Codec.DateTime;
+using Double = LSEG.Eta.Codec.Double;
+using Enum = LSEG.Eta.Codec.Enum;
 
 namespace LSEG.Ema.PerfTools.Common
 {
     public class ItemEncoder
     {
-        private const int TIM_TRK_1_FID = 3902; // Field TIM_TRK_1 is used to send update latency.
-        private const int TIM_TRK_2_FID = 3903; // Field TIM_TRK_2 is used to send post latency.
-        private const int TIM_TRK_3_FID = 3904; // Field TIM_TRK_3 is used to send generic msg latency.
+        /// <summary>
+        /// Field ID used to send update latency.
+        /// </summary>
+        public const int TIM_TRK_1_FID = 3902;
 
-        private Date dateTmp = new Date();
-        private Time timeTmp = new Time();
-        private DateTime dateTimeTmp = new DateTime();
+        /// <summary>
+        /// Field ID used to send post latency.
+        /// </summary>
+        public const int TIM_TRK_2_FID = 3903;
+
+        /// <summary>
+        /// Field ID used to send generic msg latency.
+        /// </summary>
+        public const int TIM_TRK_3_FID = 3904;
 
         private Ema.Access.FieldList m_fieldList = new Ema.Access.FieldList();
         private Ema.Access.UpdateMsg m_updateMsg = new Ema.Access.UpdateMsg();
@@ -42,17 +51,13 @@ namespace LSEG.Ema.PerfTools.Common
         {
             int fieldId = field.FieldId;
             string value = field.Value!;
-            double doubleValue;
-            float floatValue;
-            long longValue;
-            int intValue;
             switch (field.LoadType)
             {
                 case DataType.DataTypes.INT:
                     if (!field.Blank)
                     {
-                        long.TryParse(value, out longValue);
-                        fieldList.AddInt(fieldId, longValue);
+                        Int intValue = (Int)field.FieldEntry!;
+                        fieldList.AddInt(fieldId, intValue.ToLong());
                     }
                     else
                     {
@@ -62,8 +67,8 @@ namespace LSEG.Ema.PerfTools.Common
                 case DataType.DataTypes.UINT:
                     if (!field.Blank)
                     {
-                        long.TryParse(value, out longValue);
-                        fieldList.AddUInt(fieldId, (ulong)longValue);
+                        UInt uintValue = (UInt)field.FieldEntry!;
+                        fieldList.AddUInt(fieldId, uintValue.ToULong());
                     }
                     else
                     {
@@ -73,8 +78,8 @@ namespace LSEG.Ema.PerfTools.Common
                 case DataType.DataTypes.FLOAT:
                     if (!field.Blank)
                     {
-                        float.TryParse(value, out floatValue);
-                        fieldList.AddFloatValue(fieldId, floatValue);
+                        Float floatValue = (Float)field.FieldEntry!;
+                        fieldList.AddFloatValue(fieldId, floatValue.ToFloat());
                     }
                     else
                     {
@@ -84,8 +89,8 @@ namespace LSEG.Ema.PerfTools.Common
                 case DataType.DataTypes.DOUBLE:
                     if (!field.Blank)
                     {
-                        double.TryParse(value, out doubleValue);
-                        fieldList.AddDoubleValue(fieldId, doubleValue);
+                        Double doubleValue = (Double)field.FieldEntry!;
+                        fieldList.AddDoubleValue(fieldId, doubleValue.ToDouble());
                     }
                     else
                     {
@@ -95,8 +100,8 @@ namespace LSEG.Ema.PerfTools.Common
                 case DataType.DataTypes.REAL:
                     if (!field.Blank)
                     {
-                        double.TryParse(value, out doubleValue);
-                        fieldList.AddRealFromDouble(fieldId, doubleValue);
+                        Real realValue = (Real)field.FieldEntry!;
+                        fieldList.AddReal(fieldId, realValue.ToLong(), realValue.Hint);
                     }
                     else
                     {
@@ -106,8 +111,7 @@ namespace LSEG.Ema.PerfTools.Common
                 case DataType.DataTypes.DATE:
                     if (!field.Blank)
                     {
-                        dateTmp.Clear();
-                        dateTmp.Value(value);
+                        Date dateTmp = (Date)field.FieldEntry!;
                         fieldList.AddDate(fieldId, dateTmp.Year(), dateTmp.Month(), dateTmp.Day());
                     }
                     else
@@ -118,8 +122,7 @@ namespace LSEG.Ema.PerfTools.Common
                 case DataType.DataTypes.TIME:
                     if (!field.Blank)
                     {
-                        timeTmp.Clear();
-                        timeTmp.Value(value);
+                        Time timeTmp = (Time)field.FieldEntry!;
                         fieldList.AddTime(fieldId, timeTmp.Hour(), 
                             timeTmp.Minute(), timeTmp.Second(), 
                             timeTmp.Millisecond(), timeTmp.Microsecond(), timeTmp.Nanosecond());
@@ -132,8 +135,7 @@ namespace LSEG.Ema.PerfTools.Common
                 case DataType.DataTypes.DATETIME:
                     if (!field.Blank)
                     {
-                        dateTimeTmp.Clear();
-                        dateTimeTmp.Value(value);
+                        DateTime dateTimeTmp = (DateTime)field.FieldEntry!;
                         fieldList.AddDateTime(fieldId, dateTimeTmp.Year(), 
                             dateTimeTmp.Month(), dateTimeTmp.Day(), 
                             dateTimeTmp.Hour(), dateTimeTmp.Minute(), dateTimeTmp.Second(), 
@@ -147,8 +149,8 @@ namespace LSEG.Ema.PerfTools.Common
                 case DataType.DataTypes.ENUM:
                     if (!field.Blank)
                     {
-                        int.TryParse(value, out intValue);
-                        fieldList.AddEnumValue(fieldId, intValue);
+                        Enum enumValue = (Enum)field.FieldEntry!;
+                        fieldList.AddEnumValue(fieldId, enumValue.ToInt());
                     }
                     else
                     {
@@ -158,7 +160,8 @@ namespace LSEG.Ema.PerfTools.Common
                 case DataType.DataTypes.BUFFER:
                     if (!field.Blank)
                     {
-                        fieldList.AddBuffer(fieldId, new EmaBuffer(Encoding.ASCII.GetBytes(value!)));
+                        EmaBuffer bufferTmp = (EmaBuffer)field.FieldEntry!;
+                        fieldList.AddBuffer(fieldId, bufferTmp);
                     }
                     else
                     {
@@ -188,7 +191,8 @@ namespace LSEG.Ema.PerfTools.Common
                 case DataType.DataTypes.RMTES:
                     if (!field.Blank)
                     {
-                        fieldList.AddRmtes(fieldId, new EmaBuffer(Encoding.ASCII.GetBytes(value!)));
+                        EmaBuffer bufferTmp = (EmaBuffer)field.FieldEntry!;
+                        fieldList.AddRmtes(fieldId, bufferTmp);
                     }
                     else
                     {
@@ -208,7 +212,7 @@ namespace LSEG.Ema.PerfTools.Common
             }
         }
 
-        private void CreatePayload(MarketPriceMsg mpMsg, long encodeStartTime, int timeFieldId, Ema.Access.FieldList fieldList)
+        public void CreatePayload(MarketPriceMsg mpMsg, long encodeStartTimeMicroseconds, int timeFieldId, Ema.Access.FieldList fieldList, bool setLatency = true)
         {
             for (int i = 0; i < mpMsg.FieldEntryCount; i++)
             {
@@ -221,9 +225,9 @@ namespace LSEG.Ema.PerfTools.Common
                 fieldList.AddUInt(TIM_TRK_2_FID, 0L);
                 fieldList.AddUInt(TIM_TRK_3_FID, 0L);
             }
-            else if (encodeStartTime > 0)
+            else if (encodeStartTimeMicroseconds > 0 && setLatency)
             {
-                fieldList.AddUInt(timeFieldId, (ulong)encodeStartTime);
+                fieldList.AddUInt(timeFieldId, (ulong)encodeStartTimeMicroseconds);
             }
 
             fieldList.Complete();

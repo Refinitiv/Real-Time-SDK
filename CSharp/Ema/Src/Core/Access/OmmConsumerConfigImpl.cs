@@ -1,4 +1,4 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
@@ -15,26 +15,14 @@ using System.Linq;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
 using static LSEG.Eta.Rdm.Directory;
-using System.Net.Security;
+
 using System.IO;
+using System.Net.Security;
 
 namespace LSEG.Ema.Access
 {
-    //
-    internal class OmmConsumerConfigImpl
+    internal class OmmConsumerConfigImpl : OmmConfigBaseImpl
     {
-        // Hostname config from OmmConsumerConfig methods
-        internal string HostName = string.Empty;
-        // Port config from OmmConsumerConfig methods
-        internal string Port = string.Empty;
-        // UserName config from OmmConsumerConfig methods. This is used for the login requests if session management is turned off for the connection
-        internal string UserName = string.Empty;
-        // Password config from OmmConsumerConfig methods. This is used for the login requests if session management is turned off for the connection
-        internal string Password = string.Empty;
-        // Position config from OmmConsumerConfig methods.
-        internal string Position { get; set; } = string.Empty;
-        // ApplicationId config from OmmConsumerConfig methods.
-        internal string ApplicationId { get; set; } = string.Empty;
         // ClientId config from OmmConsumerConfig methods. This is used to get access tokens from RDP
         internal string ClientId { get; set; } = string.Empty;
         // ClientSecret config from OmmConsumerConfig methods. This is used to get access tokens from RDP
@@ -52,15 +40,6 @@ namespace LSEG.Ema.Access
         // ConsumerName configuration from the OmmConsumerConfigMethods
         // For the copied OmmConsumerConfigImpl used in OmmBaseImpl, this contains the name of the consumer that the OmmConsumer is connected to
         internal string ConsumerName { get; set; } = string.Empty;
-        // ProxyHost config from OmmConsumerConfig methods
-        internal string ProxyHost { get; set; } = string.Empty;
-        // ProxyPort config from OmmConsumerConfig methods
-        internal string ProxyPort { get; set; } = string.Empty;
-        // ProxyUserName config from OmmConsumerConfig methods
-        internal string ProxyUserName { get; set; } = string.Empty;
-        // ProxyPassword config from OmmConsumerConfig methods
-        internal string ProxyPassword { get; set; } = string.Empty;
-        // RestProxyHost config from OmmConsumerConfig methods
         internal string RestProxyHostName { get; set; } = string.Empty;
         // RestProxyPort config from OmmConsumerConfig methods
         internal string RestProxyPort { get; set; } = string.Empty;
@@ -68,21 +47,9 @@ namespace LSEG.Ema.Access
         internal string RestProxyUserName { get; set; } = string.Empty;
         // RestProxyPassword config from OmmConsumerConfig methods
         internal string RestProxyPassword { get; set; } = string.Empty;
-        // DispatchModel config from OmmConsumerConfig methods.
-        internal OmmConsumerConfig.OperationModelMode DispatchModel;
-        // ChannleType config from OmmConsumerConfig methods
-        internal ConnectionType ChanType { get; set; } = ConnectionType.UNIDENTIFIED;
-        // EncProtocolType config from OmmConsumerConfig methods
-        internal ConnectionType EncProtocolType { get; set; } = ConnectionType.UNIDENTIFIED;
-
-        // Path of the Xml configuration file. If not specified when the OmmConsumerConfig is created, this will default to "EmaConfig.xml"
-        internal string XmlConfigPath { get; set; } = string.Empty;
 
         // Dictionary tables indexed by the name of the config.
         internal Dictionary<string, ConsumerConfig> ConsumerConfigMap { get; set; }
-        internal Dictionary<string, ClientChannelConfig> ClientChannelConfigMap { get; set; }
-        internal Dictionary<string, LoggerConfig> LoggerConfigMap { get; set; }
-        internal Dictionary<string, DictionaryConfig> DictionaryConfigMap { get; set; }
 
         // Xml parser class.  This is not used with the "active" configuration in OmmBaseImpl
         internal XmlConfigParser? XmlParser { get; set; }
@@ -90,36 +57,30 @@ namespace LSEG.Ema.Access
         // Default consumer configured from the Xml.  If Empty, this will be either the first configured consumer, or if no consumers are configured, the default consumer.
         internal string DefaultConsumer { get; set; } = string.Empty;
 
+        // Name of the first configured Consumer, because .net Dictionaries may not keep everything in order of insertion
+
+        internal string FirstConfiguredConsumerName { get; set; } = string.Empty;
+
         // Internal reference to the consumer, dictionary, and logger configuration used as the "active" configuration, once copied to the OmmBaseImpl.
         internal ConsumerConfig ConsumerConfig { get; set; } = new ConsumerConfig();
-        internal LoggerConfig LoggerConfig { get; set; } = new LoggerConfig();
         internal DictionaryConfig DictionaryConfig { get; set; } = new DictionaryConfig();
-
-        internal ProgrammaticConfigParser? ProgrammaticParser { get; set; } = null;
-
-        internal ConfigErrorList? ConfigErrorLog { get; set; } = null;
-
-        internal LoginRequest AdminLoginRequest { get; set; } = new LoginRequest();
-
         internal DirectoryRequest? AdminDirectoryRequest { get; set; } = null;
         internal DictionaryRequest? AdminFieldDictionaryRequest { get; set; } = null;
         internal DictionaryRequest? AdminEnumDictionaryRequest { get; set; } = null;
         internal string FieldDictionaryRequestServiceName { get; set; } = string.Empty;
         internal string EnumDictionaryRequestServiceName { get; set; } = string.Empty;
 
-        internal bool SetEncryptedProtocolFlags { get; set; } = false;
+        private const string DefaultHost = "localhost";
+        private const string DefaultPort = "14002";
 
-        internal uint EncryptedTLSProtocolFlags { get; set; } = EmaConfig.EncryptedTLSProtocolFlags.NONE;
-
-        internal IEnumerable<TlsCipherSuite>? CipherSuites { get; set; } = null;
+        private static readonly HostPortParser hostPortParser = new (DefaultHost, DefaultPort);
 
         // Default constructor
         internal OmmConsumerConfigImpl(string? path)
+            : base()
         {
             ConsumerConfigMap = new Dictionary<string, ConsumerConfig>();
-            ClientChannelConfigMap = new Dictionary<string, ClientChannelConfig>();
-            LoggerConfigMap = new Dictionary<string, LoggerConfig>();
-            DictionaryConfigMap = new Dictionary<string, DictionaryConfig>();
+          
             // The error log will only be used by a user-created object, not by the internal EMA cache.
             ConfigErrorLog = new ConfigErrorList();
 
@@ -135,12 +96,12 @@ namespace LSEG.Ema.Access
         // Copy Constructor that will be used in OmmBaseImpl.  This will contain only the information needed by EMA to generate
         // ReactorConnectOptions and the ReactorRole.  It will not copy everything, just:
         // the configured required Consumer(in order: ConsuemerName, DefaultConsumer, the first Consumer in the consumer list, the default consumer)
-        // any channels directly referenced by the consumer(or
+        // any channels directly referenced by the consumer(or 
         // the dictionary referenced by the consumer(or default)
-        // the
-        //
+        // 
         // PREREQUSITES: OldConfigImpl has been verified with VerifyConfiguration()
         internal OmmConsumerConfigImpl(OmmConsumerConfigImpl OldConfigImpl)
+            : base()
         {
             ConsumerConfigMap = new Dictionary<string, ConsumerConfig>();
             ClientChannelConfigMap = new Dictionary<string, ClientChannelConfig>();
@@ -200,7 +161,7 @@ namespace LSEG.Ema.Access
             ConsumerConfig.Clear();
 
             // If there aren't any configured consumers or the host and port have been specified, fall into the default case.  Otherwise,
-            // check to see if the ConsumerName or DefaultConsumer have been defined, and deep copy the consumer to tmpConsumerConfig
+            // check to see if the ConsumerName or DefaultConsumer have been defined, and deep copy the consumer to tmpConsumerConfig 
             if (OldConfigImpl.ConsumerConfigMap.Count > 0)
             {
                 if (string.IsNullOrEmpty(OldConfigImpl.ConsumerName) == true)
@@ -211,7 +172,7 @@ namespace LSEG.Ema.Access
                     }
                     else
                     {
-                        ConsumerName = OldConfigImpl.ConsumerConfigMap.ElementAt(0).Value.Name;
+                        ConsumerName = OldConfigImpl.FirstConfiguredConsumerName;
                     }
                 }
                 else
@@ -222,7 +183,7 @@ namespace LSEG.Ema.Access
                 OldConfigImpl.ConsumerConfigMap[ConsumerName].Copy(ConsumerConfig);
 
                 // If the hostname and port are set, remove all other channels from the channel set.
-                if(!HostName.IsNullOrEmpty() && !Port.IsNullOrEmpty() && ConsumerConfig.ChannelSet.Count > 1)
+                if(!string.IsNullOrEmpty(HostName) && !string.IsNullOrEmpty(Port) && ConsumerConfig.ChannelSet.Count > 1)
                 {
                     ConsumerConfig.ChannelSet.RemoveRange(1, ConsumerConfig.ChannelSet.Count - 1);
                 }
@@ -250,25 +211,25 @@ namespace LSEG.Ema.Access
                 }
                 else
                 {
-                    tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address = ClientChannelConfig.DefaultHost;
-                    tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = ClientChannelConfig.DefaultPort;
+                    tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address = DefaultHost;
+                    tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = DefaultPort;
                 }
 
                 // If the proxy is set on the top leve, override the proxy info set in each channel configuration.
-                if (!ProxyHost.IsNullOrEmpty())
+                if (!string.IsNullOrEmpty(ProxyHost))
                     tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyHostName = ProxyHost;
-                if (!ProxyPort.IsNullOrEmpty())
+                if (!string.IsNullOrEmpty(ProxyPort))
                     tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPort = ProxyPort;
-                if (!ProxyUserName.IsNullOrEmpty())
+                if (!string.IsNullOrEmpty(ProxyUserName))
                     tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyUserName = ProxyUserName;
-                if (!ProxyPassword.IsNullOrEmpty())
+                if (!string.IsNullOrEmpty(ProxyPassword))
                     tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPassword = ProxyPassword;
 
                 // Add the DefaultEmaChannel to the config map and to the ConsumerConfig's channelSet.
                 ClientChannelConfigMap.Add(tmpChannelConfig.Name, tmpChannelConfig);
                 ConsumerConfig.ChannelSet.Add(tmpChannelConfig.Name);
             }
-            else
+            else   
             {
                 // There are channels in the channelSet, so copy them all over. Don't need to add the name because it's already in there.
                 foreach (string channelName in ConsumerConfig.ChannelSet)
@@ -282,21 +243,28 @@ namespace LSEG.Ema.Access
                     tmpChannelConfig = new ClientChannelConfig(OldConfigImpl.ClientChannelConfigMap[channelName]);
 
                     // If hostname and port are set, this should be the only channel in the list, so override the host, port, and connectionType config.
-                    if (!HostName.IsNullOrEmpty() && !Port.IsNullOrEmpty())
+                    if (!string.IsNullOrEmpty(HostName) && !string.IsNullOrEmpty(Port))
                     {
                         tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address = HostName;
                         tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = Port;
                         tmpChannelConfig.ConnectInfo.ConnectOptions.ConnectionType = Eta.Transports.ConnectionType.SOCKET;
                     }
+                    else
+                    {
+                        if (tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address is not null)
+                        {
+                            tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName ??= DefaultPort;
+                        }
+                    }
 
                     // If the proxy is set on the top leve, override the proxy info set in each channel configuration.
-                    if (!ProxyHost.IsNullOrEmpty())
+                    if (!string.IsNullOrEmpty(ProxyHost))
                         tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyHostName = ProxyHost;
-                    if (!ProxyPort.IsNullOrEmpty())
+                    if (!string.IsNullOrEmpty(ProxyPort))
                         tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPort = ProxyPort;
-                    if (!ProxyUserName.IsNullOrEmpty())
+                    if (!string.IsNullOrEmpty(ProxyUserName))
                         tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyUserName = ProxyUserName;
-                    if (!ProxyPassword.IsNullOrEmpty())
+                    if (!string.IsNullOrEmpty(ProxyPassword))
                         tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPassword = ProxyPassword;
 
                     ClientChannelConfigMap.Add(tmpChannelConfig.Name, tmpChannelConfig);
@@ -304,7 +272,7 @@ namespace LSEG.Ema.Access
             }
 
             LoggerConfig.Clear();
-
+            
             if (string.IsNullOrEmpty(ConsumerConfig.Logger) == false)
             {
                 // There's a configured logger config, so copy it over.
@@ -320,7 +288,7 @@ namespace LSEG.Ema.Access
             LoggerConfigMap.Add(LoggerConfig.Name, LoggerConfig);
 
             DictionaryConfig.Clear();
-
+            
             if (!string.IsNullOrEmpty(ConsumerConfig.Dictionary))
             {
                 // There's a configured dictionary config, so copy it over.
@@ -336,23 +304,12 @@ namespace LSEG.Ema.Access
             DictionaryConfigMap.Add(DictionaryConfig.Name, DictionaryConfig);
         }
 
-        internal void TlsCipherSuites(IEnumerable<TlsCipherSuite> cipherSuites)
-        {
-            CipherSuites = cipherSuites;
-        }
-
-        internal void EncryptedProtocolFlags(uint protocolFlags)
-        {
-            SetEncryptedProtocolFlags = true;
-            EncryptedTLSProtocolFlags = protocolFlags;
-        }
-
         internal void Clear()
         {
             HostName = string.Empty;
             Port = string.Empty;
             ConsumerName = string.Empty;
-            DispatchModel = OmmConsumerConfig.OperationModelMode.API_DISPATCH;
+            DispatchModel = (int)OmmConsumerConfig.OperationModelMode.API_DISPATCH;
             XmlConfigPath = string.Empty;
             XmlParser = null;
             DefaultConsumer = string.Empty;
@@ -384,8 +341,6 @@ namespace LSEG.Ema.Access
             ConfigErrorLog?.Clear();
             SetEncryptedProtocolFlags = false;
             CipherSuites = null;
-            ChanType = ConnectionType.UNIDENTIFIED;
-            EncProtocolType = ConnectionType.UNIDENTIFIED;
         }
 
         // Takes in a host name formatted in the following way:
@@ -395,75 +350,17 @@ namespace LSEG.Ema.Access
         // :[Port] => Default Hostname and Port
         // [Hostname]:[Port] => Configured Hostname and Configured Port
         // Throws OmmInvalidConfigurationException if the parse fails.
-        internal void Host(string host)
-        {
-            // Blank or null string indicates that this is the default localhost:14002
-            if(host.IsNullOrEmpty() == true)
-            {
-                HostName = ClientChannelConfig.DefaultHost;
-                Port = ClientChannelConfig.DefaultPort;
-                return;
-            }
+        internal void Host(string host) =>
+            hostPortParser.StringToHostPort(host, out HostName, out Port);
 
-            int index = host.IndexOf(":");
-
-            // No ':' means it's just the hostname, so set default port.
-            if(index == -1)
-            {
-                HostName = host;
-                Port = ClientChannelConfig.DefaultPort;
-                return;
-            }
-
-            // If ':' is first,
-            if(index == 0)
-            {
-                HostName = ClientChannelConfig.DefaultHost;
-                Port = host.Substring(1);
-                return;
-            }
-
-            string[] stringArray = host.Split(':');
-
-            // This covers the full "host:port" and "host:" strings.  Since we already know the 1st character isn't ':', the first substring will be a valid host name string.
-            if (stringArray.Length == 2)
-            {
-                HostName = stringArray[0];
-                if (stringArray[1].IsNullOrEmpty() == true)
-                {
-                    Port = ClientChannelConfig.DefaultPort;
-                }
-                else
-                {
-                    Port = stringArray[1];
-                }
-                return;
-            }
-            else
-            {
-                throw new OmmInvalidConfigurationException("Host string is malformed. This should be [hostname]:[port].");
-            }
-        }
-
-        internal void ChannelType(ConnectionType channelType)
-        {
-            ChanType = channelType;
-        }
-        internal void EncryptedProtocolType(ConnectionType encProtocolType)
-        {
-            EncProtocolType = encProtocolType;
-        }
-
-        internal void OperationModel(OmmConsumerConfig.OperationModelMode operationModel)
+        internal void OperationModel(int operationModel)
         {
             DispatchModel = operationModel;
         }
 
         internal void Config(Map configMap)
         {
-            ProgrammaticParser ??= new ProgrammaticConfigParser(this);
-
-            ProgrammaticParser.ParseProgrammaticConfig(configMap);
+            ProgrammaticConfigParser.ParseProgrammaticConsumerConfig(configMap, this);
         }
 
         // This method's creating temporary admin requests to ensure that they get deep copied into the OmmConsumerConfigImpl's structures.
@@ -476,6 +373,7 @@ namespace LSEG.Ema.Access
             {
                 case (int)DomainType.LOGIN:
                     LoginRequest tmpLoginRequest = new LoginRequest();
+
                     AdminLoginRequest.Clear();
 
                     requestMsg.EncodeComplete();
@@ -734,8 +632,11 @@ namespace LSEG.Ema.Access
 
             role.FieldDictionaryName.Data(dictConfig.RdmFieldDictionaryItemName);
             role.EnumTypeDictionaryName.Data(dictConfig.EnumTypeDefItemName);
+
+            AdminLoginRequest ??= new LoginRequest();
+           
             // Setup the Login name if UserName, Password or position are set
-            if (!UserName.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(UserName))
             {
                 AdminLoginRequest.UserName.Data(UserName);
             }
@@ -751,20 +652,20 @@ namespace LSEG.Ema.Access
                 }
             }
 
-            if (!Password.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(Password))
             {
                 AdminLoginRequest.HasAttrib = true;
                 AdminLoginRequest.Flags |= LoginRequestFlags.HAS_PASSWORD;
                 AdminLoginRequest.Password.Data(Password);
             }
-            if (!Position.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(Position))
             {
                 AdminLoginRequest.HasAttrib = true;
                 AdminLoginRequest.LoginAttrib.Flags |= LoginAttribFlags.HAS_POSITION;
                 AdminLoginRequest.LoginAttrib.Position.Data(Position);
             }
 
-            if (!ApplicationId.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(ApplicationId))
             {
                 AdminLoginRequest.HasAttrib = true;
                 AdminLoginRequest.LoginAttrib.Flags |= LoginAttribFlags.HAS_APPLICATION_ID;
@@ -776,6 +677,7 @@ namespace LSEG.Ema.Access
                 AdminLoginRequest.HasAttrib = true;
                 AdminLoginRequest.LoginAttrib.HasSupportRoundTripLatencyMonitoring = true;
             }
+
 
             AdminLoginRequest.StreamId = 1; // Set the stream ID for login domain
             role.RdmLoginRequest = AdminLoginRequest;
@@ -822,7 +724,7 @@ namespace LSEG.Ema.Access
 
         // Generates the reactor connect options based on the Consumer Config.
         // Prerequsites: The user-supplied OmmConsumerConfig has been verified with OmmConsumerConfigImpl.VerifyConfig and this is run on the "active" configuration copy
-        internal ReactorConnectOptions GenerateReactorConnectOpts()
+        public override ReactorConnectOptions GenerateReactorConnectOpts()
         {
             ReactorConnectOptions connOpts = new ReactorConnectOptions();
             ConsumerConfig consConfig = ConsumerConfigMap[ConsumerName];
@@ -936,9 +838,6 @@ namespace LSEG.Ema.Access
             {
                 throw new OmmInvalidConfigurationException($"Failed to set REST request timeout with value: {restRequsetTimeout}");
             }
-
-            // Enable XML tracing
-            reactorOptions.XmlTracing = ConsumerConfig.XmlTraceToStdout;
         }
     }
 }

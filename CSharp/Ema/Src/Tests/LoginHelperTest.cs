@@ -431,7 +431,7 @@ public class LoginHelperTest
         try
         {
             loginReq.ApplicationAuthorizationToken();
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -441,7 +441,7 @@ public class LoginHelperTest
         try
         {
             loginReq.InstanceId();
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -451,7 +451,7 @@ public class LoginHelperTest
         try
         {
             loginReq.Password();
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -468,7 +468,7 @@ public class LoginHelperTest
             // In the end, scenario tested here doesn't throw an exception, but returns
             // DEFAULT_POSITION value instead.
             loginReq.Position();
-            // Assert.True(false, "Exception is expected");
+            // Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -478,7 +478,7 @@ public class LoginHelperTest
         try
         {
             loginReq.AuthenticationExtended();
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -515,7 +515,7 @@ public class LoginHelperTest
         try
         {
             loginReq.Message(decReqMsg);
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -1041,7 +1041,7 @@ public class LoginHelperTest
         try
         {
             loginRefresh.ApplicationId();
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -1051,7 +1051,7 @@ public class LoginHelperTest
         try
         {
             loginRefresh.ApplicationName();
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -1061,7 +1061,7 @@ public class LoginHelperTest
         try
         {
             loginRefresh.Position();
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -1071,7 +1071,7 @@ public class LoginHelperTest
         try
         {
             loginRefresh.AuthenticationExtended();
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -1110,7 +1110,7 @@ public class LoginHelperTest
         try
         {
             loginRefresh.Message(decRefreshMsg);
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -1347,7 +1347,7 @@ public class LoginHelperTest
         try
         {
             loginStatus.AuthenticationErrorCode();
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {
@@ -1357,7 +1357,7 @@ public class LoginHelperTest
         try
         {
             loginStatus.AuthenticationErrorText();
-            Assert.True(false, "Exception is expected");
+            Assert.Fail("Exception is expected");
         }
         catch (OmmInvalidUsageException ex)
         {

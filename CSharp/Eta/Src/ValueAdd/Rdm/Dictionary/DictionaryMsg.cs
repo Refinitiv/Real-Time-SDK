@@ -36,11 +36,11 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public Eta.Rdm.DomainType DomainType { get => Eta.Rdm.DomainType.DICTIONARY; }
 
         /// <summary>
-        /// StreamId for this message
+        /// StreamId for this message.
         /// </summary>
         public int StreamId
         {
-            get => GetMsg()!.StreamId;
+            get => GetMsg()?.StreamId ?? 0;
             set { GetMsg()!.StreamId = value; }
         }
 

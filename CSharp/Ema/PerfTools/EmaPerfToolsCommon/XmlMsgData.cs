@@ -8,7 +8,9 @@
 
 using System;
 using System.Diagnostics;
+using System.Text;
 using System.Xml;
+using LSEG.Ema.Access;
 using LSEG.Eta.Codec;
 using Buffer = LSEG.Eta.Codec.Buffer;
 using DateTime = LSEG.Eta.Codec.DateTime;
@@ -190,47 +192,48 @@ namespace LSEG.Ema.PerfTools.Common
             if (fieldNode.Attributes == null)
                 return;
 
+            QosWrapper qosWrapper;
+            StateWrapper stateWrapper;
             if (field.LoadType == DataTypes.QOS)
             {
-                Qos qos = new Qos();
+                qosWrapper = new QosWrapper();
                 XmlAttribute? rateAttr = fieldNode.Attributes["qosRate"];
-                qos.Rate(rateAttr != null ? QosRateValue(rateAttr.Value) : 0);
+                qosWrapper.Rate(rateAttr != null ?rateAttr.Value : null);
 
                 XmlAttribute? rateInfoAttr = fieldNode.Attributes["qosRateInfo"];
-                qos.RateInfo(rateInfoAttr != null ? int.Parse(rateInfoAttr.Value) : 0);
+                qosWrapper.RateInfo(rateInfoAttr != null ? rateInfoAttr.Value : null);
 
                 XmlAttribute? timelinessAttr = fieldNode.Attributes["qosTimeliness"];
-                qos.Timeliness(timelinessAttr != null ? QosTimelinessValue(timelinessAttr.Value) : 0);
+                qosWrapper.Timeliness(timelinessAttr != null ? timelinessAttr.Value : null);
 
                 XmlAttribute? timeInfoAttr = fieldNode.Attributes["qosTimeInfo"];
-                qos.TimeInfo(timeInfoAttr != null ? int.Parse(timeInfoAttr.Value) : 0);
+                qosWrapper.TimeInfo(timeInfoAttr != null ? timeInfoAttr.Value : null);
 
                 XmlAttribute? dynamicAttr = fieldNode.Attributes["qosDynamic"];
-                qos.IsDynamic = dynamicAttr != null && int.Parse(dynamicAttr.Value) > 0;
-                field.FieldEntry = qos;
+                qosWrapper.Dynamic(dynamicAttr?.Value);
+                field.Qos = qosWrapper;
             }
             else if (field.LoadType == DataTypes.STATE)
             {
-                State state = new State();
+                stateWrapper = new StateWrapper();
 
                 XmlAttribute? streamStateAttr = fieldNode.Attributes["streamState"];
-                state.StreamState(streamStateAttr != null ? StreamStateValue(streamStateAttr.Value) : 0);
+                stateWrapper.StreamState(streamStateAttr != null ? streamStateAttr.Value : null);
 
                 XmlAttribute? dataStateAttr = fieldNode.Attributes["dataState"];
-                state.DataState(dataStateAttr != null ? DataStateValue(dataStateAttr.Value) : 0);
+                stateWrapper.DataState(dataStateAttr != null ? dataStateAttr.Value : null);
 
                 XmlAttribute? codeAttr = fieldNode.Attributes["code"];
-                state.Code(codeAttr != null ? CodeValue(codeAttr.Value) : 0);
+                stateWrapper.StatusCode(codeAttr != null ? codeAttr.Value : null);
 
                 XmlAttribute? textAttr = fieldNode.Attributes["text"];
-                Buffer text = new Buffer();
-                text.Data(textAttr != null ? textAttr.Value : "");
-                state.Text(text);
-                field.FieldEntry = state;
+                stateWrapper.StatusText(textAttr != null ? textAttr.Value : "");
+                field.State = stateWrapper;
             }
             else
             {
                 XmlAttribute? dataAttr = fieldNode.Attributes["data"];
+                field.Value = dataAttr!.Value;
                 if (dataAttr is not null)
                 {
                     switch (field.LoadType)
@@ -283,8 +286,7 @@ namespace LSEG.Ema.PerfTools.Common
                         case DataTypes.BUFFER:
                         case DataTypes.RMTES_STRING:
                         case DataTypes.ASCII_STRING:
-                            Buffer buffer = new Buffer();
-                            buffer.Data(dataAttr.Value);
+                            EmaBuffer buffer = new EmaBuffer(Encoding.ASCII.GetBytes(dataAttr.Value!));
                             field.FieldEntry = buffer;
                             break;
                     }

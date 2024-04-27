@@ -256,7 +256,7 @@ public class DictionaryCallbackClientTests
         Assert.True(dataDictionary.IsEnumTypeDefLoaded);
         Assert.Equal(-32768, dataDictionary.MinFid);
         Assert.Equal(32767, dataDictionary.MaxFid);
-        Assert.Equal(15047, dataDictionary.Entries().Count);
+        Assert.Equal(15052, dataDictionary.Entries().Count);
         Assert.Equal(575, dataDictionary.EnumTables().Count);
 
         Assert.Equal("PERMISSION", dataDictionary.Entry(1).DdeAcronym);

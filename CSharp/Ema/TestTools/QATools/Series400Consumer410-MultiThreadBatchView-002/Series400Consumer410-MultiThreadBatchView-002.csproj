@@ -1,8 +1,0 @@
-<Project>
-	<Import Project="..\Consumer.props" />
-	<ItemGroup>
-	  <None Update="tor_500.txt">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
-</Project>

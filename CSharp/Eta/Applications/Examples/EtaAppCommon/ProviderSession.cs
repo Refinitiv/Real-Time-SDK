@@ -121,7 +121,7 @@ namespace LSEG.Eta.Example.Common
         }
 
         /// <summary>
-        /// Closes server session and uninitialize ETAJ Transport.
+        /// Closes server session and uninitialize ETA Transport.
         /// </summary>
         public void UnInit()
         {

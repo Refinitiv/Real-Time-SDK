@@ -44,4 +44,15 @@
     <ProjectReference Include="..\Core\EMA_Core_NET6.0.csproj" />
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Message Text="Copy enumtype.def and RDMFieldDictionary to output directory"
+        Importance="high" />
+    <Copy
+        SourceFiles="$(ProjectDir)/ComplexTypeTests/enumtype.def"
+        DestinationFolder="$(OutDir)" />
+    <Copy
+        SourceFiles="$(ProjectDir)/ComplexTypeTests/RDMFieldDictionary"
+        DestinationFolder="$(OutDir)" />
+  </Target>
+
 </Project>

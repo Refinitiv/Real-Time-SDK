@@ -591,7 +591,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Task acceptTask = Task.Factory.StartNew(() => { acceptRetCode = acceptChannel(server); });
             Task connectTask = Task.Factory.StartNew(() => { connectRetCode = connectChannel(); });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -709,7 +711,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -808,7 +812,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -909,7 +915,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -1019,7 +1027,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -1141,7 +1151,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -1250,7 +1262,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -1342,7 +1356,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -1469,7 +1485,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -1579,7 +1597,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -1696,7 +1716,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -1813,7 +1835,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(reactor, niProviderRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
@@ -1907,7 +1931,9 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
             });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);

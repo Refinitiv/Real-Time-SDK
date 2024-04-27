@@ -262,7 +262,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool InitialImage()
         {
-            return m_rsslMsg.CheckNoRefresh();
+            return !m_rsslMsg.CheckNoRefresh();
         }
 
         /// <summary>
@@ -887,7 +887,7 @@ namespace LSEG.Ema.Access
             m_ToString.Append(Payload().ToString(indent));
             indent--;
 
-            Utilities.AddIndent(m_ToString, indent, true).Append("PayloadEnd");
+            Utilities.AddIndent(m_ToString, indent).Append("PayloadEnd");
             indent--;
 
             Utilities.AddIndent(m_ToString, indent, true).Append("ReqMsgEnd\n");

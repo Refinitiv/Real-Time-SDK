@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Product>Enterprise Transport API (ETA) C# Edition</Product>
+    <Copyright>Copyright @ 2024 Refinitiv. All Rights Reserved.</Copyright>
+    <AssemblyName>AuthLock</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LSEG.Eta.Dacs" Version="7.12.1" />
+  </ItemGroup>
+
+</Project>

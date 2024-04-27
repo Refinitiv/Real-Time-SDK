@@ -20,11 +20,12 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
         private static readonly string EMA_FILE_PATH = "../../../OmmConsumerTests/EmaConfigLoggerTest.xml";
 
         private static readonly string VERBOSE_LOG = $"{NL}TRACE|: loggerMsg{NL}    ClientName: Consumer_1_Verbose{NL}    Severity: Trace    Text:    " +
-            $"Print out active configuration detail.\n\tConfiguredName: Consumer_1_Verbose\n\tInstanceName: Consumer_1_Verbose\n\tItemCountHint: 100000\n\t" +
-            $"ServiceCountHint: 513\n\tMaxDispatchCountApiThread: 100\n\tMaxDispatchCountUserThread: 100\n\tRequestTimeout: 15000\n\tXmlTraceToStdout: False\n\t" +
-            $"ObeyOpenWindow: True\n\tPostAckTimeout: 15000\n\tMaxOutstandingPosts: 100000\n\tDispatchMode: API_DISPATCH\n\tReconnectAttemptLimit: -1\n\t" +
-            $"ReconnectMinDelay: 5000\n\tReconnectMaxDelay: 5000\n\tMsgKeyInUpdates: True\n\tDirectoryRequestTimeOut: 45000\n\tDictionaryRequestTimeOut: 45000\n\t" +
-            $"RestRequestTimeOut: 15000\n\tLoginRequestTimeOut: 3000{NL}loggerMsgEnd";
+            $"Print out active configuration detail.{NL}\tConfiguredName: Consumer_1_Verbose{NL}\tInstanceName: Consumer_1_Verbose{NL}\tItemCountHint: 100000{NL}\t" +
+            $"ServiceCountHint: 513{NL}\tMaxDispatchCountApiThread: 100{NL}\tMaxDispatchCountUserThread: 100{NL}\tDispatchTimeoutApiThread: 0{NL}\tRequestTimeout: 15000{NL}\t" +
+            $"XmlTraceToStdout: False{NL}\tXmlTraceToFile: False{NL}\tXmlTraceMaxFileSize: 100000000{NL}\tXmlTraceFileName: EmaTrace{NL}\tXmlTraceToMultipleFiles: False{NL}\t" +
+            $"XmlTraceWrite: True{NL}\tXmlTraceRead: True{NL}\tXmlTracePing: False{NL}\tObeyOpenWindow: True{NL}\tPostAckTimeout: 15000{NL}\tMaxOutstandingPosts: 100000{NL}\t" +
+            $"DispatchMode: 2{NL}\tDispatchTimeoutApiThread: 0{NL}\tReconnectAttemptLimit: -1{NL}\tReconnectMinDelay: 5000{NL}\tReconnectMaxDelay: 5000{NL}\tMsgKeyInUpdates: True{NL}\t" +
+            $"DirectoryRequestTimeOut: 45000{NL}\tDictionaryRequestTimeOut: 45000{NL}\tRestRequestTimeOut: 15000{NL}\tLoginRequestTimeOut: 3000{NL}loggerMsgEnd";
 
         private static readonly string VERBOSE_LOG_1 = $"{NL}TRACE|: loggerMsg{NL}    ClientName: Consumer_1_Verbose{NL}    Severity: Trace    Text:" +
             $"    Successfully created Reactor.{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: LoginCallbackClient{NL}    Severity: Trace" +
@@ -35,14 +36,14 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             $" message was populated with Filter(s){NL}\tRDM_DIRECTORY_SERVICE_INFO_FILTER{NL}\tRDM_DIRECTORY_SERVICE_STATE_FILTER{NL}\tRDM_DIRECTORY_SERVICE_GROUP_FILTER" +
             $"{NL}\tRDM_DIRECTORY_SERVICE_LOAD_FILTER{NL}\tRDM_DIRECTORY_SERVICE_DATA_FILTER{NL}\tRDM_DIRECTORY_SERVICE_LINK_FILTER{NL}\trequesting all services{NL}" +
             $"loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: DictionaryCallbackClient{NL}    Severity: Trace    Text:    Successfully loaded local dictionaries:" +
-            $" \n\tRDMFieldDictionary file named ../../../../../../etc/RDMFieldDictionary\n\tEnumTypeDef file named ../../../../../../etc/enumtype.def{NL}loggerMsgEnd{NL}{NL}" +
+            $" {NL}\tRDMFieldDictionary file named ../../../../../../etc/RDMFieldDictionary{NL}\tEnumTypeDef file named ../../../../../../etc/enumtype.def{NL}loggerMsgEnd{NL}{NL}" +
             $"TRACE|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    Severity: Trace    Text:    Created ChannelCallbackClient{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}" +
             $"    ClientName: ChannelCallbackClient{NL}    Severity: Trace    Text:    Attempt to connect using{NL}\t1] SOCKET{NL}\tChannel name Channel_1{NL}\tInstance name" +
             $" Consumer_1_Verbose{NL}\tReactor";
 
         private static readonly string VERBOSE_LOG_3 = $"CompressionType None{NL}\tTcpNodelay True{NL}\tEnableSessionMgnt False{NL}\tLocation us-east-1{NL}\t" +
             $"ReconnectAttemptLimit -1{NL}\tReconnectMinDelay 5000 msec{NL}\tReconnectMaxDelay 5000 msec{NL}\tGuaranteedOutputBuffers 5000{NL}\tNumInputBuffers 100{NL}\tSysRecvBufSize" +
-            $" 0{NL}\tSysSendBufSize 0{NL}\tConnectionPingTimeout 30 sec{NL}\tInitializationTimeout 60 sec{NL}{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    " +
+            $" 0{NL}\tSysSendBufSize 0{NL}\tConnectionPingTimeout 30 sec{NL}\tInitializationTimeout 60 sec{NL}\tDirectWrite False{NL}{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    " +
             $"Severity: Trace    Text:    Received ChannelOpened event on channel Channel_1{NL}\tInstance Name Consumer_1_Verbose{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    " +
             $"ClientName: ChannelCallbackClient{NL}    Severity: Trace    Text:    Successfully created a Reactor and Channel(s){NL}\tChannel name(s) Channel_1{NL}\tInstance name " +
             $"Consumer_1_Verbose{NL}{NL}loggerMsgEnd{NL}{NL}INFO|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    Severity: Info    Text:    Received ChannelUp event on " +
@@ -68,7 +69,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
         private static readonly string WARNING_LOG = $"{NL}WARN|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    Severity: Warning    Text:" +
             $"    Received ChannelDownReconnecting event on channel Channel_1{NL}\tInstance Name Consumer_1_Warning{NL}\tChannel is null{NL}\tError Id SUCCESS{NL}" +
-            $"\tInternal sysError 0{NL}\tError Location Reactor.Connect{NL}\tError text No such host is known.{NL}";
+            $"\tInternal sysError 0{NL}\tError Location Reactor.Connect{NL}\tError text DNS resolution failure for address \"Invalidhost.abc\" with error text \"No such host is known.\".";
 
         ITestOutputHelper output;
 

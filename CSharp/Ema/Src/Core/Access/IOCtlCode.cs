@@ -29,27 +29,46 @@ namespace LSEG.Ema.Access;
 /// </remarks>
 public enum IOCtlCode : int
 {
+    /// <summary>
     /// Used for changing the max number of buffers.
+    /// </summary>
     MAX_NUM_BUFFERS = 1,
 
+    /// <summary>
     /// Used for changing the number of guaranteed buffers.
+    /// </summary>
     NUM_GUARANTEED_BUFFERS = 2,
 
+    /// <summary>
     /// Used to set the upper buffer usage threshold.
+    /// </summary>
     HIGH_WATER_MARK = 3,
 
+    /// <summary>
     /// Allows to change the TCP receive buffer size
     /// associated with the connection. Value is an int.
-    /// <br/>
+    /// </summary>
+    /// <remarks>
     /// Please note that if the value is larger than 64K, the value needs to
     /// be specified before the socket is connected to the remote peer.
+    /// </remarks>
     SYSTEM_READ_BUFFERS = 4,
 
+    /// <summary>
     /// Allows to change the TCP send buffer size associated
     /// with the connection. Value is an int.
+    /// </summary>
     SYSTEM_WRITE_BUFFERS = 5,
 
+    /// <summary>
+    /// Used to increase or decrease the number of server shared pool
+    /// buffers. This option is used for IProvider applications only.
+    /// </summary>
+    SERVER_NUM_POOL_BUFFERS = 8,
+
+    /// <summary>
     /// When compression is on, this value is the smallest size packet that will be
     /// compressed.
+    /// </summary>
     COMPRESSION_THRESHOLD = 9
 }

@@ -119,7 +119,6 @@ namespace LSEG.Eta.Common
     /// </summary>
     sealed public class SlimWriteLocker : Locker
     {
-        private object _lock = new object();
         /// <summary>
         /// Constructor
         /// </summary>

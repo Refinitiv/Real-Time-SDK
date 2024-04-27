@@ -93,6 +93,8 @@ public abstract class Data
 
     internal const int ENCODE_RSSL_BUFFER_INIT_SIZE = 4096;
 
+    internal const int BYTE_BUFFER_INIT_SIZE = 2048;
+
     internal const string NOCODE_STRING = "NoCode";
 
     internal const string BLANK_STRING = "(blank data)";

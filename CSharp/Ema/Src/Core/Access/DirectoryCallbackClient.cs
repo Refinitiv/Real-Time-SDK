@@ -48,7 +48,7 @@ namespace LSEG.Ema.Access
         {
             m_OmmBaseImpl = baseImpl;
 
-            int serviceCountHint = (int)m_OmmBaseImpl.ConfigImpl.ConsumerConfig.ServiceCountHint;
+            int serviceCountHint = (int)((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).ConsumerConfig.ServiceCountHint;
             int initialHashSize = (int)(serviceCountHint / 0.75 + 1);
             m_ServiceByIdDict = new Dictionary<int, ServiceDirectory>(initialHashSize);
             m_ServiceByNameDict = new Dictionary<string, ServiceDirectory>(initialHashSize);
@@ -401,7 +401,7 @@ namespace LSEG.Ema.Access
                                 m_ServiceByIdDict[oneService.ServiceId] =  directory;
                                 m_ServiceByNameDict[serviceName] = directory;
 
-                                if (m_OmmBaseImpl.ConfigImpl.DictionaryConfig.IsLocalDictionary ||
+                                if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary ||
                                     (newService.State.AcceptingRequests == 1 && newService.State.ServiceStateVal == 1))
                                 {
                                     m_OmmBaseImpl.DictionaryCallbackClient!.DownloadDictionary(directory);
@@ -535,7 +535,8 @@ namespace LSEG.Ema.Access
 
         internal void Initialize()
         {
-            DirectoryRequest? directoryRequest = m_OmmBaseImpl.ConfigImpl.AdminDirectoryRequest;
+            // This is only initialized for the consumer, so we can just cast it immediately here.
+            DirectoryRequest? directoryRequest = ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminDirectoryRequest;
 
             long requestFilter = Eta.Rdm.Directory.ServiceFilterFlags.INFO |
                     Eta.Rdm.Directory.ServiceFilterFlags.STATE |
@@ -608,6 +609,7 @@ namespace LSEG.Ema.Access
         {
             OmmConsumerImpl ommConsumerImpl = (OmmConsumerImpl)baseImpl;
             EventImpl.SetOmmConsumer(ommConsumerImpl.Consumer);
+
             NotifyOnAllMsg = NotifyOnAllMsgImpl;
             NotifyOnRefreshMsg = NotifyOnRefreshMsgImpl;
             NotifyOnStatusMsg = NotifyOnStatusMsgImpl;
@@ -741,7 +743,8 @@ namespace LSEG.Ema.Access
                 requestMsg.WorstQos.RateInfo(65535);
             }
 
-            if (m_OmmBaseImpl.ConfigImpl.ConsumerConfig.MsgKeyInUpdates)
+            if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).ConsumerConfig.MsgKeyInUpdates)
+
             {
                 requestMsg.ApplyMsgKeyInUpdates();
             }

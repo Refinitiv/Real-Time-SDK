@@ -21,6 +21,7 @@ namespace LSEG.Eta.Transports.Tests
     {
         [Fact]
         [Category("Unit")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "<Pending>")]
         public void ReadLockerAllowsMultipleConcurrentReaders()
         {
             long readerCount = 0;
@@ -68,6 +69,7 @@ namespace LSEG.Eta.Transports.Tests
 
         [Fact]
         [Category("Unit")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "<Pending>")]
         public void WriteLockerAllowsNoConcurrentWriter()
         {
             long writerCount = 0;
@@ -122,6 +124,7 @@ namespace LSEG.Eta.Transports.Tests
         }
 
         [Fact, Category("Unit")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "<Pending>")]
         public void WriteLockerAllowsNoConcurrentReader()
         {
             long criticalCount = 0;

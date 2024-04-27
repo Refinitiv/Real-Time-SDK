@@ -28,7 +28,7 @@ internal class DictionaryHandler
     internal const string ENUM_TABLE_FILENAME = "../../../ComplexTypeTests/enumtype.def";
 
     private const int MAX_DICTIONARY_STATUS_MSG_SIZE = 1024;
-    private const int MAX_FIELD_DICTIONARY_MSG_SIZE = 8192;
+    private const int MAX_FIELD_DICTIONARY_MSG_SIZE = 448000;
     private const int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
 
     private string FieldDictionaryDownloadName = FIELD_DICTIONARY_NAME;
@@ -40,22 +40,36 @@ internal class DictionaryHandler
     private DictionaryRefresh m_DictionaryRefresh = new DictionaryRefresh();
     private DictionaryStatus m_DictionaryStatus = new DictionaryStatus();
 
-    private ProviderTest m_ProviderTest;
-
-    private DataDictionary m_Dictionary = new DataDictionary();
+    internal DataDictionary DataDictionary { get; private set; } = new DataDictionary();
+    private ProviderSessionOptions m_ProviderSessionOptions;
 
     public DictionaryHandler(ProviderTest providerTest)
     {
-        m_ProviderTest = providerTest;
+        m_ProviderSessionOptions = providerTest.ProviderSessionOptions;
 
-        if (m_Dictionary.LoadFieldDictionary(FIELD_DICTIONARY_FILENAME, out CodecError fdError) < 0)
+        if (DataDictionary.LoadFieldDictionary(FIELD_DICTIONARY_FILENAME, out CodecError fdError) < 0)
         {
-            Assert.True(false, $"Failed to load FieldDictionary, error: {fdError?.Text}");
+            Assert.Fail($"Failed to load FieldDictionary, error: {fdError?.Text}");
         }
 
-        if (m_Dictionary.LoadEnumTypeDictionary(ENUM_TABLE_FILENAME, out CodecError edError) < 0)
+        if (DataDictionary.LoadEnumTypeDictionary(ENUM_TABLE_FILENAME, out CodecError edError) < 0)
         {
-            Assert.True(false, $"Failed to load EnumType Dictionary, error: {edError?.Text}");
+            Assert.Fail($"Failed to load EnumType Dictionary, error: {edError?.Text}");
+        }
+    }
+
+    public DictionaryHandler(ProviderSessionOptions providerSessionOptions)
+    {
+        m_ProviderSessionOptions = providerSessionOptions;
+
+        if (DataDictionary.LoadFieldDictionary(FIELD_DICTIONARY_FILENAME, out CodecError fdError) < 0)
+        {
+            Assert.Fail($"Failed to load FieldDictionary, error: {fdError?.Text}");
+        }
+
+        if (DataDictionary.LoadEnumTypeDictionary(ENUM_TABLE_FILENAME, out CodecError edError) < 0)
+        {
+            Assert.Fail($"Failed to load EnumType Dictionary, error: {edError?.Text}");
         }
     }
 
@@ -81,7 +95,7 @@ internal class DictionaryHandler
                             // Name matches field dictionary. Send the field dictionary refresh
                             if ((ret = SendFieldDictionaryResponse(reactorChannel!, dictionaryRequest)) != ReactorReturnCode.SUCCESS)
                             {
-                                Assert.True(false, $"SendFieldDictionaryResponse() failed: {ret}");
+                                Assert.Fail($"SendFieldDictionaryResponse() failed: {ret}");
                             }
                         }
                         else if (EnumTypeDictionaryDownloadName.Equals(dictionaryRequest.DictionaryName.ToString()))
@@ -89,14 +103,14 @@ internal class DictionaryHandler
                             // Name matches the enum types dictionary. Send the enum types dictionary refresh
                             if ((ret = SendEnumTypeDictionaryResponse(reactorChannel!, dictionaryRequest)) != ReactorReturnCode.SUCCESS)
                             {
-                                Assert.True(false, $"SendEnumTypeDictionaryResponse() failed: {ret}");
+                                Assert.Fail($"SendEnumTypeDictionaryResponse() failed: {ret}");
                             }
                         }
                         else
                         {
                             if ((ret = SendRequestReject(reactorChannel!, reactorEvent.Msg!.StreamId)) != ReactorReturnCode.SUCCESS)
                             {
-                                Assert.True(false, $"SendRequestReject() failed: {ret}");
+                                Assert.Fail($"SendRequestReject() failed: {ret}");
                             }
                         }
                     }
@@ -108,7 +122,7 @@ internal class DictionaryHandler
                 break;
 
             default:
-                Assert.True(false, $"Received Unhandled Dictionary Msg Type: {dictionaryMsg.DictionaryMsgType}");
+                Assert.Fail($"Received Unhandled Dictionary Msg Type: {dictionaryMsg.DictionaryMsgType}");
                 break;
         }
 
@@ -163,14 +177,14 @@ internal class DictionaryHandler
         CodecReturnCode ret = m_EncodeIter.SetBufferAndRWFVersion(msgBuf, chnl.MajorVersion, chnl.MinorVersion);
         if (ret != CodecReturnCode.SUCCESS)
         {
-            Assert.True(false, $"EncodeIterator.SetBufferAndRWFVersion() failed with return code: {ret.GetAsString()}");
+            Assert.Fail($"EncodeIterator.SetBufferAndRWFVersion() failed with return code: {ret.GetAsString()}");
             return ReactorReturnCode.FAILURE;
         }
 
         ret = m_DictionaryStatus.Encode(m_EncodeIter);
         if (ret != CodecReturnCode.SUCCESS)
         {
-            Assert.True(false, "DictionaryStatus.Encode() failed");
+            Assert.Fail("DictionaryStatus.Encode() failed");
             return ReactorReturnCode.FAILURE;
         }
 
@@ -183,7 +197,7 @@ internal class DictionaryHandler
 
         m_DictionaryRefresh.StreamId = dictionaryRequest.StreamId;
         m_DictionaryRefresh.DictionaryType = Types.ENUM_TABLES;
-        m_DictionaryRefresh.DataDictionary = m_Dictionary;
+        m_DictionaryRefresh.DataDictionary = DataDictionary;
         m_DictionaryRefresh.ServiceId = dictionaryRequest.ServiceId;
         m_DictionaryRefresh.Verbosity = dictionaryRequest.Verbosity;
         m_DictionaryRefresh.Solicited = true;
@@ -215,7 +229,7 @@ internal class DictionaryHandler
             CodecReturnCode ret = m_EncodeIter.SetBufferAndRWFVersion(msgBuf, chnl.MajorVersion, chnl.MinorVersion);
             if (ret < CodecReturnCode.SUCCESS)
             {
-                Assert.True(false, $"EncodeIterator.SetBufferAndRWFVersion() failed with return code: {ret.GetAsString()}");
+                Assert.Fail($"EncodeIterator.SetBufferAndRWFVersion() failed with return code: {ret.GetAsString()}");
                 return ReactorReturnCode.FAILURE;
             }
 
@@ -231,14 +245,14 @@ internal class DictionaryHandler
             ret = m_DictionaryRefresh.Encode(m_EncodeIter);
             if (ret < CodecReturnCode.SUCCESS)
             {
-                Assert.True(false, "DictionaryRefresh.Encode() failed");
+                Assert.Fail("DictionaryRefresh.Encode() failed");
             }
 
             // send dictionary response
             ReactorReturnCode submitCode;
             if ((submitCode = chnl.Submit(msgBuf, m_SubmitOptions, out var submitError)) != ReactorReturnCode.SUCCESS)
             {
-                Assert.True(false, $"ReactorChannel.Submit failed ({submitCode}): {submitError}");
+                Assert.Fail($"ReactorChannel.Submit failed ({submitCode}): {submitError}");
                 return ReactorReturnCode.FAILURE;
             }
 
@@ -267,7 +281,7 @@ internal class DictionaryHandler
 
         m_DictionaryRefresh.StreamId = dictionaryRequest.StreamId;
         m_DictionaryRefresh.DictionaryType = Types.FIELD_DEFINITIONS;
-        m_DictionaryRefresh.DataDictionary = m_Dictionary;
+        m_DictionaryRefresh.DataDictionary = DataDictionary;
         m_DictionaryRefresh.State.StreamState(StreamStates.OPEN);
         m_DictionaryRefresh.State.DataState(DataStates.OK);
         m_DictionaryRefresh.State.Code(StateCodes.NONE);
@@ -297,7 +311,7 @@ internal class DictionaryHandler
             CodecReturnCode ret = m_EncodeIter.SetBufferAndRWFVersion(msgBuf, chnl.MajorVersion, chnl.MinorVersion);
             if (ret != CodecReturnCode.SUCCESS)
             {
-                Assert.True(false, $"EncodeIterator.SetBufferAndRWFVersion() failed with return code: {ret.GetAsString()}");
+                Assert.Fail($"EncodeIterator.SetBufferAndRWFVersion() failed with return code: {ret.GetAsString()}");
                 return ReactorReturnCode.FAILURE;
             }
 
@@ -313,14 +327,14 @@ internal class DictionaryHandler
             ret = m_DictionaryRefresh.Encode(m_EncodeIter);
             if (ret < CodecReturnCode.SUCCESS)
             {
-                Assert.True(false, "DictionaryRefresh.Encode() failed");
+                Assert.Fail("DictionaryRefresh.Encode() failed");
                 return ReactorReturnCode.FAILURE;
             }
 
             // send dictionary response
             if (chnl.Submit(msgBuf, m_SubmitOptions, out var submitError) != ReactorReturnCode.SUCCESS)
             {
-                Assert.True(false, $"ReactorChannel.Submit failed: {submitError}");
+                Assert.Fail($"ReactorChannel.Submit failed: {submitError}");
                 return ReactorReturnCode.FAILURE;
             }
 

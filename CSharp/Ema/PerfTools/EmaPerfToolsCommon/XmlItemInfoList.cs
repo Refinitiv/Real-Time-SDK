@@ -86,7 +86,14 @@ namespace LSEG.Ema.PerfTools.Common
                             xmlItemInfo.Name = reader.GetAttribute(NAME_TAG) ?? string.Empty;
                             xmlItemInfo.IsSnapshot = (reader.GetAttribute(SNAP_TAG) ?? string.Empty).ToLower().Equals("true") ? true : false;
                             xmlItemInfo.IsGenMsg = (reader.GetAttribute(GEN_TAG) ?? string.Empty).ToLower().Equals("true") ? true : false;
+
+                            if (xmlItemInfo.IsGenMsg)
+                                GenMsgItemCount++;
+
                             xmlItemInfo.IsPost = (reader.GetAttribute(POST_TAG) ?? string.Empty).ToLower().Equals("true") ? true : false;
+
+                            if (xmlItemInfo.IsPost)
+                                PostMsgItemCount++;
                         }
                     }
                 }

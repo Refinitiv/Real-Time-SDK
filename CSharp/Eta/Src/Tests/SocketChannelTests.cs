@@ -4852,7 +4852,9 @@ namespace LSEG.Eta.Transports.Tests
                     serverChannel = WaitUntilServerAcceptNoInit(s);
                 });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
                 Task.WaitAll(new Task[] { clientTask, serverTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
                 byte[] connectReq = { 0x00, 0x26, 0x00, 0x00, 0x00, 0x00, 0x15, 0x00, 0x26, 0x00, 0x3C, 0x00, 0x00, 0x0E, 0x00, 0x0A, 0x58,
                                     0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x0B, 0x31, 0x30, 0x2E, 0x39, 0x31, 0x2E, 0x31,
@@ -4919,7 +4921,9 @@ namespace LSEG.Eta.Transports.Tests
                     serverChannel = WaitUntilServerAcceptNoInit(s);
                 });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
                 Task.WaitAll(new Task[] { clientTask, serverTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
                 byte[] connectMsg =
                 {
@@ -4976,22 +4980,22 @@ namespace LSEG.Eta.Transports.Tests
 
 				Assert.Equal(TransportReturnCode.FAILURE, server.IOCtl((IOCtlCode)99999, 0, out error));
 				Assert.Equal(TransportReturnCode.FAILURE, error.ErrorId);
-				Assert.True("Code is not valid.".Equals(error.Text));
+				Assert.Equal("Code is not valid.", error.Text);
 
 				Assert.Equal(TransportReturnCode.FAILURE, server.IOCtl((IOCtlCode)99999, 1, out error));
 				Assert.Equal(TransportReturnCode.FAILURE, error.ErrorId);
-				Assert.True("Code is not valid.".Equals(error.Text));
+				Assert.Equal("Code is not valid.",error.Text);
 
 				ChannelBase channel = new ChannelBase(new ConnectOptions(), new SocketChannel(), ChannelState.ACTIVE, 1000, ChannelBase.DEFAULT_PRIORITY_FLUSH_ORDER);
 				channel.m_totalBytesQueued = 0;
 
 				Assert.Equal(TransportReturnCode.FAILURE, channel.IOCtl((IOCtlCode)99999, 0, out error));
 				Assert.Equal(TransportReturnCode.FAILURE, error.ErrorId);
-				Assert.True("Code is not valid.".Equals(error.Text));
+				Assert.Equal("Code is not valid.", error.Text);
 
 				Assert.Equal(TransportReturnCode.FAILURE, channel.IOCtl((IOCtlCode)99999, 1, out error));
 				Assert.Equal(TransportReturnCode.FAILURE, error.ErrorId);
-				Assert.True("Code is not valid.".Equals(error.Text));
+				Assert.Equal("Code is not valid.", error.Text);
 			} 
 			finally
             {
@@ -5025,11 +5029,11 @@ namespace LSEG.Eta.Transports.Tests
 
 				Assert.Equal(TransportReturnCode.FAILURE, server.IOCtl((IOCtlCode)13, 0, out error));
 				Assert.Equal(TransportReturnCode.FAILURE, error.ErrorId);
-				Assert.True("Code is not valid.".Equals(error.Text));
+				Assert.Equal("Code is not valid.", error.Text);
 
 				Assert.Equal(TransportReturnCode.FAILURE, server.IOCtl((IOCtlCode)13, 1, out error));
 				Assert.Equal(TransportReturnCode.FAILURE, error.ErrorId);
-				Assert.True("Code is not valid.".Equals(error.Text));
+				Assert.Equal("Code is not valid.", error.Text);
 			} 
 			finally
             {
@@ -5607,7 +5611,7 @@ namespace LSEG.Eta.Transports.Tests
                 Assert.NotNull(server);
                 chnl1 = Transport.Connect(connectOptions, out error);
                 ChannelBase base1 = (ChannelBase)chnl1;
-                Assert.True(ChannelBase.DEFAULT_PRIORITY_FLUSH_ORDER.Equals(base1.m_ChannelInfo.PriorityFlushStrategy));
+                Assert.Equal(ChannelBase.DEFAULT_PRIORITY_FLUSH_ORDER, base1.m_ChannelInfo.PriorityFlushStrategy);
                 Assert.Equal(0, base1.ComponentInfo.ComponentVersion.Length);
 
                 // specify ComponentVersion
@@ -5619,7 +5623,7 @@ namespace LSEG.Eta.Transports.Tests
 
                 // change flush priority order
                 Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.PRIORITY_FLUSH_ORDER, myFlushPriority, out error));
-                Assert.True(myFlushPriority.Equals(base1.m_ChannelInfo.PriorityFlushStrategy));
+                Assert.Equal(myFlushPriority, base1.m_ChannelInfo.PriorityFlushStrategy);
 
                 // change High Water Mark to a small value
                 Assert.Equal(TransportReturnCode.SUCCESS, chnl1.IOCtl(IOCtlCode.HIGH_WATER_MARK, 5, out error));
@@ -5650,7 +5654,7 @@ namespace LSEG.Eta.Transports.Tests
                 // Verify that the component version info is reset.
                 Assert.Equal(0, base2.ComponentInfo.ComponentVersion.Length);
                 // Verify that the flush priority has been reset to the default value.
-                Assert.True(ChannelBase.DEFAULT_PRIORITY_FLUSH_ORDER.Equals(base2.m_ChannelInfo.PriorityFlushStrategy));
+                Assert.Equal(ChannelBase.DEFAULT_PRIORITY_FLUSH_ORDER, base2.m_ChannelInfo.PriorityFlushStrategy);
                 // Verify that the high water mark has been reset to the default value.
                 Assert.Equal(6144, base2.m_highWaterMark);
                 // Verify that the System Read Buffer size has been reset to the default value.
@@ -5875,8 +5879,10 @@ namespace LSEG.Eta.Transports.Tests
 					WaitUntilChannelActive(cc, inProgInfo);
 				});
 
-				Task.WaitAll(new Task[2] { acceptTask, connectTask }, 5000);
-				Assert.NotNull(s);
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
+                Task.WaitAll(new Task[2] { acceptTask, connectTask }, 5000);
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
+                Assert.NotNull(s);
 				Assert.NotNull(cc);
 				Assert.NotNull(sc);
 				Assert.True(cc.State == ChannelState.ACTIVE);
@@ -5973,8 +5979,10 @@ namespace LSEG.Eta.Transports.Tests
 					WaitUntilChannelActive(cc, inProgInfo);
 				});
 
-				Task.WaitAll(new Task[2] { acceptTask, connectTask }, 5000);
-				Assert.NotNull(s);
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
+                Task.WaitAll(new Task[2] { acceptTask, connectTask }, 5000);
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
+                Assert.NotNull(s);
 				Assert.NotNull(cc);
 				Assert.NotNull(sc);
 				Assert.True(cc.State == ChannelState.ACTIVE);

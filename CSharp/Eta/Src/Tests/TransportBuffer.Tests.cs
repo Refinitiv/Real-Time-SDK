@@ -200,7 +200,7 @@ namespace LSEG.Eta.Transports.Tests
             }
             writeBufNonFrag.Data.Rewind();
             ByteBuffer writeBufNonFragCopy = new ByteBuffer(100);
-            Assert.Equal(writeBufNonFrag.Copy(writeBufNonFragCopy), (int)TransportReturnCode.SUCCESS);
+            Assert.Equal((int)TransportReturnCode.SUCCESS, writeBufNonFrag.Copy(writeBufNonFragCopy));
             for (int i = 0; i < writeBufNonFrag.Length(); i++)
             {
                 // note: original was i+3
@@ -216,7 +216,7 @@ namespace LSEG.Eta.Transports.Tests
                 writeBufFrag.Data.Put(new byte[] { (byte)i });
             }
             ByteBuffer writeBufFragCopy = new ByteBuffer(6145);
-            Assert.Equal(writeBufFrag.Copy(writeBufFragCopy), (int)TransportReturnCode.SUCCESS);
+            Assert.Equal((int)TransportReturnCode.SUCCESS, writeBufFrag.Copy(writeBufFragCopy));
             for (int i = 0; i < 6145; i++)
             {
                 Assert.Equal((byte)i, writeBufFragCopy.Contents[i]);

@@ -41,7 +41,7 @@
     <Preliminary>False</Preliminary>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <WarnOnMissingSourceContext>False</WarnOnMissingSourceContext>
-    <CopyrightText>&amp;#169%3b LSEG 2023. All Rights Reserved.</CopyrightText>
+    <CopyrightText>&amp;#169%3b LSEG 2024. All Rights Reserved.</CopyrightText>
     <BuildLogFile>out.txt</BuildLogFile>
     <RootNamespaceTitle>
     </RootNamespaceTitle>
@@ -69,7 +69,7 @@
 	&amp;lt%3bp&amp;gt%3bEMA contains open source components, and is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.&amp;lt%3b/p&amp;gt%3b
 
 
-	&amp;lt%3bp&amp;gt%3bCopyright %28C%29 2023 LSEG. All rights reserved. &amp;lt%3b/p&amp;gt%3b
+	&amp;lt%3bp&amp;gt%3bCopyright %28C%29 2024 LSEG. All rights reserved. &amp;lt%3b/p&amp;gt%3b
 	</ProjectSummary>
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, ProtectedInternalAsProtected, NonBrowsable</VisibleItems>
     <ApiFilter>

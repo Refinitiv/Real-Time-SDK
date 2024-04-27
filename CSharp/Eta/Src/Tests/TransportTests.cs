@@ -252,6 +252,7 @@ namespace LSEG.Eta.Transports.Tests
         [Fact]
         [Category("Unit")]
         [Category("Transport")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "<Pending>")]
         public void TaskBRunsWithinTaskA()
         {
             object result1 = null;
@@ -292,6 +293,7 @@ namespace LSEG.Eta.Transports.Tests
         [Fact]
         [Category("Unit")]
         [Category("Transport")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "<Pending>")]
         public void TaskARunsWithinTaskB()
         {
             object result1 = null;
@@ -1237,7 +1239,9 @@ namespace LSEG.Eta.Transports.Tests
             Task acceptTask = Task.Factory.StartNew(() => { srvChannel = acceptChannel(server); });
             Task connectTask = Task.Factory.StartNew(() => { channel = connectChannel(); });
 
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             Task.WaitAll(new[] { acceptTask, connectTask });
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.NotNull(srvChannel);
             Assert.NotNull(channel);

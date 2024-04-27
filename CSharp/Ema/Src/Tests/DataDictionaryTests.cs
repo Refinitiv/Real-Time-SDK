@@ -40,7 +40,7 @@ public class DataDictionaryTests
 
         if (m_GlobalEtaDataDictionary.LoadFieldDictionary(FIELD_DICTIONARY_FILENAME, out var codecError) < Eta.Codec.CodecReturnCode.SUCCESS)
         {
-            Assert.True(false, $"Failed to load dictionary information with Eta.Codec.DataDictionary: {codecError}");
+            Assert.Fail($"Failed to load dictionary information with Eta.Codec.DataDictionary: {codecError}");
         }
 
         try
@@ -49,13 +49,13 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false,
+            Assert.Fail(
                 $"DataDictionary.LoadFieldDictionary() failed to load dictionary information - exception not expected: {excp}");
         }
 
         if (m_GlobalEtaDataDictionary.LoadEnumTypeDictionary(ENUM_TABLE_FILENAME, out var rsslError) < Eta.Codec.CodecReturnCode.SUCCESS)
         {
-            Assert.True(false,
+            Assert.Fail(
                 $"Failed to load enumerated types information with Eta.Codec.DataDictionary: {rsslError}");
         }
 
@@ -65,7 +65,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false,
+            Assert.Fail(
                 $"DataDictionary.LoadEnumTypeDictionary() failed to load denumerated types information - exception not expected: {excp}");
         }
     }
@@ -284,29 +284,29 @@ public class DataDictionaryTests
         try
         {
             dataDictionary.LoadFieldDictionary("Invalid_RDMFieldDictionary");
-            Assert.True(false, "DataDictionary.loadFieldDictionary() with invalid RDMFieldDictionary - exception expected");
+            Assert.Fail("DataDictionary.loadFieldDictionary() with invalid RDMFieldDictionary - exception expected");
         }
         catch (OmmException excp)
         {
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
-            Assert.Equal(("Exception Type='OmmInvalidUsageException', Text='Unable to load field dictionary from file named Invalid_RDMFieldDictionary\n\tCurrent working directory "
+            Assert.Equal(("Exception Type='OmmInvalidUsageException', Text='Unable to load field dictionary from file named Invalid_RDMFieldDictionary\r\n\tCurrent working directory "
                 + System.IO.Directory.GetCurrentDirectory()
-                + "\n\tReason='Can't open file: Invalid_RDMFieldDictionary'', Error Code='-1'"),
+                + "\r\n\tReason='Can't open file: Invalid_RDMFieldDictionary'', Error Code='-1'"),
                 excp.ToString());
         }
 
         try
         {
             dataDictionary.LoadEnumTypeDictionary("Invalid_enumtype.def");
-            Assert.True(false, "DataDictionary.loadEnumTypeDictionary() with invalid enumtype.def - exception expected");
+            Assert.Fail("DataDictionary.loadEnumTypeDictionary() with invalid enumtype.def - exception expected");
         }
         catch (OmmException excp)
         {
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
             Assert.Equal((
-                "Exception Type='OmmInvalidUsageException', Text='Unable to load enumerated type definition from file named Invalid_enumtype.def\n\tCurrent working directory "
+                "Exception Type='OmmInvalidUsageException', Text='Unable to load enumerated type definition from file named Invalid_enumtype.def\r\n\tCurrent working directory "
                 + System.IO.Directory.GetCurrentDirectory()
-                + "\n\tReason='Can't open file: Invalid_enumtype.def'', Error Code='-1'"),
+                + "\r\n\tReason='Can't open file: Invalid_enumtype.def'', Error Code='-1'"),
             excp.ToString());
         }
 
@@ -331,18 +331,18 @@ public class DataDictionaryTests
         try
         {
             dataDictionary.Entry(1); // Getting from non existing DictionaryEntry
-            Assert.True(false, "DataDictionary.Entry(fid) cannot get DictionaryEntry - exception expected");
+            Assert.Fail("DataDictionary.Entry(fid) cannot get DictionaryEntry - exception expected");
         }
         catch (OmmException excp)
         {
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
-            Assert.Equal(excp.ToString(), ("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded', Error Code='-4048'"));
+            Assert.Equal("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded', Error Code='-4048'", excp.ToString());
         }
 
         try
         {
             dataDictionary.Entry("PROD_PERM"); // Getting from non existing DictionaryEntry
-            Assert.True(false, "DataDictionary.Entry(name) cannot get DictionaryEntry - exception expected");
+            Assert.Fail("DataDictionary.Entry(name) cannot get DictionaryEntry - exception expected");
         }
         catch (OmmException excp)
         {
@@ -356,7 +356,7 @@ public class DataDictionaryTests
         try
         {
             dataDictionary.EnumType(4, 2); // Getting from non existing EnumType
-            Assert.True(false, "DataDictionary.enumType(fid,value) cannot get EnumType - exception expected");
+            Assert.Fail("DataDictionary.enumType(fid,value) cannot get EnumType - exception expected");
         }
         catch (OmmException excp)
         {
@@ -384,7 +384,7 @@ public class DataDictionaryTests
         try
         {
             dataDictionary.EncodeEnumTypeDictionary(series, EmaRdm.DICTIONARY_NORMAL);
-            Assert.True(false, "DataDictionary.EncodeEnumTypeDictionary() - exception expected");
+            Assert.Fail("DataDictionary.EncodeEnumTypeDictionary() - exception expected");
         }
         catch (OmmException excp)
         {
@@ -399,7 +399,7 @@ public class DataDictionaryTests
         try
         {
             dataDictionary.EncodeEnumTypeDictionary(series, count, EmaRdm.DICTIONARY_NORMAL, 555);
-            Assert.True(false, "DataDictionary.EncodeEnumTypeDictionary(fragmentation) - exception expected");
+            Assert.Fail("DataDictionary.EncodeEnumTypeDictionary(fragmentation) - exception expected");
         }
         catch (OmmException excp)
         {
@@ -413,7 +413,7 @@ public class DataDictionaryTests
         try
         {
             dataDictionary.EncodeFieldDictionary(series, EmaRdm.DICTIONARY_NORMAL);
-            Assert.True(false, "DataDictionary.EncodeFieldDictionary() - exception expected");
+            Assert.Fail("DataDictionary.EncodeFieldDictionary() - exception expected");
         }
         catch (OmmException excp)
         {
@@ -427,7 +427,7 @@ public class DataDictionaryTests
         try
         {
             dataDictionary.EncodeFieldDictionary(series, count, EmaRdm.DICTIONARY_NORMAL, 555);
-            Assert.True(false, "DataDictionary.EncodeFieldDictionary(fragmentation) - exception expected");
+            Assert.Fail("DataDictionary.EncodeFieldDictionary(fragmentation) - exception expected");
         }
         catch (OmmException excp)
         {
@@ -455,7 +455,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false,
+            Assert.Fail(
                 $"DataDictionary.EncodeFieldDictionary() failed to encode field dictionary information - exception not expected: {excp}");
         }
 
@@ -469,7 +469,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false, $"DataDictionary.DecodeFieldDictionary() failed to decode field dictionary information - exception not expected: {excp}");
+            Assert.Fail($"DataDictionary.DecodeFieldDictionary() failed to decode field dictionary information - exception not expected: {excp}");
         }
 
         try
@@ -478,7 +478,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false, $"DataDictionary.EncodeFieldDictionary() failed to encode field dictionary information - exception not expected: {excp}");
+            Assert.Fail($"DataDictionary.EncodeFieldDictionary() failed to encode field dictionary information - exception not expected: {excp}");
         }
 
         decodeSeries.Clear();
@@ -491,7 +491,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false, $"DataDictionary.DecodeEnumTypeDictionary() failed to decode field dictionary information - exception not expected: {excp}");
+            Assert.Fail($"DataDictionary.DecodeEnumTypeDictionary() failed to decode field dictionary information - exception not expected: {excp}");
         }
 
         AssertEqualDataDictionary(m_GlobalEtaDataDictionary, m_GlobalDataDictionary, true);
@@ -528,7 +528,7 @@ public class DataDictionaryTests
                 }
                 catch (OmmException excp)
                 {
-                    Assert.True(false, $"DataDictionary.DecodeFieldDictionary() failed to decode field dictionary information - exception not expected: {excp}");
+                    Assert.Fail($"DataDictionary.DecodeFieldDictionary() failed to decode field dictionary information - exception not expected: {excp}");
                 }
 
                 Assert.False(dataDictionary.MaxFid > currentFid, "DataDictionary.MaxFid() must be less than the current fid of multi-part payload");
@@ -548,7 +548,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false,
+            Assert.Fail(
                 $"DataDictionary.EncodeFieldDictionary(fragmentationSize) failed to encode field dictionary information - exception not expected: {excp}");
         }
 
@@ -581,7 +581,7 @@ public class DataDictionaryTests
         try
         {
             DictionaryUtility.ExtractDataDictionary(decodeFieldList).DecodeFieldDictionary(series, EmaRdm.DICTIONARY_VERBOSE);
-            Assert.True(false, "Calling DataDictionary.DecodeFieldDictionary() - exception expected");
+            Assert.Fail("Calling DataDictionary.DecodeFieldDictionary() - exception expected");
         }
         catch (OmmException excp)
         {
@@ -617,7 +617,7 @@ public class DataDictionaryTests
             try
             {
                 dataDictionary.Entry(1); // Getting from non existing DictionaryEntry
-                Assert.True(false, "DataDictionary.Entry(fid) cannot get DictionaryEntry - exception expected");
+                Assert.Fail("DataDictionary.Entry(fid) cannot get DictionaryEntry - exception expected");
             }
             catch (OmmException excp)
             {
@@ -629,7 +629,7 @@ public class DataDictionaryTests
             try
             {
                 dataDictionary.Entry("PROD_PERM"); // Getting from non existing DictionaryEntry
-                Assert.True(false, "DataDictionary.Entry(name) cannot get DictionaryEntry - exception expected");
+                Assert.Fail("DataDictionary.Entry(name) cannot get DictionaryEntry - exception expected");
             }
             catch (OmmException excp)
             {
@@ -643,7 +643,7 @@ public class DataDictionaryTests
             try
             {
                 dataDictionary.EnumType(4, 2); // Getting from non existing EnumType
-                Assert.True(false, "DataDictionary.EnumType(fid,value) cannot get EnumType - exception expected");
+                Assert.Fail("DataDictionary.EnumType(fid,value) cannot get EnumType - exception expected");
             }
             catch (OmmException excp)
             {
@@ -657,7 +657,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false,
+            Assert.Fail(
                 $"Calling DataDictionary.LoadFieldDictionary() multiple times after clearing the data dictionary - exception not expected: {excp}");
         }
 
@@ -674,7 +674,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false,
+            Assert.Fail(
                 $"Calling DataDictionary.LoadEnumTypeDictionary() multiple times after clearing the data dictionary - exception not expected: {excp}");
         }
 
@@ -706,7 +706,7 @@ public class DataDictionaryTests
         catch (OmmException excp)
         {
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
-            Assert.True(false,
+            Assert.Fail(
                 $"Calling DataDictionary.DecodeFieldDictionary() multiple times after clearing the data dictionary - exception not expected: {excp}");
         }
 
@@ -724,7 +724,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false,
+            Assert.Fail(
                 $"Calling DataDictionary.DecodeEnumTypeDictionary() multiple times after clearing the data dictionary - exception not expected: {excp}");
         }
 
@@ -745,7 +745,7 @@ public class DataDictionaryTests
         {
             dataDictionary.LoadFieldDictionary(FIELD_DICTIONARY_FILENAME);
             dataDictionary.LoadFieldDictionary(FIELD_DICTIONARY_FILENAME);
-            Assert.True(false, "Calling DataDictionary.LoadFieldDictionary() multiple times - exception expected");
+            Assert.Fail("Calling DataDictionary.LoadFieldDictionary() multiple times - exception expected");
         }
         catch (OmmException excp)
         {
@@ -759,7 +759,7 @@ public class DataDictionaryTests
             dataDictionary.LoadEnumTypeDictionary(ENUM_TABLE_FILENAME);
             dataDictionary.LoadEnumTypeDictionary(ENUM_TABLE_FILENAME);
             Assert.Equal(dataDictionary.EnumTables().Count, m_GlobalEtaDataDictionary.EnumTableCount);
-            Assert.True(false, "Calling DataDictionary.loadEnumTypeDictionary() multiple times - exception expected");
+            Assert.Fail("Calling DataDictionary.loadEnumTypeDictionary() multiple times - exception expected");
         }
         catch (OmmException excp)
         {
@@ -788,7 +788,7 @@ public class DataDictionaryTests
             SetRsslData(decodeSeries, series);
             dataDictionary.DecodeFieldDictionary(series, EmaRdm.DICTIONARY_NORMAL);
             dataDictionary.DecodeFieldDictionary(series, EmaRdm.DICTIONARY_NORMAL);
-            Assert.True(false, "Calling DataDictionary.DecodeFieldDictionary() multiple times - exception expected");
+            Assert.Fail("Calling DataDictionary.DecodeFieldDictionary() multiple times - exception expected");
         }
         catch (OmmException excp)
         {
@@ -803,7 +803,7 @@ public class DataDictionaryTests
             SetRsslData(decodeSeries, series);
             dataDictionary.DecodeEnumTypeDictionary(series, EmaRdm.DICTIONARY_NORMAL);
             dataDictionary.DecodeEnumTypeDictionary(series, EmaRdm.DICTIONARY_NORMAL);
-            Assert.True(false, "Calling DataDictionary.DecodeEnumTypeDictionary() multiple times - exception expected");
+            Assert.Fail("Calling DataDictionary.DecodeEnumTypeDictionary() multiple times - exception expected");
         }
         catch (OmmException excp)
         {
@@ -832,7 +832,7 @@ public class DataDictionaryTests
         try
         {
             DictionaryUtility.ExtractDataDictionary(fieldList);
-            Assert.True(false, "DictionaryUtility.dataDictionary(FieldList) - exception expected");
+            Assert.Fail("DictionaryUtility.dataDictionary(FieldList) - exception expected");
         }
         catch (OmmException excp)
         {
@@ -856,7 +856,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false, $"DataDictionary.DataDictionary(DataDictionary) failed to clone dictionary - exception not expected: {excp}");
+            Assert.Fail($"DataDictionary.DataDictionary(DataDictionary) failed to clone dictionary - exception not expected: {excp}");
         }
 
         CheckEtaGlobalPoolSizes();
@@ -878,7 +878,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false, $"DataDictionary.DataDictionary(DataDictionary) failed to clone from uninitialized DataDictionary - exception not expected: {excp}");
+            Assert.Fail($"DataDictionary.DataDictionary(DataDictionary) failed to clone from uninitialized DataDictionary - exception not expected: {excp}");
         }
 
         CheckEtaGlobalPoolSizes();
@@ -951,7 +951,7 @@ public class DataDictionaryTests
                 }
                 catch (OmmException excp)
                 {
-                    Assert.True(false,
+                    Assert.Fail(
                         $"DataDictionary.DecodeEnumTypeDictionary() failed to decode enumerated type dictionary - exception not expected: {excp}");
                 }
 
@@ -959,7 +959,7 @@ public class DataDictionaryTests
                 {
                     if (dataDictionary.EnumTables().Count != result)
                     {
-                        Assert.True(false, "DataDictionary.EnumTables().Count must be equal to the index of current table count of multi-part payload");
+                        Assert.Fail("DataDictionary.EnumTables().Count must be equal to the index of current table count of multi-part payload");
                     }
                 }
 
@@ -979,7 +979,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false, $"DataDictionary.EncodeEnumTypeDictionary(fragmentationSize) failed to encode enumerated type dictionary - exception not expected: {excp}");
+            Assert.Fail($"DataDictionary.EncodeEnumTypeDictionary(fragmentationSize) failed to encode enumerated type dictionary - exception not expected: {excp}");
         }
 
         series.ClearAndReturnToPool_All();
@@ -1028,7 +1028,7 @@ public class DataDictionaryTests
         try
         {
             dictionaryEntryFid1.GetEnumTypeTable();
-            Assert.True(false, "Calling DictionaryEntry.GetEnumTypeTable() for non existing EnumTypeTable - exception expected");
+            Assert.Fail("Calling DictionaryEntry.GetEnumTypeTable() for non existing EnumTypeTable - exception expected");
         }
         catch (OmmException excp)
         {
@@ -1048,7 +1048,7 @@ public class DataDictionaryTests
         catch (OmmException excp)
         {
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
-            Assert.True(false, $"Calling DictionaryEntry.GetEnumTypeTable() for an existing EnumTypeTable - exception not expected: {excp}");
+            Assert.Fail($"Calling DictionaryEntry.GetEnumTypeTable() for an existing EnumTypeTable - exception not expected: {excp}");
         }
 
         CheckEtaGlobalPoolSizes();
@@ -1066,7 +1066,7 @@ public class DataDictionaryTests
         try
         {
             dictionaryEntryFid1.EnumType(5555);
-            Assert.True(false, "Calling DictionaryEntry.enumType() for non existing EnumType - exception expected");
+            Assert.Fail("Calling DictionaryEntry.enumType() for non existing EnumType - exception expected");
         }
         catch (OmmException excp)
         {
@@ -1086,7 +1086,7 @@ public class DataDictionaryTests
         catch (OmmException excp)
         {
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
-            Assert.True(false, $"Calling DictionaryEntry.EnumType() for an existing EnumType - exception not expected: {excp}");
+            Assert.Fail($"Calling DictionaryEntry.EnumType() for an existing EnumType - exception not expected: {excp}");
         }
 
         CheckEtaGlobalPoolSizes();
@@ -1102,7 +1102,7 @@ public class DataDictionaryTests
         try
         {
             m_GlobalDataDictionary.Entry(-555);
-            Assert.True(false, "Calling DictionaryUtility.Entry(fid) from non existing DictionaryEntry - exception expected");
+            Assert.Fail("Calling DictionaryUtility.Entry(fid) from non existing DictionaryEntry - exception expected");
         }
         catch (OmmException excp)
         {
@@ -1120,7 +1120,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false, $"Calling DictionaryUtility.Entry(fid) from an existing DictionaryEntry - exception not expected: {excp}");
+            Assert.Fail($"Calling DictionaryUtility.Entry(fid) from an existing DictionaryEntry - exception not expected: {excp}");
         }
 
         CheckEtaGlobalPoolSizes();
@@ -1136,7 +1136,7 @@ public class DataDictionaryTests
         try
         {
             m_GlobalDataDictionary.Entry("UNKNOWN_FID");
-            Assert.True(false, "Calling DictionaryUtility.Entry(name) from non existing DictionaryEntry - exception expected");
+            Assert.Fail("Calling DictionaryUtility.Entry(name) from non existing DictionaryEntry - exception expected");
         }
         catch (OmmException excp)
         {
@@ -1154,7 +1154,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false, $"Calling DictionaryUtility.Entry(fid) from an existing DictionaryEntry - exception not expected: {excp}");
+            Assert.Fail($"Calling DictionaryUtility.Entry(fid) from an existing DictionaryEntry - exception not expected: {excp}");
         }
 
         CheckEtaGlobalPoolSizes();
@@ -1170,7 +1170,7 @@ public class DataDictionaryTests
         try
         {
             m_GlobalDataDictionary.EnumType(4, 5555);
-            Assert.True(false, "Calling DictionaryUtility.enumType(fid, enumValue) from non existing EnumType - exception expected");
+            Assert.Fail("Calling DictionaryUtility.enumType(fid, enumValue) from non existing EnumType - exception expected");
         }
         catch (OmmException excp)
         {
@@ -1187,7 +1187,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false, $"Calling DictionaryUtility.EnumType(fid, enumvalue) from an existing EnumType - exception not expected: {excp}");
+            Assert.Fail($"Calling DictionaryUtility.EnumType(fid, enumvalue) from an existing EnumType - exception not expected: {excp}");
         }
 
         CheckEtaGlobalPoolSizes();
@@ -1258,7 +1258,7 @@ public class DataDictionaryTests
         try
         {
             m_GlobalDataDictionary.Entry(11, entry11);
-            Assert.True(false, "OmmInvalidUsageException exception is expected");
+            Assert.Fail("OmmInvalidUsageException exception is expected");
         }
         catch (OmmException excp)
         {
@@ -1280,7 +1280,7 @@ public class DataDictionaryTests
         {
             DictionaryEntry entry = new();
             m_GlobalDataDictionary.Entry(-555, entry);
-            Assert.True(false, "Calling DictionaryUtility.Entry(fid, entryDst) for non existing DictionaryEntry - exception expected");
+            Assert.Fail("Calling DictionaryUtility.Entry(fid, entryDst) for non existing DictionaryEntry - exception expected");
         }
         catch (OmmException excp)
         {
@@ -1303,7 +1303,7 @@ public class DataDictionaryTests
         {
             DictionaryEntry entry = new();
             m_GlobalDataDictionary.Entry("UNKNOWN_FID", entry);
-            Assert.True(false, "Calling DictionaryUtility.Entry(name) from non existing DictionaryEntry - exception expected");
+            Assert.Fail("Calling DictionaryUtility.Entry(name) from non existing DictionaryEntry - exception expected");
         }
         catch (OmmException excp)
         {
@@ -1414,7 +1414,7 @@ public class DataDictionaryTests
         }
         catch (OmmException excp)
         {
-            Assert.True(false, $"DataDictionary.DataDictionary(DataDictionary) failed to clone dictionary - exception not expected: {excp}");
+            Assert.Fail($"DataDictionary.DataDictionary(DataDictionary) failed to clone dictionary - exception not expected: {excp}");
         }
 
         CheckEtaGlobalPoolSizes();

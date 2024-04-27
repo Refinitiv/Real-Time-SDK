@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\Consumer.props"/>
+	<ItemGroup>
+		<Compile Include="..\Consumer.ApiQa.cs" />
+	</ItemGroup>
+	<PropertyGroup>
+		<DoNotIncludeEmaConfig>true</DoNotIncludeEmaConfig>
+	</PropertyGroup>
+</Project>

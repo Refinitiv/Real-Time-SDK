@@ -8,7 +8,7 @@ directly from an OMM Provider application, or from an Advanced
 Distribution Server.
 
 112_MP_TunnelingConnection illustrates the abilitily of the user
-to programmatically pass all http/https related configuration on OmmConsumerConfig
+to programmatically pass all encrypted on OmmConsumerConfig
 instance when configuring a tunneling connection. When running this application,
 the user will need specify valid tunneling configurations through command line arguments.
 
@@ -18,7 +18,7 @@ Detailed Description
 112_MP_TunnelingConnection implements the following high-level steps:
 + Passes tunneling related configuration through command line arguments
 including:
-if the application will attempt to make an http or encrypted
+if the application will attempt to make an encrypted
        connection, ChannelType must be set to
 	   ChannelType::RSSL_ENCRYPTED in EMA configuration file
 -ph Proxy host name

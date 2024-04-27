@@ -30,7 +30,7 @@ public class Consumer
 	{
 
         Console.WriteLine("\nOptions:\n" + "  -?\tShows this usage\n" 
-	    		+ "  if the application will attempt to make an http or encrypted \n "
+	    		+ "  if the application will attempt to make an encrypted \n "
 	    		+ "           connection, ChannelType must need to be set to \n"
 	    		+ "            ChannelType::RSSL_ENCRYPTED in EMA configuration file.\n"
 	    		+ "  -ph Proxy host name.\n"

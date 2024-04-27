@@ -245,7 +245,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 			CommandLine.AddOption("password", "", "Password to use in login request");
 			CommandLine.AddOption("clientId", "", "ClientId to use in login request");
 			CommandLine.AddOption("clientSecret", "", "ClientId to use in login request");
-			CommandLine.AddOption("proxy", "Specifies that the application will make a tunneling connection (http or encrypted) through a proxy server, default is false");
+			CommandLine.AddOption("proxy", "Specifies that the application will make a connection through a proxy server, default is false");
 			CommandLine.AddOption("ph", "", "Proxy server host name");
 			CommandLine.AddOption("pp", "", "Proxy port number");
 			CommandLine.AddOption("sessionMgnt", "(optional) Enable Session Management in the reactor.");

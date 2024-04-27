@@ -17,7 +17,7 @@ namespace LSEG.Ema.Access
 {
     internal class LoggerClient<T> : ILoggerClient
     {
-        private readonly string LOG_MSG_LAYOUT;
+        private string LOG_MSG_LAYOUT;
 
         private static readonly string EMA_Console_Name = "EMA_Console";
 
@@ -25,9 +25,7 @@ namespace LSEG.Ema.Access
 
         private static readonly string EMA_Default_File_Name = "emaLog";
 
-        private readonly OmmBaseImpl<T> m_OmmBaseImpl;
-
-        private readonly Logger m_NLogger;
+        private Logger m_NLogger;
 
         private static readonly Logger DefaultLogger;
 
@@ -49,18 +47,9 @@ namespace LSEG.Ema.Access
 
         private readonly StringBuilder m_StrBuilder = new(1024);
 
-        static LoggerClient()
+        void SetNLogConfigure(IOmmCommonImpl commonImpl, LoggerConfig loggerConfig)
         {
-            ProcessId = System.Environment.ProcessId;
-
-            DefaultLogger = LogManager.GetCurrentClassLogger();
-
-            LoggingConf = new();
-        }
-
-        public LoggerClient(OmmBaseImpl<T> ommBaseImpl)
-        {
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 LOG_MSG_LAYOUT = "${longdate}\r\n${level:uppercase=true}|${message}";
             }
@@ -69,22 +58,20 @@ namespace LSEG.Ema.Access
                 LOG_MSG_LAYOUT = "${longdate}\n${level:uppercase=true}|${message}";
             }
 
-            m_OmmBaseImpl = ommBaseImpl;
-
             Clear();
 
-            if (m_OmmBaseImpl.ConfigImpl.LoggerConfig != null)
+            if (loggerConfig != null)
             {
-                string loggerName = $"LSEG.Ema.Access.LoggerClient.{m_OmmBaseImpl.InstanceName}";
+                string loggerName = $"LSEG.Ema.Access.LoggerClient.{commonImpl.InstanceName}";
 
                 string messageLayout = LOG_MSG_LAYOUT;
 
-                if(m_OmmBaseImpl.ConfigImpl.LoggerConfig.IncludeDateInLoggerOutput == 0)
+                if (loggerConfig.IncludeDateInLoggerOutput == 0)
                 {
                     messageLayout = messageLayout.Remove(0, 11); // Remove ${longdate} from message layout.
                 }
 
-                if (m_OmmBaseImpl.ConfigImpl.LoggerConfig.LoggerType == LoggerType.STDOUT)
+                if (loggerConfig.LoggerType == LoggerType.STDOUT)
                 {
                     var consoleTarget = new ConsoleTarget
                     {
@@ -94,12 +81,13 @@ namespace LSEG.Ema.Access
                     };
                     LoggingConf.AddRuleForAllLevels(consoleTarget, loggerName);
                 }
-                else if (m_OmmBaseImpl.ConfigImpl.LoggerConfig.LoggerType == LoggerType.FILE)
+                else if (loggerConfig.LoggerType == LoggerType.FILE)
                 {
-                    string fileName = string.IsNullOrEmpty(m_OmmBaseImpl.ConfigImpl.LoggerConfig.FileName) ?
-                        EMA_Default_File_Name : m_OmmBaseImpl.ConfigImpl.LoggerConfig.FileName;
-                    ulong maxArchivesFiles = m_OmmBaseImpl.ConfigImpl.LoggerConfig.NumberOfLogFiles > 0 ?
-                        m_OmmBaseImpl.ConfigImpl.LoggerConfig.NumberOfLogFiles : 1;
+                    string fileName = string.IsNullOrEmpty(loggerConfig.FileName) ?
+                        EMA_Default_File_Name : loggerConfig.FileName;
+
+                    ulong maxArchivesFiles = loggerConfig.NumberOfLogFiles > 0 ?
+                        loggerConfig.NumberOfLogFiles : 1;
 
                     var fileTarget = new FileTarget
                     {
@@ -108,7 +96,7 @@ namespace LSEG.Ema.Access
                         Layout = messageLayout,
                         MaxArchiveFiles = (int)maxArchivesFiles,
                         ArchiveNumbering = ArchiveNumberingMode.Rolling,
-                        ArchiveAboveSize = (int)m_OmmBaseImpl.ConfigImpl.LoggerConfig.MaxLogFileSize,
+                        ArchiveAboveSize = (int)loggerConfig.MaxLogFileSize,
                         KeepFileOpen = false
                     };
                     LoggingConf.AddRuleForAllLevels(fileTarget, loggerName);
@@ -117,18 +105,39 @@ namespace LSEG.Ema.Access
                 // To avoid conflicts with the rest of the components in the system obtain our own
                 // logger from a LogFactory instead of the LogManager singleton
                 LogFactory logFactory = new LogFactory();
-
                 logFactory.Configuration = LoggingConf;
                 logFactory.AutoShutdown = true;
-
                 m_NLogger = logFactory.GetLogger(loggerName);
 
-                Level = m_OmmBaseImpl.ConfigImpl.LoggerConfig.LoggerSeverity;
+                Level = loggerConfig.LoggerSeverity;
             }
             else
             {
                 m_NLogger = DefaultLogger;
             }
+        }
+
+        static LoggerClient()
+        {
+            ProcessId = System.Environment.ProcessId;
+
+            DefaultLogger = LogManager.GetCurrentClassLogger();
+
+            LoggingConf = new();
+        }
+
+#pragma warning disable CS8618
+        public LoggerClient(OmmBaseImpl<T> ommBaseImpl)
+#pragma warning restore CS8618
+        {
+            SetNLogConfigure(ommBaseImpl, ommBaseImpl.OmmConfigBaseImpl.LoggerConfig);
+        }
+
+#pragma warning disable CS8618
+        public LoggerClient(OmmServerBaseImpl ommServerBaseImpl)
+#pragma warning restore CS8618
+        {
+            SetNLogConfigure(ommServerBaseImpl, ommServerBaseImpl.ConfigImpl.LoggerConfig);
         }
 
         public void Debug(string clientName, string message)
@@ -154,6 +163,7 @@ namespace LSEG.Ema.Access
             m_NLogger.Warn(ILoggerClient.FormatLogMessage(m_StrBuilder.Clear(), 
                 clientName, message, LoggerLevel.WARNING));
         }
+
         public void Trace(string clientName, string message)
         {
             m_NLogger.Trace(ILoggerClient.FormatLogMessage(m_StrBuilder.Clear(), 
@@ -164,6 +174,5 @@ namespace LSEG.Ema.Access
         {
             Level = LoggerLevel.INFO;
         }
-
     }
 }

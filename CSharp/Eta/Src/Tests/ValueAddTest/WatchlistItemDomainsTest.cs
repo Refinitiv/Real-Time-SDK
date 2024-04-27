@@ -779,7 +779,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -814,14 +814,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends an empty status msg .*/
         statusMsg.Clear();
@@ -857,13 +857,13 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedStatusMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedStatusMsg.MsgKey.CheckHasName());
-        Assert.True(receivedStatusMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedStatusMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedStatusMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedStatusMsg.ContainerType);
         Assert.False(receivedStatusMsg.CheckHasState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer receives update */
         testEvent = consumerReactor.PollEvent();
@@ -876,7 +876,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -964,12 +964,12 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasExtendedHdr());
-        Assert.True(receivedRequestMsg.ExtendedHeader.ToString().Equals("EXTENDED HEADER"));
+        Assert.Equal("EXTENDED HEADER", receivedRequestMsg.ExtendedHeader.ToString());
         Assert.Equal(DataTypes.OPAQUE, receivedRequestMsg.ContainerType);
-        Assert.True(receivedRequestMsg.EncodedDataBody.ToString().Equals("ENCODED DATA BODY"));
+        Assert.Equal("ENCODED DATA BODY", receivedRequestMsg.EncodedDataBody.ToString());
 
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -1004,14 +1004,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -1120,7 +1120,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -1158,7 +1158,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -1167,7 +1167,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.CheckRefreshComplete());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(userSpec, msgEvent.StreamInfo.UserSpec);
 
@@ -1182,7 +1182,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -1191,7 +1191,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.CheckRefreshComplete());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(userSpec, msgEvent.StreamInfo.UserSpec);
 
@@ -1215,7 +1215,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Request the snapshot again on stream 6. */
         requestMsg.Clear();
@@ -1242,7 +1242,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -1278,7 +1278,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -1287,7 +1287,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.CheckRefreshComplete());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(userSpec, msgEvent.StreamInfo.UserSpec);
 
@@ -1311,7 +1311,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -1415,7 +1415,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRequestMsg.ContainerType);
 
@@ -1467,7 +1467,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRequestMsg.ContainerType);
 
@@ -1611,7 +1611,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         // Checks whether the provider receives the view request
@@ -1670,7 +1670,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         // Checks whether the provider receives the view request
@@ -1942,7 +1942,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals(receivedRequestMsg.MsgKey.Name.ToString()));
+        Assert.Equal(receivedRefreshMsg.MsgKey.Name.ToString(), receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -2086,7 +2086,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));        
+        Assert.Equal(msgEvent.StreamInfo.ServiceName,Provider.DefaultService.Info.ServiceName.ToString());        
         
         
         // Consumer send 2nd request
@@ -2176,7 +2176,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         // 2nd event to consumer
         testEvent = consumerReactor.PollEvent();
@@ -2195,7 +2195,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /////////////////////////////////////////////////////////////////
         // consumer reissues 2nd request without specifying the view flag
@@ -2453,7 +2453,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         testEvent = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, testEvent.EventType);
@@ -2471,7 +2471,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         List<int> viewFieldList = new List<int>();
         viewFieldList.Add(22);
@@ -2529,7 +2529,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -2876,7 +2876,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -2916,14 +2916,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -2954,7 +2954,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -2993,14 +2993,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -3030,7 +3030,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(2, receivedRequestMsg.Priority.Count);
@@ -3070,14 +3070,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -3121,7 +3121,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -3138,7 +3138,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -3155,7 +3155,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -3184,7 +3184,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -3201,7 +3201,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -3229,7 +3229,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -3245,7 +3245,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -3351,7 +3351,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -3387,14 +3387,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends refresh, moving item to group TWO. */
         refreshMsg.Clear();
@@ -3426,14 +3426,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends group update on group ONE. This should not close any items. */
         directoryUpdateMsg.Clear();
@@ -3535,7 +3535,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -3570,14 +3570,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends group update on group TREE, to close first item. */
         directoryUpdateMsg.Clear();
@@ -3615,7 +3615,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Directory update with the group status. */
         evt = consumerReactor.PollEvent();
@@ -3833,7 +3833,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -3873,14 +3873,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -3910,7 +3910,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -3949,14 +3949,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -3986,7 +3986,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(2, receivedRequestMsg.Priority.Count);
@@ -4026,14 +4026,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4076,7 +4076,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4093,7 +4093,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4110,7 +4110,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4171,7 +4171,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4188,7 +4188,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4205,7 +4205,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4222,7 +4222,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4239,7 +4239,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4256,7 +4256,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4273,7 +4273,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -4301,7 +4301,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(2, receivedRequestMsg.Priority.Count);
@@ -4317,7 +4317,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("MSI.N"));
+        Assert.Equal("MSI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -4403,7 +4403,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -4441,14 +4441,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends service update .*/
         DirectoryUpdate directoryUpdateMsg = new DirectoryUpdate();
@@ -4486,7 +4486,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(2, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer receives update. */
         evt = consumerReactor.PollEvent();
@@ -4589,7 +4589,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedIRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedIRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedIRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedIRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedIRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedIRequestMsg.DomainType);
 
         providerStreamId = receivedIRequestMsg.StreamId;
@@ -4627,14 +4627,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -4661,7 +4661,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedIRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedIRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedIRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedIRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedIRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedIRequestMsg.DomainType);
 
         providerStreamId = receivedIRequestMsg.StreamId;
@@ -4698,14 +4698,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends service update .*/
         DirectoryUpdate directoryIUpdateMsg = new DirectoryUpdate();
@@ -4746,7 +4746,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedIStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         evt = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, evt.EventType);
@@ -4761,7 +4761,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedIStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         evt = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.DIRECTORY_MSG, evt.EventType);
@@ -4788,7 +4788,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedIStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         evt = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, evt.EventType);
@@ -4803,7 +4803,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedIStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -4916,7 +4916,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -5014,7 +5014,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         evt = providerReactor.PollEvent();
@@ -5028,7 +5028,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -5063,14 +5063,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         evt = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, evt.EventType);
@@ -5083,14 +5083,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends generic msg .*/
         genericMsg.Clear();
@@ -5119,12 +5119,12 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedGenericMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedGenericMsg.MsgKey.CheckHasName());
-        Assert.True(receivedGenericMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedGenericMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedGenericMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedGenericMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consume receives second generic msg on other stream */
         evt = consumerReactor.PollEvent();
@@ -5138,12 +5138,12 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedGenericMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedGenericMsg.MsgKey.CheckHasName());
-        Assert.True(receivedGenericMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedGenericMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedGenericMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedGenericMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer sends second directory request */
         _directoryRequest.Clear();
@@ -5189,7 +5189,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedGenericMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedGenericMsg.MsgKey.CheckHasName());
-        Assert.True(receivedGenericMsg.MsgKey.Name.ToString().Equals("More Source"));
+        Assert.Equal("More Source", receivedGenericMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.SOURCE, receivedGenericMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedGenericMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
@@ -5206,7 +5206,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedGenericMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedGenericMsg.MsgKey.CheckHasName());
-        Assert.True(receivedGenericMsg.MsgKey.Name.ToString().Equals("More Source"));
+        Assert.Equal("More Source", receivedGenericMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.SOURCE, receivedGenericMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedGenericMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
@@ -5238,7 +5238,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedGenericMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedGenericMsg.MsgKey.CheckHasName());
-        Assert.True(receivedGenericMsg.MsgKey.Name.ToString().Equals("More User"));
+        Assert.Equal("More User", receivedGenericMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.LOGIN, receivedGenericMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedGenericMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
@@ -5324,7 +5324,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -5362,14 +5362,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends group update .*/
         DirectoryUpdate directoryUpdateMsg = new DirectoryUpdate();
@@ -5413,7 +5413,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer receives update. */
         evt = consumerReactor.PollEvent();
@@ -5478,7 +5478,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer receives update. */
         evt = consumerReactor.PollEvent();
@@ -5635,7 +5635,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer receives update. */
         evt = consumerReactor.PollEvent();
@@ -5700,7 +5700,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(3, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer receives update. */
         evt = consumerReactor.PollEvent();
@@ -5801,7 +5801,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -5837,14 +5837,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -5934,12 +5934,12 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasExtendedHdr());
-        Assert.True(receivedRequestMsg.ExtendedHeader.ToString().Equals("EXTENDED HEADER"));
+        Assert.Equal("EXTENDED HEADER", receivedRequestMsg.ExtendedHeader.ToString());
         Assert.Equal(DataTypes.OPAQUE, receivedRequestMsg.ContainerType);
-        Assert.True(receivedRequestMsg.EncodedDataBody.ToString().Equals("ENCODED DATA BODY"));
+        Assert.Equal("ENCODED DATA BODY", receivedRequestMsg.EncodedDataBody.ToString());
 
         evt = providerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, evt.EventType);
@@ -5955,12 +5955,12 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasExtendedHdr());
-        Assert.True(receivedRequestMsg.ExtendedHeader.ToString().Equals("EXTENDED HEADER"));
+        Assert.Equal("EXTENDED HEADER", receivedRequestMsg.ExtendedHeader.ToString());
         Assert.Equal(DataTypes.OPAQUE, receivedRequestMsg.ContainerType);
-        Assert.True(receivedRequestMsg.EncodedDataBody.ToString().Equals("ENCODED DATA BODY"));
+        Assert.Equal("ENCODED DATA BODY", receivedRequestMsg.EncodedDataBody.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -6049,7 +6049,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.False(receivedRequestMsg.CheckHasExtendedHdr()); // non private stream request should not have extended header
         Assert.Equal(DataTypes.NO_DATA, receivedRequestMsg.ContainerType); // non private stream request should not have data body
@@ -6068,12 +6068,12 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasExtendedHdr()); // private stream request should have extended header
-        Assert.True(receivedRequestMsg.ExtendedHeader.ToString().Equals("EXTENDED HEADER"));
+        Assert.Equal("EXTENDED HEADER", receivedRequestMsg.ExtendedHeader.ToString());
         Assert.Equal(DataTypes.OPAQUE, receivedRequestMsg.ContainerType); // private stream request should have data body
-        Assert.True(receivedRequestMsg.EncodedDataBody.ToString().Equals("ENCODED DATA BODY"));
+        Assert.Equal("ENCODED DATA BODY", receivedRequestMsg.EncodedDataBody.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -6185,7 +6185,7 @@ public class WatchlistItemDomainsTest
                 Assert.False(receivedRequestMsg.CheckMsgKeyInUpdates());
                 Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
                 Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-                Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
                 providerStreamId = receivedRequestMsg.StreamId;
@@ -6217,7 +6217,7 @@ public class WatchlistItemDomainsTest
                     Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
                     Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
                     Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-                    Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                    Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
                 }
                 else
                     Assert.False(receivedRefreshMsg.CheckHasMsgKey());
@@ -6230,7 +6230,7 @@ public class WatchlistItemDomainsTest
                 if (requestByServiceName)
                 {
                     Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                    Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                    Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
                 }
                 else
                     Assert.Null(msgEvent.StreamInfo.ServiceName);
@@ -6259,7 +6259,7 @@ public class WatchlistItemDomainsTest
                     Assert.True(receivedUpdateMsg.MsgKey.CheckHasServiceId());
                     Assert.Equal(Provider.DefaultService.ServiceId, receivedUpdateMsg.MsgKey.ServiceId);
                     Assert.True(receivedUpdateMsg.MsgKey.CheckHasName());
-                    Assert.True(receivedUpdateMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                    Assert.Equal("TRI.N", receivedUpdateMsg.MsgKey.Name.ToString());
                 }
                 else
                     Assert.False(receivedUpdateMsg.CheckHasMsgKey());
@@ -6270,7 +6270,7 @@ public class WatchlistItemDomainsTest
                 if (requestByServiceName)
                 {
                     Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                    Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                    Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
                 }
                 else
                     Assert.Null(msgEvent.StreamInfo.ServiceName);
@@ -6298,7 +6298,7 @@ public class WatchlistItemDomainsTest
                     Assert.True(receivedGenericMsg.MsgKey.CheckHasServiceId());
                     Assert.Equal(Provider.DefaultService.ServiceId, receivedGenericMsg.MsgKey.ServiceId);
                     Assert.True(receivedGenericMsg.MsgKey.CheckHasName());
-                    Assert.True(receivedGenericMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                    Assert.Equal("TRI.N", receivedGenericMsg.MsgKey.Name.ToString());
                 }
                 else
                     Assert.False(receivedGenericMsg.CheckHasMsgKey());
@@ -6309,7 +6309,7 @@ public class WatchlistItemDomainsTest
                 if (requestByServiceName)
                 {
                     Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                    Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                    Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
                 }
                 else
                     Assert.Null(msgEvent.StreamInfo.ServiceName);
@@ -6364,7 +6364,7 @@ public class WatchlistItemDomainsTest
                     Assert.True(receivedAckMsg.MsgKey.CheckHasServiceId());
                     Assert.Equal(Provider.DefaultService.ServiceId, receivedAckMsg.MsgKey.ServiceId);
                     Assert.True(receivedAckMsg.MsgKey.CheckHasName());
-                    Assert.True(receivedAckMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                    Assert.Equal("TRI.N", receivedAckMsg.MsgKey.Name.ToString());
                 }
                 else
                     Assert.False(receivedAckMsg.CheckHasMsgKey());
@@ -6376,7 +6376,7 @@ public class WatchlistItemDomainsTest
                 if (requestByServiceName)
                 {
                     Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                    Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                    Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
                 }
                 else
                     Assert.Null(msgEvent.StreamInfo.ServiceName);
@@ -6429,7 +6429,7 @@ public class WatchlistItemDomainsTest
                     Assert.True(receivedAckMsg.MsgKey.CheckHasServiceId());
                     Assert.Equal(Provider.DefaultService.ServiceId, receivedAckMsg.MsgKey.ServiceId);
                     Assert.True(receivedAckMsg.MsgKey.CheckHasName());
-                    Assert.True(receivedAckMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                    Assert.Equal("TRI.N", receivedAckMsg.MsgKey.Name.ToString());
                 }
                 else
                     Assert.False(receivedAckMsg.CheckHasMsgKey());
@@ -6441,7 +6441,7 @@ public class WatchlistItemDomainsTest
                 if (requestByServiceName)
                 {
                     Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                    Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                    Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
                 }
                 else
                     Assert.Null(msgEvent.StreamInfo.ServiceName);
@@ -6472,7 +6472,7 @@ public class WatchlistItemDomainsTest
                     Assert.True(receivedStatusMsg.MsgKey.CheckHasServiceId());
                     Assert.Equal(Provider.DefaultService.ServiceId, receivedStatusMsg.MsgKey.ServiceId);
                     Assert.True(receivedStatusMsg.MsgKey.CheckHasName());
-                    Assert.True(receivedStatusMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                    Assert.Equal("TRI.N", receivedStatusMsg.MsgKey.Name.ToString());
                 }
                 else
                     Assert.False(receivedStatusMsg.CheckHasMsgKey());
@@ -6486,7 +6486,7 @@ public class WatchlistItemDomainsTest
                 if (requestByServiceName)
                 {
                     Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                    Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                    Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
                 }
                 else
                     Assert.Null(msgEvent.StreamInfo.ServiceName);
@@ -6527,7 +6527,7 @@ public class WatchlistItemDomainsTest
                 if (applyMsgKeyInUpdates)
                 {
                     Assert.True(receivedStatusMsg.CheckHasMsgKey());
-                    Assert.True(receivedStatusMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                    Assert.Equal("TRI.N", receivedStatusMsg.MsgKey.Name.ToString());
 
                     if (requestByServiceName)
                     {
@@ -6553,7 +6553,7 @@ public class WatchlistItemDomainsTest
                 if (requestByServiceName)
                 {
                     Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                    Assert.True(msgEvent.StreamInfo.ServiceName.Equals("UNKNOWN_SERVICE"));
+                    Assert.Equal("UNKNOWN_SERVICE", msgEvent.StreamInfo.ServiceName);
                 }
                 else
                     Assert.Null(msgEvent.StreamInfo.ServiceName);
@@ -6594,7 +6594,7 @@ public class WatchlistItemDomainsTest
                 Assert.False(receivedRequestMsg.CheckMsgKeyInUpdates());
                 Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
                 Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-                Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+                Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
                 /* Provider sends no response. */
@@ -6612,7 +6612,7 @@ public class WatchlistItemDomainsTest
                 {
                     Assert.True(receivedStatusMsg.CheckHasMsgKey());
                     Assert.True(receivedStatusMsg.MsgKey.CheckHasName());
-                    Assert.True(receivedStatusMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+                    Assert.Equal("IBM.N", receivedStatusMsg.MsgKey.Name.ToString());
                     Assert.True(receivedStatusMsg.MsgKey.CheckHasServiceId());
                     Assert.Equal(Provider.DefaultService.ServiceId, receivedStatusMsg.MsgKey.ServiceId);
                 }
@@ -6628,7 +6628,7 @@ public class WatchlistItemDomainsTest
                 if (requestByServiceName)
                 {
                     Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                    Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                    Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
                 }
                 else
                     Assert.Null(msgEvent.StreamInfo.ServiceName);
@@ -6654,7 +6654,7 @@ public class WatchlistItemDomainsTest
                 Assert.False(receivedRequestMsg.CheckMsgKeyInUpdates());
                 Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
                 Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-                Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+                Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
                 TestReactorComponent.CloseSession(consumer, provider);
@@ -6753,7 +6753,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -6787,7 +6787,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService2.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -7053,12 +7053,12 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasExtendedHdr());
-        Assert.True(receivedRequestMsg.ExtendedHeader.ToString().Equals("EXTENDED HEADER"));
+        Assert.Equal("EXTENDED HEADER", receivedRequestMsg.ExtendedHeader.ToString());
         Assert.Equal(DataTypes.OPAQUE, receivedRequestMsg.ContainerType);
-        Assert.True(receivedRequestMsg.EncodedDataBody.ToString().Equals("ENCODED DATA BODY"));
+        Assert.Equal("ENCODED DATA BODY", receivedRequestMsg.EncodedDataBody.ToString());
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(11, receivedRequestMsg.Priority.Count);
         Assert.Equal(22, receivedRequestMsg.Priority.PriorityClass);
@@ -7097,14 +7097,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         // consumer reissues original request with different priority
         requestMsg.Priority.Count = 5;
@@ -7126,12 +7126,12 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasExtendedHdr());
-        Assert.True(receivedRequestMsg.ExtendedHeader.ToString().Equals("EXTENDED HEADER"));
+        Assert.Equal("EXTENDED HEADER", receivedRequestMsg.ExtendedHeader.ToString());
         Assert.Equal(DataTypes.OPAQUE, receivedRequestMsg.ContainerType);
-        Assert.True(receivedRequestMsg.EncodedDataBody.ToString().Equals("ENCODED DATA BODY"));
+        Assert.Equal("ENCODED DATA BODY", receivedRequestMsg.EncodedDataBody.ToString());
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(5, receivedRequestMsg.Priority.Count);
         Assert.Equal(6, receivedRequestMsg.Priority.PriorityClass);
@@ -7170,14 +7170,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -7276,7 +7276,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -7290,7 +7290,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
         Assert.Equal(2, receivedRequestMsg.Priority.Count);
@@ -7327,7 +7327,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -7336,7 +7336,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.CheckRefreshComplete());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -7350,7 +7350,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -7359,7 +7359,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.CheckRefreshComplete());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -7383,7 +7383,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         evt = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, evt.EventType);
@@ -7395,7 +7395,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -7583,7 +7583,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -7618,14 +7618,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -7640,14 +7640,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -7671,7 +7671,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -7742,7 +7742,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -7777,14 +7777,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -7799,14 +7799,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -7830,7 +7830,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -7936,7 +7936,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI1"));
+        Assert.Equal("TRI1", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -7950,7 +7950,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI2"));
+        Assert.Equal("TRI2", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         evt = providerReactor.PollEvent();
@@ -7963,7 +7963,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI3"));
+        Assert.Equal("TRI3", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         /* Provider sends refresh .*/
@@ -7997,14 +7997,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI1"));
+        Assert.Equal("TRI1", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -8054,14 +8054,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI2"));
+        Assert.Equal("TRI2", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -8076,14 +8076,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI2"));
+        Assert.Equal("TRI2", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -8118,14 +8118,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI3"));
+        Assert.Equal("TRI3", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -8210,7 +8210,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -8245,14 +8245,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer sends streaming request for same item */
         requestMsg.Clear();
@@ -8279,7 +8279,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -8314,14 +8314,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends an update. */
         updateMsg.Clear();
@@ -8343,7 +8343,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -8435,12 +8435,12 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasExtendedHdr());
-        Assert.True(receivedRequestMsg.ExtendedHeader.ToString().Equals("EXTENDED HEADER"));
+        Assert.Equal("EXTENDED HEADER", receivedRequestMsg.ExtendedHeader.ToString());
         Assert.Equal(DataTypes.OPAQUE, receivedRequestMsg.ContainerType);
-        Assert.True(receivedRequestMsg.EncodedDataBody.ToString().Equals("ENCODED DATA BODY"));
+        Assert.Equal("ENCODED DATA BODY", receivedRequestMsg.EncodedDataBody.ToString());
 
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -8475,14 +8475,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         // force recovery
         provider.CloseChannel();
@@ -8517,7 +8517,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -8654,7 +8654,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -8689,14 +8689,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer sends close. */
         closeMsg.Clear();
@@ -8827,7 +8827,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -8867,14 +8867,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider receives priority change. */
         providerReactor.Dispatch(1);
@@ -8890,7 +8890,7 @@ public class WatchlistItemDomainsTest
 
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -8925,7 +8925,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -9045,7 +9045,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -9080,14 +9080,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Snapshot refresh. */
         evt = consumerReactor.PollEvent();
@@ -9100,14 +9100,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -9232,7 +9232,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -9283,14 +9283,14 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             /* Provider sends an update. */
             updateMsg.Clear();
@@ -9312,7 +9312,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             /* Provider receives close and re-request. */
             providerReactor.Dispatch(2);
@@ -9334,7 +9334,7 @@ public class WatchlistItemDomainsTest
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             Assert.True(receivedRequestMsg.CheckHasPriority());
             Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -9389,14 +9389,14 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             /* Consumer sends close. */
             closeMsg.Clear();
@@ -9442,7 +9442,7 @@ public class WatchlistItemDomainsTest
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             Assert.True(receivedRequestMsg.CheckHasPriority());
             Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -9574,7 +9574,7 @@ public class WatchlistItemDomainsTest
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             Assert.True(receivedRequestMsg.CheckHasPriority());
             Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -9606,7 +9606,7 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             Assert.True(receivedRequestMsg.CheckHasPriority());
             Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -9647,14 +9647,14 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             evt = consumerReactor.PollEvent();
             Assert.Equal(TestReactorEventType.MSG, evt.EventType);
@@ -9666,14 +9666,14 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             /* Provider sends an update. */
             updateMsg.Clear();
@@ -9695,7 +9695,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
 
             /* Provider receives reissue and close. */
@@ -9710,7 +9710,7 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRequestMsg.CheckStreaming());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             Assert.True(receivedRequestMsg.CheckHasPriority());
             Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -9818,7 +9818,7 @@ public class WatchlistItemDomainsTest
                 Assert.False(receivedRequestMsg.CheckNoRefresh());
                 Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
                 Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-                Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
                 Assert.True(receivedRequestMsg.CheckHasPriority());
                 Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -9850,7 +9850,7 @@ public class WatchlistItemDomainsTest
                 Assert.True(receivedRequestMsg.CheckNoRefresh());
                 Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
                 Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-                Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
                 Assert.True(receivedRequestMsg.CheckHasPriority());
                 Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -9891,14 +9891,14 @@ public class WatchlistItemDomainsTest
                 Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
                 Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
                 Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-                Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
                 Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
                 Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
                 Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
                 Assert.NotNull(msgEvent.StreamInfo);
                 Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
                 evt = consumerReactor.PollEvent();
                 Assert.Equal(TestReactorEventType.MSG, evt.EventType);
@@ -9910,14 +9910,14 @@ public class WatchlistItemDomainsTest
                 Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
                 Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
                 Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-                Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
                 Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
                 Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
                 Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
                 Assert.NotNull(msgEvent.StreamInfo);
                 Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
                 /* Provider sends group status .*/
                 ServiceGroup serviceGroup = new ServiceGroup();
@@ -9958,7 +9958,7 @@ public class WatchlistItemDomainsTest
                 Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
                 Assert.NotNull(msgEvent.StreamInfo);
                 Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
                 evt = consumerReactor.PollEvent();
                 Assert.Equal(TestReactorEventType.DIRECTORY_MSG, evt.EventType);
@@ -9979,7 +9979,7 @@ public class WatchlistItemDomainsTest
                     Assert.True(receivedRequestMsg.CheckStreaming());
                     Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
                     Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-                    Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+                    Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
                     Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
                     Assert.True(receivedRequestMsg.CheckHasPriority());
                     Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -10327,7 +10327,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
         
@@ -10362,14 +10362,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -10384,14 +10384,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
         
@@ -10406,14 +10406,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -10428,14 +10428,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
         
@@ -10459,7 +10459,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         testEvent = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, testEvent.EventType);
@@ -10471,7 +10471,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedUpdateMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -10600,7 +10600,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));   
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());   
         
         /* Reissue TRI with BID/ASK view. */
         requestMsg.Clear();
@@ -10694,7 +10694,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));   
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());   
         
         /* Provider receives updated view request. */
         providerReactor.Dispatch(1);
@@ -10749,7 +10749,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -10879,7 +10879,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));   
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());   
 
         
         /* Reissue TRI with BID/ASK view. */
@@ -10972,7 +10972,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider receives updated view request. */
         providerReactor.Dispatch(1);
@@ -11026,7 +11026,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));        
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());        
 
         testEvent = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, testEvent.EventType);
@@ -11046,7 +11046,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -11204,7 +11204,7 @@ public class WatchlistItemDomainsTest
                 Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
                 Assert.NotNull(msgEvent.StreamInfo);
                 Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));     
+                Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());     
 
                 /* Provider receives request with aggregated view. */
                 providerReactor.Dispatch(1);
@@ -11248,7 +11248,7 @@ public class WatchlistItemDomainsTest
                 Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
                 Assert.NotNull(msgEvent.StreamInfo);
                 Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));     
+                Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());     
 
                 testEvent = consumerReactor.PollEvent();
                 Assert.Equal(TestReactorEventType.MSG, testEvent.EventType);
@@ -11268,7 +11268,7 @@ public class WatchlistItemDomainsTest
                 Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
                 Assert.NotNull(msgEvent.StreamInfo);
                 Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-                Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+                Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
                 
                 /* Reissue this request, but don't change the view. */
                 requestMsg.Clear();
@@ -11324,7 +11324,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             testEvent = consumerReactor.PollEvent();
             Assert.Equal(TestReactorEventType.MSG, testEvent.EventType);
@@ -11339,7 +11339,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             /* Reconnect and reestablish login/directory streams. */
             TestReactor.OpenSession(consumer, provider, opts, true);
@@ -11401,7 +11401,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));     
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());     
 
             testEvent = consumerReactor.PollEvent();
             Assert.Equal(TestReactorEventType.MSG, testEvent.EventType);
@@ -11421,7 +11421,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
             
             TestReactorComponent.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -11528,7 +11528,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -11579,7 +11579,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -11720,7 +11720,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRequestMsg.ContainerType);
         
@@ -11773,7 +11773,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRequestMsg.ContainerType);
         
@@ -11917,7 +11917,7 @@ public class WatchlistItemDomainsTest
        Assert.False(receivedRequestMsg.CheckStreaming());
        Assert.False(receivedRequestMsg.CheckNoRefresh());
        Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("SYMBOL_LIST"));
+       Assert.Equal("SYMBOL_LIST", receivedRequestMsg.MsgKey.Name.ToString());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
        Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);        
        providerStreamId = receivedRequestMsg.StreamId;
@@ -11995,7 +11995,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("SYMBOL_LIST"));
+       Assert.Equal("SYMBOL_LIST", receivedRefreshMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRefreshMsg.DomainType);
        Assert.Equal(DataTypes.MAP, receivedRefreshMsg.ContainerType);
        Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -12017,7 +12017,7 @@ public class WatchlistItemDomainsTest
        Assert.False(receivedRequestMsg.CheckNoRefresh());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
-       Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("FB.O"));
+       Assert.Equal("FB.O", receivedRequestMsg.MsgKey.Name.ToString());
        itemStreamId1 = receivedRequestMsg.StreamId;
 
        testEvent = providerReactor.PollEvent();
@@ -12030,7 +12030,7 @@ public class WatchlistItemDomainsTest
        Assert.False(receivedRequestMsg.CheckNoRefresh());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
-       Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+       Assert.Equal("AAPL.O", receivedRequestMsg.MsgKey.Name.ToString());
        itemStreamId2 = receivedRequestMsg.StreamId;
 
        testEvent = providerReactor.PollEvent();
@@ -12043,7 +12043,7 @@ public class WatchlistItemDomainsTest
        Assert.False(receivedRequestMsg.CheckNoRefresh());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
-       Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("NFLX.O"));
+       Assert.Equal("NFLX.O", receivedRequestMsg.MsgKey.Name.ToString());
        itemStreamId3 = receivedRequestMsg.StreamId;
 
        testEvent = providerReactor.PollEvent();
@@ -12056,7 +12056,7 @@ public class WatchlistItemDomainsTest
        Assert.False(receivedRequestMsg.CheckNoRefresh());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
-       Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("GOOGL.O"));
+       Assert.Equal("GOOGL.O", receivedRequestMsg.MsgKey.Name.ToString());
        itemStreamId4 = receivedRequestMsg.StreamId;
 
        /* Provider sends refreshes .*/
@@ -12102,7 +12102,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("FB.O"));
+       Assert.Equal("FB.O", receivedRefreshMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
        Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
        Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -12119,7 +12119,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+       Assert.Equal("AAPL.O", receivedRefreshMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
        Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
        Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -12136,7 +12136,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("NFLX.O"));
+       Assert.Equal("NFLX.O", receivedRefreshMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
        Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
        Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -12153,7 +12153,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("GOOGL.O"));
+       Assert.Equal("GOOGL.O", receivedRefreshMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
        Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
        Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -12322,8 +12322,8 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("SYM_LIST"));
-        Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);        
+        Assert.Equal("SYM_LIST", receivedRequestMsg.MsgKey.Name.ToString());
+        Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
         
         /* Provider sends refresh .*/
@@ -12390,14 +12390,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("SYM_LIST"));
+        Assert.Equal("SYM_LIST", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.MAP, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         /* Provider receives requests for FB and AAPL. */
         providerReactor.Dispatch(2);
@@ -12412,7 +12412,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("FB.O"));
+        Assert.Equal("FB.O", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         int provFBStreamId = receivedRequestMsg.StreamId;
 
@@ -12426,7 +12426,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+        Assert.Equal("AAPL.O", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         int provAAPLStreamId = receivedRequestMsg.StreamId;
         
@@ -12477,7 +12477,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("FB.O"));
+        Assert.Equal("FB.O", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -12495,7 +12495,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+        Assert.Equal("AAPL.O", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -12581,7 +12581,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("SYM_LIST"));
+        Assert.Equal("SYM_LIST", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);        
         providerStreamId = receivedRequestMsg.StreamId;
         
@@ -12595,7 +12595,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("FB.O"));
+        Assert.Equal("FB.O", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
         provFBStreamId = receivedRequestMsg.StreamId;
         
@@ -12609,7 +12609,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+        Assert.Equal("AAPL.O", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
         provAAPLStreamId = receivedRequestMsg.StreamId;
         
@@ -12679,14 +12679,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("SYM_LIST"));
+        Assert.Equal("SYM_LIST", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.MAP, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         /* FB.O */
         testEvent = consumerReactor.PollEvent();
@@ -12698,7 +12698,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("FB.O"));
+        Assert.Equal("FB.O", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -12716,7 +12716,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+        Assert.Equal("AAPL.O", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -12841,7 +12841,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("SYMBOL_LIST"));
+        Assert.Equal("SYMBOL_LIST", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
@@ -12913,7 +12913,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("SYMBOL_LIST"));
+        Assert.Equal("SYMBOL_LIST", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.MAP, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -12935,7 +12935,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("FB.O"));
+        Assert.Equal("FB.O", receivedRequestMsg.MsgKey.Name.ToString());
         itemStreamId1 = receivedRequestMsg.StreamId;
 
         testEvent = providerReactor.PollEvent();
@@ -12947,8 +12947,8 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
+        Assert.Equal("AAPL.O", receivedRequestMsg.MsgKey.Name.ToString());
         itemStreamId2 = receivedRequestMsg.StreamId;
 
         testEvent = providerReactor.PollEvent();
@@ -12960,8 +12960,8 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("NFLX.O"));
+        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
+        Assert.Equal("NFLX.O", receivedRequestMsg.MsgKey.Name.ToString());
         itemStreamId3 = receivedRequestMsg.StreamId;
 
         /* Provider sends refreshes .*/
@@ -13003,7 +13003,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("FB.O"));
+        Assert.Equal("FB.O", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -13020,7 +13020,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+        Assert.Equal("AAPL.O", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -13037,7 +13037,8 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("NFLX.O"));
+        Assert.Equal("NFLX.O", receivedRefreshMsg.MsgKey.Name.ToString());
+
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -13097,8 +13098,8 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("GOOGL.O"));
+        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
+        Assert.Equal("GOOGL.O", receivedRequestMsg.MsgKey.Name.ToString());
         itemStreamId4 = receivedRequestMsg.StreamId;
 
         /* Provider sends non-streaming refresh for the item. */
@@ -13131,7 +13132,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("GOOGL.O"));
+        Assert.Equal("GOOGL.O", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
@@ -13165,7 +13166,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("GOOGL.O"));
+        Assert.Equal("GOOGL.O", receivedRequestMsg.MsgKey.Name.ToString());
         itemStreamId4 = receivedRequestMsg.StreamId;
 
         /* Provider sends streaming refresh for the item. */
@@ -13198,7 +13199,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("GOOGL.O"));
+        Assert.Equal("GOOGL.O",receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -13253,8 +13254,8 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("GOOGL.O"));
+        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
+        Assert.Equal("GOOGL.O", receivedRequestMsg.MsgKey.Name.ToString());
         itemStreamId4 = receivedRequestMsg.StreamId;
 
         /* Provider sends streaming refresh for the item. */
@@ -13287,7 +13288,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("GOOGL.O"));
+        Assert.Equal("GOOGL.O", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -13424,7 +13425,7 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRequestMsg.CheckStreaming());
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("SYM_LIST"));
+            Assert.Equal("SYM_LIST", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);
             providerStreamId = receivedRequestMsg.StreamId;
 
@@ -13493,14 +13494,14 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("SYM_LIST"));
+            Assert.Equal("SYM_LIST", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.MAP, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             /* Provider receives requests for FB and AAPL. */
             providerReactor.Dispatch(2);
@@ -13515,7 +13516,7 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRequestMsg.CheckStreaming());
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("FB.O"));
+            Assert.Equal("FB.O", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             int provFBStreamId = receivedRequestMsg.StreamId;
 
@@ -13529,7 +13530,7 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRequestMsg.CheckStreaming());
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+            Assert.Equal("AAPL.O", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             int provAAPLStreamId = receivedRequestMsg.StreamId;
 
@@ -13581,7 +13582,7 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("FB.O"));
+            Assert.Equal("FB.O", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -13619,7 +13620,7 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedStatusMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedStatusMsg.MsgKey.ServiceId);
             Assert.True(receivedStatusMsg.MsgKey.CheckHasName());
-            Assert.True(receivedStatusMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+            Assert.Equal("AAPL.O", receivedStatusMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedStatusMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedStatusMsg.ContainerType);
             if (streamStates[i] == StreamStates.CLOSED_RECOVER)
@@ -13646,7 +13647,7 @@ public class WatchlistItemDomainsTest
                 Assert.True(receivedRequestMsg.CheckStreaming());
                 Assert.False(receivedRequestMsg.CheckNoRefresh());
                 Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-                Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("FB.O"));
+                Assert.Equal("FB.O", receivedRequestMsg.MsgKey.Name.ToString());
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
                 testEvent = providerReactor.PollEvent();
@@ -13659,7 +13660,7 @@ public class WatchlistItemDomainsTest
                 Assert.True(receivedRequestMsg.CheckStreaming());
                 Assert.False(receivedRequestMsg.CheckNoRefresh());
                 Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-                Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+                Assert.Equal("AAPL.O", receivedRequestMsg.MsgKey.Name.ToString());
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             }
 
@@ -13794,7 +13795,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRequestMsg.CheckStreaming());
        Assert.False(receivedRequestMsg.CheckNoRefresh());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-       Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("SYM_LIST"));
+       Assert.Equal("SYM_LIST", receivedRequestMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRequestMsg.DomainType);        
        providerStreamId = receivedRequestMsg.StreamId;
 
@@ -13862,14 +13863,14 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("SYM_LIST"));
+       Assert.Equal("SYM_LIST", receivedRefreshMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.SYMBOL_LIST, receivedRefreshMsg.DomainType);
        Assert.Equal(DataTypes.MAP, receivedRefreshMsg.ContainerType);
        Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
        Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
        Assert.NotNull(msgEvent.StreamInfo);
        Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-       Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+       Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
        /* Provider receives requests for FB and AAPL. */
        providerReactor.Dispatch(2);
@@ -13884,7 +13885,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRequestMsg.CheckStreaming());
        Assert.False(receivedRequestMsg.CheckNoRefresh());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-       Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("FB.O"));
+       Assert.Equal("FB.O", receivedRequestMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
        int provFBStreamId = receivedRequestMsg.StreamId;
 
@@ -13898,7 +13899,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRequestMsg.CheckStreaming());
        Assert.False(receivedRequestMsg.CheckNoRefresh());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
-       Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+       Assert.Equal("AAPL.O", receivedRequestMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);        
        int provAAPLStreamId = receivedRequestMsg.StreamId;
 
@@ -13947,7 +13948,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("FB.O"));
+       Assert.Equal("FB.O", receivedRefreshMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
        Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
        Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -13964,7 +13965,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
        Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("AAPL.O"));
+       Assert.Equal("AAPL.O", receivedRefreshMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
        Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
        Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -14057,7 +14058,7 @@ public class WatchlistItemDomainsTest
         receivedDictionaryRequest = dictionaryMsgEvent.DictionaryMsg.DictionaryRequest;
         Assert.True(receivedDictionaryRequest.Streaming);
         Assert.Equal(Provider.DefaultService.ServiceId, receivedDictionaryRequest.ServiceId);
-        Assert.True(receivedDictionaryRequest.DictionaryName.ToString().Equals("RWFFld"));
+        Assert.Equal("RWFFld", receivedDictionaryRequest.DictionaryName.ToString());
         Assert.Equal((int)DomainType.DICTIONARY, receivedDictionaryRequest.DomainType);
 
         /* Disconnect Provider. */
@@ -14093,7 +14094,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedDictionaryStatus.State.DataState());
         Assert.NotNull(dictionaryMsgEvent.StreamInfo);
         Assert.NotNull(dictionaryMsgEvent.StreamInfo.ServiceName);
-        Assert.True(dictionaryMsgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(dictionaryMsgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Reconnect and reestablish login/directory streams. */
         TestReactor.OpenSession(consumer, provider, opts, true);
@@ -14108,7 +14109,7 @@ public class WatchlistItemDomainsTest
         receivedDictionaryRequest = dictionaryMsgEvent.DictionaryMsg.DictionaryRequest;
         Assert.True(receivedDictionaryRequest.Streaming);
         Assert.Equal(Provider.DefaultService.ServiceId, receivedDictionaryRequest.ServiceId);
-        Assert.True(receivedDictionaryRequest.DictionaryName.ToString().Equals("RWFFld"));
+        Assert.Equal("RWFFld", receivedDictionaryRequest.DictionaryName.ToString());
         Assert.Equal(VerbosityValues.NORMAL, receivedDictionaryRequest.Verbosity);
         providerStreamId = receivedDictionaryRequest.StreamId;
 
@@ -14156,7 +14157,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(Provider.DefaultService.ServiceId, receivedDictionaryRefresh.ServiceId);
         Assert.NotNull(dictionaryMsgEvent.StreamInfo);
         Assert.NotNull(dictionaryMsgEvent.StreamInfo.ServiceName);
-        Assert.True(dictionaryMsgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));     
+        Assert.Equal(dictionaryMsgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());     
 
         /* Disconnect Provider. */
         provider.CloseChannel();
@@ -14191,7 +14192,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedDictionaryStatus.State.DataState());
         Assert.NotNull(dictionaryMsgEvent.StreamInfo);
         Assert.NotNull(dictionaryMsgEvent.StreamInfo.ServiceName);
-        Assert.True(dictionaryMsgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(dictionaryMsgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Reconnect and reestablish login/directory streams. */
         TestReactor.OpenSession(consumer, provider, opts, true);
@@ -14228,7 +14229,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal(Provider.DefaultService.ServiceId, receivedDictionaryRefresh.ServiceId);
             Assert.NotNull(dictionaryMsgEvent.StreamInfo);
             Assert.NotNull(dictionaryMsgEvent.StreamInfo.ServiceName);
-            Assert.True(dictionaryMsgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(dictionaryMsgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
             
             if(i == numOfMessages)
             {
@@ -14324,7 +14325,7 @@ public class WatchlistItemDomainsTest
         receivedDictionaryRequest = dictionaryMsgEvent.DictionaryMsg.DictionaryRequest;
         Assert.True(receivedDictionaryRequest.Streaming);
         Assert.Equal(Provider.DefaultService.ServiceId, receivedDictionaryRequest.ServiceId);
-        Assert.True(receivedDictionaryRequest.DictionaryName.ToString().Equals("RWFEnum"));
+        Assert.Equal("RWFEnum", receivedDictionaryRequest.DictionaryName.ToString());
         Assert.Equal((int)DomainType.DICTIONARY, receivedDictionaryRequest.DomainType);
         
         providerStreamId = receivedDictionaryRequest.StreamId;
@@ -14488,7 +14489,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRequestMsg.CheckStreaming());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
        Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("LUV.N"));
+       Assert.Equal("LUV.N", receivedRequestMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
        Assert.True(receivedRequestMsg.CheckHasPriority());
        Assert.Equal(11, receivedRequestMsg.Priority.Count);
@@ -14508,7 +14509,7 @@ public class WatchlistItemDomainsTest
        Assert.True(receivedRequestMsg.CheckStreaming());
        Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
        Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-       Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("LUV.N"));
+       Assert.Equal("LUV.N", receivedRequestMsg.MsgKey.Name.ToString());
        Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
        Assert.True(receivedRequestMsg.CheckHasPriority());
        Assert.Equal(21, receivedRequestMsg.Priority.Count);
@@ -14551,7 +14552,7 @@ public class WatchlistItemDomainsTest
        Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
        Assert.NotNull(msgEvent.StreamInfo);
        Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-       Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+       Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
        
        // 2nd testEvent to consumer
        testEvent = consumerReactor.PollEvent();
@@ -14570,7 +14571,7 @@ public class WatchlistItemDomainsTest
        Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
        Assert.NotNull(msgEvent.StreamInfo);
        Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-       Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));       
+       Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());       
        
        // consumer reissues 2nd request with pause
        requestMsg2.ApplyPause();
@@ -14696,7 +14697,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -14731,14 +14732,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -14785,7 +14786,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -14836,7 +14837,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -14974,7 +14975,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -15026,7 +15027,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -15089,7 +15090,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -15124,14 +15125,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -15271,7 +15272,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -15337,7 +15338,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -15354,7 +15355,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -15371,7 +15372,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -15501,7 +15502,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("ABC.D"));
+        Assert.Equal("ABC.D", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         
         providerStreamId = receivedRequestMsg.StreamId;
@@ -15786,7 +15787,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N",receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -15820,14 +15821,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Close consumer channel. */
         consumer.Close();
@@ -15959,7 +15960,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -15991,7 +15992,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("CallbackItem1"));
+        Assert.Equal("CallbackItem1", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -16032,14 +16033,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider receives request from callback. */
         providerReactor.Dispatch(2);
@@ -16055,7 +16056,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -16074,7 +16075,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("CallbackItem2"));
+        Assert.Equal("CallbackItem2", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -16115,14 +16116,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("CallbackItem1"));
+        Assert.Equal("CallbackItem1", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends refresh for "TRI.N" .*/
         refreshMsg.Clear();
@@ -16158,14 +16159,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
 
         /* Provider sends refresh for "CallbackItem2" .*/
@@ -16202,14 +16203,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("CallbackItem2"));
+        Assert.Equal("CallbackItem2" , receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -16319,7 +16320,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -16351,7 +16352,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("CallbackItem1"));
+        Assert.Equal("CallbackItem1", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -16392,14 +16393,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends refresh for "CallbackItem1".*/
         refreshMsg.Clear();
@@ -16435,14 +16436,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("CallbackItem1"));
+        Assert.Equal("CallbackItem1", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         evt = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, evt.EventType);
@@ -16454,14 +16455,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("CallbackItem1"));
+        Assert.Equal("CallbackItem1", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.NON_STREAMING, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -16604,7 +16605,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -16638,7 +16639,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N" , receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
@@ -16647,7 +16648,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.True(receivedRefreshMsg.CheckSolicited());
         Assert.True(receivedRefreshMsg.CheckRefreshComplete());
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider disconnects. */
         provider.CloseChannel();
@@ -16701,7 +16702,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -16826,7 +16827,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N" , receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -16863,7 +16864,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedStatusMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedStatusMsg.MsgKey.ServiceId);
         Assert.True(receivedStatusMsg.MsgKey.CheckHasName());
-        Assert.True(receivedStatusMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedStatusMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedStatusMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedStatusMsg.ContainerType);
         Assert.True(receivedStatusMsg.CheckHasState());
@@ -16871,7 +16872,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
 
         /* Provider receives request for IBM. */
@@ -16887,7 +16888,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
@@ -16926,14 +16927,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+        Assert.Equal("IBM.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -17042,7 +17043,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         /* Request IBM. */
@@ -17108,7 +17109,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         evt = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, evt.EventType);
@@ -17123,7 +17124,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         evt = consumerReactor.PollEvent();
         Assert.Equal(TestReactorEventType.MSG, evt.EventType);
@@ -17138,7 +17139,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Reconnect and reestablish login/directory streams. */
         TestReactor.OpenSession(consumer, provider, opts, true);
@@ -17158,7 +17159,7 @@ public class WatchlistItemDomainsTest
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             providerStreamId = receivedRequestMsg.StreamId;
 
@@ -17195,14 +17196,14 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N",receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             /* Provider receives IBM request. */
             providerReactor.Dispatch(1);
@@ -17217,7 +17218,7 @@ public class WatchlistItemDomainsTest
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+            Assert.Equal("IBM.N",receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             providerStreamId = receivedRequestMsg.StreamId;
 
@@ -17254,14 +17255,14 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("IBM.N"));
+            Assert.Equal("IBM.N", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             /* Provider receives GOOG request. */
             providerReactor.Dispatch(1);
@@ -17276,7 +17277,7 @@ public class WatchlistItemDomainsTest
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("GOOG.O"));
+            Assert.Equal("GOOG.O", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             providerStreamId = receivedRequestMsg.StreamId;
 
@@ -17313,14 +17314,14 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("GOOG.O"));
+            Assert.Equal("GOOG.O", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         }
         else
         {
@@ -17421,7 +17422,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -17456,14 +17457,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer closes login stream. */
         closeMsg.Clear();
@@ -17487,7 +17488,7 @@ public class WatchlistItemDomainsTest
 
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         // Consumer receives Directory Update message to delete service
         RDMDirectoryMsgEvent directoryMsgEvent;
@@ -17567,7 +17568,7 @@ public class WatchlistItemDomainsTest
                     submitOptions.ServiceName = Provider.DefaultService.Info.ServiceName.ToString();
                     if (evt.ReactorChannel.Submit((Msg)postMsg, submitOptions, out _) !=  ReactorReturnCode.SUCCESS)
                     {
-                        Assert.True(false, "DefaultMsgCallback() submit post failed");
+                        Assert.Fail("DefaultMsgCallback() submit post failed");
                     }
                     break;
                default:
@@ -17652,7 +17653,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N",receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -17693,14 +17694,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
               
         /* Provider receives post. */
         providerReactor.Dispatch(1);
@@ -17713,7 +17714,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedPostMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedPostMsg.MsgKey.ServiceId);
         Assert.True(receivedPostMsg.MsgKey.CheckHasName());
-        Assert.True(receivedPostMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedPostMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedPostMsg.DomainType);
         Assert.Equal(providerStreamId, receivedPostMsg.StreamId);
 
@@ -17790,7 +17791,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -17824,14 +17825,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         // wait for multi-part request timeout
         try
@@ -17860,7 +17861,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(MsgClasses.STATUS, msgEvent.Msg.MsgClass);
         IStatusMsg statusMsg = (IStatusMsg)msgEvent.Msg;
         Assert.True(statusMsg.CheckHasState());
-        Assert.True(statusMsg.State.Text().ToString().Equals("Request timeout"));
+        Assert.Equal("Request timeout", statusMsg.State.Text().ToString());
 
         TestReactorComponent.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -17960,7 +17961,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI1"));
+        Assert.Equal("TRI1",receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         providerStreamId = receivedRequestMsg.StreamId;
 
@@ -17974,7 +17975,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI2"));
+        Assert.Equal("TRI2", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         evt = providerReactor.PollEvent();
@@ -17987,7 +17988,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI3"));
+        Assert.Equal("TRI3", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         /* Provider sends refresh .*/
@@ -18021,14 +18022,14 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI1"));
+        Assert.Equal("TRI1", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
@@ -18070,7 +18071,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI2"));
+        Assert.Equal("TRI2", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         TestReactorComponent.CloseSession(consumer, provider);
@@ -18155,7 +18156,7 @@ public class WatchlistItemDomainsTest
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
             providerStreamId = receivedRequestMsg.StreamId;
@@ -18191,7 +18192,7 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedStatusMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedStatusMsg.MsgKey.ServiceId);
             Assert.True(receivedStatusMsg.MsgKey.CheckHasName());
-            Assert.True(receivedStatusMsg.MsgKey.Name.ToString().Equals("RTRSY.O"));
+            Assert.Equal("RTRSY.O", receivedStatusMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedStatusMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedStatusMsg.ContainerType);
             Assert.True(receivedStatusMsg.CheckHasState());
@@ -18199,7 +18200,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal(DataStates.OK, receivedStatusMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             /* -- Redirecting RefreshMsg -- */
 
@@ -18230,7 +18231,7 @@ public class WatchlistItemDomainsTest
             Assert.False(receivedRequestMsg.CheckNoRefresh());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
             Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+            Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
             providerStreamId = receivedRequestMsg.StreamId;
@@ -18267,14 +18268,14 @@ public class WatchlistItemDomainsTest
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
             Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
             Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-            Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("RTRSY.O"));
+            Assert.Equal("RTRSY.O", receivedRefreshMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
             Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
             Assert.Equal(StreamStates.REDIRECTED, receivedRefreshMsg.State.StreamState());
             Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
             Assert.NotNull(msgEvent.StreamInfo);
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-            Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+            Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             TestReactorComponent.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -18347,7 +18348,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         /* Provider waits for request timeout. */
@@ -18367,7 +18368,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(MsgClasses.STATUS, msgEvent.Msg.MsgClass);
         IStatusMsg statusMsg = (IStatusMsg)msgEvent.Msg;
         Assert.True(statusMsg.CheckHasState());
-        Assert.True(statusMsg.State.Text().ToString().Equals("Request timeout"));
+        Assert.Equal("Request timeout", statusMsg.State.Text().ToString());
 
         /* Provider receives close and request. */
         providerReactor.Dispatch(2);
@@ -18386,7 +18387,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         /* Provider waits for request timeout. */
@@ -18406,7 +18407,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(MsgClasses.STATUS, msgEvent.Msg.MsgClass);
         statusMsg = (IStatusMsg)msgEvent.Msg;
         Assert.True(statusMsg.CheckHasState());
-        Assert.True(statusMsg.State.Text().ToString().Equals("Request timeout"));
+        Assert.Equal("Request timeout", statusMsg.State.Text().ToString());
 
         /* Provider receives close and request. */
         providerReactor.Dispatch(2);
@@ -18425,7 +18426,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         /* Provider sends service update with ServiceState of 0.*/

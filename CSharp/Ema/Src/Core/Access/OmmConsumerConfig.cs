@@ -259,11 +259,11 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Specifies connection type. Overrides prior value.
-        /// <param name="channelType"> specifies connection type. Connection type defined in EmaConfig.ConnectionTypeEnum </param>
+        /// Specifies a connection type to override EMA file and programmatic configuration.
+        /// </summary>
+        /// <param name="channelType">specifies a connection type. Connection type defined in <see cref="EmaConfig.ConnectionTypeEnum"/></param>
         /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if channelType is not valid.</exception>
-        /// </summary>
         public OmmConsumerConfig ChannelType(int channelType)
         {
             if (channelType != EmaConfig.ConnectionTypeEnum.SOCKET &&
@@ -279,12 +279,12 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Specifies encrypted protocol type. Overrides prior value.
-        /// <param name="encProtocolType"> specifies encrypted protocol type used by application. Encrypted protocol type defined in EmaConfig.EncryptedProtocolTypeEnum </param>
-        /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
-        /// <exception cref="OmmInvalidUsageException">Thrown if use this API with not encoded channel type.</exception>
-        /// <exception cref="OmmInvalidUsageException">Thrown if encProtocolType is not valid.</exception>
+        /// Specifies an encrypted protocol type to override EMA file and programmatic configuration.
         /// </summary>
+        /// <param name="encProtocolType">specifies encrypted protocol type used by application. Encrypted protocol type defined in <see cref="EmaConfig.EncryptedProtocolTypeEnum"/></param>
+        /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
+        /// <exception cref="OmmInvalidUsageException">Thrown if call this method with not encrypted connection type.</exception>
+        /// <exception cref="OmmInvalidUsageException">Thrown if encProtocolType is not valid.</exception>
         public OmmConsumerConfig EncryptedProtocolType(int encProtocolType)
         {
             if (encProtocolType != EmaConfig.EncryptedProtocolTypeEnum.SOCKET)
@@ -417,7 +417,7 @@ namespace LSEG.Ema.Access
         /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
         public OmmConsumerConfig OperationModel(OperationModelMode operationModel)
         {
-            OmmConsConfigImpl.OperationModel(operationModel);
+            OmmConsConfigImpl.OperationModel((int)operationModel);
             return this;
         }
 

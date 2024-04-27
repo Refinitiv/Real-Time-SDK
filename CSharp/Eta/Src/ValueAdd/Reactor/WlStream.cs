@@ -55,22 +55,27 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// Gets or sets stream Id.
         /// </summary>
         public int StreamId { get; set; }
+
         /// <summary>
         /// Gets or sets domain type.
         /// </summary>
         public int StreamDomainType { get; set; }
+
         /// <summary>
         /// Gets or sets the watchlist handler for this request.
         /// </summary>
         public IWlHandler? WlHandler { get; set; }
+
         /// <summary>
         /// Returns the state of this stream.
         /// </summary>
         public State State { get; private set; } = new State();
+
         /// <summary>
         /// Codec Request message associated with this stream
         /// </summary>
         public IRequestMsg RequestMsg { get; private set; } = new Msg();
+
         /// <summary>
         /// Determines whehter this stream has a request pending response
         /// </summary>
@@ -120,7 +125,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
             m_requestTimeoutAction = this.OnRequestTimeout;
         }
-
 
         /// <summary>
         /// Clears to default values.
@@ -260,7 +264,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 return Reactor.PopulateErrorInfo(out errorInfo,
                                                   ReactorReturnCode.NO_BUFFERS,
                                                   "WlStream.EncodeIntoBufferAndWrite",
-                                                  $"Channel out of buffers, errorId");
+                                                  $"Channel out of buffers, errorId = {errorInfo?.Error.ErrorId}, errorText: {errorInfo?.Error.Text}");
             }
 
             return reactorReturnCode;

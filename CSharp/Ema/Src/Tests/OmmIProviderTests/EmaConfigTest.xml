@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Configuration file for unit-tests in the IProviderDictionaryTests collection -->
+
+<EmaConfig>
+
+  <!-- IProviderGroup provides set of detailed configurations to be used by named providers                -->
+  <!-- Application specifies which configuration to use by setting OmmIProviderConfig::providerName()      -->
+  <IProviderGroup>
+    <!-- DefaultIProvider parameter defines which provider configuration is used by OmmProvider          -->
+    <!-- if application does not specify it through OmmIProviderConfig::providerName()                   -->
+    <!-- first provider on the IProviderList is a default provider if this parameter is not specified    -->
+    <DefaultIProvider value="DefaultEmaIProvider"/>
+    <IProviderList>
+	  <IProvider>
+	    <!-- Name is mandatory                                                                       -->
+	    <Name value="DefaultEmaIProvider"/>
+	    <!-- Server is optional: defaulted to "RSSL_SOCKET + 14002"                                  -->
+	    <Server value="Server_1"/>
+	    <!-- Directory is optional: defaulted to AdminControl::UserControlEnum                       -->
+	    <!-- source directory configuration to use if OmmIProviderConfig::adminModel()               -->
+	    <!-- was set to ApiControlEnum                                                               -->
+	    <!-- this configuration also decides which dictionaries will be loaded at startup            -->
+	    <!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()              -->
+	    <Directory value="Directory_2"/>
+	    <Logger value="Logger_1"/>
+	    <ItemCountHint value="10000"/>
+	    <ServiceCountHint value="10000" />
+	    <DispatchTimeoutApiThread value="500" />
+	    <MaxDispatchCountApiThread value="500" />
+	    <MaxDispatchCountUserThread value="500" />
+	    <RefreshFirstRequired value="1" />
+	  </IProvider>
+
+	  <IProvider>
+	    <!-- Name is mandatory                                                                       -->
+	    <Name value="EmaIProvider_RemoteDictionary"/>
+	    <!-- Server is optional: defaulted to "RSSL_SOCKET + 14002"                                  -->
+	    <Server value="Server_1"/>
+	    <!-- Directory is optional: defaulted to AdminControl::UserControlEnum                       -->
+	    <!-- source directory configuration to use if OmmIProviderConfig::adminModel()               -->
+	    <!-- was set to ApiControlEnum                                                               -->
+	    <!-- this configuration also decides which dictionaries will be loaded at startup            -->
+	    <!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()              -->
+	    <Directory value="Directory_RemoteDictionary"/>
+	    <Logger value="Logger_1"/>
+	    <ItemCountHint value="10000"/>
+	    <ServiceCountHint value="10000" />
+	    <DispatchTimeoutApiThread value="500" />
+	    <MaxDispatchCountApiThread value="500" />
+	    <MaxDispatchCountUserThread value="500" />
+	    <RefreshFirstRequired value="1" />
+	  </IProvider>
+
+    </IProviderList>
+  </IProviderGroup>
+
+  <ServerGroup>
+    <ServerList>
+	  <Server>
+	    <Name value="Server_1"/>
+	    <ServerType value="ServerType::RSSL_SOCKET"/>
+	    <!-- CompressionType is optional: defaulted to None -->
+	    <!-- possible values: None, ZLib, LZ4 -->
+	    <CompressionType value="CompressionType::None"/>
+	    <GuaranteedOutputBuffers value="5000"/>
+	    <!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+	    <ConnectionPingTimeout value="30000"/>
+	    <!-- TcpNodelay is optional: defaulted to 1 -->
+	    <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+	    <TcpNodelay value="1"/>
+	    <Port value="14002"/>
+	  </Server>
+    </ServerList>
+  </ServerGroup>
+
+  <LoggerGroup>
+    <LoggerList>
+	  <Logger>
+	    <Name value="Logger_1"/>
+
+	    <!-- LoggerType is optional:  defaulted to "File"											-->
+	    <!-- possible values: Stdout, File															-->
+	    <LoggerType value="LoggerType::Stdout"/>
+
+	    <!-- LoggerSeverity is optional: defaulted to "Success"										-->
+	    <!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+	    <LoggerSeverity value="LoggerSeverity::Verbose"/>
+	  </Logger>
+    </LoggerList>
+  </LoggerGroup>
+
+  <!-- source directory refresh configuration used by provider											-->
+  <DirectoryGroup>
+
+    <!-- DefaultDirectory specifies Directory used as default if providers do not specify Directory name -->
+    <DefaultDirectory value="Directory_2"/>
+    <DirectoryList>
+	  <!-- providers refer to the Directory by name													-->
+	  <!-- Directory is a set of Services (one or more) on which a provider will provide item data	-->
+	  <Directory>
+	    <Name value="Directory_2"/>
+	    <Service>
+		  <Name value="DIRECT_FEED"/>
+		  <InfoFilter>
+		    <ServiceId value="1"/>
+
+		    <DictionariesProvided>
+			  <DictionariesProvidedEntry value="Dictionary_3"/>
+		    </DictionariesProvided>
+
+		    <DictionariesUsed>
+			  <DictionariesUsedEntry value="Dictionary_3"/>
+		    </DictionariesUsed>
+
+		    <Vendor value="company name"/>
+		    <IsSource value="0"/>
+		    <Capabilities>
+			  <CapabilitiesEntry value="MMT_DICTIONARY"/>
+			  <CapabilitiesEntry value="MMT_MARKET_PRICE"/>
+			  <CapabilitiesEntry value="200"/>
+		    </Capabilities>
+
+		    <ItemList value="#.itemlist"/>
+		    <AcceptingConsumerStatus value="0"/>
+		    <SupportsOutOfBandSnapshots value="0"/>
+		  </InfoFilter>
+
+		  <StateFilter>
+		    <ServiceState value="1"/>
+		    <AcceptingRequests value="1"/>
+		  </StateFilter>
+	    </Service>
+	  </Directory>
+
+	  <Directory>
+	    <Name value="Directory_RemoteDictionary"/>
+	    <Service>
+		  <Name value="DIRECT_FEED"/>
+		  <InfoFilter>
+		    <ServiceId value="1"/>
+
+		    <DictionariesProvided>
+			  <DictionariesProvidedEntry value="RemoteDictionary"/>
+		    </DictionariesProvided>
+
+		    <DictionariesUsed>
+			  <DictionariesUsedEntry value="RemoteDictionary"/>
+		    </DictionariesUsed>
+
+		    <Vendor value="company name"/>
+		    <IsSource value="0"/>
+		    <Capabilities>
+			  <CapabilitiesEntry value="MMT_DICTIONARY"/>
+			  <CapabilitiesEntry value="MMT_MARKET_PRICE"/>
+			  <CapabilitiesEntry value="200"/>
+		    </Capabilities>
+
+		    <ItemList value="#.itemlist"/>
+		    <AcceptingConsumerStatus value="0"/>
+		    <SupportsOutOfBandSnapshots value="0"/>
+		  </InfoFilter>
+
+		  <StateFilter>
+		    <ServiceState value="1"/>
+		    <AcceptingRequests value="1"/>
+		  </StateFilter>
+	    </Service>
+	  </Directory>
+
+    </DirectoryList>
+  </DirectoryGroup>
+
+  <DictionaryGroup>
+    <DictionaryList>
+	  <Dictionary>
+	    <Name value="Dictionary_3"/>
+	    <!-- providers always assume DictionaryType = DictionaryType::FileDictionary -->
+	    <DictionaryType value="DictionaryType::FileDictionary"/>
+
+	    <!-- dictionary file names are optional: defaulted to ./RDMFieldDictionary and ./enumtype.def -->
+	    <RdmFieldDictionaryFileName value="./RDMFieldDictionary"/>
+	    <EnumTypeDefFileName value="./enumtype.def"/>
+
+	    <!-- <dictionary>ItemName represents the names shown in DictionariesProvided and DictionariesUsed
+		     elements of the Directory InfoFilter -->
+	    <!-- <dictionary>ItemName is optional; default values are "RWFFld" for the RdmFieldDictionary
+		     and "RWFEnum" for the enumtype.def -->
+	    <RdmFieldDictionaryItemName value="RWFFld"/>
+	    <EnumTypeDefItemName value="RWFEnum"/>
+	  </Dictionary>
+
+	  <Dictionary>
+	    <Name value="RemoteDictionary"/>
+	    <DictionaryType value="DictionaryType::ChannelDictionary"/>
+	  </Dictionary>
+
+    </DictionaryList>
+  </DictionaryGroup>
+
+</EmaConfig>

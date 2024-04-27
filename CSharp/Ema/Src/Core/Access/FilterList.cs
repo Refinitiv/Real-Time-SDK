@@ -174,7 +174,7 @@ namespace LSEG.Ema.Access
         /// <param name="action">filter entry action</param>
         /// <param name="permissionData">buffer containing permission data</param>
         /// <returns>Reference to current <see cref="FilterList"/> object.</returns>
-        public FilterList AddEntry(int filterId, int action, EmaBuffer permissionData)
+        public FilterList AddEntry(int filterId, int action, EmaBuffer? permissionData = null)
         {
             m_filterListEncoder.Add(filterId, action, permissionData);
             return this;
@@ -190,7 +190,7 @@ namespace LSEG.Ema.Access
         /// <param name="value">entry value</param>
         /// <param name="permissionData">entry permission data</param>
         /// <returns>Reference to current <see cref="FilterList"/> object.</returns>
-        public FilterList AddEntry(int filterId, int action, ComplexType value, EmaBuffer permissionData)
+        public FilterList AddEntry(int filterId, int action, ComplexType value, EmaBuffer? permissionData = null)
         {
             m_filterListEncoder.Add(filterId, action, value, permissionData);
             return this;

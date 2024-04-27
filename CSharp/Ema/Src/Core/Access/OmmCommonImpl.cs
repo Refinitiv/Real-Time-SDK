@@ -32,7 +32,16 @@ namespace LSEG.Ema.Access
 
         void EventReceived();
 
+        public ImpleType BaseType { get; }
+
+        ILoggerClient GetLoggerClient();
+
         MonitorWriteLocker GetUserLocker();
+
         void ChannelInformation(ChannelInformation channelInformation);
+
+        void HandleInvalidUsage(string text, int errorCode);
+
+        void HandleInvalidHandle(long handle, string text);
     }
 }

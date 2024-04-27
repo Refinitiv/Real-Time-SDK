@@ -30,7 +30,53 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <summary>
         /// Gets or sets whether to enable XML tracing for the <see cref="Reactor"/>.
         /// </summary>
-        public bool XmlTracing { get; set; }
+        public bool XmlTracing { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets whether to enable writing XML trace to file named <see cref="XmlTraceFileName"/>.
+        /// </summary>
+        public bool XmlTraceToFile { get; set; } = false;
+
+        /// <summary>
+        /// Maximum file size with XML trace (when <see cref="XmlTraceToFile"/> is enabled).
+        /// </summary>
+        /// <remarks>
+        /// When <see cref="XmlTraceToMultipleFiles"/> is enabled, a new file is opened to
+        /// write the XML trace to.
+        /// </remarks>
+        public ulong XmlTraceMaxFileSize { get; set; } = 100_000_000;
+
+        /// <summary>
+        /// File name where XML trace will be stored if <see cref="XmlTraceToFile"/> is enabled.
+        /// </summary>
+        public string XmlTraceFileName { get; set; } = "EtaTrace";
+
+        /// <summary>
+        /// Gets or sets whether new files are created for XML trace once
+        /// <see cref="XmlTraceMaxFileSize"/> is reached.
+        /// </summary>
+        public bool XmlTraceToMultipleFiles { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets whether trace sent messages.
+        /// </summary>
+        /// <seealso cref="XmlTracing"/>
+        /// <seealso cref="XmlTraceToFile"/>
+        public bool XmlTraceWrite { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether trace received messages.
+        /// </summary>
+        /// <seealso cref="XmlTracing"/>
+        /// <seealso cref="XmlTraceToFile"/>
+        public bool XmlTraceRead { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether trace ping messages.
+        /// </summary>
+        /// <seealso cref="XmlTracing"/>
+        /// <seealso cref="XmlTraceToFile"/>
+        public bool XmlTracePing { get; set; } = true;
 
         /// <summary>
         /// Gets or sets an output stream for logging REST request and response. Defaults to standard output.
@@ -61,7 +107,16 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public void Clear()
         {
             UserSpecObj = null;
+
             XmlTracing = false;
+            XmlTraceToFile = false;
+            XmlTraceMaxFileSize = 100_000_000;
+            XmlTraceFileName = "EtaTrace";
+            XmlTraceToMultipleFiles = false;
+            XmlTraceWrite = true;
+            XmlTraceRead = true;
+            XmlTracePing = true;
+
             m_TokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/v2/token";
             m_ServiceDiscoveryUrl = "https://api.refinitiv.com/streaming/pricing/v1/";
             m_RestRequestTimeout = 45000; // 45 seconds
@@ -189,7 +244,16 @@ namespace LSEG.Eta.ValueAdd.Reactor
         internal void Copy(ReactorOptions options)
         {
             UserSpecObj = options.UserSpecObj;
+
             XmlTracing = options.XmlTracing;
+            XmlTraceToFile = options.XmlTraceToFile;
+            XmlTraceMaxFileSize = options.XmlTraceMaxFileSize;
+            XmlTraceFileName = options.XmlTraceFileName;
+            XmlTraceToMultipleFiles = options.XmlTraceToMultipleFiles;
+            XmlTraceWrite = options.XmlTraceWrite;
+            XmlTraceRead = options.XmlTraceRead;
+            XmlTracePing = options.XmlTracePing;
+
             m_TokenServiceUrl = options.m_TokenServiceUrl;
             m_ServiceDiscoveryUrl = options.m_ServiceDiscoveryUrl;
             m_RestRequestTimeout = options.m_RestRequestTimeout;

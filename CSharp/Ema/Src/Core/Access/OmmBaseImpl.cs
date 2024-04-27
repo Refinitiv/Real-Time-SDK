@@ -6,17 +6,18 @@
  *|-----------------------------------------------------------------------------
  */
 
-using LSEG.Eta.Common;
-using LSEG.Eta.ValueAdd.Common;
-using LSEG.Eta.ValueAdd.Reactor;
 using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using Microsoft.IdentityModel.Tokens;
 using System.Runtime.CompilerServices;
+using LSEG.Eta.Transports;
+
+using LSEG.Eta.Common;
+using LSEG.Eta.ValueAdd.Common;
+using LSEG.Eta.ValueAdd.Reactor;
 
 namespace LSEG.Ema.Access
 {
@@ -44,7 +45,12 @@ namespace LSEG.Ema.Access
         private static int INSTANCE_ID = 0;
         private const int DISPATCH_LOOP_COUNT = 20;
         private const int TERMINATE_API_DISPATCHING_TIMEOUT = 5000;
-        private OmmConsumerConfig.OperationModelMode operationModel = OmmConsumerConfig.OperationModelMode.API_DISPATCH;
+        private int operationModel = (int)OmmConsumerConfig.OperationModelMode.API_DISPATCH;
+
+        protected long LoginRequestTimeOut;
+        protected long DispatchTimeoutApiThread;
+        protected int MaxDispatchCountApiThread;
+        protected int MaxDispatchCountUserThread;
 
         private bool m_receivedEvent;
 
@@ -58,7 +64,7 @@ namespace LSEG.Ema.Access
         private volatile bool apiThreadRunning;
         private EventSignal eventSignal = new();
 
-        private EmaObjectManager m_EmaObjectManager = new EmaObjectManager();
+        protected EmaObjectManager m_EmaObjectManager = new EmaObjectManager();
 
         private bool m_LogDispatchError = true;
 
@@ -66,7 +72,10 @@ namespace LSEG.Ema.Access
 
         protected bool m_EventTimeout;
 
-        internal ReactorSubmitOptions m_SubmitOptions = new ReactorSubmitOptions();
+
+        private ReactorSubmitOptions m_SubmitOptions = new ReactorSubmitOptions();
+
+        public IOmmCommonImpl.ImpleType BaseType { get; }
 
         #region Callback clients
         public ChannelCallbackClient<T>? ChannelCallbackClient { get; protected set; }
@@ -84,12 +93,6 @@ namespace LSEG.Ema.Access
         protected readonly ReactorDispatchOptions reactorDispatchOptions = new();
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        internal void ReceivedEvent()
-        {
-            m_receivedEvent = true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal ReactorSubmitOptions GetSubmitOptions()
         {
             m_SubmitOptions.Clear();
@@ -97,7 +100,7 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public long RegisterClient(RequestMsg requestMsg, T client, object? closure)
+        public virtual long RegisterClient(RequestMsg requestMsg, T client, object? closure)
         {
             if (CheckClient(client))
                 return 0;
@@ -149,9 +152,9 @@ namespace LSEG.Ema.Access
         #endregion
 
         #region abstract methods
-        internal abstract void HandleInvalidUsage(string text, int errorCode);
+        public abstract void HandleInvalidUsage(string text, int errorCode);
 
-        internal abstract void HandleInvalidHandle(long handle, string text);
+        public abstract void HandleInvalidHandle(long handle, string text);
 
         protected abstract bool HasErrorClient();
 
@@ -187,40 +190,43 @@ namespace LSEG.Ema.Access
 
         public MonitorWriteLocker DispatchLock { get; private set; } = new MonitorWriteLocker(new object());
 
-        public TimeoutEventManager<T>? TimeoutEventManager { get; private set; }
+        public TimeoutEventManager? TimeoutEventManager { get; private set; }
 
         public ILoggerClient LoggerClient;
 
-        internal OmmConsumerConfigImpl ConfigImpl { get; private set; }
+        internal OmmConfigBaseImpl OmmConfigBaseImpl { get; private set; }
+
 
         /* This is used for unit testing to skip generating an unique instance ID. */
         internal static bool GENERATE_INSTANCE_ID { get; set; } = true;
 
         public OmmBaseImpl(OmmConsumerConfigImpl configImpl)
         {
+            BaseType = IOmmCommonImpl.ImpleType.CONSUMER;
+
             // First, verify the configuration.  If there are exceptions, this will throw an OmmInvalidConfigurationException.
             configImpl.VerifyConfiguration();
 
             // Second, deep copy only what's necessary for the config using the copy constructor.
             // ConfigImpl can be used after this to generate the Reactor Role and connection list.
-            ConfigImpl = new OmmConsumerConfigImpl(configImpl);
+            OmmConfigBaseImpl = new OmmConsumerConfigImpl(configImpl);
 
             // Generate an instance name from Consumer element name and an unique instance ID
             if (GENERATE_INSTANCE_ID)
-                InstanceName = $"{ConfigImpl.ConsumerName}_{Interlocked.Increment(ref INSTANCE_ID)}";
+                InstanceName = $"{((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerName}_{Interlocked.Increment(ref INSTANCE_ID)}";
             else
-                InstanceName = $"{ConfigImpl.ConsumerName}";
+                InstanceName = $"{((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerName}";
 
             LoggerClient = new LoggerClient<T>(this);
 
             // Log all of the stored config log lines
             configImpl.ConfigErrorLog?.Log(LoggerClient, LoggerClient.Level);
 
-            operationModel = ConfigImpl.DispatchModel;
+            operationModel = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).DispatchModel;
 
             if (configImpl.DataDictionary() is not null)
             {
-                ConfigImpl.DictionaryConfig.DataDictionary = configImpl.DataDictionary()!;
+                ((OmmConsumerConfigImpl)OmmConfigBaseImpl).DictionaryConfig.DataDictionary = configImpl.DataDictionary()!;
 
                 if (LoggerClient.IsTraceEnabled)
                 {
@@ -228,6 +234,30 @@ namespace LSEG.Ema.Access
                         + "EMA ignores the DictionaryGroup configuration in either file and programmatic configuration database.");
                 }
             }
+        }
+
+        public OmmBaseImpl(OmmNiProviderConfigImpl configImpl)
+        {
+            BaseType = IOmmCommonImpl.ImpleType.NIPROVIDER;
+            // First, verify the configuration.  If there are exceptions, this will throw an OmmInvalidConfigurationException.
+            configImpl.VerifyConfiguration();
+
+            // Second, deep copy only what's necessary for the config using the copy constructor.
+            // ConfigImpl can be used after this to generate the Reactor Role and connection list.
+            OmmConfigBaseImpl = new OmmNiProviderConfigImpl(configImpl);
+
+            // Generate an instance name from Consumer element name and an unique instance ID
+            if (GENERATE_INSTANCE_ID)
+                InstanceName = $"{((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderName}_{Interlocked.Increment(ref INSTANCE_ID)}";
+            else
+                InstanceName = $"{((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderName}";
+
+            LoggerClient = new LoggerClient<T>(this);
+
+            // Log all of the stored config log lines
+            configImpl.ConfigErrorLog?.Log(LoggerClient, LoggerClient.Level);
+
+            operationModel = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).DispatchModel;
         }
 
         public void Initialize()
@@ -249,13 +279,51 @@ namespace LSEG.Ema.Access
 
                 if (LoggerClient.IsTraceEnabled)
                 {
-                    LoggerClient.Trace(InstanceName, DumpActiveConfig(ConfigImpl));
+                    LoggerClient.Trace(InstanceName, DumpActiveConfig(OmmConfigBaseImpl));
                 }
 
-                TimeoutEventManager = new TimeoutEventManager<T>(this, eventSignal);
+                TimeoutEventManager = new TimeoutEventManager(this, eventSignal);
 
                 reactorOptions.UserSpecObj = this;
-                ConfigImpl.PopulateReactorOptions(reactorOptions);
+
+                // Set up specific config from the Consumer/NiProv here
+                if (BaseType == IOmmCommonImpl.ImpleType.CONSUMER)
+                {
+                    // REST specific options.
+                    ((OmmConsumerConfigImpl)OmmConfigBaseImpl).PopulateReactorOptions(reactorOptions);
+
+                    // Enable XML tracing
+                    reactorOptions.XmlTracing = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceToStdout;
+                    reactorOptions.XmlTraceToFile = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceToFile;
+                    reactorOptions.XmlTraceMaxFileSize = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceMaxFileSize;
+                    reactorOptions.XmlTraceFileName = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceFileName;
+                    reactorOptions.XmlTraceToMultipleFiles = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceToMultipleFiles;
+                    reactorOptions.XmlTraceWrite = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceWrite;
+                    reactorOptions.XmlTraceRead = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceRead;
+                    reactorOptions.XmlTracePing = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTracePing;
+
+                    LoginRequestTimeOut = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.LoginRequestTimeOut;
+                    DispatchTimeoutApiThread = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.DispatchTimeoutApiThread;
+                    MaxDispatchCountApiThread = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.MaxDispatchCountApiThread;
+                    MaxDispatchCountUserThread = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.MaxDispatchCountUserThread;
+                }
+                else
+                {
+                   // Enable XML tracing
+                    reactorOptions.XmlTracing = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.XmlTraceToStdout;
+                    reactorOptions.XmlTraceToFile = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.XmlTraceToFile;
+                    reactorOptions.XmlTraceMaxFileSize = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.XmlTraceMaxFileSize;
+                    reactorOptions.XmlTraceFileName = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.XmlTraceFileName;
+                    reactorOptions.XmlTraceToMultipleFiles = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.XmlTraceToMultipleFiles;
+                    reactorOptions.XmlTraceWrite = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.XmlTraceWrite;
+                    reactorOptions.XmlTraceRead = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.XmlTraceRead;
+                    reactorOptions.XmlTracePing = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.XmlTracePing;
+
+                    LoginRequestTimeOut = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.LoginRequestTimeOut;
+                    DispatchTimeoutApiThread = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.DispatchTimeoutApiThread;
+                    MaxDispatchCountApiThread = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.MaxDispatchCountApiThread;
+                    MaxDispatchCountUserThread = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.MaxDispatchCountUserThread;
+                }
 
                 reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo? reactorErrInfo);
 
@@ -288,7 +356,7 @@ namespace LSEG.Ema.Access
 
                 HandleAdminDomains();
 
-                if (operationModel == OmmConsumerConfig.OperationModelMode.API_DISPATCH)
+                if (operationModel == (int)OmmConsumerConfig.OperationModelMode.API_DISPATCH)
                 {
                     apiThreadRunning = true;
                     apiDispatching = new Thread(new ThreadStart(Run));
@@ -319,19 +387,17 @@ namespace LSEG.Ema.Access
 
         public virtual void ChannelInformation(ChannelInformation channelInformation) { }
 
-        internal virtual void UnsetActiveRsslReactorChannel(ChannelInfo channelInfo)
-        {
-        }
+        internal virtual void UnsetActiveRsslReactorChannel(ChannelInfo channelInfo){}
 
-        internal virtual void SetActiveReactorChannel(ChannelInfo channelInfo)
-        {
-        }
+        internal virtual void SetActiveReactorChannel(ChannelInfo channelInfo){}
+
+        internal virtual void ReLoadDirectory() { }
 
         public virtual void Uninitialize()
         {
             try
             {
-                if (operationModel == OmmConsumerConfig.OperationModelMode.API_DISPATCH)
+                if(operationModel == (int)OmmConsumerConfig.OperationModelMode.API_DISPATCH)
                 {
                     lock (this)
                     {
@@ -354,6 +420,7 @@ namespace LSEG.Ema.Access
                 }
                 else
                 {
+
                     TimeoutEventManager?.CleanupEventSignal();
                     UserLock.Enter();
                     m_receivedEvent = true;
@@ -373,6 +440,7 @@ namespace LSEG.Ema.Access
                 {
                     ChannelCallbackClient.CloseChannels();
                 }
+
 
                 ReactorErrorInfo? errorInfo = null;
                 if (reactor?.Shutdown(out errorInfo) != ReactorReturnCode.SUCCESS)
@@ -451,11 +519,13 @@ namespace LSEG.Ema.Access
             m_receivedEvent = true;
         }
 
+
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public EmaObjectManager GetEmaObjManager()
         {
             return m_EmaObjectManager;
         }
+
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public StringBuilder GetStrBuilder()
@@ -464,11 +534,13 @@ namespace LSEG.Ema.Access
             return stringBuilder;
         }
 
+
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public MonitorWriteLocker GetUserLocker()
         {
             return UserLock;
         }
+
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void SetOmmImplState(long implState)
@@ -479,11 +551,11 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public int Dispatch(int dispatchTimeout)
         {
-            if (operationModel == OmmConsumerConfig.OperationModelMode.USER_DISPATCH)
+            if(operationModel == (int)OmmConsumerConfig.OperationModelMode.USER_DISPATCH)
             {
                 DispatchLock.Enter();
 
-                if (ReactorDispatchLoop(dispatchTimeout, ConfigImpl.ConsumerConfig.MaxDispatchCountUserThread))
+                if (ReactorDispatchLoop(dispatchTimeout, MaxDispatchCountUserThread))
                 {
                     DispatchLock.Exit();
                     return DispatchReturn.DISPATCHED;
@@ -502,12 +574,9 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private void Run()
         {
-            long dispatchTimeout = ConfigImpl.ConsumerConfig.DispatchTimeoutApiThread;
-            int maxDispatchCount = ConfigImpl.ConsumerConfig.MaxDispatchCountApiThread;
-
             while (apiThreadRunning)
             {
-                ReactorDispatchLoop(dispatchTimeout, maxDispatchCount);
+                ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
             }
         }
 
@@ -576,11 +645,9 @@ namespace LSEG.Ema.Access
                         }
                     }
 
-                    selectTimeout = (int)timeOut;
-
-                    if (selectTimeout < 0)
+                    if (timeOut < 0)
                     {
-                        selectTimeout = 0;
+                        timeOut = 0;
                     }
                 }
 
@@ -588,6 +655,7 @@ namespace LSEG.Ema.Access
                 {
                     UpdateReadSocketList();
 
+                    selectTimeout = (int)timeOut;
                     Socket.Select(socketReadList, null, null, selectTimeout);
                     if (socketReadList.Count > 0)
                     {
@@ -632,6 +700,7 @@ namespace LSEG.Ema.Access
                     }
 
                     endTime = EmaUtil.GetMicroseconds();
+
                     if (timeOut > 0)
                     {
                         timeOut -= (endTime - startTime);
@@ -706,13 +775,10 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void HandleLoginReqTimeout()
         {
-            long loginRequestTimeOut = ConfigImpl.ConsumerConfig.LoginRequestTimeOut;
-            long dispatchTimeoutApiThread = ConfigImpl.ConsumerConfig.DispatchTimeoutApiThread;
-            int maxDispatchCountApiThread = ConfigImpl.ConsumerConfig.MaxDispatchCountApiThread;
-            if (loginRequestTimeOut == 0)
+            if (LoginRequestTimeOut == 0)
             {
                 while (ImplState < OmmImplState.LOGIN_STREAM_OPEN_OK && ImplState != OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN)
-                    ReactorDispatchLoop(dispatchTimeoutApiThread, maxDispatchCountApiThread);
+                    ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
 
                 /* Throws OmmInvalidUsageException when EMA receives login reject from the data source. */
                 if (ImplState == OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN)
@@ -723,11 +789,11 @@ namespace LSEG.Ema.Access
             else
             {
                 m_EventTimeout = false;
-                TimeoutEvent timeoutEvent = TimeoutEventManager!.AddTimeoutEvent(loginRequestTimeOut * 1000, this);
+                TimeoutEvent timeoutEvent = TimeoutEventManager!.AddTimeoutEvent(LoginRequestTimeOut * 1000, this);
 
                 while (!m_EventTimeout && (ImplState < OmmImplState.LOGIN_STREAM_OPEN_OK) && (ImplState != OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN))
                 {
-                    ReactorDispatchLoop(dispatchTimeoutApiThread, maxDispatchCountApiThread);
+                    ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
                 }
 
                 if (m_EventTimeout)
@@ -739,7 +805,7 @@ namespace LSEG.Ema.Access
                     ClientChannelConfig? channelConfig = channelInfo?.ChannelConfig;
 
                     StringBuilder strBuilder = GetStrBuilder();
-                    strBuilder.Append($"login failed (timed out after waiting {loginRequestTimeOut} milliseconds)");
+                    strBuilder.Append($"login failed (timed out after waiting {LoginRequestTimeOut} milliseconds)");
                     
                     if(channelConfig != null)
                     {
@@ -795,44 +861,96 @@ namespace LSEG.Ema.Access
         /// Checks whether the client is null.
         /// </summary>
         /// <param name="client">The passed in Client</param>
+        /// <param name="clientInterface">The client interface name</param>
         /// <returns><c>true</c> if the client is not set;otherwise <c>false</c></returns>
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        protected bool CheckClient(T client)
+    [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        protected bool CheckClient(T client, string clientInterface = "IOmmConsumerClient")
         {
             if (client == null)
             {
-                HandleInvalidUsage("A derived class of IOmmConsumerClient is not set", OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+                HandleInvalidUsage($"A derived class of {clientInterface} is not set", OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
                 return true;
             }
 
             return false;
         }
 
-        private string DumpActiveConfig(OmmConsumerConfigImpl configImpl)
+
+        public ILoggerClient GetLoggerClient()
+        {
+            return LoggerClient;
+        }
+
+        private string DumpActiveConfig(OmmConfigBaseImpl configImplBase)
         {
             StringBuilder strBuilder = GetStrBuilder();
 
-            strBuilder.Append($"Print out active configuration detail.{ILoggerClient.CR}")
-                .Append($"ConfiguredName: {configImpl.ConsumerConfig.Name}{ILoggerClient.CR}")
-                .Append($"InstanceName: {InstanceName}{ILoggerClient.CR}")
-                .Append($"ItemCountHint: {configImpl.ConsumerConfig.ItemCountHint}{ILoggerClient.CR}")
-                .Append($"ServiceCountHint: {configImpl.ConsumerConfig.ServiceCountHint}{ILoggerClient.CR}")
-                .Append($"MaxDispatchCountApiThread: {configImpl.ConsumerConfig.MaxDispatchCountApiThread}{ILoggerClient.CR}")
-                .Append($"MaxDispatchCountUserThread: {configImpl.ConsumerConfig.MaxDispatchCountUserThread}{ILoggerClient.CR}")
-                .Append($"RequestTimeout: {configImpl.ConsumerConfig.RequestTimeout}{ILoggerClient.CR}")
-                .Append($"XmlTraceToStdout: {configImpl.ConsumerConfig.XmlTraceToStdout}{ILoggerClient.CR}")
-                .Append($"ObeyOpenWindow: {configImpl.ConsumerConfig.ObeyOpenWindow}{ILoggerClient.CR}")
-                .Append($"PostAckTimeout: {configImpl.ConsumerConfig.PostAckTimeout}{ILoggerClient.CR}")
-                .Append($"MaxOutstandingPosts: {configImpl.ConsumerConfig.MaxOutstandingPosts}{ILoggerClient.CR}")
-                .Append($"DispatchMode: {configImpl.DispatchModel}{ILoggerClient.CR}")
-                .Append($"ReconnectAttemptLimit: {configImpl.ConsumerConfig.ReconnectAttemptLimit}{ILoggerClient.CR}")
-                .Append($"ReconnectMinDelay: {configImpl.ConsumerConfig.ReconnectMinDelay}{ILoggerClient.CR}")
-                .Append($"ReconnectMaxDelay: {configImpl.ConsumerConfig.ReconnectMaxDelay}{ILoggerClient.CR}")
-                .Append($"MsgKeyInUpdates: {configImpl.ConsumerConfig.MsgKeyInUpdates}{ILoggerClient.CR}")
-                .Append($"DirectoryRequestTimeOut: {configImpl.ConsumerConfig.DirectoryRequestTimeOut}{ILoggerClient.CR}")
-                .Append($"DictionaryRequestTimeOut: {configImpl.ConsumerConfig.DictionaryRequestTimeOut}{ILoggerClient.CR}")
-                .Append($"RestRequestTimeOut: {configImpl.ConsumerConfig.RestRequestTimeOut}{ILoggerClient.CR}")
-                .Append($"LoginRequestTimeOut: {configImpl.ConsumerConfig.LoginRequestTimeOut}");
+            if (BaseType == IOmmCommonImpl.ImpleType.CONSUMER)
+            {
+                OmmConsumerConfigImpl configImpl = ((OmmConsumerConfigImpl)configImplBase);
+
+                strBuilder.Append($"Print out active configuration detail.{ILoggerClient.CR}")
+                    .Append($"ConfiguredName: {configImpl.ConsumerConfig.Name}{ILoggerClient.CR}")
+                    .Append($"InstanceName: {InstanceName}{ILoggerClient.CR}")
+                    .Append($"ItemCountHint: {configImpl.ConsumerConfig.ItemCountHint}{ILoggerClient.CR}")
+                    .Append($"ServiceCountHint: {configImpl.ConsumerConfig.ServiceCountHint}{ILoggerClient.CR}")
+                    .Append($"MaxDispatchCountApiThread: {configImpl.ConsumerConfig.MaxDispatchCountApiThread}{ILoggerClient.CR}")
+                    .Append($"MaxDispatchCountUserThread: {configImpl.ConsumerConfig.MaxDispatchCountUserThread}{ILoggerClient.CR}")
+                    .Append($"DispatchTimeoutApiThread: {configImpl.ConsumerConfig.DispatchTimeoutApiThread}{ILoggerClient.CR}")
+                    .Append($"RequestTimeout: {configImpl.ConsumerConfig.RequestTimeout}{ILoggerClient.CR}")
+                    .Append($"XmlTraceToStdout: {configImpl.ConsumerConfig.XmlTraceToStdout}{ILoggerClient.CR}")
+                    .Append($"XmlTraceToFile: {configImpl.ConsumerConfig.XmlTraceToFile}{ILoggerClient.CR}")
+                    .Append($"XmlTraceMaxFileSize: {configImpl.ConsumerConfig.XmlTraceMaxFileSize}{ILoggerClient.CR}")
+                    .Append($"XmlTraceFileName: {configImpl.ConsumerConfig.XmlTraceFileName}{ILoggerClient.CR}")
+                    .Append($"XmlTraceToMultipleFiles: {configImpl.ConsumerConfig.XmlTraceToMultipleFiles}{ILoggerClient.CR}")
+                    .Append($"XmlTraceWrite: {configImpl.ConsumerConfig.XmlTraceWrite}{ILoggerClient.CR}")
+                    .Append($"XmlTraceRead: {configImpl.ConsumerConfig.XmlTraceRead}{ILoggerClient.CR}")
+                    .Append($"XmlTracePing: {configImpl.ConsumerConfig.XmlTracePing}{ILoggerClient.CR}")
+                    .Append($"ObeyOpenWindow: {configImpl.ConsumerConfig.ObeyOpenWindow}{ILoggerClient.CR}")
+                    .Append($"PostAckTimeout: {configImpl.ConsumerConfig.PostAckTimeout}{ILoggerClient.CR}")
+                    .Append($"MaxOutstandingPosts: {configImpl.ConsumerConfig.MaxOutstandingPosts}{ILoggerClient.CR}")
+                    .Append($"DispatchMode: {configImpl.DispatchModel}{ILoggerClient.CR}")
+                    .Append($"DispatchTimeoutApiThread: {configImpl.ConsumerConfig.DispatchTimeoutApiThread}{ILoggerClient.CR}")
+                    .Append($"ReconnectAttemptLimit: {configImpl.ConsumerConfig.ReconnectAttemptLimit}{ILoggerClient.CR}")
+                    .Append($"ReconnectMinDelay: {configImpl.ConsumerConfig.ReconnectMinDelay}{ILoggerClient.CR}")
+                    .Append($"ReconnectMaxDelay: {configImpl.ConsumerConfig.ReconnectMaxDelay}{ILoggerClient.CR}")
+                    .Append($"MsgKeyInUpdates: {configImpl.ConsumerConfig.MsgKeyInUpdates}{ILoggerClient.CR}")
+                    .Append($"DirectoryRequestTimeOut: {configImpl.ConsumerConfig.DirectoryRequestTimeOut}{ILoggerClient.CR}")
+                    .Append($"DictionaryRequestTimeOut: {configImpl.ConsumerConfig.DictionaryRequestTimeOut}{ILoggerClient.CR}")
+                    .Append($"RestRequestTimeOut: {configImpl.ConsumerConfig.RestRequestTimeOut}{ILoggerClient.CR}")
+                    .Append($"LoginRequestTimeOut: {configImpl.ConsumerConfig.LoginRequestTimeOut}");
+            }
+            else
+            {
+                OmmNiProviderConfigImpl configImpl = ((OmmNiProviderConfigImpl)configImplBase);
+                strBuilder.Append($"Print out active configuration detail.{ILoggerClient.CR}")
+                   .Append($"ConfiguredName: {configImpl.NiProviderConfig.Name}{ILoggerClient.CR}")
+                   .Append($"InstanceName: {InstanceName}{ILoggerClient.CR}")
+                   .Append($"ItemCountHint: {configImpl.NiProviderConfig.ItemCountHint}{ILoggerClient.CR}")
+                   .Append($"ServiceCountHint: {configImpl.NiProviderConfig.ServiceCountHint}{ILoggerClient.CR}")
+                   .Append($"MaxDispatchCountApiThread: {configImpl.NiProviderConfig.MaxDispatchCountApiThread}{ILoggerClient.CR}")
+                   .Append($"MaxDispatchCountUserThread: {configImpl.NiProviderConfig.MaxDispatchCountUserThread}{ILoggerClient.CR}")
+                   .Append($"DispatchTimeoutApiThread: {configImpl.NiProviderConfig.DispatchTimeoutApiThread}{ILoggerClient.CR}")
+                   .Append($"DispatchMode: {configImpl.DispatchModel}{ILoggerClient.CR}")
+                   .Append($"RequestTimeout: {configImpl.NiProviderConfig.RequestTimeout}{ILoggerClient.CR}")
+                   .Append($"XmlTraceToStdout: {configImpl.NiProviderConfig.XmlTraceToStdout}{ILoggerClient.CR}")
+                   .Append($"XmlTraceToFile: {configImpl.NiProviderConfig.XmlTraceToFile}{ILoggerClient.CR}")
+                   .Append($"XmlTraceMaxFileSize: {configImpl.NiProviderConfig.XmlTraceMaxFileSize}{ILoggerClient.CR}")
+                   .Append($"XmlTraceFileName: {configImpl.NiProviderConfig.XmlTraceFileName}{ILoggerClient.CR}")
+                   .Append($"XmlTraceToMultipleFiles: {configImpl.NiProviderConfig.XmlTraceToMultipleFiles}{ILoggerClient.CR}")
+                   .Append($"XmlTraceWrite: {configImpl.NiProviderConfig.XmlTraceWrite}{ILoggerClient.CR}")
+                   .Append($"XmlTraceRead: {configImpl.NiProviderConfig.XmlTraceRead}{ILoggerClient.CR}")
+                   .Append($"XmlTracePing: {configImpl.NiProviderConfig.XmlTracePing}{ILoggerClient.CR}")
+                   .Append($"ReconnectAttemptLimit: {configImpl.NiProviderConfig.ReconnectAttemptLimit}{ILoggerClient.CR}")
+                   .Append($"ReconnectMinDelay: {configImpl.NiProviderConfig.ReconnectMinDelay}{ILoggerClient.CR}")
+                   .Append($"ReconnectMaxDelay: {configImpl.NiProviderConfig.ReconnectMaxDelay}{ILoggerClient.CR}")
+                   .Append($"LoginRequestTimeOut: {configImpl.NiProviderConfig.LoginRequestTimeOut}{ILoggerClient.CR}")
+                   .Append($"DirectoryAdminControl: {configImpl.AdminControlDirectory}{ILoggerClient.CR}")
+                   .Append($"RefreshFirstRequired: {configImpl.NiProviderConfig.RefreshFirstRequired}{ILoggerClient.CR}")
+                   .Append($"MergeSourceDirectoryStreams: {configImpl.NiProviderConfig.MergeSourceDirectoryStreams}{ILoggerClient.CR}")
+                   .Append($"RecoverUserSubmitSourceDirectory: {configImpl.NiProviderConfig.RecoverUserSubmitSourceDirectory}{ILoggerClient.CR}")
+                   .Append($"RemoveItemsOnDisconnect: {configImpl.NiProviderConfig.RemoveItemsOnDisconnect}{ILoggerClient.CR}");
+            }
 
             return strBuilder.ToString();
         }

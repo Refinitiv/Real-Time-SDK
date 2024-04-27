@@ -198,7 +198,7 @@ namespace LSEG.Eta.Transports
 
             try
             {
-                GlobalLocker.Enter();
+                GlobalLocker?.Enter();
 
                 if (Interlocked.Read(ref _numInitCalls) == 0)
                 {
@@ -247,7 +247,7 @@ namespace LSEG.Eta.Transports
             }
             finally
             {
-                GlobalLocker.Exit();
+                GlobalLocker?.Exit();
             }
 
 
@@ -273,7 +273,7 @@ namespace LSEG.Eta.Transports
 
             try
             {
-                GlobalLocker.Enter();
+                GlobalLocker?.Enter();
 
                 if (Interlocked.Read(ref _numInitCalls) == 0)
                 {
@@ -317,7 +317,7 @@ namespace LSEG.Eta.Transports
             }
             finally
             {
-                GlobalLocker.Exit();
+                GlobalLocker?.Exit();
             }
 
             return server;

@@ -7,13 +7,19 @@
  */
 
 
-using LSEG.Eta.ValueAdd.Reactor;
-using System;
-
 namespace LSEG.Ema.Access
 {
 	internal class LoggerConfig
 	{
+        // Name of this Logger
+        public string Name { get; set; } = string.Empty;
+        public string FileName { get; set; } = string.Empty;
+        public ulong IncludeDateInLoggerOutput { get; set; }
+        public ulong NumberOfLogFiles { get; set; }
+        public ulong MaxLogFileSize { get; set; }
+        public LoggerLevel LoggerSeverity { get; set; }
+        public LoggerType LoggerType { get; set; }
+        
         public LoggerConfig()
         {
             Clear();
@@ -27,23 +33,7 @@ namespace LSEG.Ema.Access
             MaxLogFileSize = oldConfig.MaxLogFileSize;
             LoggerSeverity = oldConfig.LoggerSeverity;
             LoggerType = oldConfig.LoggerType;
-
         }
-
-        // Name of this channel
-        public string Name { get; set; } = string.Empty;
-
-        public string FileName { get; set; } = string.Empty;
-
-        public ulong IncludeDateInLoggerOutput { get; set; }
-
-        public ulong NumberOfLogFiles { get; set; }
-
-        public ulong MaxLogFileSize { get; set; }
-
-        public LoggerLevel LoggerSeverity { get; set; }
-        
-        public LoggerType LoggerType { get; set; }
 
         // Clears the Logger info and sets the default options.
         public void Clear()

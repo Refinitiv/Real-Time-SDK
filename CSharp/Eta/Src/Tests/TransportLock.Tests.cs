@@ -2108,7 +2108,7 @@ public class TransportLockTests
 
         if (!WaitForStateRunning(server))
         {
-            Assert.True(false, "server terminated while waiting for RUNNING state, error="
+            Assert.Fail("server terminated while waiting for RUNNING state, error="
                                + server.ErrorMsg);
         }
         else
@@ -2138,7 +2138,7 @@ public class TransportLockTests
             if (result != null)
             {
                 if (server.ErrorMsg == null)
-                    Assert.True(false, result);
+                    Assert.Fail(result);
                 else
                     Console.WriteLine("server failed (errorMsg to follow) and comparison of stats failed with: "
                                         + result);
@@ -2147,7 +2147,7 @@ public class TransportLockTests
 
         // If a server failure occurred, fail the test.
         if (server.ErrorMsg != null)
-            Assert.True(false, server.ErrorMsg);
+            Assert.Fail(server.ErrorMsg);
     }
 
     #endregion

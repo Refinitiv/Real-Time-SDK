@@ -1027,7 +1027,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
         Assert.True(receivedRefreshMsg.CheckRefreshComplete());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(Codec.DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());

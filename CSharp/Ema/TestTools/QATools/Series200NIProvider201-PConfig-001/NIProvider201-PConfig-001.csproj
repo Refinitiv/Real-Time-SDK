@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\NIProvider.props" />
+	<PropertyGroup>
+		<DoNotIncludeEmaConfig>true</DoNotIncludeEmaConfig>
+	</PropertyGroup>
+</Project>

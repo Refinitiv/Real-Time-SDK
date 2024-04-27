@@ -4479,28 +4479,28 @@ namespace LSEG.Eta.Transports.Tests
             Assert.Equal(30, fieldEntry.FieldId);
             Assert.Equal(DataTypes.BUFFER, fieldEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* ASCII_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
             Assert.Equal(31, fieldEntry.FieldId);
             Assert.Equal(DataTypes.ASCII_STRING, fieldEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* UTF8_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
             Assert.Equal(32, fieldEntry.FieldId);
             Assert.Equal(DataTypes.UTF8_STRING, fieldEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* RMTES_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
             Assert.Equal(33, fieldEntry.FieldId);
             Assert.Equal(DataTypes.RMTES_STRING, fieldEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* Standard data */
 
@@ -4598,35 +4598,35 @@ namespace LSEG.Eta.Transports.Tests
             Assert.Equal(30, fieldEntry.FieldId);
             Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* ASCII_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
             Assert.Equal(31, fieldEntry.FieldId);
             Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* UTF8_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
             Assert.Equal(32, fieldEntry.FieldId);
             Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* RMTES_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
             Assert.Equal(33, fieldEntry.FieldId);
             Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* RMTES_STRING (encoded via encodedData) */
             Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
             Assert.Equal(34, fieldEntry.FieldId);
             Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* RMTES_STRING (encoded as blank) */
             Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
@@ -5841,77 +5841,77 @@ namespace LSEG.Eta.Transports.Tests
 
             /* INT_1 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("0"));
+            Assert.Equal("0", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.INT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
             Assert.Equal(64, intVal.ToLong());
 
             /* INT_2 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("1"));
+            Assert.Equal("1", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.INT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
             Assert.Equal(64, intVal.ToLong());
 
             /* INT_4 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("2"));
+            Assert.Equal("2", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.INT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
             Assert.Equal(64, intVal.ToLong());
 
             /* INT_8 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("3"));
+            Assert.Equal("3", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.INT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
             Assert.Equal(64, intVal.ToLong());
 
             /* UINT_1 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("4"));
+            Assert.Equal("4", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.UINT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
             Assert.Equal(64, uintVal.ToLong());
 
             /* UINT_2 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("5"));
+            Assert.Equal("5", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.UINT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
             Assert.Equal(64, uintVal.ToLong());
 
             /* UINT_4 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("6"));
+            Assert.Equal("6", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.UINT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
             Assert.Equal(64, uintVal.ToLong());
 
             /* UINT_8 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("7"));
+            Assert.Equal("7", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.UINT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
             Assert.Equal(64, uintVal.ToLong());
 
             /* FLOAT_4 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("8"));
+            Assert.Equal("8", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.FLOAT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, floatVal.Decode(dIter));
             Assert.Equal(1.0f, floatVal.ToFloat(), 0);
 
             /* DOUBLE_8 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("9"));
+            Assert.Equal("9", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DOUBLE, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, doubleVal.Decode(dIter));
             Assert.Equal(1.0, doubleVal.ToDouble(), 0);
 
             /* REAL_4RB */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("10"));
+            Assert.Equal("10", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.REAL, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
             Assert.Equal(2147483647, realVal.ToLong());
@@ -5919,7 +5919,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* REAL_8RB */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("11"));
+            Assert.Equal("11", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.REAL, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
             Assert.Equal(9223372036854775807L, realVal.ToLong());
@@ -5927,7 +5927,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* DATE_4 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("12"));
+            Assert.Equal("12", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DATE, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, dateVal.Decode(dIter));
             Assert.Equal(12, dateVal.Day());
@@ -5936,7 +5936,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* TIME_3 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("13"));
+            Assert.Equal("13", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.TIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
             Assert.Equal(22, timeVal.Hour());
@@ -5948,7 +5948,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* TIME_5 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("14"));
+            Assert.Equal("14", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.TIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
             Assert.Equal(22, timeVal.Hour());
@@ -5960,7 +5960,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* DATETIME_7 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("15"));
+            Assert.Equal("15", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DATETIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
             Assert.Equal(12, dateTimeVal.Day());
@@ -5975,7 +5975,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* DATETIME_11 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("16"));
+            Assert.Equal("16", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DATETIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
             Assert.Equal(12, dateTimeVal.Day());
@@ -5990,7 +5990,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* DATETIME_12 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("17"));
+            Assert.Equal("17", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DATETIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
             Assert.Equal(12, dateTimeVal.Day());
@@ -6005,7 +6005,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* TIME_7 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("18"));
+            Assert.Equal("18", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.TIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
             Assert.Equal(22, timeVal.Hour());
@@ -6017,7 +6017,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* TIME_8 */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("19"));
+            Assert.Equal("19", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.TIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
             Assert.Equal(22, timeVal.Hour());
@@ -6029,35 +6029,35 @@ namespace LSEG.Eta.Transports.Tests
 
             /* INT */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("20"));
+            Assert.Equal("20", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.INT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
             Assert.Equal(255, intVal.ToLong());
 
             /* UINT */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("21"));
+            Assert.Equal("21", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.UINT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
             Assert.Equal(256, uintVal.ToLong());
 
             /* FLOAT */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("22"));
+            Assert.Equal("22", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.FLOAT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, floatVal.Decode(dIter));
             Assert.Equal(1.0f, floatVal.ToFloat(), 0);
 
             /* DOUBLE */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("23"));
+            Assert.Equal("23", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DOUBLE, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, doubleVal.Decode(dIter));
             Assert.Equal(1.0, doubleVal.ToDouble(), 0);
 
             /* REAL */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("24"));
+            Assert.Equal("24", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.REAL, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
             Assert.Equal(2147483647L, realVal.ToLong());
@@ -6065,7 +6065,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* DATE */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("25"));
+            Assert.Equal("25", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DATE, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, dateVal.Decode(dIter));
             Assert.Equal(12, dateVal.Day());
@@ -6074,7 +6074,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* TIME */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("26"));
+            Assert.Equal("26", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.TIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
             Assert.Equal(22, timeVal.Hour());
@@ -6086,7 +6086,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* DATETIME */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("27"));
+            Assert.Equal("27", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DATETIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
             Assert.Equal(12, dateTimeVal.Day());
@@ -6101,7 +6101,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* QOS */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("28"));
+            Assert.Equal("28", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.QOS, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, qosVal.Decode(dIter));
             Assert.Equal(QosTimeliness.DELAYED, qosVal.Timeliness());
@@ -6111,72 +6111,72 @@ namespace LSEG.Eta.Transports.Tests
 
             /* ENUM */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("29"));
+            Assert.Equal("29", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.ENUM, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, enumVal.Decode(dIter));
             Assert.Equal(256, enumVal.ToInt());
 
             /* BUFFER */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("30"));
+            Assert.Equal("30", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.BUFFER, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* ASCII_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("31"));
+            Assert.Equal("31", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.ASCII_STRING, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* UTF8_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("32"));
+            Assert.Equal("32", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.UTF8_STRING, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* RMTES_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("33"));
+            Assert.Equal("33", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.RMTES_STRING, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* Standard data */
 
             /* INT */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("20"));
+            Assert.Equal("20", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.INT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
             Assert.Equal(255, intVal.ToLong());
 
             /* UINT */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("21"));
+            Assert.Equal("21", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.UINT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
             Assert.Equal(256, uintVal.ToLong());
 
             /* FLOAT */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("22"));
+            Assert.Equal("22", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.FLOAT, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, floatVal.Decode(dIter));
             Assert.Equal(1.0f, floatVal.ToFloat(), 0);
 
             /* DOUBLE */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("23"));
+            Assert.Equal("23", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DOUBLE, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, doubleVal.Decode(dIter));
             Assert.Equal(1.0, doubleVal.ToDouble(), 0);
 
             /* REAL */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("24"));
+            Assert.Equal("24", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.REAL, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
             Assert.Equal(2147483647L, realVal.ToLong());
@@ -6184,7 +6184,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* DATE */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("25"));
+            Assert.Equal("25", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DATE, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, dateVal.Decode(dIter));
             Assert.Equal(12, dateVal.Day());
@@ -6193,7 +6193,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* TIME */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("26"));
+            Assert.Equal("26", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.TIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
             Assert.Equal(22, timeVal.Hour());
@@ -6205,7 +6205,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* DATETIME */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("27"));
+            Assert.Equal("27", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.DATETIME, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
             Assert.Equal(12, dateTimeVal.Day());
@@ -6220,7 +6220,7 @@ namespace LSEG.Eta.Transports.Tests
 
             /* QOS */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("28"));
+            Assert.Equal("28", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.QOS, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, qosVal.Decode(dIter));
             Assert.Equal(QosTimeliness.DELAYED, qosVal.Timeliness());
@@ -6230,49 +6230,49 @@ namespace LSEG.Eta.Transports.Tests
 
             /* ENUM */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("29"));
+            Assert.Equal("29", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.ENUM, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, enumVal.Decode(dIter));
             Assert.Equal(256, enumVal.ToInt());
 
             /* BUFFER */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("30"));
+            Assert.Equal("30", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.BUFFER, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* ASCII_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("31"));
+            Assert.Equal("31", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.ASCII_STRING, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* UTF8_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("32"));
+            Assert.Equal("32", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.UTF8_STRING, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* RMTES_STRING */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("33"));
+            Assert.Equal("33", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.RMTES_STRING, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* RMTES_STRING (encoded via encodedData) */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("34"));
+            Assert.Equal("34", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.RMTES_STRING, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
-            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+            Assert.Equal("OVERRUN", bufferVal.ToString());
 
             /* RMTES_STRING (encoded as blank) */
             Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
-            Assert.True(elementEntry.Name.ToString().Equals("35"));
+            Assert.Equal("35", elementEntry.Name.ToString());
             Assert.Equal(DataTypes.RMTES_STRING, elementEntry.DataType);
             Assert.Equal(CodecReturnCode.BLANK_DATA, bufferVal.Decode(dIter));
 

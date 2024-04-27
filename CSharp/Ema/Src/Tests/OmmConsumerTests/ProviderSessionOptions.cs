@@ -43,7 +43,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
         /* Overrides the default system receive buffer size */
         public int SysRecvBufSize = 0;
 
-        public CompressionType CompressionType { get; set; } = CompressionType.NONE;
+        public Eta.Transports.CompressionType CompressionType { get; set; } = Eta.Transports.CompressionType.NONE;
 
         public bool SendLoginReject { get; set; } = false;
 

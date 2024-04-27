@@ -10,6 +10,8 @@ using LSEG.Eta.Codec;
 using System.Collections;
 using System.Collections.Generic;
 
+using System.Runtime.CompilerServices;
+
 namespace LSEG.Ema.Access;
 
 /// <summary>
@@ -130,7 +132,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
     {
         if (m_ErrorCode == OmmError.ErrorCodes.NO_ERROR)
         {
-            OmmArrayEnumerator enumerator = new OmmArrayEnumerator();
+            OmmArrayEnumerator enumerator = m_objectManager.GetOmmArrayEnumerator();
             CodecReturnCode retCode = enumerator.SetRsslData(m_bodyBuffer!, m_MajorVersion, m_MinorVersion);
             if (retCode == CodecReturnCode.SUCCESS)
                 return enumerator;
@@ -138,7 +140,9 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
             m_ErrorCode = enumerator.ErrorCode;
         }
 
-        return new ArrayErrorEnumerator(m_ErrorCode);
+        var errorEnumerator = m_objectManager!.GetOmmArrayErrorEnumerator();
+        errorEnumerator.SetError(m_ErrorCode);
+        return errorEnumerator;
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -945,43 +949,64 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         }
     }
 
-    internal class ArrayErrorEnumerator : IEnumerator<OmmArrayEntry>
+    #endregion
+}
+
+internal class OmmArrayErrorEnumerator : IEnumerator<OmmArrayEntry>
+{
+    internal EmaObjectManager m_objectManager;
+    internal bool m_inPool;
+
+    private OmmArrayEntry m_Entry;
+    private bool m_decodingStarted = false;
+    private bool m_atEnd = false;
+    private OmmError m_ommError = new OmmError();
+
+    public OmmArrayEntry Current => m_decodingStarted ? m_Entry : null!;
+
+    object? IEnumerator.Current => m_decodingStarted ? m_Entry : null;
+
+    public OmmArrayErrorEnumerator(EmaObjectManager objectManager)
     {
-        private OmmArrayEntry m_Entry = new OmmArrayEntry();
-        private bool m_decodingStarted = false;
-        private bool m_atEnd = false;
-        private OmmError m_ommError = new OmmError();
-
-        public OmmArrayEntry Current => m_decodingStarted ? m_Entry : null!;
-
-        object? IEnumerator.Current => m_decodingStarted ? m_Entry : null;
-
-        public ArrayErrorEnumerator(OmmError.ErrorCodes errorCode)
-        {
-            m_ommError.ErrorCode = errorCode;
-            m_Entry.Load = m_ommError;
-        }
-
-        public void Dispose()
-        {
-        }
-
-        public bool MoveNext()
-        {
-            if (m_atEnd) return false;
-
-            m_decodingStarted = true;
-            m_atEnd = true;
-
-            return true;
-        }
-
-        public void Reset()
-        {
-            m_decodingStarted = false;
-            m_atEnd = false;
-        }
+        m_objectManager = objectManager;
+        m_Entry = new OmmArrayEntry(objectManager);
     }
 
-    #endregion Implementation details
+    internal void SetError(OmmError.ErrorCodes errorCode)
+    {
+        m_ommError.ErrorCode = errorCode;
+        m_Entry.m_Load = m_ommError;
+    }
+
+    public void Dispose()
+    {
+        Reset();
+        ReturnEnumeratorToPool();
+    }
+
+    public bool MoveNext()
+    {
+        if (m_atEnd) return false;
+
+        m_decodingStarted = true;
+        m_atEnd = true;
+
+        return true;
+    }
+
+    public void Reset()
+    {
+        m_decodingStarted = false;
+        m_atEnd = false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+    internal void ReturnEnumeratorToPool()
+    {
+        if (!m_inPool)
+        {
+            m_objectManager!.ReturnToEnumeratorPool(this);
+        }
+    }
 }
+

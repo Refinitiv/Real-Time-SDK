@@ -10,7 +10,6 @@
 	<DefaultConsumer value="Consumer_5"/>
 	<ConsumerList>
 		<Consumer>
-			<!-- Channel is specified to provide RSSL_WEBSOCKET connection options	-->
 			<Name value="Consumer_5"/>
 			<ChannelSet value="Channel_1, Channel_2"/>
 			<Dictionary value="Dictionary_1"/>
@@ -27,9 +26,7 @@
 
 			<!-- ChannelType possible values are:														-->
 			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type									-->
-			<!-- ChannelType::RSSL_HTTP      - Http tunnel connection type								-->
-			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type								-->
-			<!-- ChannelType::RSSL_RELIABLE_MCAST - Reliable multicast connection type					-->
+			<!-- ChannelType::RSSL_ENCRYPTED - Encrypted tunnel connection type								-->
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 
 			<!-- CompressionType is optional: defaulted to None											-->

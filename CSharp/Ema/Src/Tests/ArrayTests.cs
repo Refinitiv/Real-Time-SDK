@@ -1106,7 +1106,7 @@ public class ArrayTests
         Assert.True(ae1.LoadType == DataType.DataTypes.DATETIME, "OmmArrayEntry.LoadType == DataType.DataTypes.DATETIME");
 
         Assert.Throws<OmmInvalidUsageException>(() => ae1.OmmUIntValue().Value);
-        Assert.Equal(ae1.LoadType, DataType.DataTypes.DATETIME);
+        Assert.Equal(DataType.DataTypes.DATETIME, ae1.LoadType);
         Assert.Equal(1111, ae1.OmmDateTimeValue().Year);
         Assert.Equal(11, ae1.OmmDateTimeValue().Month);
         Assert.Equal(1, ae1.OmmDateTimeValue().Day);
@@ -1117,7 +1117,7 @@ public class ArrayTests
 
         Assert.True(arIter.MoveNext(), "OmmArray with three DateTime - second next()");
         OmmArrayEntry ae2 = arIter.Current;
-        Assert.Equal(ae2.LoadType, DataType.DataTypes.DATETIME);
+        Assert.Equal(DataType.DataTypes.DATETIME, ae2.LoadType);
         Assert.Equal(2222, ae2.OmmDateTimeValue().Year);
         Assert.Equal(2, ae2.OmmDateTimeValue().Month);
         Assert.Equal(2, ae2.OmmDateTimeValue().Day);
@@ -1128,7 +1128,7 @@ public class ArrayTests
 
         Assert.True(arIter.MoveNext(), "OmmArray with three DateTime - third next()");
         OmmArrayEntry ae3 = arIter.Current;
-        Assert.Equal(ae3.LoadType, DataType.DataTypes.DATETIME);
+        Assert.Equal(DataType.DataTypes.DATETIME, ae3.LoadType);
         Assert.Equal(3333, ae3.OmmDateTimeValue().Year);
         Assert.Equal(3, ae3.OmmDateTimeValue().Month);
         Assert.Equal(3, ae3.OmmDateTimeValue().Day);
@@ -1146,7 +1146,7 @@ public class ArrayTests
 
             Assert.True(arIter.MoveNext(), "OmmArray with three DateTime - first next()");
             ae1 = arIter.Current;
-            Assert.Equal(ae1.LoadType, DataType.DataTypes.DATETIME);
+            Assert.Equal(DataType.DataTypes.DATETIME, ae1.LoadType);
 
             Assert.Throws<OmmInvalidUsageException>(() => ae1.OmmUIntValue().Value);
 
@@ -1160,7 +1160,7 @@ public class ArrayTests
 
             Assert.True(arIter.MoveNext(), "OmmArray with three DateTime - second next()");
             ae2 = arIter.Current;
-            Assert.Equal(ae2.LoadType, DataType.DataTypes.DATETIME);
+            Assert.Equal(DataType.DataTypes.DATETIME, ae2.LoadType);
             Assert.Equal(2222, ae2.OmmDateTimeValue().Year);
             Assert.Equal(2, ae2.OmmDateTimeValue().Month);
             Assert.Equal(2, ae2.OmmDateTimeValue().Day);
@@ -1172,7 +1172,7 @@ public class ArrayTests
             Assert.True(arIter.MoveNext(), "OmmArray with three DateTime - third next()");
             ae3 = arIter.Current;
 
-            Assert.Equal(ae3.LoadType, DataType.DataTypes.DATETIME);
+            Assert.Equal(DataType.DataTypes.DATETIME, ae3.LoadType);
             Assert.Equal(3333, ae3.OmmDateTimeValue().Year);
             Assert.Equal(3, ae3.OmmDateTimeValue().Month);
             Assert.Equal(3, ae3.OmmDateTimeValue().Day);
@@ -1868,7 +1868,7 @@ public class ArrayTests
 
         Assert.True(iter.MoveNext(), "OmmArray with three Buffer - second next()");
         OmmArrayEntry ae2 = iter.Current;
-        Assert.Equal(ae2.LoadType, DataType.DataTypes.BUFFER);
+        Assert.Equal(DataType.DataTypes.BUFFER, ae2.LoadType);
 
         emaBuffer = ae2.OmmBufferValue().Value;
 
@@ -1946,8 +1946,8 @@ public class ArrayTests
 
         if (fixedSize)
         {
-           var caughtException = Assert.Throws<OmmInvalidUsageException>(() => encArray.AddCodeBuffer()); // Blank buffer
-           Assert.Equal("Failed to encode (BUFFER) while encoding OmmArray. Reason='INVALID_ARGUMENT'", caughtException.Message);
+            var caughtException = Assert.Throws<OmmInvalidUsageException>(() => encArray.AddCodeBuffer()); // Blank buffer
+            Assert.Equal("Failed to encode (BUFFER) while encoding OmmArray. Reason='INVALID_ARGUMENT'", caughtException.Message);
         }
         else
         {
@@ -1956,7 +1956,7 @@ public class ArrayTests
 
         encArray.AddBuffer(new EmaBuffer(Encoding.ASCII.GetBytes("DEFGH")));
 
-        if(!fixedSize)
+        if (!fixedSize)
             encArray.AddCodeBuffer(); // Blank buffer
 
         if (fixedSize)
@@ -1984,7 +1984,7 @@ public class ArrayTests
         Assert.True(ae1.LoadType == DataType.DataTypes.BUFFER, "OmmArrayEntry.LoadType == DataType.DataTypes.BUFFER");
         Assert.Throws<OmmInvalidUsageException>(() => ae1.OmmUIntValue().Value);
 
-        if(fixedSize)
+        if (fixedSize)
             Assert.StartsWith("ABC", Encoding.ASCII.GetString(ae1.OmmBufferValue().Value.Buffer));
         else
             Assert.Equal("ABC", Encoding.ASCII.GetString(ae1.OmmBufferValue().Value.Buffer));
@@ -2003,7 +2003,7 @@ public class ArrayTests
         ae2 = iter.Current;
         Assert.Equal(DataType.DataTypes.BUFFER, ae2.LoadType);
 
-        if(fixedSize)
+        if (fixedSize)
             Assert.StartsWith("DEFGH", Encoding.ASCII.GetString(ae2.OmmBufferValue().Value.Buffer));
         else
             Assert.Equal("DEFGH", Encoding.ASCII.GetString(ae2.OmmBufferValue().Value.Buffer));
@@ -2054,7 +2054,7 @@ public class ArrayTests
             ae2 = iter.Current;
             Assert.Equal(DataType.DataTypes.BUFFER, ae2.LoadType);
 
-            if(fixedSize)
+            if (fixedSize)
                 Assert.StartsWith("DEFGH", Encoding.ASCII.GetString(ae2.OmmBufferValue().Value.Buffer));
             else
                 Assert.Equal("DEFGH", Encoding.ASCII.GetString(ae2.OmmBufferValue().Value.Buffer));
@@ -2954,9 +2954,9 @@ public class ArrayTests
                 .AddReal(-33, OmmReal.MagnitudeTypes.DIVISOR_2)
                 .Complete();
         }
-        catch(OmmInvalidUsageException exp)
+        catch (OmmInvalidUsageException exp)
         {
-            if(fixedSize)
+            if (fixedSize)
             {
                 Assert.Equal($"Unsupported FixedWidth encoding in AddReal(). Fixed width='{encArray.FixedWidth}'.", exp.Message);
                 return;
@@ -3330,9 +3330,9 @@ public class ArrayTests
         {
             encArray.AddTime(02, 03, 04, 05);
         }
-        catch(OmmInvalidUsageException exp)
+        catch (OmmInvalidUsageException exp)
         {
-            if(fixedSize)
+            if (fixedSize)
             {
                 Assert.Equal($"Unsupported FixedWidth encoding in AddTime(). Fixed width='{encArray.FixedWidth}'.", exp.Message);
                 return;
@@ -3654,7 +3654,7 @@ public class ArrayTests
             encArray.FixedWidth = 9;
 
         encArray.AddDateTime(1111, 11, 1, 14, 15, 16, 17);
-        
+
         encArray.AddCodeDateTime();
 
         encArray.AddDateTime(2222, 2, 2, 14, 15, 16, 17);
@@ -3797,10 +3797,10 @@ public class ArrayTests
         {
             encArray.AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK);
         }
-        catch(OmmInvalidUsageException exp)
+        catch (OmmInvalidUsageException exp)
         {
             /* QoS doesn't support fixed length */
-            if(fixedSize)
+            if (fixedSize)
             {
                 Assert.Equal($"Unsupported FixedWidth encoding in AddQos(). Fixed width='{encArray.FixedWidth}'.", exp.Message);
                 return;
@@ -4089,9 +4089,9 @@ public class ArrayTests
         {
             encArray.AddState(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Succeeded");
         }
-        catch(OmmInvalidUsageException exp)
+        catch (OmmInvalidUsageException exp)
         {
-            if(fixedSize)
+            if (fixedSize)
             {
                 Assert.Equal($"Unsupported FixedWidth encoding in AddState(). Fixed width='{encArray.FixedWidth}'.", exp.Message);
                 return;
@@ -4308,7 +4308,7 @@ public class ArrayTests
         }
 
         if (fixedSize)
-            Assert.False(true, "Encode OmmArray State with blanks - exception expected");
+            Assert.Fail("Encode OmmArray State with blanks - exception expected");
     }
 
     [Theory]
@@ -4407,7 +4407,7 @@ public class ArrayTests
 
         encArray.AddEnum(5300);
 
-        if(!fixedSize)
+        if (!fixedSize)
             encArray.AddCodeEnum();
         encArray.AddEnum(8100);
         encArray.Complete();
@@ -4526,7 +4526,7 @@ public class ArrayTests
         {
             encArray.AddUtf8(new EmaBuffer(Encoding.UTF8.GetBytes("KLMNOPQRS")));
         }
-        catch(OmmInvalidUsageException exp)
+        catch (OmmInvalidUsageException exp)
         {
             if (fixedSize)
             {
@@ -4620,7 +4620,7 @@ public class ArrayTests
         {
             encArray.AddCodeUtf8();
         }
-         
+
         encArray.AddUtf8(new EmaBuffer(Encoding.UTF8.GetBytes("DEFGH")));
         if (!fixedSize)
         {
@@ -4747,9 +4747,9 @@ public class ArrayTests
         {
             encArray.AddRmtes(new EmaBuffer(Encoding.ASCII.GetBytes("KLMNOPQRS")));
         }
-        catch(OmmInvalidUsageException exp)
+        catch (OmmInvalidUsageException exp)
         {
-            if(fixedSize)
+            if (fixedSize)
             {
                 Assert.Equal($"Passed in value is longer than fixed width in AddRmtes(). Fixed width='{encArray.FixedWidth}'.", exp.Message);
             }
@@ -4976,5 +4976,64 @@ public class ArrayTests
 
         entry.LoadType = DataTypes.INT;
         Assert.Equal(DataTypes.INT, entry.LoadType);
+    }
+
+    [Fact]
+    public void TestArray_Reset()
+    {
+        //encode 3 Ints
+        Eta.Codec.Buffer buf = new();
+        long[] values = { -11, 22, -33 };
+        ArrayEncodeInt(buf, true, values, 3);
+
+        //Now do EMA decoding of OmmArray of Ints
+        OmmArray ommArray = new();
+        ommArray.SetRsslData(Codec.MajorVersion(), Codec.MinorVersion(), buf, null);
+
+        IEnumerator<OmmArrayEntry> arIter = ommArray.GetEnumerator();
+
+        Assert.True(arIter.MoveNext());
+        OmmArrayEntry ae1 = arIter.Current;
+        Assert.Equal(DataType.DataTypes.INT, ae1.LoadType);
+
+        Assert.Throws<OmmInvalidUsageException>(() => ae1.OmmUIntValue().Value);
+
+        Assert.Equal(values[0], ae1.OmmIntValue().Value);
+
+        Assert.True(arIter.MoveNext());
+        OmmArrayEntry ae2 = arIter.Current;
+        Assert.Equal(DataType.DataTypes.INT, ae2.LoadType);
+        Assert.Equal(values[1], ae2.OmmIntValue().Value);
+
+        Assert.True(arIter.MoveNext());
+        OmmArrayEntry ae3 = arIter.Current;
+        Assert.Equal(DataType.DataTypes.INT, ae3.LoadType);
+        Assert.Equal(values[2], ae3.OmmIntValue().Value);
+
+        Assert.False(arIter.MoveNext());
+
+        // reset the Enumerator and make sure it yields same values as before
+        arIter.Reset();
+        {
+            Assert.True(arIter.MoveNext());
+            ae1 = arIter.Current;
+            Assert.Equal(DataType.DataTypes.INT, ae1.LoadType);
+
+            Assert.Throws<OmmInvalidUsageException>(() => ae1.OmmUIntValue().Value);
+
+            Assert.Equal(values[0], ae1.OmmIntValue().Value);
+
+            Assert.True(arIter.MoveNext());
+            ae2 = arIter.Current;
+            Assert.Equal(DataType.DataTypes.INT, ae2.LoadType);
+            Assert.Equal(values[1], ae2.OmmIntValue().Value);
+
+            Assert.True(arIter.MoveNext());
+            ae3 = arIter.Current;
+            Assert.Equal(DataType.DataTypes.INT, ae3.LoadType);
+            Assert.Equal(values[2], ae3.OmmIntValue().Value);
+
+            Assert.False(arIter.MoveNext());
+        }
     }
 }

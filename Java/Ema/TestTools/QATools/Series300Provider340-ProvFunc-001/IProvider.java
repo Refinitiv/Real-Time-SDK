@@ -72,8 +72,15 @@ class AppClient implements OmmProviderClient
             {
                 ackMsg.ackId(postMsg.postId());
             }
-            ackMsg.domainType(postMsg.domainType());
-            providerEvent.provider().submit(ackMsg, providerEvent.handle());
+            try
+            {
+                ackMsg.domainType(postMsg.domainType());
+                providerEvent.provider().submit(ackMsg, providerEvent.handle());
+            }
+            catch (InterruptedException | OmmException excp)
+            {
+                System.out.println(excp.getMessage());
+            }
         }
     }
     public void onReissue(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}

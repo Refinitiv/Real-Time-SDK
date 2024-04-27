@@ -296,7 +296,7 @@ public class ReactorWlLoginHandlerTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("JPM.N"));
+        Assert.Equal("JPM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(11, receivedRequestMsg.Priority.Count);
@@ -338,7 +338,7 @@ public class ReactorWlLoginHandlerTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         // consumer reissues login with pause
         LoginRequest loginRequest = consumerRole.RdmLoginRequest;
@@ -475,7 +475,7 @@ public class ReactorWlLoginHandlerTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("JPM.N"));
+        Assert.Equal("JPM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(11, receivedRequestMsg.Priority.Count);
@@ -517,7 +517,7 @@ public class ReactorWlLoginHandlerTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         // consumer reissues request with resume
         IRequestMsg reissueRequestMsg = (IRequestMsg)new Msg();
@@ -649,7 +649,7 @@ public class ReactorWlLoginHandlerTest
         Assert.True(receivedRequestMsg.CheckStreaming());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("JPM.N"));
+        Assert.Equal("JPM.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(11, receivedRequestMsg.Priority.Count);
@@ -691,7 +691,7 @@ public class ReactorWlLoginHandlerTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         // consumer reissues login with pause
         LoginRequest loginRequest = consumerRole.RdmLoginRequest;
@@ -1689,8 +1689,8 @@ public class ReactorWlLoginHandlerTest
             consRefresh[0] = loginMsgEvent.LoginMsg.LoginRefresh;
             output.WriteLine($"refresh: {consRefresh[0]}");
             Assert.Equal(consRefresh[0].StreamId, loginStreamId);
-            Assert.Equal(consRefresh[0].State.StreamState(), StreamStates.OPEN);
-            Assert.Equal(consRefresh[0].State.DataState(), DataStates.OK);
+            Assert.Equal(StreamStates.OPEN, consRefresh[0].State.StreamState());
+            Assert.Equal(DataStates.OK, consRefresh[0].State.DataState());
             Assert.True(consRefresh[0].HasUserName); // ASSERTION FAIL
             Assert.True(consRefresh[0].HasUserNameType);
             if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
@@ -1773,8 +1773,8 @@ public class ReactorWlLoginHandlerTest
 
             consRefresh[1] = loginMsgEvent.LoginMsg.LoginRefresh;
             Assert.Equal(consRefresh[1].StreamId, loginStreamId);
-            Assert.Equal(consRefresh[1].State.StreamState(), StreamStates.OPEN);
-            Assert.Equal(consRefresh[1].State.DataState(), DataStates.OK);
+            Assert.Equal(StreamStates.OPEN, consRefresh[1].State.StreamState());
+            Assert.Equal(DataStates.OK, consRefresh[1].State.DataState());
             Assert.True(consRefresh[1].HasUserName);
             Assert.True(consRefresh[1].HasUserNameType);
             if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
@@ -2000,8 +2000,8 @@ public class ReactorWlLoginHandlerTest
 
             consRefresh[0] = loginMsgEvent.LoginMsg.LoginRefresh;
             Assert.Equal(consRefresh[0].StreamId, loginStreamId);
-            Assert.Equal(consRefresh[0].State.StreamState(), StreamStates.OPEN);
-            Assert.Equal(consRefresh[0].State.DataState(), DataStates.OK);
+            Assert.Equal(StreamStates.OPEN, consRefresh[0].State.StreamState());
+            Assert.Equal(DataStates.OK, consRefresh[0].State.DataState());
             Assert.True(consRefresh[0].HasUserName);
             Assert.True(consRefresh[0].HasUserNameType);
             if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
@@ -2085,8 +2085,8 @@ public class ReactorWlLoginHandlerTest
 
             consRefresh[1] = loginMsgEvent.LoginMsg.LoginRefresh;
             Assert.Equal(consRefresh[1].StreamId, loginStreamId);
-            Assert.Equal(consRefresh[1].State.StreamState(), StreamStates.OPEN);
-            Assert.Equal(consRefresh[1].State.DataState(), DataStates.OK);
+            Assert.Equal(StreamStates.OPEN, consRefresh[1].State.StreamState());
+            Assert.Equal(DataStates.OK, consRefresh[1].State.DataState());
             Assert.True(consRefresh[1].HasUserName);
             Assert.True(consRefresh[1].HasUserNameType);
             if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
@@ -2259,8 +2259,8 @@ public class ReactorWlLoginHandlerTest
 
             consRefresh[0] = (LoginRefresh)loginMsgEvent.LoginMsg.LoginRefresh;
             Assert.Equal(consRefresh[0].StreamId, loginStreamId);
-            Assert.Equal(consRefresh[0].State.StreamState(), StreamStates.OPEN);
-            Assert.Equal(consRefresh[0].State.DataState(), DataStates.OK);
+            Assert.Equal(StreamStates.OPEN, consRefresh[0].State.StreamState());
+            Assert.Equal(DataStates.OK, consRefresh[0].State.DataState());
             Assert.True(consRefresh[0].HasUserName);
             Assert.True(consRefresh[0].HasUserNameType);
             if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
@@ -2463,8 +2463,8 @@ public class ReactorWlLoginHandlerTest
 
                     consRefresh[k] = loginMsgEvent.LoginMsg.LoginRefresh;
                     Assert.Equal(consRefresh[k].StreamId, loginStreamId);
-                    Assert.Equal(consRefresh[k].State.StreamState(), StreamStates.OPEN);
-                    Assert.Equal(consRefresh[k].State.DataState(), DataStates.OK);
+                    Assert.Equal(StreamStates.OPEN, consRefresh[k].State.StreamState());
+                    Assert.Equal(DataStates.OK, consRefresh[k].State.DataState());
                     Assert.True(consRefresh[k].HasUserName);
                     Assert.True(consRefresh[k].HasUserNameType);
                     if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
@@ -2575,7 +2575,7 @@ public class ReactorWlLoginHandlerTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
         providerStreamId = receivedRequestMsg.StreamId;
@@ -2609,14 +2609,14 @@ public class ReactorWlLoginHandlerTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider sends login Closed status. */
         loginStatus.Clear();
@@ -2654,7 +2654,7 @@ public class ReactorWlLoginHandlerTest
 
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Consumer receives update for Directory to delete services. */
         reactorEvent = consumerReactor.PollEvent();
@@ -2890,8 +2890,8 @@ public class ReactorWlLoginHandlerTest
 
             consRefresh[1] = loginMsgEvent.LoginMsg.LoginRefresh;
             Assert.Equal(consRefresh[1].StreamId, loginStreamId);
-            Assert.Equal(consRefresh[1].State.StreamState(), StreamStates.OPEN);
-            Assert.Equal(consRefresh[1].State.DataState(), DataStates.OK);
+            Assert.Equal(StreamStates.OPEN, consRefresh[1].State.StreamState());
+            Assert.Equal(DataStates.OK, consRefresh[1].State.DataState());
             Assert.True(consRefresh[1].HasUserName);
             Assert.True(consRefresh[1].HasUserNameType);
             if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
@@ -3153,8 +3153,8 @@ public class ReactorWlLoginHandlerTest
 
             consRefresh[1] = loginMsgEvent.LoginMsg.LoginRefresh;
             Assert.Equal(consRefresh[1].StreamId, loginStreamId);
-            Assert.Equal(consRefresh[1].State.StreamState(), StreamStates.OPEN);
-            Assert.Equal(consRefresh[1].State.DataState(), DataStates.OK);
+            Assert.Equal(StreamStates.OPEN, consRefresh[1].State.StreamState());
+            Assert.Equal(DataStates.OK, consRefresh[1].State.DataState());
             Assert.True(consRefresh[1].HasUserName);
             Assert.True(consRefresh[1].HasUserNameType);
             if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
@@ -3446,8 +3446,8 @@ public class ReactorWlLoginHandlerTest
 
             consRefresh[1] = loginMsgEvent.LoginMsg.LoginRefresh;
             Assert.Equal(consRefresh[1].StreamId, loginStreamId);
-            Assert.Equal(consRefresh[1].State.StreamState(), StreamStates.OPEN);
-            Assert.Equal(consRefresh[1].State.DataState(), DataStates.OK);
+            Assert.Equal(StreamStates.OPEN, consRefresh[1].State.StreamState());
+            Assert.Equal(DataStates.OK, consRefresh[1].State.DataState());
             Assert.True(consRefresh[1].HasUserName);
             Assert.True(consRefresh[1].HasUserNameType);
             if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
@@ -3554,7 +3554,7 @@ public class ReactorWlLoginHandlerTest
         Assert.False(receivedRequestMsg.CheckNoRefresh());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
         Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRequestMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
@@ -3594,14 +3594,14 @@ public class ReactorWlLoginHandlerTest
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasServiceId());
         Assert.Equal(Provider.DefaultService.ServiceId, receivedRefreshMsg.MsgKey.ServiceId);
         Assert.True(receivedRefreshMsg.MsgKey.CheckHasName());
-        Assert.True(receivedRefreshMsg.MsgKey.Name.ToString().Equals("TRI.N"));
+        Assert.Equal("TRI.N", receivedRefreshMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
         Assert.Equal(DataTypes.NO_DATA, receivedRefreshMsg.ContainerType);
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
-        Assert.True(msgEvent.StreamInfo.ServiceName.Equals(Provider.DefaultService.Info.ServiceName.ToString()));
+        Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Provider receives offstream post. */
         IPostMsg offstreamPost;
@@ -3721,7 +3721,7 @@ public class ReactorWlLoginHandlerTest
                         ReactorErrorInfo errorInfo = new ReactorErrorInfo();
                         if ((reactorEvent.ReactorChannel.Submit((Msg)postMsg, submitOptions, out errorInfo)) != ReactorReturnCode.SUCCESS)
                         {
-                            Assert.True(false, "defaultMsgCallback() submit post failed");
+                            Assert.Fail("defaultMsgCallback() submit post failed");
                         }
                     }
                     break;

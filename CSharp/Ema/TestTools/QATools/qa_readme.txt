@@ -796,7 +796,7 @@ Module:  Series200NiProvider201
 ----------------------------------
 Series200NiProvider201-ProvFunc-001
     Alters NiProvider to use user dispatch and checking for status to recovery connection 
-    with attached new argument to request dictionary and configuration for HTTPs Encryption.
+    with attached new argument to request dictionary and configuration for Encryption.
 
 Series200NiProvider201-ProvFunc-001
     Alter NiProvider to add programmatic config and tunneling arguments.

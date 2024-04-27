@@ -17,8 +17,11 @@ namespace LSEG.Ema.PerfTools.Common
         private int m_statusCode;
         private string? m_statusText;
 
-        public void StreamState(string value)
+        public void StreamState(string? value)
         {
+            if (value == null)
+                throw new Exception($"Failed to parse StreamState from the following string: {value}");
+
             m_streamState = StreamStateValue(value);
         }
 
@@ -27,8 +30,11 @@ namespace LSEG.Ema.PerfTools.Common
             return m_streamState;
         }
 
-        public void DataState(string value)
+        public void DataState(string? value)
         {
+            if (value == null)
+                throw new Exception($"Failed to parse DataState from the following string: {value}");
+
             m_dataState = DataStateValue(value);
         }
 
@@ -37,8 +43,11 @@ namespace LSEG.Ema.PerfTools.Common
             return m_dataState;
         }
 
-        public void StatusCode(string statusCode)
+        public void StatusCode(string? statusCode)
         {
+            if (statusCode == null)
+                throw new Exception($"Failed to parse StatusCode from the following string: {statusCode}");
+
             m_statusCode = CodeValue(statusCode);
         }
 

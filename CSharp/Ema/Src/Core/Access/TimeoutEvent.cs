@@ -18,7 +18,7 @@ namespace LSEG.Ema.Access
         void HandleTimeoutEvent();
     }
 
-    internal class TimeoutEventManager<T>
+    internal class TimeoutEventManager
     {
         private LinkedList<TimeoutEvent> timeoutQueue = new();
 
@@ -27,16 +27,16 @@ namespace LSEG.Ema.Access
 
         private MonitorWriteLocker queueLock = new MonitorWriteLocker(new object());
 
-        private OmmBaseImpl<T> m_OmmBaseImpl;
+        private IOmmCommonImpl m_OmmCommonImpl;
 
         public EventSignal TimeoutSignal { get; private set; }
 
         private volatile bool m_SingnalCleanup;
 
-        public TimeoutEventManager(OmmBaseImpl<T> ommBaseImpl,EventSignal timeoutSignal)
+        public TimeoutEventManager(IOmmCommonImpl commonImpl, EventSignal timeoutSignal)
         {
             TimeoutSignal = timeoutSignal;
-            m_OmmBaseImpl = ommBaseImpl;
+            m_OmmCommonImpl = commonImpl;
             m_SingnalCleanup = false;
         }
 
@@ -187,7 +187,7 @@ namespace LSEG.Ema.Access
                     {
                         if (!currentTimeout.Cancelled)
                         {
-                            m_OmmBaseImpl.ReceivedEvent();
+                            m_OmmCommonImpl.EventReceived();
                             currentTimeout.Client.HandleTimeoutEvent();
                         }
 

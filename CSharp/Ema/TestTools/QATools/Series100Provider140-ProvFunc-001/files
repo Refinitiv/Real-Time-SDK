@@ -1,0 +1,5 @@
+#file,location
+IProvider.cs,Examples/Training/IProvider/100_Series/140_MBO_Streaming/
+IProv140_NET6.0.csproj,Examples/Training/IProvider/100_Series/140_MBO_Streaming/IProv140_NET6.0.csproj
+xmlKeyList,Examples/Training/IProvider/100_Series/140_MBO_Streaming/
+GlobalObjectPool.cs,Examples/Training/IProvider/100_Series/140_MBO_Streaming/

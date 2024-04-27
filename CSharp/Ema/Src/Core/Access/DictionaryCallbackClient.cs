@@ -8,10 +8,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 
 using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 
@@ -47,14 +50,14 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
 
     internal void Initialize()
     {
-        if (m_OmmBaseImpl.ConfigImpl.AdminFieldDictionaryRequest != null
-            && m_OmmBaseImpl.ConfigImpl.AdminEnumDictionaryRequest != null)
+        if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest is not null
+            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminEnumDictionaryRequest is not null)
         {
-            m_OmmBaseImpl.ConfigImpl.DictionaryConfig.IsLocalDictionary = false;
+            ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary = false;
         }
-        else if (m_OmmBaseImpl.ConfigImpl.DictionaryConfig.DataDictionary is null
-            && m_OmmBaseImpl.ConfigImpl.AdminFieldDictionaryRequest is not null
-            && m_OmmBaseImpl.ConfigImpl.AdminEnumDictionaryRequest is null)
+        else if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.DataDictionary is null
+            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest is not null
+            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminEnumDictionaryRequest is null)
         {
             StringBuilder temp = commonImpl.GetStrBuilder();
             temp.Append("Invalid dictionary configuration was specified through the AddAdminMsg() method").Append(ILoggerClient.CR)
@@ -66,9 +69,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
             return;
         }
-        else if (m_OmmBaseImpl.ConfigImpl.DictionaryConfig.DataDictionary is null
-            && m_OmmBaseImpl.ConfigImpl.AdminFieldDictionaryRequest is null
-            && m_OmmBaseImpl.ConfigImpl.AdminEnumDictionaryRequest is not null)
+        else if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.DataDictionary is null
+            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest is null
+            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminEnumDictionaryRequest is not null)
         {
             StringBuilder temp = commonImpl.GetStrBuilder();
             temp.Append("Invalid dictionary configuration was specified through the AddAdminMsg() method").Append(ILoggerClient.CR)
@@ -80,14 +83,14 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
         }
 
-        Rdm.DataDictionary? dictionary = m_OmmBaseImpl.ConfigImpl.DictionaryConfig.DataDictionary;
+        Rdm.DataDictionary? dictionary = ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.DataDictionary;
         if ((dictionary is Rdm.DataDictionary)
             && dictionary.rsslDataDictionary() != null)
         {
             m_rsslLocalDictionary = ((Rdm.DataDictionary)dictionary).rsslDataDictionary();
-            m_OmmBaseImpl.ConfigImpl.DictionaryConfig.IsLocalDictionary = true;
+            ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary = true;
         }
-        else if (m_OmmBaseImpl.ConfigImpl.DictionaryConfig.IsLocalDictionary)
+        else if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary)
             LoadDictionaryFromFile();
         else
         {
@@ -118,7 +121,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
 
     internal bool DownloadDictionary(ServiceDirectory directory)
     {
-        if (m_OmmBaseImpl.ConfigImpl.DictionaryConfig.IsLocalDictionary)
+        if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary)
         {
             if (m_rsslLocalDictionary != null
                 && m_rsslLocalDictionary.NumberOfEntries > 0)
@@ -135,15 +138,15 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         }
 
         if (directory.ChannelInfo?.DataDictionary != null
-            || m_OmmBaseImpl.ConfigImpl.DictionaryConfig.IsLocalDictionary)
+            || ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary)
             return true;
 
-        if (m_OmmBaseImpl.ConfigImpl.AdminFieldDictionaryRequest != null
-            && m_OmmBaseImpl.ConfigImpl.AdminEnumDictionaryRequest != null)
+        if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest is not null
+            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminEnumDictionaryRequest is not null)
         {
-            if (m_OmmBaseImpl.ConfigImpl.AdminFieldDictionaryRequest.ServiceId == directory!.Service!.ServiceId
-                || (m_OmmBaseImpl.ConfigImpl.FieldDictionaryRequestServiceName != null
-                    && m_OmmBaseImpl.ConfigImpl.FieldDictionaryRequestServiceName.Equals(directory.ServiceName)))
+            if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest!.ServiceId == directory!.Service!.ServiceId
+                || (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).FieldDictionaryRequestServiceName is not null
+                    && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).FieldDictionaryRequestServiceName.Equals(directory.ServiceName)))
                 DownloadDictionaryFromService(directory);
 
             return true;
@@ -154,6 +157,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         rsslRequestMsg.DomainType = (int)Eta.Rdm.DomainType.DICTIONARY;
         rsslRequestMsg.ContainerType = Eta.Codec.DataTypes.NO_DATA;
         rsslRequestMsg.ApplyStreaming();
+
         MsgKey msgKey = rsslRequestMsg.MsgKey;
         msgKey.ApplyHasName();
         msgKey.ApplyHasFilter();
@@ -289,11 +293,11 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             m_rsslLocalDictionary.Clear();
 
         CodecError codecError;
-        if (m_rsslLocalDictionary.LoadFieldDictionary(m_OmmBaseImpl.ConfigImpl.DictionaryConfig.RdmFieldDictionaryFileName, out codecError) < 0)
+        if (m_rsslLocalDictionary.LoadFieldDictionary(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.RdmFieldDictionaryFileName, out codecError) < 0)
         {
             StringBuilder temp = commonImpl.GetStrBuilder();
             temp.Append("Unable to load RDMFieldDictionary from file named ")
-                .Append(m_OmmBaseImpl.ConfigImpl.DictionaryConfig.RdmFieldDictionaryFileName)
+                .Append(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.RdmFieldDictionaryFileName)
                 .Append(ILoggerClient.CR)
                 .Append("Current working directory ")
                 .Append(System.IO.Directory.GetCurrentDirectory())
@@ -308,11 +312,11 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             return;
         }
 
-        if (m_rsslLocalDictionary.LoadEnumTypeDictionary(m_OmmBaseImpl.ConfigImpl.DictionaryConfig.EnumTypeDefFileName, out codecError) < 0)
+        if (m_rsslLocalDictionary.LoadEnumTypeDictionary(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.EnumTypeDefFileName, out codecError) < 0)
         {
             StringBuilder temp = commonImpl.GetStrBuilder();
             temp.Append("Unable to load EnumType Dictionary from file named ")
-                .Append(m_OmmBaseImpl.ConfigImpl.DictionaryConfig.EnumTypeDefFileName)
+                .Append(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.EnumTypeDefFileName)
                 .Append(ILoggerClient.CR)
                 .Append("Current working directory ")
                 .Append(System.IO.Directory.GetCurrentDirectory())
@@ -332,10 +336,10 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             temp.Append("Successfully loaded local dictionaries: ")
                 .Append(ILoggerClient.CR)
                 .Append("RDMFieldDictionary file named ")
-                .Append(m_OmmBaseImpl.ConfigImpl.DictionaryConfig.RdmFieldDictionaryFileName)
+                .Append(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.RdmFieldDictionaryFileName)
                 .Append(ILoggerClient.CR)
                 .Append("EnumTypeDef file named ")
-                .Append(m_OmmBaseImpl.ConfigImpl.DictionaryConfig.EnumTypeDefFileName);
+                .Append(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.EnumTypeDefFileName);
 
             m_OmmBaseImpl.LoggerClient.Trace(CLIENT_NAME, temp.ToString());
         }
@@ -456,7 +460,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         rsslRequestMsg.DomainType = (int)Eta.Rdm.DomainType.DICTIONARY;
         rsslRequestMsg.ContainerType = Eta.Codec.DataTypes.NO_DATA;
 
-        DictionaryRequest rsslDictRequest = m_OmmBaseImpl.ConfigImpl.AdminFieldDictionaryRequest!;
+        DictionaryRequest rsslDictRequest = ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest!;
         if (rsslDictRequest.Streaming == true)
             rsslRequestMsg.ApplyStreaming();
 
@@ -519,7 +523,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         rsslRequestMsg.DomainType = (int)Eta.Rdm.DomainType.DICTIONARY;
         rsslRequestMsg.ContainerType = Eta.Codec.DataTypes.NO_DATA;
 
-        DictionaryRequest rsslEnumDictRequest = m_OmmBaseImpl.ConfigImpl.AdminEnumDictionaryRequest!;
+        DictionaryRequest rsslEnumDictRequest = ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminEnumDictionaryRequest!;
         if (rsslEnumDictRequest!.Streaming)
         {
             rsslRequestMsg.ApplyStreaming();
@@ -586,6 +590,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
                 return true;
             else
             {
+
                 if (m_ChannelDictionaryList == null || m_ChannelDictionaryList.Count == 0)
                     return false;
 
@@ -696,7 +701,6 @@ internal class DictionaryCallbackClientConsumer : DictionaryCallbackClient<IOmmC
         }
     }
 }
-
 
 class ChannelDictionary<T>
 {
@@ -1247,6 +1251,7 @@ internal class DictionaryItem<T> : SingleItem<T>, ITimeoutClient
         m_CurrentFid = 0;
         m_NeedRemoved = false;
         m_Removed = false;
+
         m_type = ItemType.DICTIONARY_ITEM;
     }
 
@@ -1662,6 +1667,873 @@ internal class DictionaryItem<T> : SingleItem<T>, ITimeoutClient
             return retCode;
 
         return complete ? CodecReturnCode.SUCCESS : CodecReturnCode.DICT_PART_ENCODED;
+    }
+}
+
+internal class NiProviderDictionaryItem<T> : SingleItem<T>, IProviderItem
+{
+    private static readonly string CLIENT_NAME = "NiProviderDictionaryItem";
+
+    protected MsgKey m_MsgKey = new();
+    protected ItemWatchList m_ItemWatchList;
+    protected bool m_IsPrivateStream;
+    protected bool m_SpecifiedServiceInReq;
+    TimeoutEvent? m_ReqTimeoutEvent;
+    bool m_ReceivedInitResp;
+
+    public MsgKey MsgKey => m_MsgKey;
+
+    public ClientSession? ClientSession => null;
+
+    public int ServiceId => m_ServiceId;
+
+    public TimeoutEvent? ReqTimeoutEvent => m_ReqTimeoutEvent;
+
+    public ItemWatchList ItemWatchList => m_ItemWatchList!;
+
+    public Locker UserLock { get; private set; }
+
+    public LinkedListNode<IProviderItem>? ItemListNode { get; set; }
+
+    private OmmNiProviderImpl m_OmmNiProviderImpl;
+
+    internal NiProviderDictionaryItem(OmmBaseImpl<T> baseImpl, T client, object? closure)
+        : base(baseImpl, client, closure, null)
+    {
+        m_OmmNiProviderImpl = (m_OmmBaseImpl as OmmNiProviderImpl)!;
+        m_ItemWatchList = m_OmmNiProviderImpl.ItemWatchlist();
+        UserLock = baseImpl.UserLock;
+        m_type = ItemType.NIPROVIDER_DICTIONARY_ITEM;
+    }
+
+    public override bool Open(RequestMsg reqMsg)
+    {
+        string? serviceName = null;
+
+        if (reqMsg.HasServiceName)
+        {
+            serviceName = reqMsg.ServiceName();
+
+            if (m_OmmNiProviderImpl.GetDirectoryServiceStore().GetServiceIdByName(serviceName,
+                out int serviceId) == false)
+            {
+                m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), this);
+
+                StringBuilder text = m_OmmBaseImpl.GetStrBuilder();
+                text.Append($"Service name of '{serviceName}' is not found.");
+
+                ScheduleItemClosedStatus(m_OmmBaseImpl.ItemCallbackClient, this,
+                    reqMsg.m_requestMsgEncoder.m_rsslMsg, text.ToString(), serviceName);
+
+                return true;
+            }
+            else
+            {
+                m_ServiceId = serviceId;
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ApplyHasServiceId();
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ServiceId = m_ServiceId;
+                m_SpecifiedServiceInReq = true;
+            }
+        }
+        else if (reqMsg.HasServiceId)
+        {
+            if (m_OmmNiProviderImpl.GetDirectoryServiceStore().GetServiceNameById(reqMsg.ServiceId(),
+                out serviceName) == false)
+            {
+                m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), this);
+
+                StringBuilder text = m_OmmBaseImpl.GetStrBuilder();
+                text.Append($"Service id of '{reqMsg.ServiceId()}' is not found.");
+
+                ScheduleItemClosedStatus(m_OmmBaseImpl.ItemCallbackClient, this,
+                    reqMsg.m_requestMsgEncoder.m_rsslMsg, text.ToString(), serviceName);
+
+                return true;
+            }
+            else
+            {
+                m_ServiceId = reqMsg.ServiceId();
+                m_SpecifiedServiceInReq = true;
+            }
+        }
+
+        m_IsPrivateStream = reqMsg.PrivateStream();
+
+        m_ServiceDirectory = new ServiceDirectory(serviceName!);
+
+        reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.Copy(m_MsgKey);
+
+        return Submit(reqMsg.m_requestMsgEncoder.m_rsslMsg as IRequestMsg, null, false);
+    }
+
+    public override bool Modify(RequestMsg reqMsg)
+    {
+        if (ClosedStatusClient != null)
+            return false;
+
+        if (reqMsg.HasServiceName)
+        {
+            if (m_SpecifiedServiceInReq && (m_ServiceDirectory != null) &&
+                reqMsg.ServiceName().Equals(m_ServiceDirectory.ServiceName))
+            {
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ApplyHasServiceId();
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ServiceId = ServiceId;
+            }
+            else
+            {
+                StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
+                message.Append($"Service name of '{reqMsg.ServiceName()}' does not match existing request.")
+                    .Append($" Instance name='{m_OmmBaseImpl.InstanceName}'.");
+
+                if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                {
+                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
+                }
+
+                m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+
+                return false;
+            }
+        }
+        else if (reqMsg.HasServiceId)
+        {
+            if (!m_SpecifiedServiceInReq || reqMsg.ServiceId() != m_ServiceId)
+            {
+                StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
+                message.Append($"Service id of '{reqMsg.ServiceId()}' does not match existing request.")
+                    .Append($" Instance name='{m_OmmBaseImpl.InstanceName}'.");
+
+                if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                {
+                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
+                }
+
+                m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+
+                return false;
+            }
+        }
+        else
+        {
+            if (m_SpecifiedServiceInReq)
+            {
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ApplyHasServiceId();
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ServiceId = ServiceId;
+            }
+        }
+
+        if (reqMsg.HasName)
+        {
+            if (reqMsg.Name().Equals(m_MsgKey.Name.ToString()) == false)
+            {
+                StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
+                message.Append($"Name of '{reqMsg.Name()}' does not match existing request.")
+                    .Append($" Instance name='{m_OmmBaseImpl.InstanceName}'.");
+
+                if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                {
+                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
+                }
+
+                m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+
+                return false;
+            }
+        }
+        else
+        {
+            reqMsg.Name(m_MsgKey.Name.ToString());
+            reqMsg.NameType(m_MsgKey.NameType);
+        }
+
+        reqMsg.m_requestMsgEncoder.m_rsslMsg.DomainType = Rdm.EmaRdm.MMT_DICTIONARY;
+
+        return base.Modify(reqMsg);
+    }
+
+    public override int GetNextStreamId(int numOfItem)
+    {
+        return m_OmmNiProviderImpl.NextProviderStreamId();
+    }
+
+    public override void Remove()
+    {
+        CancelReqTimerEvent();
+
+        base.Remove();
+
+        m_OmmNiProviderImpl.ReturnProviderStreamId(StreamId);
+
+        m_ItemWatchList.RemoveItem(this);
+    }
+
+    protected override bool Submit(IRequestMsg requestMsg, string? serviceName, bool isReissue)
+    {
+        ReactorSubmitOptions submitOptions = m_OmmBaseImpl.GetSubmitOptions();
+        submitOptions.ServiceName = null;
+
+        if (StreamId == 0)
+        {
+            requestMsg.StreamId = GetNextStreamId(0);
+            StreamId = requestMsg.StreamId;
+
+            m_OmmBaseImpl.ItemCallbackClient!.AddToMap(m_OmmBaseImpl.NextLongId(), this);
+        }
+        else
+        {
+            requestMsg.StreamId = StreamId;
+        }
+
+        if (DomainType == 0)
+        {
+            DomainType = requestMsg.DomainType;
+        }
+        else
+        {
+            requestMsg.DomainType = DomainType;
+        }
+
+        ReactorChannel? reactorChannel = m_OmmBaseImpl.LoginCallbackClient!.ActiveChannelInfo()?.ReactorChannel;
+        if (reactorChannel != null)
+        {
+            ReactorReturnCode ret;
+            if ((ret = reactorChannel.Submit(requestMsg, submitOptions, out var ErrorInfo))
+                < ReactorReturnCode.SUCCESS)
+            {
+                StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
+
+                if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                {
+                    Error? error = ErrorInfo?.Error;
+
+                    message.Append("Internal error: ReactorChannel.Submit() failed in NiProviderDictionaryItem.Submit(IRequestMsg requestMsg)")
+                    .AppendLine($"Channel {error?.Channel?.GetHashCode()}")
+                        .AppendLine($"Error Id {error?.ErrorId}")
+                        .AppendLine($"Internal sysError {error?.SysError}")
+                        .AppendLine($"Error Location {ErrorInfo?.Location}")
+                        .Append($"Error Text {error?.Text}");
+
+                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
+
+                    message.Clear();
+                }
+
+                message.Append("Failed to open or modify item request. Reason: ")
+                    .Append(ret)
+                    .Append(". Error text: ")
+                    .Append(ErrorInfo?.Error.Text);
+
+                m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), (int)ret);
+
+                return false;
+            }
+        }
+        else
+        {
+            StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
+
+            if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+            {
+                message.Append("Internal error: ReactorChannel.Submit() failed in NiProviderDictionaryItem.Submit(IRequestMsg requestMsg)")
+                .AppendLine($"ReactorChannel is not avaliable");
+
+                m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
+
+                message.Clear();
+            }
+
+            message.Append("Failed to open or modify item request. Reason: ReactorChannel is not avaliable");
+
+            m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), (int)ReactorReturnCode.FAILURE);
+
+            return false;
+        }
+
+        if (!isReissue)
+        {
+            m_ItemWatchList.AddItem(this);
+        }
+
+        int requestTimeout = m_OmmNiProviderImpl.RequestTimeout();
+
+        if (requestTimeout > 0)
+        {
+            CancelReqTimerEvent();
+            m_ReqTimeoutEvent = m_OmmBaseImpl.TimeoutEventManager!.AddTimeoutEvent(requestTimeout * 1000,
+                new ItemTimeOut(this));
+        }
+
+        return true;
+    }
+
+    public override bool Submit(GenericMsg genericMsg)
+    {
+        return false;
+    }
+
+    public void CancelReqTimerEvent()
+    {
+        if (m_ReqTimeoutEvent != null)
+        {
+            if (m_ReqTimeoutEvent.Cancelled == false)
+            {
+                m_ReqTimeoutEvent.Cancel();
+            }
+        }
+    }
+
+    public bool ProcessInitialResp(IRefreshMsg refreshMsg)
+    {
+        bool result = true;
+
+        if (m_ReceivedInitResp == false)
+        {
+            if (DomainType != refreshMsg.DomainType)
+            {
+                result = false;
+            }
+
+            m_IsPrivateStream = refreshMsg.CheckPrivateStream();
+
+            if (MsgKey.Equals(refreshMsg.MsgKey) == false)
+            {
+                result = false;
+            }
+
+            m_ReceivedInitResp = true;
+        }
+
+        return result;
+    }
+
+    public bool RequestWithService()
+    {
+        return m_SpecifiedServiceInReq;
+    }
+
+    public void ScheduleItemClosedRecoverableStatus(string statusText, bool initiateTimeout)
+    {
+        if (ClosedStatusClient != null) return;
+
+        CancelReqTimerEvent();
+
+        ClosedStatusClient = new ClosedStatusClient<T>(m_OmmBaseImpl.ItemCallbackClient!, this, m_MsgKey, m_IsPrivateStream,
+            statusText, m_ServiceDirectory?.ServiceName);
+
+        if (initiateTimeout)
+        {
+            m_OmmBaseImpl.TimeoutEventManager!.AddTimeoutEvent(100, ClosedStatusClient);
+        }
+        else
+        {
+            ClosedStatusClient.HandleTimeoutEvent();
+        }
+    }
+
+    public void SendCloseMsg()
+    {
+        ICloseMsg closeMsg = m_OmmBaseImpl.ItemCallbackClient!.CloseMsg();
+        closeMsg.ContainerType = DataTypes.NO_DATA;
+        closeMsg.DomainType = DomainType;
+
+        Submit(closeMsg);
+    }
+}
+
+// used to track Dictionary requests initiated by the Interactive Provider to ADH:
+// preserves client application callback, setups timeout timer, etc.
+internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
+{
+    public int DomainType { get; set; }
+
+    public int StreamId { get; private set; }
+
+    public object? Closure { get; private set; }
+
+    public IOmmProviderClient? Client { get; private set; }
+
+    public long ItemId { get; set; }
+
+    public Item<IOmmProviderClient>? Parent { get; private set; }
+
+    public ClosedStatusClient<IOmmProviderClient>? ClosedStatusClient { get; set; }
+
+    public MsgKey MsgKey => m_MsgKey;
+
+    public ClientSession? ClientSession { get => m_ClientSession; }
+
+    public int ServiceId { get; private set; }
+
+    public TimeoutEvent? ReqTimeoutEvent { get; private set; }
+
+    public ItemWatchList ItemWatchList { get => m_ItemWatchList; }
+
+    public Locker UserLock => m_OmmIProviderImpl.GetUserLocker();
+
+    public LinkedListNode<IProviderItem>? ItemListNode { get; set; }
+
+    private const string CLIENT_NAME = "IProviderDictionaryItem";
+    private readonly ItemWatchList m_ItemWatchList;
+    private readonly OmmIProviderImpl m_OmmIProviderImpl;
+    private readonly MsgKey m_MsgKey = new MsgKey();
+
+    private ServiceDirectory? m_ServiceDirectory;
+    private bool m_IsPrivateStream;
+    private bool m_SpecifiedServiceInReq;
+    private bool m_ReceivedInitResp = false;
+    private ClientSession? m_ClientSession;
+
+    public IProviderDictionaryItem(OmmIProviderImpl baseImpl, IOmmProviderClient? client, object? closure)
+    {
+        DomainType = 0;
+        StreamId = 0;
+        Closure = closure;
+        Parent = null;
+        Client = client;
+
+        m_OmmIProviderImpl = baseImpl;
+        m_ItemWatchList = baseImpl.m_ItemWatchList;
+    }
+
+    public ItemType Type()
+    {
+        return ItemType.IPROVIDER_DICTIONARY_ITEM;
+    }
+
+    public void BackToPool()
+    {
+        // Do nothing: As IProviderDictionaryItem is not a poolable resource, it is not
+        // expected to be returned or obtained from the pool
+        return;
+    }
+
+    public void CancelReqTimerEvent()
+    {
+        if (ReqTimeoutEvent is not null
+            && ReqTimeoutEvent.Cancelled == false)
+        {
+            ReqTimeoutEvent.Cancel();
+        }
+    }
+
+    public bool Close()
+    {
+        ICloseMsg closeMsg = m_OmmIProviderImpl.ItemCallbackClient!.CloseMsg();
+        closeMsg.ContainerType = DataTypes.NO_DATA;
+        closeMsg.DomainType = DomainType;
+
+        Remove();
+
+        bool retCode = Submit(closeMsg);
+
+        return retCode;
+    }
+
+    public ServiceDirectory? Directory()
+    {
+        return m_ServiceDirectory;
+    }
+
+    public int GetNextStreamId(int numOfItem)
+    {
+        return -m_OmmIProviderImpl.ItemCallbackClient.NextStreamId(numOfItem);
+    }
+
+    public bool Modify(RequestMsg reqMsg)
+    {
+        if (ClosedStatusClient != null)
+            return false;
+
+        if (reqMsg.HasServiceName)
+        {
+            if (m_SpecifiedServiceInReq
+                && m_ServiceDirectory is not null
+                && reqMsg.ServiceName().Equals(m_ServiceDirectory.ServiceName))
+            {
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ApplyHasServiceId();
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ServiceId = ServiceId;
+            }
+            else
+            {
+                StringBuilder message = m_OmmIProviderImpl.GetStrBuilder();
+                message.Append($"Service name of '{reqMsg.ServiceName()}' does not match existing request.")
+                    .Append($" Instance name='{m_OmmIProviderImpl.InstanceName}'.");
+
+                if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
+                {
+                    m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
+                }
+
+                m_OmmIProviderImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+
+                return false;
+            }
+        }
+        else if (reqMsg.HasServiceId)
+        {
+            if (!m_SpecifiedServiceInReq || reqMsg.ServiceId() != ServiceId)
+            {
+                StringBuilder message = m_OmmIProviderImpl.GetStrBuilder();
+                message.Append($"Service id of '{reqMsg.ServiceId()}' does not match existing request.")
+                    .Append($" Instance name='{m_OmmIProviderImpl.InstanceName}'.");
+
+                if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
+                {
+                    m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
+                }
+
+                m_OmmIProviderImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+
+                return false;
+            }
+        }
+        else
+        {
+            if (m_SpecifiedServiceInReq)
+            {
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ApplyHasServiceId();
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ServiceId = ServiceId;
+            }
+        }
+
+        if (reqMsg.HasName)
+        {
+            if (!reqMsg.Name().Equals(m_MsgKey.Name.ToString()))
+            {
+                StringBuilder message = m_OmmIProviderImpl.GetStrBuilder();
+                message.Append($"Name of '{reqMsg.Name()}' does not match existing request.")
+                    .Append($" Instance name='{m_OmmIProviderImpl.InstanceName}'.");
+
+                if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
+                {
+                    m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
+                }
+
+                m_OmmIProviderImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+
+                return false;
+            }
+        }
+        else
+        {
+            reqMsg.Name(m_MsgKey.Name.ToString());
+            reqMsg.NameType(m_MsgKey.NameType);
+        }
+
+        reqMsg.m_requestMsgEncoder.m_rsslMsg.DomainType = Rdm.EmaRdm.MMT_DICTIONARY;
+
+        string? serviceName = reqMsg.HasServiceName ? reqMsg.ServiceName() : null;
+
+        return Submit(reqMsg.m_rsslMsg, serviceName, true);
+    }
+
+    public bool Open(RequestMsg reqMsg)
+    {
+        string? serviceName = null;
+
+        if (reqMsg.HasServiceName)
+        {
+            serviceName = reqMsg.ServiceName();
+
+            if (m_OmmIProviderImpl.GetDirectoryServiceStore().GetServiceIdByName(serviceName,
+                out int serviceId) == false)
+            {
+                m_OmmIProviderImpl.ItemCallbackClient.AddToItemMap(m_OmmIProviderImpl.NextLongId(), this);
+
+                StringBuilder text = m_OmmIProviderImpl.GetStrBuilder();
+                text.Append($"Service name of '{serviceName}' is not found.");
+
+                ScheduleItemClosedStatus(m_OmmIProviderImpl.ItemCallbackClient, this,
+                    reqMsg.m_requestMsgEncoder.m_rsslMsg, text.ToString(), serviceName);
+
+                return true;
+            }
+            else
+            {
+                ServiceId = serviceId;
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ApplyHasServiceId();
+                reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.ServiceId = ServiceId;
+                m_SpecifiedServiceInReq = true;
+            }
+        }
+        else if (reqMsg.HasServiceId)
+        {
+            if (m_OmmIProviderImpl.GetDirectoryServiceStore().GetServiceNameById(reqMsg.ServiceId(),
+                out serviceName) == false)
+            {
+                m_OmmIProviderImpl.ItemCallbackClient!.AddToItemMap(m_OmmIProviderImpl.NextLongId(), this);
+
+                StringBuilder text = m_OmmIProviderImpl.GetStrBuilder();
+                text.Append($"Service id of '{reqMsg.ServiceId()}' is not found.");
+
+                ScheduleItemClosedStatus(m_OmmIProviderImpl.ItemCallbackClient, this,
+                    reqMsg.m_requestMsgEncoder.m_rsslMsg, text.ToString(), serviceName);
+
+                return true;
+            }
+            else
+            {
+                ServiceId = reqMsg.ServiceId();
+                m_SpecifiedServiceInReq = true;
+            }
+        }
+
+        m_IsPrivateStream = reqMsg.PrivateStream();
+
+        m_ServiceDirectory = new ServiceDirectory(serviceName!);
+
+        reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.Copy(m_MsgKey);
+
+        return Submit(reqMsg.m_requestMsgEncoder.m_rsslMsg, null, false);
+    }
+
+    public bool ProcessInitialResp(IRefreshMsg refreshMsg)
+    {
+        bool result = true;
+
+        if (m_ReceivedInitResp == false)
+        {
+            if (DomainType != refreshMsg.DomainType)
+                result = false;
+
+            m_IsPrivateStream = refreshMsg.CheckPrivateStream();
+
+            if (!m_MsgKey.Equals(refreshMsg.MsgKey))
+            {
+                result = false;
+            }
+
+            m_ReceivedInitResp = true;
+        }
+
+        return result;
+    }
+
+    public void Remove()
+    {
+        CancelReqTimerEvent();
+
+        m_OmmIProviderImpl.ItemCallbackClient!.RemoveFromMap(this);
+
+        m_ItemWatchList.RemoveItem(this);
+    }
+
+    public bool RequestWithService()
+    {
+        return m_SpecifiedServiceInReq;
+    }
+
+    public void ScheduleItemClosedRecoverableStatus(string statusText, bool initiateTimeout)
+    {
+
+        if (ClosedStatusClient is not null)
+            return;
+
+        CancelReqTimerEvent();
+
+        ClosedStatusClient = new ClosedStatusClient<IOmmProviderClient>(m_OmmIProviderImpl.ItemCallbackClient, this, m_MsgKey, m_IsPrivateStream,
+            statusText, m_ServiceDirectory?.ServiceName);
+
+        if ( initiateTimeout )
+            m_OmmIProviderImpl.TimeoutEventManager!.AddTimeoutEvent(100, ClosedStatusClient);
+        else
+            ClosedStatusClient.HandleTimeoutEvent();
+    }
+
+    public void SendCloseMsg()
+    {
+        ICloseMsg rsslCloseMsg = m_OmmIProviderImpl.ItemCallbackClient!.CloseMsg();
+        rsslCloseMsg.ContainerType = DataTypes.NO_DATA;
+        rsslCloseMsg.DomainType = DomainType;
+
+        Submit(rsslCloseMsg);
+    }
+
+    public bool Submit(RefreshMsg refreshMsg) => false;
+
+    public bool Submit(UpdateMsg updateMsg) => false;
+
+    public bool Submit(StatusMsg statusMsg) => false;
+
+    public bool Submit(PostMsg postMsg) => false;
+
+    public bool Submit(GenericMsg genericMsg) => false;
+
+    private bool Submit(ICloseMsg closeMsg)
+    {
+        ReactorSubmitOptions submitOptions = m_OmmIProviderImpl.GetSubmitOptions();
+        submitOptions.ServiceName = null;
+
+        submitOptions.RequestMsgOptions.UserSpecObj = this;
+
+        ReactorChannel reactorChannel = m_ClientSession!.Channel();
+
+        if (reactorChannel == null || !m_ClientSession.IsActiveClientSession)
+        {
+            StringBuilder strBuilder = m_OmmIProviderImpl.GetStrBuilder();
+            strBuilder.Append($"Failed to close item request. Reason: client session is no longer active.");
+
+            m_OmmIProviderImpl.HandleInvalidUsage(strBuilder.ToString(), OmmInvalidUsageException.ErrorCodes.NO_ACTIVE_CHANNEL);
+
+            if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
+            {
+                m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME, strBuilder.ToString());
+            }
+
+            return false;
+        }
+
+        if (StreamId == 0)
+        {
+            if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
+            {
+                m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME,
+                    $"Invalid streamId for this item in in IProviderDictionaryItem.Submit(CloseMsg)");
+            }
+
+            return false;
+        }
+        else
+        {
+            closeMsg.StreamId = StreamId;
+        }
+
+        ReactorReturnCode retCode = reactorChannel.Submit((Eta.Codec.Msg)closeMsg, submitOptions, out ReactorErrorInfo? errorInfo);
+
+        if (retCode < ReactorReturnCode.SUCCESS)
+        {
+            StringBuilder strBuilder = m_OmmIProviderImpl.GetStrBuilder();
+
+            if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
+            {
+                strBuilder.Append("Internal error: ReactorChannel.Submit() failed in IProviderDictionaryItem.Submit(ICloseMsg)")
+                    .AppendLine($"\tChannel {errorInfo?.Error.Channel}")
+                    .AppendLine($"\tError Id {errorInfo?.Error.ErrorId}")
+                    .AppendLine($"\tInternal SysError {errorInfo?.Error.SysError}")
+                    .AppendLine($"\tError Location {errorInfo?.Location}")
+                    .AppendLine($"\tError Text {errorInfo?.Error.Text}");
+
+                m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME, strBuilder.ToString());
+                strBuilder.Clear();
+            }
+
+            strBuilder.Append($"Failed to close item request. Reason: {retCode}")
+                .Append($". Error text: {errorInfo?.Error.Text}");
+
+            m_OmmIProviderImpl.HandleInvalidUsage(strBuilder.ToString(), (int)retCode);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool Submit(IRequestMsg requestMsg, string? serviceName, bool isReissue)
+    {
+        ReactorSubmitOptions submitOptions = m_OmmIProviderImpl.GetSubmitOptions();
+        submitOptions.ServiceName = null;
+
+        if (StreamId == 0)
+        {
+            requestMsg.StreamId = GetNextStreamId(0);
+            StreamId = requestMsg.StreamId;
+
+            m_OmmIProviderImpl.ItemCallbackClient!.AddToMap(m_OmmIProviderImpl.NextLongId(), this);
+        }
+        else
+        {
+            requestMsg.StreamId = StreamId;
+        }
+
+        if (DomainType == 0)
+        {
+            DomainType = requestMsg.DomainType;
+        }
+        else
+        {
+            requestMsg.DomainType = DomainType;
+        }
+
+        m_ClientSession ??= m_OmmIProviderImpl.ServerChannelHandler.ClientSessionForDictReq();
+
+        ReactorChannel? reactorChannel = m_ClientSession?.m_ReactorChannel;
+        if (reactorChannel is null)
+        {
+            StringBuilder message = m_OmmIProviderImpl.GetStrBuilder();
+
+            if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
+            {
+                message.Append("Internal error: ReactorChannel.Submit() failed in IProviderDictionaryItem.Submit(IRequestMsg requestMsg)")
+                    .AppendLine($"ReactorChannel is not avaliable");
+
+                m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
+
+                message.Clear();
+            }
+
+            message.Append("Failed to open or modify item request. Reason: ReactorChannel is not avaliable");
+
+            m_OmmIProviderImpl.HandleInvalidUsage(message.ToString(), (int)ReactorReturnCode.FAILURE);
+
+            return false;
+        }
+
+        ReactorReturnCode ret;
+        if ((ret = reactorChannel.Submit(requestMsg, submitOptions, out var ErrorInfo))
+            < ReactorReturnCode.SUCCESS)
+        {
+            StringBuilder message = m_OmmIProviderImpl.GetStrBuilder();
+
+            if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
+            {
+                Error? error = ErrorInfo?.Error;
+
+                message.Append("Internal error: ReactorChannel.Submit() failed in IProviderDictionaryItem.Submit(IRequestMsg requestMsg)")
+                    .AppendLine($"Channel {error?.Channel?.GetHashCode()}")
+                    .AppendLine($"Error Id {error?.ErrorId}")
+                    .AppendLine($"Internal sysError {error?.SysError}")
+                    .AppendLine($"Error Location {ErrorInfo?.Location}")
+                    .Append($"Error Text {error?.Text}");
+
+                m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
+
+                message.Clear();
+            }
+
+            message.Append("Failed to open or modify item request. Reason: ")
+                .Append(ret)
+                .Append(". Error text: ").Append(ErrorInfo?.Error.Text);
+
+            m_OmmIProviderImpl.HandleInvalidUsage(message.ToString(), (int)ret);
+
+            return false;
+        }
+
+        if (!isReissue)
+        {
+            m_ItemWatchList.AddItem(this);
+        }
+
+        int requestTimeout = m_OmmIProviderImpl.RequestTimeout();
+
+        if (requestTimeout > 0)
+        {
+            CancelReqTimerEvent();
+            ReqTimeoutEvent = m_OmmIProviderImpl.TimeoutEventManager!.AddTimeoutEvent(requestTimeout * 1000,
+                new ItemTimeOut(this));
+        }
+
+        return true;
+    }
+
+    private void ScheduleItemClosedStatus(CallbackClient<IOmmProviderClient> client, IProviderDictionaryItem item,
+        IMsg rsslMsg, string statusText, string? serviceName)
+    {
+        if (ClosedStatusClient is not null)
+            return;
+
+        ClosedStatusClient = new ClosedStatusClient<IOmmProviderClient>(client, item, rsslMsg, statusText, serviceName);
+        m_OmmIProviderImpl.TimeoutEventManager!.AddTimeoutEvent(1000, ClosedStatusClient);
     }
 }
 

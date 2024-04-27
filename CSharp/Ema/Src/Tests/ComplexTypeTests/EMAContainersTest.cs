@@ -647,13 +647,15 @@ namespace LSEG.Ema.Access.Tests
             LoadEnumTypeDictionary(dataDictionary);
             LoadFieldDictionary(dataDictionary);
             FieldList fieldListEnc = new();
-            fieldListEnc.AddArray(30013, new OmmArray().AddInt(1).AddInt(2).Complete());
+            OmmArray ommArrayEnc = new OmmArray().AddInt(1).AddInt(2).Complete();
+            OmmArray ommArrayEnc2 = new OmmArray().AddUInt(3).AddUInt(4).Complete();
+            fieldListEnc.AddArray(30013, ommArrayEnc);
             fieldListEnc.AddCodeArray(30015);
-            fieldListEnc.AddArray(30020, new OmmArray().AddUInt(3).AddUInt(4).Complete());
+            fieldListEnc.AddArray(30020, ommArrayEnc2);
             fieldListEnc.Complete();
 
             FieldList fieldListDec = new();
-            fieldListDec.Decode(Codec.MajorVersion(), Codec.MinorVersion(), fieldListEnc.Encoder!.GetEncodedBuffer(), dataDictionary, null);
+            fieldListDec.Decode(Codec.MajorVersion(), Codec.MinorVersion(), fieldListEnc.Encoder!.GetEncodedBuffer(false), dataDictionary, null);
 
             var iterator = fieldListDec.GetEnumerator();
             Assert.True(iterator.MoveNext());
@@ -695,19 +697,28 @@ namespace LSEG.Ema.Access.Tests
             Assert.False(arrayIt.MoveNext()); // Ensure there is no more OmmArrayEntry
 
             Assert.False(iterator.MoveNext()); // Ensure there is no more FieldEntry
+
+            ommArrayEnc.ClearAndReturnToPool_All();
+            ommArrayEnc2.ClearAndReturnToPool_All();
+            fieldListEnc.ClearAndReturnToPool_All();
+            fieldListDec.ClearAndReturnToPool_All();
+            CheckEmaObjectManagerPoolSizes(m_objectManager);
+            CheckEtaGlobalPoolSizes();
         }
 
         [Fact]
         public void OmmArrayInFieldEntryWithBlankDataElementList_Test()
         {
             ElementList elementListEnc = new();
-            elementListEnc.AddArray("30013", new OmmArray().AddInt(1).AddInt(2).Complete());
+            OmmArray ommArrayEnc = new OmmArray().AddInt(1).AddInt(2).Complete();
+            OmmArray ommArrayEnc2 = new OmmArray().AddUInt(3).AddUInt(4).Complete();
+            elementListEnc.AddArray("30013", ommArrayEnc);
             elementListEnc.AddCodeArray("30015");
-            elementListEnc.AddArray("30020", new OmmArray().AddUInt(3).AddUInt(4).Complete());
+            elementListEnc.AddArray("30020", ommArrayEnc2);
             elementListEnc.Complete();
 
             ElementList elementListDec = new();
-            elementListDec.Decode(Codec.MajorVersion(), Codec.MinorVersion(), elementListEnc.Encoder!.GetEncodedBuffer(), null, null);
+            elementListDec.Decode(Codec.MajorVersion(), Codec.MinorVersion(), elementListEnc.Encoder!.GetEncodedBuffer(false), null, null);
 
             var iterator = elementListDec.GetEnumerator();
             Assert.True(iterator.MoveNext());
@@ -749,6 +760,13 @@ namespace LSEG.Ema.Access.Tests
             Assert.False(arrayIt.MoveNext()); // Ensure there is no more OmmArrayEntry
 
             Assert.False(iterator.MoveNext()); // Ensure there is no more ElementEntry
+
+            ommArrayEnc.ClearAndReturnToPool_All();
+            ommArrayEnc2.ClearAndReturnToPool_All();
+            elementListEnc.ClearAndReturnToPool_All();
+            elementListDec.ClearAndReturnToPool_All();
+            CheckEmaObjectManagerPoolSizes(m_objectManager);
+            CheckEtaGlobalPoolSizes();
         }
 
         private void CheckEtaGlobalPoolSizes()

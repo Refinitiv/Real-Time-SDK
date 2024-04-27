@@ -284,7 +284,7 @@ public class MultithreadingTests
 				++NumRefreshCompleteMessage;
 
 			/* Checks the requested and received item name must be the same */
-			Assert.True(closure.Equals(refreshMsg.MsgKey.Name.ToString()));
+			Assert.Equal(closure, refreshMsg.MsgKey.Name.ToString());
 
 			if (m_ViewFids != null)
 			{

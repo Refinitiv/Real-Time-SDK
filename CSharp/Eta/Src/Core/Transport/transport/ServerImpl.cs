@@ -470,7 +470,7 @@ namespace LSEG.Eta.Transports
                     case IOCtlCode.SERVER_NUM_POOL_BUFFERS:
                         {
                             /* SERVER_NUM_POOL_BUFFERS: the per server number of
-                             * sharedPool buffers that ETAJ will share with channels of a server.
+                             * sharedPool buffers that ETA will share with channels of a server.
                              */
                             if (value > 0)
                             {

@@ -101,15 +101,15 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.Equal(MapEntryActions.ADD, serviceCache.Service("NI_PUB").RdmService.Action);
 
             // verify service name can be retrieved by service id and vice-versa
-            Assert.True(serviceCache.ServiceName(460).Equals("IDN_RDF"));
+            Assert.Equal("IDN_RDF", serviceCache.ServiceName(460));
             Assert.Equal(460, serviceCache.ServiceId("IDN_RDF"));
-            Assert.True(serviceCache.ServiceName(7191).Equals("ELEKTRON_DD"));
+            Assert.Equal("ELEKTRON_DD", serviceCache.ServiceName(7191));
             Assert.Equal(7191, serviceCache.ServiceId("ELEKTRON_DD"));
-            Assert.True(serviceCache.ServiceName(7001).Equals("QPR0V1"));
+            Assert.Equal("QPR0V1", serviceCache.ServiceName(7001));
             Assert.Equal(7001, serviceCache.ServiceId("QPR0V1"));
-            Assert.True(serviceCache.ServiceName(7002).Equals("QPR0V2"));
+            Assert.Equal("QPR0V2", serviceCache.ServiceName(7002));
             Assert.Equal(7002, serviceCache.ServiceId("QPR0V2"));
-            Assert.True(serviceCache.ServiceName(37397).Equals("NI_PUB"));
+            Assert.Equal("NI_PUB", serviceCache.ServiceName(37397));
             Assert.Equal(37397, serviceCache.ServiceId("NI_PUB"));
 
             directoryRefresh = CreateDirectoryRefresh(new List<String> { "NI_PUB" }, 

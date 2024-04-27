@@ -5,8 +5,8 @@
     <RootNamespace>LSEG.Ema.PerfTools.Common</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<AssemblyName>$(AssemblyName.Replace("_NET6.0", ""))</AssemblyName>
-	<BaseOutputPath>$(SolutionDir)Ema\Libs\</BaseOutputPath>
+    <AssemblyName>$(AssemblyName.Replace("_NET6.0", ""))</AssemblyName>
+    <BaseOutputPath>..\..\Libs\</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

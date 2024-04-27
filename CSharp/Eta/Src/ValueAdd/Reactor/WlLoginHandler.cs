@@ -638,9 +638,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
             {
                 // only save service name when not a reissue
                 wlRequest.WatchlistStreamInfo.ServiceName = submitOptions.ServiceName;
-
-                // add stream to watchlist table
-                //m_Watchlist.StreamIdToWlStreamDict![requestMsg.StreamId] = Stream;
             }
             wlRequest.WatchlistStreamInfo.UserSpec = submitOptions.RequestMsgOptions.UserSpecObj;
 

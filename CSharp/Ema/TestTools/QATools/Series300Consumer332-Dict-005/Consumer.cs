@@ -22,7 +22,7 @@ internal class AppClient : IOmmConsumerClient
 	
 	public void OnRefreshMsg(RefreshMsg refreshMsg, IOmmConsumerEvent @event)
 	{
-		Console.WriteLine("Received Refresh. Item Handle: " + @event.Handle + " Closure: " + @event.Closure);
+		Console.WriteLine("Received Refresh. Item Handle: " + @event.Handle + " Closure: " + (@event.Closure ?? "null"));
 
 		Console.WriteLine("Item Name: " + (refreshMsg.HasName ? refreshMsg.Name() : "<not set>"));
 		Console.WriteLine("Service Name: " + (refreshMsg.HasServiceName ? refreshMsg.ServiceName() : "<not set>"));
@@ -35,7 +35,7 @@ internal class AppClient : IOmmConsumerClient
 
 	public void OnUpdateMsg(UpdateMsg updateMsg, IOmmConsumerEvent @event)
 	{
-		Console.WriteLine("Received Update. Item Handle: " + @event.Handle + " Closure: " + @event.Closure);
+		Console.WriteLine($"Received Status. Item Handle: {@event.Handle} Closure: {@event.Closure ?? "null"}");
 
 		Console.WriteLine("Item Name: " + (updateMsg.HasName ? updateMsg.Name() : "<not set>"));
 		Console.WriteLine("Service Name: " + (updateMsg.HasServiceName ? updateMsg.ServiceName() : "<not set>"));
@@ -47,7 +47,7 @@ internal class AppClient : IOmmConsumerClient
 
 	public void OnStatusMsg(StatusMsg statusMsg, IOmmConsumerEvent @event)
 	{
-		Console.WriteLine("Received Status. Item Handle: " + @event.Handle + " Closure: " + @event.Closure);
+		Console.WriteLine("Received Status. Item Handle: " + @event.Handle + " Closure: " + (@event.Closure ?? "null"));
 
 		Console.WriteLine("Item Name: " + (statusMsg.HasName ? statusMsg.Name() : "<not set>"));
 		Console.WriteLine("Service Name: " + (statusMsg.HasServiceName ? statusMsg.ServiceName() : "<not set>"));

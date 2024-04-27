@@ -69,7 +69,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.Equal(2, servicesAdded);
             Assert.Equal(1, servicesDeleted);
             Assert.Single(serviceCache.ServiceList);
-            Assert.Equal(1, serviceCache.m_ServicesByNameTable.Count);
+            Assert.Single(serviceCache.m_ServicesByNameTable);
 
             ServiceBuilder.BuildRDMService(service2, ServiceFlags.HAS_INFO | ServiceFlags.HAS_DATA | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_LINK,
                 Codec.MapEntryActions.UPDATE,
@@ -85,7 +85,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.Equal(1, servicesDeleted);
             Assert.Equal(1, servicesUpdated);
             Assert.Single(serviceCache.ServiceList);
-            Assert.Equal(1, serviceCache.m_ServicesByNameTable.Count);
+            Assert.Single(serviceCache.m_ServicesByNameTable);
             Assert.True(serviceCache.m_ServicesByIdTable.ContainsKey(service2.ServiceId));
             Assert.True(serviceCache.m_ServicesByNameTable.ContainsKey("Service2"));
             serviceCache.m_ServicesByIdTable.TryGetValue(service2.ServiceId, out var s);

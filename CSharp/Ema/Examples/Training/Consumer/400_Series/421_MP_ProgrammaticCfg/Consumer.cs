@@ -119,6 +119,7 @@ public class Consumer
 		
 		innerElementList.AddAscii( "Channel", "Channel_1" );
 		innerElementList.AddAscii( "Dictionary", "Dictionary_1" );
+		innerElementList.AddAscii( "Logger", "Logger_1" );
 		innerElementList.AddUInt( "ItemCountHint", 5000 );
 		innerElementList.AddUInt( "ServiceCountHint", 5000 );
 		innerElementList.AddUInt( "ObeyOpenWindow", 0 );
@@ -158,6 +159,20 @@ public class Consumer
 		innerMap.Clear();
 
 		configMap.AddKeyAscii("ChannelGroup", MapAction.ADD, elementList.Complete());
+		elementList.Clear();
+
+		innerMap.AddKeyAscii("Logger_1", MapAction.ADD,
+			new ElementList()
+			.AddEnum("LoggerType", EmaConfig.LoggerTypeEnum.STDOUT)
+			.AddAscii("FileName", "logFile")
+			.AddEnum("LoggerSeverity", EmaConfig.LoggerLevelEnum.INFO).Complete()).Complete();
+
+		elementList.AddMap("LoggerList", innerMap);
+
+		elementList.Complete();
+		innerMap.Clear();
+
+		configMap.AddKeyAscii("LoggerGroup", MapAction.ADD, elementList);
 		elementList.Clear();
 
 		innerElementList.AddEnum( "DictionaryType", EmaConfig.DictionaryTypeEnum.FILE);

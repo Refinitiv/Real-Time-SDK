@@ -209,6 +209,17 @@ internal class Utilities
         return value > uint.MaxValue ? uint.MaxValue : (uint)value;
     }
 
+    internal static int[] ToEmaMsgClass = { UnknownDT, DataType.DataTypes.REQ_MSG, DataType.DataTypes.REFRESH_MSG, 
+        DataType.DataTypes.STATUS_MSG, DataType.DataTypes.UPDATE_MSG, 
+        UnknownDT, 
+        DataType.DataTypes.ACK_MSG, DataType.DataTypes.GENERIC_MSG, 
+        DataType.DataTypes.POST_MSG, 
+        UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT };
+
+    internal static int[] ToRsslMsgClass = { MsgClasses.REQUEST, MsgClasses.REFRESH, MsgClasses.UPDATE, MsgClasses.STATUS,
+            MsgClasses.POST, MsgClasses.ACK, MsgClasses.GENERIC, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
+            UnknownDT, UnknownDT };
+
     internal static ushort Convert_ulong_ushort(ulong value)
     {
         return value > ushort.MaxValue ? ushort.MaxValue : (ushort)value;

@@ -59,7 +59,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             }
             catch(Exception)
             {
-                Assert.True(false, "Failed to get OAuth credential from process environment");
+                Assert.Fail("Failed to get OAuth credential from process environment");
             }
 
             Clear();
@@ -757,7 +757,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 case ReactorChannelEventType.WARNING:
                     break;
                 default:
-                    Assert.True(false, "expected channel event type");
+                    Assert.Fail("expected channel event type");
                     break;
             }
 

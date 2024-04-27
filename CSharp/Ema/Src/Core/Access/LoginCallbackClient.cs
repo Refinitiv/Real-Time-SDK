@@ -184,6 +184,9 @@ namespace LSEG.Ema.Access
         public LoginCallbackClientConsumer(OmmBaseImpl<IOmmConsumerClient> baseImpl) : base(baseImpl)
         {
             OmmConsumerImpl ommConsumerImpl = (OmmConsumerImpl)baseImpl;
+
+            ommConsumerImpl.Consumer.m_OmmConsumerImpl = ommConsumerImpl;
+
             EventImpl.SetOmmConsumer(ommConsumerImpl.Consumer);
 
             NotifyOnAllMsg = NotifyOnAllMsgImpl;
@@ -216,6 +219,43 @@ namespace LSEG.Ema.Access
         public void NotifyOnAckMsgImpl()
         {
             EventImpl.Item!.Client!.OnAckMsg(m_AckMsg!, EventImpl);
+        }
+    }
+
+    internal class LoginCallbackClientProvider : LoginCallbackClient<IOmmProviderClient>
+    {
+        public LoginCallbackClientProvider(OmmBaseImpl<IOmmProviderClient> baseImpl) : base(baseImpl)
+        {
+            OmmNiProviderImpl ommNiProviderImpl = (OmmNiProviderImpl)baseImpl;
+
+            ommNiProviderImpl.Provider.m_OmmProviderImpl = ommNiProviderImpl;
+
+            EventImpl.SetOmmProvider(ommNiProviderImpl.Provider);
+
+            NotifyOnAllMsg = NotifyOnAllMsgImpl;
+            NotifyOnRefreshMsg = NotifyOnRefreshMsgImpl;
+            NotifyOnStatusMsg = NotifyOnStatusMsgImpl;
+            NotifyOnGenericMsg = NotifyOnGenericMsgImpl;
+        }
+
+        public void NotifyOnAllMsgImpl(Msg msg)
+        {
+            EventImpl.Item!.Client!.OnAllMsg(msg, EventImpl);
+        }
+
+        public void NotifyOnRefreshMsgImpl()
+        {
+            EventImpl.Item!.Client!.OnRefreshMsg(m_RefreshMsg!, EventImpl);
+        }
+
+        public void NotifyOnStatusMsgImpl()
+        {
+            EventImpl.Item!.Client!.OnStatusMsg(m_StatusMsg!, EventImpl);
+        }
+
+        public void NotifyOnGenericMsgImpl()
+        {
+            EventImpl.Item!.Client!.OnGenericMsg(m_GenericMsg!, EventImpl);
         }
     }
 
@@ -253,32 +293,32 @@ namespace LSEG.Ema.Access
 
             m_RefreshMsg = m_OmmBaseImpl.GetEmaObjManager().GetOmmRefreshMsg();
 
-            CurrentLoginRequest = m_OmmBaseImpl.ConfigImpl.AdminLoginRequest;
+            CurrentLoginRequest = m_OmmBaseImpl.OmmConfigBaseImpl.AdminLoginRequest;
 
             /* Override the default login request from OmmConsumerConfig */
-            if (!string.IsNullOrEmpty(m_OmmBaseImpl.ConfigImpl.UserName))
+            if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.UserName))
             {
-                if (!m_OmmBaseImpl.ConfigImpl.UserName.Equals(CurrentLoginRequest.UserName.ToString()))
+                if (!m_OmmBaseImpl.OmmConfigBaseImpl.UserName.Equals(CurrentLoginRequest.UserName.ToString()))
                 {
-                    CurrentLoginRequest.UserName.Data(m_OmmBaseImpl.ConfigImpl.UserName);
+                    CurrentLoginRequest.UserName.Data(m_OmmBaseImpl.OmmConfigBaseImpl.UserName);
                 }
             }
 
-            if (!string.IsNullOrEmpty(m_OmmBaseImpl.ConfigImpl.Password) && CurrentLoginRequest.HasPassword)
+            if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.Password) && CurrentLoginRequest.HasPassword)
             {
-                if (!m_OmmBaseImpl.ConfigImpl.Password.Equals(CurrentLoginRequest.Password.ToString()))
+                if (!m_OmmBaseImpl.OmmConfigBaseImpl.Password.Equals(CurrentLoginRequest.Password.ToString()))
                 {
-                    CurrentLoginRequest.Password.Data(m_OmmBaseImpl.ConfigImpl.Password);
+                    CurrentLoginRequest.Password.Data(m_OmmBaseImpl.OmmConfigBaseImpl.Password);
                 }
             }
 
-            if(!string.IsNullOrEmpty(m_OmmBaseImpl.ConfigImpl.ApplicationId))
+            if(!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId))
             {
                 if(CurrentLoginRequest.HasAttrib && CurrentLoginRequest.LoginAttrib.HasApplicationId)
                 {
-                    if (!m_OmmBaseImpl.ConfigImpl.ApplicationId.Equals(CurrentLoginRequest.LoginAttrib.ApplicationId.ToString()))
+                    if (!m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId.Equals(CurrentLoginRequest.LoginAttrib.ApplicationId.ToString()))
                     {
-                        CurrentLoginRequest.LoginAttrib.ApplicationId.Data(m_OmmBaseImpl.ConfigImpl.ApplicationId);
+                        CurrentLoginRequest.LoginAttrib.ApplicationId.Data(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId);
                     }
                 }
             }
@@ -407,6 +447,7 @@ namespace LSEG.Ema.Access
                         {
                             m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK);
                             m_OmmBaseImpl.SetActiveReactorChannel(channelInfo);
+                            m_OmmBaseImpl.ReLoadDirectory();
 
                             if (m_OmmBaseImpl.LoggerClient.IsTraceEnabled)
                             {
@@ -635,6 +676,7 @@ namespace LSEG.Ema.Access
             {
                 if (ConvertRdmLoginToRsslBuffer(reactorChannel, loginMsg) != ReactorCallbackReturnCode.SUCCESS)
                     return ReactorCallbackReturnCode.SUCCESS;
+
 
                 m_RefreshMsg.DecodeMsg(reactorChannel.MajorVersion, reactorChannel.MinorVersion, m_EncodedBuffer, null, null);
             }

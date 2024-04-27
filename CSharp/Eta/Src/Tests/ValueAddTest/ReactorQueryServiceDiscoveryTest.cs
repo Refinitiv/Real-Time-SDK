@@ -44,7 +44,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             }
             catch (Exception)
             {
-                Assert.True(false, "Failed to get OAuth credential from process environment");
+                Assert.Fail("Failed to get OAuth credential from process environment");
             }
         }
 

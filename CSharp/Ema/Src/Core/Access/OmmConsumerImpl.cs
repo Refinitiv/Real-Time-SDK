@@ -24,12 +24,16 @@ namespace LSEG.Ema.Access
 
         internal OmmConsumer Consumer { get; private set; }
 
+        // Reference to the OmmConsumerConfigImpl that's copied into OmmBaseImpl.OmmBaseConfigImpl
+        internal OmmConsumerConfigImpl ConsumerConfigImpl { get; private set; }
+
         #region Constructors
 
         public OmmConsumerImpl(OmmConsumer ommConsumer, OmmConsumerConfig config) :
             base(config.OmmConsConfigImpl)
         {
             Consumer = ommConsumer;
+            ConsumerConfigImpl = (OmmConsumerConfigImpl)OmmConfigBaseImpl;
         }
 
         public OmmConsumerImpl(OmmConsumer ommConsumer, OmmConsumerConfig config, IOmmOAuth2ConsumerClient oauthClient, object? closure = null) :
@@ -39,6 +43,7 @@ namespace LSEG.Ema.Access
             m_AdminClosure = closure;
 
             Consumer = ommConsumer;
+            ConsumerConfigImpl = (OmmConsumerConfigImpl)OmmConfigBaseImpl;
         }
 
         public OmmConsumerImpl(OmmConsumer ommConsumer, OmmConsumerConfig config, IOmmConsumerErrorClient errorClient) :
@@ -47,6 +52,7 @@ namespace LSEG.Ema.Access
             m_ErrorClient = errorClient;
 
             Consumer = ommConsumer;
+            ConsumerConfigImpl = (OmmConsumerConfigImpl)OmmConfigBaseImpl;
         }
 
         public OmmConsumerImpl(OmmConsumer ommConsumer, OmmConsumerConfig config, IOmmConsumerClient client, object? closure) :
@@ -56,6 +62,7 @@ namespace LSEG.Ema.Access
             m_AdminClosure = closure;
 
             Consumer = ommConsumer;
+            ConsumerConfigImpl = (OmmConsumerConfigImpl)OmmConfigBaseImpl;
         }
 
         public OmmConsumerImpl(OmmConsumer ommConsumer, OmmConsumerConfig config, IOmmConsumerClient client, IOmmOAuth2ConsumerClient oauthClient, object? closure) :
@@ -67,6 +74,7 @@ namespace LSEG.Ema.Access
             m_AdminClosure = closure;
 
             Consumer = ommConsumer;
+            ConsumerConfigImpl = (OmmConsumerConfigImpl)OmmConfigBaseImpl;
         }
 
         public OmmConsumerImpl(OmmConsumer ommConsumer, OmmConsumerConfig config, IOmmConsumerErrorClient errorClient, IOmmOAuth2ConsumerClient oauthClient, object? closure = null) :
@@ -78,6 +86,7 @@ namespace LSEG.Ema.Access
             m_AdminClosure = closure;
 
             Consumer = ommConsumer;
+            ConsumerConfigImpl = (OmmConsumerConfigImpl)OmmConfigBaseImpl;
         }
 
         public OmmConsumerImpl(OmmConsumer ommConsumer, OmmConsumerConfig config, IOmmConsumerClient client, IOmmConsumerErrorClient errorClient, object? closure = null) :
@@ -89,6 +98,7 @@ namespace LSEG.Ema.Access
             m_AdminClosure = closure;
 
             Consumer = ommConsumer;
+            ConsumerConfigImpl = (OmmConsumerConfigImpl)OmmConfigBaseImpl;
         }
 
         public OmmConsumerImpl(OmmConsumer ommConsumer, OmmConsumerConfig config, IOmmConsumerClient client, IOmmConsumerErrorClient errorClient,
@@ -101,6 +111,7 @@ namespace LSEG.Ema.Access
             m_AdminClosure = closure;
 
             Consumer = ommConsumer;
+            ConsumerConfigImpl = (OmmConsumerConfigImpl)OmmConfigBaseImpl;
         }
 
         #endregion
@@ -190,6 +201,7 @@ namespace LSEG.Ema.Access
                     channelInformation.ChannelState = ChannelState.INACTIVE;
                     channelInformation.ConnectionType = ConnectionType.UNIDENTIFIED;
                     channelInformation.EncryptedConnectionType = ConnectionType.UNIDENTIFIED;
+
                     channelInformation.ProtocolType = ProtocolType.UNKNOWN;
                     channelInformation.MajorVersion = 0;
                     channelInformation.MinorVersion = 0;
@@ -232,6 +244,7 @@ namespace LSEG.Ema.Access
 
             ChannelCallbackClient = new ChannelCallbackClient<IOmmConsumerClient>(this, reactor!);
             ChannelCallbackClient.InitializeConsumerRole(OAuthCallbackClient);
+
             ChannelCallbackClient.InitializeEmaManagerItemPools();
 
             HandleLoginReqTimeout();
@@ -241,13 +254,11 @@ namespace LSEG.Ema.Access
 
         public void HandleDirectoryReqTimeout()
         {
-            long directoryRequestTimeOut = ConfigImpl.ConsumerConfig.DirectoryRequestTimeOut;
-            long dispatchTimeoutApiThread = ConfigImpl.ConsumerConfig.DispatchTimeoutApiThread;
-            int maxDispatchCountApiThread = ConfigImpl.ConsumerConfig.MaxDispatchCountApiThread;
+            long directoryRequestTimeOut = ConsumerConfigImpl.ConsumerConfig.DirectoryRequestTimeOut;
             if (directoryRequestTimeOut == 0)
             {
                 while (ImplState < OmmImplState.DIRECTORY_STREAM_OPEN_OK)
-                    base.ReactorDispatchLoop(dispatchTimeoutApiThread, maxDispatchCountApiThread);
+                    base.ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
             }
             else
             {
@@ -256,7 +267,7 @@ namespace LSEG.Ema.Access
 
                 while (!m_EventTimeout && (ImplState < OmmImplState.DIRECTORY_STREAM_OPEN_OK))
                 {
-                    ReactorDispatchLoop(dispatchTimeoutApiThread, maxDispatchCountApiThread);
+                    ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
                 }
 
                 if (m_EventTimeout)
@@ -285,14 +296,12 @@ namespace LSEG.Ema.Access
 
         internal void HandleDictionaryReqTimeout()
         {
-            long dictionaryRequestTimeOut = ConfigImpl.ConsumerConfig.DictionaryRequestTimeOut;
-            long dispatchTimeoutApiThread = ConfigImpl.ConsumerConfig.DispatchTimeoutApiThread;
-            int maxDispatchCountApiThread = ConfigImpl.ConsumerConfig.MaxDispatchCountApiThread;
+            long dictionaryRequestTimeOut = ConsumerConfigImpl.ConsumerConfig.DictionaryRequestTimeOut;
 
             if (dictionaryRequestTimeOut == 0)
             {
                 while (!DictionaryCallbackClient!.IsDictionaryReady)
-                    ReactorDispatchLoop(dispatchTimeoutApiThread, maxDispatchCountApiThread);
+                    ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
             }
             else
             {
@@ -302,7 +311,7 @@ namespace LSEG.Ema.Access
 
                 while (!m_EventTimeout && !DictionaryCallbackClient!.IsDictionaryReady)
                 {
-                    ReactorDispatchLoop(dispatchTimeoutApiThread, maxDispatchCountApiThread);
+                    ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
                 }
 
                 if (m_EventTimeout)
@@ -357,7 +366,7 @@ namespace LSEG.Ema.Access
             return m_ErrorClient != null;
         }
 
-        internal override void HandleInvalidUsage(string text, int errorCode)
+        public override void HandleInvalidUsage(string text, int errorCode)
         {
             if (m_ErrorClient != null)
             {
@@ -369,7 +378,7 @@ namespace LSEG.Ema.Access
             }
         }
 
-        internal override void HandleInvalidHandle(long handle, string text)
+        public override void HandleInvalidHandle(long handle, string text)
         {
             if (m_ErrorClient != null)
             {

@@ -26,7 +26,7 @@ namespace LSEG.Ema.Access
         SOCKET = 0,
 
         /// <summary>
-        /// Indicates that the channel is using an SSL/TLS encrypted HTTP TCP-based socket connection.
+        /// Indicates that the channel is using an SSL/TLS encrypted TCP-based socket connection.
         /// </summary>
         ENCRYPTED = 1
     }

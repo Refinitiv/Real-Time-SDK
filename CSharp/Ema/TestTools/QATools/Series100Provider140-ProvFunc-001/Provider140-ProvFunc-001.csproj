@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\Provider.props" />
+	<ItemGroup>
+	  <None Update="xmlKeyList">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+</Project>

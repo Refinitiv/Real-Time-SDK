@@ -553,7 +553,7 @@ namespace LSEG.Ema.Access
             m_ToString.Append(Payload().Data.ToString(indent));
             indent--;
 
-            Utilities.AddIndent(m_ToString, indent, true).Append("PayloadEnd\n");
+            Utilities.AddIndent(m_ToString, indent).Append("PayloadEnd");
             indent--;
 
             Utilities.AddIndent(m_ToString, indent, true).Append("StatusMsgEnd\n");

@@ -50,7 +50,7 @@ namespace LSEG.Ema.Access
             }            
         }
 
-        private void AddEncodedEntry(int id, int action, int dataType, EmaBuffer permissionData, Buffer entryBuffer)
+        private void AddEncodedEntry(int id, int action, int dataType, EmaBuffer? permissionData, Buffer entryBuffer)
         {
             m_rsslFilterEntry.Flags = FilterEntryFlags.NONE;
 
@@ -78,7 +78,7 @@ namespace LSEG.Ema.Access
             }
         }
 
-        private void StartEncodingEntry(int id, int action, int dataType, EmaBuffer permissionData)
+        private void StartEncodingEntry(int id, int action, int dataType, EmaBuffer? permissionData)
         {
             m_rsslFilterEntry.Flags = FilterEntryFlags.NONE;
 
@@ -135,7 +135,7 @@ namespace LSEG.Ema.Access
             AddEncodedEntry(id, action, dataType, permissionData, buffer);
         }
 
-        public void Add(int filterId, int action, ComplexType complexType, EmaBuffer permissionData)
+        public void Add(int filterId, int action, ComplexType complexType, EmaBuffer? permissionData)
         {
             if (m_containerComplete)
             {
@@ -191,7 +191,7 @@ namespace LSEG.Ema.Access
             }           
         }
 
-        public void Add(int filterId, int action, EmaBuffer permissionData)
+        public void Add(int filterId, int action, EmaBuffer? permissionData)
         {
             if (m_containerComplete)
             {
@@ -213,7 +213,7 @@ namespace LSEG.Ema.Access
             AddEncodedEntry(filterId, action, DataType.DataTypes.NO_DATA, permissionData, buffer);
         }
 
-        private void AddMessage(int filterId, int action, Msg msg, EmaBuffer permissionData)
+        private void AddMessage(int filterId, int action, Msg msg, EmaBuffer? permissionData)
         {
             MsgEncoder encoder = msg.m_msgEncoder!;
             if (encoder.m_encoded)

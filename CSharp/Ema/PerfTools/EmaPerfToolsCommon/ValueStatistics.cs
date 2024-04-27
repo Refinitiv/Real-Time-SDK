@@ -19,35 +19,39 @@ namespace LSEG.Ema.PerfTools.Common
         /// <summary>
         /// Gets or sets total number of samples
         /// </summary>
-        public long Count { get; set; }
+        public long Count { get; private set; }
 
         /// <summary>
         /// Gets or sets current mean of samples
         /// </summary>
-        public double Average { get; set; }
+        public double Average { get; private set; }
 
         /// <summary>
         /// Gets or sets current variance of samples.
         /// </summary>
-        public double Variance { get; set; }
+        public double Variance { get; private set; }
         
         /// <summary>
         /// Gets or sets highest sample value.
         /// </summary>
-        public double MaxValue { get; set; }
+        public double? MaxValue { get; private set; }
 
         /// <summary>
         /// Gets or sets lowest sample value.
         /// </summary>
-        public double MinValue { get; set; }
+        public double? MinValue { get; private set; }
+
+        /// <summary>
+        /// Gets standard deviation of samples.
+        /// </summary>
+        public double StandardDeviation => Math.Sqrt(Variance);
 
         /// <summary>
         /// Instantiates a new value statistics.
         /// </summary>
         public ValueStatistics()
         {
-            MaxValue = -double.MaxValue;
-            MinValue = double.MaxValue;
+            Clear();
         }
 
         /// <summary>
@@ -58,8 +62,8 @@ namespace LSEG.Ema.PerfTools.Common
             Count = 0;
             Average = 0;
             Variance = 0;
-            MaxValue = -double.MaxValue;
-            MinValue = double.MaxValue;
+            MaxValue = null;
+            MinValue = null;
             m_Sum = 0;
             m_SumOfSquares = 0;
         }
@@ -73,8 +77,8 @@ namespace LSEG.Ema.PerfTools.Common
             ++Count;
 
             // Check against max & min
-            if (newValue > MaxValue) MaxValue = newValue;
-            if (newValue < MinValue) MinValue = newValue;
+            if (MaxValue == null || newValue > MaxValue) MaxValue = newValue;
+            if (MinValue == null || newValue < MinValue) MinValue = newValue;
 
             /* Average and variance are calculated using online algorithms.
              * - Average: http://en.wikipedia.org/wiki/Moving_average#Cumulative_moving_average 
@@ -100,7 +104,7 @@ namespace LSEG.Ema.PerfTools.Common
                        "{0}: Avg:{1,8:F3} StdDev:{2,8:F3} Max:{3,8:F3} Min:{4,8:F3}, {5}: {6:D}"
                      : "{0}: Avg:{1,6:F1} StdDev:{2,6:F1} Max:{3,6:F1} Min:{4,6:F1}, {5}: {6:D}";
 
-            Console.WriteLine(strFormat, valueStatsName, Average, Math.Sqrt(Variance), MaxValue, MinValue, countUnitName, Count);
+            Console.WriteLine(strFormat, valueStatsName, Average, StandardDeviation, MaxValue, MinValue, countUnitName, Count);
         }
     }
 }

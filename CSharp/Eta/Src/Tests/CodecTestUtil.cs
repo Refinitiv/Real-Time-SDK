@@ -1085,7 +1085,7 @@ namespace LSEG.Eta.Tests
                 case DataTypes.ASCII_STRING:
                     Buffer asciival = new Buffer();
                     Assert.Equal(CodecReturnCode.SUCCESS, asciival.Decode(decIter));
-                    Assert.True(asciival.ToString().Equals(ascii.ToString()));
+                    Assert.Equal(asciival.ToString(), ascii.ToString());
                     break;
                 default:
                     break;
@@ -1490,28 +1490,28 @@ namespace LSEG.Eta.Tests
             switch (name)
             {
                 case "REQUEST":
-                    Assert.Equal(msgClass, MsgClasses.REQUEST);
+                    Assert.Equal(MsgClasses.REQUEST, msgClass);
                     break;
                 case "REFRESH":
-                    Assert.Equal(msgClass, MsgClasses.REFRESH);
+                    Assert.Equal(MsgClasses.REFRESH, msgClass);
                     break;
                 case "CLOSE":
-                    Assert.Equal(msgClass, MsgClasses.CLOSE);
+                    Assert.Equal(MsgClasses.CLOSE, msgClass);
                     break;
                 case "ACK":
-                    Assert.Equal(msgClass, MsgClasses.ACK);
+                    Assert.Equal(MsgClasses.ACK, msgClass);
                     break;
                 case "GENERIC":
-                    Assert.Equal(msgClass, MsgClasses.GENERIC);
+                    Assert.Equal(MsgClasses.GENERIC, msgClass);
                     break;
                 case "POST":
-                    Assert.Equal(msgClass, MsgClasses.POST);
+                    Assert.Equal(MsgClasses.POST, msgClass);
                     break;
                 case "STATUS":
-                    Assert.Equal(msgClass, MsgClasses.STATUS);
+                    Assert.Equal(MsgClasses.STATUS, msgClass);
                     break;
                 case "UPDATE":
-                    Assert.Equal(msgClass, MsgClasses.UPDATE);
+                    Assert.Equal(MsgClasses.UPDATE, msgClass);
                     break;
                 default:
                     Assert.True(false);

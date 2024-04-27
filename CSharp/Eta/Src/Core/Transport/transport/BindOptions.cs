@@ -6,6 +6,7 @@
  *|-----------------------------------------------------------------------------
  */
 
+using LSEG.Eta.Internal;
 using LSEG.Eta.Transports;
 
 namespace LSEG.Eta.Transports
@@ -389,6 +390,23 @@ namespace LSEG.Eta.Transports
         /// </summary>
         /// <value><see cref="BindEncryptionOptions"/></value>
         public BindEncryptionOptions BindEncryptionOpts { get; internal set; } = new BindEncryptionOptions();
+
+        /// <summary>
+        /// This method will perform a deep copy into the passed in parameter's members from the
+        /// BindOptions calling this method.
+        /// </summary>
+        /// <param name="destOpts">the value getting populated with the values of the calling BindOptions</param>
+        /// <returns><see cref="TransportReturnCode.SUCCESS"/> on success, <see cref="TransportReturnCode.FAILURE"/>
+        /// if the destOpts is null.
+        /// </returns>
+        public TransportReturnCode Copy(BindOptions destOpts)
+        {
+            if (destOpts is null)
+                return TransportReturnCode.FAILURE;
+
+            this.CopyTo(destOpts);
+            return TransportReturnCode.SUCCESS;
+        }
 
         /// <summary>
         /// Clears Bind options.

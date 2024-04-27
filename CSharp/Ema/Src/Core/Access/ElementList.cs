@@ -45,6 +45,7 @@ namespace LSEG.Ema.Access
         private Qos qosObject = new Qos();
         private State stateObject = new State();
         private Enum enumObject = new Enum();
+        private ByteBuffer byteBuffer = new ByteBuffer(BYTE_BUFFER_INIT_SIZE);
 
         /// <summary>
         /// Constructor for ElementList
@@ -682,7 +683,17 @@ namespace LSEG.Ema.Access
         public ElementList AddBuffer(string name, EmaBuffer value)
         {
             bufferObject.Clear();
-            bufferObject.Data(new ByteBuffer(value.AsByteArray()).Flip());
+            if (byteBuffer.Capacity > value.Length)
+            {
+                byteBuffer.Clear();
+                byteBuffer.Put(value.Contents).Flip();
+            }
+            else
+            {
+                byteBuffer = new ByteBuffer(value.Length);
+                byteBuffer.Put(value.Contents).Flip();
+            }
+            bufferObject.Data(byteBuffer);
             m_elementListEncoder.AddBuffer(name, bufferObject, Access.DataType.DataTypes.BUFFER);
             return this;
         }
@@ -712,7 +723,17 @@ namespace LSEG.Ema.Access
         public ElementList AddUtf8(string name, EmaBuffer value)
         {
             bufferObject.Clear();
-            bufferObject.Data(new ByteBuffer(value.AsByteArray()).Flip());
+            if (byteBuffer.Capacity > value.Length)
+            {
+                byteBuffer.Clear();
+                byteBuffer.Put(value.Contents).Flip();
+            }
+            else
+            {
+                byteBuffer = new ByteBuffer(value.Length);
+                byteBuffer.Put(value.Contents).Flip();
+            }
+            bufferObject.Data(byteBuffer);
             m_elementListEncoder.AddBuffer(name, bufferObject, Access.DataType.DataTypes.UTF8);
             return this;
         }
@@ -742,7 +763,17 @@ namespace LSEG.Ema.Access
         public ElementList AddRmtes(string name, EmaBuffer value)
         {
             bufferObject.Clear();
-            bufferObject.Data(new ByteBuffer(value.AsByteArray()).Flip());
+            if (byteBuffer.Capacity > value.Length)
+            {
+                byteBuffer.Clear();
+                byteBuffer.Put(value.Contents).Flip();
+            }
+            else
+            {
+                byteBuffer = new ByteBuffer(value.Length);
+                byteBuffer.Put(value.Contents).Flip();
+            }
+            bufferObject.Data(byteBuffer);
             m_elementListEncoder.AddBuffer(name, bufferObject, Access.DataType.DataTypes.RMTES);
             return this;
         }

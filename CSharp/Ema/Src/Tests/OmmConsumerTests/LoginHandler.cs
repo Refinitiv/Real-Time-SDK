@@ -17,7 +17,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 {
     internal class LoginHandler
     {
-        ProviderTest m_ProviderTest;
+        ProviderSessionOptions m_ProviderSessionOptions;
 
         private const int REJECT_MSG_SIZE = 512;
         private const int REFRESH_MSG_SIZE = 512;
@@ -38,7 +38,12 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
         public LoginHandler(ProviderTest providerTest)
         {
-            m_ProviderTest = providerTest;
+            m_ProviderSessionOptions = providerTest.ProviderSessionOptions;
+        }
+
+        public LoginHandler(ProviderSessionOptions providerSessionOptions)
+        {
+            m_ProviderSessionOptions = providerSessionOptions;
         }
 
         public ReactorReturnCode HandleLoginMsgEvent(RDMLoginMsgEvent loginMsgEvent)
@@ -57,7 +62,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                     {
                         LoginRequest loginRequest = loginMsg.LoginRequest!;
 
-                        if(m_ProviderTest.ProviderSessionOptions.SendLoginReject)
+                        if(m_ProviderSessionOptions.SendLoginReject)
                         {
                             if (SendRequestReject(reactorChannel!, loginRequest.StreamId, "Force logout by Provider", out _) != ReactorReturnCode.SUCCESS)
                             {
@@ -73,11 +78,12 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                         }
                         break;
                     }
+                case LoginMsgType.REFRESH:
                 case LoginMsgType.CLOSE:
                     break;
                 case LoginMsgType.RTT:
                 default:
-                    Assert.True(false, $"Unsupported login message type {loginMsg.LoginMsgType}");
+                    Assert.Fail($"Unsupported login message type {loginMsg.LoginMsgType}");
                     break;
             }
 

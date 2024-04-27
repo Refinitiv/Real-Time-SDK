@@ -89,7 +89,7 @@ public sealed class OmmInvalidUsageException : OmmException
         public const int VERSION_NOT_SUPPORTED = -16;
 
         /// <summary>
-        /// There are no buffers available from the buffer pool.
+        /// The buffer provided (or the remaining buffer space for message packing) does not have sufficient space to perform the operation.
         /// </summary>
         public const int BUFFER_TOO_SMALL = -21;
 

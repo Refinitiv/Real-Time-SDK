@@ -2,12 +2,10 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-
-using System;
 
 namespace LSEG.Ema.Rdm
 {
@@ -903,6 +901,7 @@ namespace LSEG.Ema.Rdm
         /// <summary>
         /// RoundTripLatency element name
         /// </summary>
+        /// <seealso cref="LOGIN_RTT_ELEMENT"/>
         public const string ENAME_LATENCY = "RoundTripLatency";
 
         /// <summary>
@@ -1121,5 +1120,12 @@ namespace LSEG.Ema.Rdm
         /// :DataStreams element name
         /// </summary>
         public const string ENAME_DATA_STREAMS = ":DataStreams";
+
+        /// <summary>
+        /// Support Round Trip Time type describes that Round Trip Time is supported.
+        /// A provider specifies it to indicate that it does support Round Trip Time.
+        /// </summary>
+        /// <seealso cref="ENAME_LATENCY"/>
+        public const int LOGIN_RTT_ELEMENT = 2;
     }
 }

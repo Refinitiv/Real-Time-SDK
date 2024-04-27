@@ -132,7 +132,6 @@ namespace LSEG.Eta.Internal.Interfaces
             /// used when the far end closes the connection and need to reconnect to Init()
             /// </summary>
             RECONNECTING = 16,
-            HTTP_CONNECTING = 17,
 
             /// <summary>
             /// used with connection version 14 or higher for key exchange
@@ -2377,7 +2376,7 @@ namespace LSEG.Eta.Internal.Interfaces
                     case IOCtlCode.NUM_GUARANTEED_BUFFERS:
                         {
                             /* NUM_GUARANTEED_BUFFERS:
-                             * the per channel number of guaranteedOutputBuffers that ETAJ will create for the client. */
+                             * the per channel number of guaranteedOutputBuffers that ETA will create for the client. */
                             if (value >= 0)
                             {
                                 retCode = (TransportReturnCode)AdjustGuaranteedOutputBuffers(value);

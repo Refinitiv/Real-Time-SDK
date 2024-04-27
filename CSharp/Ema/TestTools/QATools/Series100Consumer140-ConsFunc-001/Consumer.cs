@@ -68,13 +68,12 @@ internal class AppClient : IOmmConsumerClient
 	{
 		foreach (MapEntry map_entry in map) 
 		{
-			//String element = map_entry.Key.Buffer.ToString();
-			//APIQA
-			string? element = map_entry?.Key?.Buffer().ToString();
+            //String element = map_entry.Key.Buffer.ToString();
+        #region APIQA
+            string? element = map_entry?.Key?.Buffer().ToString();
 			Console.WriteLine(element);
 		}
-		//APIQA
-
+		/*
 		if (DataTypes.FIELD_LIST == map.SummaryData().DataType)
 		{
 			Console.WriteLine("Map Summary data:");
@@ -100,8 +99,9 @@ internal class AppClient : IOmmConsumerClient
 				Console.WriteLine();
 			}
 		}
-
-	}
+		*/
+        #endregion APIQA
+    }
 }
 
 public class Consumer 

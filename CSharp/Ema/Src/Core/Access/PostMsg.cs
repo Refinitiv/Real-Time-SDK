@@ -183,11 +183,6 @@ namespace LSEG.Ema.Access
         /// <returns>The publisher's user ID</returns>
         public long PublisherIdUserId()
         {
-            if (!m_rsslMsg.CheckHasPostUserInfo())
-            {
-                throw new OmmInvalidUsageException("Invalid attempt to call PublisherIdUserId() while PostUserInfo is not set.");
-            }
-
             return m_rsslMsg.PostUserInfo.UserId;
         }
 
@@ -195,13 +190,8 @@ namespace LSEG.Ema.Access
         /// Returns the value of the post message user information's user address.
         /// </summary>
         /// <returns>The publisher's user address</returns>
-        public long PublisherIdUserAddress()
-        {
-            if (!m_rsslMsg.CheckHasPostUserInfo())
-            {
-                throw new OmmInvalidUsageException("Invalid attempt to call PublisherIdUserAddress() while PostUserInfo is not set.");
-            }
-
+        public long PublisherIdUserAddress() 
+        { 
             return m_rsslMsg.PostUserInfo.UserAddr;
         }
 

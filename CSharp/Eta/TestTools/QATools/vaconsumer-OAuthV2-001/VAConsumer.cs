@@ -1402,7 +1402,7 @@ namespace LSEG.Eta.ValueAdd.Consumer
                 }
             }
 
-            // handler encrypted or http connection
+            // handler encrypted connection
             chnlInfo.ShouldEnableEncrypted = m_ConsumerCmdLineParser.EnableEncrypted;
 
             if(chnlInfo.ShouldEnableEncrypted)

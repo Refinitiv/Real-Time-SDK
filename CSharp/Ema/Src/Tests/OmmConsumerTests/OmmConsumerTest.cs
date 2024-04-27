@@ -52,7 +52,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 Assert.Equal(expectedState.StreamState(), refreshMsg.State().StreamState);
                 Assert.Equal(expectedState.DataState(), refreshMsg.State().DataState);
                 Assert.Equal(expectedState.Code(), refreshMsg.State().StatusCode);
-                Assert.True(expectedState.Text().ToString().Equals(refreshMsg.State().StatusText));
+                Assert.Equal(expectedState.Text().ToString(), refreshMsg.State().StatusText);
             }
 
             Assert.True(refreshMsg.HasMsgKey);
@@ -318,7 +318,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             }
             catch (OmmException ommException)
             {
-                Assert.True(false, $"Exception during initialization not expected: {ommException}");
+                Assert.Fail($"Exception during initialization not expected: {ommException}");
             }
 
             consumer?.Uninitialize();

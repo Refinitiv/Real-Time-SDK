@@ -47,7 +47,6 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
         private Buffer m_batchReqName = new Buffer();
 
         private LoginHandler m_LoginHandler;
-        private ProviderTest m_ProviderTest;
 
         private IAckMsg m_AckMsg = new Eta.Codec.Msg();
         private IUpdateMsg m_UpdateMsg = new Eta.Codec.Msg();
@@ -88,8 +87,9 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
 
         private ReactorSubmitOptions m_SubmitOptions = new ReactorSubmitOptions();
+        private ProviderSessionOptions m_ProviderSessionOptions;
 
-        public MarketItemHandler(LoginHandler loginHandler, ProviderTest providerTest)
+        public MarketItemHandler(LoginHandler loginHandler, ProviderSessionOptions providerSessionOptions)
         {
             m_LoginHandler = loginHandler;
 
@@ -106,7 +106,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             m_ProviderQos.Rate(QosRates.TICK_BY_TICK);
             m_ProviderQos.Timeliness(QosTimeliness.REALTIME);
 
-            m_ProviderTest = providerTest;
+            m_ProviderSessionOptions = providerSessionOptions;
 
             ServiceId = ProviderTest.DefaultService.ServiceId;
 
@@ -213,7 +213,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
         public ReactorReturnCode ProcessSingleItemRequest(ReactorChannel chnl, Eta.Codec.Msg msg, DecodeIterator dIter, bool isPrivateStream)
         {
-            if (!m_ProviderTest.ProviderSessionOptions.SendMarketDataItemResp)
+            if (!m_ProviderSessionOptions.SendMarketDataItemResp)
             {
                 return ReactorReturnCode.SUCCESS;
             }
@@ -288,7 +288,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                     return ReactorReturnCode.FAILURE;
                 }
 
-                if(m_ProviderTest.ProviderSessionOptions.SendMarketDataItemUpdate && requestMsg.CheckStreaming())
+                if(m_ProviderSessionOptions.SendMarketDataItemUpdate && requestMsg.CheckStreaming())
                 {
                     System.Threading.Thread.Sleep(4000);
 

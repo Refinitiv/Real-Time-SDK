@@ -6,19 +6,21 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+
 using LSEG.Eta.ValueAdd.Reactor;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
-using System.Threading;
-using System;
 
 namespace LSEG.Ema.Access
 {
-    internal class OmmEventImpl<T> : IOmmConsumerEvent
+    internal class OmmEventImpl<T> : IOmmConsumerEvent, IOmmProviderEvent
     {
-        private long handle;
-        private object? closure;
-        private OmmConsumer? m_OmmConsumer;
+        internal long handle;
+        internal object? closure;
+        internal OmmConsumer? m_OmmConsumer;
+        internal OmmProvider? m_OmmProvider;
+        internal long clientHandle;
 
         internal Item<T>? Item { get; set; }
 
@@ -39,6 +41,11 @@ namespace LSEG.Ema.Access
         internal void SetOmmConsumer(OmmConsumer consumer)
         {
             m_OmmConsumer = consumer;
+        }
+
+        internal void SetOmmProvider(OmmProvider provider)
+        {
+            m_OmmProvider = provider;
         }
 
         public OmmEventImpl()
@@ -67,7 +74,11 @@ namespace LSEG.Ema.Access
             }
         }
 
+        public long ClientHandle { get => clientHandle; }
+
         public OmmConsumer Consumer => m_OmmConsumer!;
+
+        public OmmProvider Provider => m_OmmProvider!;
 
         public ChannelInformation ChannelInformation()
         {
@@ -80,11 +91,35 @@ namespace LSEG.Ema.Access
                 channelInformation.Clear();
             }
 
-            if (ReactorChannel != null) // TODO: add handling for OmmProvider and OmmNiProvider when available
+            if (ReactorChannel != null)
             {
                 channelInformation.Set(ReactorChannel);
-                channelInformation.IpAddress = "not available for OmmConsumer connections";
-                channelInformation.Port = ReactorChannel.Port;
+
+                if (m_OmmProvider == null)
+                {
+                    channelInformation.IpAddress = "not available for OmmConsumer connections";
+                    channelInformation.Port = ReactorChannel.Port;
+                }
+                else if (m_OmmProvider.ProviderRole == OmmProviderConfig.ProviderRoleEnum.NON_INTERACTIVE)
+                {
+                    channelInformation.IpAddress = "not available for OmmNiProvider connections";
+                }
+            }
+
+            // for NiProviders, the only channel is the login channel so we'll just use
+            // the channel from the LoginCallbackClient
+            if(m_OmmProvider != null && m_OmmProvider.ProviderRole == OmmProviderConfig.ProviderRoleEnum.NON_INTERACTIVE)
+            {
+                if (m_OmmProvider.m_OmmProviderImpl is OmmNiProviderImpl ommNiProviderImpl)
+                {
+                    ChannelInfo? channelInfo = ommNiProviderImpl.LoginCallbackClient!.ActiveChannelInfo();
+                    if (channelInfo != null)
+                    {
+                        channelInformation.Set(channelInfo.ReactorChannel!);
+                        channelInformation.IpAddress = "not available for OmmNiProvider connections";
+                        return channelInformation;
+                    }
+                }
             }
 
             return channelInformation!;
@@ -109,6 +144,12 @@ namespace LSEG.Ema.Access
         internal OmmEventImpl<T> EventImpl { get; set;  }
 
         public CallbackClient(OmmBaseImpl<T> baseImpl, string clientName)
+        {
+            commonImpl = baseImpl;
+            EventImpl = new OmmEventImpl<T>();
+        }
+
+        public CallbackClient(OmmServerBaseImpl baseImpl, string clientName)
         {
             commonImpl = baseImpl;
             EventImpl = new OmmEventImpl<T>();

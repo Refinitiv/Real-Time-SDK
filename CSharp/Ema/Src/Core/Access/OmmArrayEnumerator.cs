@@ -9,6 +9,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using LSEG.Eta.Codec;
 
@@ -18,12 +19,13 @@ internal sealed class OmmArrayEnumerator : IEnumerator<OmmArrayEntry>
 {
     #region IEnumerator Public members
 
-    public OmmArrayEntry Current { get; private set; } = new();
+    public OmmArrayEntry Current { get; private set; }
 
     object IEnumerator.Current => Current;
 
     public void Dispose()
     {
+        ReturnEnumeratorToPool();
     }
 
     public bool MoveNext()
@@ -69,37 +71,63 @@ internal sealed class OmmArrayEnumerator : IEnumerator<OmmArrayEntry>
 
     public void Reset()
     {
-        // create a new enumerator via OmmArray.GetEnumerator() instread
-        throw new OmmInvalidUsageException("OmmArrayEnumerator does not support Reset()");
+        ResetEnumerator();
     }
 
     #endregion
 
     #region Private members
 
+    internal EmaObjectManager m_objectManager;
+    internal bool m_inPool;
+
     internal OmmError.ErrorCodes ErrorCode { get => m_ErrorCode; }
 
     private int m_MajVer;
     private int m_MinVer;
     private DecodeIterator m_DecodeIterator = new();
+    private Buffer? m_bodyBuffer;
     private bool m_AtEnd;
     private OmmError.ErrorCodes m_ErrorCode;
     private Data.DataCode m_DataCode;
     private LSEG.Eta.Codec.Array m_Array = new();
     private LSEG.Eta.Codec.ArrayEntry m_ArrayEntry = new();
 
+    internal OmmArrayEnumerator(EmaObjectManager objectManager)
+    {
+        m_objectManager = objectManager;
+        Current = new OmmArrayEntry(objectManager);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+    internal void ReturnEnumeratorToPool()
+    {
+        if (!m_inPool)
+        {
+            m_objectManager!.ReturnToEnumeratorPool(this);
+            Current.Load.ClearAndReturnToPool_All();
+            Current.m_Load = null;
+        }
+    }
+
     internal CodecReturnCode SetRsslData(Eta.Codec.Buffer buffer, int majVer, int minVer)
     {
         m_MajVer = majVer;
         m_MinVer = minVer;
+        m_bodyBuffer = buffer;
 
+        return ResetEnumerator();
+    }
+
+    private CodecReturnCode ResetEnumerator()
+    {
         m_DecodeIterator.Clear();
 
-        CodecReturnCode retCode = m_DecodeIterator.SetBufferAndRWFVersion(buffer, m_MajVer, m_MinVer);
+        CodecReturnCode retCode = m_DecodeIterator.SetBufferAndRWFVersion(m_bodyBuffer, m_MajVer, m_MinVer);
         if (CodecReturnCode.SUCCESS != retCode)
         {
             m_AtEnd = false;
-            m_DataCode = (buffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+            m_DataCode = (m_bodyBuffer!.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
             m_ErrorCode = OmmError.ErrorCodes.ITERATOR_SET_FAILURE;
             return retCode;
         }
@@ -126,19 +154,19 @@ internal sealed class OmmArrayEnumerator : IEnumerator<OmmArrayEntry>
 
             case CodecReturnCode.ITERATOR_OVERRUN:
                 m_AtEnd = false;
-                m_DataCode = (buffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+                m_DataCode = (m_bodyBuffer!.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
                 m_ErrorCode = OmmError.ErrorCodes.ITERATOR_OVERRUN;
                 return retCode;
 
             case CodecReturnCode.INCOMPLETE_DATA:
                 m_AtEnd = false;
-                m_DataCode = (buffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+                m_DataCode = (m_bodyBuffer!.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
                 m_ErrorCode = OmmError.ErrorCodes.INCOMPLETE_DATA;
                 return retCode;
 
             default:
                 m_AtEnd = false;
-                m_DataCode = (buffer.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
+                m_DataCode = (m_bodyBuffer!.Length > 0) ? Data.DataCode.NO_CODE : Data.DataCode.BLANK;
                 m_ErrorCode = OmmError.ErrorCodes.UNKNOWN_ERROR;
                 return retCode;
         }

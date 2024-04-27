@@ -214,7 +214,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             if (rdmServiceInfo.HasDictionariesProvided)
             {
                 Assert.True(rdmServiceInfo.DictionariesProvidedList.Count == rdmServiceInfoDec.DictionariesProvidedList.Count);
-                Assert.True(rdmServiceInfo.DictionariesProvidedList[0].Equals(rdmServiceInfoDec.DictionariesProvidedList[0]));
+                Assert.Equal(rdmServiceInfo.DictionariesProvidedList[0], rdmServiceInfoDec.DictionariesProvidedList[0]);
             }
 
             if (rdmServiceInfo.HasDictionariesUsed)

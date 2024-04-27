@@ -6,15 +6,9 @@
  *|-----------------------------------------------------------------------------
  */
 
-using LSEG.Eta.Example.Common;
 using LSEG.Eta.Example.VACommon;
 using LSEG.Eta.Transports;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LSEG.Eta.ValueAdd.Provider
 {

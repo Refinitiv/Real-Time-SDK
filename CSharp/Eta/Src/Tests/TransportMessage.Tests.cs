@@ -2385,7 +2385,7 @@ public class TransportMessageTests
 
             if (!WaitForStateRunning(server))
             {
-                Assert.True(false, "server terminated while waiting for RUNNING state, error="
+                Assert.Fail("server terminated while waiting for RUNNING state, error="
                             + server.ErrorMsg);
                 server.Terminate();
                 serverThread.Join();
@@ -2470,7 +2470,7 @@ public class TransportMessageTests
                                                  + (results[messageCount - 1] ? "Success" : "Failed"));
                             else
                             {
-                                Assert.True(false,
+                                Assert.Fail(
                                             $"Unexpected results count: {results.Count} while {messageCount} is expected");
                                 return;
                             }
@@ -2495,7 +2495,7 @@ public class TransportMessageTests
 
             // If a server failure occurred, fail the test.
             if (server.ErrorMsg != null)
-                Assert.True(false, server.ErrorMsg);
+                Assert.Fail(server.ErrorMsg);
 
         }
         catch (Exception)
@@ -2537,7 +2537,7 @@ public class TransportMessageTests
 
             if (!WaitForStateRunning(server))
             {
-                Assert.True(false,
+                Assert.Fail(
                             "server terminated while waiting for RUNNING state, error=" + server.ErrorMsg);
                 server.Terminate();
                 serverThread.Join();
@@ -2618,7 +2618,7 @@ public class TransportMessageTests
 
             // If a server failure occurred, fail the test.
             if (server.ErrorMsg != null)
-                Assert.True(false, server.ErrorMsg);
+                Assert.Fail(server.ErrorMsg);
         }
         catch (Exception)
         {

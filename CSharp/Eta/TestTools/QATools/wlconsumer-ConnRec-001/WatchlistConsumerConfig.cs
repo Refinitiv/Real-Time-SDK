@@ -507,7 +507,7 @@ AddCommandLineArgs();
         AddOption("runTime", DEFAULT_RUNTIME, "Program runtime in seconds");
         AddOption("x", "Provides XML tracing of messages.");
 
-        AddOption("proxy", "Specifies that the application will make a tunneling connection (http or encrypted) through a proxy server, default is false");
+        AddOption("proxy", "Specifies that the application will make a connection through an HTTP proxy server, default is false");
         AddOption("ph", "", "Proxy server host name");
         AddOption("pp", "", "Proxy port number");
         AddOption("plogin", "", "User Name on proxy server");

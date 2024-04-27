@@ -179,7 +179,7 @@
 
 			<!-- ChannelType possible values are:														-->
 			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type									-->
-			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type								-->
+			<!-- ChannelType::RSSL_ENCRYPTED - Encrypted tunnel connection type								-->
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 
 			<!-- CompressionType is optional: defaulted to None											-->

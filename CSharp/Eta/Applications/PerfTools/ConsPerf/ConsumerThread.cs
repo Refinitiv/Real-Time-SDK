@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -27,8 +27,6 @@ using DirectoryHandler = LSEG.Eta.PerfTools.Common.DirectoryHandler;
 using ItemInfo = LSEG.Eta.PerfTools.Common.ItemInfo;
 using LoginHandler = LSEG.Eta.PerfTools.Common.LoginHandler;
 using MarketPriceItem = LSEG.Eta.PerfTools.Common.MarketPriceItem;
-using System.Data;
-using System.Threading.Channels;
 
 namespace LSEG.Eta.PerfTools.ConsPerf
 {
