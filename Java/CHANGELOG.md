@@ -26,7 +26,7 @@ FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
-RTSDK Java Release 2.2.0.L1 (Apr 29, 2024)
+RTSDK Java Release 2.2.0.L1 (Apr 30, 2024)
 --------------------------------------------
 
 This release introduces EMA message packing feature. In addition, a number of customer issues were addressed.

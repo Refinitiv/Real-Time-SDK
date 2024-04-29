@@ -31,7 +31,7 @@ FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
-RTSDK C++/C Release 2.2.0.L1 (Apr 29, 2024)
+RTSDK C++/C Release 2.2.0.L1 (Apr 30, 2024)
 --------------------------------------------
 
 This release introduces EMA message packing feature. In addition, a number of customer issues were addressed.
