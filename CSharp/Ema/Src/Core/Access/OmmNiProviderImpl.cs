@@ -1172,8 +1172,17 @@ namespace LSEG.Ema.Access
             while ((retCode = directoryRefresh.Encode(encodeIt)) == CodecReturnCode.BUFFER_TOO_SMALL)
             {
                 capacity *= 2;
-                if ((retCode = Utilities.RealignBuffer(encodeIt, capacity)) != CodecReturnCode.SUCCESS)
-                    break;
+
+                encodedBuffer.Clear();
+                encodedBuffer.Data(new ByteBuffer(capacity));
+
+                if ((retCode = encodeIt.SetBufferAndRWFVersion(encodedBuffer, Codec.MajorVersion(), Codec.MinorVersion())) != CodecReturnCode.SUCCESS)
+                {
+                    errorText.Append($"Internal error. Failed to set encode iterator buffer and version in " +
+                        $"OmmNiProviderImpl.SubmitDirectoryRefresh(). Reason = {retCode.GetAsString()}.");
+                    HandleInvalidUsage(errorText.ToString(), (int)retCode);
+                    return CodecReturnCode.FAILURE;
+                }
             }
 
             if (retCode != CodecReturnCode.SUCCESS)
@@ -1186,7 +1195,7 @@ namespace LSEG.Ema.Access
 
             DecodeIterator decodeIt = new();
 
-            if((retCode = decodeIt.SetBufferAndRWFVersion(encodeIt.Buffer(), Codec.MajorVersion(), Codec.MinorVersion())) 
+            if((retCode = decodeIt.SetBufferAndRWFVersion(encodedBuffer, Codec.MajorVersion(), Codec.MinorVersion())) 
                 != CodecReturnCode.SUCCESS)
             {
                 errorText.Append($"Internal error. Failed to set decode iterator buffer and version in" +

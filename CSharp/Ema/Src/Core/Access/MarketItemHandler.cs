@@ -480,8 +480,12 @@ namespace LSEG.Ema.Access
                 }
             }
 
-            m_EncodeIterator.Clear();
+            // Clears underlying ByteBuffer to reset buffer's length
+            Eta.Common.ByteBuffer byteBuf = m_MsgBuffer.Data();
+            byteBuf.Clear();
+            m_MsgBuffer.Data(byteBuf, 0, byteBuf.Capacity);
 
+            m_EncodeIterator.Clear();
             CodecReturnCode retCode = m_EncodeIterator.SetBufferAndRWFVersion(m_MsgBuffer, clientSession.Channel().MajorVersion,
                             clientSession.Channel().MinorVersion);
 
