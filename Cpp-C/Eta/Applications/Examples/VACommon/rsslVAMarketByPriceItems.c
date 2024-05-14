@@ -22,8 +22,8 @@
 static RsslMarketByPriceItem marketByPriceItemList[MAX_MARKET_BY_PRICE_ITEM_LIST_SIZE];
 
 /* re-usable refresh message and state text */
-RsslRefreshMsg refreshMsg;
-char stateText[MAX_ITEM_INFO_STRLEN];
+static RsslRefreshMsg refreshMsg;
+static char stateText[MAX_ITEM_INFO_STRLEN];
 
 /*
  * Create a local set definition.

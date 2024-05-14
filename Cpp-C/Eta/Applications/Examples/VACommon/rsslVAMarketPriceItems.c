@@ -21,9 +21,9 @@
 static RsslMarketPriceItem marketPriceItemList[MAX_MARKET_PRICE_ITEM_LIST_SIZE];
 
 /* re-usable refresh and update messages and state text */
-RsslRefreshMsg refreshMsg;
-RsslUpdateMsg updateMsg;
-char stateText[MAX_ITEM_INFO_STRLEN];
+static RsslRefreshMsg refreshMsg;
+static RsslUpdateMsg updateMsg;
+static char stateText[MAX_ITEM_INFO_STRLEN];
 
 RsslRet encodeMPFieldList(RsslItemInfo* itemInfo, RsslEncodeIterator* encodeIter, RsslBool isPrivateStream, RsslDataDictionary* dictionary);
 

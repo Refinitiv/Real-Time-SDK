@@ -22,9 +22,9 @@
 static RsslMarketByOrderItem marketByOrderItemList[MAX_MARKET_BY_ORDER_ITEM_LIST_SIZE];
 
 /* re-usable refresh and update messages and state text */
-RsslRefreshMsg refreshMsg;
-RsslUpdateMsg updateMsg;
-char stateText[MAX_ITEM_INFO_STRLEN];
+static RsslRefreshMsg refreshMsg;
+static RsslUpdateMsg updateMsg;
+static char stateText[MAX_ITEM_INFO_STRLEN];
 
 /*
  * Create a local set definition.
