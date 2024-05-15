@@ -501,6 +501,8 @@ namespace LSEG.Ema.Access
                 return;
             }
 
+            UnregisterSocket(reactorChannel.Socket!);
+
             ChannelInfo? channelInfo = reactorChannel.UserSpecObj as ChannelInfo;
             if(reactorChannel.Reactor != null && reactorChannel.Close(out var errorInfo) != ReactorReturnCode.SUCCESS)
             {
@@ -726,10 +728,14 @@ namespace LSEG.Ema.Access
             }
             catch (SocketException)
             {
+                registerSocketList.RemoveAll(e => (e.SafeHandle.IsClosed || e.SafeHandle.IsInvalid) );
+
                 return true;
             }
             catch (ObjectDisposedException)
             {
+                registerSocketList.RemoveAll(e => (e.SafeHandle.IsClosed || e.SafeHandle.IsInvalid) );
+
                 return true;
             }
             catch(ArgumentNullException)

@@ -540,8 +540,6 @@ namespace LSEG.Ema.Access
                             baseImpl.LoggerClient.Error(CLIENT_NAME, strBuilder.ToString());
                         }
 
-                        baseImpl.UnregisterSocket(reactorChannel.Socket!);
-
                         baseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN);
 
                         baseImpl.ProcessChannelEvent(evt);
