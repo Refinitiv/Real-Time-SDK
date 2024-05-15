@@ -617,6 +617,7 @@ namespace LSEG.Ema.Access
         {
             for (int index = channelList.Count - 1; index >= 0; index--)
             {
+                channelList[index].DataDictionary = null;
                 baseImpl.CloseReactorChannel(channelList[index].ReactorChannel);
             }
         }

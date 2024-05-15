@@ -436,6 +436,16 @@ namespace LSEG.Ema.Access
                     LoginCallbackClient.SendLoginClose();
                 }
 
+                if(DictionaryCallbackClient != null)
+                {
+                    if (OmmConfigBaseImpl is OmmConsumerConfigImpl impl)
+                    {
+                        impl.DictionaryConfig.DataDictionary = null;
+                    }
+
+                    DictionaryCallbackClient.Uninitialize();
+                }
+
                 if (ChannelCallbackClient != null)
                 {
                     ChannelCallbackClient.CloseChannels();

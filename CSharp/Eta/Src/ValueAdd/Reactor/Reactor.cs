@@ -28,6 +28,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
     {
         internal const int DEFAULT_INIT_EVENT_POOLS = 10;
 
+        internal const int DEFAULT_WAIT_CLOSE_CHANNEL_ACK = 5; /* Maximum wait time to receive close ack from the worker thread. */
+
         internal MonitorWriteLocker ReactorLock { get; set; } = new MonitorWriteLocker(new object());
 
         private VaDoubleLinkList<ReactorChannel> m_ReactorChannelQueue = new VaDoubleLinkList<ReactorChannel>();
@@ -57,6 +59,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         private IDictionary<Msg, ITransportBuffer> m_SubmitMsgMap = new Dictionary<Msg, ITransportBuffer>();
         private IDictionary<MsgBase, ITransportBuffer> m_SubmitRdmMsgMap = new Dictionary<MsgBase, ITransportBuffer>();
+
+        private uint m_waitingForCloseAck = 0;
 
         internal ReactorRestClient? m_ReactorRestClient;
 
@@ -1097,6 +1101,15 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                 m_ReactorChannelQueue.Clear();
 
+                var startTime = System.DateTime.Now;
+                var endTime = startTime + TimeSpan.FromSeconds(DEFAULT_WAIT_CLOSE_CHANNEL_ACK);
+
+                /* Checks for only the CHANNEL_ACK event from the worker thread and return ReactorChannel back to the pool */
+                while (m_waitingForCloseAck > 0 && System.DateTime.Now < endTime)
+                {
+                    ProcessCloseChannelAck();
+                }
+
                 SendReactorImplEvent(ReactorEventImpl.ImplType.SHUTDOWN, null);
 
                 /* Waits until the worker thread exits properly */
@@ -1125,6 +1138,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     m_ReactorRestClient.Dispose();
                     m_ReactorRestClient = null;
                 }
+
+                UserSpecObj = null;
+                m_ReactorOptions.Clear();
 
                 m_FileDumper?.Close();
             }
@@ -1272,6 +1288,14 @@ namespace LSEG.Eta.ValueAdd.Reactor
                                 "Reactor.CloseChannel",
                                 "SendReactorImplEvent() failed");
                     }
+
+                    if(reactorChannel.Watchlist != null)
+                    {
+                        reactorChannel.Watchlist.Close();
+                        reactorChannel.Watchlist = null;
+                    }
+
+                    Interlocked.Increment(ref m_waitingForCloseAck);
                 }
             }
             finally
@@ -1807,6 +1831,35 @@ namespace LSEG.Eta.ValueAdd.Reactor
             options.ReactorServiceEndpointEventCallback!.ReactorServiceEndpointEventCallback(serviceEnpointEvent);
             serviceEnpointEvent.ReactorErrorInfo = holder;
             serviceEnpointEvent.ReturnToPool();
+        }
+
+        private ReactorReturnCode ProcessCloseChannelAck()
+        {
+            while (m_ReactorEventQueue!.GetEventQueueSize() > 0)
+            {
+                ReactorEventImpl? eventImpl = (ReactorEventImpl?)m_ReactorEventQueue!.GetEventFromQueue();
+
+                if (eventImpl is null)
+                    return ReactorReturnCode.SUCCESS;
+
+                ReactorEventImpl.ImplType eventType = eventImpl.EventImplType;
+                ReactorChannel? reactorChannel = eventImpl.ReactorChannel;
+
+                switch (eventType)
+                {
+                    case ReactorEventImpl.ImplType.CHANNEL_CLOSE_ACK:
+
+                        Interlocked.Decrement(ref m_waitingForCloseAck);
+                        /* Worker is done with channel. Safe to release it. */
+                        reactorChannel?.ReturnToPool();
+
+                        break;
+                }
+
+                eventImpl.ReturnToPool();
+            }
+
+            return ReactorReturnCode.SUCCESS;
         }
 
         private ReactorReturnCode ProcessReactorEventImpl(out ReactorErrorInfo? errorInfo)

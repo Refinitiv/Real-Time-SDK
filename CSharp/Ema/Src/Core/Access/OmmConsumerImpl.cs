@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -339,6 +339,29 @@ namespace LSEG.Ema.Access
         public override void Uninitialize()
         {
             base.Uninitialize();
+
+            if(LoginCallbackClient != null)
+            {
+                LoginCallbackClient.EventImpl.m_OmmConsumer = null;
+            }
+
+            if(DirectoryCallbackClient != null)
+            {
+                DirectoryCallbackClient.EventImpl.m_OmmConsumer = null;
+            }
+
+            if(DictionaryCallbackClient != null)
+            {
+                DictionaryCallbackClient.EventImpl.m_OmmConsumer = null;
+            }
+                
+            if (ItemCallbackClient != null)
+            {
+                ItemCallbackClient.EventImpl.m_OmmConsumer = null;
+            }
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            Consumer = null;
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         public override void Reissue(RequestMsg requestMsg, long handle)

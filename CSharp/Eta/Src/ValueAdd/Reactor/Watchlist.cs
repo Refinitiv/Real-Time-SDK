@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 
 namespace LSEG.Eta.ValueAdd.Reactor
 {
-    internal sealed class Watchlist : VaNode
+    internal sealed class Watchlist : VaNode, IDisposable
     {
         internal const int DEFAULT_INIT_WATCHLIST_ITEM_POOLS = 1000;
 
@@ -28,6 +28,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         private VaLimitedPool m_WlItemRequestPool = new VaLimitedPool(false);
         private VaLimitedPool m_WlStreamAttributesPool = new VaLimitedPool(false);
         private VaLimitedPool m_WlStreamPool = new VaLimitedPool(false);
+        private bool m_Disposed;
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private void InitWlRequestPool<T>(int size, VaLimitedPool pool) where T : WlRequest, new()
@@ -619,8 +620,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void Close()
         {
+            Dispose();
             Clear();
-            ReturnToPool();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -636,6 +637,13 @@ namespace LSEG.Eta.ValueAdd.Reactor
             m_DecodeIt.Clear();
             m_Msg.Clear();
             StreamManager?.Clear();
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            StreamManager = null;
+            m_WlRequestPool = null;
+            m_WlItemRequestPool = null;
+            m_WlStreamAttributesPool = null;
+            m_WlStreamPool = null;
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
             Reactor?.m_TimeoutTimerManager.ClearTimerGroup(m_RequestTimeoutGroup);
             Reactor?.m_TimeoutTimerManager.ClearTimerGroup(m_PostAckTimeoutGroup);
@@ -717,21 +725,40 @@ namespace LSEG.Eta.ValueAdd.Reactor
             return false;
         }
 
+        private void Dispose(bool disposing)
+        {
+            if(!m_Disposed)
+            {
+                if(disposing)
+                {
+                    if (StreamManager != null)
+                    {
+                        StreamManager.Free();
+                    }
+
+                    WlStream? stream;
+                    while ((stream = (WlStream?)m_WlStreamPool.Poll()) != null) stream.FreeWlStream();
+                    WlRequest? request;
+                    while ((request = (WlRequest?)m_WlRequestPool.Poll()) != null) request.FreeWlRequest();
+                    WlItemRequest? itemRequest;
+                    while ((itemRequest = (WlItemRequest?)m_WlItemRequestPool.Poll()) != null) itemRequest.FreeWlItemRequest();
+                    WlStreamAttributes? attributes;
+                    while ((attributes = (WlStreamAttributes?)m_WlStreamAttributesPool.Poll()) != null) attributes.m_handle.Free();
+                }
+
+                m_Disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
         ~Watchlist()
         {
-            if (StreamManager != null)
-            {
-                StreamManager.Free();
-            }
-
-            WlStream? stream;
-            while ((stream = (WlStream?)m_WlStreamPool.Poll()) != null) stream.FreeWlStream();
-            WlRequest? request;
-            while ((request = (WlRequest?)m_WlRequestPool.Poll()) != null) request.FreeWlRequest();
-            WlItemRequest? itemRequest;
-            while ((itemRequest = (WlItemRequest?)m_WlItemRequestPool.Poll()) != null) itemRequest.FreeWlItemRequest();
-            WlStreamAttributes? attributes;
-            while ((attributes = (WlStreamAttributes?)m_WlStreamAttributesPool.Poll()) != null) attributes.m_handle.Free();
+            Dispose(disposing: true);
         }
     }
 }

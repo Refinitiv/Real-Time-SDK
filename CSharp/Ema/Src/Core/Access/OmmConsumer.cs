@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -190,6 +190,9 @@ namespace LSEG.Ema.Access
         public void Uninitialize()
         {
             m_OmmConsumerImpl.Uninitialize();
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            m_OmmConsumerImpl = null;
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         /// <summary>

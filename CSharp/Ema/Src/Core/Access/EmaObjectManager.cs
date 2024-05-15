@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -519,7 +519,7 @@ namespace LSEG.Ema.Access
 
         #endregion
 
-        public const int INITIAL_POOL_SIZE = 25;
+        public const int INITIAL_POOL_SIZE = 10;
         public const int INITIAL_ADMIN_DOMAIN_ITEM_POOL_SIZE = 2;
 
         #region Primitive type Pools
@@ -627,76 +627,76 @@ namespace LSEG.Ema.Access
             m_ommVectorErrorEnumeratorPool = new EmaPool<VectorErrorEnumerator>(initialPoolSize, () => { var res = new VectorErrorEnumerator(); res.m_objectManager = this; return res; });
 
             m_ommOpaquePool = new EmaPool<OmmOpaque>(initialPoolSize, () => { var res = new OmmOpaque(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommXmlPool = new EmaPool<OmmXml>(initialPoolSize, () => { var res = new OmmXml(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommFieldListPool = new EmaPool<FieldList>(initialPoolSize, () => { var res = new FieldList(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommElementListPool = new EmaPool<ElementList>(initialPoolSize, () => { var res = new ElementList(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommAnsiPagePool = new EmaPool<OmmAnsiPage>(initialPoolSize, () => { var res = new OmmAnsiPage(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommFilterListPool = new EmaPool<FilterList>(initialPoolSize, () => { var res = new FilterList(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommVectorPool = new EmaPool<Vector>(initialPoolSize, () => { var res = new Vector(); res.m_ownedByPool = true;  res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommMapPool = new EmaPool<Map>(initialPoolSize, () => { var res = new Map(); res.m_ownedByPool = true;  res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommSeriesPool = new EmaPool<Series>(initialPoolSize, () => { var res = new Series(); res.m_ownedByPool = true; res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
 
             m_ommAckMsgPool = new EmaPool<AckMsg>(initialPoolSize, () => { var res = new AckMsg(); res.m_ownedByPool = true; res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommGenericMsgPool = new EmaPool<GenericMsg>(initialPoolSize, () => { var res = new GenericMsg(); res.m_ownedByPool = true; res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommPostMsgPool = new EmaPool<PostMsg>(initialPoolSize, () => { var res = new PostMsg(); res.m_ownedByPool = true; res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommUpdateMsgPool = new EmaPool<UpdateMsg>(initialPoolSize, () => { var res = new UpdateMsg(); res.m_ownedByPool = true; res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommRequestMsgPool = new EmaPool<RequestMsg>(initialPoolSize, () => { var res = new RequestMsg(); res.m_ownedByPool = true; res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommRefreshMsgPool = new EmaPool<RefreshMsg>(initialPoolSize, () => { var res = new RefreshMsg(); res.m_ownedByPool = true; res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommStatusMsgPool = new EmaPool<StatusMsg>(initialPoolSize, () => { var res = new StatusMsg(); res.m_ownedByPool = true; res.SetObjectManager(this); return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
 
             m_ommErrorPool = new EmaPool<OmmError>(initialPoolSize, () => { var res = new OmmError(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommNoDataPool = new EmaPool<NoData>(initialPoolSize, () => { var res = new NoData(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
 
             m_ommIntPool = new EmaPool<OmmInt>(initialPoolSize, () => { var res = new OmmInt(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommUIntPool = new EmaPool<OmmUInt>(initialPoolSize, () => { var res = new OmmUInt(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommFloatPool = new EmaPool<OmmFloat>(initialPoolSize, () => { var res = new OmmFloat(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommDoublePool = new EmaPool<OmmDouble>(initialPoolSize, () => { var res = new OmmDouble(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommRealPool = new EmaPool<OmmReal>(initialPoolSize, () => { var res = new OmmReal(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommDatePool = new EmaPool<OmmDate>(initialPoolSize, () => { var res = new OmmDate(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommTimePool = new EmaPool<OmmTime>(initialPoolSize, () => { var res = new OmmTime(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommDateTimePool = new EmaPool<OmmDateTime>(initialPoolSize, () => { var res = new OmmDateTime(); res.m_ownedByPool = true;  res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommQosPool = new EmaPool<OmmQos>(initialPoolSize, () => { var res = new OmmQos(); res.m_ownedByPool = true;  res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommStatePool = new EmaPool<OmmState>(initialPoolSize, () => { var res = new OmmState(); res.m_ownedByPool = true;  res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommEnumPool = new EmaPool<OmmEnum>(initialPoolSize, () => { var res = new OmmEnum(); res.m_ownedByPool = true;  res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommArrayPool = new EmaPool<OmmArray>(initialPoolSize, () => { var res = new OmmArray(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommBufferPool = new EmaPool<OmmBuffer>(initialPoolSize, () => { var res = new OmmBuffer(); res.m_ownedByPool = true;  res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommAsciiPool = new EmaPool<OmmAscii>(initialPoolSize, () => { var res = new OmmAscii(); res.m_ownedByPool = true;  res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommUtf8Pool = new EmaPool<OmmUtf8>(initialPoolSize, () => { var res = new OmmUtf8(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommRmtesPool = new EmaPool<OmmRmtes>(initialPoolSize, () => { var res = new OmmRmtes(); res.m_ownedByPool = true;  res.m_objectManager = this; return res; },
-                o => o.m_handle = GCHandle.Alloc(o), o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
 
             pools[DataType.DataTypes.INT] = m_ommIntPool;
             pools[DataType.DataTypes.UINT] = m_ommUIntPool;
@@ -1711,7 +1711,88 @@ namespace LSEG.Ema.Access
                 }
             }
 
-            foreach (var pool in pools) { if (pool != null) pool.FreePool(); }
+            for(int i = 0; i < pools.Length; i++)
+            {
+                if (pools[i] != null)
+                {
+                    if (i == DataType.DataTypes.FIELD_LIST)
+                    {
+                        EmaPool<FieldList> emaPool = ((EmaPool<FieldList>)pools[i]);
+
+                        emaPool.FreePool();
+
+                        for (int j = 0; j < emaPool.pool.Length; j++)
+                        {
+                            var element = emaPool.pool[j];
+                            element.m_dataDictionary = null;
+                        }
+                    }
+                    else if (i == DataType.DataTypes.ELEMENT_LIST)
+                    {
+                        EmaPool<ElementList> emaPool = ((EmaPool<ElementList>)pools[i]);
+
+                        emaPool.FreePool();
+
+                        for (int j = 0; j < emaPool.pool.Length; j++)
+                        {
+                            var element = emaPool.pool[j];
+                            element.m_dataDictionary = null;
+                        }
+                    }
+                    else if (i == DataType.DataTypes.FILTER_LIST)
+                    {
+                        EmaPool<FilterList> emaPool = ((EmaPool<FilterList>)pools[i]);
+
+                        emaPool.FreePool();
+
+                        for (int j = 0; j < emaPool.pool.Length; j++)
+                        {
+                            var element = emaPool.pool[j];
+                            element.m_dataDictionary = null;
+                        }
+                    }
+                    else if (i == DataType.DataTypes.MAP)
+                    {
+                        EmaPool<Map> emaPool = ((EmaPool<Map>)pools[i]);
+
+                        emaPool.FreePool();
+
+                        for (int j = 0; j < emaPool.pool.Length; j++)
+                        {
+                            var element = emaPool.pool[j];
+                            element.m_dataDictionary = null;
+                        }
+                    }
+                    else if (i == DataType.DataTypes.SERIES)
+                    {
+                        EmaPool<Series> emaPool = ((EmaPool<Series>)pools[i]);
+
+                        emaPool.FreePool();
+
+                        for (int j = 0; j < emaPool.pool.Length; j++)
+                        {
+                            var element = emaPool.pool[j];
+                            element.m_dataDictionary = null;
+                        }
+                    }
+                    else if (i == DataType.DataTypes.VECTOR)
+                    {
+                        EmaPool<Vector> emaPool = ((EmaPool<Vector>)pools[i]);
+
+                        emaPool.FreePool();
+
+                        for (int j = 0; j < emaPool.pool.Length; j++)
+                        {
+                            var element = emaPool.pool[j];
+                            element.m_dataDictionary = null;
+                        }
+                    }
+                    else
+                    {
+                        pools[i].FreePool();
+                    }
+                }
+            }
         }
     
     }
