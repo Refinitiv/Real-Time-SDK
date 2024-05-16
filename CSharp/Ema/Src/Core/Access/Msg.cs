@@ -36,6 +36,12 @@ namespace LSEG.Ema.Access
 
         internal int m_msgClass;
 
+        /// <summary>
+        /// This is used to indicate whether this Msg is cloned from another message
+        /// in order to return its payload back to the global pool.
+        /// </summary>
+        protected bool m_isClonedMsg = false;
+
         private string? m_serviceName = null;
 
 #pragma warning disable CS8618
@@ -352,6 +358,10 @@ namespace LSEG.Ema.Access
 
             CopyFromInternalRsslMsg(m_rsslMsg, destMsg);
 
+            destMsg.m_hasDecodedDataSet = true;
+
+            destMsg.m_isClonedMsg = true;
+
             // Sets the service name if it is set
             if (m_msgEncoder!.m_serviceNameSet && m_serviceName != null)
             {
@@ -661,5 +671,16 @@ namespace LSEG.Ema.Access
         }
 
         #endregion Internal methods
+
+        /// <summary>
+        /// Finalizer
+        /// </summary>
+        ~Msg()
+        {
+            if (m_isClonedMsg)
+            {
+                m_payload.m_data.ClearAndReturnToPool_All();
+            }
+        }
     }
 }
