@@ -81,15 +81,21 @@ namespace LSEG.Ema.Access
                 else
                 {
                     Monitor.Enter(m_lock!);
-                    if (current < limit)
+                    try
                     {
-                        res = pool[current++];
+                        if (current < limit)
+                        {
+                            res = pool[current++];
+                        }
+                        else
+                        {
+                            res = _constructor();
+                        }
                     }
-                    else
+                    finally
                     {
-                        res = _constructor();
+                        Monitor.Exit(m_lock!);
                     }
-                    Monitor.Exit(m_lock!);
                 }
 
                 return res;
@@ -106,12 +112,18 @@ namespace LSEG.Ema.Access
                 }
                 else
                 {
-                    Monitor.Enter(m_lock!);
-                    if (current == 0)
-                        return;
-                    current--;
-                    pool[current] = obj;
-                    Monitor.Exit(m_lock!);
+                    try
+                    {
+                        Monitor.Enter(m_lock!);
+                        if (current == 0)
+                            return;
+                        current--;
+                        pool[current] = obj;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(m_lock!);
+                    }
                 }               
             }
 
@@ -314,11 +326,17 @@ namespace LSEG.Ema.Access
                 else
                 {
                     Monitor.Enter(_lock);
-                    if (current < limit)
-                        res = pool[current++];
-                    else
-                        res = new DataArray(_manager);
-                    Monitor.Exit(_lock);
+                    try
+                    {
+                        if (current < limit)
+                            res = pool[current++];
+                        else
+                            res = new DataArray(_manager);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(_lock);
+                    }
                 }
                 
                 return res;
@@ -338,11 +356,17 @@ namespace LSEG.Ema.Access
                 else
                 {
                     Monitor.Enter(_lock);
-                    current--;
-                    if (current == 0)
-                        return;
-                    pool[current] = obj;
-                    Monitor.Exit(_lock);
+                    try
+                    {
+                        current--;
+                        if (current == 0)
+                            return;
+                        pool[current] = obj;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(_lock);
+                    }
                 }                
             }
 
@@ -392,11 +416,17 @@ namespace LSEG.Ema.Access
                 else
                 {
                     Monitor.Enter(_lock);
-                    if (current < limit)
-                        res = pool[current++];
-                    else
-                        res = new ComplexTypeArray(_manager);
-                    Monitor.Exit(_lock);
+                    try
+                    {
+                        if (current < limit)
+                            res = pool[current++];
+                        else
+                            res = new ComplexTypeArray(_manager);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(_lock);
+                    }
                 }
                 
                 return res;
@@ -415,11 +445,17 @@ namespace LSEG.Ema.Access
                 else
                 {
                     Monitor.Enter(_lock);
-                    current--;
-                    if (current == 0)
-                        return;
-                    pool[current] = obj;
-                    Monitor.Exit(_lock);
+                    try
+                    {
+                        current--;
+                        if (current == 0)
+                            return;
+                        pool[current] = obj;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(_lock);
+                    }
                 }
             }
 
@@ -469,13 +505,18 @@ namespace LSEG.Ema.Access
                 {
                     MsgTypeArray res;
                     Monitor.Enter(_lock);
-                    
-                    if (current < limit)
-                        res = pool[current++];
-                    else
-                        res = new MsgTypeArray(_manager);
-                    
-                    Monitor.Exit(_lock);
+
+                    try
+                    {
+                        if (current < limit)
+                            res = pool[current++];
+                        else
+                            res = new MsgTypeArray(_manager);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(_lock);
+                    }
 
                     return res;
                 }
@@ -495,12 +536,18 @@ namespace LSEG.Ema.Access
                 else
                 {
                     Monitor.Enter(_lock);
-                    obj.InPool = true;
-                    current--;
-                    if (current == 0)
-                        return;
-                    pool[current] = obj;
-                    Monitor.Exit(_lock);
+                    try
+                    {
+                        obj.InPool = true;
+                        current--;
+                        if (current == 0)
+                            return;
+                        pool[current] = obj;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(_lock);
+                    }
                 }
                 
             }
