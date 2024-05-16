@@ -17,6 +17,8 @@ public class AppClient : IOmmConsumerClient
 {
     public void OnRefreshMsg(RefreshMsg refreshMsg, IOmmConsumerEvent consumerEvent)
     {
+	RefreshMsg clone = new RefreshMsg(refreshMsg);
+
         Console.WriteLine(refreshMsg);
     }
 
@@ -29,6 +31,8 @@ public class AppClient : IOmmConsumerClient
 
     public void OnStatusMsg(StatusMsg statusMsg, IOmmConsumerEvent consumerEvent)
     {
+        StatusMsg clone = new StatusMsg(statusMsg);
+
         Console.WriteLine(statusMsg);
     }
 }
@@ -74,6 +78,8 @@ public class Consumer
 
                     consumer.RegisterClient(new RequestMsg().ServiceName("ELEKTRON_DD").Payload(batchView), appClient);
 
+                    consumer.RegisterClient(new RequestMsg().DomainType(EmaRdm.MMT_DIRECTORY).ServiceName("ELEKTRON_DD"), appClient);
+
                     Thread.Sleep(3000);
                 }
                 catch (OmmException excp)
@@ -98,3 +104,4 @@ public class Consumer
         Thread.Sleep(600000); // API calls OnRefreshMsg(), OnUpdateMsg() and OnStatusMsg()
     }
 }
+
