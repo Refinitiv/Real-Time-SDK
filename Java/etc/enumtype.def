@@ -666,6 +666,7 @@ SETT_CCY   13620
    2044        "ZZ9"   Cryptocurrency
    2045        "USp"   US Points (1/100th of a US cent)
    2046        "USM"   Millions of US Dollars
+   2047        "ZIG"   Zimbabwe Gold
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17007,6 +17008,7 @@ ASMNT_FLG5 12958
       5      "US_AM"   US AM Assessment
       6      "US_ST"   US Settlement
       7      "US_PM"   US PM Assessment
+      8      "AS_PM"   Asia PM Assessment
 !
 ! ACRONYM    FID
 ! -------    ---
