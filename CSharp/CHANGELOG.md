@@ -10,8 +10,35 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.2.0.L1 aka EMA/ETA 3.2.0.L1 aka 3.2.0.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.2.0.G1 aka EMA/ETA 3.2.0.G1 aka 3.2.0.1
 ----------------------------------------------------------------------------------------
+
+This is a maintenance release with fixes and update to dicionary files.
+
+Customer Issues Resolved
+------------------------
+- [GitHub #278] - [RTSDK-8579] - EMA C# Memory growth with multiple OmmConsumer with Initialization/Un-initialization
+
+----------------------------------------------------------------------------------------
+FULL CHANGELOG
+----------------------------------------------------------------------------------------
+
+---------------------------------------------
+RTSDK CSharp Release 2.2.0.G1 (May 17, 2024)
+---------------------------------------------
+
+EMA CSharp 3.2.0.G1 Issues Resolved 
+-----------------------------------
+- [RTSDK-8578] - IndexOutOfRangeException when NIProvider submits very large source directory to ADH after the connection is recovered
+- [RTSDK-8606] - ObjectDisposedException exception is thrown from the Socket.Select() method after the socket is disposed  
+
+Both ETA and EMA CSharp 3.2.0.G1 Issues Resolved
+------------------------------------------------
+- [RTSDK-8579] - EMA C# Memory growth with multiple OmmConsumer with Initialization/Uninitialization [GitHub #278]
+
+---------------------------------------------
+RTSDK CSharp Release 2.2.0.L1 (Apr 30, 2024)
+---------------------------------------------
 
 This release introduces support for Enterprise Message API (EMA) Interactive and Non-Interative Providers. In addtion, several customer issues were addressed. Also included are the following features:
 - Abilty to set proxy for REST requests separately from Reactor channel proxy
@@ -21,20 +48,7 @@ This release introduces support for Enterprise Message API (EMA) Interactive and
 - Support for DirectWrite option in ETA Reactor and EMA
 - Introduction of DACSLock library and AuthLock example
 
-Customer Issues Resolved
-------------------------
-- [GitHub #248] - [RTSDK-7746] - Add connection type to OmmConsumerConfig
-- [GitHub #257] - [RTSDK-8324] - EMA: Make it possible to use logging options from NLOG configuration
-- [GitHub #269] - [RTSDK-8296] - Decoding issue with blank OmmArray in FieldEntry
-- [GitHub #277] - [RTSDK-8529] - Failed to call Unregister method on the OmmConsumer
-
 ----------------------------------------------------------------------------------------
-FULL CHANGELOG
-----------------------------------------------------------------------------------------
-
----------------------------------------------
-RTSDK CSharp Release 2.2.0.L1 (Apr 30, 2024)
----------------------------------------------
 
 EMA CSharp 3.2.0.L1 New Features 
 --------------------------------
