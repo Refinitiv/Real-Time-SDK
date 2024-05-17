@@ -6,9 +6,9 @@
     <Nullable>enable</Nullable>
     <AssemblyName>LSEG.Eta.AnsiPage</AssemblyName>
     <BaseOutputPath>$(SolutionDir)Eta\Libs\</BaseOutputPath>
-    <Version>3.2.0</Version>
-    <AssemblyVersion>3.2.0</AssemblyVersion>
-    <FileVersion>3.2.0</FileVersion>
+    <Version>3.2.0.1</Version>
+    <AssemblyVersion>3.2.0.1</AssemblyVersion>
+    <FileVersion>3.2.0.1</FileVersion>
     <Company>Refinitiv</Company>
     <Authors>LSEG</Authors>
     <Product>Enterprise Transport API (ETA) C# Edition</Product>
