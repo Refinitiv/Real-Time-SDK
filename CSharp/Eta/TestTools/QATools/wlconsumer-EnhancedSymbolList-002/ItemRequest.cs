@@ -6,12 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-namespace LSEG.Eta.ValueAdd.WatchlistConsumer;
+using System.Collections.Generic;
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.Example.Common;
 using LSEG.Eta.Rdm;
-using static Example.Common.MarketPriceRequestFlags;
+
+using static LSEG.Eta.Example.Common.MarketPriceRequestFlags;
+
+namespace LSEG.Eta.ValueAdd.WatchlistConsumer;
 
 internal class ItemRequest
 {
@@ -575,7 +578,7 @@ internal class ItemRequest
         else
             m_TempUInt.Value(SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS);
             //APIQA
-            Console.WriteLine("\n------ APIQA: Encoding SLD request with SYMBOL_LIST_DATA_SNAPSHOTS:  " + SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS + "\n\n");
+            System.Console.WriteLine("\n------ APIQA: Encoding SLD request with SYMBOL_LIST_DATA_SNAPSHOTS:  " + SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS + "\n\n");
             m_TempUInt.Value(SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS);
             //END APIQA
         if ((ret = m_DataStreamEntry.Encode(encodeIter, m_TempUInt)) < CodecReturnCode.SUCCESS)

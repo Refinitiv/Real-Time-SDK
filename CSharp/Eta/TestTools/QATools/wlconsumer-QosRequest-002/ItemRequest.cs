@@ -7,11 +7,13 @@
  */
 
 namespace LSEG.Eta.ValueAdd.WatchlistConsumer;
+using System.Collections.Generic;
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.Example.Common;
 using LSEG.Eta.Rdm;
-using static Example.Common.MarketPriceRequestFlags;
+
+using static LSEG.Eta.Example.Common.MarketPriceRequestFlags;
 
 internal class ItemRequest
 {

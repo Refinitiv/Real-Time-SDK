@@ -1,5 +1,5 @@
 # file,location
-DirectoryHandler.cs,Applications/VAProvider/DirectoryHandler.cs
-LoginHandler.cs,Applications/VAProvider/LoginHandler.cs
-ProviderCmdLineParser.cs,Applications/VAProvider/ProviderCmdLineParser.cs
-VAProvider.cs,Applications/VAProvider/VAProvider.cs
+DirectoryHandler.cs,Applications/Examples/VAProvider/DirectoryHandler.cs
+LoginHandler.cs,Applications/Examples/VAProvider/LoginHandler.cs
+ProviderCmdLineParser.cs,Applications/Examples/VAProvider/ProviderCmdLineParser.cs
+VAProvider.cs,Applications/Examples/VAProvider/VAProvider.cs

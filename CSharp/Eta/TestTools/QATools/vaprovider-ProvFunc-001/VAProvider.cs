@@ -6,6 +6,10 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+using System.Net.Sockets;
+using System.Collections.Generic;
+
 using LSEG.Eta.Codec;
 using LSEG.Eta.Example.Common;
 using LSEG.Eta.Rdm;
@@ -13,7 +17,6 @@ using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using static LSEG.Eta.Rdm.Directory;
-using System.Net.Sockets;
 
 namespace LSEG.Eta.ValueAdd.Provider
 {

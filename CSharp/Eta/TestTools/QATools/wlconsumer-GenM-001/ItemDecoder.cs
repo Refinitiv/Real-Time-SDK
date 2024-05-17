@@ -8,10 +8,12 @@
 
 namespace LSEG.Eta.ValueAdd.WatchlistConsumer;
 
+using System;
+using System.Text;
+
 using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
-using System.Text;
 
 
 internal class ItemDecoder
@@ -23,30 +25,30 @@ internal class ItemDecoder
     protected FieldEntry m_FieldEntry = new();
     private readonly Map m_Map = new();
     private readonly MapEntry m_MapEntry = new();
-    private readonly Buffer m_MapKey = new();
+    private readonly Eta.Codec.Buffer m_MapKey = new();
     private readonly LocalFieldSetDefDb m_LocalFieldSetDefDb = new();
     private CodecError m_Error = new();
     private readonly UInt m_FidUIntValue = new();
     private readonly Int m_FidIntValue = new();
     private readonly Real m_FidRealValue = new();
-    private readonly Enum m_FidEnumValue = new();
+    private readonly Eta.Codec.Enum m_FidEnumValue = new();
     private readonly Date m_FidDateValue = new();
     private readonly Time m_FidTimeValue = new();
-    private readonly DateTime m_FidDateTimeValue = new();
+    private readonly Eta.Codec.DateTime m_FidDateTimeValue = new();
     private readonly Float m_FidFloatValue = new();
-    private readonly Double m_FidDoubleValue = new();
+    private readonly Eta.Codec.Double m_FidDoubleValue = new();
     private readonly Qos m_FidQosValue = new();
     private readonly State m_FidStateValue = new();
     private readonly StringBuilder m_DisplayStr = new();
     private int m_IndentCount;
     private static readonly string[] m_Indents = new[] { "", "    ", "        ", "            " };
     private readonly Vector m_IdVectorValue = new();
-    private readonly Array m_FidArrayValue = new();
+    private readonly Eta.Codec.Array m_FidArrayValue = new();
     private readonly FieldList m_EmbeddedFieldList = new();
     private readonly FieldEntry m_EmbeddedFieldEntry = new();
     private readonly VectorEntry m_VectorEntry = new();
     private readonly ArrayEntry m_ArrayEntry = new();
-    private readonly Buffer m_idBufferValue = new();
+    private readonly Eta.Codec.Buffer m_idBufferValue = new();
 
     private bool IsDictionaryLoaded =>
         (FieldDictionaryLoadedFromFile && EnumTypeDictionaryLoadedFromFile) ||

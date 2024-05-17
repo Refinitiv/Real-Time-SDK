@@ -1,3 +1,3 @@
 # file,location
-ItemDecoder.cs,Applications/WatchlistConsumer/ItemDecoder.cs
-WatchlistConsumer.cs,Applications/WatchlistConsumer/WatchlistConsumer.cs
+ItemDecoder.cs,Applications/Examples/WatchlistConsumer/ItemDecoder.cs
+WatchlistConsumer.cs,Applications/Examples/WatchlistConsumer/WatchlistConsumer.cs

@@ -7,6 +7,12 @@
  */
 
 namespace LSEG.Eta.ValueAdd.WatchlistConsumer;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
@@ -15,10 +21,7 @@ using LSEG.Eta.Rdm;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Numerics;
+
 using static LSEG.Eta.Rdm.Dictionary;
 using static LSEG.Eta.ValueAdd.WatchlistConsumer.WatchlistConsumerConfig;
 using static Rdm.LoginMsgType;

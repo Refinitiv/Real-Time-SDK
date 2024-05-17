@@ -1,9 +1,9 @@
 # file,location
-WatchlistConsumerConfig.cs,Applications/WatchlistConsumer
-WatchlistConsumer.cs,Applications/WatchlistConsumer
-ConsumerCallbackThread.cs,Applications/WatchlistConsumer
-ConsumerRequestThread.cs,Applications/WatchlistConsumer
-Program.cs,Applications/WatchlistConsumer
-20k.xml,Applications/WatchlistConsumer
-WatchlistConsumer_NET6.0.csproj,Applications/WatchlistConsumer
+WatchlistConsumerConfig.cs,Applications/Examples/WatchlistConsumer/WatchlistConsumerConfig.cs
+WatchlistConsumer.cs,Applications/Examples/WatchlistConsumer/WatchlistConsumer.cs
+ConsumerCallbackThread.cs,Applications/Examples/WatchlistConsumer/ConsumerCallbackThread.cs
+ConsumerRequestThread.cs,Applications/Examples/WatchlistConsumer/ConsumerRequestThread.cs
+Program.cs,Applications/Examples/WatchlistConsumer/Program.cs
+20k.xml,Applications/Examples/WatchlistConsumer/20k.xml
+WatchlistConsumer_NET6.0.csproj,Applications/Examples/WatchlistConsumer/WatchlistConsumer_NET6.0.csproj
 
