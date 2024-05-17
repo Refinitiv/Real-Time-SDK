@@ -489,6 +489,8 @@ namespace LSEG.Ema.Access
                     m_EmaObjectManager.Free();
 
                 UserLock.Exit();
+                LoggerClient.Cleanup();
+
                 reactor = null;
             }
         }

@@ -944,6 +944,7 @@ namespace LSEG.Ema.Access
                     m_EmaObjectManager.Free();
 
                 UserLock.Exit();
+                m_LoggerClient.Cleanup();
                 m_Reactor = null;
             }
         }
