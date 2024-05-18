@@ -436,6 +436,16 @@ namespace LSEG.Ema.Access
                     LoginCallbackClient.SendLoginClose();
                 }
 
+                if(DictionaryCallbackClient != null)
+                {
+                    if (OmmConfigBaseImpl is OmmConsumerConfigImpl impl)
+                    {
+                        impl.DictionaryConfig.DataDictionary = null;
+                    }
+
+                    DictionaryCallbackClient.Uninitialize();
+                }
+
                 if (ChannelCallbackClient != null)
                 {
                     ChannelCallbackClient.CloseChannels();
@@ -479,6 +489,8 @@ namespace LSEG.Ema.Access
                     m_EmaObjectManager.Free();
 
                 UserLock.Exit();
+                LoggerClient.Cleanup();
+
                 reactor = null;
             }
         }
@@ -490,6 +502,8 @@ namespace LSEG.Ema.Access
             {
                 return;
             }
+
+            UnregisterSocket(reactorChannel.Socket!);
 
             ChannelInfo? channelInfo = reactorChannel.UserSpecObj as ChannelInfo;
             if(reactorChannel.Reactor != null && reactorChannel.Close(out var errorInfo) != ReactorReturnCode.SUCCESS)
@@ -716,10 +730,14 @@ namespace LSEG.Ema.Access
             }
             catch (SocketException)
             {
+                registerSocketList.RemoveAll(e => (e.SafeHandle.IsClosed || e.SafeHandle.IsInvalid) );
+
                 return true;
             }
             catch (ObjectDisposedException)
             {
+                registerSocketList.RemoveAll(e => (e.SafeHandle.IsClosed || e.SafeHandle.IsInvalid) );
+
                 return true;
             }
             catch(ArgumentNullException)

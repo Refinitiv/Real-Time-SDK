@@ -85,6 +85,7 @@ namespace LSEG.Ema.Access
         /// <exception cref="OmmInvalidConfigurationException">Thrown if the Xml file is malformed or if there is a parsing error.</exception>
         public OmmConsumerConfig Clear()
         {
+            OmmConsConfigImpl.Clear();
             OmmConsConfigImpl = new OmmConsumerConfigImpl(m_configPath);
             return this;
         }

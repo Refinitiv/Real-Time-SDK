@@ -738,8 +738,8 @@ internal class DictionaryHandler : IDictionaryMsgCallback
         {
             StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
             temp.AppendLine("Successfully sent field dictionary type.")
-                .AppendLine("Dictionary name {dictionaryRequest.DictionaryRequest.DictionaryName}")
-                .AppendLine("Stream Id {dictionaryRequest.StreamId}")
+                .AppendLine($"Dictionary name {dictionaryRequest.DictionaryRequest.DictionaryName}")
+                .AppendLine($"Stream Id {dictionaryRequest.StreamId}")
                 .Append("Client handle ").Append(clientSession.ClientHandle);
 
             m_ommServerBaseImpl.GetLoggerClient().Trace(CLIENT_NAME, temp.ToString());

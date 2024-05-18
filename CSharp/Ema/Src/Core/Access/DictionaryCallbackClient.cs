@@ -101,6 +101,12 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         }
     }
 
+    public void Uninitialize()
+    {
+        m_ChannelDictionary?.rsslDictionary(null!);
+        m_rsslLocalDictionary = null;
+    }
+
     public ReactorCallbackReturnCode RdmDictionaryMsgCallback(RDMDictionaryMsgEvent msgEvent)
     {
         commonImpl.EventReceived();
@@ -761,6 +767,11 @@ class ChannelDictionary<T>
     internal DataDictionary rsslDictionary()
     {
         return m_rsslDictionary;
+    }
+
+    internal void rsslDictionary(DataDictionary dataDictionary)
+    {
+        m_rsslDictionary = dataDictionary;
     }
 
     internal bool IsLoaded

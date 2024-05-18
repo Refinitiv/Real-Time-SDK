@@ -3505,5 +3505,145 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
             Assert.NotNull(provider);
             provider?.Uninitialize();
         }
+
+        [Fact]
+        public void ProviderCloseLoginAndLogOutRequestFromMultipleOmmConsumerTest()
+        {
+            OmmIProviderConfig config = new OmmIProviderConfig();
+            OmmException? exception = null;
+            OmmProvider? provider = null;
+            OmmProviderItemClientTest providerClient = new();
+
+            /* Setup connection options */
+            ReactorConnectOptions connectOptions = new();
+            ReactorConnectInfo connectInfo = new();
+            string serverAddress = "localhost";
+            string serverPort = "19017";
+
+            connectOptions.ConnectionList.Add(connectInfo);
+            connectInfo.ConnectOptions.MajorVersion = Codec.MajorVersion();
+            connectInfo.ConnectOptions.MinorVersion = Codec.MinorVersion();
+
+            OmmServerBaseImpl ommServerBaseImpl;
+            int loginInCount = 0;
+            int loginOutCount = 0;
+            List<ChannelInformation> channelInfoList = new List<ChannelInformation>();
+
+            try
+            {
+                provider = new OmmProvider(
+                    config.Port(serverPort)
+                   .OperationModel(OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
+
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+
+                string expecedLoginUser = "";
+
+                providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
+                {
+                    switch (requestMsg.DomainType())
+                    {
+                        case (int)DomainType.LOGIN:
+
+                            ElementList attrib = new();
+                            attrib.AddAscii(EmaRdm.ENAME_APP_ID, "555");
+                            attrib.AddAscii(EmaRdm.ENAME_APP_NAME, "ProviderSingleMarketItemTest");
+                            attrib.AddAscii(EmaRdm.ENAME_POSITION, "localhost");
+                            attrib.AddUInt(EmaRdm.ENAME_SINGLE_OPEN, 1);
+                            attrib.AddUInt(EmaRdm.ENAME_ALLOW_SUSPECT_DATA, 1);
+                            attrib.AddUInt(EmaRdm.ENAME_SUPPORT_POST, 1);
+
+                            expecedLoginUser = requestMsg.Name();
+
+                            provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
+                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
+
+                            loginInCount++;
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                };
+
+                providerClient.CloseHandler = (closeMsg, providerEvent) =>
+                {
+                    switch (closeMsg.DomainType())
+                    {
+                        case (int)DomainType.LOGIN:
+
+                            loginOutCount++;
+
+                            break;
+                    };
+                };
+
+                OmmConsumerConfig consumerConfig = new();
+                consumerConfig.Host($"{serverAddress}:{serverPort}");
+
+                OmmConsumer ommConsumer = new OmmConsumer(consumerConfig);
+
+                Assert.Contains("DefaultEmaIProvider", provider.ProviderName);
+
+                Assert.Single(ommServerBaseImpl.ConnectedChannelList);
+
+                provider?.ConnectedClientChannelInfo(channelInfoList);
+                Assert.Single(channelInfoList);
+
+                var channelInformation = channelInfoList[0];
+
+                Assert.Contains("emacsharp", channelInformation.ComponentInfo);
+
+                ommConsumer.Uninitialize();
+
+                Thread.Sleep(2000); // Wait for the provider to close the client connection.
+
+                Assert.Empty(ommServerBaseImpl.ConnectedChannelList);
+                provider?.ConnectedClientChannelInfo(channelInfoList);
+
+                Assert.Empty(channelInfoList);
+
+                Assert.Equal(1, loginInCount);
+                Assert.Equal(loginOutCount, loginInCount);
+
+                ommConsumer = new OmmConsumer(consumerConfig);
+
+                Assert.Single(ommServerBaseImpl.ConnectedChannelList);
+
+                provider?.ConnectedClientChannelInfo(channelInfoList);
+                Assert.Single(channelInfoList);
+
+                channelInformation = channelInfoList[0];
+
+                Assert.Contains("emacsharp", channelInformation.ComponentInfo);
+
+                ommConsumer.Uninitialize();
+
+                Thread.Sleep(2000); // Wait for the provider to close the client connection.
+
+                Assert.Empty(ommServerBaseImpl.ConnectedChannelList);
+
+                Assert.Equal(2, loginInCount);
+                Assert.Equal(loginOutCount, loginInCount);
+
+                provider?.ConnectedClientChannelInfo(channelInfoList);
+
+                Assert.Empty(channelInfoList);
+            }
+            catch (OmmException ommException)
+            {
+                exception = ommException;
+            }
+
+            if (exception != null)
+            {
+                Assert.Fail("Caught OmmException: " + exception.Message);
+            }
+            Assert.NotNull(provider);
+            provider?.Uninitialize();
+        }
     }
 }

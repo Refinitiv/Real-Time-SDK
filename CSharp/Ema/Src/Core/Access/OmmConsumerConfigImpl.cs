@@ -341,6 +341,7 @@ namespace LSEG.Ema.Access
             ConfigErrorLog?.Clear();
             SetEncryptedProtocolFlags = false;
             CipherSuites = null;
+            m_DataDictionary = null;
         }
 
         // Takes in a host name formatted in the following way:

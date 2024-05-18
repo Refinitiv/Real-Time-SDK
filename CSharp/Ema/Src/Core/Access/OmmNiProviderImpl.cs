@@ -1173,6 +1173,7 @@ namespace LSEG.Ema.Access
             {
                 capacity *= 2;
 
+                encodeIt.Clear();
                 encodedBuffer.Clear();
                 encodedBuffer.Data(new ByteBuffer(capacity));
 

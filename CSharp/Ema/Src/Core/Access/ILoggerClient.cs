@@ -60,6 +60,8 @@ namespace LSEG.Ema.Access
 
         public void Trace(string clientName, string message);
 
+        public void Cleanup();
+
         public static string LoggerLevelAsString(LoggerLevel level)
         {
             switch (level)

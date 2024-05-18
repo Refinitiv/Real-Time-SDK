@@ -556,10 +556,14 @@ namespace LSEG.Ema.Access
             }
             catch (SocketException)
             {
+                registerSocketList.RemoveAll(e => (e.SafeHandle.IsClosed || e.SafeHandle.IsInvalid));
+
                 return true;
             }
             catch (ObjectDisposedException)
             {
+                registerSocketList.RemoveAll(e => (e.SafeHandle.IsClosed || e.SafeHandle.IsInvalid));
+
                 return true;
             }
             catch (ArgumentNullException)
@@ -940,6 +944,7 @@ namespace LSEG.Ema.Access
                     m_EmaObjectManager.Free();
 
                 UserLock.Exit();
+                m_LoggerClient.Cleanup();
                 m_Reactor = null;
             }
         }

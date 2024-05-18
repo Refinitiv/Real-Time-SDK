@@ -33,7 +33,7 @@ namespace LSEG.Ema.Access
         /// Note: this behavior can be overridden by specifying custom dictionary requests.
         public bool IsLocalDictionary { get; set; } = false;
 
-        internal Ema.Rdm.DataDictionary DataDictionary;
+        internal Ema.Rdm.DataDictionary? DataDictionary;
 
 #pragma warning disable CS8618
         public DictionaryConfig()

@@ -831,6 +831,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             TokenSession = null;
             RDMLoginRequestRDP = null;
             TokenSession = null;
+            Watchlist?.Close();
             Watchlist = null;
             ReadRet = TransportReturnCode.SUCCESS;
 

@@ -8,6 +8,14 @@
 
 namespace LSEG.Eta.ValueAdd.WatchlistConsumer;
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Numerics;
+using System.Linq;
+
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 using LSEG.Eta.Example.Common;
@@ -15,10 +23,7 @@ using LSEG.Eta.Rdm;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Numerics;
+
 using static LSEG.Eta.Rdm.Dictionary;
 using static LSEG.Eta.ValueAdd.WatchlistConsumer.WatchlistConsumerConfig;
 using static Rdm.LoginMsgType;
@@ -1179,7 +1184,7 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
         msg.StreamId = FIELD_DICTIONARY_STREAM_ID;
         chnlInfo.FieldDictionaryStreamId = FIELD_DICTIONARY_STREAM_ID;
         msg.DomainType = (int)DomainType.DICTIONARY;
-        msg.ContainerType = DataTypes.NO_DATA;
+        msg.ContainerType = LSEG.Eta.Codec.DataTypes.NO_DATA;
         msg.MsgKey.ApplyHasNameType();
         msg.MsgKey.ApplyHasName();
         msg.MsgKey.ApplyHasFilter();
@@ -1518,8 +1523,8 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
                     if (((m_UpdatesReceived % 5) == 0) && (m_UpdatesReceived <= 60))
                     {
                         DirectoryRequest directoryRequest = chnlInfo!.ConsumerRole.RdmDirectoryRequest!;
-                        chnlInfo!.ConsumerRole.RdmDirectoryRequest!.Filter = Directory.ServiceFilterFlags.INFO |
-                                                Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.LINK;
+                        chnlInfo!.ConsumerRole.RdmDirectoryRequest!.Filter = LSEG.Eta.Rdm.Directory.ServiceFilterFlags.INFO |
+                                                LSEG.Eta.Rdm.Directory.ServiceFilterFlags.STATE | LSEG.Eta.Rdm.Directory.ServiceFilterFlags.GROUP | LSEG.Eta.Rdm.Directory.ServiceFilterFlags.LINK;
                         m_SubmitOptions.Clear();
                         if (chnlInfo.ReactorChannel!.Submit(directoryRequest, m_SubmitOptions, out var errorInfo) != ReactorReturnCode.SUCCESS)
                         {
@@ -1539,8 +1544,8 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
                         DirectoryRequest directoryRequest = new();
                         m_SubmitOptions.Clear();
                         directoryRequest.StreamId = 2;
-                        directoryRequest.Filter = Directory.ServiceFilterFlags.INFO |
-                                    Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP;
+                        directoryRequest.Filter = LSEG.Eta.Rdm.Directory.ServiceFilterFlags.INFO |
+                                    LSEG.Eta.Rdm.Directory.ServiceFilterFlags.STATE | LSEG.Eta.Rdm.Directory.ServiceFilterFlags.GROUP;
                         directoryRequest.HasServiceId = true;
                         directoryRequest.ServiceId = m_WatchlistConsumerConfig.ReissueDirWithSID;
                         Console.WriteLine("Try to reissue Directory with serviceId : " + m_WatchlistConsumerConfig.ReissueDirWithSID);
@@ -2534,7 +2539,7 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
         m_CloseMsg.MsgClass = MsgClasses.CLOSE;
         m_CloseMsg.StreamId = 1;
         m_CloseMsg.DomainType = (int)DomainType.LOGIN;
-        m_CloseMsg.ContainerType = DataTypes.NO_DATA;
+        m_CloseMsg.ContainerType = LSEG.Eta.Codec.DataTypes.NO_DATA;
 
         if (chnlInfo.ReactorChannel!.Submit((Msg)m_CloseMsg, m_SubmitOptions, out _) != ReactorReturnCode.SUCCESS)
         {
@@ -2568,7 +2573,7 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
             m_CloseMsg.MsgClass = MsgClasses.CLOSE;
             m_CloseMsg.StreamId = streamId;
             m_CloseMsg.DomainType = domainType;
-            m_CloseMsg.ContainerType = DataTypes.NO_DATA;
+            m_CloseMsg.ContainerType = LSEG.Eta.Codec.DataTypes.NO_DATA;
 
             if (chnlInfo?.ReactorChannel?.Submit((Msg)m_CloseMsg, m_SubmitOptions, out _) != ReactorReturnCode.SUCCESS)
             {

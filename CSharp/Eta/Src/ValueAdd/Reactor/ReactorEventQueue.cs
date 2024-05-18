@@ -37,7 +37,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public void UninitReactorEventQueue()
         {
             m_EventSignal.CleanupEventSignal();
-            //EventQueueLock.Dispose();
         }
 
         public Socket GetEventQueueSocket()

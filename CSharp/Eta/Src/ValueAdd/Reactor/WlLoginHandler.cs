@@ -220,8 +220,13 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public void Clear()
         {
             // this handler is still associated with same watchlist so don't set watchlist to null
-            Stream!.InUse = false;
-            Stream = null;        
+            if (Stream != null)
+            {
+                Stream.Close();
+                Stream.InUse = false;
+                Stream = null;
+            }
+
             m_LoginRequest = null;
             LoginRequestForEDP = null;
             m_TempLoginRequest?.Clear();
@@ -246,6 +251,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
             m_RequestCount = 0;
             m_HasPendingRequest = false;
             m_NotifyStreamOpen = true;
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            m_Watchlist = null;
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         /// <summary>
@@ -384,7 +392,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     // close stream
                     Stream.Close();
                     Stream.InUse = false;
-                    Stream = null;            
+                    Stream = null;
                     break;
                 case MsgClasses.POST:
                     if (m_LoginRefresh!.LoginRefresh!.SupportedFeatures.HasSupportPost)

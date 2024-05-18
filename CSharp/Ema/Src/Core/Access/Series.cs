@@ -29,8 +29,8 @@ namespace LSEG.Ema.Access
         internal Eta.Codec.Series m_rsslSeries = new Eta.Codec.Series();
         private ComplexTypeData m_summaryData;
 
-        private LocalFieldSetDefDb m_localFieldSetDefDb = new LocalFieldSetDefDb();
-        private LocalElementSetDefDb m_localElementSetDefDb = new LocalElementSetDefDb();
+        private LocalFieldSetDefDb? m_localFieldSetDefDb;
+        private LocalElementSetDefDb? m_localElementSetDefDb;
         private object? m_localDb;
 
         private SeriesEncoder m_seriesEncoder;
@@ -104,8 +104,8 @@ namespace LSEG.Ema.Access
             m_summaryData.Clear();
             m_dataDictionary = null;
             m_localDb = null;
-            m_localFieldSetDefDb.Clear();
-            m_localElementSetDefDb.Clear();
+            m_localFieldSetDefDb?.Clear();
+            m_localElementSetDefDb?.Clear();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -114,8 +114,8 @@ namespace LSEG.Ema.Access
             m_summaryData.Clear();
             m_dataDictionary = null;
             m_localDb = null;
-            m_localFieldSetDefDb.Clear();
-            m_localElementSetDefDb.Clear();
+            m_localFieldSetDefDb?.Clear();
+            m_localElementSetDefDb?.Clear();
         }
 
         /// <summary>
@@ -222,13 +222,31 @@ namespace LSEG.Ema.Access
                 switch (m_rsslSeries.ContainerType)
                 {
                     case DataTypes.FIELD_LIST:
-                        m_localFieldSetDefDb.Clear();
+
+                        if (m_localFieldSetDefDb != null)
+                        {
+                            m_localFieldSetDefDb.Clear();
+                        }
+                        else
+                        {
+                            m_localFieldSetDefDb = new();
+                        }
+
                         m_localFieldSetDefDb.Decode(m_decodeIterator);
                         m_localDb = m_localFieldSetDefDb;
                         break;
 
                     case DataTypes.ELEMENT_LIST:
-                        m_localElementSetDefDb.Clear();
+
+                        if( m_localElementSetDefDb != null)
+                        {
+                            m_localElementSetDefDb.Clear();
+                        }
+                        else
+                        {
+                            m_localElementSetDefDb = new();
+                        }
+
                         m_localElementSetDefDb.Decode(m_decodeIterator);
                         m_localDb = m_localElementSetDefDb;
                         break;

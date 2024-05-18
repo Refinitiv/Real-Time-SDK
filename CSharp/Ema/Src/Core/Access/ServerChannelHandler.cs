@@ -324,8 +324,6 @@ namespace LSEG.Ema.Access
                     }
                 case ReactorChannelEventType.CHANNEL_DOWN:
                     {
-                        m_ServerBaseImpl.UnregisterSocket(reactorChannel.Socket!);
-
                         if (m_ServerBaseImpl.GetLoggerClient().IsWarnEnabled)
                         {
                             StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
@@ -360,7 +358,6 @@ namespace LSEG.Ema.Access
                         }
 
                         CloseChannel(reactorChannel!);
-                        m_ServerBaseImpl.RemoveConnectedChannel(reactorChannel!, clientSession);
 
                         break;
                     }
@@ -435,6 +432,8 @@ namespace LSEG.Ema.Access
         {
             ClientSession? clientSession = (ClientSession?)reactorChannel.UserSpecObj;
 
+            m_ServerBaseImpl.UnregisterSocket(reactorChannel.Socket!);
+
             if (clientSession != null)
             {
                 if (reactorChannel.Reactor != null && reactorChannel.Close(out m_ReactorErrorInfo) != ReactorReturnCode.SUCCESS)
@@ -449,6 +448,8 @@ namespace LSEG.Ema.Access
                 }
 
                 RemoveClientSession(clientSession);
+
+                m_ServerBaseImpl.RemoveConnectedChannel(reactorChannel, clientSession);
             }
         }
 

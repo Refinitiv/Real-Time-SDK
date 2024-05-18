@@ -41,6 +41,8 @@ namespace LSEG.Ema.Access
 
         public LoggerLevel Level { get; set; }
 
+        private LogFactory m_logFactory = new LogFactory();
+
         public static readonly int ProcessId;
 
         private static readonly LoggingConfiguration LoggingConf;
@@ -104,10 +106,8 @@ namespace LSEG.Ema.Access
 
                 // To avoid conflicts with the rest of the components in the system obtain our own
                 // logger from a LogFactory instead of the LogManager singleton
-                LogFactory logFactory = new LogFactory();
-                logFactory.Configuration = LoggingConf;
-                logFactory.AutoShutdown = true;
-                m_NLogger = logFactory.GetLogger(loggerName);
+                m_logFactory.Configuration = LoggingConf;
+                m_NLogger = m_logFactory.GetLogger(loggerName);
 
                 Level = loggerConfig.LoggerSeverity;
             }
@@ -173,6 +173,12 @@ namespace LSEG.Ema.Access
         public void Clear()
         {
             Level = LoggerLevel.INFO;
+        }
+
+        public void Cleanup()
+        {
+            m_logFactory.Shutdown();
+            m_logFactory.Dispose();
         }
     }
 }

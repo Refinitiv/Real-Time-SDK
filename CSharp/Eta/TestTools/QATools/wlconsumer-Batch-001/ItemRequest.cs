@@ -5,13 +5,14 @@
  *|           Copyright (C) 2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
-
-namespace LSEG.Eta.ValueAdd.WatchlistConsumer;
+using System.Collections.Generic;
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.Example.Common;
 using LSEG.Eta.Rdm;
-using static Example.Common.MarketPriceRequestFlags;
+using static LSEG.Eta.Example.Common.MarketPriceRequestFlags;
+
+namespace LSEG.Eta.ValueAdd.WatchlistConsumer;
 
 internal class ItemRequest
 {

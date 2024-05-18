@@ -6,6 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+
 using LSEG.Eta.Common;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Example.Common;

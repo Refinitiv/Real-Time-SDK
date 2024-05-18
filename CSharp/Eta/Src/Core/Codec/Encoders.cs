@@ -1703,11 +1703,12 @@ namespace LSEG.Eta.Codec
             Debug.Assert(null != msg, "Invalid parameters or parameters passed in as NULL");
             Debug.Assert(null != iter, "Invalid parameters or parameters passed in as NULL");
 
-            _levelInfo = iter._levelInfo[++iter._encodingLevel];
-            if (iter._encodingLevel >= EncodeIterator.ENC_ITER_MAX_LEVELS)
+            if (++iter._encodingLevel >= EncodeIterator.ENC_ITER_MAX_LEVELS)
             {
                 return CodecReturnCode.ITERATOR_OVERRUN;
             }
+
+            _levelInfo = iter._levelInfo[iter._encodingLevel];
 
             /* _initElemStartPos and encoding state should be the only two members used at a msg encoding level. */
             _levelInfo._initElemStartPos = iter._curBufPos;
@@ -1789,11 +1790,12 @@ namespace LSEG.Eta.Codec
             Debug.Assert(null != msg, "Invalid parameters or parameters passed in as NULL");
             Debug.Assert(null != iter, "Invalid parameters or parameters passed in as NULL");
 
-            _levelInfo = iter._levelInfo[++iter._encodingLevel];
-            if (iter._encodingLevel >= EncodeIterator.ENC_ITER_MAX_LEVELS)
+            if (++iter._encodingLevel >= EncodeIterator.ENC_ITER_MAX_LEVELS)
             {
                 return CodecReturnCode.ITERATOR_OVERRUN;
             }
+
+            _levelInfo = iter._levelInfo[iter._encodingLevel];
 
             _levelInfo._internalMark._sizePos = 0;
             _levelInfo._internalMark._sizeBytes = 0;
@@ -4401,12 +4403,14 @@ namespace LSEG.Eta.Codec
             /* Assertions */
             Debug.Assert(null != fieldList && null != iter, "Invalid parameters or parameters passed in as NULL");
 
-			levelInfo = iter._levelInfo[++iter._encodingLevel];
-			if (iter._encodingLevel >= EncodeIterator.ENC_ITER_MAX_LEVELS)
+			if (++iter._encodingLevel >= EncodeIterator.ENC_ITER_MAX_LEVELS)
 			{
 				return CodecReturnCode.ITERATOR_OVERRUN;
 			}
-			levelInfo.Init(DataTypes.FIELD_LIST, EncodeIteratorStates.NONE, fieldList, iter._curBufPos);
+
+            levelInfo = iter._levelInfo[iter._encodingLevel];
+
+            levelInfo.Init(DataTypes.FIELD_LIST, EncodeIteratorStates.NONE, fieldList, iter._curBufPos);
 
 			/* Make sure that required elements can be encoded */
 			if (iter.IsIteratorOverrun(1))
@@ -5218,11 +5222,13 @@ namespace LSEG.Eta.Codec
                 return CodecReturnCode.UNSUPPORTED_DATA_TYPE;
             }
 
-            levelInfo = iter._levelInfo[++iter._encodingLevel];
-            if (iter._encodingLevel >= EncodeIterator.ENC_ITER_MAX_LEVELS)
+            if (++iter._encodingLevel >= EncodeIterator.ENC_ITER_MAX_LEVELS)
             {
                 return CodecReturnCode.ITERATOR_OVERRUN;
             }
+
+            levelInfo = iter._levelInfo[iter._encodingLevel];
+
             levelInfo.Init(DataTypes.ARRAY, EncodeIteratorStates.NONE, array, iter._curBufPos);
 
             // length value is written on wire as uShort16ob

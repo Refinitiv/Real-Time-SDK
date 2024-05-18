@@ -6,11 +6,16 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+using System.Collections.Generic;
+
 using LSEG.Eta.Codec;
 using LSEG.Eta.Example.Common;
 using LSEG.Eta.Example.VACommon;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.Transports;
+
+
 using static LSEG.Eta.Example.Common.CommandLine;
 
 namespace LSEG.Eta.ValueAdd.WatchlistConsumer;
