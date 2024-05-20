@@ -189,6 +189,7 @@ typedef struct {
 	RsslBuffer				directoryMsgCopyMemory;		/* Memory buffer for directoryMsgCopy. */
 	RsslBuffer				directoryMsgCopyMemoryOrig;	/* Copy of memory buffer(used to cleanup) */
 	ItemRequest				*itemRequestList;			/* List of items to request. */
+	ItemRequest				*itemRequestListAllocator;	/* Store pointer to the List of items to request. */
 	RsslReactor				*pReactor;					/* Used for when application uses VA Reactor instead of ETA Channel. */
 	RsslReactorChannel		*pReactorChannel;			/* Used for when application uses VA Reactor instead of ETA Channel. */
 	RsslReactorOMMConsumerRole consumerRole;			/* Used for when application uses VA Reactor instead of ETA Channel. */
