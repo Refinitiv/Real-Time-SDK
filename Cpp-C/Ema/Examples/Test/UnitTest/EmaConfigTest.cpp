@@ -184,6 +184,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting XmlTraceRead from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|XmlTracePing", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting XmlTracePing from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|XmlTracePingOnly", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting XmlTracePingOnly from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|XmlTraceHex", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting XmlTraceHex from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|MsgKeyInUpdates", uintValue);
@@ -539,6 +541,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 			.addUInt("XmlTraceWrite", 1)
 			.addUInt("XmlTraceRead", 1)
 			.addUInt("XmlTracePing", 1)
+			.addUInt("XmlTracePingOnly", 1)
 			.addUInt("XmlTraceHex", 1)
 			.addAscii("RestProxyHostName", "restProxySrv1")
 			.addAscii("RestProxyPort", "39918")
@@ -645,6 +648,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.xmlTraceWrite == 1) << "xmlTraceWrite , 1";
 		EXPECT_TRUE( activeConfig.xmlTraceRead == 1) << "xmlTraceRead , 1";
 		EXPECT_TRUE( activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
+		EXPECT_TRUE( activeConfig.xmlTracePingOnly == 1) << "xmlTracePingOnly , 1";
 		EXPECT_TRUE( activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
 		EXPECT_TRUE( activeConfig.restProxyHostName == "restProxySrv1" ) << "restProxyHostName == \"restProxySrv1\"";
 		EXPECT_TRUE( activeConfig.restProxyPort == "39918" ) << "restProxyPort == \"39918\"";
@@ -717,6 +721,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			.addUInt("XmlTraceWrite", 1)
 			.addUInt("XmlTraceRead", 1)
 			.addUInt("XmlTracePing", 1)
+			.addUInt("XmlTracePingOnly", 1)
 			.addUInt("XmlTraceHex", 1)
 			.addUInt("XmlTraceDump", 1)
 			.addUInt("CatchUnknownJsonFids", 0)
@@ -832,6 +837,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.xmlTraceWrite == 1) << "xmlTraceWrite , 1";
 		EXPECT_TRUE(activeConfig.xmlTraceRead == 1) << "xmlTraceRead , 1";
 		EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
+		EXPECT_TRUE(activeConfig.xmlTracePingOnly == 1) << "xmlTracePingOnly , 1";
 		EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
 		EXPECT_TRUE(activeConfig.xmlTraceDump == 1) << "xmlTraceDump , 1";
 		EXPECT_TRUE(activeConfig.catchUnknownJsonFids == 0) << "catchUnknownJsonFids , 0";
@@ -910,6 +916,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 			.addUInt("XmlTraceWrite", 1)
 			.addUInt("XmlTraceRead", 1)
 			.addUInt("XmlTracePing", 1)
+			.addUInt("XmlTracePingOnly", 1)
 			.addUInt("XmlTraceHex", 1)
 			.addUInt("XmlTraceDump", 1)
 			.addUInt("CatchUnknownJsonFids", 0)
@@ -1025,6 +1032,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.xmlTraceWrite == 1) << "xmlTraceWrite , 1";
 		EXPECT_TRUE(activeConfig.xmlTraceRead == 1) << "xmlTraceRead , 1";
 		EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
+		EXPECT_TRUE(activeConfig.xmlTracePingOnly == 1) << "xmlTracePing , 1";
 		EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
 		EXPECT_TRUE(activeConfig.xmlTraceDump == 1) << "xmlTraceDump , 1";
 		EXPECT_TRUE(activeConfig.catchUnknownJsonFids == 0) << "catchUnknownJsonFids , 0";
@@ -1101,6 +1109,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			.addUInt("XmlTraceWrite", 1)
 			.addUInt("XmlTraceRead", 1)
 			.addUInt("XmlTracePing", 1)
+			.addUInt("XmlTracePingOnly", 1)
 			.addUInt("XmlTraceHex", 1)
 			.addAscii("RestProxyHostName", "restProxySrv11")
 			.addAscii("RestProxyPort", "39919")
@@ -1222,6 +1231,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.xmlTraceWrite == 1) << "xmlTraceWrite , 1";
 		EXPECT_TRUE(activeConfig.xmlTraceRead == 1) << "xmlTraceRead , 1";
 		EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
+		EXPECT_TRUE(activeConfig.xmlTracePingOnly == 1) << "xmlTracePingOnly , 1";
 		EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
 		EXPECT_TRUE(activeConfig.restProxyHostName == "restProxySrv11") << "restProxyHostName == \"restProxySrv11\"";
 		EXPECT_TRUE(activeConfig.restProxyPort == "39919") << "restProxyPort == \"39919\"";
@@ -1630,6 +1640,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addUInt("XmlTraceWrite", 0)
 			.addUInt("XmlTraceRead", 0)
 			.addUInt("XmlTracePing", 0)
+			.addUInt("XmlTracePingOnly", 0)
 			.addUInt("XmlTraceHex", 0)
 			.addUInt("MsgKeyInUpdates", 0)
 			.addInt("ReconnectAttemptLimit", 70)
@@ -1744,6 +1755,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.xmlTraceWrite == 0) << "xmlTraceWrite , 0";
 		EXPECT_TRUE( activeConfig.xmlTraceRead == 0) << "xmlTraceRead , 0";
 		EXPECT_TRUE( activeConfig.xmlTracePing == 0) << "xmlTracePing , 0";
+		EXPECT_TRUE( activeConfig.xmlTracePingOnly == 0) << "xmlTracePingOnly , 0";
 		EXPECT_TRUE( activeConfig.xmlTraceHex == 0) << "xmlTraceHex , 0";
 		EXPECT_TRUE( activeConfig.msgKeyInUpdates == 0) << "msgKeyInUpdates , 0";
 		EXPECT_TRUE( activeConfig.tokenReissueRatio == 0.90) << "tokenReissueRatio , 0.90";
@@ -1931,6 +1943,7 @@ TEST_F(EmaConfigTest, testProgCfgChannelSetAfterChannel)
 			.addAscii("XmlTraceFileName", "Consumer_3Trace")
 			.addUInt("XmlTraceRead", 1)
 			.addUInt("XmlTracePing", 1)
+			.addUInt("XmlTracePingOnly", 1)
 			.addUInt("XmlTraceHex", 1)
 			.addUInt("XmlTraceToFile", 0)
 			.addUInt("XmlTraceToStdout", 0)
@@ -2028,6 +2041,7 @@ TEST_F(EmaConfigTest, testProgCfgChannelSetAfterChannel)
 		EXPECT_TRUE(activeConfig.xmlTraceFileName == "Consumer_3Trace" ) << "xmlTraceFileName , \"Consumer_3Trace\"";
 		EXPECT_TRUE(activeConfig.xmlTraceRead == true) << "xmlTraceRead , \"true\"";
 		EXPECT_TRUE(activeConfig.xmlTracePing == true) << "xmlTracePing , \"true\"";
+		EXPECT_TRUE(activeConfig.xmlTracePingOnly == true) << "xmlTracePingOnly , \"true\"";
 		EXPECT_TRUE(activeConfig.xmlTraceHex == true) << "xmlTraceHex , \"true\"";
 		EXPECT_TRUE(activeConfig.xmlTraceWrite == true) << "xmlTraceWrite , \"true\"";
 		EXPECT_TRUE(activeConfig.xmlTraceToFile == false) << "xmlTraceToFile , \"false\"";
@@ -2586,6 +2600,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 				.addUInt("XmlTraceWrite", 1)
 				.addUInt("XmlTraceRead", 1)
 				.addUInt("XmlTracePing", 1)
+				.addUInt("XmlTracePingOnly", 1)
 				.addUInt("XmlTraceHex", 1)
 				.addInt("PipePort", 13650).complete())
 				.addKeyAscii("Provider_2", MapEntry::AddEnum, ElementList()
@@ -2859,6 +2874,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.xmlTraceWrite == 1) << "xmlTraceWrite , 1";
 			EXPECT_TRUE(activeConfig.xmlTraceRead == 1) << "xmlTraceRead , 1";
 			EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
+			EXPECT_TRUE(activeConfig.xmlTracePingOnly == 1) << "xmlTracePingOnly , 1";
 			EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
 			EXPECT_TRUE(activeConfig.pipePort == 13650) << "pipePort , 13650";
 			EXPECT_TRUE(activeConfig.pServerConfig->interfaceName == "localhost") << "interfaceName , \"localhost\"";
@@ -3124,6 +3140,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 				.addUInt("XmlTraceWrite", 1)
 				.addUInt("XmlTraceRead", 1)
 				.addUInt("XmlTracePing", 1)
+				.addUInt("XmlTracePingOnly", 1)
 				.addUInt("XmlTraceHex", 1)
 				.addInt("PipePort", 13650).complete())
 				.addKeyAscii("Provider_2", MapEntry::AddEnum, ElementList()
@@ -3335,6 +3352,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 			EXPECT_TRUE(activeConfig.xmlTraceWrite == 1) << "xmlTraceWrite , 1";
 			EXPECT_TRUE(activeConfig.xmlTraceRead == 1) << "xmlTraceRead , 1";
 			EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
+			EXPECT_TRUE(activeConfig.xmlTracePingOnly == 1) << "xmlTracePingOnly , 1";
 			EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
 			EXPECT_TRUE(activeConfig.pipePort == 13650) << "pipePort , 13650";
 			EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
@@ -3509,6 +3527,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 				.addUInt("XmlTraceWrite", 0)
 				.addUInt("XmlTraceRead", 0)
 				.addUInt("XmlTracePing", 1)
+				.addUInt("XmlTracePingOnly", 1)
 				.addUInt("XmlTraceHex", 1)
 				.addInt("PipePort", 9696)
 				.addUInt("RefreshFirstRequired", 0)
@@ -3686,6 +3705,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.xmlTraceWrite == 0) << "xmlTraceWrite , 0";
 			EXPECT_TRUE(activeConfig.xmlTraceRead == 0) << "xmlTraceRead , 0";
 			EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
+			EXPECT_TRUE(activeConfig.xmlTracePingOnly == 1) << "xmlTracePingOnly , 1";
 			EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
 			EXPECT_TRUE(activeConfig.getRefreshFirstRequired() == false) << "refreshFirstRequired , false";
 			EXPECT_TRUE(activeConfig.getEnforceAckIDValidation() == false) << "enforceAckIDValidation , false";
@@ -3850,6 +3870,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 				.addUInt("XmlTraceWrite", 0)
 				.addUInt("XmlTraceRead", 0)
 				.addUInt("XmlTracePing", 0)
+				.addUInt("XmlTracePingOnly", 0)
 				.addUInt("XmlTraceHex", 0)
 				.addInt("ReconnectAttemptLimit", 70)
 				.addInt("ReconnectMinDelay", 7000)
@@ -4006,6 +4027,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 			EXPECT_TRUE(activeConfig.xmlTraceWrite == 0) << "xmlTraceWrite , 0";
 			EXPECT_TRUE(activeConfig.xmlTraceRead == 0) << "xmlTraceRead , 0";
 			EXPECT_TRUE(activeConfig.xmlTracePing == 0) << "xmlTracePing , 0";
+			EXPECT_TRUE(activeConfig.xmlTracePingOnly == 0) << "xmlTracePingOnly , 0";
 			EXPECT_TRUE(activeConfig.xmlTraceHex == 0) << "xmlTraceHex , 0";
 			EXPECT_TRUE(activeConfig.getRefreshFirstRequired() == false) << "refreshFirstRequired , false";
 			EXPECT_TRUE(activeConfig.getMergeSourceDirectoryStreams() == false) << "MergeSourceDirectoryStreams , false";

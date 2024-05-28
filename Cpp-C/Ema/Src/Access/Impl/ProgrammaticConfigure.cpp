@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2024 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1133,6 +1133,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.xmlTracePing = eentry.getUInt() ? true : false;
 												}
+												else if (eentry.getName() == "XmlTracePingOnly")
+												{
+													activeConfig.xmlTracePingOnly = eentry.getUInt() ? true : false;
+												}
 												else if (eentry.getName() == "XmlTraceHex")
 												{
 													activeConfig.xmlTraceHex = eentry.getUInt() ? true : false;
@@ -1369,6 +1373,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig(const Map& map, const E
 									else if (eentry.getName() == "XmlTracePing")
 									{
 										activeConfig.xmlTracePing = eentry.getUInt() ? true : false;
+									}
+									else if (eentry.getName() == "XmlTracePingOnly")
+									{
+										activeConfig.xmlTracePingOnly = eentry.getUInt() ? true : false;
 									}
 									else if (eentry.getName() == "XmlTraceHex")
 									{

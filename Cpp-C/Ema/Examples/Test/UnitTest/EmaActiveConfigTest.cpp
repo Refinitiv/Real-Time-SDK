@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2020-2023 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2020-2024 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -501,6 +501,7 @@ void EmaActiveConfigTest::BaseConfigTestDefaultValues(BaseConfig & baseConfig)
 	EXPECT_EQ(baseConfig.xmlTraceWrite, DEFAULT_XML_TRACE_WRITE);
 	EXPECT_EQ(baseConfig.xmlTraceRead, DEFAULT_XML_TRACE_READ);
 	EXPECT_EQ(baseConfig.xmlTracePing, DEFAULT_XML_TRACE_PING);
+	EXPECT_EQ(baseConfig.xmlTracePingOnly, DEFAULT_XML_TRACE_PING_ONLY);
 	EXPECT_EQ(baseConfig.xmlTraceHex, DEFAULT_XML_TRACE_HEX);
 	EXPECT_EQ(baseConfig.xmlTraceDump, DEFAULT_XML_TRACE_DUMP);
 	EXPECT_EQ(baseConfig.xmlTraceFileName, DEFAULT_XML_TRACE_FILE_NAME);
@@ -609,6 +610,7 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 	baseConfig.xmlTraceWrite = false;
 	baseConfig.xmlTraceRead = false;
 	baseConfig.xmlTracePing = true;
+	baseConfig.xmlTracePingOnly = true;
 	baseConfig.xmlTraceHex = true;
 	baseConfig.xmlTraceDump = true;
 	baseConfig.xmlTraceFileName = "23";

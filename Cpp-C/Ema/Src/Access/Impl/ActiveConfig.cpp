@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2024 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -163,6 +163,7 @@ BaseConfig::BaseConfig() :
 	xmlTraceWrite(DEFAULT_XML_TRACE_WRITE),
 	xmlTraceRead(DEFAULT_XML_TRACE_READ),
 	xmlTracePing(DEFAULT_XML_TRACE_PING),
+	xmlTracePingOnly(DEFAULT_XML_TRACE_PING_ONLY),
 	xmlTraceHex(DEFAULT_XML_TRACE_HEX),
 	xmlTraceDump(DEFAULT_XML_TRACE_DUMP),
 	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
@@ -212,6 +213,7 @@ void BaseConfig::clear()
 	xmlTraceWrite = DEFAULT_XML_TRACE_WRITE;
 	xmlTraceRead = DEFAULT_XML_TRACE_READ;
 	xmlTracePing = DEFAULT_XML_TRACE_PING;
+	xmlTracePingOnly = DEFAULT_XML_TRACE_PING_ONLY;
 	xmlTraceHex = DEFAULT_XML_TRACE_HEX;
 	xmlTraceDump = DEFAULT_XML_TRACE_DUMP;
 	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
@@ -258,6 +260,7 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t xmlTraceWrite : ").append(xmlTraceWrite)
 		.append("\n\t xmlTraceRead : ").append(xmlTraceRead)
 		.append("\n\t xmlTracePing : ").append(xmlTracePing)
+		.append("\n\t xmlTracePingOnly : ").append(xmlTracePingOnly)
 		.append("\n\t xmlTraceHex : ").append(xmlTraceHex)
 		.append("\n\t xmlTraceDump : ").append(xmlTraceDump)
 		.append("\n\t xmlTraceFileName : ").append(xmlTraceFileName)

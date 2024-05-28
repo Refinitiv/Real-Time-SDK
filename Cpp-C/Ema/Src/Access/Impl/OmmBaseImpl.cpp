@@ -974,6 +974,11 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.xmlTracePing = tmp > 0 ? true : false;
 	}
 
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTracePingOnly", tmp))
+	{
+		_activeConfig.xmlTracePingOnly = tmp > 0 ? true : false;
+	}
+
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceHex", tmp))
 	{
 		_activeConfig.xmlTraceHex = tmp > 0 ? true : false;
@@ -2086,6 +2091,14 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			_activeConfig.xmlTracePing = tempUInt == 0 ? false : true;
 
 			EmaString errorMsg("XmlTracePing is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTracePingOnly", tempUInt))
+		{
+			_activeConfig.xmlTracePingOnly = tempUInt == 0 ? false : true;
+
+			EmaString errorMsg("XmlTracePingOnly is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
