@@ -224,6 +224,9 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 				if (activeConfig.xmlTracePing)
 					traceOptions.traceFlags |= RSSL_TRACE_PING;
 
+				if (activeConfig.xmlTracePingOnly)
+					traceOptions.traceFlags |= RSSL_TRACE_PING_ONLY;
+
 				if (activeConfig.xmlTraceHex)
 					traceOptions.traceFlags |= RSSL_TRACE_HEX;
 

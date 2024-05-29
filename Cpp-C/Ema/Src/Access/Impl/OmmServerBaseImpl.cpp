@@ -231,6 +231,11 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 		_activeServerConfig.xmlTracePing = tmp > 0 ? true : false;
 	}
 
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTracePingOnly", tmp))
+	{
+		_activeServerConfig.xmlTracePingOnly = tmp > 0 ? true : false;
+	}
+
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceHex", tmp))
 	{
 		_activeServerConfig.xmlTraceHex = tmp > 0 ? true : false;
@@ -678,6 +683,14 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			_activeServerConfig.xmlTracePing = tempUInt == 0 ? false : true;
 
 			EmaString errorMsg("XmlTracePing is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+
+		if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTracePingOnly", tempUInt))
+		{
+			_activeServerConfig.xmlTracePingOnly = tempUInt == 0 ? false : true;
+
+			EmaString errorMsg("XmlTracePingOnly is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 

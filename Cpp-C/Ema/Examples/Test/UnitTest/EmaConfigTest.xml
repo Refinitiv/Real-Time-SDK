@@ -52,6 +52,7 @@
 			<XmlTraceWrite value="1"/>
 			<XmlTraceRead value="1"/>
 			<XmlTracePing value="1"/>
+			<XmlTracePingOnly value="1"/>
 			<XmlTraceHex value="1"/>
 			<XmlTraceDump value="1"/>
 			<MsgKeyInUpdates value="1"/>
