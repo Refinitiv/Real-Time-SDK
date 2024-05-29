@@ -2,13 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2024 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
 #include "OmmNiProviderConfig.h"
 #include "OmmNiProviderConfigImpl.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace refinitiv::ema::access;
 
@@ -91,6 +92,39 @@ OmmNiProviderConfig& OmmNiProviderConfig::instanceId( const EmaString& instanceI
 OmmNiProviderConfig& OmmNiProviderConfig::host( const EmaString& host )
 {
 	_pImpl->host( host );
+	return *this;
+}
+
+OmmNiProviderConfig&  OmmNiProviderConfig::channelType(EmaConfig::ConnectionTypeEnum channelType)
+{
+	if (channelType != EmaConfig::ConnectionTypeEnum::SOCKET &&
+		channelType != EmaConfig::ConnectionTypeEnum::ENCRYPTED &&
+		channelType != EmaConfig::ConnectionTypeEnum::HTTP &&
+		channelType != EmaConfig::ConnectionTypeEnum::WEBSOCKET)
+	{
+		refinitiv::ema::access::EmaString tmp("Try to pass invalid argument: ");
+		tmp.append((int)channelType);
+		tmp.append(" to channelType(). Please use channel types present in EmaConfig::ConnectionTypeEnum.");
+		throwIueException(tmp, OmmInvalidUsageException::InvalidArgumentEnum);
+	}
+
+	_pImpl->channelType((RsslConnectionTypes)channelType);
+	return *this;
+}
+
+OmmNiProviderConfig&  OmmNiProviderConfig::encryptedProtocolType(EmaConfig::EncryptedProtocolTypeEnum encProtocolType)
+{
+	if (encProtocolType != EmaConfig::EncryptedProtocolTypeEnum::SOCKET &&
+		encProtocolType != EmaConfig::EncryptedProtocolTypeEnum::HTTP &&
+		encProtocolType != EmaConfig::EncryptedProtocolTypeEnum::WEBSOCKET)
+	{
+		refinitiv::ema::access::EmaString tmp("Try to pass invalid argument: ");
+		tmp.append((int)encProtocolType);
+		tmp.append(" to encryptedProtocolType(). Please use channel types present in EmaConfig::EncryptedProtocolTypeEnum.");
+		throwIueException(tmp, OmmInvalidUsageException::InvalidArgumentEnum);
+	}
+
+	_pImpl->encryptedProtocolTypes((RsslConnectionTypes)encProtocolType);
 	return *this;
 }
 
