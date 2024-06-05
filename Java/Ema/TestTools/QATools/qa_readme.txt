@@ -340,6 +340,11 @@ Module:  Series300Consumer360
 Series300Consumer360-ViewDuplicates-001
    Alters the Consumer to view request with duplicate FID
 
+Module:  Series300Consumer370
+---------------------------
+Series300Consumer370-BatchView-10Consumers
+   Alters the Consumer to bring multiple consumers up and down triggering any memory issues
+
 Module:  Series400Consumer410 
 ---------------------------
 Series400Consumer410-MultiThreaded-001: This test tool implements the following high level steps:
