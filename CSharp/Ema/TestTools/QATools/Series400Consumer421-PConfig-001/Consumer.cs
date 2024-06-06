@@ -146,7 +146,7 @@ public partial class Consumer
 		innerElementList.AddEnum( "ChannelType", EmaConfig.ConnectionTypeEnum.SOCKET );
 		innerElementList.AddEnum( "CompressionType", EmaConfig.CompressionTypeEnum.ZLIB );
         //APIQA
-        innerElementList.AddInt("CompressionThreshold", 100);
+        innerElementList.AddUInt("CompressionThreshold", 100);
         innerElementList.AddAscii("InterfaceName", "consumerInterface");
         //END APIQA
 		innerElementList.AddUInt( "GuaranteedOutputBuffers", 5000);
