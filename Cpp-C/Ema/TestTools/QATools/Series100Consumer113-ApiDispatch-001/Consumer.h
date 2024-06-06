@@ -20,28 +20,34 @@
 
 #include "Ema.h"
 
+void sleep( int millisecs )
+{
+#if defined WIN32
+	::Sleep( (DWORD)(millisecs) );
+#else
+	struct timespec sleeptime;
+	sleeptime.tv_sec = millisecs / 1000;
+	sleeptime.tv_nsec = (millisecs % 1000) * 1000000;
+	nanosleep( &sleeptime, 0 );
+#endif
+}
 unsigned long long getCurrentTime()
 {
 	unsigned long long msec = 0;
 #ifdef WIN32
 	struct	_timeb	_time;
-	_ftime_s( &_time );
-	msec = _time.time*1000 + _time.millitm;
+	_ftime_s(&_time);
+	msec = _time.time * 1000 + _time.millitm;
 #else
 	struct  timeval _time;
-	gettimeofday( &_time, 0 );
+	gettimeofday(&_time, 0);
 	msec = ((unsigned long long)(_time.tv_sec)) * 1000ULL + ((unsigned long long)(_time.tv_usec)) / 1000ULL;
 #endif
 	return msec;
 }
-
 // application defined client class for receiving and processing of item messages
 class AppClient : public refinitiv::ema::access::OmmConsumerClient
 {
-public :
-
-	void decode( const refinitiv::ema::access::FieldList& );			// print content of passed in FieldList to screen
-
 protected :
 
 	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
@@ -50,23 +56,23 @@ protected :
 
 	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 };
-
 // application defined error client class for receiving and processing of error notifications
 class AppErrorClient : public refinitiv::ema::access::OmmConsumerErrorClient
 {
-public :
+public:
 
-	void onInvalidHandle( refinitiv::ema::access::UInt64, const refinitiv::ema::access::EmaString& );
+	void onInvalidHandle(refinitiv::ema::access::UInt64, const refinitiv::ema::access::EmaString&);
 
-	void onInaccessibleLogFile( const refinitiv::ema::access::EmaString&, const refinitiv::ema::access::EmaString& );
+	void onInaccessibleLogFile(const refinitiv::ema::access::EmaString&, const refinitiv::ema::access::EmaString&);
 
-	void onSystemError( refinitiv::ema::access::Int64, void* , const refinitiv::ema::access::EmaString& );
+	void onSystemError(refinitiv::ema::access::Int64, void*, const refinitiv::ema::access::EmaString&);
 
-	void onMemoryExhaustion( const refinitiv::ema::access::EmaString& );
+	void onMemoryExhaustion(const refinitiv::ema::access::EmaString&);
 
-	void onInvalidUsage( const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32 );
+	void onInvalidUsage(const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32);
 
-	void onJsonConverter( const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32, const refinitiv::ema::access::ConsumerSessionInfo& );
+	void onJsonConverter(const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32, const refinitiv::ema::access::ConsumerSessionInfo& sessionInfo);
+	
 };
 
 #endif // __ema_consumer_h_

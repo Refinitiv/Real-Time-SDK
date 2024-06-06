@@ -1697,7 +1697,7 @@ void OmmServerBaseImpl::handleIue(const EmaString& text, Int32 errorCode)
 		getErrorClientHandler().onInvalidUsage( text );
 		getErrorClientHandler().onInvalidUsage( text, errorCode );
 	}
-	else
+	else if (!isApiDispatching())
 		throwIueException( text, errorCode );
 }
 
@@ -1716,7 +1716,7 @@ void OmmServerBaseImpl::handleIue(const char* text, Int32 errorCode)
 		getErrorClientHandler().onInvalidUsage( text );
 		getErrorClientHandler().onInvalidUsage( text, errorCode );
 	}
-	else
+	else if (!isApiDispatching())
 		throwIueException( text, errorCode );
 }
 
@@ -1732,7 +1732,7 @@ void OmmServerBaseImpl::handleIhe(UInt64 handle, const EmaString& text)
 
 	if (hasErrorClientHandler())
 		getErrorClientHandler().onInvalidHandle(handle, text);
-	else
+	else if (!isApiDispatching())
 		throwIheException(handle, text);
 }
 
@@ -1748,7 +1748,7 @@ void OmmServerBaseImpl::handleIhe(UInt64 handle, const char* text)
 
 	if (hasErrorClientHandler())
 		getErrorClientHandler().onInvalidHandle(handle, text);
-	else
+	else if (!isApiDispatching())
 		throwIheException(handle, text);
 }
 
@@ -1764,7 +1764,7 @@ void OmmServerBaseImpl::handleMee(const char* text)
 
 	if (hasErrorClientHandler())
 		getErrorClientHandler().onMemoryExhaustion(text);
-	else
+	else if (!isApiDispatching())
 		throwMeeException(text);
 }
 
@@ -1782,7 +1782,7 @@ void OmmServerBaseImpl::handleJce(const char* text, Int32 errorCode, RsslReactor
 	{
 		getErrorClientHandler().onJsonConverter(text, errorCode, reactorChannel, clientSession, provider);
 	}
-	else
+	else if (!isApiDispatching())
 		throwJConverterException(text, errorCode, reactorChannel, clientSession, provider);
 }
 
