@@ -536,6 +536,11 @@ const OmmArray& ElementEntry::getArray() const
 		temp += getDTypeAsString( (*_pLoad)->getDataType() );
 		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum);
 	}
+	else if ((*_pLoad)->getCode() == Data::BlankEnum)
+	{
+		EmaString temp("Attempt to getArray() while entry data is blank.");
+		throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
+	}
 
 	return static_cast<const OmmArray&>( **_pLoad );
 }

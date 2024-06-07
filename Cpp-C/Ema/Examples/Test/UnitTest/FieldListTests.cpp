@@ -2995,6 +2995,12 @@ void encodeErrorFieldList( RsslBuffer& rsslBuf )
 	rsslFEntry.fieldId = 4;		// RDN_EXCHID
 	rsslEncodeFieldEntry(&iter, &rsslFEntry, (void*)0);
 
+	// Array value is blank
+	rsslClearFieldEntry(&rsslFEntry);
+	rsslFEntry.dataType = RSSL_DT_ARRAY;
+	rsslFEntry.fieldId = 30013;		// HDLN_PE
+	rsslEncodeFieldEntry(&iter, &rsslFEntry, (void*)0);
+
 	rsslBuf.length = rsslGetEncodedBufferLength( &iter );
 
 	rsslEncodeFieldListComplete( &iter, RSSL_TRUE );
@@ -3171,6 +3177,27 @@ TEST(FieldListTests, testErrorFieldListDecode)
 			{
 				EXPECT_TRUE( true ) << "Enum value is blank - exception expected";
 				EXPECT_STREQ(excp.getText(), "Attempt to getEnumDisplay() while entry data is blank.") << "FieldEntry::getEnumDisplay()";
+			}
+		}
+		// nine entry Array value is blank
+		{
+			EXPECT_TRUE(fl.forth()) << "FieldList::forth() nine";
+
+			const FieldEntry& fe9 = fl.getEntry();
+
+			EXPECT_EQ(fe9.getFieldId(), 30013) << "FieldEntry::getFieldId() == 30013";
+
+			EXPECT_EQ(fe9.getLoadType(), DataType::ArrayEnum) << "FieldEntry::getLoadType() == DataType::ArrayEnum";
+
+			try
+			{
+				fe9.getArray();
+				EXPECT_FALSE(true) << "Enum value is blank - exception expected";
+			}
+			catch (const OmmException& excp)
+			{
+				EXPECT_TRUE(true) << "Enum value is blank - exception expected";
+				EXPECT_STREQ(excp.getText(), "Attempt to getArray() while entry data is blank.") << "FieldEntry::getArray()";
 			}
 		}
 
