@@ -281,6 +281,11 @@ TEST(ElementListTests, testElementListDecodeAll)
 		rsslEncodeNonRWFDataTypeComplete( &iter, &buffer_ansiPage, RSSL_TRUE );
 		rsslEncodeElementEntryComplete( &iter, RSSL_TRUE );
 
+		// twenty entry
+		rsslEEntry.name.data = (char*)"Element - Array";
+		rsslEEntry.name.length = 16;
+		rsslEEntry.dataType = RSSL_DT_ARRAY;
+		rsslEncodeElementEntry(&iter, &rsslEEntry, (void*)0);
 
 		rsslEncodeElementListComplete( &iter, RSSL_TRUE );
 
@@ -493,6 +498,13 @@ TEST(ElementListTests, testElementListDecodeAll)
 		EXPECT_EQ( ee19.getLoadType(), DataType::AnsiPageEnum ) << "ElementEntry::getLoadType() == DataType::AnsiPage" ;
 		EXPECT_EQ( ee19.getCode(), Data::NoCodeEnum ) << "ElementEntry::getCode() == Data::NoCodeEnum" ;
 		EXPECT_STREQ( ee19.getAnsiPage().getBuffer(), EmaBuffer( "328-srfsjkj43rouw-01-20ru2l24903$%", 34 ) ) << "ElementEntry::getXml()" ;
+
+		EXPECT_TRUE(el.forth()) << "ElementList with all data types - twenty forth()";
+
+		const ElementEntry& ee20 = el.getEntry();
+		EXPECT_STREQ(ee20.getName(), "Element - Array") << "ElementEntry::getName()";
+		EXPECT_EQ(ee20.getLoadType(), DataType::ArrayEnum) << "ElementEntry::getLoadType() == DataType::ArrayEnum";
+		EXPECT_EQ(ee20.getCode(), Data::BlankEnum) << "ElementEntry::getCode() == Data::BlankEnum";
 
 		EXPECT_TRUE( true ) << "ElementList with all data types - exception not expected" ;
 
