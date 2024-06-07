@@ -231,21 +231,18 @@ public :
 
 	/** Returns the current OMM data represented as a specific complex type.
 		@throw OmmInvalidUsageException if contained object is not OmmOpaque
-		@throw OmmInvalidUsageException if getCode() returns Data::BlankEnum
 		@return OmmOpaque class reference to contained object
 	*/
 	const OmmOpaque& getOpaque() const;
 
 	/** Returns the current OMM data represented as a specific complex type.
 		@throw OmmInvalidUsageException if contained object is not OmmXml
-		@throw OmmInvalidUsageException if getCode() returns Data::BlankEnum
 		@return OmmXml class reference to contained object
 	*/
 	const OmmXml& getXml() const;
 
 	/** Returns the current OMM data represented as a specific complex type.
 		@throw OmmInvalidUsageException if contained object is not OmmAnsiPage
-		@throw OmmInvalidUsageException if getCode() returns Data::BlankEnum
 		@return OmmAnsiPage class reference to contained object
 	*/
 	const OmmAnsiPage& getAnsiPage() const;
