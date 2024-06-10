@@ -1874,11 +1874,11 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 		exit(-1);
 	}
 
-	pConsumerThread->itemRequestList = 
+	pConsumerThread->itemRequestListAllocator = 
 		(ItemRequest*)malloc(sizeof(ItemRequest)*pConsumerThread->itemListCount);
 
 	/* Shift item info list pointer so we can use streamID's for direct lookup. */
-	pConsumerThread->itemRequestList -= ITEM_STREAM_ID_START;
+	pConsumerThread->itemRequestList = pConsumerThread->itemRequestListAllocator - ITEM_STREAM_ID_START;
 
 
 	/* Should be able to store any item name that the XML parser can store. */
@@ -3863,10 +3863,9 @@ void consumerThreadCleanup(ConsumerThread *pConsumerThread)
 		free(pConsumerThread->pDictionary);
 	}
 
-	if (pConsumerThread->itemRequestList)
+	if (pConsumerThread->itemRequestListAllocator)
 	{
-		pConsumerThread->itemRequestList += ITEM_STREAM_ID_START;
-		free(pConsumerThread->itemRequestList);
+		free(pConsumerThread->itemRequestListAllocator);
 	}
 
 	if (pConsumerThread->jsonAllocatorPtr)

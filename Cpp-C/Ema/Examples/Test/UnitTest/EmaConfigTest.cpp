@@ -1509,83 +1509,133 @@ TEST_F(EmaConfigTest, testLoadingProgrammaticConfigForWarmStandby)
 
 TEST_F(EmaConfigTest, testOverridingFromInterface)
 {
-	Map outermostMap, innerMap;
-	ElementList elementList;
-
+	//two testcases:
+	//case 1: override consumer config
+	//case 2: override niprov config
 	try
 	{
-		elementList.addAscii("DefaultConsumer", "Consumer_1");
+		for (int testCase = 1; testCase <= 2; testCase++)
+		{
+			Map outermostMap, innerMap;
+			ElementList elementList;
 
-		innerMap.addKeyAscii("Consumer_1", MapEntry::AddEnum,
-			ElementList()
-			.addAscii("Channel", "Channel_1")
-			.addAscii("Logger", "Logger_1")
-			.addAscii("Dictionary", "Dictionary_1")
-			.complete()).complete();
+			std::cout << std::endl << " #####Now it is running test case " << testCase << std::endl;
 
-		elementList.addMap("ConsumerList", innerMap);
+			if (testCase == 1)
+			{
 
-		elementList.complete();
-		innerMap.clear();
+				elementList.addAscii("DefaultConsumer", "Consumer_1");
 
-		outermostMap.addKeyAscii("ConsumerGroup", MapEntry::AddEnum, elementList);
+				innerMap.addKeyAscii("Consumer_1", MapEntry::AddEnum,
+					ElementList()
+					.addAscii("Channel", "Channel_1")
+					.addAscii("Logger", "Logger_1")
+					.addAscii("Dictionary", "Dictionary_1")
+					.complete()).complete();
 
-		elementList.clear();
+				elementList.addMap("ConsumerList", innerMap);
 
-		innerMap.addKeyAscii("Channel_1", MapEntry::AddEnum,
-			ElementList()
-			.addEnum("ChannelType", 0)
-			.addAscii("Host", "10.0.0.1")
-			.addAscii("Port", "8001")
-			.complete()).complete();
+				elementList.complete();
+				innerMap.clear();
 
-		elementList.addMap("ChannelList", innerMap);
+				outermostMap.addKeyAscii("ConsumerGroup", MapEntry::AddEnum, elementList);
+				elementList.clear();
+			}
+			else if (testCase == 2)
+			{
+				elementList.addAscii("DefaultNiProvider", "Provider_5");
+				innerMap.addKeyAscii("Provider_1", MapEntry::AddEnum, ElementList()
+					.addAscii("Channel", "Channel_1")
+					.addAscii("Logger", "Logger_1")
+					.addAscii("Directory", "Directory_5")
+					.addUInt("LoginRequestTimeOut", 50000).complete())
+					.complete();
 
-		elementList.complete();
-		innerMap.clear();
+				elementList.addMap("NiProviderList", innerMap);
+				elementList.complete();
+				innerMap.clear();
 
-		outermostMap.addKeyAscii("ChannelGroup", MapEntry::AddEnum, elementList);
+				outermostMap.addKeyAscii("NiProviderGroup", MapEntry::AddEnum, elementList);
+				elementList.clear();
+			}
 
-		elementList.clear();
+			innerMap.addKeyAscii("Channel_1", MapEntry::AddEnum,
+				ElementList()
+				.addEnum("ChannelType", 0)
+				.addAscii("Host", "10.0.0.1")
+				.addAscii("Port", "8001")
+				.complete()).complete();
 
-		innerMap.addKeyAscii("Logger_1", MapEntry::AddEnum,
-			ElementList()
-			.addEnum("LoggerType", 0)
-			.addAscii("FileName", "logFile")
-			.addUInt("NumberOfLogFiles", 42)
-			.addUInt("MaxLogFileSize", 84000)
-			.addEnum("LoggerSeverity", 3).complete()).complete();
+			elementList.addMap("ChannelList", innerMap);
 
-		elementList.addMap("LoggerList", innerMap);
+			elementList.complete();
+			innerMap.clear();
 
-		elementList.complete();
-		innerMap.clear();
+			outermostMap.addKeyAscii("ChannelGroup", MapEntry::AddEnum, elementList);
 
-		outermostMap.addKeyAscii("LoggerGroup", MapEntry::AddEnum, elementList);
-		elementList.clear();
+			elementList.clear();
 
-		innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
-			ElementList()
-			.addEnum("DictionaryType", 1)
-			.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
-			.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
+			innerMap.addKeyAscii("Logger_1", MapEntry::AddEnum,
+				ElementList()
+				.addEnum("LoggerType", 0)
+				.addAscii("FileName", "logFile")
+				.addUInt("NumberOfLogFiles", 42)
+				.addUInt("MaxLogFileSize", 84000)
+				.addEnum("LoggerSeverity", 3).complete()).complete();
 
-		elementList.addMap("DictionaryList", innerMap);
+			elementList.addMap("LoggerList", innerMap);
 
-		elementList.complete();
+			elementList.complete();
+			innerMap.clear();
 
-		outermostMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
+			outermostMap.addKeyAscii("LoggerGroup", MapEntry::AddEnum, elementList);
+			elementList.clear();
 
-		outermostMap.complete();
+			innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
+				ElementList()
+				.addEnum("DictionaryType", 1)
+				.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+				.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
 
-		// Must load data dictionary files from current working location.
-		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).host("localhost:14002").channelType(EmaConfig::ConnectionTypeEnum::WEBSOCKET));
+			elementList.addMap("DictionaryList", innerMap);
 
-		const OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>( ommConsumerImpl.getActiveConfig() );
+			elementList.complete();
 
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_WEBSOCKET) << "connectionType , ChannelType::RSSL_WEBSOCKET";
-		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
-		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
+			outermostMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
+
+			outermostMap.complete();
+
+			EmaString localConfigPath;
+			EmaString workingDir;
+			ASSERT_EQ(getCurrentDir(workingDir), true)
+				<< "Error: failed to load config file from current working dir "
+				<< workingDir.c_str();
+			localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
+
+			if (testCase == 1)
+			{
+				// Must load data dictionary files from current working location.
+				OmmConsumerConfig ommConsumerConfig(localConfigPath);
+				OmmConsumerImpl ommConsumerImpl(ommConsumerConfig.config(outermostMap).host("localhost:14002").channelType(EmaConfig::ConnectionTypeEnum::WEBSOCKET));
+
+				const OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
+
+				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_WEBSOCKET) << "connectionType , ChannelType::RSSL_WEBSOCKET";
+				EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->hostName == "localhost") << "SocketChannelConfig::hostname , \"localhost\"";
+				EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->serviceName == "14002") << "SocketChannelConfig::serviceName , \"14002\"";
+			}
+			else if (testCase == 2)
+			{
+				OmmNiProviderConfig niprovConfig(localConfigPath);
+				OmmNiProviderImpl ommNiProviderImpl(niprovConfig.config(outermostMap).host("localhost:14002").channelType(EmaConfig::ConnectionTypeEnum::WEBSOCKET), appClient);
+
+				OmmNiProviderActiveConfig& activeConfig = static_cast<OmmNiProviderActiveConfig&>(ommNiProviderImpl.getActiveConfig());
+
+				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_WEBSOCKET) << "connectionType , ChannelType::RSSL_WEBSOCKET";
+				EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->hostName == "localhost") << "SocketChannelConfig::hostname , \"localhost\"";
+				EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->serviceName == "14002") << "SocketChannelConfig::serviceName , \"14002\"";
+			}
+		}
 	}
 	catch ( const OmmException& excp )
 	{
