@@ -3179,7 +3179,7 @@ void OmmBaseImpl::handleJce(const char* text, Int32 errorCode, RsslReactorChanne
 	{
 		getErrorClientHandler().onJsonConverter(text, errorCode, reactorChannel, NULL, provider);
 	}
-	else
+	else if (!isApiDispatching())
 		throwJConverterException(text, errorCode, reactorChannel, NULL, provider);
 }
 

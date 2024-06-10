@@ -152,6 +152,15 @@ Series100Consumer113-RestProxy-001
    Added command line options for check "programmatic" way:
    -prestProxyHost, -prestProxyPort.
 
+Series100Consumer113-ApiDispatch-001
+	Alters consumer ApiDispatch mode with implementing OMMConsumerErrorClient onJsonConverter.
+
+Series100Consumer113-UserDispatch-001
+	Alters consumer UserDispatch mode without implementing OMMConsumerErrorClient onJsonConverter.
+
+Series100Consumer113-UserDispatch-002
+	Alters consumer UserDispatch mode with implementing OMMConsumerErrorClient onJsonConverter.
+	
 Module:  Series100Consumer140
 -----------------------------
 
