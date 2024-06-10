@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2020-2023 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2020-2024 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -115,6 +115,7 @@
 #define DEFAULT_XML_TRACE_HEX						  false
 #define DEFAULT_XML_TRACE_MAX_FILE_SIZE				  100000000
 #define DEFAULT_XML_TRACE_PING						  false
+#define DEFAULT_XML_TRACE_PING_ONLY					  false
 #define DEFAULT_XML_TRACE_READ						  true
 #define DEFAULT_XML_TRACE_TO_FILE					  false
 #define DEFAULT_XML_TRACE_TO_MULTIPLE_FILE			  false
@@ -478,6 +479,7 @@ public:
 	bool					xmlTraceWrite;
 	bool					xmlTraceRead;
 	bool					xmlTracePing;
+	bool					xmlTracePingOnly;
 	bool					xmlTraceHex;
 	bool					xmlTraceDump;
 	bool					enableRtt;

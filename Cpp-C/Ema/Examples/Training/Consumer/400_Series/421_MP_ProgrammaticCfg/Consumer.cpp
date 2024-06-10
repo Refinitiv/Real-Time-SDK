@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019-2024 Refinitiv. All rights reserved.         --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -121,6 +121,7 @@ void createProgramaticConfig( Map& configMap )
 		.addUInt("XmlTraceRead", 1)
 		.addUInt("XmlTracePing", 1)
 		.addUInt("XmlTraceHex", 1)
+		.addUInt("XmlTracePingOnly", 0)
 		.addUInt("MsgKeyInUpdates", 1).complete() ).complete();
 
 	elementList.addMap( "ConsumerList", innerMap );
