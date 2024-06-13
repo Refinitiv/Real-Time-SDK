@@ -99,7 +99,7 @@ private :
 	OmmRmtes& operator=( const OmmRmtes& );
 
 	OmmRmtesDecoder*		_pDecoder;
-	UInt64					_space[34];
+	UInt64					_space[35];
 };
 
 }

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -38,6 +38,8 @@ public :
 
 	const EmaBufferU16& getAsUTF16();
 
+	const EmaBuffer& getAsEmaBuffer();
+
 	const EmaString& toString();
 
 	void apply( const RmtesBufferImpl& );
@@ -57,14 +59,15 @@ private :
 	friend class OmmRmtesDecoder;
 
 	RsslBuffer				_rsslBuffer;
-	RsslRmtesCacheBuffer	_rsslCacheBuffer; 
+	RsslRmtesCacheBuffer	_rsslCacheBuffer;
 
-	RsslBuffer				_rsslUTF8Buffer; 
-	RsslU16Buffer			_rsslUTF16Buffer; 
+	RsslBuffer				_rsslUTF8Buffer;
+	RsslU16Buffer			_rsslUTF16Buffer;
 
-	EmaStringInt			_toString;      
-	EmaBufferInt			_utf8Buffer; 
-	EmaBufferU16Int			_utf16Buffer; 
+	EmaStringInt			_toString;
+	EmaBufferInt			_utf8Buffer;
+	EmaBufferU16Int			_utf16Buffer;
+	EmaBufferInt			_intBuffer;
 
 	bool					_rsslUTF8BufferSet;
 	bool					_rsslUTF16BufferSet;

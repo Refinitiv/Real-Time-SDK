@@ -107,6 +107,11 @@ public :
 	*/
 	const EmaBufferU16& getAsUTF16() const;
 
+	/** Returns the cached RMTES content without any conversion.
+		@return EmaBuffer containing RMTES data
+	*/
+	const EmaBuffer& getAsEmaBuffer() const;
+
 	/** Returns a string representation of the class instance which is converted to UTF8.
 		@throw OmmMemoryExhaustionException if application runs out of memory
 		@throw OmmInvalidUsageException if fails to convert
@@ -154,7 +159,7 @@ private :
 	friend class EmaUnitTestConnect;
 
 	RmtesBufferImpl*	_pImpl;
-	UInt64				_space[26];
+	UInt64				_space[27];
 };
 
 }
