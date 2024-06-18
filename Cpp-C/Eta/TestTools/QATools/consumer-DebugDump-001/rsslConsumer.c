@@ -567,7 +567,6 @@ int main(int argc, char **argv)
 			{
 				i++;
 				testCompressionZlib = RSSL_TRUE;
-				break;
 			}
 			//END API QA
 			// API QA
