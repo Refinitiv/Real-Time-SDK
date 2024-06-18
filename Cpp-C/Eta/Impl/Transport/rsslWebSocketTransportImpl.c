@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2020 Refinitiv. All rights reserved.              --
+ *|          Copyright (C) 2020, 2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -911,6 +911,11 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketPing(rsslChannelImpl *rsslChnlI
 	RsslBuffer pingBuffer = {17, (char*)"[{\"Type\":\"Ping\"}]"};
 
 	_DEBUG_TRACE_WS_WRITE("Here \n")
+
+	if (rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT)
+	{
+		rsslWebSocketDumpOutFuncImpl(__FUNCTION__, pingBuffer.data, pingBuffer.length, rsslChnlImpl->Channel.socketId, &rsslChnlImpl->Channel);
+	}
 
 	/* no buffer passed in */
 	/* use ripcWrtHeader - should write and flush */
