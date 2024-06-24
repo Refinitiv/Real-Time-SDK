@@ -1,12 +1,12 @@
-This is the change log of the Refinitiv Real-Time SDK (RTSDK) for C++/C. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
+This is the change log of the Real-Time SDK (RTSDK) for C++/C. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-Rebranding NOTE: Refinitiv Real-Time SDK was formerly known as Elektron SDK or ESDK. 
+Rebranding NOTE: Real-Time SDK was formerly known as Elektron SDK or ESDK. 
 
 There are three types of RTSDK releases that append a letter directly followed by a number to the version number. 
 
-"L" releases (e.g., 1.2.0.L1) are full RTSDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub. 
-"G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub. 
-"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+"L" releases (e.g., 2.2.0.L1) are full RTSDK releases that are uploaded to MyRefinitiv (soon to be MyAccount), Developer Community and GitHub. 
+"G" releases (e.g., 2.2.0.G1) are releases that are only uploaded to GitHub. 
+"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv (soon to be MyAccount) and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
 CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.0.L1 aka EMA/ETA 3.8.0.L1 aka 3.8.0.0
@@ -202,7 +202,7 @@ Both ETA C and EMA C++ 3.7.1.L1 Issues Resolved
 RTSDK C++/C Release 2.1.0.L1 (Mar 15, 2023)
 --------------------------------------------
 
-This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming. In addition, this release serves as a maintenance release with fixes.
+This release introduces client credentials with jwt authentication for connectivity to LSEG Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming. In addition, this release serves as a maintenance release with fixes.
 
 EMA C++ 3.7.0.L1 Issues Resolved
 --------------------------------
@@ -468,7 +468,7 @@ ETA C 3.6.3.L1 Issues Resolved
 Both ETA C and EMA C++ 3.6.3.L1 Issues Resolved
 -----------------------------------------------
 - [RTSDK-4417] - ETAC and EMAC++: Xml trace functionality is not stopping at file size limit when RSSL_TRACE_TO_MULTIPLE_FILES is not set [GitHub #162] 
-- [RTSDK-4615] - Rebrand Change: ADSPOP is now RTC, Refinitiv Real-Time Connector
+- [RTSDK-4615] - Rebrand Change: ADSPOP is now RTC, LSEG Real-Time Connector
 - [RTSDK-4862] - Update doxygen version used to generate documenation
 - [RTSDK-5014] - CMake string(REPLACE ...) must always use quoted source [GitHub #115] 
 - [RTSDK-5103] - Vulnerability in curl 7.63.0, CVE-2021-22890 -- upgrade to latest

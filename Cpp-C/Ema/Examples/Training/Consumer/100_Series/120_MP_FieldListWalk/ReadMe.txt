@@ -3,7 +3,7 @@ Summary
 
 120_MP_FieldListWalk is an example of an OMM Consumer application 
 and demonstrates how to use the EMA library for accessing and parsing OMM 
-MarketPrice data from Refinitiv Data Feed Direct, directly from an OMM
+MarketPrice data from Data Feed Direct, directly from an OMM
 Provider application, or from an Advanced Distribution Server.
 
 120_MP_FieldListWalk illustrates how to extract OMM data from the

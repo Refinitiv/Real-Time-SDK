@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2024 LSEG. All rights reserved.
 */
 
 /*
@@ -18,17 +18,17 @@
  ************************************************************************
  * Summary:
  * A Non-Interactive Provider (NIP) writes a provider application that 
- * connects to Refinitiv Real-Time Distribution System and sends a specific
+ * connects to LSEG Real-Time Distribution System and sends a specific
  * set (non-interactive) of information (services, domains, and capabilities).
  * NIPs act like clients in a client-server relationship. Multiple NIPs can
- * connect to the same Refinitiv Real-Time Distribution System and publish
+ * connect to the same LSEG Real-Time Distribution System and publish
  * the same items and content.
  * 
  * In this module, the OMM NIP application initializes the ETA Transport 
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
- * along with other Refinitiv Real-Time Distribution System components, 
+ * along with other LSEG Real-Time Distribution System components, 
  * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
@@ -46,7 +46,7 @@
  * In this module, after establishing a connection, ping messages might 
  * need to be exchanged. The negotiated ping timeout is available via 
  * the RsslChannel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Refinitiv 
+ * the expected time frame, the connection can be terminated. LSEG 
  * recommends sending ping messages at intervals one-third the 
  * size of the ping timeout.
  *
@@ -137,7 +137,7 @@
  * b) Supported domain types and any item group information associated 
  * with the service.
  * 
- * At a minimum, Refinitiv recommends that the NIP send the Info, 
+ * At a minimum, LSEG recommends that the NIP send the Info, 
  * State, and Group filters for the Source Directory. Because this is provider 
  * instantiated, the NIP should use a streamId with a negative value.
  * 
@@ -173,7 +173,7 @@ extern "C" {
 
 #define LOGIN_STREAM_ID 1
 
-/* At a minimum, Refinitiv recommends that the NIP send the Info, 
+/* At a minimum, LSEG recommends that the NIP send the Info, 
  * State, and Group filters for the Source Directory. Because this is provider 
  * instantiated, the NIP should use a streamId with a negative value. 
 */

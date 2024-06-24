@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2022 LSEG. All rights reserved.
 */
 
 /*
@@ -171,21 +171,21 @@ void printUsageAndExit(char *appName)
 			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
 			"\n -encryptedWebSocket specifies an encrypted websocket connection to open.  Host, port, service, and items are the same as -tcp above. Also note argument -protocolList\n"
 			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
-			"\n -uname specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (optional).\n"
-			"\n -passwd specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (optional).\n"
+			"\n -uname specifies the username used when logging into the provider. The machine ID for Real-Time - Optimized (optional).\n"
+			"\n -passwd specifies the password used when logging into the provider. The password for Real-Time - Optimized (optional).\n"
 		    // API QA
-			"\n -clientId1 specifies the Client ID for Refinitiv Real-Time - Optimized, or the client ID for login v2 (mandatory). To generate clientID for a V1 login, login to Eikon,\n"
+			"\n -clientId1 specifies the Client ID for Real-Time - Optimized, or the client ID for login v2 (mandatory). To generate clientID for a V1 login, login to Eikon,\n"
 			"\n  and search for App Key Generator. The App Key is the Client ID.\n"
 			"\n -clientSecret1 associated client secret for the client ID with the v2 login.\n"
 		    "\n -jwkFile1 File containing the private JWK information for V2 login with JWT.\n"
 			"\n -audience1 audience claim for v2 JWT logins.\n"
-		    "\n -clientId2 specifies the Client ID for Refinitiv Real-Time - Optimized, or the client ID for login v2 (mandatory). To generate clientID for a V1 login, login to Eikon,\n"
+		    "\n -clientId2 specifies the Client ID for Real-Time - Optimized, or the client ID for login v2 (mandatory). To generate clientID for a V1 login, login to Eikon,\n"
 		    "\n  and search for App Key Generator. The App Key is the Client ID.\n"
 		    "\n -clientSecret2 associated client secret for the client ID with the v2 login.\n"
 		    "\n -jwkFile2 File containing the private JWK information for V2 login with JWT.\n"
 			"\n -audience2 audience claim for v2 JWT logins.\n"
 		    //End API QA
-			"\n -sessionMgnt Enables session management in the Reactor for Refinitiv Real-Time - Optimized.\n"
+			"\n -sessionMgnt Enables session management in the Reactor for Real-Time - Optimized.\n"
 			"\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n"
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
 			"\n -ax Specifies the Authentication Extended information. \n"
@@ -1909,7 +1909,7 @@ int main(int argc, char **argv)
 	if (clientId.length)
 	{
 		oAuthCredential.clientId = clientId;
-		/* This is only used with Refinitiv token service V1 
+		/* This is only used with token service V1 
 		oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 	}
 
@@ -2161,7 +2161,7 @@ int main(int argc, char **argv)
 			if (clientId1.length)
 			{
 				oAuthCredential.clientId = clientId1;
-				/* This is only used with Refinitiv token service V1 */
+				/* This is only used with token service V1 */
 				oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 			}
 			/*If a client secret was specified */
@@ -2189,7 +2189,7 @@ int main(int argc, char **argv)
 			if (clientId2.length)
 			{
 				oAuthCredential.clientId = clientId2;
-				/* This is only used with Refinitiv token service V1 */
+				/* This is only used with token service V1 */
 				oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 			}
 			/*If a client secret was specified */

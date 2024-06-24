@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2020 LSEG. All rights reserved.     
 */
 
 /*
@@ -209,24 +209,24 @@ void printUsageAndExit(char *appName)
 			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
 			"\n -encryptedWebSocket specifies an encrypted websocket connection to open.  Host, port, service, and items are the same as -tcp above. Also note argument -protocolList\n"
 			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
-			"\n -uname1 specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (optional).\n"
-		    "\n -uname2 specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (optional).\n"
-		    "\n -uname3 specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (optional).\n"
-			"\n -passwd1 specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (optional).\n"
-		    "\n -passwd2 specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (optional).\n"
-		    "\n -passwd3 specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (optional).\n"
+			"\n -uname1 specifies the username used when logging into the provider. The machine ID for Real-Time - Optimized (optional).\n"
+		    "\n -uname2 specifies the username used when logging into the provider. The machine ID for Real-Time - Optimized (optional).\n"
+		    "\n -uname3 specifies the username used when logging into the provider. The machine ID for Real-Time - Optimized (optional).\n"
+			"\n -passwd1 specifies the password used when logging into the provider. The password for Real-Time - Optimized (optional).\n"
+		    "\n -passwd2 specifies the password used when logging into the provider. The password for Real-Time - Optimized (optional).\n"
+		    "\n -passwd3 specifies the password used when logging into the provider. The password for Real-Time - Optimized (optional).\n"
 		    // API QA
-			"\n -clientId1_1 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V1 login, login to Eikon,\n"
-		    "\n -clientId1_2 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V1 login, login to Eikon,\n"
-		    "\n -clientId1_3 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V1 login, login to Eikon,\n"
-		    "\n -clientId2_1 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V2 login, login to Eikon,\n"
-		    "\n -clientId2_2 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V2 login, login to Eikon,\n"
-		    "\n -clientId2_3 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V2 login, login to Eikon,\n"
+			"\n -clientId1_1 specifies the Client ID for LSEG Real-Time -To generate clientID for a V1 login, login to Eikon,\n"
+		    "\n -clientId1_2 specifies the Client ID for LSEG Real-Time -To generate clientID for a V1 login, login to Eikon,\n"
+		    "\n -clientId1_3 specifies the Client ID for LSEG Real-Time -To generate clientID for a V1 login, login to Eikon,\n"
+		    "\n -clientId2_1 specifies the Client ID for LSEG Real-Time -To generate clientID for a V2 login, login to Eikon,\n"
+		    "\n -clientId2_2 specifies the Client ID for LSEG Real-Time -To generate clientID for a V2 login, login to Eikon,\n"
+		    "\n -clientId2_3 specifies the Client ID for LSEG Real-Time -To generate clientID for a V2 login, login to Eikon,\n"
 			"\n -clientSecret1 associated client secret for the client ID with the v2 login.\n"
    		    "\n -clientSecret2 associated client secret for the client ID with the v2 login.\n"
 		    "\n -clientSecret3 associated client secret for the client ID with the v2 login.\n"
 		    // End API QA
-			"\n -sessionMgnt Enables session management in the Reactor for Refinitiv Real-Time - Optimized.\n"
+			"\n -sessionMgnt Enables session management in the Reactor for Real-Time - Optimized.\n"
 			"\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n"
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
 			"\n -ax Specifies the Authentication Extended information. \n"
@@ -1972,7 +1972,7 @@ int main(int argc, char **argv)
 	if (clientId.length)
 	{
 		oAuthCredential.clientId = clientId;
-		/* This is only used with Refinitiv token service V1 
+		/* This is only used with token service V1 
 		oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 	}
 

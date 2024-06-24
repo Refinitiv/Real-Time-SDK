@@ -3,7 +3,7 @@ Summary
 
 140_MBO_Streaming is an example of an OMM Consumer application
 that demonstrates basic usage of the EMA library to access and parse OMM 
-MarketByOrder data from the Refinitiv Data Feed Direct, directly from 
+MarketByOrder data from the Data Feed Direct, directly from 
 an OMM Provider application, or from an Advanced Distribution Server.
 
 140_MBO_Streaming illustrates how to open and process a

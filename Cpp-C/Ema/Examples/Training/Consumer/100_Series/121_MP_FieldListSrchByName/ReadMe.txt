@@ -3,7 +3,7 @@ Summary
 
 121_MP_FieldListSearchByName is an example of an OMM Consumer 
 application and demonstrates basic usage of the EMA library in accessing and parsing
-OMM MarketPrice data from Refinitiv Data Feed Direct, directly from an OMM 
+OMM MarketPrice data from Data Feed Direct, directly from an OMM 
 Provider application, or from an Advanced Distribution Server.
 
 121_MP_FieldListSearchByName illustrates how to selectively extract data 

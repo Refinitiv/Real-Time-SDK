@@ -1,6 +1,6 @@
 ///*
 // *|---------------------------------------------------------------
-// *|		Copyright (C) 2019 Refinitiv,			  --
+// *|		Copyright (C) 2024 LSEG,			  --
 // *| All rights reserved. Duplication or distribution prohibited --
 // *|---------------------------------------------------------------
 // */

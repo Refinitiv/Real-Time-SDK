@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license      --
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
-// *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2022 LSEG. All rights reserved.                   --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -43,7 +43,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 
 void AppClient::onError( const EmaString& statusText, const ServiceEndpointDiscoveryEvent& event )
 {
-	cout << "Failed to query Refinitiv Data Platform service discovery. Error text: " << statusText << endl;
+	cout << "Failed to query Delivery Platform service discovery. Error text: " << statusText << endl;
 }
 
 void OAuthClient::onCredentialRenewal( const OmmConsumerEvent& consumerEvent )
@@ -70,7 +70,7 @@ void createProgramaticConfig( Map& configDb )
 
 	if (connectWebSocket)
 	{
-		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from Refinitiv Data Platform
+		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from Delivery Platform
 		elementMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum,
 			ElementList().addAscii( "Channel", "Channel_1" ).addAscii( "Dictionary", "Dictionary_1" ).complete() ).complete();
 	}

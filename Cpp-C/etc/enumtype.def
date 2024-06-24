@@ -11,8 +11,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.62
 !tag Build_RDMD  4.20.62
-!tag DT_Version  24.31
-!tag Date        8-Apr-2024
+!tag DT_Version  24.41
+!tag Date        20-May-2024
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -8886,6 +8886,8 @@ CLS_A_EXID 13625
    1765        "GFO"   GLOBAL FUTURES AND OPTIONS LTD (GFO-X)
    1766        "LAS"   Lang & Schwarz Exchange
    1767        "ENE"   Energy Institute
+   1768        "SBG"   Spot Barge
+   1769        "EGN"   Engine Technologies PTE LTD
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17365,37 +17367,37 @@ VESSEL_TYP 12978
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
-      1   "Aframax "   Aframax are medium-sized oil tankers with a dead weight tonnage (DWT) between 80,000 and 119,999
-      2   "Capesize"   They are very large and ultra large cargo vessels with a capacity over 150,000 DWT
-      3   "Chinamax"   The deadweight tonnage of these vessels is 380,000 - 400,000 DWT.
-      4   "Handymax"   Handymax are small-sized cargo ships with a size less than 60,000 DWT
-      5   "Supramax"   Supramax vessels have capacity between 50,000 to 60,000 DWT.
-      6   "Handysz "   Handysize are small-sized ships with a capacity ranging between 15,000 and 35,000 DWT.
-      7   "Panamax "   Ships travelling through the Panama Canal. average capacity of 65,000 DWT
-      8   "Suezmax "   Suezmax are named after the famous Suez Canal. capacity ranging between 120,000 to 200,000 DWT
-      9   "VLCC    "   Very Large Crude Carriers. They have a size ranging between 180,000 to 320,000 DWT
-     10   "ULCC    "   Ultra Large Crude Carriers. size more than 320,000 DWT.
-     11   "Laker   "   Ship capable of transiting the St. Lawrence Seaway locks to trade in the Great Lakes between USA and Canada; the maximum beam and draught allowed is approx. 23.15 m and 26 feet fresh water
-     12   "Malacca "   Ship with maximum hull form capable of transiting the Straits of Malacca fully loaded; the maximum draught and beam allowed in the strait is approx. 21 metres and 60 metres
-     13   "MiniBulk"   a smaller sized bulk carrier of about 3000 tons deadweight
-     14   "Med Rng "   Medium Range Tankers. 25,000 - 54,999 DWT
-     15   "LargeRng"   Large Range Tankers. 55,000 - 79,999 DWT
-     16   "Barge   "   A long flat-bottomed boat for carrying freight on canals and rivers, either under its own power or towed by another.
-     17   "MR Shull"   Medium Range Single Hull Tankers. A single hull is a ship hull design where the bottom and sides of the ship have only one layer of watertight hull surface.
-     18   "MR Dhull"   Medium Range Double Hull Tankers. A double hull is a ship hull design where the bottom and sides of the ship have two complete layers of watertight hull surface.
-     19   "SZ SHull"   Suezmax Range Single Hull Tankers. A single hull is a ship hull design where the bottom and sides of the ship have only one layer of watertight hull surface.
-     20   "SZ DHull"   Suezmax Range Double Hull Tankers. A double hull is a ship hull design where the bottom and sides of the ship have two complete layers of watertight hull surface.
-     21   "LR SHull"   Large Range Single Hull Tankers. A single hull is a ship hull design where the bottom and sides of the ship have only one layer of watertight hull surface.
-     22   "LR DHull"   Large Range Double Hull Tankers. A double hull is a ship hull design where the bottom and sides of the ship have two complete layers of watertight hull surface.
-     23   "Handy   "   Handy are small-sized cargo ships with a size less than 40,000 DWT
-     24   "LargRng1"   Large Range 1 tankers are those which carries Clean Products with a dead weight tonnage (DWT) between 55,000 and 79,999
-     25   "LargRng2"   Large Range 2 tankers are those which carries Clean Products with a dead weight tonnage (DWT) between 80,000 and 1,20,000
+      1   "Aframax "   Aframax are medium-sized oil tankers
+      2   "Capesize"   They are very large and ultra large cargo vessels
+      3   "Chinamax"   Chinamax vessels
+      4   "Handymax"   Handymax are small-sized cargo ships
+      5   "Supramax"   Supramax vessels
+      6   "Handysz "   Handysize are small-sized ships
+      7   "Panamax "   Ships capable of travelling through the Panama Canal
+      8   "Suezmax "   Ships capable of travelling through the Suez Canal
+      9   "VLCC    "   Very Large Crude Carriers
+     10   "ULCC    "   Ultra Large Crude Carriers
+     11   "Laker   "   Ship capable of transiting the St. Lawrence Seaway locks
+     12   "Malacca "   Ship capable of transiting the Straits of Malacca
+     13   "MiniBulk"   Smaller sized bulk carrier
+     14   "Med Rng "   Medium Range Tankers
+     15   "LargeRng"   Large Range Tankers
+     16   "Barge   "   A long flat-bottomed boat for carrying freight on canals and rivers
+     17   "MR Shull"   Medium Range Single Hull Tankers
+     18   "MR Dhull"   Medium Range Double Hull Tankers
+     19   "SZ Shull"   Suezmax Range Single Hull Tankers
+     20   "SZ Dhull"   Suezmax Range Double Hull Tankers
+     21   "LR Shull"   DO NOT USE
+     22   "LR Dhull"   DO NOT USE
+     23   "Handy   "   Small-sized cargo ships - DO NOT USE going forwards
+     24   "LargRng1"   Large Range 1 tankers are those which carries Clean Products
+     25   "LargRng2"   Large Range 2 tankers are those which carries Clean Products
      26   "Kamsmax "   Kamsarmax
      27   "Post-Pan"   Post Panamax
      28   "Ultramax"   Ultramax
-     29   "VLGC    "   Very Large Gas Carrier. They have a carrying capacity 70,000 cbm or above
-     30   "MGC     "   Medium Gas Carrier. They have a carrying capacity between 25,000-50,000 cbm
-     31   "Coaster "   Coaster. They have a carrying capacity below 15 000 DWT
+     29   "VLGC    "   Very Large Gas Carrier
+     30   "MGC     "   Medium Gas Carrier
+     31   "Coaster "   Coaster
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19707,6 +19709,8 @@ CNTR_SZ_UT 13611
     445      "CD/ga"   kg CO2 equivalent/gal
     446      "CD/mt"   kg CO2 equivalent/mt
     447      "kUSDm"   Thousands of US dollars/month
+    448      "CB/mw"   kg CO2 equivalent/mwh
+    449      "MAD/P"   Moroccan Dirham Per Point
 !
 ! ACRONYM    FID
 ! -------    ---

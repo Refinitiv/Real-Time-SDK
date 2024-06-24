@@ -1,7 +1,7 @@
 General Overview of Message Object API Examples
 ===============================================
 
-This folder contains a set of example applications written to the Refinitiv
+This folder contains a set of example applications written to the LSEG
 Enterprise Message API (EMA). These applications present simple usage of the EMA
 library exposing its various features and showcasing various levels of application
 simplicity and functionality. These applications and their content are intended

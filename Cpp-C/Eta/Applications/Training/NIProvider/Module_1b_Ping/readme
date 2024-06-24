@@ -6,16 +6,16 @@ Summary:
 --------
 
 A Non-Interactive Provider (NIP) writes a provider application that 
-connects to Refinitiv Real-Time Distribution System and sends a specific
+connects to LSEG Real-Time Distribution System and sends a specific
 set (non-interactive) of information (services, domains, and capabilities).
 NIPs act like clients in a client-server relationship. Multiple NIPs can
-connect to the same Refinitiv Real-Time Distribution System and publish
+connect to the same LSEG Real-Time Distribution System and publish
 the same items and content.
 
 In this module, after establishing a connection, ping messages might 
 need to be exchanged. The negotiated ping timeout is available via 
 the RsslChannel. If ping heartbeats are not sent or received within 
-the expected time frame, the connection can be terminated. Refinitiv 
+the expected time frame, the connection can be terminated. LSEG 
 recommends sending ping messages at intervals one-third the 
 size of the ping timeout.
 

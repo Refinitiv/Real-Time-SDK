@@ -5,7 +5,7 @@ The 320__Consumer__GenericMsg application is provided as an example of
 OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM Custom data from Refinitiv Data Feed Direct,
+and parsing of OMM Custom data from Data Feed Direct,
 directly from an OMM Provider application, or from the Advanced
 Distribution Server.
 

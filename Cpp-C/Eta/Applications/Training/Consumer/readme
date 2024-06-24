@@ -21,8 +21,8 @@ to find commonality between the applications.
 
 This Transport API Consumer training application provides an outline of how to create an 
 OMM consumer application. An OMM consumer application can establish a connection 
-to other OMM Interactive Provider applications, including Refinitiv Real-Time Distribution Systems 
-Refinitiv Data Feed Direct, and Refinitiv Real-Time. After connecting successfully, an OMM consumer
+to other OMM Interactive Provider applications, including LSEG Real-Time Distribution Systems 
+Data Feed Direct, and LSEG Real-Time. After connecting successfully, an OMM consumer
 can then consume (i.e., send data requests and receive responses) and 
 publish data (i.e., post data).
 

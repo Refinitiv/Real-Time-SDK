@@ -5,7 +5,7 @@ The 333_Login_Streaming_DomainRep application is provided as an example of OMM C
 application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM Login and MarketPrice data from Refinitiv Data Feed Direct,
+and parsing of OMM Login and MarketPrice data from Data Feed Direct,
 directly from an OMM Provider application, or from Advanced Distribution Server.
 
 The 333_Login_Streaming_DomainRep showcases usage of login stream in OMM Consumer.

@@ -3,7 +3,7 @@ Summary
 
 130_MP_UserDisp is provided as an example of an OMM Consumer 
 application that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Refinitiv Data Feed Direct,
+and parsing OMM MarketPrice data from Data Feed Direct,
 directly from an OMM Provider  application, or from an Advanced Distribution
 Server.
 

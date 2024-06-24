@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|          Copyright (C) 2019-2023 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -824,7 +824,7 @@ int rwfToJsonSimple::processGenericMsg(RsslDecodeIterator *iterPtr, RsslMsg &iMs
 		if (rsslGenericMsgCheckHasMsgKey(&iMsg.genericMsg))
 		{
 			writeBufVar(&JSON_KEY, true);
-			//Key including service id of generic message should not be touch/modified by Refinitiv Real-Time Distribution
+			//Key including service id of generic message should not be touch/modified by LSEG Real-Time Distribution
 			if (!processMsgKey(rsslGetMsgKey(&iMsg), iterPtr, iMsg.msgBase.domainType, false))
 				return 0;
 		}
