@@ -1,0 +1,13 @@
+<Project>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<StartupObject>LSEG.Ema.Example.Traning.Consumer.Consumer</StartupObject>
+		<BaseOutputPath>..\..\..\..\..\Executables\$(AssemblyName)</BaseOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\..\Src\Core\EMA_Core.csproj" />
+	</ItemGroup>
+</Project>

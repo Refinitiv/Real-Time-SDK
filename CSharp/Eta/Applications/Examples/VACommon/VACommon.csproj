@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\VACommon</BaseOutputPath>
+    <AssemblyName>VACommon</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Src\Core\Core.csproj" />
+  </ItemGroup>
+
+</Project>

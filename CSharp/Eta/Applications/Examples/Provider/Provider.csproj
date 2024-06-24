@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\Provider</BaseOutputPath>
+    <AssemblyName>Provider</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EtaAppCommon\EtaAppCommon.csproj" />
+  </ItemGroup>
+
+</Project>

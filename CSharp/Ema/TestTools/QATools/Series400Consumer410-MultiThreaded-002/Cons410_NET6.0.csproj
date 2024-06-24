@@ -1,6 +1,0 @@
-﻿<Project>
-	<Import Project="..\..\Consumer_NET6.0.props" />
-	<ItemGroup>
-	  <ProjectReference Include="..\..\..\..\..\PerfTools\EmaPerfToolsCommon\EMA_PerfToolsCommon_NET6.0.csproj" />
-	</ItemGroup>
-</Project>

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\Consumer</BaseOutputPath>
+    <AssemblyName>Consumer</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EtaAppCommon\EtaAppCommon.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>EMA_ConsPerf</AssemblyName>
+    <BaseOutputPath>..\..\Executables\$(AssemblyName)</BaseOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Src\Core\EMA_Core.csproj" />
+    <ProjectReference Include="..\EmaPerfToolsCommon\EMA_PerfToolsCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\EmaPerfToolsCommon\350k.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\EmaConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

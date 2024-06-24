@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>EMA_NIProvPerf</AssemblyName>
+    <BaseOutputPath>..\..\Executables\$(AssemblyName)</BaseOutputPath>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="LSEG.Eta.Core">
+      <HintPath>..\..\..\Eta\Libs\$(Configuration)\$(TargetFramework)\LSEG.Eta.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="LSEG.Eta.ValueAdd">
+      <HintPath>..\..\..\Eta\Libs\$(Configuration)\$(TargetFramework)\LSEG.Eta.ValueAdd.dll</HintPath>
+    </Reference>
+    <Reference Include="LSEG.Ema.Core">
+      <HintPath>..\..\Libs\$(Configuration)\$(TargetFramework)\LSEG.Ema.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EmaPerfToolsCommon\EMA_PerfToolsCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\EmaPerfToolsCommon\MsgData.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+	<None Include="..\EmaPerfToolsCommon\350k.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\EmaConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

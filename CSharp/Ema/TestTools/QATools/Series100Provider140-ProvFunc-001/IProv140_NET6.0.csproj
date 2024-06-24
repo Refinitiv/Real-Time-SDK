@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\..\IProvider_NET6.0.props" />
-	<ItemGroup>
-	  <None Update="xmlKeyList">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
-</Project>

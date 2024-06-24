@@ -2,12 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
 	<StartupObject>LSEG.Ema.Example.Traning.Consumer.Consumer</StartupObject>
 	<ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
 
-	<Import Project=".\Ema.props"/>
+  <Import Project=".\Ema.props"/>
 
 </Project>

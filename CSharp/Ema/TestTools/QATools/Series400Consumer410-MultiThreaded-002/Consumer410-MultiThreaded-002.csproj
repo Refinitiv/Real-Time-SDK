@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\Consumer.props" />
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\PerfTools\EmaPerfToolsCommon\EMA_PerfToolsCommon_NET6.0.csproj" />
+	  <ProjectReference Include="..\..\..\PerfTools\EmaPerfToolsCommon\EMA_PerfToolsCommon.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Update="20k.xml">

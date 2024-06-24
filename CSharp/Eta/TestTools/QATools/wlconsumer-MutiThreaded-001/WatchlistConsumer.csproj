@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>WatchlistConsumer</AssemblyName>
+	<BaseOutputPath>$(SolutionDir)Eta\Executables\WatchlistConsumer</BaseOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Src\Core\Core.csproj" />
+    <ProjectReference Include="..\..\Src\ValueAdd\ValueAdd.csproj" />
+    <ProjectReference Include="..\EtaAppCommon\EtaAppCommon.csproj" />
+    <ProjectReference Include="..\PerfTools\ProvPerf\ProvPerf.csproj" />
+    <ProjectReference Include="..\VACommon\VACommon.csproj" />
+  </ItemGroup>
+
+</Project>

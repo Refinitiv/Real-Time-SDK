@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\ProvMod5</BaseOutputPath>
+    <AssemblyName>ProvMod5</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Examples\EtaAppCommon\EtaAppCommon.csproj" />
+  </ItemGroup>
+
+</Project>

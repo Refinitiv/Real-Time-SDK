@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\ConsMod2</BaseOutputPath>
+    <AssemblyName>ConsMod2</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Examples\EtaAppCommon\EtaAppCommon.csproj" />
+  </ItemGroup>
+
+</Project>

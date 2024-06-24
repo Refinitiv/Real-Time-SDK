@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>LSEG.Eta.Tests</RootNamespace>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>namekeys.snk</AssemblyOriginatorKeyFile>
+    <AssemblyName>ESDK.Tests</AssemblyName>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\RTSDK.Tests</BaseOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1705;CS8002</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;1705;CS8002</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="connections.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
+    <PackageReference Include="xunit" Version="2.7.0" />
+    <PackageReference Include="xunit.categories" Version="2.0.8" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Applications\Examples\EtaAppCommon\EtaAppCommon.csproj" />
+    <ProjectReference Include="..\ValueAdd\ValueAdd.csproj" />
+  </ItemGroup>
+
+</Project>

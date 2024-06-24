@@ -1,0 +1,15 @@
+<Project>
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<StartupObject>LSEG.Ema.Example.Traning.NIProvider.NIProvider</StartupObject>
+		<BaseOutputPath>..\..\..\..\..\Executables\$(AssemblyName)</BaseOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\..\Src\Core\EMA_Core.csproj" />
+	</ItemGroup>
+
+</Project>

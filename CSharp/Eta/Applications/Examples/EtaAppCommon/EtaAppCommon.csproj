@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\EtaAppCommon</BaseOutputPath>
+    <AssemblyName>EtaAppCommon</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Src\ValueAdd\ValueAdd.csproj" />
+  </ItemGroup>
+
+</Project>

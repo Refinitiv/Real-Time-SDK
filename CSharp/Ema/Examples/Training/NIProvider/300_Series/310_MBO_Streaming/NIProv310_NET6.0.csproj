@@ -1,3 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\..\NIProvider_NET6.0.props" />
-</Project>

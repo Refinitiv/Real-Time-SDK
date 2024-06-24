@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>LSEG.Ema.PerfTools.Common</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>EMA_PerfToolsCommon</AssemblyName>
+    <BaseOutputPath>..\..\Libs\</BaseOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Src\Core\EMA_Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\TransportPerf</BaseOutputPath>
+    <AssemblyName>TransportPerf</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Examples\EtaAppCommon\EtaAppCommon.csproj" />
+    <ProjectReference Include="..\Common\EtaPerfToolsCommon.csproj" />
+  </ItemGroup>
+
+</Project>

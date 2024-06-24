@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<AssemblyName>EnsureComplete.Fody</AssemblyName>
@@ -12,6 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Src\Core\EMA_Core_NET6.0.csproj" />
+    <ProjectReference Include="..\..\..\Src\Core\EMA_Core.csproj" />
   </ItemGroup>
 </Project>

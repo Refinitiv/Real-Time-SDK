@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\NIProvPerf</BaseOutputPath>
+    <AssemblyName>NIProvPerf</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Examples\Provider\Provider.csproj" />
+    <ProjectReference Include="..\Common\EtaPerfToolsCommon.csproj" />
+    <ProjectReference Include="..\ProvPerf\ProvPerf.csproj" />
+  </ItemGroup>
+
+</Project>

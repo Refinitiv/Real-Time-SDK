@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<StartupObject>LSEG.Ema.Example.Traning.Consumer.Consumer</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Src\Core\EMA_Core.csproj" />
+  </ItemGroup>
+
+    <ItemGroup>
+		<None Include="..\..\..\EmaConfig.xml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+    </ItemGroup>
+</Project>

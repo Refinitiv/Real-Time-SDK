@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <RootNamespace>LSEG.Eta.PerfTools.Common</RootNamespace>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\EtaPerfToolsCommon</BaseOutputPath>
+    <AssemblyName>EtaPerfToolsCommon</AssemblyName>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\EtaPerfToolsCommon</BaseOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Examples\EtaAppCommon\EtaAppCommon.csproj" />
+  </ItemGroup>
+
+</Project>
