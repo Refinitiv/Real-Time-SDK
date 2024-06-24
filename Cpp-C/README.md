@@ -1,15 +1,15 @@
-# Refinitiv Real-Time SDK - C/C++ Edition
-This is the Refinitiv Real-Time SDK. This SDK encompasses a couple of APIs:  Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
+# Real-Time SDK - C/C++ Edition
+This is the LSEG Real-Time SDK. This SDK encompasses a couple of APIs:  Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
 
 The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
-The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA (RSSL), to ValueAdd/Reactor layer or to Watchlist layer.
+The **Enterprise Transport API (ETA)** is an open source LSEG low-level Transport and OMM encoder/decoder API. It is used by the LSEG Real-Time Distribution Systems and LSEG Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA (RSSL), to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2024 Refinitiv. All rights reserved.
+Copyright (C) 2019-2024 LSEG. All rights reserved.
 
 # New In This Release
 
-Please refer to the CHANGELOG file in this section to see what is new in this release of Refinitiv Real-Time SDK - C/C++ Edition. Also in CHANGELOG is a list of issues fixed in this release and a history of features and fixes introduced per released version.
+Please refer to the CHANGELOG file in this section to see what is new in this release of Real-Time SDK - C/C++ Edition. Also in CHANGELOG is a list of issues fixed in this release and a history of features and fixes introduced per released version.
 
 ### External Dependencies
 
@@ -116,7 +116,7 @@ Platforms & Compilers:
 
 * Eta VACache library built 
 
-NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 8 and Oracle Linux 7 are available in release packages available on Refinitiv Developer Portal. 
+NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 8 and Oracle Linux 7 are available in release packages available on LSEG Developer Portal. 
 
 #### Tested Versions
 
@@ -162,14 +162,14 @@ NOTE: On windows TLS 1.3 is supported with OpenSSL.
 
 RTSDK Cpp-C supports connectivity to the following platforms:
 
-- Refinitiv Real-Time Distribution System (RSSL/RWF connections): ADS/ADH all supported versions
-- Refinitiv Real-Time: Refinitiv Real-Time Deployed
-- Refinitiv Real-Time Hosted
-- Refinitiv Real-Time - Optimized (RTO)
-- Refinitiv Direct Feed
+- LSEG Real-Time Distribution System (RSSL/RWF connections): ADS/ADH all supported versions
+- LSEG Real-Time: LSEG Real-Time Deployed
+- LSEG Real-Time Hosted
+- Real-Time - Optimized (RTO)
+- Real-Time Direct
 
 
-NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
+NOTE: Connectivity to Data Feed Direct (LDFD) is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
@@ -186,13 +186,13 @@ Please refer to top level README.md and to Cpp-C/Eta/README.md or Cpp-C/Ema/READ
 Please refer to Installation Guide for [ETA](Eta/Docs/RTSDK_C_Installation_Guide.pdf) or [EMA](Ema/Docs/RTSDK_C_Installation_Guide.pdf) for detailed instructions. In this section are some basic details.
 
 ## Install RTSDK 
-There are 3 ways to install Refinitiv Real-Time SDK:
+There are 3 ways to install Real-Time SDK:
 
 Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
-Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads).
+Real-Time SDK package may also be [downloaded from LSEG Developer Portal](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads).
 
-Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). 
+Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). 
 
 ## Building RTSDK
 
@@ -253,9 +253,9 @@ Windows: Do not add "Win64" or "-A x64" to the "VisualStudioVersion".  Example, 
 NOTE: Starting with SDK version 1.3.1, DACS libraries are available for 32-bits in the BinaryPack.
 NOTE: DACS libraries provided in BinaryPack for VS2019 is copied from VS 2017 as these build is not currently available.
 
-# Obtaining the Refinitiv Field Dictionaries
+# Obtaining the LSEG Field Dictionaries
 
-The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Cpp-C/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of Refinitiv Real-Time Template Service Pack.
+The LSEG `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Cpp-C/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of LSEG Real-Time Template Service Pack.
 
 
 # Developing 

@@ -5,7 +5,7 @@ Summary:
 --------
 
 The purpose of this application is to demonstrate connecting and consuming 
-data from an ADS device, OMM Provider application or Refinitiv Real-Time - 
+data from an ADS device, OMM Provider application or LSEG Real-Time - 
 Optimized using ValueAdd components with multiple credentials.  It is a single-threaded 
 client application.
 
@@ -45,7 +45,7 @@ can be located in the directory of execution.  If the dictionary files
 cannot be found, they are requested from the provider.
 
 Both the shared version of libcurl and the openssl libraries are needed to run this example for 
-connecting and consuming data from Refinitiv Real-Time - Optimized. 
+connecting and consuming data from Real-Time - Optimized. 
 
 -------------------
 Json configuration file format:

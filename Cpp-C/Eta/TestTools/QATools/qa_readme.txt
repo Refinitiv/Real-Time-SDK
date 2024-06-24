@@ -35,6 +35,7 @@ consumer-OMMSeq-001: Alter Consumer to have the following new options and implem
     Two Market Price Item Request with same key and different streamId (-requestSameKeyWithDiffStreamId)
 
 consumer-DebugDump-001: Alter Consumer to print debug dumps and add options -dumpIpcIn, -dumpIpcOut, -dumpIpcComp, -dumpIpcInit, -dumpRsslIn, -dumpRsslOut.
+    Additional options: -stopRequestAfterLogin if specified, do not send any requests after Login Refresh is recieved.
 
 consumer-TracePing-001: Alter Consumer to trace Ping messages. Add option -xping, -x1, -xnowrite, -xnoread.
 

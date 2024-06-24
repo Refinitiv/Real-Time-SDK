@@ -14,7 +14,7 @@ Detailed Descriptions:
 Some data requires the use of a dictionary for encoding or decoding. The dictionary 
 typically defines type and formatting information, and tells the application how to 
 encode or decode information. Content that uses the RsslFieldList type requires the 
-use of a field dictionary (usually the Refinitiv RDMFieldDictionary, though it 
+use of a field dictionary (usually the LSEG RDMFieldDictionary, though it 
 can instead be a user-defined or modified field dictionary).
  
 The Source Directory message should notify the consumer about dictionaries needed to 

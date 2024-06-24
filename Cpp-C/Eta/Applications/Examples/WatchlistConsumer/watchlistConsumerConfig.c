@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2023 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2023 LSEG. All rights reserved.     
 */
 
 /*
@@ -59,7 +59,7 @@ void printUsageAndExit(int argc, char **argv)
 			" -c           Specifies connection type. Valid arguments are socket, webSocket, http, encrypted, and reliableMCast.\n"
 			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, webSocket, and http.  Http is only supported on Windows Platforms.\n"
 			" -if          Specifies the address of a specific network interface to use.\n"
-			" -clientId    Specifies an unique ID for application making the request to RDP token service, or the client Id for Refinitiv login version 2 (mandatory).\n"
+			" -clientId    Specifies an unique ID for application making the request to RDP token service, or the client Id for LSEG login version 2 (mandatory).\n"
 			" -clientSecret Specifies the client secret associated with the client id.\n"
 			" -jwkFile		Specifies the file location of the private JWK for use with V2 JWT authentication. \n"
 			" -audience		Specifies the audience claim for V2 JWT authentication.\n"

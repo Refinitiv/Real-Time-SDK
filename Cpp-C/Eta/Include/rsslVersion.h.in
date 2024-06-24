@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Refinitiv. All rights reserved.      */
+/* Copyright (C) 2024 LSEG. All rights reserved.      */
 
 /*******************************************************************************
 * 
@@ -29,7 +29,7 @@
 #define RSSL_Product_Minor     @Eta_VERSION_TWEAK@   	// Release tweak number
 
 #define RSSL_Year				"@rtsdk_year@"
-#define RSSL_CompanyName		" Refinitiv"
+#define RSSL_CompanyName		" LSEG"
 #define RSSL_Version			RSSL_Release_Major,RSSL_Release_Minor,RSSL_Product_Major,RSSL_Product_Minor
 #define RSSL_VersionString		MKSTR(RSSL_Release_Major) "." MKSTR(RSSL_Release_Minor) "." MKSTR(RSSL_Product_Major) "." MKSTR(RSSL_Product_Minor) " (" BLDTYPE ")"
 #define RSSL_LegalCopyRight		"Copyright (C) " RSSL_Year RSSL_CompanyName ", All Rights Reserved. "

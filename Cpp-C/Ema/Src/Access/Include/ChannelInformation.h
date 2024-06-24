@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -67,7 +67,7 @@ public:
 								receive networks are different */
 	Ext_Line_SocketEnum = 5,  /*!< (5) Channel is using an extended line socket transport */
 	Seq_McastEnum = 6,        /*!< (6) Channel is an unreliable, sequenced multicast connection
-								for reading from a Refinitiv Real-Time Direct Feed system. This is a
+								for reading from a LSEG Real-Time Direct Feed system. This is a
 								client-only, read-only transport. This transport is supported on
 								Linux only. */
 	WebSocketEnum = 7,        /*!< (7) Channel is a WebSocket connection based tunneling type */
@@ -79,7 +79,7 @@ public:
   enum ProtocolType
   {
 	UnknownEnum = -1,		/*!< (-1) Unknown wireformat protocol */
-	RwfEnum = 0,			/*!< (0) Refinitiv wireformat protocol */
+	RwfEnum = 0,			/*!< (0) LSEG wireformat protocol */
 	RsslJsonEnum = 2		/*!< (2) Rssl JSON protocol */
   };
 

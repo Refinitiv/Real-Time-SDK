@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license      --
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
-// *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -82,7 +82,7 @@ void AppClient::onSuccess( const ServiceEndpointDiscoveryResp& serviceEndpointRe
 
 void AppClient::onError( const EmaString& statusText, const ServiceEndpointDiscoveryEvent& event )
 {
-	cout << "Failed to query Refinitiv Data Platform service discovery. Error text: " << statusText << endl;
+	cout << "Failed to query Delivery Platform service discovery. Error text: " << statusText << endl;
 }
 
 void createProgramaticConfig( Map& configDb )
@@ -92,7 +92,7 @@ void createProgramaticConfig( Map& configDb )
 
 	if (connectWebSocket)
 	{
-		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from Refinitiv Data Platform
+		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from Delivery Platform
 		elementMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum,
 			ElementList().addAscii( "Channel", "Channel_1" ).addAscii( "Dictionary", "Dictionary_1" ).complete() ).complete();
 	}
@@ -409,7 +409,7 @@ int main( int argc, char* argv[] )
 
 		if ( !host.length() || !port.length() )
 		{
-			cout << "Both hostname and port are not available for establishing a connection with Refinitiv Real-Time - Optimized. Exiting..." << endl;
+			cout << "Both hostname and port are not available for establishing a connection with Real-Time - Optimized. Exiting..." << endl;
 			return -1;
 		}
 

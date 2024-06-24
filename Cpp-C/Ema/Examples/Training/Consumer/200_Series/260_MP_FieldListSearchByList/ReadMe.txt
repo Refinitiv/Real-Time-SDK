@@ -5,7 +5,7 @@ The 260_MP_FieldListSearchByList application is provided as an
 example of OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and searching with a list of field IDs of OMM MarketPrice data from Refinitiv
+and searching with a list of field IDs of OMM MarketPrice data from LSEG
 Data Feed Direct, directly from an OMM Provider application, or from
 Advanced Distribution Server.
 

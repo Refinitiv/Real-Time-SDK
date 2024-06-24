@@ -1,12 +1,12 @@
-# Refinitiv Real-Time SDK
+# LSEG Real-Time SDK
 
 This is the Real-Time SDK (RTSDK). This SDK encompasses these open source Real-Time APIs: Enterprise Message API (EMA) and Enterprise Transport API (ETA).
 
 The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment.  EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
-The **Enterprise Transport API (ETA)** is an open source low-level Transport and OMM encoder/decoder API. It is used by the Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
+The **Enterprise Transport API (ETA)** is an open source low-level Transport and OMM encoder/decoder API. It is used by the Real-Time Distribution Systems and Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
 
-The RTSDK was formerly known as Elektron SDK (ESDK). Starting with version 2.0 (ETA & EMA 3.6), SDK was rebranded with the following impact: namespace changes and jar files names. This applies to applications written to EMA C++, EMA Java and ETA Java. If upgrading from a version prior to RTSDK 2.0, please alter code, re-compile and redeploy applications to pick up these changes. Please note that connectivity to Refinitiv products will not be impacted after rebranding and existing applications will continue to work. For more details, please see the following:
+The RTSDK was formerly known as Elektron SDK (ESDK). Starting with version 2.0 (ETA & EMA 3.6), SDK was rebranded with the following impact: namespace changes and jar files names. This applies to applications written to EMA C++, EMA Java and ETA Java. If upgrading from a version prior to RTSDK 2.0, please alter code, re-compile and redeploy applications to pick up these changes. Please note that connectivity to products will not be impacted after rebranding and existing applications will continue to work. For more details, please see the following:
 
 - For specific details on impact of changes to applications with RTSDK 2.0, please see [REBRAND.md](REBRAND.md).
 - For general details regarding impact of rebranding, support questions, and timelines with RTSDK and other APIs, please see the [API Product Change Notification (PCN)](https://my.refinitiv.com/content/mytr/en/pcnpage/12072.html). 
@@ -22,7 +22,7 @@ The Real-Time-SDK will support multiple languages across different combinations 
 
 
 # Documentation
-Documentation is available in **PDF format** on GitHub and Refinitiv Developer Portal. 
+Documentation is available in **PDF format** on GitHub and LSEG Developer Portal. 
 
 GitHub PDF format docs per API:
 
@@ -33,13 +33,13 @@ GitHub PDF format docs per API:
 - [Enterprise Message API - CSharp Edition](CSharp/Ema/Docs)
 - [Enterprise Transport API - CSharp Edition](CSharp/Eta/Docs)
 
-Refinitiv Developer Portal documentation section contains docs in PDF format for both C++ and Java:
+LSEG Developer Portal documentation section contains docs in PDF format for both C++ and Java:
 
 - [C++/C](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/documentation)
 - [Java](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation)
 - [CSharp](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/documentation)
 
-Documentation is also available in **HTML format** on a package or Refinitiv Developer Portal. 
+Documentation is also available in **HTML format** on a package or LSEG Developer Portal. 
 
 Packages are available for download in Developer Portal. If viewing docs included with a locally installed package, please consider hosting the HTML docs in an internal portal, using Internet Explorer, or, modifying security settings with Firefox, etc., to do so. HTML documentation is also available on Developer Portal for download in documentation sections.
 

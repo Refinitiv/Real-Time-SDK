@@ -1,9 +1,9 @@
 /*
  *|-------------------------------------------------------------------------------
- *| This source code is provided under the Apache 2.0 license and is provided	--
- *| AS IS with no warranty or guarantee of fit for purpose.  See the project's 	--
+ *| This source code is provided under the Apache 2.0 license
+ *| AS IS with no warranty or guarantee of fit for purpose.
  *| LICENSE.md for details.														--
- *| Copyright (C) 2019 Refinitiv. All rights reserved.						--
+ *| Copyright (C) 2019 LSEG. All rights reserved.     						--
  *|-------------------------------------------------------------------------------
  */
 
@@ -47,7 +47,7 @@
  * In this module, after establishing a connection, ping messages might 
  * need to be exchanged. The negotiated ping timeout is available via 
  * the RsslChannel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Refinitiv 
+ * the expected time frame, the connection can be terminated. LSEG 
  * recommends sending ping messages at intervals one-third the 
  * size of the ping timeout.
  *
@@ -56,7 +56,7 @@
  * might need to exchange ping messages. A negotiated ping timeout is available 
  * via RsslChannel corresponding to each connection (this value might differ on
  * a per-connection basis). A connection can be terminated if ping heartbeats 
- * are not sent or received within the expected time frame. Refinitiv 
+ * are not sent or received within the expected time frame. LSEG 
  * recommends sending ping messages at intervals one-third the size of the ping timeout.
  * Ping or heartbeat messages are used to indicate the continued presence of 
  * an application. These are typically only required when no other information is 
@@ -226,7 +226,7 @@ int main(int argc, char **argv)
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearDecodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_DECODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 
@@ -1644,7 +1644,7 @@ RsslRet sendLoginResponse(EtaChannelManagementInfo *etaChannelManagementInfo)
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -2006,7 +2006,7 @@ RsslRet sendLoginRequestRejectStatusMsg(EtaChannelManagementInfo *etaChannelMana
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */

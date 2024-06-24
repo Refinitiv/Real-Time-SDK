@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 LSEG. All rights reserved.     
 */
 
 #include "directoryProvider.h"
@@ -44,7 +44,7 @@ void directoryServiceInit()
 	service.info.serviceName.length = (RsslUInt32)strlen(service.info.serviceName.data);
 
 	service.info.flags |= RDM_SVC_IFF_HAS_VENDOR;
-	service.info.vendor.data = (char*)"Refinitiv";
+	service.info.vendor.data = (char*)"LSEG";
 	service.info.vendor.length = (RsslUInt32)strlen(service.info.vendor.data);
 
 	service.info.flags |= RDM_SVC_IFF_HAS_IS_SOURCE;

@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for dansiils.                  --
- *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2020 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 #ifndef __JSON_VERSION_H
@@ -23,7 +23,7 @@
 #define JSON_Product_Minor     @Eta_VERSION_TWEAK@	// Release tweak number
 
 #define JSON_Year				"@rtsdk_year@"
-#define JSON_CompanyName		" Refinitiv"
+#define JSON_CompanyName		" LSEG"
 #define JSON_Version			JSON_Release_Major,JSON_Release_Minor,JSON_Product_Major,JSON_Product_Minor
 #define JSON_VersionString		MKSTR(JSON_Release_Major) "." MKSTR(JSON_Release_Minor) "." MKSTR(JSON_Product_Major) "." MKSTR(JSON_Product_Minor) " (" BLDTYPE ")"
 #define JSON_LegalCopyRight		"Copyright (C) " JSON_Year JSON_CompanyName ", All Rights Reserved. "

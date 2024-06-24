@@ -112,7 +112,7 @@ before exiting, in seconds.
 
 Specifying the -at option configures the token used for UserAuthn Authentication.  This should be used 
 in place of a userName.  This token is retrieved from a token generator, and passed to
-Refinitiv Real-Time Distribution, which will verify the token against a token validator.
+LSEG Real-Time Distribution, which will verify the token against a token validator.
 For more information about the UserAuthn Authentication feature, please see the Developers guide and
 the UserAuthn Authentication guide. 
 

@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -97,7 +97,7 @@
 /**
  *	@defgroup VARDMLogin RSSL RDM Login Codec
  *	\brief The RSSL RDM Login component is intended to assist developers with encoding and decoding messages
- *		   used by the Login Refinitiv Domain Model.  This component provides typed data structures, encoding 
+ *		   used by the Login Domain Model.  This component provides typed data structures, encoding 
  *		   and decoding functions for Login Domain messages.
  *	@{
  */
@@ -116,7 +116,7 @@
 /**
  *	@defgroup VARDMDirectory RSSL RDM Directory Codec
  *	\brief The RSSL RDM Directory component is intended to assist developers with encoding and decoding messages
- *		   used by the Directory Refinitiv Domain Model.  This component provides typed data structures, encoding 
+ *		   used by the Directory Domain Model.  This component provides typed data structures, encoding 
  *		   and decoding functions for Directory Domain messages.
  *	@{
  */
@@ -135,7 +135,7 @@
 /**
  *	@defgroup VARDMDictionary RSSL RDM Dictionary Codec 
  *	\brief The RSSL RDM Dictionary component is intended to assist developers with encoding and decoding messages
- *		   used by the Dictionary Refinitiv Domain Model.  This component provides typed data structures, encoding 
+ *		   used by the Dictionary Domain Model.  This component provides typed data structures, encoding 
  *		   and decoding functions for Dictionary Domain messages.
  *	@{
  */

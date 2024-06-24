@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -53,6 +53,8 @@ static char cipherSuite[128];
 static char libsslName[255];
 static char libcryptoName[255];
 static char cookiesData[4096];
+
+static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
 
 static RsslBuffer cookieBuff = { 0 };
 static RsslConnectionTypes connType;
@@ -114,6 +116,8 @@ void exitWithUsage()
 	printf(" -httpCookie with ';' delineated list of cookies data\n");
 	printf(" -rtt if specified, support the round trip latency measurement\n");
 	printf(" -serverSharedSocket if specified, turn on server shared socket\n");
+	printf(" -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections\n");
+	printf(" -spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections\n");
 	//API QA
 	printf(" -testCompressionZlib turns on Zlib compression\n");
 	printf(" -compressionLevel specifies Zlib compression level\n");
@@ -158,9 +162,9 @@ int main(int argc, char **argv)
 	snprintf(portNo, 128, "%s", defaultPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
 	snprintf(protocolList, 128, "%s", defaultProtocols);
-	snprintf(certFile, 128, "\0");
-	snprintf(keyFile, 128, "\0");
-	snprintf(cipherSuite, 128, "\0");
+	snprintf(certFile, 128, "%s", "");
+	snprintf(keyFile, 128, "%s", "");
+	snprintf(cipherSuite, 128, "%s", "");
 	connType = RSSL_CONN_TYPE_SOCKET;
 	setServiceId(1);
 	for(iargs = 1; iargs < argc; ++iargs)
@@ -221,7 +225,7 @@ int main(int argc, char **argv)
 		else if (0 == strcmp("-x", argv[iargs]))
 		{
 			xmlTrace = RSSL_TRUE;
-			snprintf(traceOutputFile, 128, "RsslProvider\0");
+			snprintf(traceOutputFile, 128, "RsslProvider");
 		}
 		else if (0 == strcmp("-td", argv[iargs]))
 		{
@@ -247,6 +251,14 @@ int main(int argc, char **argv)
 			++iargs; if (iargs == argc) exitWithUsage();
 			snprintf(cipherSuite, 128, "%s", argv[iargs]);
 			userSpecCipher = RSSL_TRUE;
+		}
+		else if (0 == strcmp("-spTLSv1.2", argv[iargs]))
+		{
+			tlsProtocol |= RSSL_ENC_TLSV1_2;
+		}
+		else if (0 == strcmp("-spTLSv1.3", argv[iargs]))
+		{
+			tlsProtocol |= RSSL_ENC_TLSV1_3;
 		}
 		else if (strcmp("-jsonEnumExpand", argv[iargs]) == 0)
 		{
@@ -803,6 +815,9 @@ static RsslServer* bindRsslServer(char* portno, RsslError* error)
 
 	if (userSpecCipher == RSSL_TRUE)
 		sopts.encryptionOpts.cipherSuite = cipherSuite;
+
+	if (tlsProtocol != RSSL_ENC_NONE)
+		sopts.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
 
 	if ((srvr = rsslBind(&sopts, error)) != 0)
 	{

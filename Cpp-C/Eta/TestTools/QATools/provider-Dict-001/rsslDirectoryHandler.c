@@ -21,7 +21,7 @@ static RsslUInt64 serviceId = 1234;
 static RsslSourceDirectoryRequestInfo sourceDirectoryReqInfoList[NUM_CLIENT_SESSIONS];
 
 /* vendor name */
-static const char* vendorName = "Refinitiv";
+static const char* vendorName = "LSEG";
 /* field dictionary name */
 static const char *fieldDictionaryName = "RWFFld";
 /* enumtype dictionary name */

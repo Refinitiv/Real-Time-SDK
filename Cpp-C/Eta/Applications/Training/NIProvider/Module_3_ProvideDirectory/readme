@@ -6,10 +6,10 @@ Summary:
 --------
 
 A Non-Interactive Provider (NIP) writes a provider application that 
-connects to Refinitiv Real-Time Distribution and sends a specific set
+connects to LSEG Real-Time Distribution and sends a specific set
 (non-interactive) of information (services, domains, and capabilities).
 NIPs act like clients in a client-server relationship. Multiple NIPs can
-connect to the same Refinitiv Real-Time Distribution and publish the same
+connect to the same LSEG Real-Time Distribution and publish the same
 items and content. The NIP application sends a login request like a consumer
 to the ADH and processes source directory and item requests like a provider.
 A source directory refresh message and market price and/or market by order
@@ -30,7 +30,7 @@ with the NIP
 b) Supported domain types and any item group information associated 
 with the service.
 
-At a minimum, Refinitiv recommends that the NIP send the Info, 
+At a minimum, LSEG recommends that the NIP send the Info, 
 State, and Group filters for the Source Directory. Because this is provider 
 instantiated, the NIP should use a streamId with a negative value.
 

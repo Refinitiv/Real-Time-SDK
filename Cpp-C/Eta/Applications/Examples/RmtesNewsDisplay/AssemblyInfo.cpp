@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -21,7 +21,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyTitleAttribute("RsslRmtesNewsDisplay")];
 [assembly:AssemblyDescriptionAttribute("")];
 [assembly:AssemblyConfigurationAttribute("")];
-[assembly:AssemblyCompanyAttribute("Refinitiv")];
+[assembly:AssemblyCompanyAttribute("LSEG")];
 [assembly:AssemblyProductAttribute("RsslRmtesNewsDisplay")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];

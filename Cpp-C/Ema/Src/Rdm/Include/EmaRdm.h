@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,8 +13,8 @@
 	@file EmaRdm.h "Rdm/Include/EmaRdm.h"
 	@brief EmaRdm.h file contains RDM constants and definitions.
 
-	Refinitiv Domain Models. The EMA RDM package consists of a header file containing
-	the Refinitiv Domain Model specific definitions that can be used by the EMA applications.
+	Domain Models. The EMA RDM package consists of a header file containing
+	the Domain Model specific definitions that can be used by the EMA applications.
 	The definitions in this file will be made extensible in the future.
 */
 
@@ -22,7 +22,7 @@
 
 /**
 	@namespace refinitiv
-	@brief The refinitiv namespace contains all interfaces defined by Refinitiv.
+	@brief The refinitiv namespace contains all interfaces defined by LSEG.
 */
 namespace refinitiv {
 
@@ -194,7 +194,7 @@ static const refinitiv::ema::access::UInt32 SERVICE_DATA_STATUS		= 4;	/*!< Data 
 	Instrument name types are used on market doamin messages (e.g., MarketPrice domain)
 */
 static const refinitiv::ema::access::UInt8 INSTRUMENT_NAME_UNSPECIFIED     = 0;		/*!< Symbology is not specified or not applicable */
-static const refinitiv::ema::access::UInt8 INSTRUMENT_NAME_RIC             = 1;		/*!< Refinitiv Instrument Code */
+static const refinitiv::ema::access::UInt8 INSTRUMENT_NAME_RIC             = 1;		/*!< Instrument Code */
 static const refinitiv::ema::access::UInt8 INSTRUMENT_NAME_CONTRIBUTOR     = 2;		/*!< Contribution Instrument Code */
 static const refinitiv::ema::access::UInt8 INSTRUMENT_NAME_MAX_RESERVED    = 127;		/*!< Maximum reserved Name Type*/
 //@}

@@ -6,7 +6,7 @@ Summary:
 --------
  
 The purpose of this application is to measure performance of the EMA,
-by providing Level I Market Price content through a Refinitiv Real-Time
+by providing Level I Market Price content through a LSEG Real-Time
 Distribution System. 
 
 The non-interactive provider creates two types of threads:
