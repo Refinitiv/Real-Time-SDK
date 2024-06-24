@@ -10,11 +10,11 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 using LSEG.Eta.Common;
 using LSEG.Eta.Internal;
-using System.Text;
 
 namespace LSEG.Eta.Transports
 {
@@ -234,6 +234,22 @@ namespace LSEG.Eta.Transports
                     return null;
                 }
 
+                if (System.OperatingSystem.IsWindows()
+                    && connectOptions.ConnectionType == ConnectionType.ENCRYPTED
+                    && connectOptions.EncryptionOpts.TlsCipherSuites != null
+                    && connectOptions.EncryptionOpts.TlsCipherSuites.Any())
+                {
+                    error = new Error
+                    {
+                        Channel = null,
+                        ErrorId = TransportReturnCode.FAILURE,
+                        SysError = 0,
+                        Text = "Unable to create encrypted client connection. Reason: EncryptionOpts.TlsCipherSuites is not supported on the Windows platform."
+                    };
+
+                    return null;
+                }
+
                 channel = protocol.CreateChannel(connectOptions, out error);
 
                 if (channel == null)
@@ -304,6 +320,22 @@ namespace LSEG.Eta.Transports
                         ErrorId = TransportReturnCode.FAILURE,
                         SysError = 0,
                         Text = $"Unsupported transport type: {bindOptions.ConnectionType}"
+                    };
+
+                    return null;
+                }
+
+                if (System.OperatingSystem.IsWindows()
+                    && bindOptions.ConnectionType == ConnectionType.ENCRYPTED
+                    && bindOptions.BindEncryptionOpts.TlsCipherSuites != null
+                    && bindOptions.BindEncryptionOpts.TlsCipherSuites.Any())
+                {
+                    error = new Error
+                    {
+                        Channel = null,
+                        ErrorId = TransportReturnCode.FAILURE,
+                        SysError = 0,
+                        Text = "Unable to create encrypted server. Reason: BindEncryptionOpts.TlsCipherSuites is not supported on the Windows platform."
                     };
 
                     return null;

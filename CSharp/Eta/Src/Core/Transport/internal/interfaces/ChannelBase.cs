@@ -3294,7 +3294,7 @@ namespace LSEG.Eta.Internal.Interfaces
                     {
                         authenticatorResponse = m_ProxyAuthenticator.ProcessResponse(m_ProxyConnectResponse.ToString());
                     }
-                    catch (ResponseCodeException ex)
+                    catch (ResponseCodeException)
                     {
                         ++m_IgnoredConnectResponse;
                         if (m_IgnoredConnectResponse < MAX_IGNORED_RESPONSES)
@@ -3304,7 +3304,7 @@ namespace LSEG.Eta.Internal.Interfaces
                         }
                         else
                         {
-                            throw ex; // too many ignored response
+                            throw; // too many ignored response
                         }
                     }
 
@@ -3332,9 +3332,9 @@ namespace LSEG.Eta.Internal.Interfaces
                     m_ProxyConnectResponse.Length = 0; // we are done with the current response from the proxy.
                 }
             }
-            catch(ProxyAuthenticationException proxyAuthException)
+            catch(ProxyAuthenticationException)
             {
-                throw proxyAuthException;
+                throw;
             }
             catch(Exception)
             {

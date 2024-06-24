@@ -1123,11 +1123,16 @@ namespace LSEG.Eta.Transports.Tests
     [Collection("Non-Parallel Collection")]
     [Category("Unit")]
     [Category("Transport")]
-    public class TransportServerTests
+    public class TransportServerTests : IDisposable
     {
         // certificates used by the Provider, can be found in the esdk-pkg repository
         private const string CERTIFICATE_CRT = "certificate.test.crt";
         private const string CERTIFICATE_KEY = "certificate.test.key";
+
+        // how long is the test is expected to successfully complete, in milliseconds
+        private const int DEFAULT_TIMEOUT = 10_000;
+
+        private static int m_ServiceNameCounter = 19999;
 
         [Fact]
         public void ServerBindToAPortAndCloseTest()
@@ -1275,9 +1280,12 @@ namespace LSEG.Eta.Transports.Tests
                 GlobalLocking = blocking ? false : true
             };
 
-            Assert.Equal(TransportReturnCode.SUCCESS, Transport.Initialize(initArgs, out Error error));
+            Assert.True(TransportReturnCode.SUCCESS == Transport.Initialize(initArgs, out Error error),
+                error?.Text ?? string.Empty);
 
-            string serviceName = "19999";
+            // to avoid race for the ports by subsequent tests (when the cleanup for the
+            // previous test is not over yet when the next test is started)
+            string serviceName = (++m_ServiceNameCounter).ToString();
 
             BindOptions bindOptions = new BindOptions
             {
@@ -1580,9 +1588,9 @@ namespace LSEG.Eta.Transports.Tests
         public TransportServerTests()
         {
             Assert.True(System.IO.File.Exists(CERTIFICATE_CRT),
-                "Certificate file should be copied from the esdk-pkg repository");
+                $"Certificate file {CERTIFICATE_CRT} should be copied from the esdk-pkg repository to {System.IO.Directory.GetCurrentDirectory()}");
             Assert.True(System.IO.File.Exists(CERTIFICATE_KEY),
-                "Certificate key file should be copied from the esdk-pkg repository");
+                $"Certificate key file {CERTIFICATE_KEY} should be copied from the esdk-pkg repository to {System.IO.Directory.GetCurrentDirectory()}");
 
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384);
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
@@ -1597,7 +1605,8 @@ namespace LSEG.Eta.Transports.Tests
                 GlobalLocking = true
             };
 
-            Assert.Equal(TransportReturnCode.SUCCESS, Transport.Initialize(initArgs, out Error error));
+            Assert.True(TransportReturnCode.SUCCESS == Transport.Initialize(initArgs, out Error error),
+                error?.Text ?? string.Empty);
 
             BindOptions bindOptions = new BindOptions
             {
@@ -1823,6 +1832,17 @@ namespace LSEG.Eta.Transports.Tests
 
             var server = Transport.Bind(bindOptions, out error);
 
+            if (expectedError)
+            {
+                Assert.Null(server);
+                Assert.NotNull(error);
+                Assert.Equal(TransportReturnCode.FAILURE, error.ErrorId);
+                Assert.StartsWith("Unable to create encrypted server. Reason: BindEncryptionOpts.TlsCipherSuites is not supported on the Windows platform.",
+                    error.Text);
+
+                return;
+            }
+
             Assert.NotNull(server);
             Assert.Equal(ChannelState.ACTIVE, server.State);
             Assert.True(server.Socket.IsBound);
@@ -1841,21 +1861,23 @@ namespace LSEG.Eta.Transports.Tests
 
                 if (!expectedError || !blocking)
                 {
-                    if( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && acceptError != null)
-		    {
-			/* Linux platform can generate this error for openssl version older than 1.1.1 */
-                    	Assert.StartsWith("Failed to create a client encrypted channel. Reason:CipherSuitesPolicy is not supported on this platform.", acceptError.Text);
-			expectedError = true;
-		    }
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && acceptError != null)
+                    {
+                        /* Linux platform can generate this error for openssl version older than 1.1.1 */
+                        Assert.StartsWith("Failed to create an encrypted connection to the remote endpoint. Reason:CipherSuitesPolicy is not supported on this platform.",
+                            acceptError.Text);
+                        expectedError = true;
+                    }
                     else
                     {
-                    	Assert.Null(acceptError);
-		    }
+                        Assert.Null(acceptError);
+                    }
                 }
                 else
                 {
                     Assert.NotNull(acceptError);
-                    Assert.StartsWith("Failed to create a client encrypted channel. Reason:CipherSuitesPolicy is not supported on this platform.", acceptError.Text);
+                    Assert.StartsWith("Unable to create encrypted client connection. Reason: EncryptionOpts.TlsCipherSuites is not supported on the Windows platform.",
+                        acceptError.Text);
                 }
 
                 return serverChannel;
@@ -1888,20 +1910,21 @@ namespace LSEG.Eta.Transports.Tests
                 if (!expectedError || !blocking)
                 {
                     if( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && error != null)
-		    {
-			/* Linux platform can generate this error for openssl version older than 1.1.1 */
-			Assert.StartsWith("Failed to create an encrypted connection to the remote endpoint. Reason:CipherSuitesPolicy is not supported on this platform.", error.Text);
+                    {
+                        /* Linux platform can generate this error for openssl version older than 1.1.1 */
+                        Assert.StartsWith("Failed to create an encrypted connection to the remote endpoint. Reason:CipherSuitesPolicy is not supported on this platform.", error.Text);
                         expectedError = true;
-		    }
+                    }
                     else
-		    {
+                    {
                     	Assert.Null(error);
-		    }
+                    }
                 }
                 else
                 {
                     Assert.NotNull(error);
-                    Assert.StartsWith("Failed to create an encrypted connection to the remote endpoint. Reason:CipherSuitesPolicy is not supported on this platform.", error.Text);
+                    Assert.StartsWith("Unable to create encrypted client connection. Reason: EncryptionOpts.TlsCipherSuites is not supported on the Windows platform.",
+                        error.Text);
                 }
 
                 return returnChannel;
@@ -1912,7 +1935,8 @@ namespace LSEG.Eta.Transports.Tests
             Task acceptTask = Task.Factory.StartNew(() => { srvChannel = acceptChannel(server); });
             Task connectTask = Task.Factory.StartNew(() => { channel = connectChannel(); });
 
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Assert.True(Task.WaitAll(new[] { acceptTask, connectTask }, DEFAULT_TIMEOUT),
+                "This test timed out");
 
             if (blocking == false)
             {
@@ -2028,7 +2052,7 @@ namespace LSEG.Eta.Transports.Tests
                         }
                         else
                         {
-                            Assert.Null(initError);
+                            Assert.True(initError is null, initError?.Text ?? string.Empty);
                         }
                     }
                     else
@@ -2066,7 +2090,8 @@ namespace LSEG.Eta.Transports.Tests
             Task serverHandShake = Task.Factory.StartNew(() => { srvHandShakeRet = initChannel(srvChannel, false); });
             Task clientHandShake = Task.Factory.StartNew(() => { clientHandShakeRet = initChannel(channel, true); });
 
-            Task.WaitAll(new[] { serverHandShake, clientHandShake });
+            Assert.True(Task.WaitAll(new[] { serverHandShake, clientHandShake }, DEFAULT_TIMEOUT),
+                "This test timed out");
 
             if (!expectedError)
             {
@@ -2255,6 +2280,13 @@ namespace LSEG.Eta.Transports.Tests
         public void ServerAndClientEncryptionRipcHandShakeVersion11Ack_withCipherSuites_BlockingTest(EncryptionProtocolFlags protocol)
         {
             ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION11, protocol, true, cipherSuites);
+        }
+
+        public void Dispose()
+        {
+            // enforce cleanup in case a test case ended prematurely
+            while (Transport.Uninitialize() != TransportReturnCode.INIT_NOT_INITIALIZED)
+            { }
         }
     }
     #endregion

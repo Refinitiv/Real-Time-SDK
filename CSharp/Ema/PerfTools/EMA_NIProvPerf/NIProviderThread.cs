@@ -79,10 +79,10 @@ namespace LSEG.Ema.PerfTools.EMA_NiProvPerf
                         }
                     } while ((long)GetTime.GetMicroseconds() < nextTime);
                 }
-                catch (OmmInvalidUsageException iue)
+                catch (OmmInvalidUsageException)
                 {
                     CloseChannel();
-                    throw iue;
+                    throw;
                 }
             }
         }
@@ -114,7 +114,7 @@ namespace LSEG.Ema.PerfTools.EMA_NiProvPerf
                 {
                     return false;
                 }
-                throw e;
+                throw;
             }
             return true;
         }
