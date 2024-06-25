@@ -46,6 +46,7 @@ void watchlistRecoveryTest_LoginCredentialsUpdate(RsslConnectionTypes connetionT
 void watchlistRecoveryTest_UnknownStream(RsslConnectionTypes connetionType);
 void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen, RsslConnectionTypes connetionType);
 void watchlistRecoveryTest_LoginAuthenticationUpdate(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback(RsslConnectionTypes connectionType);
 
 
 
@@ -251,6 +252,11 @@ TEST_P(WatchlistRecoveryTest, LoginAuthenticationUpdate)
 TEST_P(WatchlistRecoveryTest, OneItem_Dictionary)
 {
 	watchlistRecoveryTest_OneItem_Dictionary(GetParam());
+}
+
+TEST_P(WatchlistRecoveryTest, TwoItems_CloseStateSecond_CloseBothInCallback)
+{
+	watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback(GetParam());
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -4834,6 +4840,126 @@ void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen, RsslConnectio
 	ASSERT_TRUE(pChannelEvent->channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pChannelEvent->rsslErrorId == RSSL_RET_FAILURE);
 
+	ASSERT_TRUE(!wtfGetEvent());
+
+	wtfFinishTest();
+}
+
+void _watchlistRecoveryTest_TwoItems_Callback_CloseSecondStream()
+{
+	RsslReactorSubmitMsgOptions opts;
+	RsslCloseMsg closeMsg;
+
+	/* TODO Use ReactorSubmitMsg instead of wtfSubmitMsg */
+	rsslClearCloseMsg(&closeMsg);
+	closeMsg.msgBase.streamId = 3;
+	closeMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&closeMsg;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+
+	wtfSetConsumerMsgCallbackAction(NULL);
+}
+
+void watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback(RsslConnectionTypes connectionType)
+{
+	WtfEvent* pEvent;
+	RsslRequestMsg	requestMsg, *pRequestMsg;
+	RsslStatusMsg statusMsg, *pStatusMsg;
+	RsslCloseMsg* pCloseMsg;
+	RsslInt32		providerFirstItemStream, providerSecondItemStream;
+
+	RsslReactorSubmitMsgOptions opts;
+	RsslBuffer		itemNames[] = { { 3, const_cast<char*>("TRI") }, { 4, const_cast<char*>("GOOG") } };
+
+	ASSERT_TRUE(wtfStartTest());
+
+	wtfSetupConnection(NULL);
+
+	/* Request first item. */
+	rsslClearRequestMsg(&requestMsg);
+	requestMsg.msgBase.streamId = 2;
+	requestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	requestMsg.flags = RSSL_RQMF_HAS_QOS;
+	requestMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+	requestMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+	requestMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
+	requestMsg.msgBase.msgKey.name = itemNames[0];
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&requestMsg;
+	opts.pServiceName = &service1Name;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+	rsslClearRequestMsg(&requestMsg);
+	requestMsg.msgBase.streamId = 3;
+	requestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	requestMsg.flags = RSSL_RQMF_HAS_QOS;
+	requestMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+	requestMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+	requestMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
+	requestMsg.msgBase.msgKey.name = itemNames[1];
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&requestMsg;
+	opts.pServiceName = &service1Name;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(!wtfGetEvent());
+
+	/* Provider receives requests. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+	providerFirstItemStream = pRequestMsg->msgBase.streamId;
+	ASSERT_TRUE(pRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME);
+	ASSERT_TRUE(rsslBufferIsEqual(&itemNames[0], &pRequestMsg->msgBase.msgKey.name));
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+	providerSecondItemStream = pRequestMsg->msgBase.streamId;
+	ASSERT_TRUE(pRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME);
+	ASSERT_TRUE(rsslBufferIsEqual(&itemNames[1], &pRequestMsg->msgBase.msgKey.name));
+
+	/* Provider sends status message with CLOSED/SUSPECT for first request. */
+	rsslClearStatusMsg(&statusMsg);
+	statusMsg.msgBase.streamId = providerFirstItemStream;
+	statusMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	statusMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	statusMsg.flags = RSSL_STMF_HAS_STATE;
+	statusMsg.state.streamState = RSSL_STREAM_CLOSED;
+	statusMsg.state.dataState = RSSL_DATA_SUSPECT;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&statusMsg;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
+
+	// Set callback behavior to close the SECOND item upon next message
+	wtfSetConsumerMsgCallbackAction((void*)_watchlistRecoveryTest_TwoItems_Callback_CloseSecondStream);
+
+	/* Consumer receives status message for the first item. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
+	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_CLOSED);
+	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pStatusMsg->msgBase.streamId == 2);
+
+	/* Consumer receives no more events. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(!wtfGetEvent());
 
 	wtfFinishTest();

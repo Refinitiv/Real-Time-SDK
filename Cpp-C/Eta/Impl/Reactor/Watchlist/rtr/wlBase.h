@@ -65,6 +65,7 @@ typedef struct
 	void				*pUserSpec;
 	WlStreamBase		*pStream;
 	RsslQueue			openPosts;
+	RsslBool			pendingClose;
 } WlRequestBase;
 
 /* Initializes a WlRequestBase. */

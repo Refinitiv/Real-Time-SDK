@@ -3808,8 +3808,7 @@ static RsslRet wlFanoutItemMsgEvent(RsslWatchlistImpl *pWatchlistImpl, WlItemStr
 		}
 		else
 		{
-			wlItemRequestClose(&pWatchlistImpl->base, &pWatchlistImpl->items, 
-					pItemRequest);
+			pItemRequest->base.pendingClose = RSSL_TRUE;
 
 			if (pRsslMsg->msgBase.msgClass == RSSL_MC_REFRESH)
 			{
@@ -3823,6 +3822,10 @@ static RsslRet wlFanoutItemMsgEvent(RsslWatchlistImpl *pWatchlistImpl, WlItemStr
 						!= RSSL_RET_SUCCESS)
 					return ret;
 			}
+
+			wlItemRequestClose(&pWatchlistImpl->base, &pWatchlistImpl->items,
+				pItemRequest);
+
 			pItemRequest->base.pStream = NULL;
 			wlRequestedServiceCheckRefCount(&pWatchlistImpl->base, pItemRequest->pRequestedService);
 			wlDestroyItemRequest(pWatchlistImpl, pItemRequest,
@@ -4021,6 +4024,12 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 				if ((pRequestLink = rsslHashTableFind(&pWatchlistImpl->base.requestsByStreamId, &streamId, NULL)))
 					pRequest = RSSL_HASH_LINK_TO_OBJECT(WlRequest, base.hlStreamId, pRequestLink);
 
+				if (pRequest && pRequest->base.pendingClose == RSSL_TRUE)
+				{
+					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__,
+						"Stream is in pending close state. Stream id: %d.", streamId);
+					return RSSL_RET_INVALID_DATA;
+				}
 				switch (pOptions->pRsslMsg->msgBase.msgClass)
 				{
 					case RSSL_MC_REQUEST:
