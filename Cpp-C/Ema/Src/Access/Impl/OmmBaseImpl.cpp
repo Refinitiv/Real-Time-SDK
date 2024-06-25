@@ -3119,7 +3119,7 @@ void OmmBaseImpl::handleIue( const EmaString& text, Int32 errorCode )
 		getErrorClientHandler().onInvalidUsage( text );
 		getErrorClientHandler().onInvalidUsage( text, errorCode );
 	}
-	else if (!isApiDispatching())
+	else
 		throwIueException( text, errorCode );
 }
 
@@ -3133,7 +3133,7 @@ void OmmBaseImpl::handleIue( const char* text, Int32 errorCode )
 		getErrorClientHandler().onInvalidUsage( text );
 		getErrorClientHandler().onInvalidUsage( text, errorCode );
 	}
-	else if (!isApiDispatching())
+	else
 		throwIueException( text, errorCode );
 }
 
@@ -3144,7 +3144,7 @@ void OmmBaseImpl::handleIhe( UInt64 handle, const EmaString& text )
 
 	if ( hasErrorClientHandler() )
 		getErrorClientHandler().onInvalidHandle( handle, text );
-	else if (!isApiDispatching())
+	else
 		throwIheException( handle, text );
 }
 
@@ -3155,7 +3155,7 @@ void OmmBaseImpl::handleIhe( UInt64 handle, const char* text )
 
 	if ( hasErrorClientHandler() )
 		getErrorClientHandler().onInvalidHandle( handle, text );
-	else if (!isApiDispatching())
+	else
 		throwIheException( handle, text );
 }
 
@@ -3166,7 +3166,7 @@ void OmmBaseImpl::handleMee( const char* text )
 
 	if ( hasErrorClientHandler() )
 		getErrorClientHandler().onMemoryExhaustion( text );
-	else if (!isApiDispatching())
+	else
 		throwMeeException( text );
 }
 
