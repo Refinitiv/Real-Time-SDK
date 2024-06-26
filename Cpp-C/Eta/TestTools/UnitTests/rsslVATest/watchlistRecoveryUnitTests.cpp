@@ -4868,7 +4868,6 @@ void watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback(RsslConnectionTyp
 	WtfEvent* pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
 	RsslStatusMsg statusMsg, *pStatusMsg;
-	RsslCloseMsg* pCloseMsg;
 	RsslInt32		providerFirstItemStream, providerSecondItemStream;
 
 	RsslReactorSubmitMsgOptions opts;
