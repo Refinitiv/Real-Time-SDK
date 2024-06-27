@@ -19,7 +19,7 @@ set(rtsdk_RELEASE_TYPE rrg)
 
 set( librssl_SO_VERSION 24 )
 set( librsslVA_SO_VERSION 25 )
-set( libema_SO_VERSION 19 )
+set( libema_SO_VERSION 20 )
 set( librsslJsonConverter_SO_VERSION 2 )
 
 set(Ansi_VERSION_MAJOR 1)

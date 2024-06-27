@@ -26,7 +26,7 @@ including:
 -clientId client ID to perform authorization with the token service (mandatory).
  For V1 password credentials:
  You can generate and manage client Ids by using the Eikon App Key Generator.
- This is found by visiting myaccount.lseg.com (formerly my.Refinitiv.com), launching Eikon, and 
+ This is found by visiting myaccount.lseg.com (formerly my.refinitiv.com), launching Eikon, and 
  searching for "App Key Generator". Eikon login is required to generate clientID.
  For V2 client credentials:
  This is the service account.

@@ -4,31 +4,61 @@ Rebranding NOTE: Real-Time SDK was formerly known as Elektron SDK or ESDK.
 
 There are three types of RTSDK releases that append a letter directly followed by a number to the version number. 
 
-"L" releases (e.g., 2.2.0.L1) are full RTSDK releases that are uploaded to MyRefinitiv (soon to be MyAccount), Developer Community and GitHub. 
+"L" releases (e.g., 2.2.0.L1) are full RTSDK releases that are uploaded to [MyAccount](https://myaccount.lseg.com/en/downloadcenter) (formerly MyRefinitiv), Developer Community and GitHub. 
 "G" releases (e.g., 2.2.0.G1) are releases that are only uploaded to GitHub. 
-"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv (soon to be MyAccount) and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount (formerly MyRefinitiv) and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.0.L1 aka EMA/ETA 3.8.0.L1 aka 3.8.0.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.1.L1 aka EMA/ETA 3.8.1.L1 aka 3.8.1.0
 ----------------------------------------------------------------------------------------
 
-This release introduces EMA message packing feature. In addition, a number of customer issues were addressed.
+This is a maintenance release with support for RedHat 9.X and Windows Server 2022, customer issue fixes and minor enhancements
 
 Customer Issues Resolved
 ------------------------
-- [Case Number: 06589180] - [RTSDK-1643] - Added toString implementation for the containers and messages in EMA C++
-- [Case Number: 13272064, 13258892] - [RTSDK-8239, RTSDK-8320] - Fix to EMA C++ to disconnect upon not receiving any pings
-- [Case Number: 13376079] - [RTSDK-8389] - EMA C++ exception thrown when calling ServiceEndpointDiscovery without parameters 
-- [GitHub #241] - [RTSDK-7551] - Support for verbose logging with curl and openssl
-- [GitHub #228, #242] - [RTSDK-6608] - Update to gtest version per supported OS 
-- [GitHub #245] - [RTSDK-7670] - CMake syntax warning
-- [GitHub #248] - [RTSDK-7746] - Add connection type to OmmConsumerConfig
-- [GitHub #255] -[RTSDK-8056] - Trace file log not cycling 
-
+- [Case Number: 13170694] - [RTSDK-8145] - Support for EmaBuffer with RMTES data without conversion
+- [Case Number: 13260926] - [RTSDK-8234] - Support for EMA C++ Xml Trace Ping-Only
+- [Case Number: 13624379] - [RTSDK-8818] - EMA C++ Crash due to double close upon OmmConsumer unregister in onStatusMsg callback for invalid request
+- [ GitHub #250] - [RTSDK-7213] - Support for RedHat 9.X: pre-build libraries and support added
+- [ GitHub #262] - [RTSDK-8596] - Fix to EMA C++ FieldEntry and ElementEntry to handle BLANK OmmArray
+- [GitHub Pull Request #267] - [RTSDK-8223] - Support for build_type OptimizedDebug for Linux 
+- [GitHub Pull Request #276] - [RTSDK-8498] - Fix memset arguments order
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+This is a maintenance release with fixes and minor enhancements
+
+--------------------------------------------
+RTSDK C++/C Release 2.2.1.L1 (Jul 8, 2024)
+--------------------------------------------
+
+EMA C++ 3.8.1.L1 Issues Resolved
+--------------------------------
+- [RTSDK-6009] - Added OmmJsonConverterException to OmmConsumerErrorClient to notify of JSON<->RWF conversion errors (dispatch failure)
+- [RTSDK-8145] - Support for EmaBuffer with RMTES data without conversion [Case Number: 13170694]
+- [RTSDK-8234] - Support for EMA C++ Xml Trace Ping-Only [Case Number: 13260926]
+- [RTSDK-8360] - Add OmmNiProviderConfig to support encrypted configuration: channelType and encryptedProtocolType
+
+ETA C 3.8.1.L1 Issues Resolved
+--------------------------------
+- [RTSDK-8498] - Fix memset arguments order [GitHub Pull Request #276]
+- [RTSDK-8609] - Addition of EMA C++ QATool that utilizes multiple OmmConsumers
+- [RTSDK-8828] - DebugFunctions with flag 0x30 miss tracing outgoing PING for Websocket JSON
+
+Both ETA C and EMA C++ 3.8.1.L1 Issues Resolved
+-----------------------------------------------
+
+- [RTSDK-6262] - Support Windows 2022 Server
+- [RTSDK-7213] - Support for RedHat 9.X: pre-build libraries and support added [also GitHub #250]
+- [RTSDK-7759] - Qualification with GCC 12 on RedHat 9
+- [RTSDK-8223] - Support for build_type OptimizedDebug for Linux  [GitHub Pull Request #267]
+- [RTSDK-8552] - Rebranding: Changes to PDF documentation to "LSEG"
+- [RTSDK-8613] - Rebranding: Change code references to "LSEG" in comments, readmes, etc.
+- [RTSDK-8567] - Separate BinaryPack from RRG packages: closed source libraries are in separate RRG archive
+- [RTSDK-8596] - Fix to EMA C++ FieldEntry and ElementEntry to handle BLANK OmmArray [ GitHub #262] 
+- [RTSDK-8818] - EMA C++ Crash due to double close upon OmmConsumer unregister in onStatusMsg callback for invalid request [Case Number: 13624379] 
 
 --------------------------------------------
 RTSDK C++/C Release 2.2.0.L1 (Apr 30, 2024)

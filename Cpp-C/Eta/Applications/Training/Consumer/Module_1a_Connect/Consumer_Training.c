@@ -2,8 +2,8 @@
  *|-------------------------------------------------------------------------------
  *| This source code is provided under the Apache 2.0 license
  *| AS IS with no warranty or guarantee of fit for purpose.
- *| LICENSE.md for details.							--
- *| Copyright (C) 2019 LSEG. All rights reserved.     				--
+ *| See the project's LICENSE.md for details.
+ *| Copyright (C) 2019 LSEG. All rights reserved.
  *|-------------------------------------------------------------------------------
  */
 

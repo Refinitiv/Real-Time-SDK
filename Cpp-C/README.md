@@ -1,4 +1,4 @@
-# Real-Time SDK - C/C++ Edition
+# LSEG Real-Time SDK - C/C++ Edition
 This is the LSEG Real-Time SDK. This SDK encompasses a couple of APIs:  Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
 
 The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
@@ -33,7 +33,7 @@ External modules used by this version of RTSDK C/C++:
 NOTES: 
 - curl and openSSL are dynamically loaded at runtime.  
 - Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build openSSL, and we recommend that all installed versions of openSSL are patched to the latest version available.  
-- Default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (Oracle Linux 7, RedHat 8). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
+- Default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (Oracle Linux 7, RedHat 8, RedHat 9). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
 - openSSL 1.1.1 and higher are required for TLS 1.3
 - Cipher suite is configurable with TLS 1.2 and it is recommended that customers use best available ciphers. With TLS 1.3, cipher suite is not yet configurable; however, default ciphers are best available.
 - Check installation guide for details regarding including external dependencies for build 
@@ -72,6 +72,7 @@ Linux system libraries used by RTSDK C/C++:
 - Oracle Linux Server 7.X Release 64-bit
 - Red Hat Enterprise Server 7.X Release 64-bit
 - Red Hat Enterprise Server 8.X Release 64-bit
+- Red Hat Enterprise Server 9.X Release 64-bit
 - Ubuntu 20.04 Release 64-bit
 
 - TCP/IP networking support installed if using TCP Socket connection types
@@ -88,9 +89,9 @@ Users are welcome to migrate open source code to the platforms they prefer, howe
 
 Platforms:
 
-     Microsoft Windows Server 2012 R2 Standard Edition or later 64-bit
      Microsoft Windows Server 2016 Standard Edition or later 64-bit
      Microsoft Windows Server 2019 Standard Edition or later 64-bit
+     Microsoft Windows Server 2022 Standard Edition or later 64-bit
      Microsoft Windows 10 Professional 64-bit 
 
 Compilers (only on OSs supported by Microsoft): 
@@ -113,10 +114,11 @@ Platforms & Compilers:
      GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
      Clang compiler version 9.0.1 for Linux 8 64-bit, qualification with RH8 library build 
      GCC compiler suite version 9.3.0 or higher for Ubuntu 20.04, 64-bit, qualification with RH8 library build
+     GCC compiler suite version 11.4.1 or higher for Red Hat Enterprise Server 9.X, 64-bit, Native build
 
 * Eta VACache library built 
 
-NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 8 and Oracle Linux 7 are available in release packages available on LSEG Developer Portal. 
+NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 9, Red Hat 8 and Oracle Linux 7 are available in release packages available on LSEG Developer Portal. 
 
 #### Tested Versions
 
@@ -135,6 +137,8 @@ This release has been tested with the following on supported platform/OS combina
      Red Hat Enterprise Linux Server 8.0 64-bit   GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
      Red Hat Enterprise Linux Server 8.0 64-bit   GCC 9.2.1       RHEL8_64_GCC831          RHEL8_64_GCC921
      Ubuntu 20.04 64-bit                          GCC 9.4.0       RHEL8_64_GCC831          RHEL8_64_GCC831
+     Red Hat Enterprise Linux Server 9.0 64-bit   GCC 11.4.1      RHEL9_64_GCC1141         RHEL9_64_GCC1141
+     Red Hat Enterprise Linux Server 9.0 64-bit   GCC 12.2.1      RHEL9_64_GCC1141         RHEL9_64_GCC1221
 
      n/a = This is not a tested combination
 
@@ -173,8 +177,8 @@ NOTE: Connectivity to Data Feed Direct (LDFD) is supported for Level 1 and Level
 
 This release has been tested with the following:
 
-- ADS 3.7.3
-- ADH 3.7.3
+- ADS 3.8.0
+- ADH 3.8.0
 - DACS 7.12
 
 # Documentation
@@ -190,9 +194,9 @@ There are 3 ways to install Real-Time SDK:
 
 Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
-Real-Time SDK package may also be [downloaded from LSEG Developer Portal](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads).
+Real-Time SDK package may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Cpp-C directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
 
-Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). 
+Real-Time SDK package is also available on [MyAccount](https://myaccount.lseg.com/en/downloadcenter). In addition, these distributions depend on a Binary Pack found in the above download location. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Cpp-C directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
 ## Building RTSDK
 
@@ -255,7 +259,7 @@ NOTE: DACS libraries provided in BinaryPack for VS2019 is copied from VS 2017 as
 
 # Obtaining the LSEG Field Dictionaries
 
-The LSEG `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Cpp-C/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of LSEG Real-Time Template Service Pack.
+The LSEG `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Cpp-C/etc`. In addition, the most current version can be downloaded from [MyAccount](https://myaccount.lseg.com/en/downloadcenter). Search for "Service Pack" and choose the latest version of LSEG Real-Time Template Service Pack.
 
 
 # Developing 
@@ -273,7 +277,7 @@ In the event you would like to contribute to this repository, it is required tha
 - [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
 - [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
-Please email a signed and scanned copy to sdkagreement@refinitiv.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to sdkagreement@lseg.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 
 # Notes:

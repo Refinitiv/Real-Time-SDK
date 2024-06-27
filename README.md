@@ -35,9 +35,9 @@ GitHub PDF format docs per API:
 
 LSEG Developer Portal documentation section contains docs in PDF format for both C++ and Java:
 
-- [C++/C](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/documentation)
-- [Java](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation)
-- [CSharp](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/documentation)
+- [C++/C](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/documentation)
+- [Java](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation)
+- [CSharp](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/documentation)
 
 Documentation is also available in **HTML format** on a package or LSEG Developer Portal. 
 
@@ -55,7 +55,7 @@ In the event you would like to contribute to this repository, it is required tha
 - [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
 - [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
-Please email a signed and scanned copy to `sdkagreement@refinitiv.com`.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to `sdkagreement@lseg.com`.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 # License Information
 
@@ -88,7 +88,7 @@ License details can be found in the LICENSE.md file contained in this section. T
 - CSharp/Eta/Applications
 - CSharp/Eta/TestTools
 
-Any source code, header files not specified above (even if included by header files in the locations above), libraries, and underlying dependencies continue to be governed by the licensing and agreements per the [MyRefinitiv](https://my.refinitiv.com/content/mytr/en/signin.html) site and RDC Program.
+Any source code, header files not specified above (even if included by header files in the locations above), libraries, and underlying dependencies continue to be governed by the licensing and agreements per the [MyAccount](https://myaccount.lseg.com/en/signin.html) site and RDC Program.
 
 
 # Notes:

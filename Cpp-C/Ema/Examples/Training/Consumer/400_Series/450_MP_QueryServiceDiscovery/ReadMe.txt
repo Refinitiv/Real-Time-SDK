@@ -27,7 +27,7 @@ including:
 -clientId client ID to perform authorization with the token service for V1 password grant and the 
  service account name for the V2 client crededntials grant(mandatory for both V1 password grant and V2 client credentials grant)
  For a V1 password grant type, you can generate and manage client Ids by using the Eikon App Key Generator.
- This is found by visiting myaccount.lseg.com (formerly my.Refinitiv.com), launching Eikon, and
+ This is found by visiting myaccount.lseg.com (formerly my.refinitiv.com), launching Eikon, and
  searching for "App Key Generator". Eikon login is required to generate clientID.
 -clientSecret service account password(mandatory for V2 client credentials grant)
 - location location to get an endpoint from RDP service discovery. Default is "us-east-1" 
