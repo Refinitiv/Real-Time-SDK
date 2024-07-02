@@ -31,7 +31,7 @@ FULL CHANGELOG
 This is a maintenance release with fixes and minor enhancements
 
 --------------------------------------------
-RTSDK C++/C Release 2.2.1.L1 (Jul 8, 2024)
+RTSDK C++/C Release 2.2.1.L1 (Jul 3, 2024)
 --------------------------------------------
 
 EMA C++ 3.8.1.L1 Issues Resolved
