@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license      --
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
-// *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -61,16 +61,23 @@ void AppErrorClient::onSystemError( Int64 code, void* address, const EmaString& 
 	cout << "System Error Address: " << address << endl;
 	cout << "Error text: " << text << endl;
 }
-	
+
 void AppErrorClient::onMemoryExhaustion( const EmaString& text )
 {
 	cout << endl << "onMemoryExhaustion callback function" << endl;
 	cout << "Error text: " << text << endl;
 }
-	
+
 void AppErrorClient::onInvalidUsage( const EmaString& text, Int32 errorCode )
 {
 	cout << "onInvalidUsage callback function" << endl;
+	cout << "Error text: " << text << endl;
+	cout << "Error code: " << errorCode << endl;
+}
+
+void AppErrorClient::onJsonConverter( const EmaString& text, Int32 errorCode, const ConsumerSessionInfo& sessionInfo )
+{
+	cout << "onJsonConverter callback function" << endl;
 	cout << "Error text: " << text << endl;
 	cout << "Error code: " << errorCode << endl;
 }

@@ -3,11 +3,11 @@ Summary
 
 113_MP_SessionMgmt is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Refinitiv Real-Time - Optimized.
+and parsing OMM MarketPrice data from Real-Time - Optimized.
 
 113_MP_SessionMgmt illustrates how to use the EMA's configuration file
 to enable session management and specify a location to get an endpoint for establishing
-a connection with a Refinitiv Real-Time service and consume data. This application requires 
+a connection with a LSEG Real-Time service and consume data. This application requires 
 a user name (machine ID or end-user ID) and a password or a service account(used as clientId) 
 and associated client secret for authorization with the token service in order to use 
 the access token for querying endpoints from Refintiv Data Platform (RDP) service discovery 
@@ -26,7 +26,7 @@ including:
 -clientId client ID to perform authorization with the token service (mandatory).
  For V1 password credentials:
  You can generate and manage client Ids by using the Eikon App Key Generator.
- This is found by visiting my.Refinitiv.com, launching Eikon, and 
+ This is found by visiting myaccount.lseg.com (formerly my.refinitiv.com), launching Eikon, and 
  searching for "App Key Generator". Eikon login is required to generate clientID.
  For V2 client credentials:
  This is the service account.

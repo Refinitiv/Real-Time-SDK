@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -100,7 +100,7 @@ typedef enum
 	RSSL_DT_JSON				= 142,  /*!< (142) JSON formatted data, use Non-RWF type encoders.  <BR> */
 
 	RSSL_DT_CONTAINER_TYPE_MAX	= 142,	/*!<  Maximum supported container type value for this release - used for internal ETA range checking <BR>*/
-	RSSL_DT_MAX_RESERVED		= 224,	/*!< (224) Maximum Refinitiv reserved value.  Values beyond this can be user defined types <BR>*/
+	RSSL_DT_MAX_RESERVED		= 224,	/*!< (224) Maximum LSEG reserved value.  Values beyond this can be user defined types <BR>*/
 
 	RSSL_DT_LAST				= 255	/*!< (255) Maximum allowed enumeration value - used for internal ETA range checking. <BR>*/
 } RsslDataTypes;

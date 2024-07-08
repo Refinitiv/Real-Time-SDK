@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2020 LSEG. All rights reserved.     
 */
 
 /*
@@ -129,10 +129,10 @@ void printUsageAndExit(char *appName)
 			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
 			"\n -encryptedWebSocket specifies an encrypted websocket connection to open.  Host, port, service, and items are the same as -tcp above. Also note argument -protocolList\n"
 			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
-			"\n -uname specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (mandatory).\n"
-			"\n -passwd specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (mandatory).\n"
-			"\n -clientId specifies the Client ID for Refinitiv Real-Time - Optimized (mandatory). You can generate and manage client Ids using an AppkeyGenerator:\n"
-			"\n -sessionMgnt Enables session management in the Reactor for Refinitiv Real-Time - Optimized.\n"
+			"\n -uname specifies the username used when logging into the provider. The machine ID for Real-Time - Optimized (mandatory).\n"
+			"\n -passwd specifies the password used when logging into the provider. The password for Real-Time - Optimized (mandatory).\n"
+			"\n -clientId specifies the Client ID for Real-Time - Optimized (mandatory). You can generate and manage client Ids using an AppkeyGenerator:\n"
+			"\n -sessionMgnt Enables session management in the Reactor for Real-Time - Optimized.\n"
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
 			"\n -ax Specifies the Authentication Extended information. \n"
 			"\n -aid Specifies the Application ID.\n"

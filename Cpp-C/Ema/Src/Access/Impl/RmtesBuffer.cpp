@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -52,6 +52,11 @@ const EmaBuffer& RmtesBuffer::getAsUTF8() const
 const EmaBufferU16& RmtesBuffer::getAsUTF16() const
 {
 	return _pImpl->getAsUTF16();
+}
+
+const EmaBuffer& RmtesBuffer::getAsEmaBuffer() const
+{
+	return _pImpl->getAsEmaBuffer();
 }
 
 const EmaString& RmtesBuffer::toString() const

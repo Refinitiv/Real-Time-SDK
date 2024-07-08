@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -37,7 +37,7 @@ typedef enum {
 	RSSL_DMT_MARKET_BY_PRICE			= 8,	/*!< (8) Market by Price/Market Depth Message */
 	RSSL_DMT_MARKET_MAKER				= 9,	/*!< (9) Market Maker Message */
 	RSSL_DMT_SYMBOL_LIST				= 10,	/*!< (10) Symbol List Messages */
-	RSSL_DMT_SERVICE_PROVIDER_STATUS	= 11,	/*!< (11) Service Provider Status domain, used with Refinitiv Real-Time Pulse */
+	RSSL_DMT_SERVICE_PROVIDER_STATUS	= 11,	/*!< (11) Service Provider Status domain, used with LSEG Real-Time Pulse */
 	RSSL_DMT_HISTORY					= 12,   /*!< (12) History Message */
 	RSSL_DMT_HEADLINE					= 13,   /*!< (13) Headline Message */
 	RSSL_DMT_STORY						= 14,	/*!< (14) Story Message */
@@ -94,14 +94,14 @@ static const RsslBuffer RSSL_OMMSTR_DMT_SYSTEM = { 6, (char*)"System" };
  
 /**
  *	@defgroup DomainCommon TRDM Common Enumerations
- *	@brief	The TRDM Common Enumerations are used across several Refinitiv Domain Models.
+ *	@brief	The TRDM Common Enumerations are used across several LSEG Domain Models.
  *	@{
  */
 
 typedef enum
 {
 	RDM_INSTRUMENT_NAME_TYPE_UNSPECIFIED		= 0,	/*!< (0) Symbology is not specified or not applicable */
-	RDM_INSTRUMENT_NAME_TYPE_RIC				= 1,	/*!< (1) Refinitiv Instrument Code */
+	RDM_INSTRUMENT_NAME_TYPE_RIC				= 1,	/*!< (1) Instrument Code */
 	RDM_INSTRUMENT_NAME_TYPE_CONTRIBUTOR		= 2,	/*!< (2) Contributor identification information for user-stream contributions (RSSL_DMT_CONTRIBUTION) */
 	RDM_INSTRUMENT_NAME_TYPE_MAX_RESERVED		= 127	/*!< (127) Maximum reserved Quote Symbology */
 } RDMInstrumentNameTypes;
@@ -976,7 +976,7 @@ static const RsslBuffer RSSL_ENAME_SETDEF_NAMES		 = {5, (char*)"NAMES"};
 // Request Message Payload - Well known Element Names
 // Because these span domains, they are namespaced
 // <namespace>:<element name>
-// Refinitiv claims empty namespace (e.g. :ItemList is Refinitv namespace)
+// LSEG claims empty namespace (e.g. :ItemList is Refinitv namespace)
 // Customers can define and namespace using other values as they need 
 static const RsslBuffer RSSL_ENAME_BATCH_ITEM_LIST = { 9 , (char*)":ItemList" };
 static const RsslBuffer RSSL_ENAME_VIEW_TYPE = { 9 , (char*)":ViewType" };

@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1879,7 +1879,7 @@ TEST(dataDictionaryTests,dataDictionaryTests)
 				FILE *dictionaryFile;
 
 				RsslBuffer fd_fileTag = { 7, const_cast<char*>("RWF.DAT") };
-				RsslBuffer fd_descTag = { 19, const_cast<char*>("RDF-D RWF field set") };
+				RsslBuffer fd_descTag = { 18, const_cast<char*>("LDFD RWF field set") };
 				RsslBuffer fd_versionTag = { 7, const_cast<char*>("4.20.15") };
 				RsslBuffer fd_buildTag = { 3, const_cast<char*>("001") };
 				RsslBuffer fd_dateTag = { 11, const_cast<char*>("14-Jan-2015") };
@@ -7055,7 +7055,7 @@ TEST(stringConversionTest,stringConversionTest)
 	RsslQos testQos;
 	RsslState testState;
 	RsslEnum testEnum, testEnumOut;
-	RsslBuffer testBuffer = {sizeof("Refinitiv"),  const_cast<char*>("Refinitiv")};
+	RsslBuffer testBuffer = {sizeof("LSEG"),  const_cast<char*>("LSEG")};
 
 	/* Int conversion test */
 	testInt = 987654321;

@@ -1,9 +1,9 @@
 /*
  *|-------------------------------------------------------------------------------
- *| This source code is provided under the Apache 2.0 license and is provided	--
- *| AS IS with no warranty or guarantee of fit for purpose.  See the project's 	--
- *| LICENSE.md for details.														--
- *| Copyright (C) 2019 Refinitiv. All rights reserved.						--
+ *| This source code is provided under the Apache 2.0 license
+ *| AS IS with no warranty or guarantee of fit for purpose.
+ *| See the project's LICENSE.md for details.
+ *| Copyright (C) 2019 LSEG. All rights reserved.
  *|-------------------------------------------------------------------------------
  */
 
@@ -23,8 +23,8 @@
  * In this module, the application initializes the ETA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
- * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
- * and Refinitiv Real-Time.
+ * LSEG Real-Time Distribution Systems, Data Feed Direct,
+ * and LSEG Real-Time.
  *
  * Detailed Descriptions:
  * The first step of any ETA consumer application is to establish a 
@@ -160,7 +160,7 @@
  * Consumer applications often require a dictionary for encoding or decoding 
  * specific pieces of information. This dictionary typically defines type and 
  * formatting information. Content that uses the RsslFieldList type requires 
- * the use of a field dictionary (usually the Refinitiv RDMFieldDictionary, 
+ * the use of a field dictionary (usually the LSEG RDMFieldDictionary, 
  * although it could also be a user-defined or user-modified field dictionary).
  * A consumer application can choose whether to load necessary dictionary 
  * information from a local file or download the information from an available 
@@ -337,7 +337,7 @@ int main(int argc, char **argv)
 	RsslUInt32 runTime = 0;
 
 	/* In this app, we are only interested in using 2 dictionaries:
-	 * - Refinitiv Field Dictionary (RDMFieldDictionary) and
+	 * - Field Dictionary (RDMFieldDictionary) and
 	 * - Enumerated Types Dictionaries (enumtype.def)
 	 *
 	 * Dictionaries may be available locally in a file, or available for request over the network from an upstream provider.
@@ -358,7 +358,7 @@ int main(int argc, char **argv)
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearDecodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_DECODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 
@@ -1109,7 +1109,7 @@ int main(int argc, char **argv)
 								 */
 								rsslClearDataDictionary(&dataDictionary);
 
-								/* Will attempt to download the Refinitiv Field Dictionary (RDMFieldDictionary) from provider. */
+								/* Will attempt to download the LSEG Field Dictionary (RDMFieldDictionary) from provider. */
 								if (!etaChannelManagementInfo.dictionariesLoadedInfo.fieldDictionaryLoaded)
 								{
 									/* check if Dictionary Domain Type is supported */
@@ -1783,7 +1783,7 @@ RsslRet sendLoginRequest(EtaChannelManagementInfo *etaChannelManagementInfo)
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -2199,7 +2199,7 @@ RsslRet closeLoginStream(EtaChannelManagementInfo *etaChannelManagementInfo)
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -2384,7 +2384,7 @@ RsslRet sendSourceDirectoryRequest(EtaChannelManagementInfo *etaChannelManagemen
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -2456,7 +2456,7 @@ RsslRet sendSourceDirectoryRequest(EtaChannelManagementInfo *etaChannelManagemen
 	/* Because the Source Directory domain uses an RsslFilterList, a consumer can indicate the specific source related
 	 * information in which it is interested via a msgKey.filter. Each bit-value represented in the filter corresponds
 	 * to an information set that can be provided in response messages.
-	 * Refinitiv recommends that a consumer application minimally request Info, State, and Group filters for the
+	 * LSEG recommends that a consumer application minimally request Info, State, and Group filters for the
 	 * Source Directory:
 	 * - The Info filter contains the service name and serviceId data for all available services. When an appropriate
 	 *   service is discovered by the OMM Consumer, the serviceId associated with the service is used on subsequent
@@ -3364,7 +3364,7 @@ RsslRet processDictionaryResponse(EtaChannelManagementInfo *etaChannelManagement
  * request message is encoded and sent by OMM consumer applications. Some data requires the use of a dictionary for
  * encoding or decoding. This dictionary typically defines type and formatting information and directs the application
  * as to how to encode or decode specific pieces of information. Content that uses the RsslFieldList type requires the
- * use of a field dictionary (usually the Refinitiv RDMFieldDictionary, though it could also be a user-defined or
+ * use of a field dictionary (usually the LSEG RDMFieldDictionary, though it could also be a user-defined or
  * modified field dictionary).
  * etaChannelInfo - The channel management information including the channel to send the Dictionary request message buffer to and
  *					the obtained source directory service discovery information that is used for sending Dictionary Request
@@ -3381,7 +3381,7 @@ RsslRet sendDictionaryRequest(EtaChannelManagementInfo *etaChannelManagementInfo
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -3455,7 +3455,7 @@ RsslRet sendDictionaryRequest(EtaChannelManagementInfo *etaChannelManagementInfo
 	/* msgKey.nameType is Not used for Dictionary Request Message Use, per ETA C RDM Usage Guide.
 	 * So we probably don't need to do this.
 	 */
-	reqMsg.msgBase.msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC; /*!< (1) Refinitiv Instrument Code */
+	reqMsg.msgBase.msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC; /*!< (1) Instrument Code */
 
 	/* msgKey.name is Required. Specify a msgKey.flags value of RSSL_MKF_HAS_NAME. Populate msgKey.name with the name
 	 * of the desired dictionary as seen in the Source Directory response.
@@ -3530,7 +3530,7 @@ RsslRet sendMarketPriceItemRequest(EtaChannelManagementInfo *etaChannelManagemen
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -3607,8 +3607,8 @@ RsslRet sendMarketPriceItemRequest(EtaChannelManagementInfo *etaChannelManagemen
 	/* specify msgKey members */
 	reqMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_NAME_TYPE | RSSL_MKF_HAS_NAME | RSSL_MKF_HAS_SERVICE_ID;
 
-	/* msgKey.nameType Optional. When consuming from Refinitiv sources, typically set to
-	 * RDM_INSTRUMENT_NAME_TYPE_RIC (the "Refinitiv Instrument Code"). If this is not specified,
+	/* msgKey.nameType Optional. When consuming from LSEG sources, typically set to
+	 * RDM_INSTRUMENT_NAME_TYPE_RIC (the "Instrument Code"). If this is not specified,
 	 * msgKey.nameType defaults to RDM_INSTRUMENT_NAME_TYPE_RIC.
 	 */
 	reqMsg.msgBase.msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC;
@@ -3708,7 +3708,7 @@ RsslRet processMarketPriceItemResponse(EtaChannelManagementInfo *etaChannelManag
 				/* When displaying update information, we should also display the updateType information. */
 				/*!< @brief Indicates domain-specific information about the type of content contained in this update.
 				 * See rsslRDM.h RDMUpdateEventTypes enum for domain-specific enumerations for usage with the 
-				 * Refinitiv Domain Models.
+				 * Domain Models.
 				 */
 				printf("UPDATE TYPE: %u\n", msg->updateMsg.updateType);
 			}
@@ -4113,7 +4113,7 @@ RsslRet closeMarketPriceItemStream(EtaChannelManagementInfo *etaChannelManagemen
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */

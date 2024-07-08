@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2019 LSEG. All rights reserved.
 */
 
 #include "rsslVAYieldCurveItems.h"
@@ -1104,7 +1104,7 @@ void initYieldCurveItemFields(RsslYieldCurveItem* ycItem)
 	snprintf(tenors->TENORS, MAX_CRV_NAME_STRLEN, "10Y");
 
 
-	snprintf(ycItem->CRV_ALGTHM, MAX_CRV_NAME_STRLEN, "Refinitiv ETA VA Yield Curve Provider");
+	snprintf(ycItem->CRV_ALGTHM, MAX_CRV_NAME_STRLEN, "LSEG ETA VA Yield Curve Provider");
 	snprintf(ycItem->CRV_TYPE, MAX_CRV_NAME_STRLEN, "Swap");
 	snprintf(ycItem->CRV_STYPE, MAX_CRV_NAME_STRLEN, "Standard");
 	snprintf(ycItem->CITIES, MAX_CRV_NAME_STRLEN, "US");

@@ -1,9 +1,9 @@
 /*
  *|-------------------------------------------------------------------------------
- *| This source code is provided under the Apache 2.0 license and is provided	--
- *| AS IS with no warranty or guarantee of fit for purpose.  See the project's 	--
- *| LICENSE.md for details.														--
- *| Copyright (C) 2019 Refinitiv. All rights reserved.						--
+ *| This source code is provided under the Apache 2.0 license
+ *| AS IS with no warranty or guarantee of fit for purpose.
+ *| See the project's LICENSE.md for details.
+ *| Copyright (C) 2019 LSEG. All rights reserved.
  *|-------------------------------------------------------------------------------
  */
 
@@ -23,8 +23,8 @@
  * In this module, the application initializes the ETA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
- * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
- * and Refinitiv Real-Time.
+ * LSEG Real-Time Distribution Systems, Data Feed Direct,
+ * and LSEG Real-Time.
  *
  * Detailed Descriptions:
  * The first step of any ETA consumer application is to establish a 
@@ -223,7 +223,7 @@ int main(int argc, char **argv)
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearDecodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_DECODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 
@@ -1292,7 +1292,7 @@ RsslRet sendLoginRequest(EtaChannelManagementInfo *etaChannelManagementInfo)
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -1708,7 +1708,7 @@ RsslRet closeLoginStream(EtaChannelManagementInfo *etaChannelManagementInfo)
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */

@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -20,7 +20,7 @@
  *  The Transport API encoder/decoder does not provide any inherent threading or locking capability.  Separate iterator and type instances do not cause contention and do not share resources between instances.
  *  Any needed threading, locking, or thread-model implementation is at the discretion of the application.  Different application threads can encode or decode different messages without requiring a lock;
  *  thus each thread must use its own iterator instance and each message should be encoded or decoded using unique and independent buffers.  
- *  @note Though possible, Refinitiv recommends that you do not encode or decode related messages (messages flowing on the same stream) on different threads as this can impact the delivery order.
+ *  @note Though possible, LSEG recommends that you do not encode or decode related messages (messages flowing on the same stream) on different threads as this can impact the delivery order.
  *
  *	@subsection IterVers Iterator RWF Protocol Versioning 
  *	The Transport API iterators help the user to manage version information associated with the RWF content being exchanged.  When using the Transport API 
@@ -383,7 +383,7 @@
  *  The Transport API encoder/decoder does not provide any inherent threading or locking capability.  Separate iterator and type instances do not cause contention and do not share resources between instances.
  *  Any needed threading, locking, or thread-model implementation is at the discretion of the application.  Different application threads can encode or decode different messages without requiring a lock;
  *  thus each thread must use its own iterator instance and each message should be encoded or decoded using unique and independent buffers.  
- *  @note Though possible, Refinitiv recommends that you do not encode or decode related messages (messages flowing on the same stream) on different threads as this can impact the delivery order.
+ *  @note Though possible, LSEG recommends that you do not encode or decode related messages (messages flowing on the same stream) on different threads as this can impact the delivery order.
  *
  *  See \ref RsslIteratorVersion for information about encoding or decoding the correct version of RWF with the iterator.<BR>
  *  See \ref RsslDecodeIteratorType for information and examples related to the \ref RsslDecodeIterator.<BR>
@@ -5190,7 +5190,7 @@
  *
  *	The Post Message allows OMM Consumer applications to push and contribute content to upstream components.
  *	The post message payload can contain another OMM message, OMM container, or other opaque content.  
- *      This information can be applied to a Refinitiv Real-Time Distribution System
+ *      This information can be applied to a LSEG Real-Time Distribution System
  *	cache or routed further upstream to the source of data. Once received, the upstream
  *	components can republish data to downstream consumers. Post messages can be routed
  *	along a specific item stream, referred to as on-stream posting, or along a user’s
@@ -5372,7 +5372,7 @@
  *	stream is established via an RsslRequestMsg-RsslRefreshMsg/RsslStatusMsg interaction, this message can
  *	be sent from consumer to provider as well as from provider to consumer, and can
  *	also be leveraged by non-interactive provider applications. Generic messages are
- *	transient and are typically not cached by any Refinitiv Real-Time Distribution System components.
+ *	transient and are typically not cached by any LSEG Real-Time Distribution System components.
  *	The \ref RsslGenericMsg::msgBase::msgKey does not need to match the msgKey information
  *	associated with the stream the RsslGenericMsg is flowing on. This allows for
  *	the key information to be used independently of the stream. Any specific message
@@ -5747,14 +5747,14 @@
  
 
 /**
- *	@defgroup RSSLWFDomain Refinitiv Domain Models
- *	@brief The Refinitiv Domain Model Package contains the enumerations and data structures used with Refinitiv provided domain message models. 
- *	This content is available through the Refinitiv Real-Time Distribution System, Refinitiv Real-Time, Refinitiv Data Feed Direct, and various other sources. 
+ *	@defgroup RSSLWFDomain LSEG Domain Models
+ *	@brief The LSEG Domain Model Package contains the enumerations and data structures used with LSEG provided domain message models. 
+ *	This content is available through the LSEG Real-Time Distribution System, LSEG Real-Time, Data Feed Direct, and various other sources. 
  *	@{
  *	
- *  @section TheRSSLWFDomainHelpers Refinitiv Domain Model Helper and Utility functions
- *  @defgroup RSSLWFDomainHelpers Refinitiv Domain Model Helper and Utility functions
- *  @brief Detailed information about the Refinitiv Domain Model Helper and Utility functions
+ *  @section TheRSSLWFDomainHelpers LSEG Domain Model Helper and Utility functions
+ *  @defgroup RSSLWFDomainHelpers LSEG Domain Model Helper and Utility functions
+ *  @brief Detailed information about the LSEG Domain Model Helper and Utility functions
  *  @{
  * 
  *  @}

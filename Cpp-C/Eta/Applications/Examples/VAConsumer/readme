@@ -5,9 +5,8 @@ Summary:
 --------
 
 The purpose of this application is to demonstrate consuming data from
-an OMM Provider, ADS device, OMM Provider application or Refinitiv 
-Real-Time - Optimized using ValueAdd components.  It is a
-single-threaded client application.
+an OMM Provider, ADS device, OMM Provider application or Real-Time - Optimized 
+using ValueAdd components. It is a single-threaded client application.
 
 The consumer application implements callbacks that process information
 received by the provider.  It creates the RsslReactor, creates the
@@ -74,7 +73,7 @@ can be located in the directory of execution.  If the dictionary files
 cannot be found, they are requested from the provider.
 
 Both the shared version of libcurl and the openssl libraries are needed to run this example for 
-connecting and consuming data from Refinitiv Real-Time - Optimized. 
+connecting and consuming data from Real-Time - Optimized. 
 
 -------------------
 Command line usage:
@@ -98,7 +97,7 @@ Symbol list requests may optionally specify a name, e.g. "sl:_ETA_ITEM_LIST." If
 specified, the consumer will use the ItemList from the directory response.
 
 Specifying the -sessionMgnt option enables session management in the Reactor to perform
-authentication token management and query Refinitiv Data Platform service discovery on behalf of users if configured to do so.
+authentication token management and query Delivery Platform service discovery on behalf of users if configured to do so.
 
 When -sessionMgnt is specified, if a host and port is specified, the Consumer will not use service discovery.
 In addition, the following options are used to retrieve a token from the authentication token management system.
@@ -160,7 +159,7 @@ with a channel (specified by the -tcp option). This option may be specified once
 
 Specifying the -at option configures the token used for UserAuthn Authentication. This should be used 
 in place of a userName.  This token is retrieved from a token generator, and passed to
-Refinitiv Real-Time Distribution, which will verify the token against a token validator.
+LSEG Real-Time Distribution, which will verify the token against a token validator.
 For more information about the UserAuthn Authentication feature, please see the Developers guide and
 the UserAuthn Authentication guide.
 
@@ -174,7 +173,7 @@ VAConsumer -encryptedSocket <service name> mp:TRI.N -uname <machine ID> -passwd 
 
 The above example command line is used to create an encrypted connection with the socket encrypted protocol type
 using the default "us-east-1" region and enable session management to login and subscribe TRI.N from
-Refinitiv Real-Time - Optimized.
+Real-Time - Optimized.
 
 - VAConsumer -? displays command line options.  
 

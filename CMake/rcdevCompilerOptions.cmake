@@ -1,8 +1,8 @@
 #[=============================================================================[
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2021 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2021 LSEG. All rights reserved.
 #]=============================================================================]
 
 # build flags
@@ -108,6 +108,8 @@ if( UNIX )
 		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
 		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -ggdb3 ${CMAKE_FLAGS_CLANG}"  CACHE STRING "" FORCE)
+	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "OptimizedDebug" )
+		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -ggdb3 -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
 	endif()
 
 	if (RCDEV_C_EXTRA_FLAGS)
@@ -120,6 +122,8 @@ if( UNIX )
 		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING ""  FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
 		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -ggdb3 ${CMAKE_FLAGS_CLANG}"  CACHE STRING "" FORCE)
+	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "OptimizedDebug" )
+		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -ggdb3 -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}"  CACHE STRING "" FORCE)
 	endif()
 
 	if (RCDEV_CXX_EXTRA_FLAGS)

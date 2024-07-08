@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2023 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2023 LSEG. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_REACTOR_H
@@ -395,9 +395,9 @@ typedef struct {
 	FILE		*restLogOutputStream;			/*!< Set output stream for REST debug message (by default is stdout)> */
 	RsslBool	restEnableLogViaCallback;			/*!< Enable receiving REST logging messages via callback (pRestLoggingCallback).> */
 	RsslReactorRestLoggingCallback* pRestLoggingCallback;	/*!< Specifies user callback to receive Rest logging messages.> */
-	RsslBuffer	tokenServiceURL_V1;				/*!< Specifies a URL of the token service to get an access token and a refresh token for the Refinitiv Login V1. This is used for querying RDP service
+	RsslBuffer	tokenServiceURL_V1;				/*!< Specifies a URL of the token service to get an access token and a refresh token for the LSEG Login V1. This is used for querying RDP service
 												 * discovery and subscribing data from RDP. */
-	RsslBuffer	tokenServiceURL_V2;				/*!< Specifies a URL of the token service to get an access token from the Refinitiv Login V2. This is used for querying RDP service
+	RsslBuffer	tokenServiceURL_V2;				/*!< Specifies a URL of the token service to get an access token from the LSEG Login V2. This is used for querying RDP service
 												 * discovery and subscribing data from RDP. */
 	RsslProxyOpts	restProxyOptions;			/*!< Specifies proxy settings for Rest requests: service discovery and auth token service. This proxy is used when both proxyHostName and proxyPort are specified to override the proxy settings in the RsslReactorConnectOptions (RsslConnectOptions.proxyOpts) and RsslReactorServiceDiscoveryOptions (proxyHostName, proxyPort, proxyUserName, proxyPasswd, proxyDomain).> */
 	RsslUInt32   debugLevel;						/*!< Configure level of debugging info> */

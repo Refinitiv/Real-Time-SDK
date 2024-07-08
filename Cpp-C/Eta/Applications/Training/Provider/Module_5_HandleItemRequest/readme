@@ -25,7 +25,7 @@ If a provider can service a request, it should send appropriate responses. Howev
 if the provider cannot satisfy the request, the provider should send an RsslStatusMsg 
 to indicate the reason and close the stream. All requests and responses should follow 
 specific formatting as defined in the domain model specification. The Transport API RDM Usage
-Guide defines all domains provided by Refinitiv.
+Guide defines all domains provided by LSEG.
 
 Content is encoded and decoded using the Transport API Message Package and the Transport API 
 Data Package.

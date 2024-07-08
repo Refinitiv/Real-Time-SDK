@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -23,6 +23,7 @@ RmtesBufferImpl::RmtesBufferImpl() :
  _toString(),
  _utf8Buffer(),
  _utf16Buffer(),
+ _intBuffer(),
  _rsslUTF8BufferSet( false ),
  _rsslUTF16BufferSet( false ),
  _applyToCache( false )
@@ -37,6 +38,7 @@ RmtesBufferImpl::RmtesBufferImpl( UInt32 length ) :
  _toString(),
  _utf8Buffer(),
  _utf16Buffer(),
+ _intBuffer(),
  _rsslUTF8BufferSet( false ),
  _rsslUTF16BufferSet( false ),
  _applyToCache( false )
@@ -64,6 +66,7 @@ RmtesBufferImpl::RmtesBufferImpl( const char* buf, UInt32 length ) :
  _toString(),
  _utf8Buffer(),
  _utf16Buffer(),
+ _intBuffer(),
  _rsslUTF8BufferSet( false ),
  _rsslUTF16BufferSet( false ),
  _applyToCache( false )
@@ -121,6 +124,7 @@ RmtesBufferImpl::RmtesBufferImpl( const RmtesBufferImpl& other ) :
  _toString(),
  _utf8Buffer(),
  _utf16Buffer(),
+ _intBuffer(),
  _rsslUTF8BufferSet( false ),
  _rsslUTF16BufferSet( false ),
  _applyToCache( false )
@@ -359,6 +363,20 @@ const EmaBufferU16& RmtesBufferImpl::getAsUTF16()
 	_utf16Buffer.setFromInt( _rsslUTF16Buffer.data, _rsslUTF16Buffer.length );
 
 	return _utf16Buffer.toBuffer();
+}
+
+const EmaBuffer& RmtesBufferImpl::getAsEmaBuffer()
+{
+	if ( _rsslCacheBuffer.length == 0 )
+	{
+		_intBuffer.clear();
+	}
+	else
+	{
+		_intBuffer.setFromInt( _rsslCacheBuffer.data, _rsslCacheBuffer.length );
+	}
+
+	return _intBuffer.toBuffer();
 }
 
 const EmaString& RmtesBufferImpl::toString()

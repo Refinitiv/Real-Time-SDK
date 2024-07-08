@@ -6,10 +6,10 @@ Summary:
 --------
 
 A Non-Interactive Provider (NIP) writes a provider application that 
-connects to Refinitiv Real-Time Distribution System and sends a specific
+connects to LSEG Real-Time Distribution System and sends a specific
 set (non-interactive) of information (services, domains, and capabilities).
 NIPs act like clients in a client-server relationship. Multiple NIPs can
-connect to the same Refinitiv Real-Time Distribution System and publish
+connect to the same LSEG Real-Time Distribution System and publish
 the same items and content.
 
 In this module, when a client or server RsslChannel.state is 

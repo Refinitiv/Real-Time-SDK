@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2019 LSEG. All rights reserved.
 */
 
 /*
@@ -42,7 +42,7 @@
  * In this module, after establishing a connection, ping messages might 
  * need to be exchanged. The negotiated ping timeout is available via 
  * the RsslChannel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Refinitiv 
+ * the expected time frame, the connection can be terminated. LSEG 
  * recommends sending ping messages at intervals one-third the 
  * size of the ping timeout.
  *
@@ -51,7 +51,7 @@
  * might need to exchange ping messages. A negotiated ping timeout is available 
  * via RsslChannel corresponding to each connection (this value might differ on
  * a per-connection basis). A connection can be terminated if ping heartbeats 
- * are not sent or received within the expected time frame. Refinitiv 
+ * are not sent or received within the expected time frame. LSEG 
  * recommends sending ping messages at intervals one-third the size of the ping timeout.
  * Ping or heartbeat messages are used to indicate the continued presence of 
  * an application. These are typically only required when no other information is 
@@ -145,7 +145,7 @@
  * in the system. An OMM consumer typically requests a Source Directory to retrieve 
  * information about available services and their capabilities. This includes information 
  * about supported domain types, the service’s state, the QoS, and any item group 
- * information associated with the service. Refinitiv recommends that at a minimum, 
+ * information associated with the service. LSEG recommends that at a minimum, 
  * an Interactive Provider supply the Info, State, and Group filters for the Source Directory.
  * 
  * a) The Source Directory Info filter contains the name and serviceId for each 

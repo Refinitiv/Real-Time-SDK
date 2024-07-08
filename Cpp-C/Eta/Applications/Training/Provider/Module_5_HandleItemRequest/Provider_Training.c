@@ -1,9 +1,9 @@
 /*
  *|-------------------------------------------------------------------------------
- *| This source code is provided under the Apache 2.0 license and is provided	--
- *| AS IS with no warranty or guarantee of fit for purpose.  See the project's 	--
- *| LICENSE.md for details.														--
- *| Copyright (C) 2019 Refinitiv. All rights reserved.						--
+ *| This source code is provided under the Apache 2.0 license
+ *| AS IS with no warranty or guarantee of fit for purpose.
+ *| See the project's LICENSE.md for details.
+ *| Copyright (C) 2019 LSEG. All rights reserved.
  *|-------------------------------------------------------------------------------
  */
 
@@ -46,7 +46,7 @@
  * In this module, after establishing a connection, ping messages might 
  * need to be exchanged. The negotiated ping timeout is available via 
  * the RsslChannel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Refinitiv 
+ * the expected time frame, the connection can be terminated. LSEG 
  * recommends sending ping messages at intervals one-third the 
  * size of the ping timeout.
  *
@@ -55,7 +55,7 @@
  * might need to exchange ping messages. A negotiated ping timeout is available 
  * via RsslChannel corresponding to each connection (this value might differ on
  * a per-connection basis). A connection can be terminated if ping heartbeats 
- * are not sent or received within the expected time frame. Refinitiv 
+ * are not sent or received within the expected time frame. LSEG 
  * recommends sending ping messages at intervals one-third the size of the ping timeout.
  * Ping or heartbeat messages are used to indicate the continued presence of 
  * an application. These are typically only required when no other information is 
@@ -149,7 +149,7 @@
  * in the system. An OMM consumer typically requests a Source Directory to retrieve 
  * information about available services and their capabilities. This includes information 
  * about supported domain types, the service’s state, the QoS, and any item group 
- * information associated with the service. Refinitiv recommends that at a minimum, 
+ * information associated with the service. LSEG recommends that at a minimum, 
  * an Interactive Provider supply the Info, State, and Group filters for the Source Directory.
  * 
  * a) The Source Directory Info filter contains the name and serviceId for each 
@@ -182,7 +182,7 @@
  * Some data requires the use of a dictionary for encoding or decoding. The dictionary 
  * typically defines type and formatting information, and tells the application how to 
  * encode or decode information. Content that uses the RsslFieldList type requires the 
- * use of a field dictionary (usually the Refinitiv RDMFieldDictionary, though it 
+ * use of a field dictionary (usually the LSEG RDMFieldDictionary, though it 
  * can instead be a user-defined or modified field dictionary).
  * 
  * The Source Directory message should notify the consumer about dictionaries needed to 
@@ -223,7 +223,7 @@
  * if the provider cannot satisfy the request, the provider should send an RsslStatusMsg 
  * to indicate the reason and close the stream. All requests and responses should follow 
  * specific formatting as defined in the domain model specification. The ETA RDM Usage
- * Guide defines all domains provided by Refinitiv.
+ * Guide defines all domains provided by LSEG.
  *
  * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package.
@@ -333,7 +333,7 @@ int main(int argc, char **argv)
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearDecodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_DECODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 
@@ -341,7 +341,7 @@ int main(int argc, char **argv)
 	RsslDecodeIterator decodeIter; /* the decode iterator is created (typically stack allocated)  */
 
 	/* In this app, we are only interested in using 2 dictionaries:
-	 * - Refinitiv Field Dictionary (RDMFieldDictionary) and
+	 * - Field Dictionary (RDMFieldDictionary) and
 	 * - Enumerated Types Dictionaries (enumtype.def)
 	 *
 	 * We will just use dictionaries that are available locally in a file.
@@ -1971,7 +1971,7 @@ RsslRet sendLoginResponse(EtaChannelManagementInfo *etaChannelManagementInfo)
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -2332,7 +2332,7 @@ RsslRet sendLoginRequestRejectStatusMsg(EtaChannelManagementInfo *etaChannelMana
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -2553,7 +2553,7 @@ RsslRet sendSourceDirectoryResponse(EtaChannelManagementInfo *etaChannelManageme
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -2616,7 +2616,7 @@ RsslRet sendSourceDirectoryResponse(EtaChannelManagementInfo *etaChannelManageme
 	refreshFlags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_SOLICITED | RSSL_RFMF_REFRESH_COMPLETE | RSSL_RFMF_CLEAR_CACHE;
 
 	/* set filter flags */
-	/* At a minimum, Refinitiv recommends that the NIP send the Info, State, and Group filters for the Source Directory. */
+	/* At a minimum, LSEG recommends that the NIP send the Info, State, and Group filters for the Source Directory. */
 	refreshKey.filter =	RDM_DIRECTORY_SERVICE_INFO_FILTER | \
 						RDM_DIRECTORY_SERVICE_STATE_FILTER| \
 						/* RDM_DIRECTORY_SERVICE_GROUP_FILTER | \ not applicable for refresh message - here for reference */
@@ -3094,7 +3094,7 @@ RsslRet sendSourceDirectoryResponse(EtaChannelManagementInfo *etaChannelManageme
 		element.dataType = RSSL_DT_STATE;
 		element.name = RSSL_ENAME_STATUS;
 		/* The Status element can change the state of items provided by this service.
-		 * Prior to changing a service status, Refinitiv recommends that you issue item or group
+		 * Prior to changing a service status, LSEG recommends that you issue item or group
 		 * status messages to update item states.
 		 */
 		status.streamState = RSSL_STREAM_OPEN;
@@ -3209,7 +3209,7 @@ RsslRet sendSrcDirectoryRequestRejectStatusMsg(EtaChannelManagementInfo *etaChan
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -3479,7 +3479,7 @@ RsslRet sendDictionaryResponse(EtaChannelManagementInfo *etaChannelManagementInf
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -3809,7 +3809,7 @@ RsslRet sendDictionaryCloseStatusMsg(EtaChannelManagementInfo *etaChannelManagem
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -3942,7 +3942,7 @@ RsslRet sendDictionaryRequestRejectStatusMsg(EtaChannelManagementInfo *etaChanne
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -4263,7 +4263,7 @@ RsslRet sendMarketPriceItemResponse(EtaChannelManagementInfo *etaChannelManageme
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -4357,7 +4357,7 @@ RsslRet sendMarketPriceItemResponse(EtaChannelManagementInfo *etaChannelManageme
 		/* Item Name */
 		msgBase->msgKey.name.data = etaChannelManagementInfo->marketPriceItemRequestInfo.ItemName;
 		msgBase->msgKey.name.length = (RsslUInt32)strlen(etaChannelManagementInfo->marketPriceItemRequestInfo.ItemName);
-		/*!< (1) Refinitiv Instrument Code */
+		/*!< (1) Instrument Code */
 		msgBase->msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC;
 
 		/* Qos */
@@ -4644,7 +4644,7 @@ RsslRet sendMarketPriceItemCloseStatusMsg(EtaChannelManagementInfo *etaChannelMa
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -4768,7 +4768,7 @@ RsslRet sendMarketPriceItemRequestRejectStatusMsg(EtaChannelManagementInfo *etaC
 
 	/* ETA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, LSEG recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */

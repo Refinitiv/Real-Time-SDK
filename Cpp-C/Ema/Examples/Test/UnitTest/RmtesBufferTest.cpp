@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -20,11 +20,9 @@ short shortBuf[50];
 char inBuf1[] = {0x1B, 0x5B, '0', 0x60, '1', '2'};
 char inBuf2[] = {0x1B, 0x5B, '9', 0x60, 0x20, 0x1B, 0x5B, 0x32, 0x62};
 
-TEST(RmtesBufferTest, testRmtesBufferContructor)
+TEST(RmtesBufferTest, testRmtesBufferConstructor)
 {
-
-
-	//case1 intial with default contructor
+	//case1 intial with default constructor
 	RmtesBuffer rmtesBuf;
 
 	sprintf( cacheBuf1, "abcdefghijklabcdefghijklabcdefghijkl" );
@@ -35,6 +33,11 @@ TEST(RmtesBufferTest, testRmtesBufferContructor)
 	EXPECT_EQ( utf8Buf.length(), 36 ) <<  "rmtesBuf.apply(cacheBuf1, 12).getAsUTF8() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, utf8Buf.c_buf(), 36 ), 0 ) <<  "rmtesBuf.apply(cacheBuf1, 12).getAsUTF8() decode correctly" ;
 
+	const EmaBuffer& emaBuf = rmtesBuf.apply( cacheBuf1, 36 ).getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf.length(), 36 ) << "rmtesBuf.apply(cacheBuf1, 12).getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf, emaBuf.c_buf(), 36 ), 0 ) << "rmtesBuf.apply(cacheBuf1, 12).getAsEmaBuffer() decode correctly" ;
+
 	//case2 initial with length
 	RmtesBuffer rmtesBuf1( 5 );
 
@@ -42,6 +45,11 @@ TEST(RmtesBufferTest, testRmtesBufferContructor)
 
 	EXPECT_EQ( utf8Buf1.length(), 36 ) <<  "rmtesBuf.apply(cacheBuf1, 12).getAsUTF8() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, utf8Buf1.c_buf(), 36 ), 0 ) <<  "rmtesBuf.apply(cacheBuf1, 12).getAsUTF8() decode correctly" ;
+
+	const EmaBuffer& emaBuf1 = rmtesBuf1.apply( cacheBuf1, 36 ).getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf1.length(), 36 ) << "rmtesBuf.apply(cacheBuf1, 12).getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf, emaBuf1.c_buf(), 36 ), 0 ) << "rmtesBuf.apply(cacheBuf1, 12).getAsEmaBuffer() decode correctly" ;
 
 	//case3
 	RmtesBuffer rmtesBuf6( rmtesBuf1 );
@@ -51,6 +59,10 @@ TEST(RmtesBufferTest, testRmtesBufferContructor)
 	EXPECT_EQ( utf8Buf4.length(), 36 ) <<  "rmtesBuf6.getAsUTF8() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, utf8Buf4.c_buf(), 36 ), 0 ) <<  "rmtesBuf6.getAsUTF8() decode correctly" ;
 
+	const EmaBuffer& emaBuf4 = rmtesBuf6.getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf4.length(), 36 ) << "rmtesBuf6.getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf, emaBuf4.c_buf(), 36 ), 0 ) << "rmtesBuf6.getAsEmaBuffer() decode correctly" ;
 
 	//case4 test initial cached buffer with partial updates
 	try
@@ -75,6 +87,11 @@ TEST(RmtesBufferTest, testRmtesBufferContructor)
 	EXPECT_EQ( utf8Buf2.length(), 12 ) <<  "rmtesBuf.apply(cacheBuf1, 12).getAsUTF8() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, utf8Buf2.c_buf(), 12 ), 0 ) <<  "rmtesBuf.apply(cacheBuf1, 12).getAsUTF8() decode correctly" ;
 
+	const EmaBuffer& emaBuf2 = rmtesBuf4.getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf2.length(), 12 ) << "rmtesBuf.apply(cacheBuf1, 12).getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf, emaBuf2.c_buf(), 12 ), 0 ) << "rmtesBuf.apply(cacheBuf1, 12).getAsEmaBuffer() decode correctly" ;
+
 	const EmaString& toString = rmtesBuf5.toString();
 
 	EXPECT_EQ( toString.length(), 12 ) <<  "rmtesBuf5.toString() return correct length" ;
@@ -83,7 +100,6 @@ TEST(RmtesBufferTest, testRmtesBufferContructor)
 
 TEST(RmtesBufferTest, testRmtesBufferApplyFullUpdates)
 {
-
 	//case1
 	sprintf( cacheBuf1, "abcdefghijkl" );
 	sprintf( cacheBuf2, "1234567890" );
@@ -95,6 +111,11 @@ TEST(RmtesBufferTest, testRmtesBufferApplyFullUpdates)
 
 	EXPECT_EQ( utf8Buf.length(), 10 ) <<  "rmtesBuf2.apply(cacheBuf2, 10).getAsUTF8() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, utf8Buf.c_buf(), 10 ), 0 ) <<  "rmtesBuf2.apply(cacheBuf2, 10).getAsUTF8() decode correctly" ;
+
+	const EmaBuffer& emaBuf = rmtesBuf2.getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf.length(), 10 ) << "rmtesBuf2.apply(cacheBuf2, 10).getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf, emaBuf.c_buf(), 10 ), 0 ) << "rmtesBuf2.apply(cacheBuf2, 10).getAsEmaBuffer() decode correctly" ;
 
 	const EmaString& toString = rmtesBuf2.toString();
 
@@ -114,6 +135,11 @@ TEST(RmtesBufferTest, testRmtesBufferApplyFullUpdates)
 	EXPECT_EQ( utf8Buf1.length(), 22 ) <<  "rmtesBuf3.apply(rmtesBuf4).getAsUTF8() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, utf8Buf1.c_buf(), 22 ), 0 ) <<  "rmtesBuf3.apply(rmtesBuf4).getAsUTF8() decode correctly" ;
 
+	const EmaBuffer& emaBuf1 = rmtesBuf3.getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf1.length(), 22 ) << "rmtesBuf3.apply(rmtesBuf4).getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf, emaBuf1.c_buf(), 22 ), 0 ) << "rmtesBuf3.apply(rmtesBuf4).getAsEmaBuffer() decode correctly" ;
+
 	const EmaString& toString1 = rmtesBuf3.apply( rmtesBuf5 ).toString();
 
 	sprintf( outBuf, "abcdefghijkl" );
@@ -123,7 +149,6 @@ TEST(RmtesBufferTest, testRmtesBufferApplyFullUpdates)
 
 TEST(RmtesBufferTest, testRmtesBufferApplyPartialUpdates)
 {
-
 	//case1
 	sprintf( cacheBuf1, "abcdefghijkl" );
 	sprintf( outBuf, "12cdefghijkl" );
@@ -134,6 +159,11 @@ TEST(RmtesBufferTest, testRmtesBufferApplyPartialUpdates)
 	EXPECT_EQ( utf8Buf.length(), 12 ) <<  "rmtesBuf1.apply(inBuf1, 6).getAsUTF8() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, utf8Buf.c_buf(), 12 ), 0 ) <<  "rmtesBuf1.apply(inBuf1, 6).getAsUTF8() decode correctly" ;
 
+	const EmaBuffer& emaBuf = rmtesBuf1.getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf.length(), 12 ) << "rmtesBuf1.apply(inBuf1, 6).getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf, emaBuf.c_buf(), 12 ), 0 ) << "rmtesBuf1.apply(inBuf1, 6).getAsEmaBuffer() decode correctly" ;
+
 	//case2  reallocate bigger mem
 	sprintf( cacheBuf1, "abcdefghijkl" );
 	//sprintf(outBuf, "abcdefghi   kl");
@@ -142,8 +172,13 @@ TEST(RmtesBufferTest, testRmtesBufferApplyPartialUpdates)
 
 	const EmaBuffer& utf8Buf1 = rmtesBuf2.apply( inBuf2, 9 ).getAsUTF8();
 
-	EXPECT_EQ( utf8Buf1.length(), 12 ) <<  "rmtesBuf2.apply(inBuf2, 9).getAsUTF8()return correct length" ;
+	EXPECT_EQ( utf8Buf1.length(), 12 ) <<  "rmtesBuf2.apply(inBuf2, 9).getAsUTF8() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, utf8Buf1.c_buf(), 12 ), 0 ) <<  "rmtesBuf2.apply(inBuf2, 9).getAsUTF8() decode correctly" ;
+
+	const EmaBuffer& emaBuf1 = rmtesBuf2.getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf1.length(), 12 ) << "rmtesBuf2.apply(inBuf2, 9).getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf, emaBuf1.c_buf(), 12 ), 0 ) << "rmtesBuf2.apply(inBuf2, 9).getAsEmaBuffer() decode correctly" ;
 
 //	sprintf(outBuf, "12cdefghi   kl");
 	sprintf( outBuf, "1bcdefghi   " ); //expected output may be wrong?
@@ -151,11 +186,15 @@ TEST(RmtesBufferTest, testRmtesBufferApplyPartialUpdates)
 
 	EXPECT_EQ( toString.length(), 12 ) <<  "rmtesBuf2.apply(inBuf1, 5).toString() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, toString.c_str(), 12 ), 0 ) <<  "rmtesBuf2.apply(inBuf1, 5).toString() decode correctly" ;
+
+	const EmaBuffer& emaBuf2 = rmtesBuf2.getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf2.length(), 12 ) << "rmtesBuf2.apply(inBuf1, 5).getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf, emaBuf2.c_buf(), 12 ), 0 ) << "rmtesBuf2.apply(inBuf1, 5).getAsEmaBuffer() decode correctly" ;
 }
 
 TEST(RmtesBufferTest, testRmtesBufferCallToStringBeforeApplyPartialUpdates)
 {
-
 	//case1
 	sprintf(cacheBuf1, "abcdefghijkl");
 	sprintf(outBuf, "12cdefghijkl");
@@ -165,6 +204,11 @@ TEST(RmtesBufferTest, testRmtesBufferCallToStringBeforeApplyPartialUpdates)
 
 	EXPECT_EQ(utf8Buf.length(), 12) << "rmtesBuf1.apply(inBuf1, 6).getAsUTF8() return correct length";
 	EXPECT_EQ(memcmp(outBuf, utf8Buf.c_buf(), 12), 0) << "rmtesBuf1.apply(inBuf1, 6).getAsUTF8() decode correctly";
+
+	const EmaBuffer& emaBuf = rmtesBuf1.apply(inBuf1, 6).getAsEmaBuffer();
+
+	EXPECT_EQ(emaBuf.length(), 12) << "rmtesBuf1.apply(inBuf1, 6).getAsEmaBuffer() return correct length";
+	EXPECT_EQ(memcmp(outBuf, emaBuf.c_buf(), 12), 0) << "rmtesBuf1.apply(inBuf1, 6).getAsEmaBuffer() decode correctly";
 
 	//case2  reallocate bigger mem
 	sprintf(cacheBuf1, "abcdefghijkl");
@@ -176,6 +220,11 @@ TEST(RmtesBufferTest, testRmtesBufferCallToStringBeforeApplyPartialUpdates)
 
 	EXPECT_EQ(utf8Buf1.length(), 12) << "rmtesBuf2.apply(inBuf2, 9).getAsUTF8()return correct length";
 	EXPECT_EQ(memcmp(outBuf, utf8Buf1.c_buf(), 12), 0) << "rmtesBuf2.apply(inBuf2, 9).getAsUTF8() decode correctly";
+
+	const EmaBuffer& emaBuf1 = rmtesBuf2.getAsEmaBuffer();
+
+	EXPECT_EQ(emaBuf1.length(), 12) << "rmtesBuf2.apply(inBuf2, 9).getAsEmaBuffer()return correct length";
+	EXPECT_EQ(memcmp(outBuf, emaBuf1.c_buf(), 12), 0) << "rmtesBuf2.apply(inBuf2, 9).getAsEmaBuffer() decode correctly";
 
 	RmtesBuffer rmtesBuf3;
 	EmaUnitTestConnect::getRmtesBufferImpl(rmtesBuf3)->setData(inBuf1, 5);
@@ -193,8 +242,6 @@ TEST(RmtesBufferTest, testRmtesBufferCallToStringBeforeApplyPartialUpdates)
 
 TEST(RmtesBufferTest, testRmtesBufferApplyUpdatesAsUTF16)
 {
-
-
 	//case1
 	sprintf( cacheBuf1, "abcdefghijkl" );
 	sprintf( cacheBuf2, "1234567890abc" );
@@ -213,23 +260,41 @@ TEST(RmtesBufferTest, testRmtesBufferApplyUpdatesAsUTF16)
 	EXPECT_EQ( toString.length(), 13 ) <<  "rmtesBuf2.toString() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, toString.c_str(), 13 ), 0 ) <<  "rmtesBuf2.toString() decode correctly" ;
 
+	const EmaBuffer& emaBuf = rmtesBuf2.getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf.length(), 13 ) << "rmtesBuf2.getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf, emaBuf.c_buf(), 13 ), 0 ) << "rmtesBuf2.getAsEmaBuffer() decode correctly" ;
+
 	//case2
 	sprintf( cacheBuf1, "abcdefghijkl" );
 	sprintf( outBuf, "abcdefghij   l" );
 	short outShortBuf1[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', ' ', ' ', ' '};
+	char outBuf1[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', ' ', ' ', ' ' };
 	RmtesBuffer rmtesBuf3( cacheBuf1, 12 );
 
 	const EmaBufferU16& utf16Buf1 = rmtesBuf3.apply( inBuf2, 9 ).getAsUTF16();
 
-	EXPECT_EQ( utf16Buf1.length(), 12 ) <<  "rmtesBuf3.apply(inBuf2, 9).getAsUTF16()return correct length" ;
+	EXPECT_EQ( utf16Buf1.length(), 12 ) <<  "rmtesBuf3.apply(inBuf2, 9).getAsUTF16() return correct length" ;
 	EXPECT_EQ( memcmp( outShortBuf1, utf16Buf1.u16_buf(), 12 ), 0 ) <<  "rmtesBuf3.apply(inBuf2, 9).getAsUTF16() decode correctly" ;
+
+	const EmaBuffer& emaBuf1 = rmtesBuf3.getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf1.length(), 12 ) << "rmtesBuf3.apply(inBuf2, 9).getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf1, emaBuf1.c_buf(), 12 ), 0 ) << "rmtesBuf3.apply(inBuf2, 9).getAsEmaBuffer() decode correctly" ;
 
 	short outShortBuf2[] = {'1', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', ' ', ' ', ' '};
 	const EmaBufferU16& utf16Buf2 = rmtesBuf3.apply( inBuf1, 5 ).getAsUTF16();
 
 	EXPECT_EQ( utf16Buf2.length(), 12 ) <<  "rmtesBuf3.apply(inBuf1, 5).getAsUTF16() return correct length" ;
 	EXPECT_EQ( memcmp( outShortBuf2, utf16Buf2.u16_buf(), 12 ), 0 ) <<  "rmtesBuf3.apply(inBuf1, 5).getAsUTF16() decode correctly" ;
+
+	char outBuf2[] = { '1', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', ' ', ' ', ' ' };
+	const EmaBuffer& emaBuf2 = rmtesBuf3.getAsEmaBuffer();
+
+	EXPECT_EQ( emaBuf2.length(), 12 ) << "rmtesBuf3.apply(inBuf1, 5).getAsEmaBuffer() return correct length" ;
+	EXPECT_EQ( memcmp( outBuf2, emaBuf2.c_buf(), 12 ), 0 ) << "rmtesBuf3.apply(inBuf1, 5).getAsEmaBuffer() decode correctly" ;
 }
+
 TEST(RmtesBufferTest, testRmtesBuffeGetAsUTF16EmaBuff16Copy)
 {
 	//case1
@@ -273,7 +338,6 @@ TEST(RmtesBufferTest, testRmtesBuffeGetAsUTF16EmaBuff16Copy)
 
 TEST(RmtesBufferTest, testRmtesBufferClear)
 {
-
 	//case1
 	sprintf( cacheBuf1, "abcdefghijkl" );
 	sprintf( cacheBuf2, "1234567890" );
@@ -296,12 +360,17 @@ TEST(RmtesBufferTest, testRmtesBufferClear)
 	EXPECT_EQ( utf8Buf.length(), 22 ) <<  "rmtesBuf3.apply(rmtesBuf4).getAsUTF8() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, utf8Buf.c_buf(), 22 ), 0 ) <<  "rmtesBuf3.apply(rmtesBuf4).getAsUTF8() decode correctly" ;
 
+	const EmaBuffer& emaBuf = rmtesBuf2.getAsEmaBuffer();
+
+	EXPECT_EQ(emaBuf.length(), 22) << "rmtesBuf3.apply(rmtesBuf4).getAsEmaBuffer() return correct length";
+	EXPECT_EQ(memcmp(outBuf, emaBuf.c_buf(), 22), 0) << "rmtesBuf3.apply(rmtesBuf4).getAsEmaBuffer() decode correctly";
+
 	rmtesBuf2.clear();
 
 	EXPECT_EQ( rmtesBuf2.getAsUTF8().length(), 0 ) <<  "rmtesBuf2.clear() return correct length" ;
 	EXPECT_EQ( rmtesBuf2.getAsUTF16().length(), 0 ) <<  "rmtesBuf2.clear() return correct length" ;
+	EXPECT_EQ( rmtesBuf2.getAsEmaBuffer().length(), 0) << "rmtesBuf2.clear() return correct length" ;
 	EXPECT_EQ( rmtesBuf2.toString().length(), 0 ) <<  "rmtesBuf2.clear() return correct length" ;
 
 	rmtesBuf2.clear();
 }
-

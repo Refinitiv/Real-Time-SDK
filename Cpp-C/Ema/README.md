@@ -1,10 +1,10 @@
 # Enterprise Message API (EMA) - C++ Edition
 
-The Enterprise Message API: This is an easy-to-use, performant, open source message layer API. The Enterprise Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Refinitiv based on customer feedback.
+The Enterprise Message API: This is an easy-to-use, performant, open source message layer API. The Enterprise Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and LSEG based on customer feedback.
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2018-2024 Refinitiv. All rights reserved.
+Copyright (C) 2018-2024 LSEG. All rights reserved.
   
 # EMA C++ Documentation
 
@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.8.0.L1
+    libema.lib                ema3.8.1.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.8.0.L1
-    libema.dll                ema3.8.0.L1
+    libema.lib                ema3.8.1.L1
+    libema.dll                ema3.8.1.L1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.8.0.L1
+    libema.a                    ema3.8.1.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.8.0.L1          libema.so.19          ema3.8.0.L1
+    libema.so.3.8.1.L1          libema.so.20          ema3.8.1.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -154,21 +154,21 @@ This will create all necessary soft links for example makefiles to link. It is s
 # Reference Information
 
     I-COS Questionnaire: 6212
-    Refinitiv Item Number: N/A
+    LSEG Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.8.0
+    Release Number: 3.8.1
     Load Number: 1
-    Windows Load ID: ema3.8.0.L1.win
-        Supersedes: ema3.7.3.L2.win
-    Linux Load ID: ema3.8.0.L1.linux
-        Supersedes: ema3.7.3.L2.linux
+    Windows Load ID: ema3.8.1.L1.win
+        Supersedes: ema3.8.0.L1.win
+    Linux Load ID: ema3.8.1.L1.linux
+        Supersedes: ema3.8.0.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
-    Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.62_RealTimeDistributionSystem_24.31 for RWF and Marketfeed Record Templates
+    Security Compliance: LSEG Security Compliant
+    Template Version Supported: v4.20.62_RealTimeDistributionSystem_24.41 for RWF and Marketfeed Record Templates
 
 # Security
 

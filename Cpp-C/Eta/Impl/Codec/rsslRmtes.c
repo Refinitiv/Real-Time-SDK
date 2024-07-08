@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -335,14 +335,14 @@ int controlParse(unsigned char* curPtr, unsigned char* endPtr, RsslRmtesWorkingS
 				}
 				break;
 			case ESC_21:
-				if(*iIter != 0x40)  /* Refinitiv Ctrl 1 to CL */
+				if(*iIter != 0x40)  /* LSEG Ctrl 1 to CL */
 				{
 					*retCode = ESC_ERROR;
 					return 0;
 				}
 				break;
 			case ESC_22:
-				if(*iIter != 0x30)	/* Refinitiv Ctrl 2 to CR */
+				if(*iIter != 0x30)	/* LSEG Ctrl 2 to CR */
 				{
 					*retCode = ESC_ERROR;
 					return 0;

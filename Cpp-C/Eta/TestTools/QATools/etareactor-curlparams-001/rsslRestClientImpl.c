@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
 */
 
@@ -3357,7 +3357,7 @@ RsslRet rsslGenerateSignedJWT(RsslBuffer* JWK, RsslBuffer* aud, RsslBuffer* out,
 				(*(cryptoFuncs->bn_free))(rsa.dmq1);
 				(*(cryptoFuncs->bn_clear))(rsa.iqmp);
 				(*(cryptoFuncs->bn_free))(rsa.iqmp);
-			memset(&rsa, sizeof(OPENSSL_10_rsa), 0);
+			memset(&rsa, 0, sizeof(OPENSSL_10_rsa));
 
 			JWT_10_RSA_Failure:
 			if(privateKeyFailure == RSSL_TRUE)
@@ -3404,7 +3404,7 @@ RsslRet rsslGenerateSignedJWT(RsslBuffer* JWK, RsslBuffer* aud, RsslBuffer* out,
 					(*(cryptoFuncs->bn_clear))(rsa.iqmp);
 					(*(cryptoFuncs->bn_free))(rsa.iqmp);
 				}
-				memset(&rsa, sizeof(OPENSSL_10_rsa), 0);
+				memset(&rsa, 0, sizeof(OPENSSL_10_rsa));
 				cJSON_Delete(root);
 
 				return RSSL_RET_FAILURE;

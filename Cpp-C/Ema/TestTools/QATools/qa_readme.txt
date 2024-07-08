@@ -152,6 +152,15 @@ Series100Consumer113-RestProxy-001
    Added command line options for check "programmatic" way:
    -prestProxyHost, -prestProxyPort.
 
+Series100Consumer113-ApiDispatch-001
+	Alters consumer ApiDispatch mode with implementing OMMConsumerErrorClient onJsonConverter.
+
+Series100Consumer113-UserDispatch-001
+	Alters consumer UserDispatch mode without implementing OMMConsumerErrorClient onJsonConverter.
+
+Series100Consumer113-UserDispatch-002
+	Alters consumer UserDispatch mode with implementing OMMConsumerErrorClient onJsonConverter.
+	
 Module:  Series100Consumer140
 -----------------------------
 
@@ -179,6 +188,11 @@ Module:  Series200Consumer280
 
 Series200Consumer280-ConsFunc-001
      Alters consumer which remove set host with api call OmmConsumerConfig() in file Consumer.cpp ,also alter to specify consumerName("Consumer_3") 
+
+Module:  Series300Consumer310
+---------------------------
+Series300Consumer310-Rmtes-001
+   Alters consumer to use new function rmtesBuffer.getAsEmaBuffer() and encode it as a FieldEntry of FieldList.
 
 Module:  Series300Consumer331
 ---------------------------

@@ -4,7 +4,7 @@ Transport API Interactive Provider Training Application Description
 Summary:
 --------
 
-An Interactive provider accepts incoming connections from Refinitiv Real-time 
+An Interactive provider accepts incoming connections from LSEG Real-time 
 Distribution System(s) and/or Consumers.
 
 An Interactive Provider receives connection requests and responds to requests 
@@ -14,7 +14,7 @@ requests for information about its data dictionary, which describes the
 format of expected data types. After this is completed, its behavior is 
 interactive. Interactive Providers act like Servers in a client-server 
 relationship. The Transport API Interactive Provider can accept connections 
-from multiple Refinitiv Real-time Distribution System components and allow the 
+from multiple LSEG Real-time Distribution System components and allow the 
 Interactive Provider Application to manage those connections.
 
 An Interactive provider can also directly connect to consumers.
