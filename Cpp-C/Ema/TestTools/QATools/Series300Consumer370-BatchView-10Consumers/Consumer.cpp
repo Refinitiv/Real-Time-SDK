@@ -59,7 +59,8 @@ int main()
 				.addArray(ENAME_VIEW_DATA, viewArray)
 				.complete();
 
-			consumer.registerClient(ReqMsg().domainType( MMT_DIRECTORY ).serviceName("ELEKTRON_DD").payload(batchView), appClient);
+			consumer.registerClient(ReqMsg().domainType( MMT_DIRECTORY ).serviceName("ELEKTRON_DD"), appClient);
+			consumer.registerClient(ReqMsg().serviceName("ELEKTRON_DD").payload(batchView), appClient);
 			
 			sleep( 3000 );			// API calls onRefreshMsg, onUpdateMsg, onStatusMsg
 		} catch ( const OmmException& excp ) {
