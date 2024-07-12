@@ -87,8 +87,8 @@ public class Consumer
                     batchView.add(EmaFactory.createElementEntry().uintValue(EmaRdm.ENAME_VIEW_TYPE, 1));
                     batchView.add(EmaFactory.createElementEntry().array(EmaRdm.ENAME_VIEW_DATA, viewArray));
 
-                    consumer.registerClient(EmaFactory.createReqMsg().domainType(EmaRdm.MMT_DIRECTORY).serviceName("ELEKTRON_DD").payload(batchView), appClient);
-
+                    consumer.registerClient(EmaFactory.createReqMsg().domainType(EmaRdm.MMT_DIRECTORY).serviceName("ELEKTRON_DD"), appClient);
+                    consumer.registerClient(EmaFactory.createReqMsg().serviceName("ELEKTRON_DD").payload(batchView), appClient);
                     Thread.sleep(3000);
                 }
                 catch (InterruptedException | OmmException excp)
