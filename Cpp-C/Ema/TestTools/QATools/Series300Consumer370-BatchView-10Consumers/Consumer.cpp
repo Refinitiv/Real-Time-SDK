@@ -4,6 +4,7 @@
 // *|                See the project's LICENSE.md for details.
 // *|           Copyright (C) 2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
+//APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
 #include "Consumer.h"
 
@@ -71,3 +72,4 @@ int main()
 	sleep( 600000 ); // API calls onRefreshMsg, onUpdateMsg, onStatusMsg
 	return 0;
 }
+//END APIQA
