@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019,2024, Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -138,6 +138,27 @@ public interface OmmNiProviderConfig extends OmmProviderConfig
 	 * @return reference to this object
 	 */
 	public OmmNiProviderConfig host(String host);
+
+	/**
+	 * Specifies connection type. Overrides prior value.
+	 *
+	 * @param channelType specifies connection type used by application. Connection type defined in EmaConfig.ConnectionType.
+	 * @throws OmmInvalidUsageException if use this API with WarmStandby channel configuration.
+	 * @throws OmmInvalidUsageException if channelType is not valid.
+	 * @return reference to this object
+	 */
+	public OmmNiProviderConfig channelType(int channelType);
+
+	/**
+	 * Specifies encrypted protocol type. Overrides prior value.
+	 *
+	 * @param encProtocolType specifies encrypted protocol type used by application. Encrypted protocol type defined in EmaConfig.EncryptedProtocolType.
+	 * @throws OmmInvalidUsageException if use this API with WarmStandby channel configuration.
+	 * @throws OmmInvalidUsageException if use this API with not encoded channel type.
+	 * @throws OmmInvalidUsageException if encProtocolType is not valid.
+	 * @return reference to this object
+	 */
+	public OmmNiProviderConfig encryptedProtocolType(int encProtocolType);
 
 	/**
 	 * Specifies the operation model, overriding the default<br>
