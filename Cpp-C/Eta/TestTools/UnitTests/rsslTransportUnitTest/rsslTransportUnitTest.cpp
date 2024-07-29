@@ -28,6 +28,10 @@
 #include "rtr/rsslEventSignal.h"
 #include "rtr/ripcsslutils.h"
 #include "rtr/rsslGetTime.h"
+#include "rtr/rsslCurlJIT.h"
+#include "rtr/ripcflip.h"
+#include "rtr/ripc_int.h"
+#include <curl/curl.h>
 
 #include "TransportUnitTest.h"
 
@@ -7067,13 +7071,14 @@ TEST(OpenSSLHostNameValidation, HostNameValidation)
 	strcpy(hostName, "bar.foo.com");
 	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
 	EXPECT_TRUE(output == RSSL_FALSE);
+
+	resetDeadlockTimer();
 }
 
 
 class BindSharedServerSocketOpt : public ::testing::Test {
 protected:
 	RsslServer* pServer;
-
 	virtual void SetUp()
 	{
 		RsslError err;
@@ -7092,6 +7097,7 @@ protected:
 		}
 		rsslUninitialize();
 		pServer = NULL;
+		resetDeadlockTimer();
 	}
 
 	void runRsslBind(RsslBindOptions& bindOpts)
@@ -7266,6 +7272,311 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeErrorOnRsslBindLUP)
 
 #endif
 
+class WebsocketConnectionTest : public ::testing::Test {
+protected:
+	RsslServer* pServer;
+	RsslChannel* pServerChannel;
+	RsslCurlJITFuncs* curlFuncs;
+	RsslSocket clientSocket;
+
+	virtual void SetUp()
+	{
+		RsslError err;
+		RsslBindOptions bindOpts;
+
+		pServer = NULL;
+		pServerChannel = NULL;
+
+		rsslInitialize(RSSL_LOCK_GLOBAL, &err);
+
+		// Start server
+		rsslClearBindOpts(&bindOpts);
+		bindOpts.serviceName = (char*)"20000";
+		memset(&err, 0, sizeof(RsslError));
+
+		pServer = rsslBind(&bindOpts, &err);
+
+		ASSERT_NE(pServer, (RsslServer*)NULL) << "Server creation failed! " << err.text;
+		ASSERT_NE(pServer->socketId, 0) << "The server socket should be not Null";
+	}
+
+	virtual void TearDown()
+	{
+		RsslError err;
+		if (pServerChannel != NULL)
+		{
+			rsslCloseChannel(pServerChannel, &err);
+		}
+		if (pServer != NULL)
+		{
+			rsslCloseServer(pServer, &err);
+		}
+
+		rsslUninitialize();
+		pServer = NULL;
+		pServerChannel = NULL;
+		resetDeadlockTimer();
+	}
+
+	void connectClient()
+	{
+		RsslError			error;
+		struct	sockaddr_in	toaddr;
+		struct	sockaddr_in	baddr;
+		int					sockRet;
+		struct timeval		selectTime;
+		int					selRet;
+		RsslAcceptOptions	acceptOpts;
+		bool				writeReadyBoth = false;
+		RsslUInt32			addr;
+
+		fd_set readfds;
+		fd_set writefds;
+		fd_set useread;
+		fd_set usewrite;
+
+		selectTime.tv_sec = 0L;
+		selectTime.tv_usec = 500000;
+
+		// Create a new socket, connect to the localhost server.
+		clientSocket = socket(AF_INET, SOCK_STREAM, 6);
+		ASSERT_NE(clientSocket, RIPC_INVALID_SOCKET) << "Invalid Socket";
+
+		ipcSessSetMode(clientSocket, 0, 1, &error, __LINE__);
+
+		baddr.sin_family = AF_INET;
+		baddr.sin_addr.s_addr = host2net_u32(INADDR_ANY);
+		baddr.sin_port = (RsslUInt16)0;
+
+		sockRet = bind(clientSocket, (struct sockaddr*)&baddr, (int)sizeof(baddr));
+		ASSERT_GE(sockRet, 0) << "bind failure";
+
+		rsslGetHostByName((char*)"localhost", &addr);
+		
+		// Localhost connection, so inaddr_loopback should be correct.
+		// Address and port needs to be in network byte order.
+		toaddr.sin_family = AF_INET;
+		toaddr.sin_addr.s_addr = addr;
+		toaddr.sin_port = host2net_u16((RsslUInt16)20000);
+
+		sockRet = connect(clientSocket, (struct sockaddr*)&toaddr, (int)sizeof(toaddr));
+		if (sockRet < 0)
+		{
+#if defined(_WIN32)
+			if ((errno != WSAEINPROGRESS) && (errno != WSAEWOULDBLOCK))
+#else
+			if ((errno != EINPROGRESS) && (errno != EALREADY))
+#endif
+			{
+				ASSERT_TRUE(false) << "Connect failure";
+			}
+		}
+
+		selRet = 0;
+		FD_ZERO(&readfds);
+		FD_ZERO(&useread);
+
+		FD_SET(pServer->socketId, &readfds);
+
+		do
+		{
+			useread = readfds;
+			selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+			ASSERT_GE(selRet, 0) << "Select failure";
+		} while (selRet == 0);
+
+		rsslClearAcceptOpts(&acceptOpts);
+		pServerChannel = rsslAccept(pServer, &acceptOpts, &error);
+
+		FD_ZERO(&writefds);
+		FD_ZERO(&usewrite);
+		FD_SET(pServerChannel->socketId, &writefds);
+		FD_SET(clientSocket, &writefds);
+		do
+		{
+			selectTime.tv_sec = 0L;
+			selectTime.tv_usec = 500000;
+
+			usewrite = writefds;
+			selRet = select(FD_SETSIZE, NULL, &usewrite, NULL, &selectTime);
+			ASSERT_GE(selRet, 0) << "Select failure";
+
+			if (FD_ISSET(pServerChannel->socketId, &usewrite) && FD_ISSET(clientSocket, &usewrite))
+			{
+				writeReadyBoth = true;
+			}
+
+		} while (writeReadyBoth == false);
+		resetDeadlockTimer();
+	}
+};
+
+// This tests the server side checks required by RFC6455 for initial websocket client handshake parsing.
+TEST_F(WebsocketConnectionTest, WebsocketServerHandshakeTest)
+{
+	char				writeBuff[1000];
+	RsslInt32			cc;
+	struct timeval		selectTime;
+	int					selRet;
+	int					numBytes;
+	RsslError			error;
+	RsslInProgInfo		inProgInfo;
+
+	fd_set readfds;
+	fd_set useread;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send a PUT, this should error out.
+	// Key is taken from a random run of a consumer connecting to a provider.
+	cc = snprintf(writeBuff, 1000, "PUT /WebSocket HTTP/1.1\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive, Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Host: localhost:14002\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Key: wSam/MfhQlzaI4qDu/lwVw==\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 13\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+	
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send a GET, but without the upgrade: websocket this should error out.
+	// Key is taken from a random run of a consumer connecting to a provider.
+	cc = snprintf(writeBuff, 1000, "GET /WebSocket HTTP/1.1\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Host: localhost:14002\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Key: wSam/MfhQlzaI4qDu/lwVw==\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 13\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Send a GET, but without the key: websocket this should error out.
+	// Key is taken from a random run of a consumer connecting to a provider.
+	cc = snprintf(writeBuff, 1000, "GET /WebSocket HTTP/1.1\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive, Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Host: localhost:14002\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 13\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+
+	// Send a GET, but an incorrect websocket version: websocket this should error out.
+	// Key is taken from a random run of a consumer connecting to a provider.
+	cc = snprintf(writeBuff, 1000, "GET /WebSocket HTTP/1.1\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive, Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Host: localhost:14002\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Key: wSam/MfhQlzaI4qDu/lwVw==\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 14\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+}
+
 rsslServerCountersInfo* rsslGetServerCountersInfo(RsslServer* pServer)
 {
 	rsslServerImpl *srvrImpl = (rsslServerImpl *)pServer;
@@ -7332,3 +7643,4 @@ int main(int argc, char* argv[])
 	}
 	return ret;
 }
+ 

@@ -2307,6 +2307,7 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 		}
 		wsSess->keyAccept.length = (RsslUInt32)strlen(wsSess->keyAccept.data);
 
+		
 		sprintfRet = snprintf(hsBuffer + hsLen, remaining, "Sec-WebSocket-Key: %s\r\n", wsSess->keyNonce.data);
 
 		if (sprintfRet < 0) break;
@@ -2850,7 +2851,7 @@ RsslInt32 rwsSendResponseHandshake(RsslSocketChannel *rsslSocketChannel, rwsSess
 			return(-1);
 		}
 
-		wsSess->keyAccept.length = (RsslInt32)strlen(wsSess->keyRecv.data);
+		wsSess->keyAccept.length = (RsslInt32)strlen(wsSess->keyAccept.data);
 		sprintfRet = snprintf(resp + respLen, remaining, "Sec-WebSocket-Accept: %s\r\n", wsSess->keyAccept.data);
 
 		if (sprintfRet < 0) break;
@@ -3173,6 +3174,15 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 		// Validate upgrade request
 		if (!wsSess->upgrade && !wsSess->connUpgrade)
 			return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_NO_RESRC, error));
+
+		if (wsSess->keyRecv.data == NULL || wsSess->keyRecv.length == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Invalid Websocket request. Missing Sec-WebSocket-Key field.",
+				__FILE__, __LINE__);
+			return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_NO_RESRC, error));
+		}
 
 		if(rsslSocketChannel->mountNak == 1)
 			return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_NO_RESRC, error));

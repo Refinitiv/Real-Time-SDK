@@ -6080,7 +6080,7 @@ void ipcCloseActiveSrvr(RsslServerSocketChannel *rsslServerSocketChannel)
 		rsslServerSocketChannel->state = RSSL_CH_STATE_INACTIVE;
 }
 
-RsslInt32 ipcSessSetMode(RsslSocket sock_fd, RsslInt32 blocking, RsslInt32 tcp_nodelay, RsslError *error, RsslInt32 line)
+RSSL_API RsslInt32 ipcSessSetMode(RsslSocket sock_fd, RsslInt32 blocking, RsslInt32 tcp_nodelay, RsslError *error, RsslInt32 line)
 {
 	ripcSocketOption	opts;
 	opts.code = RIPC_SOPT_BLOCKING;
