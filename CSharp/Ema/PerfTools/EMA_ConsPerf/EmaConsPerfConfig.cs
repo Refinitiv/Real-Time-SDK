@@ -63,7 +63,7 @@ namespace LSEG.Ema.PerfTools.ConsPerf
 
         internal EmaConsPerfConfig()
         {
-            CommandLine.ProgName("emajConsPerf");
+            CommandLine.ProgName("ConsPerf");
             CommandLine.AddOption("steadyStateTime", 300, "Time consumer will run the steady-state portion of the test. Also used as a timeout during the startup-state portion");
             CommandLine.AddOption("delaySteadyStateCalc", 0, "Time consumer will wait before calculate the latency (milliseconds)");
             CommandLine.AddOption("tickRate", 1000, "Ticks per second");

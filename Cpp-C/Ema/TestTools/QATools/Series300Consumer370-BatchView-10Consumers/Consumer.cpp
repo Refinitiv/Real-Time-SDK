@@ -4,6 +4,7 @@
 // *|                See the project's LICENSE.md for details.
 // *|           Copyright (C) 2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
+//APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
 #include "Consumer.h"
 
@@ -59,7 +60,8 @@ int main()
 				.addArray(ENAME_VIEW_DATA, viewArray)
 				.complete();
 
-			consumer.registerClient(ReqMsg().domainType( MMT_DIRECTORY ).serviceName("ELEKTRON_DD").payload(batchView), appClient);
+			consumer.registerClient(ReqMsg().domainType( MMT_DIRECTORY ).serviceName("ELEKTRON_DD"), appClient);
+			consumer.registerClient(ReqMsg().serviceName("ELEKTRON_DD").payload(batchView), appClient);
 			
 			sleep( 3000 );			// API calls onRefreshMsg, onUpdateMsg, onStatusMsg
 		} catch ( const OmmException& excp ) {
@@ -70,3 +72,4 @@ int main()
 	sleep( 600000 ); // API calls onRefreshMsg, onUpdateMsg, onStatusMsg
 	return 0;
 }
+//END APIQA
