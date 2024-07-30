@@ -769,7 +769,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketGetChannelStats(rsslChannelImpl *r
 
 
 
-RsslInt32 ipcSessSetMode(RsslSocket sock_fd, RsslInt32 blocking, RsslInt32 tcp_nodelay, RsslError *error, RsslInt32 line);
+RSSL_API RsslInt32 ipcSessSetMode(RsslSocket sock_fd, RsslInt32 blocking, RsslInt32 tcp_nodelay, RsslError *error, RsslInt32 line);
 
 RsslInt32 getProtocolNumber();
 

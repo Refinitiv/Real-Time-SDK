@@ -8,7 +8,6 @@
 package com.refinitiv.ema.access;
 
 import com.refinitiv.ema.rdm.DataDictionary;
-import com.refinitiv.ema.access.EmaConfig;
 
 /**
  * OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.
