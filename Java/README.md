@@ -18,17 +18,17 @@ External modules used by this version of RTSDK Java:
 	Dependency				Version
 	----------				-------
 	commons-codec				1.16
-	commons-configuration2			2.9.0
-	commons-collections4			4.4	
+	commons-configuration2			2.11.0
+	commons-collections4			4.5.0-M2	
 	commons-lang3				3.14.0
-	commons-logging				1.3.0
-	commons-text		 		1.11.0
-	jackson-annotations	 		2.16.1
-	jackson-core	 			2.16.1  
-	jackson-databind 			2.16.1
-	jose4j					0.9.4
+	commons-logging				1.3.3
+	commons-text		 		1.12.0
+	jackson-annotations	 		2.17.2
+	jackson-core	 			2.17.2  
+	jackson-databind 			2.17.2
+	jose4j					0.9.6
 	junit					4.13.2
-	json					20231013
+	json					20240303
 	httpclient				4.5.14
 	httpclient-cache 			4.5.14
 	httpcore				4.4.16
@@ -36,8 +36,8 @@ External modules used by this version of RTSDK Java:
 	httpmime				4.5.14
 	lz4-java				1.8.0
 	mockito-all				1.10.19
-	slf4j-api				2.0.11
-	slf4j-jdk14				2.0.11
+	slf4j-api				2.0.13
+	slf4j-jdk14				2.0.13
 	xpp3					1.1.4c
 
 
