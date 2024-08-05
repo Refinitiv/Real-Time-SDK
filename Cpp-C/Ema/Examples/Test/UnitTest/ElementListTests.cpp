@@ -53,7 +53,7 @@ TEST(ElementListTests, testElementListDecodeAll)
 	{
 		// encoding order:  UINT, REAL, INT, DATE, TIME, DATETIME, QOS, STATE, ASCII_STRING,
 		//                  RMTES_STRING, ENUM, FLOAT, DOUBLE, BLANK REAL, BUFFER, UTF8_STRING,
-		//					OPAQUE, XML, ANSI_PAGE
+		//					OPAQUE, XML, ANSI_PAGE, ARRAY
 		RsslElementList rsslEL;
 		RsslEncodeIterator iter;
 
@@ -505,6 +505,16 @@ TEST(ElementListTests, testElementListDecodeAll)
 		EXPECT_STREQ(ee20.getName(), "Element - Array") << "ElementEntry::getName()";
 		EXPECT_EQ(ee20.getLoadType(), DataType::ArrayEnum) << "ElementEntry::getLoadType() == DataType::ArrayEnum";
 		EXPECT_EQ(ee20.getCode(), Data::BlankEnum) << "ElementEntry::getCode() == Data::BlankEnum";
+
+		try
+		{
+			ee20.getArray();
+			EXPECT_FALSE(true) << "Array value is blank - exception expected";
+		}
+		catch (const OmmException& excp)
+		{
+			EXPECT_STREQ(excp.getText(), "Attempt to getArray() while entry data is blank.") << "ElementEntry::getArray()";
+		}
 
 		EXPECT_TRUE( true ) << "ElementList with all data types - exception not expected" ;
 

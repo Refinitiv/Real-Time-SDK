@@ -283,7 +283,6 @@ public interface FieldEntry
 	 * Returns the current OMM data represented as a specific complex type.
 	 * 
 	 * @throws OmmInvalidUsageException if contained object is not {@link com.refinitiv.ema.access.OmmOpaque}
-	 * @throws OmmInvalidUsageException if {@link com.refinitiv.ema.access.Data#code()} returns {@link com.refinitiv.ema.access.Data.DataCode#BLANK}
 	 * 
 	 * @return {@link com.refinitiv.ema.access.OmmOpaque} class reference to contained object
 	 */
@@ -293,7 +292,6 @@ public interface FieldEntry
 	 * Returns the current OMM data represented as a specific complex type.
 	 * 
 	 * @throws OmmInvalidUsageException if contained object is not {@link com.refinitiv.ema.access.OmmXml}
-	 * @throws OmmInvalidUsageException if {@link com.refinitiv.ema.access.Data#code()} returns {@link com.refinitiv.ema.access.Data.DataCode#BLANK}
 	 * 
 	 * @return {@link com.refinitiv.ema.access.OmmXml} class reference to contained object
 	 */
@@ -303,7 +301,6 @@ public interface FieldEntry
 	 * Returns the current OMM data represented as a specific complex type.
 	 * 
 	 * @throws OmmInvalidUsageException if contained object is not {@link com.refinitiv.ema.access.OmmAnsiPage}
-	 * @throws OmmInvalidUsageException if {@link com.refinitiv.ema.access.Data#code()} returns {@link com.refinitiv.ema.access.Data.DataCode#BLANK}
 	 * 
 	 * @return {@link com.refinitiv.ema.access.OmmAnsiPage} class reference to contained object
 	 */

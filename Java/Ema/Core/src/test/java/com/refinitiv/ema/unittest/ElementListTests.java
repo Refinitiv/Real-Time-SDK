@@ -1917,6 +1917,29 @@ public class ElementListTests extends TestCase
 
                 System.out.println();
             }
+			// seventh blank array
+			{
+				TestUtilities.checkResult("ElementList.hasNext() seventh", iter.hasNext() );
+
+				ElementEntry ee7 = iter.next();
+
+				TestUtilities.checkResult("ElementEntry.name()", ee7.name().equals("MY_ARRAY"));
+
+				TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.ARRAY",  ee7.loadType() == DataTypes.ARRAY );
+
+				TestUtilities.checkResult("ElementEntry.code() == Data.DataCode.BLANK",  ee7.code() == Data.DataCode.BLANK );
+
+				try {
+					ee7.array();
+					TestUtilities.checkResult("Blank array value - Exception expected", false);
+				}
+				catch (OmmException excp)
+				{
+					TestUtilities.checkResult("excp.getMessage() == \"Attempt to array() while entry data is blank.\"", excp.getMessage() == "Attempt to array() while entry data is blank.");
+				}
+
+				System.out.println();
+			}
 
             TestUtilities.checkResult("ElementList.hasNext() seventh", !iter.hasNext() );
 

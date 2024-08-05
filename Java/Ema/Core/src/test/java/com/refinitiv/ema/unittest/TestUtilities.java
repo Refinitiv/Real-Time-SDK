@@ -191,6 +191,12 @@ public final class TestUtilities extends TestCase
 		real.value(11, RealHints.EXPONENT_2);
 		rsslFEntry.encode( iter, real );
 
+		// blank array
+		rsslFEntry.dataType( com.refinitiv.eta.codec.DataTypes.ARRAY);
+		rsslFEntry.fieldId( 30013); // HDLN_PE
+		com.refinitiv.eta.codec.Array array = CodecFactory.createArray();
+		rsslFEntry.encodeBlank( iter);
+
 		rsslFL.encodeComplete(iter, true);
 	}
 
@@ -247,6 +253,11 @@ public final class TestUtilities extends TestCase
 		Real real = CodecFactory.createReal();
 		real.value(11, RealHints.EXPONENT_2);
 		rsslFEntry.encode( iter, real );
+
+		// seventh blank array
+		rsslFEntry.dataType( com.refinitiv.eta.codec.DataTypes.ARRAY);
+		rsslFEntry.name().data("MY_ARRAY");
+		rsslFEntry.encodeBlank(iter);
 
 		rsslFL.encodeComplete(iter, true);
 	}

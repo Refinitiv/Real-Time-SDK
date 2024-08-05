@@ -1967,15 +1967,39 @@ public void testFieldList_DecodeErrorFieldList()
 		{
 			TestUtilities.checkResult("FieldList.hasNext() sixth", iter.hasNext() );
 
-			FieldEntry fe4 = iter.next();
+			FieldEntry fe6 = iter.next();
 
-			TestUtilities.checkResult("FieldEntry.fieldId() == 6", fe4.fieldId() == 6 );
+			TestUtilities.checkResult("FieldEntry.fieldId() == 6", fe6.fieldId() == 6 );
 
-			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.REAL",  fe4.loadType() == DataTypes.REAL );
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.REAL",  fe6.loadType() == DataTypes.REAL );
 
-			TestUtilities.checkResult("FieldEntry.real()" ,  fe4.real().magnitudeType() ==  12 && fe4.real().mantissa() == 11);
+			TestUtilities.checkResult("FieldEntry.real()" ,  fe6.real().magnitudeType() ==  12 && fe6.real().mantissa() == 11);
 			
 			System.out.println();
+		}
+		// seventh entry blank array
+		{
+			TestUtilities.checkResult("FieldList.hasNext() sixth", iter.hasNext() );
+
+			FieldEntry fe7 = iter.next();
+
+			TestUtilities.checkResult("FieldEntry.fieldId() == 30013", fe7.fieldId() == 30013 );
+
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.REAL",  fe7.loadType() == DataTypes.ARRAY );
+
+			TestUtilities.checkResult("FieldEntry.code() == Data.DataCode.BLANK",  fe7.code() == Data.DataCode.BLANK );
+
+			try {
+				fe7.array();
+				TestUtilities.checkResult("Blank array value - Exception expected", false);
+			}
+			catch (OmmException excp)
+			{
+				TestUtilities.checkResult("excp.getMessage() == \"Attempt to array() while entry data is blank.\"", excp.getMessage() == "Attempt to array() while entry data is blank.");
+			}
+
+			System.out.println();
+
 		}
 
 		TestUtilities.checkResult("FieldList.hasNext() seventh", !iter.hasNext() );

@@ -3192,11 +3192,10 @@ TEST(FieldListTests, testErrorFieldListDecode)
 			try
 			{
 				fe9.getArray();
-				EXPECT_FALSE(true) << "Enum value is blank - exception expected";
+				EXPECT_FALSE(true) << "Array value is blank - exception expected";
 			}
 			catch (const OmmException& excp)
 			{
-				EXPECT_TRUE(true) << "Enum value is blank - exception expected";
 				EXPECT_STREQ(excp.getText(), "Attempt to getArray() while entry data is blank.") << "FieldEntry::getArray()";
 			}
 		}

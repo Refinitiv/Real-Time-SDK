@@ -171,6 +171,8 @@ abstract class EntryImpl extends VaNode
 				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
+		else if (DataCode.BLANK == _load.code())
+			throw ommIUExcept().message("Attempt to array() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return (OmmArray)_load;
 	}
