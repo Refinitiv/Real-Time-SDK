@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -1924,9 +1924,32 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
 		
-		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
-		
+		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+
+		if (rsslChannel == null)
+		{
+			StringBuilder message = _baseImpl.strBuilder();
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				message.append("Internal error: rsslChannel.Submit() failed in NiProviderDictionaryItem.submit(TunnelStreamRequest)").append(OmmLoggerClient.CR)
+					.append("\tReactorChannel is not available");
+
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(NiProviderDictionaryItem.CLIENT_NAME, message.toString(), Severity.ERROR));
+
+				message.setLength(0);
+			}
+
+			message.append("Failed to open or modify item request. Reason: ReactorChannel is not available");
+
+			_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
+
+			return false;
+		}
+
 		int ret;
+
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
 	    {
 			StringBuilder temp = _baseImpl.strBuilder();

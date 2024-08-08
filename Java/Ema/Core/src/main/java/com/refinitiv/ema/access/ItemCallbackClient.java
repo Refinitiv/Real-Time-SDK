@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -599,8 +599,31 @@ class TunnelItem<T> extends Item<T> {
 		tsOpenOptions.classOfService().guarantee().persistLocally(cos.guarantee().persistedLocally());
 		tsOpenOptions.classOfService().guarantee().persistenceFilePath(cos.guarantee().persistenceFilePath());
 
-		if (_baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel().openTunnelStream(tsOpenOptions,
-				_baseImpl.rsslErrorInfo()) != ReactorCallbackReturnCodes.SUCCESS)
+		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+
+		if (rsslChannel == null)
+		{
+			StringBuilder message = _baseImpl.strBuilder();
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				message.append("Internal error: rsslChannel.Submit() failed in TunnelItem.submit(TunnelStreamRequest)").append(OmmLoggerClient.CR)
+					.append("\tReactorChannel is not available");
+
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, message.toString(), Severity.ERROR));
+
+				message.setLength(0);
+			}
+
+			message.append("Failed to open tunnel stream request. Reason: ReactorChannel is not available");
+
+			_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
+
+			return false;
+		}
+
+		if (rsslChannel.openTunnelStream(tsOpenOptions, _baseImpl.rsslErrorInfo()) != ReactorCallbackReturnCodes.SUCCESS)
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			temp.append(
@@ -3071,7 +3094,31 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
+
+		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+
+		if (rsslChannel == null)
+		{
+			StringBuilder message = _baseImpl.strBuilder();
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				message.append("Internal error: rsslChannel.Submit() failed in SingleItem.submit(RequestMsg)").append(OmmLoggerClient.CR)
+					.append("\tReactorChannel is not available");
+
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, message.toString(), Severity.ERROR));
+
+				message.setLength(0);
+			}
+
+			message.append("Failed to open or modify item request. Reason: ReactorChannel is not available");
+
+			_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
+
+			return false;
+		}
+
 		int ret;
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
 	    {
@@ -3124,7 +3171,31 @@ class SingleItem<T> extends Item<T>
 	
 		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
+
+		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+
+		if (rsslChannel == null)
+		{
+			StringBuilder message = _baseImpl.strBuilder();
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				message.append("Internal error: rsslChannel.Submit() failed in SingleItem.submit(CloseMsg)").append(OmmLoggerClient.CR)
+					.append("\tReactorChannel is not available");
+
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, message.toString(), Severity.ERROR));
+
+				message.setLength(0);
+			}
+
+			message.append("Failed to close item request. Reason: ReactorChannel is not available");
+
+			_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
+
+			return false;
+		}
+
 		int ret;
 			
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
@@ -3176,7 +3247,31 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
+
+		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+
+		if (rsslChannel == null)
+		{
+			StringBuilder message = _baseImpl.strBuilder();
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				message.append("Internal error: rsslChannel.Submit() failed in SingleItem.submit(PostMsg)").append(OmmLoggerClient.CR)
+					.append("\tReactorChannel is not available");
+
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, message.toString(), Severity.ERROR));
+
+				message.setLength(0);
+			}
+
+			message.append("Failed to submit PostMsg on item stream. Reason: ReactorChannel is not available");
+
+			_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
+
+			return false;
+		}
+
 		int ret;
 			
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslPostMsg, rsslSubmitOptions, rsslErrorInfo)))
@@ -3254,7 +3349,31 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
+
+		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+
+		if (rsslChannel == null)
+		{
+			StringBuilder message = _baseImpl.strBuilder();
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				message.append("Internal error: rsslChannel.Submit() failed in SingleItem.submit(GenericMsg)").append(OmmLoggerClient.CR)
+					.append("\tReactorChannel is not available");
+
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, message.toString(), Severity.ERROR));
+
+				message.setLength(0);
+			}
+
+			message.append("Failed to submit GenericMsg on item stream. Reason: ReactorChannel is not available");
+
+			_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
+
+			return false;
+		}
+
 		int ret;
 			
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslGenericMsg, rsslSubmitOptions, rsslErrorInfo)))
@@ -3302,7 +3421,31 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
+
+		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+
+		if (rsslChannel == null)
+		{
+			StringBuilder message = _baseImpl.strBuilder();
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				message.append("Internal error: rsslChannel.Submit() failed in SingleItem.submit(RefreshMsg)").append(OmmLoggerClient.CR)
+					.append("\tReactorChannel is not available");
+
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, message.toString(), Severity.ERROR));
+
+				message.setLength(0);
+			}
+
+			message.append("Failed to submit RefreshMsg on item stream. Reason: ReactorChannel is not available");
+
+			_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
+
+			return false;
+		}
+
 		int ret;
 			
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRefreshMsg, rsslSubmitOptions, rsslErrorInfo)))
@@ -3350,7 +3493,31 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
+
+		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+
+		if (rsslChannel == null)
+		{
+			StringBuilder message = _baseImpl.strBuilder();
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				message.append("Internal error: rsslChannel.Submit() failed in SingleItem.submit(UpdateMsg)").append(OmmLoggerClient.CR)
+					.append("\tReactorChannel is not available");
+
+				_baseImpl.loggerClient().error(CLIENT_NAME, message.toString());
+
+				message.setLength(0);
+			}
+
+			message.append("Failed to submit UpdateMsg on item stream. Reason: ReactorChannel is not available");
+
+			_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
+
+			return false;
+		}
+
 		int ret;
 		
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslUpdateMsg, rsslSubmitOptions, rsslErrorInfo)))
@@ -3397,7 +3564,31 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
+
+		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+
+		if (rsslChannel == null)
+		{
+			StringBuilder message = _baseImpl.strBuilder();
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				message.append("Internal error: rsslChannel.Submit() failed in SingleItem.submit(StatusMsg)").append(OmmLoggerClient.CR)
+					.append("\tReactorChannel is not available");
+
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, message.toString(), Severity.ERROR));
+
+				message.setLength(0);
+			}
+
+			message.append("Failed to submit StatusMsg on item stream. Reason: ReactorChannel is not available");
+
+			_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
+
+			return false;
+		}
+
 		int ret;
 			
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslStatusMsg, rsslSubmitOptions, rsslErrorInfo)))
