@@ -1985,7 +1985,7 @@ public void testFieldList_DecodeErrorFieldList()
 
 			TestUtilities.checkResult("FieldEntry.fieldId() == 30013", fe7.fieldId() == 30013 );
 
-			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.REAL",  fe7.loadType() == DataTypes.ARRAY );
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.ARRAY",  fe7.loadType() == DataTypes.ARRAY );
 
 			TestUtilities.checkResult("FieldEntry.code() == Data.DataCode.BLANK",  fe7.code() == Data.DataCode.BLANK );
 
