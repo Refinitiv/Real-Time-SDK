@@ -45,6 +45,9 @@ namespace LSEG.Ema.Access
         private static int INSTANCE_ID = 0;
         private const int DISPATCH_LOOP_COUNT = 20;
         private const int TERMINATE_API_DISPATCHING_TIMEOUT = 5000;
+        /// <summary>Minimal time-out for the Socket.Select method call in the Reactor dispatch loop
+        ///   to prevent CPU throttling.</summary>
+        private const int MIN_TIME_FOR_SELECT = 1000; // 1 millisecond in microseconds
         private int operationModel = (int)OmmConsumerConfig.OperationModelMode.API_DISPATCH;
 
         protected long LoginRequestTimeOut;
@@ -669,7 +672,10 @@ namespace LSEG.Ema.Access
                 {
                     UpdateReadSocketList();
 
-                    selectTimeout = (int)timeOut;
+                    selectTimeout = ((int)timeOut < MIN_TIME_FOR_SELECT)
+                        ? MIN_TIME_FOR_SELECT
+                        : (int)timeOut;
+
                     Socket.Select(socketReadList, null, null, selectTimeout);
                     if (socketReadList.Count > 0)
                     {

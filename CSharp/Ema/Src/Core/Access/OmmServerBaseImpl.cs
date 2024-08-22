@@ -36,6 +36,7 @@ namespace LSEG.Ema.Access
         private static int INSTANCE_ID = 0;
         private const int DISPATCH_LOOP_COUNT = 20;
         private const int TERMINATE_API_DISPATCHING_TIMEOUT = 5000;
+        private const int MIN_TIME_FOR_SELECT = 1000; // 1 millisecond in microseconds
         private OmmIProviderConfig.OperationModelMode m_OperationModel = OmmIProviderConfig.OperationModelMode.API_DISPATCH;
 
         protected long DispatchTimeoutApiThread;
@@ -458,9 +459,9 @@ namespace LSEG.Ema.Access
 
                 selectTimeout = (int)timeOut;
 
-                if (selectTimeout < 0)
+                if (selectTimeout < MIN_TIME_FOR_SELECT)
                 {
-                    selectTimeout = 0;
+                    selectTimeout = MIN_TIME_FOR_SELECT;
                 }
 
                 while (Interlocked.Read(ref ImplState) != OmmImplState.NOT_INITIALIZED)
