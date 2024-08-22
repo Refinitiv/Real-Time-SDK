@@ -73,7 +73,7 @@ namespace LSEG.Ema.Access
             MergeSourceDirectoryStreams = true;
             ReconnectAttemptLimit = -1;
             ReconnectMaxDelay = 5000;
-            ReconnectMinDelay = 5000;
+            ReconnectMinDelay = 1000;
             RecoverUserSubmitSourceDirectory = true;
             RemoveItemsOnDisconnect = false;
         }

@@ -153,7 +153,7 @@ namespace LSEG.Ema.Access
             ObeyOpenWindow = true;
             ReconnectAttemptLimit = -1;
             ReconnectMaxDelay = 5000;
-            ReconnectMinDelay = 5000;
+            ReconnectMinDelay = 1000;
             ReissueTokenAttemptInterval = 5000;
             ReissueTokenAttemptLimit = -1;
             ChannelSet.Clear();
