@@ -144,7 +144,7 @@ class AppClient implements OmmConsumerClient
 
 class consThread extends Thread
 {
-	final static boolean DEBUG = false;
+	final static boolean DEBUG = true;
 	
 	OmmConsumer consumer = null;
 	ElementList view;
@@ -156,7 +156,7 @@ class consThread extends Thread
 		this.view = view;
 		this.uniqueName = uniqueName;
 		
-		consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("10.187.5.157:14002").username("user"));
+		consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"));
 		
 	}
 	
@@ -168,7 +168,7 @@ class consThread extends Thread
 		
 		for (int i = 0; i < 1000; ++i)
 		{	
-			long itemHandle = consumer.registerClient(request.serviceName("ELEKTRON_DD").name("IBM.N").payload(view), appClient);
+			long itemHandle = consumer.registerClient(request.serviceName("DIRECT_FEED").name("IBM.N").payload(view), appClient);
 			
 			if (DEBUG)
 				System.out.println(uniqueName + "   registered - Trial " + i);

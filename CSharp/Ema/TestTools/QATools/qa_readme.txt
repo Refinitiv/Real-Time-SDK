@@ -346,7 +346,10 @@ Module:  Series300Consumer360
 Series300Consumer360-ViewDuplicates-001
    Alters the Consumer to view request with duplicate FID
 
-Module:  Series300Consumer370
+Series300Consumer360-MultiThreadViews-001
+   Alters the Consumer to run 8 threads; each opens same streaming item IBM.N, registers client and calls Reissue on the handle.
+
+   Module:  Series300Consumer370
 ---------------------------
 Series300Consumer370-BatchView-10Consumers
    Alters the Consumer to initialize 10 Consumers and unitialize for testing Memory is released properly with req Batch with View.
