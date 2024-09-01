@@ -2500,7 +2500,9 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		while ( ! _atExit && ! _eventTimedOut &&
 		        ( _state < LoginStreamOpenOkEnum ) &&
 		        ( _state != RsslChannelUpStreamNotOpenEnum ) )
+		{
 			rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread, _bEventReceived );
+		}
 
 	    if ( !_atExit )
 		{
@@ -2844,15 +2846,13 @@ void OmmBaseImpl::addCommonSocket()
 #endif
 }
 
-Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOutValue, UInt32 count, bool& bMsgDispRcvd )
+Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& bMsgDispRcvd )
 {
 	bMsgDispRcvd = false;
 
 	Int64 startTime = GetTime::getMicros();
 	Int64 endTime = 0;
 	Int64 nextTimer = 0;
-
-	Int64 timeOut = timeOutValue;
 
 	bool userTimeoutExists( TimeOut::getTimeOutInMicroSeconds( *this, nextTimer ) );
 	if ( userTimeoutExists )
@@ -2863,21 +2863,16 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOutValue, UInt32 count, bo
 			timeOut = nextTimer;
 	}
 
+	// Get the negotiated ping timeout
+	Int64 pingTimeout = (_negotiatedPingTimeout > 0) ? _negotiatedPingTimeout : DEFAULT_CONNECTION_PINGTIMEOUT;
+	Int64 pingTimeoutInMicroSeconds = pingTimeout * 1000 / 2;
+
 	RsslReactorDispatchOptions dispatchOpts;
 	dispatchOpts.pReactorChannel = NULL;
 	dispatchOpts.maxMessages = count;
 
 	RsslRet reactorRetCode = RSSL_RET_SUCCESS;
 	UInt64 loopCount = 0;
-
-	Int64 negotiatedTimeOutInMicroSeconds = DEFAULT_CONNECTION_PINGTIMEOUT * 1000 / 2;
-
-	// Get the negotiated ping timeout.
-	if (_negotiatedPingTimeout > 0)
-	{
-		negotiatedTimeOutInMicroSeconds = _negotiatedPingTimeout * 1000;
-		negotiatedTimeOutInMicroSeconds /= 2;
-	}
 
 	endTime = GetTime::getMicros();
 
@@ -2906,9 +2901,11 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOutValue, UInt32 count, bo
 			return bMsgDispRcvd ? 0 : -1;
 		}
 
-		if ( timeOut < 0 || negotiatedTimeOutInMicroSeconds < timeOut )
+		// to account ping timeout
+		Int64 selectTimeOut = timeOut;
+		if ( timeOut < 0 || pingTimeoutInMicroSeconds < timeOut )
 		{
-			timeOut = negotiatedTimeOutInMicroSeconds;
+			selectTimeOut = pingTimeoutInMicroSeconds;
 		}
 
 #if defined( USING_SELECT )
@@ -2917,21 +2914,21 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOutValue, UInt32 count, bo
 		fd_set useExceptFds = _exceptFds;
 
 		struct timeval selectTime;
-		if ( timeOut > 0 )
+		if ( selectTimeOut > 0 )
 		{
-			selectTime.tv_sec = static_cast<long>( timeOut / 1000000 );
-			selectTime.tv_usec = timeOut % 1000000;
+			selectTime.tv_sec = static_cast<long>( selectTimeOut / 1000000 );
+			selectTime.tv_usec = selectTimeOut % 1000000;
 
 			selectRetCode = select( FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime );
 		}
-		else if (timeOut == 0)
+		else if ( selectTimeOut == 0 )
 		{
 			selectTime.tv_sec = 0;
 			selectTime.tv_usec = 0;
 
 			selectRetCode = select(FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime);
 		}
-		else if ( timeOut < 0 )
+		else if ( selectTimeOut < 0 )
 			selectRetCode = select( FD_SETSIZE, &useReadFds, NULL, &useExceptFds, NULL );
 
 		if ( selectRetCode > 0 && FD_ISSET( _pipe.readFD(), &useReadFds ) )
@@ -2944,20 +2941,20 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOutValue, UInt32 count, bo
 
 		struct timespec ppollTime;
 
-		if ( timeOut > 0 )
+		if ( selectTimeOut > 0 )
 		{
-			ppollTime.tv_sec = timeOut / static_cast<long long>( 1e6 );
-			ppollTime.tv_nsec = timeOut % static_cast<long long>( 1e6 ) * static_cast<long long>( 1e3 );
+			ppollTime.tv_sec = selectTimeOut / static_cast<long long>( 1e6 );
+			ppollTime.tv_nsec = selectTimeOut % static_cast<long long>( 1e6 ) * static_cast<long long>( 1e3 );
 			selectRetCode = ppoll( _eventFds, _eventFdsCount, &ppollTime, 0 );
 		}
-		else if (timeOut == 0)
+		else if ( selectTimeOut == 0 )
 		{
 			ppollTime.tv_sec = 0;
 			ppollTime.tv_nsec = 0;
 
 			selectRetCode = ppoll(_eventFds, _eventFdsCount, &ppollTime, 0);
 		}
-		else if ( timeOut < 0 )
+		else if ( selectTimeOut < 0 )
 			selectRetCode = ppoll( _eventFds, _eventFdsCount, 0, 0 );
 
 		if ( selectRetCode > 0 )
@@ -2982,8 +2979,6 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOutValue, UInt32 count, bo
 #error "No Implementation for Operating System That Does Not Implement ppoll"
 #endif
 
-		timeOut = timeOutValue;
-
 		if ( selectRetCode > 0 )
 		{
 			loopCount = 0;
@@ -2995,13 +2990,77 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOutValue, UInt32 count, bo
 				++loopCount;
 			}
 			while ( reactorRetCode > RSSL_RET_SUCCESS && !bMsgDispRcvd && loopCount < 10 );
+
+			if ( reactorRetCode < RSSL_RET_SUCCESS )
+			{
+				if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
+				{
+					EmaString temp( "Call to rsslReactorDispatch() failed. Internal sysError='" );
+					temp.append( _reactorDispatchErrorInfo.rsslError.sysError )
+						.append( "' Error Id " ).append( _reactorDispatchErrorInfo.rsslError.rsslErrorId ).append( "' " )
+						.append( "' Error Location='" ).append( _reactorDispatchErrorInfo.errorLocation ).append( "' " )
+						.append( "' Error text='" ).append( _reactorDispatchErrorInfo.rsslError.text ).append( "'. " );
+
+					_userLock.lock();
+					if (_pLoggerClient) _pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+					_userLock.unlock();
+				}
+
+				return -2;
+			}
+
+			if ( bMsgDispRcvd ) return 0;
+
+			TimeOut::execute( *this );
+
+			if ( bMsgDispRcvd ) return 0;
+
+			endTime = GetTime::getMicros();
+
+			if ( timeOut >= 0 )
+			{
+				if ( endTime > startTime + timeOut ) return -1;
+
+				timeOut -= ( endTime - startTime );
+			}
 		}
 		else if ( selectRetCode == 0 )
 		{
-			// When select/ppoll breaks by timeout, it calls rsslReactorDispatch to allow check the channel Ping timeout
+			// if select/ppoll breaks by timeout, it calls rsslReactorDispatch to allow check the channel Ping timeout
 			_userLock.lock();
 			reactorRetCode = _pRsslReactor ? rsslReactorDispatch( _pRsslReactor, &dispatchOpts, &_reactorDispatchErrorInfo ) : RSSL_RET_SUCCESS;
 			_userLock.unlock();
+
+			if ( reactorRetCode < RSSL_RET_SUCCESS )
+			{
+				if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
+				{
+					EmaString temp( "Call to rsslReactorDispatch() failed. Internal sysError='" );
+					temp.append( _reactorDispatchErrorInfo.rsslError.sysError )
+						.append( "' Error Id " ).append( _reactorDispatchErrorInfo.rsslError.rsslErrorId ).append( "' " )
+						.append( "' Error Location='" ).append( _reactorDispatchErrorInfo.errorLocation ).append( "' " )
+						.append( "' Error text='" ).append( _reactorDispatchErrorInfo.rsslError.text ).append( "'. " );
+
+					_userLock.lock();
+					if (_pLoggerClient) _pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+					_userLock.unlock();
+				}
+
+				return -2;
+			}
+
+			TimeOut::execute( *this );
+
+			if ( bMsgDispRcvd ) return 0;
+
+			endTime = GetTime::getMicros();
+
+			if ( timeOut >= 0 )
+			{
+				if ( endTime > startTime + timeOut ) return -1;
+
+				timeOut -= ( endTime - startTime );
+			}
 		}
 		else if ( selectRetCode < 0 )
 		{
@@ -3034,40 +3093,6 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOutValue, UInt32 count, bo
 			}
 #endif
 			return -2;
-		}
-
-		// Check the return code of rsslReactorDispatch()
-		if ( reactorRetCode < RSSL_RET_SUCCESS )
-		{
-			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			{
-				EmaString temp( "Call to rsslReactorDispatch() failed. Internal sysError='" );
-				temp.append( _reactorDispatchErrorInfo.rsslError.sysError )
-					.append( "' Error Id " ).append( _reactorDispatchErrorInfo.rsslError.rsslErrorId ).append( "' " )
-					.append( "' Error Location='" ).append( _reactorDispatchErrorInfo.errorLocation ).append( "' " )
-					.append( "' Error text='" ).append( _reactorDispatchErrorInfo.rsslError.text ).append( "'. " );
-
-				_userLock.lock();
-				if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
-				_userLock.unlock();
-			}
-
-			return -2;
-		}
-
-		if ( bMsgDispRcvd ) return 0;
-
-		TimeOut::execute( *this );
-
-		if ( bMsgDispRcvd ) return 0;
-
-		endTime = GetTime::getMicros();
-
-		if ( timeOut >= 0 )
-		{
-			if ( endTime > startTime + timeOut ) return -1;
-
-			timeOut -= ( endTime - startTime );
 		}
 	} while ( true );
 }
