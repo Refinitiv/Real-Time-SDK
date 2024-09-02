@@ -675,10 +675,6 @@ public class WatchlistConsumerConfig
 		return CommandLine.value("restProxyDomain");
 	}
 	
-	String restProxyLocalHostName() {
-		return CommandLine.value("restProxyLocalHostName");
-	}
-	
 	String restProxyKrb5ConfigFile() {
 		return CommandLine.value("restProxyKrb5ConfigFile");
 	}
@@ -878,7 +874,6 @@ public class WatchlistConsumerConfig
 		CommandLine.addOption("restProxyUserName", "", "Specifies the user name for the proxy server during rest protocol connections.");
 		CommandLine.addOption("restProxyPasswd", "", "Specifies the password for the proxy server during rest protocol connections.");
 		CommandLine.addOption("restProxyDomain", "", "Specifies the domain of the proxy server for rest protocol connections.");
-		CommandLine.addOption("restProxyLocalHostName", "", "Specifies the local hostname of the proxy server for rest protocol connections.");
 		CommandLine.addOption("restProxyKrb5ConfigFile", "", "Specifies the kerberos5 config file used for the proxy server for rest protocol connections.");
 		CommandLine.addOption("spTLSv1.2", "Specifies for an encrypted connection to be able to use TLS 1.2. Default enables both TLS version 1.2 and 1.3.");
 		CommandLine.addOption("spTLSv1.3", "Specifies for an encrypted connection to be able to use TLS 1.3. Default enables both TLS version 1.2 qnd 1.3.");

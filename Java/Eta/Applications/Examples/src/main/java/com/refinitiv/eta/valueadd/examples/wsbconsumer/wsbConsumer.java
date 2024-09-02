@@ -112,6 +112,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <li>	Interface : String interface.
  * <li>	ConnType : numeric connection protocol type.  See {@link com.refinitiv.eta.transport.ConnectionTypes} for acceptable values.
  * <li>	EncryptedConnType : numeric encrypted connection protocol type.  See {@link com.refinitiv.eta.transport.ConnectionTypes} for acceptable values.
+ * <li> EncryptionProtocolFlags : numeric flag, 4 - TLS1.2, 8 - TLS1.3; default is both TLS1.2, TLS1.3
  * <li>	SessionMgnt : boolean value.  If true, session management will be turned on for this channel, and the watchlist will automatically get an access token and
  * 				  optionally perform service discovery if host and port are not specified.
  * <li>	ProxyHost : String proxy host.
@@ -154,7 +155,8 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *		"Port" : "14002",
  *		"SessionMgnt" : true,
  *		"ConnType": 1,
- *		"EncryptedConnType" : 0
+ *		"EncryptedConnType" : 1,
+ *		"EncryptionProtocolFlags" : 4
  *	}
  *	]
  * }
@@ -202,6 +204,14 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <li>-jwkFile Specifies the file containing the JWK encoded private key for V2 JWT logins.
  * <li>-tokenURLV1 Specifies the token URL for V1 token oauthpasswd grant type.
  * <li>-tokenURLV2 Specifies the token URL for V2 token oauthclientcreds grant type.
+ * <li>
+ * <li>-restProxyHost rest proxy host name.
+ * <li>-restProxyPort rest proxy host port.
+ * <li>-restProxyUserName rest proxy user name.
+ * <li>-restProxyPasswd rest proxy user password.
+ * <li>-restProxyDomain rest proxy domain.
+ * <li>-restProxyKrb5ConfigFile rest proxy Krb5 file.
+ * <li>
  * </ul>
  */
 public class wsbConsumer implements ConsumerCallback,
@@ -327,6 +337,36 @@ public class wsbConsumer implements ConsumerCallback,
 			reactorOptions.serviceDiscoveryURL().data(watchlistConsumerConfig.serviceDiscoveryURL());
 		}
 
+		if (watchlistConsumerConfig.restProxyHost() != null && !watchlistConsumerConfig.restProxyHost().isEmpty())
+		{
+			reactorOptions.restProxyOptions().proxyHostName().data(watchlistConsumerConfig.restProxyHost());
+		}
+		
+		if (watchlistConsumerConfig.restProxyPort() != null && !watchlistConsumerConfig.restProxyPort().isEmpty())
+		{
+			reactorOptions.restProxyOptions().proxyPort().data(watchlistConsumerConfig.restProxyPort());
+		}
+		
+		if (watchlistConsumerConfig.restProxyUserName() != null && !watchlistConsumerConfig.restProxyUserName().isEmpty())
+		{
+			reactorOptions.restProxyOptions().proxyUserName().data(watchlistConsumerConfig.restProxyUserName());
+		}
+		
+		if (watchlistConsumerConfig.restProxyPasswd() != null && !watchlistConsumerConfig.restProxyPasswd().isEmpty())
+		{
+			reactorOptions.restProxyOptions().proxyPassword().data(watchlistConsumerConfig.restProxyPasswd());
+		}
+		
+		if (watchlistConsumerConfig.restProxyDomain() != null && !watchlistConsumerConfig.restProxyDomain().isEmpty())
+		{
+			reactorOptions.restProxyOptions().proxyDomain().data(watchlistConsumerConfig.restProxyDomain());
+		}
+		
+		if (watchlistConsumerConfig.restProxyKrb5ConfigFile() != null && !watchlistConsumerConfig.restProxyKrb5ConfigFile().isEmpty())
+		{
+			reactorOptions.restProxyOptions().proxyKrb5ConfigFile().data(watchlistConsumerConfig.restProxyKrb5ConfigFile());
+		}
+		
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)

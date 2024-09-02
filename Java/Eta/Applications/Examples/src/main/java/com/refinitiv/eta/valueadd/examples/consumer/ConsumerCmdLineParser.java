@@ -75,7 +75,6 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String restProxyUserName;
 	private String restProxyPasswd;
 	private String restProxyDomain;
-	private String restProxyLocalHostName;
 	private String restProxyKrb5ConfigFile;
 
 	@Override
@@ -298,12 +297,6 @@ class ConsumerCmdLineParser implements CommandLineParser
 					String restProxyDomain = args[++argsCount];
 					++argsCount;
 					this.restProxyDomain = restProxyDomain;
-				}
-				else if ("-restProxyLocalHostName".equals(args[argsCount]))
-				{
-					String restProxyLocalHostName = args[++argsCount];
-					++argsCount;
-					this.restProxyLocalHostName = restProxyLocalHostName;
 				}
 				else if ("-restProxyKrb5ConfigFile".equals(args[argsCount]))
 				{
@@ -718,11 +711,6 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return restProxyDomain;
 	}
 	
-	String restProxyLocalHostName()
-	{
-		return restProxyLocalHostName;
-	}
-	
 	String restProxyKrb5ConfigFile()
 	{
 		return restProxyKrb5ConfigFile;
@@ -767,7 +755,6 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -restProxyUserName specifies the REST proxy user name. Used for REST requests only for service discovery and authentication.\n" +
 						   "\n -restProxyPasswd specifies the REST proxy password. Used for REST requests only for service discovery and authentication.\n" +
 						   "\n -restProxyDomain specifies the REST proxy domain. Used for REST requests only for service discovery and authentication.\n" +
-						   "\n -restProxyLocalHostName specifies the REST proxy local host name. Used for REST requests only for service discovery and authentication.\n" +
 						   "\n -restProxyKrb5ConfigFile specifies the REST proxy kerberos5 config file. Used for REST requests only for service discovery and authentication.\n" +
 						   "\n -post specifies that the application should attempt to send post messages on the first requested Market Price item\n" +
 						   "\n -offpost specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n" +

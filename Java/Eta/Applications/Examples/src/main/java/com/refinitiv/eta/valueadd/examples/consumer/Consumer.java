@@ -407,13 +407,6 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			reactorOptions.restProxyOptions().proxyDomain(domain);
 		}
 		
-		if(consumerCmdLineParser.restProxyLocalHostName() != null && !consumerCmdLineParser.restProxyLocalHostName().equals(""))
-		{
-			Buffer localHostName = CodecFactory.createBuffer();
-			localHostName.data(consumerCmdLineParser.restProxyLocalHostName());
-			reactorOptions.restProxyOptions().proxyLocalHostName(localHostName);
-		}
-		
 		if(consumerCmdLineParser.restProxyKrb5ConfigFile() != null && !consumerCmdLineParser.restProxyKrb5ConfigFile().equals(""))
 		{
 			Buffer krb5ConfigFile = CodecFactory.createBuffer();

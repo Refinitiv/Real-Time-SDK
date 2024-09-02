@@ -16,6 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +34,7 @@ import com.refinitiv.eta.shared.CommandLine;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.transport.ConnectOptions;
 import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.transport.EncryptionOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorConnectInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorConnectOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
@@ -64,7 +70,7 @@ public class wsbConsumerConfig
 
 	
 	private ArrayList<ItemInfo> itemList = new ArrayList<ItemInfo>();
-	
+	private String[] securityProtocolVersions = new String[] {"1.3", "1.2"};
 	private String configFileName;
 	
 	private ObjectMapper mapper = new ObjectMapper();
@@ -123,6 +129,18 @@ public class wsbConsumerConfig
 		{
 			this.state = state;
 		}
+	}
+	
+	private enum EncryptionProtocolFlags {
+		NONE(0),
+		TLSV1_2(0x4),
+		TLSV1_3(0x8);
+		
+	    private int value;
+
+	    private EncryptionProtocolFlags(int value) {
+	        this.value = value;
+	    }
 	}
 
 	public boolean init(String[]args, ChannelInfo channelInfo)
@@ -432,6 +450,30 @@ public class wsbConsumerConfig
 	{
 		return CommandLine.value("keypasswd");
 	}
+	
+	String restProxyHost() {
+		return CommandLine.value("restProxyHost");
+	}
+	
+	String restProxyPort() {
+		return CommandLine.value("restProxyPort");
+	}
+	
+	String restProxyUserName() {
+		return CommandLine.value("restProxyUserName");
+	}
+	
+	String restProxyPasswd() {
+		return CommandLine.value("restProxyPasswd");
+	}
+	
+	String restProxyDomain() {
+		return CommandLine.value("restProxyDomain");
+	}
+	
+	String restProxyKrb5ConfigFile() {
+		return CommandLine.value("restProxyKrb5ConfigFile");
+	}
 
 	String applicationId()
 	{
@@ -564,11 +606,6 @@ public class wsbConsumerConfig
 			connectInfo.connectOptions().connectionType(tmpJsonNode.asInt());
 		}
 		
-		if(connectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED)
-		{
-			setEncryptedConfiguration(connectInfo.connectOptions());
-		}
-		
 		tmpJsonNode = channelJson.get("EncryptedConnType");
 		if(tmpJsonNode == null)
 		{
@@ -577,6 +614,27 @@ public class wsbConsumerConfig
 		else
 		{
 			connectInfo.connectOptions().encryptionOptions().connectionType(tmpJsonNode.asInt());
+		}
+		tmpJsonNode = channelJson.get("EncryptionProtocolFlags");
+		if(tmpJsonNode != null)
+		{
+			
+			int encryptionProtocolFlags = tmpJsonNode.asInt();
+			if (encryptionProtocolFlags == EncryptionProtocolFlags.TLSV1_2.value)
+			{
+				// Enable TLS 1.2
+				securityProtocolVersions = new String []{"1.2"};
+			}
+			if (encryptionProtocolFlags == EncryptionProtocolFlags.TLSV1_3.value)
+			{
+				// Enable TLS 1.3
+				securityProtocolVersions = new String []{"1.3"};
+			}
+		}
+		
+		if(connectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED)
+		{
+			setEncryptedConfiguration(connectInfo.connectOptions());
 		}
 		
 		tmpJsonNode = channelJson.get("ProtocolList");
@@ -663,7 +721,7 @@ public class wsbConsumerConfig
 		
 		options.encryptionOptions().KeystoreType("JKS");
 		options.encryptionOptions().SecurityProtocol("TLS");
-		options.encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
+		options.encryptionOptions().SecurityProtocolVersions(securityProtocolVersions);
 		options.encryptionOptions().SecurityProvider("SunJSSE");
 		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
 		options.encryptionOptions().TrustManagerAlgorithm("PKIX");
@@ -702,6 +760,13 @@ public class wsbConsumerConfig
 		CommandLine.addOption("takeExclusiveSignOnControl", "true", "Specifies the exclusive sign on control to force sign-out for the same credentials., default is true");
 		
 		CommandLine.addOption("reconnectCount", -1, "Reconnection attempt count");
+		
+		CommandLine.addOption("restProxyHost", "", "Specifies the hostname of the proxy server for rest protocol connections.");
+		CommandLine.addOption("restProxyPort", "", "Specifies the port of the proxy server for rest protocol connections.");
+		CommandLine.addOption("restProxyUserName", "", "Specifies the user name for the proxy server during rest protocol connections.");
+		CommandLine.addOption("restProxyPasswd", "", "Specifies the password for the proxy server during rest protocol connections.");
+		CommandLine.addOption("restProxyDomain", "", "Specifies the domain of the proxy server for rest protocol connections.");
+		CommandLine.addOption("restProxyKrb5ConfigFile", "", "Specifies the kerberos5 config file used for the proxy server for rest protocol connections.");
 
 	}
 }

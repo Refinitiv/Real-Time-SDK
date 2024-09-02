@@ -351,11 +351,6 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 			reactorOptions.restProxyOptions().proxyDomain().data(watchlistConsumerConfig.restProxyDomain());
 		}
 		
-		if (watchlistConsumerConfig.restProxyLocalHostName() != null && !watchlistConsumerConfig.restProxyLocalHostName().isEmpty())
-		{
-			reactorOptions.restProxyOptions().proxyLocalHostName().data(watchlistConsumerConfig.restProxyLocalHostName());
-		}
-		
 		if (watchlistConsumerConfig.restProxyKrb5ConfigFile() != null && !watchlistConsumerConfig.restProxyKrb5ConfigFile().isEmpty())
 		{
 			reactorOptions.restProxyOptions().proxyKrb5ConfigFile().data(watchlistConsumerConfig.restProxyKrb5ConfigFile());
