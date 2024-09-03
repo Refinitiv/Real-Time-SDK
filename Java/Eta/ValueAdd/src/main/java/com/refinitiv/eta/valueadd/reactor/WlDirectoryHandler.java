@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022, 2024 Refinitiv. All rights reserved.   --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1191,25 +1191,26 @@ class WlDirectoryHandler implements WlHandler
         if (!_serviceCache._serviceList.isEmpty())
         {
 	        DirectoryRefresh newDirectoryRefresh = null;
-	        if (!_directoryRefreshPool.isEmpty())
-	        {
-	        	newDirectoryRefresh = _directoryRefreshPool.poll();
-	            newDirectoryRefresh.clear();
-	        }
-	        else
-	        {
-	        	newDirectoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
-	        }
 	        
             // fanout refresh message to user requests associated with the stream
             for (int i = 0; i < _stream.userRequestList().size(); i++)
             {
                 WlRequest wlRequest = _stream.userRequestList().get(i);
-	                
+
 	            // only fanout to those whose state is PENDING_REFRESH
                 if (wlRequest.state() == WlRequest.State.PENDING_REFRESH)
 	            {
                     wlRequest.state(WlRequest.State.OPEN);
+                    
+                    // Gets DirectoryRefresh from the pool for each fanout
+                    if (!_directoryRefreshPool.isEmpty())
+        	        {
+        	        	newDirectoryRefresh = _directoryRefreshPool.poll();
+        	        }
+        	        else
+        	        {
+        	        	newDirectoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
+        	        }
 	
                     newDirectoryRefresh.clear();
                     fillDirectoryRefreshFromRequestMsg(newDirectoryRefresh, wlRequest.requestMsg());
@@ -1224,7 +1225,7 @@ class WlDirectoryHandler implements WlHandler
                     if (_tempRefreshMsg.checkHasMsgKey())
                     	_tempRefreshMsg.msgKey().filter(returnFilter);
                     newDirectoryRefresh.filter(returnFilter);
-	            // callback user
+                    // callback user
                     _tempWlInteger.value(_tempRefreshMsg.streamId());
                     if ((ret = callbackUser("WlDirectoryHandler.dispatch", _tempRefreshMsg, newDirectoryRefresh, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                     {
@@ -1238,22 +1239,17 @@ class WlDirectoryHandler implements WlHandler
 	                    	
 	                    	return ret;
 	                }
+                    
+                    // put Directory Refresh services back into pool since we are finished with them
+    	            for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
+    	            {
+    	            	_servicePool.add(newDirectoryRefresh.serviceList().get(j));
+    	            }
+    	            
+    	        	_directoryRefreshPool.add(newDirectoryRefresh);
 	            }
 	            
-	            // put Directory Refresh services back into pool since we are finished with them
-	            for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
-	            {
-	            	_servicePool.add(newDirectoryRefresh.serviceList().get(j));
-	            }
-	            
-	        	_directoryRefreshPool.add(newDirectoryRefresh);
-
 	        	_requestDispatchFlag = false;
-	        	
-	        	if (ret != ReactorReturnCodes.SUCCESS)
-	        	{
-	        		return ret;
-	        	}
 	        }
         }
         
