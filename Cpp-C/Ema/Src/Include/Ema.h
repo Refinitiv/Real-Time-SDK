@@ -94,6 +94,7 @@
 #include "Access/Include/OmmOutOfRangeException.h"
 #include "Access/Include/OmmSystemException.h"
 #include "Access/Include/OmmJsonConverterException.h"
+#include "Access/Include/DispatchError.h"
 
 #include "Access/Include/OAuth2CredentialRenewal.h"
 #include "Access/Include/OmmOAuth2ConsumerClient.h"

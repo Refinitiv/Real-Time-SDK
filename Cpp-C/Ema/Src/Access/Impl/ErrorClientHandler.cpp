@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -110,4 +110,12 @@ void ErrorClientHandler::onJsonConverter(const char* text, Int32 errorCode, Rssl
 
 		_pProviderErrorClient->onJsonConverter(text, errorCode, sessionInfo);
 	}
+}
+
+void ErrorClientHandler::onDispatchError(const EmaString& text, Int32 errorCode)
+{
+	if (_pConsumerErrorClient)
+		_pConsumerErrorClient->onDispatchError(text, errorCode);
+	else if (_pProviderErrorClient)
+		_pProviderErrorClient->onDispatchError(text, errorCode);
 }

@@ -2993,7 +2993,7 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 
 			if ( reactorRetCode < RSSL_RET_SUCCESS )
 			{
-				if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
+				if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity || hasErrorClientHandler() )
 				{
 					EmaString temp( "Call to rsslReactorDispatch() failed. Internal sysError='" );
 					temp.append( _reactorDispatchErrorInfo.rsslError.sysError )
@@ -3002,7 +3002,17 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 						.append( "' Error text='" ).append( _reactorDispatchErrorInfo.rsslError.text ).append( "'. " );
 
 					_userLock.lock();
-					if (_pLoggerClient) _pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+
+					if (hasErrorClientHandler())
+					{
+						getErrorClientHandler().onDispatchError(temp, _reactorDispatchErrorInfo.rsslErrorInfoCode);
+					}
+
+					if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+					{
+						if (_pLoggerClient) _pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+					}
+
 					_userLock.unlock();
 				}
 
@@ -3033,7 +3043,7 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 
 			if ( reactorRetCode < RSSL_RET_SUCCESS )
 			{
-				if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
+				if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity || hasErrorClientHandler() )
 				{
 					EmaString temp( "Call to rsslReactorDispatch() failed. Internal sysError='" );
 					temp.append( _reactorDispatchErrorInfo.rsslError.sysError )
@@ -3042,7 +3052,17 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 						.append( "' Error text='" ).append( _reactorDispatchErrorInfo.rsslError.text ).append( "'. " );
 
 					_userLock.lock();
-					if (_pLoggerClient) _pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+
+					if (hasErrorClientHandler())
+					{
+						getErrorClientHandler().onDispatchError(temp, _reactorDispatchErrorInfo.rsslErrorInfoCode);
+					}
+
+					if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+					{
+						if (_pLoggerClient) _pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+					}
+
 					_userLock.unlock();
 				}
 

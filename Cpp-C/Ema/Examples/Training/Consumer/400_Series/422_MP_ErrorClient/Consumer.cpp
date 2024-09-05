@@ -82,6 +82,13 @@ void AppErrorClient::onJsonConverter( const EmaString& text, Int32 errorCode, co
 	cout << "Error code: " << errorCode << endl;
 }
 
+void AppErrorClient::onDispatchError(const EmaString& text, Int32 errorCode)
+{
+	cout << "onDispatchError callback function" << endl;
+	cout << "Error text: " << text << endl;
+	cout << "Error code: " << errorCode << endl;
+}
+
 void AppClient::decode( const FieldList& fl )
 {
 	while ( fl.forth() )

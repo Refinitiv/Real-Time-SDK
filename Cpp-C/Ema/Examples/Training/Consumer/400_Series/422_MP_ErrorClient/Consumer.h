@@ -67,6 +67,8 @@ public :
 	void onInvalidUsage( const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32 );
 
 	void onJsonConverter( const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32, const refinitiv::ema::access::ConsumerSessionInfo& );
+
+	void onDispatchError( const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32 );
 };
 
 #endif // __ema_consumer_h_

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2020, 2024 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -98,6 +98,13 @@ public:
 		@return void
 	*/
 	virtual void onJsonConverter( const EmaString& text, Int32 errorCode, const ConsumerSessionInfo& sessionInfo );
+
+	/** Invoked in the case of dispatching failures from Reactor component. Requires OmmConsumer
+		constructor to have an OmmConsumerErrorClient.
+		@param[out] text specifies associated error text
+		@param[out] errorCode specifies associated error code defined in DispatchError
+	*/
+	virtual void onDispatchError(const EmaString& text, Int32 errorCode);
 	//@}
 
 	///@name Destructor

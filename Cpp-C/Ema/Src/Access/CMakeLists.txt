@@ -278,6 +278,7 @@ else()
             Include/OmmConsumerRestLoggingEvent.h
             Include/OmmDate.h
             Include/OmmDateTime.h
+            Include/DispatchError.h
             Include/OmmDouble.h
             Include/OmmEnum.h
             Include/OmmError.h
