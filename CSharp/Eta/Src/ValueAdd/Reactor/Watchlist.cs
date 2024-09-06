@@ -180,18 +180,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
         internal WlStreamManager StreamManager;
 
 #pragma warning disable CS8618
-        public Watchlist(ReactorChannel reactorChannel, ConsumerRole role)
+        public Watchlist(ReactorChannel reactorChannel, ConsumerRole role) : this()
         {
             Init(reactorChannel, role);
-
-            GrowWlRequestPool(10);
-            GrowWlStreamPool(10);
-            GrowWlItemRequestPool(DEFAULT_INIT_WATCHLIST_ITEM_POOLS);
-            GrowWlStreamAttributesPool(DEFAULT_INIT_WATCHLIST_ITEM_POOLS);
-
-            LoginHandler = new WlLoginHandler(this);
-            DirectoryHandler = new WlDirectoryHandler(this);
-            ItemHandler = new WlItemHandler(this);
         }
 
         public Watchlist()
