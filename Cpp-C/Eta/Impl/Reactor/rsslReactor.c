@@ -2917,7 +2917,10 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 
 reactorConnectFail:
 	if (pWatchlist)
+	{
 		rsslWatchlistDestroy(pWatchlist);
+		pReactorChannel->pWatchlist = NULL;
+	}
 
 	if (pReactorChannel)
 	{
