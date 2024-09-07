@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2023 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1786,15 +1786,15 @@ RsslInt32 ripcSSLRead( void *sslSess, char *buf, RsslInt32 max_len, ripcRWFlags 
 				return totalBytes;
 			break;
 			case RSSL_SSL_ERROR_SYSCALL:
+			case RSSL_SSL_ERROR_SSL: /* OpenSSL3.0 returns SSL_ERROR_SSL for recoverable error codes which ETA can try to read again */
 				/* OpenSSL does provide a way to get last error(get_last_socket_error() */
 				if((errno == EAGAIN) || (errno == EINTR) || (errno == _IPC_WOULD_BLOCK))
 					return totalBytes;
 				else
+				{
+					error->text[0] = '\0';
 					return (-1);
-				break;
-			case RSSL_SSL_ERROR_SSL:
-				error->text[0] = '\0';
-				return (-1);
+				}
 			break;
 			case RSSL_SSL_ERROR_ZERO_RETURN:
 				/* this may actually be a transport error worthy of disconnection... */
@@ -1838,15 +1838,15 @@ RsslInt32 ripcSSLWrite( void *sslSess, char *buf, RsslInt32 len, ripcRWFlags fla
 				return totalOut;
 			break;
 			case RSSL_SSL_ERROR_SYSCALL:
+			case RSSL_SSL_ERROR_SSL: /* OpenSSL3.0 returns SSL_ERROR_SSL for recoverable error codes which ETA can try to write again */
 				/* OpenSSL does provide a way to get last error(get_last_socket_error() */
 				if ((errno == EAGAIN) || (errno == EINTR) || (errno == _IPC_WOULD_BLOCK))
 					return totalOut;
 				else
+				{
+					error->text[0] = '\0';
 					return (-1);
-				break;
-			case RSSL_SSL_ERROR_SSL:
-				error->text[0] = '\0';
-				return (-1);
+				}
 			break;
 			case RSSL_SSL_ERROR_ZERO_RETURN:
 				/* this may actually be a transport error worthy of disconnection... */
@@ -2203,6 +2203,12 @@ void *ripcSSLConnectInt(ripcSSLSession *sess, RsslSocket fd, RsslInt32 *initComp
 		{
 			return 0;
 		}
+
+		if (chnl != NULL)
+		{
+			chnl->sslCurrentProtocol = ripcGetProtocolVersion(sess->connection);
+		}
+
 		sess->clientConnState = SSL_ACTIVE;
 		*initComplete = 1;
 	}
