@@ -2,23 +2,34 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022 LSEG. All rights reserved.
+ *|           Copyright (C) 2022,2024 LSEG. All rights reserved.
 #]=============================================================================]
 
 
 include(rcdevExternalUtils)
 
-if(NOT lz4_url)
-	# This is the latest build. However, until deprecated interfaces updates can 
-	# be applied to the rtsdk code in esdk repository, the older, compatible source will be used
-	#set(lz4_url "https://github.com/lz4/lz4/archive/r131.tar.gz")
-	set(lz4_url "https://github.com/lz4/lz4/archive/refs/tags/v1.9.4.tar.gz")
-endif()
-if(NOT lz4_hash)
-	set(lz4_hash "MD5=e9286adb64040071c5e23498bf753261")
-endif()
-if(NOT lz4_version)
-	set(lz4_version "1.9.4")
+if( UNIX AND (RCDEV_HOST_SYSTEM_FLAVOR_REL LESS_EQUAL 7) )
+	if(NOT lz4_url)
+		# The 1.9.4 version is needed to support GCC 4.8.2 for OL7 only.
+		set(lz4_url "https://github.com/lz4/lz4/archive/refs/tags/v1.9.4.tar.gz")
+	endif()
+	if(NOT lz4_hash)
+		set(lz4_hash "MD5=e9286adb64040071c5e23498bf753261")
+	endif()
+	if(NOT lz4_version)
+		set(lz4_version "1.9.4")
+	endif()
+else()
+	if(NOT lz4_url)
+		# The 1.10.0 version is needed to support Visual Studio 2022 version 17.10.5 or higher.
+		set(lz4_url "https://github.com/lz4/lz4/archive/refs/tags/v1.10.0.tar.gz")
+	endif()
+	if(NOT lz4_hash)
+		set(lz4_hash "MD5=dead9f5f1966d9ae56e1e32761e4e675")
+	endif()
+	if(NOT lz4_version)
+		set(lz4_version "1.10.0")
+	endif()
 endif()
 
 # If the option for using the system installed package is not defined

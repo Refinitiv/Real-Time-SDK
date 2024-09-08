@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.
+ *|           Copyright (C) 2019,2024 LSEG. All rights reserved.
 #]=============================================================================]
 
 if (_rcdevSystemInfoInclude)
@@ -554,7 +554,8 @@ elseif (CMAKE_HOST_WIN32)
 	set(RCDEV_HOST_COMPILER_L ${RCDEV_HOST_COMPILER_L})
 	if (MSVC)
 		DEBUG_PRINT(MSVC_TOOLSET_VERSION)
-		if (MSVC_VERSION GREATER_EQUAL 1930 AND MSVC_VERSION LESS_EQUAL 1939)
+		# Checks MSVC_VERSION according to https://cmake.org/cmake/help/latest/variable/MSVC_VERSION.html
+		if (MSVC_VERSION GREATER_EQUAL 1930 AND MSVC_VERSION LESS_EQUAL 1949)
 			set(_compilerVer "143")
 			set(_msvcVer "17")
 			set(_msvcYear "2022")
