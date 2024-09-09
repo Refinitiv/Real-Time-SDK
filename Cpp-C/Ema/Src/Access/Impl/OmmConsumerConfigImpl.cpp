@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -82,7 +82,7 @@ void OmmConsumerConfigImpl::validateSpecifiedSessionName()
 		{
 			EmaString mergeString("<EmaConfig><ConsumerGroup><DefaultConsumer value=\"");
 			mergeString.append(_configSessionName).append("\"/></ConsumerGroup></EmaConfig>");
-			xmlDocPtr xmlDoc = xmlReadMemory(mergeString.c_str(), mergeString.length(), NULL, "notnamed.xml", XML_PARSE_HUGE);
+			xmlDocPtr xmlDoc = xmlReadMemory(mergeString.c_str(), mergeString.length(), "notnamed.xml", NULL, XML_PARSE_HUGE);
 			if (xmlDoc == NULL)
 				return;
 			xmlNodePtr _xmlNodePtr = xmlDocGetRootElement(xmlDoc);

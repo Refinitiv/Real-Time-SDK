@@ -327,7 +327,7 @@ bool EmaConfigBaseImpl::extractXMLdataFromCharBuffer(const EmaString& what, cons
 	note.append(what);
 	_pEmaConfig->appendErrorMessage(note, OmmLoggerClient::VerboseEnum);
 
-	xmlDocPtr xmlDoc = xmlReadMemory(xmlData, length, NULL, "notnamed.xml", XML_PARSE_HUGE);
+	xmlDocPtr xmlDoc = xmlReadMemory(xmlData, length, "notnamed.xml", NULL, XML_PARSE_HUGE);
 	if (xmlDoc == NULL)
 	{
 		EmaString errorMsg("extractXMLdataFromCharBuffer: xmlReadMemory failed while processing ");
