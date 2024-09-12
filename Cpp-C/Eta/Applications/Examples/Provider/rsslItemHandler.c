@@ -1207,7 +1207,7 @@ RsslRet processItemRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator* 
 
 	default:
 		printf("\nReceived Unhandled Item Msg Class: %d\n", msg->msgBase.msgClass);
-		break;
+		return RSSL_RET_FAILURE;
 	}
 
 	return RSSL_RET_SUCCESS;
