@@ -38,12 +38,12 @@
                         <HBox>
                            <VBox styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css">
                               <HBox spacing="20">
-                                 <RadioButton fx:id="v1RadioButton" selected="true" text="oauthPasswordGrant" userData="V1">
+                                 <RadioButton selected="true" text="oauthPasswordGrant" userData="V1">
                                     <toggleGroup>
                                        <ToggleGroup fx:id="authTypeGroup" />
                                     </toggleGroup>
                                  </RadioButton>
-                                 <RadioButton fx:id="v2RadioButton" selected="false" text="oauthClientCred" toggleGroup="$authTypeGroup" userData="V2"/>
+                                 <RadioButton selected="false" text="oauthClientCred" toggleGroup="$authTypeGroup" userData="V2"/>
                               </HBox>
                               <StackPane>
                                  <children>
@@ -220,6 +220,24 @@
                                           </font>
                                        </CheckBox>
                                     </StackPane>
+                                    <StackPane alignment="TOP_LEFT" maxHeight="90">
+                                       <CheckBox fx:id="encryptionOptionCheckboxTLSVersion12" selected="true" focusTraversable="false"
+                                                 mnemonicParsing="false"
+                                                 maxHeight="17.0" styleClass="grey-area-label-box" text="Allow TLS Version 1.2">
+                                          <font>
+                                             <Font name="System Bold" size="12.0" />
+                                          </font>
+                                       </CheckBox>
+                                    </StackPane>
+                                    <StackPane alignment="TOP_LEFT" maxHeight="90">
+                                       <CheckBox fx:id="encryptionOptionCheckboxTLSVersion13" selected="true" focusTraversable="false"
+                                                 mnemonicParsing="false"
+                                                 maxHeight="17.0" styleClass="grey-area-label-box" text="Allow TLS Version 1.3">
+                                          <font>
+                                             <Font name="System Bold" size="12.0" />
+                                          </font>
+                                       </CheckBox>
+                                    </StackPane>
                                  </children>
                               </VBox>
                               <VBox spacing="5" minWidth="250.0" styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css">
@@ -275,6 +293,62 @@
                                           </children>
                                        </Pane>
                                        <CheckBox fx:id="useProxyAuthenticationCheckbox" disable="true" focusTraversable="false" mnemonicParsing="false" onAction="#handleUseProxyAuthenticationCheckbox" prefHeight="17.0" styleClass="grey-area-label-box" text="Use proxy server authentication ">
+                                          <font>
+                                             <Font name="System Bold" size="12.0" />
+                                          </font>
+                                       </CheckBox>
+                                    </StackPane>
+                                    <StackPane alignment="TOP_LEFT" maxHeight="90">
+                                       <Pane fx:id="useRestProxyPane" disable="true" styleClass="grey-area-small-box">
+                                          <padding>
+                                             <Insets left="10.0" right="10.0" />
+                                          </padding>
+                                          <children>
+                                             <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
+                                                <VBox>
+                                                   <Label text="Hostname" />
+                                                   <ScrollableTextField fx:id="restProxyHostTextFld" focusTraversable="false" prefWidth="150.0" />
+                                                </VBox>
+                                                <VBox>
+                                                   <Label text="Port" />
+                                                   <ScrollableTextField fx:id="restProxyPortTextFld" focusTraversable="false" prefWidth="200.0" />
+                                                </VBox>
+                                             </HBox>
+                                          </children>
+                                       </Pane>
+                                       <CheckBox fx:id="useRestProxyCheckbox" focusTraversable="false" mnemonicParsing="false"
+                                                 onAction="#handleUseRestProxyCheckbox" maxHeight="17.0"
+                                                 styleClass="grey-area-label-box" text="Use REST proxy server ">
+                                          <font>
+                                             <Font name="System Bold" size="12.0" />
+                                          </font>
+                                       </CheckBox>
+                                    </StackPane>
+                                    <StackPane alignment="TOP_LEFT" maxHeight="160">
+                                       <Pane fx:id="useRestProxyAuthenticationPane" disable="true" styleClass="grey-area-small-box">
+                                          <children>
+                                             <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
+                                                <VBox>
+                                                   <VBox>
+                                                      <Label text="Username" />
+                                                      <ScrollableTextField fx:id="restProxyAuthLogin" focusTraversable="false" prefWidth="200.0" />
+                                                   </VBox>
+                                                   <FilePickerComponent fx:id="restProxyKrbFilePicker" label="KRB5 Config File" />
+                                                </VBox>
+                                                <VBox>
+                                                   <VBox>
+                                                      <Label text="Domain" />
+                                                      <ScrollableTextField fx:id="restProxyAuthDomain" focusTraversable="false" prefWidth="200.0" />
+                                                   </VBox>
+                                                   <VBox>
+                                                      <Label text="Password" />
+                                                      <PasswordEyeComponent fx:id="restProxyAuthPassword" />
+                                                   </VBox>
+                                                </VBox>
+                                             </HBox>
+                                          </children>
+                                       </Pane>
+                                       <CheckBox fx:id="useRestProxyAuthenticationCheckbox" disable="true" focusTraversable="false" mnemonicParsing="false" onAction="#handleUseRestProxyAuthenticationCheckbox" prefHeight="17.0" styleClass="grey-area-label-box" text="Use REST proxy server authentication ">
                                           <font>
                                              <Font name="System Bold" size="12.0" />
                                           </font>

@@ -17,7 +17,7 @@
             <Label alignment="CENTER" prefHeight="40.0" prefWidth="242.0" text="Select endpoint configuration:" textAlignment="CENTER" wrapText="true" />
             <VBox alignment="CENTER" spacing="25.0">
                <children>
-                  <RadioButton focusTraversable="false" mnemonicParsing="false" prefHeight="17.0" selected="true" text="Discover Endpoint" userData="DISCOVERED">
+                  <RadioButton focusTraversable="false" mnemonicParsing="false" prefWidth="150.0" prefHeight="17.0" selected="true" text="Discover Endpoint" userData="DISCOVERED">
                      <toggleGroup>
                         <ToggleGroup fx:id="applicationTypeToggleGroup" />
                      </toggleGroup>
@@ -29,7 +29,7 @@
                         </Tooltip>
                      </tooltip>
                   </RadioButton>
-                  <RadioButton focusTraversable="false" mnemonicParsing="false" prefHeight="17.0" text="Specify Endpoint" toggleGroup="$applicationTypeToggleGroup" userData="SPECIFIED">
+                  <RadioButton focusTraversable="false" mnemonicParsing="false" prefWidth="150.0" prefHeight="17.0" text="Specify Endpoint" toggleGroup="$applicationTypeToggleGroup" userData="SPECIFIED">
                      <tooltip>
                         <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="User may specify an endpoint defined by a host and a port and a connection type. This mode does not require authentication and connects to the specified endpoint." wrapText="true">
                            <font>
@@ -40,7 +40,7 @@
                   </RadioButton>
                </children>
             </VBox>
-            <HBox alignment="CENTER_RIGHT">
+            <HBox alignment="CENTER">
                <children>
                   <Button fx:id="primaryActionButton" contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleActionButton" prefHeight="25.0" prefWidth="98.0" text="Next" styleClass="next-button" />
                </children>

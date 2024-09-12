@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -42,6 +42,20 @@ public class SpecifiedEndpointSettingsServiceImpl implements SpecifiedEndpointSe
                 if (settings.getEncryptionSettings().getKeyPassword() != null && !settings.getEncryptionSettings().getKeyPassword().equals("")) {
                     config.tunnelingKeyStorePasswd(settings.getEncryptionSettings().getKeyPassword());
                 }
+                
+                boolean tlsv12Enable = settings.isTLSv12Enabled();
+                boolean tlsv13Enable = settings.isTLSv13Enabled();
+                config.tunnelingSecurityProtocol("TLS");
+                
+                if (tlsv12Enable && tlsv13Enable)
+                	config.tunnelingSecurityProtocolVersions(new String[]{"1.2", "1.3"});
+                else if (tlsv12Enable)
+                	config.tunnelingSecurityProtocolVersions(new String[]{"1.2"});
+                else if (tlsv13Enable)
+                	config.tunnelingSecurityProtocolVersions(new String[]{"1.3"});
+		else
+                	config.tunnelingSecurityProtocolVersions(new String[]{});
+
             }
         }
 

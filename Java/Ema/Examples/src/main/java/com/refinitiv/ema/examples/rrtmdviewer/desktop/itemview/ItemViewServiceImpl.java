@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -15,8 +15,6 @@ import com.refinitiv.ema.rdm.EmaRdm;
 import java.util.Objects;
 
 public class ItemViewServiceImpl implements ItemViewService {
-
-    private static final int DEBUG_BUFFERED_LENGTH = 1024;
 
     private final ReqMsg reqMsg;
 

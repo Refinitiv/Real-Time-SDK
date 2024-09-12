@@ -2,42 +2,60 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.examples.rrtmdviewer.desktop.specified_endpoint;
 
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.SceneController;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.*;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.*;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationLayouts;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationSingletonContainer;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.OMMViewerError;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.StatefulController;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.SupportedJsonVersions;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.DictionaryLoaderComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.EmaConfigComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ErrorDebugAreaComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.FilePickerComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.PasswordEyeComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ScrollableTextField;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.ConnectionDataModel;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.EmaConfigModel;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.EncryptionDataModel;
 import com.refinitiv.eta.codec.CodecReturnCodes;
+
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
-
-import java.io.File;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 
 public class SpecifiedEndpointSettingsController implements StatefulController {
 
     private static final String DEFAULT_APP_ID = "256";
 
     private static final String RWF = "rssl.rwf";
-    private static final String JSON = "tr_json2,rssl.json.v2";
-
-    private static final double DEFAULT_PREF_HEIGHT = 900;
+    
+    private static final double DEFAULT_PREF_HEIGHT = 910;
+    /* This value is set more than the maximum width of VBOX at the top level */
+    private static final double DEFAULT_PREF_WIDTH = 600;
 
     private static final double DEFAULT_RATIO = 0.93;
 
@@ -104,6 +122,9 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
     private MenuButton jsonVersionsMenu;
 
     @FXML
+    private Button backButton;
+    
+    @FXML
     private Button connect;
 
     @FXML
@@ -123,6 +144,12 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
 
     @FXML
     private HBox controlButtons;
+    
+    @FXML
+    private CheckBox encryptionOptionCheckboxTLSVersion12;
+    
+    @FXML
+    private CheckBox encryptionOptionCheckboxTLSVersion13;
 
     private Tooltip encryptionTooltip;
 
@@ -141,10 +168,13 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
 
         Rectangle2D screenBounds = Screen.getPrimary().getBounds();
         scrollPane.setPrefHeight(Math.min(screenBounds.getMaxY() * DEFAULT_RATIO, DEFAULT_PREF_HEIGHT));
+        scrollPane.setPrefWidth(DEFAULT_PREF_WIDTH);
 
         errorDebugArea.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() - 20);
         tabPane.setPrefWidth(550);
         errorDebugArea.setAreaHeight(50);
+        connect.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() / 2 - 40);
+        backButton.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() / 2 - 10);
 
         sceneController.getPrimaryStage().getScene().getWindow().widthProperty().addListener(e -> {
             scrollPane.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get());
@@ -158,6 +188,8 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
             username.setCustomWidth(width);
             keyFilePicker.setFilePickerWidth(width);
             keyPassword.setCustomWidth(width);
+            connect.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() / 2 - 40);
+            backButton.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() / 2 - 10);
             tabPane.setPrefWidth(Math.max(550, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get()) - 20);
             errorDebugArea.setPrefWidth(Math.max(550, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get() - 20));
             dictionaryLoader.setCustomWidth(width);
@@ -174,42 +206,7 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
 
     @FXML
     public void onConnectionTypeChanged(ActionEvent event) {
-        switch (connType.getSelectionModel().getSelectedItem()) {
-            case SOCKET:
-                jsonVersionsMenu.setDisable(true);
-                jsonVersions.setDisable(true);
-                jsonCheckbox.setSelected(false);
-                rwfCheckbox.setSelected(true);
-                jsonCheckbox.setDisable(true);
-                rwfCheckbox.setDisable(true);
-                protocolsLabel.setDisable(true);
-                encryptedVBox.setVisible(false);
-                break;
-            case WEBSOCKET:
-                jsonCheckbox.setDisable(false);
-                rwfCheckbox.setDisable(false);
-                protocolsLabel.setDisable(false);
-                encryptedVBox.setVisible(false);
-                break;
-            case ENCRYPTED_SOCKET:
-                jsonVersions.setDisable(true);
-                jsonVersionsMenu.setDisable(true);
-                jsonCheckbox.setSelected(false);
-                rwfCheckbox.setSelected(true);
-                jsonCheckbox.setDisable(true);
-                rwfCheckbox.setDisable(true);
-                protocolsLabel.setDisable(true);
-                encryptedVBox.setVisible(true);
-                break;
-            case ENCRYPTED_WEBSOCKET:
-                jsonCheckbox.setDisable(false);
-                rwfCheckbox.setDisable(false);
-                protocolsLabel.setDisable(false);
-                encryptedVBox.setVisible(true);
-                break;
-            default:
-                break;
-        }
+    	checkConnectionType();
     }
 
     @FXML
@@ -293,6 +290,8 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
                         .keyPassword(keyPassword.getPasswordField().getText())
                         .build();
                 specifiedEndpointBuilder.encryptionSettings(encryptModel);
+                specifiedEndpointBuilder.isTLSv12Enabled(encryptionOptionCheckboxTLSVersion12.isSelected());
+                specifiedEndpointBuilder.isTLSv13Enabled(encryptionOptionCheckboxTLSVersion13.isSelected());
             }
         }
 
@@ -401,10 +400,58 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
 
         jsonVersionsMenu.getItems().addAll(FXCollections.observableArrayList(v2, v3));
     }
+    
+    public void checkConnectionType()
+    {
+    	switch (connType.getSelectionModel().getSelectedItem()) {
+        case SOCKET:
+            jsonVersionsMenu.setDisable(true);
+            jsonVersions.setDisable(true);
+            jsonCheckbox.setSelected(false);
+            rwfCheckbox.setSelected(true);
+            jsonCheckbox.setDisable(true);
+            rwfCheckbox.setDisable(true);
+            protocolsLabel.setDisable(true);
+            encryptedVBox.setDisable(true);
+            encrypted.setDisable(true);
+            break;
+        case WEBSOCKET:
+            jsonCheckbox.setDisable(false);
+            rwfCheckbox.setDisable(false);
+            protocolsLabel.setDisable(false);
+            encryptedVBox.setDisable(true);
+            encrypted.setDisable(true);
+            break;
+        case ENCRYPTED_SOCKET:
+            jsonVersions.setDisable(true);
+            jsonVersionsMenu.setDisable(true);
+            jsonCheckbox.setSelected(false);
+            rwfCheckbox.setSelected(true);
+            jsonCheckbox.setDisable(true);
+            rwfCheckbox.setDisable(true);
+            protocolsLabel.setDisable(true);
+            encryptedVBox.setDisable(false);
+            encrypted.setDisable(false);
+            break;
+        case ENCRYPTED_WEBSOCKET:
+            jsonCheckbox.setDisable(false);
+            rwfCheckbox.setDisable(false);
+            protocolsLabel.setDisable(false);
+            encryptedVBox.setDisable(false);
+            encrypted.setDisable(false);
+            break;
+        default:
+            break;
+    }
+    }
 
     @Override
     public void executeOnShow() {
         errorDebugArea.processDebug();
+        Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+        scrollPane.setPrefHeight(Math.min(screenBounds.getMaxY() * DEFAULT_RATIO, DEFAULT_PREF_HEIGHT));
+        scrollPane.setPrefWidth(Math.min(screenBounds.getMaxX() * DEFAULT_RATIO, DEFAULT_PREF_WIDTH));
+        checkConnectionType();
     }
 
     @Override

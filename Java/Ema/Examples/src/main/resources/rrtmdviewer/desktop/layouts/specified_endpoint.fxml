@@ -6,6 +6,7 @@
 <?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.PasswordEyeComponent?>
 <?import com.refinitiv.ema.examples.rrtmdviewer.desktop.specified_endpoint.SpecifiedEndpointConnectionTypes?>
 <?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
@@ -13,6 +14,7 @@
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -110,7 +112,7 @@
                                                         </VBox>
                                                     </children>
                                                 </HBox>
-                                                <VBox fx:id="encryptedVBox" alignment="CENTER" styleClass="vboxwithframe" visible="false">
+                                                <VBox fx:id="encryptedVBox" alignment="CENTER" styleClass="vboxwithframe">
                                                     <children>
                                                         <VBox style="-fx-spacing: 3;">
                                                             <children>
@@ -124,11 +126,35 @@
                                                                 </HBox>
                                                             </children>
                                                         </VBox>
-
                                                     </children>
                                                 </VBox>
                                             </children>
                                         </VBox>
+                                        <VBox>
+                                            <children>
+                                                <VBox style="-fx-spacing: 5; -fx-padding: 5;" styleClass="boxwithframe">
+                                                    <Label text="Encrypted Security Protocol Options:" />
+			                                 	<StackPane alignment="TOP_LEFT" maxHeight="90">
+			                                       <CheckBox fx:id="encryptionOptionCheckboxTLSVersion12" selected="true" focusTraversable="false"
+			                                                 mnemonicParsing="false"
+			                                                 maxHeight="17.0" styleClass="grey-area-label-box" text="Allow TLS Version 1.2">
+			                                          <font>
+			                                             <Font name="System Bold" size="12.0" />
+			                                          </font>
+			                                       </CheckBox>
+			                                    </StackPane>
+			                                    <StackPane alignment="TOP_LEFT" maxHeight="90">
+			                                       <CheckBox fx:id="encryptionOptionCheckboxTLSVersion13" selected="true" focusTraversable="false"
+			                                                 mnemonicParsing="false"
+			                                                 maxHeight="17.0" styleClass="grey-area-label-box" text="Allow TLS Version 1.3">
+			                                          <font>
+			                                             <Font name="System Bold" size="12.0" />
+			                                          </font>
+			                                       </CheckBox>
+			                                    </StackPane>
+			                                    </VBox>
+	                                    	</children>
+	                                    </VBox>
                                     </children>
                                 </VBox>
                             </content>
@@ -182,13 +208,21 @@
                     </tabs>
                 </TabPane>
                 <VBox>
-                    <ErrorDebugAreaComponent fx:id="errorDebugArea" />
-                    <HBox alignment="CENTER_RIGHT" fx:id="controlButtons">
+                    <HBox spacing="10.0" fx:id="controlButtons">
                         <children>
-                     		<Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackButtonAction" text="Back" styleClass="connect-button" />
-                            <Button fx:id="connect" mnemonicParsing="false" onAction="#onSubmitBtnClick" text="Connect" styleClass="connect-button" />
+	                        <Button fx:id="backButton" focusTraversable="false" mnemonicParsing="false" onAction="#onBackButtonAction" prefHeight="30.0" text="Back" styleClass="connect-button">
+	                           <HBox.margin>
+	                              <Insets left="10.0" />
+	                           </HBox.margin>
+	                        </Button>
+	                        <Button fx:id="connect" focusTraversable="false" mnemonicParsing="false" onAction="#onSubmitBtnClick" prefHeight="30.0" text="Connect" styleClass="connect-button">
+	                           <HBox.margin>
+	                              <Insets right="10.0" />
+	                           </HBox.margin>
+	                        </Button>
                         </children>
                     </HBox>
+                    <ErrorDebugAreaComponent fx:id="errorDebugArea" />
                 </VBox>
             </children>
         </VBox>

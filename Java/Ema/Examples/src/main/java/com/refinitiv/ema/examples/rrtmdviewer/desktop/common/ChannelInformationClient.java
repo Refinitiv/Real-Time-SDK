@@ -2,18 +2,27 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.examples.rrtmdviewer.desktop.common;
 
-import com.refinitiv.ema.access.*;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.ChannelInformation;
+import com.refinitiv.ema.access.ElementEntry;
+import com.refinitiv.ema.access.ElementList;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.TabViewModel;
 import com.refinitiv.ema.rdm.EmaRdm;
 import com.refinitiv.eta.codec.DataTypes;
 import com.refinitiv.eta.rdm.DomainTypes;
-import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.ConnectionTypes;
 
 public class ChannelInformationClient implements OmmConsumerClient {
@@ -62,7 +71,7 @@ public class ChannelInformationClient implements OmmConsumerClient {
         connectionType = -1;
         encryptedType = -1;
         protocolType = 0;
-        String hostName = "";
+        hostName = "";
         channelState = ChannelInformation.ChannelState.INACTIVE;
         port = 0;
     }

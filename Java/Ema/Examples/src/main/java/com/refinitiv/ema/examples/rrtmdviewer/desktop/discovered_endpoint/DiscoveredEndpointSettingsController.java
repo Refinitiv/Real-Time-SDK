@@ -2,33 +2,58 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.SceneController;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.*;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.*;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.*;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationLayouts;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationSingletonContainer;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.AsyncResponseStatuses;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.FxRunnableTask;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.OMMViewerError;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.StatefulController;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.DictionaryLoaderComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.EmaConfigComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ErrorDebugAreaComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.FilePickerComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.PasswordEyeComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ScrollableTextField;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.AsyncResponseModel;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.EmaConfigModel;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.EncryptionDataModel;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.ProxyAuthenticationDataModel;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.ProxyDataModel;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextInputControl;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 
 public class DiscoveredEndpointSettingsController implements StatefulController {
 
@@ -45,10 +70,10 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
 
     private static final String EMPTY_VALIDATION_POSTFIX = " is empty.";
 
-    private static final double DEFAULT_PREF_HEIGHT = 650;
+    private static final double DEFAULT_PREF_HEIGHT = 900;
 
     /* This value is set more than the maximum width of VBOX at the top level */
-    private static final double DEFAULT_PREF_WIDTH = 900;
+    private static final double DEFAULT_PREF_WIDTH = 1000;
 
     private static final double DEFAULT_RATIO = 0.93;
 
@@ -72,6 +97,12 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
 
     @FXML
     private CheckBox encryptionOptionCheckbox;
+    
+    @FXML
+    private CheckBox encryptionOptionCheckboxTLSVersion12;
+    
+    @FXML
+    private CheckBox encryptionOptionCheckboxTLSVersion13;
 
     @FXML
     private FilePickerComponent keyFilePicker;
@@ -123,6 +154,36 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
 
     @FXML
     private Button primaryActionButton;
+    
+    @FXML
+    private Pane useRestProxyPane;
+
+    @FXML
+    private CheckBox useRestProxyCheckbox;
+
+    @FXML
+    private ScrollableTextField restProxyHostTextFld;
+
+    @FXML
+    private ScrollableTextField restProxyPortTextFld;
+
+    @FXML
+    private Pane useRestProxyAuthenticationPane;
+
+    @FXML
+    private CheckBox useRestProxyAuthenticationCheckbox;
+
+    @FXML
+    private ScrollableTextField restProxyAuthLogin;
+
+    @FXML
+    private PasswordEyeComponent restProxyAuthPassword;
+
+    @FXML
+    private ScrollableTextField restProxyAuthDomain;
+
+    @FXML
+    private FilePickerComponent restProxyKrbFilePicker;
 
     @FXML
     private ListView<DiscoveredEndpointInfoModel> serviceEndpointChoiceBox;
@@ -237,6 +298,12 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
             proxyAuthDomain.setCustomWidth(width4);
             proxyAuthLogin.setCustomWidth(width4);
             proxyAuthPassword.setCustomWidth(width4);
+            restProxyKrbFilePicker.setFilePickerWidth(width4);
+            restProxyAuthDomain.setCustomWidth(width4);
+            restProxyAuthLogin.setCustomWidth(width4);
+            restProxyAuthPassword.setCustomWidth(width4);
+            restProxyHostTextFld.setCustomWidth(width4);
+            restProxyPortTextFld.setCustomWidth(width4);
             usernamePasswordComponent.getPasswordField().setPrefWidth(width3);
             usernamePasswordComponent.setCustomWidth(width3);
             clientIdTextField.setCustomWidth(width3);
@@ -379,6 +446,18 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     public void handleUseProxyAuthenticationCheckbox(ActionEvent event) {
         useProxyAuthenticationPane.setDisable(!useProxyAuthenticationCheckbox.isSelected());
     }
+    
+    @FXML
+    public void handleUseRestProxyCheckbox(ActionEvent event) {
+        useRestProxyPane.setDisable(!useRestProxyCheckbox.isSelected());
+        useRestProxyAuthenticationPane.setDisable(!useRestProxyCheckbox.isSelected() || !useRestProxyAuthenticationCheckbox.isSelected());
+        useRestProxyAuthenticationCheckbox.setDisable(!useRestProxyCheckbox.isSelected());
+    }
+
+    @FXML
+    public void handleUseRestProxyAuthenticationCheckbox(ActionEvent event) {
+        useRestProxyAuthenticationPane.setDisable(!useRestProxyAuthenticationCheckbox.isSelected());
+    }
 
     @FXML
     public void handleConnectionTypeComboBox(ActionEvent event) {
@@ -454,6 +533,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     private DiscoveredEndpointSettingsModel mapDiscoveredEndpointSettings() {
         EncryptionDataModel encryptionDataModel = null;
         ProxyDataModel proxyDataModel = null;
+        ProxyDataModel restProxyDataModel = null;
         String serviceDiscoveryUrl = DiscoveredEndpointSettingsModel.DEFAULT_DISCOVERY_ENDPOINT_URL;
         String tokenServiceUrl = ((RadioButton) authTypeGroup.getSelectedToggle()).getUserData().toString().equals("V1")
                 ? DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL_V1 : DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL_V2;
@@ -481,6 +561,24 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
                     .useProxyAuthentication(proxyAuthentication)
                     .build();
         }
+        
+        if (useRestProxyCheckbox.isSelected())
+        {
+            ProxyAuthenticationDataModel proxyAuthentication = null;
+            if (useRestProxyAuthenticationCheckbox.isSelected()) {
+                proxyAuthentication = ProxyAuthenticationDataModel.builder()
+                        .login(restProxyAuthLogin.getText().trim())
+                        .password(restProxyAuthPassword.getPasswordField().getText().trim())
+                        .domain(restProxyAuthDomain.getText().trim())
+                        .krbFilePath(restProxyKrbFilePicker.getFilePickerTextField().getText().trim())
+                        .build();
+            }
+            restProxyDataModel = ProxyDataModel.builder()
+                    .host(restProxyHostTextFld.getText().trim())
+                    .port(restProxyPortTextFld.getText().trim())
+                    .useProxyAuthentication(proxyAuthentication)
+                    .build();
+        }
 
         EmaConfigModel emaConfigModel = emaConfigComponent.createEmaConfigModel();
 
@@ -504,8 +602,11 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
                 .connectionType(connectionTypesComboBox.getValue())
                 .useEncryption(encryptionDataModel)
                 .useProxy(proxyDataModel)
+                .useRestProxy(restProxyDataModel)
                 .tokenServiceUrl(tokenServiceUrl)
                 .serviceEndpointUrl(serviceDiscoveryUrl)
+                .isTLSv12Enabled(encryptionOptionCheckboxTLSVersion12.isSelected())
+                .isTLSv13Enabled(encryptionOptionCheckboxTLSVersion13.isSelected())
                 .useEmaConfig(emaConfigModel)
                 .build();
     }
@@ -566,14 +667,6 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
         return false;
     }
 
-    private ServiceEndpointDataModel getServiceEndpointConfig() {
-        DictionaryDataModel dictionaryData = this.dictionaryLoader.createDictionaryModel();
-        List<DiscoveredEndpointInfoModel> endpointInfo = Collections.unmodifiableList(
-                serviceEndpointChoiceBox.getSelectionModel().getSelectedItems()
-        );
-        return new ServiceEndpointDataModel();
-    }
-
     @Override
     public void executeOnShow() {
         errorDebugArea.processDebug();
@@ -582,6 +675,9 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
         } else {
             discoveredEndpointSettingsService.initialize();
         }
+        Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+        primaryPane.setPrefHeight(Math.min(screenBounds.getMaxY() * DEFAULT_RATIO, DEFAULT_PREF_HEIGHT));
+        primaryPane.setPrefWidth(DEFAULT_PREF_WIDTH);
     }
 
     @Override

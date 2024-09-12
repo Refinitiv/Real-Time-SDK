@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,20 +13,16 @@ import com.refinitiv.ema.access.ServiceEndpointDiscoveryOption;
 public enum DiscoveredEndpointConnectionTypes {
 
     ENCRYPTED_SOCKET("Encrypted-Socket",
-            ServiceEndpointDiscoveryOption.TransportProtocol.TCP,
-            ServiceEndpointDiscoveryOption.DataformatProtocol.RWF
+            ServiceEndpointDiscoveryOption.TransportProtocol.TCP
     ),
 
     ENCRYPTED_WEBSOCKET("Encrypted-WebSocket",
-            ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET,
-            ServiceEndpointDiscoveryOption.DataformatProtocol.JSON2
+            ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET
     );
 
     private final String textLabel;
 
     private final int transportProtocol;
-
-    private final int dataFormatProtocol;
 
     @Override
     public String toString() {
@@ -37,9 +33,8 @@ public enum DiscoveredEndpointConnectionTypes {
         return transportProtocol;
     }
 
-    DiscoveredEndpointConnectionTypes(String textLabel, int transportProtocol, int dataFormatProtocol) {
+    DiscoveredEndpointConnectionTypes(String textLabel, int transportProtocol) {
         this.textLabel = textLabel;
         this.transportProtocol = transportProtocol;
-        this.dataFormatProtocol = dataFormatProtocol;
     }
 }

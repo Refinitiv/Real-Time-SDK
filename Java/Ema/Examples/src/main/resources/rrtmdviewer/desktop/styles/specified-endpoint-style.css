@@ -118,14 +118,8 @@
 }
 
 .connect-button {
-    -fx-padding: 2;
-    -fx-border-insets: 2;
-    -fx-background-insets: 2;
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
-    -fx-pref-height: 40px;
-    -fx-pref-width: 130px;
-    -fx-border-color: #A8A8A8;
     -fx-font-weight: BOLD;
     -fx-font-size: 15px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
 }

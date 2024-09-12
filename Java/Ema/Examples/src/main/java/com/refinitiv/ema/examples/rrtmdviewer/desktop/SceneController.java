@@ -2,19 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.examples.rrtmdviewer.desktop;
-
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.*;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +14,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationFxComponents.ERROR_DEBUG_AREA_COMPONENT;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationFxComponents;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationLayouts;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationStyles;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.StatefulController;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class SceneController {
     private static final String FILE_CHOOSER_TITLE = "Select a file";

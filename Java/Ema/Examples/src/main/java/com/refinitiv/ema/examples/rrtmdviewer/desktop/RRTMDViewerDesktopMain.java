@@ -2,29 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.examples.rrtmdviewer.desktop;
-
-import com.refinitiv.ema.access.OmmConsumer;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationLayouts;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationSingletonContainer;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.application.GlobalApplicationSettings;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.DebugAreaStream;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsController;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsService;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsServiceImpl;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.emalogging.DebugHandler;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.specified_endpoint.SpecifiedEndpointSettingsController;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.specified_endpoint.SpecifiedEndpointSettingsService;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.specified_endpoint.SpecifiedEndpointSettingsServiceImpl;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.ItemViewController;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,6 +16,20 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.SimpleFormatter;
+
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.application.GlobalApplicationSettings;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationLayouts;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationSingletonContainer;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.DebugAreaStream;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.emalogging.DebugHandler;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsController;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsService;
+
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
 
 public class RRTMDViewerDesktopMain {
 

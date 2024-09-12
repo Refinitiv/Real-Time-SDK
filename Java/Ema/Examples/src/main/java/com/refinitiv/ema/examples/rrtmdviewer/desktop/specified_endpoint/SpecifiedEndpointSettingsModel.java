@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -34,10 +34,13 @@ public class SpecifiedEndpointSettingsModel {
     private String username;
 
     private EmaConfigModel emaConfigModel;
+    
+    private boolean isTLSv12Enabled;
+    private boolean isTLSv13Enabled;
 
     private SpecifiedEndpointSettingsModel(List<String> port, List<String> host, boolean customEncr, ConnectionDataModel connectionSettings,
                                            EncryptionDataModel encryptionSettings, String appId, String position, String username,
-                                           DictionaryDataModel dictionaryData, EmaConfigModel emaConfigModel) {
+                                           DictionaryDataModel dictionaryData, EmaConfigModel emaConfigModel, boolean isTLSv12Enabled, boolean isTLSv13Enabled) {
         this.port = port;
         this.host = host;
         this.customEncryptionOptions = customEncr;
@@ -48,6 +51,8 @@ public class SpecifiedEndpointSettingsModel {
         this.username = username;
         this.dictionaryData = dictionaryData;
         this.emaConfigModel = emaConfigModel;
+        this.isTLSv12Enabled = isTLSv12Enabled;
+        this.isTLSv13Enabled = isTLSv13Enabled;
     }
 
     public List<String> getHost() { return host; }
@@ -73,6 +78,10 @@ public class SpecifiedEndpointSettingsModel {
     public EmaConfigModel getEmaConfigModel() {
         return emaConfigModel;
     }
+    
+    public boolean isTLSv12Enabled() { return isTLSv12Enabled; }
+    
+    public boolean isTLSv13Enabled() { return isTLSv13Enabled; }
 
     public int validate(OMMViewerError error) {
         error.clear();
@@ -112,6 +121,9 @@ public class SpecifiedEndpointSettingsModel {
         private String username;
 
         private EmaConfigModel emaConfigModel;
+        
+        private boolean isTLSv12Enabled;
+        private boolean isTLSv13Enabled;
 
         public SpecifiedEndpointSettingsModelBuilder addServer(String host, String port) {
             hostList.add(host);
@@ -158,10 +170,20 @@ public class SpecifiedEndpointSettingsModel {
             this.emaConfigModel = emaConfigModel;
             return this;
         }
+        
+        public SpecifiedEndpointSettingsModelBuilder isTLSv12Enabled(boolean isTLSv12Enabled) {
+        	this.isTLSv12Enabled = isTLSv12Enabled;
+        	return this;
+        }
+        
+        public SpecifiedEndpointSettingsModelBuilder isTLSv13Enabled(boolean isTLSv13Enabled) {
+        	this.isTLSv13Enabled = isTLSv13Enabled;
+        	return this;
+        }
 
         public SpecifiedEndpointSettingsModel build() {
             return new SpecifiedEndpointSettingsModel(portList, hostList, hasCustomEncrOptions, connectionSettings, encryptionSettings,
-                    applicationId, position, username, dictionaryData, emaConfigModel);
+                    applicationId, position, username, dictionaryData, emaConfigModel, isTLSv12Enabled, isTLSv13Enabled);
         }
     }
 

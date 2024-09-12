@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -41,8 +41,6 @@ public class MarketByOrderComponent extends Pane implements ItemFxComponent, Mar
     public static final int ORDER_SIZE_FID = 3429; /* Order Size */
     public static final int QUOTIM_MS_FID = 3855; /* Quote Time */
     public static final int PR_TIM_MS = 6520; /* The Priority Time Stamp, in GMT, of the order.  */
-
-    private Tab parent;
 
     @FXML
     private TextField currencyFld;
@@ -92,7 +90,6 @@ public class MarketByOrderComponent extends Pane implements ItemFxComponent, Mar
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();
-            this.parent = tab;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }

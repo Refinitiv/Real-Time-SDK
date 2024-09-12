@@ -2,30 +2,45 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint;
 
-import com.refinitiv.ema.access.*;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationSingletonContainer;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.AsyncResponseStatuses;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ChannelInformationClient;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.OMMViewerError;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.*;
-
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import com.refinitiv.ema.access.ElementList;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.Map;
+import com.refinitiv.ema.access.MapEntry;
+import com.refinitiv.ema.access.OAuth2CredentialRenewal;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerConfig;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.OmmOAuth2ConsumerClient;
+import com.refinitiv.ema.access.ServiceEndpointDiscovery;
+import com.refinitiv.ema.access.ServiceEndpointDiscoveryEvent;
+import com.refinitiv.ema.access.ServiceEndpointDiscoveryInfo;
+import com.refinitiv.ema.access.ServiceEndpointDiscoveryOption;
+import com.refinitiv.ema.access.ServiceEndpointDiscoveryResp;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationSingletonContainer;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.AsyncResponseStatuses;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ChannelInformationClient;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.OMMViewerError;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.AsyncResponseModel;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.DictionaryDataModel;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.EmaConfigModel;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.ProxyAuthenticationDataModel;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.ProxyDataModel;
 
 public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpointSettingsService {
-
-    private static final String SERVICE_DISCOVERY_ERROR_HEADER = "Error during retrieving service endpoints";
 
     private static final String OMM_CONSUMER_INIT_ERROR_HEADER = "Error during OMM consumer initialization";
 
@@ -156,6 +171,29 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
                             .tunnelingCredentialKRB5ConfigFile(discoveredEndpointSettingsModel.getProxyData().getProxyAuthentication().getKrbFilePath());
                 }
             }
+            if (discoveredEndpointSettingsModel.isRestProxyUsed()) {
+            	config.restProxyHostName(discoveredEndpointSettingsModel.getRestProxyData().getHost())
+            			.restProxyPort(discoveredEndpointSettingsModel.getRestProxyData().getPort());
+            	if (discoveredEndpointSettingsModel.getRestProxyData().isAuthenticationUsed()) {
+                    config.restProxyUserName(discoveredEndpointSettingsModel.getRestProxyData().getProxyAuthentication().getLogin())
+                            .restProxyPasswd(discoveredEndpointSettingsModel.getRestProxyData().getProxyAuthentication().getPassword())
+                            .restProxyDomain(discoveredEndpointSettingsModel.getRestProxyData().getProxyAuthentication().getDomain())
+                            .restProxyKrb5ConfigFile(discoveredEndpointSettingsModel.getRestProxyData().getProxyAuthentication().getKrbFilePath());
+                }
+            }
+            
+            boolean tlsv12Enable = discoveredEndpointSettingsModel.isTLSv12Enabled();
+            boolean tlsv13Enable = discoveredEndpointSettingsModel.isTLSv13Enabled();
+            config.tunnelingSecurityProtocol("TLS");
+            
+            if (tlsv12Enable && tlsv13Enable)
+            	config.tunnelingSecurityProtocolVersions(new String[]{"1.2", "1.3"});
+            else if (tlsv12Enable)
+            	config.tunnelingSecurityProtocolVersions(new String[]{"1.2"});
+            else if (tlsv13Enable)
+            	config.tunnelingSecurityProtocolVersions(new String[]{"1.3"});
+            else 
+            	config.tunnelingSecurityProtocolVersions(new String[]{});
 
             ChannelInformationClient channelInformationClient;
             config.serviceDiscoveryUrl(discoveredEndpointSettingsModel.getDiscoveryEndpointUrl());
