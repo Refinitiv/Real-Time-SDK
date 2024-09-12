@@ -107,6 +107,10 @@ class AppErrorClient : IOmmConsumerErrorClient
 	public void OnInvalidUsage(String text, int errorCode) {
 		Console.WriteLine("onInvalidUsage callback function" + "\nError text: " + text +" , Error code: " + errorCode); 
 	}
+
+	public void OnDispatchError(string text, int errorCode) {
+		Console.WriteLine("OnDispatchError callback function" + "\nError text: " + text + " , Error code: " + errorCode);
+	}
 }
 
 public class Consumer 

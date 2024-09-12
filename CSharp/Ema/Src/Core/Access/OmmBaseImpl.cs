@@ -165,9 +165,12 @@ namespace LSEG.Ema.Access
 
         protected abstract void NotifyErrorClient(OmmException ommException);
 
+        protected abstract void OnDispatchError(string text, int errorCode);
+
         internal abstract IOmmCommonImpl.ImpleType GetImplType();
 
         internal abstract long NextLongId();
+
 
         public virtual void Unregister(long handle)
         {
@@ -705,6 +708,36 @@ namespace LSEG.Ema.Access
                             }
 
                         } while (reactorRetCode > ReactorReturnCode.SUCCESS && !m_receivedEvent && loopCount < DISPATCH_LOOP_COUNT);
+
+                        if(reactorRetCode < ReactorReturnCode.SUCCESS)
+                        {
+                            StringBuilder strBuilder = new(1024);
+                            strBuilder.Append($"Call to Reactor.Dispatch() failed.")
+                                .AppendLine($"Reactor Return Code {reactorRetCode}")
+                                .AppendLine($"Error Id {reactorErrorInfo?.Error.ErrorId}")
+                                .AppendLine($"Internal SysError {reactorErrorInfo?.Error.SysError}")
+                                .AppendLine($"Error Location {reactorErrorInfo?.Location}")
+                                .AppendLine($"Error Text {reactorErrorInfo?.Error.Text}.");
+
+                            UserLock.Enter();
+
+                            try
+                            {
+                                if (HasErrorClient())
+                                {
+                                    OnDispatchError(strBuilder.ToString(), (int)reactorRetCode);
+                                }
+                            }
+                            finally
+                            {
+                                UserLock.Exit();
+                            }
+
+                            if (LoggerClient.IsErrorEnabled)
+                            {
+                                LoggerClient.Error(InstanceName, strBuilder.ToString());
+                            }
+                        }
 
                         if (m_receivedEvent) return true;
 

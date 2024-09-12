@@ -2,14 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
 namespace LSEG.Ema.Access
 {
     /// <summary>
-    /// OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.
+    /// OmmConsumerErrorclient class provides callback mechanism used in place of exceptions and dispatching failures.
     /// 
     /// <para>
     /// By default OmmConsumer class throws exceptions if a usage error occurs.<br/>
@@ -43,5 +43,13 @@ namespace LSEG.Ema.Access
         /// <param name="text">associated error text</param>
         /// <param name="errorCode">associated error code</param>
         public void OnInvalidUsage(string text, int errorCode) { }
+
+        /// <summary>
+        /// Invoked in the case of dispatching failures from Reactor component. Requires OmmConsumer
+        /// constructor to have an OmmConsumerErrorClient.
+        /// </summary>
+        /// <param name="text">associated error text</param>
+        /// <param name="errorCode">associated error code defined in <see cref="DispatchErrorCode"/></param>
+        public void OnDispatchError(string text, int errorCode) { }
     }
 }

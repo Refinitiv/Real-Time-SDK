@@ -456,5 +456,10 @@ namespace LSEG.Ema.Access
                 UserLock.Exit();
             }
         }
+
+        protected override void OnDispatchError(string text, int errorCode)
+        {
+            m_ErrorClient?.OnDispatchError(text, errorCode);
+        }
     }
 }

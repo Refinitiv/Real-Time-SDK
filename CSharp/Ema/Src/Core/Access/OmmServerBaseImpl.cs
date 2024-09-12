@@ -427,6 +427,7 @@ namespace LSEG.Ema.Access
 
             long userTimeout = TimeoutEventManager!.CheckUserTimeoutExist();
             bool userTimeoutExist = false;
+            ReactorErrorInfo? reactorErrorInfo;
 
             if (userTimeout >= 0)
             {
@@ -517,7 +518,7 @@ namespace LSEG.Ema.Access
                                     return false;
                                 }
 
-                                reactorRetCode = m_Reactor!.Dispatch(m_ReactorDispatchOptions, out m_ReactorErrorInfo);
+                                reactorRetCode = m_Reactor!.Dispatch(m_ReactorDispatchOptions, out reactorErrorInfo);
                                 ++loopCount;
                             }
                             finally
@@ -526,6 +527,36 @@ namespace LSEG.Ema.Access
                             }
 
                         } while (reactorRetCode > ReactorReturnCode.SUCCESS && !m_receivedEvent && loopCount < DISPATCH_LOOP_COUNT);
+
+                        if (reactorRetCode < ReactorReturnCode.SUCCESS)
+                        {
+                            StringBuilder strBuilder = new(1024);
+                            strBuilder.Append($"Call to Reactor.Dispatch() failed.")
+                                .AppendLine($"Reactor Return Code {reactorRetCode}")
+                                .AppendLine($"Error Id {reactorErrorInfo?.Error.ErrorId}")
+                                .AppendLine($"Internal SysError {reactorErrorInfo?.Error.SysError}")
+                                .AppendLine($"Error Location {reactorErrorInfo?.Location}")
+                                .AppendLine($"Error Text {reactorErrorInfo?.Error.Text}.");
+
+                            UserLock.Enter();
+
+                            try
+                            {
+                                if (HasErrorClient())
+                                {
+                                    OmmProviderErrorClient?.OnDispatchError(strBuilder.ToString(), (int)reactorRetCode);
+                                }
+                            }
+                            finally
+                            {
+                                UserLock.Exit();
+                            }
+
+                            if (m_LoggerClient.IsErrorEnabled)
+                            {
+                                m_LoggerClient.Error(InstanceName, strBuilder.ToString());
+                            }
+                        }
 
                         if (m_receivedEvent) return true;
 
