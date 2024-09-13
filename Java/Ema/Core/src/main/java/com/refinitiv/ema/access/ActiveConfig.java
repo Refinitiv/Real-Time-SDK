@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -78,8 +78,8 @@ abstract class ActiveConfig extends BaseConfig
 	final static long DEFAULT_XML_TRACE_MAX_FILE_SIZE			= 100000000;
 	final static String DEFAULT_XML_TRACE_FILE_NAME				= "EmaTrace";
 	final static boolean DEFAULT_XML_TRACE_TO_MULTIPLE_FILES	= false;
-	final static boolean DEFAULT_XML_TRACE_WRITE				= true;
-	final static boolean DEFAULT_XML_TRACE_READ					= true;
+	final static boolean DEFAULT_XML_TRACE_WRITE				= false;
+	final static boolean DEFAULT_XML_TRACE_READ					= false;
 	final static boolean DEFAULT_XML_TRACE_PING					= false;
 	final static boolean DEFAULT_DIRECT_SOCKET_WRITE			= false;
 	final static boolean DEFAULT_HTTP_PROXY					    = false;

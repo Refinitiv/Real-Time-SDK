@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.    --
  *|-----------------------------------------------------------------------------
  */
 
@@ -48,6 +48,8 @@ public class ReactorOptions
     static final String DEFAULT_SCHEME = "https";
     static final String API_GATEWAY_HOST = "api.refinitiv.com";
     static final String SERVICE_DISCOVERY_PATH = "/streaming/pricing/v1/";
+
+    static final long DEFAULT_XML_TRACE_MAX_FILE_SIZE = 100000000;
 	
     private Buffer _serviceDiscoveryURL = CodecFactory.createBuffer();
     private Buffer _tokenServiceURL_V1 = CodecFactory.createBuffer();
@@ -66,7 +68,7 @@ public class ReactorOptions
     Object _userSpecObj = null;
     boolean _xmlTracing = false;
     boolean _xmlTraceToFile = false;
-    long 	_xmlTraceMaxFileSize = 0;
+    long 	_xmlTraceMaxFileSize = DEFAULT_XML_TRACE_MAX_FILE_SIZE;
     String	_xmlTraceFileName;
     boolean	_xmlTraceToMultipleFiles = false;
     boolean _xmlTraceWrite = false;
@@ -143,6 +145,18 @@ public class ReactorOptions
     public void enableXmlTracePing()
     {
         _xmlTracePing = true;
+    }
+    public void xmlTraceWrite(boolean xmlTraceWrite)
+    {
+        _xmlTraceWrite = xmlTraceWrite;
+    }
+    public void xmlTraceRead(boolean xmlTraceRead)
+    {
+        _xmlTraceRead = xmlTraceRead;
+    }
+    public void xmlTracePing(boolean xmlTracePing)
+    {
+        _xmlTracePing = xmlTracePing;
     }
 
     /**
@@ -457,12 +471,12 @@ public class ReactorOptions
         _userSpecObj = null;
         _xmlTracing = false;
         _xmlTraceToFile = false;
-        _xmlTraceMaxFileSize = 0;
+        _xmlTraceMaxFileSize = DEFAULT_XML_TRACE_MAX_FILE_SIZE;
         _xmlTraceFileName = null;
         _xmlTraceToMultipleFiles = false;
-        _xmlTraceRead = false;
-        _xmlTraceWrite = false;
-        _xmlTracePing = false;
+        _xmlTraceRead = true;
+        _xmlTraceWrite = true;
+        _xmlTracePing = true;
         _statistics = StatisticFlags.NONE;
         _serviceDiscoveryURL.data(DEFAULT_SCHEME + "://" + API_GATEWAY_HOST + SERVICE_DISCOVERY_PATH);
         _serviceDiscoveryHost = new HttpHost(API_GATEWAY_HOST, DEFAULT_HTTPS_PORT, DEFAULT_SCHEME);

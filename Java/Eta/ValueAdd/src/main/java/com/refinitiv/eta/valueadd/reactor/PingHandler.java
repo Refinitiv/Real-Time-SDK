@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022, 2024 Refinitiv. All rights reserved.   --
  *|-----------------------------------------------------------------------------
  */
 
@@ -25,6 +25,8 @@ class PingHandler
     private volatile boolean _receivedRemoteMsg = false;
     private volatile boolean _sentLocalMsg = false;
     private static boolean _trackPings = true;
+    private StringBuilder xmlString = new StringBuilder(1500);
+    ReactorOptions _reactorOptions;
 
     /*
      * Indicate that we received a message from the remote connection
@@ -114,6 +116,23 @@ class PingHandler
                 if(sendPing)
                 {
                     /* send ping to remote (connection) */
+                    _reactorOptions = reactorChannel.reactor().reactorOptions();
+
+                    if (_reactorOptions.xmlTracePing() && (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile())) 
+                    {
+                        xmlString.setLength(0);
+                        xmlString.append("\n<!-- Outgoing Ping message -->\n").append("<!-- ")
+                                 .append(reactorChannel.selectableChannel().toString()).append(" -->\n").append("<!-- ")
+                                 .append(new java.util.Date()).append(" -->\n");
+                        if (_reactorOptions.xmlTracing())
+                        {
+                            System.out.println(xmlString);
+                        }
+                        if (_reactorOptions.xmlTraceToFile())
+                        {
+                            reactorChannel.reactor()._fileDumper.dump(xmlString.toString());
+                        }
+                    }
                     int ret = chnl.ping(error);
                     if (ret < TransportReturnCodes.SUCCESS)
                     {

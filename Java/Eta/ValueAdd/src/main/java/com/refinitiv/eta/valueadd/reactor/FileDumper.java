@@ -1,3 +1,11 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
+ *|-----------------------------------------------------------------------------
+ */
+
 package com.refinitiv.eta.valueadd.reactor;
 
 import java.io.IOException;
@@ -13,7 +21,6 @@ public class FileDumper {
     private final String xmlTraceFileName;
     private final boolean xmlTraceToMultipleFiles;
     private final long xmlTraceMaxFileSize;
-    private Path currentFilePath;
     private OutputStream out;
     private boolean fileSizeReached = false;
     private long currentFileSize = 0;
@@ -22,11 +29,9 @@ public class FileDumper {
         this.xmlTraceFileName = xmlTraceFileName;
         this.xmlTraceToMultipleFiles = xmlTraceToMultipleFiles;
         this.xmlTraceMaxFileSize = xmlTraceMaxFileSize;
-        this.currentFilePath = createNewFile();
-        openFile();
     }
 
-    private Path createNewFile() {
+    private void createNewFile() {
         String[] Ids = ManagementFactory.getRuntimeMXBean().getName().split("@");
         String processId = Ids.length > 0 ? "_" + Ids[0] + "_" : "_";
         String fileName = xmlTraceFileName + processId + Instant.now().toEpochMilli() + ".xml";
@@ -34,24 +39,15 @@ public class FileDumper {
         Path filePath = Paths.get(fileName);
         try {
             Files.createFile(filePath);
+            out = Files.newOutputStream(filePath, StandardOpenOption.APPEND);
         } catch (IOException ignored) {
             // IOException likely to occur due to lack of system resources when this debug is enabled;
             // thus, ignored by design
         }
-        return filePath;
     }
 
     private boolean isCurrentFileOverSize() {
         return currentFileSize >= xmlTraceMaxFileSize;
-    }
-
-    private void openFile() {
-        try {
-            out = Files.newOutputStream(currentFilePath, StandardOpenOption.APPEND);
-        } catch (IOException ignored) {
-            // IOException likely to occur due to lack of system resources when this debug is enabled;
-            // thus, ignored by design
-        }
     }
 
     public void dump(String content) {
@@ -59,8 +55,7 @@ public class FileDumper {
         else if (isCurrentFileOverSize()) {
             if (xmlTraceToMultipleFiles) {
                 close();
-                currentFilePath = createNewFile();
-                openFile();
+                createNewFile();
                 try {
                     out.write(content.getBytes());
                 } catch (IOException ignored) {
@@ -75,6 +70,9 @@ public class FileDumper {
 
         } else {
             try {
+                if (out == null) {
+                    createNewFile();
+                }
                 out.write(content.getBytes());
             } catch (IOException ignored) {
                 // IOException likely to occur due to lack of system resources when this debug is enabled;
@@ -88,6 +86,7 @@ public class FileDumper {
         if (out != null) {
             try {
                 out.close();
+                out = null;
             } catch (IOException ignored) {
                 // IOException likely to occur due to lack of system resources when this debug is enabled;
                 // thus, ignored by design

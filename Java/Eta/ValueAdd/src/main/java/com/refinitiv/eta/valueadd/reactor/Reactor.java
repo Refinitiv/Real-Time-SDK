@@ -4376,7 +4376,7 @@ public class Reactor
 					}
 				}
 
-				if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
+				if ((_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile()) && _reactorOptions.xmlTraceWrite())
 				{
 					xmlString.setLength(0);
 					xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -4815,7 +4815,7 @@ public class Reactor
 
 		if (msgBuf != null)
 		{
-			if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTracePing())
+			if ((_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile()) && _reactorOptions.xmlTraceRead())
 			{
 				xmlString.setLength(0);
 				xmlString.append("\n<!-- Incoming Reactor message -->\n").append("<!-- ")
@@ -5159,6 +5159,21 @@ public class Reactor
 				}
 			} else if (readArgs.readRetVal() == TransportReturnCodes.READ_PING)
 			{
+				if ((_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile()) && _reactorOptions.xmlTracePing())
+				{
+					xmlString.setLength(0);
+					xmlString.append("\n<!-- Incoming Ping message -->\n").append("<!-- ")
+							.append(reactorChannel.selectableChannel().toString()).append(" -->\n").append("<!-- ")
+							.append(new java.util.Date()).append(" -->\n");
+					if (_reactorOptions.xmlTracing()){
+						System.out.println(xmlString);
+					}
+					if (_reactorOptions.xmlTraceToFile()) {
+
+						_fileDumper.dump(xmlString.toString());
+
+					}
+				}
 				reactorChannel.pingHandler().receivedMsg();
 			}
 		}
@@ -6464,7 +6479,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
+		if ((_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile()) && _reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -6677,7 +6692,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
+		if ((_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile()) && _reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -6829,7 +6844,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
+		if ((_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile()) && _reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -6979,7 +6994,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
+		if ((_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile()) && _reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -7132,7 +7147,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
+		if ((_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile()) && _reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")

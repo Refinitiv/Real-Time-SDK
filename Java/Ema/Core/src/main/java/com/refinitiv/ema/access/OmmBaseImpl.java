@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.          --
+// *|          Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.     --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -267,12 +267,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				_rsslReactorOpts.setXmlTraceMaxFileSize(_activeConfig.xmlTraceMaxFileSize);
 				_rsslReactorOpts.setXmlTraceFileName(_activeConfig.xmlTraceFileName);
 				if (_activeConfig.xmlTraceToMultipleFilesEnable) _rsslReactorOpts.enableXmlTraceToMultipleFiles();
-				if (_activeConfig.xmlTraceWriteEnable) _rsslReactorOpts.enableXmlTraceWrite();
-				if (_activeConfig.xmlTraceReadEnable) _rsslReactorOpts.enableXmlTraceRead();
-				if (  _activeConfig.xmlTracePingEnable &&  //ping flag must be enabled
-						(_activeConfig.xmlTraceReadEnable || _activeConfig.xmlTraceWriteEnable ) ) { // and at least one of write or read must be enabled
-					_rsslReactorOpts.enableXmlTracePing();
-				}
+				_rsslReactorOpts.xmlTraceWrite(_activeConfig.xmlTraceWriteEnable);
+				_rsslReactorOpts.xmlTraceRead(_activeConfig.xmlTraceReadEnable);
+				_rsslReactorOpts.xmlTracePing(_activeConfig.xmlTracePingEnable);
 			}
 
 
