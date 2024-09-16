@@ -1,0 +1,1 @@
+This is an invalid XML file. Loading it into an XML parser should trigger an error.

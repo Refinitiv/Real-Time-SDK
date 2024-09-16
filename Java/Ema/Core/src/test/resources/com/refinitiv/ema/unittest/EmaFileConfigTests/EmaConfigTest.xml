@@ -41,8 +41,7 @@
 			<DispatchTimeoutApiThread value="90"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
-			<PipePort value="7001"/>
-			
+
 			<ReconnectAttemptLimit value="10"/>
 			<ReconnectMinDelay value="123" />
 			<ReconnectMaxDelay value="456" />
@@ -126,7 +125,7 @@
 			<!-- dictionary is optional: defaulted to "ChannelDictionary" -->
 			<Dictionary value="Dictionary_2"/>
 		</Consumer>
-		<Consumer>
+		<!-- Consumer>
 			<Name value="Check_Multiple_Occurrences"/>
 			<Dictionary value="Dictionary_1"/>
 			<Channel value="C1"/>
@@ -134,7 +133,7 @@
 			<ChannelSet value="CS1"/>
 			<Channel value="C3"/>
 			<ChannelSet value="CS2"/>
-		</Consumer>
+		</Consumer -->
 		<Consumer>
 			<Name value="Consumer_8"/>
 			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
@@ -209,12 +208,12 @@
 			<ChannelSet value="Channel_2, Channel_3"/>
 			<Channel	value="Channel_1"/>
 
-			<Directory value="Directory_3"/>
+			<Directory value="Directory_2"/>
 			
 			<ReconnectAttemptLimit value="5"/>
 			<ReconnectMinDelay value="330" />
 			<ReconnectMaxDelay value="450" />
-			<XmlTraceFileName value="EmaMyTrace3"/>
+			<!-- XmlTraceFileName value="EmaMyTrace3"/ -->
 			<XmlTraceMaxFileSize value="66666666" />
 			<XmlTraceToStdout value="0" />
 			<XmlTraceToFile value="0" />
@@ -255,9 +254,7 @@
 			<MaxDispatchCountApiThread value="500" />
 			
 			<MaxDispatchCountUserThread value="500" />
-			
-			<PipePort value="9009" />
-			
+
 			<RefreshFirstRequired value="1" />
         </IProvider>
 		<IProvider>
@@ -280,7 +277,6 @@
 			<DispatchTimeoutApiThread value="90"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
-			<PipePort value="7001"/>
 			<XmlTraceToStdout value="0" />
 			<XmlTraceToFile value="0" />
 			<XmlTraceMaxFileSize value="40000"/>
@@ -311,9 +307,7 @@
 			<MaxDispatchCountApiThread value="500" />
 			
 			<MaxDispatchCountUserThread value="500" />
-			
-			<PipePort value="9009" />
-			
+
 			<RefreshFirstRequired value="1" />
         </IProvider>
     </IProviderList>

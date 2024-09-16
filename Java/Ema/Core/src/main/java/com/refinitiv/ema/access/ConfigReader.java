@@ -2,11 +2,13 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019, 2024 Refinitiv. All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -17,7 +19,12 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.io.File;
+
+import javax.xml.XMLConstants;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.XMLConfiguration;
@@ -29,14 +36,19 @@ import com.refinitiv.ema.access.ConfigManager.TagDictionary;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.eta.transport.CompressionTypes;
 import com.refinitiv.eta.transport.ConnectionTypes;
+
 import org.apache.commons.configuration2.io.FileHandler;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.configuration2.tree.NodeHandler;
 
+import org.xml.sax.SAXException;
+
 class ConfigReader 
 {
 	static ConfigReader configReaderFactory;
-	
+
+	static String defaultXsdFileName = "EmaConfig.xsd";
+
 	EmaConfigBaseImpl _parent;
 	
 	ConfigReader() 
@@ -310,16 +322,6 @@ class ConfigReader
 		private boolean _getDefaultName = false;
 
 		boolean _debugDump = false;
-
-		class ConfigNode
-		{
-			ArrayList <Integer> nodeList;
-
-			void add(int nodeId,Hashtable<String, Integer> dict)
-			{
-				nodeList.add(nodeId);
-			}
-		}
 
 		XMLConfigReader(EmaConfigBaseImpl emaConfigImpl)
 		{
@@ -920,47 +922,174 @@ class ConfigReader
 			}
 		}
 
-		/*
+		/**
 		 * read and parse a configuration file
 		 *
-		 * if parameter path is empty, attempt to read and parse file EmaConfig.xml in the current working directory.
+		 * if parameter path is empty, attempt to read and parse file EmaConfig.xml in the
+		 * current working directory.
 		 *
-		 * if parameter path is not empty, attempt to read configuration from a classpath resource located at the specified path.
-		 * if no classpath resource exists at the path, attempt to read the configuration from path if it is a file or file path/EmaConfig.xml if path is a directory.
+		 * if parameter path is not empty, attempt to read configuration from a classpath
+		 * resource located at the specified path.
 		 *
-		 * If a configuration cannot be constructed from the given path, throw an OmmInvalidConfigurationException exception
+		 * if no classpath resource exists at the path, attempt to read the configuration
+		 * from path if it is a file or file path/EmaConfig.xml if path is a directory.
+		 *
+		 * If a configuration cannot be constructed from the given path, throw an
+		 * OmmInvalidConfigurationException exception
+		 *
+		 * @param path  XML Configuration file name
+		 * 
+		 * @throws {@link OmmInvalidConfigurationException}
 		 */
-		protected void loadFile(String path)
+		protected void loadFile(String pathToXml) throws OmmInvalidConfigurationException
 		{
-			String fileName;	// eventual location of configuration file
-			final String defaultFileName = "EmaConfig.xml";
+			final String defaultXmlFileName = "EmaConfig.xml";
+			
+			// eventual location of configuration file
+			String xmlFileName = getValidatedFileName(pathToXml, defaultXmlFileName);
 
-			if (path == null || path.isEmpty()) {
-				fileName = defaultFileName;
-				File tmp = new File(fileName);
-				String filePath = System.getProperty("user.dir") + FileSystems.getDefault().getSeparator() + fileName;
-				if (!Files.isReadable(Paths.get(filePath)) || tmp.length() == 0)
+			if (xmlFileName != null && !xmlFileName.isEmpty())
+			{
+				try
 				{
-					errorTracker().append(String.format("Missing, unreadable or empty file configuration, path=[%s",
-									filePath)).append( "]" )
-							.create(Severity.INFO);
+                    // validate XML Config only when the XML Schema file is present in the current working directory
+					if (Files.exists(Paths.get(defaultXsdFileName)))
+					{
+						Validator validator = initValidator(defaultXsdFileName);
+						validator.validate(new StreamSource(new File(xmlFileName)));
+					}
+				}
+				catch (IOException | SAXException e)
+				{
+					throw _parent.oommICExcept().message(e.getMessage());
+				}
+			}
+
+			XMLConfiguration config = new XMLConfiguration();
+
+			try
+			{
+				FileHandler fh = new FileHandler(config);
+				if (pathToXml == null || pathToXml.isEmpty())
+				{
+					InputStream in = ClassLoader.class.getResourceAsStream("/".concat(defaultXmlFileName));
+					if (in == null)
+					{
+						fh.setFileName(defaultXmlFileName);
+						fh.load();
+					}
+					else
+					{
+						fh.load(in);
+					}
+				}
+				else
+				{
+					fh.setFileName(xmlFileName);
+					fh.load();
+				}
+			}
+			catch (ConfigurationException e)
+			{
+				if (pathToXml == null || pathToXml.isEmpty())
+				{
+					errorTracker().append(e.getMessage()).create(Severity.TRACE);
+					return;
 				}
 
+				// error processing user-specified path; throw
+				String errorMsg = String.format(
+						"could not construct configuration from file [%s]; working directory was [%s]", xmlFileName,
+						System.getProperty("user.dir"));
+				throw _parent.oommICExcept().message(errorMsg);
+			}
+
+			NodeHandler<ImmutableNode> nh = config.getNodeModel().getNodeHandler();
+
+			configkeyTypePair = new Hashtable<String, Integer>();
+
+			for (int i = 0; i < ConfigManager.AsciiValues.length; i++)
+				configkeyTypePair.put(ConfigManager.AsciiValues[i], ConfigElement.Type.Ascii);
+
+			for (int i = 0; i < ConfigManager.EnumeratedValues.length; i++)
+				configkeyTypePair.put(ConfigManager.EnumeratedValues[i], ConfigElement.Type.Enum);
+
+			for (int i = 0; i < ConfigManager.Int64Values.length; i++)
+				configkeyTypePair.put(ConfigManager.Int64Values[i], ConfigElement.Type.Int64);
+
+			for (int i = 0; i < ConfigManager.UInt64Values.length; i++)
+				configkeyTypePair.put(ConfigManager.UInt64Values[i], ConfigElement.Type.UInt64);
+
+			for (int i = 0; i < ConfigManager.DoubleValues.length; i++)
+				configkeyTypePair.put(ConfigManager.DoubleValues[i], ConfigElement.Type.Double);
+
+			level = 1;
+
+			xmlRoot = new XMLnode("root", level, null, ConfigManager.ROOT);
+			xmlRoot.setErrorTracker(errorTracker());
+
+			if (_debugDump)
+				debugDump("=== Start: XMLConfig file read dump ========================");
+
+			processNode(xmlRoot, nh.getRootNode(), ConfigManager.ConsumerTagDict);
+
+			if (_debugDump)
+				debugDump("=== End ====================================================");
+
+			// debugging
+			// xmlRoot.dump(0);
+		}
+
+		/**
+		 * Given an optional directory and a file name determines full file name. 
+		 *
+		 * When <tt>pathToFile</tt> is <tt>null</tt> the <tt>defaultFileName</tt> is
+		 * looked up in the current working directory.
+		 *
+		 * @param pathToFile  either a directory containing <tt>defaultFileName</tt> or a filename itself
+		 * @param defaultFileName  name of the file to look for
+		 *
+		 * @return file name, either inside provided <tt>pathToFile</tt> or the
+		 *   <tt>defaultFileName</tt>. An empty string, when the <tt>pathToFile</tt> is
+		 *   empty and the <tt>defaultFileName</tt> does not exist
+		 *
+		 * @throws OmmInvalidConfigurationException when the <tt>pathToFile</tt> is
+		 *   specified but is invalid or <tt>defaultFileName</tt> is not a file inside
+		 *   this directory
+		 */
+		private String getValidatedFileName(String pathToFile, String defaultFileName) {
+			String fileName;
+			final String separator = FileSystems.getDefault().getSeparator();
+
+			if (pathToFile == null || pathToFile.isEmpty()) {
+				fileName = defaultFileName;
+				File tmp = new File(fileName);
+				fileName = System.getProperty("user.dir") + separator + fileName;
+
+				if (!Files.isReadable(Paths.get(fileName)) || tmp.length() == 0)
+				{
+					errorTracker()
+					.append(String.format("Missing, unreadable or empty file configuration, path=[%s",
+							fileName)).append( "]" )
+					.create(Severity.INFO);
+
+					fileName = "";
+				}
 			} else {
-				File tmp = new File(path);
+				File tmp = new File(pathToFile);
 				if(!tmp.exists()) {
-					String errorMsg = String.format("configuration path [%s] does not exist; working directory was [%s]", path,
+					String errorMsg = String.format("configuration path [%s] does not exist; working directory was [%s]", pathToFile,
 							System.getProperty("user.dir"));
 					throw _parent.oommICExcept().message(errorMsg);
 				}
 
 				// path must be a file or directory
 				if (tmp.isFile())
-					fileName = path;
+					fileName = pathToFile;
 
 				// if path is a directory, create fileName and verify existence, and verify that it is a file
 				else if (tmp.isDirectory()) {
-					fileName = path + "/" + defaultFileName;
+					fileName = pathToFile + separator + defaultFileName;
 
 					// file must exist
 					tmp = new File(fileName);
@@ -976,11 +1105,9 @@ class ConfigReader
 								System.getProperty("user.dir"));
 						throw _parent.oommICExcept().message(errorMsg);
 					}
-				}
-
-				else {
+				} else {
 					String errorMsg = String.format("configuration path [%s] must be either a file or directory; working directory was [%s]",
-							path, System.getProperty("user.dir"));
+							pathToFile, System.getProperty("user.dir"));
 					throw _parent.oommICExcept().message(errorMsg);
 				}
 
@@ -988,71 +1115,13 @@ class ConfigReader
 				errorTracker().append( "reading configuration file [" ).append( fileName ).append( "]; working directory is [" )
 						.append( System.getProperty("user.dir") ).append( "]" ).create(Severity.TRACE);
 			}
+			return fileName;
+		}
 
-			XMLConfiguration config = new XMLConfiguration();
-
-			try 
-			{
-				FileHandler fh = new FileHandler(config);
-				if (path == null || path.isEmpty()) {
-					InputStream in = ClassLoader.class.getResourceAsStream("/".concat(defaultFileName));
-					if (in == null) {
-						fh.setFileName(defaultFileName);
-						fh.load();
-					} else {
-						fh.load(in);
-					}
-				} else {
-					fh.setFileName(fileName);
-					fh.load();
-				}
-			} 
-			catch (ConfigurationException e)
-			{
-				if (path == null || path.isEmpty()) {
-					errorTracker().append(e.getMessage()).create(Severity.TRACE);
-					return;
-				}
-
-				// error processing user-specified path; throw
-				String errorMsg = String.format("could not construct configuration from file [%s]; working directory was [%s]",
-								  fileName, System.getProperty("user.dir"));
-				throw _parent.oommICExcept().message(errorMsg);
-			}
-
-			NodeHandler<ImmutableNode> nh = config.getNodeModel().getNodeHandler();
-
-			configkeyTypePair = new Hashtable<String, Integer>();
-
-			for( int i = 0; i < ConfigManager.AsciiValues.length; i++ )
-				configkeyTypePair.put(ConfigManager.AsciiValues[i], ConfigElement.Type.Ascii);
-
-			for( int i = 0; i < ConfigManager.EnumeratedValues.length; i++ )
-				configkeyTypePair.put(ConfigManager.EnumeratedValues[i], ConfigElement.Type.Enum);
-
-			for( int i = 0; i < ConfigManager.Int64Values.length; i++ )
-				configkeyTypePair.put(ConfigManager.Int64Values[i], ConfigElement.Type.Int64);
-
-			for( int i = 0; i < ConfigManager.UInt64Values.length; i++ )
-				configkeyTypePair.put(ConfigManager.UInt64Values[i], ConfigElement.Type.UInt64);
-			
-			for( int i = 0; i < ConfigManager.DoubleValues.length; i++ )
-				configkeyTypePair.put(ConfigManager.DoubleValues[i], ConfigElement.Type.Double);
-
-
-			level = 1;
-
-			xmlRoot = new XMLnode("root",level,null,ConfigManager.ROOT);
-			xmlRoot.setErrorTracker(errorTracker());
-
-			if(_debugDump) debugDump("=== Start: XMLConfig file read dump ========================");
-
-			processNode(xmlRoot, nh.getRootNode(), ConfigManager.ConsumerTagDict);
-			
-			if(_debugDump) debugDump("=== End ====================================================");
-
-			// debugging
-			// xmlRoot.dump(0);
+		private Validator initValidator(String pathToXsd) throws SAXException {
+			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+			Schema schema = factory.newSchema(new File(pathToXsd));
+			return schema.newValidator();
 		}
 
 		void verifyAndGetDefaultConsumer()

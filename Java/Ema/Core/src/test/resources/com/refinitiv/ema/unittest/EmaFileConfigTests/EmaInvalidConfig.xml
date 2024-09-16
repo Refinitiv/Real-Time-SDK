@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  This is a valid XML document, but it does not match the EmaTestConfig.xsd
+
+  Schema definition and should trigger an exception in the Configuration constructor.
+-->
+
+<EmaConfig>
+  <ConsumerGroup>
+	<ConsumerList>
+	  <Consumer>
+		<Name value="Consumer_1"/>
+		<!-- Name is mandatory. ConsumerName is an invalid element name and should trigger
+		     validation error with the Schema -->
+        	<ConsumerName value="123"/>
+	  </Consumer>
+	</ConsumerList>
+  </ConsumerGroup>
+</EmaConfig>

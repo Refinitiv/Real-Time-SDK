@@ -1823,4 +1823,9 @@ public class JUnitTestConnect
 		}
 		return serverConfig;
 	}
+
+    public static void setDefaultXmlSchemaName(String fileName)
+    {
+        ConfigReader.defaultXsdFileName = fileName;
+    } 
 }
