@@ -13,6 +13,8 @@
 #include "direct.h"
 #endif
 
+#include <memory>
+
 #include "ConfigErrorHandling.h"
 #include "OmmLoggerClient.h"
 #include "HashTable.h"
@@ -33,7 +35,7 @@
 #include "rtr/rsslRDMLoginMsg.h"
 #include "rtr/rsslReactor.h"
 #include "libxml/parser.h"
-
+#include "libxml/xmlschemas.h"
 
 #define DEFAULT_CONS_NAME							  EmaString("EmaConsumer")
 #define DEFAULT_IPROV_NAME							  EmaString("EmaIProvider")
@@ -1122,7 +1124,7 @@ public:
 
 	OmmLoggerClient::Severity readXMLconfiguration(const EmaString&);
 
-	bool extractXMLdataFromCharBuffer(const EmaString&, const char*, int);
+	bool extractXMLdataFromCharBuffer(const EmaString&, const EmaString&, const char*, const char*, int, int);
 
 	void processXMLnodePtr(XMLnode*, const xmlNodePtr&);
 
@@ -1140,7 +1142,7 @@ public:
 
 	ProgrammaticConfigure* getProgrammaticConfigure()
 	{
-		return _pProgrammaticConfigure;
+		return _pProgrammaticConfigure.get();
 	}
 
 	const EmaString& getInstanceNodeName() const
@@ -1153,6 +1155,8 @@ public:
 	virtual EmaString getConfiguredName() = 0;
 
 	static void setDefaultConfigFileName(const EmaString&);
+
+	static void setDefaultSchemaFileName(const EmaString&);
 
 	const EmaString& getCpuWorkerThreadBind()
 	{
@@ -1191,8 +1195,8 @@ public:
 
 protected:
 
-	XMLnode*				_pEmaConfig;
-	ProgrammaticConfigure*	_pProgrammaticConfigure;
+	std::unique_ptr<XMLnode> _pEmaConfig;
+	std::unique_ptr<ProgrammaticConfigure>	_pProgrammaticConfigure;
 
 	EmaString				_instanceNodeName;
 	EmaString				_configSessionName;
@@ -1206,8 +1210,14 @@ protected:
 
 private:
 
+	using BufferPtrT = std::unique_ptr<char, decltype(std::free)*>;
+
 	HashTable< EmaString, ConfigElement::ConfigElementType> nameToValueHashTable;
 	static EmaString		defaultEmaConfigXMLFileName;
+	static EmaString		defaultEmaSchemaXMLFileName;
+
+	OmmLoggerClient::Severity readFileToMemory (const EmaString&, const EmaString&, EmaString&, BufferPtrT&, size_t&);
+	static void errorHandler(void *userData, xmlErrorPtr error);
 };
 
 class EmaConfigImpl : public EmaConfigBaseImpl
@@ -1464,8 +1474,6 @@ protected:
 
 	PortSetViaFunctionCall		_portSetViaFunctionCall;
 
-	const EmaString configFilePath;
-
 	EmaString		_objectName;
 	EmaString		_libSslName;
 	EmaString		_libCryptoName;
@@ -1490,7 +1498,7 @@ class EmaConfigServerImpl : public EmaConfigBaseImpl
 {
 public:
 
-	EmaConfigServerImpl( const EmaString & path );
+	EmaConfigServerImpl( const EmaString& );
 	virtual ~EmaConfigServerImpl();
 
 	void clear();

@@ -76,10 +76,10 @@ public :
 	///@name Constructor
 	//@{
 	/** Create an OmmConsumerConfig that enables customization of default implicit administrative domains and local configuration. 
-		@param[in] path specifies configuration file name or name of directory containing a file named EmaConfig.xml
+		@param[in] configPath configPath configuration file name or name of directory containing a file named EmaConfig.xml
 		\remark path is optional. If not specified, application will use EmaConfig.xml (if any)  found in current working directory
 	*/
-	OmmConsumerConfig(const EmaString & path);
+	OmmConsumerConfig( const EmaString& configPath );
 	//@}
 
 	///@name Destructor

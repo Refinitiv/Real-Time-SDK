@@ -65,6 +65,7 @@ public:
 	}
 
 	void TearDown() {
+        EmaConfigBaseImpl::setDefaultSchemaFileName("EmaConfig.xsd");
 	}
 
 	static bool hasRun;
@@ -3039,8 +3040,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 
 			EXPECT_TRUE(pTemp->stateFilter.acceptingRequests == 1) << "stateFilter.acceptingRequests , 1";
 			EXPECT_TRUE(pTemp->stateFilter.serviceState == 1) << "stateFilter.serviceState , 1";
-			EXPECT_TRUE(pTemp->stateFilter.flags == RDM_SVC_STF_HAS_STATUS ||
-				RDM_SVC_STF_HAS_ACCEPTING_REQS) << "stateFilter.flags , \"RDM_SVC_STF_HAS_STATUS,RDM_SVC_STF_HAS_ACCEPTING_REQS\"";
+			EXPECT_TRUE(pTemp->stateFilter.flags == (RDM_SVC_STF_HAS_STATUS |
+				RDM_SVC_STF_HAS_ACCEPTING_REQS)) << "stateFilter.flags , \"RDM_SVC_STF_HAS_STATUS,RDM_SVC_STF_HAS_ACCEPTING_REQS\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.streamState == 3) << "status.streamState , \"StreamState::ClosedRecover\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.dataState == 2) << "stateFilter.status.dataState , \"DataState::Suspect\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.code == 29) << "stateFilter.status.code , \"StatusCode::DacsDown\"";
@@ -3070,13 +3071,17 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(pTemp->infoFilter.acceptingConsumerStatus == 0) << "infoFilter.acceptingConsumerStatus , 0";
 			EXPECT_TRUE(pTemp->infoFilter.supportsQosRange == 0) << "infoFilter.supportsQosRange , 0";
 			EXPECT_TRUE(pTemp->infoFilter.supportsOutOfBandSnapshots == 0) << "infoFilter.supportsOutOfBandSnapshots , 0";
-			EXPECT_TRUE(pTemp->infoFilter.flags == RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS ||
-				RDM_SVC_IFF_HAS_DICTS_PROVIDED ||
-				RDM_SVC_IFF_HAS_ITEM_LIST ||
-				RDM_SVC_IFF_HAS_QOS ||
-				RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS ||
-				RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE ||
-				RDM_SVC_IFF_HAS_VENDOR) << "infoFilter.flags , \"RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS, RDM_SVC_IFF_HAS_DICTS_PROVIDED,RDM_SVC_IFF_HAS_ITEM_LIST,RDM_SVC_IFF_HAS_QOS,RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS,RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE,RDM_SVC_IFF_HAS_VENDOR\"";
+			EXPECT_EQ(pTemp->infoFilter.flags, (RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS |
+				RDM_SVC_IFF_HAS_DICTS_PROVIDED |
+				RDM_SVC_IFF_HAS_DICTS_USED |
+				RDM_SVC_IFF_HAS_ITEM_LIST |
+				RDM_SVC_IFF_HAS_QOS |
+				RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS |
+				RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE |
+				RDM_SVC_IFF_HAS_VENDOR))
+				<< "infoFilter.flags , \"RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS, RDM_SVC_IFF_HAS_DICTS_PROVIDED,"
+				" RDM_SVC_IFF_HAS_DICTS_USED, RDM_SVC_IFF_HAS_ITEM_LIST, RDM_SVC_IFF_HAS_QOS,"
+				" RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS, RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE,RDM_SVC_IFF_HAS_VENDOR\"";
 
 
 			//retrieve capabilities
@@ -3481,8 +3486,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 			//retrieve Service state
 			EXPECT_TRUE(pTemp->stateFilter.acceptingRequests == 1) << "stateFilter.acceptingRequests , 1";
 			EXPECT_TRUE(pTemp->stateFilter.serviceState == 1) << "stateFilter.serviceState , 1";
-			EXPECT_TRUE(pTemp->stateFilter.flags == RDM_SVC_STF_HAS_STATUS ||
-				RDM_SVC_STF_HAS_ACCEPTING_REQS) << "stateFilter.flags , \"RDM_SVC_STF_HAS_STATUS,RDM_SVC_STF_HAS_ACCEPTING_REQS\"";
+			EXPECT_TRUE(pTemp->stateFilter.flags == (RDM_SVC_STF_HAS_STATUS |
+				RDM_SVC_STF_HAS_ACCEPTING_REQS)) << "stateFilter.flags , \"RDM_SVC_STF_HAS_STATUS,RDM_SVC_STF_HAS_ACCEPTING_REQS\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.streamState == 3) << "status.streamState , \"StreamState::ClosedRecover\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.dataState == 2) << "stateFilter.status.dataState , \"DataState::Suspect\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.code == 29) << "stateFilter.status.code , \"StatusCode::DacsDown\"";
@@ -3502,13 +3507,16 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 			EXPECT_TRUE(pTemp->infoFilter.acceptingConsumerStatus == 0) << "infoFilter.acceptingConsumerStatus , 0";
 			EXPECT_TRUE(pTemp->infoFilter.supportsQosRange == 0) << "infoFilter.supportsQosRange , 0";
 			EXPECT_TRUE(pTemp->infoFilter.supportsOutOfBandSnapshots == 0) << "infoFilter.supportsOutOfBandSnapshots , 0";
-			EXPECT_TRUE(pTemp->infoFilter.flags == RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS ||
-				RDM_SVC_IFF_HAS_DICTS_PROVIDED ||
-				RDM_SVC_IFF_HAS_ITEM_LIST ||
-				RDM_SVC_IFF_HAS_QOS ||
-				RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS ||
-				RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE ||
-				RDM_SVC_IFF_HAS_VENDOR) << "infoFilter.flags , \"RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS, RDM_SVC_IFF_HAS_DICTS_PROVIDED,RDM_SVC_IFF_HAS_ITEM_LIST,RDM_SVC_IFF_HAS_QOS,RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS,RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE,RDM_SVC_IFF_HAS_VENDOR\"";
+			EXPECT_EQ(pTemp->infoFilter.flags, (RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS |
+				RDM_SVC_IFF_HAS_DICTS_USED |
+				RDM_SVC_IFF_HAS_ITEM_LIST |
+				RDM_SVC_IFF_HAS_QOS |
+				RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS |
+				RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE |
+				RDM_SVC_IFF_HAS_VENDOR))
+				<< "infoFilter.flags , \"RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS, RDM_SVC_IFF_HAS_DICTS_USED,"
+				" RDM_SVC_IFF_HAS_ITEM_LIST, RDM_SVC_IFF_HAS_QOS, RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS,"
+				" RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE,RDM_SVC_IFF_HAS_VENDOR\"";
 
 			//retrieve capabilities
 			idx = 0;
@@ -3867,8 +3875,8 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 
 			EXPECT_TRUE(pTemp->stateFilter.acceptingRequests == 0) << "stateFilter.acceptingRequests , 0";
 			EXPECT_TRUE(pTemp->stateFilter.serviceState == 0) << "stateFilter.serviceState , 0";
-			EXPECT_TRUE(pTemp->stateFilter.flags == RDM_SVC_STF_HAS_STATUS ||
-				RDM_SVC_STF_HAS_ACCEPTING_REQS) << "stateFilter.flags , \"RDM_SVC_STF_HAS_STATUS,RDM_SVC_STF_HAS_ACCEPTING_REQS\"";
+			EXPECT_TRUE(pTemp->stateFilter.flags == (RDM_SVC_STF_HAS_STATUS |
+				RDM_SVC_STF_HAS_ACCEPTING_REQS)) << "stateFilter.flags , \"RDM_SVC_STF_HAS_STATUS,RDM_SVC_STF_HAS_ACCEPTING_REQS\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.streamState == 3) << "status.streamState , \"StreamState::ClosedRecover\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.dataState == 2) << "stateFilter.status.dataState , \"DataState::Suspect\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.code == 29) << "stateFilter.status.code , \"StatusCode::DacsDown\"";
@@ -4178,8 +4186,8 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 
 			EXPECT_TRUE(pTemp->stateFilter.acceptingRequests == 0) << "stateFilter.acceptingRequests , 0";
 			EXPECT_TRUE(pTemp->stateFilter.serviceState == 0) << "stateFilter.serviceState , 0";
-			EXPECT_TRUE(pTemp->stateFilter.flags == RDM_SVC_STF_HAS_STATUS ||
-				RDM_SVC_STF_HAS_ACCEPTING_REQS) << "stateFilter.flags , \"RDM_SVC_STF_HAS_STATUS,RDM_SVC_STF_HAS_ACCEPTING_REQS\"";
+			EXPECT_TRUE(pTemp->stateFilter.flags == (RDM_SVC_STF_HAS_STATUS |
+				RDM_SVC_STF_HAS_ACCEPTING_REQS)) << "stateFilter.flags , \"RDM_SVC_STF_HAS_STATUS,RDM_SVC_STF_HAS_ACCEPTING_REQS\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.streamState == 3) << "status.streamState , \"StreamState::ClosedRecover\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.dataState == 2) << "stateFilter.status.dataState , \"DataState::Suspect\"";
 			EXPECT_TRUE(pTemp->stateFilter.status.code == 29) << "stateFilter.status.code , \"StatusCode::DacsDown\"";
@@ -5038,7 +5046,7 @@ public:
 		// and was set an empty path to EmaConfigTest.xml or a directory
 		EmaConfigBaseImpl::setDefaultConfigFileName(defaultFileNameNotExist);
 		
-		errorMsgText.append("configuration path [").append(userDefinedFileNameNotExist).append("] does not exist;");
+		errorMsgText.append("path [").append(userDefinedFileNameNotExist).append("] does not exist;");
 	}
 
 	void TearDown() {
@@ -5046,11 +5054,15 @@ public:
 
 	static const char* defaultFileNameNotExist;
 	static const char* userDefinedFileNameNotExist;
+	static const char* validEmaConfig;
+
 	EmaString errorMsgText;
 };
 
 const char* EmaConfigTestNotExist::defaultFileNameNotExist = "EmaConfigFileNotExist.xml";
 const char* EmaConfigTestNotExist::userDefinedFileNameNotExist = "EmaConfigUserFileNotExist.xml";
+const char* EmaConfigTestNotExist::validEmaConfig = "EmaConfigDefault.xml";
+
 
 TEST_F(EmaConfigTestNotExist, OmmConsumerConfigShouldThrowException)
 {
@@ -5066,6 +5078,17 @@ TEST_F(EmaConfigTestNotExist, OmmConsumerConfigShouldThrowException)
 	catch (...)
 	{
 		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
+	}
+
+    // load valid EMA XML Config, while user-provided schema file can't be found
+
+	try {
+        EmaConfigBaseImpl::setDefaultSchemaFileName(EmaConfigTestNotExist::userDefinedFileNameNotExist);
+		OmmConsumerConfig config(validEmaConfig);
+	}
+	catch (...)
+	{
+		FAIL() << "no exception was expected because the schema file is not exist. Actual: it throws an exception.";
 	}
 }
 
@@ -5093,6 +5116,18 @@ TEST_F(EmaConfigTestNotExist, OmmIProviderConfigShouldThrowException)
 	{
 		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
 	}
+
+	// load valid EMA XML Config, while user-provided schema file can't be found
+
+	try {
+        EmaConfigBaseImpl::setDefaultSchemaFileName(EmaConfigTestNotExist::userDefinedFileNameNotExist);
+		OmmIProviderConfig config(validEmaConfig);
+	}
+	catch (...)
+	{
+		FAIL() << "no exception was expected because the schema file is not exist. Actual: it throws an exception.";
+	}
+
 }
 
 TEST_F(EmaConfigTestNotExist, OmmIProviderConfigDefaultShouldNoException)
@@ -5118,6 +5153,17 @@ TEST_F(EmaConfigTestNotExist, OmmNiProviderConfigShouldThrowException)
 	catch (...)
 	{
 		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
+	}
+
+	// load valid EMA XML Config, while user-provided schema file can't be found
+
+	try {
+        EmaConfigBaseImpl::setDefaultSchemaFileName(EmaConfigTestNotExist::userDefinedFileNameNotExist);
+		OmmNiProviderConfig config(validEmaConfig);
+	}
+	catch (...)
+	{
+		FAIL() << "no exception was expected because the schema file is not exist. Actual: it throws an exception.";
 	}
 }
 

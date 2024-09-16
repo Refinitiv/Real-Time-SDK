@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<EmaConfig>
+
+    <ConsumerGroup>
+        <DefaultConsumer value="Consumer_1"/>
+        <ConsumerList>
+            <Consumer>
+                <Name value="Consumer_1"/>
+                <Channel value="Channel_1"/>
+
+                <!-- This logger is not defined in this XML Config file and will be
+                     overlayed with the Programmatic config in the unit-test. -->
+                <Logger value="ProgLogger_1"/>
+
+                <Dictionary value="Dictionary_1"/>
+            </Consumer>
+        </ConsumerList>
+    </ConsumerGroup>
+
+    <ChannelGroup>
+        <ChannelList>
+            <Channel>
+                <Name value="Channel_1"/>
+                <ChannelType value="ChannelType::RSSL_SOCKET"/>
+                <Host value="localhost"/>
+                <Port value="14002"/>
+            </Channel>
+        </ChannelList>
+    </ChannelGroup>
+
+    <DictionaryGroup>
+        <DictionaryList>
+            <Dictionary>
+                <Name value="Dictionary_1"/>
+                <DictionaryType value="DictionaryType::ChannelDictionary"/>
+            </Dictionary>
+        </DictionaryList>
+    </DictionaryGroup>
+
+</EmaConfig>

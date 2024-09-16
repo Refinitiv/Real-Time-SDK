@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<EmaConfig>
+  <ConsumerGroup>
+    <ConsumerList>
+      <Consumer>
+        <Name value="APP_1"/>
+      </Consumer>
+    </ConsumerList>
+  </ConsumerGroup>
+
+  <NiProviderGroup>
+    <NiProviderList>
+      <NiProvider>
+        <Name value="APP_1"/>
+      </NiProvider>
+    </NiProviderList>
+  </NiProviderGroup>
+
+  <IProviderGroup>
+    <IProviderList>
+      <IProvider>
+        <Name value="APP_1"/>
+      </IProvider>
+    </IProviderList>
+  </IProviderGroup>
+
+  <ServerGroup>
+    <ServerList>
+      <Server>
+        <Name value="APP_1"/>
+      </Server>
+    </ServerList>
+  </ServerGroup>
+
+  <LoggerGroup>
+    <LoggerList>
+      <Logger>
+        <Name value="APP_1"/>
+      </Logger>
+    </LoggerList>
+  </LoggerGroup>
+
+  <ChannelGroup>
+    <ChannelList>
+      <Channel>
+        <Name value="APP_1"/>
+      </Channel>
+    </ChannelList>
+  </ChannelGroup>
+
+  <DirectoryGroup>
+    <DirectoryList>
+      <Directory>
+        <Name value="APP_1"/>
+      </Directory>
+    </DirectoryList>
+  </DirectoryGroup>
+
+  <DictionaryGroup>
+    <DictionaryList>
+      <Dictionary>
+        <Name value="APP_1"/>
+      </Dictionary>
+    </DictionaryList>
+  </DictionaryGroup>
+
+</EmaConfig>
