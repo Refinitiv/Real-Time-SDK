@@ -25,7 +25,9 @@ namespace LSEG.Ema.Access
 
         // DispatchModel config from OmmConsumerConfig methods.
         internal int DispatchModel { get; private set; } = (int)OmmIProviderConfig.OperationModelMode.API_DISPATCH;
-        // Path of the Xml configuration file. If not specified when the OmmConsumerConfig is created, this will default to "EmaConfig.xml"
+
+        // Path of the Xml configuration file. If not specified when the OmmIProviderConfig
+        // is created, this will default to "EmaConfig.xml"
         internal string XmlConfigPath { get; set; } = string.Empty;
 
         // Dictionary tables indexed by the name of the config.

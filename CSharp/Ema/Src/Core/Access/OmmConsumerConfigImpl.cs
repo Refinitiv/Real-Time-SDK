@@ -85,8 +85,10 @@ namespace LSEG.Ema.Access
             ConfigErrorLog = new ConfigErrorList();
 
             Clear();
-            if (string.IsNullOrEmpty(path) == false)
+
+            if (!string.IsNullOrEmpty(path))
                 XmlConfigPath = path;
+
             XmlParser = new XmlConfigParser(this);
 
             // Overwrite the ApplicationName to "ema"

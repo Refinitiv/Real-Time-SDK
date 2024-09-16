@@ -58,7 +58,9 @@ namespace LSEG.Ema.Access
         internal ConnectionType EncProtocolType { get; set; } = ConnectionType.UNIDENTIFIED;
         // DispatchModel config from OmmConsumerConfig methods.
         internal int DispatchModel;
-        // Path of the Xml configuration file. If not specified when the OmmConsumerConfig is created, this will default to "EmaConfig.xml"
+
+        // Path of the Xml configuration file. If not specified when the OmmConsumerConfig
+        // is created, this will default to "EmaConfig.xml"
         internal string XmlConfigPath { get; set; } = string.Empty;
 
         internal LoggerConfig LoggerConfig { get; set; } = new LoggerConfig();

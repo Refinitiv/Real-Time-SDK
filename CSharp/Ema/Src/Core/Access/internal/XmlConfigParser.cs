@@ -7,23 +7,29 @@
  */
 
 
-using LSEG.Eta.Transports;
 using System;
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.Schema;
+
+using LSEG.Eta.Transports;
 using LSEG.Eta.Codec;
-using Microsoft.IdentityModel.Tokens;
 
 namespace LSEG.Ema.Access
 {
-    // This class will, upon creation from OmmConsumerConfigImpl/OmmProviderImpl/OmmNiProviderImpl,
-    // parse the either the default Xml file, or the given file from the OmmConfig's XmlConfigPath.
-    //
-    // When created from the copy constructor in OmmBaseImpl, this class will represent the full
-    // config for the configured singular consumer that EMA will use to create an OmmConsumer,
-    // OmmProvider, or OmmNiProvider.
+    // This class will, upon creation from
+    // OmmConsumerConfigImpl/OmmProviderImpl/OmmNiProviderImpl, parse the either the
+    // default Xml file, or the given file from the OmmConfig's XmlConfigPath.
+
+    // When created from the copy constructor in OmmBaseImpl, this class will represent
+    // the full config for the configured singular consumer that EMA will use to create an
+    // OmmConsumer, OmmProvider, or OmmNiProvider.
     internal class XmlConfigParser
     {
+
+        private const string DEFAULT_CONFIG_FILE = "EmaConfig.xml";
+        // let unit-tests modify this value for testing purposes
+        internal static string DEFAULT_SCHEMA_FILE = "EmaConfig.xsd";
 
         private XmlDocument ConfigXml { get; set; }
 
@@ -87,7 +93,7 @@ namespace LSEG.Ema.Access
             "RecoverUserSubmitSourceDirectory",
             "RefreshFirstRequired",
             "RemoveItemsOnDisconnect",
-	    "RestProxyHostName",
+            "RestProxyHostName",
             "RestProxyPort",
             // Channel related strings
             "AuthenticationTimeout", // This is used only for the encrypted connection type.
@@ -115,8 +121,6 @@ namespace LSEG.Ema.Access
             "ProxyPort",
             "TcpNodelay",
             "SecurityProtocol",
-            // Server related strings
-            "ConnectionMinPingTimeout",
             // Logger related strings
             "LoggerGroup",
             "LoggerList",
@@ -195,51 +199,12 @@ namespace LSEG.Ema.Access
         // NOTE: The ErrorLog will always be created in the Config object
         internal XmlConfigParser(OmmConsumerConfigImpl Config)
         {
-            XmlNode? ConfigNode;
+            ConfigXml = LoadXmlConfig(Config.XmlConfigPath);
 
-            ConfigXml = new XmlDocument();
-            ConfigXml.PreserveWhitespace = true;
+            XmlNode? ConfigNode = ConfigXml.DocumentElement;
 
-            try
-            {
-                if (string.IsNullOrEmpty(Config.XmlConfigPath) == true)
-                {
-                    ConfigXml.Load("EmaConfig.xml");
-                }
-                else
-                {
-                    ConfigXml.Load(Config.XmlConfigPath);
-                }
-            }
-            catch (System.IO.FileNotFoundException excp)
-            {
-                // If the path is set to null, the application could be using the default config or a programmatic config, so just return without adding any info to the Config.
-                if (string.IsNullOrEmpty(Config.XmlConfigPath) == true)
-                    return;
-                else
-                {
-                    throw new OmmInvalidConfigurationException(
-                        "Could not load the configured XML file. FileNotFoundException text: " + excp.Message);
-                }
-            }
-            catch (System.Xml.XmlException excp)
-            {
-                throw new OmmInvalidConfigurationException("Error parsing XML file. XmlException text: " +
-                                                           excp.Message);
-            }
-
-            if (ConfigXml.DocumentElement == null)
-            {
-                throw new OmmInvalidConfigurationException("XML Parsing failed.");
-            }
-
-            if (ConfigXml.DocumentElement.Name != "EmaConfig")
-            {
-                throw new OmmInvalidConfigurationException(
-                    "Error parsing XML file. Top severity node is not set to \"EmaConfig\"");
-            }
-
-            ConfigNode = ConfigXml.DocumentElement;
+            if (ConfigNode == null)
+                return;
 
             XmlNode? GroupNode = ConfigNode.SelectSingleNode("ConsumerGroup");
             if (GroupNode != null)
@@ -289,53 +254,12 @@ namespace LSEG.Ema.Access
         // NOTE: The ErrorLog will always be created in the Config object
         internal XmlConfigParser(OmmNiProviderConfigImpl Config)
         {
-            XmlNode? ConfigNode;
-            ConfigXml = new XmlDocument();
-            ConfigXml.PreserveWhitespace = true;
+            ConfigXml = LoadXmlConfig(Config.XmlConfigPath);
 
-            try
-            {
-                if (string.IsNullOrEmpty(Config.XmlConfigPath) == true)
-                {
-                    ConfigXml.Load("EmaConfig.xml");
-                }
-                else
-                {
-                    ConfigXml.Load(Config.XmlConfigPath);
-                }
-            }
-            catch (System.IO.FileNotFoundException excp)
-            {
-                // If the path is set to null, the application could be using the default config or a programmatic config, so just return without adding any info to the Config.
-                if (string.IsNullOrEmpty(Config.XmlConfigPath) == true)
-                    return;
-                else
-                {
-                    throw new OmmInvalidConfigurationException(
-                        "Could not load the configured XML file. FileNotFoundException text: " + excp.Message);
-                }
-            }
-            catch (System.Xml.XmlException excp)
-            {
-                throw new OmmInvalidConfigurationException("Error parsing XML file. XmlException text: " +
-                                                           excp.Message);
-            }
-            catch(Exception excp)
-            {
-                throw new OmmInvalidConfigurationException("Error loading XML file. Exception text: " + excp.Message);
-            }
+            XmlNode? ConfigNode = ConfigXml.DocumentElement;
 
-            if (ConfigXml.DocumentElement == null)
-            {
-                throw new OmmInvalidConfigurationException("XML Parsing failed.");
-            }
-
-            if (ConfigXml.DocumentElement.Name != "EmaConfig")
-            {
-                throw new OmmInvalidConfigurationException("Error parsing XML file. Top severity node is not set to \"EmaConfig\"");
-            }
-
-            ConfigNode = ConfigXml.DocumentElement;
+            if (ConfigNode == null)
+                return;
 
             XmlNode? GroupNode = ConfigNode.SelectSingleNode("NiProviderGroup");
             if (GroupNode != null)
@@ -404,53 +328,12 @@ namespace LSEG.Ema.Access
         // NOTE: The ErrorLog will always be created in the Config object
         internal XmlConfigParser(OmmIProviderConfigImpl Config)
         {
-            XmlNode? ConfigNode;
-            ConfigXml = new XmlDocument();
-            ConfigXml.PreserveWhitespace = true;
+            ConfigXml = LoadXmlConfig(Config.XmlConfigPath);
 
-            try
-            {
-                if (string.IsNullOrEmpty(Config.XmlConfigPath) == true)
-                {
-                    ConfigXml.Load("EmaConfig.xml");
-                }
-                else
-                {
-                    ConfigXml.Load(Config.XmlConfigPath);
-                }
-            }
-            catch (System.IO.FileNotFoundException excp)
-            {
-                // If the path is set to null, the application could be using the default config or a programmatic config, so just return without adding any info to the Config.
-                if (string.IsNullOrEmpty(Config.XmlConfigPath) == true)
-                    return;
-                else
-                {
-                    throw new OmmInvalidConfigurationException(
-                        "Could not load the configured XML file. FileNotFoundException text: " + excp.Message);
-                }
-            }
-            catch (System.Xml.XmlException excp)
-            {
-                throw new OmmInvalidConfigurationException("Error parsing XML file. XmlException text: " +
-                                                           excp.Message);
-            }
-            catch (Exception excp)
-            {
-                throw new OmmInvalidConfigurationException("Error loading XML file. Exception text: " + excp.Message);
-            }
+            XmlNode? ConfigNode = ConfigXml.DocumentElement;
 
-            if (ConfigXml.DocumentElement == null)
-            {
-                throw new OmmInvalidConfigurationException("XML Parsing failed.");
-            }
-
-            if (ConfigXml.DocumentElement.Name != "EmaConfig")
-            {
-                throw new OmmInvalidConfigurationException("Error parsing XML file. Top severity node is not set to \"EmaConfig\"");
-            }
-
-            ConfigNode = ConfigXml.DocumentElement;
+            if (ConfigNode == null)
+                return;
 
             XmlNode? GroupNode = ConfigNode.SelectSingleNode("IProviderGroup");
             if (GroupNode != null)
@@ -809,7 +692,7 @@ namespace LSEG.Ema.Access
                     }
                 }
 
-                // MaxDispatchCountUserThread ulong
+                // MaxDispatchCountUserThread uint
                 CurrNode2 = consumerListNode.SelectSingleNode("MaxDispatchCountUserThread");
                 if (CurrNode2 != null)
                 {
@@ -1380,7 +1263,7 @@ namespace LSEG.Ema.Access
                     try
                     {
                         tmpConfig.MaxDispatchCountApiThread =
-                            Utilities.Convert_ulong_int(ulong.Parse(XmlAttribute.Value));
+                            Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
                     }
                     catch (SystemException)
                     {
@@ -1843,7 +1726,7 @@ namespace LSEG.Ema.Access
                     }
                 }
 
-                // MaxDispatchCountUserThread int
+                // MaxDispatchCountUserThread uint
                 CurrNode2 = iProviderListNode.SelectSingleNode("MaxDispatchCountUserThread");
                 if (CurrNode2 != null)
                 {
@@ -1943,8 +1826,6 @@ namespace LSEG.Ema.Access
                             "The value attribute in the IProvider ServiceCountHint element is incorrectly formatted. Correct value is a signed numeric string.");
                     }
                 }
-
-                ParseXmlTraceConfigNodes("IProvider", tmpConfig, iProviderListNode);
 
                 // Server string
                 CurrNode2 = iProviderListNode.SelectSingleNode("Server");
@@ -2177,6 +2058,8 @@ namespace LSEG.Ema.Access
                             "The value attribute in the IProvider FieldDictionaryFragmentSize element is incorrectly formatted. Correct value is a unsigned numeric string.");
                     }
                 }
+
+                ParseXmlTraceConfigNodes("IProvider", tmpConfig, iProviderListNode);
 
                 if (foundConfig == false)
                     Config.IProviderConfigMap.Add(tmpConfig.Name, tmpConfig);
@@ -2459,7 +2342,7 @@ namespace LSEG.Ema.Access
                     }
                 }
 
-                // ServiceDiscoveryRetryCount uint parsed as int
+                // ServiceDiscoveryRetryCount uint
                 CurrNode2 = channelListNode.SelectSingleNode("ServiceDiscoveryRetryCount");
                 if (CurrNode2 != null)
                 {
@@ -2592,7 +2475,7 @@ namespace LSEG.Ema.Access
 
                     try
                     {
-                        tmpConfig.DirectWrite = (uint.Parse(XmlAttribute.Value) != 0);
+                        tmpConfig.DirectWrite = (ulong.Parse(XmlAttribute.Value) != 0);
                     }
                     catch (SystemException)
                     {
@@ -2656,7 +2539,7 @@ namespace LSEG.Ema.Access
                     tmpConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPort = XmlAttribute.Value;
                 }
 
-                // TcpNodelay int->bool
+                // TcpNodelay uint->bool
                 CurrNode2 = channelListNode.SelectSingleNode("TcpNodelay");
                 if (CurrNode2 != null)
                 {
@@ -2670,7 +2553,7 @@ namespace LSEG.Ema.Access
 
                     try
                     {
-                        tmpConfig.ConnectInfo.ConnectOptions.TcpOpts.TcpNoDelay = (uint.Parse(XmlAttribute.Value) == 1);
+                        tmpConfig.ConnectInfo.ConnectOptions.TcpOpts.TcpNoDelay = (uint.Parse(XmlAttribute.Value) != 0);
                     }
                     catch (SystemException)
                     {
@@ -3745,7 +3628,7 @@ namespace LSEG.Ema.Access
 
                         if (serviceNode != null)
                         {
-                            // ServiceId ulong->int
+                            // ServiceId uint
                             CurrNode2 = serviceNode.SelectSingleNode("ServiceId");
                             if (CurrNode2 != null)
                             {
@@ -3760,7 +3643,7 @@ namespace LSEG.Ema.Access
 
                                 try
                                 {
-                                    tmpServiceConfig.Service.ServiceId = int.Parse(XmlAttribute.Value);
+                                    tmpServiceConfig.Service.ServiceId = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
 
                                     if(tmpServiceConfig.Service.ServiceId > ushort.MaxValue)
                                     {
@@ -4183,7 +4066,7 @@ namespace LSEG.Ema.Access
 
                                 try
                                 {
-                                    tmpServiceConfig.Service.State.ServiceStateVal = int.Parse(XmlAttribute.Value);
+                                    tmpServiceConfig.Service.State.ServiceStateVal = uint.Parse(XmlAttribute.Value);
                                 }
                                 catch (SystemException)
                                 {
@@ -4208,7 +4091,7 @@ namespace LSEG.Ema.Access
                                 try
                                 {
                                     tmpServiceConfig.Service.State.HasAcceptingRequests = true;
-                                    tmpServiceConfig.Service.State.AcceptingRequests = int.Parse(XmlAttribute.Value);
+                                    tmpServiceConfig.Service.State.AcceptingRequests = uint.Parse(XmlAttribute.Value);
                                 }
                                 catch (SystemException)
                                 {
@@ -4675,6 +4558,95 @@ namespace LSEG.Ema.Access
                 }
             }
 
+        }
+
+        // Load XML configuration document, and if XML schema definition file is detected,
+        // validate it
+        private XmlDocument LoadXmlConfig(string? configFilePath)
+        {
+            XmlDocument ConfigXml = new XmlDocument();
+            ConfigXml.PreserveWhitespace = true;
+
+            // Load the XML Configuration document from file
+            try
+            {
+                if (string.IsNullOrEmpty(configFilePath))
+                {
+                    ConfigXml.Load(DEFAULT_CONFIG_FILE);
+                }
+                else
+                {
+                    ConfigXml.Load(configFilePath);
+                }
+            }
+            catch (System.IO.FileNotFoundException excp)
+            {
+                // If the path is set to null, the application could be using the default
+                // config or a programmatic config, so just return without adding any info
+                // to the Config.
+                if (string.IsNullOrEmpty(configFilePath))
+                    return ConfigXml;
+                else
+                {
+                    throw new OmmInvalidConfigurationException(
+                        $"Could not load the configured XML file. FileNotFoundException text: {excp.Message}");
+                }
+            }
+            catch (XmlException excp)
+            {
+                throw new OmmInvalidConfigurationException(
+                    $"Error parsing XML file. XmlException text: {excp.Message}");
+            }
+            catch (Exception excp)
+            {
+                throw new OmmInvalidConfigurationException(
+                    $"Error loading XML file. Exception text: {excp.Message}");
+            }
+
+            // happens only when the XML file is present and is read, but is empty
+            if (ConfigXml.DocumentElement is null)
+            {
+                throw new OmmInvalidConfigurationException(
+                    "XML Parsing failed.");
+            }
+
+            if (!"EmaConfig".Equals(ConfigXml.DocumentElement.Name))
+            {
+                throw new OmmInvalidConfigurationException(
+                    "Error parsing XML file. Root element is not \"EmaConfig\"");
+            }
+
+            // XML Document is loaded, now validate it (but only when XML Schema is present)
+            string schemaFileName = DEFAULT_SCHEMA_FILE;
+
+            if (System.IO.File.Exists(schemaFileName))
+            {
+                try
+                {
+                    ConfigXml.Schemas.Add("", schemaFileName);
+
+                    ConfigXml.Validate((object? sender, ValidationEventArgs e) =>
+                    {
+                        if (e.Severity == XmlSeverityType.Error)
+                        {
+                            throw new OmmInvalidConfigurationException(
+                                $"Error validating XML configuration: {e.Message}");
+                        }
+                    });
+                }
+                catch (XmlException ex)
+                {
+                    throw new OmmInvalidConfigurationException(
+                        $"XML Configuration validation failed: {ex.Message}");
+                }
+                catch (XmlSchemaException ex)
+                {
+                    throw new OmmInvalidConfigurationException(
+                        $"XML Schema is not valid: {ex.Message} at line {ex.LineNumber}");
+                }
+            }
+
+            return ConfigXml;
         }
     }
 }

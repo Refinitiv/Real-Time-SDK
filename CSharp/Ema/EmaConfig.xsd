@@ -1,0 +1,1539 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      Configuration files for the Consumer, Non-Interactive and Interactive Provider have
+      similar structure and the XML Configuration parser is able to automatically adjust
+      itself depending on which kind of congiguration is requested by the application.
+
+      The Consumer configuration has following elements below the EmaConfig root:
+
+        - ConsumerGroup
+        - ChannelGroup
+        - LoggerGroup
+        - DictionaryGroup
+
+      The Non-Interactive Provider configuration has following elements below the
+      EmaConfig root:
+
+        - NiProviderGroup
+        - ChannelGroup
+        - LoggerGroup
+        - DictionaryGroup
+        - DirectoryGroup
+
+      The Interactive Provider configuration has following elements below the EmaConfig
+      root:
+
+        - IProviderGroup
+        - ChannelGroup
+        - LoggerGroup
+        - DictionaryGroup
+        - DirectoryGroup
+        - ServerGroup
+
+      Please note that the .NET XML Schema validation supports only v1.0 Schema.
+    </xs:documentation>
+  </xs:annotation>
+
+  <!--
+      To further improve validation, string values are expected to be non-empty
+      when defined.
+  -->
+  <xs:simpleType name="NonEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+        elements used for XML Trace output configuration for all three kinds of
+        applications (Consumer, Non-Interactive and Interactive Providers)
+  -->
+
+  <xs:element name="XmlTraceToStdout">
+    <xs:complexType>
+      <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="XmlTraceToFile">
+    <xs:complexType>
+      <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="XmlTraceMaxFileSize">
+    <xs:complexType>
+      <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="XmlTraceFileName">
+    <xs:complexType>
+      <xs:attribute name="value" type="NonEmptyString" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="XmlTraceToMultipleFiles">
+    <xs:complexType>
+      <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="XmlTraceWrite">
+    <xs:complexType>
+      <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="XmlTraceRead">
+    <xs:complexType>
+      <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="XmlTracePing">
+    <xs:complexType>
+      <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="EmaConfig">
+    <xs:complexType>
+      <xs:all>
+
+        <!-- Consumer configuration -->
+        <xs:element name="ConsumerGroup" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+
+              <xs:element name="DefaultConsumer" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="value" type="NonEmptyString" use="required" />
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="ConsumerList" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:element name="Consumer" minOccurs="1" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:all>
+
+                          <!-- Consumer Name is required -->
+                          <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Channel" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ChannelSet" minOccurs="0" maxOccurs="1">
+                            <!-- a comma-separated list of Channel names -->
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Dictionary" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="DictionaryRequestTimeOut" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="DirectoryRequestTimeOut" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="LoginRequestTimeOut" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="DispatchTimeoutApiThread" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:long" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EnableRtt" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ItemCountHint" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Logger" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MaxDispatchCountApiThread" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MaxDispatchCountUserThread" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MaxOutstandingPosts" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MsgKeyInUpdates" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ObeyOpenWindow" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PostAckTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectAttemptLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectMaxDelay" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectMinDelay" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RequestTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RestEnableLog" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RestEnableLogViaCallback" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RestLogFileName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RestProxyHostName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RestProxyPort" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RestRequestTimeOut" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ServiceCountHint" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element ref="XmlTraceToStdout" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceToFile" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceMaxFileSize" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceFileName" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceToMultipleFiles" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceWrite" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceRead" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTracePing" minOccurs="0" maxOccurs="1" />
+
+                        </xs:all>
+
+                      </xs:complexType>
+                    </xs:element> <!-- end Consumer -->
+
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element> <!-- end ConsumerList -->
+
+            </xs:all>
+          </xs:complexType>
+
+          <xs:key name="ConsumerName">
+            <xs:selector xpath=".//Consumer/Name" />
+            <xs:field xpath="@value" />
+          </xs:key>
+
+        </xs:element> <!-- end ConsumerGroup -->
+
+        <!-- Non-Interactive Provider configuration -->
+        <xs:element name="NiProviderGroup" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+
+              <xs:element name="DefaultNiProvider" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="value" type="NonEmptyString" use="required" />
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="NiProviderList" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:element name="NiProvider" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:all>
+
+                          <!-- Non-Interactive Provider Name is required -->
+                          <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Channel" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ChannelSet" minOccurs="0" maxOccurs="1">
+                            <!-- a comma-separated list of Channel names -->
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Directory" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="DispatchTimeoutApiThread" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ItemCountHint" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Logger" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="LoginRequestTimeOut" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MaxDispatchCountApiThread" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MaxDispatchCountUserThread" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MergeSourceDirectoryStreams" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectAttemptLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectMaxDelay" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectMinDelay" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RecoverUserSubmitSourceDirectory" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RefreshFirstRequired" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RemoveItemsOnDisconnect" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RequestTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ServiceCountHint" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element ref="XmlTraceToStdout" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceToFile" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceMaxFileSize" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceFileName" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceToMultipleFiles" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceWrite" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceRead" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTracePing" minOccurs="0" maxOccurs="1" />
+
+                        </xs:all>
+                      </xs:complexType>
+
+                    </xs:element> <!-- end NiProvider -->
+
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element> <!-- end NiProviderList -->
+
+            </xs:all>
+          </xs:complexType>
+
+          <xs:key name="NiProviderName">
+            <xs:selector xpath=".//NiProvider/Name" />
+            <xs:field xpath="@value" />
+          </xs:key>
+
+        </xs:element> <!-- end NiProviderGroup -->
+
+        <!-- Interactive Provider configuration -->
+        <xs:element name="IProviderGroup" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+
+              <xs:element name="DefaultIProvider" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="value" type="NonEmptyString" use="required" />
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="IProviderList" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:element name="IProvider" minOccurs="1" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:all>
+
+                          <!-- Provider Name is required -->
+                          <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Directory" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="DispatchTimeoutApiThread" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ItemCountHint" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Logger" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MaxDispatchCountApiThread" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MaxDispatchCountUserThread" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RefreshFirstRequired" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RequestTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ServiceCountHint" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Server" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="AcceptDirMessageWithoutMinFilters" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="AcceptMessageSameKeyButDiffStream" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="AcceptMessageThatChangesService" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="AcceptMessageWithoutAcceptingRequests" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="AcceptMessageWithoutBeingLogin" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="AcceptMessageWithoutQosInRange" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EnforceAckIDValidation" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EnumTypeFragmentSize" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="FieldDictionaryFragmentSize" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element ref="XmlTraceToStdout" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceToFile" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceMaxFileSize" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceFileName" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceToMultipleFiles" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceWrite" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceRead" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTracePing" minOccurs="0" maxOccurs="1" />
+
+                        </xs:all>
+                      </xs:complexType>
+                    </xs:element> <!-- end IProvider -->
+
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element> <!-- end IProviderList -->
+
+            </xs:all>
+          </xs:complexType>
+
+          <xs:key name="IProviderName">
+            <xs:selector xpath=".//IProvider/Name" />
+            <xs:field xpath="@value" />
+          </xs:key>
+
+        </xs:element> <!-- end IProviderGroup -->
+
+        <!-- Common and Shared configuration elements -->
+
+        <xs:element name="ChannelGroup" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+
+              <xs:element name="ChannelList" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:element name="Channel" minOccurs="1" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:all>
+
+                          <!-- Channel Name is required -->
+                          <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ChannelType" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" use="required">
+                                <xs:simpleType>
+                                  <xs:restriction base="xs:string">
+                                    <xs:enumeration value="ChannelType::RSSL_SOCKET" />
+                                    <xs:enumeration value="ChannelType::RSSL_ENCRYPTED" />
+                                  </xs:restriction>
+                                </xs:simpleType>
+                              </xs:attribute>
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EncryptedProtocolType" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" use="required">
+                                <xs:simpleType>
+                                  <xs:restriction base="xs:string">
+                                    <xs:enumeration value="EncryptedProtocolType::RSSL_SOCKET" />
+                                  </xs:restriction>
+                                </xs:simpleType>
+                              </xs:attribute>
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ConnectionPingTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EnableSessionManagement" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="GuaranteedOutputBuffers" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="HighWaterMark" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="InitializationTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="InterfaceName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:string" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Location" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="NumInputBuffers" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ServiceDiscoveryRetryCount" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="SysRecvBufSize" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="SysSendBufSize" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="CompressionType" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" use="required">
+                                <xs:simpleType>
+                                  <xs:restriction base="xs:string">
+                                    <xs:enumeration value="CompressionType::None" />
+                                    <xs:enumeration value="CompressionType::ZLib" />
+                                    <xs:enumeration value="CompressionType::LZ4" />
+                                  </xs:restriction>
+                                </xs:simpleType>
+                              </xs:attribute>
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="CompressionThreshold" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="DirectWrite" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Host" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Port" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ProxyHost" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ProxyPort" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="TcpNodelay" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="SecurityProtocol" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="AuthenticationTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                        </xs:all>
+                      </xs:complexType>
+                    </xs:element> <!-- end Channel -->
+
+                  </xs:sequence>
+                </xs:complexType>
+
+              </xs:element> <!-- end ChannelList -->
+
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element> <!-- end ChannelGroup -->
+
+        <xs:element name="ServerGroup" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+
+              <xs:element name="ServerList" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:element name="Server" minOccurs="1" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:all>
+
+                          <!-- Server Name is required -->
+                          <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ConnectionMinPingTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ConnectionPingTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="CompressionThreshold" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="CompressionType" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" use="required">
+                                <xs:simpleType>
+                                  <xs:restriction base="xs:string">
+                                    <xs:enumeration value="CompressionType::None" />
+                                    <xs:enumeration value="CompressionType::ZLib" />
+                                    <xs:enumeration value="CompressionType::LZ4" />
+                                  </xs:restriction>
+                                </xs:simpleType>
+                              </xs:attribute>
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="DirectWrite" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="GuaranteedOutputBuffers" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="HighWaterMark" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="InitializationTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="AuthenticationTimeout" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="InterfaceName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:string" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MaxFragmentSize" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="NumInputBuffers" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Port" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ServerType" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" use="required">
+                                <xs:simpleType>
+                                  <xs:restriction base="xs:string">
+                                    <xs:enumeration value="ServerType::RSSL_SOCKET" />
+                                    <xs:enumeration value="ServerType::RSSL_ENCRYPTED" />
+                                  </xs:restriction>
+                                </xs:simpleType>
+                              </xs:attribute>
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="SysRecvBufSize" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="SysSendBufSize" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="TcpNodelay" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ServerCert" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ServerPrivateKey" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="SecurityProtocol" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="CipherSuite" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                        </xs:all>
+                      </xs:complexType>
+                    </xs:element> <!-- end Server -->
+
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element> <!-- end ServerGroup -->
+
+        <xs:element name="LoggerGroup" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+
+              <xs:element name="LoggerList">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:element name="Logger" minOccurs="1" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:all>
+
+                          <!-- Logger Name is required -->
+                          <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="FileName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="IncludeDateInLoggerOutput" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="NumberOfLogFiles" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="MaxLogFileSize" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="LoggerSeverity" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" use="required">
+                                <xs:simpleType>
+                                  <xs:restriction base="xs:string">
+                                    <xs:enumeration value="LoggerSeverity::Trace" />
+                                    <xs:enumeration value="LoggerSeverity::Debug" />
+                                    <xs:enumeration value="LoggerSeverity::Info" />
+                                    <xs:enumeration value="LoggerSeverity::Success" />
+                                    <xs:enumeration value="LoggerSeverity::Warning" />
+                                    <xs:enumeration value="LoggerSeverity::Error" />
+                                    <xs:enumeration value="LoggerSeverity::Verbose" />
+                                    <xs:enumeration value="LoggerSeverity::NoLogMsg" />
+                                  </xs:restriction>
+                                </xs:simpleType>
+                              </xs:attribute>
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="LoggerType" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" use="required">
+                                <xs:simpleType>
+                                  <xs:restriction base="xs:string">
+                                    <xs:enumeration value="LoggerType::File" />
+                                    <xs:enumeration value="LoggerType::Stdout" />
+                                  </xs:restriction>
+                                </xs:simpleType>
+                              </xs:attribute>
+                            </xs:complexType>
+                          </xs:element>
+
+                        </xs:all>
+                      </xs:complexType>
+                    </xs:element> <!-- end Logger -->
+
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element> <!-- end LoggerList -->
+
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element> <!-- end LoggerGroup -->
+
+        <!-- Used by both kinds of Providers -->
+        <xs:element name="DirectoryGroup" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+
+              <xs:element name="DefaultDirectory" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="value" type="NonEmptyString" use="required" />
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="DirectoryList">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:element name="Directory" minOccurs="1" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+
+                          <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="Service" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:all>
+
+                                <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:attribute name="value" type="NonEmptyString" use="required" />
+                                  </xs:complexType>
+                                </xs:element>
+
+                                <xs:element name="InfoFilter" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:all>
+
+                                      <xs:element name="ServiceId" minOccurs="0">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="Vendor" minOccurs="0">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="NonEmptyString" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="IsSource" minOccurs="0">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="Capabilities" minOccurs="0">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="CapabilitiesEntry" maxOccurs="unbounded">
+                                              <xs:complexType>
+                                                <xs:attribute name="value" use="required">
+                                                  <xs:simpleType>
+                                                    <xs:union>
+                                                      <xs:simpleType>
+                                                        <xs:restriction base="xs:long" />
+                                                      </xs:simpleType>
+                                                      <xs:simpleType>
+                                                        <xs:restriction base="xs:string">
+                                                          <xs:enumeration value="MMT_LOGIN" />
+                                                          <xs:enumeration value="MMT_DIRECTORY" />
+                                                          <xs:enumeration value="MMT_DICTIONARY" />
+                                                          <xs:enumeration value="MMT_MARKET_PRICE" />
+                                                          <xs:enumeration value="MMT_MARKET_BY_ORDER" />
+                                                          <xs:enumeration value="MMT_MARKET_BY_PRICE" />
+                                                          <xs:enumeration value="MMT_MARKET_MAKER" />
+                                                          <xs:enumeration value="MMT_SYMBOL_LIST" />
+                                                          <xs:enumeration value="MMT_SERVICE_PROVIDER_STATUS" />
+                                                          <xs:enumeration value="MMT_HISTORY" />
+                                                          <xs:enumeration value="MMT_HEADLINE" />
+                                                          <xs:enumeration value="MMT_STORY" />
+                                                          <xs:enumeration value="MMT_REPLAYHEADLINE" />
+                                                          <xs:enumeration value="MMT_REPLAYSTORY" />
+                                                          <xs:enumeration value="MMT_TRANSACTION" />
+                                                          <xs:enumeration value="MMT_YIELD_CURVE" />
+                                                          <xs:enumeration value="MMT_CONTRIBUTION" />
+                                                          <xs:enumeration value="MMT_PROVIDER_ADMIN" />
+                                                          <xs:enumeration value="MMT_ANALYTICS" />
+                                                          <xs:enumeration value="MMT_REFERENCE" />
+                                                          <xs:enumeration value="MMT_NEWS_TEXT_ANALYTICS" />
+                                                          <xs:enumeration value="MMT_SYSTEM" />
+                                                        </xs:restriction>
+                                                      </xs:simpleType>
+                                                    </xs:union>
+                                                  </xs:simpleType>
+                                                </xs:attribute>
+                                              </xs:complexType>
+                                            </xs:element>
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="AcceptingConsumerStatus" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="ItemList" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="NonEmptyString" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="DictionariesProvided">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="DictionariesProvidedEntry" maxOccurs="unbounded">
+                                              <xs:complexType>
+                                                <xs:attribute name="value" type="NonEmptyString" use="required" />
+                                              </xs:complexType>
+                                            </xs:element>
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="DictionariesUsed" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="DictionariesUsedEntry">
+                                              <xs:complexType>
+                                                <xs:attribute name="value" type="xs:string" use="required" />
+                                              </xs:complexType>
+                                            </xs:element>
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="QoS" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:sequence>
+
+                                            <xs:element name="QoSEntry" minOccurs="0" maxOccurs="unbounded">
+                                              <xs:complexType>
+                                                <xs:all>
+
+                                                  <xs:element name="Timeliness">
+                                                    <xs:complexType>
+                                                      <xs:attribute name="value" use="required">
+                                                        <xs:simpleType>
+                                                          <xs:union>
+                                                            <xs:simpleType>
+                                                              <xs:restriction base="xs:unsignedInt" />
+                                                            </xs:simpleType>
+                                                            <xs:simpleType>
+                                                              <xs:restriction base="xs:string">
+                                                                <xs:enumeration value="Timeliness::RealTime" />
+                                                                <xs:enumeration value="Timeliness::InexactDelayed" />
+                                                              </xs:restriction>
+                                                            </xs:simpleType>
+                                                          </xs:union>
+                                                        </xs:simpleType>
+                                                      </xs:attribute>
+                                                    </xs:complexType>
+                                                  </xs:element>
+
+                                                  <xs:element name="Rate">
+                                                    <xs:complexType>
+                                                      <xs:attribute name="value">
+                                                        <xs:simpleType>
+                                                          <xs:union>
+                                                            <xs:simpleType>
+                                                              <xs:restriction base="xs:unsignedLong" />
+                                                            </xs:simpleType>
+                                                            <xs:simpleType>
+                                                              <xs:restriction base="xs:string">
+                                                                <xs:enumeration value="Rate::TickByTick" />
+                                                                <xs:enumeration value="Rate::JustInTimeConflated" />
+                                                              </xs:restriction>
+                                                            </xs:simpleType>
+                                                          </xs:union>
+                                                        </xs:simpleType>
+                                                      </xs:attribute>
+                                                    </xs:complexType>
+                                                  </xs:element>
+
+                                                </xs:all>
+                                              </xs:complexType>
+                                            </xs:element>
+
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element> <!-- end QoS -->
+
+                                      <xs:element name="SupportsQoSRange">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="SupportsOutOfBandSnapshots">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                    </xs:all>
+                                  </xs:complexType>
+                                </xs:element> <!-- end InfoFilter -->
+
+                                <xs:element name="StateFilter" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:all>
+
+                                      <xs:element name="ServiceState" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="AcceptingRequests" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="Status" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:all minOccurs="0" maxOccurs="1">
+                                            <xs:element name="StreamState">
+                                              <xs:complexType>
+                                                <xs:attribute name="value" use="required">
+                                                  <xs:simpleType>
+                                                    <xs:restriction base="xs:string">
+                                                      <xs:enumeration value="StreamState::Open" />
+                                                      <xs:enumeration value="StreamState::NonStreaming" />
+                                                      <xs:enumeration value="StreamState::Closed" />
+                                                      <xs:enumeration value="StreamState::ClosedRecover" />
+                                                      <xs:enumeration value="StreamState::ClosedRedirected>" />
+                                                    </xs:restriction>
+                                                  </xs:simpleType>
+                                                </xs:attribute>
+                                              </xs:complexType>
+                                            </xs:element>
+
+                                            <xs:element name="DataState">
+                                              <xs:complexType>
+                                                <xs:attribute name="value" use="required">
+                                                  <xs:simpleType>
+                                                    <xs:restriction base="xs:string">
+                                                      <xs:enumeration value="DataState::NoChange" />
+                                                      <xs:enumeration value="DataState::Ok" />
+                                                      <xs:enumeration value="DataState::Suspect" />
+                                                    </xs:restriction>
+                                                  </xs:simpleType>
+                                                </xs:attribute>
+                                              </xs:complexType>
+                                            </xs:element>
+
+                                            <xs:element name="StatusCode">
+                                              <xs:complexType>
+                                                <xs:attribute name="value" use="required">
+                                                  <xs:simpleType>
+                                                    <xs:restriction base="xs:string">
+                                                      <xs:enumeration value="StatusCode::None" />
+                                                      <xs:enumeration value="StatusCode::NotFound" />
+                                                      <xs:enumeration value="StatusCode::Timeout" />
+                                                      <xs:enumeration value="StatusCode::NotAuthorized" />
+                                                      <xs:enumeration value="StatusCode::InvalidArgument" />
+                                                      <xs:enumeration value="StatusCode::UsageError" />
+                                                      <xs:enumeration value="StatusCode::Preempted" />
+                                                      <xs:enumeration value="StatusCode::JustInTimeConflationStarted" />
+                                                      <xs:enumeration value="StatusCode::TickByTickResumed" />
+                                                      <xs:enumeration value="StatusCode::FailoverStarted" />
+                                                      <xs:enumeration value="StatusCode::FailoverCompleted" />
+                                                      <xs:enumeration value="StatusCode::GapDetected" />
+                                                      <xs:enumeration value="StatusCode::NoResources" />
+                                                      <xs:enumeration value="StatusCode::TooManyItems" />
+                                                      <xs:enumeration value="StatusCode::AlreadyOpen" />
+                                                      <xs:enumeration value="StatusCode::SourceUnknown" />
+                                                      <xs:enumeration value="StatusCode::NotOpen" />
+                                                      <xs:enumeration value="StatusCode::NonUpdatingItem" />
+                                                      <xs:enumeration value="StatusCode::UnsupportedViewType" />
+                                                      <xs:enumeration value="StatusCode::InvalidView" />
+                                                      <xs:enumeration value="StatusCode::FullViewProvided" />
+                                                      <xs:enumeration value="StatusCode::UnableToRequestAsBatch" />
+                                                      <xs:enumeration value="StatusCode::NoBatchViewSupportInReq" />
+                                                      <xs:enumeration value="StatusCode::ExceededMaxMountsPerUser" />
+                                                      <xs:enumeration value="StatusCode::Error" />
+                                                      <xs:enumeration value="StatusCode::DacsDown" />
+                                                      <xs:enumeration value="StatusCode::UserUnknownToPermSys" />
+                                                      <xs:enumeration value="StatusCode::DacsMaxLoginsReached" />
+                                                      <xs:enumeration value="StatusCode::DacsUserAccessToAppDenied" />
+                                                      <xs:enumeration value="StatusCode::GapFill" />
+                                                      <xs:enumeration value="StatusCode::AppAuthorizationFailed" />
+                                                    </xs:restriction>
+                                                  </xs:simpleType>
+                                                </xs:attribute>
+                                              </xs:complexType>
+                                            </xs:element>
+
+                                            <xs:element name="StatusText">
+                                              <xs:complexType>
+                                                <xs:attribute name="value" type="xs:string" use="required" />
+                                              </xs:complexType>
+                                            </xs:element>
+
+                                          </xs:all>
+                                        </xs:complexType>
+                                      </xs:element> <!-- end Status -->
+
+                                    </xs:all>
+                                  </xs:complexType>
+                                </xs:element> <!-- end StateFilter -->
+
+                                <xs:element name="LoadFilter" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:all>
+
+                                      <xs:element name="OpenLimit" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="OpenWindow" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                      <xs:element name="LoadFactor" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+
+                                    </xs:all>
+                                  </xs:complexType>
+                                </xs:element> <!-- end LoadFilter -->
+
+                              </xs:all>
+                            </xs:complexType>
+                          </xs:element> <!-- end Service -->
+
+                        </xs:sequence>
+                      </xs:complexType>
+
+                    </xs:element> <!-- end Directory -->
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element> <!-- end DirectoryList -->
+
+            </xs:all>
+          </xs:complexType>
+        </xs:element> <!-- end DirectoryGroup -->
+
+        <!-- Used by all kinds of applications -->
+        <xs:element name="DictionaryGroup" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+
+              <xs:element name="DictionaryList">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:element name="Dictionary" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:all>
+
+                          <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EnumTypeDefFileName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EnumTypeDefItemName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RdmFieldDictionaryFileName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="RdmFieldDictionaryItemName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="DictionaryType" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" use="required">
+                                <xs:simpleType>
+                                  <xs:restriction base="xs:string">
+                                    <xs:enumeration value="DictionaryType::FileDictionary" />
+                                    <xs:enumeration value="DictionaryType::ChannelDictionary" />
+                                  </xs:restriction>
+                                </xs:simpleType>
+                              </xs:attribute>
+                            </xs:complexType>
+                          </xs:element>
+
+                        </xs:all>
+                      </xs:complexType>
+                    </xs:element> <!-- end Dictionary -->
+
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element> <!-- end DictionaryList -->
+
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element> <!-- end DictionaryGroup -->
+
+      </xs:all>
+    </xs:complexType>
+
+  </xs:element> <!-- end EmaConfig -->
+</xs:schema>
