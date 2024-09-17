@@ -24,7 +24,7 @@ refer to your PKI provider and Oracle's documentation.
 
 + Instantiates and modifies an OmmIProviderConfig object:
   - Set the operation model to use user dispatch
-  - Sets the keystore and key store password from a jks encoded keystore.
+  - Sets the keystore and key password (both must be the same) from a jks encoded keystore.
 + Instantiates an OmmProvider object which:
   - listens on the port from the EmaConfig.xml file
 + Accepts a login request

@@ -116,7 +116,7 @@ Authentication Schemes:
 This release supports encryption using TLS 1.2 and TLS 1.3.  
 
 ##### Generating a keystore file
-The **keystore** file can contain custom private keys and public key certificates (including your server certificate) that are used in TLS handshake to establish an encrypted connection. By default, the API will automatically use the cacerts file as your keystore file. The **cacerts** file comes with your java installation. If you create your own keystore file, please follow industry [standard instructions](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html) to do so. This custom keystore file must be specified an input into API to successfully connect to the encrypted server.
+The **keystore** file can contain custom private keys and public key certificates (including your server certificate) that are used in TLS handshake to establish an encrypted connection. By default, the API will automatically use the cacerts file as your keystore file. The **cacerts** file comes with your java installation. If you create your own keystore file, please follow industry [standard instructions](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html) to do so. Hint: set the same password for both key and keystore. This custom keystore file must be specified an input into API to successfully connect to the encrypted server.
 
 ### Interoperability
 
