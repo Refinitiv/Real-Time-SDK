@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Net.Security;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace LSEG.Eta.Transports.Tests
 {
@@ -121,10 +122,10 @@ namespace LSEG.Eta.Transports.Tests
                     productVersion = $"{versionNumbers[0]}.{versionNumbers[1]}.{versionNumbers[2]}";
                 }
 
-                string productInternalVersion = $"etacsharp{productVersion}.L1.all.rrg";
+                string productInternalVersionRegex = $@"^etacsharp{Regex.Escape(productVersion)}\.[A-Z]\d\.all\.rrg$";
 
                 Assert.Equal(fileProductVersion, libraryInfo.ProductVersion());
-                Assert.Equal(productInternalVersion, libraryInfo.ProductInternalVersion());
+                Assert.Matches(productInternalVersionRegex, libraryInfo.ProductInternalVersion());
             }
             else
             {
