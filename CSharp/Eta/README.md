@@ -134,7 +134,7 @@ The distribution contains several DLL files (libraries), intended to allow for e
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.62_RealTimeDistributionSystem_24.31 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.64_RealTimeDistributionSystem_24.71 for RWF and Marketfeed Record Templates
 
 # Security
 

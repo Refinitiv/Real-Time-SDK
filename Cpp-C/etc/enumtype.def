@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.62
-!tag Build_RDMD  4.20.62
-!tag DT_Version  24.41
-!tag Date        20-May-2024
+!tag RT_Version  4.20.64
+!tag Build_RDMD  4.20.64
+!tag DT_Version  24.71
+!tag Date        2-Sep-2024
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -555,6 +555,7 @@ SETT_CCY   13620
     905        "SAh"   Saudi Arabian Halalah (deprecated)
     906        "QAd"   Qatari Dirham (deprecated)
     907        "AEf"   UAE Fils (deprecated)
+    924        "ZWG"   Zimbabwe Gold
     925        "SLE"   Sierra Leone leone
     926        "VED"   New Venezuelan Bolivar Soberano
     927        "UYW"   Uruguayan Unidad Previsional
@@ -666,7 +667,8 @@ SETT_CCY   13620
    2044        "ZZ9"   Cryptocurrency
    2045        "USp"   US Points (1/100th of a US cent)
    2046        "USM"   Millions of US Dollars
-   2047        "ZIG"   Zimbabwe Gold
+   2047        "ZIG"   Zimbabwe Gold (deprecated)
+   2048        "WPU"   FTSE World Parity Unit
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4319,6 +4321,8 @@ QTE_SZ_SC  13430
      12      "x0.01"   multiply by one hundredth
      13      "x10-3"   Multiply by one thousandth
      14      "x10-4"   Multiply by one ten-thousandth
+     15      "x0.02"   multiply by two hundredth
+     16      "x20-4"   Multiply by two ten-thousandth
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8888,6 +8892,9 @@ CLS_A_EXID 13625
    1767        "ENE"   Energy Institute
    1768        "SBG"   Spot Barge
    1769        "EGN"   Engine Technologies PTE LTD
+   1770        "MBF"   Marius Brun & Fils
+   1771        "EPR"   United States Environmental Protection Agency
+   1772        "FUS"   FINRA Trace US Treasury
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17244,6 +17251,7 @@ CARGO_TYPE 12976
      18   "FRUIT   "   Fruits
      19   "BAUXITE "   Bauxite
      20   "ORE     "   Ore
+     21   "COPP CON"   Copper Concentrate
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17358,6 +17366,11 @@ ROUTE_INDX 12977
     103   " P6_82  "   Panamax Singapore round voyage via Atlantic
     104   "HTC     "   Handysize Time Charter Average
     105   "TC23-TCE"   Clean ARA to UK-Cont
+    106   "BLPG1   "   Middle East Gulf to Japan
+    107   "BLPG2   "   US Gulf to Continent
+    108   "BLPG3   "   US Gulf to Japan
+    109   "TC17    "   Middle East Gulf to East Africa
+    110   "TC20    "   Clean 90K Middle East Gulf to UK-Cont
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18433,7 +18446,17 @@ MID2_P_FLG 13110
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET413 13114
+BASE_PRCTP 13114
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "BSPRC   "   Base Price
+      2   "PRCMBK  "   Price of the Middle of the Book
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET414 13115
 PRE_1ET415 13116
 PRE_1ET416 13117
@@ -19134,6 +19157,9 @@ MET_TYP25  13632
     270   "RREPOMA "   Reverse Repurchase Agreement Maturity Amount
     271   "SND     "   Seasonal Normal Demand
     272   "SNDD    "   Seasonal Normal Demand Differential
+    273   "TRDACGRD"   Trading Activity Grade
+    274   "CLINTGRD"   Client Interest Grade
+    275   "DLRMKGRD"   Dealer Market Grade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22208,6 +22234,27 @@ INPUT_ZONE 13617
    2014   "BTS     "   Baltic Sea
    2015   "MMK     "   Murmansk
    2016   "ASI     "   ASIA
+   2017   "CHIBA   "   Chiba
+   2018   "FLUSHNG "   Flushing
+   2019   "NEW YORK"   New York
+   2020   "YOKOHAMA"   Yokohama
+   2021   "LAVERA  "   Lavera
+   2022   "DAR E SM"   Dar es Salaam
+   2023   "SANTOS  "   Santos
+   2024   "LE HAVRE"   Le Havre
+   2025   "NINGBO  "   Ningbo
+   2026   "WILHLSVN"   Wilhelmshaven
+   2027   "RAS TNRA"   Ras Tanura
+   2028   "HOUSTON "   Houston
+   2029   "SKIKDA  "   Skikda
+   2030   "YEOSU   "   Yeosu
+   2031   "SIKKA JR"   Sikka (Jamnagar)
+   2032   "JUBAIL  "   Jubail
+   2033   "HOUND PT"   Hound Point
+   2034   "MENA AHM"   Mena al Ahmadi
+   2035   "CEYHAN  "   Ceyhan
+   2036   "OFF TRBO"   Offshore terminal Bonny
+   2037   "GALVSTON"   Galveston
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23524,7 +23571,19 @@ DIVYLD_PRD 13636
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET316 13637
+ORD_SZ_Q3  13637
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "T       "   Continuous Trading
+      2   "AUC     "   Auctions
+      3   "OFFBK   "   Offbook
+      4   "CAL SPR "   Calendar Spread
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET317 13638
 PRE_2ET318 13639
 PRE_2ET319 13640
