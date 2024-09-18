@@ -24,8 +24,8 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             $"ServiceCountHint: 513{NL}\tMaxDispatchCountApiThread: 100{NL}\tMaxDispatchCountUserThread: 100{NL}\tDispatchTimeoutApiThread: 0{NL}\tRequestTimeout: 15000{NL}\t" +
             $"XmlTraceToStdout: False{NL}\tXmlTraceToFile: False{NL}\tXmlTraceMaxFileSize: 100000000{NL}\tXmlTraceFileName: EmaTrace{NL}\tXmlTraceToMultipleFiles: False{NL}\t" +
             $"XmlTraceWrite: True{NL}\tXmlTraceRead: True{NL}\tXmlTracePing: False{NL}\tObeyOpenWindow: True{NL}\tPostAckTimeout: 15000{NL}\tMaxOutstandingPosts: 100000{NL}\t" +
-            $"DispatchMode: 2{NL}\tDispatchTimeoutApiThread: 0{NL}\tReconnectAttemptLimit: -1{NL}\tReconnectMinDelay: 5000{NL}\tReconnectMaxDelay: 5000{NL}\tMsgKeyInUpdates: True{NL}\t" +
-            $"DirectoryRequestTimeOut: 45000{NL}\tDictionaryRequestTimeOut: 45000{NL}\tRestRequestTimeOut: 15000{NL}\tLoginRequestTimeOut: 3000{NL}loggerMsgEnd";
+            $"DispatchMode: 2{NL}\tDispatchTimeoutApiThread: 0{NL}\tReconnectAttemptLimit: -1{NL}\tReconnectMinDelay: 1000{NL}\tReconnectMaxDelay: 5000{NL}\tMsgKeyInUpdates: True{NL}\t" +
+            $"DirectoryRequestTimeOut: 45000{NL}\tDictionaryRequestTimeOut: 45000{NL}\tRestRequestTimeOut: 15000{NL}\tLoginRequestTimeOut: 3000{NL}loggerMsgEnd{NL}";
 
         private static readonly string VERBOSE_LOG_1 = $"{NL}TRACE|: loggerMsg{NL}    ClientName: Consumer_1_Verbose{NL}    Severity: Trace    Text:" +
             $"    Successfully created Reactor.{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: LoginCallbackClient{NL}    Severity: Trace" +
@@ -42,7 +42,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             $" Consumer_1_Verbose{NL}\tReactor";
 
         private static readonly string VERBOSE_LOG_3 = $"CompressionType None{NL}\tTcpNodelay True{NL}\tEnableSessionMgnt False{NL}\tLocation us-east-1{NL}\t" +
-            $"ReconnectAttemptLimit -1{NL}\tReconnectMinDelay 5000 msec{NL}\tReconnectMaxDelay 5000 msec{NL}\tGuaranteedOutputBuffers 5000{NL}\tNumInputBuffers 100{NL}\tSysRecvBufSize" +
+            $"ReconnectAttemptLimit -1{NL}\tReconnectMinDelay 1000 msec{NL}\tReconnectMaxDelay 5000 msec{NL}\tGuaranteedOutputBuffers 5000{NL}\tNumInputBuffers 100{NL}\tSysRecvBufSize" +
             $" 0{NL}\tSysSendBufSize 0{NL}\tConnectionPingTimeout 30 sec{NL}\tInitializationTimeout 60 sec{NL}\tDirectWrite False{NL}{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    " +
             $"Severity: Trace    Text:    Received ChannelOpened event on channel Channel_1{NL}\tInstance Name Consumer_1_Verbose{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    " +
             $"ClientName: ChannelCallbackClient{NL}    Severity: Trace    Text:    Successfully created a Reactor and Channel(s){NL}\tChannel name(s) Channel_1{NL}\tInstance name " +
