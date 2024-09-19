@@ -805,3 +805,8 @@ emacppconsperf-Rto-001
            -uname <username> -password <password> -clientId <clientId> \
            -tickRate 1000 -steadyStateTime 300 \
            -itemFile 350k.xml -consumerName Perf_Consumer_WSJSON_1
+
+Module: other
+----------------------------------
+ContainerPerformance
+    Performance tool which evaluate encoding performance for all containers.
