@@ -42,10 +42,10 @@ repositories {
 //
 //=========================================================================================
 
-ext.YEAR = '2023'
+ext.YEAR = '2024'
 
-ext.BuildDate = 'Thu May 31 22:00:22 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.8.0.0'
+ext.BuildDate = 'Thu Sep 30 22:00:00 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.8.2.0'
 ext.SpecificationVersionShort = '3.8.0'
 
 // Comment out line below to publish offical release
@@ -56,7 +56,7 @@ ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.
 ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
 
 // NOTE! update with new asset version
-ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.2.0.L1'
+ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.2.2.L1'
 
 //=========================================================================================
 //
