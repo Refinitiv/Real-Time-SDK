@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -101,7 +101,7 @@ See {@link com.refinitiv.eta.codec.EncodeIterator} for more information and code
 <dl style='border-left:4px solid;padding: 0 0 0 6px; border-color: #D0C000'>
 <dt><b>Note:</b></dt>
 <dd>
-Though possible, Refinitiv recommends that you do not encode or decode related messages 
+Though possible, LSEG recommends that you do not encode or decode related messages 
 (messages flowing on the same stream) on different threads as this can impact the delivery order.
 </dd>
 </dl>

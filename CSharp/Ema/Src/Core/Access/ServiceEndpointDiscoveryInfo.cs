@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -29,7 +29,7 @@ public sealed class ServiceEndpointDiscoveryInfo
     public string? Endpoint { get; set; }
 
     /// <summary>
-    /// Gets a list of locations where the infrastructure is deployed in Refinitiv Real-Time - Optimized.
+    /// Gets a list of locations where the infrastructure is deployed in Real-Time - Optimized.
     /// </summary>
     public List<string> LocationList { get; } = new(2);
 
@@ -39,7 +39,7 @@ public sealed class ServiceEndpointDiscoveryInfo
     public string? Port { get; set; }
 
     /// <summary>
-    /// Gets a public Refinitiv Real-Time - Optimized provider
+    /// Gets a public Real-Time - Optimized provider
     /// </summary>
     public string? Provider { get; set; }
 

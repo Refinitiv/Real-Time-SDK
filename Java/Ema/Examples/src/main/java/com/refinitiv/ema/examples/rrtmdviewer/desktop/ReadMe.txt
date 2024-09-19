@@ -1,10 +1,10 @@
 Summary
 =======
 
-The Refinitiv Real-Time Market Data Viewer (RRTViewer) is an OMM Consumer
+The LSEG Real-Time Market Data Viewer (RRTViewer) is an OMM Consumer
 GUI application that demonstrates features of the EMA library to access, 
 parse and display Real-Time data from data sources such as Advanced
-Distribution Server, Refinitiv Real-Time - Optimized (RRTO) or an 
+Distribution Server, Real-Time - Optimized (RRTO) or an 
 OMM Provider. The viewer supports socket and websocket connections with 
 and without encryption.
 

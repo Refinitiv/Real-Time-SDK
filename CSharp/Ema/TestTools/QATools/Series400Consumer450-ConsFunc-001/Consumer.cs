@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.Md for details.
+ *|           Copyright (C) 2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -54,7 +54,7 @@ class AppClient : IOmmConsumerClient, IServiceEndpointDiscoveryClient
 
 	public void OnError(string errorText, ServiceEndpointDiscoveryEvent @event)
 	{
-		Console.WriteLine("Failed to query Refinitiv Data Platform service discovery. Error text: " + errorText);
+		Console.WriteLine("Failed to query Delivery Platform service discovery. Error text: " + errorText);
 	}
 }
 
@@ -288,7 +288,7 @@ public class Consumer
 			
 			if ( Host == null || Port == null )
 			{
-				Console.WriteLine("Both hostname and port are not avaiable for establishing a connection with Refinitiv Real-Time - Optimized. Exiting...");
+				Console.WriteLine("Both hostname and port are not avaiable for establishing a connection with Real-Time - Optimized. Exiting...");
 				return;
 			}
 

@@ -7595,7 +7595,7 @@ COR_EXID   13402
    1174        "NAB"   Agencia Maritima Nabsa S.A
    1175        "NOB"   NASDAQ OMX BALTIC ICW
    1176        "NAV"   NASDAQ OMX VINX ICW
-   1177        "NTO"   NASDAQ TOTAL VIEW ITCH MBP TOP 10 LEVELS for Refinitiv Real-Time 
+   1177        "NTO"   NASDAQ TOTAL VIEW ITCH MBP TOP 10 LEVELS for LSEG Real-Time 
    1178        "NOR"   NASDAQ OMX NORDIC ICW
    1179        "ENN"   Energie Nederland
    1180        "ATC"   Advance Trading Inc
@@ -7615,7 +7615,7 @@ COR_EXID   13402
    1194        "TW$"   Taiwan Money Rates
    1195        "TYS"   TOKYO STOCK EXCHANGE FLEX - STANDARD (TRHS ONLY )
    1196        "OSH"   OSAKA SECURITYIES EXCHANGE - TRHS ONLY
-   1197        "BTA"   BATS    - FOR Refinitiv Real-Time 
+   1197        "BTA"   BATS    - FOR LSEG Real-Time 
    1198        "NTE"   NET ENERGY INC
    1199        "DG2"   DUBAI GOLD AND COMMODITIES EXCHANGE LEVEL 2
    1200        "NOC"   Nasdaq OMX Commodities
@@ -7664,7 +7664,7 @@ COR_EXID   13402
    1243        "FSC"   FTSE CUREX FX INDEX BASKETS (REAL-TIME)
    1244        "UCB"   US CENSUS BUREAU
    1245        "RIA"   Central Dispatching Department of Fuel and Energy Complex
-   1246        "BYX"   BATS LEVEL - 2 (BATS MULTICAST - Refinitiv Real-Time)
+   1246        "BYX"   BATS LEVEL - 2 (BATS MULTICAST - LSEG Real-Time)
    1247        "NA3"   NAIROBI SECURITIES EXCHANGE BONDS DATA
    1248        "CB2"   CBOE FUTURES EXCHANGE LEVEL2
    1249        "OMR"   Oil Market Report

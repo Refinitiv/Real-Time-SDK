@@ -77,11 +77,11 @@
       <NamespaceSummaryItem name="LSEG.Eta.ValueAdd.Common" isDocumented="True">Eta.ValueAdd.Rdm contains helper methods and classes used by the Reactor package</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.ValueAdd.Rdm" isDocumented="True">Eta.Rdm contains helper methods and classes that encode and decode the RDM Administrative Domains(Login, Source Directory, and Dictionary domains).</NamespaceSummaryItem>
     </NamespaceSummaries>
-    <ProjectSummary>&amp;lt%3bp&amp;gt%3bThis is the Enterprise Transport API %28ETA%29, the high performance, low latency, foundation of the Refinitiv Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Enterprise Transport API.  &amp;lt%3b/p&amp;gt%3b
+    <ProjectSummary>&amp;lt%3bp&amp;gt%3bThis is the Enterprise Transport API %28ETA%29, the high performance, low latency, foundation of the Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Enterprise Transport API.  &amp;lt%3b/p&amp;gt%3b
 
 &amp;lt%3bp&amp;gt%3bETA contains open source components. The transport, decoder and encoder components are open source.  &amp;lt%3b/p&amp;gt%3b
 
-&amp;lt%3bp&amp;gt%3bETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products. &amp;lt%3b/p&amp;gt%3b
+&amp;lt%3bp&amp;gt%3bETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to LSEG Real-Time Distribution System, LSEG Real-Time, and Data Feed Direct products. &amp;lt%3b/p&amp;gt%3b
 
 &amp;lt%3bp&amp;gt%3bCopyright %28C%29 2024 LSEG. All rights reserved. &amp;lt%3b/p&amp;gt%3b
 </ProjectSummary>

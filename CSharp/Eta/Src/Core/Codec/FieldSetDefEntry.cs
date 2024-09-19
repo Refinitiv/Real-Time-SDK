@@ -1,8 +1,8 @@
 ﻿/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -36,8 +36,8 @@ namespace LSEG.Eta.Codec
 		/// the set-defined <see cref="FieldList"/> content. Refers to specific name and
 		/// type information defined by an external field dictionary, such as the
 		/// RDMFieldDictionary. Negative fieldId values typically refer to user-defined
-		/// values while positive fieldId values typically refer to Thomson Reuters
-		/// -defined values. Must be in the range of -32768 - 32767.
+		/// values while positive fieldId values typically refer to LSEG-defined values. 
+		/// Must be in the range of -32768 - 32767.
 		/// </summary>
         public int FieldId { get; set; }
 

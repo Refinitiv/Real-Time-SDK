@@ -6,7 +6,7 @@ Summary:
  
 The purpose of this application is to measure performance of EMA API,
 in consuming Level I Market Price content directly
-from an OMM provider or through the Refinitiv Real-Time Distribution System. 
+from an OMM provider or through the LSEG Real-Time Distribution System. 
 
 The consumer creates two types of threads:
 - A main thread, which collects and records statistical information

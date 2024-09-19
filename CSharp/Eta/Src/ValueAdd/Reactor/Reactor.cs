@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2022-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -828,7 +828,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
 
         /// <summary>
-        /// Queries EDP-RT service discovery to get service endpoint information.
+        /// Queries Delivery Platform service discovery to get service endpoint information.
         /// </summary>
         /// <param name="serviceDiscoveryOptions"></param>
         /// <param name="errorInfo"></param>
@@ -3263,7 +3263,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         return PopulateErrorInfo(out errorInfo, ReactorReturnCode.PARAMETER_INVALID, "Reactor.Connect",
                             "Reactor.Connect(): Invalid connection type: " +
                             reactorConnectInfo.ConnectOptions.ConnectionType +
-                            " for requesting EDP-RT service discovery.");
+                            " for requesting Delivery Platform service discovery.");
                 }
             }
 

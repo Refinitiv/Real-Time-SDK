@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -159,7 +159,7 @@ public sealed class DataType
         public const int BUFFER = 16;
 
         /// <summary>
-        /// An 8-bit characters encoding using the Refinitiv Basic Character Set (RBCS).<br/>
+        /// An 8-bit characters encoding using the Reuters Basic Character Set (RBCS).<br/>
         /// The first 128 characters are equivalent to the ASCII character set(ANSI X3.4-1968).
         /// </summary>
         public const int ASCII = 17;
@@ -172,7 +172,7 @@ public sealed class DataType
         /// <summary>
         /// An encoding with a multilingual text encoding standard.<br/>
         /// RMTES uses ISO 2022 escape sequences to select the character sets used.<br/>
-        /// RMTES provides support for the Refinitiv Basic Character Set, UTF-8,<br/>
+        /// RMTES provides support for the Reuters Basic Character Set, UTF-8,<br/>
         /// Japanese Latin and Katakana (JIS C 6220 - 1969), Japanese Kanji(JIS X 0208 - 1990),<br/>
         /// and Chinese National Standard(CNS 11643-1986).<br/>
         /// RMTES also supports RREP sequences for character repetition and RHPA sequences for partial updates.

@@ -3,16 +3,16 @@ Summary
 
 ex451_MP_OAuth2Callback_V2 is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Refinitiv Real-Time - Optimized. 
+and parsing OMM MarketPrice data from Real-Time - Optimized. 
 
 ex451_MP_OAuth2Callback_V2 illustrates how to query endpoints from
-Refinitiv Data Platform service discovery using the ServiceEndpointDiscovery class and use the 
+Delivery Platform service discovery using the ServiceEndpointDiscovery class and use the 
 location from the command line to select an endpoint. The EMA's programmatic
 configuration is used to to enable session management with the retrieved endpoint
-for establishing a connection with the Refinitiv Real-Time - Optimized service and consuming data. This 
+for establishing a connection with the Real-Time - Optimized service and consuming data. This 
 application requires a service account(clientId) and associated clientSecret for 
 authorization with the token service in order to an access token for querying 
-endpoints from the Refinitiv Data Platform service discovery and sending login requests to the
+endpoints from the Delivery Platform service discovery and sending login requests to the
 service. 
 
 

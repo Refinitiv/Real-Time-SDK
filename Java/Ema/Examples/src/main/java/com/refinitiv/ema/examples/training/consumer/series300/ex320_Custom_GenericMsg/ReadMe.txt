@@ -5,7 +5,7 @@ The ex320_Custom_GenericMsg application is provided as an example of
 OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM Custom data from Refinitiv Data Feed Direct (RDF-D),
+and parsing of OMM Custom data from Data Feed Direct (LDFD),
 directly from an OMM Provider application, or from an Advanced Distribution Server.
 
 ex320_Custom_GenericMsg showcases usage of GenericMsg in OMM Consumer

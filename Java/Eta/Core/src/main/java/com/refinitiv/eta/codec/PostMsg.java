@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,7 +12,7 @@ import com.refinitiv.eta.codec.Buffer;
 
 /**
  * ETA Post Message allows a Consumer application to push content to upstream
- * components. This information can be applied to a Refinitiv Real-Time 
+ * components. This information can be applied to a LSEG Real-Time 
  * Distribution System cache or routed further upstream to the source of data. 
  * Once received, the upstream components can republish data to downstream consumers. 
  * Post messages can be routed along a specific item stream, referred to 

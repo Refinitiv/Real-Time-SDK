@@ -6,7 +6,7 @@ Summary:
 
 The purpose of this application is to measure performance of the Transport API,
 encoders and decoders in providing Level I Market Price content either
-directly to an OMM Consumer or to the Refinitiv Real-Time Distribution System.
+directly to an OMM Consumer or to the LSEG Real-Time Distribution System.
 
 The provider creates two categories of threads:
 - a main thread, which collects and records statistical information

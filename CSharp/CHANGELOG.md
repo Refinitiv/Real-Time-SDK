@@ -1,4 +1,4 @@
-This is the change log of the Refinitiv Real-Time SDK (RTSDK), CSharp edition. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting with initial release of CSharp. Note that RTSDK product version numbers start from 2.0.8 and EMA/ETA version numbers start from 3.0.0.
+This is the change log of the Real-Time SDK (RTSDK), CSharp edition. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting with initial release of CSharp. Note that RTSDK product version numbers start from 2.0.8 and EMA/ETA version numbers start from 3.0.0.
 
 There are three types of RTSDK releases that append a letter directly followed by a number to the version number. 
 
@@ -160,7 +160,7 @@ ETA CSharp 3.0.2.L1
 RTSDK CSharp Release 2.1.0.L1 (Mar 15, 2023)
 ---------------------------------------------
 
-This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming.
+This release introduces client credentials with jwt authentication for connectivity to LSEG Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming.
 
 ETA CSharp 3.0.1.L1  
 -------------------

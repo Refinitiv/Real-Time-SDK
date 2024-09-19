@@ -3,7 +3,7 @@ Summary
 
 111_MP_UserSpecifiedFileConfig is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Refinitiv Data Feed Direct (RDF-D),
+and parsing OMM MarketPrice data from Data Feed Direct (LDFD),
 directly from an OMM Provider application, or from an Advanced
 Distribution Server.
 

@@ -18,7 +18,7 @@ Author = 'LSEG'
 CompanyName = 'LSEG'
 
 # Copyright statement for this module
-Copyright = 'Copyright (C) 2024 Refinitiv. All rights reserved.'
+Copyright = 'Copyright (C) 2024 LSEG. All rights reserved.'
 
 # Description of the functionality provided by this module
 # Description = ''

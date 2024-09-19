@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Product>Enterprise Transport API (ETA) C# Edition</Product>
-    <Copyright>Copyright @ 2024 Refinitiv. All Rights Reserved.</Copyright>
+    <Copyright>Copyright @ 2024 LSEG. All Rights Reserved.</Copyright>
     <AssemblyName>AuthLock</AssemblyName>
     <TargetFramework Condition="'$(DotNetVersion)' == 'net6.0'">net6.0</TargetFramework>
     <TargetFramework Condition="'$(DotNetVersion)' == 'net8.0'">net8.0</TargetFramework>

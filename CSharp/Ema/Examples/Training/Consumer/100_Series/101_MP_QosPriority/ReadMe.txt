@@ -5,7 +5,7 @@ Summary
 written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing and
-parsing OMM MarketPrice data from Refinitiv Data Feed Direct (RDF-D), directly
+parsing OMM MarketPrice data from Data Feed Direct (LDFD), directly
 from an OMM Provider application, or from the Advanced Distribution
 Server.
 

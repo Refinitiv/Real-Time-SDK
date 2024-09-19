@@ -1,8 +1,8 @@
 ﻿/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -344,7 +344,7 @@ namespace LSEG.Eta.Rdm
 		// Request Message Payload - Well known Element Names
 		// Because these span domains, they are namespaced
 		// <namespace>:<element name>
-		// Thomson Reuters claims empty namespace (e.g. :ItemList is TR namespace)
+		// Refinitiv claims empty namespace (e.g. :ItemList is Refinitiv namespace)
 		// Customers can define and namespace using other values as they need
 		/// <summary>
 		/// :ItemList </summary>
@@ -661,7 +661,7 @@ namespace LSEG.Eta.Rdm
 			// Request Message Payload - Well known Element Names
 			// Because these span domains, they are namespaced
 			// <namespace>:<element name>
-			// Thomson Reuters claims empty namespace (e.g. :ItemList is TR namespace)
+			// Refinitiv claims empty namespace (e.g. :ItemList is Refinitiv namespace)
 			// Customers can define and namespace using other values as they need
 			// :ItemList 
 			BATCH_ITEM_LIST.Data(":ItemList");

@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -850,8 +850,8 @@ public class WatchlistConsumerConfig
 
 		CommandLine.addOption("sessionMgnt", "(optional) Enable Session Management in the reactor.");
 		CommandLine.addOption("l", "(optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.");
-		CommandLine.addOption("query", "", "(optional) Queries EDP service discovery to get an endpoint according to a specified connection type and location.");
-		CommandLine.addOption("clientId", "Specifies the client Id for Refinitiv login V2, or specifies a unique ID with login V1 for applications making the request to EDP token service, this is also known as AppKey generated using an AppGenerator.");
+		CommandLine.addOption("query", "", "(optional) Queries Delivery Platform service discovery to get an endpoint according to a specified connection type and location.");
+		CommandLine.addOption("clientId", "Specifies the client Id for LSEG login V2, or specifies a unique ID with login V1 for applications making the request to EDP token service, this is also known as AppKey generated using an AppGenerator.");
 		CommandLine.addOption("clientSecret", "Specifies the associated client Secret with a provided clientId for V2 logins.");
 		CommandLine.addOption("jwkFile", "Specifies the file location containing the JWK encoded private key for V2 logins.");
 		CommandLine.addOption("tokenURLV1", "Specifies the token URL for V1 token oauthpasswd grant type.");

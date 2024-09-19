@@ -5,11 +5,11 @@ Summary:
 --------
 
 A Non-Interactive Provider (NIP) writes a provider application that
-connects to Refinitiv Real-Time Distribution and sends a specific set
+connects to LSEG Real-Time Distribution and sends a specific set
 (non-interactive) of information (services, domains, and capabilities).
 
 NIPs act like clients in a client-server relationship. Multiple NIPs can
-connect to the same Refinitiv Real-Time Distribution and publish the same
+connect to the same LSEG Real-Time Distribution and publish the same
 items and content. The NIP application sends a login request like a consumer
 to the ADH and processes source directory and item requests like a provider.
 
@@ -21,7 +21,7 @@ an outline of how to create an OMM NIP application which can establish
 a connection to an ADH server. Once connected, an OMM NIP can publish
 information into the ADH cache without needing to handle requests for
 the information. The ADH can cache the information and along with other
-Refinitiv Real-Time Distribution System components, provide the information
+LSEG Real-Time Distribution System components, provide the information
 to any NIProvider applications that indicate interest.
 
 The general process can be summarized by the following steps.

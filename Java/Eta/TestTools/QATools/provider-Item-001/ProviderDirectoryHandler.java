@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -74,7 +74,7 @@ public class ProviderDirectoryHandler implements ServiceNameIdConverter
     private int _serviceId = 1234;
 
     // vendor name
-    private static final String vendor = "Refinitiv";
+    private static final String vendor = "LSEG";
 
     // field dictionary name
     private static final String fieldDictionaryName = "RWFFld";

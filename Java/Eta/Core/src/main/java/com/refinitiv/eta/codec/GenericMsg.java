@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -16,7 +16,7 @@ import com.refinitiv.eta.codec.Buffer;
  * established via a request-refresh/status interaction, this message can be
  * sent from consumer to provider as well as from provider to consumer, and can
  * also be leveraged by non-interactive provider applications. Generic messages
- * are transient and are typically not cached by any Refinitiv Real-Time Distibution 
+ * are transient and are typically not cached by any LSEG Real-Time Distibution 
  * System components. The msgKey of a {@link GenericMsg} does not need to match the
  * {@link MsgKey} information associated with the stream the generic message is
  * flowing on. This allows for the key information to be used independently of

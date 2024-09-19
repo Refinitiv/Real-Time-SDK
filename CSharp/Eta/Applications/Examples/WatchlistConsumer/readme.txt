@@ -5,7 +5,7 @@ Summary:
 --------
 
 The purpose of this application is to demonstrate consuming data from an 
-ADS device, OMM Provider application or Refinitiv Real-Time - Optimized 
+ADS device, OMM Provider application or Real-Time - Optimized 
 using ValueAdd components.  It is a single-threaded client application.
 
 This application leverages the consumer watchlist feature provided by the
@@ -58,7 +58,7 @@ can be located in the directory of execution.  If the dictionary files
 cannot be found, they are requested from the provider.
 
 Both the shared version of libcurl and the openssl libraries are needed to run this example for 
-connecting and consuming data from Refinitiv Real-Time - Optimized. 
+connecting and consuming data from Real-Time - Optimized. 
 
 -------------------
 Command line usage:
@@ -73,7 +73,7 @@ or
 WatchlistConsumer -c encrypted -ec socket -s <service name> -u <machine ID> -passwd <password> -clientId <client ID> -sessionMgnt
 
 The above example command line is used to create an encrypted connection with the socket encrypted protocol type
-using the default "us-east-1" region and enable session management to login and subscribe data from Refinitiv Real-Time - Optimized. 
+using the default "us-east-1" region and enable session management to login and subscribe data from Real-Time - Optimized. 
 
 or
 
@@ -142,7 +142,7 @@ that contains only data payload.
 
 Specifying the -at option configures the token used for UserAuthn Authentication. This should be used 
 in place of a userName.  This token is retrieved from a token generator, and passed to
-Refinitiv Real-Time Distribution, which will verify the token against a token validator.
+LSEG Real-Time Distribution, which will verify the token against a token validator.
 For more information about the UserAuthn Authentication feature, please see the Developers guide and
 the UserAuthn Authentication guide.
 

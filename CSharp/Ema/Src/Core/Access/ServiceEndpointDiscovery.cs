@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -23,7 +23,7 @@ internal delegate IQueryServiceDiscoveryProvider? QueryServiceDiscoveryProviderF
 public interface IQueryServiceDiscoveryProvider : IDisposable
 {
     /// <summary>
-    /// Queries EDP-RT service discovery to get service endpoint information.
+    /// Queries Delivery Platform (formerly EDP-RT) service discovery to get service endpoint information.
     /// </summary>
     /// <param name="errorInfo">Internal Reactor error information</param>
     /// <param name="serviceDiscoveryOptions">Internal Reactor configuration</param>
@@ -42,7 +42,7 @@ internal class QueryServiceDiscoveryProvider : IQueryServiceDiscoveryProvider
     }
 
     /// <summary>
-    /// Queries EDP-RT service discovery to get service endpoint information.
+    /// Queries Delivery Platform service discovery to get service endpoint information.
     /// </summary>
     /// <returns><see cref="ReactorReturnCode"/> indicating success or failure</returns>
     /// <exclude/>

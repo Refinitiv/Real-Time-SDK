@@ -1,8 +1,8 @@
 ///*|----------------------------------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license      	--
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
-// *|                See the project's LICENSE.md for details.                  					--
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019 LSEG. All rights reserved.     
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.refinitiv.ema.examples.training.consumer.series100.ex170_MP_ChannelInfo;
@@ -166,7 +166,7 @@ public class Consumer
 					"\n\tcomponent information: " + ci.componentInformation() +
 					"\n\tconnection type: " + ConnectionTypes.toString(ci.connectionType()) +
 					"\n\tchannel state: " + ci.channelState() +
-					"\n\tprotocol type: " + (ci.protocolType() == Codec.RWF_PROTOCOL_TYPE ? "Refinitiv wire format" : "unknown wire format") +
+					"\n\tprotocol type: " + (ci.protocolType() == Codec.RWF_PROTOCOL_TYPE ? "Rssl wire format" : "unknown wire format") +
 					"\n\tmajor version: " + ci.majorVersion() + "\n\tminor version: " + ci.minorVersion() + "\n\tping timeout: " + ci.pingTimeout());
 
 			if (appClient.USERDISPATCH)

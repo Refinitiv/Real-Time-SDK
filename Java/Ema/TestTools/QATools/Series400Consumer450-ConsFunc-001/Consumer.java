@@ -1,8 +1,8 @@
 ///*|----------------------------------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license      	--
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
-// *|                See the project's LICENSE.md for details.                  					--
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019 LSEG. All rights reserved.     
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.refinitiv.ema.examples.training.consumer.series400.ex450_MP_QueryServiceDiscovery;
@@ -74,7 +74,7 @@ class AppClient implements OmmConsumerClient, ServiceEndpointDiscoveryClient
 
 	public void onError(String errorText, ServiceEndpointDiscoveryEvent event)
 	{
-		System.out.println("Failed to query Refinitiv Data Platform service discovery. Error text: " + errorText);
+		System.out.println("Failed to query Delivery Platform service discovery. Error text: " + errorText);
 	}
 }
 
@@ -324,7 +324,7 @@ public class Consumer
 			
 			if ( host == null || port == null )
 			{
-				System.out.println("Both hostname and port are not avaiable for establishing a connection with Refinitiv Real-Time - Optimized. Exiting...");
+				System.out.println("Both hostname and port are not avaiable for establishing a connection with Real-Time - Optimized. Exiting...");
 				return;
 			}
 			

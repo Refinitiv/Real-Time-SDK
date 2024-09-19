@@ -1,8 +1,8 @@
 ﻿/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -338,7 +338,7 @@ namespace LSEG.Eta.Codec
 
         /// <summary>
         /// Gets or sets domain Type of this message, corresponds to a domain model definition
-        /// (values less than 128 are Thomson Reuters defined domain models, values
+        /// (values less than 128 are Refinitiv defined domain models, values
         /// between 128 - 255 are user defined domain models).
         /// Must be in the range of 0 - 255.
         /// </summary>
@@ -2359,7 +2359,7 @@ namespace LSEG.Eta.Codec
 		/// <li>
 		/// Domain message model specifications define available update types</li>
 		/// <li>
-		/// For Thomson Reuters's provided domain models, see
+		/// For LSEG provided domain models, see
 		/// <see cref="Rdm.UpdateEventTypes"/></li>
 		/// </ul>
 		/// </summary>

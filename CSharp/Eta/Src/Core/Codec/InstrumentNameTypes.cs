@@ -1,8 +1,8 @@
 ﻿/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -24,7 +24,7 @@ namespace LSEG.Eta.Rdm
 		/// Symbology is not specified or not applicable </summary>
 		public const int UNSPECIFIED = 0;
 		/// <summary>
-		/// Reuters Instrument Code </summary>
+		/// Instrument Code </summary>
 		public const int RIC = 1;
 		/// <summary>
 		/// Contributor </summary>

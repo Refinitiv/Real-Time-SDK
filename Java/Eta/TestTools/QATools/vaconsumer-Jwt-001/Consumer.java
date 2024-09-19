@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -152,7 +152,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *
  * <li>-passwd changes the password used when logging into the provider
  *
- * <li>-clientId Specifies the client Id for Refinitiv login V2, or specifies a unique ID with login V1 for applications making the request to EDP token service, this is also known as AppKey generated using an AppGenerator.
+ * <li>-clientId Specifies the client Id for LSEG login V2, or specifies a unique ID with login V1 for applications making the request to Delivery Platform token service, this is also known as AppKey generated using an AppGenerator.
  * 
  * <li>-clientSecret Specifies the associated client Secret with a provided clientId for V2 logins.
  *

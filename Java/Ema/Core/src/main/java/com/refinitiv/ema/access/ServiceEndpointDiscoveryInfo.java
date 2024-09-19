@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license      --
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
-// *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -34,7 +34,7 @@ public interface ServiceEndpointDiscoveryInfo
 	public String endpoint();
 	
 	/**
-	 * Gets a list of locations where the infrastructure is deployed in Refinitiv Real-Time - Optimized 
+	 * Gets a list of locations where the infrastructure is deployed in Real-Time - Optimized 
 	 * 
 	 * @return a list of location
 	 */
@@ -48,9 +48,9 @@ public interface ServiceEndpointDiscoveryInfo
 	public String port();
 	
 	/**
-	 * Gets a public Refinitiv Real-Time - Optimized provider
+	 * Gets a public Real-Time - Optimized provider
 	 * 
-	 * @return a Refinitiv Real-Time - Optimized provider
+	 * @return a Real-Time - Optimized provider
 	 */
 	public String provider();
 	

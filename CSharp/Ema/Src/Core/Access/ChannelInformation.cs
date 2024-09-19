@@ -1,8 +1,8 @@
 ﻿/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -284,7 +284,7 @@ namespace LSEG.Ema.Access
                     .AppendLine().Append("\tprotocol type: ");
 
             if (ProtocolType == Access.ProtocolType.RWF)
-                m_stringBuilder.Append("Refinitiv wire format");
+                m_stringBuilder.Append("Rssl wire format");
             else if (ProtocolType == Access.ProtocolType.JSON)
                 m_stringBuilder.Append("Rssl JSON format");
             else

@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license      --
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
-// *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|          Copyright (C) 2019-2020 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -97,7 +97,7 @@ public interface ChannelInformation
 
 	    /**
 	     * Indicates that the channel is using unreliable, sequenced multicast connection
-		 * for reading from an Refinitiv Direct Feed system.
+		 * for reading from Real-Time Direct system.
 	     */
 	    public static final int SEQUENCED_MCAST = 6;
 
@@ -120,7 +120,7 @@ public interface ChannelInformation
 		public static final int UNKNOWN = -1;
 
 		/**
-		 * Refinitiv wire format protocol
+		 * Rssl wire format protocol
 		 */
 		public static final int RWF = 0;
 		

@@ -1,8 +1,8 @@
 ﻿/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -72,7 +72,7 @@ namespace LSEG.Eta.Transports
         /// Checks whether heartbeat messages are required to flow from the client to the server. 
         /// </summary>
         /// <remarks>
-        /// Refinitiv Real-Time Distribution System and other Refinitiv components typically require this value to be
+        /// LSEG Real-Time Distribution System and other Refinitiv components typically require this value to be
         /// set to <c>true</c>.
         /// </remarks>
         /// <value><c>true</c> if heartbeat messages are required from the client to the server otherwise <c>false</c></value>
@@ -82,7 +82,7 @@ namespace LSEG.Eta.Transports
         /// Checks whether heartbeat messages are required to flow from the server to the client.
         /// </summary>
         /// <remarks>
-        /// Refinitiv Real-Time Distribution System and other Refinitiv components typically require this value to be
+        /// LSEG Real-Time Distribution System and other Refinitiv components typically require this value to be
         /// set to <c>true</c>.
         /// </remarks>
         /// <value><c>true</c> if heartbeat messages are required from the server to the client otherwise <c>false</c></value>

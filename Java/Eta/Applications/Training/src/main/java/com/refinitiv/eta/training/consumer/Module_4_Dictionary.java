@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -21,8 +21,8 @@
  * In this module, the application initializes the ETA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
- * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
- * and Refinitiv Real-Time. 
+ * LSEG Real-Time Distribution Systems, Data Feed Direct,
+ * and LSEG Real-Time. 
  *
  * Detailed Descriptions:
  * The first step of any ETA consumer application is to establish a 
@@ -211,7 +211,7 @@
  * Consumer applications often require a dictionary for encoding or decoding 
  * specific pieces of information. This dictionary typically defines type and 
  * formatting information. Content that uses the FieldList type requires 
- * the use of a field dictionary (usually the Refinitiv RDMFieldDictionary, 
+ * the use of a field dictionary (usually the LSEG RDMFieldDictionary, 
  * although it could also be a user-defined or user-modified field dictionary).
  * A consumer application can choose whether to load necessary dictionary 
  * information from a local file or download the information from an available 
@@ -2002,7 +2002,7 @@ public class Module_4_Dictionary
 		/* Because the Source Directory domain uses an FilterList, a consumer can indicate the specific source related
 		 * information in which it is interested via a msgKey.filter. Each bit-value represented in the filter corresponds
 		 * to an information set that can be provided in response messages.
-		 * Refinitiv recommends that a consumer application minimally request Info, State, and Group filters for the
+		 * LSEG recommends that a consumer application minimally request Info, State, and Group filters for the
 		 * Source Directory:
 		 * - The Info filter contains the service name and serviceId data for all available services. When an appropriate
 		 *   service is discovered by the OMM Consumer, the serviceId associated with the service is used on subsequent
@@ -2895,7 +2895,7 @@ public class Module_4_Dictionary
 	 * request message is encoded and sent by OMM consumer applications. Some data requires the use of a dictionary for
 	 * encoding or decoding. This dictionary typically defines type and formatting information and directs the application
 	 * as to how to encode or decode specific pieces of information. Content that uses the FieldList type requires the
-	 * use of a field dictionary (usually the Refinitiv RDMFieldDictionary, though it could also be a user-defined or
+	 * use of a field dictionary (usually the LSEG RDMFieldDictionary, though it could also be a user-defined or
 	 * modified field dictionary).
 	 * etaChannelInfo - The channel management information including the channel to send the Dictionary request message buffer to and
 	 *					the obtained source directory service discovery information that is used for sending Dictionary Request

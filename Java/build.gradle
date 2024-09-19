@@ -59,9 +59,9 @@ ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.2.2.L1'
 
 
 ext.vendor = 'Refinitiv'
-ext.javadoc_footer = '<a href="https://developers.refinitiv.com/" target=_top>Refinitiv</a>'
-ext.javadoc_header = '<a href="https://developers.refinitiv.com/" target=_top>Refinitiv</a>'
-ext.javadoc_bottom = '<i>Copyright @ ' + "$YEAR" + ' Refinitiv. All Rights Reserved.</i>'
+ext.javadoc_footer = '<a href="https://developers.lseg.com/" target=_top>Refinitiv</a>'
+ext.javadoc_header = '<a href="https://developers.lseg.com/" target=_top>Refinitiv</a>'
+ext.javadoc_bottom = '<i>Copyright @ ' + "$YEAR" + ' LSEG. All Rights Reserved.</i>'
 
 task downloadBinaryPack(type: Download) {
     description 'This task downloads the RTSDK-BinaryPack file from GitHub.'

@@ -1,8 +1,8 @@
 ﻿/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -163,7 +163,7 @@ namespace LSEG.Eta.Codec
 		public const int UTF8_STRING = 18;
 
 		/// <summary>
-		/// Represents an RMTES (Reuters Multilingual Text Encoding Standard) string
+		/// Represents an RMTES (Multilingual Text Encoding Standard) string
 		/// which should follow the RMTES encoding standard and contain only
 		/// characters valid within that set. ETA does not enforce or validate
 		/// encoding standards, so this is the responsibility of the encoding or

@@ -1,9 +1,9 @@
 /*
  *|-------------------------------------------------------------------------------
- *| This source code is provided under the Apache 2.0 license and is provided   --
- *| AS IS with no warranty or guarantee of fit for purpose.  See the project's  --
- *| LICENSE.md for details.                                                     --
- *| Copyright (C) 2022-2024 Refinitiv. All rights reserved.                     --
+ *| This source code is provided under the Apache 2.0 license
+ *| AS IS with no warranty or guarantee of fit for purpose.
+ *| See LICENSE.md for details.
+ *| Copyright (C) 2022-2024 LSEG. All rights reserved.     
  *|-------------------------------------------------------------------------------
  */
 
@@ -60,7 +60,7 @@
  * In this module, after establishing a connection, ping messages might
  * need to be exchanged. The negotiated ping timeout is available via
  * the Channel. If ping heartbeats are not sent or received within
- * the expected time frame, the connection can be terminated. Refinitiv
+ * the expected time frame, the connection can be terminated. LSEG
  * recommends sending ping messages at intervals one-third the
  * size of the ping timeout.
  *
@@ -70,7 +70,7 @@
  * might need to exchange ping messages. A negotiated ping timeout is available
  * via Channel corresponding to each connection (this value might differ on
  * a per-connection basis). A connection can be terminated if ping heartbeats
- * are not sent or received within the expected time frame. Refinitiv
+ * are not sent or received within the expected time frame. LSEG
  * recommends sending ping messages at intervals one-third the size of the ping timeout.
  * Ping or heartbeat messages are used to indicate the continued presence of
  * an application. These are typically only required when no other information is
@@ -206,7 +206,7 @@
  * in the system. An OMM consumer typically requests a Source Directory to retrieve
  * information about available services and their capabilities. This includes
  * information about supported domain types, the service's state, the QoS, and any
- * item group information associated with the service. Refinitiv recommends that at a
+ * item group information associated with the service. LSEG recommends that at a
  * minimum, an Interactive Provider supply the Info, State, and Group filters for the
  * Source Directory.
  *
@@ -253,7 +253,7 @@
  * Some data requires the use of a dictionary for encoding or decoding. The dictionary
  * typically defines type and formatting information, and tells the application how to
  * encode or decode information. Content that uses the FieldList type requires the
- * use of a field dictionary (usually the Refinitiv RDMFieldDictionary, though it
+ * use of a field dictionary (usually the LSEG RDMFieldDictionary, though it
  * can instead be a user-defined or modified field dictionary).
  *
  * The Source Directory message should notify the consumer about dictionaries needed to
@@ -1877,7 +1877,7 @@ namespace LSEG.Eta.Training.Provider
              *
              * These functions are tuned to be efficient and avoid initializing unnecessary
              * structure members, and allow for optimal structure use and reuse. In general,
-             * Refinitiv recommends that you use the clear functions over static initializers,
+             * LSEG recommends that you use the clear functions over static initializers,
              * because the clear functions are more efficient.
              */
             /* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -2261,7 +2261,7 @@ namespace LSEG.Eta.Training.Provider
              * initializing unnecessary structure members, and allow for optimal structure
              * use and reuse.
              *
-             * In general, Refinitiv recommends that you use the Clear() functions over
+             * In general, LSEG recommends that you use the Clear() functions over
              * constructing new instances, because the clear functions are more efficient.
              */
             /* Iterator used for encoding throughout the application - we can clear it and
@@ -2583,7 +2583,7 @@ namespace LSEG.Eta.Training.Provider
             refreshFlags |= RefreshMsgFlags.CLEAR_CACHE;
 
             /* set filter flags */
-            /* At a minimum, Refinitiv recommends that the NIP send the Info, State, and Group filters for the Source Directory. */
+            /* At a minimum, LSEG recommends that the NIP send the Info, State, and Group filters for the Source Directory. */
             refreshKey.Filter = Rdm.Directory.ServiceFilterFlags.INFO
                 | Rdm.Directory.ServiceFilterFlags.STATE
                 | Rdm.Directory.ServiceFilterFlags.LOAD
@@ -3093,7 +3093,7 @@ namespace LSEG.Eta.Training.Provider
 
                 /* The Status element can change the state of items provided by this service.
                  *
-                 * Prior to changing a service status, Refinitiv recommends that you issue
+                 * Prior to changing a service status, LSEG recommends that you issue
                  * item or group status messages to update item states.
                  */
                 status.StreamState(StreamStates.OPEN);

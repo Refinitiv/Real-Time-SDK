@@ -13,7 +13,7 @@
     <FileVersion>3.3.0.0</FileVersion>
     <Company>Refinitiv</Company>
     <Product>Enterprise Message API (EMA) C# Edition</Product>
-    <Copyright>Copyright @ 2024 Refinitiv. All Rights Reserved.</Copyright>
+    <Copyright>Copyright @ 2024 LSEG. All Rights Reserved.</Copyright>
     <PackageProjectUrl>https://github.com/Refinitiv/Real-Time-SDK</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>readme.md</PackageReadmeFile>

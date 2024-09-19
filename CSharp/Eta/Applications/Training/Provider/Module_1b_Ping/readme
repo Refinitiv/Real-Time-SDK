@@ -9,7 +9,7 @@ Summary:
 In this module, after establishing a connection, ping messages might
 need to be exchanged. The negotiated ping timeout is available via
 the Channel. If ping heartbeats are not sent or received within
-the expected time frame, the connection can be terminated. Refinitiv
+the expected time frame, the connection can be terminated. LSEG
 recommends sending ping messages at intervals one-third the
 size of the ping timeout.
 
@@ -19,7 +19,7 @@ Once the connection is active, the consumer and provider applications
 might need to exchange ping messages. A negotiated ping timeout is available
 via Channel corresponding to each connection (this value might differ on
 a per-connection basis). A connection can be terminated if ping heartbeats
-are not sent or received within the expected time frame. Refinitiv
+are not sent or received within the expected time frame. LSEG
 recommends sending ping messages at intervals one-third the size of the ping timeout.
 
 Ping or heartbeat messages are used to indicate the continued presence of

@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -442,7 +442,7 @@ namespace LSEG.Ema.Rdm
         public const int INSTRUMENT_NAME_UNSPECIFIED = 0;
 
         /// <summary>
-        /// Reuters Instrument Code
+        /// Instrument Code (RIC)
         /// </summary>
         public const int INSTRUMENT_NAME_RIC = 1;
 

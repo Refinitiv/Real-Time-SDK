@@ -5,7 +5,7 @@ The ex291_Custom_DownCast application provides a custom down casting
 example of OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM Custom data from Refinitiv Data Feed Direct (RDF-D),
+and parsing of OMM Custom data from Data Feed Direct (LDFD),
 directly from an OMM Provider application, or from an Advanced Distribution Server.
 
 ex291_Custom_DownCast showcases usage of the so called downcast decoding

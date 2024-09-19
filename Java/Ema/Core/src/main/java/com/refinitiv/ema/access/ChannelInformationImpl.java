@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license      --
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
-// *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|          Copyright (C) 2019-2020 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -164,7 +164,7 @@ class ChannelInformationImpl implements ChannelInformation
 				+ "\n\tprotocol type: ");
 			
 		if (_protocolType == ProtocolType.RWF)
-			_stringBuilder.append("Refinitiv wire format");
+			_stringBuilder.append("Rssl wire format");
 		else if (_protocolType == ProtocolType.JSON)
 			_stringBuilder.append("Rssl JSON format");
 		else

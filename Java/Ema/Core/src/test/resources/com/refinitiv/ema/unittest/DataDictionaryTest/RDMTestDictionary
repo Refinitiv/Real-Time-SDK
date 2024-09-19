@@ -26,10 +26,10 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright (C) 2019 Refinitiv
+! Copyright (C) 2019 LSEG
 !
 !tag Filename  RWF.DAT
-!tag Desc      RDF-D RWF field set
+!tag Desc      LDFD RWF field set
 !tag Type      1
 !tag Version   4.20.03
 !tag Build     001
@@ -1724,7 +1724,7 @@ DEALMETHOD "METHOD OF DEAL"       540  NULL        ENUMERATED    5 ( 8 )  ENUM  
 RATE_C1USD "RATE CCY1 USD"        541  NULL        ALPHANUMERIC       12  RMTES_STRING    12
 !
 ! Rate Currency 1 against USD. The spot rate for each currency against the US dollar 
-! at the time the deal was confirmed as supplied by Reuters.
+! at the time the deal was confirmed as supplied by LSEG.
 !
 RATE_C2USD "RATE CCY2 USD"        542  NULL        ALPHANUMERIC       12  RMTES_STRING    12
 !
@@ -9885,7 +9885,7 @@ TIM_TRK_8  "TIME TRACKER 8"      3909  NULL        INTEGER            15  UINT64
 TIM_TRK_9  "TIME TRACKER 9"      3910  NULL        INTEGER            15  UINT64           8
 MSG_IN_BUF "MSG IN BUF"          3911  NULL        INTEGER            15  UINT64           8
 !
-! RDF-D time trackers
+! LDFD time trackers
 !
 IND_AUC    "IND AUC PRICE"       3912  NULL        PRICE              17  REAL64           7
 !
@@ -10155,7 +10155,7 @@ DSPL_ACT   "ACTUAL DISPLAY"      4016  NULL        ALPHANUMERIC        8  RMTES_
 !
 DSPL_FCAST "FORECAST DISPLAY"    4017  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 !
-! the most recent Reuters forecast  for an economic indicator, sourced from market 
+! the most recent LSEG forecast  for an economic indicator, sourced from market 
 ! participants, optimised for display purposes
 !
 DSPL_PRIOR "PRIOR DISPLAY"       4018  NULL        ALPHANUMERIC        8  RMTES_STRING     8
@@ -10177,7 +10177,7 @@ ECON_DES   "ECON DESCRIPTION"    4021  NULL        ALPHANUMERIC       18  RMTES_
 !
 ECON_FCAST "ECON FORECAST"       4022  NULL        PRICE              17  REAL64           7
 !
-! the most recent Reuters forecast, sourced from market participants, for an economic 
+! the most recent LSEG forecast, sourced from market participants, for an economic 
 ! indicator
 !
 ECON_HIST  "ECON HISTORY"        4023  NULL        ALPHANUMERIC       18  RMTES_STRING    18
@@ -10198,17 +10198,17 @@ ECON_SRCE  "ECON SOURCE"         4026  NULL        ALPHANUMERIC       36  RMTES_
 !
 FCAST_HIGH "HIGH FORECAST"       4027  NULL        PRICE              17  REAL64           7
 !
-! the highest of all the forecasts received by Reuters from market participants for an 
+! the highest of all the forecasts received by LSEG from market participants for an 
 ! economic indicator
 !
 FCAST_LOW  "LOW FORECAST"        4028  NULL        PRICE              17  REAL64           7
 !
-! the lowest of all the forecasts received by Reuters from market participants for an 
+! the lowest of all the forecasts received by LSEG from market participants for an 
 ! economic indicator
 !
 FCAST_NUM  "FORECASTS NUMBER"    4029  NULL        PRICE              17  REAL64           7
 !
-! the number of forecasts received by Reuters from market participants for an economic 
+! the number of forecasts received by LSEG from market participants for an economic 
 ! indicator
 !
 RPT_CALCTP "REPORTED CALC TYPE"  4030  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -10258,7 +10258,7 @@ RCS_EI_TYP "RCS ECON IND TYPE"   4040  NULL        ALPHANUMERIC        3  RMTES_
 !
 RCS_GEOG   "RCS GEOGRAPHY"       4041  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! The geographic code of the Reuters Classification Scheme
+! The geographic code of the LSEG Classification Scheme
 !
 URL_DES    "URL DESCRIPTION"     4042  NULL        ALPHANUMERIC       60  RMTES_STRING    60
 !
@@ -10977,7 +10977,7 @@ ODD_BIDSIZ "ODD BEST BID SIZE"   4229  NULL        INTEGER            15  REAL64
 ANNDIVTYPE "ANNUAL DIV TYPE"     4230  NULL        ALPHANUMERIC       20  RMTES_STRING    20
 !
 ! Annualised Dividend calculation method. This include Latest FY, Rolling 12 months, 
-! Projected Annual or Reuters Derived.
+! Projected Annual or LSEG Derived.
 !
 ROUND_VOL  "ROUND VOLUME"        4231  NULL        INTEGER            15  REAL64           7
 !
@@ -10986,7 +10986,7 @@ ROUND_VOL  "ROUND VOLUME"        4231  NULL        INTEGER            15  REAL64
 ANNEPSTYPE "ANNUAL EPS TYPE"     4232  NULL        ALPHANUMERIC       20  RMTES_STRING    20
 !
 ! Annualised Earnings calculation method. This include Latest FY, Rolling 12 months or 
-! Reuters Derived.
+! LSEG Derived.
 !
 CNTCT_ID   "CONTACT ID"          4233  NULL        INTEGER            15  REAL64           7
 !
@@ -13539,7 +13539,7 @@ WTCHL_CT_U "WTCHL CNT UNIQ"      5200  NULL        INTEGER            10  UINT64
 LTNC_MVAVG "LATENCY MV AVG"      5201  NULL        INTEGER            10  UINT64           5
 !
 ! Ten second moving average of latency, in microseconds, as measured from the top 
-! (Message Formatter) to the bottom (P2PS Fan-Out) of the RDF-D.  
+! (Message Formatter) to the bottom (P2PS Fan-Out) of the LDFD.  
 !
 WTCHL_CT   "WTCHL CNT"           5202  NULL        INTEGER            10  UINT64           5
 !
@@ -13924,7 +13924,7 @@ DLR_VOL_NT "DEALER VOL NET"      5334  NULL        INTEGER            15  REAL64
 !
 DLR_ESTHLD "DEALER EST HOLDING"  5335  NULL        INTEGER            15  REAL64           7
 !
-! Dealer Estimated Holdings (For Taiwan SE calculated by Reuters)
+! Dealer Estimated Holdings (For Taiwan SE calculated by LSEG)
 !
 STP_BUYMAR "STOP BUY MARGIN"     5336  NULL        INTEGER            15  REAL64           7
 !
@@ -14390,7 +14390,7 @@ UPDATE_RT  "UPDATE RATE"         5553  NULL        INTEGER            10  UINT64
 !
 CPU_CT     "CPU COUNT"           5554  NULL        BINARY              3  UINT32           2
 !
-! Number of physical CPUs on the RDF-D
+! Number of physical CPUs on the LDFD
 !
 CPU_SPEED  "CPU SPEED"           5555  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
@@ -17260,7 +17260,7 @@ METADATA5  "METADATA 5"          6393  NULL        ALPHANUMERIC      255  RMTES_
 !
 DDS_DSO_ID "DDS DSO ID"          6401  NULL        BINARY              3  UINT32           2
 !
-! Refinitiv Real-Time (DDS) equivalent of the IDN FID DSO_ID. Has its own set of values.
+! LSEG Real-Time (DDS) equivalent of the IDN FID DSO_ID. Has its own set of values.
 !
 BR_PNAC    "BR PNAC"             6402  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !

@@ -6,7 +6,7 @@ of OMM Consumer application written to the EMA library showcasing a change
 to the item priority.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM MarketPrice data from Refinitiv Data Feed Direct (RDF-D),
+and parsing of OMM MarketPrice data from Data Feed Direct (LDFD),
 directly from an OMM Provider application, or from an Advanced Distribution Server.
 
 301_MP_PriorityChange showcases reissue for priority feature

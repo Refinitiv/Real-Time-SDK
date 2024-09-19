@@ -9,7 +9,7 @@ Summary:
 Consumer applications often require a dictionary for encoding or decoding 
 specific pieces of information. This dictionary typically defines type and 
 formatting information. Content that uses the FieldList type requires 
-the use of a field dictionary (usually the Refinitiv RDMFieldDictionary, 
+the use of a field dictionary (usually the LSEG RDMFieldDictionary, 
 although it could also be a user-defined or user-modified field dictionary).
 
 A consumer application can choose whether to load necessary dictionary 

@@ -6,7 +6,7 @@ Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library while opening
 multiple item stream via a single request (a.k.A., batch request) and parsing
-of OMM MarketPrice data from Refinitiv Data Feed Direct (RDF-D), directly from
+of OMM MarketPrice data from Data Feed Direct (LDFD), directly from
 an OMM Provider application, or from an Advanced Distribution Server.
 
 370_MP_Batch showcases usage of batch request feature of OMM

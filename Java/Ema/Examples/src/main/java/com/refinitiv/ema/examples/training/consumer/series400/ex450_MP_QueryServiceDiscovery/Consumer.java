@@ -1,8 +1,8 @@
 ///*|----------------------------------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license                             --
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.                         --
-// *|                See the project's LICENSE.md for details.                                         --
-// *|           Copyright (C) 2020-2022 Refinitiv. All rights reserved.                                --
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2020-2022 LSEG. All rights reserved.     
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.refinitiv.ema.examples.training.consumer.series400.ex450_MP_QueryServiceDiscovery;
@@ -377,7 +377,7 @@ public class Consumer
 		
 		if(connectWebSocket)
 		{
-			// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from Refinitiv Data Platform
+			// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from Delivery Platform
 			innerElementList.add(EmaFactory.createElementEntry().ascii("Dictionary", "Dictionary_1"));
 		}
 		
@@ -484,7 +484,7 @@ public class Consumer
 			
 			if ( host == null || port == null )
 			{
-				System.out.println("Both hostname and port are not avaiable for establishing a connection with Refinitiv Real-Time - Optimized. Exiting...");
+				System.out.println("Both hostname and port are not avaiable for establishing a connection with Real-Time - Optimized. Exiting...");
 				return;
 			}
 			

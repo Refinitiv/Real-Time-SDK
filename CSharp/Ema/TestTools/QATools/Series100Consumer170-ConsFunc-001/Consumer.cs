@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.Md for details.
+ *|           Copyright (C) 2023 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -153,7 +153,7 @@ public class Consumer
 					"\n\tcomponent information: " + ci.ComponentInfo +
 					"\n\tconnection type: " + System.Enum.GetName(ci.ConnectionType) +
 					"\n\tchannel state: " + ci.ChannelState +
-					"\n\tprotocol type: " + (ci.ProtocolType == Codec.RWF_PROTOCOL_TYPE ? "Refinitiv wire format" : "unknown wire format") +
+					"\n\tprotocol type: " + (ci.ProtocolType == Codec.RWF_PROTOCOL_TYPE ? "Rssl wire format" : "unknown wire format") +
 					"\n\tmajor version: " + ci.MajorVersion + "\n\tminor version: " + ci.MinorVersion + "\n\tping timeout: " + ci.PingTimeout);
 
 			if (AppClient.USERDISPATCH)

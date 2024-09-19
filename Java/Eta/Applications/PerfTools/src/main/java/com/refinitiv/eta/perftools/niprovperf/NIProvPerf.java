@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * The purpose of this application is to measure performance of the ETA transport, 
  * encoders and decoders, in providing Level I Market Price content to the
- * Refinitiv Real-Time Distribution System Advanced Data Hub (ADH).
+ * LSEG Real-Time Distribution System Advanced Data Hub (ADH).
  * <p>
  * <em>Summary</em>
  * <p>

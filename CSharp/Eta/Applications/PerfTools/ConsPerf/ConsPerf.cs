@@ -1,8 +1,8 @@
 ﻿/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2024 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2022-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -23,7 +23,7 @@ using LSEG.Eta.PerfTools.Common;
 * <p>
 * The purpose of this application is to measure performance of the ETA transport,
 * encoders and decoders in consuming Level I Market Price content directly
-* from an OMM provider or through the Refinitiv Real-Time Distribution System.
+* from an OMM provider or through the LSEG Real-Time Distribution System.
 * </p>
 * <em>Summary</em>
 * <p>

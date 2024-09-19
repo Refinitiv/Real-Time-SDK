@@ -1,12 +1,12 @@
 # Enterprise Transport API (ETA) CSharp over .NET Core Edition
 
-This is the **Enterprise Transport API (ETA)**, the high performance, low latency, foundation of the Refinitiv Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available in Enterprise Transport API.  
+This is the **Enterprise Transport API (ETA)**, the high performance, low latency, foundation of the Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available in Enterprise Transport API.  
 
 ETA CSharp contains open source components. The transport, decoder, encoder, value add reactor layer and watchlist layer are open source. 
 
-ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
+ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to LSEG Real-Time Distribution System, LSEG Real-Time, and Data Feed Direct products.
 
-Copyright (C) 2022-2024 Refinitiv. All rights reserved.
+Copyright (C) 2022-2024 LSEG. All rights reserved.
 
 # ETA CSharp Documentation
 
@@ -29,7 +29,7 @@ In addtion, HTML documentation is available in CSharp/Eta/Docs. For addtional do
 
 - Can consume and provide:
 
-   - Any and all OMM primitives supported on Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct 
+   - Any and all OMM primitives supported on LSEG Real-Time Distribution System, LSEG Real-Time, and Data Feed Direct 
 
    - All Domain Models, including those defined by Refinitiv as well as other user-defined models.
 
@@ -47,7 +47,7 @@ In addtion, HTML documentation is available in CSharp/Eta/Docs. For addtional do
 
    - Reactor is a connection management and event processing component that can significantly reduce the amount of code an application must write to leverage OMM in their own applications and to connect to other OMM based devices. The Reactor can be used to create or enhance Consumer, Interactive Provider, and Non-Interactive Provider start-up processing, including user log in, source directory establishment, and dictionary download. The Reactor also allows for dispatching of events to user implemented callback functions. In addition, it handles flushing of user written content and manages network pings on the user's behalf. Value Added domain representations are coupled with the Reactor, allowing domain specific callbacks to be presented with their respective domain representation for easier, more logical access to content. Reactor also provides opportunity in-box support of RTT monitoring for consumer applications.
 
-   - The Administration Domain Model Representations are RDM specific amount of code an application needs to interact with OMM devices (i.e., Refinitiv Real-Time Distribution System), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules. Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models. When using the ETA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
+   - The Administration Domain Model Representations are RDM specific amount of code an application needs to interact with OMM devices (i.e., LSEG Real-Time Distribution System), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules. Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models. When using the ETA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
 
 - ANSI library for users to process ANSI Page based content
 
@@ -133,7 +133,7 @@ The distribution contains several DLL files (libraries), intended to allow for e
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
-    Security Compliance: Refinitiv Security Compliant
+    Security Compliance: LSEG Security Compliant
     Template Version Supported: v4.20.64_RealTimeDistributionSystem_24.71 for RWF and Marketfeed Record Templates
 
 # Security

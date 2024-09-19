@@ -6,7 +6,7 @@ an example of OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library while specifying
 Administrative domain messages to override default EMA behaviour, for accessing
-and parsing of OMM MarketPrice data from Refinitiv Data Feed Direct (RDF-D),
+and parsing of OMM MarketPrice data from Data Feed Direct (LDFD),
 directly from an OMM Provider application, or from an Advanced Distribution Server.
 
 ex423_MP_AdmDomainCfg_DomainRep showcases customization of the default EMA

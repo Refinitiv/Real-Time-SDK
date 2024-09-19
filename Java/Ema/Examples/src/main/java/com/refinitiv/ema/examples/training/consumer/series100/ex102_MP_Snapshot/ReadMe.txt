@@ -3,7 +3,7 @@ Summary
 
 ex102_MP_Snapshot is an example of an OMM Consumer application
 written to the EMA library and demonstrates basic usage of the EMA library 
-in accessing and parsing OMM MarketPrice data either from Refinitiv Data Feed Direct (RDF-D),
+in accessing and parsing OMM MarketPrice data either from Data Feed Direct (LDFD),
 directly from an OMM Provider application, or from the Advanced
 Distribution Server.
 

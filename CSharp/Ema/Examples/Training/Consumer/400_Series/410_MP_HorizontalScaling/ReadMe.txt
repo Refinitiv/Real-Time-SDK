@@ -5,7 +5,7 @@ The 410_MP_HorizontalScaling application is provided as an example
 of OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM MarketPrice data from Refinitiv Data Feed Direct (RDF-D),
+and parsing of OMM MarketPrice data from Data Feed Direct (LDFD),
 directly from an OMM Provider application, or from an Advanced Distribution Server.
 
 410_MP_HorizontalScaling showcases horizontal scaling capability

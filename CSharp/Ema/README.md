@@ -1,10 +1,10 @@
 # Enterprise Message API (EMA) CSharp over .NET Core Edition
 
-The Enterprise Message API: This is an easy-to-use, performant, open source message layer API. The Enterprise Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Refinitiv based on customer feedback.
+The Enterprise Message API: This is an easy-to-use, performant, open source message layer API. The Enterprise Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and LSEG based on customer feedback.
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2023-2024 Refinitiv. All rights reserved.
+Copyright (C) 2023-2024 LSEG. All rights reserved.
   
 # EMA C# Documentation
 
@@ -93,7 +93,7 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
-    Security Compliance: Refinitiv Security Compliant
+    Security Compliance: LSEG Security Compliant
     Template Version Supported: v4.20.64_RealTimeDistributionSystem_24.71 for RWF and Marketfeed Record Templates
 
 # Security

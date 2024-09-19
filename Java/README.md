@@ -1,15 +1,15 @@
-# Refinitiv Real-Time SDK - Java Edition
-This is the Refinitiv Real-Time SDK. This SDK encompasses these Real-Time APIs: Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
+# LSEG Real-Time SDK - Java Edition
+This is the Real-Time SDK. This SDK encompasses these Real-Time APIs: Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
 
 The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
-The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
+The **Enterprise Transport API (ETA)** is an open source LSEG low-level Transport and OMM encoder/decoder API. It is used by the LSEG Real-Time Distribution Systems and LSEG Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2024 Refinitiv. All rights reserved.
+Copyright (C) 2019-2024 LSEG. All rights reserved.
 
 # New In This Release
 
-Please refer to the CHANGELOG file in this section to see what is new in this release of Refinitiv Real-Time SDK - Java Edition. Also in CHANGELOG is a list of issues fixed in this release and a history of features and fixes introduced per released version. 
+Please refer to the CHANGELOG file in this section to see what is new in this release of Real-Time SDK - Java Edition. Also in CHANGELOG is a list of issues fixed in this release and a history of features and fixes introduced per released version. 
 
 ### External Dependencies
 
@@ -49,18 +49,18 @@ External modules used by this version of RTSDK Java:
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The Refinitiv Real-Time-SDK supports Oracle JDK 1.11 & 1.17, OpenJDK 1.11 & 1.17, Amazon Corretto 11.
+The LSEG Real-Time-SDK supports Oracle JDK 1.11 & 1.17, OpenJDK 1.11 & 1.17, Amazon Corretto 11.
 
 NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. 
 
-Refinitiv fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
+LSEG fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
-Refinitiv will extend support to other platforms based on the following criteria:
+LSEG will extend support to other platforms based on the following criteria:
 - EMA Java is used with a J2SE 11 compliant JVM
-- All problems must be reproducible on one of the core platforms listed below. Refinitiv support teams will only be able to reproduce problems on the core platforms.
+- All problems must be reproducible on one of the core platforms listed below. LSEG support teams will only be able to reproduce problems on the core platforms.
 
 #### Supported Platforms
-The Refinitiv Real-Time-SDK provides support for multicast connections using JNI libraries. Also included are closed source libraries for reliable multicast support and value add cache. These libraries are available for the following platform and compiler combinations:
+The LSEG Real-Time-SDK provides support for multicast connections using JNI libraries. Also included are closed source libraries for reliable multicast support and value add cache. These libraries are available for the following platform and compiler combinations:
 
 ##### Windows
 
@@ -122,13 +122,13 @@ The **keystore** file can contain custom private keys and public key certificate
 
 RTSDK Java supports connectivity to the following platforms:
 
-- Refinitiv Real-Time Distribution System (RSSL/RWF connections): ADS/ADH all supported versions 
-- Refinitiv Real-Time: Refinitiv Real-Time Deployed
-- Refinitiv Real-Time Hosted
-- Refinitiv Real-Time - Optimized (RTO)
-- Refinitiv Direct Feed
+- LSEG Real-Time Distribution System (RSSL/RWF connections): ADS/ADH all supported versions 
+- LSEG Real-Time: LSEG Real-Time Deployed
+- LSEG Real-Time Hosted
+- Real-Time - Optimized (RTO)
+- Real-Time Direct
 
-NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
+NOTE: Connectivity to Real-Time Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
@@ -149,9 +149,9 @@ This section shows the required setup needed before you can build any of the Jav
 
 Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
-Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/download).
+Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/download).
 
-Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html).
+Real-Time SDK package is also available on [MyAccount](https://myaccount.lseg.com/content/mytr/en/downloadcenter.html).
 
 ## Building RTSDK
 
@@ -201,13 +201,13 @@ To debug a encrypted consumer connection, you can add the following JVM argument
 This provides TLS details that can be useful if TLS handshake failed
 
 
-# Obtaining the Refinitiv Field Dictionaries
+# Obtaining the LSEG Field Dictionaries
 
-The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of Refinitiv Template Service Pack.
+The LSEG `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from [MyAccount](https://myaccount.lseg.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of LSEG Template Service Pack.
 
 # Maven Central
 
-For ease of product use, as of the RTSDK 1.2 release, Refinitiv maintains its RTSDK Jar files on Maven Central.
+For ease of product use, as of the RTSDK 1.2 release, LSEG maintains its RTSDK Jar files on Maven Central.
 
 You can download RTSDK libraries and dependencies from Maven Central using several different tools, specific procedural instructions are not included here. Maven uses the following syntax to specify RTSDK dependencies (this is *sample* code) :
 

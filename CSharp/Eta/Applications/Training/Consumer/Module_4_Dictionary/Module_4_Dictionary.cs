@@ -1,9 +1,9 @@
 /*
  *|-------------------------------------------------------------------------------
- *| This source code is provided under the Apache 2.0 license and is provided   --
- *| AS IS with no warranty or guarantee of fit for purpose.  See the project's  --
- *| LICENSE.md for details.                                                     --
- *| Copyright (C) 2022-2024 Refinitiv. All rights reserved.                     --
+ *| This source code is provided under the Apache 2.0 license
+ *| AS IS with no warranty or guarantee of fit for purpose.
+ *| See LICENSE.md for details.
+ *| Copyright (C) 2022-2024 LSEG. All rights reserved.     
  *|-------------------------------------------------------------------------------
  */
 
@@ -24,8 +24,8 @@
  * In this module, the application initializes the ETA Transport and
  * connects the client. An OMM consumer application can establish a
  * connection to other OMM Interactive Provider applications, including
- * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
- * and Refinitiv Real-Time.
+ * LSEG Real-Time Distribution Systems, Data Feed Direct,
+ * and LSEG Real-Time.
  *
  * Detailed Descriptions:
  *
@@ -2199,7 +2199,7 @@ namespace LSEG.Eta.Training.Consumer
              * via a msgKey.filter. Each bit-value represented in the filter corresponds
              * to an information set that can be provided in response messages.
              *
-             * Refinitiv recommends that a consumer application minimally request Info,
+             * LSEG recommends that a consumer application minimally request Info,
              * State, and Group filters for the
              *
              * Source Directory:
@@ -3133,7 +3133,7 @@ namespace LSEG.Eta.Training.Consumer
         /// information.</para>
         ///
         /// <para>Content that uses the FieldList type requires the use of a field
-        /// dictionary (usually the Refinitiv RDMFieldDictionary, though it could also be
+        /// dictionary (usually the LSEG RDMFieldDictionary, though it could also be
         /// a user-defined or modified field dictionary).</para>
         ///
         /// <remarks>

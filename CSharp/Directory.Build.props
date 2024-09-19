@@ -30,8 +30,8 @@
   </Choose>
 
   <PropertyGroup>
-    <Company>Refinitiv</Company>
-	<Authors>LSEG</Authors>
+    <Company>LSEG</Company>
+    <Authors>LSEG</Authors>
     <!-- Restrict language features only to those supported by NET 6 -->
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>

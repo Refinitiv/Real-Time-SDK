@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2022,2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -35,7 +35,7 @@ public class RRTMDViewerDesktopMain {
 
     public static class RRTMDViewerDesktopApplication extends Application {
 
-        private static final String APPLICATION_NAME = "Refinitiv Real-Time Market Data Viewer";
+        private static final String APPLICATION_NAME = "LSEG Real-Time Market Data Viewer";
 
         @Override
         public void start(Stage primaryStage) {

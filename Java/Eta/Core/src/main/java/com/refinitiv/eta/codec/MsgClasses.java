@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -84,7 +84,7 @@ public class MsgClasses
 
     /**
      * A consumer uses {@link PostMsg} to push content upstream. This information
-     * can be applied to a Refinitiv Real-Time Distribution System cache or 
+     * can be applied to a LSEG Real-Time Distribution System cache or 
      * routed further upstream to a data source. After receiving posted data, 
      * upstream components can republish it to downstream consumers.
      */

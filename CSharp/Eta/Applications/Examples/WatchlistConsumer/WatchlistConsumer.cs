@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2023-2024 Refinitiv. All rights reserved.         --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.Md for details.
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -137,7 +137,7 @@ using static Rdm.LoginMsgType;
 /// <li>-sessionMgnt (optional) Enable Session Management in the reactor.
 /// <li>-l (optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.
 /// <li>-query (optional) Queries RDP service discovery to get an endpoint according to a specified connection type and location.
-/// <li>-clientId Specifies the client Id for Refinitiv login V2, or specifies a unique ID with login V1 for applications making the request to EDP token service, this is also known as AppKey generated using an AppGenerator.
+/// <li>-clientId Specifies the client Id for Refinitiv login V2, or specifies a unique ID with login V1 for applications making the request to Delivery Platform token service, this is also known as AppKey generated using an AppGenerator.
 /// <li>-clientSecret Specifies the associated client Secret with a provided clientId for V2 logins.
 /// <li>-jwkFile Specifies the file containing the JWK encoded key for V2 JWT logins.
 /// <li>-tokenURLV2 Specifies the token URL for V2 token oauthclientcreds grant type.

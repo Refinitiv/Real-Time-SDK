@@ -3,16 +3,16 @@ Summary
 
 ex450_MP_QueryServiceDiscovery is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Refinitiv Real-Time - Optimized. 
+and parsing OMM MarketPrice data from Real-Time - Optimized. 
 
 ex450_MP_QueryServiceDiscovery illustrates how to query endpoints from
-Refinitiv Data Platform service discovery using the ServiceEndpointDiscovery class and use the 
+Delivery Platform service discovery using the ServiceEndpointDiscovery class and use the 
 location from the command line to select an endpoint. The EMA's programmatic
 configuration is used to to enable session management with the retrieved endpoint
-for establishing a connection with the Refinitiv Real-Time - Optimized service and consuming data. This 
+for establishing a connection with the Real-Time - Optimized service and consuming data. This 
 application requires a username (Machine ID), password, and client ID for 
 authorization with the token service in order to an access token for querying 
-endpoints from the Refinitiv Data Platform service discovery and sending login requests to the
+endpoints from the Delivery Platform service discovery and sending login requests to the
 service. EMA automatically refreshes the token to keep session alive with the service.
 
 
@@ -27,12 +27,12 @@ including:
 -clientId client ID to perform authorization with the token service for V1 password grant and the 
  service account name for the V2 client crededntials grant(mandatory for both V1 password grant and V2 client credentials grant)
  For a V1 password grant type, you can generate and manage client Ids by using the Eikon App Key Generator.
- This is found by visiting my.Refinitiv.com, launching Eikon, and
+ This is found by visiting myaccount.lseg.com, launching Eikon, and
  searching for "App Key Generator". Eikon login is required to generate clientID.
 -clientSecret service account password(mandatory for V2 client credentials grant)
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional, only for V1 password grant).
 -websocket Use the WebSocket transport protocol (optional).
--location location to get an endpoint from Refinitiv Data Platform service discovery. Default is "us-east-1" 
+-location location to get an endpoint from Delivery Platform service discovery. Default is "us-east-1" 
 -keyfile keystore file for creating an encrypted connection(optional).
 -keypasswd keystore password for creating an encrypted connection(mandatory if -keyfile is specified).
 Note: please refer to README.md of RTSDK Java for generating a keystore file.

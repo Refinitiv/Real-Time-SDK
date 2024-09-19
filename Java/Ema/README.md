@@ -1,10 +1,10 @@
 # Enterprise Message API (EMA) Java Edition
 
-The Enterprise Message API: This is an easy-to-use, performant, open source message layer API. The Enterprise Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Refinitiv based on customer feedback.
+The Enterprise Message API: This is an easy-to-use, performant, open source message layer API. The Enterprise Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and LSEG based on customer feedback.
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2019-2024 Refinitiv. All rights reserved.
+Copyright (C) 2019-2024 LSEG. All rights reserved.
   
 # EMA Java Documentation
 
@@ -84,7 +84,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
 - Users of encrypted tunneling connection type may encounter trust issues with DigiCert certificates. JRE8 update 91 and higher support DigiCert certificates. Users can upgrade to a higher JRE version if they encounter problems.
 
-- EMA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr_json2/rssl_json protocol. This is a limitation of the simplied JSON protocol.
+- EMA can not download dictionary from a LSEG Real-Time Distribution System over a Websocket connection using the tr_json2/rssl_json protocol. This is a limitation of the simplied JSON protocol.
 
 - The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
 
@@ -95,7 +95,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 # Reference Information
 
     I-COS Questionnaire: 6212
-    Refinitiv Item Number: N/A
+    LSEG Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
     Release Number: 3.8.0
     Load Number: 1
@@ -106,7 +106,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
-    Security Compliance: Refinitiv Security Compliant
+    Security Compliance: LSEG Security Compliant
     Template Version Supported: v4.20.64_RealTimeDistributionSystem_24.71 for RWF and Marketfeed Record Templates
 
 # Security

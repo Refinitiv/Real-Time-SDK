@@ -3,16 +3,16 @@ Summary
 
 450_MP_QueryServiceDiscovery is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Refinitiv Real-Time - Optimized. 
+and parsing OMM MarketPrice data from Real-Time - Optimized. 
 
 450_MP_QueryServiceDiscovery illustrates how to query endpoints from
-Refinitiv Data Platform service discovery using the ServiceEndpointDiscovery class and use the 
+Delivery Platform service discovery using the ServiceEndpointDiscovery class and use the 
 location from the command line to select an endpoint. The EMA's programmatic
 configuration is used to to enable session management with the retrieved endpoint
-for establishing a connection with the Refinitiv Real-Time - Optimized service and consuming data. This 
+for establishing a connection with the Real-Time - Optimized service and consuming data. This 
 application requires a client ID and Client Secret for 
 authorization with the token service in order to an access token for querying 
-endpoints from the Refinitiv Data Platform service discovery and sending login requests to the
+endpoints from the Delivery Platform service discovery and sending login requests to the
 service. EMA automatically refreshes the token to keep session alive with the service.
 
 
@@ -26,7 +26,7 @@ including:
 -clientSecret service account password(mandatory for V2 client credentials grant)
 -jwkFile File location of the JWK encoded public key.
 -audience audience claim for the JWT(optional)
--location location to get an endpoint from Refinitiv Data Platform service discovery. Default is "us-east-1" 
+-location location to get an endpoint from Delivery Platform service discovery. Default is "us-east-1" 
 -tokenURLV2 V2 URL to perform authentication to get access token (optional).
 -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).
 

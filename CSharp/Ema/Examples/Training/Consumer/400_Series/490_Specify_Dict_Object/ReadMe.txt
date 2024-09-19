@@ -5,7 +5,7 @@ The 490_Specify_Dict_Object application is provided as an example of OMM
 Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing and
-parsing of OMM MarketPrice Domain data from Refinitiv Data Feed Direct (RDF-D),
+parsing of OMM MarketPrice Domain data from Data Feed Direct (LDFD),
 directly from an OMM Provider application, or from an Advanced Distribution
 Server.
 

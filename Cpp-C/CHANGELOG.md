@@ -498,7 +498,7 @@ ETA C 3.6.3.L1 Issues Resolved
 Both ETA C and EMA C++ 3.6.3.L1 Issues Resolved
 -----------------------------------------------
 - [RTSDK-4417] - ETAC and EMAC++: Xml trace functionality is not stopping at file size limit when RSSL_TRACE_TO_MULTIPLE_FILES is not set [GitHub #162] 
-- [RTSDK-4615] - Rebrand Change: ADSPOP is now RTC, LSEG Real-Time Connector
+- [RTSDK-4615] - Rebrand Change: RTC as LSEG Real-Time Connector
 - [RTSDK-4862] - Update doxygen version used to generate documenation
 - [RTSDK-5014] - CMake string(REPLACE ...) must always use quoted source [GitHub #115] 
 - [RTSDK-5103] - Vulnerability in curl 7.63.0, CVE-2021-22890 -- upgrade to latest

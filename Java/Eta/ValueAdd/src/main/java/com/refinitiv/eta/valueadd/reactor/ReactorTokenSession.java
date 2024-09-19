@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.    --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022,2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -583,7 +583,7 @@ class ReactorTokenSession implements RestCallback
 						{
 							ReactorConnectInfo reactorConnectInfo = reactorChannel.getCurrentReactorConnectInfo();
 							
-							/* Checks whether to get a host and port from the RDP (fomerly EDP-RT) service discovery */
+							/* Checks whether to get a host and port from the Delivery Platform (fomerly EDP-RT) service discovery */
 							if(Reactor.requestServiceDiscovery(reactorConnectInfo))
 							{
 								RestRequest restRequest = RestClient.createRestRequestForServiceDiscovery(reactorChannel.restConnectOptions().transport(),reactorChannel.restConnectOptions().dataFormat());

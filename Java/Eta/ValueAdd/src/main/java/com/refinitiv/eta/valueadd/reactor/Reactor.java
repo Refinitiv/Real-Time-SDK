@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.    --
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022,2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -1480,7 +1480,7 @@ public class Reactor
 				populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.connect",
 						"Reactor.connect(): Invalid connection type: "
 								+ ConnectionTypes.toString(reactorConnectInfo.connectOptions().connectionType())
-								+ " for requesting EDP-RT service discovery.");
+								+ " for requesting Delivery Platform service discovery.");
 				return ReactorReturnCodes.PARAMETER_INVALID;
 			}
 		}
@@ -1552,7 +1552,7 @@ public class Reactor
 
 	static boolean requestServiceDiscovery(ReactorConnectInfo reactorConnectInfo)
 	{
-		// only use the EDP-RT connection information if not specified by the user
+		// only use the Delivery Platform (formerly EDP) connection information if not specified by the user
 		if ((reactorConnectInfo.connectOptions().unifiedNetworkInfo().address() == null
 				&& reactorConnectInfo.connectOptions().unifiedNetworkInfo().serviceName() == null)
 				|| (reactorConnectInfo.connectOptions().unifiedNetworkInfo().address() != null
@@ -1597,7 +1597,7 @@ public class Reactor
 	}
 
 	/**
-	 * Queries EDP-RT service discovery to get service endpoint information.
+	 * Queries Delivery Platform service discovery to get service endpoint information.
 	 *
 	 * @param options   The {@link ReactorServiceDiscoveryOptions} to configure
 	 *                  options and specify the ReactorServiceEndpointEventCallback

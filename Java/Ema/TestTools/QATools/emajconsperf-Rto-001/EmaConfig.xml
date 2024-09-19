@@ -812,7 +812,7 @@
                     <DictionariesUsed>
                         <DictionariesUsedEntry value="Dictionary_3"/>
                     </DictionariesUsed>
-                    <Vendor value="RefinitivDevTestLab"/>
+                    <Vendor value="LSEGDevTestLab"/>
                     <IsSource value="0"/>
                     <Capabilities>
                         <CapabilitiesEntry value="MMT_DICTIONARY"/>

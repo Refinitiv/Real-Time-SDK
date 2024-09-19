@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license      --
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
-// *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.eta.codec;
@@ -57,7 +57,7 @@ public class DictionaryJunit
         
         // verify tags
         assertArrayEquals("RWF.DAT".getBytes(), convertToByteArray(dictionary.infoFieldFilename().data()));
-        assertArrayEquals("RDF-D RWF field set".getBytes(), convertToByteArray(dictionary.infoFieldDesc().data()));
+        assertArrayEquals("LDFD RWF field set".getBytes(), convertToByteArray(dictionary.infoFieldDesc().data()));
         assertArrayEquals("4.10.11".getBytes(), convertToByteArray(dictionary.infoFieldVersion().data()));
         assertArrayEquals("1".getBytes(), convertToByteArray(dictionary.infoFieldBuild().data()));
         assertArrayEquals("01-Jun-2012".getBytes(), convertToByteArray(dictionary.infoFieldDate().data()));

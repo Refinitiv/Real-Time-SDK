@@ -13,7 +13,7 @@
 	  <Company>Refinitiv</Company>
 	  <Authors>LSEG</Authors>
 	  <Product>Enterprise Transport API (ETA) C# Edition</Product>
-	  <Copyright>Copyright @ 2024 Refinitiv. All Rights Reserved.</Copyright>
+	  <Copyright>Copyright @ 2024 LSEG. All Rights Reserved.</Copyright>
       <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
       <RepositoryUrl>https://github.com/Refinitiv/Real-Time-SDK</RepositoryUrl>
       <RepositoryType>git</RepositoryType>

@@ -5,7 +5,7 @@ Summary:
 --------
 
 The purpose of this application is to demonstrate consuming data from an OMM
-Provider, ADS device, OMM Provider application or Refinitiv Real-Time -
+Provider, ADS device, OMM Provider application or LSEG Real-Time -
 Optimized using ValueAdd components.  It is a single-threaded client
 application.
 

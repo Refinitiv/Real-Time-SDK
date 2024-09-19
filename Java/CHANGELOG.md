@@ -1,12 +1,12 @@
-This is the change log of the Refinitiv Real-Time SDK (RTSDK) for Java. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
+This is the change log of the Real-Time SDK (RTSDK) for Java. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-Rebranding NOTE: Refinitiv Real-Time SDK was formerly known as Elektron SDK or ESDK.
+Rebranding NOTE: Real-Time SDK was formerly known as Elektron SDK or ESDK.
 
 There are three types of RTSDK releases that append a letter directly followed by a number to the version number.
 
-"L" releases (e.g., 1.2.0.L1) are full RTSDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub.
+"L" releases (e.g., 1.2.0.L1) are full RTSDK releases that are uploaded to MyAccount, Developer Community and GitHub.
 "G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub.
-"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
 CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.2.0.L1 aka EMA/ETA 3.8.0.L1 aka 3.8.0.0
@@ -125,7 +125,7 @@ Both ETA Java and EMA Java 3.7.1.L1 Issues Resolved
 RTSDK Java Release 2.1.0.L1 (Mar 15, 2023)
 --------------------------------------------
 
-This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming. In addition, this release serves as a maintenance release with fixes.
+This release introduces client credentials with jwt authentication for connectivity to LSEG Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming. In addition, this release serves as a maintenance release with fixes.
 
 EMA Java 3.7.0.L1 Issues Resolved
 ---------------------------------
@@ -384,7 +384,7 @@ Both ETA Java and EMA Java 3.6.3.L1 Issues Resolved
 ---------------------------------------------------
 - [RTSDK-2661, RTSDK-5320] - Enhance ETA to not depend on the OS Character encoding for displaying non-ascii enum values [Case Number: 07311614, 10089325] 
 - [RTSDK-3966] - Support SO_REUSEADDR to permit server side socket to be reused for loadbalancing
-- [RTSDK-4615] - Rebrand Change: ADSPOP is now RTC, Refinitiv Real-Time Connector
+- [RTSDK-4615] - Rebrand Change: RTC as LSEG Real-Time Connector
 - [RTSDK-5065] - Modify Java Perftools to print summary output if stopped before completing runtime
 - [RTSDK-5216] - Update Java open source components versions
 - [RTSDK-5253] - ETAJ Reference Manuals: Missing sections and link to converter
@@ -423,7 +423,7 @@ RTSDK Java Release 2.0.2.L1 (Jun 23, 2021)
 
 New Features Added
 ------------------
-This is a maintenance release consisting of fixes to customer issues, fixes for the Refinitiv Real-Time Market Data Viewer (RRTViewer) and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics. 
+This is a maintenance release consisting of fixes to customer issues, fixes for the LSEG Real-Time Market Data Viewer (RRTViewer) and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics. 
 
 EMA Java 3.6.2.L1 Issues Resolved
 ---------------------------------
@@ -468,11 +468,11 @@ RTSDK Java Release 2.0.1.G1 (April 21, 2021)
 
 New Features Added
 ------------------
-This is a maintenance release which also introduces the Refinitiv Real-Time Market Data Viewer (RRTViewer), a OMM Consumer application with support for several connection types and connectivity to Advanced Distribution Server, Refinitiv Real-Time - Optimized (RRTO) or an OMM Provider.
+This is a maintenance release which also introduces the LSEG Real-Time Market Data Viewer (RRTViewer), a OMM Consumer application with support for several connection types and connectivity to Advanced Distribution Server, Real-Time - Optimized (RRTO) or an OMM Provider.
 
 EMA Java 3.6.1.G1 Issues Resolved
 ---------------------------------
-- [RTSDK-4454] - Add EMAJ Refinitiv Real-Time Market Data Viewer GUI application
+- [RTSDK-4454] - Add EMAJ LSEG Real-Time Market Data Viewer GUI application
 - [RTSDK-4720] - Support encryption connection type for EMAJ consumer performance tool
 - [RTSDK-4954] - Correction to IProvider180 README file
 - [RTSDK-4957] - EMA WebSocket example default port in EmaConfig.xml - [GitHub #171] 
