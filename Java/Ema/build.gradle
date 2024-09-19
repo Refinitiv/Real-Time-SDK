@@ -4,12 +4,12 @@ buildscript {
         }
 
         dependencies {
-                classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
+                classpath 'com.gradleup.shadow:shadow-gradle-plugin:8.3.0'
         }
 }
 
 apply plugin: 'java'
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 
 dependencies {
     implementation project(':Ema:Core')
@@ -26,17 +26,6 @@ dependencies {
 shadowJar {
     archiveBaseName.convention('RTSDK');
     archiveBaseName.set('RTSDK');
-}
-
-task coberturaTestFatJar (type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
-    archiveBaseName.convention('RTSDK');
-    archiveBaseName.set('RTSDK');
-    archiveClassifier.convention('coberturaTestFatJar');
-    archiveClassifier.set('coberturaTestFatJar');
-	from ('Core/build/instrumented_classes')
-	from ('../Eta/Core/build/instrumented_classes')
-	from ('../Eta/ValueAdd/build/instrumented_classes')
-	configurations = [project.configurations.testRuntimeOnly]
 }
 
 // disable creating empty Ema.jar file

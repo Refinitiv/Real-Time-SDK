@@ -1,8 +1,8 @@
-apply plugin: 'net.saliman.cobertura'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'application'
 apply plugin: 'java-library'
+apply plugin: 'java'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
@@ -115,28 +115,26 @@ signing {
     sign publishing.publications.mavenJava
 }
 
-cobertura {
-     coverageFormats = ['html', 'xml']
-}
-
 eclipse {
     project {
         name = 'RTSDK-Eta-Src'
     }
+	compileTestJava {
+		options.compilerArgs += ["-Xlint:-options"] //suppresses warning "warning: [options] source/target value 8 is obsolete and will be removed in a future release"
+	}
+
 }
 
 dependencies {
+    apply plugin: 'java'
     api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
     api group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.14'
     api group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.14'
     api group: 'org.lz4', name: 'lz4-java', version: '1.8.0'
 
-    testImplementation('org.mockito:mockito-all:1.10.19'){
+    testImplementation('org.mockito:mockito-core:3.12.4'){
         exclude group: 'org.hamcrest'
     }
-
-    // needed for cobertura
-    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '2.0.13'
 }
 
 jar {

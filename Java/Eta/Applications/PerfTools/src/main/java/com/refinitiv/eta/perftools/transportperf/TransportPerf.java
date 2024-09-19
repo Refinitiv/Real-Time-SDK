@@ -535,6 +535,7 @@ public class TransportPerf implements ShutdownCallback
         System.exit(0);
     }
 
+    @SuppressWarnings("deprecation") //getId cannot be replaced for backward compatibility reasons. No equivalent method supporting both java 8 (getId()) and java >=19 (threadId()) without warnings.
     private void printSummaryStats(PrintWriter fileWriter)
     {
         long earliestConnectTime, latestDisconnectTime;

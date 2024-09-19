@@ -17,6 +17,7 @@ import java.util.concurrent.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class EncryptionTest {
 
@@ -167,11 +168,12 @@ public class EncryptionTest {
             executor.submit(() -> runWithNoBlocks(sc.serverChannel, sc.serverSelector, latch));
             executor.submit(() -> runWithNoBlocks(cc.clientChannel, cc.clientSelector, latch));
 
-            latch.await(5, TimeUnit.SECONDS);
-            assertTrue(latch.getCount() == 0);
+            boolean allTasksCompleted = latch.await(10, TimeUnit.SECONDS);
+            assertTrue("Tasks did not complete in time", allTasksCompleted);
+            assertTrue("Not all tasks completed successfully", latch.getCount() == 0);
 
         } catch (Exception e) {
-            assert(false);
+            fail("Exception occurred: " + e.getMessage());
         } finally {
             cc.terminate();
             sc.terminate();

@@ -5,18 +5,11 @@ buildscript {
                 mavenCentral()
                 maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
         }
-
-        dependencies {
-                classpath "net.saliman:gradle-cobertura-plugin:4.0.0"
-        }
 }
 
 plugins {
-        id 'net.saliman.cobertura' version '4.0.0'
 		id "de.undercouch.download" version "4.1.2"
 }
-
-apply plugin: 'net.saliman.cobertura'
 
 subprojects {
 	apply plugin: 'java'
@@ -112,12 +105,14 @@ task getBinaryPack () {
 }
 
 allprojects {
+	apply plugin: 'java'
+	
 	dependencies {
 		testImplementation ('junit:junit:4.13.2') {
 			exclude group: 'org.hamcrest'
 		}
 		testImplementation 'org.hamcrest:hamcrest-core:1.3'
-		testImplementation 'org.mockito:mockito-all:1.10.19'
+		testImplementation 'org.mockito:mockito-core:3.12.4'
 	}
 
 	compileJava {
@@ -131,6 +126,7 @@ allprojects {
 	        options.compilerArgs += ["-Xlint:path"]
 	        options.compilerArgs += ["-Xlint:serial"]
 	        options.compilerArgs += ["-Xlint:unchecked"]
+		options.compilerArgs += ["-Xlint:-options"] //suppresses warning "warning: [options] source value 8 is obsolete and will be removed in a future release"
 	}
 
         tasks.withType( JavaCompile ) {
@@ -183,7 +179,11 @@ allprojects {
 }
 
 wrapper {
-	gradleVersion = '7.3.3'
+	gradleVersion = '8.9'
+	
+    if (GradleVersion.current() < GradleVersion.version("8.9")) {
+        throw new GradleException("This project requires Gradle 8.9 or higher. Please upgrade your Gradle version.")
+    }
 }
 
 task uploadAll ( ) {

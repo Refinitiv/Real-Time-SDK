@@ -1128,7 +1128,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
      *
      * Returns the number of bytes read from the network.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "deprecation"}) //getId cannot be replaced for backward compatibility reasons. No equivalent method supporting both java 8 (getId()) and java >=19 (threadId()) without warnings.
     private int readAndPrintForReplay() throws IOException
     {
         // save the current position

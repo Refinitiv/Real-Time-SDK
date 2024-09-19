@@ -10,7 +10,7 @@ import com.refinitiv.eta.codec.UpdateMsgFlags;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class ServiceIdConverterTest
@@ -54,7 +54,7 @@ public class ServiceIdConverterTest
                 converter.encodeServiceId(msg, HAS_MSG_KEY);
 
         assertEquals(ServiceIdConverter.ServiceIdConversionError.NONE, result);
-        verifyZeroInteractions(mockMsgKey);
+        verifyNoInteractions(mockMsgKey);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class ServiceIdConverterTest
                 converter.encodeServiceId(msg, HAS_MSG_KEY);
         
         assertEquals(ServiceIdConverter.ServiceIdConversionError.ID_IS_MISSING_FOR_NAME, result); 
-        verifyZeroInteractions(mockMsgKey);
+        verifyNoInteractions(mockMsgKey);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ServiceIdConverterTest
                 converter.encodeServiceId(msg, HAS_MSG_KEY);
 
         assertEquals(ServiceIdConverter.ServiceIdConversionError.ID_IS_INVALID_FOR_NAME, result);
-        verifyZeroInteractions(mockMsgKey);
+        verifyNoInteractions(mockMsgKey);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ServiceIdConverterTest
                 converter.encodeServiceId(msg, HAS_MSG_KEY);
 
         assertEquals(ServiceIdConverter.ServiceIdConversionError.NAME_IS_MISSING_FOR_ID, result);
-        verifyZeroInteractions(mockMsgKey);
+        verifyNoInteractions(mockMsgKey);
     }
 
     @Test
@@ -104,6 +104,6 @@ public class ServiceIdConverterTest
                 converter.encodeServiceId(msg, HAS_MSG_KEY);
 
         assertEquals(ServiceIdConverter.ServiceIdConversionError.USER_DEFINED_ID_INVALID, result);
-        verifyZeroInteractions(mockMsgKey);
+        verifyNoInteractions(mockMsgKey);
     }
 }

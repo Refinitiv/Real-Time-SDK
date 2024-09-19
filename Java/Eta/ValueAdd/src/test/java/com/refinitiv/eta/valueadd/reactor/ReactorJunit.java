@@ -9,6 +9,7 @@
 package com.refinitiv.eta.valueadd.reactor;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -5040,7 +5041,7 @@ public class ReactorJunit
             // create a mock SelectableBiDirectionalQueue
             SelectableBiDirectionalQueue workerQueue = Mockito.mock(SelectableBiDirectionalQueue.class);
             // the first call to write() will fail
-            Mockito.stub(workerQueue.write((VaNode)Mockito.anyObject())).toReturn(false);
+            when(workerQueue.write((VaNode)Mockito.anyObject())).thenReturn(false);
             // set reactor worker queue to mock worker queue
             reactor._workerQueue = workerQueue;
             assertEquals(ReactorReturnCodes.FAILURE, reactor.connect(rcOpts, consumerRole, errorInfo));

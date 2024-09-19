@@ -463,7 +463,8 @@ class RestProxyAuthHandler
 	    	httpClient.close();
 	    }
 	}
-	
+
+	@SuppressWarnings("removal") //Subject.doAs cannot be replaced for backward compatibility reasons. No equivalent method supporting both java 8 (Subject.doAs) and java >=19 (AccessController.doPrivilaged) without warnings.
 	private int sendKerborosRequest(final HttpRequestBase httpRequest, RestConnectOptions connOptions, final ReactorErrorInfo errorInfo, 
 			final RestHandler restHandler, RestResponse restResponse) throws ClientProtocolException, IOException
 	{

@@ -11,6 +11,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.*;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.test.network.replay.NetworkReplay;
 import com.refinitiv.eta.test.network.replay.NetworkReplayFactory;
@@ -618,7 +619,7 @@ public class HttpSocketChannelJunitTest
             // create a mock read lock
             Lock readLock = Mockito.mock(Lock.class);
             // the first call to trylock() will fail, the second will succeed
-            Mockito.stub(readLock.trylock()).toReturn(false).toReturn(true);
+            when(readLock.trylock()).thenReturn(false).thenReturn(true);
 
             connectChannel(consumerChannel, DEFAULT_LISTEN_PORT); // connect to the NetworkReplay
             waitForChannelActive(consumerChannel); // wait for the channel to become active

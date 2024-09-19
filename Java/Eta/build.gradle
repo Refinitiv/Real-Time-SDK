@@ -4,12 +4,12 @@ buildscript {
         }
 
         dependencies {
-                classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
+                classpath 'com.gradleup.shadow:shadow-gradle-plugin:8.3.0'
         }
 }
 
 apply plugin: 'java'
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 
 dependencies {
         implementation project(':Eta:Core')

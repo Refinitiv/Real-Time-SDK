@@ -173,7 +173,7 @@ class OmmJsonConverterExceptionImpl extends OmmJsonConverterException {
 	private static final long serialVersionUID = -2146394732735338988L;
 	private static final String OMMJSONCONVERTER_EXCEPTION_STRING = "OmmJsonConverterException";
 	private int errorCode;
-	private SessionInfo sessionInfo;
+	private transient SessionInfo sessionInfo;
 
 	@Override
 	public int getErrorCode() {

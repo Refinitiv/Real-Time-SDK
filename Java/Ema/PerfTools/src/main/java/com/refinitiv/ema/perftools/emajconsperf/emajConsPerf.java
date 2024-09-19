@@ -212,6 +212,7 @@ public class emajConsPerf implements ShutdownCallback
 	}
 	
 	/* Initializes emajConsPerf application. */
+	@SuppressWarnings("deprecation") //getId cannot be replaced for backward compatibility reasons. No equivalent method supporting both java 8 (getId()) and java >=19 (threadId()) without warnings.
 	private void initialize(String[] args)
 	{
 	    int threadCount = 1;
