@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -40,6 +40,18 @@ void ReqMsgEncoder::clear()
 	_domainTypeSet = false;
 
 	rsslClearRequestMsg( &_rsslRequestMsg );
+	_rsslRequestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	_rsslRequestMsg.flags = RSSL_RQMF_STREAMING;
+	_rsslRequestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+}
+
+void ReqMsgEncoder::release()
+{
+	MsgEncoder::release();
+
+	_domainTypeSet = false;
+
+	rsslClearRequestMsg(&_rsslRequestMsg);
 	_rsslRequestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
 	_rsslRequestMsg.flags = RSSL_RQMF_STREAMING;
 	_rsslRequestMsg.msgBase.containerType = RSSL_DT_NO_DATA;

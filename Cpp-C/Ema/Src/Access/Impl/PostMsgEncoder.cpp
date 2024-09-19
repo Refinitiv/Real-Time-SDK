@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -42,6 +42,21 @@ void PostMsgEncoder::clear()
 #endif
 
 	rsslClearPostMsg( &_rsslPostMsg );
+	_rsslPostMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	_rsslPostMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+}
+
+void PostMsgEncoder::release()
+{
+	MsgEncoder::release();
+
+#ifdef __EMA_COPY_ON_SET__
+	_permissionDataSet = false;
+#else
+	_pPermissionData = 0;
+#endif
+
+	rsslClearPostMsg(&_rsslPostMsg);
 	_rsslPostMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
 	_rsslPostMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 }

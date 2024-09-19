@@ -4377,6 +4377,7 @@ TEST_F(EmaConfigTest, testLoadDictConfigBetweenProgrammaticAndFileForIProv)
 			innerMap.clear();
 
 			outermostMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
+			outermostMap.complete();
 			elementList.clear();
 
 			EmaString localConfigPath;
@@ -4781,8 +4782,8 @@ TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
 			innerMap.clear();
 
 			outermostMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
+			outermostMap.complete();
 			elementList.clear();
-
 
 			EmaString localConfigPath;
 			OmmIProviderConfig iprovConfig(localConfigPath);

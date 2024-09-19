@@ -32,6 +32,8 @@ public :
 
 	void clear();
 
+	void release();
+
 	bool ownsIterator() const;
 
 	virtual void domainType( UInt8 ) = 0;

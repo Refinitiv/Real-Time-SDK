@@ -44,6 +44,8 @@ public :
 
 	virtual void clear();
 
+	virtual void release() = 0;
+
 	bool ownsIterator() const;
 
 	void passEncIterator( Encoder& );
@@ -79,9 +81,12 @@ protected :
 
 	void releaseEncIterator();
 
+	void clearEncIterator();
+
 	bool hasEncIterator() const;
 
 	EncodeIterator*		_pEncodeIter;
+	EncodeIterator*		_pEncodeIterCached;
 
 	const Encoder*		_iteratorOwner;
 

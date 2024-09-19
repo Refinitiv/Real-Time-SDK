@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -39,6 +39,25 @@ MsgEncoder::~MsgEncoder()
 }
 
 void MsgEncoder::clear()
+{
+	Encoder::clearEncIterator();
+
+#ifdef __EMA_COPY_ON_SET__
+	_nameSet = false;
+	_serviceNameSet = false;
+	_extendedHeaderSet = false;
+#else
+	_pName = 0;
+	_pServiceName = 0;
+	_pAttrib = 0;
+	_pPayload = 0;
+	_pExtendedHeader = 0;
+#endif
+	_attribDataType = RSSL_DT_NO_DATA;
+	_payloadDataType = RSSL_DT_NO_DATA;
+}
+
+void MsgEncoder::release()
 {
 	Encoder::releaseEncIterator();
 

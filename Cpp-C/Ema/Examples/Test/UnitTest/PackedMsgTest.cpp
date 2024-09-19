@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|        Copyright (C) 2023 LSEG. All rights reserved.               --
+ *|        Copyright (C) 2023, 2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -164,7 +164,7 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_Encoding_Decoding)
 		while (clientHandle == 0 || itemHandle == 0)
 		{
 			/*Timeout 5 sec*/
-			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLINET";
+			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLIENT";
 			consumer.dispatch(500);
 			sleep(500);
 			count++;
@@ -247,7 +247,7 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_BufferOverflow)
 		while (clientHandle == 0 || itemHandle == 0)
 		{
 			/*Timeout 5 sec*/
-			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLINET";
+			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLIENT";
 			consumer.dispatch(500);
 			sleep(500);
 			count++;
@@ -302,7 +302,7 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_ChannelNotActive)
 		while (clientHandle == 0 || itemHandle == 0)
 		{
 			/*Timeout 5 sec*/
-			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLINET";
+			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLIENT";
 			consumer.dispatch(500);
 			sleep(500);
 			count++;
@@ -344,7 +344,7 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_BufferNotSet)
 		while (clientHandle == 0 || itemHandle == 0)
 		{
 			/*Timeout 5 sec*/
-			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLINET";
+			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLIENT";
 			consumer.dispatch(500);
 			sleep(500);
 			count++;
@@ -389,7 +389,7 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_WrongClientHandle)
 		while (clientHandle == 0 || itemHandle == 0)
 		{
 			/*Timeout 5 sec*/
-			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLINET";
+			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLIENT";
 			consumer.dispatch(500);
 			sleep(500);
 			count++;
@@ -428,7 +428,7 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_WrongItemHandle)
 		while (clientHandle == 0 || itemHandle == 0)
 		{
 			/*Timeout 5 sec*/
-			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLINET";
+			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLIENT";
 			consumer.dispatch(500);
 			sleep(500);
 			count++;
@@ -479,7 +479,7 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_WrongServiceName)
 		while (clientHandle == 0 || itemHandle == 0)
 		{
 			/*Timeout 5 sec*/
-			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLINET";
+			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLIENT";
 			consumer.dispatch(500);
 			sleep(500);
 			count++;
@@ -532,7 +532,7 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_WrongServiceId)
 		while (clientHandle == 0 || itemHandle == 0)
 		{
 			/*Timeout 5 sec*/
-			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLINET";
+			if (count == 10) FAIL() << "UNABLE TO CONNECT TO CLIENT";
 			consumer.dispatch(500);
 			sleep(500);
 			count++;

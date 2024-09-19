@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,6 +13,7 @@ using namespace refinitiv::ema::access;
 
 Encoder::Encoder() :
  _pEncodeIter( 0 ),
+ _pEncodeIterCached( 0 ),
  _iteratorOwner( 0 ),
  _containerComplete( false )
 {
@@ -27,7 +28,15 @@ void Encoder::acquireEncIterator( UInt32 allocatedSize )
 {
 	if ( !_pEncodeIter )
 	{
-		_pEncodeIter = g_pool.getEncodeIteratorItem();
+		if ( _pEncodeIterCached )
+		{
+			_pEncodeIter = _pEncodeIterCached;
+			_pEncodeIterCached = 0;
+		}
+		else
+		{
+			_pEncodeIter = g_pool.getEncodeIteratorItem();
+		}
 	
 		_iteratorOwner = this;
 
@@ -43,8 +52,34 @@ void Encoder::releaseEncIterator()
 			g_pool.returnItem( _pEncodeIter );
 	
 		_pEncodeIter = 0;
+		_pEncodeIterCached = 0;
 		_iteratorOwner = 0;
 		_containerComplete = false;
+	}
+	else if ( _pEncodeIterCached )
+	{
+		g_pool.returnItem( _pEncodeIterCached );
+		_pEncodeIterCached = 0;
+	}
+}
+
+void Encoder::clearEncIterator()
+{
+	if (_pEncodeIter)
+	{
+		if (_iteratorOwner == this)
+		{
+			_pEncodeIterCached = _pEncodeIter;
+		}
+
+		_pEncodeIter = 0;
+		_iteratorOwner = 0;
+		_containerComplete = false;
+	}
+	else if ( _pEncodeIterCached )
+	{
+		g_pool.returnItem( _pEncodeIterCached );
+		_pEncodeIterCached = 0;
 	}
 }
 

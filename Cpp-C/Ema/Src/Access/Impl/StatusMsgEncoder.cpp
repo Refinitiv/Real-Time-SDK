@@ -77,6 +77,32 @@ void StatusMsgEncoder::clear()
 	_stateSet = false;
 }
 
+void StatusMsgEncoder::release()
+{
+	MsgEncoder::release();
+
+	clearRsslStatusMsg();
+
+	_domainType = RSSL_DMT_MARKET_PRICE;
+	_streamId = 0;
+	_identifierSet = false;
+	_filterSet = false;
+	_nameTypeSet = false;
+	_serviceIdSet = false;
+#ifdef __EMA_COPY_ON_SET__
+	_permissionDataSet = false;
+	_itemGroupSet = false;
+#else
+	_pPermissionData = 0;
+	_pItemGroup = 0;
+	_pStatusText = 0;
+#endif
+	_publisherIdSet = false;
+	_clearCache = false;
+	_privateStream = false;
+	_stateSet = false;
+}
+
 void StatusMsgEncoder::clearRsslStatusMsg()
 {
 	rsslClearStatusMsg( &_rsslStatusMsg );

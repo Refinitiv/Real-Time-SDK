@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -33,6 +33,15 @@ void AckMsgEncoder::clear()
 	MsgEncoder::clear();
 
 	rsslClearAckMsg( &_rsslAckMsg );
+	_rsslAckMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	_rsslAckMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+}
+
+void AckMsgEncoder::release()
+{
+	MsgEncoder::release();
+
+	rsslClearAckMsg(&_rsslAckMsg);
 	_rsslAckMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
 	_rsslAckMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 }

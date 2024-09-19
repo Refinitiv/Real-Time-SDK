@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -55,6 +55,32 @@ UpdateMsgEncoder::~UpdateMsgEncoder()
 void UpdateMsgEncoder::clear()
 {
 	MsgEncoder::clear();
+
+	clearRsslUpdateMsg();
+
+	_domainType = RSSL_DMT_MARKET_PRICE;
+	_streamId = 0;
+	_identifierSet = false;
+	_filterSet = false;
+	_updateTypeNum = 0;
+	_nameTypeSet = false;
+	_serviceIdSet = false;
+	_sequenceNumSet = false;
+#ifdef __EMA_COPY_ON_SET__
+	_permissionDataSet = false;
+#else
+	_pPermissionData = 0;
+#endif
+	_conflatedSet = false;
+	_publisherIdSet = false;
+	_doNotCache = false;
+	_doNotConflate = false;
+	_doNotRipple = false;
+}
+
+void UpdateMsgEncoder::release()
+{
+	MsgEncoder::release();
 
 	clearRsslUpdateMsg();
 
