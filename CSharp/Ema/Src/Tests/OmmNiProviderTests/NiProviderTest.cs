@@ -9,6 +9,7 @@
 using LSEG.Ema.Access.Tests.OmmConsumerTests;
 using LSEG.Ema.Rdm;
 using LSEG.Eta.Codec;
+using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using System;
@@ -1009,11 +1010,13 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
             OmmProviderItemClientTest providerClient;
 
-            string expectedChannelInfoStr = $"hostname: localhost\r\n\tIP address: not available for OmmNiProvider connections\r\n\tport: {adhSimulator.ServerPort}" +
-                "\r\n\tconnected component info: etacsharp3.2.0.G1.all.rrg\r\n\tchannel state: active\r\n\tconnection type: SOCKET\r\n\tprotocol type: Refinitiv wire " +
-                "format\r\n\tmajor version: 14\r\n\tminor version: 1\r\n\tping timeout: 60\r\n\tmax fragmentation size: 6142\r\n\tmax output buffers: 100\r\n\tguaranteed" +
-                " output buffers: 100\r\n\tnumber input buffers: 100\r\n\tsystem send buffer size: 0\r\n\tsystem receive buffer size: 0\r\n\tcompression type: none\r\n\t" +
-                "compression threshold: 0\r\n\tencryptionProtocol: None";
+            string expectedConnectedComponentInfo = Transport.QueryVersion().ProductInternalVersion();
+            string expectedChannelInfoStr =
+                $"hostname: localhost\r\n\tIP address: not available for OmmNiProvider connections\r\n\tport: {adhSimulator.ServerPort}" +
+                $"\r\n\tconnected component info: {expectedConnectedComponentInfo}\r\n\tchannel state: active\r\n\tconnection type: SOCKET\r\n\tprotocol type: Rssl wire format" +
+                "\r\n\tmajor version: 14\r\n\tminor version: 1\r\n\tping timeout: 60\r\n\tmax fragmentation size: 6142\r\n\tmax output buffers: 100\r\n\tguaranteed output buffers: 100" +
+                "\r\n\tnumber input buffers: 100\r\n\tsystem send buffer size: 0\r\n\tsystem receive buffer size: 0\r\n\tcompression type: none\r\n\tcompression threshold: 0" +
+                "\r\n\tencryptionProtocol: None";
 
             try
             {
