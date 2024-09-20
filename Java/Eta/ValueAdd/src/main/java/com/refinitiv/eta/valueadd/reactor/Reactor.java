@@ -980,8 +980,8 @@ public class Reactor
 							.reactorWarmStandbyGroupList().get(i);
 					for (int j = 0; j < reactorWarmStandbyGroupImpl.standbyServerList().size(); j++)
 					{
-						reactorWarmStandbyGroupImpl.standbyServerList().get(i).reactorConnectInfo().connectOptions().channelReadLocking(true);
-						reactorWarmStandbyGroupImpl.standbyServerList().get(i).reactorConnectInfo().connectOptions().channelWriteLocking(true);					
+						reactorWarmStandbyGroupImpl.standbyServerList().get(j).reactorConnectInfo().connectOptions().channelReadLocking(true);
+						reactorWarmStandbyGroupImpl.standbyServerList().get(j).reactorConnectInfo().connectOptions().channelWriteLocking(true);					
 					}
 				}
 			}
