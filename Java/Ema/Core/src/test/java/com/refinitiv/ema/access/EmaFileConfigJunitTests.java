@@ -2243,9 +2243,9 @@ public class EmaFileConfigJunitTests extends TestCase
 					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
 					TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
 					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite, -1);
-					TestUtilities.checkResult("XmlTraceWrite == 1", boolValue == true);
+					TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == false);
 					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead, -1);
-					TestUtilities.checkResult("XmlTraceRead == 1", boolValue == true);
+					TestUtilities.checkResult("XmlTraceRead == 0", boolValue == false);
 					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
 					TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
 
@@ -2530,9 +2530,9 @@ public class EmaFileConfigJunitTests extends TestCase
 				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
 				TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
 				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite, -1);
-				TestUtilities.checkResult("XmlTraceWrite == 1", boolValue == true);
+				TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == false);
 				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead, -1);
-				TestUtilities.checkResult("XmlTraceRead == 1", boolValue == true);
+				TestUtilities.checkResult("XmlTraceRead == 0", boolValue == false);
 				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
 				TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
 
@@ -2729,9 +2729,9 @@ public class EmaFileConfigJunitTests extends TestCase
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
 			TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceWrite, -1);
-			TestUtilities.checkResult("XmlTraceWrite == 1", boolValue == true);
+			TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == false);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceRead, -1);
-			TestUtilities.checkResult("XmlTraceRead == 1", boolValue == true);
+			TestUtilities.checkResult("XmlTraceRead == 0", boolValue == false);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTracePing, -1);
 			TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
 			
