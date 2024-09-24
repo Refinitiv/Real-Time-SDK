@@ -235,10 +235,12 @@ Included for this application are:
 Detailed Description
 --------------------
 
-rsslWatchlistConsumer.c - The main file for the rsslWatchlistConsumer application.
+rsslMultiCredWLConsumer.c - The main file for the rsslMultiCredWLConsumer application.
 
 itemDecoder.c - Contains decoding logic for the different item domains.
 
-postHandler.c - Handles encoding and sending of on-stream and off-stream post messages.
+rsslMultiCredWLConsumerConfig.c - Handles configuration options for the consumer application.
 
-watchlistConsumerConfig.c - Handles configuration options for the consumer application.
+CLConfig.json - Example of json config for connection list.
+
+WSBConfig.json - Example of json config for warm standby.

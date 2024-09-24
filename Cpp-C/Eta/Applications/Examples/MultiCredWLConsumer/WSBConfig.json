@@ -1,0 +1,70 @@
+{
+	"LoginMsgs" : [
+		{
+			"Name": "Login1",
+			"UserName": "User1"
+		},
+		{
+			"Name": "Login2",
+			"UserName": "User2"
+		},
+	],
+	"OAuthCredentials" : [
+		{
+			"Name": "V1Login1",
+			"UserName": "<Machine Id>",
+			"Password": "<Password>",
+			"ClientId": "<Client Id from Eikon>",
+			"takeExclusiveSignOn" : true
+		},
+		{
+			"Name": "V2Login2",
+			"ClientId": "<Service Account>",
+			"ClientSecret": "<Service Account Secret>",
+			"Scope": "trapi"
+		}
+	],
+	"WSBGroups" : [
+		{
+			"WSBMode" : "login",
+			"WSBActive" : {
+				"Host" : "localhost",
+				"Port" : "14002",
+				"LoginMsgName" : "Login1"
+			},
+			"WSBStandby" : [
+				{
+					"Host" : "localhost",
+					"Port" : "14000",
+					"LoginMsgName" : "Login2"
+				}
+			]
+		}
+	],
+	"PreferredHost" : 
+	{
+		"enablePH" : false,
+		"detectionTimeInterval" : 10,
+		"detectionTimeSchedule" : "* * ? * *",
+		"warmstandbyGroupListIndex" : 1,
+		"fallbackWithinWSBGroup" : false
+	},
+	"ConnectionList" : [
+	{
+	"Host" : "",
+	"Port" : "",
+	"SessionMgnt" : true,
+	"oAuthCredentialName" : "V2Login1",
+	"ConnType": 1,
+	"EncryptedConnType" : 0
+	},
+	{
+	"Host" : "",
+	"Port" : "",
+	"SessionMgnt" : true,
+	"oAuthCredentialName" : "V1Login1",
+	"ConnType": 1,
+	"EncryptedConnType" : 0
+	}
+	]
+}

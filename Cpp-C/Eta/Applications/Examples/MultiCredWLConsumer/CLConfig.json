@@ -1,0 +1,42 @@
+{
+    "LoginMsgs" : 
+    [
+        {
+            "Name": "Login1",
+            "UserName" : "User1"
+        },
+        {
+            "Name": "Login2",
+            "UserName" : "User2"
+        },
+        {
+            "Name": "Login3",
+            "UserName" : "User3"
+        }
+    ],
+    "ConnectionList" : 
+    [
+        {
+            "Host" : "localhost",
+            "Port" : "14002",
+            "LoginMsgName" : "Login1"
+        },
+        {
+            "Host" : "localhost",
+            "Port" : "14003",
+            "LoginMsgName" : "Login2"
+        },
+        {
+            "Host" : "localhost",
+            "Port" : "14004",
+            "LoginMsgName" : "Login3"
+        }
+    ],
+    "PreferredHost" : 
+    {
+        "enablePH" : false,
+        "connectListIndex" : 1,
+        "detectionTimeInterval" : 10,
+        "detectionTimeSchedule" : "* * ? * *"
+    }
+}
