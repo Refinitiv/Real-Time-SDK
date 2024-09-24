@@ -52,7 +52,7 @@ namespace LSEG.Eta.Example.Common
         public int ServiceId { get; set; } = 1234;
 
         // vendor name
-        private static readonly string Vendor = "Refinitiv";
+        private static readonly string Vendor = "LSEG";
 
         // field dictionary name
         private static readonly string FieldDictionaryName = "RWFFld";

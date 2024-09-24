@@ -329,7 +329,7 @@ namespace LSEG.Eta.Training.NiProvider
             DecodeIterator decodeIter = new();
 
             /* In this app, we are only interested in using 2 dictionaries:
-             * - Refinitiv Field Dictionary (RDMFieldDictionary) and
+             * - Field Dictionary (RDMFieldDictionary) and
              * - Enumerated Types Dictionaries (enumtype.def)
              *
              * Dictionaries may be available locally in a file for an OMM NIP appliation. In

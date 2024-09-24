@@ -30,7 +30,7 @@ public class DirectoryProvider
     protected static final int            REFRESH_MSG_SIZE = 1024;
 
     // vendor name
-    protected static final String         vendor = "Refinitiv";
+    protected static final String         vendor = "LSEG";
 
     // field dictionary used and provided for the source. 
     protected static final String         fieldDictionaryName = "RWFFld";

@@ -355,7 +355,7 @@ public interface FieldEntry
      * The field identifier. Refers to specific name and type information defined
      * by an external field dictionary, such as the RDMFieldDictionary.
      * Negative fieldId values typically refer to user defined values while positive fieldId
-     * values typically refer to Refinitiv defined values.
+     * values typically refer to LSEG defined values.
      * Must be in the range of -32768 - 32767.
      * 
      * @param fieldId the fieldId to set
@@ -366,7 +366,7 @@ public interface FieldEntry
      * The field identifier. Refers to specific name and type information defined
      * by an external field dictionary, such as the RDMFieldDictionary. Negative
      * fieldId values typically refer to user defined values while positive fieldId
-     * values typically refer to Refinitiv defined values.
+     * values typically refer to LSEG defined values.
      * 
      * @return the fieldId
      */

@@ -72,7 +72,7 @@ namespace LSEG.Eta.Transports
         /// Checks whether heartbeat messages are required to flow from the client to the server. 
         /// </summary>
         /// <remarks>
-        /// LSEG Real-Time Distribution System and other Refinitiv components typically require this value to be
+        /// LSEG Real-Time Distribution System and other LSEG components typically require this value to be
         /// set to <c>true</c>.
         /// </remarks>
         /// <value><c>true</c> if heartbeat messages are required from the client to the server otherwise <c>false</c></value>
@@ -82,7 +82,7 @@ namespace LSEG.Eta.Transports
         /// Checks whether heartbeat messages are required to flow from the server to the client.
         /// </summary>
         /// <remarks>
-        /// LSEG Real-Time Distribution System and other Refinitiv components typically require this value to be
+        /// LSEG Real-Time Distribution System and other LSEG components typically require this value to be
         /// set to <c>true</c>.
         /// </remarks>
         /// <value><c>true</c> if heartbeat messages are required from the server to the client otherwise <c>false</c></value>

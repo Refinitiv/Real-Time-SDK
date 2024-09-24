@@ -82,7 +82,7 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
  
 # Reference Information : TBD
     I-COS Questionnaire: 6212
-    Refinitiv Item Number: N/A
+    LSEG Item Number: N/A
     Product Name: Enterprise Message API - CSharp Edition
     Release Number: 3.2.0
     Load Number: 1

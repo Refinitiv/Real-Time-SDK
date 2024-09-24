@@ -1,27 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <RootNamespace>LSEG.Eta</RootNamespace>
-	  <OutputType>Library</OutputType>
-	  <AssemblyName>LSEG.Eta.Core</AssemblyName>
-	  <BaseOutputPath>$(SolutionDir)Eta\Libs\</BaseOutputPath>
-	  <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-      <Version>3.3.0.0</Version>
-      <AssemblyVersion>3.3.0.0</AssemblyVersion>
-      <FileVersion>3.3.0.0</FileVersion>
-	  <Company>Refinitiv</Company>
-	  <Authors>LSEG</Authors>
-	  <Product>Enterprise Transport API (ETA) C# Edition</Product>
-	  <Copyright>Copyright @ 2024 LSEG. All Rights Reserved.</Copyright>
-      <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-      <RepositoryUrl>https://github.com/Refinitiv/Real-Time-SDK</RepositoryUrl>
-      <RepositoryType>git</RepositoryType>
-      <PackageDescription>The ETA - CSharp Edition library. Includes the ETA transport package and the RWF codec.</PackageDescription>
-	  <PackageTags>binary; serialization; protocol; stock</PackageTags>
-      <PackageReadmeFile>readme.md</PackageReadmeFile>
-	  <NeutralLanguage>en-US</NeutralLanguage>
-	  <PackageReleaseNotes>https://github.com/Refinitiv/Real-Time-SDK/blob/master/CSharp/CHANGELOG.md</PackageReleaseNotes>
+          <RootNamespace>LSEG.Eta</RootNamespace>
+          <OutputType>Library</OutputType>
+          <AssemblyName>LSEG.Eta.Core</AssemblyName>
+          <BaseOutputPath>$(SolutionDir)Eta\Libs\</BaseOutputPath>
+          <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+          <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+          <Version>3.3.0.0</Version>
+          <AssemblyVersion>3.3.0.0</AssemblyVersion>
+          <FileVersion>3.3.0.0</FileVersion>
+          <Company>LSEG</Company>
+          <Authors>LSEG</Authors>
+          <Product>Enterprise Transport API (ETA) C# Edition</Product>
+          <Copyright>Copyright @ 2024 LSEG. All Rights Reserved.</Copyright>
+          <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+          <RepositoryUrl>https://github.com/Refinitiv/Real-Time-SDK</RepositoryUrl>
+          <RepositoryType>git</RepositoryType>
+          <PackageDescription>The ETA - CSharp Edition library. Includes the ETA transport package and the RWF codec.</PackageDescription>
+          <PackageTags>binary; serialization; protocol; stock</PackageTags>
+          <PackageReadmeFile>readme.md</PackageReadmeFile>
+          <NeutralLanguage>en-US</NeutralLanguage>
+          <PackageReleaseNotes>https://github.com/Refinitiv/Real-Time-SDK/blob/master/CSharp/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -33,7 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
+          <PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
   </ItemGroup>
 
   <ItemGroup>

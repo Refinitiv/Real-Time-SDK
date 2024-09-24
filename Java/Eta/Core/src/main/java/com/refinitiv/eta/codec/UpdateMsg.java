@@ -238,7 +238,7 @@ public interface UpdateMsg extends Msg
      * <li>
      * Domain message model specifications define available update types</li>
      * <li>
-     * For Refinitiv's provided domain models, see
+     * For LSEG's provided domain models, see
      * {@link UpdateEventTypes}</li>
      * </ul>
      * 
@@ -253,7 +253,7 @@ public interface UpdateMsg extends Msg
      * <li>
      * Domain message model specifications define available update types</li>
      * <li>
-     * For Refinitiv's provided domain models, see {@link UpdateEventTypes}</li>
+     * For LSEG's provided domain models, see {@link UpdateEventTypes}</li>
      * </ul>
      * 
      * @return the updateType

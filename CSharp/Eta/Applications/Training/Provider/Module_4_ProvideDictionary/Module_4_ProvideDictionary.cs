@@ -470,7 +470,7 @@ namespace LSEG.Eta.Training.Provider
             }
 
             /* In this app, we are only interested in using 2 dictionaries:
-             * - Refinitiv Field Dictionary (RDMFieldDictionary) and
+             * - Field Dictionary (RDMFieldDictionary) and
              * - Enumerated Types Dictionaries (enumtype.def)
              *
              * We will just use dictionaries that are available locally in a file.

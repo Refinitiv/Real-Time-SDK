@@ -22,7 +22,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     sealed public class NIProviderRole : ReactorRole
     {
         const int OPEN_LIMIT = 5;
-        const string VENDOR = "Refinitiv";
+        const string VENDOR = "LSEG";
         const string LINK_NAME = "NI_PUB";
         const string FIELD_DICTIONARY_NAME = "RWFFld";
         const string ENUM_TYPE_DICTIONARY_NAME = "RWFEnum";

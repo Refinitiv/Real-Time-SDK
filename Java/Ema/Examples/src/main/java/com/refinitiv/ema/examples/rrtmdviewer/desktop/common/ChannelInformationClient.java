@@ -178,7 +178,7 @@ public class ChannelInformationClient implements OmmConsumerClient {
         }
         else if (protocolType == ChannelInformation.ProtocolType.JSON)
         {
-            stringBuilder.append("ProtocolType=Refinitiv JSON format, ");
+            stringBuilder.append("ProtocolType=Rssl JSON format, ");
         }
 
         stringBuilder.append("Host=" + hostName + ", ");

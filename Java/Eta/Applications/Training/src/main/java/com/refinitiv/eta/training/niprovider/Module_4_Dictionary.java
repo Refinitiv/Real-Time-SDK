@@ -369,7 +369,7 @@ public class Module_4_Dictionary
         DecodeIterator decodeIter = CodecFactory.createDecodeIterator(); /* the decode iterator is created (typically stack allocated)  */
 
         /* In this app, we are only interested in using 2 dictionaries:
-         * - Refinitiv Field Dictionary (RDMFieldDictionary) and
+         * - Field Dictionary (RDMFieldDictionary) and
          * - Enumerated Types Dictionaries (enumtype.def)
          *
          * Dictionaries may be available locally in a file for an OMM NIP appliation. In

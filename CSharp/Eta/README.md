@@ -4,7 +4,7 @@ This is the **Enterprise Transport API (ETA)**, the high performance, low latenc
 
 ETA CSharp contains open source components. The transport, decoder, encoder, value add reactor layer and watchlist layer are open source. 
 
-ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to LSEG Real-Time Distribution System, LSEG Real-Time, and Data Feed Direct products.
+ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary transport implementations to connect to LSEG Real-Time Distribution System, LSEG Real-Time, and Data Feed Direct products.
 
 Copyright (C) 2022-2024 LSEG. All rights reserved.
 
@@ -31,7 +31,7 @@ In addtion, HTML documentation is available in CSharp/Eta/Docs. For addtional do
 
    - Any and all OMM primitives supported on LSEG Real-Time Distribution System, LSEG Real-Time, and Data Feed Direct 
 
-   - All Domain Models, including those defined by Refinitiv as well as other user-defined models.
+   - All Domain Models, including those defined by LSEG as well as other user-defined models.
 
 - Consists of:
 
@@ -122,7 +122,7 @@ The distribution contains several DLL files (libraries), intended to allow for e
 # Reference Information
 
     I-COS Questionnaire: 6212 
-    Refinitiv Item Number: N/A
+    LSEG Item Number: N/A
     Product Name: Enterprise Transport API - CSharp Edition
     Release Number: 3.2.0
     Load Number: 1

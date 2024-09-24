@@ -42,7 +42,7 @@ namespace LSEG.Eta.ValueAdd.Provider
         private EncodeIterator m_EncodeIter = new EncodeIterator();
         private DirectoryRequestInfoList m_DirectoryRequestInfoList;
 
-        private const string vendor = "Refinitiv";
+        private const string vendor = "LSEG";
         private const string m_FieldDictionaryName = "RWFFld";
         private const string m_EnumTypeDictionaryName = "RWFEnum";
         private const string m_LinkName = "ETA Provider Link";

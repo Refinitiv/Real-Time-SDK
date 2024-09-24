@@ -3535,9 +3535,9 @@ public class PrimitiveDataJunit
     	State testState  = CodecFactory.createState();
     	Enum testEnum  = CodecFactory.createEnum(), testEnumOut  = CodecFactory.createEnum();
     	ByteBuffer buffer1;
-    	buffer1 = putString("Refinitiv");
+    	buffer1 = putString("LSEG");
     	Buffer testBuffer = CodecFactory.createBuffer();
-    	testBuffer.data(buffer1, 0, "Refinitiv".length());
+    	testBuffer.data(buffer1, 0, "LSEG".length());
     	
     	/* Int conversion test */
     	testInt.value(987654321);

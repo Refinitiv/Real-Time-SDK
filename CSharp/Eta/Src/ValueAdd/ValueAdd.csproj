@@ -8,15 +8,15 @@
     <Version>3.3.0.0</Version>
     <AssemblyVersion>3.3.0.0</AssemblyVersion>
     <FileVersion>3.3.0.0</FileVersion>
-    <Company>Refinitiv</Company>
-	<Authors>LSEG</Authors>
+    <Company>LSEG</Company>
+    <Authors>LSEG</Authors>
     <Product>Enterprise Transport API (ETA) C# Edition</Product>
     <Copyright>Copyright @ 2024 LSEG. All Rights Reserved.</Copyright>
     <RepositoryUrl>https://github.com/Refinitiv/Real-Time-SDK</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageDescription>The Value Add library for ETA CSharp Edition. Includes the ETA Value Add Reactor and Administration Domain Model Representations.</PackageDescription>
-	<PackageTags>framework; stock; trading</PackageTags>
+    <PackageTags>framework; stock; trading</PackageTags>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>https://github.com/Refinitiv/Real-Time-SDK/blob/master/CSharp/CHANGELOG.md</PackageReleaseNotes>

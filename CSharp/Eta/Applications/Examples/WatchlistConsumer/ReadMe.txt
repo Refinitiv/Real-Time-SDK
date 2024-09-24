@@ -104,7 +104,7 @@ The -ec option specifies the encrypted transport protocol. Valid arguments are s
 
 The -clientId option specifies an unique ID for authenticating with the RDP token service (mandatory).
 You can generate and manage client Ids by using the Eikon App Key Generator. 
-This is found by visiting my.Refinitiv.Com, launching Eikon (need valid login), and 
+This is found by visiting myaccount.lseg.com, launching Eikon (need valid login), and 
 searching for "App Key Generator". The App Key is the Client ID. 
 
 Specifying the -sessionMgnt option enables session management in the Reactor to perform

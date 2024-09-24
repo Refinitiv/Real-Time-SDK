@@ -47,7 +47,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
     private const string APPLICATION_ID = "256";
     private const string APPLICATION_NAME = "ETA Test Provider";
 
-    private const string VENDOR = "Refinitiv";
+    private const string VENDOR = "LSEG";
     private const string FIELD_DICTIONARY_NAME = "RWFFld";
     private const string ENUM_TYPE_DICTIONARY_NAME = "RWFEnum";
     private const string LINK_NAME = "ETA Provider Link";

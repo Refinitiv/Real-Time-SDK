@@ -120,7 +120,7 @@ namespace LSEG.Eta.Transports
         /// the client. 
         /// </summary>
         /// <remarks>
-        /// LSEG Real-Time Distribution System and other Refinitiv components typically
+        /// LSEG Real-Time Distribution System and other LSEG components typically
         /// require this value to be set to <c>true</c>.
         /// </remarks>
         /// <value><c>true</c> indicates heartbeat messages are required from the server otherwise <c>false</c></value>
@@ -130,7 +130,7 @@ namespace LSEG.Eta.Transports
         /// Gets or sets whether messages are required from the client to the server.
         /// </summary>
         /// <remarks>
-        /// LSEG Real-Time Distribution System and other Refinitiv components typically
+        /// LSEG Real-Time Distribution System and other LSEG components typically
         /// require this value to be set to <c>true</c>.
         /// </remarks>
         /// <value><c>true</c> indicates heartbeat messages are required from the client otherwise <c>false</c></value>

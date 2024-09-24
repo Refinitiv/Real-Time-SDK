@@ -13,8 +13,8 @@ namespace LSEG.Ema.Rdm
     /// This file contains RDM constants and definitions.
     /// </summary>
     /// <remarks>
-    /// Refinitiv Domain Models. The EMA RDM package consists of a header file containing
-    /// the Refinitiv Domain Model specific definitions that can be used by the EMA applications.<br/>
+    /// Domain Models. The EMA RDM package consists of a header file containing
+    /// the Domain Model specific definitions that can be used by the EMA applications.<br/>
     /// The definitions in this file will be made extensible in the future.
     /// </remarks>
     public sealed class EmaRdm

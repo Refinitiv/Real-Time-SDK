@@ -72,7 +72,7 @@ class DirectoryHandler
     private int _serviceId = 1234;
 
     // vendor name
-    private static final String vendor = "Refinitiv";
+    private static final String vendor = "LSEG";
 
     // field dictionary name
     private static final String fieldDictionaryName = "RWFFld";

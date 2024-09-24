@@ -31,7 +31,7 @@ namespace LSEG.Eta.Example.Common
     {
         private const int SRCDIR_STREAM_ID = -1;
         private const int OPEN_LIMIT = 5;
-        private const string VENDOR = "Refinitiv";
+        private const string VENDOR = "LSEG";
         private const string LINK_NAME = "NI_PUB";
 
         private const long FILTER_TO_REFRESH = ServiceFilterFlags.INFO | ServiceFilterFlags.STATE | ServiceFilterFlags.LOAD | ServiceFilterFlags.LINK;

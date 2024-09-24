@@ -940,7 +940,7 @@ namespace LSEG.Eta.Training.Consumer
                                              */
                                             dictionary.Clear();
 
-                                            /* Will attempt to download the Refinitiv Field Dictionary (RDMFieldDictionary) from provider. */
+                                            /* Will attempt to download the Field Dictionary (RDMFieldDictionary) from provider. */
                                             if (!dictionariesLoadedInfo_fieldDictionaryLoaded)
                                             {
                                                 /* check if Dictionary Domain Type is supported */

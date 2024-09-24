@@ -207,7 +207,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 service.Info.Action = FilterEntryActions.SET;
 
                 service.Info.HasVendor = true;
-                service.Info.Vendor.Data("Refinitiv");
+                service.Info.Vendor.Data("LSEG");
 
                 service.Info.ServiceName.Data(serviceName);
 

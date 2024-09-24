@@ -22,7 +22,7 @@ namespace LSEG.Eta.PerfTools.Common
         protected const int REFRESH_MSG_SIZE = 1024;
 
         // vendor name
-        protected const string vendor = "Refinitiv";
+        protected const string vendor = "LSEG";
 
         // field dictionary used and provided for the source. 
         protected const string fieldDictionaryName = "RWFFld";

@@ -344,7 +344,7 @@ namespace LSEG.Eta.Rdm
 		// Request Message Payload - Well known Element Names
 		// Because these span domains, they are namespaced
 		// <namespace>:<element name>
-		// Refinitiv claims empty namespace (e.g. :ItemList is Refinitiv namespace)
+		// LSEG claims empty namespace (e.g. :ItemList is LSEG namespace)
 		// Customers can define and namespace using other values as they need
 		/// <summary>
 		/// :ItemList </summary>
@@ -661,7 +661,7 @@ namespace LSEG.Eta.Rdm
 			// Request Message Payload - Well known Element Names
 			// Because these span domains, they are namespaced
 			// <namespace>:<element name>
-			// Refinitiv claims empty namespace (e.g. :ItemList is Refinitiv namespace)
+			// LSEG claims empty namespace (e.g. :ItemList is LSEG namespace)
 			// Customers can define and namespace using other values as they need
 			// :ItemList 
 			BATCH_ITEM_LIST.Data(":ItemList");

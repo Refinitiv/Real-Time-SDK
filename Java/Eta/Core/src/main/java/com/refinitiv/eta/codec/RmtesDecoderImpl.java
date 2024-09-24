@@ -316,13 +316,13 @@ class RmtesDecoderImpl implements RmtesDecoder
 
                     break;
                 case RMTESParseState.ESC_21:
-                    if (currPtr.get(i) != 0x40) /* Refinitiv Ctrl 1 to CL */
+                    if (currPtr.get(i) != 0x40) /* LSEG Ctrl 1 to CL */
                     {
                         return _returnInfo.returnControlParse(ESCReturnCode.ESC_ERROR, currentSet, 0, currPtr);
                     }
                     break;
                 case RMTESParseState.ESC_22:
-                    if (currPtr.get(i) != 0x30) /* Refinitiv Ctrl 2 to CR */
+                    if (currPtr.get(i) != 0x30) /* LSEG Ctrl 2 to CR */
                     {
                         return _returnInfo.returnControlParse(ESCReturnCode.ESC_ERROR, currentSet, 0, currPtr);
                     }

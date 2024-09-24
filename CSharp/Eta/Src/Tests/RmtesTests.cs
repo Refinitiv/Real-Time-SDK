@@ -109,9 +109,9 @@ namespace LSEG.Eta.Tests
 
          1B = Escape
          21 = ESC_21
-         40 = Refinitiv Ctrl 1 to CL
+         40 = LSEG Ctrl 1 to CL
          22 = ESC_22
-         30 = Refinitiv Ctrl 2 to CR
+         30 = LSEG Ctrl 2 to CR
          24 = ESC_24
          28 = ESC_24_28
          47 = G0 = Chinese1
@@ -142,12 +142,12 @@ namespace LSEG.Eta.Tests
          2B = ESC_26_40_ESC_24_2B
          42 = G3 = JapaneseKanji
          28 = ESC_28
-         42 = G0 = Refinitiv Basic 1
+         42 = G0 = LSEG Basic 1
          49 = G0 = JapaneseKatakana
          4A = G0 = JapaneseLatin
          29 = ESC_29
-         31 = G1 = Refinitiv Basic 2
-         42 = G1 = Refinitiv Basic 1
+         31 = G1 = LSEG Basic 2
+         42 = G1 = LSEG Basic 1
          49 = G1 = JapaneseKatakana
          4A = G1 = JapaneseLatin
          2A = ESC_2A

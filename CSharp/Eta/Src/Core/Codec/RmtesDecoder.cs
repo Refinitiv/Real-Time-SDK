@@ -447,13 +447,13 @@ namespace LSEG.Eta.Codec
 
                         break;
                     case RMTESParseState.ESC_21:
-                        if (currPtr.Contents[i] != 0x40) /* Refinitiv Ctrl 1 to CL */
+                        if (currPtr.Contents[i] != 0x40) /* LSEG Ctrl 1 to CL */
                         {
                             return _returnInfo.ReturnControlParse(ESCReturnCode.ESC_ERROR, currentSet, 0, currPtr);
                         }
                         break;
                     case RMTESParseState.ESC_22:
-                        if (currPtr.Contents[i] != 0x30) /* Refinitiv Ctrl 2 to CR */
+                        if (currPtr.Contents[i] != 0x30) /* LSEG Ctrl 2 to CR */
                         {
                             return _returnInfo.ReturnControlParse(ESCReturnCode.ESC_ERROR, currentSet, 0, currPtr);
                         }

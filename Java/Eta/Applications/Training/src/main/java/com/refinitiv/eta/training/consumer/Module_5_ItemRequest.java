@@ -1059,7 +1059,7 @@ public class Module_5_ItemRequest
 
                                         dictionary.clear();
 
-                                        /* Will attempt to download the Refinitiv Field Dictionary (RDMFieldDictionary) from provider. */
+                                        /* Will attempt to download the Field Dictionary (RDMFieldDictionary) from provider. */
                                         if (!dictionariesLoadedInfo_fieldDictionaryLoaded)
                                         {
                                             /* check if Dictionary Domain Type is supported */

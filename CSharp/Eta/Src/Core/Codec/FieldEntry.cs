@@ -492,7 +492,7 @@ namespace LSEG.Eta.Codec
 		/// <remarks>
 		/// <para>
 		/// Negative fieldId values typically refer to user defined values while positive <c>FieldId</c>
-		/// values typically refer to Refinitiv defined values.</para>
+		/// values typically refer to LSEG defined values.</para>
 		/// <para>
 		/// Must be in the range of -32768 - 32767.</para>
 		/// </remarks>

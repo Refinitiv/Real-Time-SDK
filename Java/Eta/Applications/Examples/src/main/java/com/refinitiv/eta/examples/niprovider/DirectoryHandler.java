@@ -41,7 +41,7 @@ public class DirectoryHandler
 {
     private static final int SRCDIR_STREAM_ID = -1;
     private static final int OPEN_LIMIT = 5;
-    private static final String VENDOR = "Refinitiv";
+    private static final String VENDOR = "LSEG";
     private static final String LINK_NAME = "NI_PUB";
 
     private static final long FILTER_TO_REFRESH = Directory.ServiceFilterFlags.INFO
