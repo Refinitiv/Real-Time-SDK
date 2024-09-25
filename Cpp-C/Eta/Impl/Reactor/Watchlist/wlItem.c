@@ -7,6 +7,7 @@
 
 #include "rtr/wlItem.h"
 #include "rtr/wlSymbolList.h"
+#include "rtr/rsslReactorImpl.h"
 #include <limits.h>
 
 /* Saves extra item request info, such as encDataBody and extendedHeader. 
@@ -1565,7 +1566,7 @@ RsslRet wlItemRequestSendMsgEvent(WlBase *pBase,
 			&& (!(pItemRequest->flags & WL_IRQF_PROV_DRIVEN) || 
 				pItemRequest->flags & WL_IRQF_HAS_PROV_KEY))
 	{
-		if ((ret = (*pBase->config.msgCallback) (&pBase->watchlist, pEvent, pErrorInfo)) 
+		if ((ret = _reactorWatchlistMsgCallback(&pBase->watchlist, pEvent, pErrorInfo))
 				!= RSSL_RET_SUCCESS)
 			return ret;
 	}
@@ -1646,7 +1647,7 @@ RsslRet wlItemRequestSendMsgEvent(WlBase *pBase,
 				break;
 		}
 		
-		if ((ret = (*pBase->config.msgCallback) (&pBase->watchlist, pEvent, pErrorInfo)) 
+		if ((ret = _reactorWatchlistMsgCallback(&pBase->watchlist, pEvent, pErrorInfo))
 				!= RSSL_RET_SUCCESS)
 			return ret;
 		pEvent->pRsslMsg = pRsslMsg;

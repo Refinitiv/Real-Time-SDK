@@ -78,13 +78,13 @@ void initMPItemFields(MarketPriceItem* mpItem)
 }
 
 // APIQA
-static RsslRet sendOnStreamMultipartPostMsg(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel,
+static RsslRet sendOnStreamMultipartPostMsg(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel,
 	RsslBool postWithMsg);
-static RsslRet sendOffStreamMultipartPostMsg(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel,
+static RsslRet sendOffStreamMultipartPostMsg(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel,
 	RsslBool postWithMsg);
-static RsslRet encodeMultipartPostWithMsg(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel,
+static RsslRet encodeMultipartPostWithMsg(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel,
 	RsslInt32 streamId, RsslUInt32 postId, RsslUInt32 seqNum,
-	RsslBuffer *itemName, PostItemInfo* itemInfo);
+	RsslBuffer* itemName, PostItemInfo* itemInfo);
 // END APIQA
 
 /* Sends a post on an existing stream. */
@@ -652,7 +652,7 @@ static RsslRet encodePostWithData(RsslReactor *pReactor, RsslReactorChannel *pRe
 }
 
 // APIQA
-static RsslRet sendOnStreamMultipartPostMsg(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel,
+static RsslRet sendOnStreamMultipartPostMsg(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel,
 	RsslBool postWithMsg)
 {
 	RsslUInt32 i;
@@ -682,7 +682,7 @@ static RsslRet sendOnStreamMultipartPostMsg(RsslReactor *pReactor, RsslReactorCh
 }
 
 /* Sends a post on the login stream ("off-stream"). */
-static RsslRet sendOffStreamMultipartPostMsg(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel,
+static RsslRet sendOffStreamMultipartPostMsg(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel,
 	RsslBool postWithMsg)
 {
 	RsslBuffer nameBuf;
@@ -692,16 +692,16 @@ static RsslRet sendOffStreamMultipartPostMsg(RsslReactor *pReactor, RsslReactorC
 
 	rsslClearBuffer(&nameBuf);
 
-	nameBuf.data = (char *)"OFFPOST";
+	nameBuf.data = (char*)"OFFPOST";
 	nameBuf.length = (RsslUInt32)strlen("OFFPOST");
 
 	return encodeMultipartPostWithMsg(pReactor, pReactorChannel, LOGIN_STREAM_ID, offStreamPostId, offStreamSeqNum, &nameBuf, &offStreamItemInfo);
 }
 
 /* Encodes a post with a nested message as its payload. */
-static RsslRet encodeMultipartPostWithMsg(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel,
+static RsslRet encodeMultipartPostWithMsg(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel,
 	RsslInt32 streamId, RsslUInt32 postId, RsslUInt32 seqNum,
-	RsslBuffer *itemName, PostItemInfo* itemInfo)
+	RsslBuffer* itemName, PostItemInfo* itemInfo)
 {
 	RsslPostMsg postMsg;
 	RsslReactorSubmitMsgOptions submitMsgOpts;
@@ -734,7 +734,7 @@ static RsslRet encodeMultipartPostWithMsg(RsslReactor *pReactor, RsslReactorChan
 	// Note: post message key not required for on-stream post
 	// APIQA VAS Comment: If sending multiple parts, don't send post complete and increment part number
 	postMsg.flags =
-		  RSSL_PSMF_ACK // request ACK
+		RSSL_PSMF_ACK // request ACK
 		| RSSL_PSMF_HAS_POST_ID
 		| RSSL_PSMF_HAS_SEQ_NUM
 		| RSSL_PSMF_HAS_POST_USER_RIGHTS

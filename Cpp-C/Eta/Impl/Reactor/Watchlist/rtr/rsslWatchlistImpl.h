@@ -38,16 +38,16 @@ struct RsslWatchlistImpl
 };
 
 /* Callback used to process service cache updates. */
-static RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
+RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 		WlServiceCacheUpdateEvent *pEvent, RsslErrorInfo *pErrorInfo);
 
-static RsslRet wlServiceStateChangeCallback(WlServiceCache *pServiceCache, 
+RsslRet wlServiceStateChangeCallback(WlServiceCache *pServiceCache, 
 	RDMCachedService *pCachedService, RsslErrorInfo *pErrorInfo);
 
-static RsslRet wlServiceCacheInitCallback(WlServiceCache *pServiceCache,
+RsslRet wlServiceCacheInitCallback(WlServiceCache *pServiceCache,
 	WlServiceCacheUpdateEvent *pEvent, RsslErrorInfo *pErrorInfo);
 
-static RsslRet wlServiceCacheUpdateCallback(WlServiceCache *pServiceCache,
+RsslRet wlServiceCacheUpdateCallback(WlServiceCache *pServiceCache,
 	WlServiceCacheUpdateEvent *pEvent, RsslErrorInfo *pErrorInfo);
 
 /* Reads a message from the provider. */

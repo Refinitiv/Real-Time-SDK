@@ -2325,7 +2325,6 @@ static RsslRet _tunnelStreamSubmitChannelMsg(TunnelStreamImpl *pTunnelImpl,
 	assert(pReactorChannelImpl->pWatchlist != NULL);
 
 	rsslWatchlistClearProcessMsgOptions(&processOpts);
-	processOpts.pChannel = pReactorChannelImpl->reactorChannel.pRsslChannel;
 	processOpts.majorVersion = pReactorChannelImpl->reactorChannel.majorVersion;
 	processOpts.minorVersion = pReactorChannelImpl->reactorChannel.minorVersion;
 	processOpts.pRsslMsg = pRsslMsg;

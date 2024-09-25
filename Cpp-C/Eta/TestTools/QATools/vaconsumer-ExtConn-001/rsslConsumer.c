@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2023 LSEG. All rights reserved.
+ * Copyright (C) 2019-2024 LSEG. All rights reserved.
 */
 
 /*
@@ -51,8 +51,10 @@
 
 #include "rtr/rsslPayloadEntry.h"
 
+// API QA
 #include "rtr/rsslChanManagement.h"
 #include "rtr/rsslSocketTransportImpl.h"
+// END API QA
 
 #include "rtr/rsslReactor.h"
 
@@ -72,6 +74,7 @@ static RsslBool enableSessionMgnt = RSSL_FALSE;
 static RsslBool RTTSupport = RSSL_FALSE;
 static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
 static RsslBool restEnableLog = RSSL_FALSE;
+static RsslBool restVerboseMode = RSSL_FALSE;
 static RsslUInt restEnableLogViaCallback = 0U;  // 0: disabled, 1: enabled from the start, 2: enabled after initialization stage
 static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
 static time_t debugInfoIntervalMS = 50;
@@ -121,6 +124,7 @@ RsslBuffer appId = RSSL_INIT_BUFFER;
 RsslBuffer tokenURLV1 = RSSL_INIT_BUFFER;
 RsslBuffer tokenURLV2 = RSSL_INIT_BUFFER;
 RsslBuffer serviceDiscoveryURL = RSSL_INIT_BUFFER;
+RsslBuffer serviceDiscoveryLocation = RSSL_INIT_BUFFER;
 RsslBuffer tokenScope = RSSL_INIT_BUFFER;
 RsslReactorChannelStatistic channelStatistics;
 
@@ -131,12 +135,34 @@ static char libcurlName[255];
 static char tokenURLNameV1[255];
 static char tokenURLNameV2[255];
 static char serviceDiscoveryURLName[255];
+static char serviceDiscoveryLocationName[255];
 static char tokenScopeName[255];
+
+static char restProxyHost[256];
+static char restProxyPort[256];
+static char restProxyUserName[128];
+static char restProxyPasswd[128];
+static char restProxyDomain[128];
 
 
 static char sslCAStore[255];
+static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
 /* default sub-protocol list */
 static const char *defaultProtocols = "tr_json2";
+
+static RsslBool prefHostEnabled = RSSL_FALSE;			/* Whether to use Preferred host feature. */
+static RsslUInt32 prefHostConnectionListIndex = 0U;		/* Specifies an index to set as preferred host. */
+static char prefHostDetectionTimeCron[RSSL_REACTOR_MAX_BUFFER_LEN_INFO_CRON];
+static RsslUInt32 prefHostDetectionTimeInterval = 0U;
+
+static RsslBool prefHostPrintDetails = RSSL_TRUE;
+
+static RsslReactorConnectOptions prefHostReactorConnectOpts;
+static RsslReactorConnectInfo prefHostReactorConnectionList[MAX_CHAN_COMMANDS];
+
+static RsslInt32 reconnectAttemptLimit = -1;
+static RsslInt32 reconnectMinDelay = 500;
+static RsslInt32 reconnectMaxDelay = 6000;
 
 static void displayCache(ChannelCommand *pCommand);
 static void displayCacheDomain(ChannelCommand *pCommand, RsslUInt8 domainType, RsslBool privateStreams, RsslInt32 itemCount, ItemRequest items[]);
@@ -145,6 +171,10 @@ static void sendItemRequests(RsslReactor *pReactor, RsslReactorChannel *pReactor
 static RsslRet displayStatistic(ChannelCommand* pCommand, time_t currentTime, RsslErrorInfo* pErrorInfo);
 
 static char _bufferArray[6144];
+
+static void parseConnectionListArg(ChannelCommand* pCommand, char* argStr, char* appName);
+
+static PreferredHostConfig preferredHostConfig;
 
 // API QA
 static 	int failTest = 0;
@@ -336,16 +366,25 @@ void printUsageAndExit(char *appName)
 			"\n -libcurlName specifies the name of the libcurl shared object"
 			"\n -libsslName specifies the name of libssl shared object"
 			"\n -libcryptName specifies the name of libcrypto shared object\n"
+			"\n -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections\n"
+			"\n -spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections\n"
 			"\n -runtime adjusts the running time of the application.\n"
 			"\n -maxEventsInPool size of event pool\n"
 			"\n -restEnableLog enable REST logging message\n"
+			"\n -restVerbose enable verbose REST logging message\n"
 			"\n -restLogFileName set REST logging output stream\n"
 			"\n -restEnableLogViaCallback <type> enable an alternative way to receive REST logging messages via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage.\n"
 			"\n -tokenURLV1 token generator URL V1\n"
 			"\n -tokenURLV2 token generator URL V2\n"
 			"\n -serviceDiscoveryURL Service Discovery URL\n"
+			"\n -location specifies location/region when dogin service discovery\n"
 			"\n -tokenScope Scope for the token. Used with both V1 and V2 tokens\n"
-		    "\n -debugConn set 'connection' rector debug info level"
+			"\n -restProxyHost <proxy host> Proxy host name. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyPort <proxy port> Proxy port. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyUserName <proxy username> Proxy user name. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyPasswd <proxy password> Proxy password. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyDomain <proxy domain> Proxy domain of the user. Used for Rest requests only: service discovery, auth\n"
+			"\n -debugConn set 'connection' rector debug info level"
 			"\n -debugEventQ set 'eventqueue' rector debug info level"
 			"\n -debugTunnelStream set 'tunnelstream' debug info level"
 			"\n -debugAll enable all levels of debug info"
@@ -353,12 +392,35 @@ void printUsageAndExit(char *appName)
 			"\n -jsonOutputBufferSize size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough"
 			"\n -jsonTokenIncrementSize number of json token increment size for parsing JSON messages"
 			"\n -sendJsonConvError enable send json conversion error to provider"
+			"\n"
+			"\n Options for Preferred host:"
+			"\n -enablePH enable Preferred host feature"
+			"\n -preferredHostIndex <integer value> specifies the preferred host as an index in the connection list, starting at 0"
+			"\n -detectionTimeInterval <value in seconds> specifies time interval to switch over to a preferred host or WSB group. 0 indicates that the detection time interval is disabled"
+			"\n -detectionTimeSchedule <Cron time> specifies Cron time format to switch over to a preferred host or WSB group. detectionTimeInterval is used instead if this member is set to empty"
+			"\n"
+			"\n -fallBackInterval <value in seconds> specifies time interval in the application before call Ad Hoc Fallback Function call is invoked"
+			"\n -ioctlInterval <value in seconds> specifies time interval in the application before call IOCTL is invoked"
+			"\n"
+			"\n Additional set of options for Preferred host. These options will be set by the IOCTL call"
+			"\n -ioctlEnablePH <true/false> enable Preferred host feature"
+			"\n -ioctlConnectListIndex <integer value> specifies the preferred host as an index in the connection list, starting at 0"
+			"\n -ioctlDetectionTimeInterval <value in seconds> specifies time interval to switch over to a preferred host or WSB group. 0 indicates that the detection time interval is disabled"
+			"\n -ioctlDetectionTimeSchedule <Cron time> specifies Cron time format to switch over to a preferred host or WSB group. detectionTimeInterval is used instead if this member is set to empty"
+			"\n"
+			"\n -reconnectAttemptLimit <integer value> specifies the maximum number of times the RsllReactor will attempt to reconnect a channel. If set to -1, there is no limit"
+			"\n -reconnectMinDelay <milliseconds> specifies the minimum time the RsslReactor will wait before attempting to reconnect"
+			"\n -reconnectMaxDelay <milliseconds> specifies the maximum time the RsslReactor will wait before attempting to reconnect"
+			"\n"
 			// API QA
+			"\n QATool additional options to support connection list with 2 or 3 options:"
+			"\n (1)direct (no proxy), (2)via proxy (-ph, -pp) and (3) via additonal proxy2 (-ph2, -pp2)."
 			"\n -connectlist3 enable reactorConnectionList with 3 items (instead 2 items)"
 			"\n Options for establishing connection(s) and sending requests through a proxy server2:\n"
 			"   [ -ph2 <proxy host> ] [ -pp2 <proxy port> ]\n"
+			"\n"
 			// END API QA
-			, appName, appName);
+		, appName, appName);
 
 	/* WINDOWS: wait for user to enter something before exiting  */
 #ifdef _WIN32
@@ -373,12 +435,11 @@ void printUsageAndExit(char *appName)
  */
 void parseCommandLine(int argc, char **argv)
 {
-
 	RsslInt32 i;
 	RsslBool cacheOption = RSSL_FALSE;
 	FILE* pFile = NULL;
 	int readSize = 0;
-
+	RsslBool setIoctlPreferredHostOptValue = RSSL_FALSE;
 
 	/* Check usage and retrieve operating parameters */
 	{
@@ -388,11 +449,11 @@ void parseCommandLine(int argc, char **argv)
 		RsslUInt8 tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
 		snprintf(protocolList, 128, "%s", defaultProtocols);
-		snprintf(proxyHost, sizeof(proxyHost), "");
-		snprintf(proxyPort, sizeof(proxyPort), "");
-		snprintf(proxyUserName, sizeof(proxyUserName), "");
-		snprintf(proxyPasswd, sizeof(proxyPasswd), "");
-		snprintf(proxyDomain, sizeof(proxyDomain), "");
+		snprintf(proxyHost, sizeof(proxyHost), "%s", "");
+		snprintf(proxyPort, sizeof(proxyPort), "%s", "");
+		snprintf(proxyUserName, sizeof(proxyUserName), "%s", "");
+		snprintf(proxyPasswd, sizeof(proxyPasswd), "%s", "");
+		snprintf(proxyDomain, sizeof(proxyDomain), "%s", "");
 		for (i = 1; i < argc; i++)
 		{
 			if (strcmp("-sessionMgnt", argv[i]) == 0)
@@ -402,10 +463,14 @@ void parseCommandLine(int argc, char **argv)
 			}
 		}
 
-		snprintf(libcryptoName, sizeof(libcryptoName), "");
-		snprintf(libsslName, sizeof(libsslName), "");
-		snprintf(libcurlName, sizeof(libcurlName), "");
-		snprintf(sslCAStore, sizeof(sslCAStore), "");
+		snprintf(libcryptoName, sizeof(libcryptoName), "%s", "");
+		snprintf(libsslName, sizeof(libsslName), "%s", "");
+		snprintf(libcurlName, sizeof(libcurlName), "%s", "");
+		snprintf(sslCAStore, sizeof(sslCAStore), "%s", "");
+
+		snprintf(prefHostDetectionTimeCron, sizeof(prefHostDetectionTimeCron), "%s", "");
+
+		clearPreferredHostConfig(&preferredHostConfig);
 
 		i = 1;
 
@@ -445,7 +510,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (strcmp("-clientSecret", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				clientSecret.length = snprintf(clientSecretBlock, sizeof(clientSecretBlock), "%s", argv[i - 1]);
 				clientSecret.data = clientSecretBlock;
 			}
@@ -475,31 +540,37 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (strcmp("-audience", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				audience.length = snprintf(audienceBlock, sizeof(audienceBlock), "%s", argv[i - 1]);
 				audience.data = audienceBlock;
 			}
 			else if (strcmp("-tokenURLV1", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				tokenURLV1.length = snprintf(tokenURLNameV1, sizeof(tokenURLNameV1), "%s", argv[i - 1]);
 				tokenURLV1.data = tokenURLNameV1;
 			}
 			else if (strcmp("-tokenURLV2", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				tokenURLV2.length = snprintf(tokenURLNameV2, sizeof(tokenURLNameV2), "%s", argv[i - 1]);
 				tokenURLV2.data = tokenURLNameV2;
 			}
 			else if (strcmp("-serviceDiscoveryURL", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				serviceDiscoveryURL.length = snprintf(serviceDiscoveryURLName, sizeof(serviceDiscoveryURLName), "%s", argv[i - 1]);
 				serviceDiscoveryURL.data = serviceDiscoveryURLName;
 			}
+			else if (strcmp("-location", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				serviceDiscoveryLocation.length = snprintf(serviceDiscoveryLocationName, sizeof(serviceDiscoveryLocationName), "%s", argv[i - 1]);
+				serviceDiscoveryLocation.data = serviceDiscoveryLocationName;
+			}
 			else if (strcmp("-tokenScope", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				tokenScope.length = snprintf(tokenScopeName, sizeof(tokenScopeName), "%s", argv[i - 1]);
 				tokenScope.data = tokenScopeName;
 			}
@@ -616,6 +687,11 @@ void parseCommandLine(int argc, char **argv)
 				i++;
 				restEnableLog = RSSL_TRUE;
 			}
+			else if (strcmp("-restVerbose", argv[i]) == 0)
+			{
+				i++;
+				restVerboseMode = RSSL_TRUE;
+			}
 			else if (strcmp("-restEnableLogViaCallback", argv[i]) == 0)
 			{
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
@@ -627,13 +703,13 @@ void parseCommandLine(int argc, char **argv)
 				sendJsonConvError = RSSL_TRUE;
 			}
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) ||
-					(strcmp("-webSocket", argv[i]) == 0) || 
-					(strcmp("-encrypted", argv[i]) == 0) || 
-					(strcmp("-encryptedHttp", argv[i]) == 0) || 
-					(strcmp("-encryptedWebSocket", argv[i]) == 0) || 
-					(strcmp("-encryptedSocket", argv[i]) == 0))
+				(strcmp("-webSocket", argv[i]) == 0) ||
+				(strcmp("-encrypted", argv[i]) == 0) ||
+				(strcmp("-encryptedHttp", argv[i]) == 0) ||
+				(strcmp("-encryptedWebSocket", argv[i]) == 0) ||
+				(strcmp("-encryptedSocket", argv[i]) == 0))
 			{
-				char *pToken, *pToken2, *pSaveToken, *pSaveToken2;
+				char* pToken, * pToken2, * pSaveToken, * pSaveToken2;
 
 				RsslUInt8 itemDomain;
 
@@ -652,7 +728,6 @@ void parseCommandLine(int argc, char **argv)
 				{
 					pCommand->cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
 					pCommand->cInfo.rsslConnectOptions.wsOpts.protocols = protocolList;
-
 					// API QA
 					pCommand->arr_cInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
 					pCommand->arr_cInfo[0].rsslConnectOptions.wsOpts.protocols = protocolList;
@@ -662,18 +737,17 @@ void parseCommandLine(int argc, char **argv)
 					pCommand->arr_cInfo[2].rsslConnectOptions.wsOpts.protocols = protocolList;
 					// END API QA
 				}
-				
+
 				if (strstr(argv[i], "-encrypted") != 0)
 				{
 					pCommand->cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
-
 					// API QA
 					pCommand->arr_cInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
 					pCommand->arr_cInfo[1].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
 					pCommand->arr_cInfo[2].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
 					// END API QA
 				}
-				
+
 				if (strcmp("-encryptedHttp", argv[i]) == 0)
 				{
 					/* HTTP is only supported with Windows WinInet connections*/
@@ -682,7 +756,6 @@ void parseCommandLine(int argc, char **argv)
 					printUsageAndExit(argv[0]);
 #endif
 					pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
-
 					// API QA
 					pCommand->arr_cInfo[0].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
 					pCommand->arr_cInfo[1].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
@@ -693,7 +766,6 @@ void parseCommandLine(int argc, char **argv)
 				{
 					pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_WEBSOCKET;
 					pCommand->cInfo.rsslConnectOptions.wsOpts.protocols = protocolList;
-
 					// API QA
 					pCommand->arr_cInfo[0].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_WEBSOCKET;
 					pCommand->arr_cInfo[0].rsslConnectOptions.wsOpts.protocols = protocolList;
@@ -706,7 +778,6 @@ void parseCommandLine(int argc, char **argv)
 				else if (strcmp("-encryptedSocket", argv[i]) == 0)
 				{
 					pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
-
 					// API QA
 					pCommand->arr_cInfo[0].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
 					pCommand->arr_cInfo[1].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
@@ -721,7 +792,6 @@ void parseCommandLine(int argc, char **argv)
 				{
 					pCommand->cInfo.enableSessionManagement = enableSessionMgnt;
 					pCommand->cInfo.pAuthTokenEventCallback = authTokenEventCallback;
-
 					// API QA
 					pCommand->arr_cInfo[0].enableSessionManagement = enableSessionMgnt;
 					pCommand->arr_cInfo[0].pAuthTokenEventCallback = authTokenEventCallback;
@@ -733,48 +803,23 @@ void parseCommandLine(int argc, char **argv)
 				}
 
 				/* Syntax:
-				 *  -tcp hostname:port:SERVICE_NAME mp:TRI,mp:.DJI
+				 *  -tcp hostname:port[,hostname:port][,hostname:port][,hostname:port] SERVICE_NAME mp:TRI,mp:.DJI
 				 */
 
 				i += 1;
 				if (i >= argc) printUsageAndExit(argv[0]);
 
-				/* Checks wheter the host:port was specified */
+				/* Checks whether the host:port was specified */
 				if (strstr(argv[i], ":"))
 				{
-					/* Hostname */
-					pToken = strtok(argv[i], ":");
-					if (!pToken && !enableSessionMgnt) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
-					snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
-					pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-
-					// API QA
-					pCommand->arr_cInfo[0].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-					pCommand->arr_cInfo[1].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-					pCommand->arr_cInfo[2].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-					// END API QA
-
-					/* Port */
-					pToken = strtok(NULL, ":");
-					if (!pToken && !enableSessionMgnt) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
-					snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
-					pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-
-					// API QA
-					pCommand->arr_cInfo[0].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-					pCommand->arr_cInfo[1].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-					pCommand->arr_cInfo[2].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-					// END API QA
-
-					pToken = strtok(NULL, ":");
-					if (pToken) { printf("Error: extra input after <hostname>:<port>.\n"); printUsageAndExit(argv[0]); }
-
+					/* Connection List parsing */
+					parseConnectionListArg(pCommand, argv[i], argv[0]);
 					i += 1;
 				}
 
 				/* Item Service Name */
 				pToken = argv[i];
-				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, "%s", pToken);
 
 				i += 1;
 				if (i < argc)
@@ -969,7 +1014,6 @@ void parseCommandLine(int argc, char **argv)
 				tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 				pCommand->cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
 				pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
-
 				// API QA
 				pCommand->arr_cInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
 				pCommand->arr_cInfo[0].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
@@ -983,44 +1027,20 @@ void parseCommandLine(int argc, char **argv)
 
 
 				/* Syntax:
-				*  -encryptedSocket hostname:port:SERVICE_NAME mp:TRI,mp:.DJI
+				*  -encryptedSocket hostname:port[,hostname:port][,hostname:port][,hostname:port] SERVICE_NAME mp:TRI,mp:.DJI
 				*/
 
 				i += 1;
 				if (i >= argc) printUsageAndExit(argv[0]);
 
-				/* Hostname */
-				pToken = strtok(argv[i], ":");
-				if (!pToken) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
-				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-
-				// API QA
-				pCommand->arr_cInfo[0].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-				pCommand->arr_cInfo[1].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-				pCommand->arr_cInfo[2].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-				// END API QA
-
-				/* Port */
-				pToken = strtok(NULL, ":");
-				if (!pToken) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
-				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-
-				// API QA
-				pCommand->arr_cInfo[0].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-				pCommand->arr_cInfo[1].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-				pCommand->arr_cInfo[2].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-				// END API QA
-
-				pToken = strtok(NULL, ":");
-				if (pToken) { printf("Error: extra input after <hostname>:<port>.\n"); printUsageAndExit(argv[0]); }
+				/* Connection List parsing */
+				parseConnectionListArg(pCommand, argv[i], argv[0]);
 
 				i += 1;
 
 				/* Item Service Name */
 				pToken = argv[i];
-				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, "%s", pToken);
 
 				i += 1;
 				if (i < argc)
@@ -1221,7 +1241,6 @@ void parseCommandLine(int argc, char **argv)
 				tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 				pCommand->cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
 				pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
-
 				// API QA
 				pCommand->arr_cInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
 				pCommand->arr_cInfo[0].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
@@ -1235,44 +1254,20 @@ void parseCommandLine(int argc, char **argv)
 
 
 				/* Syntax:
-				*  -encryptedHttp hostname:port:SERVICE_NAME mp:TRI,mp:.DJI
+				*  -encryptedHttp hostname:port[,hostname:port][,hostname:port][,hostname:port] SERVICE_NAME mp:TRI,mp:.DJI
 				*/
 
 				i += 1;
 				if (i >= argc) printUsageAndExit(argv[0]);
 
-				/* Hostname */
-				pToken = strtok(argv[i], ":");
-				if (!pToken) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
-				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-
-				// API QA
-				pCommand->arr_cInfo[0].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-				pCommand->arr_cInfo[1].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-				pCommand->arr_cInfo[2].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-				// END API QA
-
-				/* Port */
-				pToken = strtok(NULL, ":");
-				if (!pToken) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
-				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-
-				// API QA
-				pCommand->arr_cInfo[0].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-				pCommand->arr_cInfo[1].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-				pCommand->arr_cInfo[2].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
-				// END API QA
-
-				pToken = strtok(NULL, ":");
-				if (pToken) { printf("Error: extra input after <hostname>:<port>.\n"); printUsageAndExit(argv[0]); }
+				/* Connection List parsing */
+				parseConnectionListArg(pCommand, argv[i], argv[0]);
 
 				i += 1;
 
 				/* Item Service Name */
 				pToken = argv[i];
-				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, "%s", pToken);
 
 				i += 1;
 				if (i < argc)
@@ -1453,7 +1448,7 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i++;
 				xmlTrace = RSSL_TRUE;
-				snprintf(traceOutputFile, 128, "RsslVAConsumer\0");
+				snprintf(traceOutputFile, 128, "RsslVAConsumer");
 			}
 			else if (strcmp("-runtime", argv[i]) == 0)
 			{
@@ -1489,7 +1484,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (0 == strcmp("-debuginfoInterval", argv[i]))
 			{
-				i+=2;
+				i+=2; if (i > argc) printUsageAndExit(argv[0]);
 				reactorDebugLevel = (time_t)atoi(argv[i]);;
 			}
 			else if (strcmp("-tsServiceName", argv[i]) == 0)
@@ -1502,7 +1497,7 @@ void parseCommandLine(int argc, char **argv)
 
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				hasTunnelStreamServiceName = RSSL_TRUE;
-				snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), argv[i-1]);
+				snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "%s", argv[i-1]);
 			}
 			else if (strcmp("-tunnel", argv[i]) == 0)
 			{
@@ -1567,6 +1562,133 @@ void parseCommandLine(int argc, char **argv)
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				jsonTokenIncrementSize = atoi(argv[i - 1]);
 			}
+			else if (strcmp("-restProxyHost", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyHost, sizeof(restProxyHost), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyPort", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyPort, sizeof(restProxyPort), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyUserName", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyUserName, sizeof(restProxyUserName), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyPasswd", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyPasswd, sizeof(restProxyPasswd), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyDomain", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyDomain, sizeof(restProxyDomain), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-spTLSv1.2", argv[i]) == 0)
+			{
+				i++;
+				tlsProtocol |= RSSL_ENC_TLSV1_2;
+			}
+			else if (strcmp("-spTLSv1.3", argv[i]) == 0)
+			{
+				i++;
+				tlsProtocol |= RSSL_ENC_TLSV1_3;
+			}
+			else if (strcmp("-enablePH", argv[i]) == 0)
+			{
+				i++;
+				prefHostEnabled = RSSL_TRUE;
+			}
+			else if (strcmp("-preferredHostIndex", argv[i]) == 0)
+			{
+				int tempIndex = -1;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				tempIndex = atoi(argv[i - 1]);
+				if (tempIndex >= 0)
+				{
+					prefHostConnectionListIndex = tempIndex;
+				}
+			}
+			else if (strcmp("-detectionTimeInterval", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				prefHostDetectionTimeInterval = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-detectionTimeSchedule", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(prefHostDetectionTimeCron, sizeof(prefHostDetectionTimeCron), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-fallBackInterval", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				preferredHostConfig.directFallbackTimeInterval = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-ioctlInterval", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				preferredHostConfig.ioctlCallTimeInterval = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-ioctlEnablePH", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				if (RTR_STRNICMP(argv[i - 1], "true", 4) == 0)
+				{
+					preferredHostConfig.rsslIoctlPreferredHostOpts.enablePreferredHostOptions = RSSL_TRUE;
+				}
+				else if (RTR_STRNICMP(argv[i - 1], "false", 5) == 0)
+				{
+					preferredHostConfig.rsslIoctlPreferredHostOpts.enablePreferredHostOptions = RSSL_FALSE;
+				}
+				setIoctlPreferredHostOptValue = RSSL_TRUE;
+				preferredHostConfig.setIoctlEnablePH = RSSL_TRUE;
+			}
+			else if (strcmp("-ioctlConnectListIndex", argv[i]) == 0)
+			{
+				int tempIndex = -1;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				tempIndex = atoi(argv[i - 1]);
+				if (tempIndex >= 0)
+				{
+					preferredHostConfig.rsslIoctlPreferredHostOpts.connectionListIndex = tempIndex;
+				}
+				setIoctlPreferredHostOptValue = RSSL_TRUE;
+				preferredHostConfig.setIoctlConnectListIndex = RSSL_TRUE;
+			}
+			else if (strcmp("-ioctlDetectionTimeInterval", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				preferredHostConfig.rsslIoctlPreferredHostOpts.detectionTimeInterval = atoi(argv[i - 1]);
+				setIoctlPreferredHostOptValue = RSSL_TRUE;
+				preferredHostConfig.setIoctlDetectionTimeInterval = RSSL_TRUE;
+			}
+			else if (strcmp("-ioctlDetectionTimeSchedule", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(preferredHostConfig.ioctlDetectionTimeCron, sizeof(preferredHostConfig.ioctlDetectionTimeCron), "%s", argv[i - 1]);
+				preferredHostConfig.rsslIoctlPreferredHostOpts.detectionTimeSchedule.data = preferredHostConfig.ioctlDetectionTimeCron;
+				preferredHostConfig.rsslIoctlPreferredHostOpts.detectionTimeSchedule.length = (RsslUInt32)strlen(preferredHostConfig.ioctlDetectionTimeCron);
+				setIoctlPreferredHostOptValue = RSSL_TRUE;
+				preferredHostConfig.setIoctlDetectionTimeSchedule = RSSL_TRUE;
+			}
+			else if (strcmp("-reconnectAttemptLimit", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				reconnectAttemptLimit = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-reconnectMinDelay", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				reconnectMinDelay = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-reconnectMaxDelay", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				reconnectMaxDelay = atoi(argv[i - 1]);
+			}
 			// API QA
 			else if (0 == strcmp("-connectlist3", argv[i]))
 			{
@@ -1586,7 +1708,7 @@ void parseCommandLine(int argc, char **argv)
 			// END API QA
 			else
 			{
-				printf("Unknown option: %s\n", argv[i]);
+				printf("Error: Unrecognized option: %s\n", argv[i]);
 				printUsageAndExit(argv[0]);
 			}
 
@@ -1596,7 +1718,7 @@ void parseCommandLine(int argc, char **argv)
 				/* If service not specified for tunnel stream, use the service given for other items instead. */
 				if (pCommand->tunnelMessagingEnabled && hasTunnelStreamServiceName == RSSL_FALSE)
 				{
-					snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), pCommand->serviceName);
+					snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "%s", pCommand->serviceName);
 				}
 
 				/* Check whether the session management is enable */
@@ -1604,7 +1726,6 @@ void parseCommandLine(int argc, char **argv)
 				{
 					pCommand->cInfo.enableSessionManagement = enableSessionMgnt;
 					pCommand->cInfo.pAuthTokenEventCallback = authTokenEventCallback;
-
 					// API QA
 					pCommand->arr_cInfo[0].enableSessionManagement = enableSessionMgnt;
 					pCommand->arr_cInfo[0].pAuthTokenEventCallback = authTokenEventCallback;
@@ -1636,10 +1757,10 @@ void parseCommandLine(int argc, char **argv)
 		pInfo = &pCommand->cInfo;
 
 		/* 1st Connection: Connect to localhost:14002 */
-		snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, "%s", "localhost"); 
-		pInfo->rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-		snprintf(pCommand->port, MAX_BUFFER_LENGTH, "%s", "14002"); 
-		pInfo->rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
+		snprintf(pCommand->hostName[0], MAX_BUFFER_LENGTH, "%s", "localhost");
+		pInfo->rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName[0];
+		snprintf(pCommand->port[0], MAX_BUFFER_LENGTH, "%s", "14002");
+		pInfo->rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port[0];
 
 		/* 1st Connection: Service name is DIRECT_FEED */
 		snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, "%s", "DIRECT_FEED");
@@ -1654,10 +1775,10 @@ void parseCommandLine(int argc, char **argv)
 		pInfo = &pCommand->cInfo;
 
 		/* 2nd Connection: Connect to localhost:14002 */
-		snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, "%s", "localhost"); 
-		pInfo->rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
-		snprintf(pCommand->port, MAX_BUFFER_LENGTH, "%s", "14002"); 
-		pInfo->rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
+		snprintf(pCommand->hostName[0], MAX_BUFFER_LENGTH, "%s", "localhost");
+		pInfo->rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName[0];
+		snprintf(pCommand->port[0], MAX_BUFFER_LENGTH, "%s", "14002"); 
+		pInfo->rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port[0];
 
 
 		/* 2nd Connection: Service name is DIRECT_FEED */
@@ -1670,6 +1791,26 @@ void parseCommandLine(int argc, char **argv)
 		pCommand->marketPriceItems[0].itemName.length = 5;
 		pCommand->marketPriceItems[1].itemName.data = (char *)".DJI"; 
 		pCommand->marketPriceItems[1].itemName.length = 4;
+	}
+
+	if (channelCommandCount > 1 && prefHostEnabled)
+	{
+		printf("Error: when VAConsumer configures to use Preferred host then channelCommandCount (%d) should be only one connection.\n\n",
+			channelCommandCount);
+		printUsageAndExit(argv[0]);
+	}
+
+	if (prefHostConnectionListIndex > 0 && prefHostConnectionListIndex >= chanCommands[0].hostsCount)
+	{
+		printf("Error: prefHostConnectionListIndex (%u) should be less than hosts count (%u).\n\n",
+			prefHostConnectionListIndex, chanCommands[0].hostsCount);
+		printUsageAndExit(argv[0]);
+	}
+
+	if (preferredHostConfig.ioctlCallTimeInterval == 0 && setIoctlPreferredHostOptValue == RSSL_TRUE)
+	{
+		printf("Error: -ioctlInterval should be specified and have a non-zero positive value if any ioctl Preferred host parameters are specified.\n\n");
+		printUsageAndExit(argv[0]);
 	}
 
 	if (cacheOption)
@@ -1685,7 +1826,7 @@ void parseCommandLine(int argc, char **argv)
 			if (pCommand->cacheInfo.cacheHandle == 0)
 			{
 				printf("Error: Failed to create cache on channel %s:%s.\n\tError (%d): %s\n",
-						pCommand->hostName, pCommand->port,
+						pCommand->hostName[0], pCommand->port[0],
 						pCommand->cacheInfo.cacheErrorInfo.rsslErrorId, pCommand->cacheInfo.cacheErrorInfo.text);
 				pCommand->cacheInfo.useCache = RSSL_FALSE;
 			}
@@ -1703,6 +1844,8 @@ void parseCommandLine(int argc, char **argv)
 		pCommand->cInfo.rsslConnectOptions.proxyOpts.proxyPasswd = proxyPasswd;
 		pCommand->cInfo.rsslConnectOptions.proxyOpts.proxyDomain = proxyDomain;
 		pCommand->cInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = sslCAStore;
+		if (tlsProtocol != RSSL_ENC_NONE)
+			pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
 
 		// API QA
 		if (proxyHost[0] != '\0' && proxyPort[0] != '\0')
@@ -1724,9 +1867,84 @@ void parseCommandLine(int argc, char **argv)
 			pCommand->arr_cInfo[2].rsslConnectOptions.proxyOpts.proxyPasswd = proxyPasswd;
 			pCommand->arr_cInfo[2].rsslConnectOptions.proxyOpts.proxyDomain = proxyDomain;
 			pCommand->arr_cInfo[2].rsslConnectOptions.encryptionOpts.openSSLCAStore = sslCAStore;
+
+			if (tlsProtocol != RSSL_ENC_NONE)
+			{
+				pCommand->arr_cInfo[1].rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
+				pCommand->arr_cInfo[2].rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
+			}
 		}
 		// END API QA
 	}
+}
+
+/*
+ * Parse Connection list command line option
+ */
+static void parseConnectionListArg(ChannelCommand* pCommand, char* argStr, char* appName)
+{
+	char *pToken, *pToken2, *pSaveToken = NULL, *pSaveToken2 = NULL;
+	RsslUInt32 indHost;
+
+	/* Connection List parsing: hostname:port[,hostname:port][,hostname:port][,hostname:port] */
+	pCommand->hostsCount = 0;
+
+	pToken = strtok_r(argStr, ",", &pSaveToken);
+	while (pToken)
+	{
+		indHost = pCommand->hostsCount;
+		if (indHost >= CHAN_CMD_MAX_HOSTS)
+		{
+			printf("Number of hosts in connection list exceeded\n");
+			break;
+		}
+
+		/* Checks whether the host:port was specified */
+		if (strstr(pToken, ":"))
+		{
+			/* Hostname */
+			pToken2 = strtok_r(pToken, ":", &pSaveToken2);
+			if (!pToken2 && !enableSessionMgnt) { printf("Error: Missing hostname. ind: %u\n", indHost); printUsageAndExit(appName); }
+			snprintf(pCommand->hostName[indHost], MAX_BUFFER_LENGTH, "%s", pToken2);
+			if (indHost == 0)
+				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName[indHost];
+			// API QA
+			if (indHost == 0)
+			{
+				pCommand->arr_cInfo[0].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName[indHost];
+				pCommand->arr_cInfo[1].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName[indHost];
+				pCommand->arr_cInfo[2].rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName[indHost];
+			}
+			// END API QA
+
+			/* Port */
+			pToken2 = strtok_r(NULL, ":", &pSaveToken2);
+			if (!pToken2 && !enableSessionMgnt) { printf("Error: Missing port. ind: %u\n", indHost); printUsageAndExit(appName); }
+			snprintf(pCommand->port[indHost], MAX_BUFFER_LENGTH, "%s", pToken2);
+			if (indHost == 0)
+				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port[indHost];
+			// API QA
+			if (indHost == 0)
+			{
+				pCommand->arr_cInfo[0].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port[indHost];
+				pCommand->arr_cInfo[1].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port[indHost];
+				pCommand->arr_cInfo[2].rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port[indHost];
+			}
+			// END API QA
+
+			pToken2 = strtok_r(NULL, ":", &pSaveToken2);
+			if (pToken2) { printf("Error: extra input after <hostname>:<port>. ind: %u\n", indHost); printUsageAndExit(appName); }
+		}
+		else
+		{
+			printf("Error: Missing hostname and port. ind: %u\n", indHost); printUsageAndExit(appName);
+		}
+
+		++pCommand->hostsCount;
+
+		pToken = strtok_r(NULL, ",", &pSaveToken);
+	}
+	return;
 }
 
 /* 
@@ -1755,6 +1973,10 @@ RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactor
 {
 	RsslRet ret;
 	ChannelCommand *pCommand = pReactorChannel ? (ChannelCommand*)pReactorChannel->userSpecPtr: NULL;
+	char timeBuf[64];
+
+	// yyyy-MM-dd HH:mm:ss.SSS
+	dumpDateTime(timeBuf, sizeof(timeBuf));
 
 	if (pAuthTokenEvent->pError)
 	{
@@ -1764,6 +1986,8 @@ RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactor
 	{
 		RsslReactorSubmitMsgOptions submitMsgOpts;
 		RsslErrorInfo rsslErrorInfo;
+
+		printf("%s New auth token received, submitting Login reissue\n", timeBuf);
 
 		rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
 
@@ -1791,6 +2015,12 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 	RsslReactorOAuthCredentialRenewalOptions renewalOptions;
 	RsslReactorOAuthCredentialRenewal reactorOAuthCredentialRenewal;
 	RsslErrorInfo rsslError;
+	char timeBuf[64];
+
+	// yyyy-MM-dd HH:mm:ss.SSS
+	dumpDateTime(timeBuf, sizeof(timeBuf));
+
+	printf("%s Submitting OAuth credentials.\n", timeBuf);
 
 	rsslClearReactorOAuthCredentialRenewalOptions(&renewalOptions);
 	renewalOptions.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
@@ -1815,6 +2045,13 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pConnEvent)
 {
 	ChannelCommand *pCommand = (ChannelCommand*)pReactorChannel->userSpecPtr;
+	char timeBuf[64];
+	time_t currTime;
+
+	currTime = time(NULL);
+
+	// yyyy-MM-dd HH:mm:ss.SSS
+	dumpDateTime(timeBuf, sizeof(timeBuf));
 
 	switch(pConnEvent->channelEventType)
 	{
@@ -1830,10 +2067,104 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 #ifdef _WIN32
 			int rcvBfrSize = 65535;
 			int sendBfrSize = 65535;
-			RsslErrorInfo rsslErrorInfo;
 #endif
+			RsslErrorInfo rsslErrorInfo;
 
-			printf("Connection up! Channel fd="SOCKET_PRINT_TYPE"\n\n", pReactorChannel->socketId);
+			printf("%s Connection up! Channel fd="SOCKET_PRINT_TYPE"\n\n", timeBuf, pReactorChannel->socketId);
+
+			RsslReactorChannelInfo reactorChannelInfo;
+
+			if (rsslReactorGetChannelInfo(pReactorChannel, &reactorChannelInfo, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				printf("rsslReactorGetChannelInfo(): failed <%s>\n", rsslErrorInfo.rsslError.text);
+			}
+			else
+			{
+				RsslChannelInfo* pRsslChannelInfo = &reactorChannelInfo.rsslChannelInfo;
+				switch (pRsslChannelInfo->encryptionProtocol)
+				{
+				case RSSL_ENC_TLSV1_2:
+					printf("Encryption protocol: TLSv1.2\n\n");
+					break;
+				case RSSL_ENC_TLSV1_3:
+					printf("Encryption protocol: TLSv1.3\n\n");
+					break;
+				default:
+					printf("Encryption protocol: unknown\n\n");
+				}
+
+				RsslChannel* pRsslChannel = pReactorChannel->pRsslChannel;
+
+				if (pRsslChannel)
+				{
+					char hostName[512] = "";
+					unsigned port = (unsigned)pRsslChannel->port;
+
+					if (pRsslChannel->hostname != NULL)
+					{
+						size_t len = strlen(pRsslChannel->hostname);
+						if (len > sizeof(hostName))
+							len = sizeof(hostName);
+						memcpy(hostName, pRsslChannel->hostname, len);
+					}
+
+					printf("pRsslChannel.state=%d, socketId=%llu. Host=%s:%u\n\n",
+						pRsslChannel->state, pRsslChannel->socketId, hostName, port);
+				}
+				else
+				{
+					printf("pRsslChannel is Null\n\n");
+				}
+
+				RsslReactorPreferredHostInfo* pPreferredHostInfo = &reactorChannelInfo.rsslPreferredHostInfo;
+				printf("Preferred host feature: %s\n", (pPreferredHostInfo->isPreferredHostEnabled ? "Enabled" : "Disabled"));
+				if (pPreferredHostInfo->isPreferredHostEnabled && prefHostPrintDetails)
+				{
+					printf("   The channel is preferred: %s\n", (pPreferredHostInfo->isChannelPreferred ? "Yes" : "No"));
+					printf("   Connection list index: %u\n", pPreferredHostInfo->connectionListIndex);
+					printf("   WarmStandBy group list index: %u\n", pPreferredHostInfo->warmStandbyGroupListIndex);
+
+					if (pPreferredHostInfo->detectionTimeSchedule.data && pPreferredHostInfo->detectionTimeSchedule.length>0)
+						printf("   Cron schedule: %*s\n", pPreferredHostInfo->detectionTimeSchedule.length, pPreferredHostInfo->detectionTimeSchedule.data);
+
+					printf("   Detection time interval: %u\n", pPreferredHostInfo->detectionTimeInterval);
+					printf("   Remaining time: %u\n", pPreferredHostInfo->remainingDetectionTime);
+
+					printf("\n");
+				}
+
+				/* Adjust the Ioctl preferred host options. */
+				/* Defaults to whatever application has already set it to so it doesn't change. */
+				if (preferredHostConfig.ioctlCallTimeInterval > 0)
+				{
+					RsslPreferredHostOptions* pIoctlPreferredHostOpts = &preferredHostConfig.rsslIoctlPreferredHostOpts;
+
+					/* If a new Ioctl Preferred host parameter is not specified on the command line, */
+					/* we will use the value that the application has previously set. */
+					if (!preferredHostConfig.setIoctlEnablePH)
+					{
+						pIoctlPreferredHostOpts->enablePreferredHostOptions = pPreferredHostInfo->isPreferredHostEnabled;
+					}
+					if (!preferredHostConfig.setIoctlConnectListIndex)
+					{
+						pIoctlPreferredHostOpts->connectionListIndex = pPreferredHostInfo->connectionListIndex;
+					}
+					if (!preferredHostConfig.setIoctlDetectionTimeInterval)
+					{
+						pIoctlPreferredHostOpts->detectionTimeInterval = pPreferredHostInfo->detectionTimeInterval;
+					}
+					if (!preferredHostConfig.setIoctlDetectionTimeSchedule)
+					{
+						RsslUInt32 length = sizeof(preferredHostConfig.ioctlDetectionTimeCron);
+						if (length > pPreferredHostInfo->detectionTimeSchedule.length)
+							length = pPreferredHostInfo->detectionTimeSchedule.length;
+
+						memcpy(preferredHostConfig.ioctlDetectionTimeCron, pPreferredHostInfo->detectionTimeSchedule.data, length);
+						pIoctlPreferredHostOpts->detectionTimeSchedule.data = preferredHostConfig.ioctlDetectionTimeCron;
+						pIoctlPreferredHostOpts->detectionTimeSchedule.length = length;
+					}
+				}
+			}
 
 			/* Set file descriptor. */
 			FD_SET(pReactorChannel->socketId, &readFds);
@@ -1872,6 +2203,28 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				rsslReactorChannelIoctl(pReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo);
 			}
 
+			/* Set timeout when VAConsumer should initiate fallback directly */
+			if (preferredHostConfig.directFallbackTimeInterval > 0)
+			{
+				preferredHostConfig.directFallbackTime = currTime + (time_t)preferredHostConfig.directFallbackTimeInterval;
+
+				printf("   Direct Fallback.\n");
+				printf("   Time interval: %u\n", preferredHostConfig.directFallbackTimeInterval);
+				printf("   Remaining time: %lld\n", (preferredHostConfig.directFallbackTime - time(NULL)));
+				printf("\n");
+			}
+
+			/* Set timeout when VAConsumer should initiate Ioctl call */
+			if (preferredHostConfig.ioctlCallTimeInterval > 0)
+			{
+				preferredHostConfig.ioctlCallTime = currTime + (time_t)preferredHostConfig.ioctlCallTimeInterval;
+
+				printf("   Ioctl call to update PreferredHostOptions.\n");
+				printf("   Time interval: %u\n", preferredHostConfig.ioctlCallTimeInterval);
+				printf("   Remaining time: %lld\n", (preferredHostConfig.ioctlCallTime - time(NULL)));
+				printf("\n");
+			}
+
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_CHANNEL_READY:
@@ -1883,7 +2236,8 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* The file descriptor representing the RsslReactorChannel has been changed.
 			 * Update our file descriptor sets. */
-			printf("Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
+			printf("%s Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n",
+				timeBuf, pReactorChannel->oldSocketId, pReactorChannel->socketId);
 			FD_CLR(pReactorChannel->oldSocketId, &readFds);
 			FD_CLR(pReactorChannel->oldSocketId, &exceptFds);
 			FD_SET(pReactorChannel->socketId, &readFds);
@@ -1894,7 +2248,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* The channel has failed and has gone down.  Print the error, close the channel, and reconnect later. */
 
-			printf("Connection down: Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
+			printf("%s Connection down: Channel fd="SOCKET_PRINT_TYPE".\n", timeBuf, pReactorChannel->socketId);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
@@ -1908,7 +2262,24 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		}
 		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
 		{
-			printf("Connection down, reconnecting.  Channel fd="SOCKET_PRINT_TYPE"\n", pReactorChannel->socketId);
+			char hostName[512] = "";
+			unsigned port = 0;
+
+			if (pReactorChannel->pRsslChannel)
+			{
+				port = (unsigned)pReactorChannel->pRsslChannel->port;
+
+				if (pReactorChannel->pRsslChannel->hostname != NULL)
+				{
+					size_t len = strlen(pReactorChannel->pRsslChannel->hostname);
+					if (len > sizeof(hostName))
+						len = sizeof(hostName);
+					memcpy(hostName, pReactorChannel->pRsslChannel->hostname, len);
+				}
+			}
+
+			printf("%s Connection down, reconnecting.  Channel fd="SOCKET_PRINT_TYPE". Host=%s:%u\n",
+				timeBuf, pReactorChannel->socketId, hostName, port);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
@@ -1926,17 +2297,23 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		case RSSL_RC_CET_WARNING:
 		{
 			/* We have received a warning event for this channel. Print the information and continue. */
-			printf("Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
+			printf("%s Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", timeBuf, pReactorChannel->socketId);
 			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:
+		{
+			/* The preferred host operation is complete and the connections are up. */
+			/* The event means - that a timer or function triggered preferred host operation has completed. */
+			printf("%s Received PREFERRED_HOST_COMPLETE for Channel fd="SOCKET_PRINT_TYPE".\n", timeBuf, pReactorChannel->socketId);
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		default:
 		{
-			printf("Unknown connection event!\n");
+			printf("%s Unknown connection event! (%d)\n", timeBuf, pConnEvent->channelEventType);
 			cleanUpAndExit(-1);
 		}
 	}
-
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -2139,35 +2516,29 @@ int main(int argc, char **argv)
 	if (password.length)
 	{
 		oAuthCredential.password = password;
-
-		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If a client ID was specified */
 	if (clientId.length)
 	{
 		oAuthCredential.clientId = clientId;
-		/* This is only used with token service V1 */
+		/* This is only used with LSEG token service V1 */
 		oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
+		
+		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If a client secret was specified */
 	if (clientSecret.length)
 	{
 		oAuthCredential.clientSecret = clientSecret;
-
-		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If a JWK was specified */
 	if (clientJWK.length)
 	{
 		oAuthCredential.clientJWK = clientJWK;
-
-		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If an audience was specified */
@@ -2236,7 +2607,12 @@ int main(int argc, char **argv)
 
 		ChannelCommand *pCommand = &chanCommands[i];
 
-		printf("	%s:%s %s\n", pCommand->hostName, pCommand->port, pCommand->serviceName);
+		for (j = 0; j < (int)pCommand->hostsCount; ++j)
+		{
+			printf("	%s:%s%s\n", pCommand->hostName[j], pCommand->port[j],
+				(prefHostEnabled && prefHostConnectionListIndex == j ? "  (Preferred host)" : ""));
+		}
+		printf("	%s\n", pCommand->serviceName);
 
 		printf("		MarketPriceItems:");
 		for(j = 0; j < CHAN_CMD_MAX_ITEMS; ++j)
@@ -2316,6 +2692,7 @@ int main(int argc, char **argv)
 		ChannelCommand *pCommand = &chanCommands[i];
 		RsslReactorConnectOptions *pOpts = &pCommand->cOpts;
 		RsslReactorConnectInfo *pInfo = &pCommand->cInfo;
+		unsigned j;
 
 		loadDictionary(pCommand);
 		pCommand->pRole = (RsslReactorChannelRole*)&consumerRole;
@@ -2329,9 +2706,14 @@ int main(int argc, char **argv)
 		// END API QA
 		pOpts->reactorConnectionList = pInfo;
 		pOpts->connectionCount = 1;
-		pOpts->reconnectAttemptLimit = -1;
-		pOpts->reconnectMaxDelay = 5000;
-		pOpts->reconnectMinDelay = 1000;
+		pOpts->reconnectAttemptLimit = reconnectAttemptLimit;
+		pOpts->reconnectMaxDelay = reconnectMaxDelay;
+		pOpts->reconnectMinDelay = reconnectMinDelay;
+
+		if (serviceDiscoveryLocation.length != 0)
+		{
+			pOpts->reactorConnectionList->location = serviceDiscoveryLocation;
+		}
 
 		/* Specify interests to get channel statistics */
 		if(statisticInterval > 0)
@@ -2352,9 +2734,60 @@ int main(int argc, char **argv)
 		pOpts->reactorConnectionList = &pCommand->arr_cInfo[0];
 		pOpts->connectionCount = (connectionListItems3 == RSSL_TRUE ? 3 : 2);
 		// END API QA
+
+		/* Initialize connection list */
+		/* When hostsCount is 0 service discovery should be called */
+		// API QA Commented out if (pCommand->hostsCount > 0)
+		if (pOpts->connectionCount == 0 && pCommand->hostsCount > 0)  // API QA - Don't use with this QATool
+		{
+			for (j = 0; j < pCommand->hostsCount; ++j)
+			{
+				pInfo = &pCommand->InfoItems[j];
+				rsslClearReactorConnectInfo(pInfo);
+
+				pInfo->rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName[j];
+				pInfo->rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port[j];
+
+				pInfo->rsslConnectOptions.guaranteedOutputBuffers = 500;
+				pInfo->rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+				pInfo->rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+				pInfo->rsslConnectOptions.userSpecPtr = &chanCommands[i];
+				pInfo->initializationTimeout = 30;
+
+				pInfo->rsslConnectOptions.pingTimeout = 600;
+
+				pInfo->rsslConnectOptions.connectionType = pCommand->cInfo.rsslConnectOptions.connectionType;
+				pInfo->rsslConnectOptions.wsOpts.protocols = pCommand->cInfo.rsslConnectOptions.wsOpts.protocols;
+				pInfo->rsslConnectOptions.encryptionOpts.encryptedProtocol = pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol;
+
+				if (tlsProtocol != RSSL_ENC_NONE)
+					pInfo->rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
+
+				if (enableSessionMgnt)
+				{
+					pInfo->enableSessionManagement = enableSessionMgnt;
+					pInfo->pAuthTokenEventCallback = authTokenEventCallback;
+				}
+			}
+
+			pOpts->reactorConnectionList = pCommand->InfoItems;
+			pOpts->connectionCount = pCommand->hostsCount;
+		}
+
+		/* Preferred host */
+		if (prefHostEnabled)
+		{
+			pOpts->preferredHostOptions.enablePreferredHostOptions = RSSL_TRUE;
+			pOpts->preferredHostOptions.connectionListIndex = prefHostConnectionListIndex;
+			pOpts->preferredHostOptions.detectionTimeInterval = prefHostDetectionTimeInterval;
+			pOpts->preferredHostOptions.detectionTimeSchedule.data = prefHostDetectionTimeCron;
+			pOpts->preferredHostOptions.detectionTimeSchedule.length = (RsslUInt32)strlen(prefHostDetectionTimeCron);
+		}
 	}
 
 	printf("\n");
+
+	printf("Preferred Host enabled: %s\n\n", (prefHostEnabled ? "Yes" : "No"));
 
 	/* Create an RsslReactor which will manage our channels. */
 
@@ -2365,6 +2798,7 @@ int main(int argc, char **argv)
 	reactorOpts.debugLevel = reactorDebugLevel;
 
 	reactorOpts.restEnableLog = restEnableLog;
+	reactorOpts.restVerboseMode = restVerboseMode;
 
 	if (restLogFileName)
 		reactorOpts.restLogOutputStream = restLogFileName;
@@ -2390,6 +2824,31 @@ int main(int argc, char **argv)
 		reactorOpts.serviceDiscoveryURL = serviceDiscoveryURL;
 	}
 
+	if (restProxyHost[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyHostName = restProxyHost;
+	}
+
+	if (restProxyPort[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPort = restProxyPort;
+	}
+
+	if (restProxyUserName[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyUserName = restProxyUserName;
+	}
+
+	if (restProxyPasswd[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPasswd = restProxyPasswd;
+	}
+
+	if (restProxyDomain[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyDomain = restProxyDomain;
+	}
+
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
 		printf("Error: %s", rsslErrorInfo.rsslError.text);
@@ -2410,13 +2869,22 @@ int main(int argc, char **argv)
 	FD_SET(pReactor->eventFd, &exceptFds);
 
 	/* Add the desired connections to the reactor. */
-	for(i = 0; i < channelCommandCount; ++i)
+	for (i = 0; i < channelCommandCount; ++i)
 	{
-		ChannelCommand *pCommand = &chanCommands[i];
+		ChannelCommand* pCommand = &chanCommands[i];
 		if (!isDictionaryLoaded(pCommand))
 			consumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
 
-		printf("Adding connection to %s:%s...\n", pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address, pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName );
+		if (prefHostEnabled)
+		{
+			RsslUInt32 connectionListIndex = pCommand->cOpts.preferredHostOptions.connectionListIndex;
+			RsslReactorConnectInfo* pInfo = &pCommand->InfoItems[connectionListIndex];
+			printf("Adding connection to %s:%s...\n", pInfo->rsslConnectOptions.connectionInfo.unified.address, pInfo->rsslConnectOptions.connectionInfo.unified.serviceName);
+		}
+		else
+		{
+			printf("Adding connection to %s:%s...\n", pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address, pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName);
+		}
 
 		if (rsslReactorConnect(pReactor, &pCommand->cOpts, pCommand->pRole, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
@@ -2427,7 +2895,6 @@ int main(int argc, char **argv)
 			chanCommands[i].nextStatisticRetrivalTime = time(NULL) + statisticInterval;
 
 		printf("\n");
-
 	}
 
 	jsonConverterOptions.pDictionary = &(chanCommands[0].dictionary);
@@ -2497,6 +2964,13 @@ int main(int argc, char **argv)
 			if (reactorChannelsClosed)
 			{
 				printf("All reactor channels closed.\n\n");
+				cleanUpAndExit(-1);
+			}
+
+
+			/* Preferred Host. Check timeout and Initiate fallback direct call. */
+			if (ret = handlePreferredHostRuntime(&rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
 				cleanUpAndExit(-1);
 			}
 
@@ -2574,7 +3048,6 @@ int main(int argc, char **argv)
 #endif
 			cleanUpAndExit(-1);
 		}
-
 		
 		/* Call rsslReactorDispatch().  This will handle any events that have occurred on its channels.
 		 * If there are events or messages for the application to process, they will be delivered
@@ -2610,7 +3083,7 @@ static void initRuntime()
 }
 
 /*
- * Printout ractor debug information if debug was enabled.
+ * Printout reactor debug information if debug was enabled.
  */
 static void initReactorNextDebugTime()
 {
@@ -2736,6 +3209,70 @@ static void handleRuntime()
 			cleanUpAndExit(0);
 		}
 	}
+}
+
+/*
+ * Preferred Host.
+ * Check and Initiate Ioctl and direct fallback call.
+ */
+static RsslRet handlePreferredHostRuntime(RsslErrorInfo* pErrorInfo)
+{
+	RsslRet ret;
+	time_t currentTime = 0;
+	int i;
+
+	time(&currentTime);
+
+	RsslBool callDirectFallback =
+		(preferredHostConfig.directFallbackTime > 0 && currentTime >= preferredHostConfig.directFallbackTime ? RSSL_TRUE : RSSL_FALSE);
+	RsslBool callIoctl =
+		(preferredHostConfig.ioctlCallTime > 0 && currentTime >= preferredHostConfig.ioctlCallTime ? RSSL_TRUE : RSSL_FALSE);
+
+	if (callDirectFallback || callIoctl)
+	{
+		for (i = 0; i < channelCommandCount; ++i)
+		{
+			if (callDirectFallback)
+			{
+				if (chanCommands[i].reactorChannelReady == RSSL_TRUE)
+				{
+					preferredHostConfig.directFallbackTime = 0;
+					callDirectFallback = RSSL_FALSE;
+
+					if ((ret = rsslReactorFallbackToPreferredHost(chanCommands[i].reactorChannel, pErrorInfo)) != RSSL_RET_SUCCESS)
+					{
+						printf("rsslReactorFallbackToPreferredHost failed: %d(%s)\n", ret, pErrorInfo->rsslError.text);
+					}
+					else
+					{
+						printf("Direct Fallback initiated.\n");
+					}
+				}
+			}
+
+			if (callIoctl)
+			{
+				if (chanCommands[i].reactorChannelReady == RSSL_TRUE)
+				{
+					preferredHostConfig.ioctlCallTime = 0;
+					callIoctl = RSSL_FALSE;
+
+					if ((ret = rsslReactorChannelIoctl(chanCommands[i].reactorChannel,
+						RSSL_REACTOR_CHANNEL_IOCTL_PREFERRED_HOST_OPTIONS,
+						(void*)&preferredHostConfig.rsslIoctlPreferredHostOpts,
+						pErrorInfo)) != RSSL_RET_SUCCESS)
+					{
+						printf("rsslReactorChannelIoctl failed:  %d(%s)\n", ret, pErrorInfo->rsslError.text);
+					}
+					else
+					{
+						printf("rsslReactorChannelIoctl initiated.\n");
+					}
+				}
+			}
+		}
+	}
+	return RSSL_RET_SUCCESS;
 }
 
 /*

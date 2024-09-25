@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019-2020 LSEG. All rights reserved.
 */
 
 
@@ -217,7 +217,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			closeDirectoryStreamForChannel(pReactorChannel);
 			closeLoginStreamForChannel(pReactorChannel);
 
-			if(pClientSessionInfo->clientChannel == NULL)
+			if(pClientSessionInfo != NULL && pClientSessionInfo->clientChannel == NULL)
 			{
 				pClientSessionInfo->clientChannel = pReactorChannel;
 			}
@@ -402,7 +402,7 @@ int main(int argc, char **argv)
 		// API QA
 		else if (strcmp("-ni", argv[iargs]) == 0)
 		{
-			++iargs;
+			++iargs; if (iargs == argc) exitWithUsage();
 			nItemsToSend = atoi(argv[iargs]);
 		}
 		// END API QA

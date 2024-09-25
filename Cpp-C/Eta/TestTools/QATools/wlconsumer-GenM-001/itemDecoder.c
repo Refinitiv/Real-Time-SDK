@@ -15,9 +15,13 @@
 #include "rtr/rsslMessagePackage.h"
 #include "rtr/rsslDataPackage.h"
 
-static RsslDataDictionary dictionary;
+RsslDataDictionary dictionary;
 RsslBool fieldDictionaryLoaded = RSSL_FALSE;
 RsslBool enumDictionaryLoaded = RSSL_FALSE;
+
+// API QA
+RsslRet decodeGenericMsgDataBody(RsslReactorChannel* pReactorChannel, RsslMsg* pRsslMsg);
+// END API QA
 
 /* Prints spaces for indentation. */
 static void printIndent(RsslUInt32 indentCount)
@@ -113,12 +117,14 @@ RsslRet decodeDataBody(RsslReactorChannel *pChannel, RsslMsg *pRsslMsg)
 
 		case RSSL_DMT_SYMBOL_LIST:
 			return decodeSymbolListDataBody(pChannel, pRsslMsg);
+
 			//APIQA
 		case RSSL_DMT_LOGIN:
 			return decodeGenericMsgDataBody(pChannel, pRsslMsg);
 		case RSSL_DMT_SOURCE:
 			return decodeGenericMsgDataBody(pChannel, pRsslMsg);
 			//END APIQA
+
 		default:
 			printf("Received message with unhandled domain %u\n\n",
 					pRsslMsg->msgBase.domainType);
@@ -846,10 +852,11 @@ RsslRet decodeSymbolListDataBody(RsslReactorChannel *pReactorChannel, RsslMsg *p
 
 	return RSSL_RET_SUCCESS;
 }
+
 //APIQA
 /* Decodes a GenericMsg payload.
 * GenericMsg from provider contain ElementList with one ElementEntry  */
-RsslRet decodeGenericMsgDataBody(RsslReactorChannel *pReactorChannel, RsslMsg *pRsslMsg)
+RsslRet decodeGenericMsgDataBody(RsslReactorChannel* pReactorChannel, RsslMsg* pRsslMsg)
 {
 	RsslDecodeIterator dIter;
 	RsslRet ret;
@@ -888,7 +895,7 @@ RsslRet decodeGenericMsgDataBody(RsslReactorChannel *pReactorChannel, RsslMsg *p
 			printf("rsslDecodeInt() failed: %d(%s)\n", ret, rsslRetCodeToString(ret));
 			return ret;
 		}
-		printf(" dataEntry data : of ElementEntry is:   %d\n", tempInt);
+		printf(" dataEntry data : of ElementEntry is:   %lld\n", tempInt);
 		printf("\n");
 
 	}

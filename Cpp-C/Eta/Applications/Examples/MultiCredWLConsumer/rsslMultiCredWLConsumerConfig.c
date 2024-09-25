@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2023 LSEG. All rights reserved.     
+ * Copyright (C) 2020-2024 LSEG. All rights reserved.
 */
 
 /*
@@ -42,6 +42,9 @@ int connectionCount = 0;
 RsslBool credentialFound = RSSL_FALSE;
 RsslBool loginFound = RSSL_FALSE;
 
+PreferredHostConfig preferredHostConfig;
+
+
 void clearLoginRequestCredential(LoginRequestCredential* credentials)
 {
 	memset((void*)credentials, 0, sizeof(LoginRequestCredential));
@@ -70,7 +73,7 @@ void clearWarmStandbyGroupConfig(WarmStandbyGroupConfig* config)
 
 void clearAllocatedMemory()
 {
-	int i;
+	int i, j, k;
 
 	if(connectionList != NULL)
 		free((void*)connectionList);
@@ -91,8 +94,33 @@ void clearAllocatedMemory()
 	{
 		for (i = 0; i < warmStandbyGroupCount; i++)
 		{
-			free((void*)warmStandbyGroupList[i].standbyConnectionInfoList);
-			free((void*)warmStandbyGroupList[i].warmStandbyGroup.standbyServerList);
+			if (warmStandbyGroupList[i].startingActiveConnectionInfo.serviceList != NULL)
+			{
+				for (j = 0; j < warmStandbyGroupList[i].startingActiveConnectionInfo.serviceCount; j++)
+				{
+					free(warmStandbyGroupList[i].startingActiveConnectionInfo.serviceList[j].data);
+				}
+
+				free(warmStandbyGroupList[i].startingActiveConnectionInfo.serviceList);
+			}
+
+			if (warmStandbyGroupList[i].standbyConnectionInfoList != NULL)
+			{
+				for (j = 0; j < (RsslInt32)warmStandbyGroupList[i].warmStandbyGroup.standbyServerCount; j++)
+				{
+					if (warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceList != NULL)
+					{
+						for (k = 0; k < warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceCount; k++)
+						{
+							free(warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceList[k].data);
+						}
+						free(warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceList);
+					}
+				}
+				free((void*)warmStandbyGroupList[i].standbyConnectionInfoList);
+				free((void*)warmStandbyGroupList[i].warmStandbyGroup.standbyServerList);
+			}
+			
 		}
 
 		free((void*)warmStandbyGroupList);
@@ -147,7 +175,7 @@ void printUsageAndExit(int argc, char **argv)
 			" -mbo          For each occurance, requests item using Market By Order domain.\n"
 			" -x           Enables tracing of messages sent to and received from the channel.\n"
 			" -runTime     Adjusts the running time of the application.\n"
-			" -reconnectLimit Specifies the number of reconnections per channel, -1 is the default\n"
+			" -reconnectAttemptLimit Specifies the number of reconnections per channel, -1 is the default\n"
 		    " -configJson Specifies the json config for this application.  Please see the readme for information about the JSON format.\n"
 			"\n"
 			"-restEnableLog enable REST logging message"
@@ -168,6 +196,18 @@ void printUsageAndExit(int argc, char **argv)
 			"-libsslName specifies the name of libssl\n"
 			"-libcryptoName specifies the name of libcrypto\n"
 			"-castore specifies the castore location for encrypted connections"
+			"\n"
+			"\n The options for Preferred host"
+			"\n -fallBackInterval <value in seconds> specifies time interval in the application before call Ad Hoc Fallback Function call is invoked"
+			"\n -ioctlInterval <value in seconds> specifies time interval in the application before call IOCTL is invoked"
+			"\n"
+			"\n Additional set of options for Preferred host. These options will be set by the IOCTL call"
+			"\n -ioctlEnablePH <true/false> enable Preferred host feature"
+			"\n -ioctlConnectListIndex <integer value> specifies the preferred host as an index in the connection list, starting at 0"
+			"\n -ioctlDetectionTimeInterval <value in seconds> specifies time interval to switch over to a preferred host or WSB group. 0 indicates that the detection time interval is disabled"
+			"\n -ioctlDetectionTimeSchedule <Cron time> specifies Cron time format to switch over to a preferred host or WSB group. detectionTimeInterval is used instead if this member is set to empty"
+			"\n -ioctlWarmstandbyGroupListIndex <integer value> specifies an index to set as a preferred WarmStandby group list"
+			"\n -ioctlFallBackWithinWSBGroup <true/false> specifies whether to fallback within a WSB group instead of moving into a preferred WSB group"
 			"\n"
 			, argv[0]);
 	exit(-1);
@@ -349,6 +389,79 @@ RsslRet parseJsonChannelInfo(cJSON* node, ConnectionInfoConfig* connectInfo)
 	return RSSL_RET_SUCCESS;
 }
 
+/* Prerequsites for this function: Both node and pPreferredHostConfig are NOT null */
+RsslRet parsePreferredHostOptions(cJSON* node, PreferredHostConfig* pPreferredHostConfig)
+{
+	cJSON* value;
+	RsslPreferredHostOptions* pPreferredHostOptions = &pPreferredHostConfig->preferredHostOptions;
+
+	value = cJSON_GetObjectItem(node, "enablePH"); // "EnablePreferredHostOptions");
+
+	if (value != NULL)
+	{
+		if (cJSON_IsBool(value) == 0)
+		{
+			printf("EnablePreferredHostOptions value is not a boolean.");
+			return RSSL_RET_FAILURE;
+		}
+
+		if (value->type == cJSON_True)
+			pPreferredHostOptions->enablePreferredHostOptions = RSSL_TRUE;
+		else
+			pPreferredHostOptions->enablePreferredHostOptions = RSSL_FALSE;
+	}
+
+	value = cJSON_GetObjectItem(node, "detectionTimeSchedule");
+
+	if (value != NULL)
+	{
+		RsslUInt32 len = (RsslUInt32)(strlen(value->valuestring) < sizeof(pPreferredHostConfig->_detectionTimeSchedule) ?
+			strlen(value->valuestring) : sizeof(pPreferredHostConfig->_detectionTimeSchedule));
+		memcpy(pPreferredHostConfig->_detectionTimeSchedule, value->valuestring, len);
+		pPreferredHostOptions->detectionTimeSchedule.data = pPreferredHostConfig->_detectionTimeSchedule;
+		pPreferredHostOptions->detectionTimeSchedule.length = (RsslUInt32)strlen(value->valuestring);
+	}
+
+	value = cJSON_GetObjectItem(node, "detectionTimeInterval");
+
+	if (value != NULL)
+	{
+		pPreferredHostOptions->detectionTimeInterval = (RsslUInt32)cJSON_GetNumberValue(value);
+	}
+
+	value = cJSON_GetObjectItem(node, "connectListIndex");
+
+	if (value != NULL)
+	{
+		pPreferredHostOptions->connectionListIndex = (RsslUInt32)cJSON_GetNumberValue(value);
+	}
+
+	value = cJSON_GetObjectItem(node, "warmstandbyGroupListIndex");
+
+	if (value != NULL)
+	{
+		pPreferredHostOptions->warmStandbyGroupListIndex = (RsslUInt32)cJSON_GetNumberValue(value);
+	}
+
+	value = cJSON_GetObjectItem(node, "fallbackWithinWSBGroup");
+
+	if (value != NULL)
+	{
+		if (cJSON_IsBool(value) == 0)
+		{
+			printf("FallBackWithInWSBGroup value is not a boolean.");
+			return RSSL_RET_FAILURE;
+		}
+
+		if (value->type == cJSON_True)
+			pPreferredHostOptions->fallBackWithInWSBGroup = RSSL_TRUE;
+		else
+			pPreferredHostOptions->fallBackWithInWSBGroup = RSSL_FALSE;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
 RsslRet parseJsonInput(char* fileName)
 {
 	int statResult;
@@ -356,7 +469,9 @@ RsslRet parseJsonInput(char* fileName)
 	cJSON* node;
 	cJSON* subNode;
 	cJSON* item;
+	cJSON* standbyNode;
 	cJSON* itemValue;
+	cJSON* serviceNode;
 	char* inputBuffer = NULL;
 	size_t bytesRead;
 	FILE* fp = NULL;
@@ -364,6 +479,7 @@ RsslRet parseJsonInput(char* fileName)
 	int readSize;
 	int i = 0;
 	int j = 0;
+	int k = 0;
 #ifdef WIN32
 	struct _stat statBuffer;
 	statResult = _stat(fileName, &statBuffer);
@@ -703,8 +819,31 @@ RsslRet parseJsonInput(char* fileName)
 				return RSSL_RET_FAILURE;
 			}
 
+			itemValue = cJSON_GetObjectItem(item, "ServiceList");
+
+			if (itemValue != NULL)
+			{
+				warmStandbyGroupList[i].startingActiveConnectionInfo.serviceList = (RsslBuffer*)malloc(sizeof(RsslBuffer) * cJSON_GetArraySize(itemValue));
+				warmStandbyGroupList[i].startingActiveConnectionInfo.serviceCount = cJSON_GetArraySize(itemValue);
+
+				for (k = 0; k < cJSON_GetArraySize(itemValue); k++)
+				{
+					serviceNode = cJSON_GetArrayItem(itemValue, k);
+
+					if (serviceNode != NULL)
+					{
+						warmStandbyGroupList[i].startingActiveConnectionInfo.serviceList[k].data = (char*)malloc(sizeof(char) * strlen(serviceNode->valuestring));
+						memcpy(warmStandbyGroupList[i].startingActiveConnectionInfo.serviceList[k].data, serviceNode->valuestring, strlen(serviceNode->valuestring));
+						warmStandbyGroupList[i].startingActiveConnectionInfo.serviceList[k].length = (RsslUInt32)strlen(serviceNode->valuestring);
+					}
+				}
+			}
+
 			/* Set the active here */
 			warmStandbyGroupList[i].warmStandbyGroup.startingActiveServer.reactorConnectInfo = warmStandbyGroupList[i].startingActiveConnectionInfo.connectionInfo;
+			warmStandbyGroupList[i].warmStandbyGroup.startingActiveServer.perServiceBasedOptions.serviceNameList = warmStandbyGroupList[i].startingActiveConnectionInfo.serviceList;
+			warmStandbyGroupList[i].warmStandbyGroup.startingActiveServer.perServiceBasedOptions.serviceNameCount = warmStandbyGroupList[i].startingActiveConnectionInfo.serviceCount;
+
 
 			item = cJSON_GetObjectItem(subNode, "WSBStandby");
 
@@ -735,9 +874,9 @@ RsslRet parseJsonInput(char* fileName)
 				{
 					clearConnectionInfoConfig(&warmStandbyGroupList[i].standbyConnectionInfoList[j]);
 					rsslClearReactorWarmStandbyServerInfo(&warmStandbyGroupList[i].warmStandbyGroup.standbyServerList[j]);
-					itemValue = cJSON_GetArrayItem(item, j);
+					standbyNode = cJSON_GetArrayItem(item, j);
 
-					if (itemValue == NULL)
+					if (standbyNode == NULL)
 					{
 						printf("Unable to get standby connection.\n");
 						cJSON_Delete(root);
@@ -745,14 +884,36 @@ RsslRet parseJsonInput(char* fileName)
 						return RSSL_RET_FAILURE;
 					}
 
-					if (parseJsonChannelInfo(itemValue, &warmStandbyGroupList[i].standbyConnectionInfoList[j]) != RSSL_RET_SUCCESS)
+					if (parseJsonChannelInfo(standbyNode, &warmStandbyGroupList[i].standbyConnectionInfoList[j]) != RSSL_RET_SUCCESS)
 					{
 						cJSON_Delete(root);
 
 						return RSSL_RET_FAILURE;
 					}
 
+					itemValue = cJSON_GetObjectItem(standbyNode, "ServiceList");
+
+					if (itemValue != NULL)
+					{
+						warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceList = (RsslBuffer*)malloc(sizeof(RsslBuffer) * cJSON_GetArraySize(itemValue));
+						warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceCount = cJSON_GetArraySize(itemValue);
+
+						for (k = 0; k < cJSON_GetArraySize(itemValue); k++)
+						{
+							serviceNode = cJSON_GetArrayItem(itemValue, k);
+
+							if (serviceNode != NULL)
+							{
+								warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceList[k].data = (char*)malloc(sizeof(char) * strlen(serviceNode->valuestring));
+								memcpy(warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceList[k].data, serviceNode->valuestring, strlen(serviceNode->valuestring));
+								warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceList[k].length = (RsslUInt32)strlen(serviceNode->valuestring);
+							}
+						}
+					}
+
 					warmStandbyGroupList[i].warmStandbyGroup.standbyServerList[j].reactorConnectInfo = warmStandbyGroupList[i].standbyConnectionInfoList[j].connectionInfo;
+					warmStandbyGroupList[i].warmStandbyGroup.standbyServerList[j].perServiceBasedOptions.serviceNameList = warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceList;
+					warmStandbyGroupList[i].warmStandbyGroup.standbyServerList[j].perServiceBasedOptions.serviceNameCount = warmStandbyGroupList[i].standbyConnectionInfoList[j].serviceCount;
 				}
 			}
 		}
@@ -791,8 +952,23 @@ RsslRet parseJsonInput(char* fileName)
 				return RSSL_RET_FAILURE;
 			}
 		}
-
 	}
+
+	node = cJSON_GetObjectItem(root, "PreferredHost");
+
+	if (node != NULL)
+	{
+		rsslClearRsslPreferredHostOptions(&preferredHostConfig.preferredHostOptions);
+		preferredHostConfig._detectionTimeSchedule[0] = 0;
+
+		if (parsePreferredHostOptions(node, &preferredHostConfig) != RSSL_RET_SUCCESS)
+		{
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+	}
+
 	cJSON_Delete(root);
 
 	return RSSL_RET_SUCCESS;
@@ -807,6 +983,7 @@ void watchlistConsumerConfigInit(int argc, char** argv)
 	int wsConfigFlags = 0;
 	char warmStandbyMode[255];
 	RsslErrorInfo						rsslErrorInfo;
+	RsslBool setIoctlPreferredHostOptValue = RSSL_FALSE;
 
 	RsslInitializeExOpts		initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 
@@ -841,9 +1018,30 @@ void watchlistConsumerConfigInit(int argc, char** argv)
 	watchlistConsumerConfig.restOutputStreamName = NULL;
 	watchlistConsumerConfig.restEnableLogCallback = RSSL_FALSE;
 
-	watchlistConsumerConfig.reconnectLimit = -1;
+	watchlistConsumerConfig.reconnectAttemptLimit = -1;
+	watchlistConsumerConfig.reconnectMinDelay = 500;
+	watchlistConsumerConfig.reconnectMaxDelay = 6000;
 
 	snprintf(warmStandbyMode, 255, "login");
+
+	rsslClearRsslPreferredHostOptions(&preferredHostConfig.preferredHostOptions);
+	preferredHostConfig._detectionTimeSchedule[0] = 0;
+
+	preferredHostConfig.directFallbackTimeInterval = 0U;
+	preferredHostConfig.ioctlCallTimeInterval = 0U;
+
+	/* New RsslPreferredHostOptions values that will be updated by Ioctl call */
+	preferredHostConfig.directFallbackTime = 0U;
+	preferredHostConfig.ioctlCallTime = 0U;
+
+	preferredHostConfig.setIoctlEnablePH = RSSL_FALSE;
+	preferredHostConfig.setIoctlConnectListIndex = RSSL_FALSE;
+	preferredHostConfig.setIoctlDetectionTimeInterval = RSSL_FALSE;
+	preferredHostConfig.setIoctlDetectionTimeSchedule = RSSL_FALSE;
+	preferredHostConfig.setIoctlWarmstandbyGroupListIndex = RSSL_FALSE;
+	preferredHostConfig.setIoctlFallBackWithinWSBGroup = RSSL_FALSE;
+
+	rsslClearRsslPreferredHostOptions(&preferredHostConfig.rsslIoctlPreferredHostOpts);
 
 	for (i = 1; i < argc; ++i)
 	{
@@ -937,10 +1135,10 @@ void watchlistConsumerConfigInit(int argc, char** argv)
 		{
 			watchlistConsumerConfig.restEnableLogCallback = RSSL_TRUE;
 		}
-		else if (strcmp("-reconnectLimit", argv[i]) == 0)
+		else if (strcmp("-reconnectAttemptLimit", argv[i]) == 0)
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
-			watchlistConsumerConfig.reconnectLimit = atoi(argv[i]);
+			watchlistConsumerConfig.reconnectAttemptLimit = atoi(argv[i]);
 		}
 		else if (strcmp("-configJson", argv[i]) == 0)
 		{
@@ -971,6 +1169,89 @@ void watchlistConsumerConfigInit(int argc, char** argv)
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
 			snprintf(watchlistConsumerConfig.restProxyDomain, sizeof(watchlistConsumerConfig.restProxyDomain), "%s", argv[i]);
+		}
+		else if (strcmp("-fallBackInterval", argv[i]) == 0)
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			preferredHostConfig.directFallbackTimeInterval = atoi(argv[i]);
+		}
+		else if (strcmp("-ioctlInterval", argv[i]) == 0)
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			preferredHostConfig.ioctlCallTimeInterval = atoi(argv[i]);
+		}
+		else if (strcmp("-ioctlEnablePH", argv[i]) == 0)
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			if (RTR_STRNICMP(argv[i], "true", 4) == 0)
+			{
+				preferredHostConfig.rsslIoctlPreferredHostOpts.enablePreferredHostOptions = RSSL_TRUE;
+			}
+			else if (RTR_STRNICMP(argv[i], "false", 5) == 0)
+			{
+				preferredHostConfig.rsslIoctlPreferredHostOpts.enablePreferredHostOptions = RSSL_FALSE;
+			}
+			setIoctlPreferredHostOptValue = RSSL_TRUE;
+			preferredHostConfig.setIoctlEnablePH = RSSL_TRUE;
+		}
+		else if (strcmp("-ioctlConnectListIndex", argv[i]) == 0)
+		{
+			int tempIndex = -1;
+			if (++i == argc) printUsageAndExit(argc, argv);
+			tempIndex = atoi(argv[i]);
+			if (tempIndex >= 0)
+			{
+				preferredHostConfig.rsslIoctlPreferredHostOpts.connectionListIndex = tempIndex;
+			}
+			setIoctlPreferredHostOptValue = RSSL_TRUE;
+			preferredHostConfig.setIoctlConnectListIndex = RSSL_TRUE;
+		}
+		else if (strcmp("-ioctlDetectionTimeInterval", argv[i]) == 0)
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			preferredHostConfig.rsslIoctlPreferredHostOpts.detectionTimeInterval = atoi(argv[i]);
+			setIoctlPreferredHostOptValue = RSSL_TRUE;
+			preferredHostConfig.setIoctlDetectionTimeInterval = RSSL_TRUE;
+		}
+		else if (strcmp("-ioctlDetectionTimeSchedule", argv[i]) == 0)
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(preferredHostConfig.ioctlDetectionTimeCron, sizeof(preferredHostConfig.ioctlDetectionTimeCron), "%s", argv[i]);
+			preferredHostConfig.rsslIoctlPreferredHostOpts.detectionTimeSchedule.data = preferredHostConfig.ioctlDetectionTimeCron;
+			preferredHostConfig.rsslIoctlPreferredHostOpts.detectionTimeSchedule.length = (RsslUInt32)strlen(preferredHostConfig.ioctlDetectionTimeCron);
+			setIoctlPreferredHostOptValue = RSSL_TRUE;
+			preferredHostConfig.setIoctlDetectionTimeSchedule = RSSL_TRUE;
+		}
+		else if (strcmp("-ioctlWarmstandbyGroupListIndex", argv[i]) == 0)
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			preferredHostConfig.rsslIoctlPreferredHostOpts.warmStandbyGroupListIndex = atoi(argv[i]);
+			setIoctlPreferredHostOptValue = RSSL_TRUE;
+			preferredHostConfig.setIoctlWarmstandbyGroupListIndex = RSSL_TRUE;
+		}
+		else if (strcmp("-ioctlFallBackWithinWSBGroup", argv[i]) == 0)
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			if (RTR_STRNICMP(argv[i], "true", 4) == 0)
+			{
+				preferredHostConfig.rsslIoctlPreferredHostOpts.fallBackWithInWSBGroup = RSSL_TRUE;
+			}
+			else if (RTR_STRNICMP(argv[i], "false", 5) == 0)
+			{
+				preferredHostConfig.rsslIoctlPreferredHostOpts.fallBackWithInWSBGroup = RSSL_FALSE;
+			}
+			setIoctlPreferredHostOptValue = RSSL_TRUE;
+			preferredHostConfig.setIoctlFallBackWithinWSBGroup = RSSL_TRUE;
+		}
+		else if (strcmp("-reconnectMinDelay", argv[i]) == 0)
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.reconnectMinDelay = atoi(argv[i]);
+		}
+		else if (strcmp("-reconnectMaxDelay", argv[i]) == 0)
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.reconnectMaxDelay = atoi(argv[i]);
 		}
 		else
 		{
@@ -1068,6 +1349,28 @@ void watchlistConsumerConfigInit(int argc, char** argv)
 		}
 	}
 
+	{
+		RsslPreferredHostOptions* pPreferredHostOpts = &watchlistConsumerConfig.connectionOpts.preferredHostOptions;
+
+		rsslClearRsslPreferredHostOptions(pPreferredHostOpts);
+
+		pPreferredHostOpts->enablePreferredHostOptions = preferredHostConfig.preferredHostOptions.enablePreferredHostOptions;
+		pPreferredHostOpts->detectionTimeSchedule.data = preferredHostConfig.preferredHostOptions.detectionTimeSchedule.data;
+		pPreferredHostOpts->detectionTimeSchedule.length = preferredHostConfig.preferredHostOptions.detectionTimeSchedule.length;
+		pPreferredHostOpts->detectionTimeInterval = preferredHostConfig.preferredHostOptions.detectionTimeInterval;
+		pPreferredHostOpts->connectionListIndex = preferredHostConfig.preferredHostOptions.connectionListIndex;
+		pPreferredHostOpts->warmStandbyGroupListIndex = preferredHostConfig.preferredHostOptions.warmStandbyGroupListIndex;
+		pPreferredHostOpts->fallBackWithInWSBGroup = preferredHostConfig.preferredHostOptions.fallBackWithInWSBGroup;
+
+		printf("Preferred Host enabled: %s\n\n", (pPreferredHostOpts->enablePreferredHostOptions ? "Yes" : "No"));
+	}
+
+	if (preferredHostConfig.ioctlCallTimeInterval == 0 && setIoctlPreferredHostOptValue == RSSL_TRUE)
+	{
+		printf("Error: -ioctlInterval should be specified and have a non-zero positive value if any ioctl Preferred host parameters are specified.\n\n");
+		clearAllocatedMemory();
+		printUsageAndExit(argc, argv);
+	}
 
 	printf(	"  ServiceName: %s\n"
 			"  Run Time: %us\n",

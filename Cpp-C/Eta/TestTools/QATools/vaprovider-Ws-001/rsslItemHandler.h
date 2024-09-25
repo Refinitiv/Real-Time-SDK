@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019 LSEG. All rights reserved.
 */
 
 
@@ -62,12 +62,11 @@ RsslRet addSymbolListItem(RsslReactor *pReactor, RsslReactorChannel *pReactorCha
 /* Function for deleting items from the symbol list */
 RsslRet deleteSymbolListItem(RsslReactor *pReactor, RsslItemRequestInfo* itemReqInfo);
 
-// APIQA
-RsslRet sendGenericMessageLogin(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
-RsslRet sendGenericMessageSource(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
-RsslRet sendGenericMessageMP(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
-// APIQA
-
+// API QA
+RsslRet sendGenericMessageLogin(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
+RsslRet sendGenericMessageSource(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
+RsslRet sendGenericMessageMP(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
+// END API QA
 
 /*
  * Clears the item request information.

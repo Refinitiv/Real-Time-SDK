@@ -22,8 +22,6 @@ typedef struct RsslWatchlist RsslWatchlist;
 typedef struct RsslWatchlistMsgEvent RsslWatchlistMsgEvent;
 typedef struct RsslWatchlistStreamInfo RsslWatchlistStreamInfo;
 
-/* The callback the watchlist uses to call the reactor to provide messages. */
-typedef RsslRet RsslWatchlistMsgCallback(RsslWatchlist*, RsslWatchlistMsgEvent*,RsslErrorInfo*);
 
 struct RsslWatchlistStreamInfo
 {
@@ -96,7 +94,6 @@ RsslInt64 rsslWatchlistProcessFTGroupPing(RsslWatchlist *pWatchlist, RsslUInt8 f
 /* Options for rsslWatchlistCreate. */
 typedef struct
 {
-	RsslWatchlistMsgCallback	*msgCallback;
 	RsslUInt32					itemCountHint;
 	RsslBool					obeyOpenWindow;
 	RsslUInt32					requestTimeout;
@@ -138,7 +135,7 @@ void rsslWatchlistDestroy(RsslWatchlist *pWatchlist);
 /* Options for processing an RsslMsg in the watchlist. */
 typedef struct
 {
-	RsslChannel			*pChannel;
+	//RsslChannel			*pChannel;
 	RsslBuffer			*pRsslBuffer;
 	RsslDecodeIterator	*pDecodeIterator;
 	RsslMsg				*pRsslMsg;

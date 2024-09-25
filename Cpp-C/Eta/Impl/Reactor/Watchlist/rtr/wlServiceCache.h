@@ -87,22 +87,13 @@ struct WlServiceCache
 	RsslQueue						_serviceList;				/* Full service list. */
 	RsslInt32						_directoryStreamId;			/* Associated Stream ID. */
 	RsslInt32						*_pRsslChannel;				/* Associated RsslChannel. */
-	WlServiceCacheUpdateCallback	*_serviceUpdateCallback;	/* User-specified service update 
-																   event callback. */
-
-	RDMCachedServiceStateChangeCallback *_serviceStateChangeCallback; /* User-specified for a service state changes callback. */
-	WlServiceCacheUpdateCallback		*_serviceCacheInitCallback; /* User-specified for initial service cache callback. */
-	WlServiceCacheUpdateCallback		*_serviceCacheUpdateCallback; /* User-specified for update service cache callback. */
 	RsslBuffer						tempMemBuffer;
 };
 
 typedef struct
 {
 	void *pUserSpec;
-	WlServiceCacheUpdateCallback	*serviceUpdateCallback;
 	RDMCachedServiceStateChangeCallback *serviceStateChangeCallback;
-	WlServiceCacheUpdateCallback	*serviceCacheInitCallback;
-	WlServiceCacheUpdateCallback	*serviceCacheUpdateCallback;
 } WlServiceCacheCreateOptions;
 
 RTR_C_INLINE void wlServiceCacheClearCreateOptions(WlServiceCacheCreateOptions *pOptions)

@@ -169,7 +169,7 @@ else()
 											${Eta_SOURCE_DIR}/Include/Reactor
 											$<TARGET_PROPERTY:librssl,INTERFACE_INCLUDE_DIRECTORIES>
                                 )
-	    target_link_libraries( librsslVA_tmp LibXml2::LibXml2 CJSON::CJSON librssl ${l8w8jwt_lib})
+	    target_link_libraries( librsslVA_tmp LibXml2::LibXml2 CJSON::CJSON  CCRONEXPR::CCRONEXPR librssl ${l8w8jwt_lib})
 
 DEBUG_PRINT(librsslVA_tmp)
 
@@ -192,10 +192,12 @@ DEBUG_PRINT(librsslVA_tmp)
 														/LTCG "$<TARGET_FILE:librsslVA_tmp>"
 															  "$<TARGET_FILE:LibXml2::LibXml2>"
 															  "$<TARGET_FILE:CJSON::CJSON>"
+															  "$<TARGET_FILE:CCRONEXPR::CCRONEXPR>"
 															  ${l8w8jwt_target}
 							DEPENDS $<TARGET_FILE:librsslVA_tmp>
 									$<TARGET_FILE:LibXml2::LibXml2>
 									$<TARGET_FILE:CJSON::CJSON>
+									$<TARGET_FILE:CCRONEXPR::CCRONEXPR>
 									${l8w8jwt_target}
 							COMMENT "Linking objects for static librsslVA ..."
 							)
@@ -209,6 +211,7 @@ DEBUG_PRINT(librsslVA_tmp)
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslVA_tmp>
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LibXml2::LibXml2>
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CJSON::CJSON>
+								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CCRONEXPR::CCRONEXPR>
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:l8w8jwt::libl8w8jwt>
 								COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librsslVA> *.o
 								WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch
@@ -224,6 +227,7 @@ DEBUG_PRINT(librsslVA_tmp)
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslVA_tmp>
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LibXml2::LibXml2>
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CJSON::CJSON>
+								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CCRONEXPR::CCRONEXPR>
 								COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librsslVA> *.o
 								WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch
 								DEPENDS $<TARGET_FILE:librsslVA_tmp>
@@ -277,6 +281,7 @@ DEBUG_PRINT(librsslVA_tmp)
 										librssl_shared 
 										LibXml2::LibXml2
 										CJSON::CJSON
+										CCRONEXPR::CCRONEXPR
 										wininet.lib
 										ws2_32.lib
 										${l8w8jwt_lib}
@@ -310,7 +315,7 @@ DEBUG_PRINT(librsslVA_tmp)
                                     SOVERSION ${librsslVA_SO_VERSION}
                             )
 
-		target_link_libraries( librsslVA_shared librssl_shared LibXml2::LibXml2 CJSON::CJSON ${l8w8jwt_lib})
+		target_link_libraries( librsslVA_shared librssl_shared LibXml2::LibXml2 CJSON::CJSON CCRONEXPR::CCRONEXPR ${l8w8jwt_lib})
 	endif()
 DEBUG_PRINT(librsslVA_tmp)
 	rcdev_add_target(rtsdk librsslVA librsslVA_shared)

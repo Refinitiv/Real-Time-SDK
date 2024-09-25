@@ -24,6 +24,7 @@ static void initReactorNextDebugTime();
 static void reactorDebugPrint();
 void cleanUpAndExit(int code);
 void exitApp(int code);
+static RsslRet handlePreferredHostRuntime(RsslErrorInfo* pErrorInfo);
 
 static RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslMsgEvent* pMsgEvent);
 

@@ -21,12 +21,6 @@ RsslWatchlist *rsslWatchlistCreate(RsslWatchlistCreateOptions *pCreateOptions,
 	WlBaseInitOptions				baseInitOpts;
 	RsslRet							ret;
 
-	if (!pCreateOptions->msgCallback) {
-		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, 
-				"No callback function specified.");
-		return NULL;
-	}
-
 	pWatchlistImpl = (RsslWatchlistImpl*)malloc(sizeof(RsslWatchlistImpl));
 
 	verify_malloc(pWatchlistImpl, pErrorInfo, NULL);
@@ -34,8 +28,6 @@ RsslWatchlist *rsslWatchlistCreate(RsslWatchlistCreateOptions *pCreateOptions,
 	memset(pWatchlistImpl, 0, sizeof(RsslWatchlistImpl));
 
 	memset(&baseInitOpts, 0, sizeof(WlBaseInitOptions));
-	baseInitOpts.msgCallback = pCreateOptions->msgCallback;
-	baseInitOpts.updateCallback = wlServiceUpdateCallback;
 	baseInitOpts.requestPoolBlockSize = sizeof(WlRequest);
 	baseInitOpts.requestPoolCount = pCreateOptions->itemCountHint;
 	baseInitOpts.streamPoolBlockSize = sizeof(WlStream);
@@ -46,13 +38,6 @@ RsslWatchlist *rsslWatchlistCreate(RsslWatchlistCreateOptions *pCreateOptions,
 	baseInitOpts.maxOutstandingPosts = pCreateOptions->maxOutstandingPosts;
 	baseInitOpts.postAckTimeout = pCreateOptions->postAckTimeout;
 	baseInitOpts.enableWarmStandBy = pCreateOptions->enableWarmStandby;
-
-	if (baseInitOpts.enableWarmStandBy)
-	{
-		baseInitOpts.serviceStateChangeCallback = wlServiceStateChangeCallback;
-		baseInitOpts.serviceCacheInitCallback = wlServiceCacheInitCallback;
-		baseInitOpts.serviceCacheUpdateCallback = wlServiceCacheUpdateCallback;
-	}
 
 	if ((ret = wlBaseInit(&pWatchlistImpl->base, &baseInitOpts, pErrorInfo)) != RSSL_RET_SUCCESS)
 	{
@@ -422,8 +407,7 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 					wlItemRequestClose(&pWatchlistImpl->base, &pWatchlistImpl->items,
 							pItemRequest);
 
-					ret = (*pWatchlistImpl->base.config.msgCallback)
-						(&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo);
+					ret = _reactorWatchlistMsgCallback(&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo);
 
 					wlRequestedServiceCheckRefCount(&pWatchlistImpl->base, pItemRequest->pRequestedService);
 					wlItemRequestDestroy(&pWatchlistImpl->base, pItemRequest);
@@ -689,8 +673,7 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 				msgEvent.pRsslMsg = NULL;
 				msgEvent.pRdmMsg = (RsslRDMMsg*)&loginMsg;
 				loginMsg.rdmMsgBase.streamId = pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]->base.streamId;
-				if ((ret = (*pWatchlistImpl->base.config.msgCallback)
-							((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
+				if ((ret = _reactorWatchlistMsgCallback((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
 						!= RSSL_RET_SUCCESS)
 					return ret;
 
@@ -913,8 +896,7 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 			streamInfo.pUserSpec = pRequest->base.pUserSpec;
 			msgEvent.pStreamInfo = &streamInfo;
 
-			if ((ret = (*pWatchlistImpl->base.config.msgCallback)
-						((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
+			if ((ret = _reactorWatchlistMsgCallback((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
 					!= RSSL_RET_SUCCESS)
 				return ret;
 		}
@@ -955,7 +937,7 @@ void rsslWatchlistResetGapTimer(RsslWatchlist *pWatchlist)
 
 /*** Supporting implementation functions. ***/
 
-static RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
+RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 		WlServiceCacheUpdateEvent *pEvent, RsslErrorInfo *pErrorInfo)
 {
 	RsslQueueLink *pLink;
@@ -1209,7 +1191,9 @@ static RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 	return RSSL_RET_SUCCESS;
 }
 
-static RsslRet wlServiceStateChangeCallback(WlServiceCache *pServiceCache,
+
+// Prerequsite, we have already checked to see if the reactor channel is handling warm standby
+RsslRet wlServiceStateChangeCallback(WlServiceCache *pServiceCache,
 	RDMCachedService *pCachedService, RsslErrorInfo *pErrorInfo)
 {
 	RsslWatchlist				*pWatchlist = (RsslWatchlist*)pServiceCache->pUserSpec;
@@ -1220,25 +1204,41 @@ static RsslRet wlServiceStateChangeCallback(WlServiceCache *pServiceCache,
 	RsslWatchlistImpl			*pWatchlistImpl = (RsslWatchlistImpl*)pWatchlist;
 	RsslReactorImpl *pReactorImpl = pReactorChannelImpl->pParentReactor;
 	RsslErrorInfo errorInfo;
-
-	if (_reactorHandlesWarmStandby(pReactorChannelImpl))
+	if (pReactorWarmStandByGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)
 	{
-		if (pReactorWarmStandByGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)
-		{
-			pHashLink = rsslHashTableFind(&pReactorWarmStandByGroupImpl->_perServiceById, &pCachedService->rdm.serviceId, NULL);
+		pHashLink = rsslHashTableFind(&pReactorWarmStandByGroupImpl->_perServiceById, &pCachedService->rdm.serviceId, NULL);
 
-			if (pHashLink)
-			{	
-				RsslReactorWarmStandbyServiceImpl* pReactorWarmStandbyServiceImpl = RSSL_HASH_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, hashLink, pHashLink);
+		if (pHashLink)
+		{	
+			RsslReactorWarmStandbyServiceImpl* pReactorWarmStandbyServiceImpl = RSSL_HASH_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, hashLink, pHashLink);
 				
-				/* The active service's state is changed from up to down */
-				if (pCachedService->rdm.state.serviceState == 0 && pReactorWarmStandbyServiceImpl->pReactorChannel == (RsslReactorChannel*)pReactorChannelImpl)
-				{
-					/* Submit an event to change the current active service to standby and promote the service from others channel. */
-					RsslReactorWarmStanbyEvent* pEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-					rsslClearReactorWarmStanbyEvent(pEvent);
+			/* The active service's state is changed from up to down */
+			if (pCachedService->rdm.state.serviceState == 0 && pReactorWarmStandbyServiceImpl->pReactorChannel == (RsslReactorChannel*)pReactorChannelImpl)
+			{
+				/* Submit an event to change the current active service to standby and promote the service from others channel. */
+				RsslReactorWarmStandbyEvent* pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+				rsslClearReactorWarmStandbyEvent(pEvent);
 
-					pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CHANGE_ACTIVE_TO_STANDBY_PER_SERVICE;
+				pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CHANGE_ACTIVE_TO_STANDBY_PER_SERVICE;
+				pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+				pEvent->serviceID = pCachedService->rdm.serviceId;
+				pEvent->streamID = pWatchlistImpl->directory.pStream->base.streamId;
+				pEvent->pHashLink = pHashLink;
+
+				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &errorInfo))
+					return RSSL_RET_FAILURE;
+			}
+			else
+			{
+				/* Service state changed from down to up*/
+
+				/* Checks whether there is a channel provides the service as active. */
+				if (pCachedService->rdm.state.serviceState == 1 && pReactorWarmStandbyServiceImpl->pReactorChannel == NULL)
+				{
+					RsslReactorWarmStandbyEvent* pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+					rsslClearReactorWarmStandbyEvent(pEvent);
+
+					pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CHANGE_STANDBY_TO_ACTIVE_PER_SERVICE;
 					pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
 					pEvent->serviceID = pCachedService->rdm.serviceId;
 					pEvent->streamID = pWatchlistImpl->directory.pStream->base.streamId;
@@ -1247,51 +1247,31 @@ static RsslRet wlServiceStateChangeCallback(WlServiceCache *pServiceCache,
 					if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &errorInfo))
 						return RSSL_RET_FAILURE;
 				}
-				else
-				{
-					/* Service state changed from down to up*/
-
-					/* Checks whether there is a channel provides the service as active. */
-					if (pCachedService->rdm.state.serviceState == 1 && pReactorWarmStandbyServiceImpl->pReactorChannel == NULL)
-					{
-						RsslReactorWarmStanbyEvent* pEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-						rsslClearReactorWarmStanbyEvent(pEvent);
-
-						pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CHANGE_STANDBY_TO_ACTIVE_PER_SERVICE;
-						pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
-						pEvent->serviceID = pCachedService->rdm.serviceId;
-						pEvent->streamID = pWatchlistImpl->directory.pStream->base.streamId;
-						pEvent->pHashLink = pHashLink;
-
-						if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &errorInfo))
-							return RSSL_RET_FAILURE;
-					}
-				}
-			}
-			else
-			{
-				/* Do nothing as this serivce will be added and send a warm standby status when updating source directory for a new service. */
 			}
 		}
-		else if(pReactorWarmStandByGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+		else
 		{
-			/* Service is changed to Down to Up. for the active server. */
-			if (pReactorChannelImpl->isActiveServer == RSSL_TRUE)
+			/* Do nothing as this serivce will be added and send a warm standby status when updating source directory for a new service. */
+		}
+	}
+	else if(pReactorWarmStandByGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+	{
+		/* Service is changed to Down to Up. for the active server. */
+		if (pReactorChannelImpl->isActiveServer == RSSL_TRUE)
+		{
+			if (pCachedService->rdm.state.serviceState == 1)
 			{
-				if (pCachedService->rdm.state.serviceState == 1)
-				{
-					/* Submit an event to change the current active service to standby and promote the service from others channel. */
-					RsslReactorWarmStanbyEvent* pEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-					rsslClearReactorWarmStanbyEvent(pEvent);
+				/* Submit an event to change the current active service to standby and promote the service from others channel. */
+				RsslReactorWarmStandbyEvent* pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+				rsslClearReactorWarmStandbyEvent(pEvent);
 
-					pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_ACTIVE_SERVER_SERVICE_STATE_FROM_DOWN_TO_UP;
-					pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
-					pEvent->serviceID = pCachedService->rdm.serviceId;
-					pEvent->pHashLink = pHashLink;
+				pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_ACTIVE_SERVER_SERVICE_STATE_FROM_DOWN_TO_UP;
+				pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+				pEvent->serviceID = pCachedService->rdm.serviceId;
+				pEvent->pHashLink = pHashLink;
 
-					if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &errorInfo))
-						return RSSL_RET_FAILURE;
-				}
+				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &errorInfo))
+					return RSSL_RET_FAILURE;
 			}
 		}
 	}
@@ -1807,7 +1787,8 @@ static RsslBool wlWarmStandbyCompareRDMServiceInfo(RsslReactorWarmStandbyGroupIm
 	return RSSL_TRUE;
 }
 
-static RsslRet wlServiceCacheInitCallback(WlServiceCache *pServiceCache, WlServiceCacheUpdateEvent *pServiceCacheUpdateEvent, RsslErrorInfo *pError)
+// Prerequsite, we have already checked to see if the reactor channel is handling warm standby
+RsslRet wlServiceCacheInitCallback(WlServiceCache *pServiceCache, WlServiceCacheUpdateEvent *pServiceCacheUpdateEvent, RsslErrorInfo *pError)
 {
 	RsslWatchlist				*pWatchlist = (RsslWatchlist*)pServiceCache->pUserSpec;
 	RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl *)pWatchlist->pUserSpec;
@@ -1818,86 +1799,34 @@ static RsslRet wlServiceCacheInitCallback(WlServiceCache *pServiceCache, WlServi
 	RsslWatchlistImpl			*pWatchlistImpl = (RsslWatchlistImpl*)pWatchlist;
 	RsslBool addNewService = RSSL_FALSE;
 
-	if (_reactorHandlesWarmStandby(pReactorChannelImpl))
+	if ((pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_RECEIVED_PRIMARY_DIRECTORY_RESP) == 0)
 	{
-		if ((pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_RECEIVED_PRIMARY_DIRECTORY_RESP) == 0)
-		{
-			/* Submit an event to the Reactor event queue in order to establish standby connections to the secondary servers. */
-			RsslReactorWarmStanbyEvent* pEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-			rsslClearReactorWarmStanbyEvent(pEvent);
+		/* Submit an event to the Reactor event queue in order to establish standby connections to the secondary servers. */
+		RsslReactorWarmStandbyEvent* pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+		rsslClearReactorWarmStandbyEvent(pEvent);
 
-			/* Update the service cache of the warm standby group. */
-			wlWarmStandbyServiceUpdate(pReactorWarmStandByGroupImpl, pReactorChannelImpl, pServiceCache, pServiceCacheUpdateEvent, &addNewService, pError);
+		/* Update the service cache of the warm standby group. */
+		wlWarmStandbyServiceUpdate(pReactorWarmStandByGroupImpl, pReactorChannelImpl, pServiceCache, pServiceCacheUpdateEvent, &addNewService, pError);
 
-			pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerState |= RSSL_RWSB_STATE_RECEIVED_PRIMARY_DIRECTORY_RESP;
+		pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerState |= RSSL_RWSB_STATE_RECEIVED_PRIMARY_DIRECTORY_RESP;
 
-			pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CONNECT_SECONDARY_SERVER;
-			pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
-			pEvent->streamID = pWatchlistImpl->directory.pStream->base.streamId;
+		pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CONNECT_SECONDARY_SERVER;
+		pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+		pEvent->streamID = pWatchlistImpl->directory.pStream->base.streamId;
 
-			if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
-				return RSSL_RET_FAILURE;
-		}
-		else
-		{
-			RsslReactorWarmStanbyEvent* pEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-			rsslClearReactorWarmStanbyEvent(pEvent);
-
-			pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerState |= RSSL_RWSB_STATE_RECEIVED_SECONDARY_DIRECTORY_RESP;
-
-			/* Compares the source directory with the starting server. */
-			if (wlWarmStandbyCompareRDMServiceInfo(pReactorWarmStandByGroupImpl, pServiceCache) == RSSL_FALSE)
-			{
-				pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_REMOVE_SERVER_FROM_WSB_GROUP;
-				pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
-				pEvent->pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
-
-				if (pEvent->pReactorErrorInfoImpl)
-				{
-					rsslClearReactorErrorInfoImpl(pEvent->pReactorErrorInfoImpl);
-					rsslSetErrorInfo(&pEvent->pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "The source directory response from standby server does not match with the primary server.");
-				}
-
-				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
-					return RSSL_RET_FAILURE;
-			}
-			else
-			{
-				/* Support adding a new service and aggregating service state to the service cache of the warm standby group. */
-				wlWarmStandbyServiceUpdate(pReactorWarmStandByGroupImpl, pReactorChannelImpl, pServiceCache, pServiceCacheUpdateEvent, &addNewService, pError);
-
-				pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_NOTIFY_STANDBY_SERVICE;
-				pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
-				pEvent->streamID = pWatchlistImpl->directory.pStream->base.streamId;
-
-				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
-					return RSSL_RET_FAILURE;
-			}
-		}
+		if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
+			return RSSL_RET_FAILURE;
 	}
-
-	return RSSL_RET_SUCCESS;
-}
-
-static RsslRet wlServiceCacheUpdateCallback(WlServiceCache *pServiceCache, WlServiceCacheUpdateEvent *pServiceCacheUpdateEvent, RsslErrorInfo *pError)
-{
-	RsslWatchlist				*pWatchlist = (RsslWatchlist*)pServiceCache->pUserSpec;
-	RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl *)pWatchlist->pUserSpec;
-	RsslReactorImpl *pReactorImpl = pReactorChannelImpl->pParentReactor;
-	RsslReactorWarmStandByHandlerImpl *pReactorWarmStandByHandlerImpl = pReactorChannelImpl->pWarmStandByHandlerImpl;
-	RsslReactorWarmStandbyGroupImpl *pReactorWarmStandByGroupImpl = &pReactorWarmStandByHandlerImpl->warmStandbyGroupList[pReactorWarmStandByHandlerImpl->currentWSyGroupIndex];
-	RsslHashLink *pHashLink = NULL;
-	RsslWatchlistImpl			*pWatchlistImpl = (RsslWatchlistImpl*)pWatchlist;
-	RsslBool addNewService = RSSL_FALSE;
-
-	if (_reactorHandlesWarmStandby(pReactorChannelImpl))
+	else
 	{
+		RsslReactorWarmStandbyEvent* pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+		rsslClearReactorWarmStandbyEvent(pEvent);
+
+		pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerState |= RSSL_RWSB_STATE_RECEIVED_SECONDARY_DIRECTORY_RESP;
+
 		/* Compares the source directory with the starting server. */
 		if (wlWarmStandbyCompareRDMServiceInfo(pReactorWarmStandByGroupImpl, pServiceCache) == RSSL_FALSE)
 		{
-			RsslReactorWarmStanbyEvent* pEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-			rsslClearReactorWarmStanbyEvent(pEvent);
-
 			pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_REMOVE_SERVER_FROM_WSB_GROUP;
 			pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
 			pEvent->pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
@@ -1916,19 +1845,66 @@ static RsslRet wlServiceCacheUpdateCallback(WlServiceCache *pServiceCache, WlSer
 			/* Support adding a new service and aggregating service state to the service cache of the warm standby group. */
 			wlWarmStandbyServiceUpdate(pReactorWarmStandByGroupImpl, pReactorChannelImpl, pServiceCache, pServiceCacheUpdateEvent, &addNewService, pError);
 
-			if (addNewService == RSSL_TRUE)
-			{
-				RsslReactorWarmStanbyEvent* pEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-				rsslClearReactorWarmStanbyEvent(pEvent);
+			pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_NOTIFY_STANDBY_SERVICE;
+			pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+			pEvent->streamID = pWatchlistImpl->directory.pStream->base.streamId;
 
-				pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerState |= RSSL_RWSB_STATE_RECEIVED_SECONDARY_DIRECTORY_RESP;
-				pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_NOTIFY_STANDBY_SERVICE;
-				pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
-				pEvent->streamID = pWatchlistImpl->directory.pStream->base.streamId;
+			if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
+				return RSSL_RET_FAILURE;
+		}
+	}
 
-				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
-					return RSSL_RET_FAILURE;
-			}
+	return RSSL_RET_SUCCESS;
+}
+
+// Prerequsite, we have already checked to see if the reactor channel is handling warm standby
+RsslRet wlServiceCacheUpdateCallback(WlServiceCache *pServiceCache, WlServiceCacheUpdateEvent *pServiceCacheUpdateEvent, RsslErrorInfo *pError)
+{
+	RsslWatchlist				*pWatchlist = (RsslWatchlist*)pServiceCache->pUserSpec;
+	RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl *)pWatchlist->pUserSpec;
+	RsslReactorImpl *pReactorImpl = pReactorChannelImpl->pParentReactor;
+	RsslReactorWarmStandByHandlerImpl *pReactorWarmStandByHandlerImpl = pReactorChannelImpl->pWarmStandByHandlerImpl;
+	RsslReactorWarmStandbyGroupImpl *pReactorWarmStandByGroupImpl = &pReactorWarmStandByHandlerImpl->warmStandbyGroupList[pReactorWarmStandByHandlerImpl->currentWSyGroupIndex];
+	RsslHashLink *pHashLink = NULL;
+	RsslWatchlistImpl			*pWatchlistImpl = (RsslWatchlistImpl*)pWatchlist;
+	RsslBool addNewService = RSSL_FALSE;
+
+	/* Compares the source directory with the starting server. */
+	if (wlWarmStandbyCompareRDMServiceInfo(pReactorWarmStandByGroupImpl, pServiceCache) == RSSL_FALSE)
+	{
+		RsslReactorWarmStandbyEvent* pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+		rsslClearReactorWarmStandbyEvent(pEvent);
+
+		pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_REMOVE_SERVER_FROM_WSB_GROUP;
+		pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+		pEvent->pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
+
+		if (pEvent->pReactorErrorInfoImpl)
+		{
+			rsslClearReactorErrorInfoImpl(pEvent->pReactorErrorInfoImpl);
+			rsslSetErrorInfo(&pEvent->pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "The source directory response from standby server does not match with the primary server.");
+		}
+
+		if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
+			return RSSL_RET_FAILURE;
+	}
+	else
+	{
+		/* Support adding a new service and aggregating service state to the service cache of the warm standby group. */
+		wlWarmStandbyServiceUpdate(pReactorWarmStandByGroupImpl, pReactorChannelImpl, pServiceCache, pServiceCacheUpdateEvent, &addNewService, pError);
+
+		if (addNewService == RSSL_TRUE)
+		{
+			RsslReactorWarmStandbyEvent* pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+			rsslClearReactorWarmStandbyEvent(pEvent);
+
+			pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerState |= RSSL_RWSB_STATE_RECEIVED_SECONDARY_DIRECTORY_RESP;
+			pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_NOTIFY_STANDBY_SERVICE;
+			pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+			pEvent->streamID = pWatchlistImpl->directory.pStream->base.streamId;
+
+			if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
+				return RSSL_RET_FAILURE;
 		}
 	}
 
@@ -2207,7 +2183,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 
 							msgEvent.pRsslMsg->msgBase.streamId = pLoginRequest->base.streamId;
 
-							return (*pWatchlistImpl->base.config.msgCallback)((RsslWatchlist*)&pWatchlistImpl->base.watchlist, 
+							return _reactorWatchlistMsgCallback((RsslWatchlist*)&pWatchlistImpl->base.watchlist,
 									&msgEvent, pErrorInfo);
 						}
 						return RSSL_RET_SUCCESS;
@@ -2224,7 +2200,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 			{
 				/* Let generic message through. */
 				msgEvent.pRsslMsg->msgBase.streamId = pLoginRequest->base.streamId;
-				return (*pWatchlistImpl->base.config.msgCallback)((RsslWatchlist*)&pWatchlistImpl->base.watchlist, 
+				return _reactorWatchlistMsgCallback((RsslWatchlist*)&pWatchlistImpl->base.watchlist,
 						&msgEvent, pErrorInfo);
 			}
 
@@ -2246,8 +2222,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 
 					msgEvent.pRsslMsg->msgBase.streamId = 
 						loginMsg.rdmMsgBase.streamId = pLoginRequest->base.streamId;
-					if ((ret = (*pWatchlistImpl->base.config.msgCallback)
-								((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
+					if ((ret = _reactorWatchlistMsgCallback((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
 							!= RSSL_RET_SUCCESS)
 						return ret;
 
@@ -2278,8 +2253,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 
 					msgEvent.pRsslMsg->msgBase.streamId = 
 						loginMsg.rdmMsgBase.streamId = pLoginRequest->base.streamId;
-					if ((ret = (*pWatchlistImpl->base.config.msgCallback)
-								((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
+					if ((ret = _reactorWatchlistMsgCallback((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
 							!= RSSL_RET_SUCCESS)
 						return ret;
 
@@ -2322,8 +2296,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 					/* Forward processed message to application. */
 					msgEvent.pRsslMsg->msgBase.streamId = 
 						loginMsg.rdmMsgBase.streamId = pLoginRequest->base.streamId;
-					if ((ret = (*pWatchlistImpl->base.config.msgCallback)
-								((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
+					if ((ret = _reactorWatchlistMsgCallback((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo))
 							!= RSSL_RET_SUCCESS)
 						return ret;
 
@@ -2442,7 +2415,6 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 									}
 
 									rsslWatchlistClearProcessMsgOptions(&processOpts);
-									processOpts.pChannel = pProcessReactorChannel->reactorChannel.pRsslChannel;
 									processOpts.pRsslMsg = (RsslMsg*)&rsslCloseMsg;
 									processOpts.majorVersion = pProcessReactorChannel->reactorChannel.majorVersion;
 									processOpts.minorVersion = pProcessReactorChannel->reactorChannel.minorVersion;
@@ -2458,7 +2430,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 					if (_reactorHandlesWarmStandby(pReactorChannelImpl))
 					{
 						RsslReactorImpl* pReactorImpl = pReactorChannelImpl->pParentReactor;
-						RsslReactorWarmStanbyEvent* pReactorWarmStanbyEvent;
+						RsslReactorWarmStandbyEvent* pReactorWarmStanbyEvent;
 						RsslReactorWarmStandbyGroupImpl* pWarmStandByGroup = &pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandbyGroupList[pReactorChannelImpl->pWarmStandByHandlerImpl->currentWSyGroupIndex];
 
 						if (pWarmStandByGroup->warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
@@ -2477,8 +2449,8 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 									if (pReactorChannelImpl != pNextReactorChannel && !pNextReactorChannel->isLoggedOutFromWSB && pNextReactorChannel->reactorChannel.pRsslChannel &&
 										pNextReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
 									{
-										pReactorWarmStanbyEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-										rsslClearReactorWarmStanbyEvent(pReactorWarmStanbyEvent);
+										pReactorWarmStanbyEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+										rsslClearReactorWarmStandbyEvent(pReactorWarmStanbyEvent);
 
 										pReactorWarmStanbyEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CHANGE_ACTIVE_TO_STANDBY_SERVER;
 										pReactorWarmStanbyEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
@@ -2500,8 +2472,8 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 						}
 						else
 						{
-							pReactorWarmStanbyEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-							rsslClearReactorWarmStanbyEvent(pReactorWarmStanbyEvent);
+							pReactorWarmStanbyEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+							rsslClearReactorWarmStandbyEvent(pReactorWarmStanbyEvent);
 
 							/* Per service based warm standby */
 							pReactorWarmStanbyEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CHANGE_ACTIVE_TO_STANDBY_SERVICE_CHANNEL_DOWN;
@@ -2521,8 +2493,8 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 								pReactorChannelImpl->reconnectAttemptLimit = 0; /* Don't recover this channel */
 
 								/* Closes this channel */
-								RsslReactorWarmStanbyEvent* pReactorWarmStanbyEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-								rsslClearReactorWarmStanbyEvent(pReactorWarmStanbyEvent);
+								RsslReactorWarmStandbyEvent* pReactorWarmStanbyEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+								rsslClearReactorWarmStandbyEvent(pReactorWarmStanbyEvent);
 
 								pReactorWarmStanbyEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CLOSE_RSSL_CHANEL_ONLY;
 								pReactorWarmStanbyEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;

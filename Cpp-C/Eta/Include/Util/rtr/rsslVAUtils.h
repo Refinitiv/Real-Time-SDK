@@ -2,13 +2,14 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019-2020,2023-2024 LSEG. All rights reserved.     
 */
 
 #ifndef RSSL_VA_UTILS_H
 #define RSSL_VA_UTILS_H
 #include "rtr/rsslTransport.h"
 #include "rtr/rsslVAExports.h"
+#include "rtr/rsslReactor.h"
 
 #include <stdlib.h>
 
@@ -95,6 +96,48 @@ RTR_C_INLINE RsslRet rsslDeepCopyProxyOpts(RsslProxyOpts* destProxyOpts, RsslPro
 		}
 
 		strncpy(destProxyOpts->proxyDomain, sourceProxyOpts->proxyDomain, tempLen);
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+/**
+ *	@brief Performs a deep copy of a RsslPreferredHostOptions structure.
+ *
+ *	@param destPrefHostOpts RsslPreferredHostOptions to be copied to.
+ *	@param sourcePrefHostOpts RsslPreferredHostOptions to be copied from.
+ *	@return RSSL_RET_SUCCESS if successful, RSSL_RET_FAILURE if an error occurred.
+ */
+RTR_C_INLINE RsslRet rsslDeepCopyPreferredHostOpts(RsslPreferredHostOptions* destPrefHostOpts,
+												RsslPreferredHostOptions* sourcePrefHostOpts)
+{
+	if (sourcePrefHostOpts->enablePreferredHostOptions)
+	{
+		destPrefHostOpts->enablePreferredHostOptions = sourcePrefHostOpts->enablePreferredHostOptions;
+
+		if (sourcePrefHostOpts->detectionTimeSchedule.data != 0 && sourcePrefHostOpts->detectionTimeSchedule.length > 0)
+		{
+			destPrefHostOpts->detectionTimeSchedule.length = sourcePrefHostOpts->detectionTimeSchedule.length;
+			destPrefHostOpts->detectionTimeSchedule.data = (char*)malloc(destPrefHostOpts->detectionTimeSchedule.length + 1);
+
+			if (destPrefHostOpts->detectionTimeSchedule.data == 0)
+			{
+				return RSSL_RET_FAILURE;
+			}
+
+			memset(destPrefHostOpts->detectionTimeSchedule.data, 0, destPrefHostOpts->detectionTimeSchedule.length);
+			strncpy(destPrefHostOpts->detectionTimeSchedule.data, sourcePrefHostOpts->detectionTimeSchedule.data,
+				destPrefHostOpts->detectionTimeSchedule.length);
+		}
+
+		destPrefHostOpts->detectionTimeInterval = sourcePrefHostOpts->detectionTimeInterval;
+		destPrefHostOpts->connectionListIndex = sourcePrefHostOpts->connectionListIndex;
+		destPrefHostOpts->warmStandbyGroupListIndex = sourcePrefHostOpts->warmStandbyGroupListIndex;
+		destPrefHostOpts->fallBackWithInWSBGroup = sourcePrefHostOpts->fallBackWithInWSBGroup;
+	}
+	else
+	{
+		rsslClearRsslPreferredHostOptions(destPrefHostOpts);
 	}
 
 	return RSSL_RET_SUCCESS;
@@ -343,6 +386,17 @@ RTR_C_INLINE void rsslFreeProxyOpts(RsslProxyOpts* proxyOpts)
 	memset(proxyOpts, 0, sizeof(RsslProxyOpts));
 }
 
+RTR_C_INLINE void rsslFreePreferredHostOpts(RsslPreferredHostOptions* prefHostOpts)
+{
+	if (prefHostOpts->detectionTimeSchedule.data != NULL)
+	{
+		// The pointer will be set to NULL in the clear call below.
+		free(prefHostOpts->detectionTimeSchedule.data);
+	}
+
+	rsslClearRsslPreferredHostOptions(prefHostOpts);
+}
+
 RTR_C_INLINE void rsslFreeConnectOpts(RsslConnectOptions *connOpts)
 {
 	if(connOpts->hostName != 0)
@@ -487,6 +541,32 @@ static RsslRDMMsg *rsslCreateRDMMsgCopy(RsslRDMMsg *pRdmMsg, RsslUInt32 lengthHi
 				return NULL;
 		}
 	}
+}
+
+/**
+ *	@brief Performs a deep copy of a RsslBuffer instance.
+ *
+ *	@param destBuffer RsslBuffer to be copied to.
+ *	@param sourceBuffer RsslBuffer to be copied from.
+ *	@return RSSL_RET_SUCCESS if successful, RSSL_RET_FAILURE if an error occurred.
+ */
+RTR_C_INLINE RsslRet rsslDeepCopyRsslBuffer(RsslBuffer* destBuffer, RsslBuffer* sourceBuffer)
+{
+	if (sourceBuffer->data != 0 && sourceBuffer->length > 0)
+	{
+		destBuffer->length = sourceBuffer->length;
+		destBuffer->data = (char*)malloc(destBuffer->length);
+
+		if (destBuffer->data == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		memset(destBuffer->data, 0, destBuffer->length);
+		memcpy(destBuffer->data, sourceBuffer->data, destBuffer->length);
+	}
+
+	return RSSL_RET_SUCCESS;
 }
 
 /**

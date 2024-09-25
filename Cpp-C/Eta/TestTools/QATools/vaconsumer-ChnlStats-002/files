@@ -1,2 +1,3 @@
 # file,location
+rsslChannelCommand.h,Applications/Examples/VAConsumer
 rsslConsumer.c,Applications/Examples/VAConsumer

@@ -11,6 +11,7 @@ set(rsslVATestSrcFiles
 	watchlistAggregationUnitTests.cpp
 	watchlistDirectoryUnitTests.cpp
 	watchlistMiscUnitTests.cpp
+	watchlistPreferredHostUnitTests.cpp
 	watchlistRecoveryUnitTests.cpp
 	watchlistSymbolListUnitTests.cpp
 	watchlistWarmStandbyUnitTests.cpp

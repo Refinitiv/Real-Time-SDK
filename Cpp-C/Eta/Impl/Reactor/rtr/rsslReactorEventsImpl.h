@@ -48,7 +48,12 @@ typedef enum
 	RSSL_RCIMPL_CET_DISPATCH_WL = -4,
 	RSSL_RCIMPL_CET_DISPATCH_TUNNEL_STREAM = -5,
 	RSSL_RCIMPL_CET_CLOSE_WARMSTANDBY_CHANNEL = -6,
-	RSSL_RCIMPL_CET_CLOSE_RSSL_CHANNEL_ONLY = -7
+	RSSL_RCIMPL_CET_CLOSE_RSSL_CHANNEL_ONLY = -7,
+	RSSL_RCIMPL_CET_PREFERRED_HOST_OPTS = -8,		/* Preferred host options changes event. */
+	RSSL_RCIMPL_CET_PREFERRED_HOST_START_FALLBACK = -9,	/* Preferred host fallback trigger event. */
+	RSSL_RCIMPL_CET_PREFERRED_HOST_RECONNECT_COMPLETE = -10,	/* Preferred host has finished the reconnection and now the reactor must provide all info to the user */
+	RSSL_RCIMPL_CET_PREFERRED_HOST_SWITCHOVER_COMPLETE = -11,	/* Preferred host switchover has finished in the main reactor thread */
+
 } RsslReactorChannelEventImplType;
 
 typedef enum
@@ -94,6 +99,7 @@ typedef struct
 	RsslReactorChannelEvent channelEvent;
 	RsslBool isConnectFailure; /* Indicated by worker for channel-down events. Indicates whether the failure occurred while
 								* attempting to connect/initialize the channel. */
+	RsslPreferredHostOptions* pRsslPreferredHostOpts;	/* The new preferred host options */
 } RsslReactorChannelEventImpl;
 
 RTR_C_INLINE void rsslClearReactorChannelEventImpl(RsslReactorChannelEventImpl *pEvent)
@@ -243,7 +249,8 @@ typedef enum
 	RSSL_RCIMPL_WSBET_ACTIVE_SERVER_SERVICE_STATE_FROM_DOWN_TO_UP = 0x100,
 	RSSL_RCIMPL_WSBET_MOVE_WSB_HANDLER_BACK_TO_POOL = 0x200,
 	RSSL_RCIMPL_WSBET_CLOSE_RSSL_CHANEL_ONLY = 0x400, /* Closes the RSSL channel only without removing ReactorChannel's resources */
-	RSSL_RCIMPL_WSBET_CLOSE_WARMSTANDBY_CHANNEL = 0x800 /* Closes the warm stand by channel by dispatching thread */
+	RSSL_RCIMPL_WSBET_CLOSE_WARMSTANDBY_CHANNEL = 0x800, /* Closes the warm stand by channel by dispatching thread */
+	RSSL_RCIMPL_WSBET_PREFERRED_HOST_FALLBACK_IN_GROUP = 0x1000
 } RsslReactorWarmStandByEventType;
 
 typedef struct
@@ -256,11 +263,11 @@ typedef struct
 	RsslHashLink *pHashLink; /* This is used for per service based warm standby. */
 	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl; /* This is used to covey error message if any*/
 	void* pReactorWarmStandByHandlerImpl; /* Keeps the RsslReactorWarmStandByHandlerImpl for returing it back to the pool */
-} RsslReactorWarmStanbyEvent;
+} RsslReactorWarmStandbyEvent;
 
-RTR_C_INLINE void rsslClearReactorWarmStanbyEvent(RsslReactorWarmStanbyEvent* pEvent)
+RTR_C_INLINE void rsslClearReactorWarmStandbyEvent(RsslReactorWarmStandbyEvent* pEvent)
 {
-	memset(pEvent, 0, sizeof(RsslReactorWarmStanbyEvent));
+	memset(pEvent, 0, sizeof(RsslReactorWarmStandbyEvent));
 	pEvent->base.eventType = RSSL_RCIMPL_ET_WARM_STANDBY;
 }
 

@@ -78,10 +78,6 @@ RsslRet wlBaseInit(WlBase *pBase, WlBaseInitOptions *pOpts, RsslErrorInfo *pErro
 	RsslRet ret;
 
 	wlServiceCacheClearCreateOptions(&serviceCacheOpts);
-	serviceCacheOpts.serviceUpdateCallback = pOpts->updateCallback;
-	serviceCacheOpts.serviceStateChangeCallback = pOpts->serviceStateChangeCallback;
-	serviceCacheOpts.serviceCacheInitCallback = pOpts->serviceCacheInitCallback;
-	serviceCacheOpts.serviceCacheUpdateCallback = pOpts->serviceCacheUpdateCallback;
 
 	if (!(pServiceCache = wlServiceCacheCreate(&serviceCacheOpts, pErrorInfo)))
 		return pErrorInfo->rsslError.rsslErrorId;
@@ -108,7 +104,6 @@ RsslRet wlBaseInit(WlBase *pBase, WlBaseInitOptions *pOpts, RsslErrorInfo *pErro
 
 	pBase->channelMaxFragmentSize = 0;
 	pBase->pServiceCache = pServiceCache;
-	pBase->config.msgCallback = pOpts->msgCallback;
 	pBase->config.obeyOpenWindow = pOpts->obeyOpenWindow;
 	pBase->config.requestTimeout = pOpts->requestTimeout;
 	pBase->watchlist.state = 0;

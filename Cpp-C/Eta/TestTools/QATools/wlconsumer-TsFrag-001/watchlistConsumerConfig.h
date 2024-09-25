@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 LSEG. All rights reserved.     
+ * Copyright (C) 2020-2024 LSEG. All rights reserved.
 */
 
 #ifndef WATCHLIST_CONSUMER_CONFIG_H
@@ -12,6 +12,7 @@
 #include "rtr/rsslTypes.h"
 #include "rtr/rsslRDM.h"
 #include "rtr/rsslMsgKey.h"
+#include "rtr/rsslDataUtils.h"
 #include "tunnelStreamHandler.h"
 
 #ifdef __cplusplus
@@ -50,11 +51,24 @@ typedef struct
 {
 	RsslConnectionTypes	connectionType;					/* Type of RSSL transport to use. */
 	RsslConnectionTypes encryptedConnectionType;		/* Encrypted protocol when connectionType is RSSL_CONN_TYPE_ENCRYPTED */
+	RsslEncryptionProtocolTypes tlsProtocol;			/* Bitmap flag set defining the TLS version(s) to be used by this connection. See RsslEncryptionProtocolTypes */
 	char				interface[255];					/* Address of network interface to use. */
 
 	/* Socket configuration settings, when using a socket connection. */
 	char				hostName[255];					/* Host to connect to. */
 	char				port[255];						/* Port to connect to. */
+
+	/* Warm standby configuration settings. */
+	char				startingHostName[255];
+	char				startingPort[255];
+
+	char				standbyHostName[255];
+	char				standbyPort[255];
+	RsslReactorWarmStandbyMode		warmStandbyMode;
+
+
+	/* WebSocket configuration settings, when using a websocket connection. */
+	char				protocolList[255];				/* List of supported WebSocket sub-protocols */
 
 	/* Multicast configuration settings, when using a multicast connection. */
 	char				sendAddress[255];				/* Send address. */
@@ -87,7 +101,12 @@ typedef struct
 	RsslBuffer			serviceName;					/* Service name to use when requesting items. */
 	RsslBuffer			authenticationToken;			/* Authentication token used for logging in */
 	RsslBuffer			authenticationExtended;			/* Extended Authentication information used for logging in */
-	RsslBuffer			appId;					/* Application ID */
+	RsslBuffer			appId;							/* Application ID */
+	RsslBuffer			tokenURLV1;						/* Authentication Token V1 URL location */
+	RsslBuffer			tokenURLV2;						/* Authentication Token V2 URL location */
+	RsslBuffer			serviceDiscoveryURL;			/* Service Discovery URL location */
+	RsslBuffer			tokenScope;						/* Optional token scope */
+	RsslBool			RTTSupport;						/* Enable the RTT feature on this reactor channel */
 	ItemInfo			itemList[MAX_ITEMS];			/* The list of items to request. */
 	ItemInfo			providedItemList[MAX_ITEMS];	/* Stores any items opened by the provider.
 														 * May occur when requesting symbol list with
@@ -99,8 +118,9 @@ typedef struct
 	RsslBool			offPost;						/* Whether to send off-stream posts. */
 	RsslUInt32			runTime;						/* Running time of the application. */
 	// APIQA:
-	RsslInt				bufSize;						/* Buffer size used in sending tunnel stream messages. */
+	RsslUInt32			bufSize;						/* Buffer size used in sending tunnel stream messages. */
 	// END APIQA:
+
 	RsslBool			isTunnelStreamMessagingEnabled;	/* Whether to open a tunnel stream for
 														 * exchanging some basic messages. */
 	RsslBuffer			tunnelStreamServiceName;		/* Service name to use for opening a tunnel stream. */
@@ -109,9 +129,21 @@ typedef struct
 														 * opening a tunnel stream. */
 
 	RsslBool			enableSessionMgnt;				/* Enables the session management to keep the session alive */
-	RsslBuffer			clientId;						/* Unique ID defined for application making request to RDP token service */  
+	RsslBuffer			clientId;						/* Unique ID defined for application making request to RDP token service, or client ID */  
+	RsslBuffer			clientSecret;					/* Client secret with associated clientId */
+	RsslBuffer			clientJWK;						/* Client JWK with associated clientId */
+	RsslBuffer			audience;						/* Optional audience claim for use with JWT */
 	RsslBuffer			location;						/* Location to get an endpoint from RDP Service discovery */
-	RsslBool			queryEndpoint;					/* Queries the RDP service discovery in application for the specified connection type and location. */	
+	RsslBool			queryEndpoint;					/* Queries the RDP service discovery in application for the specified connection type and location. */
+	RsslBool			takeExclusiveSignOnControl;		/* The exclusive sign on control to force sign-out for the same credentials.*/
+
+	RsslBool			restEnableLog;					/* Enable Rest request/response logging.*/
+	RsslBool			restVerboseMode;				/* Enable verbose Rest request/response logging.*/
+	FILE				*restOutputStreamName;			/* Set output stream for Rest request/response logging.*/
+	RsslUInt			restEnableLogViaCallback;		/* Enable Rest request/response logging via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage. */
+
+	RsslUInt32			jsonOutputBufferSize;			/* JSON Converter output buffer size. */
+	RsslUInt32			jsonTokenIncrementSize;			/* JSON Converter number of json token increment size for parsing JSON messages. */
 
 	char			_userNameMem[255];
 	char			_passwordMem[255];
@@ -121,15 +153,27 @@ typedef struct
 	char			_authenticationExtendedMem[1024];
 	char 			_appIdMem[255];
 	char 			_clientIdMem[255];
+	char 			_clientSecretMem[255];
+	char			_clientJwkMem[2048];
+	char			_audienceMem[255];
 	char 			_locationMem[255];
+	char			_tokenUrlV1[255];
+	char			_tokenUrlV2[255];
+	char			_serviceDiscoveryUrl[255];
+	char			_tokenScope[255];
+
+	/* Proxy configuration settings for Rest requests */
+	char			restProxyHost[255];					/* Proxy host name */
+	char			restProxyPort[255];					/* Proxy port */
+	char			restProxyUserName[255];				/* Proxy user name */
+	char			restProxyPasswd[255];				/* Proxy password */
+	char			restProxyDomain[255];				/* Proxy domain */
+
 } WatchlistConsumerConfig;
 extern WatchlistConsumerConfig watchlistConsumerConfig;
 
 /* Initializes the configuration, parsing command-line options. */
 void watchlistConsumerConfigInit(int argc, char **argv);
-
-/* Cleans up resources associated with the configuration. */
-void watchlistConsumerConfigCleanup();
 
 /* Gets item information based on the stream ID. */
 ItemInfo *getItemInfo(RsslInt32 streamId);
@@ -162,6 +206,13 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslRe
  static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslMsgEvent* pMsgEvent);
 
  static RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslReactorServiceEndpointEvent *pEndPointEvent); 
+
+ static RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent);
+
+ static RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
+
+ static RsslReactorCallbackRet restLoggingCallback(RsslReactor* pReactor, RsslReactorRestLoggingEvent* pLogEvent);
+ static RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor* pReactor, RsslReactorOAuthCredentialEvent* pOAuthCredentialEvent);
 #ifdef __cplusplus
 }
 #endif

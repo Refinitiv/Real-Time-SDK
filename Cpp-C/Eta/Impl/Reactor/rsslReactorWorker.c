@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2022 LSEG. All rights reserved.
+ * Copyright (C) 2019-2024 LSEG. All rights reserved.
 */
 
 #include "rtr/rsslReactorImpl.h"
@@ -98,6 +98,21 @@ static void rsslRestServiceDiscoveryResponseCallbackForExplicitSD(RsslRestRespon
 
 static RsslRet rsslAddTokenSessionFromExplicitSD(RsslReactorImpl* pReactorImpl, RsslReactorExplicitServiceDiscoveryInfo* pExplicitServiceDiscoveryInfo, 
 	RsslErrorInfo* pError);
+
+/* Preferred host. Handles ChannelUp. Calculate the new time to switch over to the preferred host if necessary. */
+static RsslRet _reactorWorkerPreferredHostProcessComplete(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel);
+
+/* Preferred host. Reset implementation state. */
+static RsslRet _reactorWorkerPreferredHostResetState(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel);
+
+static RsslRet _reactorWorkerPreferredHostHandleChannelFailure(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel);
+
+/* Preferred host. Apply new PreferredHost options. */
+static void _reactorWorkerPreferredHostApplyNewOpts(RsslReactorChannelImpl* pReactorChannel, RsslPreferredHostOptions* pNewPreferredHostOpts);
+
+static RsslRet _reactorWorkerProcessReconnect(RsslReactorChannelImpl* pReactorChannel, RsslReactorImpl* pReactorImpl);
+
+RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pReactorChannel, RsslReactorImpl* pReactorImpl, RsslReactorConnectInfoImpl* pReactorConnectInfoImpl, RsslBool submitOriginalCredential);
 
 RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, rtr_atomic_val reactorIndex, RsslErrorInfo *pError)
 {
@@ -257,6 +272,20 @@ RTR_C_INLINE void _rsslFreeReactorChannel(RsslReactorChannelImpl* pReactorChanne
 		rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
 	if (pReactorChannel->pWorkerNotifierEvent)
 		rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
+	if (pReactorChannel->pWorkerPreferredHostNotifierEvent)
+		rsslDestroyNotifierEvent(pReactorChannel->pWorkerPreferredHostNotifierEvent);
+	rsslFreePreferredHostOpts(&pReactorChannel->preferredHostOptions);
+	if (pReactorChannel->newPreferredHostOptions != NULL)
+	{
+		rsslFreePreferredHostOpts(pReactorChannel->newPreferredHostOptions);
+		free(pReactorChannel->newPreferredHostOptions);
+	}
+	if (pReactorChannel->userName.data)
+	{
+		free(pReactorChannel->userName.data);
+		rsslClearBuffer(&pReactorChannel->userName);
+	}
+	RSSL_MUTEX_DESTROY(&pReactorChannel->preferredHostCopyMutex);
 	free(pReactorChannel);
 }
 
@@ -557,6 +586,410 @@ RsslRet _UnregisterTokenSessionList(RsslReactorChannelImpl *pReactorChannel, Rss
 	return RSSL_RET_SUCCESS;
 }
 
+/* Restore the changes of the original login request information in pPrevConnectInfo */
+/* Then, set the login request by the new connection information in pNewConnectInfo  */
+// Deep copy the current login in the consumer with user name currently in the reactor channel if that has changed.
+// Then, swap the previous connect Info's login index in the Login request list with the deep copied value.
+RsslRet _reactorUpdateReactorChannelLoginRequest(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslReactorConnectInfoImpl *pNewConnectInfo, RsslReactorConnectInfoImpl *pPrevConnectInfo, RsslBool *submitOriginalCredential)
+{
+	RsslRet ret;
+	/*  pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[prevConnectInfo->base.loginReqIndex]->loginRequestMsg should be the
+					same as pReactorChannel->channelRole.ommConsumerRole.pLoginRequest*/
+	RsslRDMLoginRequest* pRDMLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest;
+	if (pRDMLoginRequest->userName.data != pReactorChannel->userName.data)
+	{
+		pRDMLoginRequest->flags = pReactorChannel->flags;
+		pRDMLoginRequest->userName = pReactorChannel->userName;
+		pRDMLoginRequest->userNameType = pReactorChannel->userNameType;
+
+		RsslUInt8 loginReqIndex = pPrevConnectInfo->base.loginReqIndex;
+		pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[loginReqIndex]->loginRequestMsg =
+			(RsslRDMLoginRequest*)rsslCreateRDMMsgCopy((RsslRDMMsg*)pRDMLoginRequest, 256, &ret);
+
+		if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[loginReqIndex]->loginRequestMsg == NULL)
+		{
+			switch (ret)
+			{
+			case RSSL_RET_BUFFER_NO_BUFFERS:
+				rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE,
+					__FILE__, __LINE__, "Failed to update rdm login request: failed to allocate memory.");
+				break;
+
+			case RSSL_RET_INVALID_ARGUMENT:
+				rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT,
+					__FILE__, __LINE__, "Failed to update rdm login request: it does not appear to be a valid object.");
+				break;
+
+			default:
+				rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE,
+					__FILE__, __LINE__, "Failed to update rdm login request: failed to copy login request.");
+				break;
+			}
+
+			if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorImpl->reactorWorker.workerCerr))
+			{
+				return RSSL_RET_FAILURE;
+			}
+
+			return RSSL_RET_SUCCESS;
+		}
+
+		free(pRDMLoginRequest);
+
+		/* Get the next login request message */
+		pReactorChannel->channelRole.ommConsumerRole.pLoginRequest = 
+			pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pNewConnectInfo->base.loginReqIndex]->loginRequestMsg;
+
+		*submitOriginalCredential = RSSL_TRUE;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+// Processes the reconnection call, calling the main thread back if necessary for token credentials or login info.
+// Prerequsites: pReactorChannel and pReactorImpl are not null
+// Returns RSSL_RET_SUCCESS on success, RSSL_RET_FAILURE, indicating that the worker thread is in a terminally bad state and needs to shut down.
+RsslRet _reactorWorkerProcessReconnect(RsslReactorChannelImpl* pReactorChannel, RsslReactorImpl* pReactorImpl)
+{
+	RsslReactorWorker* pReactorWorker = &pReactorImpl->reactorWorker;
+	RsslReactorConnectInfoImpl* pReactorConnectInfoImpl;
+	RsslReactorConnectInfoImpl* prevConnectInfo = NULL;
+	RsslReactorTokenChannelInfo* pReactorTokenChannelInfo = NULL;
+	RsslBool submitOriginalCredential = RSSL_FALSE;
+	RsslBool preferredHostInProgress = RSSL_FALSE;
+	RsslReactorWarmStandbyGroupImpl* pWarmStandByGroupImpl;
+	RsslReactorWarmStandbyServerInfoImpl* pWarmStandbyServerInfoImpl;
+
+	if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER && pReactorChannel->preferredHostOptions.enablePreferredHostOptions && pReactorChannel->connectingToPreferredHost)
+	{
+		// We've initiated the preferred host operation.  This function should only be called once in the entire process, after this, the channel will be moved to another queue based on the 
+		preferredHostInProgress = RSSL_TRUE;
+	}
+	// Return if the channel is in a wait state for either preferred host or regular reconnection.
+	if (pReactorChannel->preferredHostConnectionOpts != NULL && ((pReactorChannel->preferredHostConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_LOGIN_MSG) ||
+		(pReactorChannel->preferredHostConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN) ||
+		(pReactorChannel->preferredHostConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY)))
+	{
+		return RSSL_RET_SUCCESS;
+	}
+
+	if ((pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_LOGIN_MSG) ||
+		(pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN) ||
+		(pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY))
+	{
+		return RSSL_RET_SUCCESS; /* Still waiting for response from the token service or service discovery before switching to another RsslReactorConnectInfoImpl */
+	}
+	else if (pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_STOP_REQUESTING)
+	{
+		/* Ensure that the worker notifies the reactor only the first time */
+		if (pReactorChannel->workerParentList == &pReactorWorker->reconnectingChannels)
+		{
+			/* Stop reconnecting the channel */
+			pReactorChannel->reconnectAttemptLimit = 0;
+
+			if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+				return RSSL_RET_FAILURE;
+		}
+
+		return RSSL_RET_SUCCESS; /* Move to next channel */
+	}
+
+	if (preferredHostInProgress)
+	{
+		/* pRsslPreferredHostChannel is opened */
+		/* Here we prepare to switch over the preferred host's Rssl channel */
+		if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+		{
+			// In the warm standby case, get the starting server for the new preferred host wsb group.
+			// The preferred host switch should only happen on starting active channels, not the secondary connections.
+			pReactorConnectInfoImpl = &pReactorChannel->pWarmStandByHandlerImpl->warmStandbyGroupList[pReactorChannel->preferredHostOptions.warmStandbyGroupListIndex].startingActiveServer.reactorConnectInfoImpl;
+			prevConnectInfo = pReactorChannel->currentConnectionOpts;
+		}
+		else
+		{
+			pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->preferredHostOptions.connectionListIndex];
+			prevConnectInfo = pReactorChannel->currentConnectionOpts;
+		}
+	}
+	/* Checks whether this channel belongs to the warmstandby feature. */
+	else if (_reactorHandlesWarmStandby(pReactorChannel))
+	{
+		pWarmStandByGroupImpl = &pReactorChannel->pWarmStandByHandlerImpl->warmStandbyGroupList[pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex];
+
+		if (pReactorChannel->isStartingServerConfig)
+		{
+			if (pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState == RSSL_RWSB_STATE_CONNECTING_TO_A_STARTING_SERVER
+				&& (pReactorChannel->preferredHostOptions.enablePreferredHostOptions && pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex != pReactorChannel->preferredHostOptions.warmStandbyGroupListIndex
+					|| !pReactorChannel->preferredHostOptions.enablePreferredHostOptions && pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex > 0)
+				)
+			{
+				RsslUInt32 prevIndex;
+				if (pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex > 0)
+					prevIndex = pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex - 1;
+				else
+					prevIndex = pReactorChannel->pWarmStandByHandlerImpl->warmStandbyGroupCount - 1;
+
+				/* This should be incremented at this point so we know that we can check against the previous index */
+				prevConnectInfo = &(pReactorChannel->pWarmStandByHandlerImpl->warmStandbyGroupList[prevIndex].startingActiveServer.reactorConnectInfoImpl);
+			}
+			else
+			{
+				prevConnectInfo = pReactorChannel->currentConnectionOpts;
+			}
+			pWarmStandbyServerInfoImpl = &pWarmStandByGroupImpl->startingActiveServer;
+
+			pReactorConnectInfoImpl = &(pWarmStandbyServerInfoImpl->reactorConnectInfoImpl);
+
+			/* Updates with from the reactor connect info, only set this if we're not doing a preferred host operation */
+			if ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_CLOSING_STANDBY_CHANNELS) != 0)
+			{
+				return RSSL_RET_SUCCESS; /* Do nothing while waiting for standby channels to close. */
+			}
+
+			pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
+		}
+		else
+		{
+			pWarmStandbyServerInfoImpl = &pWarmStandByGroupImpl->standbyServerList[pReactorChannel->standByServerListIndex];
+			pReactorConnectInfoImpl = (&pWarmStandbyServerInfoImpl->reactorConnectInfoImpl);
+			prevConnectInfo = pReactorChannel->currentConnectionOpts;
+
+			/* Updates with from the reactor connect info */
+			pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
+		}
+
+		if (!pWarmStandbyServerInfoImpl->isActiveChannelConfig)
+		{
+			rsslQueueRemoveLink(pReactorChannel->workerParentList, &pReactorChannel->workerLink);
+			rsslInitQueueLink(&pReactorChannel->workerLink);
+			return RSSL_RET_SUCCESS; /* Do nothing as this channel config is no longer active */
+		}
+	}
+	else
+	{
+		// A normal channelset or the WSB is currently in a MOVE_TO_CHANNEL_LIST state.
+		prevConnectInfo = pReactorChannel->currentConnectionOpts;
+
+		if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER && pReactorChannel->preferredHostOptions.enablePreferredHostOptions)
+		{
+			if (pReactorChannel->nextReconnectShouldBeFallback)
+			{
+				pReactorChannel->connectionListIter = pReactorChannel->preferredHostOptions.connectionListIndex;
+				pReactorChannel->nextReconnectShouldBeFallback = RSSL_FALSE;
+			}
+			else
+			{
+				// First, check to see if incrementing the last connection will repeat the preferred host, so try to skip it.
+				if ((pReactorChannel->lastConnectionNonPreferred + 1) == pReactorChannel->preferredHostOptions.connectionListIndex)
+				{
+					// If skipping the preferred host will result in an overflow, set the index to 0, otherwise increment by 2.
+					// This also covers the initial last wsb group getting set to -1, for both cases if the group count is 1 or more than 1.
+					if ((pReactorChannel->lastConnectionNonPreferred + 2) >= pReactorChannel->connectionListCount)
+					{
+						pReactorChannel->lastConnectionNonPreferred = 0;
+					}
+					else
+					{
+						pReactorChannel->lastConnectionNonPreferred += 2;
+					}
+				}
+				// If incrementing will overflow the count, check to see if the preferred index is 0.  If so, and there are more than 1 in the connection list count, skip the
+				// preferred host by setting the next connection's index to 1, otherwise set it to 0.
+				else if ((pReactorChannel->lastConnectionNonPreferred + 1) >= pReactorChannel->connectionListCount)
+				{
+					if (pReactorChannel->preferredHostOptions.connectionListIndex == 0 && (pReactorChannel->connectionListCount > 1))
+					{
+						pReactorChannel->lastConnectionNonPreferred = 1;
+					}
+					else
+					{
+						pReactorChannel->lastConnectionNonPreferred = 0;
+					}
+				}
+				else
+				{
+					// if the last index is set to -1, this will increment it to 0
+					pReactorChannel->lastConnectionNonPreferred++;
+				}
+
+				pReactorChannel->connectionListIter = pReactorChannel->lastConnectionNonPreferred;
+				pReactorChannel->nextReconnectShouldBeFallback = RSSL_TRUE;
+			}
+		}
+		else
+		{
+			pReactorChannel->connectionListIter++;
+			if (pReactorChannel->connectionListIter >= pReactorChannel->connectionListCount)
+			{
+				pReactorChannel->connectionListIter = 0;
+			}
+		}
+
+		pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+	}
+
+	if (preferredHostInProgress == RSSL_TRUE)
+	{
+		pReactorChannel->preferredHostConnectionOpts = pReactorConnectInfoImpl;
+	}
+	else
+	{
+		pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
+		pReactorChannel->currentConnectionOpts = pReactorConnectInfoImpl;
+	}
+
+
+	/* Restore the states of RsslReactorChannelImpl before moving to the next RsslReactorConnectInfoImpl */
+	if (pReactorConnectInfoImpl->base.enableSessionManagement)
+	{
+		/* Store any changes to the original login request information if there is a login request list */
+		if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList)
+		{
+			// Do not re-set the reactor channel's login request if we're in a preferred host operation and if the login request is different between the previous and next connection info
+			// This will be cleared once the channel is swapped.
+			if (preferredHostInProgress == RSSL_FALSE)
+			{
+				if (prevConnectInfo->base.loginReqIndex != pReactorConnectInfoImpl->base.loginReqIndex)
+				{
+					if (_reactorUpdateReactorChannelLoginRequest(pReactorImpl, pReactorChannel, pReactorConnectInfoImpl, prevConnectInfo, &submitOriginalCredential) == RSSL_RET_FAILURE)
+					{
+						// Error has already been setup and we're probably in a really bad place anyway so just return failure.
+						return RSSL_RET_FAILURE;
+					}
+				}
+				else
+				{
+					// Re-set the username information on the current because it's been set by a login request submit call.
+					// We can copy it here because the same login is currently in use
+					RsslRDMLoginRequest* pRDMLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest;
+					if (pRDMLoginRequest->userName.data != pReactorChannel->userName.data)
+					{
+						pRDMLoginRequest->flags = pReactorChannel->flags;
+						pRDMLoginRequest->userName = pReactorChannel->userName;
+						pRDMLoginRequest->userNameType = pReactorChannel->userNameType;
+						submitOriginalCredential = RSSL_TRUE;
+					}
+				}
+			}
+			else
+			{
+				// Preferred host, it doesn't matter if this is different or the same login as previous, we're going to update it with the new credentials anyway.
+				// Submissions should be suppressed anyway.
+				pReactorChannel->pPreferredHostLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorConnectInfoImpl->base.loginReqIndex]->loginRequestMsg;
+			}
+		}
+		else if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
+		{
+			if (preferredHostInProgress == RSSL_FALSE)
+			{
+				// Re-set the username information because it's been set by a login request submit call.
+				RsslRDMLoginRequest* pRDMLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest;
+				if (pRDMLoginRequest->userName.data != pReactorChannel->userName.data)
+				{
+					pRDMLoginRequest->flags = pReactorChannel->flags;
+					pRDMLoginRequest->userName = pReactorChannel->userName;
+					pRDMLoginRequest->userNameType = pReactorChannel->userNameType;
+					submitOriginalCredential = RSSL_TRUE;
+				}
+			}
+			else
+			{
+				// Re-set the username information because it's been set by a login request submit call.
+				pReactorChannel->pPreferredHostLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest;
+				if (pReactorChannel->pPreferredHostLoginRequest->userName.data != pReactorChannel->userName.data)
+				{
+					pReactorChannel->pPreferredHostLoginRequest->flags = pReactorChannel->flags;
+					pReactorChannel->pPreferredHostLoginRequest->userName = pReactorChannel->userName;
+					pReactorChannel->pPreferredHostLoginRequest->userNameType = pReactorChannel->userNameType;
+				}
+			}
+		}
+
+		/* Removes the channel from the token session for V1 only */
+		if (preferredHostInProgress == RSSL_FALSE && pReactorChannel->pCurrentTokenSession && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
+		{
+			if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next != NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev != NULL)
+			{
+				rsslQueueRemoveLink(&pReactorChannel->pCurrentTokenSession->pSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+				pReactorConnectInfoImpl->lastTokenUpdatedTime = 0;
+			}
+		}
+	}
+
+	/* IF session management is enabled, do not use the login callback, because we will get the token automatically */
+	if (pReactorChannel->currentConnectionOpts->base.enableSessionManagement == RSSL_TRUE)
+	{
+		if (pReactorChannel->pTokenSessionList != NULL)
+		{
+			// Setup the next token session here.  
+			if (preferredHostInProgress == RSSL_TRUE)
+			{
+				pReactorChannel->pPreferredHostTokenSesion = &pReactorChannel->pTokenSessionList[pReactorConnectInfoImpl->base.oAuthCredentialIndex];
+				pReactorTokenChannelInfo = pReactorChannel->pPreferredHostTokenSesion;
+			}
+			else
+			{
+				pReactorChannel->pCurrentTokenSession = &pReactorChannel->pTokenSessionList[pReactorConnectInfoImpl->base.oAuthCredentialIndex];
+				pReactorTokenChannelInfo = pReactorChannel->pCurrentTokenSession;
+			}
+		}
+		else if (pReactorChannel->pCurrentTokenSession != NULL)
+		{
+			if (preferredHostInProgress == RSSL_TRUE)
+			{
+				pReactorChannel->pPreferredHostTokenSesion = pReactorChannel->pCurrentTokenSession;
+				pReactorTokenChannelInfo = pReactorChannel->pPreferredHostTokenSesion;
+			}
+			else
+			{
+				pReactorTokenChannelInfo = pReactorChannel->pCurrentTokenSession;
+			}
+		}
+
+		if (pReactorTokenChannelInfo != NULL &&
+			pReactorTokenChannelInfo->pSessionImpl->tokenSessionState == RSSL_RC_TOKEN_SESSION_IMPL_STOP_REQUESTING)
+		{
+			// This has failed previously, we don't know when, but we're trying it now.  Set the accessToken.data to 0 and try again.
+			RSSL_MUTEX_LOCK(&pReactorTokenChannelInfo->pSessionImpl->accessTokenMutex);
+			pReactorTokenChannelInfo->pSessionImpl->tokenInformation.accessToken.data = 0;
+			RSSL_MUTEX_UNLOCK(&pReactorTokenChannelInfo->pSessionImpl->accessTokenMutex);
+		}
+	}
+	else if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER
+		&& pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList)
+	{
+		// If in preferred host, cache the login request pointer here for usage later.
+		if (preferredHostInProgress == RSSL_TRUE)
+		{
+			pReactorChannel->pPreferredHostLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorConnectInfoImpl->base.loginReqIndex]->loginRequestMsg;
+		}
+		else
+		{
+			/* Get the next login request message */
+			pReactorChannel->channelRole.ommConsumerRole.pLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorConnectInfoImpl->base.loginReqIndex]->loginRequestMsg;
+		}
+
+		/* If the login index has changed, set submitOriginalCredential to true */
+		if (prevConnectInfo->base.loginReqIndex != pReactorConnectInfoImpl->base.loginReqIndex)
+			submitOriginalCredential = RSSL_TRUE;
+
+		if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorConnectInfoImpl->base.loginReqIndex]->pLoginRenewalEventCallback != NULL)
+		{
+			/* If there is a login request callback, tell the main thread to dispatch it */
+			pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_LOGIN_MSG;
+			notifyLoginRenewalReq(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorConnectInfoImpl->base.loginReqIndex], pReactorWorker);
+			return RSSL_RET_SUCCESS;
+		}
+	}
+
+	if (_reactorWorkerReconnectAfterCredentialUpdate(pReactorChannel, pReactorImpl, pReactorConnectInfoImpl, submitOriginalCredential) == RSSL_RET_FAILURE)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
 RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pReactorChannel, RsslReactorImpl* pReactorImpl, RsslReactorConnectInfoImpl *pReactorConnectInfoImpl, RsslBool submitOriginalCredential)
 {
 	RsslRestHeader* pRestHeader = 0;
@@ -565,9 +998,34 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 	RsslReactorTokenSessionImpl* pTokenSessionImpl = NULL;
 	RsslReactorTokenMgntEvent* pEvent = NULL;
 
-	if (pReactorChannel->currentConnectionOpts->base.enableSessionManagement)
+	RsslChannel* pRsslChannel = NULL;
+
+	RsslBool preferredHostInProgress = RSSL_FALSE;
+
+	// This has been triggered as either a timeout or as a function call.
+	if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER && pReactorChannel->preferredHostOptions.enablePreferredHostOptions
+		&& pReactorChannel->connectingToPreferredHost)
 	{
-		pTokenSessionImpl = pReactorChannel->pCurrentTokenSession->pSessionImpl;
+		/* Fallback to the preferred host was initiated by timeout */
+		/* pRsslPreferredHostChannel. Here we connect to the preferred host at the transport level by rsslConnect */
+		preferredHostInProgress = RSSL_TRUE;
+		pRsslChannel = pReactorChannel->pRsslPreferredHostChannel;  // This should be NULL here.
+	}
+	else
+	{
+		pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
+	}
+
+	if (pReactorConnectInfoImpl->base.enableSessionManagement)
+	{
+		if (preferredHostInProgress)
+		{
+			pTokenSessionImpl = pReactorChannel->pPreferredHostTokenSesion->pSessionImpl;
+		}
+		else
+		{
+			pTokenSessionImpl = pReactorChannel->pCurrentTokenSession->pSessionImpl;
+		}
 
 		if (_reactorWorkerRegisterEventForRestClient(pReactorWorker, pReactorImpl) != RSSL_RET_SUCCESS)
 		{
@@ -652,14 +1110,29 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 						/* Add the channel to the token session for V1, or V2 if there isn't any other channel in the token session's channel list */
 						if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 || (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2 && pTokenSessionImpl->reactorChannelList.count == 0))
 						{
-							if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev == NULL)
-								rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
-
-							if (pReactorChannel->pCurrentTokenSession->hasBeenActivated == RSSL_FALSE)
+							if (preferredHostInProgress)
 							{
-								RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
+								if (pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink.next == NULL && pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink.prev == NULL)
+									rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink);
+
+								if (pReactorChannel->pPreferredHostTokenSesion->hasBeenActivated == RSSL_FALSE)
+								{
+									RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
+								}
+
+								RTR_ATOMIC_SET(pReactorChannel->pPreferredHostTokenSesion->hasBeenActivated, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
 							}
-							RTR_ATOMIC_SET(pReactorChannel->pCurrentTokenSession->hasBeenActivated, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
+							else
+							{
+								if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev == NULL)
+									rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+
+								if (pReactorChannel->pCurrentTokenSession->hasBeenActivated == RSSL_FALSE)
+								{
+									RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
+								}
+								RTR_ATOMIC_SET(pReactorChannel->pCurrentTokenSession->hasBeenActivated, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
+							}
 						}
 						/* Unlock the access mutex whenever receives the response */
 					}
@@ -703,14 +1176,29 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 				/* Add the channel to the token session for V1, or V2 if there isn't any other channel in the token session's channel list */
 				if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 || (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2 && pTokenSessionImpl->reactorChannelList.count == 0))
 				{
-					if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev == NULL)
-						rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
-
-					if (pReactorChannel->pCurrentTokenSession->hasBeenActivated == RSSL_FALSE)
+					if (preferredHostInProgress)
 					{
-						RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
+						if (pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink.next == NULL && pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink.prev == NULL)
+							rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink);
+
+						if (pReactorChannel->pPreferredHostTokenSesion->hasBeenActivated == RSSL_FALSE)
+						{
+							RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
+						}
+
+						RTR_ATOMIC_SET(pReactorChannel->pPreferredHostTokenSesion->hasBeenActivated, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
 					}
-					RTR_ATOMIC_SET(pReactorChannel->pCurrentTokenSession->hasBeenActivated, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
+					else
+					{
+						if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev == NULL)
+							rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+
+						if (pReactorChannel->pCurrentTokenSession->hasBeenActivated == RSSL_FALSE)
+						{
+							RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
+						}
+						RTR_ATOMIC_SET(pReactorChannel->pCurrentTokenSession->hasBeenActivated, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
+					}
 				}
 
 				notifySensitiveInfoReq(pTokenSessionImpl, pReactorWorker);
@@ -731,14 +1219,29 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 			/* Add the channel to the token session for V1, or V2 if there isn't any other channel in the token session's channel list */
 			if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 || (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2 && pTokenSessionImpl->reactorChannelList.count == 0))
 			{
-				if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev == NULL)
-					rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
-
-				if (pReactorChannel->pCurrentTokenSession->hasBeenActivated == RSSL_FALSE)
+				if(preferredHostInProgress)
 				{
-					RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
+					if (pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink.next == NULL && pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink.prev == NULL)
+						rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink);
+
+					if (pReactorChannel->pPreferredHostTokenSesion->hasBeenActivated == RSSL_FALSE)
+					{
+						RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
+					}
+
+					RTR_ATOMIC_SET(pReactorChannel->pPreferredHostTokenSesion->hasBeenActivated, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
 				}
-				RTR_ATOMIC_SET(pReactorChannel->pCurrentTokenSession->hasBeenActivated, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
+				else
+				{
+					if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev == NULL)
+						rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+
+					if (pReactorChannel->pCurrentTokenSession->hasBeenActivated == RSSL_FALSE)
+					{
+						RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
+					}
+					RTR_ATOMIC_SET(pReactorChannel->pCurrentTokenSession->hasBeenActivated, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
+				}
 			}
 		}
 
@@ -788,7 +1291,7 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 
 				rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 					"Invalid connection type(%d) for requesting RDP service discovery.",
-					transport);
+					pReactorConnectInfoImpl->base.rsslConnectOptions.connectionType);
 
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
 
@@ -884,36 +1387,79 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 			pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_RECEIVED_AUTH_TOKEN;
 
 			/* This is connection recovery after the previous connection is closed */
-			if (pReactorChannel->reactorChannel.pRsslChannel == 0)
+			if (pRsslChannel == NULL)
 			{
-				if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect((&pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
+				if (pReactorChannel->isInitialChannelConnect == RSSL_TRUE)
 				{
-					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+					pReactorChannel->isInitialChannelConnect = RSSL_FALSE;
+				}
+
+				if (!(pRsslChannel = rsslConnect((&pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
+				{
+					if (!preferredHostInProgress)
 					{
-						return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(
+							pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+						{
+							return RSSL_RET_FAILURE;
+						}
+					}
+					else
+					{
+						/* Only set an error about failure on connect to the preferred host. */
+						/* The current non-preferred channel continue to work. */
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerPreferredHostHandleChannelFailure(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+						{
+							return RSSL_RET_FAILURE;
+						}
 					}
 				}
 				else
 				{
 					RsslRet ret = RSSL_RET_SUCCESS;
 
-					/* Reset channel statistics as the new connection is established */
-					if (pReactorChannel->pChannelStatistic)
+					if (!preferredHostInProgress)
 					{
-						rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+						pReactorChannel->reactorChannel.pRsslChannel = pRsslChannel;
+
+						/* Reset channel statistics as the new connection is established */
+						if (pReactorChannel->pChannelStatistic)
+						{
+							rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+						}
+
+						/* Set debug callback usage here. */
+						if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
+						{
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							{
+								return RSSL_RET_FAILURE;
+							}
+							return RSSL_RET_SUCCESS;
+						}
+
+						pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
+					}
+					else
+					{
+						pReactorChannel->pRsslPreferredHostChannel = pRsslChannel;
+
+						/* Set debug callback usage here. */
+						if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
+						{
+							/* Only set an error about failure on connect to the preferred host. */
+							/* The current non-preferred channel continue to work. */
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerPreferredHostHandleChannelFailure(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							{
+								return RSSL_RET_FAILURE;
+							}
+							return RSSL_RET_SUCCESS;
+						}
 					}
 
-					/* Set debug callback usage here. */
-					if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
-					{
-						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-							return RSSL_RET_FAILURE;
-						return RSSL_RET_SUCCESS;
-					}
-
-					pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
 					pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
 					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerProcessNewChannel(pReactorChannel->pParentReactor, pReactorChannel) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+
 					{
 						return RSSL_RET_FAILURE;
 					}
@@ -924,7 +1470,8 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 	else
 	{
 		/* Create an event to submit the original login message when it is changed */
-		if (pReactorChannel->pWatchlist && submitOriginalCredential)
+		/* When the preferred host is initializing, the event will be delayed to channel open and switch over */
+		if (preferredHostInProgress == RSSL_FALSE && pReactorChannel->pWatchlist && submitOriginalCredential)
 		{
 			RsslReactorTokenMgntEvent* pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
 
@@ -941,29 +1488,69 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 
 		pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_DONE;
 
-		if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect(&(pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
+		if (pReactorChannel->isInitialChannelConnect == RSSL_TRUE)
 		{
-			if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-				return RSSL_RET_FAILURE;
+			pReactorChannel->isInitialChannelConnect = RSSL_FALSE;
+		}
+
+		if (!(pRsslChannel = rsslConnect(&(pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
+		{
+			if (!preferredHostInProgress)
+			{
+				if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+				{
+					return RSSL_RET_FAILURE;
+				}
+			}
+			else
+			{
+				/* Only set an error about failure on connect to the preferred host. */
+				/* The current non-preferred channel continue to work. */
+				if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerPreferredHostHandleChannelFailure(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+				{
+					return RSSL_RET_FAILURE;
+				}
+			}
 		}
 		else
 		{
-
-			/* Reset channel statistics as the new connection is established */
-			if (pReactorChannel->pChannelStatistic)
+			if (!preferredHostInProgress)
 			{
-				rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+				pReactorChannel->reactorChannel.pRsslChannel = pRsslChannel;
+
+				/* Reset channel statistics as the new connection is established */
+				if (pReactorChannel->pChannelStatistic)
+				{
+					rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+				}
+
+				/* Set debug callback usage here. */
+				if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
+				{
+					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+					{
+						return RSSL_RET_FAILURE;
+					}
+					return RSSL_RET_SUCCESS;
+				}
+
+				pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
+			}
+			else
+			{
+				pReactorChannel->pRsslPreferredHostChannel = pRsslChannel;
+
+				/* Set debug callback usage here. */
+				if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
+				{
+					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerPreferredHostHandleChannelFailure(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+					{
+						return RSSL_RET_FAILURE;
+					}
+					return RSSL_RET_SUCCESS;
+				}
 			}
 
-			/* Set debug callback usage here. */
-			if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
-			{
-				if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-					return RSSL_RET_FAILURE;
-				return RSSL_RET_SUCCESS;
-			}
-
-			pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
 			pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
 			if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerProcessNewChannel(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 				return RSSL_RET_FAILURE;
@@ -998,47 +1585,130 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 {
 	RsslReactorChannelEventImpl *pEvent = NULL;
 	RsslReactorWorker *pReactorWorker = &pReactorImpl->reactorWorker;
+	RsslBool preferredHostInProgress = RSSL_FALSE;
+	RsslNotifierEvent *pNotifierEvent = pReactorChannel->pWorkerNotifierEvent;
 
-	/* Notify the current token information from the token session */
-	if (pReactorChannel->pCurrentTokenSession)
+	RsslReactorConnectInfoImpl* pReactorConnectInfoImpl;
+	RsslReactorTokenChannelInfo* pReactorTokenChannelInfo;
+	// Make sure that this isn't an accepted channel on a server 
+	if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER && pReactorChannel->reactorChannel.pRsslServer == NULL)
 	{
-		RsslReactorConnectInfoImpl* pReactorConnectInfoImpl = pReactorChannel->currentConnectionOpts;
-
-		if (pReactorConnectInfoImpl->base.enableSessionManagement && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
+		// This has been triggered as either a timeout or as a function call.
+		if (pReactorChannel->preferredHostOptions.enablePreferredHostOptions
+			&& pReactorChannel->connectingToPreferredHost)
 		{
-			if (!pReactorConnectInfoImpl->sendInitialAuthTokenInfo || pReactorConnectInfoImpl->lastTokenUpdatedTime != pReactorChannel->pCurrentTokenSession->pSessionImpl->lastTokenUpdatedTime)
+			/* Fallback to the preferred host was initiated */
+			preferredHostInProgress = RSSL_TRUE;
+		}
+
+		// Set the current set of connection info and notifiers
+		if (preferredHostInProgress == RSSL_TRUE)
+		{
+			pReactorConnectInfoImpl = pReactorChannel->preferredHostConnectionOpts;
+			pReactorTokenChannelInfo = pReactorChannel->pPreferredHostTokenSesion;
+			pNotifierEvent = pReactorChannel->pWorkerPreferredHostNotifierEvent;
+		}
+		else
+		{
+			pReactorConnectInfoImpl = pReactorChannel->currentConnectionOpts;
+			pReactorTokenChannelInfo = pReactorChannel->pCurrentTokenSession;
+			pNotifierEvent = pReactorChannel->pWorkerNotifierEvent;
+		}
+
+		/* Notify the current token information from the token session */
+		if (pReactorConnectInfoImpl->base.enableSessionManagement && pReactorTokenChannelInfo->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
+		{
+			// For V1, if we're in preferred host, update the cached preferred host login request, but do not send the event.  This will be sent later on.
+			if (preferredHostInProgress == RSSL_TRUE)
 			{
-				RsslReactorTokenMgntEvent* pEventTokenMgntEvent;
-				pReactorConnectInfoImpl->lastTokenUpdatedTime = pReactorChannel->pCurrentTokenSession->pSessionImpl->lastTokenUpdatedTime;
+				RSSL_MUTEX_LOCK(&pReactorTokenChannelInfo->pSessionImpl->accessTokenMutex);
+				pReactorChannel->pPreferredHostLoginRequest->userName = pReactorTokenChannelInfo->pSessionImpl->tokenInformation.accessToken;
+				pReactorChannel->pPreferredHostLoginRequest->userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
 
-				pEventTokenMgntEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
-				rsslClearReactorTokenMgntEvent(pEventTokenMgntEvent);
+				pReactorChannel->pPreferredHostLoginRequest->flags |= RDM_LG_RQF_HAS_USERNAME_TYPE;
 
-				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_RECEIVED_AUTH_TOKEN;
-				pEventTokenMgntEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE;
-				pEventTokenMgntEvent->pReactorChannel = &pReactorChannel->reactorChannel;
-				pEventTokenMgntEvent->pAuthTokenEventCallback = pReactorConnectInfoImpl->base.pAuthTokenEventCallback;
-				pEventTokenMgntEvent->pTokenSessionImpl = pReactorChannel->pCurrentTokenSession->pSessionImpl;
-
-				/* This is used by V1 to indicate that the initial access token is sent. */
-				pReactorConnectInfoImpl->sendInitialAuthTokenInfo = RSSL_TRUE;
-
-				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEventTokenMgntEvent)
-					== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+				pReactorChannel->pPreferredHostLoginRequest->flags &= (~RDM_LG_RQF_HAS_PASSWORD);
+				RSSL_MUTEX_UNLOCK(&pReactorTokenChannelInfo->pSessionImpl->accessTokenMutex);
+			}
+			else
+			{
+				if (!pReactorConnectInfoImpl->sendInitialAuthTokenInfo || pReactorConnectInfoImpl->lastTokenUpdatedTime != pReactorTokenChannelInfo->pSessionImpl->lastTokenUpdatedTime)
 				{
-					return RSSL_RET_FAILURE;
+					RsslReactorTokenMgntEvent* pEventTokenMgntEvent;
+					pReactorConnectInfoImpl->lastTokenUpdatedTime = pReactorTokenChannelInfo->pSessionImpl->lastTokenUpdatedTime;
+
+					pEventTokenMgntEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
+					rsslClearReactorTokenMgntEvent(pEventTokenMgntEvent);
+
+					pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_RECEIVED_AUTH_TOKEN;
+					pEventTokenMgntEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE;
+					pEventTokenMgntEvent->pReactorChannel = &pReactorChannel->reactorChannel;
+					pEventTokenMgntEvent->pAuthTokenEventCallback = pReactorConnectInfoImpl->base.pAuthTokenEventCallback;
+					pEventTokenMgntEvent->pTokenSessionImpl = pReactorTokenChannelInfo->pSessionImpl;
+
+					/* This is used by V1 to indicate that the initial access token is sent. */
+					pReactorConnectInfoImpl->sendInitialAuthTokenInfo = RSSL_TRUE;
+
+					if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEventTokenMgntEvent)
+						== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+					{
+						return RSSL_RET_FAILURE;
+					}
 				}
 			}
 		}/* For V2, always update the access token from the current token session. */
-		else if(pReactorConnectInfoImpl->base.enableSessionManagement && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
+		else if (pReactorConnectInfoImpl->base.enableSessionManagement && pReactorTokenChannelInfo->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
 		{
 			/* Update the login request only when users specified to send initial login request after the connection is recovered. */
 			if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER && pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
 			{
-				pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userName = pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformation.accessToken;
-				pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->flags |= RDM_LG_RQF_HAS_USERNAME_TYPE;
-				pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+				if (preferredHostInProgress == RSSL_TRUE)
+				{
+					pReactorChannel->pPreferredHostLoginRequest->userName = pReactorTokenChannelInfo->pSessionImpl->tokenInformation.accessToken;
+					pReactorChannel->pPreferredHostLoginRequest->flags |= RDM_LG_RQF_HAS_USERNAME_TYPE;
+					pReactorChannel->pPreferredHostLoginRequest->userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+				}
+				else
+				{
+					// Update the login and send it to the reactor thread.  This will ensure that the watchlist gets it's login updated.
+					RsslReactorTokenMgntEvent* pEventTokenMgntEvent;
+
+					pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userName = pReactorTokenChannelInfo->pSessionImpl->tokenInformation.accessToken;
+					pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->flags |= RDM_LG_RQF_HAS_USERNAME_TYPE;
+					pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+
+					pEventTokenMgntEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
+					rsslClearReactorTokenMgntEvent(pEventTokenMgntEvent);
+
+					pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_RECEIVED_AUTH_TOKEN;
+					pEventTokenMgntEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE;
+					pEventTokenMgntEvent->pReactorChannel = &pReactorChannel->reactorChannel;
+					pEventTokenMgntEvent->pTokenSessionImpl = pReactorTokenChannelInfo->pSessionImpl;
+
+					if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEventTokenMgntEvent)
+						== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+					{
+						return RSSL_RET_FAILURE;
+					}
+				}
 			}
+		}
+
+		// Swap the token sessions here.
+		if (preferredHostInProgress == RSSL_TRUE && pReactorChannel->pPreferredHostTokenSesion != NULL)
+		{
+			/* Swap out the token session now so we don't send any additional info */
+			/* Removes the channel from the token session if this is V1 and not the same as the preferred host token session. */
+			if (pReactorChannel->pCurrentTokenSession != NULL && pReactorChannel->pCurrentTokenSession != pReactorChannel->pPreferredHostTokenSesion && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
+			{
+				if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next != NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev != NULL)
+				{
+					rsslQueueRemoveLink(&pReactorChannel->pCurrentTokenSession->pSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+				}
+			}
+
+			pReactorChannel->pCurrentTokenSession = pReactorChannel->pPreferredHostTokenSesion;
+			pReactorChannel->pPreferredHostTokenSesion = NULL;
 		}
 	}
 
@@ -1047,26 +1717,204 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 	/* Initialization succeeded. Send channel up event. */
 
 	/* Remove read fd -- from now on the worker thread should mainly handle flushing */
-	rsslNotifierUnregisterRead(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent);
-	rsslNotifierUnregisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent);
+	rsslNotifierUnregisterRead(pReactorWorker->pNotifier, pNotifierEvent);
+	rsslNotifierUnregisterWrite(pReactorWorker->pNotifier, pNotifierEvent);
+	
+	// This needs to be set before calling the user back.  In the preferred host case, this will get updated at a later point.
+	if (preferredHostInProgress == RSSL_FALSE)
+	{
+		_reactorWorkerMoveChannel(&pReactorWorker->activeChannels, pReactorChannel);
 
-	_reactorWorkerMoveChannel(&pReactorWorker->activeChannels, pReactorChannel);
-	_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
-	pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+		_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
+		pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
 
-	/* Copy RsslChannel parameters */
-	pReactorChannel->reactorChannel.socketId = pReactorChannel->reactorChannel.pRsslChannel->socketId;
-	pReactorChannel->reactorChannel.oldSocketId = pReactorChannel->reactorChannel.pRsslChannel->oldSocketId;
-	pReactorChannel->reactorChannel.majorVersion = pReactorChannel->reactorChannel.pRsslChannel->majorVersion;
-	pReactorChannel->reactorChannel.minorVersion = pReactorChannel->reactorChannel.pRsslChannel->minorVersion;
-	pReactorChannel->reactorChannel.protocolType = pReactorChannel->reactorChannel.pRsslChannel->protocolType;
+		/* Copy RsslChannel parameters */
+		pReactorChannel->reactorChannel.socketId = pReactorChannel->reactorChannel.pRsslChannel->socketId;
+		pReactorChannel->reactorChannel.oldSocketId = pReactorChannel->reactorChannel.pRsslChannel->oldSocketId;
+		pReactorChannel->reactorChannel.majorVersion = pReactorChannel->reactorChannel.pRsslChannel->majorVersion;
+		pReactorChannel->reactorChannel.minorVersion = pReactorChannel->reactorChannel.pRsslChannel->minorVersion;
+		pReactorChannel->reactorChannel.protocolType = pReactorChannel->reactorChannel.pRsslChannel->protocolType;
 
+		// Calculate the next wakeup time.
+		pReactorChannel->preferredHostNextReconnectMs =
+			getNextFallbackPreferredHostTime(&pReactorChannel->preferredHostOptions, pReactorWorker->lastRecordedTimeMs);
+		if (pReactorChannel->preferredHostNextReconnectMs > 0)
+		{
+			_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->preferredHostNextReconnectMs - pReactorWorker->lastRecordedTimeMs));
+		}
+	}
+
+	/* Preferred Host update state, only if we're not in a preferred host reconnection state. */
+	if (pReactorChannel->preferredHostOptions.enablePreferredHostOptions && preferredHostInProgress == RSSL_FALSE)
+	{
+		_reactorWorkerPreferredHostResetState(pReactorImpl, pReactorChannel);
+		/* Calculate the new time to switch over to the preferred host if necessary. */
+		_reactorWorkerPreferredHostProcessComplete(pReactorImpl, pReactorChannel);
+	}
 
 	rsslClearReactorChannelEventImpl(pEvent);
-	pEvent->channelEvent.channelEventType = RSSL_RC_CET_CHANNEL_UP;
+	if (preferredHostInProgress == RSSL_TRUE)
+	{
+		// Clear out the notifiers
+		if (pReactorChannel->reactorChannel.pRsslChannel != NULL)
+		{
+			// Make sure descriptors are cleared for the old notifier.  This will be re-set when everything completed in the RSSL_RCIMPL_CET_PREFERRED_HOST_SWITCHOVER_COMPLETE event.
+			if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+			{
+				rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to remove channel from notifier.");
+				return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_RET_FAILURE);
+			}
+		}
+
+		// Clear out the preferred host notifier.
+		if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerPreferredHostNotifierEvent) < 0)
+		{
+			rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"Failed to remove channel from notifier.");
+			return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_RET_FAILURE);
+		}
+
+		pEvent->channelEvent.channelEventType = RSSL_RCIMPL_CET_PREFERRED_HOST_RECONNECT_COMPLETE;
+
+		// This is needed for failure conditions.
+		pReactorChannel->sentReconnectCompleteEvent = RSSL_TRUE;
+	}
+	else
+	{
+		pEvent->channelEvent.channelEventType = RSSL_RC_CET_CHANNEL_UP;
+	}
 	pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 		return RSSL_RET_FAILURE;
+
+	return RSSL_RET_SUCCESS;
+}
+
+RsslRet _reactorWorkerPreferredHostProcessComplete(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel)
+{
+	RsslReactorWorker* pReactorWorker = &pReactorImpl->reactorWorker;
+
+	/* Checks whether to perform a fallback when a detection time is specified. */
+	if (pReactorChannel->preferredHostOptions.enablePreferredHostOptions == RSSL_TRUE)
+	{
+		/* Calculate the new time to switch over to the preferred host if necessary. */
+		pReactorChannel->preferredHostNextReconnectMs =
+			getNextFallbackPreferredHostTime(&pReactorChannel->preferredHostOptions, pReactorWorker->lastRecordedTimeMs);
+
+		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+		{
+			char debugtext[128];
+			RsslInt64 timeout = 0;
+			if (pReactorChannel->preferredHostNextReconnectMs != 0)
+			{
+				timeout = (pReactorChannel->preferredHostNextReconnectMs - pReactorWorker->lastRecordedTimeMs);
+			}
+			snprintf(debugtext, 128, "ChannelUp. Preferred Host timeout calculated: %lld (milliseconds).", timeout);
+			_writeDebugInfoFallbackToPreferredHost(pReactorImpl, pReactorChannel, debugtext, &pReactorWorker->workerCerr);
+		}
+
+		if (pReactorChannel->preferredHostNextReconnectMs > 0)
+		{
+			_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->preferredHostNextReconnectMs - pReactorWorker->lastRecordedTimeMs));
+		}
+
+	}
+	return RSSL_RET_SUCCESS;
+}
+
+
+RsslRet _reactorWorkerPreferredHostResetState(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel)
+{
+	/* Reset Preferred host implementation state. */
+	pReactorChannel->pRsslPreferredHostChannel = NULL;
+
+	pReactorChannel->connectingToPreferredHost = RSSL_FALSE;
+	pReactorChannel->sentReconnectCompleteEvent = RSSL_FALSE;
+	pReactorChannel->preferredHostConnectionOpts = NULL;
+
+	if (pReactorChannel->pPreferredHostTokenSesion != NULL && pReactorChannel->pPreferredHostTokenSesion != pReactorChannel->pCurrentTokenSession)
+	{
+		// Reset the token session only if it's not the same as the current token session on the channel.
+		if (pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink.next != NULL && pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink.prev != NULL)
+		{
+			rsslQueueRemoveLink(&pReactorChannel->pPreferredHostTokenSesion->pSessionImpl->reactorChannelList, &pReactorChannel->pPreferredHostTokenSesion->tokenSessionLink);
+		}
+	}
+
+	pReactorChannel->pPreferredHostTokenSesion = NULL;
+
+	pReactorChannel->preferredHostNextReconnectMs = 0;
+
+	return RSSL_RET_SUCCESS;
+}
+
+RsslRet _reactorWorkerPreferredHostHandleChannelFailure(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel)
+{
+	/* Only set an error about failure on connect to the preferred host. */
+	/* The current non-preferred channel continue to work. */
+	char debugtext[256];
+	RsslError* pRsslError = &pReactorChannel->channelWorkerCerr.rsslError;
+	RsslReactorWorker* pReactorWorker = &pReactorImpl->reactorWorker;
+	RsslReactorChannelEventImpl* pEvent = NULL;
+
+
+	rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+		"Preferred host connection failed. Error text: %s", pRsslError->text);
+
+	snprintf(debugtext, sizeof(debugtext), "Preferred Host failed. rsslErrorId=%d, sysErr=%d, text=%s.",
+		pRsslError->rsslErrorId, pRsslError->sysError, pRsslError->text);
+	_writeDebugInfoFallbackToPreferredHost(pReactorImpl, pReactorChannel, debugtext, &pReactorWorker->workerCerr);
+
+	if (pReactorChannel->pRsslPreferredHostChannel != 0 &&
+		pReactorChannel->pRsslPreferredHostChannel->socketId != REACTOR_INVALID_SOCKET)
+	{
+		if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerPreferredHostNotifierEvent) < 0)
+		{
+			rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"Failed to remove preferred channel from notifier.");
+			return RSSL_RET_FAILURE;
+		}
+	}
+	// Close the channel, the pointer will be cleared in the clear call below.
+	if (pReactorChannel->pRsslPreferredHostChannel)
+	{
+		rsslCloseChannel(pReactorChannel->pRsslPreferredHostChannel, pRsslError);
+	}
+
+	/* Reset Preferred host state */
+	_reactorWorkerPreferredHostResetState(pReactorImpl, pReactorChannel);
+	/* Calculate the new time to switch over to the preferred host if necessary. */
+	_reactorWorkerPreferredHostProcessComplete(pReactorImpl, pReactorChannel);
+
+	pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
+	rsslClearReactorChannelEventImpl(pEvent);
+	pEvent->channelEvent.channelEventType = RSSL_RC_CET_PREFERRED_HOST_COMPLETE;
+	pEvent->channelEvent.pError = &pReactorChannel->channelWorkerCerr;
+
+	pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorChannel->channelWorkerCerr))
+		return RSSL_RET_FAILURE;
+
+	// If there is not an RSSL channel, that indicates that the previous connection has failed during the preferred host operation, so move the channel back to the reconnecting queue.
+	// On the reactor side, this should have already been handled in dispatch/submit with the user called back with DOWN_RECONNECTING, and the appropriate queue moves done.
+	// So queue up a DOWN_RECONNECTING event for the worker to properly handle everything.
+	if(pReactorChannel->reactorChannel.pRsslChannel == NULL)
+	{
+		RsslReactorChannelEventImpl* pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
+
+		rsslClearReactorChannelEventImpl(pEvent);
+		pEvent->channelEvent.channelEventType = RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING;
+		pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+		if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorWorker.workerQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE,& pReactorChannel->channelWorkerCerr))
+			return RSSL_RET_FAILURE;
+	}
+	else
+	{
+		// re-set the channel state and move the channel back to the active channels.
+		pReactorChannel->channelSetupState = RSSL_RC_CHST_READY;
+		_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.activeChannels, pReactorChannel);
+	}
 
 	return RSSL_RET_SUCCESS;
 }
@@ -1151,7 +1999,7 @@ static void _reactorWorkerCalculateNextTimeout(RsslReactorImpl *pReactorImpl, Rs
 
 	if (newTimeoutMicroSeconds < pReactorWorker->sleepTimeMs)
 		pReactorWorker->sleepTimeMs = newTimeoutMicroSeconds;
-	}
+}
 
 void _reactorWorkerMoveChannel(RsslQueue *pNewList, RsslReactorChannelImpl *pReactorChannel)
 { 
@@ -1205,7 +2053,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 		ret = rsslNotifierWait(pReactorWorker->pNotifier, pReactorWorker->sleepTimeMs * 1000);
 
 		pReactorWorker->lastRecordedTimeMs = getCurrentTimeMs(pReactorImpl->ticksPerMsec);
-
+		pReactorWorker->sleepTimeMs = defaultSelectTimeoutMs;
 
 		if (ret > 0)
 		{
@@ -1260,8 +2108,11 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 											}
 										case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
 											{
-												_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.reconnectingChannels, pReactorChannel);
-												pReactorChannel->lastPingSentMs = 0;
+												// Only do this if the preferred host operation is prior to sending the RECONNECT_COMPLETE event to the main reactor.
+												if (pReactorChannel->connectingToPreferredHost == RSSL_TRUE && pReactorChannel->sentReconnectCompleteEvent == RSSL_TRUE)
+												{
+													break;
+												}
 
 												if(pReactorChannel->reactorChannel.pRsslChannel != 0)
 												{
@@ -1276,45 +2127,78 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													pReactorChannel->reactorChannel.socketId = (RsslSocket)REACTOR_INVALID_SOCKET;
 
 													/* Close the channel */
-													/* TODO: Error check? */
-													rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &(pReactorChannel->channelWorkerCerr.rsslError));
+													if (!RSSL_ERROR_INFO_CHECK((ret = rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &pReactorWorker->workerCerr.rsslError)) >= RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+													{
+														rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+													}
 													pReactorChannel->reactorChannel.pRsslChannel = 0;
 												}
 
-												pReactorChannel->channelSetupState = RSSL_RC_CHST_RECONNECTING;
-
-												/* If the channel is using session V2 and has connected, clear out the access token, forcing the reconnection to get a new access token. */
-												if (pReactorChannel->hasConnected == RSSL_TRUE && pReactorChannel->pCurrentTokenSession != NULL && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
+												// Only do this if we're not in a preferred host operation.
+												// If we are, the channel should already be in the reconnecting or initializing worker queues
+												if (pReactorChannel->connectingToPreferredHost == RSSL_FALSE)
 												{
-													rsslClearReactorAuthTokenInfo(&(pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformation));
-													free(pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformationBuffer.data);
-													pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformationBuffer.data = NULL;
-													pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformationBuffer.length = 0;
-													pReactorChannel->hasConnected = RSSL_FALSE;
+													_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.reconnectingChannels, pReactorChannel);
+													pReactorChannel->lastPingSentMs = 0;
+
+													pReactorChannel->channelSetupState = RSSL_RC_CHST_RECONNECTING;
+
+													/* If the channel is using session V2 and has connected, clear out the access token, forcing the reconnection to get a new access token. */
+													if (pReactorChannel->hasConnected == RSSL_TRUE)
+													{
+														if (pReactorChannel->pTokenSessionList != NULL)
+														{
+															int tokenIter;
+															for (tokenIter = 0; tokenIter < pReactorChannel->channelRole.ommConsumerRole.oAuthCredentialCount; tokenIter++)
+															{
+																if (pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
+																{
+																	rsslClearReactorAuthTokenInfo(&(pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->tokenInformation));
+																	if (pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->tokenInformationBuffer.data != NULL)
+																	{
+																		free(pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->tokenInformationBuffer.data);
+																		pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->tokenInformationBuffer.data = NULL;
+																		pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->tokenInformationBuffer.length = 0;
+																	}
+																}
+															}
+														}
+														if (pReactorChannel->pCurrentTokenSession != NULL && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
+														{
+															rsslClearReactorAuthTokenInfo(&(pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformation));
+															free(pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformationBuffer.data);
+															pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformationBuffer.data = NULL;
+															pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformationBuffer.length = 0;
+															
+														}
+
+														pReactorChannel->hasConnected = RSSL_FALSE;
+													}
+
+
+													if (pReactorChannel->reconnectAttemptCount == 0)
+													{
+														pReactorChannel->reconnectDelay = pReactorChannel->reconnectMinDelay;
+
+													}
+													else
+													{
+														pReactorChannel->reconnectDelay = 2 * pReactorChannel->reconnectDelay;
+
+														if (pReactorChannel->reconnectDelay > pReactorChannel->reconnectMaxDelay)
+															pReactorChannel->reconnectDelay = pReactorChannel->reconnectMaxDelay;
+													}
+
+													pReactorChannel->reconnectAttemptCount++;
+
+													pReactorChannel->lastReconnectAttemptMs = pReactorImpl->reactorWorker.lastRecordedTimeMs;
+
+													if (pReactorChannel->connectionOptList)
+														(pReactorChannel->currentConnectionOpts->reconnectEndpointAttemptCount)++;
+
+													_reactorWorkerCalculateNextTimeout(pReactorImpl, pReactorChannel->reconnectDelay);
 												}
-
-
-												if(pReactorChannel->reconnectAttemptCount == 0)
-												{
-													pReactorChannel->reconnectDelay = pReactorChannel->reconnectMinDelay;
-
-												}
-												else
-												{
-													pReactorChannel->reconnectDelay = 2 * pReactorChannel->reconnectDelay;
-
-													if(pReactorChannel->reconnectDelay > pReactorChannel->reconnectMaxDelay)
-														pReactorChannel->reconnectDelay = pReactorChannel->reconnectMaxDelay;
-												}
-
-												pReactorChannel->reconnectAttemptCount++;
-
-												pReactorChannel->lastReconnectAttemptMs = pReactorImpl->reactorWorker.lastRecordedTimeMs;
-
-												if (pReactorChannel->connectionOptList)
-													(pReactorChannel->currentConnectionOpts->reconnectEndpointAttemptCount)++;
-
-												_reactorWorkerCalculateNextTimeout(pReactorImpl, pReactorChannel->reconnectDelay);
 
 												break;
 
@@ -1324,14 +2208,28 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												RsslReactorChannelEventImpl *pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
 												RsslRet ret;
 
-												if ((pReactorChannel->workerParentList != &pReactorWorker->inactiveChannels) && (pReactorChannel->reactorChannel.pRsslChannel != NULL))
+												if (pReactorChannel->workerParentList != &pReactorWorker->inactiveChannels)
 												{
-													/* Make sure descriptors are cleared */
-													if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+													if (pReactorChannel->reactorChannel.pRsslChannel != NULL)
 													{
-														rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+														/* Make sure descriptors are cleared */
+														if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+														{
+															rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 																"Failed to remove channel from notifier.");
-														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+															return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+														}
+													}
+
+													if (pReactorChannel->pRsslPreferredHostChannel != NULL)
+													{
+														/* Make sure descriptors are cleared */
+														if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerPreferredHostNotifierEvent) < 0)
+														{
+															rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+																"Failed to remove channel from notifier.");
+															return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+														}
 													}
 												}
 
@@ -1343,6 +2241,27 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 														rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
 														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 													}
+												}
+
+												if (pReactorChannel->oldRsslChannel)
+												{
+													if (!RSSL_ERROR_INFO_CHECK((ret = rsslCloseChannel(pReactorChannel->oldRsslChannel, &pReactorWorker->workerCerr.rsslError)) >= RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+													{
+														rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+													}
+													pReactorChannel->oldRsslChannel = NULL;
+												}
+
+												/* Close the preferred host channel if present. */
+												if (pReactorChannel->pRsslPreferredHostChannel)
+												{
+													if (!RSSL_ERROR_INFO_CHECK((ret = rsslCloseChannel(pReactorChannel->pRsslPreferredHostChannel, &pReactorWorker->workerCerr.rsslError)) >= RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+													{
+														rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+													}
+													pReactorChannel->pRsslPreferredHostChannel = NULL;
 												}
 
 												if (pReactorChannel->pWarmStandByHandlerImpl)
@@ -1381,6 +2300,20 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													_rsslChannelFreeConnectionList(pReactorChannel);
 												}
 
+												rsslFreePreferredHostOpts(&pReactorChannel->preferredHostOptions);
+												if (pReactorChannel->newPreferredHostOptions != NULL)
+												{
+													rsslFreePreferredHostOpts(pReactorChannel->newPreferredHostOptions);
+													free(pReactorChannel->newPreferredHostOptions);
+													pReactorChannel->newPreferredHostOptions = NULL;
+												}
+
+												if (pReactorChannel->userName.data)
+												{
+													free(pReactorChannel->userName.data);
+													rsslClearBuffer(&pReactorChannel->userName);
+												}
+
 												_reactorWorkerMoveChannel(NULL, pReactorChannel);
 
 												/* Acknowledge that this channel has been closed. */
@@ -1392,17 +2325,159 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 											}
 											break;
+										case RSSL_RCIMPL_CET_PREFERRED_HOST_START_FALLBACK:
+										{
+											// Preferred host. Initiate the fallback procedure. 
+											// This is like the DOWN_RECONNECTING case in that we move the channel to the worker's reconnection queue, but do not change the channel setup state or close out any of the current info.
+											// For WSB, this should only happen to the starting reactor channel, and if we're here, we're falling back to a WSB group, so the only check we need to make is if there is a WSB handler
+											if (pReactorChannel->pWarmStandByHandlerImpl != NULL && pReactorChannel->workerParentList != &pReactorWorker->activeChannels)
+											{
+												// The current starting channel for the wsb group is in reconnection, so close the current rsslChannel(if present)
+												if (pReactorChannel->reactorChannel.pRsslChannel != 0)
+												{
+													/* Make sure descriptors are cleared */
+													if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+													{
+														rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+															"Failed to remove channel from notifier.");
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+													}
+
+													pReactorChannel->reactorChannel.socketId = (RsslSocket)REACTOR_INVALID_SOCKET;
+
+													/* Close the channel */
+													if (!RSSL_ERROR_INFO_CHECK((ret = rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &pReactorWorker->workerCerr.rsslError)) >= RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+													{
+														rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+													}
+													pReactorChannel->reactorChannel.pRsslChannel = 0;
+												}
+											}
+
+											/* If the channel is using session V2 and has connected, clear out the access tokens, forcing the reconnection to get a new access token. */
+											if (pReactorChannel->hasConnected == RSSL_TRUE)
+											{
+												if (pReactorChannel->pTokenSessionList != NULL)
+												{
+													int tokenIter;
+													for (tokenIter = 0; tokenIter < pReactorChannel->channelRole.ommConsumerRole.oAuthCredentialCount; tokenIter++)
+													{
+														if (pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
+														{
+															rsslClearReactorAuthTokenInfo(&(pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->tokenInformation));
+															if (pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->tokenInformationBuffer.data != NULL)
+															{
+																free(pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->tokenInformationBuffer.data);
+																pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->tokenInformationBuffer.data = NULL;
+																pReactorChannel->pTokenSessionList[tokenIter].pSessionImpl->tokenInformationBuffer.length = 0;
+															}
+														}
+													}
+												}
+												if (pReactorChannel->pCurrentTokenSession != NULL && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
+												{
+													rsslClearReactorAuthTokenInfo(&(pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformation));
+													free(pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformationBuffer.data);
+													pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformationBuffer.data = NULL;
+													pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformationBuffer.length = 0;
+
+												}
+											}
+
+											// move the channel to the worker's reconnection list
+											_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.reconnectingChannels, pReactorChannel);
+											// Clear out the reconnect attempt count, and set the next timeout to be immedately following this.
+												/* Initiate fallback to the preferred host */
+											pReactorChannel->connectingToPreferredHost = RSSL_TRUE;
+											pReactorChannel->reconnectAttemptCount = 0;
+											pReactorChannel->reconnectDelay = 0;
+
+											pReactorChannel->channelSetupState = RSSL_RC_CHST_RECONNECTING;
+
+											_reactorWorkerCalculateNextTimeout(pReactorImpl, pReactorChannel->reconnectDelay);
+
+											break;
+										}
+										case RSSL_RCIMPL_CET_PREFERRED_HOST_SWITCHOVER_COMPLETE:
+										{
+											RsslReactorChannelEventImpl* pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
+
+											_reactorWorkerMoveChannel(&pReactorWorker->activeChannels, pReactorChannel);
+
+
+											// Register the new channel to the worker's notifier.
+											if (rsslNotifierAddEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent, (int)pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorChannel) < 0)
+											{
+												rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+													"Failed to add notifier event for initializing channel.");
+												return RSSL_THREAD_RETURN();
+											}
+
+											// Close out the old rsslChannel, if present.
+											if (pReactorChannel->oldRsslChannel != NULL)
+											{
+												if (!RSSL_ERROR_INFO_CHECK((ret = rsslCloseChannel(pReactorChannel->oldRsslChannel, &pReactorWorker->workerCerr.rsslError)) >= RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+												{
+													rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+													return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+												}
+											}
+											pReactorChannel->oldRsslChannel = NULL;
+
+											pReactorChannel->connectingToPreferredHost = RSSL_FALSE;
+											pReactorChannel->sentReconnectCompleteEvent = RSSL_FALSE;
+
+											// Calculate the next ping timeout.
+											_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
+											pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+
+											// If a new set of preferred host options was set by ioctl, handle it here
+											if (pReactorChannel->newPreferredHostOptions != NULL)
+											{
+												RSSL_MUTEX_LOCK(&pReactorChannel->preferredHostCopyMutex);
+												_reactorWorkerPreferredHostApplyNewOpts(pReactorChannel, pReactorChannel->newPreferredHostOptions);
+												RSSL_MUTEX_UNLOCK(&pReactorChannel->preferredHostCopyMutex);
+
+												// Do not free the deep copied buffer information, just the newPreferredHost pointer, and clear it.
+												free(pReactorChannel->newPreferredHostOptions);
+												pReactorChannel->newPreferredHostOptions = NULL;
+											}
+
+											// Calculate the next wakeup time.
+											pReactorChannel->preferredHostNextReconnectMs =
+												getNextFallbackPreferredHostTime(&pReactorChannel->preferredHostOptions, pReactorWorker->lastRecordedTimeMs);
+											if (pReactorChannel->preferredHostNextReconnectMs > 0)
+											{
+												_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->preferredHostNextReconnectMs - pReactorWorker->lastRecordedTimeMs));
+											}
+
+											rsslClearReactorChannelEventImpl((RsslReactorChannelEventImpl*)pEvent);
+											pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RC_CET_PREFERRED_HOST_COMPLETE;
+											pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+											pEvent->channelEvent.pError = &pReactorChannel->channelWorkerCerr;
+
+											rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_SUCCESS, RSSL_RET_SUCCESS, __FILE__, __LINE__,
+												"Preferred Host operation complete.");
+
+											if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+												return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+
+											
+											break;
+										}
+										
 										case RSSL_RCIMPL_CET_CLOSE_WARMSTANDBY_CHANNEL:
 											{
 												RsslReactorWarmStandByHandlerImpl* pReactorWarmStandbyHandlerImpl = pReactorChannel->pWarmStandByHandlerImpl;
 
 												if (pReactorWarmStandbyHandlerImpl)
 												{
-													RsslReactorWarmStanbyEvent* pEvent = NULL;
+													RsslReactorWarmStandbyEvent* pEvent = NULL;
 													pReactorWarmStandbyHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_INACTIVE;
 
-													pEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-													rsslClearReactorWarmStanbyEvent(pEvent);
+													pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+													rsslClearReactorWarmStandbyEvent(pEvent);
 
 													pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_MOVE_WSB_HANDLER_BACK_TO_POOL;
 													pEvent->pReactorWarmStandByHandlerImpl = (void*)pReactorWarmStandbyHandlerImpl;
@@ -1443,6 +2518,41 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												_reactorWorkerMoveChannel(&pReactorWorker->inactiveChannels, pReactorChannel);
 												pReactorChannel->isRsslChannelClosed = RSSL_TRUE;
 												
+												break;
+											}
+										case RSSL_RCIMPL_CET_PREFERRED_HOST_OPTS:
+											{
+												/* New preferred host options */
+												RsslPreferredHostOptions* pRsslPreferredHostOpts = pConnEvent->pRsslPreferredHostOpts;
+
+												// Overwrite any pending newPreferredHostOptions in the pReactorChannel
+												if (pReactorChannel->connectingToPreferredHost == RSSL_TRUE)
+												{
+													// If there's a pending preferred host option here, clear it and set the new one.
+													if (pReactorChannel->newPreferredHostOptions != NULL)
+													{
+														rsslFreePreferredHostOpts(pReactorChannel->newPreferredHostOptions);
+														free(pReactorChannel->newPreferredHostOptions);
+													}
+													pReactorChannel->newPreferredHostOptions = pRsslPreferredHostOpts;
+
+												}
+												else
+												{
+													RSSL_MUTEX_LOCK(&pReactorChannel->preferredHostCopyMutex);
+													_reactorWorkerPreferredHostApplyNewOpts(pReactorChannel, pRsslPreferredHostOpts);
+													RSSL_MUTEX_UNLOCK(&pReactorChannel->preferredHostCopyMutex);
+													// Do not free the deep copied buffer information, just the pRsslPreferredHostOpts pointer.
+													free(pRsslPreferredHostOpts);
+
+													// Calculate the next wakeup time.
+													pReactorChannel->preferredHostNextReconnectMs =
+														getNextFallbackPreferredHostTime(&pReactorChannel->preferredHostOptions, pReactorWorker->lastRecordedTimeMs);
+													if (pReactorChannel->preferredHostNextReconnectMs > 0)
+													{
+														_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->preferredHostNextReconnectMs - pReactorWorker->lastRecordedTimeMs));
+													}
+												}
 												break;
 											}
 										default:
@@ -1509,10 +2619,21 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							{
 								RsslReactorLoginCredentialRenewalEvent* pReactorLoginRenewalEvent = (RsslReactorLoginCredentialRenewalEvent*)pEvent;
 								RsslReactorChannelImpl* pReactorChannel = (RsslReactorChannelImpl*)pEvent->loginRenewalEvent.pReactorChannel;
+								RsslReactorConnectInfoImpl* pConnectInfo;
+								
 
 								pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_RECEIVED_LOGIN_MSG;
 
-								if (_reactorWorkerReconnectAfterCredentialUpdate(pReactorChannel, pReactorChannel->pParentReactor, pReactorChannel->currentConnectionOpts, RSSL_TRUE) == RSSL_RET_FAILURE)
+								if (pReactorChannel->preferredHostConnectionOpts != NULL)
+								{
+									pConnectInfo = pReactorChannel->preferredHostConnectionOpts;
+								}
+								else
+								{
+									pConnectInfo = pReactorChannel->currentConnectionOpts;
+								}
+
+								if (_reactorWorkerReconnectAfterCredentialUpdate(pReactorChannel, pReactorChannel->pParentReactor, pConnectInfo, RSSL_TRUE) == RSSL_RET_FAILURE)
 								{
 									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 								}
@@ -2124,7 +3245,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 										}
 									}
-								    else if (pHandle == 0)
+									else if (pHandle == 0)
 									{
 										pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
 										rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
@@ -2166,8 +3287,30 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 				else
 				{
 					pReactorChannel = (RsslReactorChannelImpl*)object;
+					RsslChannel* pRsslChannel = NULL;
+					RsslNotifierEvent* pWorkerNotifierEvent;
+					RsslBool preferredHostInProgress = RSSL_FALSE;
+					char* extraErrorText = "";
 
-					if (pReactorChannel->reactorChannel.pRsslChannel == NULL)
+					// We should never be in a situation where both the main rsslChannel and the preferred host rsslChannel are in the initializing state
+					if (pReactorChannel->preferredHostOptions.enablePreferredHostOptions
+						&& pReactorChannel->connectingToPreferredHost
+						&& pReactorChannel->pRsslPreferredHostChannel != NULL)
+					{
+						/* Fallback to the preferred host was initiated by timeout */
+						/* pRsslPreferredHostChannel is initializing now */
+						preferredHostInProgress = RSSL_TRUE;
+						extraErrorText = " Preferred";
+						pRsslChannel = pReactorChannel->pRsslPreferredHostChannel;
+						pWorkerNotifierEvent = pReactorChannel->pWorkerPreferredHostNotifierEvent;
+					}
+					else
+					{
+						pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
+						pWorkerNotifierEvent = pReactorChannel->pWorkerNotifierEvent;
+					}
+
+					if (pRsslChannel == NULL)
 					{
 						/* We may have just closed this channel and started reconnecting it. Do not process notification for it. */
 					}
@@ -2175,28 +3318,28 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 					{
 						/* When a bad file descriptor is encountered in the reactorWorker, it is likely because the
 						 * Reactor thread received an FD_CHANGE return from rsslRead. Update it. */
-						if (rsslNotifierUpdateEventFd(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent, (int)pReactorChannel->reactorChannel.pRsslChannel->socketId) < 0)
+						if (rsslNotifierUpdateEventFd(pReactorWorker->pNotifier, pWorkerNotifierEvent, (int)pRsslChannel->socketId) < 0)
 						{
 							rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-									"Failed to update file descriptor for channel.");
+									"Failed to update file descriptor for channel.%s", extraErrorText);
 							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 						}
 					}
-					else if (pReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_INITIALIZING)
+					else if (pRsslChannel->state == RSSL_CH_STATE_INITIALIZING)
 					{
 						RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
 
 						/* Write descriptor is set initially in case this end starts the message hanshakes that rsslInitChannel() performs. 
 						 * Once rsslInitChannel() is called for the first time the channel can wait on the read descriptor for more messages.  
 						 * We will set the write descriptor again if an FD_CHANGE event occurs. */
-						if (rsslNotifierUnregisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+						if (rsslNotifierUnregisterWrite(pReactorWorker->pNotifier, pWorkerNotifierEvent) < 0)
 						{
 							rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-									"Failed to unregister write notification for initializing channel.");
+									"Failed to unregister write notification for initializing channel.%s", extraErrorText);
 							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 						}
 
-						ret = rsslInitChannel(pReactorChannel->reactorChannel.pRsslChannel, &inProg, &pReactorChannel->channelWorkerCerr.rsslError);
+						ret = rsslInitChannel(pRsslChannel, &inProg, &pReactorChannel->channelWorkerCerr.rsslError);
 
 
 						switch(ret)
@@ -2207,22 +3350,22 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 									{
 										/* File descriptor changed. Update descriptor set.
 										 * No need to send an event back -- the application will only get the descriptors when we're done initializing. */
-										if (rsslNotifierUpdateEventFd(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent, (int)pReactorChannel->reactorChannel.pRsslChannel->socketId) < 0)
+										if (rsslNotifierUpdateEventFd(pReactorWorker->pNotifier, pWorkerNotifierEvent, (int)pRsslChannel->socketId) < 0)
 										{
 											rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-													"Failed to update notification event for initializing channel that is changing descriptor.");
+													"Failed to update notification event for initializing channel that is changing descriptor.%s", extraErrorText);
 											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 										}
-										if (rsslNotifierRegisterRead(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+										if (rsslNotifierRegisterRead(pReactorWorker->pNotifier, pWorkerNotifierEvent) < 0)
 										{
 											rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-													"Failed to register read notification for initializing channel that is changing descriptor.");
+													"Failed to register read notification for initializing channel that is changing descriptor.%s", extraErrorText);
 											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 										}
-										if (rsslNotifierRegisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+										if (rsslNotifierRegisterWrite(pReactorWorker->pNotifier, pWorkerNotifierEvent) < 0)
 										{
 											rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-													"Failed to register write notification for initializing channel that is changing descriptor.");
+													"Failed to register write notification for initializing channel that is changing descriptor.%s", extraErrorText);
 											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 										}
 									}
@@ -2232,26 +3375,46 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 							case RSSL_RET_SUCCESS:
 								{
+									if (preferredHostInProgress)
+									{
+										_writeDebugInfoFallbackToPreferredHost(pReactorImpl, pReactorChannel,
+											"Preferred Host. Initiated the switch over to the preferred host's Rssl channel.", &pReactorWorker->workerCerr);
+									}
+
 									if (_reactorWorkerProcessChannelUp(pReactorImpl, pReactorChannel) != RSSL_RET_SUCCESS)
 										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+
 									/* Channel is now active. Clear descriptor so we don't think we need to flush right away */
-									if (rsslNotifierUnregisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+									if (rsslNotifierUnregisterWrite(pReactorWorker->pNotifier, pWorkerNotifierEvent) < 0)
 									{
-										rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-												"Failed to unregister write notification for initializing channel.");
+										rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+											"Failed to unregister write notification for initializing channel.%s", extraErrorText);
 										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 									}
+									
 									break;
 								}
 
 							default:
 								{
-									/* Error */
-									rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
-									/* Set the channelSetupState to INIT_FAIL so _reactorHandleChannelDown handles the down event correctly */
-									pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT_FAIL;
-									if (_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) != RSSL_RET_SUCCESS)
-										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									if (!preferredHostInProgress)
+									{
+										/* Error */
+										rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+										/* Set the channelSetupState to INIT_FAIL so _reactorHandleChannelDown handles the down event correctly */
+										pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT_FAIL;
+										if (_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) != RSSL_RET_SUCCESS)
+											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									}
+									else
+									{
+										/* Only set an error about failure on connect to the preferred host. */
+										/* The current non-preferred channel continue to work. */
+										if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerPreferredHostHandleChannelFailure(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+										{
+											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+										}
+									}
 									break;
 								}
 						}
@@ -2271,10 +3434,15 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 							if (ret < 0)
 							{
-								rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
-								if (_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) != RSSL_RET_SUCCESS)
+								// If we have sent the preferred host reconnection complete event, do not send failure, this will be handled naturally by the preferred host process.
+								if (pReactorChannel->sentReconnectCompleteEvent == RSSL_FALSE)
 								{
-									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+								
+									if (_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) != RSSL_RET_SUCCESS)
+									{
+										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									}
 								}
 							}
 							else if (ret == 0)
@@ -2324,8 +3492,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 		/* Ping/initialization/recovery timeout check/renew the access token */
 
-		pReactorWorker->sleepTimeMs = defaultSelectTimeoutMs;
-
 		/* Check whether the initialization time period has passed. */
 		RSSL_QUEUE_FOR_EACH_LINK(&pReactorWorker->initializingChannels, pLink)
 		{
@@ -2333,68 +3499,58 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 			if ((pReactorWorker->lastRecordedTimeMs - pReactorChannel->initializationStartTimeMs) > pReactorChannel->initializationTimeout * 1000)
 			{
 				rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Initialization timed out.");
-				/* Set the channelSetupState to INIT_FAIL so _reactorHandleChannelDown handles the down event correctly */
-				pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT_FAIL;
-				if (_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) != RSSL_RET_SUCCESS)
-					return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+				if (pReactorChannel->connectingToPreferredHost == RSSL_FALSE)
+				{
+					/* Set the channelSetupState to INIT_FAIL so _reactorHandleChannelDown handles the down event correctly */
+					pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT_FAIL;
+				
+					if (_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) != RSSL_RET_SUCCESS)
+						return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+				}
+				else
+				{
+					/* The current non-preferred channel should continue to work. */
+					if(_reactorWorkerPreferredHostHandleChannelFailure(pReactorImpl, pReactorChannel) != RSSL_RET_SUCCESS)
+						return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+				}
 			}
 			else
 			{
 				_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->initializationStartTimeMs + (pReactorChannel->initializationTimeout * 1000) - pReactorWorker->lastRecordedTimeMs));
 			}
+
+			// Check to see if the channel needs to ping because the preferred host is currently in operation
+			if (pReactorChannel->connectingToPreferredHost == RSSL_TRUE && pReactorChannel->reactorChannel.pRsslChannel != NULL)
+			{
+				ret = _reactorWorkerHandlePingTimeout(pReactorChannel, pReactorWorker, pReactorImpl);
+				if (ret == RSSL_RET_FAILURE)
+					return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+			}
+
+			// If this is a warm standby channel, handle the preferred host.  This is if fallback in group is set to TRUE.
+			// This will only apply to the starting channel in the warm standby handler group.  All other channels should have preferred host turned off.
+			// Also do not proceed if the wsb handler is in the CONNECTING_TO_STARTING_SERVER state only.
+			if (_reactorHandlesWarmStandby(pReactorChannel) == RSSL_TRUE && ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_CONNECTING_TO_A_STARTING_SERVER) != 0))
+			{
+				
+				ret = _reactorWorkerHandlePreferredHostTimeout(pReactorChannel, pReactorWorker, pReactorImpl);
+				if (ret == RSSL_RET_FAILURE)
+					return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+			}
 		}
 
 		RSSL_QUEUE_FOR_EACH_LINK(&pReactorWorker->activeChannels, pLink)
 		{
-			RsslBool sendPingMessage = RSSL_TRUE;
+			
 			pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, workerLink, pLink);
 
-			/* Checks whether to send a ping message for the JSON protocol. */
-			if (pReactorChannel->reactorChannel.pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
-			{
-				sendPingMessage = pReactorChannel->sendWSPingMessage; 
-			}
+			ret = _reactorWorkerHandlePingTimeout(pReactorChannel, pReactorWorker, pReactorImpl);
+			if(ret == RSSL_RET_FAILURE)
+				return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 
-			if (sendPingMessage)
-			{
-				/* Check if the elapsed time is greater than our ping-send interval. */
-				if ((pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastPingSentMs) > pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor)
-				{
-
-					/* If so, send a ping. */
-					ret = rsslPing(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
-					if (ret < 0)
-					{
-						rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
-						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-					}
-					else
-					{
-						if ((pReactorChannel->statisticFlags & RSSL_RC_ST_PING) && pReactorChannel->pChannelStatistic)
-						{
-							RsslReactorChannelPingEvent *pEvent = (RsslReactorChannelPingEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
-							rsslClearReactorChannelPingEvent(pEvent);
-
-							pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
-
-							if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
-								== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-							{
-								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-							}
-						}
-
-						pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
-						_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
-					}
-				}
-				else
-				{
-					/* Otherwise, figure out when to wake up again. (Ping interval - (current time - time of last ping). */
-					_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->lastPingSentMs + (RsslInt64)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor) - pReactorWorker->lastRecordedTimeMs));
-				}
-			}
+			ret = _reactorWorkerHandlePreferredHostTimeout(pReactorChannel, pReactorWorker, pReactorImpl);
+			if (ret == RSSL_RET_FAILURE)
+				return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 
 			/* Process any channels that are waiting for a timeout. */
 			if (pReactorChannel->nextExpireTime != RCIMPL_TIMER_UNSET)
@@ -2413,13 +3569,20 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 		{
 			pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, workerLink, pLink);
 
+			RsslBool preferredHostEnabled = pReactorChannel->preferredHostOptions.enablePreferredHostOptions;
+
 			if (pReactorChannel->isInitialChannelConnect == RSSL_TRUE && _reactorHandlesWarmStandby(pReactorChannel) == RSSL_FALSE)
 				/* Attempt initial connect here */
 			{
 				RsslReactorConnectInfoImpl *pReactorConnectInfoImpl;
 				RsslBool submitOriginalCredential = RSSL_FALSE;
-
-				if ((pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_LOGIN_MSG) ||
+				if (pReactorChannel->preferredHostConnectionOpts != NULL && ((pReactorChannel->preferredHostConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_LOGIN_MSG) ||
+					(pReactorChannel->preferredHostConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN) ||
+					(pReactorChannel->preferredHostConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY)))
+				{
+					continue;
+				}
+				else if ((pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_LOGIN_MSG) ||
 					(pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN) ||
 					(pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY))
 				{
@@ -2440,230 +3603,25 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 					continue; /* Move to next channel */
 				}
 
-				pReactorChannel->connectionListIter = 0;
 				pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
 
 				pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
 				pReactorChannel->currentConnectionOpts = pReactorConnectInfoImpl;
+
+				// Initial connection should be the preferred host, if configured, so set this to false in all cases.
+				pReactorChannel->nextReconnectShouldBeFallback = RSSL_FALSE;
 
 				if (_reactorWorkerReconnectAfterCredentialUpdate(pReactorChannel, pReactorImpl, pReactorConnectInfoImpl, submitOriginalCredential) == RSSL_RET_FAILURE)
 				{
 					return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 				}
 			}
-			else if(pReactorChannel->isInitialChannelConnect == RSSL_TRUE ||
-					(pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastReconnectAttemptMs) >= pReactorChannel->reconnectDelay)
+			else if (pReactorChannel->isInitialChannelConnect == RSSL_TRUE ||
+				(pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastReconnectAttemptMs) >= pReactorChannel->reconnectDelay)
 				/* Attempt to reconnect here */
 			{
-				RsslReactorConnectInfoImpl *pReactorConnectInfoImpl;
-				RsslReactorConnectInfoImpl* prevConnectInfo = NULL;
-				RsslBool submitOriginalCredential = RSSL_FALSE;
-
-				if ((pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_LOGIN_MSG) ||
-					(pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN) ||
-					(pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY))
-				{
-					continue; /* Still waiting for response from the token service or service discovery before switching to another RsslReactorConnectInfoImpl */
-				}
-				else if (pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_STOP_REQUESTING)
-				{
-					/* Ensure that the worker notifies the reactor only the first time */
-					if (pReactorChannel->workerParentList == &pReactorWorker->reconnectingChannels)
-					{
-						/* Stop reconnecting the channel */
-						pReactorChannel->reconnectAttemptLimit = 0;
-
-						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-					}
-
-					continue; /* Move to next channel */
-				}
-
-				/* Checks whether this channel belongs to the warmstandby feature. */
-				if (_reactorHandlesWarmStandby(pReactorChannel))
-				{
-					RsslReactorWarmStandbyGroupImpl* pWarmStandByGroupImpl = &pReactorChannel->pWarmStandByHandlerImpl->warmStandbyGroupList[pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex];
-					RsslReactorWarmStandbyServerInfoImpl* pWarmStandbyServerInfoImpl;
-
-					if (pReactorChannel->isStartingServerConfig)
-					{
-						if (pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState == RSSL_RWSB_STATE_CONNECTING_TO_A_STARTING_SERVER && pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex > 0)
-						{
-							/* This should be incremented at this point so we know that we can check against the previous index */
-							prevConnectInfo = &(pReactorChannel->pWarmStandByHandlerImpl->warmStandbyGroupList[pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex - 1].startingActiveServer.reactorConnectInfoImpl);
-						}
-						else
-						{
-							prevConnectInfo = pReactorChannel->currentConnectionOpts;
-						}
-						pWarmStandbyServerInfoImpl = &pWarmStandByGroupImpl->startingActiveServer;
-
-						pReactorConnectInfoImpl = &(pWarmStandbyServerInfoImpl->reactorConnectInfoImpl);
-
-						/* Updates with from the reactor connect info */
-						pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
-
-						if ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_CLOSING_STANDBY_CHANNELS) != 0)
-						{
-							continue; /* Do nothing while waiting for standby channels to close. */
-						}
-					}
-					else
-					{
-						pWarmStandbyServerInfoImpl = &pWarmStandByGroupImpl->standbyServerList[pReactorChannel->standByServerListIndex];
-						pReactorConnectInfoImpl = (&pWarmStandbyServerInfoImpl->reactorConnectInfoImpl);
-						prevConnectInfo = pReactorChannel->currentConnectionOpts;
-
-						/* Updates with from the reactor connect info */
-						pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
-					}
-
-					if (!pWarmStandbyServerInfoImpl->isActiveChannelConfig)
-					{
-						rsslQueueRemoveLink(pReactorChannel->workerParentList, &pReactorChannel->workerLink);
-						rsslInitQueueLink(&pReactorChannel->workerLink);
-						continue; /* Do nothing as this channel config is no longer active */
-					}
-				}
-				else
-				{
-					prevConnectInfo = pReactorChannel->currentConnectionOpts;
-
-					if (pReactorChannel->pWarmStandByHandlerImpl && ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_MOVED_TO_CHANNEL_LIST) == 0))
-					{
-						pReactorChannel->connectionListIter = 0;
-						pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState |= RSSL_RWSB_STATE_MOVED_TO_CHANNEL_LIST;
-					}
-					else
-					{
-						pReactorChannel->connectionListIter++;
-
-						if (pReactorChannel->connectionListIter >= pReactorChannel->connectionListCount)
-						{
-							pReactorChannel->connectionListIter = 0;
-						}
-					}
-
-					pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
-				}
-
-				pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
-				pReactorChannel->currentConnectionOpts = pReactorConnectInfoImpl;
-
-
-				/* Restore the states of RsslReactorChannelImpl before moving to the next RsslReactorConnectInfoImpl */
-				if (pReactorConnectInfoImpl->base.enableSessionManagement)
-				{
-					/* Store any changes to the original login request information if there is a login request list */
-					if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList)
-					{
-						if (prevConnectInfo->base.loginReqIndex != pReactorConnectInfoImpl->base.loginReqIndex)
-						{
-							/*  pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[prevConnectInfo->base.loginReqIndex]->loginRequestMsg should be the
-								same as pReactorChannel->channelRole.ommConsumerRole.pLoginRequest*/
-							RsslRDMLoginRequest* pRDMLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest;
-							if (pRDMLoginRequest->userName.data != pReactorChannel->userName.data)
-							{
-								pRDMLoginRequest->flags = pReactorChannel->flags;
-								pRDMLoginRequest->userName = pReactorChannel->userName;
-								pRDMLoginRequest->userNameType = pReactorChannel->userNameType;
-
-								pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[prevConnectInfo->base.loginReqIndex]->loginRequestMsg =
-									(RsslRDMLoginRequest*)rsslCreateRDMMsgCopy((RsslRDMMsg*)pRDMLoginRequest, 256, &ret);
-
-								if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorConnectInfoImpl->base.loginReqIndex]->loginRequestMsg == NULL)
-								{
-									rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-										"Failed to update rdm login request.");
-
-									if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-									{
-										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-									}
-
-									continue;
-								}
-
-								free(pRDMLoginRequest);
-
-								pReactorChannel->channelRole.ommConsumerRole.pLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[prevConnectInfo->base.loginReqIndex]->loginRequestMsg;
-
-								submitOriginalCredential = RSSL_TRUE;
-							}
-						}
-						else
-						{
-							RsslRDMLoginRequest* pRDMLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest;
-							if (pRDMLoginRequest->userName.data != pReactorChannel->userName.data)
-							{
-								pRDMLoginRequest->flags = pReactorChannel->flags;
-								pRDMLoginRequest->userName = pReactorChannel->userName;
-								pRDMLoginRequest->userNameType = pReactorChannel->userNameType;
-								submitOriginalCredential = RSSL_TRUE;
-							}
-						}
-
-					}
-					else if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
-					{
-						RsslRDMLoginRequest* pRDMLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest;
-						if (pRDMLoginRequest->userName.data != pReactorChannel->userName.data)
-						{
-							pRDMLoginRequest->flags = pReactorChannel->flags;
-							pRDMLoginRequest->userName = pReactorChannel->userName;
-							pRDMLoginRequest->userNameType = pReactorChannel->userNameType;
-							submitOriginalCredential = RSSL_TRUE;
-						}
-					}
-
-					/* Removes the channel from the token session for V1 only */
-					if (pReactorChannel->pCurrentTokenSession && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
-					{
-						if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next != NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev != NULL)
-						{
-							rsslQueueRemoveLink(&pReactorChannel->pCurrentTokenSession->pSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
-							pReactorChannel->currentConnectionOpts->lastTokenUpdatedTime = 0;
-						}
-					}
-				}
-
-				/* IF session management is enabled, do not use the login callback, because we will get the token automatically */
-				if (pReactorChannel->currentConnectionOpts->base.enableSessionManagement == RSSL_TRUE)
-				{
-					if (pReactorChannel->pTokenSessionList != NULL)
-					{
-						pReactorChannel->pCurrentTokenSession = &pReactorChannel->pTokenSessionList[pReactorChannel->currentConnectionOpts->base.oAuthCredentialIndex];
-
-						if (pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenSessionState == RSSL_RC_TOKEN_SESSION_IMPL_STOP_REQUESTING)
-						{
-							// This has failed previously, we don't know when, but we're trying it now.  Set the accessToken.data to 0 and try again. 
-							RSSL_MUTEX_LOCK(&pReactorChannel->pCurrentTokenSession->pSessionImpl->accessTokenMutex);
-							pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformation.accessToken.data = 0;
-							RSSL_MUTEX_UNLOCK(&pReactorChannel->pCurrentTokenSession->pSessionImpl->accessTokenMutex);
-						}
-					}
-				}
-				else if(pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER
-						&&  pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList)
-				{
-					/* Get the next login request message */
-					pReactorChannel->channelRole.ommConsumerRole.pLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorChannel->currentConnectionOpts->base.loginReqIndex]->loginRequestMsg;
-
-					/* If the login index has changed, set submitOriginalCredential to true */
-					if(prevConnectInfo->base.loginReqIndex != pReactorConnectInfoImpl->base.loginReqIndex)
-						submitOriginalCredential = RSSL_TRUE;
-
-					if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorChannel->currentConnectionOpts->base.loginReqIndex]->pLoginRenewalEventCallback != NULL)
-					{
-						/* If there is a login request callback, tell the main thread to dispatch it */
-						pReactorChannel->currentConnectionOpts->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_LOGIN_MSG;
-						notifyLoginRenewalReq(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorChannel->currentConnectionOpts->base.loginReqIndex], pReactorWorker);
-						continue;
-					}
-				}
-
-				if (_reactorWorkerReconnectAfterCredentialUpdate(pReactorChannel, pReactorImpl, pReactorConnectInfoImpl, submitOriginalCredential) == RSSL_RET_FAILURE)
+				ret = _reactorWorkerProcessReconnect(pReactorChannel, pReactorImpl);
+				if (ret != RSSL_RET_SUCCESS)
 				{
 					return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 				}
@@ -2671,6 +3629,36 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 			else
 			{
 				_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->lastReconnectAttemptMs + pReactorChannel->reconnectDelay - pReactorWorker->lastRecordedTimeMs));
+			}
+
+			// Check to see if the channel needs to ping because the preferred host is currently in operation
+			if (pReactorChannel->connectingToPreferredHost == RSSL_TRUE && pReactorChannel->reactorChannel.pRsslChannel != NULL)
+			{
+				ret = _reactorWorkerHandlePingTimeout(pReactorChannel, pReactorWorker, pReactorImpl);
+				if (ret == RSSL_RET_FAILURE)
+					return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+
+				/* Process any channels that are waiting for a timeout. */
+				if (pReactorChannel->nextExpireTime != RCIMPL_TIMER_UNSET)
+				{
+					if (pReactorChannel->nextExpireTime < pReactorWorker->lastRecordedTimeMs)
+					{
+						/* Timer expired for this channel, send event back. */
+						_reactorWorkerSendTimerExpired(pReactorImpl, pReactorChannel, pReactorWorker->lastRecordedTimeMs);
+					}
+					else
+						_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->nextExpireTime - pReactorWorker->lastRecordedTimeMs));
+				}
+			}
+
+			// If this is a warm standby channel, handle the preferred host.  This is if fallback in group is set to TRUE.
+			// This will only apply to the starting channel in the warm standby handler group.  All other channels should have preferred host turned off.
+			// Also do not proceed if the wsb handler is in the CONNECTING_TO_STARTING_SERVER state only.
+			if (_reactorHandlesWarmStandby(pReactorChannel) == RSSL_TRUE && ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_CONNECTING_TO_A_STARTING_SERVER) != 0))
+			{
+				ret = _reactorWorkerHandlePreferredHostTimeout(pReactorChannel, pReactorWorker, pReactorImpl);
+				if (ret == RSSL_RET_FAILURE)
+					return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 			}
 		}
 
@@ -2953,6 +3941,151 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 	}
 }
 
+RsslRet _reactorWorkerHandlePingTimeout(RsslReactorChannelImpl* pReactorChannel, RsslReactorWorker* pReactorWorker, RsslReactorImpl* pReactorImpl)
+{
+	RsslBool sendPingMessage = RSSL_TRUE;
+	RsslRet ret;
+	/* Checks whether to send a ping message for the JSON protocol. */
+	if (pReactorChannel->reactorChannel.pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		sendPingMessage = pReactorChannel->sendWSPingMessage;
+	}
+
+	if (pReactorChannel->reactorChannel.pRsslChannel != NULL && pReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE && sendPingMessage)
+	{
+		/* Check if the elapsed time is greater than our ping-send interval. */
+		if ((pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastPingSentMs) > pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor)
+		{
+
+			/* If so, send a ping. */
+			ret = rsslPing(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
+			if (ret < 0)
+			{
+				// If we have sent the preferred host reconnection complete event, do not send failure, this will be handled naturally by the preferred host process.
+				if (pReactorChannel->sentReconnectCompleteEvent == RSSL_FALSE)
+				{
+					rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+						return RSSL_RET_FAILURE;
+				}
+			}
+			else
+			{
+				if ((pReactorChannel->statisticFlags & RSSL_RC_ST_PING) && pReactorChannel->pChannelStatistic)
+				{
+					RsslReactorChannelPingEvent* pEvent = (RsslReactorChannelPingEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
+					rsslClearReactorChannelPingEvent(pEvent);
+
+					pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+
+					if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+						== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+					{
+						return RSSL_RET_FAILURE;
+					}
+				}
+
+				pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+				_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
+			}
+		}
+		else
+		{
+			/* Otherwise, figure out when to wake up again. (Ping interval - (current time - time of last ping). */
+			_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->lastPingSentMs + (RsslInt64)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor) - pReactorWorker->lastRecordedTimeMs));
+		}
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+RsslRet _reactorWorkerHandlePreferredHostTimeout(RsslReactorChannelImpl* pReactorChannel, RsslReactorWorker* pReactorWorker, RsslReactorImpl* pReactorImpl)
+{
+	RsslErrorInfo errorInfo;
+	/* Preferred Host */
+	/* Checks whether to perform a fallback to the preferred host when a detection time is specified. */
+	if (pReactorChannel->preferredHostOptions.enablePreferredHostOptions == RSSL_TRUE
+		&& pReactorChannel->preferredHostNextReconnectMs > 0)
+	{
+		RsslPreferredHostOptions* pPreferredHostOpts = &pReactorChannel->preferredHostOptions;
+
+		if (_writeDebugInfoFallbackToPreferredHost(pReactorImpl, pReactorChannel, "Preferred host: Time interval triggered to attempt switching to preferred host", &errorInfo) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
+
+		// If this channel is already in a preferred host operation, just continue and do not re-set the next timer(it will be re-set once the operation completes)
+		if (pReactorChannel->connectingToPreferredHost == RSSL_TRUE)
+		{
+			return RSSL_RET_SUCCESS;
+		}
+
+		/* Check if the elapsed time is greater than the next time to switch over. */
+		if (pReactorChannel->preferredHostNextReconnectMs <= pReactorWorker->lastRecordedTimeMs)
+		{
+			pReactorChannel->preferredHostNextReconnectMs = 0;
+
+			// If warm standby is enabled and the fallbackwithinwsbgroup flag is TRUE, send the fallback in group event to the reactor.
+			if (_reactorHandlesWarmStandby(pReactorChannel) == RSSL_TRUE && pReactorChannel->preferredHostOptions.fallBackWithInWSBGroup == RSSL_TRUE)
+			{
+				RsslReactorWarmStandbyEvent* pWSBEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+
+				rsslClearReactorWarmStandbyEvent(pWSBEvent);
+				pWSBEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_PREFERRED_HOST_FALLBACK_IN_GROUP;
+				pWSBEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pWSBEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorChannel->channelWorkerCerr))
+				{
+					return RSSL_RET_FAILURE;
+				}
+
+				pReactorChannel->preferredHostNextReconnectMs =
+					getNextFallbackPreferredHostTime(&pReactorChannel->preferredHostOptions, pReactorWorker->lastRecordedTimeMs);
+				if (pReactorChannel->preferredHostNextReconnectMs > 0)
+				{
+					_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->preferredHostNextReconnectMs - pReactorWorker->lastRecordedTimeMs));
+				}
+			}
+			/* Check that pReactorChannel is not preferred host */
+			else if (!isCurrentReactorChannelPreferred(pReactorChannel))
+			{
+				// Preferred host. Initiate the fallback procedure. 
+				// Send a preferred host START_FALLBACK event to the worker thread.
+				RsslReactorChannelEventImpl* pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
+
+				rsslClearReactorChannelEventImpl(pEvent);
+				pEvent->channelEvent.channelEventType = RSSL_RCIMPL_CET_PREFERRED_HOST_START_FALLBACK;
+				pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorWorker.workerQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorChannel->channelWorkerCerr))
+					return RSSL_RET_FAILURE;
+			}
+			else
+			{
+				// Send the complete event and re-calculate the next time.
+				RsslReactorChannelEventImpl* pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
+				rsslClearReactorChannelEventImpl(pEvent);
+				pEvent->channelEvent.channelEventType = RSSL_RC_CET_PREFERRED_HOST_COMPLETE;
+				pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+				pEvent->channelEvent.pError = &pReactorChannel->channelWorkerCerr;
+
+				rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_SUCCESS, RSSL_RET_SUCCESS, __FILE__, __LINE__,
+					"Channel is already connected to the Preferred Host.");
+
+				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorChannel->channelWorkerCerr))
+					return RSSL_RET_FAILURE;
+				/* Calculate the new time to switch over to the preferred host if necessary. */
+				pReactorChannel->preferredHostNextReconnectMs =
+					getNextFallbackPreferredHostTime(&pReactorChannel->preferredHostOptions, pReactorWorker->lastRecordedTimeMs);
+				if (pReactorChannel->preferredHostNextReconnectMs > 0)
+				{
+					_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->preferredHostNextReconnectMs - pReactorWorker->lastRecordedTimeMs));
+				}
+			}
+		}
+		else
+		{
+			_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->preferredHostNextReconnectMs - pReactorWorker->lastRecordedTimeMs));
+		}
+	}
+	return RSSL_RET_SUCCESS;
+}
+
 void _reactorWorkerShutdown(RsslReactorImpl *pReactorImpl, RsslErrorInfo *pErrorInfo)
 {
 	RsslReactorStateEvent *pEvent = (RsslReactorStateEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
@@ -3013,44 +4146,83 @@ void _reactorWorkerHandleShutdownRequest(RsslReactorImpl *pReactorImpl, RsslErro
 RsslRet _reactorWorkerProcessNewChannel(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel)
 {
 	RsslReactorWorker *pReactorWorker = &pReactorImpl->reactorWorker;
+	RsslChannel* pRsslChannel;
+	RsslNotifierEvent* pWorkerNotifierEvent;
+
+	RsslBool preferredHostInProgress = RSSL_FALSE;
+	char* extraErrorText = "";
+
+	if (pReactorChannel->preferredHostOptions.enablePreferredHostOptions
+		&& pReactorChannel->connectingToPreferredHost
+		&& pReactorChannel->pRsslPreferredHostChannel != NULL)
+	{
+		/* Fallback to the preferred host was initiated by timeout or as a function call. */
+		/* pRsslPreferredHostChannel is initializing now */
+		preferredHostInProgress = RSSL_TRUE;
+		extraErrorText = " Preferred";
+		pRsslChannel = pReactorChannel->pRsslPreferredHostChannel;
+		pWorkerNotifierEvent = pReactorChannel->pWorkerPreferredHostNotifierEvent;
+	}
+	else
+	{
+		pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
+		pWorkerNotifierEvent = pReactorChannel->pWorkerNotifierEvent;
+	}
 
 	/* Add channel to descriptor set */
-	if (rsslNotifierAddEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent, (int)pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorChannel) < 0)
+	if (rsslNotifierAddEvent(pReactorWorker->pNotifier, pWorkerNotifierEvent, (int)pRsslChannel->socketId, pReactorChannel) < 0)
 	{
-		rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to add notifier event for initializing channel.");
+		rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Failed to add notifier event for initializing channel.%s", extraErrorText);
 		return RSSL_RET_FAILURE;
 	}
 
-	if (rsslNotifierRegisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+	if (rsslNotifierRegisterWrite(pReactorWorker->pNotifier, pWorkerNotifierEvent) < 0)
 	{
-		rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to register write notification for initializing channel.");
+		rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Failed to register write notification for initializing channel.%s", extraErrorText);
 		return RSSL_RET_FAILURE;
 	}
 
-	switch (pReactorChannel->reactorChannel.pRsslChannel->state)
+	switch (pRsslChannel->state)
 	{
 		case RSSL_CH_STATE_INITIALIZING:
+		{
 			_reactorWorkerMoveChannel(&pReactorWorker->initializingChannels, pReactorChannel);
+
 			_reactorWorkerCalculateNextTimeout(pReactorImpl, pReactorChannel->initializationTimeout*1000);
 			pReactorChannel->initializationStartTimeMs = pReactorWorker->lastRecordedTimeMs;
-			if (rsslNotifierRegisterRead(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+			if (rsslNotifierRegisterRead(pReactorWorker->pNotifier, pWorkerNotifierEvent) < 0)
 			{
-				rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to register read notification for initializing channel.");
+ 				rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to register read notification for initializing channel.%s", extraErrorText);
 				return RSSL_RET_FAILURE;
 			}
 			return RSSL_RET_SUCCESS;
+		}
 		case RSSL_CH_STATE_ACTIVE:
 		{
 			_reactorWorkerMoveChannel(&pReactorWorker->activeChannels, pReactorChannel);
+			// Process Channel up handles both preferred host and non-preferred host.
 			return _reactorWorkerProcessChannelUp(pReactorImpl, pReactorChannel);
 		}
 		default:
 		{
-			/* Channel failed, set the channelSetupState to INIT_FAIL so _reactorHandleChannelDown handles the down event correctly */
-			pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT_FAIL;
-			return _reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr);
+			if (!preferredHostInProgress)
+			{
+				/* Channel failed, set the channelSetupState to INIT_FAIL so _reactorHandleChannelDown handles the down event correctly */
+				pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT_FAIL;
+				return _reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr);
+			}
+			else
+			{
+				/* Only set an error about failure on connect to the preferred host. */
+				/* The current non-preferred channel continue to work. */
+				return _reactorWorkerPreferredHostHandleChannelFailure(pReactorImpl, pReactorChannel);
+			}
 		}
 	}
+	return RSSL_RET_SUCCESS;
 }
 
 static RsslRet _reactorWorkerRegisterEventForRestClient(RsslReactorWorker *pReactorWorker, RsslReactorImpl *pReactorImpl)
@@ -3392,6 +4564,20 @@ static void notifyLoginRenewalReq(RsslReactorChannelImpl* pChannelImpl, RsslReac
 	}
 }
 
+static void _reactorWorkerPreferredHostApplyNewOpts(RsslReactorChannelImpl* pReactorChannel,
+		RsslPreferredHostOptions* pNewPreferredHostOpts)
+{
+	if (pReactorChannel->preferredHostOptions.detectionTimeSchedule.data != NULL)
+	{
+		free(pReactorChannel->preferredHostOptions.detectionTimeSchedule.data);
+		pReactorChannel->preferredHostOptions.detectionTimeSchedule.data = NULL;
+		pReactorChannel->preferredHostOptions.detectionTimeSchedule.length = 0;
+	}
+
+	// Shallow copy the options, any allocated detection time schdule buffer will get transfered
+	pReactorChannel->preferredHostOptions = *pNewPreferredHostOpts;
+}
+
 static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorTokenSession, RsslReactorWorker* pReactorWorker)
 {
 	RsslReactorTokenMgntEvent *pEvent;
@@ -3445,6 +4631,37 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 			}
 		}
 
+		// Check to see if this is registered to a preferred host in operation
+		if (pReactorChannel->preferredHostOptions.enablePreferredHostOptions == RSSL_TRUE && pReactorChannel->connectingToPreferredHost == RSSL_TRUE
+			 && pReactorChannel->pPreferredHostTokenSesion != NULL && pReactorChannel->pPreferredHostTokenSesion->pSessionImpl == pReactorTokenSession)
+		{
+			if (pReactorConnectInfoImpl->base.pAuthTokenEventCallback)
+			{
+				pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
+				rsslClearReactorTokenMgntEvent(pEvent);
+
+				pEvent->pTokenSessionImpl = pReactorTokenSession;
+				pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_RESP_FAILURE;
+				pEvent->pReactorChannel = &pReactorChannel->reactorChannel;
+				pEvent->pAuthTokenEventCallback = pReactorConnectInfoImpl->base.pAuthTokenEventCallback;
+				pReactorErrorInfoImpl->referenceCount++;
+				pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+
+				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+					== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+				{
+					_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
+					return;
+				}
+			}
+
+			if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerPreferredHostHandleChannelFailure(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+			{
+				_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
+				return;
+			}
+		}
+
 		if (notifyChannelWarning)
 		{
 			pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
@@ -3471,6 +4688,8 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 				return;
 			}
 		}
+
+		
 
 		/* Do not shut down the channel right now, if it's already connected somewhere else. */
 		if (pReactorChannel->pCurrentTokenSession != NULL && pReactorChannel->pCurrentTokenSession->pSessionImpl == pReactorTokenSession)
@@ -3528,8 +4747,23 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 	RsslReactorWorker *pReactorWorker = &pReactorChannel->pParentReactor->reactorWorker;
 	RsslReactorImpl *pReactorImpl = pReactorChannel->pParentReactor;
 	RsslReactorTokenSessionImpl *pTokenSessionImpl = pReactorChannel->pCurrentTokenSession->pSessionImpl;
+	RsslBool preferredHostInProgress = RSSL_FALSE;
+	RsslChannel* pRsslChannel = NULL;
 
-	pReactorConnectInfoImpl = pReactorChannel->currentConnectionOpts;
+	if (pReactorChannel->preferredHostOptions.enablePreferredHostOptions && pReactorChannel->connectingToPreferredHost)
+	{
+		// We've initiated the preferred host operation.  This function should only be called once in the entire process, after this, the channel will be moved to another queue based on the 
+		preferredHostInProgress = RSSL_TRUE;
+	}
+
+	if (preferredHostInProgress)
+	{
+		pReactorConnectInfoImpl = pReactorChannel->preferredHostConnectionOpts;
+	}
+	else
+	{
+		pReactorConnectInfoImpl = pReactorChannel->currentConnectionOpts;
+	}
 
 	if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 		(void)rsslRestResponseDump(pReactorImpl, restresponse, &rsslError);
@@ -3626,7 +4860,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 					}
 				}
 
-				if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect((&pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
+				if (!(pRsslChannel = rsslConnect((&pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
 				{
 					if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
 					{
@@ -3644,29 +4878,60 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 						_writeDebugInfo(pReactorImpl, "Reactor(0x%p), Reactor channel(0x%p) is RECONNECTING to RDP on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
 					}
 
-					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+					if (!preferredHostInProgress)
 					{
-						_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
 						return;
+					}
+					else
+					{
+						/* Only set an error about failure on connect to the preferred host. */
+						/* The current non-preferred channel continue to work. */
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerPreferredHostHandleChannelFailure(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+						{
+							_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
+							return;
+						}
 					}
 				}
 				else
 				{
 					RsslRet ret = RSSL_RET_SUCCESS;
 
-					/* Reset channel statistics as the new connection is established */
-					if (pReactorChannel->pChannelStatistic)
+					if (preferredHostInProgress)
 					{
-						rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+						pReactorChannel->pRsslPreferredHostChannel = pRsslChannel;
+					}
+					else
+					{
+						pReactorChannel->reactorChannel.pRsslChannel = pRsslChannel;
+
+						/* Reset channel statistics as the new connection is established */
+						if (pReactorChannel->pChannelStatistic)
+						{
+							rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+						}
 					}
 
 					/* Set debug callback usage here. */
-					if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
+					if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
 					{
-						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+						if (!preferredHostInProgress)
 						{
-							_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
-							return;
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
+								return;
+						}
+						else
+						{
+							/* Only set an error about failure on connect to the preferred host. */
+							/* The current non-preferred channel continue to work. */
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerPreferredHostHandleChannelFailure(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							{
+								_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
+								return;
+							}
 						}
 						return;
 					}
@@ -3948,6 +5213,8 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 	RsslReactorChannelImpl *pReactorChannel = NULL;
 	RsslReactorConnectInfoImpl *pReactorConnectInfoImpl = NULL;
 	RsslQueueLink *pLink;
+	RsslBool preferredHostInProgress = RSSL_FALSE;
+	RsslChannel *pRsslChannel = NULL;
 
 	if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 		(void)rsslRestResponseDump(pReactorImpl, restresponse, &rsslError);
@@ -4076,35 +5343,71 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 			// Set the callback to the RsslReactorChannel for the current RsslReactorConnectInfo
 			RSSL_QUEUE_FOR_EACH_LINK(&pReactorTokenSession->reactorChannelList, pLink)
 			{
+				RsslBool matchCurrentTokenSession = RSSL_FALSE;
+				RsslBool matchPreferredTokenSession = RSSL_FALSE;
 				pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenChannelInfo, tokenSessionLink, pLink)->pChannelImpl;
 
-				/* Signal the channel if the current token session matches this session */
 				if (pReactorChannel->pCurrentTokenSession && pReactorChannel->pCurrentTokenSession->pSessionImpl == pReactorTokenSession)
 				{
-					pReactorConnectInfoImpl = pReactorChannel->currentConnectionOpts;
+					matchCurrentTokenSession = RSSL_TRUE;
+				}
+
+				if (pReactorChannel->pPreferredHostTokenSesion && pReactorChannel->pPreferredHostTokenSesion->pSessionImpl == pReactorTokenSession)
+				{
+					matchPreferredTokenSession = RSSL_TRUE;
+				}
+
+				/* Signal the channel if the current token session matches this session */
+				if (matchCurrentTokenSession == RSSL_TRUE || matchPreferredTokenSession == RSSL_TRUE)
+				{
+					// Check to see if we're actually in preferred host here
+					if (matchPreferredTokenSession == RSSL_TRUE &&
+							pReactorChannel->preferredHostOptions.enablePreferredHostOptions && pReactorChannel->connectingToPreferredHost)
+					{
+						preferredHostInProgress = RSSL_TRUE;
+						pReactorConnectInfoImpl = pReactorChannel->preferredHostConnectionOpts;
+					}
+					else
+					{
+						pReactorConnectInfoImpl = pReactorChannel->currentConnectionOpts;
+					}
 
 					pReactorConnectInfoImpl->lastTokenUpdatedTime = pReactorTokenSession->lastTokenUpdatedTime;
 
-					pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-					rsslClearReactorTokenMgntEvent(pEvent);
-
-					pEvent->reactorTokenMgntEventType = pReactorTokenSession->tokenMgntEventType;
-					pEvent->pTokenSessionImpl = pReactorTokenSession;
-					pEvent->pReactorChannel = &pReactorChannel->reactorChannel;
-					pEvent->pAuthTokenEventCallback = pReactorConnectInfoImpl->base.pAuthTokenEventCallback;
-
-					/* This is used by V1 to indicate that the initial access token is sent. */
-					pReactorConnectInfoImpl->sendInitialAuthTokenInfo = RSSL_TRUE;
-
-					if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
-						== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+					// Only send this event if the current token session for the channel matches the token session and preferred host is not in progress
+					// OR if this is the current token session for the channel, preferred host is in progress, and the session version is V1.
+					// This ensures that the token will not get submitted to the reactor to update the channel's login 
+					// if this is a preferred host operation and it's a V2 login(that does not need to be updated after initial login to the connection)
+					// and also will ensure that the current V1 channel gets the updated token, so it will not fail when the previous token expires if the preferred host operation fails
+					if (matchCurrentTokenSession == RSSL_TRUE && (preferredHostInProgress == RSSL_FALSE
+						|| (preferredHostInProgress == RSSL_TRUE && pReactorTokenSession->sessionVersion == RSSL_RC_SESSMGMT_V1)))
 					{
-						_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
-						return;
+						pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+						rsslClearReactorTokenMgntEvent(pEvent);
+
+						pEvent->reactorTokenMgntEventType = pReactorTokenSession->tokenMgntEventType;
+						pEvent->pTokenSessionImpl = pReactorTokenSession;
+						pEvent->pReactorChannel = &pReactorChannel->reactorChannel;
+						pEvent->pAuthTokenEventCallback = pReactorConnectInfoImpl->base.pAuthTokenEventCallback;
+
+						/* This is used by V1 to indicate that the initial access token is sent. */
+						pReactorConnectInfoImpl->sendInitialAuthTokenInfo = RSSL_TRUE;
+
+						if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+							== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+						{
+							_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
+							return;
+						}
 					}
 
-
-					if (pReactorChannel->workerParentList == &pReactorWorker->reconnectingChannels)
+					// Submit this to the reactor if:
+					// This is in the reconnecting channels list AND the channel is not in a preferred host in progress state
+					// OR if it is in a preferred host state AND the preferred connection's token session is also the same as pReactorTokenSession.
+					// This is to make sure the worker does not attempt to reconnect if this isn't for the specific preferred token session the channel is waiting on.
+					if (pReactorChannel->workerParentList == &pReactorWorker->reconnectingChannels 
+							&& (preferredHostInProgress == RSSL_FALSE 
+							|| (preferredHostInProgress == RSSL_TRUE && matchPreferredTokenSession == RSSL_TRUE)))
 					{
 						if ((!pReactorConnectInfoImpl->userSetConnectionInfo && pReactorConnectInfoImpl->base.serviceDiscoveryRetryCount != 0
 							&& (pReactorConnectInfoImpl->reconnectEndpointAttemptCount % pReactorConnectInfoImpl->base.serviceDiscoveryRetryCount == 0)) ||
@@ -4267,7 +5570,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 									}
 								}
 
-								if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect((&pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
+								if (!(pRsslChannel = rsslConnect((&pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
 								{
 									if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 									{
@@ -4279,14 +5582,23 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 								{
 									RsslRet ret = RSSL_RET_SUCCESS;
 
-									/* Reset channel statistics as the new connection is established */
-									if (pReactorChannel->pChannelStatistic)
+									if (preferredHostInProgress == RSSL_TRUE)
 									{
-										rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+										pReactorChannel->pRsslPreferredHostChannel = pRsslChannel;
+									}
+									else
+									{
+										pReactorChannel->reactorChannel.pRsslChannel = pRsslChannel;
+
+										/* Reset channel statistics as the new connection is established */
+										if (pReactorChannel->pChannelStatistic)
+										{
+											rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+										}
 									}
 
 									/* Set debug callback usage here. */
-									if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
+									if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
 									{
 										if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 										{
@@ -5372,7 +6684,7 @@ static void rsslRestAuthTokenResponseCallbackForExplicitSD(RsslRestResponse* res
 					pRestRequestArgs = _reactorCreateTokenRequestV1(pReactorImpl, &requestURL,
 						&pExplicitSDInfo->serviceDiscoveryOptions.userName, &pExplicitSDInfo->serviceDiscoveryOptions.password,
 						NULL, /* For specifying a new password */
-                        &pExplicitSDInfo->serviceDiscoveryOptions.clientId,
+						&pExplicitSDInfo->serviceDiscoveryOptions.clientId,
 						&pExplicitSDInfo->serviceDiscoveryOptions.clientSecret,
 						&pExplicitSDInfo->serviceDiscoveryOptions.tokenScope,
 						pExplicitSDInfo->serviceDiscoveryOptions.takeExclusiveSignOnControl,

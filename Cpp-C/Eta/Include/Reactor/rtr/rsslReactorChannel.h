@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2022 LSEG. All rights reserved.
+ * Copyright (C) 2019-2022,2024 LSEG. All rights reserved.
 */
 
 #ifndef _RTR_REACTOR_CHANNEL_H
@@ -71,13 +71,36 @@ typedef struct
 										Used for notification of available data for this channel. */
 } RsslReactorChannel;
 
+
+#define RSSL_REACTOR_MAX_BUFFER_LEN_INFO_CRON 256
+
+/**
+ * @brief Preferred host information returned by the rsslReactorGetChannelInfo() call.
+ * @see RsslReactorConnectOptions
+ */
+typedef struct
+{
+	RsslBool   isPreferredHostEnabled;		/*!< This is used to check whether the preferred host feature is configured for this channel. */
+	RsslBuffer detectionTimeSchedule;		/*!< Gets cron time schedule to switch over to a preferred host or warmstandby group. */
+	RsslUInt32 detectionTimeInterval;		/*!< Gets time interval in second unit to switch over to a preferred host or warmstandby group. */
+	RsslUInt32 connectionListIndex;			/*!< Gets an index in RsslReactorConnectOptions.reactorConnectionList to set as preferred host. */
+	RsslUInt32 warmStandbyGroupListIndex;	/*!< Gets an index in RsslReactorConnectOptions.reactorWarmStandbyGroupList to set as preferred warmstandby group. */
+	RsslBool   fallBackWithInWSBGroup;		/*!< This is used to check whether to fallback within a WSB group instead of moving into a preferred WSB group. */
+	RsslUInt32 remainingDetectionTime;		/*!< Gets the remaining detection time in seconds to perform fallback to preferred host. */
+	RsslBool   isChannelPreferred;			/*!< This is used to check whether this channel is preferred. */
+	
+	char	   detectionScheduleBuffer[RSSL_REACTOR_MAX_BUFFER_LEN_INFO_CRON];	/*!< Internal buffer used to store the detection schedule string */
+
+} RsslReactorPreferredHostInfo;
+
 /**
  * @brief Statistics returned by the rsslReactorGetChannelInfo() call.
- * @see RsslChannelInfo, rsslReactorGetChannelInfo
+ * @see RsslChannelInfo, rsslReactorGetChannelInfo, RsslReactorPreferredHostInfo
  */
 typedef struct
 {
 	RsslChannelInfo	rsslChannelInfo;	/*!< RsslChannel information. */
+	RsslReactorPreferredHostInfo rsslPreferredHostInfo; /*!< Perferred host information. */
 } RsslReactorChannelInfo;
 
 /**
@@ -177,7 +200,18 @@ RSSL_VA_API RsslRet rsslReactorChannelIoctl(RsslReactorChannel* pReactorChannel,
 */
 typedef enum {
 	RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE = 200,  /* (200) ReactorChannel: Used for attempting to pass the data directly to the transport, avoiding the queuing for this channel. It will be set flag RSSL_WRITE_DIRECT_SOCKET_WRITE for rsslWrite. */
+
+	RSSL_REACTOR_CHANNEL_IOCTL_PREFERRED_HOST_OPTIONS = 201 /* (201) ReactorChannel: Used to dynamically change the preferred host options. See RsslPreferredHostOptions */
 } RsslReactorChannelIoctlCodes;
+
+/**
+ * @brief Fallback to preferred host of WSB group if the preferred host feature is enabled for the specified ReactorChannel.
+ * @param pReactorChannel The channel to fallback to the preferred host.
+ * @param pError Error structure to be populated in the event of failure.
+ * @return failure codes, if specified invalid arguments, the preferred host is not enable, or the RsslReactor was shut down due to a failure.
+ * @see RsslReactorChannel, RsslPreferredHostOptions
+*/
+RSSL_VA_API RsslRet rsslReactorFallbackToPreferredHost(RsslReactorChannel* pReactorChannel, RsslErrorInfo* pError);
 
 /**
  *	@}

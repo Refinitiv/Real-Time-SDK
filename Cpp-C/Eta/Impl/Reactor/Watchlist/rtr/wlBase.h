@@ -117,7 +117,6 @@ typedef struct
 	RsslUInt					supportStandby;					/* Login refresh parameter, SupportStandby */
 	RsslUInt					singleOpen;						/* Login request parameter, SingleOpen. */
 	RsslUInt					allowSuspectData;				/* Login request parameter, AllowSuspectData. */
-	RsslWatchlistMsgCallback	*msgCallback;					/* Callback the watchlist should use to forward messages. */
 	RsslBool					obeyOpenWindow;					/* Whether the watchlist obeys a service's OpenWindow. */
 	RsslUInt32					requestTimeout;					/* Request timeout, in milliseconds. */
 } WlConfig;
@@ -175,11 +174,6 @@ typedef struct WlBase
 /* Options for initializing the base structure. */
 typedef struct
 {
-	RsslWatchlistMsgCallback		*msgCallback;			/* Callback the watchlist should use to forward messsages. */
-	WlServiceCacheUpdateCallback	*updateCallback;		/* Callback for service cache updates. */
-	RDMCachedServiceStateChangeCallback *serviceStateChangeCallback; /* Callback for a service state changes. */
-	WlServiceCacheUpdateCallback    *serviceCacheInitCallback; /* Callbck for service cache initialization. */
-	WlServiceCacheUpdateCallback    *serviceCacheUpdateCallback; /* Callbck for service cache updates. */
 	int								requestPoolBlockSize;	/* Size of the WlRequest structure. */
 	int								requestPoolCount;		/* Size of WlRequest pool. */
 	int								streamPoolBlockSize;	/* Size of the WlStream structure. */

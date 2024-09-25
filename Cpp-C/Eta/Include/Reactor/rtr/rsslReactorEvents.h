@@ -35,7 +35,8 @@ typedef enum
 	RSSL_RC_CET_FD_CHANGE		= 4,	/*!< The file descriptor representing this channel has changed. The new and old Socket ID can be found on the RsslReactorChannel. */
 	RSSL_RC_CET_WARNING			= 5,		/*!< An event has occurred that did not result in channel failure, but may require attention by the application. */
 	RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING = 6,
-	RSSL_RC_CET_CHANNEL_OPENED	= 7		/*!< Channel was opened by the application and can be used (occurs when watchlist is enabled and only appears in the channelOpenCallback). */
+	RSSL_RC_CET_CHANNEL_OPENED	= 7,		/*!< Channel was opened by the application and can be used (occurs when watchlist is enabled and only appears in the channelOpenCallback). */
+	RSSL_RC_CET_PREFERRED_HOST_COMPLETE = 8	/*!< The preferred host operation is complete and the connections are up. Or Channel is already connected to the preferred host/WSB group. */
 } RsslReactorChannelEventType;
 
 /**

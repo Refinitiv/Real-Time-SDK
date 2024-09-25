@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
+ * Copyright (C) 2019-2022 LSEG. All rights reserved.
 */
 
 /*
@@ -18,6 +18,7 @@
 #include "rsslProvider.h"
 #include "rsslLoginHandler.h"
 #include "rsslVASendMessage.h"
+#include "rtr/rsslGetTime.h"
 
 /*
  * Clears a LoginRequestInfo structure.
@@ -29,7 +30,7 @@ RTR_C_INLINE void clearLoginRequestInfo(LoginRequestInfo *pInfo)
 	rsslClearRDMLoginRequest(&pInfo->loginRequest);
 	pInfo->memoryBuffer.data = pInfo->memory;
 	pInfo->memoryBuffer.length = sizeof(pInfo->memory);
-
+	pInfo->lastLatency = 0;
 }
 
 /*
@@ -41,8 +42,16 @@ static LoginRequestInfo loginRequests[NUM_CLIENT_SESSIONS];
 static const char *applicationId = "256";
 /* application name */
 static const char *applicationName = "rsslProvider";
+static RsslBool rttSupport = RSSL_FALSE;
 
+// API QA
 static RsslBool rejectLogin = RSSL_FALSE;
+// END API QA
+
+void setRTTSupport(RsslBool rtt)
+{
+	rttSupport = rtt;
+}
 
 /*
  * Initializes login information fields.
@@ -57,10 +66,12 @@ void initLoginHandler()
 	}
 }
 
+// API QA
 void setRejectLogin()
 {
 	rejectLogin = RSSL_TRUE;
 }
+// END API QA
 
 /*
  * Retrieves LoginRequestInfo structure to use with a consumer that is logging in.
@@ -138,16 +149,21 @@ LoginRequestInfo* findLoginRequestInfo(RsslReactorChannel* pReactorChannel)
 RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsgEvent* pLoginMsgEvent)
 {
 	RsslRDMLoginMsg *pLoginMsg = pLoginMsgEvent->pRDMLoginMsg;
+	int i;
+	LoginRequestInfo* reqInfo = NULL;
+	RsslTimeValue currTicks;
 
+// API QA
 	if (rejectLogin)
 	{
-		RsslRDMLoginRequest *pLoginRequest = &pLoginMsg->request;
+		RsslRDMLoginRequest* pLoginRequest = &pLoginMsg->request;
 
 		if (sendLoginRequestReject(pReactor, pReactorChannel, pLoginRequest->rdmMsgBase.streamId, MAX_LOGIN_REQUESTS_REACHED, NULL) != RSSL_RET_SUCCESS)
 			removeClientSessionForChannel(pReactor, pReactorChannel);
 
 		return RSSL_RC_CRET_SUCCESS;
 	}
+// END API QA
 
 	if (!pLoginMsg)
 	{
@@ -170,7 +186,6 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 		}
 	}
 
-
 	switch(pLoginMsg->rdmMsgBase.rdmMsgType)
 	{
 		case RDM_LG_MT_REQUEST:
@@ -192,7 +207,24 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 				return RSSL_RC_CRET_SUCCESS;
 			}
 
-			printf("\nReceived Login Request for Username: %.*s\n", pLoginRequest->userName.length, pLoginRequest->userName.data);
+			
+			if (pLoginRequest->flags & RDM_LG_RQF_HAS_USERNAME_TYPE && pLoginRequest->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+			{
+				/* If this an authentication token user, the application needs to take the token and verify it against the token infrastructure.
+				 * In this example, the VAProvider will just accept the token */
+				printf("\nReceived Login Request for Token: %.*s\n", pLoginRequest->userName.length, pLoginRequest->userName.data);
+			}
+			else if(pLoginRequest->userName.length != 0 && pLoginRequest->userName.data != NULL)
+			{
+				printf("\nReceived Login Request for Username: %.*s\n", pLoginRequest->userName.length, pLoginRequest->userName.data);
+			}
+			else
+			{
+				if (sendLoginRequestReject(pReactor, pReactorChannel, pLoginRequest->rdmMsgBase.streamId, NO_USER_NAME_IN_REQUEST, NULL) != RSSL_RET_SUCCESS)
+					removeClientSessionForChannel(pReactor, pReactorChannel);
+
+				return RSSL_RC_CRET_SUCCESS;
+			}
 
 			/* send login response */
 			if (sendLoginRefresh(pReactor, pReactorChannel, pLoginRequest) != RSSL_RET_SUCCESS)
@@ -202,12 +234,43 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 		}
 
 		case RDM_LG_MT_CLOSE:
+		{
 			printf("\nReceived Login Close for StreamId %d\n", pLoginMsg->rdmMsgBase.streamId);
 
 			/* close login stream */
 			closeLoginStream(pLoginMsg->rdmMsgBase.streamId);
 			return RSSL_RC_CRET_SUCCESS;
+		}
 
+		case RDM_LG_MT_RTT:
+		{
+			/* find original request information associated with pReactorChannel */
+			for (i = 0; i < NUM_CLIENT_SESSIONS; i++)
+			{
+				if (loginRequests[i].chnl == pReactorChannel)
+				{
+					if (loginRequests[i].loginRequest.flags & RDM_LG_RQF_RTT_SUPPORT)
+					{
+						reqInfo = &loginRequests[i];
+						break;
+					}
+					else
+						return RSSL_RET_SUCCESS;
+				}
+			}
+			printf("Received login RTT message from Consumer "SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
+			printf("\tRTT Tick value is " RTR_LLU "us.\n", pLoginMsg->RTT.ticks);
+			if (pLoginMsg->RTT.flags & RDM_LG_RTT_HAS_TCP_RETRANS)
+				printf("\tConsumer side TCP retransmissions: " RTR_LLU "\n", pLoginMsg->RTT.tcpRetrans);
+
+			currTicks = rsslGetTicks();
+
+			reqInfo->lastLatency = (RsslUInt)(((RsslDouble)currTicks - (RsslDouble)pLoginMsg->RTT.ticks) / rsslGetTicksPerMicro());
+
+			printf("\tLast RTT message latency is " RTR_LLU "us.\n", reqInfo->lastLatency);
+
+			return RSSL_RET_SUCCESS;
+		}
 		default:
 			printf("\nReceived unhandled login msg type: %d\n", pLoginMsg->rdmMsgBase.rdmMsgType);
 			return RSSL_RC_CRET_SUCCESS;
@@ -283,6 +346,9 @@ static RsslRet sendLoginRefresh(RsslReactor *pReactor, RsslReactorChannel* pReac
 		/* set the clear cache flag */
 		loginRefresh.flags |= RDM_LG_RFF_CLEAR_CACHE;
 
+		if (rttSupport && pLoginRequest->flags & RDM_LG_RQF_RTT_SUPPORT)
+			loginRefresh.flags |= RDM_LG_RFF_RTT_SUPPORT;
+
 		/* Leave all other parameters as default values. */
 
 		/* Encode the refresh. */
@@ -342,6 +408,10 @@ static RsslRet sendLoginRequestReject(RsslReactor *pReactor, RsslReactorChannel*
 		loginStatus.state.streamState = RSSL_STREAM_CLOSED_RECOVER;
 		loginStatus.state.dataState = RSSL_DATA_SUSPECT;
 
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		/* set-up message */
 		switch(reason)
 		{
@@ -358,9 +428,18 @@ static RsslRet sendLoginRequestReject(RsslReactor *pReactor, RsslReactorChannel*
 				loginStatus.state.text.data = stateText;
 				loginStatus.state.text.length = (RsslUInt32)strlen(stateText) + 1;
 				break;
+			case NO_USER_NAME_IN_REQUEST:
+				loginStatus.state.code = RSSL_SC_USAGE_ERROR;
+				snprintf(stateText, 128, "Login request rejected for stream id %d - request does not contain user name", streamId);
+				loginStatus.state.text.data = stateText;
+				loginStatus.state.text.length = (RsslUInt32)strlen(stateText) + 1;
+				break;
 			default:
 				break;
 		}
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 		/* encode message */
 		rsslClearEncodeIterator(&encodeIter);
@@ -392,6 +471,108 @@ static RsslRet sendLoginRequestReject(RsslReactor *pReactor, RsslReactorChannel*
 
 	return RSSL_RET_SUCCESS;
 }
+
+/*
+* Sends the login RTT message for a channel.
+* pReactorChannel - The channel to send RTT message to
+* streamId - The stream id of the stream
+*/
+RsslRet sendLoginRTT(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel)
+{
+	RsslErrorInfo rsslErrorInfo;
+	RsslBuffer* msgBuf = 0;
+	LoginRequestInfo* reqInfo = NULL;
+	int i;
+
+	if (rttSupport == RSSL_FALSE)
+		return RSSL_RET_SUCCESS;
+
+	/* find original Login request information associated with pReactorChannel */
+	for (i = 0; i < NUM_CLIENT_SESSIONS; i++)
+	{
+		if (loginRequests[i].chnl == pReactorChannel)
+		{
+			if (loginRequests[i].loginRequest.flags & RDM_LG_RQF_RTT_SUPPORT)
+			{
+				reqInfo = &loginRequests[i];
+				break;
+			}
+			else
+				return RSSL_RET_SUCCESS;
+		}
+	}
+
+	if (reqInfo == NULL)
+		return RSSL_RET_SUCCESS;
+
+	/* get a buffer for the login request reject status */
+	msgBuf = rsslReactorGetBuffer(pReactorChannel, MAX_MSG_SIZE, RSSL_FALSE, &rsslErrorInfo);
+
+	if (msgBuf != NULL)
+	{
+		RsslRet ret = 0;
+		RsslEncodeIterator encodeIter;
+		RsslRDMLoginRTT loginRTT;
+		RsslErrorInfo rsslErrorInfo;
+		RsslChannelStats stats;
+		RsslError error;
+		RsslTimeValue ticks;
+
+		/* Get the current ticks. */
+		ticks = rsslGetTicks();
+
+		rsslClearRDMLoginRTT(&loginRTT);
+
+		loginRTT.rdmMsgBase.streamId = reqInfo->loginRequest.rdmMsgBase.streamId;
+		
+		if (reqInfo->lastLatency != 0)
+		{
+			loginRTT.flags |= RDM_LG_RTT_HAS_LATENCY;
+			loginRTT.lastLatency = reqInfo->lastLatency;
+		}
+
+		if ((ret = rsslGetChannelStats(pReactorChannel->pRsslChannel, &stats, &error)) != RSSL_RET_SUCCESS)
+		{
+			printf("rsslGetChannelStats() failed with return code: %d\n", ret);
+			return ret;
+		}
+
+		loginRTT.flags |= RDM_LG_RTT_HAS_TCP_RETRANS;
+		loginRTT.tcpRetrans = stats.tcpStats.tcpRetransmitCount;
+
+		loginRTT.ticks = ticks;
+
+		/* encode message */
+		rsslClearEncodeIterator(&encodeIter);
+		if ((ret = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) < RSSL_RET_SUCCESS)
+		{
+			rsslReactorReleaseBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);
+			printf("\nrsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
+			return RSSL_RET_FAILURE;
+		}
+		rsslSetEncodeIteratorRWFVersion(&encodeIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
+		if (ret = rsslEncodeRDMLoginMsg(&encodeIter, (RsslRDMLoginMsg*)&loginRTT, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			rsslReactorReleaseBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);
+			printf("\nrsslEncodeRDMLoginMsg() failed\n");
+			return RSSL_RET_FAILURE;
+		}
+
+		msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
+
+		/* send request reject status */
+		if (sendMessage(pReactor, pReactorChannel, msgBuf) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
+	}
+	else
+	{
+		printf("rsslReactorGetBuffer(): Failed <%s>\n", rsslErrorInfo.rsslError.text);
+		return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
 
 /* 
  * Closes the login stream for a channel. 

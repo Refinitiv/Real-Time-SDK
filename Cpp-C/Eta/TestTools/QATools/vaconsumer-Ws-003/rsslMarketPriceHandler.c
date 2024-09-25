@@ -717,6 +717,7 @@ RsslRet sendMarketPriceItemRequests(RsslReactor *pReactor, RsslReactorChannel* p
 	if (pCommand->marketPriceItemCount > 0)
 	{
 		/* If there is only one item in the itemList, it is a waste of bandwidth to send a batch request */
+		// API QA
 		//if((loginInfo->supportBatchRequests & RDM_LOGIN_BATCH_SUPPORT_REQUESTS) && (pCommand->marketPriceItemCount > 1))
 		if ((loginInfo->supportBatchRequests & 0) && (pCommand->marketPriceItemCount > 1))
 		{
@@ -758,6 +759,7 @@ RsslRet sendMarketPriceItemRequests(RsslReactor *pReactor, RsslReactorChannel* p
 			for (i = 0; i < pCommand->marketPriceItemCount; i++)
 			{
 				/* get a buffer for the item request */
+				// API QA Commented out
 				//msgBuf = rsslReactorGetBuffer(pReactorChannel, MAX_MSG_SIZE, RSSL_TRUE, &rsslErrorInfo);
 
 				if (msgBuf != NULL)
@@ -771,6 +773,7 @@ RsslRet sendMarketPriceItemRequests(RsslReactor *pReactor, RsslReactorChannel* p
 						printf("\nMarket Price encodeItemRequest() failed\n");
 						return RSSL_RET_FAILURE;
 					}
+					//API QA
 					printf("\n msgBuf.length before packed: %d", msgBuf->length);
 					msgBuf = rsslReactorPackBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);				
 
@@ -780,7 +783,6 @@ RsslRet sendMarketPriceItemRequests(RsslReactor *pReactor, RsslReactorChannel* p
 						printf("\nMarket Price rsslReactorPackBuffer() failed %s\n", rsslErrorInfo.rsslError.text);
 						return RSSL_RET_FAILURE;
 					}
-					//API QA
 					printf("\n msgBuf.length after packed: %d", msgBuf->length);
 					//END API QA
 					/* send item request */
@@ -793,10 +795,11 @@ RsslRet sendMarketPriceItemRequests(RsslReactor *pReactor, RsslReactorChannel* p
 						return RSSL_RET_FAILURE;
 				}
 			}
-
+			// API QA
 			/* send item request */
 			if (sendMessage(pReactor, pReactorChannel, msgBuf) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;
+			// END API QA
 		}
 	}
 

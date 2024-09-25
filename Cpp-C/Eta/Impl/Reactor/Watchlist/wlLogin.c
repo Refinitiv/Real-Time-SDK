@@ -6,6 +6,7 @@
 */
 
 #include "rtr/wlLogin.h"
+#include "rtr/rsslReactorImpl.h"
 
 static RsslBool wlMatchLoginParameterBuffer(RsslBuffer *pNewBuffer, RsslUInt32 newFlags, 
 		RsslBuffer *pOldBuffer, RsslUInt32 oldFlags, RsslUInt32 matchFlag)
@@ -856,8 +857,7 @@ RsslRet wlLoginChannelDown(WlLogin *pLogin, WlBase *pBase, RsslErrorInfo *pError
 		wlMsgEventClear(&msgEvent);
 		msgEvent.pRsslMsg = (RsslMsg*)&statusMsg;
 		msgEvent.pRdmMsg = (RsslRDMMsg*)&loginMsg;
-		if ((ret = (*pBase->config.msgCallback)
-					((RsslWatchlist*)&pBase->watchlist, &msgEvent, pErrorInfo)) 
+		if ((ret = _reactorWatchlistMsgCallback((RsslWatchlist*)&pBase->watchlist, &msgEvent, pErrorInfo)) 
 				!= RSSL_RET_SUCCESS)
 			return ret;
 	}

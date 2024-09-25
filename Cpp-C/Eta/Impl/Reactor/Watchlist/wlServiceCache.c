@@ -6,6 +6,9 @@
 */
 
 #include "rtr/wlServiceCache.h"
+#include "rtr/rsslWatchlistImpl.h"
+#include "rtr/rsslReactor.h"
+#include "rtr/rsslReactorImpl.h"
 #include "rtr/rsslReactorUtils.h"
 #include <assert.h>
 
@@ -58,10 +61,6 @@ WlServiceCache* wlServiceCacheCreate(WlServiceCacheCreateOptions *pOptions,
 	}
 			
 	rsslInitQueue(&pServiceCache->_serviceList);
-	pServiceCache->_serviceUpdateCallback = pOptions->serviceUpdateCallback;
-	pServiceCache->_serviceStateChangeCallback = pOptions->serviceStateChangeCallback;
-	pServiceCache->_serviceCacheInitCallback = pOptions->serviceCacheInitCallback;
-	pServiceCache->_serviceCacheUpdateCallback = pOptions->serviceCacheUpdateCallback;
 
 	return pServiceCache;
 }
@@ -85,7 +84,7 @@ static RsslRet wlscSendUpdatedServiceList(WlServiceCache *pServiceCache,
 	{
 		RsslQueueLink *pLink;
 
-		ret = (*pServiceCache->_serviceUpdateCallback)(pServiceCache, pUpdateEvent, pErrorInfo);
+		ret = wlServiceUpdateCallback(pServiceCache, pUpdateEvent, pErrorInfo);
 
 		/* Cleanup deleted services. Reset any updated flags. */
 		RSSL_QUEUE_FOR_EACH_LINK(&pUpdateEvent->updatedServiceList, pLink)
@@ -253,18 +252,17 @@ RsslRet wlServiceCacheProcessDirectoryMsg(WlServiceCache *pServiceCache,
 	/* Addtional handling for warm standby feature. */
 	if (updateEvent.updatedServiceList.count > 0)
 	{
-		if (initDirectory)
+		RsslReactorChannelImpl* pReactorChannelImpl = (RsslReactorChannelImpl*)((RsslWatchlist*)pServiceCache->pUserSpec)->pUserSpec;
+		if (_reactorHandlesWarmStandby(pReactorChannelImpl))
 		{
-			if (pServiceCache->_serviceCacheInitCallback)
+			if (initDirectory)
 			{
-				pServiceCache->_serviceCacheInitCallback(pServiceCache, &updateEvent, pErrorInfo);
+
+				wlServiceCacheInitCallback(pServiceCache, &updateEvent, pErrorInfo);
 			}
-		}
-		else
-		{
-			if (pServiceCache->_serviceCacheUpdateCallback)
+			else
 			{
-				pServiceCache->_serviceCacheUpdateCallback(pServiceCache, &updateEvent, pErrorInfo);
+				wlServiceCacheUpdateCallback(pServiceCache, &updateEvent, pErrorInfo);
 			}
 		}
 	}
@@ -834,11 +832,12 @@ RsslRet rscUpdateService(WlServiceCache *pServiceCache, RDMCachedService *pCache
 
 					if (pCachedState->serviceState != pUpdatedState->serviceState)
 					{
+						RsslReactorChannelImpl* pReactorChannelImpl = (RsslReactorChannelImpl*)((RsslWatchlist*)pServiceCache->pUserSpec)->pUserSpec;
 						pCachedState->serviceState = pUpdatedState->serviceState;
 
-						if (pServiceCache->_serviceStateChangeCallback != NULL)
+						if (_reactorHandlesWarmStandby(pReactorChannelImpl))
 						{
-							pServiceCache->_serviceStateChangeCallback(pServiceCache, pCachedService, pErrorInfo);
+							wlServiceStateChangeCallback(pServiceCache, pCachedService, pErrorInfo);
 						}
 					}
 
@@ -1049,7 +1048,7 @@ RsslRet wlServiceCacheClear(WlServiceCache *pServiceCache, RsslBool callback,
 		}
 
 		if (updateEvent.updatedServiceList.count)
-			(*pServiceCache->_serviceUpdateCallback)(pServiceCache, &updateEvent, pErrorInfo);
+			wlServiceUpdateCallback(pServiceCache, &updateEvent, pErrorInfo);
 	}
 
 	/* Clean up list. */

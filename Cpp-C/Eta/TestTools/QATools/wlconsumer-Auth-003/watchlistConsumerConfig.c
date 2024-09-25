@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 LSEG. All rights reserved.     
+ * Copyright (C) 2020-2023 LSEG. All rights reserved.     
 */
 
 /*
@@ -55,30 +55,42 @@ static void addItem(char *itemName, RsslUInt8 domainType, RsslBool symbolListDat
 void printUsageAndExit(int argc, char **argv)
 {
 	printf("Usage: %s"
-		" or %s [-c <Connection Type> ] [-ec <encrypted protocol> ] [-if <Interface Name>] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ] [ -sessionMgnt ] [ -l <Location name> ] [ -query ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ]\n"
-			" -c       Specifies connection type. Valid arguments are socket, http, encrypted, and reliableMCast.\n"
-			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, and http.  Http is only supported on Windows Platforms.\n"
-			" -if      Specifies the address of a specific network interface to use.\n"
-			" -clientId    Specifies an unique ID for application making the request to RDP token service (mandatory).\n"
+		" or %s [-c <Connection Type> ] [-ec <encrypted protocol> ] [-if <Interface Name>] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ] [ -sessionMgnt ] [ -takeExclusiveSignOnControl <true/false> ] [ -l <Location name> ] [ -query ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ] [-rtt]\n"
+			" -c           Specifies connection type. Valid arguments are socket, webSocket, http, encrypted, and reliableMCast.\n"
+			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, webSocket, and http.  Http is only supported on Windows Platforms.\n"
+			" -if          Specifies the address of a specific network interface to use.\n"
+			" -clientId    Specifies an unique ID for application making the request to RDP token service, or the client Id for LSEG login version 2 (mandatory).\n"
+			" -clientSecret Specifies the client secret associated with the client id.\n"
+			" -jwkFile		Specifies the file location of the private JWK for use with V2 JWT authentication. \n"
+			" -audience		Specifies the audience claim for V2 JWT authentication.\n"
 			" -sessionMgnt Enables session management in the Reactor.\n"
-			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.\n"
+			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.\n"
+			" -takeExclusiveSignOnControl Specifies true or false to set the exclusive sign on control to force sign-out for the same credentials.\n"
 			" -query       Quries RDP service discovery to get an endpoint according the specified connection type and location.\n"
-			" -mp      For each occurance, requests item using Market Price domain.\n"
-			" -mbo     For each occurance, requests item on the Market By Order domain.\n"
-			" -mbp     For each occurance, requests item on the Market By Price domain.\n"
-			" -yc      For each occurance, requests item on the Yield Curve domain.\n"
-			" -sl      For each occurance, requests item on the Symbol List domain.\n"
-			" -sld     For each occurance, requests item on the Symbol List domain and data streams for items on that list.\n"
-			" -post    Specifies that the application should attempt to send post messages on the first requested Market Price item (i.e., on-stream)\n"
-			" -offpost Specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n"
-			" -x       Enables tracing of messages sent to and received from the channel.\n"
-			" -runTime Adjusts the running time of the application.\n"
-			" -at	   Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
-			" -ax      Specifies the Authentication Extended information.\n"
-			" -aid	   Specifies the Application ID.\n"
+			" -mp          For each occurance, requests item using Market Price domain.\n"
+			" -mbo         For each occurance, requests item on the Market By Order domain.\n"
+			" -mbp         For each occurance, requests item on the Market By Price domain.\n"
+			" -yc          For each occurance, requests item on the Yield Curve domain.\n"
+			" -sl          For each occurance, requests item on the Symbol List domain.\n"
+			" -sld         For each occurance, requests item on the Symbol List domain and data streams for items on that list.\n"
+			" -post        Specifies that the application should attempt to send post messages on the first requested Market Price item (i.e., on-stream)\n"
+			" -offpost     Specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n"
+			" -x           Enables tracing of messages sent to and received from the channel.\n"
+			" -runTime     Adjusts the running time of the application.\n"
+			" -at	       Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
+			// APIQA
+			" -at2	       Specifies 2nd Authentication Token. If this is present, all reissues will use this token.\n"
+			// END API QA
+			" -ax          Specifies the Authentication Extended information.\n"
+			" -aid	       Specifies the Application ID.\n"
+			" -pl	       Specifies list of supported websocket sub-protocols, white space or ',' delineated.\n"
+			" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n"
+			" -spTLSv1.3 Specifies that TLSv1.3 can be used for an OpenSSL-based encrypted connection\n"
 			"\n"
 			" Connection options for socket, http, and encrypted connection types:\n"
 			"   [ -h <Server Hostname> ] [ -p <Port> ]\n"
+			" Options for specifying starting and standby providers for Warm standby feature:\n"
+			"   [ -startingHostName <Starting Server Hostname> ] [ -startingPort <Starting Server Port> ] [ -standbyHostName <Standby Server Hostname> ] [ -standbyPort <Standby Server Port> ] [ -warmStandbyMode <login/service> ]\n"
 			"\n"
 			" Connection options for the reliable multicast connection type; all must be specified:\n"
 			"   [ -sa <Send Address> ] [ -ra <Receive Address> ] [ -sp <Send Port> ] [ -rp <Receive Port> ] [ -up <Unicast Port> ]\n"
@@ -97,7 +109,31 @@ void printUsageAndExit(int argc, char **argv)
 			"   -tsAuth causes the consumer to enable authentication when opening tunnel streams.\n"
 			"   -tsServiceName specifies the name of the service to use for tunnel stream messages (if not specified, the service specified by -s is used).\n"
 			"   -tsAuth  Causes the consumer to use authentication when opening tunnel streams.\n"
-			, argv[0], argv[0]);
+			"\n"
+			" -rtt Turns on the Round Trip Time monitoring feature in the login stream"
+			"\n"
+			"-restEnableLog enable REST logging message"
+			"\n"
+			"-restVerbose enable verbose REST logging message"
+			"\n"
+			"-restLogFileName set REST logging output stream"
+			"\n"
+			"-restEnableLogViaCallback enable receiving REST logging messages via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage."
+			"\n"
+			"-tokenURLV1 URL of token service V1\n"
+			"-tokenURLV2 URL of token service V2\n"
+			"-tokenScope scope for the login token\n"
+			"-serviceDiscoveryURL URL the service discovery\n"
+			"-restProxyHost <proxy host> Proxy host name. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyPort <proxy port> Proxy port. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyUserName <proxy username> Proxy user name. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyPasswd <proxy password> Proxy password. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyDomain <proxy domain> Proxy domain of the user. Used for Rest requests only: service discovery, auth"
+			"\n"
+			"-jsonOutputBufferSize <size>   Size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough"
+			"-jsonTokenIncrementSize <increment> Number of json token increment size for parsing JSON messages"
+			"\n"
+		, argv[0], argv[0]);
 	exit(-1);
 }
 
@@ -127,7 +163,14 @@ typedef enum
 	/* Socket transport options. */
 	CFG_HAS_HOSTNAME			= 0x0200,
 	CFG_HAS_PORT				= 0x0400,
-	CFG_ALL_SOCKET_OPTS			= (CFG_HAS_HOSTNAME | CFG_HAS_PORT)
+	CFG_ALL_SOCKET_OPTS			= (CFG_HAS_HOSTNAME | CFG_HAS_PORT),
+
+	/* Warm standby options. */
+	CFG_HAS_STARTING_HOSTNAME	= 0x0800,
+	CFG_HAS_STARTING_PORT		= 0x1000,
+	CFG_HAS_STANDBY_HOSTNAME	= 0x2000,
+	CFG_HAS_STANDBY_PORT		= 0x4000,
+	CFG_ALL_WMSTANDBY_OPTS		= (CFG_HAS_STARTING_HOSTNAME | CFG_HAS_STARTING_PORT | CFG_HAS_STANDBY_HOSTNAME | CFG_HAS_STANDBY_PORT)
 
 } ConfigConnOptions;
 
@@ -135,14 +178,20 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 {
 	int i;
 	int configFlags = 0;
+	FILE* pFile;		// For JWK file
+	int readSize = 0;
+	int wsConfigFlags = 0;
+	char warmStandbyMode[255];
 
 	memset(&watchlistConsumerConfig, 0, sizeof(WatchlistConsumerConfig));
 
 	watchlistConsumerConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
 	watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_INIT;
 
+	watchlistConsumerConfig.tlsProtocol = RSSL_ENC_NONE;
+
 	/* Set defaults. */
-	snprintf(watchlistConsumerConfig.interface, 255, "");
+	snprintf(watchlistConsumerConfig.interface, 255, "%s", "");
 
 	watchlistConsumerConfig.serviceName = defaultServiceName;
 	rsslClearBuffer(&watchlistConsumerConfig.userName);
@@ -152,24 +201,57 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	watchlistConsumerConfig.runTime = 300;
 
 	watchlistConsumerConfig.enableHostStatMessages = RSSL_FALSE;
-	snprintf(watchlistConsumerConfig.hsmAddress, 255, "");
-	snprintf(watchlistConsumerConfig.hsmPort, 255, "");
-	snprintf(watchlistConsumerConfig.hsmInterface, 255, "");
+	watchlistConsumerConfig.takeExclusiveSignOnControl = RSSL_TRUE;
+	snprintf(watchlistConsumerConfig.hsmAddress, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.hsmPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.hsmInterface, 255, "%s", "");
 	watchlistConsumerConfig.hsmInterval = 5;
 
-	snprintf(watchlistConsumerConfig.proxyHost, 255, "");
-	snprintf(watchlistConsumerConfig.proxyPort, 255, "");
-	snprintf(watchlistConsumerConfig.proxyUserName, 255, "");
-	snprintf(watchlistConsumerConfig.proxyPasswd, 255, "");
-	snprintf(watchlistConsumerConfig.proxyDomain, 255, "");
+	snprintf(watchlistConsumerConfig.proxyHost, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyUserName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyPasswd, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyDomain, 255, "%s", "");
 
-	snprintf(watchlistConsumerConfig.libsslName, 255, "");
-	snprintf(watchlistConsumerConfig.libcryptoName, 255, "");
-	snprintf(watchlistConsumerConfig.libcurlName, 255, "");
-	snprintf(watchlistConsumerConfig.sslCAStore, 255, "");
+	snprintf(watchlistConsumerConfig.libsslName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.libcryptoName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.libcurlName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", "");
+
+	snprintf(watchlistConsumerConfig._clientJwkMem, 2048, "%s", "");
+	snprintf(watchlistConsumerConfig._audienceMem, 255, "%s", "");
+
+
+	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._tokenScope, 255, "%s", "");
+
+	snprintf(watchlistConsumerConfig.restProxyHost, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyUserName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyPasswd, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyDomain, 255, "%s", "");
+
+	snprintf(watchlistConsumerConfig.protocolList, 255, "tr_json2");
+
+	watchlistConsumerConfig.RTTSupport = RSSL_FALSE;
+	watchlistConsumerConfig.restEnableLog = RSSL_FALSE;
+	watchlistConsumerConfig.restVerboseMode = RSSL_FALSE;
+	watchlistConsumerConfig.restOutputStreamName = NULL;
+	watchlistConsumerConfig.restEnableLogViaCallback = 0U;
 
 
 	watchlistConsumerConfig.tunnelStreamDomainType = RSSL_DMT_SYSTEM;
+
+	snprintf(warmStandbyMode, 255, "login");
+
+	/* Set login based warm standby as default. */
+	watchlistConsumerConfig.warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
+
+	/* Use default values for JSON Converter buffers. */
+	watchlistConsumerConfig.jsonOutputBufferSize = 0;
+	watchlistConsumerConfig.jsonTokenIncrementSize = 0;
 
 	for(i = 1; i < argc; ++i)
 	{
@@ -179,6 +261,8 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 			if (0 == strcmp(argv[i], "socket"))
 				watchlistConsumerConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (0 == strcmp(argv[i], "webSocket"))
+				watchlistConsumerConfig.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
 			else if (0 == strcmp(argv[i], "http"))
 				watchlistConsumerConfig.connectionType = RSSL_CONN_TYPE_HTTP;
 			else if (0 == strcmp(argv[i], "encrypted"))
@@ -197,6 +281,8 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 			if (0 == strcmp(argv[i], "socket"))
 				watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (0 == strcmp(argv[i], "webSocket"))
+				watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_WEBSOCKET;
 			else if (0 == strcmp(argv[i], "http"))
 			{
 #ifdef LINUX
@@ -213,23 +299,31 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		}
 		else if (strcmp("-libsslName", argv[i]) == 0)
 		{
-			i += 2;
-			snprintf(watchlistConsumerConfig.libsslName, 255, "%s", argv[i - 1]);
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.libsslName, 255, "%s", argv[i]);
 		}
 		else if (strcmp("-libcryptoName", argv[i]) == 0)
 		{
-			i += 2;
-			snprintf(watchlistConsumerConfig.libcryptoName, 255, "%s", argv[i - 1]);
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.libcryptoName, 255, "%s", argv[i]);
 		}
 		else if (strcmp("-libcurlName", argv[i]) == 0)
 		{
-			i += 2;
-			snprintf(watchlistConsumerConfig.libcurlName, 255, "%s", argv[i - 1]);
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.libcurlName, 255, "%s", argv[i]);
 		}
 		else if (strcmp("-castore", argv[i]) == 0)
 		{
-			i += 2;
-			snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", argv[i - 1]);
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", argv[i]);
+		}
+		else if (strcmp("-spTLSv1.2", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.tlsProtocol |= RSSL_ENC_TLSV1_2;
+		}
+		else if (strcmp("-spTLSv1.3", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.tlsProtocol |= RSSL_ENC_TLSV1_3;
 		}
 		else if (0 == strcmp(argv[i], "-h"))
 		{
@@ -242,6 +336,45 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			if (++i == argc) printUsageAndExit(argc, argv);
 			snprintf(watchlistConsumerConfig.port, 255, "%s", argv[i]);
 			configFlags |= CFG_HAS_PORT;
+		}
+		else if (0 == strcmp(argv[i], "-startingHostName"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.startingHostName, 255, "%s", argv[i]);
+			wsConfigFlags |= CFG_HAS_STARTING_HOSTNAME;
+		}
+		else if (0 == strcmp(argv[i], "-startingPort"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.startingPort, 255, "%s", argv[i]);
+			wsConfigFlags |= CFG_HAS_STARTING_PORT;
+		}
+		else if (0 == strcmp(argv[i], "-standbyHostName"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.standbyHostName, 255, "%s", argv[i]);
+			wsConfigFlags |= CFG_HAS_STANDBY_HOSTNAME;
+		}
+		else if (0 == strcmp(argv[i], "-standbyPort"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.standbyPort, 255, "%s", argv[i]);
+			wsConfigFlags |= CFG_HAS_STANDBY_PORT;
+		}
+		else if (0 == strcmp(argv[i], "-warmStandbyMode"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(warmStandbyMode, 255, "%s", argv[i]);
+
+			if (0 == strcmp(argv[i], "login"))
+				watchlistConsumerConfig.warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
+			else if (0 == strcmp(argv[i], "service"))
+				watchlistConsumerConfig.warmStandbyMode = RSSL_RWSB_MODE_SERVICE_BASED;
+			else
+			{
+				printf("Unknown warm standby mode specified: %s\n", argv[i]);
+				printUsageAndExit(argc, argv);
+			}
 		}
 		else if (0 == strcmp(argv[i], "-ph"))
 		{
@@ -267,6 +400,11 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
 			snprintf(watchlistConsumerConfig.proxyDomain, 255, "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-pl"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.protocolList, 255, "%s", argv[i]);
 		}
 		else if (0 == strcmp(argv[i], "-sa"))
 		{
@@ -355,7 +493,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 				(RsslUInt32)snprintf(watchlistConsumerConfig._authenticationTokenMem, 1024, "%s", argv[i]);
 			watchlistConsumerConfig.authenticationToken.data = watchlistConsumerConfig._authenticationTokenMem;
 		}
-                // APIQA: Added second token
+		// APIQA: Added second token
 		else if (0 == strcmp(argv[i], "-at2"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
@@ -363,7 +501,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 				(RsslUInt32)snprintf(watchlistConsumerConfig._authenticationToken2Mem, 1024, "%s", argv[i]);
 			watchlistConsumerConfig.authenticationToken2.data = watchlistConsumerConfig._authenticationToken2Mem;
 		}
-                // END APIQA: Added second token
+		// END APIQA: Added second token
 		else if (0 == strcmp(argv[i], "-ax"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
@@ -377,6 +515,10 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			watchlistConsumerConfig.appId.length = 
 				(RsslUInt32)snprintf(watchlistConsumerConfig._appIdMem, 255, "%s", argv[i]);
 			watchlistConsumerConfig.appId.data = watchlistConsumerConfig._appIdMem;
+		}
+		else if (0 == strcmp(argv[i], "-rtt"))
+		{
+			watchlistConsumerConfig.RTTSupport = RSSL_TRUE;
 		}
 		else if (0 == strcmp(argv[i], "-mp"))
 		{
@@ -460,6 +602,70 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 				(RsslUInt32)snprintf(watchlistConsumerConfig._clientIdMem, 255, "%s", argv[i]);
 			watchlistConsumerConfig.clientId.data = watchlistConsumerConfig._clientIdMem;
 		}
+		else if (0 == strcmp(argv[i], "-clientSecret"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.clientSecret.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._clientSecretMem, 255, "%s", argv[i]);
+			watchlistConsumerConfig.clientSecret.data = watchlistConsumerConfig._clientSecretMem;
+		}
+		else if (0 == strcmp(argv[i], "-jwkFile"))
+		{
+			/* As this is an example program showing API, this handling of the JWK is not secure. */
+			if (++i == argc) printUsageAndExit(argc, argv);
+			pFile = fopen(argv[i], "rb");
+			if (pFile == NULL)
+			{
+				printf("Cannot load jwk file.\n");
+				printUsageAndExit(argc, argv);
+			}
+			/* Read the JWK contents into a pre-allocated buffer*/
+			readSize = (int)fread(watchlistConsumerConfig._clientJwkMem, sizeof(char), 2048, pFile);
+			if (readSize == 0)
+			{
+				printf("Cannot load jwk file.\n");
+				printUsageAndExit(argc, argv);
+			}
+			watchlistConsumerConfig.clientJWK.data = watchlistConsumerConfig._clientJwkMem;
+			watchlistConsumerConfig.clientJWK.length = readSize;
+
+			fclose(pFile);
+		}
+		else if (0 == strcmp(argv[i], "-audience"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.audience.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._audienceMem, 255, "%s", argv[i]);
+			watchlistConsumerConfig.audience.data = watchlistConsumerConfig._audienceMem;
+		}
+		else if (0 == strcmp(argv[i], "-tokenURLV1"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.tokenURLV1.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "%s", argv[i]);
+			watchlistConsumerConfig.tokenURLV1.data = watchlistConsumerConfig._tokenUrlV1;
+		}
+		else if (0 == strcmp(argv[i], "-tokenURLV2"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.tokenURLV2.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "%s", argv[i]);
+			watchlistConsumerConfig.tokenURLV2.data = watchlistConsumerConfig._tokenUrlV2;
+		}
+		else if (0 == strcmp(argv[i], "-tokenScope"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.tokenScope.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._tokenScope, 255, "%s", argv[i]);
+			watchlistConsumerConfig.tokenScope.data = watchlistConsumerConfig._tokenScope;
+		}
+		else if (0 == strcmp(argv[i], "-serviceDiscoveryURL"))
+		{
+		if (++i == argc) printUsageAndExit(argc, argv);
+		watchlistConsumerConfig.serviceDiscoveryURL.length =
+			(RsslUInt32)snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "%s", argv[i]);
+		watchlistConsumerConfig.serviceDiscoveryURL.data = watchlistConsumerConfig._serviceDiscoveryUrl;
+		}
 		else if (0 == strcmp(argv[i], "-l"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
@@ -471,17 +677,94 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		{
 			watchlistConsumerConfig.queryEndpoint = RSSL_TRUE;
 		}
+		else if (0 == strcmp(argv[i], "-takeExclusiveSignOnControl"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			if (RTR_STRNICMP(argv[i], "true", 4) == 0)
+			{
+				watchlistConsumerConfig.takeExclusiveSignOnControl = RSSL_TRUE;
+			}
+			else if (RTR_STRNICMP(argv[i], "false", 5) == 0)
+			{
+				watchlistConsumerConfig.takeExclusiveSignOnControl = RSSL_FALSE;
+			}
+		}
+		else if (strcmp("-restEnableLog", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.restEnableLog = RSSL_TRUE;
+		}
+		else if (strcmp("-restVerbose", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.restVerboseMode = RSSL_TRUE;
+		}
+		else if (0 == strcmp(argv[i], "-restLogFileName"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.restOutputStreamName = fopen(argv[i], "w");
+			if (!watchlistConsumerConfig.restOutputStreamName)
+			{
+				printf("Error: Unable to open the specified file name %s\n", argv[i]);
+				printUsageAndExit(argc, argv);
+			}
+		}
+		else if (strcmp("-restEnableLogViaCallback", argv[i]) == 0)
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.restEnableLogViaCallback = atoi(argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-jsonOutputBufferSize"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.jsonOutputBufferSize = atoi(argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-jsonTokenIncrementSize"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.jsonTokenIncrementSize = atoi(argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyHost"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyHost, sizeof(watchlistConsumerConfig.restProxyHost), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyPort"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyPort, sizeof(watchlistConsumerConfig.restProxyPort), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyUserName"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyUserName, sizeof(watchlistConsumerConfig.restProxyUserName), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyPasswd"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyPasswd, sizeof(watchlistConsumerConfig.restProxyPasswd), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyDomain"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyDomain, sizeof(watchlistConsumerConfig.restProxyDomain), "%s", argv[i]);
+		}
 		else
 		{
-			printf("Config Error: Unknown option %s\n", argv[i]);
+			printf("Error: Unrecognized option: %s\n", argv[i]);
 			printUsageAndExit(argc, argv);
 		}
+	}
+
+	/* Checks whether warm standby options are specified. */
+	if (wsConfigFlags != CFG_ALL_WMSTANDBY_OPTS)
+	{
+		watchlistConsumerConfig.warmStandbyMode = RSSL_RWSB_MODE_NONE;
 	}
 
 	if (!watchlistConsumerConfig.enableSessionMgnt)
 	{
 		if (strlen(watchlistConsumerConfig.hostName) == 0)
 			snprintf(watchlistConsumerConfig.hostName, 255, "%s", defaultHostName);
+
 		if (strlen(watchlistConsumerConfig.port) == 0)
 			snprintf(watchlistConsumerConfig.port, 255, "%s", defaultPort);
 	}
@@ -554,11 +837,28 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			printUsageAndExit(argc, argv);
 		}
 
-		printf( "Config:\n"
+		if (watchlistConsumerConfig.warmStandbyMode == RSSL_RWSB_MODE_NONE)
+		{
+			printf("Config:\n"
 				"  Hostname: %s\n"
 				"  Port: %s\n",
 				watchlistConsumerConfig.hostName,
 				watchlistConsumerConfig.port);
+		}
+		else
+		{
+			printf("Config:\n"
+				"  Warm standby mode: %s\n"
+				"  Starting Hostname: %s\n"
+				"  Starting Port: %s\n"
+				"  Standby Hostname: %s\n"
+				"  Standby Port: %s\n",
+				warmStandbyMode,
+				watchlistConsumerConfig.startingHostName,
+				watchlistConsumerConfig.startingPort,
+				watchlistConsumerConfig.standbyHostName,
+				watchlistConsumerConfig.standbyPort);
+		}
 	}
 
 	if (watchlistConsumerConfig.itemCount == 0 && !watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
@@ -594,7 +894,6 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	}
 
 	printf("\n");
-
 }
 
 ItemInfo *getItemInfo(RsslInt32 streamId)

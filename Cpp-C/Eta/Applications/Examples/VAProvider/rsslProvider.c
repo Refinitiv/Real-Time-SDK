@@ -212,7 +212,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			closeDirectoryStreamForChannel(pReactorChannel);
 			closeLoginStreamForChannel(pReactorChannel);
 
-			if(pClientSessionInfo->clientChannel == NULL)
+			if(pClientSessionInfo != NULL && pClientSessionInfo->clientChannel == NULL)
 			{
 				pClientSessionInfo->clientChannel = pReactorChannel;
 			}

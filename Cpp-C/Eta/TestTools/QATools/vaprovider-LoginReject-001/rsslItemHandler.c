@@ -1051,8 +1051,6 @@ RsslRet processBatchClose(RsslReactor *pReactor, RsslReactorChannel* pReactorCha
 	RsslUInt32 numOfItemsProcessed = 0;
 
 	printf("\nReceived batch item close (streamId=%d) on domain %s\n", msg->msgBase.streamId, rsslDomainTypeToString(domainType));
-	
-	rsslClearDecodeIterator(dIter);
 
 	// The payload of a batch request contains an elementList
 	if ((ret = rsslDecodeElementList(dIter, &elementList, 0)) < RSSL_RET_SUCCESS)

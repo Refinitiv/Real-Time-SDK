@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2023 LSEG. All rights reserved.     
+ * Copyright (C) 2020-2024 LSEG. All rights reserved.
 */
 
 #ifndef WATCHLIST_CONSUMER_CONFIG_H
@@ -14,6 +14,7 @@
 #include "rtr/rsslMsgKey.h"
 #include "rtr/rsslDataUtils.h"
 #include "rtr/rsslReactor.h"
+#include "time.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,7 +68,9 @@ typedef struct
 	RsslUInt32			itemCount;						/* Number of items in itemList. */
 	RsslUInt32			runTime;						/* Running time of the application. */
 
-	RsslInt32			reconnectLimit;					/* Number of reconnect atttempts. */
+	RsslInt32			reconnectAttemptLimit;					/* Number of reconnect atttempts. */
+	RsslInt32			reconnectMinDelay;				/* Minimum reconnect time */
+	RsslInt32			reconnectMaxDelay;				/* Maximum reconnect time */
 
 
 	RsslBool			restEnableLog;					/* Enable Rest request/response logging.*/
@@ -121,6 +124,8 @@ typedef struct
 {
 	RsslReactorConnectInfo connectionInfo;
 	RsslBuffer connectionName;
+	RsslBuffer* serviceList;
+	int serviceCount;
 
 	char _nameBuffer[255];
 	char _hostBuffer[255];
@@ -133,6 +138,7 @@ typedef struct
 	char _proxyDomainBuffer[255];
 	char _caStoreBuffer[255];
 	char _locationBuffer[255];
+	char _serviceBuffer[255];
 }ConnectionInfoConfig;
 
 typedef struct
@@ -146,6 +152,33 @@ typedef struct
 }WarmStandbyGroupConfig;
 
 extern WatchlistConsumerConfig watchlistConsumerConfig;
+
+typedef struct
+{
+	RsslPreferredHostOptions preferredHostOptions;
+
+	char _detectionTimeSchedule[RSSL_REACTOR_MAX_BUFFER_LEN_INFO_CRON];
+
+	RsslUInt32 directFallbackTimeInterval;	/* Specifies the time interval (when >0) before direct fallback is invoked by VAConsumer */
+	RsslUInt32 ioctlCallTimeInterval;		/* Specifies the time interval (when >0) before Ioctl is invoked by VAConsumer to modify RsslPreferredHostOptions */
+
+	/* RsslPreferredHostOptions values that will be updated by Ioctl call */
+	char ioctlDetectionTimeCron[RSSL_REACTOR_MAX_BUFFER_LEN_INFO_CRON];	/* Specifies the new value for detectionTimeSchedule */
+
+	time_t directFallbackTime;		/* Time when direct fallback will be invoked (when > 0), calculated by directFallbackTimeInterval */
+	time_t ioctlCallTime;			/* Time when Ioctl will be invoked (when > 0), calculated by ioctlCallTimeInterval */
+
+	RsslBool setIoctlEnablePH;					/* ioctlEnablePH is specified on the command line */
+	RsslBool setIoctlConnectListIndex;			/* ioctlConnectListIndex is specified on the command line */
+	RsslBool setIoctlDetectionTimeInterval;		/* ioctlDetectionTimeInterval is specified on the command line */
+	RsslBool setIoctlDetectionTimeSchedule;		/* ioctlDetectionTimeSchedule is specified on the command line */
+	RsslBool setIoctlWarmstandbyGroupListIndex;	/* ioctlWarmstandbyGroupListIndex is specified on the command line */
+	RsslBool setIoctlFallBackWithinWSBGroup;	/* ioctlFallBackWithinWSBGroup is specified on the command line */
+
+	RsslPreferredHostOptions rsslIoctlPreferredHostOpts;
+} PreferredHostConfig;
+
+extern PreferredHostConfig preferredHostConfig;
 
 /* Initializes the configuration, parsing command-line options. */
 void watchlistConsumerConfigInit(int argc, char **argv);
@@ -195,6 +228,7 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslRe
 
  RsslReactorCallbackRet loginMsgEventCallback(RsslReactor* pReactor, RsslReactorChannel* pChannel, RsslReactorLoginRenewalEvent* pLoginCredentialEvent);
 
+ static RsslRet handlePreferredHostRuntime(RsslErrorInfo* pErrorInfo);
 
 #ifdef __cplusplus
 }

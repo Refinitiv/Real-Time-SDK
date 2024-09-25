@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019 LSEG. All rights reserved.
 */
 
 /*
@@ -16,11 +16,11 @@
 #define TUNNEL_MSG_FREQUENCY 2
 #define TUNNEL_DOMAIN_TYPE 199
 
-// APIQA: 
-RsslInt bufSizeConsumer = 0;
-RsslInt bufSizeProvider = 12;
+// APIQA:
+RsslUInt32 bufSizeConsumer = 0;
+RsslUInt32 bufSizeProvider = 12;
 char* resultString;
-// END APIQA: 
+// END APIQA:
 
 void simpleTunnelMsgHandlerInit(SimpleTunnelMsgHandler *pMsgHandler,
 		char *consumerName, RsslUInt8 domainType, RsslBool useAuthentication, RsslBool isProvider)
@@ -33,12 +33,12 @@ void simpleTunnelMsgHandlerInit(SimpleTunnelMsgHandler *pMsgHandler,
 	pMsgHandler->isProvider = isProvider;
 }
 
-// APIQA: 
-void setBufSize(RsslInt iBufSizeConsumer)
+// APIQA:
+void setBufSize(RsslUInt32 iBufSizeConsumer)
 {
 	bufSizeConsumer = iBufSizeConsumer;
 }
-// END APIQA: 
+// END APIQA:
 
 void handleSimpleTunnelMsgHandler(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, SimpleTunnelMsgHandler *pSimpleTunnelMsgHandler)
 {
@@ -81,25 +81,27 @@ static void simpleTunnelMsgHandlerSendMessage(SimpleTunnelMsgHandler *pSimpleTun
 	RsslBuffer *pBuffer;
 	RsslRet ret, ret2;
 	RsslErrorInfo errorInfo;
-	// APIQA: 
-	int i, b;
+	// APIQA:
+	char b;
+	unsigned i;
 	RsslBuffer nonRWFBuffer;
-	// END APIQA: 
+	// END APIQA:
 
 	rsslClearTunnelStreamGetBufferOptions(&bufferOpts);
-	// APIQA: 
+	// APIQA:
 	//bufferOpts.size = 1024;
 	if (!pSimpleTunnelMsgHandler->isProvider) // consumer
 		bufferOpts.size = bufSizeConsumer;
 	else // provider
 	{
-		bufferOpts.size = 12;
+		//bufferOpts.size = 12;
 		bufferOpts.size = bufSizeProvider;
 	}
-	// END APIQA: 
+	// END APIQA:
+
 	if ((pBuffer = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferOpts, &errorInfo)) == NULL)
 	{
-		printf("rsslTunnelStreamGetBuffer failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
+		printf("rsslTunnelStreamGetBuffer failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), errorInfo.rsslError.text);
 		return;
 	}
 
@@ -109,7 +111,7 @@ static void simpleTunnelMsgHandlerSendMessage(SimpleTunnelMsgHandler *pSimpleTun
 	rsslSetEncodeIteratorBuffer(&eIter, pBuffer);
 
 	/* Write text as the data body. */
-	// APIQA: 
+	// APIQA:
 	//pBuffer->length = snprintf(pBuffer->data, pBuffer->length, "TunnelStream Message: %d", pSimpleTunnelMsgHandler->msgCount + 1);
 	rsslEncodeNonRWFDataTypeInit(&eIter, &nonRWFBuffer);
 	if (!pSimpleTunnelMsgHandler->isProvider) // consumer
@@ -133,7 +135,7 @@ static void simpleTunnelMsgHandlerSendMessage(SimpleTunnelMsgHandler *pSimpleTun
 	}
 	rsslEncodeNonRWFDataTypeComplete(&eIter, &nonRWFBuffer, RSSL_TRUE);
 	pBuffer->length = rsslGetEncodedBufferLength(&eIter);
-	// END APIQA: 
+	// END APIQA:
 
 	/* Message encoding complete; submit it. */
 	rsslClearTunnelStreamSubmitOptions(&submitOpts);
@@ -187,36 +189,35 @@ RsslReactorCallbackRet simpleTunnelMsgHandlerProviderMsgCallback(RsslTunnelStrea
 	{
 		case RSSL_DT_OPAQUE:
 		{
-			// APIQA: 
+			// APIQA:
 			RsslBool testPassed = RSSL_TRUE;
-            char b;
-			int i;
-            for (i = 0, b = 0; i < pEvent->pRsslBuffer->length; i++, b++)
-            {
-            	if (b == 256)
-            	{
-            		b = 0;
-            	}
-            	if (pEvent->pRsslBuffer->data[i] != b)
-            	{
-            		testPassed =  RSSL_FALSE;
-            		break;
-            	}
-            }
+			char b;
+			unsigned i;
+			for (i = 0, b = 0; i < pEvent->pRsslBuffer->length; i++, b++)
+			{
+				if (b == 256)
+				{
+					b = 0;
+				}
+				if (pEvent->pRsslBuffer->data[i] != b)
+				{
+					testPassed = RSSL_FALSE;
+					break;
+				}
+			}
 
-            resultString = testPassed ? "TEST PASSED" : "TEST FAILED";
-            //printf("Provider TunnelStreamHandler received OPAQUE data: %s\n\n", resultString);
+			resultString = testPassed ? "TEST PASSED" : "TEST FAILED";
+			//printf("Provider TunnelStreamHandler received OPAQUE data: %s\n\n", resultString);
 			if (testPassed)
-				 printf("TunnelStreamHandler received OPAQUE data of size [%d], TEST PASSED\n\n", pEvent->pRsslBuffer->length);
+				printf("TunnelStreamHandler received OPAQUE data of size [%d], TEST PASSED\n\n", pEvent->pRsslBuffer->length);
 			else
-				 printf("TunnelStreamHandler received OPAQUE data with invalid data: TEST FAILED\n\n");
-
-			// END APIQA: 
+				printf("TunnelStreamHandler received OPAQUE data with invalid data: TEST FAILED\n\n");
+			// END APIQA:
 			/* Read the text contained. */
 			// APIQA:  Commenting out this section
-			/*printf("Tunnel Stream %d received OPAQUE data: %.*s\n\n", 
-					pTunnelStream->streamId, pEvent->pRsslBuffer->length, pEvent->pRsslBuffer->data);*/
-			// END APIQA: 
+			//printf("Tunnel Stream %d received OPAQUE data: %.*s\n\n", 
+			//		pTunnelStream->streamId, pEvent->pRsslBuffer->length, pEvent->pRsslBuffer->data);
+			// END APIQA:
 			break;
 
 		}
@@ -278,7 +279,7 @@ RsslReactorCallbackRet simpleTunnelMsgHandlerProviderMsgCallback(RsslTunnelStrea
 							if ((pBuffer = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferOpts, &errorInfo))
 								== NULL)
 							{
-								printf("rsslTunnelStreamGetBuffer failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
+								printf("rsslTunnelStreamGetBuffer failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), errorInfo.rsslError.text);
 								break;
 							}
 
@@ -533,7 +534,7 @@ char* simpleTunnelMsgHandlerCheckRequestedClassOfService(SimpleTunnelMsgHandler 
 	/* Try to decode the class of service. */
 	if (rsslTunnelStreamRequestGetCos(pEvent, pCos, &errorInfo) != RSSL_RET_SUCCESS)
 	{
-		printf("rsslTunnelStreamRequestGetCos failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
+		printf("rsslTunnelStreamRequestGetCos failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), errorInfo.rsslError.text);
 		return (char*)"Failed to decode class of service.";
 	}
 

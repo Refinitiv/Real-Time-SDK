@@ -50,6 +50,7 @@
 static RsslReactorChannel *pConsumerChannel = NULL;
 static RsslBool itemsRequested = RSSL_FALSE;
 static RsslBool isConsumerChannelUp = RSSL_FALSE;
+static RsslBool loginChannelClosed = RSSL_FALSE;
 
 static PostServiceInfo serviceInfo;
 
@@ -599,7 +600,7 @@ int main(int argc, char **argv)
 			printf("time() failed.\n");
 		}
 
-		if (pConsumerChannel && !runTimeExpired)
+		if (pConsumerChannel && !runTimeExpired && !loginChannelClosed)
 		{
 			if (watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
 				handleSimpleTunnelMsgHandler(pReactor, pConsumerChannel, &simpleTunnelMsgHandler);
@@ -622,17 +623,22 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if (currentTime >= stopTime)
+		if (currentTime >= stopTime || loginChannelClosed)
 		{
 			if (!runTimeExpired)
 			{
 				runTimeExpired = RSSL_TRUE;
-				printf("Run time expired.\n");
+
+				if (!loginChannelClosed)
+					printf("Run time expired.\n");
+
 				if (simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
 					printf("Waiting for tunnel stream to close...\n\n");
 
 				/* Close tunnel streams if any are open. */
 				simpleTunnelMsgHandlerCloseStreams(&simpleTunnelMsgHandler);
+				if (loginChannelClosed && currentTime < stopTime)
+					stopTime = currentTime;
 			}
 
 			/* Wait for tunnel streams to close before closing channel. */
@@ -1061,6 +1067,12 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReacto
 				canSendLoginReissue = watchlistConsumerConfig.enableSessionMgnt ? RSSL_FALSE : RSSL_TRUE;
 			}
 
+			if (pLoginRefresh->state.streamState != RSSL_STREAM_OPEN)
+			{
+				printf("  Login attempt failed.\n");
+				loginChannelClosed = RSSL_TRUE;
+			}
+
 			break;
 		}
 
@@ -1071,7 +1083,14 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReacto
 			printStreamInfo(NULL, RSSL_DMT_LOGIN, pLoginMsg->rdmMsgBase.streamId, "RDM_LG_MT_STATUS");
 
 			if (pLoginStatus->flags & RDM_LG_STF_HAS_STATE)
+			{
 				printRsslState(&pLoginStatus->state);
+				if (pLoginStatus->state.streamState != RSSL_STREAM_OPEN)
+				{
+					printf("  Login attempt failed or Login stream was closed.\n");
+					loginChannelClosed = RSSL_TRUE;
+				}
+			}
 
 			if (pLoginStatus->flags & RDM_LG_STF_HAS_USERNAME)
 				printf("  UserName: %.*s\n", pLoginStatus->userName.length, pLoginStatus->userName.data);

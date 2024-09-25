@@ -6441,13 +6441,6 @@ void reactorUnitTests_WaitWhileChannelDown(RsslConnectionTypes connectionType)
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 		ASSERT_TRUE(pConsMon->channelDownReconnectingEventCount == i+1);
 		ASSERT_TRUE(pConsMon->channelDownEventCount == 0);
-
-		/* Cons: Redudnant channel-down event from the worker (should not be passed to consumer). */
-		if (index != 1)
-		{
-			ASSERT_TRUE(dispatchEvent(pConsMon, 1000) >= RSSL_RET_SUCCESS);
-			ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
-		}
 	}
 
 	removeConnection(pConsMon, pConsCh);

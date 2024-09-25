@@ -16,7 +16,7 @@ extern "C" {
 #include "rtr/rsslReactor.h"
 
 #define MAX_LOGIN_INFO_STRLEN 128
-#define LOGIN_REQ_MEM_BUF_SIZE 4096 // API QA
+#define LOGIN_REQ_MEM_BUF_SIZE 4096
 
 /* reasons a login request is rejected */
 typedef enum {
@@ -46,7 +46,7 @@ LoginRequestInfo* findLoginRequestInfo(RsslReactorChannel* pReactorChannel);
 RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsgEvent* pLoginMsgEvent);
 RsslRet sendLoginRTT(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel);
 // API QA
-RsslRet sendLoginClosedSuspect(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel);
+RsslRet sendLoginClosedSuspect(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel);
 // END API QA
 
 void setRTTSupport(RsslBool rtt);

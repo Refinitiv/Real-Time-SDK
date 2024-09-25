@@ -471,6 +471,9 @@ if( (NOT zlib_USE_INSTALLED) AND
 	unset(_config_options)
 	unset(_log_args)
 	unset(_dl_filename)
+	if (WIN32)
+		unset(_EPA_PATCH_COMMAND)
+	endif()
 
 	# This call will reset all the _EPA_... variables. Because this is a
 	# macro and if this is not called, the next external project using

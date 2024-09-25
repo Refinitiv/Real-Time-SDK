@@ -103,6 +103,8 @@ typedef struct
 	/* Provider listening server. */
 	RsslServer *pServer;
 	WtfWarmStandbyMode warmStandbyMode;
+	char serverPort[10];
+	RsslConnectionTypes connType;
 }WtfTestServer;
 
 RTR_C_INLINE void wtfClearTestEventBase(WtfEventBase *pBase, WtfComponent component,
@@ -120,6 +122,7 @@ typedef struct {
 	RsslBuffer		*pServiceName;
 	RsslBool		hasSeqNum;
 	RsslBool		seqNum;
+	RsslUInt64		serverIndex;
 } WtfRsslMsgEvent;
 
 RTR_C_INLINE void wtfRsslMsgEventInit(WtfRsslMsgEvent *pEvent, WtfComponent component,
@@ -133,6 +136,7 @@ RTR_C_INLINE void wtfRsslMsgEventInit(WtfRsslMsgEvent *pEvent, WtfComponent comp
 	pEvent->pServiceName = NULL;
 	pEvent->hasSeqNum = RSSL_FALSE;
 	pEvent->seqNum = 0;
+	pEvent->serverIndex = 0;
 }
 
 RTR_C_INLINE void wtfRsslMsgEventCleanup(WtfRsslMsgEvent *pEvent)
@@ -175,6 +179,7 @@ typedef struct
 	WtfEventBase			base;
 	RsslReactorChannelEventType	channelEventType;
 	RsslRet					rsslErrorId;
+	int						port;
 } WtfChannelEvent;
 
 RTR_C_INLINE void wtfClearChannelEvent(WtfChannelEvent *pEvent, WtfComponent component)
@@ -243,6 +248,10 @@ RTR_C_INLINE void wtfClearInitOpts(WtfInitOpts *pOpts)
 void wtfInit(WtfInitOpts *pOpts, RsslUInt32 maxOutputBufSize = 0);
 
 void wtfBindServer(RsslConnectionTypes connectionType, char  *pServerPort = const_cast<char*>("14011"));
+
+void wtfShutdownServer(RsslUInt16 serverIndex = 0);
+
+void wtfRestartServer(RsslUInt16 serverIndex = 0);
 
 void wtfCloseServer(RsslUInt16 serverIndex = 0);
 
@@ -339,6 +348,11 @@ typedef struct
 	RsslBool    provideDefaultServiceLoad;		/* Provide a default service's load for directory refresh. */
 	RsslBool    provideDictionaryUsedAndProvided; /* Provides dictionary used and provided list */
 	char		*pServerPort;					/* A server port to establish a connection. */
+	RsslReactorConnectInfo* reactorConnectionList;	/*!< A list of connections.  Each connection in the list will be tried with each reconnection attempt. */
+
+	RsslUInt32				connectionCount;		/*!< The number of connections in reactorConnectionList. */
+	RsslPreferredHostOptions preferredHostOpts;
+	RsslBool watchlistOn;						/* Turns off the watchlist, used for preferred host tests */
 } WtfSetupConnectionOpts;
 
 /* Initializes commonly used settings of WtfSetupConnectionOpts. */
@@ -363,6 +377,10 @@ static void wtfClearSetupConnectionOpts(WtfSetupConnectionOpts *pOpts)
 	pOpts->provideDefaultServiceLoad = RSSL_FALSE;
 	pOpts->provideDictionaryUsedAndProvided = RSSL_FALSE;
 	pOpts->pServerPort = const_cast<char*>("14011");
+	pOpts->reactorConnectionList = NULL;
+	pOpts->connectionCount = 0;
+	rsslClearRsslPreferredHostOptions(&pOpts->preferredHostOpts);
+	pOpts->watchlistOn = RSSL_TRUE;
 }
 
 /* Options for wtfSetupWarmStandbyConnection. */
@@ -395,6 +413,7 @@ typedef struct
 	RsslReactorConnectInfo	*reactorConnectionList;	/*!< A list of connections.  Each connection in the list will be tried with each reconnection attempt. */
 
 	RsslUInt32				connectionCount;		/*!< The number of connections in reactorConnectionList. */
+	RsslPreferredHostOptions preferredHostOpts;
 } WtfSetupWarmStandbyOpts;
 
 /* Initializes commonly used settings of WtfSetupWarmStandbyConnectionOpts. */
@@ -422,6 +441,7 @@ static void wtfClearSetupWarmStandbyConnectionOpts(WtfSetupWarmStandbyOpts *pOpt
 	pOpts->warmStandbyGroupCount = 0;
 	pOpts->reactorConnectionList = NULL;
 	pOpts->connectionCount = 0;
+	rsslClearRsslPreferredHostOptions(&pOpts->preferredHostOpts);
 }
 
 typedef struct
@@ -435,6 +455,8 @@ typedef struct
 /* Perform a standard connect attempt. (Most tests connect in the same way,
  * options are provided for minor changes). */
 void wtfSetupConnection(WtfSetupConnectionOpts *pOpts, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET);
+
+void wtfSetupConnectionList(WtfSetupConnectionOpts* pOpts, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET, RsslUInt16 serverIndex = 0);
 
 void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandbyExpectedMode* pExpectedWarmStandbyMode, 
 	RsslRDMService *pActiveServerService, RsslRDMService* pStandByServerService, RsslBool sendDirectoryRequest = RSSL_FALSE, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET, RsslBool multiLogin = RSSL_FALSE);
@@ -517,6 +539,9 @@ extern RsslBuffer	service2Name;
 
 /* The ID of Service2. */
 extern RsslUInt16	service2Id;
+
+extern RsslBuffer activeUserName;
+extern RsslBuffer standbyUserName;
 
 /*** Views ***/
 

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019 LSEG. All rights reserved.
 */
 
 
@@ -22,14 +22,14 @@ extern "C" {
 #define RDNDISPLAY_FID 2
 #define RDN_EXCHID_FID 4
 #define DIVPAYDATE_FID 38
-	//API QA
+//API QA
 #define PRCTCK_1_FID 14
 #define LST_PRCTCK_FID 1791
 #define DIVIDENDTP_FID 37
 #define TRD_UNITS_FID 53
 #define MPV_FID 3364
-#define LOTSZUNITS_FID 54 
-	// END API QA
+#define LOTSZUNITS_FID 54
+// END API QA
 #define TRDPRC_1_FID 6
 #define BID_FID 22
 #define ASK_FID 25
@@ -44,14 +44,14 @@ typedef struct {
 	RsslBool		isInUse;
 	RsslUInt64		RDNDISPLAY;
 	RsslEnum		RDN_EXCHID;
-        //APIQA
+	//API QA
 	RsslEnum		PRCTCK_1;
 	RsslEnum		LST_PRCTCK;
-	RsslEnum                DIVIDENDTP;
-	RsslEnum                TRD_UNITS;
-	RsslEnum                MPV;
-	RsslEnum                LOTSZUNITS;
-	//END APIQA
+	RsslEnum		DIVIDENDTP;
+	RsslEnum		TRD_UNITS;
+	RsslEnum		MPV;
+	RsslEnum		LOTSZUNITS;
+	//END API QA
 	RsslDate		DIVPAYDATE;
 	double			TRDPRC_1;
 	double			BID;
@@ -82,14 +82,14 @@ RTR_C_INLINE void clearMarketPriceItem(RsslMarketPriceItem* itemInfo)
 	itemInfo->isInUse = RSSL_FALSE;
 	itemInfo->RDNDISPLAY = 0;
 	itemInfo->RDN_EXCHID = 0;
-        //API QA
+//API QA
 	itemInfo->PRCTCK_1 = 0;
 	itemInfo->LST_PRCTCK = 0;
 	itemInfo->DIVIDENDTP = 0;
 	itemInfo->TRD_UNITS = 0;
 	itemInfo->MPV = 0;
 	itemInfo->LOTSZUNITS = 0;
-        //END API QA
+//END API QA
 	rsslClearDate(&itemInfo->DIVPAYDATE);
 	itemInfo->TRDPRC_1 = 0;
 	itemInfo->BID = 0;

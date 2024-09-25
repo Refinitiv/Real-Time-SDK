@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
+ * Copyright (C) 2019, 2024 LSEG. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_CHANNEL_COMMAND_H
@@ -22,6 +22,9 @@
 #include <sys/time.h>
 #endif
 
+#include <sys/types.h>
+#include <sys/timeb.h>
+
 #ifdef WIN32
 #define snprintf _snprintf
 #endif
@@ -33,6 +36,10 @@ extern "C" {
 #define MAX_BUFFER_LENGTH 128
 #define MAX_NUM_GROUP_ID 10
 #define MAX_NUM_CAPABILITIES 256
+
+/* Maximum number of hosts in connection list */
+#define CHAN_CMD_MAX_HOSTS 4
+
 /*
  * Store information associated with
  * an item request.
@@ -88,6 +95,7 @@ typedef struct
 	RsslReactorChannel *reactorChannel;
 	RsslReactorConnectOptions cOpts;
 	RsslReactorConnectInfo cInfo;
+	RsslReactorConnectInfo InfoItems[CHAN_CMD_MAX_HOSTS];
 	RsslReactorChannelRole *pRole;
 	ItemRequest marketPriceItems[CHAN_CMD_MAX_ITEMS];
 	ItemRequest marketByOrderItems[CHAN_CMD_MAX_ITEMS];
@@ -126,8 +134,10 @@ typedef struct
 	/* next private stream id for item requests */
 	RsslInt32 nextAvailableMarketPricePrivateStreamId, nextAvailableMarketByOrderPrivateStreamId, nextAvailableMarketByPricePrivateStreamId, nextAvailableYieldCurvePrivateStreamId; 
 
-	char hostName[MAX_BUFFER_LENGTH];
-	char port[MAX_BUFFER_LENGTH];
+	char hostName[CHAN_CMD_MAX_HOSTS][MAX_BUFFER_LENGTH];
+	char port[CHAN_CMD_MAX_HOSTS][MAX_BUFFER_LENGTH];
+	RsslUInt32			hostsCount;
+
 	char interfaceName[MAX_BUFFER_LENGTH];
 	
 	char loginRefreshMemoryArray[4000];
@@ -248,6 +258,12 @@ RTR_C_INLINE void initChannelCommand(ChannelCommand *pCommand)
 	}
 	pCommand->capabilitiesCount = 0;
 
+	for (i = 0; i < CHAN_CMD_MAX_HOSTS; i++)
+	{
+		rsslClearReactorConnectInfo(&pCommand->InfoItems[i]);
+	}
+	pCommand->hostsCount = 0;
+
 	pCommand->tunnelMessagingEnabled = RSSL_FALSE;
 	snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "%s", "");
 }
@@ -258,6 +274,42 @@ RTR_C_INLINE void initChannelCommand(ChannelCommand *pCommand)
 RTR_C_INLINE void cleanupChannelCommand(ChannelCommand *pCommand)
 {
 	rsslDeleteDataDictionary(&pCommand->dictionary);
+}
+
+typedef struct
+{
+	RsslUInt32 directFallbackTimeInterval;	/* Specifies the time interval (when >0) before direct fallback is invoked by VAConsumer */
+	RsslUInt32 ioctlCallTimeInterval;		/* Specifies the time interval (when >0) before Ioctl is invoked by VAConsumer to modify RsslPreferredHostOptions */
+
+	/* RsslPreferredHostOptions values that will be updated by Ioctl call */
+	char ioctlDetectionTimeCron[RSSL_REACTOR_MAX_BUFFER_LEN_INFO_CRON];	/* Specifies the new value for detectionTimeSchedule */
+
+	time_t directFallbackTime;		/* Time when direct fallback will be invoked (when > 0), calculated by directFallbackTimeInterval */
+	time_t ioctlCallTime;			/* Time when Ioctl will be invoked (when > 0), calculated by ioctlCallTimeInterval */
+	
+	RsslBool setIoctlEnablePH;					/* ioctlEnablePH is specified on the command line */
+	RsslBool setIoctlConnectListIndex;			/* ioctlConnectListIndex is specified on the command line */
+	RsslBool setIoctlDetectionTimeInterval;		/* ioctlDetectionTimeInterval is specified on the command line */
+	RsslBool setIoctlDetectionTimeSchedule;		/* ioctlDetectionTimeSchedule is specified on the command line */
+
+	RsslPreferredHostOptions rsslIoctlPreferredHostOpts;
+} PreferredHostConfig;
+
+RTR_C_INLINE void clearPreferredHostConfig(PreferredHostConfig* pPreferredHostConfig)
+{
+	pPreferredHostConfig->directFallbackTimeInterval = 0U;
+	pPreferredHostConfig->ioctlCallTimeInterval = 0U;
+
+	/* New RsslPreferredHostOptions values that will be updated by Ioctl call */
+	rsslClearRsslPreferredHostOptions(&pPreferredHostConfig->rsslIoctlPreferredHostOpts);
+
+	pPreferredHostConfig->directFallbackTime = 0U;
+	pPreferredHostConfig->ioctlCallTime = 0U;
+
+	pPreferredHostConfig->setIoctlEnablePH = RSSL_FALSE;
+	pPreferredHostConfig->setIoctlConnectListIndex = RSSL_FALSE;
+	pPreferredHostConfig->setIoctlDetectionTimeInterval = RSSL_FALSE;
+	pPreferredHostConfig->setIoctlDetectionTimeSchedule = RSSL_FALSE;
 }
 
 /*
@@ -451,6 +503,12 @@ RTR_C_INLINE void clearChannelCommand(ChannelCommand *pCommand)
 	}
 	pCommand->capabilitiesCount = 0;
 
+	for (i = 0; i < CHAN_CMD_MAX_HOSTS; i++)
+	{
+		rsslClearReactorConnectInfo(&pCommand->InfoItems[i]);
+	}
+	pCommand->hostsCount = 0;
+
 	tunnelStreamHandlerClearServiceInfo(&pCommand->simpleTunnelMsgHandler.tunnelStreamHandler);
 
 }
@@ -494,6 +552,55 @@ RTR_C_INLINE RsslInt32 getNextAvailableMarketByPricePrivateStreamId(ChannelComma
 RTR_C_INLINE RsslInt32 getNextAvailableYieldCurvePrivateStreamId(ChannelCommand *pChannelCommand)
 {
 	return pChannelCommand->nextAvailableYieldCurvePrivateStreamId++;
+}
+
+RTR_C_INLINE RsslUInt32 dumpDateTime(char* buf, RsslUInt32 size)
+{
+	long hour = 0,
+		min = 0,
+		sec = 0,
+		msec = 0;
+
+	RsslUInt32 res = 0;
+
+	struct tm stamptime;
+	time_t currTime;
+	currTime = time(NULL);
+
+#if defined(WIN32)
+	struct _timeb	_time;
+	_ftime(&_time);
+	sec = (long)(_time.time - 60 * (_time.timezone - _time.dstflag * 60));
+	min = sec / 60 % 60;
+	hour = sec / 3600 % 24;
+	sec = sec % 60;
+	msec = _time.millitm;
+
+	/* get date from currtime */
+	localtime_s(&stamptime, &currTime);
+#elif defined(LINUX)
+	/* localtime must be used to get the correct system time. */
+	stamptime = *localtime_r(&currTime, &stamptime);
+	sec = stamptime.tm_sec;
+	min = stamptime.tm_min;
+	hour = stamptime.tm_hour;
+
+	/* localtime, however, does not give us msec. */
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	msec = tv.tv_usec / 1000;
+#endif
+
+	// yyyy-MM-dd HH:mm:ss.SSS
+	res = snprintf(buf, size, "<!-- %4ld-%02ld-%02ld %02ld:%02ld:%02ld.%03ld -->",
+		(stamptime.tm_year + 1900),
+		(stamptime.tm_mon + 1),
+		stamptime.tm_mday,
+		hour,
+		min,
+		sec,
+		msec);
+	return res;
 }
 
 #ifdef __cplusplus

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019 LSEG. All rights reserved.
 */
 
 
@@ -316,7 +316,7 @@ static RsslRet getItemInfo(RsslReactor *pReactor, RsslReactorChannel *pReactorCh
 		{
 			if (itemInfoList[i].InterestCount == 0)
 			{
-				snprintf(itemInfoList[i].Itemname, 128, "%s", itemName);
+				snprintf(itemInfoList[i].Itemname, MAX_ITEM_INFO_STRLEN + 1, "%s", itemName);
 				rsslItemInfo = &itemInfoList[i];
 				rsslItemInfo->domainType = itemReqInfo->domainType;
 				rsslItemInfo->IsPrivateStream = itemReqInfo->IsPrivateStreamRequest;
@@ -547,8 +547,9 @@ RsslRet sendAck(RsslReactor *pReactor, RsslReactorChannel *chnl, RsslPostMsg *po
 
 	return RSSL_RET_SUCCESS;
 }
+
 //API QA
-RsslRet decodeFieldEntry(RsslDataDictionary *dictionary, RsslFieldEntry* fEntry, RsslDecodeIterator *dIter)
+RsslRet decodeFieldEntry(RsslDataDictionary* dictionary, RsslFieldEntry* fEntry, RsslDecodeIterator* dIter)
 {
 	RsslRet ret = 0;
 	RsslDataType dataType = RSSL_DT_UNKNOWN;
@@ -560,7 +561,7 @@ RsslRet decodeFieldEntry(RsslDataDictionary *dictionary, RsslFieldEntry* fEntry,
 	RsslEnum fidEnumValue;
 	RsslFloat fidFloatValue = 0;
 	RsslDouble fidDoubleValue = 0;
-	RsslQos fidQosValue = RSSL_INIT_QOS; 
+	RsslQos fidQosValue = RSSL_INIT_QOS;
 	RsslDateTime fidDateTimeValue;
 	RsslState fidStateValue;
 	RsslBuffer fidBufferValue;
@@ -580,12 +581,12 @@ RsslRet decodeFieldEntry(RsslDataDictionary *dictionary, RsslFieldEntry* fEntry,
 		dictionaryEntry = dictionary->entriesArray[fEntry->fieldId];
 
 	/* return if no entry found */
-	if (!dictionaryEntry) 
-    {
+	if (!dictionaryEntry)
+	{
 		printf("\tFid %d not found in dictionary\n", fEntry->fieldId);
 		//dumpHexBuffer(&fEntry->encData);
 		return RSSL_RET_SUCCESS;
-    }
+	}
 
 	/* print out fid name */
 	printf("\t%-20s", dictionaryEntry->acronym.data);
@@ -593,171 +594,171 @@ RsslRet decodeFieldEntry(RsslDataDictionary *dictionary, RsslFieldEntry* fEntry,
 	dataType = dictionaryEntry->rwfType;
 	switch (dataType)
 	{
-		case RSSL_DT_UINT:
-			if ((ret = rsslDecodeUInt(dIter, &fidUIntValue)) == RSSL_RET_SUCCESS)
-			{
-				printf(RTR_LLU "\n", fidUIntValue);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeUInt() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		case RSSL_DT_INT:
-			if ((ret = rsslDecodeInt(dIter, &fidIntValue)) == RSSL_RET_SUCCESS)
-			{
-				printf(RTR_LLD "\n", fidIntValue);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeInt() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		case RSSL_DT_FLOAT:
-			if ((ret = rsslDecodeFloat(dIter, &fidFloatValue)) == RSSL_RET_SUCCESS) 
-			{
-				printf("%f\n", fidFloatValue);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeFloat() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		case RSSL_DT_DOUBLE:
-			if ((ret = rsslDecodeDouble(dIter, &fidDoubleValue)) == RSSL_RET_SUCCESS) 
-			{
-				printf("%f\n", fidDoubleValue);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeDouble() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		case RSSL_DT_REAL:
-			if ((ret = rsslDecodeReal(dIter, &fidRealValue)) == RSSL_RET_SUCCESS)
-			{
-				fidRealBuf.data = (char*)alloca(35);
-				fidRealBuf.length = 35;
-				rsslRealToString(&fidRealBuf, &fidRealValue);
-				printf("%s\n", fidRealBuf.data);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeReal() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		case RSSL_DT_ENUM:
-			if ((ret = rsslDecodeEnum(dIter, &fidEnumValue)) == RSSL_RET_SUCCESS)
-			{
-				RsslEnumType *pEnumType = getFieldEntryEnumType(dictionaryEntry, fidEnumValue);
-				if (pEnumType)
-    				printf("%.*s(%d)\n", pEnumType->display.length, pEnumType->display.data, fidEnumValue);
-				else
-    				printf("%d\n", fidEnumValue);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeEnum() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		case RSSL_DT_DATE:
-			if ((ret = rsslDecodeDate(dIter, &fidDateTimeValue.date)) == RSSL_RET_SUCCESS)
-			{
-				fidDateTimeBuf.data = (char*)alloca(30);
-				fidDateTimeBuf.length = 30;
-				rsslDateTimeToString(&fidDateTimeBuf, RSSL_DT_DATE, &fidDateTimeValue);
-				printf("%s\n", fidDateTimeBuf.data);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeDate() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		case RSSL_DT_TIME:
-			if ((ret = rsslDecodeTime(dIter, &fidDateTimeValue.time)) == RSSL_RET_SUCCESS)
-			{
-				fidDateTimeBuf.data = (char*)alloca(30);
-				fidDateTimeBuf.length = 30;
-				rsslDateTimeToString(&fidDateTimeBuf, RSSL_DT_TIME, &fidDateTimeValue);
-				printf("%s\n", fidDateTimeBuf.data);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeTime() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		case RSSL_DT_DATETIME:
-			if ((ret = rsslDecodeDateTime(dIter, &fidDateTimeValue)) == RSSL_RET_SUCCESS)
-			{
-				fidDateTimeBuf.data = (char*)alloca(50);
-				fidDateTimeBuf.length = 50;
-				rsslDateTimeToString(&fidDateTimeBuf, RSSL_DT_DATETIME, &fidDateTimeValue);
-				printf("%s\n", fidDateTimeBuf.data);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeDateTime() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		case RSSL_DT_QOS:
-			if((ret = rsslDecodeQos(dIter, &fidQosValue)) == RSSL_RET_SUCCESS) {
-				fidQosBuf.data = (char*)alloca(100);
-				fidQosBuf.length = 100;
-				rsslQosToString(&fidQosBuf, &fidQosValue);
-				printf("%s\n", fidQosBuf.data);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeQos() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		case RSSL_DT_STATE:
-			if((ret = rsslDecodeState(dIter, &fidStateValue)) == RSSL_RET_SUCCESS) {
-				int stateBufLen = 80;
-				if (fidStateValue.text.data)
-					stateBufLen += fidStateValue.text.length;
-				fidStateBuf.data = (char*)alloca(stateBufLen);
-				fidStateBuf.length = stateBufLen;
-				rsslStateToString(&fidStateBuf, &fidStateValue);
-				printf("%.*s\n", fidStateBuf.length, fidStateBuf.data);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA)
-			{
-				printf("rsslDecodeState() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		
-		/*For an example of array decoding, see fieldListEncDec.c*/
-		case RSSL_DT_ARRAY:
+	case RSSL_DT_UINT:
+		if ((ret = rsslDecodeUInt(dIter, &fidUIntValue)) == RSSL_RET_SUCCESS)
+		{
+			printf(RTR_LLU "\n", fidUIntValue);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+			return ret;
+		}
 		break;
-		case RSSL_DT_BUFFER:
-		case RSSL_DT_ASCII_STRING:
-		case RSSL_DT_UTF8_STRING:
-		case RSSL_DT_RMTES_STRING:
-			if((ret = rsslDecodeBuffer(dIter, &fidBufferValue)) == RSSL_RET_SUCCESS)
-			{
-				printf("%.*s\n", fidBufferValue.length, fidBufferValue.data);
-			}
-			else if (ret != RSSL_RET_BLANK_DATA) 
-			{
-				printf("rsslDecodeBuffer() failed with return code: %d\n", ret);
-				return ret;
-			}
-			break;
-		default:
-			printf("Unsupported data type (%d) for fid value\n", dataType);
-			break;
+	case RSSL_DT_INT:
+		if ((ret = rsslDecodeInt(dIter, &fidIntValue)) == RSSL_RET_SUCCESS)
+		{
+			printf(RTR_LLD "\n", fidIntValue);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeInt() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+	case RSSL_DT_FLOAT:
+		if ((ret = rsslDecodeFloat(dIter, &fidFloatValue)) == RSSL_RET_SUCCESS)
+		{
+			printf("%f\n", fidFloatValue);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeFloat() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+	case RSSL_DT_DOUBLE:
+		if ((ret = rsslDecodeDouble(dIter, &fidDoubleValue)) == RSSL_RET_SUCCESS)
+		{
+			printf("%f\n", fidDoubleValue);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeDouble() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+	case RSSL_DT_REAL:
+		if ((ret = rsslDecodeReal(dIter, &fidRealValue)) == RSSL_RET_SUCCESS)
+		{
+			fidRealBuf.data = (char*)alloca(35);
+			fidRealBuf.length = 35;
+			rsslRealToString(&fidRealBuf, &fidRealValue);
+			printf("%s\n", fidRealBuf.data);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeReal() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+	case RSSL_DT_ENUM:
+		if ((ret = rsslDecodeEnum(dIter, &fidEnumValue)) == RSSL_RET_SUCCESS)
+		{
+			RsslEnumType* pEnumType = getFieldEntryEnumType(dictionaryEntry, fidEnumValue);
+			if (pEnumType)
+				printf("%.*s(%d)\n", pEnumType->display.length, pEnumType->display.data, fidEnumValue);
+			else
+				printf("%d\n", fidEnumValue);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeEnum() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+	case RSSL_DT_DATE:
+		if ((ret = rsslDecodeDate(dIter, &fidDateTimeValue.date)) == RSSL_RET_SUCCESS)
+		{
+			fidDateTimeBuf.data = (char*)alloca(30);
+			fidDateTimeBuf.length = 30;
+			rsslDateTimeToString(&fidDateTimeBuf, RSSL_DT_DATE, &fidDateTimeValue);
+			printf("%s\n", fidDateTimeBuf.data);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeDate() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+	case RSSL_DT_TIME:
+		if ((ret = rsslDecodeTime(dIter, &fidDateTimeValue.time)) == RSSL_RET_SUCCESS)
+		{
+			fidDateTimeBuf.data = (char*)alloca(30);
+			fidDateTimeBuf.length = 30;
+			rsslDateTimeToString(&fidDateTimeBuf, RSSL_DT_TIME, &fidDateTimeValue);
+			printf("%s\n", fidDateTimeBuf.data);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeTime() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+	case RSSL_DT_DATETIME:
+		if ((ret = rsslDecodeDateTime(dIter, &fidDateTimeValue)) == RSSL_RET_SUCCESS)
+		{
+			fidDateTimeBuf.data = (char*)alloca(50);
+			fidDateTimeBuf.length = 50;
+			rsslDateTimeToString(&fidDateTimeBuf, RSSL_DT_DATETIME, &fidDateTimeValue);
+			printf("%s\n", fidDateTimeBuf.data);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeDateTime() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+	case RSSL_DT_QOS:
+		if ((ret = rsslDecodeQos(dIter, &fidQosValue)) == RSSL_RET_SUCCESS) {
+			fidQosBuf.data = (char*)alloca(100);
+			fidQosBuf.length = 100;
+			rsslQosToString(&fidQosBuf, &fidQosValue);
+			printf("%s\n", fidQosBuf.data);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeQos() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+	case RSSL_DT_STATE:
+		if ((ret = rsslDecodeState(dIter, &fidStateValue)) == RSSL_RET_SUCCESS) {
+			int stateBufLen = 80;
+			if (fidStateValue.text.data)
+				stateBufLen += fidStateValue.text.length;
+			fidStateBuf.data = (char*)alloca(stateBufLen);
+			fidStateBuf.length = stateBufLen;
+			rsslStateToString(&fidStateBuf, &fidStateValue);
+			printf("%.*s\n", fidStateBuf.length, fidStateBuf.data);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeState() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+
+		/*For an example of array decoding, see fieldListEncDec.c*/
+	case RSSL_DT_ARRAY:
+		break;
+	case RSSL_DT_BUFFER:
+	case RSSL_DT_ASCII_STRING:
+	case RSSL_DT_UTF8_STRING:
+	case RSSL_DT_RMTES_STRING:
+		if ((ret = rsslDecodeBuffer(dIter, &fidBufferValue)) == RSSL_RET_SUCCESS)
+		{
+			printf("%.*s\n", fidBufferValue.length, fidBufferValue.data);
+		}
+		else if (ret != RSSL_RET_BLANK_DATA)
+		{
+			printf("rsslDecodeBuffer() failed with return code: %d\n", ret);
+			return ret;
+		}
+		break;
+	default:
+		printf("Unsupported data type (%d) for fid value\n", dataType);
+		break;
 	}
 	if (ret == RSSL_RET_BLANK_DATA)
 	{
@@ -769,7 +770,7 @@ RsslRet decodeFieldEntry(RsslDataDictionary *dictionary, RsslFieldEntry* fEntry,
 /*
  * decodeFieldList
  */
-RsslRet decodeFieldList(RsslDataDictionary *dictionary, RsslDecodeIterator *dIter)
+RsslRet decodeFieldList(RsslDataDictionary* dictionary, RsslDecodeIterator* dIter)
 {
 	RsslRet ret;
 	RsslFieldList fList = RSSL_INIT_FIELD_LIST;
@@ -843,7 +844,7 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 		errText = (char *)"Received a post message request from client before login\n";
 		if (sendAck(pReactor, chnl, postMsg, RSSL_NAKC_INVALID_CONTENT, errText) != RSSL_RET_SUCCESS)
 			return RSSL_RET_FAILURE;
-		printf(errText);
+		printf("%s", errText);
 		return RSSL_RET_SUCCESS;
 	}
 
@@ -856,7 +857,7 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 			errText = (char *)"Received an off-stream post message request from client without a msgkey\n";
 			if (sendAck(pReactor, chnl, postMsg, RSSL_NAKC_INVALID_CONTENT, errText) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;
-			printf(errText);
+			printf("%s", errText);
 			return RSSL_RET_SUCCESS;
 		}
 		printf("Received an off-stream item post (item=%.*s)\n", postMsg->msgBase.msgKey.name.length, postMsg->msgBase.msgKey.name.data);
@@ -868,7 +869,7 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 			errText = (char *)"Received an off-stream post message for an item that doesnt exist\n";
 			if (sendAck(pReactor, chnl, postMsg, RSSL_NAKC_SYMBOL_UNKNOWN, errText) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;
-			printf(errText);
+			printf("%s", errText);
 			return RSSL_RET_SUCCESS;
 		}
 	}
@@ -881,17 +882,17 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 			errText = (char *)"Received an on-stream post message on a stream that does not have an item open\n";
 			if (sendAck(pReactor, chnl, postMsg, RSSL_NAKC_INVALID_CONTENT, errText) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;
-			printf(errText);
+			printf("%s", errText);
 			return RSSL_RET_SUCCESS;
 		}
 
 		itemInfo = itemReqInfo->ItemInfo;
 		printf("Received an on-stream post for item=%s\n", itemInfo->Itemname);
-	    // API QA
-	    /* get key */
+		// API QA
+		/* get key */
 		printf("Post Msg Key ContainerType=%d\n", postMsg->msgBase.msgKey.attribContainerType);
 
-		if(postMsg->msgBase.msgKey.attribContainerType == RSSL_DT_FIELD_LIST)
+		if (postMsg->msgBase.msgKey.attribContainerType == RSSL_DT_FIELD_LIST)
 		{
 			RsslDecodeIterator decodeIt;
 			rsslClearDecodeIterator(&decodeIt);
@@ -945,7 +946,7 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 					errText = (char *)"client has insufficient rights to close/delete an item";
 					if (sendAck(pReactor, chnl, postMsg, RSSL_NAKC_INVALID_CONTENT, errText) != RSSL_RET_SUCCESS)
 						return RSSL_RET_FAILURE;
-					printf(errText);
+					printf("%s", errText);
 					return RSSL_RET_SUCCESS;
 				}
 			}
@@ -1324,8 +1325,6 @@ RsslRet processBatchClose(RsslReactor *pReactor, RsslReactorChannel* pReactorCha
 	RsslUInt32 numOfItemsProcessed = 0;
 
 	printf("\nReceived batch item close (streamId=%d) on domain %s\n", msg->msgBase.streamId, rsslDomainTypeToString(domainType));
-	
-	rsslClearDecodeIterator(dIter);
 
 	// The payload of a batch request contains an elementList
 	if ((ret = rsslDecodeElementList(dIter, &elementList, 0)) < RSSL_RET_SUCCESS)

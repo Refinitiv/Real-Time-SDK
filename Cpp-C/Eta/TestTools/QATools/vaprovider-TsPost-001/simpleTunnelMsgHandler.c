@@ -371,7 +371,7 @@ static void simpleTunnelMsgHandlerSendMessage(SimpleTunnelMsgHandler *pSimpleTun
 		bufferOpts.size = 1024;
 		if ((pBuffer = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferOpts, &errorInfo)) == NULL)
 		{
-			printf("rsslTunnelStreamGetBuffer failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
+			printf("rsslTunnelStreamGetBuffer failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), errorInfo.rsslError.text);
 			return;
 		}
 
@@ -404,7 +404,10 @@ static void simpleTunnelMsgHandlerSendMessage(SimpleTunnelMsgHandler *pSimpleTun
 
 		/* Message encoding complete; submit it. */
 		rsslClearTunnelStreamSubmitOptions(&submitOpts);
+		// API QA
 		submitOpts.containerType = RSSL_DT_MSG;
+		//submitOpts.containerType = RSSL_DT_OPAQUE;
+		// END API QA
 		if ((ret = rsslTunnelStreamSubmit(pTunnelStream, pBuffer, &submitOpts, &errorInfo)) != RSSL_RET_SUCCESS)
 		{
 			printf("rsslTunnelStreamSubmit(): Failed <%s>\n", errorInfo.rsslError.text);
@@ -526,7 +529,7 @@ RsslReactorCallbackRet simpleTunnelMsgHandlerProviderMsgCallback(RsslTunnelStrea
 							if ((pBuffer = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferOpts, &errorInfo))
 								== NULL)
 							{
-								printf("rsslTunnelStreamGetBuffer failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
+								printf("rsslTunnelStreamGetBuffer failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), errorInfo.rsslError.text);
 								break;
 							}
 
@@ -722,7 +725,9 @@ void simpleTunnelMsgHandlerProcessNewStream(SimpleTunnelMsgHandler *pSimpleTunne
 
 	printf("Received TunnelStream request on Stream ID %d.\n", pEvent->streamId);
 
-	if (pSimpleTunnelMsgHandler->tunnelStreamHandler.tunnelStreamOpenRequested)
+	if (pSimpleTunnelMsgHandler == NULL)
+		rejectString = (char*)"Provider tunnel stream limit reached."; // limited by MAX_TUNNEL_STREAMS in rsslProvider.h
+	else if (pSimpleTunnelMsgHandler->tunnelStreamHandler.tunnelStreamOpenRequested)
 		rejectString = (char*)"Consumer already has a tunnel stream open. This provider example only supports one tunnel stream.";
 
 	if (rejectString == NULL)
@@ -816,7 +821,7 @@ char* simpleTunnelMsgHandlerCheckRequestedClassOfService(SimpleTunnelMsgHandler 
 	/* Try to decode the class of service. */
 	if (rsslTunnelStreamRequestGetCos(pEvent, pCos, &errorInfo) != RSSL_RET_SUCCESS)
 	{
-		printf("rsslTunnelStreamRequestGetCos failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
+		printf("rsslTunnelStreamRequestGetCos failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), errorInfo.rsslError.text);
 		return (char*)"Failed to decode class of service.";
 	}
 

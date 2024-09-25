@@ -6,6 +6,7 @@
 */
 
 #include "rtr/wlDirectory.h"
+#include "rtr/rsslReactorImpl.h"
 
 WlDirectoryRequest *wlDirectoryRequestCreate(RsslRDMDirectoryRequest *pDirectoryReqMsg,
 	   void *pUserSpec, RsslErrorInfo *pErrorInfo)
@@ -190,7 +191,7 @@ RsslRet wlSendDirectoryMsgToRequest(WlBase *pBase, WlDirectoryRequest *pDirector
 		}
 	}
 
-	return (*pBase->config.msgCallback)(&pBase->watchlist, &msgEvent, pErrorInfo);
+	return _reactorWatchlistMsgCallback(&pBase->watchlist, &msgEvent, pErrorInfo);
 }
 
 RsslRet wlSendServiceListToRequest(WlBase *pBase, WlDirectory *pDirectory, 

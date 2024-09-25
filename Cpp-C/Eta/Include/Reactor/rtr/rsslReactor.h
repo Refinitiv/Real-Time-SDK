@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2023 LSEG. All rights reserved.
+ * Copyright (C) 2019-2024 LSEG. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_REACTOR_H
@@ -659,6 +659,41 @@ RTR_C_INLINE void rsslClearReactorWarmStandbyGroup(RsslReactorWarmStandbyGroup *
 }
 
 /**
+ * @brief Configuration options for specifying a preferred host or warmstandby group.
+ * @see RsslReactorConnectOptions
+ */
+typedef struct
+{
+	RsslBool   enablePreferredHostOptions;	/* !<This is used to enable the preferred host feature. */
+
+	RsslBuffer detectionTimeSchedule;		/* !<Specifies cron time schedule to switch over to a preferred host or warmstandby group. Defaults is empty
+											 * detectionTimeInterval is used instead if this member is empty. Optional. */
+
+	RsslUInt32 detectionTimeInterval;		/* !<Specifies time interval (in second) unit to switch over to a preferred host or warmstandby group. Optional. */
+
+	RsslUInt32 connectionListIndex;			/* !<Specifies an index in RsslReactorConnectOptions.reactorConnectionList to set as preferred host. */
+
+	RsslUInt32 warmStandbyGroupListIndex;	/* !<Specifies an index in RsslReactorConnectOptions.reactorWarmStandbyGroupList to set as preferred warmstandby group. */
+
+	RsslBool   fallBackWithInWSBGroup;		/* !<This is used to check whether to fallback within a WSB group instead of moving into a preferred WSB group. */
+
+} RsslPreferredHostOptions;
+
+/**
+ * @brief Clears an RsslPreferredHostOptions object.
+ * @see RsslPreferredHostOptions
+ */
+RTR_C_INLINE void rsslClearRsslPreferredHostOptions(RsslPreferredHostOptions* pPreferredHostOptions)
+{
+	pPreferredHostOptions->enablePreferredHostOptions = RSSL_FALSE;
+	rsslClearBuffer(&pPreferredHostOptions->detectionTimeSchedule);
+	pPreferredHostOptions->detectionTimeInterval = 0;
+	pPreferredHostOptions->connectionListIndex = 0;
+	pPreferredHostOptions->warmStandbyGroupListIndex = 0;
+	pPreferredHostOptions->fallBackWithInWSBGroup = RSSL_FALSE;
+}
+
+/**
  * @brief Configuration options for creating an RsslReactor client-side connection.
  * @see rsslReactorConnect
  */
@@ -684,6 +719,8 @@ typedef struct
 
 	RsslUInt32				statisticFlags;			/* Specifies interests for the channel statistics defined in RsslReactorChannelStatisticFlags */
 
+	RsslPreferredHostOptions  preferredHostOptions;		/* Specifies preferred host options to fallback for the reactorConnectionList or reactorWarmStandbyGroupList. */
+
 } RsslReactorConnectOptions;
 
 /**
@@ -699,10 +736,11 @@ RTR_C_INLINE void rsslClearReactorConnectOptions(RsslReactorConnectOptions *pOpt
 	pOpts->reconnectAttemptLimit = 0;
 	pOpts->reactorConnectionList = NULL;
 	pOpts->connectionCount = 0;
-    pOpts->reactorWarmStandbyGroupList = NULL;
-    pOpts->warmStandbyGroupCount = 0;
+	pOpts->reactorWarmStandbyGroupList = NULL;
+	pOpts->warmStandbyGroupCount = 0;
 	pOpts->connectionDebugFlags = 0;
 	pOpts->statisticFlags = RSSL_RC_ST_NONE;
+	rsslClearRsslPreferredHostOptions(&pOpts->preferredHostOptions);
 }
 
 /**

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019-2020 LSEG. All rights reserved.
 */
 
 
@@ -49,17 +49,29 @@ static char libsslName[255];
 static char libcryptoName[255];
 static RsslConnectionTypes connType;
 static RsslInt32 timeToRun = 300;
+static RsslInt32 maxEventsInPool = 500;
 static time_t rsslProviderRuntime = 0;
 static RsslBool runTimeExpired = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool userSpecCipher = RSSL_FALSE;
+static RsslBool rttSupport = RSSL_FALSE;
+static RsslBool sendJsonConvError = RSSL_FALSE;
+
+// API QA
 static RsslBool sendNack = RSSL_FALSE;
 static RsslBool rejectLogin = RSSL_FALSE;
 static RsslBool rejectTsLogin = RSSL_FALSE;
+// END API QA
 
 static RsslUInt32 maxFragmentSize = 0;
 static RsslUInt32 guaranteedOutputBuffers = 0;
 static RsslUInt32 maxOutputBuffers = 0;
+
+static time_t debugInfoIntervalMS = 50;
+static time_t nextDebugTimeMS = 0;
+static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
+
+static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
 
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 
@@ -67,29 +79,44 @@ static RsslVACacheInfo cacheInfo;
 static void initializeCache(RsslBool cacheOption);
 static void uninitializeCache();
 static void initializeCacheDictionary();
+static void reactorDebugPrint();
+static void initReactorNextDebugTime();
+
 
 /* default port number */
 static const char *defaultPortNo = "14002";
 /* default service name */
 static const char *defaultServiceName = "DIRECT_FEED";
 /* default sub-protocol list */
-static const char *defaultProtocols = "rssl.rwf, rssl.json.v2, tr_json2";
+static const char *defaultProtocols = "rssl.rwf, tr_json2, rssl.json.v2";
 
 void exitWithUsage()
 {
-	printf(	"Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
+	printf(	"Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache] [-rtt]\n");
 	printf("Additional options:\n");
 	printf("  -outputBufs <count>   \tNumber of output buffers(configures guaranteedOutputBuffers in RsslBindOptions)\n");
 	printf("  -maxOutputBufs <count>\tMax number of output buffers(configures maxOutputBuffers in RsslBindOptions)\n");
 	printf("  -maxFragmentSize <size>\tMax size of buffers(configures maxFragmentSize in RsslBindOptions)\n");
+	printf(" -rtt turns on support of the round trip time measuring feature in the login\n");
 
 	printf("Additional encryption options:\n");
 	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
+	printf(" -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections\n");
+	printf(" -spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections\n");
+	printf(" -maxEventsInPool size of event pool\n");
+	printf(" -debugConn set 'connection' rector debug info level");
+	printf(" -debugEventQ set 'eventqueue' rector debug info level");
+	printf(" -debugTunnelStream set 'tunnelstream' debug info level");
+	printf(" -debugAll enable all levels of debug info");
+	printf(" -debugInfoInterval set time interval for debug log");
+	printf(" -sendJsonConvError enable send json conversion error to consumer");
+// API QA
 	printf(" -sendNack send negative acks if post message is received\n");
 	printf(" -rejectLogin reject main login request\n");
 	printf(" -rejectTsLogin reject the tonnel stream login request\n");
+// END API QA
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -116,6 +143,22 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			RsslErrorInfo rsslErrorInfo;
 #endif
 			printf("Connection up!\n");
+
+			RsslChannelInfo rsslChannelInfo;
+			RsslError rsslError;
+			rsslGetChannelInfo(pReactorChannel->pRsslChannel, &rsslChannelInfo, &rsslError);
+			switch (rsslChannelInfo.encryptionProtocol)
+			{
+			case RSSL_ENC_TLSV1_2:
+				printf("Encryption protocol: TLSv1.2\n\n");
+				break;
+			case RSSL_ENC_TLSV1_3:
+				printf("Encryption protocol: TLSv1.3\n\n");
+				break;
+			default:
+				printf("Encryption protocol: unknown\n\n");
+			}
+
 			pClientSessionInfo->clientChannel = pReactorChannel;
 			printf("\nServer fd="SOCKET_PRINT_TYPE": New client on Channel fd="SOCKET_PRINT_TYPE"\n",
 					pReactorChannel->pRsslServer->socketId, pReactorChannel->socketId);
@@ -180,7 +223,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			closeDirectoryStreamForChannel(pReactorChannel);
 			closeLoginStreamForChannel(pReactorChannel);
 
-			if(pClientSessionInfo->clientChannel == NULL)
+			if(pClientSessionInfo != NULL && pClientSessionInfo->clientChannel == NULL)
 			{
 				pClientSessionInfo->clientChannel = pReactorChannel;
 			}
@@ -199,6 +242,16 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 	return RSSL_RC_CRET_SUCCESS;
 
+}
+
+RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent)
+{
+	if (pEvent->pError)
+	{
+		printf("Error Id: %d, Text: %s\n", pEvent->pError->rsslError.rsslErrorId, pEvent->pError->rsslError.text);
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
 }
 
 RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
@@ -245,9 +298,9 @@ int main(int argc, char **argv)
 	snprintf(portNo, 128, "%s", defaultPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
 	snprintf(protocolList, 128, "%s", defaultProtocols);
-	snprintf(certFile, 128, "\0");
-	snprintf(keyFile, 128, "\0");
-	snprintf(cipherSuite, 128, "\0");
+	snprintf(certFile, 128, "%s", "");
+	snprintf(keyFile, 128, "%s", "");
+	snprintf(cipherSuite, 128, "%s", "");
 	connType = RSSL_CONN_TYPE_SOCKET;
 	setServiceId(1);
 	for (iargs = 1; iargs < argc; ++iargs)
@@ -257,15 +310,15 @@ int main(int argc, char **argv)
 			++iargs; if (iargs == argc) exitWithUsage();
 			snprintf(libsslName, 255, "%s", argv[iargs]);
 			initOpts.jitOpts.libsslName = libsslName;
-	}
+		}
 		else if (strcmp("-libcryptoName", argv[iargs]) == 0)
-	{
+		{
 			++iargs; if (iargs == argc) exitWithUsage();
 			snprintf(libcryptoName, 255, "%s", argv[iargs]);
 			initOpts.jitOpts.libcryptoName = libcryptoName;
-	}
+		}
 		else if (0 == strcmp("-c", argv[iargs]))
-	{
+		{
 			++iargs; if (iargs == argc) exitWithUsage();
 			if (0 == strcmp(argv[iargs], "socket") || 0 == strcmp(argv[iargs], "0"))
 				connType = RSSL_CONN_TYPE_SOCKET;
@@ -306,7 +359,7 @@ int main(int argc, char **argv)
 		else if (0 == strcmp("-x", argv[iargs]))
 		{
 			xmlTrace = RSSL_TRUE;
-			snprintf(traceOutputFile, 128, "RsslVAProvider\0");
+			snprintf(traceOutputFile, 128, "RsslVAProvider");
 		}
 		else if (0 == strcmp("-maxFragmentSize", argv[iargs]))
 		{
@@ -348,6 +401,49 @@ int main(int argc, char **argv)
 			snprintf(cipherSuite, 128, "%s", argv[iargs]);
 			userSpecCipher = RSSL_TRUE;
 		}
+		else if (0 == strcmp("-rtt", argv[iargs]))
+		{
+			rttSupport = RSSL_TRUE;
+		}
+		else if (strcmp("-maxEventsInPool", argv[iargs]) == 0)
+		{
+			++iargs;
+			maxEventsInPool = atoi(argv[iargs]);
+		}
+		else if (0 == strcmp("-debugConn", argv[iargs]))
+		{
+			reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_CONNECTION;
+		}
+		else if (0 == strcmp("-debugEventQ", argv[iargs]))
+		{
+			reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_EVENTQUEUE;
+		}
+		else if (0 == strcmp("-debugTunnelStream", argv[iargs]))
+		{
+			reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM;
+		}
+		else if (0 == strcmp("-debugAll", argv[iargs]))
+		{
+			reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_CONNECTION | RSSL_RC_DEBUG_LEVEL_EVENTQUEUE | RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM;
+		}
+		else if (0 == strcmp("-debuginfoInterval", argv[iargs]))
+		{
+			++iargs;
+			debugInfoIntervalMS = (time_t)atoi(argv[iargs]);
+		}
+		else if (0 == strcmp("-sendJsonConvError", argv[iargs]))
+		{
+			sendJsonConvError = RSSL_TRUE;
+		}
+		else if (0 == strcmp("-spTLSv1.2", argv[iargs]))
+		{
+			tlsProtocol |= RSSL_ENC_TLSV1_2;
+		}
+		else if (0 == strcmp("-spTLSv1.3", argv[iargs]))
+		{
+			tlsProtocol |= RSSL_ENC_TLSV1_3;
+		}
+// API QA
 		else if (0 == strcmp("-sendNack", argv[iargs]))
 		{
 			sendNack = RSSL_TRUE;
@@ -360,6 +456,7 @@ int main(int argc, char **argv)
 		{
 			rejectTsLogin = RSSL_TRUE;
 		}
+// END API QA
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -369,6 +466,8 @@ int main(int argc, char **argv)
 	printf("portNo: %s\n", portNo);
 	printf("serviceName: %s\n", serviceName);
 	printf("serviceId: %llu\n", getServiceId());
+
+	setRTTSupport(rttSupport);
 
 	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
 	initOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
@@ -393,6 +492,9 @@ int main(int argc, char **argv)
 	providerRole.tunnelStreamListenerCallback = tunnelStreamListenerCallback;
 
 	rsslClearCreateReactorOptions(&reactorOpts);
+
+	reactorOpts.maxEventsInPool = maxEventsInPool;
+	reactorOpts.debugLevel = reactorDebugLevel;
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
@@ -426,6 +528,7 @@ int main(int argc, char **argv)
 	/* Initialize market by order items */
 	initMarketByOrderItems();
 
+// API QA
 	if (rejectLogin)
 		setRejectLogin();
 
@@ -434,6 +537,7 @@ int main(int argc, char **argv)
 
 	if (sendNack)
 		setSendNack();
+// END API QA
 
 	/* set service name in directory handler */
 	setServiceName(serviceName);
@@ -455,6 +559,8 @@ int main(int argc, char **argv)
 	jsonConverterOptions.pDictionary = getDictionary();
 	jsonConverterOptions.defaultServiceId = (RsslUInt16)getServiceId();
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+	jsonConverterOptions.sendJsonConvError = sendJsonConvError;
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{
@@ -464,6 +570,12 @@ int main(int argc, char **argv)
 
 	/* Initialize run-time */
 	initRuntime();
+
+	/*Initialize reactor debug interval*/
+	if (reactorDebugLevel != RSSL_RC_DEBUG_LEVEL_NONE)
+	{
+		initReactorNextDebugTime();
+	}
 
 	FD_ZERO(&readFds);
 	FD_ZERO(&exceptFds);
@@ -477,6 +589,9 @@ int main(int argc, char **argv)
 	sopts.connectionType = connType;
 	sopts.encryptionOpts.serverCert = certFile;
 	sopts.encryptionOpts.serverPrivateKey = keyFile;
+
+	if (tlsProtocol != RSSL_ENC_NONE)
+		sopts.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
 
 	if (userSpecCipher == RSSL_TRUE)
 		sopts.encryptionOpts.cipherSuite = cipherSuite;
@@ -526,6 +641,12 @@ int main(int argc, char **argv)
 		if (selRet > 0)
 		{
 			RsslRet ret;
+
+			if ((rsslReactorGetDebugLevel(pReactor, &reactorDebugLevel, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+				printf("rsslGetReactorDebugLevel failed: %s\n", rsslErrorInfo.rsslError.text);
+
+			if (reactorDebugLevel != RSSL_RC_DEBUG_LEVEL_NONE)
+				reactorDebugPrint();
 
 			/* Accept connection, if one is waiting */
 			if (FD_ISSET(rsslSrvr->socketId, &useRead))
@@ -602,6 +723,12 @@ int main(int argc, char **argv)
 						removeClientSessionForChannel(pReactor, clientSessions[i].clientChannel);
 					}
 
+					/* Send the RTT message whenever updates are sent */
+					if(sendLoginRTT(pReactor, clientSessions[i].clientChannel) != RSSL_RET_SUCCESS)
+					{
+						removeClientSessionForChannel(pReactor, clientSessions[i].clientChannel);
+					}
+
 					// send any tunnel stream messages
 					for (j = 0; j < MAX_TUNNEL_STREAMS; j++)
 					{
@@ -632,6 +759,51 @@ static void initRuntime()
 	time(&currentTime);
 	
 	rsslProviderRuntime = currentTime + (time_t)timeToRun;
+}
+
+/*
+ * Printout ractor debug information if debug was enabled.
+ */
+static void initReactorNextDebugTime()
+{
+	time_t currentTime = 0;
+
+	/* get current time */
+	time(&currentTime);
+
+	nextDebugTimeMS = (currentTime * 1000) + debugInfoIntervalMS;
+}
+
+/*
+ * Print debug data from reactor
+ */
+
+static void reactorDebugPrint()
+{
+	time_t currentTime = 0, currentTimeMS = 0;
+	RsslReactorDebugInfo pReactorDebugInfo = {0};
+	RsslErrorInfo pError = {0};
+	RsslUInt32 i;
+
+	/* get current time */
+	time(&currentTime);
+
+	if (currentTime * 1000 > nextDebugTimeMS)
+	{
+		if (RSSL_RET_SUCCESS != rsslReactorGetDebugInfo(pReactor, &pReactorDebugInfo, &pError))
+		{
+			printf("rsslReactorGetDebugInfo FAILED with error code: %d, error text: %s\n", pError.rsslError.rsslErrorId, pError.rsslError.text);
+			return;
+		}
+		else
+		{
+			for(i = 0; i < pReactorDebugInfo.debugInfoBuffer.length; i++)
+				printf("%c", pReactorDebugInfo.debugInfoBuffer.data[i]);
+		}
+
+		/*set new time for debug*/
+		nextDebugTimeMS += debugInfoIntervalMS;
+	}
 }
 
 /*
@@ -734,6 +906,7 @@ RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChan
 		case RSSL_DMT_MARKET_BY_PRICE:
 		case RSSL_DMT_YIELD_CURVE:
 		case RSSL_DMT_SYMBOL_LIST:
+		case RSSL_DMT_CONTRIBUTION:
 			if (processItemRequest(pReactor, pReactorChannel, pRsslMsg, &dIter) != RSSL_RET_SUCCESS)
 			{
 				removeClientSessionForChannel(pReactor, pReactorChannel);
@@ -943,7 +1116,7 @@ void cleanUpAndExit()
 		}
 
 		if (rsslDestroyReactor(pReactor, &rsslErrorInfo) != RSSL_RET_SUCCESS)
-			printf("Error cleaning up reactor: %s\n", &rsslErrorInfo.rsslError.text);
+			printf("Error cleaning up reactor: %s\n", rsslErrorInfo.rsslError.text);
 
 		/* clean up server */
 		FD_CLR(rsslSrvr->socketId, &readFds);

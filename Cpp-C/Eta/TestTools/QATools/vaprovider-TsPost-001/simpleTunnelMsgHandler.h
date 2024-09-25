@@ -68,10 +68,13 @@ static void simpleTunnelMsgHandlerProcessTunnelClosed(RsslTunnelStream *pTunnelS
 char* simpleTunnelMsgHandlerCheckRequestedClassOfService(SimpleTunnelMsgHandler *pMsgHandler,
 		RsslTunnelStreamRequestEvent *pEvent, RsslClassOfService *pCos);
 
+// API QA
 /*Set tunnel stream login reject flag*/
 void setRejectTsLogin();
 /*Set send negative ack flag*/
 void setSendNack();
+// END API QA
+
 #ifdef __cplusplus
 };
 #endif

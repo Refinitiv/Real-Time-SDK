@@ -31,7 +31,9 @@ void warmStandbyTest_SubmitPrivateStream(WatchlistWarmStandbyTestParameters para
 void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(WatchlistWarmStandbyTestParameters parameters);
 void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ServiceDown(WatchlistWarmStandbyTestParameters parameters);
 void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestParameters parameters, RsslBool isSameService);
-void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStandbyTestParameters parameters);
+void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseActiveThenStandby(WatchlistWarmStandbyTestParameters parameters);
+void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseStandbyThenActive(WatchlistWarmStandbyTestParameters parameters);
+
 
 class WatchlistWarmStandbyTestParameters
 {
@@ -179,9 +181,14 @@ TEST_P(WatchlistWarmStandbyUnitTest, AggregateSourceDirectoryResponse_WithSameSe
 	warmStandbyTest_AggregateSourceDirectoryResponse(GetParam(), RSSL_TRUE);
 }
 
-TEST_P(WatchlistWarmStandbyUnitTest, FailOverFromWSBToAnotherWSB)
+TEST_P(WatchlistWarmStandbyUnitTest, FailOverFromWSBToAnotherWSB_CloseActiveThenStandby)
 {
-	warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(GetParam());
+	warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseActiveThenStandby(GetParam());
+}
+
+TEST_P(WatchlistWarmStandbyUnitTest, FailOverFromWSBToAnotherWSB_CloseStandbyThenActive)
+{
+	warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseStandbyThenActive(GetParam());
 }
 
 void warmStandbyTest_LoginBased_ActiveAndStandbyServers(WatchlistWarmStandbyTestParameters parameters)
@@ -4171,7 +4178,7 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 	wtfFinishTest();
 }
 
-void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStandbyTestParameters parameters)
+void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseActiveThenStandby(WatchlistWarmStandbyTestParameters parameters)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -4816,6 +4823,788 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE); 
+
+	/* Consumer receives a refresh message from the active server only. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRefreshMsg = (RsslRefreshMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRefreshMsg->msgBase.streamId == consumerStreamId);
+	ASSERT_TRUE(pRefreshMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pRefreshMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+	ASSERT_TRUE(pRefreshMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+	ASSERT_TRUE(pRefreshMsg->msgBase.msgKey.serviceId == service1Id);
+	ASSERT_TRUE(pRefreshMsg->qos.timeliness == RSSL_QOS_TIME_REALTIME);
+	ASSERT_TRUE(pRefreshMsg->qos.rate == RSSL_QOS_RATE_TICK_BY_TICK);
+	ASSERT_TRUE(pRefreshMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
+	ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->msgBase.encDataBody, &mpDataBody));
+
+	/* Provider receives login request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100, 3);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
+
+	if (parameters.multiLoginMsg == RSSL_TRUE)
+		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &standbyUserName));
+
+	wtfInitDefaultLoginRefresh(&loginRefresh, true);
+	rsslClearReactorSubmitMsgOptions(&submitOpts);
+	submitOpts.pRDMMsg = (RsslRDMMsg*)&loginRefresh;
+	wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 3);
+
+	/* Consumer receives login response. */
+	wtfDispatch(WTF_TC_CONSUMER, 200);
+
+	if (connOpts.reactorWarmStandbyGroupList[1].warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+	{
+		/* Provider receives a generic message on the login domain to indicate warm standby mode. */
+		wtfDispatch(WTF_TC_PROVIDER, 200, 3);
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_CONSUMER_CONNECTION_STATUS);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.flags == RDM_LG_CCSF_HAS_WARM_STANDBY_INFO);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.warmStandbyInfo.warmStandbyMode == RDM_LOGIN_SERVER_TYPE_STANDBY);
+		ASSERT_TRUE(pEvent->rdmMsg.serverIndex == 3);
+	}
+
+	wtfDispatch(WTF_TC_PROVIDER, 200, 3, 1);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REQUEST);
+
+	{
+		/* Filter should contain at least Info, State, and Group filters. */
+		RsslInt32 providerDirectoryStreamId;
+		RsslUInt32 providerDirectoryFilter =
+			pEvent->rdmMsg.pRdmMsg->directoryMsg.request.filter;
+		ASSERT_TRUE(providerDirectoryFilter ==
+			(RDM_DIRECTORY_SERVICE_INFO_FILTER
+				| RDM_DIRECTORY_SERVICE_STATE_FILTER
+				| RDM_DIRECTORY_SERVICE_GROUP_FILTER
+				| RDM_DIRECTORY_SERVICE_LOAD_FILTER
+				| RDM_DIRECTORY_SERVICE_DATA_FILTER
+				| RDM_DIRECTORY_SERVICE_LINK_FILTER));
+
+		/* Request should not have service ID. */
+		ASSERT_TRUE(!(pEvent->rdmMsg.pRdmMsg->directoryMsg.request.flags
+			& RDM_DR_RQF_HAS_SERVICE_ID));
+
+		/* Request should be streaming. */
+		ASSERT_TRUE((pEvent->rdmMsg.pRdmMsg->directoryMsg.request.flags
+			& RDM_DR_RQF_STREAMING));
+
+		providerDirectoryStreamId = pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId;
+
+		if (connOpts.provideDefaultDirectory)
+		{
+			RsslRDMDirectoryRefresh directoryRefresh;
+
+			rsslClearRDMDirectoryRefresh(&directoryRefresh);
+			directoryRefresh.rdmMsgBase.streamId = providerDirectoryStreamId;
+			directoryRefresh.filter = providerDirectoryFilter;
+			directoryRefresh.flags = RDM_DR_RFF_SOLICITED | RDM_DR_RFF_CLEAR_CACHE;
+
+			directoryRefresh.serviceList = &rdmService[1];
+			directoryRefresh.serviceCount = 1;
+
+			if (connOpts.provideDefaultServiceLoad)
+			{
+				rdmService[1].flags |= RDM_SVCF_HAS_LOAD;
+				rdmService[1].load.flags |= RDM_SVC_LDF_HAS_OPEN_LIMIT;
+				rdmService[1].load.openLimit = 0xffffffffffffffffULL;
+				rdmService[1].load.flags |= RDM_SVC_LDF_HAS_OPEN_WINDOW;
+				rdmService[1].load.openWindow = 0xffffffffffffffffULL;
+				rdmService[1].load.flags |= RDM_SVC_LDF_HAS_LOAD_FACTOR;
+				rdmService[1].load.loadFactor = 65535;
+			}
+
+			rsslClearReactorSubmitMsgOptions(&submitOpts);
+			submitOpts.pRDMMsg = (RsslRDMMsg*)&directoryRefresh;
+			wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 3);
+		}
+	}
+
+	wtfDispatch(WTF_TC_CONSUMER, 1000);
+
+	/* Consumer should receive no more messages. */
+	ASSERT_FALSE(pEvent = wtfGetEvent());
+
+	if (connOpts.reactorWarmStandbyGroupList[1].warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 400);
+
+		wtfDispatch(WTF_TC_PROVIDER, 400, 3, 1);
+
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_CONSUMER_STATUS);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->directoryMsg.consumerStatus.consumerServiceStatusList[0].flags == RDM_DR_CSSF_HAS_WARM_STANDBY_MODE);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->directoryMsg.consumerStatus.consumerServiceStatusList[0].serviceId == rdmService[1].serviceId);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->directoryMsg.consumerStatus.consumerServiceStatusList[0].warmStandbyMode == RDM_DIRECTORY_SERVICE_TYPE_STANDBY);
+		ASSERT_TRUE(pEvent->rdmMsg.serverIndex == 3);
+
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RSSL_MSG);
+		ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+		ASSERT_TRUE(pRequestMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+		ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+		ASSERT_TRUE(pRequestMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+		ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+		ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+		ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+		ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_HAS_QOS);
+		ASSERT_TRUE(pRequestMsg->qos.timeliness == RSSL_QOS_TIME_REALTIME);
+		ASSERT_TRUE(pRequestMsg->qos.rate == RSSL_QOS_RATE_TICK_BY_TICK);
+		ASSERT_TRUE(pRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME);
+		ASSERT_TRUE(rsslBufferIsEqual(&pRequestMsg->msgBase.msgKey.name, &itemName1));
+	}
+	else
+	{
+		/* Provider receives item request. */
+		wtfDispatch(WTF_TC_PROVIDER, 100, 3);
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RSSL_MSG);
+		ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+		ASSERT_TRUE(pRequestMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+		ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+		ASSERT_TRUE(pRequestMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+		ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+		ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+		ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+		ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_HAS_QOS);
+		ASSERT_TRUE(pRequestMsg->qos.timeliness == RSSL_QOS_TIME_REALTIME);
+		ASSERT_TRUE(pRequestMsg->qos.rate == RSSL_QOS_RATE_TICK_BY_TICK);
+		ASSERT_TRUE(pRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME);
+		ASSERT_TRUE(rsslBufferIsEqual(&pRequestMsg->msgBase.msgKey.name, &itemName1));
+		providerStreamId = pRequestMsg->msgBase.streamId;
+	}
+
+	/* No more message.*/
+	ASSERT_FALSE(pEvent = wtfGetEvent());
+
+	wtfFinishTest();
+}
+
+void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseStandbyThenActive(WatchlistWarmStandbyTestParameters parameters)
+{
+	RsslReactorSubmitMsgOptions opts;
+	WtfEvent* pEvent;
+	RsslRequestMsg	requestMsg, * pRequestMsg;
+	RsslRefreshMsg refreshMsg, refreshMsg2, * pRefreshMsg;
+	RsslUpdateMsg updateMsg, * pUpdateMsg;
+	RsslStatusMsg* pStatusMsg;
+	WtfSetupWarmStandbyOpts connOpts;
+	RsslReactorWarmStandbyGroup		reactorWarmstandByGroup[2];
+	RsslReactorWarmStandbyServerInfo standbyServer[2];
+
+	RsslBuffer		itemName1 = { 7, const_cast<char*>("ITEM1.N") };
+	RsslBuffer expectedStatusText3 = { 16, const_cast<char*>("Channel is down.") };
+	RsslInt32		consumerStreamId = 5;
+	RsslInt32		providerStreamId;
+
+	char			mpDataBodyBuf[256];
+	RsslBuffer		mpDataBody = { 256, mpDataBodyBuf };
+	RsslUInt32		mpDataBodyLen = 256;
+	WtfWarmStandbyExpectedMode warmStandbyExpectedMode[2];
+	RsslRDMService rdmService[2]; /* index 0 is service for active server and 1 for standby server. */
+	WtfMarketPriceItem marketPriceItem;
+	RsslRDMLoginRefresh loginRefresh;
+	RsslReactorSubmitMsgOptions submitOpts;
+	RsslBuffer activeUserName = { 10, const_cast<char*>("activeUser") };
+	RsslBuffer standbyUserName = { 11, const_cast<char*>("standbyUser") };
+
+
+	if (parameters.warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+	{
+		warmStandbyExpectedMode[0].warmStandbyMode = RDM_LOGIN_SERVER_TYPE_ACTIVE;
+		warmStandbyExpectedMode[1].warmStandbyMode = RDM_LOGIN_SERVER_TYPE_STANDBY;
+	}
+	else
+	{
+		warmStandbyExpectedMode[0].warmStandbyMode = RDM_DIRECTORY_SERVICE_TYPE_ACTIVE;
+		warmStandbyExpectedMode[1].warmStandbyMode = RDM_DIRECTORY_SERVICE_TYPE_STANDBY;
+	}
+
+	ASSERT_TRUE(wtfStartTest());
+
+	wtfClearSetupWarmStandbyConnectionOpts(&connOpts);
+	connOpts.provideDefaultServiceLoad = RSSL_TRUE;
+
+	/* Set warm standby configuration with one active server and one stand by server */
+	{
+		/* Setup first warm standby group */
+		rsslClearReactorWarmStandbyGroup(&reactorWarmstandByGroup[0]);
+
+		reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionType = parameters.connectionType;
+		reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+		reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14011");
+		reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
+		reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+		if (parameters.multiLoginMsg)
+		{
+			reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+		}
+
+		if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+		}
+
+		rsslClearReactorWarmStandbyServerInfo(&standbyServer[0]);
+
+		standbyServer[0].reactorConnectInfo.rsslConnectOptions.connectionType = parameters.connectionType;
+		standbyServer[0].reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+		standbyServer[0].reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14012");
+		standbyServer[0].reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
+		standbyServer[0].reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		standbyServer[0].reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+		if (parameters.multiLoginMsg)
+		{
+			standbyServer[0].reactorConnectInfo.loginReqIndex = 1;
+		}
+
+		if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			standbyServer[0].reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+		}
+
+		reactorWarmstandByGroup[0].standbyServerCount = 1;
+		reactorWarmstandByGroup[0].standbyServerList = &standbyServer[0];
+		reactorWarmstandByGroup[0].warmStandbyMode = parameters.warmStandbyMode;
+	}
+
+	{
+		/* Setup second warm standby group */
+		rsslClearReactorWarmStandbyGroup(&reactorWarmstandByGroup[1]);
+
+		reactorWarmstandByGroup[1].startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionType = parameters.connectionType;
+		reactorWarmstandByGroup[1].startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+		reactorWarmstandByGroup[1].startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14013");
+		reactorWarmstandByGroup[1].startingActiveServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
+		reactorWarmstandByGroup[1].startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		reactorWarmstandByGroup[1].startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+		if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			reactorWarmstandByGroup[1].startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+		}
+
+		rsslClearReactorWarmStandbyServerInfo(&standbyServer[1]);
+
+		standbyServer[1].reactorConnectInfo.rsslConnectOptions.connectionType = parameters.connectionType;
+		standbyServer[1].reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+		standbyServer[1].reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14014");
+		standbyServer[1].reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
+		standbyServer[1].reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		standbyServer[1].reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+		if (parameters.multiLoginMsg)
+		{
+			standbyServer[1].reactorConnectInfo.loginReqIndex = 1;
+		}
+
+		if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			standbyServer[1].reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+		}
+
+		reactorWarmstandByGroup[1].standbyServerCount = 1;
+		reactorWarmstandByGroup[1].standbyServerList = &standbyServer[1];
+		reactorWarmstandByGroup[1].warmStandbyMode = parameters.warmStandbyMode;
+	}
+
+	connOpts.warmStandbyGroupCount = 2;
+	connOpts.reactorWarmStandbyGroupList = &reactorWarmstandByGroup[0];
+	connOpts.reconnectAttemptLimit = 1; /* Reconnect only once and move on to another warm standby group. */
+
+	wtfSetService1Info(&rdmService[0]);
+	wtfSetService1Info(&rdmService[1]);
+
+
+	/* Setup warm standby connections and source directory information. */
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
+
+	/* Request first market price request */
+	rsslClearRequestMsg(&requestMsg);
+	requestMsg.msgBase.streamId = consumerStreamId;
+	requestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	requestMsg.flags = RSSL_RQMF_STREAMING;
+	requestMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
+	requestMsg.msgBase.msgKey.name = itemName1;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&requestMsg;
+	opts.pServiceName = &service1Name;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+	/* Provider receives request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(pRequestMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+	ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+	ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_HAS_QOS);
+	ASSERT_TRUE(pRequestMsg->qos.timeliness == RSSL_QOS_TIME_REALTIME);
+	ASSERT_TRUE(pRequestMsg->qos.rate == RSSL_QOS_RATE_TICK_BY_TICK);
+	ASSERT_TRUE(pRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME);
+	ASSERT_TRUE(rsslBufferIsEqual(&pRequestMsg->msgBase.msgKey.name, &itemName1));
+	providerStreamId = pRequestMsg->msgBase.streamId;
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(pRequestMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+	ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+	ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_HAS_QOS);
+	ASSERT_TRUE(pRequestMsg->qos.timeliness == RSSL_QOS_TIME_REALTIME);
+	ASSERT_TRUE(pRequestMsg->qos.rate == RSSL_QOS_RATE_TICK_BY_TICK);
+	ASSERT_TRUE(pRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME);
+	ASSERT_TRUE(rsslBufferIsEqual(&pRequestMsg->msgBase.msgKey.name, &itemName1));
+	providerStreamId = pRequestMsg->msgBase.streamId;
+
+	/* The active provider sends a refresh message with payload. */
+	rsslClearRefreshMsg(&refreshMsg);
+	refreshMsg.flags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_CLEAR_CACHE | RSSL_RFMF_HAS_QOS
+		| RSSL_RFMF_SOLICITED | RSSL_RFMF_REFRESH_COMPLETE;
+	refreshMsg.msgBase.streamId = providerStreamId;
+	refreshMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	refreshMsg.msgBase.containerType = RSSL_DT_FIELD_LIST;
+	refreshMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_SERVICE_ID;
+	refreshMsg.msgBase.msgKey.serviceId = service1Id;
+	refreshMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+	refreshMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+	refreshMsg.state.streamState = RSSL_STREAM_OPEN;
+	refreshMsg.state.dataState = RSSL_DATA_OK;
+	mpDataBody.length = mpDataBodyLen;
+
+	wtfInitMarketPriceItemFields(&marketPriceItem);
+	ASSERT_TRUE(wtfProviderEncodeMarketPriceDataBody(&mpDataBody, &marketPriceItem) == RSSL_RET_SUCCESS);
+	refreshMsg.msgBase.encDataBody = mpDataBody;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&refreshMsg;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 0);
+
+
+	/* The standby server sends a refresh message with no payload. */
+	rsslClearRefreshMsg(&refreshMsg2);
+	refreshMsg2.flags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_CLEAR_CACHE | RSSL_RFMF_HAS_QOS
+		| RSSL_RFMF_SOLICITED | RSSL_RFMF_REFRESH_COMPLETE;
+	refreshMsg2.msgBase.streamId = providerStreamId;
+	refreshMsg2.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	refreshMsg2.msgBase.containerType = RSSL_DT_NO_DATA;
+	refreshMsg2.msgBase.msgKey.flags = RSSL_MKF_HAS_SERVICE_ID;
+	refreshMsg2.msgBase.msgKey.serviceId = service1Id;
+	refreshMsg2.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+	refreshMsg2.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+	refreshMsg2.state.streamState = RSSL_STREAM_OPEN;
+	refreshMsg2.state.dataState = RSSL_DATA_OK;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&refreshMsg2;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 1);
+
+	/* Consumer receives a refresh message from the active server only. */
+	wtfDispatch(WTF_TC_CONSUMER, 400);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRefreshMsg = (RsslRefreshMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRefreshMsg->msgBase.streamId == consumerStreamId);
+	ASSERT_TRUE(pRefreshMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pRefreshMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+	ASSERT_TRUE(pRefreshMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+	ASSERT_TRUE(pRefreshMsg->msgBase.msgKey.serviceId == service1Id);
+	ASSERT_TRUE(pRefreshMsg->qos.timeliness == RSSL_QOS_TIME_REALTIME);
+	ASSERT_TRUE(pRefreshMsg->qos.rate == RSSL_QOS_RATE_TICK_BY_TICK);
+	ASSERT_TRUE(pRefreshMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
+	ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->msgBase.encDataBody, &mpDataBody));
+
+	/* Consumer should receive no more message from the standby server. */
+	ASSERT_FALSE(pEvent = wtfGetEvent());
+
+	rsslClearUpdateMsg(&updateMsg);
+	updateMsg.flags = RSSL_UPMF_HAS_MSG_KEY;
+	updateMsg.msgBase.streamId = providerStreamId;
+	updateMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	updateMsg.msgBase.containerType = RSSL_DT_FIELD_LIST;
+	updateMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_SERVICE_ID;
+	updateMsg.msgBase.msgKey.serviceId = service1Id;
+	mpDataBody.length = mpDataBodyLen;
+
+	wtfUpdateMarketPriceItemFields(&marketPriceItem);
+	ASSERT_TRUE(wtfProviderEncodeMarketPriceDataBody(&mpDataBody, &marketPriceItem) == RSSL_RET_SUCCESS);
+	updateMsg.msgBase.encDataBody = mpDataBody;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&updateMsg;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 0);
+
+	/* Consumer receives a update message from the starting server. */
+	wtfDispatch(WTF_TC_CONSUMER, 400);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+
+	/* Consumer should receive no more event from the server. */
+	wtfDispatch(WTF_TC_CONSUMER, 400);
+	ASSERT_FALSE(pEvent = wtfGetEvent());
+
+	/* Closes the channel of active server. */
+	wtfCloseChannel(WTF_TC_PROVIDER, 1);
+
+	/* Shutdown the starting server */
+	wtfCloseServer(1);
+
+	wtfDispatch(WTF_TC_CONSUMER, 400);
+	/* Consumer channel FD change. */
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+
+	// No changes to the provider, we just closed the standby
+	wtfDispatch(WTF_TC_PROVIDER, 200);
+	ASSERT_FALSE(pEvent = wtfGetEvent());
+	/* Closes the channel of the last server. */
+	wtfCloseChannel(WTF_TC_PROVIDER, 0);
+
+	/* Shutdown the last server */
+	wtfCloseServer(0);
+
+	wtfDispatch(WTF_TC_PROVIDER, 200);
+
+	wtfDispatch(WTF_TC_CONSUMER, 400);
+
+
+#if !defined(_WIN32)
+	/* Consumer channel FD change. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+#endif
+
+	/* Checks for login status message. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_STATUS);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.status.state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.status.state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.status.state.text, &expectedStatusText3));
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_RSSL_MSG);
+	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pStatusMsg->msgBase.streamId == consumerStreamId);
+	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+
+
+	/* Consumer should receive no more event from the server. */
+	ASSERT_FALSE(pEvent = wtfGetEvent());
+
+	wtfDispatch(WTF_TC_PROVIDER, 1000);
+
+	wtfDispatch(WTF_TC_CONSUMER, 5000);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+
+#if defined(_WIN32)
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+#endif
+
+	wtfDispatch(WTF_TC_CONSUMER, 8000);
+
+	wtfAcceptWithTime(5000, 2);
+
+	wtfDispatch(WTF_TC_PROVIDER, 200, 2);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_PROVIDER, 200, 2);
+	}
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+	/* Consumer channel up. */
+	wtfDispatch(WTF_TC_CONSUMER, 400);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+	/* Provider receives login request for the second group. */
+	wtfDispatch(WTF_TC_PROVIDER, 100, 2);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
+	ASSERT_TRUE(wtfGetProviderLoginStream() == pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId);
+
+	if (parameters.multiLoginMsg == RSSL_TRUE)
+		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &activeUserName));
+
+	/* Provider sends login response. */
+	wtfInitDefaultLoginRefresh(&loginRefresh, true);
+
+	rsslClearReactorSubmitMsgOptions(&submitOpts);
+	submitOpts.pRDMMsg = (RsslRDMMsg*)&loginRefresh;
+	wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 2);
+
+	/* Consumer receives login response. */
+	wtfDispatch(WTF_TC_CONSUMER, 200);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	if (connOpts.consumerLoginCallback == WTF_CB_USE_DOMAIN_CB)
+	{
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId == 1);
+		if (parameters.multiLoginMsg == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x55557777);
+	}
+	else
+	{
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RSSL_MSG);
+		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.msgClass == RSSL_MC_REFRESH);
+		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.domainType == RSSL_DMT_LOGIN);
+		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.streamId == 1);
+		if (parameters.multiLoginMsg == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rsslMsg.pUserSpec == (void*)0x55557777);
+	}
+
+	/* Provider receives a generic message on the login domain to indicate warm standby mode. */
+	wtfDispatch(WTF_TC_PROVIDER, 200, 2);
+
+	if (connOpts.reactorWarmStandbyGroupList[1].warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+	{
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_CONSUMER_CONNECTION_STATUS);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.flags == RDM_LG_CCSF_HAS_WARM_STANDBY_INFO);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.warmStandbyInfo.warmStandbyMode == RDM_LOGIN_SERVER_TYPE_ACTIVE);
+		ASSERT_TRUE(pEvent->rdmMsg.serverIndex == 2);
+	}
+
+	/* Provider receives source directory request. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REQUEST);
+
+	{
+		/* Filter should contain at least Info, State, and Group filters. */
+		RsslInt32 providerDirectoryStreamId;
+		RsslUInt32 providerDirectoryFilter =
+			pEvent->rdmMsg.pRdmMsg->directoryMsg.request.filter;
+		ASSERT_TRUE(providerDirectoryFilter ==
+			(RDM_DIRECTORY_SERVICE_INFO_FILTER
+				| RDM_DIRECTORY_SERVICE_STATE_FILTER
+				| RDM_DIRECTORY_SERVICE_GROUP_FILTER
+				| RDM_DIRECTORY_SERVICE_LOAD_FILTER
+				| RDM_DIRECTORY_SERVICE_DATA_FILTER
+				| RDM_DIRECTORY_SERVICE_LINK_FILTER));
+
+		/* Request should not have service ID. */
+		ASSERT_TRUE(!(pEvent->rdmMsg.pRdmMsg->directoryMsg.request.flags
+			& RDM_DR_RQF_HAS_SERVICE_ID));
+
+		/* Request should be streaming. */
+		ASSERT_TRUE((pEvent->rdmMsg.pRdmMsg->directoryMsg.request.flags
+			& RDM_DR_RQF_STREAMING));
+
+		providerDirectoryStreamId = pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId;
+
+		if (connOpts.provideDefaultDirectory)
+		{
+			RsslRDMDirectoryRefresh directoryRefresh;
+
+			rsslClearRDMDirectoryRefresh(&directoryRefresh);
+			directoryRefresh.rdmMsgBase.streamId = providerDirectoryStreamId;
+			directoryRefresh.filter = providerDirectoryFilter;
+			directoryRefresh.flags = RDM_DR_RFF_SOLICITED | RDM_DR_RFF_CLEAR_CACHE;
+
+			directoryRefresh.serviceList = &rdmService[0];
+			directoryRefresh.serviceCount = 1;
+
+			if (connOpts.provideDefaultServiceLoad)
+			{
+				rdmService[0].flags |= RDM_SVCF_HAS_LOAD;
+				rdmService[0].load.flags |= RDM_SVC_LDF_HAS_OPEN_LIMIT;
+				rdmService[0].load.openLimit = 0xffffffffffffffffULL;
+				rdmService[0].load.flags |= RDM_SVC_LDF_HAS_OPEN_WINDOW;
+				rdmService[0].load.openWindow = 0xffffffffffffffffULL;
+				rdmService[0].load.flags |= RDM_SVC_LDF_HAS_LOAD_FACTOR;
+				rdmService[0].load.loadFactor = 65535;
+			}
+
+			rsslClearReactorSubmitMsgOptions(&submitOpts);
+			submitOpts.pRDMMsg = (RsslRDMMsg*)&directoryRefresh;
+			wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 2);
+		}
+	}
+
+	/* Dispatch to make a connection to secondary server. */
+	wtfDispatch(WTF_TC_CONSUMER, 400);
+
+	/* Consumer should receive no more messages. */
+	ASSERT_FALSE(pEvent = wtfGetEvent());
+
+	if (connOpts.reactorWarmStandbyGroupList[1].warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 400);
+
+		wtfDispatch(WTF_TC_PROVIDER, 400, 2);
+
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_CONSUMER_STATUS);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->directoryMsg.consumerStatus.consumerServiceStatusList[0].flags == RDM_DR_CSSF_HAS_WARM_STANDBY_MODE);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->directoryMsg.consumerStatus.consumerServiceStatusList[0].serviceId == rdmService[0].serviceId);
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->directoryMsg.consumerStatus.consumerServiceStatusList[0].warmStandbyMode == RDM_DIRECTORY_SERVICE_TYPE_ACTIVE);
+		ASSERT_TRUE(pEvent->rdmMsg.serverIndex == 2);
+
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RSSL_MSG);
+		ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+		ASSERT_TRUE(pRequestMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+		ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+		ASSERT_TRUE(pRequestMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+		ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+		ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+		ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+		ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_HAS_QOS);
+		ASSERT_TRUE(pRequestMsg->qos.timeliness == RSSL_QOS_TIME_REALTIME);
+		ASSERT_TRUE(pRequestMsg->qos.rate == RSSL_QOS_RATE_TICK_BY_TICK);
+		ASSERT_TRUE(pRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME);
+		ASSERT_TRUE(rsslBufferIsEqual(&pRequestMsg->msgBase.msgKey.name, &itemName1));
+		providerStreamId = pRequestMsg->msgBase.streamId;
+
+		rsslClearRefreshMsg(&refreshMsg);
+		refreshMsg.flags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_CLEAR_CACHE | RSSL_RFMF_HAS_QOS
+			| RSSL_RFMF_SOLICITED | RSSL_RFMF_REFRESH_COMPLETE;
+		refreshMsg.msgBase.streamId = providerStreamId;
+		refreshMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+		refreshMsg.msgBase.containerType = RSSL_DT_FIELD_LIST;
+		refreshMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_SERVICE_ID;
+		refreshMsg.msgBase.msgKey.serviceId = service1Id;
+		refreshMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+		refreshMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+		refreshMsg.state.streamState = RSSL_STREAM_OPEN;
+		refreshMsg.state.dataState = RSSL_DATA_OK;
+		mpDataBody.length = mpDataBodyLen;
+
+		wtfInitMarketPriceItemFields(&marketPriceItem);
+		ASSERT_TRUE(wtfProviderEncodeMarketPriceDataBody(&mpDataBody, &marketPriceItem, 2) == RSSL_RET_SUCCESS);
+		refreshMsg.msgBase.encDataBody = mpDataBody;
+
+		rsslClearReactorSubmitMsgOptions(&opts);
+		opts.pRsslMsg = (RsslMsg*)&refreshMsg;
+		wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 2);
+	}
+
+	/* Provider should now accept for the secondary server. */
+	wtfAcceptWithTime(1000, 3);
+
+	/* Provider channel up & ready
+	 * (must be checked before consumer; in the case of raw providers,
+	 * this call will initialize the channel). */
+	wtfDispatch(WTF_TC_PROVIDER, 200, 3);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_PROVIDER, 200, 3);
+	}
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+	/* This starting server of the second group receives the item request. */
+
+	if (connOpts.reactorWarmStandbyGroupList[1].warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+	{
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RSSL_MSG);
+		ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+		ASSERT_TRUE(pRequestMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+		ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+		ASSERT_TRUE(pRequestMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+		ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+		ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+		ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+		ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_HAS_QOS);
+		ASSERT_TRUE(pRequestMsg->qos.timeliness == RSSL_QOS_TIME_REALTIME);
+		ASSERT_TRUE(pRequestMsg->qos.rate == RSSL_QOS_RATE_TICK_BY_TICK);
+		ASSERT_TRUE(pRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME);
+		ASSERT_TRUE(rsslBufferIsEqual(&pRequestMsg->msgBase.msgKey.name, &itemName1));
+		providerStreamId = pRequestMsg->msgBase.streamId;
+
+		rsslClearRefreshMsg(&refreshMsg);
+		refreshMsg.flags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_CLEAR_CACHE | RSSL_RFMF_HAS_QOS
+			| RSSL_RFMF_SOLICITED | RSSL_RFMF_REFRESH_COMPLETE;
+		refreshMsg.msgBase.streamId = providerStreamId;
+		refreshMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+		refreshMsg.msgBase.containerType = RSSL_DT_FIELD_LIST;
+		refreshMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_SERVICE_ID;
+		refreshMsg.msgBase.msgKey.serviceId = service1Id;
+		refreshMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+		refreshMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+		refreshMsg.state.streamState = RSSL_STREAM_OPEN;
+		refreshMsg.state.dataState = RSSL_DATA_OK;
+		mpDataBody.length = mpDataBodyLen;
+
+		wtfInitMarketPriceItemFields(&marketPriceItem);
+		ASSERT_TRUE(wtfProviderEncodeMarketPriceDataBody(&mpDataBody, &marketPriceItem, 2) == RSSL_RET_SUCCESS);
+		refreshMsg.msgBase.encDataBody = mpDataBody;
+
+		rsslClearReactorSubmitMsgOptions(&opts);
+		opts.pRsslMsg = (RsslMsg*)&refreshMsg;
+		wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 2);
+	}
+
+	wtfDispatch(WTF_TC_CONSUMER, 400);
+
+	/* Consumer channel FD change. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
 	/* Consumer receives a refresh message from the active server only. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());

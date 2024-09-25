@@ -61,12 +61,12 @@ RsslRet processSingleItemRequest(RsslReactor *pReactor, RsslReactorChannel* pRea
 RsslRet addSymbolListItem(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslItemRequestInfo* itemReqInfo);
 /* Function for deleting items from the symbol list */
 RsslRet deleteSymbolListItem(RsslReactor *pReactor, RsslItemRequestInfo* itemReqInfo);
-// APIQA
-RsslRet sendGenericMessageLogin(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
-RsslRet sendGenericMessageSource(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
-RsslRet sendGenericMessageMP(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
-// APIQA
 
+// APIQA
+RsslRet sendGenericMessageLogin(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
+RsslRet sendGenericMessageSource(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
+RsslRet sendGenericMessageMP(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 sId);
+// END APIQA
 
 /*
  * Clears the item request information.

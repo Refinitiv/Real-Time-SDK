@@ -16,7 +16,7 @@ extern "C" {
 #include "rtr/rsslReactor.h"
 
 #define MAX_LOGIN_INFO_STRLEN 128
-#define LOGIN_REQ_MEM_BUF_SIZE 256
+#define LOGIN_REQ_MEM_BUF_SIZE 4096
 
 /* reasons a login request is rejected */
 typedef enum {

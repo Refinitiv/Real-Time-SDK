@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019 LSEG. All rights reserved.
 */
 
 
@@ -21,9 +21,9 @@
 static RsslMarketPriceItem marketPriceItemList[MAX_MARKET_PRICE_ITEM_LIST_SIZE];
 
 /* re-usable refresh and update messages and state text */
-RsslRefreshMsg refreshMsg;
-RsslUpdateMsg updateMsg;
-char stateText[MAX_ITEM_INFO_STRLEN];
+static RsslRefreshMsg refreshMsg;
+static RsslUpdateMsg updateMsg;
+static char stateText[MAX_ITEM_INFO_STRLEN];
 
 RsslRet encodeMPFieldList(RsslItemInfo* itemInfo, RsslEncodeIterator* encodeIter, RsslBool isPrivateStream, RsslDataDictionary* dictionary);
 
@@ -53,7 +53,7 @@ void initMarketPriceItemFields(RsslMarketPriceItem* mpItem)
 	mpItem->RDN_EXCHID = 155;
 // API QA
 	mpItem->PRCTCK_1 = 1;
-	mpItem->LST_PRCTCK = 2; 
+	mpItem->LST_PRCTCK = 2;
 	mpItem->DIVIDENDTP = 3;
 	mpItem->TRD_UNITS = 17;
 	mpItem->MPV = 20;
@@ -135,7 +135,7 @@ RsslRet updateMarketPriceItemFieldsFromPost(RsslMarketPriceItem* mpItem, RsslDec
 			}
 			break;
 
-                // API QA
+// API QA
 		case PRCTCK_1_FID:
 			if ((ret = rsslDecodeEnum(dIter, &mpItem->PRCTCK_1)) != RSSL_RET_SUCCESS)
 			{
@@ -189,8 +189,8 @@ RsslRet updateMarketPriceItemFieldsFromPost(RsslMarketPriceItem* mpItem, RsslDec
 				return ret;
 			}
 			break;
+// END API QA
 
-                // END API QA
 		case DIVPAYDATE_FID:
 			if ((ret = rsslDecodeDate(dIter, &mpItem->DIVPAYDATE)) != RSSL_RET_SUCCESS)
 			{
@@ -506,7 +506,7 @@ RsslRet encodeMPFieldList(RsslItemInfo* itemInfo, RsslEncodeIterator* encodeIter
 				return ret;
 			}
 		}
-                //API QA
+//API QA
 		/* PRCTCK_1 */
 		rsslClearFieldEntry(&fEntry);
 		dictionaryEntry = dictionary->entriesArray[PRCTCK_1_FID];
@@ -585,7 +585,7 @@ RsslRet encodeMPFieldList(RsslItemInfo* itemInfo, RsslEncodeIterator* encodeIter
 				return ret;
 			}
 		}
-                //END API QA
+//END API QA
 		/* DIVPAYDATE */
 		rsslClearFieldEntry(&fEntry);
 		dictionaryEntry = dictionary->entriesArray[DIVPAYDATE_FID];

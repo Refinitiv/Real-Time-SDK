@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019 LSEG. All rights reserved.
 */
 
 #include "rsslPostHandler.h"
@@ -153,7 +153,7 @@ static RsslRet encodePostWithMsg(RsslReactorChannel* chnl, RsslBuffer* msgBuf, R
 	}
 	itemInfo.domainType = RSSL_DMT_MARKET_PRICE;
 	itemInfo.itemData = (void*)&mpItemInfo;
-
+	
 	/* set-up message */
 	postMsg.msgBase.msgClass = RSSL_MC_POST;
 	postMsg.msgBase.streamId = streamId;
@@ -193,7 +193,7 @@ static RsslRet encodePostWithMsg(RsslReactorChannel* chnl, RsslBuffer* msgBuf, R
 	postMsg.msgBase.msgKey.serviceId = (RsslUInt16)pCommand->serviceId;
 	
 	// API QA
-	if(1)
+	if (1)
 	{ /* Encode Field List for putting it as the attib container */
 		RsslRet ret;
 		RsslEncodeIterator eIter;
@@ -298,7 +298,7 @@ static RsslRet encodePostWithMsg(RsslReactorChannel* chnl, RsslBuffer* msgBuf, R
 			{
 				printf("rsslEncodeFieldEntry() failed with return code: %d\n", ret);
 				return ret;
-			} 
+			}
 		}
 
 		/* CD_RSRVD1 */
@@ -331,7 +331,7 @@ static RsslRet encodePostWithMsg(RsslReactorChannel* chnl, RsslBuffer* msgBuf, R
 		postMsg.msgBase.msgKey.encAttrib = keyBuffer;
 		postMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_ATTRIB;
 	}
-    // END API QA
+	// END API QA
 	// encode message 
 	if((ret = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) < RSSL_RET_SUCCESS)
 	{

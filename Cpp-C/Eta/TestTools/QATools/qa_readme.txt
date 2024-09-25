@@ -42,6 +42,11 @@ consumer-TracePing-001: Alter Consumer to trace Ping messages. Add option -xping
 consumer-PTimeout-001: Alter Consumer to add proxy connection timeout. Add option -ptimeout.
     Note: to display the curl_easy_setopt's parameters in runBlockingLibcurlProxyConnection use eta-PTimeout-001.
 
+consumer-Ws-001: Alter Consumer to add test options for Websocket transport which are; -testCompressionZlib
+
+consumer-Ws-002: Alter Consumer to works with Websocket json blocking mode. Test option: -socketBlockingMode
+
+
 Module:  Value Add Consumer
 ---------------------------
 
@@ -49,7 +54,7 @@ vaconsumer-LoginReissue-001:  Alter VAConsumer to send a login reissue with PAUS
 and a RESUME-ALL after receiving a source directory update.
 
 vaconsumer-TsFrag-001:  Alter VAConsumer to accept -bufSize and -fillSize as inputs.  The bufSize is the
-size of buffer requested by getBuffer().  The fillSize is is the number of bytes written.  For example,
+size of buffer requested by getBuffer().  The fillSize is the number of bytes written.  For example,
 if bufSize is 1000 and fillSize is 900, then the VAConsumer gets a buffer of 1000 bytes but only writes
 900 bytes before sending. The filled buffer is sent to the provider/ads in fragments if larger than max
 fragment size.  This code change fills the buffer with "1, 2, 3....255" and repeats this pattern of data
@@ -65,17 +70,17 @@ vaconsumer-TsFrag-002:  Alter VAConsumer to accept -msgSize as an input.  This i
   will then need to check for the same pattern in the fully assembled message and print "TEST PASSED".
 
 vaconsumer-ChnlStats-001: Alters VAConsumer to set statisticFilter for testing ReactorChannelStatistics base on Filer READ, WRITE or PING.
-  And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
-
-vaconsumer-ChnlStats-003: Alters VAConsumer to set statisticFilter for testing ReactorChannelStatistics base on Filer READ, WRITE or PING. 
-  And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
-  The new configuration parameters introduce in version 1.4.0 for reactor to test 'restRequestTimeout', 'tokenReissueRatio', 'reissueTokenAttemptLimit' and 'reissueTokenAttemptInterval'.
+  And testing reactor options to identify tokenServiceUrl.
 
 vaconsumer-ChnlStats-002: Alters VAConsumer to create 2 connections with 1 reactor, each connection requests login using different uname and passwd, 
-  in order to test ReactorChannelStatistic and sessionMgnt for 2 connections. And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
+  in order to test ReactorChannelStatistic and sessionMgnt for 2 connections. And testing reactor options to identify tokenServiceUrl.
+
+vaconsumer-ChnlStats-003: Alters VAConsumer to set statisticFilter for testing ReactorChannelStatistics base on Filer READ, WRITE or PING. 
+  And testing reactor options to identify tokenServiceUrl.
+  The new configuration parameters introduce in version 1.4.0 for reactor to test 'restRequestTimeout', 'tokenReissueRatio', 'reissueTokenAttemptLimit' and 'reissueTokenAttemptInterval'.
 
 vaconsumer-ChnlStats-004: Alters VAConsumer to create 2 connections with 1 reactor, each connection requests login using different uname and passwd, 
-  in order to test ReactorChannelStatistic and sessionMgnt for 2 connections. And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
+  in order to test ReactorChannelStatistic and sessionMgnt for 2 connections. And testing reactor options to identify tokenServiceUrl.
   The new configuration parameters introduce in version 1.4.0 for reactor to test 'restRequestTimeout', 'tokenReissueRatio', 'reissueTokenAttemptLimit' and 'reissueTokenAttemptInterval'.
 
 vaconsumer-DebugFunctions-001:  Alter VAConsumer to show how to use rsslSetDebugFunctions
@@ -119,9 +124,20 @@ vaConsumer-ExtConn-001: Alter VAConsumer to test reconnect.
     -ph2 <proxy host> specifies proxy host name for case (3), by default: webproxy.pln.colo.services.
     -pp2 <proxy port> specifies proxy port for case (3), by default: 80.
 
-consumer-Ws-001: Alter Consumer to add test options for Websocket transport which are; -testCompressionZlib
+vaconsumer-PH-001: Alter VAConsumer to add command-line options for testing Preferred host feature.
+    -reconnectAttemptLimit <integer value> specifies the maximum number of times the RsllReactor will attempt to reconnect a channel. If set to -1, there is no limit
+    -reconnectMinDelay <milliseconds> specifies the minimum time the RsslReactor will wait before attempting to reconnect
+    -reconnectMaxDelay <milliseconds> specifies the maximum time the RsslReactor will wait before attempting to reconnect
 
-consumer-Ws-002: Alter Consumer to works with Websocket json blocking mode. Test option: -socketBlockingMode
+
+Module:  MultiCred Watchlist Consumer
+---------------------------
+multicredwlconsumer-PH-001: Alter MultiCredWLConsumer to add command-line options for requesting list of items with different serviceName to test Preferred host feature.
+    from
+    -s SERVICE -mp ITEM
+    to
+    -mp SERVICE1:ITEM1 -mp SERVICE2:ITEM2
+
 
 Module:  Watchlist Consumer
 ---------------------------

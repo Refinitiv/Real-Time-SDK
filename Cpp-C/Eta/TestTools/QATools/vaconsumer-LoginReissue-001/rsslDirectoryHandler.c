@@ -296,9 +296,10 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 			loginRequest.applicationId = appId;
 			rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
 			submitMsgOpts.pRDMMsg = (RsslRDMMsg*)&loginRequest;
-			if ((ret = rsslReactorSubmitMsg(pReactor,pChannel,&submitMsgOpts,&rsslErrorInfo)) != RSSL_RET_SUCCESS )
+			if ((ret = rsslReactorSubmitMsg(pReactor, pChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
 			{
 				printf("APIQA: rsslReactorSubmitMsg failed when attempting to send RESUME ALL:  %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+				break;
 			}
 			printf("APIQA: sending RESUME ALL\n");
 		}
