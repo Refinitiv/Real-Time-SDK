@@ -1,38 +1,57 @@
 This is the change log of the Real-Time SDK (RTSDK) for C++/C. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-Rebranding NOTE: Real-Time SDK was formerly known as Elektron SDK or ESDK. 
-
 There are three types of RTSDK releases that append a letter directly followed by a number to the version number. 
 
-"L" releases (e.g., 2.2.0.L1) are full RTSDK releases that are uploaded to [MyAccount](https://myaccount.lseg.com/en/downloadcenter) (formerly MyRefinitiv), Developer Community and GitHub. 
+"L" releases (e.g., 2.2.0.L1) are full RTSDK releases that are uploaded to [MyAccount](https://myaccount.lseg.com/en/downloadcenter), Developer Community and GitHub. 
 "G" releases (e.g., 2.2.0.G1) are releases that are only uploaded to GitHub. 
-"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount (formerly MyRefinitiv) and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.1.L1 aka EMA/ETA 3.8.1.L1 aka 3.8.1.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.2.L1 aka EMA/ETA 3.8.2.L1 aka 3.8.2.0
 ----------------------------------------------------------------------------------------
-
-This is a maintenance release with support for RedHat 9.X and Windows Server 2022, customer issue fixes and minor enhancements
+This release of ETAC has support for the Preferred Host feature which applies to both connection recovery and warm standby: the feature allows a switch back to a preferred host in a channel list or a prefereed group in a warm standby configuration. In addition, this release introduces an EMA schema file to reflect Ema configuration. Note that the schema file is not enforced in this version. Also included with this release are some critical fixes.
 
 Customer Issues Resolved
 ------------------------
-- [Case Number: 13170694] - [RTSDK-8145] - Support for EmaBuffer with RMTES data without conversion
-- [Case Number: 13260926] - [RTSDK-8234] - Support for EMA C++ Xml Trace Ping-Only
-- [Case Number: 13624379] - [RTSDK-8818] - EMA C++ Crash due to double close upon OmmConsumer unregister in onStatusMsg callback for invalid request
-- [ GitHub #250] - [RTSDK-7213] - Support for RedHat 9.X: pre-build libraries and support added
-- [ GitHub #262] - [RTSDK-8596] - Fix to EMA C++ FieldEntry and ElementEntry to handle BLANK OmmArray
-- [GitHub Pull Request #267] - [RTSDK-8223] - Support for build_type OptimizedDebug for Linux 
-- [GitHub Pull Request #276] - [RTSDK-8498] - Fix memset arguments order
+- [Case Number: 13884979] - [RTSDK-9049, RTSDK-8833] - EMA hangs due to initialization failure or login denied
+- [GitHub #186] - [RTSDK-5724] - Provider Example does not return RSSL_RET_FAILURE up receiving Unhandled Item Msg
+- [GitHub #224] - [RTSDK-7430] - Address performance issue with EMA FieldList and all containers
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes and minor enhancements
+--------------------------------------------
+RTSDK C++/C Release 2.2.2.L1 (Sep 30, 2024)
+--------------------------------------------
+
+EMA C++ 3.8.2.L1 Issues Resolved
+--------------------------------
+- [RTSDK-5724] - Provider Example does not return RSSL_RET_FAILURE up receiving Unhandled Item Msg [ GitHub #186 ]
+- [RTSDK-7430] - Address performance issue with EMA FieldList and all containers [ GitHub #224 ]
+- [RTSDK-8043] - Create and ship a schema file that reflects Ema Configuration
+- [RTSDK-8609] - Create tool in EMA C++ that utilizes multiple OmmConsumers
+- [RTSDK-8811] - EMAC++ should convey dispatch errors from Reactor via error callback to EMA applications
+- [RTSDK-8833, RTSDK-9049] - EMA hangs due to initialization failure or login denied
+- [RTSDK-9027] - EmaConfigImpl invokes libxml2 xmlReadMemory with wrong parameters resulting in warnings
+
+ETA C 3.8.2.L1 Issues Resolved
+--------------------------------
+- [RTSDK-8499] - Introduction of Preferred Host feature in ETAC Reactor
+- [RTSDK-8892] - Fix to ETAC Websocket crash in rwsSendResponseHandshake
+- [RTSDK-8997] - ETAC RH9: Server disconnects all connected clients (after delay) when one client disconnects
+- [RTSDK-9007] - WatchList crashes in upon reactor connect failure
+
+Both ETA C and EMA C++ 3.8.2.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-8846] - Update to C/C++ versions dependencies: cjson, curl, l8w8jwt, libxml2
+- [RTSDK-8881] - Fix build issues with latest VS 2022 version and cmake 3.30 
 
 --------------------------------------------
 RTSDK C++/C Release 2.2.1.L1 (Jul 3, 2024)
 --------------------------------------------
+
+This is a maintenance release with support for RedHat 9.X and Windows Server 2022, customer issue fixes and minor enhancements
 
 EMA C++ 3.8.1.L1 Issues Resolved
 --------------------------------

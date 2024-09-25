@@ -21,6 +21,7 @@ External modules used by this version of RTSDK C/C++:
      openSSL               1.1.1a
      openSSL               3.0.X  * 
      openSSL               3.1.X  ** 
+     ccron                 2.0.0
      cJSON                 1.7.18
      curl                  8.9.1
      googletest            1.8.1 (for older than Linux7) and 1.12.1 
@@ -103,7 +104,7 @@ Compilers (only on OSs supported by Microsoft):
 
 Notes: 
 - User has the option to use pre-built libraries for the compilers listed above and use them on different Windows operating systems that have support for those compilers to build their applications. User may also choose to build source and applications. 
-- CMake supports VS 2013 and VS 2012 builds although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) to build these deprecated Visual Studio versions at your own risk as changes to BinaryPacks will not be available for deprecated compilers. 
+- CMake supports VS 2013 build although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) to build these deprecated Visual Studio versions at your own risk as changes to BinaryPacks will not be available for deprecated compilers. 
 - For V2 authentication with RTO, RTSDK introduced the l8w8jwt library.  When building with Visual Studio 2019 or above, this library only works with Windows 10 SDK for October 2018 Update, version 1809 or later.
 
 ##### Linux
@@ -134,11 +135,11 @@ This release has been tested with the following on supported platform/OS combina
      Red Hat Enterprise Linux Server 7.7 64-bit   GCC 4.8.5       OL7_64_GCC482            RHEL7_64_GCC485
      Oracle Linux Server 7.7 64-bit               GCC 7.4.0       n/a                      OL7_64_GCC740
      Red Hat Enterprise Linux Server 7.7 64-bit   GCC 7.4.0       n/a                      RHEL7_64_GCC740
-     Red Hat Enterprise Linux Server 8.0 64-bit   GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
-     Red Hat Enterprise Linux Server 8.0 64-bit   GCC 9.2.1       RHEL8_64_GCC831          RHEL8_64_GCC921
+     Red Hat Enterprise Linux Server 8.X 64-bit   GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
+     Red Hat Enterprise Linux Server 8.X 64-bit   GCC 9.2.1       RHEL8_64_GCC831          RHEL8_64_GCC921
      Ubuntu 20.04 64-bit                          GCC 9.4.0       RHEL8_64_GCC831          RHEL8_64_GCC831
-     Red Hat Enterprise Linux Server 9.0 64-bit   GCC 11.4.1      RHEL9_64_GCC1141         RHEL9_64_GCC1141
-     Red Hat Enterprise Linux Server 9.0 64-bit   GCC 12.2.1      RHEL9_64_GCC1141         RHEL9_64_GCC1221
+     Red Hat Enterprise Linux Server 9.2 64-bit   GCC 11.4.1      RHEL9_64_GCC1141         RHEL9_64_GCC1141
+     Red Hat Enterprise Linux Server 9.2 64-bit   GCC 12.2.1      RHEL9_64_GCC1141         RHEL9_64_GCC1221
 
      n/a = This is not a tested combination
 
@@ -196,7 +197,7 @@ Obtain the source **from this repository** on GitHub. It will contain all of the
 
 Real-Time SDK package may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Cpp-C directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
 
-Real-Time SDK package is also available on [MyAccount](https://myaccount.lseg.com/en/downloadcenter). In addition, these distributions depend on a Binary Pack found in the above download location. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Cpp-C directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
+Real-Time SDK package is also available for download on [MyAccount](https://myaccount.lseg.com/en/downloadcenter). In addition, these distributions depend on a Binary Pack found in the above download location. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Cpp-C directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
 ## Building RTSDK
 
@@ -240,7 +241,7 @@ At the same directory level as the resulting RTSDK directory, issue the followin
           # "Visual Studio 15 2017 Win64"
           # "Visual Studio 14 2015 Win64" 
      # Note: A list of visual studio versions can be obtained by typing "cmake -help". 
-     # Note: CMake supports VS 2013 and VS 2012 builds although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack prior to Real-Time-SDK-2.0.3.L1 to build these deprecated Visual Studio versions at your own risk. Changes to BinaryPacks will not be available for deprecated compilers.
+     # Note: CMake supports VS 2013 build although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack prior to Real-Time-SDK-2.0.3.L1 to build these deprecated Visual Studio versions at your own risk. Changes to BinaryPacks will not be available for deprecated compilers.
 
 The cmake command builds all needed Solution and vcxproj files (and other related files) in the buildDir directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the libraries and sample application executables are sent to an RTSDK directory under sourceDir.
 
@@ -274,10 +275,10 @@ We will review issues and pull requests to determine any appropriate changes.
 # Contributing
 In the event you would like to contribute to this repository, it is required that you read and sign the following:
 
-- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
-- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
+- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
+- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
-Please email a signed and scanned copy to sdkagreement@lseg.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to sdkagreement@refinitiv.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 
 # Notes:

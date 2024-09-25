@@ -10,18 +10,49 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.2.0.G1 aka EMA/ETA 3.2.0.G1 aka 3.2.0.1
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.2.2.L1 aka EMA/ETA 3.3.0.L1 aka 3.3.0.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes and update to dicionary files.
-
-Customer Issues Resolved
-------------------------
-- [GitHub #278] - [RTSDK-8579] - EMA C# Memory growth with multiple OmmConsumer with Initialization/Un-initialization
+This is a maintenance release with minor enhancements and fixes. This release introduces an EMA schema file to reflect Ema configuration. Note that the schema file is not enforced in this version.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+---------------------------------------------
+RTSDK CSharp Release 2.2.2.L1 (Sep 30, 2024)
+---------------------------------------------
+
+EMA CSharp 3.3.0.L1 Issues Resolved 
+-----------------------------------
+- [RTSDK-8225] - EMACSharp should convey dispatch errors from Reactor via error callback to EMA applications
+- [RTSDK-8352] - Create and ship a schema file that reflects Ema Configuration
+- [RTSDK-8422] - Create QATool Series300Consumer360-MultiThreadViews-001
+- [RTSDK-8570] - Added NIProvider examples: NIProv_250_MP_Perf & NIProv_251_MP_Perf_KeyByServiceId
+- [RTSDK-8594] - Minor fix to ConsPerf's Usage
+- [RTSDK-8615] - Fix for REST proxy parameters in file config
+- [RTSDK-8654] - Added minimum timeout to avoid high CPU on Linux with API Dispatch
+- [RTSDK-8852] - EMACSharp ReconnectMinDelay default is changed to 5000 from 1000
+
+ETA CSharp 3.3.0.L1 Issues Resolved
+-----------------------------------
+- [RTSDK-7167] - Added ETA example readme to explain dependencies
+- [RTSDK-8568] - Update solution to include build of AuthLock
+- [RTSDK-9033] - CSharp Reactor.Watchlist throws NullReferenceException
+
+Both ETA and EMA CSharp 3.3.0.L1 Issues Resolved
+------------------------------------------------
+- [RTSDK-6994] - Support for .NET Core 8.x
+- [RTSDK-7213] - Qualify RTSDK C# on RedHat 9.X
+- [RTSDK-8552] - Rebranding to LSEG in PDF documentation
+- [RTSDK-8742] - Delivery of separate BinaryPack RRG archive and Library RRG archive
+- [RTSDK-8745] - Rebrand references in code to LSEG
+- [RTSDK-8883] - Change default build to net8.0 with update to Directory.Build.props
+- [RTSDK-8992] - Support for Windows 2022 Server
+
+---------------------------------------------
+RTSDK CSharp Release 2.2.1.L1 -- SKIPPED for C# 
+---------------------------------------------
 
 ---------------------------------------------
 RTSDK CSharp Release 2.2.0.G1 (May 17, 2024)

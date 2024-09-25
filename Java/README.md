@@ -49,7 +49,7 @@ External modules used by this version of RTSDK Java:
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The LSEG Real-Time-SDK supports Oracle JDK 1.11 & 1.17, OpenJDK 1.11 & 1.17, Amazon Corretto 11.
+The LSEG Real-Time-SDK supports Oracle JDK 11, 17 & 21, OpenJDK 11, 17 & 21, Amazon Corretto 11.
 
 NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. 
 
@@ -66,9 +66,9 @@ The LSEG Real-Time-SDK provides support for multicast connections using JNI libr
 
 Platforms:
 
-	Microsoft Windows Server 2012 Enterprise Edition or later 64-bit
 	Microsoft Windows Server 2016 Enterprise Edition or later 64-bit
 	Microsoft Windows Server 2019 Standard Edition or later 64-bit
+	Microsoft Windows Server 2022 Standard Edition or later 64-bit
 	Microsoft Windows 10 Professional 64-bit
 
 Compilers (only on OSs supported by Microsoft):
@@ -78,7 +78,7 @@ Compilers (only on OSs supported by Microsoft):
 	Microsoft Visual Studio 14.2 (2019) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 14.3 (2022) 64-bit (JNI Libraries)
 
-NOTE: To obtain JNI Libraries for deprecated versions, VS 2013 and VS 2012, please use a BinaryPack from a version [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) at your own risk as changes to BinaryPacks will not be availble for deprecated compilers.
+NOTE: To obtain JNI Libraries for deprecated versions, VS 2013, please use a BinaryPack from a version [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) at your own risk as changes to BinaryPacks will not be availble for deprecated compilers.
 
 ##### Linux
 
@@ -87,15 +87,19 @@ Platforms:
 	Oracle Linux Server 7.X 64-bit
         Red Hat Enterprise Server 7.X Release 64-bit
         Red Hat Enterprise Server 8.X Release 64-bit
+        Red Hat Enterprise Server 9.X Release 64-bit
 	Ubuntu 20.04 64-bit Qualification
 
 #### Tested Versions
 
 This release has been tested with the following:
 
-	Oracle Java SE 11 (JDK1.11)
-	Oracle Open JDK (1.11)
-	Oracle Open JDK (1.17)
+	Oracle Java SE 11 (JDK 11)
+	Oracle Java SE 17 (JDK 17)
+	Oracle Java SE 21 (JDK 21)
+	Oracle OpenJDK 11
+	Oracle OpenJDK 17
+	Oracle OpenJDK 21
 	Amazon Corretto 11
 
 #### Proxy Authentication Support
@@ -123,7 +127,7 @@ The **keystore** file can contain custom private keys and public key certificate
 RTSDK Java supports connectivity to the following platforms:
 
 - LSEG Real-Time Distribution System (RSSL/RWF connections): ADS/ADH all supported versions 
-- LSEG Real-Time: LSEG Real-Time Deployed
+- LSEG Real-Time Deployed
 - LSEG Real-Time Hosted
 - Real-Time - Optimized (RTO)
 - Real-Time Direct
@@ -132,8 +136,8 @@ NOTE: Connectivity to Real-Time Direct is supported for Level 1 and Level 2 data
 
 This release has been tested with the following:
 
-- ADS 3.7.3
-- ADH 3.7.3
+- ADS 3.8.0
+- ADH 3.8.0
 - DACS 7.12
 
 # Documentation
@@ -149,9 +153,10 @@ This section shows the required setup needed before you can build any of the Jav
 
 Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
-Real-Time SDK package may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/download).
+Real-Time SDK package may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/download). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Java directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
 
-Real-Time SDK package is also available on [MyAccount](https://myaccount.lseg.com/content/mytr/en/downloadcenter.html).
+Real-Time SDK package is also available on [MyAccount](https://myaccount.lseg.com/content/mytr/en/downloadcenter.html). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Java directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
+
 
 ## Building RTSDK
 
@@ -214,40 +219,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.8.0.0</version>
+		<version>3.8.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.8.0.0</version>
+		<version>3.8.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.8.0.0</version>
+		<version>3.8.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.8.0.0</version>
+		<version>3.8.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.8.0.0</version>
+		<version>3.8.2.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.8.0.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.8.0.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.8.0.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.8.0.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.8.0.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.8.2.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.8.2.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.8.2.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.8.2.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.8.2.0'
 
 # Developing 
 
@@ -261,8 +266,8 @@ We will review issues and pull requests to determine any appropriate changes.
 # Contributing
 In the event you would like to contribute to this repository, it is required that you read and sign the following:
 
-- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
-- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
+- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
+- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
 
 Please email a signed and scanned copy to sdkagreement@refinitiv.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.

@@ -8,10 +8,6 @@ The **Enterprise Transport API (ETA)** is an open source low-level Transport and
 
 The RTSDK was formerly known as Elektron SDK (ESDK). Starting with version 2.0 (ETA & EMA 3.6), SDK was rebranded with the following impact: namespace changes and jar files names. This applies to applications written to EMA C++, EMA Java and ETA Java. If upgrading from a version prior to RTSDK 2.0, please alter code, re-compile and redeploy applications to pick up these changes. Please note that connectivity to products will not be impacted after rebranding and existing applications will continue to work. For more details, please see the following:
 
-- For specific details on impact of changes to applications with RTSDK 2.0, please see [REBRAND.md](REBRAND.md).
-- For general details regarding impact of rebranding, support questions, and timelines with RTSDK and other APIs, please see the [API Product Change Notification (PCN)](https://my.refinitiv.com/content/mytr/en/pcnpage/12072.html). 
-
-
 # Supported Languages, Platforms and Compilers
 
 The Real-Time-SDK will support multiple languages across different combinations of `Linux` and `Windows` and their corresponding compilers. Navigate to the language and API of your choice to see the individual API README.md files for further details on building and running the API and examples. You can click on the below links to take you to the language of your choice.
@@ -52,10 +48,10 @@ We will review issues and pull requests to determine any appropriate changes.
 # Contributing
 In the event you would like to contribute to this repository, it is required that you read and sign the following:
 
-- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
-- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
+- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
+- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
-Please email a signed and scanned copy to `sdkagreement@lseg.com`.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to `sdkagreement@refinitiv.com`.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 # License Information
 
@@ -79,12 +75,11 @@ License details can be found in the LICENSE.md file contained in this section. T
 - Java/Eta/TestTools
 - Java/Eta/ValueAdd
 - Java/Eta/ValueAddCache
-- CSharp/Ema/Src/Core
+- CSharp/Ema/Src
 - CSharp/Ema/Examples
 - CSharp/Ema/PerfTools
 - CSharp/Ema/TestTools
-- CSharp/Eta/Src/Core
-- CSharp/Eta/Src/ValueAdd
+- CSharp/Eta/Src
 - CSharp/Eta/Applications
 - CSharp/Eta/TestTools
 

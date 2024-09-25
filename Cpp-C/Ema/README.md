@@ -24,6 +24,8 @@ In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional do
 
 - TCP/IP Connectivity
 
+- Component Versioning: This feature sends information about itself to the connected component.
+
 - RMTES Decoder: EMA provides a built in RMTES decoder. If desired, application may cache RmtesBuffer objects and apply all the received changes to them.
 
 - Data::toString(): All OMM containers, primitives and messages may simply be printed out to screen in a standardized output format.
@@ -31,6 +33,12 @@ In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional do
 - Data::getAsHex(): Applications may obtain binary representations of all OMM containers, primitives and messages.
 
 - File Config: Enables applications to specify EMA configuration in an EmaConfig.xml file
+
+- Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
+
+- Direct Write setting on socket channel
+
+- High Water Mark setting on socket channel
 
 - Parameters, reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTrace, MsgKeyInUpdates only can be configured on Consumer/IProvider/NiProvider instance level.
 
@@ -54,25 +62,17 @@ In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional do
 
 - Single Open: EMA supports application selected single open functionality
 
-- Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
-
-
 ## Non-Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
  
 - Configurable Admin Domains: EMA provides means for modifying the default admin domain messages. 
 
-- Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
-
-
 ## Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default directory messages while sending to the connected client. This provides minimum configuration for applications to get up and running.
  
 - Configurable Admin Domains: EMA provides means for modifying the default admin domain messages. 
-
-- Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
 
 # EMA C++ Library and Version Information
 
@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.8.1.L1
+    libema.lib                ema3.8.2.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.8.1.L1
-    libema.dll                ema3.8.1.L1
+    libema.lib                ema3.8.2.L1
+    libema.dll                ema3.8.2.L1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.8.1.L1
+    libema.a                    ema3.8.2.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.8.1.L1          libema.so.20          ema3.8.1.L1
+    libema.so.3.8.2.L1          libema.so.21          ema3.8.2.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -156,12 +156,12 @@ This will create all necessary soft links for example makefiles to link. It is s
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.8.1
+    Release Number: 3.8.2
     Load Number: 1
-    Windows Load ID: ema3.8.1.L1.win
-        Supersedes: ema3.8.0.L1.win
-    Linux Load ID: ema3.8.1.L1.linux
-        Supersedes: ema3.8.0.L1.linux
+    Windows Load ID: ema3.8.2.L1.win
+        Supersedes: ema3.8.1.L1.win
+    Linux Load ID: ema3.8.2.L1.linux
+        Supersedes: ema3.8.1.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99

@@ -9,21 +9,53 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.2.0.L1 aka EMA/ETA 3.8.0.L1 aka 3.8.0.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.2.2.L1 aka EMA/ETA 3.8.2.L1 aka 3.8.2.0
 ----------------------------------------------------------------------------------------
-
-This release introduces EMA message packing feature. In addition, a number of customer issues were addressed.
+This is a maintenance release with minor enhancements and fixes. This release introduces an EMA schema file to reflect Ema configuration. Note that the schema file is not enforced in this version.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [Case Number: 06589180] - [RTSDK-1643] - Added toString implementation for the containers and messages in EMA Java
-- [GitHub #239] - [RTSDK-7624] - EMAJ Concurrency Issue for Views causing NPE on reissue/unregister
-- [GitHub #248] - [RTSDK-7746] - Add connection type to OmmConsumerConfig
-- [GitHub #272] - [RTSDK-8361] - CryptoHelper.java not able to detect socket close due to which application hangs infinitely
+- [GitHub #273] - [RTSDK-8407] - EMA Java API traces incoming messages to files only when XmlTraceToStdout=1
+- [GitHub #279] - [RTSDK-8664] - Memory leak in Java\WlDirectoryHandler\_directoryRefreshPool
+- [GitHub #281] - [RTSDK-8663] - EMAJ NPE upon attempting to make a new request after receiving a Login/Closed/Suspect
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.2.2.L1 (Sep 30, 2024)
+--------------------------------------------
+
+EMA Java 3.8.2.L1 Issues Resolved
+---------------------------------
+- [RTSDK-8080] - Update to EMAJ RTTViewer REST proxy parameters and to specify tls version to use
+- [RTSDK-8150] - Fix to EMA Java to handle BLANK OmmArray
+- [RTSDK-8351] - Create and ship a schema file that reflects Ema Configuration
+- [RTSDK-8407] - EMA Java API traces incoming messages to files only when XmlTraceToStdout=1 [GitHub #273]
+- [RTSDK-8597] - Add connection type to OmmNiProviderConfig
+- [RTSDK-8663] - EMAJ NPE upon attempting to make a new request after receiving a Login/Closed/Suspect [GitHub #281] 
+- [RTSDK-8738] - Create a tool that utilizes multiple OmmConsumers
+
+ETA Java 3.8.2.L1 Issues Resolved
+---------------------------------
+- [RTSDK-8079] - Update to ETAJ WSByConsumer example for REST proxy parameters and ability to specify TLS1.2 or 1.3
+- [RTSDK-8664] - Memory leak in Java\WlDirectoryHandler\_directoryRefreshPool [GitHub #279]
+- [RTSDK-8984] - ETAJ wsbConsumer IndexOutOfBoundsException when running with jsonConfig contains 2 WSBGroups
+
+Both ETA Java and EMA Java 3.8.2.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-7213] - Support for RedHat 9.X including JNI libraries
+- [RTSDK-8552] - Rebranding to LSEG in PDF documentation
+- [RTSDK-8561] - Update to Java dependencies: commons-logging, commons-configuration2, commons-collections4, etc.
+- [RTSDK-8650] - Support for Windows 2022 Server
+- [RTSDK-8652] - Qualify with JDK and Oracle OpenJDK 1.21
+- [RTSDK-8742] - Delivery of separate BinaryPack RRG archive and Library RRG archive
+- [RTSDK-8745] - Rebrand references in code to LSEG
+
+--------------------------------------------
+RTSDK Java Release 2.2.1.L1 -- SKIPPED for Java
+--------------------------------------------
 
 --------------------------------------------
 RTSDK Java Release 2.2.0.L1 (Apr 30, 2024)

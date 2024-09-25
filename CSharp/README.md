@@ -33,15 +33,18 @@ External modules used by this version of RTSDK CSharp:
 
 # Software Requirements
 - Visual Studio 2022
-- .NET Core 6.0 
+- .NET Core 6 or .NET Core 8. NOTE: .NET 8 is used in default build
 - xUnit 2.7.0 or higher for unit testing.
 
 ### Platforms and Compilers used in Test
 
-        Windows Server 2016 Enterprise Edition or later 64-bit, VS2022
+        Windows Server 2019 Standard Edition or later 64-bit, .NET SDK 6.0.421
+        Windows Server 2022 Standard Edition or later 64-bit, .NET SDK 8.0.401
         Oracle Linux Server 7.X 64-bit, .NET SDK 6.0.421
         Red Hat Enterprise Server 7.X Release 64-bit, .NET SDK 6.0.421
         Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 6.0.421
+        Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 8.0.401
+        Red Hat Enterprise Server 9.X Release 64-bit, .NET SDK 8.0.401
         Ubuntu 20.04 64-bit, .NET SDK 6.0.402
 
 ### Encryption Support
@@ -59,7 +62,7 @@ Authentication Schemes:
 RTSDK CSharp supports connectivity to the following platforms:
 
 - LSEG Real-Time Distribution System (RSSL/RWF connections): ADS/ADH all supported versions
-- LSEG Real-Time: LSEG Real-Time Deployed
+- LSEG Real-Time Deployed
 - LSEG Real-Time Hosted
 - LSEG Real-Time - Optimized (RTO)
 - Real Time Direct 
@@ -68,8 +71,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data. Conn
 
 This release has been tested with the following:
 
-- ADS 3.7.3
-- ADH 3.7.3
+- ADS 3.8.0
+- ADH 3.8.0
 - DACS 7.12
 
 # Documentation
@@ -85,6 +88,10 @@ Please refer to the [RTSDK Installation Guide](Eta/Docs/RTSDK_CSharp_Installatio
 Install all prerequisites list in Software Requirements section. 
 
 Obtain the source **from this repository** on GitHub. It will contain a solution file and all required source to build RTSDK.
+
+Real-Time SDK package may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/download). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the CSharp directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
+
+Real-Time SDK package is also available on [MyAccount](https://myaccount.lseg.com/content/mytr/en/downloadcenter.html). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the CSharp directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
 
 ## Building RTSDK 
 
@@ -109,32 +116,32 @@ The RRG package contains all required external dependencies in the CSharp/NuGetP
 
 To build, navigate to `RTSDK/CSharp` and issue the appropriate dotnet command as follows to build libraries and/or examples:
 
-        dotnet build --configuration <Release|Debug> RTSDK_NET6.0.sln
+        dotnet build --configuration <Release|Debug> -p:EsdkTargetFramework=<all|net6.0|net8.0> RTSDK.sln
 
         NOTE: 
               - In a GitHub build, the command above builds libraries and places them into Eta/Libs or Ema/Libs and examples into Eta/Executables or Ema/Executables
               - In RRG package, it builds only libraries and places them into custom directories: Eta/Custom/Libs, Ema/Custom/Libs
 
-        GitHub Only, to build specific example: dotnet build -t:Consumer --configuration <Release|Debug> RTSDK_NET6.0.sln
+        GitHub Only, to build specific example: dotnet build -t:Consumer --configuration <Release|Debug> -p:EsdkTargetFramework=<all|net6.0|net8.0> RTSDK.sln
 
 To build just libraries:
 
-Building RTSDK using dotnet command lines is platform agnostic; i.e., it works the same way on Linux and Windows platforms. To build using Visual Studio is applicable to only Windows.
+Building RTSDK using dotnet command lines is platform agnostic; i.e., it works the same way on Linux and Windows platforms. To build using Visual Studio is applicable to only Windows. Sample commands:
 
-        dotnet build --configuration Release Eta/Src/Core/Core_NET6.0.csproj
-        dotnet build --configuration Release Eta/Src/ValueAdd/ValueAdd_NET6.0.csproj
-        dotnet build --configuration Release Eta/Src/Ansi/Ansi_NET6.0.csproj
-        dotnet build --configuration Release Eta/Src/AnsiPage/AnsiPage_NET6.0.csproj
-        dotnet build --configuration Release Ema/Src/Core/EMA_Core_NET6.0.csproj
+        dotnet build --configuration Release -p:EsdkTargetFramework=net8.0 Eta/Src/Core/Core.csproj
+        dotnet build --configuration Release -p:EsdkTargetFramework=all Eta/Src/ValueAdd/ValueAdd.csproj
+        dotnet build --configuration Release -p:EsdkTargetFramework=net6.0 Eta/Src/Ansi/Ansi.csproj
+        dotnet build --configuration Release -p:EsdkTargetFramework=all Eta/Src/AnsiPage/AnsiPage.csproj
+        dotnet build --configuration Release -p:EsdkTargetFramework=all Ema/Src/Core/EMA_Core.csproj
 
         NOTE: In a GitHub build, this builds libraries and places them into Eta/Libs or Ema/Libs
               In RRG package, this builds libraries and places them into custom directories: Eta/Custom/Libs, Ema/Custom/Libs
 
 To build just examples: Each example may be built separately using the individual csproj files. Please note that the RRG package also contains a .sln file for each Eta example along with individual csproj files for each Ema example. Sample command lines to build examples:
 
-        dotnet build --configuration Release Eta/Applications/Consumer/Consumer_NET6.0.csproj
-        dotnet build --configuration Release Eta/Applications/Consumer/Consumer_NET6.0.sln
-        dotnet build --configuration Release Ema/Examples/Training/Consumer/100_Series/100_MP_Streaming/Cons100_NET6.0.csproj
+        dotnet build --configuration Release -p:EsdkTargetFramework=net8.0 Eta/Applications/Consumer/Consumer.csproj
+        dotnet build --configuration Release -p:EsdkTargetFramework=all Eta/Applications/Consumer/Consumer.sln
+        dotnet build --configuration Release -p:EsdkTargetFramework=net6.0 Ema/Examples/Training/Consumer/100_Series/100_MP_Streaming/Cons100.csproj
 
         NOTE: The sln and/or csproj files build examples and places them into Eta/Executables or Ema/Executables
               Solution files exist only in RRG package
@@ -170,11 +177,11 @@ You can download RTSDK libraries and dependencies from NuGet. Choose the appropr
 
         <dependency>
                 <ItemGroup>
-                    <PackageReference Include="LSEG.Eta.Core" Version="3.2.0"/>
-                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.2.0"/>
-                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.2.0"/>
-                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.2.0"/>
-                    <PackageReference Include="LSEG.Ema.Core" Version="3.2.0"/>
+                    <PackageReference Include="LSEG.Eta.Core" Version="3.3.0"/>
+                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.3.0"/>
+                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.3.0"/>
+                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.3.0"/>
+                    <PackageReference Include="LSEG.Ema.Core" Version="3.3.0"/>
                 </ItemGroup/>
         </dependency>
 
@@ -191,11 +198,11 @@ We will review issues and pull requests to determine any appropriate changes.
 # Contributing
 In the event you would like to contribute to this repository, it is required that you read and sign the following:
 
-- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
-- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
+- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
+- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
 
-Please email a signed and scanned copy to sdkagreement@refinitiv.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to sdkagreement@refinitiv.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 # Notes:
 - For more details on each API, please see the corresponding readme file in their top level directory.

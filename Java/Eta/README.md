@@ -121,24 +121,24 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.8.0.0.jar               eta3.8.0.L1       The ETA - Java Edition library.  Includes
+    eta-3.8.2.0.jar               eta3.8.2.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.8.0.0.jar       eta3.8.0.L1       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.8.2.0.jar       eta3.8.2.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.8.0.0.jar  eta3.8.0.L1       The Value Add payload cache library for ETA
+    etaValueAddCache-3.8.2.0.jar  eta3.8.2.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
-    etajConverter-3.8.0.0.jar     eta3.8.0.L1       The RWF/JSON Converter library.
+    etajConverter-3.8.2.0.jar     eta3.8.2.L1       The RWF/JSON Converter library.
 
     jDacsEtalib.jar               dacs7.12          The ETA Java DACS library.
 
-    ansipage-3.8.0.0.jar          eta3.8.0.L1       The ANSI decoders and encoders.
+    ansipage-3.8.2.0.jar          eta3.8.2.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/ETA/RSSL JNI Libs        eta3.8.0.L1       The JNI libraries for Reliable Multicast
+    ETAC/ETA/RSSL JNI Libs        eta3.8.2.L1       The JNI libraries for Reliable Multicast
                                                     Transport, Shared Memory Transport and 
                                                     ValueAdd cache.  
 
@@ -181,10 +181,10 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
-    Release Number: 3.8.0
+    Release Number: 3.8.2
     Load Number: 1
-    Load ID: etaj3.8.0.L1.all
-        Supersedes: etaj3.7.3.L1.all.rrg
+    Load ID: etaj3.8.2.L1.all
+        Supersedes: etaj3.8.0.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
