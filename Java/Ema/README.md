@@ -72,9 +72,9 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.8.0.0.jar         ema3.8.0.L1
+    ema-3.8.2.0.jar         ema3.8.2.L1
 
-    NOTE: ema-3.8.0.0-test.jar containing test utilities is available and published to Maven Central. This may also be built using `gradlew packageTests`.
+    NOTE: ema-3.8.2.0-test.jar containing test utilities is available and published to Maven Central. This may also be built using `gradlew packageTests`.
 
 # EMA Java Issues and Workarounds
  
@@ -97,10 +97,10 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
-    Release Number: 3.8.0
+    Release Number: 3.8.2
     Load Number: 1
-    Load ID: ema3.8.0.L1.java
-        Supersedes: ema3.7.3.L1.java
+    Load ID: ema3.8.2.L1.java
+        Supersedes: ema3.8.0.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99

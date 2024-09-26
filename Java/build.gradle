@@ -39,7 +39,7 @@ ext.YEAR = '2024'
 
 ext.BuildDate = 'Thu Sep 30 22:00:00 CDT ' + "$YEAR"
 ext.SpecificationVersion = '3.8.2.0'
-ext.SpecificationVersionShort = '3.8.0'
+ext.SpecificationVersionShort = '3.8.2'
 
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"

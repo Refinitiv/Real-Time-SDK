@@ -35,7 +35,7 @@ External modules used by this version of RTSDK Java:
 	httpcore-nio	 			4.4.16
 	httpmime				4.5.14
 	lz4-java				1.8.0
-	mockito-all				3.12.4
+	mockito-core 				3.12.4
 	slf4j-api				2.0.13
 	slf4j-jdk14				2.0.13
 	xpp3					1.1.4c
