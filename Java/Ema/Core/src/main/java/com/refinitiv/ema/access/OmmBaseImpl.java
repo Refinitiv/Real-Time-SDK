@@ -891,20 +891,22 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.MsgKeyInUpdates)) != null)
 			{
-				_activeConfig.msgKeyInUpdates = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_MSGKEYINUPDATES;
+				_activeConfig.msgKeyInUpdates = ce.intLongValue() != 0;
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 			{
-				_activeConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
+				_activeConfig.xmlTraceEnable = ce.intLongValue() != 0;
 			}
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToFile)) != null)
 			{
-				_activeConfig.xmlTraceToFileEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_TO_FILE_ENABLE;
+				_activeConfig.xmlTraceToFileEnable = ce.intLongValue() != 0;
 			}
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceMaxFileSize)) != null)
 			{
-				_activeConfig.xmlTraceMaxFileSize = ce.intLongValue() == 0 ? ActiveConfig.DEFAULT_XML_TRACE_MAX_FILE_SIZE : ce.intLongValue();
+				long xmlTraceMaxFileSize = ce.intLongValue();
+				if (xmlTraceMaxFileSize > 0)
+					_activeConfig.xmlTraceMaxFileSize = xmlTraceMaxFileSize;
 			}
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceFileName)) != null)
 			{
@@ -912,19 +914,19 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			}
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToMultipleFiles)) != null)
 			{
-				_activeConfig.xmlTraceToMultipleFilesEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_TO_MULTIPLE_FILES;
+				_activeConfig.xmlTraceToMultipleFilesEnable = ce.intLongValue() != 0;
 			}
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceWrite)) != null)
 			{
-				_activeConfig.xmlTraceWriteEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_WRITE;
+				_activeConfig.xmlTraceWriteEnable = ce.intLongValue() != 0;
 			}
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceRead)) != null)
 			{
-				_activeConfig.xmlTraceReadEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_READ;
+				_activeConfig.xmlTraceReadEnable = ce.intLongValue() != 0;
 			}
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTracePing)) != null)
 			{
-				_activeConfig.xmlTracePingEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_PING;
+				_activeConfig.xmlTracePingEnable = ce.intLongValue() != 0;
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReissueTokenAttemptLimit)) != null)

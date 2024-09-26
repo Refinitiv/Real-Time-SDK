@@ -78,8 +78,8 @@ abstract class ActiveConfig extends BaseConfig
 	final static long DEFAULT_XML_TRACE_MAX_FILE_SIZE			= 100000000;
 	final static String DEFAULT_XML_TRACE_FILE_NAME				= "EmaTrace";
 	final static boolean DEFAULT_XML_TRACE_TO_MULTIPLE_FILES	= false;
-	final static boolean DEFAULT_XML_TRACE_WRITE				= false;
-	final static boolean DEFAULT_XML_TRACE_READ					= false;
+	final static boolean DEFAULT_XML_TRACE_WRITE				= true;
+	final static boolean DEFAULT_XML_TRACE_READ					= true;
 	final static boolean DEFAULT_XML_TRACE_PING					= false;
 	final static boolean DEFAULT_DIRECT_SOCKET_WRITE			= false;
 	final static boolean DEFAULT_HTTP_PROXY					    = false;
