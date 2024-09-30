@@ -48,7 +48,7 @@ The Enterprise Transport API fully supports all OMM constructs and messages.
 
     - A transport-level API allowing for connectivity using TCP sockets, HTTP, HTTPS, websockets, reliable and unreliable UDP multicast, and Shared Memory.
 
-    - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages sent over the wire in a binary data format called, LSEG Wire Format (RWF). Websocket transport also supports JSON data format which must adhere to LSEG [Websocket protocol specification](https://github.com/Refinitiv/websocket-api/blob/master/WebsocketAPI_ProtocolSpecification.pdf).
+    - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages sent over the wire in a binary data format called, RSSL Wire Format (RWF). Websocket transport also supports JSON data format which must adhere to LSEG [Websocket protocol specification](https://github.com/Refinitiv/websocket-api/blob/master/WebsocketAPI_ProtocolSpecification.pdf).
     
     - RMTES Support: Several structures and functions can be used to process RMTES content and convert to several Unicode formats for interpretation. 
     
