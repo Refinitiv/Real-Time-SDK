@@ -67,7 +67,7 @@ namespace LSEG.Eta.Transports
                     productVersion = $"{versionNumbers[0]}.{versionNumbers[1]}.{versionNumbers[2]}";
                 }
 
-                m_LibVersionInfo.m_ProductInternalVersion = $"etacsharp{productVersion}.G1.all.rrg";
+                m_LibVersionInfo.m_ProductInternalVersion = $"etacsharp{productVersion}.L1.all.rrg";
             }
             else
             {
