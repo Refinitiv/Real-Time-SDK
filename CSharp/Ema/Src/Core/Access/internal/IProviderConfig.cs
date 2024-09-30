@@ -15,7 +15,7 @@ namespace LSEG.Ema.Access
     // This class represents the configuration of a single IProvider in the IProvider Group.
     internal class IProviderConfig : ProviderConfig
 	{
-        public string Server = string.Empty;
+        public string Server { get; set; } = string.Empty;
         public bool AcceptDirMessageWithoutMinFilters { get; set; }
         public bool AcceptMessageSameKeyButDiffStream { get; set; }
         public bool AcceptMessageThatChangesService { get; set; }

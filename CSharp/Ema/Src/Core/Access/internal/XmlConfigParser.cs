@@ -14,6 +14,8 @@ using System.Xml.Schema;
 
 using LSEG.Eta.Transports;
 using LSEG.Eta.Codec;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace LSEG.Ema.Access
 {
@@ -32,6 +34,9 @@ namespace LSEG.Ema.Access
         internal static string DEFAULT_SCHEMA_FILE = "EmaConfig.xsd";
 
         private XmlDocument ConfigXml { get; set; }
+
+        private const string CorrectBooleanFormatMessage = "Correct values are: \"0\" or \"1\".";
+        private const string CorrectUnsignedNumericMessage = "Correct format is an unsigned numeric string.";
 
         // Reusable XmlNode references
         private XmlNode? CurrNode;
@@ -392,6 +397,9 @@ namespace LSEG.Ema.Access
             }
         }
 
+        private static string IncorrectFormatMessage(string attribut)
+            => $"The value attribute in the {attribut} element is incorrectly formatted.";
+
         private void ParseConsumerGroup(XmlNode ConsumerNode, OmmConsumerConfigImpl Config)
         {
 
@@ -427,6 +435,7 @@ namespace LSEG.Ema.Access
             foreach (XmlNode consumerListNode in CurrNodeList)
             {
                 bool foundConfig = false;
+                var consumerNodeParser = new NodeParser("Consumer", consumerListNode);
                 ConsumerConfig tmpConfig;
                 if (CurrNode == null)
                     return;
@@ -498,519 +507,38 @@ namespace LSEG.Ema.Access
 
                         string[] channelArray = XmlAttribute.Value.Split(',');
 
-                       foreach(string channelName in channelArray)
+                        foreach (string channelName in channelArray)
                             tmpConfig.ChannelSet.Add(channelName.Trim());
                     }
                 }
-
-                // Dictionary string
-                CurrNode2 = consumerListNode.SelectSingleNode("Dictionary");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer Dictionary element");
-                    }
-
-                    tmpConfig.Dictionary = XmlAttribute.Value;
-                }
-
-                // DictionaryRequestTimeOut ulong
-                CurrNode2 = consumerListNode.SelectSingleNode("DictionaryRequestTimeOut");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer DictionaryRequestTimeOut element");
-                    }
-                    try
-                    {
-                        tmpConfig.DictionaryRequestTimeOut = Utilities.Convert_ulong_long(ulong.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer DictionaryRequestTimeOut element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-
-                }
-
-                // DirectoryRequestTimeOut ulong
-                CurrNode2 = consumerListNode.SelectSingleNode("DirectoryRequestTimeOut");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer DirectoryRequestTimeOut element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.DirectoryRequestTimeOut = Utilities.Convert_ulong_long(ulong.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer DirectoryRequestTimeOut element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // LoginRequestTimeOut ulong
-                CurrNode2 = consumerListNode.SelectSingleNode("LoginRequestTimeOut");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer LoginRequestTimeOut element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.LoginRequestTimeOut = Utilities.Convert_ulong_long(ulong.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer LoginRequestTimeOut element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // DispatchTimeoutApiThread long
-                CurrNode2 = consumerListNode.SelectSingleNode("DispatchTimeoutApiThread");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the DispatchTimeoutApiThread element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.DispatchTimeoutApiThread = (long.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer DispatchTimeoutApiThread element is incorrectly formatted. Correct format is a signed numeric string.");
-                    }
-                }
-
-                // EnableRtt bool
-                CurrNode2 = consumerListNode.SelectSingleNode("EnableRtt");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer EnableRtt element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.EnableRtt = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer DispatchTimeoutApiThread element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // ItemCountHint ulong
-                CurrNode2 = consumerListNode.SelectSingleNode("ItemCountHint");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer ItemCountHint element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ItemCountHint = uint.Parse(XmlAttribute.Value);
-
-                        if(tmpConfig.ItemCountHint == 0)
-                        {
-                            tmpConfig.ItemCountHint = 1024;
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer DispatchTimeoutApiThread element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // Logger string
-                CurrNode2 = consumerListNode.SelectSingleNode("Logger");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer Logger element");
-                    }
-
-                    tmpConfig.Logger = XmlAttribute.Value;
-                }
-
-                // MaxDispatchCountApiThread ulong
-                CurrNode2 = consumerListNode.SelectSingleNode("MaxDispatchCountApiThread");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer MaxDispatchCountApiThread element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.MaxDispatchCountApiThread = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer MaxDispatchCountApiThread element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // MaxDispatchCountUserThread uint
-                CurrNode2 = consumerListNode.SelectSingleNode("MaxDispatchCountUserThread");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer MaxDispatchCountUserThread element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.MaxDispatchCountUserThread = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-
-
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer MaxDispatchCountUserThread element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // MaxOutstandingPosts uint
-                CurrNode2 = consumerListNode.SelectSingleNode("MaxOutstandingPosts");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer MaxOutstandingPosts element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.MaxOutstandingPosts = Utilities.Convert_ulong_uint(ulong.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer MaxOutstandingPosts element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // MsgKeyInUpdates bool
-                CurrNode2 = consumerListNode.SelectSingleNode("MsgKeyInUpdates");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer MsgKeyInUpdates element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.MsgKeyInUpdates = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer MsgKeyInUpdates element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // ObeyOpenWindow ulong->bool
-                CurrNode2 = consumerListNode.SelectSingleNode("ObeyOpenWindow");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer ObeyOpenWindow element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ObeyOpenWindow = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer ObeyOpenWindow element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // PostAckTimeout uint
-                CurrNode2 = consumerListNode.SelectSingleNode("PostAckTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer PostAckTimeout element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.PostAckTimeout = Utilities.Convert_ulong_uint(ulong.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer PostAckTimeout element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // ReconnectAttemptLimit int
-                CurrNode2 = consumerListNode.SelectSingleNode("ReconnectAttemptLimit");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer PostAckTimeout element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ReconnectAttemptLimit = int.Parse(XmlAttribute.Value);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer ReconnectAttemptLimit element is incorrectly formatted. Correct format is a signed numeric string.");
-                    }
-                }
-
-                // ReconnectMaxDelay int
-                CurrNode2 = consumerListNode.SelectSingleNode("ReconnectMaxDelay");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer ReconnectMaxDelay element");
-                    }
-
-                    try
-                    {
-                        int value = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-
-                        if (value > 0)
-                        {
-                            tmpConfig.ReconnectMaxDelay = value;
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer ReconnectMaxDelay element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // ReconnectMinDelay int
-                CurrNode2 = consumerListNode.SelectSingleNode("ReconnectMinDelay");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer ReconnectMinDelay element");
-                    }
-
-                    try
-                    {
-                        int value = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-
-                        if (value > 0)
-                        {
-                            tmpConfig.ReconnectMinDelay = value;
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer ReconnectMinDelay element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // RequestTimeout uint
-                CurrNode2 = consumerListNode.SelectSingleNode("RequestTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer RequestTimeout element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RequestTimeout = Utilities.Convert_ulong_uint(ulong.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer RequestTimeout element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // RestEnableLog bool
-                CurrNode2 = consumerListNode.SelectSingleNode("RestEnableLog");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer RestEnableLog element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RestEnableLog = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer RestEnableLog element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // RestEnableLogViaCallback ulong->bool
-                CurrNode2 = consumerListNode.SelectSingleNode("RestEnableLogViaCallback");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer RestEnableLogViaCallback element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RestEnableLogViaCallback = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer RestEnableLogViaCallback element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // RestLogFileName string
-                CurrNode2 = consumerListNode.SelectSingleNode("RestLogFileName");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer RestLogFileName element");
-                    }
-                    tmpConfig.RestLogFileName = XmlAttribute.Value;
-                }
-
-                // RestRequestTimeOut ulong
-                CurrNode2 = consumerListNode.SelectSingleNode("RestRequestTimeOut");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer RestRequestTimeOut element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RestRequestTimeOut = ulong.Parse(XmlAttribute.Value);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer RestRequestTimeOut element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // ServiceCountHint uint
-                CurrNode2 = consumerListNode.SelectSingleNode("ServiceCountHint");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer ServiceCountHint element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ServiceCountHint = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-
-                        if(tmpConfig.ServiceCountHint == 0)
-                        {
-                            tmpConfig.ServiceCountHint = 513;
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer ServiceCountHint element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                ParseXmlTraceConfigNodes("Consumer", tmpConfig, consumerListNode);
-
+                consumerNodeParser
+                    .Parse(() => tmpConfig.Dictionary)
+                    .Parse(() => tmpConfig.DictionaryRequestTimeOut)
+                    .Parse(() => tmpConfig.DirectoryRequestTimeOut)
+                    .Parse(() => tmpConfig.LoginRequestTimeOut)
+                    .Parse(() => tmpConfig.DispatchTimeoutApiThread)
+                    .Parse(() => tmpConfig.EnableRtt)
+                    .Parse(() => tmpConfig.ItemCountHint, hint => hint == 0 ? 1024 : hint)
+                    .Parse(() => tmpConfig.Logger)
+                    .Parse(() => tmpConfig.MaxDispatchCountApiThread)
+                    .Parse(() => tmpConfig.MaxDispatchCountUserThread)
+                    .Parse(() => tmpConfig.MaxOutstandingPosts)
+                    .Parse(() => tmpConfig.MsgKeyInUpdates)
+                    .Parse(() => tmpConfig.ObeyOpenWindow)
+                    .Parse(() => tmpConfig.PostAckTimeout)
+                    .Parse(() => tmpConfig.ReconnectAttemptLimit)
+                    .Parse(() => tmpConfig.ReconnectMaxDelay, v => v > 0 ? v : tmpConfig.ReconnectMaxDelay)
+                    .Parse(() => tmpConfig.ReconnectMinDelay, v => v > 0 ? v : tmpConfig.ReconnectMinDelay)
+                    .Parse(() => tmpConfig.RequestTimeout, v => v > 0 ? v : tmpConfig.RequestTimeout)
+                    .Parse(() => tmpConfig.ServiceCountHint, v => v == 0 ? 513 : v)
+                    .Parse(() => tmpConfig.RestLogFileName)
+                    .Parse(() => tmpConfig.RestRequestTimeOut)
+                    .Parse(() => tmpConfig.RestProxyHostName)
+                    .Parse(() => tmpConfig.RestProxyPort)
+                    .Parse(() => tmpConfig.RestEnableLog)
+                    .Parse(() => tmpConfig.RestEnableLogViaCallback);
+
+                ParseXmlTraceConfigNodes(consumerNodeParser, tmpConfig);
                 if (foundConfig == false)
                     Config.ConsumerConfigMap.Add(tmpConfig.Name, tmpConfig);
 
@@ -1061,6 +589,7 @@ namespace LSEG.Ema.Access
             {
                 bool foundConfig = false;
                 NiProviderConfig tmpConfig;
+                NodeParser niProviderParser = new("NiProvider", niProviderListNode);
                 if (CurrNode == null)
                     return;
 
@@ -1069,7 +598,7 @@ namespace LSEG.Ema.Access
                 if (CurrNode2 != null)
                 {
                     ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
+                    var XmlAttribute = ValueNode.GetAttributeNode("value");
 
                     if (XmlAttribute == null)
                     {
@@ -1103,7 +632,7 @@ namespace LSEG.Ema.Access
                 if (CurrNode2 != null)
                 {
                     ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
+                    var XmlAttribute = ValueNode.GetAttributeNode("value");
 
                     if (XmlAttribute == null)
                     {
@@ -1121,7 +650,7 @@ namespace LSEG.Ema.Access
                     if (CurrNode2 != null)
                     {
                         ValueNode = (XmlElement)CurrNode2;
-                        XmlAttribute = ValueNode.GetAttributeNode("value");
+                        var XmlAttribute = ValueNode.GetAttributeNode("value");
 
                         if (XmlAttribute == null)
                         {
@@ -1138,397 +667,25 @@ namespace LSEG.Ema.Access
                     }
                 }
 
-                // Directory string
-                CurrNode2 = niProviderListNode.SelectSingleNode("Directory");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
+                niProviderParser.Parse(() => tmpConfig.Directory)
+                    .Parse(() => tmpConfig.DispatchTimeoutApiThread)
+                    .Parse(() => tmpConfig.ItemCountHint, v => v == 0 ? 1024 : v)
+                    .Parse(() => tmpConfig.Logger)
+                    .Parse(() => tmpConfig.LoginRequestTimeOut)
+                    .Parse(() => tmpConfig.MaxDispatchCountApiThread)
+                    .Parse(() => tmpConfig.LoginRequestTimeOut)
+                    .Parse(() => tmpConfig.MaxDispatchCountUserThread)
+                    .Parse(() => tmpConfig.MergeSourceDirectoryStreams)
+                    .Parse(() => tmpConfig.ReconnectAttemptLimit)
+                    .Parse(() => tmpConfig.ReconnectMaxDelay, v => v > 0 ? v : tmpConfig.ReconnectMaxDelay)
+                    .Parse(() => tmpConfig.ReconnectMinDelay, v => v > 0 ? v : tmpConfig.ReconnectMinDelay)
+                    .Parse(() => tmpConfig.RecoverUserSubmitSourceDirectory)
+                    .Parse(() => tmpConfig.RefreshFirstRequired)
+                    .Parse(() => tmpConfig.RemoveItemsOnDisconnect)
+                    .Parse(() => tmpConfig.RequestTimeout)
+                    .Parse(() => tmpConfig.ServiceCountHint, v => v == 0 ? 513 : v);
 
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider Directory element");
-                    }
-
-                    tmpConfig.Directory = XmlAttribute.Value;
-                }
-
-                // DispatchTimeoutApiThread long
-                CurrNode2 = niProviderListNode.SelectSingleNode("DispatchTimeoutApiThread");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider DispatchTimeoutApiThread element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.DispatchTimeoutApiThread = (long.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider DispatchTimeoutApiThread element is incorrectly formatted. Correct format is a signed numeric string.");
-                    }
-                }
-
-                // ItemCountHint ulong
-                CurrNode2 = niProviderListNode.SelectSingleNode("ItemCountHint");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider ItemCountHint element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ItemCountHint = Utilities.Convert_ulong_uint(ulong.Parse(XmlAttribute.Value));
-
-                        if(tmpConfig.ItemCountHint == 0)
-                        {
-                            tmpConfig.ItemCountHint = 1024;
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider ItemCountHint element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // Logger string
-                CurrNode2 = niProviderListNode.SelectSingleNode("Logger");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider Logger element");
-                    }
-
-                    tmpConfig.Logger = XmlAttribute.Value;
-                }
-
-                // LoginRequestTimeOut ulong
-                CurrNode2 = niProviderListNode.SelectSingleNode("LoginRequestTimeOut");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider LoginRequestTimeOut element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.LoginRequestTimeOut = Utilities.Convert_ulong_long(ulong.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider LoginRequestTimeOut element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // MaxDispatchCountApiThread ulong
-                CurrNode2 = niProviderListNode.SelectSingleNode("MaxDispatchCountApiThread");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider MaxDispatchCountApiThread element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.MaxDispatchCountApiThread =
-                            Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider MaxDispatchCountApiThread element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // MaxDispatchCountUserThread uint
-                CurrNode2 = niProviderListNode.SelectSingleNode("MaxDispatchCountUserThread");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider MaxDispatchCountUserThread element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.MaxDispatchCountUserThread =
-                            Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider MaxDispatchCountUserThread element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // MergeSourceDirectoryStreams ulong->bool
-                CurrNode2 = niProviderListNode.SelectSingleNode("MergeSourceDirectoryStreams");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider MergeSourceDirectoryStreams element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.MergeSourceDirectoryStreams = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider MergeSourceDirectoryStreams element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // ReconnectAttemptLimit int
-                CurrNode2 = niProviderListNode.SelectSingleNode("ReconnectAttemptLimit");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider PostAckTimeout element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ReconnectAttemptLimit = Utilities.Convert_long_int(long.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider ReconnectAttemptLimit element is incorrectly formatted. Correct format is a signed numeric string.");
-                    }
-                }
-
-                // ReconnectMaxDelay int
-                CurrNode2 = niProviderListNode.SelectSingleNode("ReconnectMaxDelay");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider ReconnectMaxDelay element");
-                    }
-
-                    try
-                    {
-                        int value = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-
-                        if (value > 0)
-                        {
-                            tmpConfig.ReconnectMaxDelay = value;
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider ReconnectMaxDelay element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // ReconnectMinDelay int
-                CurrNode2 = niProviderListNode.SelectSingleNode("ReconnectMinDelay");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider ReconnectMinDelay element");
-                    }
-
-                    try
-                    {
-                        int value = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-
-                        if (value > 0)
-                        {
-                            tmpConfig.ReconnectMinDelay = value;
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider ReconnectMinDelay element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // RecoverUserSubmitSourceDirectory bool
-                CurrNode2 = niProviderListNode.SelectSingleNode("RecoverUserSubmitSourceDirectory");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider RecoverUserSubmitSourceDirectory element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RecoverUserSubmitSourceDirectory = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider RecoverUserSubmitSourceDirectory element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // RefreshFirstRequired bool
-                CurrNode2 = niProviderListNode.SelectSingleNode("RefreshFirstRequired");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider RefreshFirstRequired element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RefreshFirstRequired = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider RefreshFirstRequired element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // RemoveItemsOnDisconnect bool
-                CurrNode2 = niProviderListNode.SelectSingleNode("RemoveItemsOnDisconnect");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider RemoveItemsOnDisconnect element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RemoveItemsOnDisconnect = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider RemoveItemsOnDisconnect element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // RequestTimeout uint
-                CurrNode2 = niProviderListNode.SelectSingleNode("RequestTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider RequestTimeout element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RequestTimeout = Utilities.Convert_ulong_uint(ulong.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider RequestTimeout element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // ServiceCountHint uint
-                CurrNode2 = niProviderListNode.SelectSingleNode("ServiceCountHint");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the NiProvider ServiceCountHint element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ServiceCountHint = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-
-                        if(tmpConfig.ServiceCountHint == 0)
-                        {
-                            tmpConfig.ServiceCountHint = 513;
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the NiProvider ServiceCountHint element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                ParseXmlTraceConfigNodes("NiProvider", tmpConfig, niProviderListNode);
+                ParseXmlTraceConfigNodes(niProviderParser, tmpConfig);
 
                 if (foundConfig == false)
                     Config.NiProviderConfigMap.Add(tmpConfig.Name, tmpConfig);
@@ -1580,6 +737,7 @@ namespace LSEG.Ema.Access
             {
                 bool foundConfig = false;
                 IProviderConfig tmpConfig;
+                NodeParser iProviderParser = new ("IProvider", iProviderListNode);
                 if (CurrNode == null)
                     return;
 
@@ -1617,450 +775,29 @@ namespace LSEG.Ema.Access
                     throw new OmmInvalidConfigurationException("Missing Name element in the IProvider Name");
                 }
 
-                // Directory string
-                CurrNode2 = iProviderListNode.SelectSingleNode("Directory");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
 
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider Directory element");
-                    }
+                iProviderParser
+                    .Parse(() => tmpConfig.Directory)
+                    .Parse(() => tmpConfig.DispatchTimeoutApiThread)
+                    .Parse(() => tmpConfig.ItemCountHint, v => v == 0 ? 1024 : v)
+                    .Parse(() => tmpConfig.Logger)
+                    .Parse(() => tmpConfig.MaxDispatchCountApiThread)
+                    .Parse(() => tmpConfig.MaxDispatchCountUserThread)
+                    .Parse(() => tmpConfig.RefreshFirstRequired)
+                    .Parse(() => tmpConfig.RequestTimeout)
+                    .Parse(() => tmpConfig.ServiceCountHint, v => v == 0 ? 513 : v)
+                    .Parse(() => tmpConfig.Server)
+                    .Parse(() => tmpConfig.AcceptDirMessageWithoutMinFilters)
+                    .Parse(() => tmpConfig.AcceptMessageSameKeyButDiffStream)
+                    .Parse(() => tmpConfig.AcceptMessageThatChangesService)
+                    .Parse(() => tmpConfig.AcceptMessageWithoutAcceptingRequests)
+                    .Parse(() => tmpConfig.AcceptMessageWithoutBeingLogin)
+                    .Parse(() => tmpConfig.AcceptMessageWithoutQosInRange)
+                    .Parse(() => tmpConfig.EnforceAckIDValidation)
+                    .Parse(() => tmpConfig.EnumTypeFragmentSize)
+                    .Parse(() => tmpConfig.FieldDictionaryFragmentSize);
 
-                    tmpConfig.Directory = XmlAttribute.Value;
-                }
-
-                // DispatchTimeoutApiThread long
-                CurrNode2 = iProviderListNode.SelectSingleNode("DispatchTimeoutApiThread");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider DispatchTimeoutApiThread element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.DispatchTimeoutApiThread = long.Parse(XmlAttribute.Value);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider DispatchTimeoutApiThread element is incorrectly formatted. Correct value is a signed numeric string.");
-                    }
-                }
-
-                // ItemCountHint ulong
-                CurrNode2 = iProviderListNode.SelectSingleNode("ItemCountHint");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider ItemCountHint element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ItemCountHint = ulong.Parse(XmlAttribute.Value);
-
-                        if(tmpConfig.ItemCountHint == 0)
-                        {
-                            tmpConfig.ItemCountHint = 1024;
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider ItemCountHint element is incorrectly formatted. Correct value is a unsigned numeric string.");
-                    }
-                }
-
-                // Logger string
-                CurrNode2 = iProviderListNode.SelectSingleNode("Logger");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider Logger element");
-                    }
-
-                    tmpConfig.Logger = XmlAttribute.Value;
-                }
-
-                // MaxDispatchCountApiThread int
-                CurrNode2 = iProviderListNode.SelectSingleNode("MaxDispatchCountApiThread");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider MaxDispatchCountApiThread element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.MaxDispatchCountApiThread = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider MaxDispatchCountApiThread element is incorrectly formatted. Correct value is a signed numeric string.");
-                    }
-                }
-
-                // MaxDispatchCountUserThread uint
-                CurrNode2 = iProviderListNode.SelectSingleNode("MaxDispatchCountUserThread");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider MaxDispatchCountUserThread element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.MaxDispatchCountUserThread = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider MaxDispatchCountUserThread element is incorrectly formatted. Correct value is a signed numeric string.");
-                    }
-                }
-
-                // RefreshFirstRequired ulong
-                CurrNode2 = iProviderListNode.SelectSingleNode("RefreshFirstRequired");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider RefreshFirstRequired element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RefreshFirstRequired = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider RefreshFirstRequired element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // RequestTimeout ulong
-                CurrNode2 = iProviderListNode.SelectSingleNode("RequestTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider RequestTimeout element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.RequestTimeout = ulong.Parse(XmlAttribute.Value);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider RequestTimeout element is incorrectly formatted. Correct value is a unsigned numeric string.");
-                    }
-                }
-
-                // ServiceCountHint int
-                CurrNode2 = iProviderListNode.SelectSingleNode("ServiceCountHint");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider ServiceCountHint element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ServiceCountHint = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-
-                        if(tmpConfig.ServiceCountHint == 0)
-                        {
-                            tmpConfig.ServiceCountHint = 513;
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider ServiceCountHint element is incorrectly formatted. Correct value is a signed numeric string.");
-                    }
-                }
-
-                // Server string
-                CurrNode2 = iProviderListNode.SelectSingleNode("Server");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider Server element");
-                    }
-
-                    tmpConfig.Server = XmlAttribute.Value;
-                }
-
-                // AcceptDirMessageWithoutMinFilters ulong->bool
-                CurrNode2 = iProviderListNode.SelectSingleNode("AcceptDirMessageWithoutMinFilters");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider AcceptDirMessageWithoutMinFilters element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.AcceptDirMessageWithoutMinFilters = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider AcceptDirMessageWithoutMinFilters element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // AcceptMessageSameKeyButDiffStream ulong->bool
-                CurrNode2 = iProviderListNode.SelectSingleNode("AcceptMessageSameKeyButDiffStream");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider AcceptMessageSameKeyButDiffStream element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.AcceptMessageSameKeyButDiffStream = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider AcceptMessageSameKeyButDiffStream element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // AcceptMessageThatChangesService ulong->bool
-                CurrNode2 = iProviderListNode.SelectSingleNode("AcceptMessageThatChangesService");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider AcceptMessageThatChangesService element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.AcceptMessageThatChangesService = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider AcceptMessageThatChangesService element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // AcceptMessageWithoutAcceptingRequests ulong->bool
-                CurrNode2 = iProviderListNode.SelectSingleNode("AcceptMessageWithoutAcceptingRequests");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider AcceptMessageWithoutAcceptingRequests element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.AcceptMessageWithoutAcceptingRequests = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider AcceptMessageWithoutAcceptingRequests element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // AcceptMessageWithoutBeingLogin ulong->bool
-                CurrNode2 = iProviderListNode.SelectSingleNode("AcceptMessageWithoutBeingLogin");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider AcceptMessageWithoutBeingLogin element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.AcceptMessageWithoutBeingLogin = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider AcceptMessageWithoutBeingLogin element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // AcceptMessageWithoutQosInRange ulong->bool
-                CurrNode2 = iProviderListNode.SelectSingleNode("AcceptMessageWithoutQosInRange");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider AcceptMessageWithoutQosInRange element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.AcceptMessageWithoutQosInRange = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider AcceptMessageWithoutQosInRange element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // EnforceAckIDValidation ulong->bool
-                CurrNode2 = iProviderListNode.SelectSingleNode("EnforceAckIDValidation");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider EnforceAckIDValidation element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.EnforceAckIDValidation = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider EnforceAckIDValidation element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // EnumTypeFragmentSize uint
-                CurrNode2 = iProviderListNode.SelectSingleNode("EnumTypeFragmentSize");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider EnumTypeFragmentSize element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.EnumTypeFragmentSize = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider EnumTypeFragmentSize element is incorrectly formatted. Correct value is a unsigned numeric string.");
-                    }
-                }
-
-                // FieldDictionaryFragmentSize uint
-                CurrNode2 = iProviderListNode.SelectSingleNode("FieldDictionaryFragmentSize");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the IProvider FieldDictionaryFragmentSize element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.FieldDictionaryFragmentSize = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "The value attribute in the IProvider FieldDictionaryFragmentSize element is incorrectly formatted. Correct value is a unsigned numeric string.");
-                    }
-                }
-
-                ParseXmlTraceConfigNodes("IProvider", tmpConfig, iProviderListNode);
-
+                ParseXmlTraceConfigNodes(iProviderParser, tmpConfig);
                 if (foundConfig == false)
                     Config.IProviderConfigMap.Add(tmpConfig.Name, tmpConfig);
 
@@ -2074,6 +811,30 @@ namespace LSEG.Ema.Access
                 }
             }
         }
+
+        private static TryParseDelegate<T> CreatePrefixedValueParser<T>(string type, Func<string, T> parseValue) => 
+            (string str, out T value) =>
+        {
+            var array = str.Split("::");
+            if (array.Length == 2 && array[0] == type)
+            {
+                value = parseValue(array[1]);
+                return true;
+            }
+            value = default!;
+            return false;
+        };
+
+        private static readonly TryParseDelegate<EncryptionProtocolFlags> TryParseEncryptionProtocolFlags = CombineTryParseWithTryConvert(uint.TryParse, (uint tmpInt, out EncryptionProtocolFlags flags) =>
+        {
+            flags = default;
+            if (tmpInt != 0 && (tmpInt & EmaConfig.EncryptedTLSProtocolFlags.TLS_ALL) == 0)
+            {
+                return false;
+            }
+            flags = (EncryptionProtocolFlags)(tmpInt & EmaConfig.EncryptedTLSProtocolFlags.TLS_ALL);
+            return true;
+        });
 
         private void ParseClientChannelGroup(XmlNode ChannelNode, Dictionary<string, ClientChannelConfig> configMap,
             ConfigErrorList configError)
@@ -2096,7 +857,7 @@ namespace LSEG.Ema.Access
             {
                 bool foundConfig = false;
                 ClientChannelConfig tmpConfig;
-
+                NodeParser channelParser = new ("Channel", channelListNode);
                 // Name string, this is required
                 CurrNode2 = channelListNode.SelectSingleNode("Name");
                 if (CurrNode2 != null)
@@ -2126,498 +887,50 @@ namespace LSEG.Ema.Access
                     throw new OmmInvalidConfigurationException("Missing Channel Name element");
                 }
 
-                // ChannelType string: This will remove the "ChannelType::" prepend and call StringToConnectionType
-                CurrNode2 = channelListNode.SelectSingleNode("ChannelType");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel ConnectionType element");
-                    }
-
-                    string[] channelArray = XmlAttribute.Value.Split("::");
-
-                    if (channelArray.Length != 2)
-                    {
-                        throw new OmmInvalidConfigurationException("Invalid ConnectionType string format. Correct format is \"ChannelType::<RSSL_SOCKET or RSSL_ENCRYPTED>\".");
-                    }
-
-                    if (channelArray[0] != "ChannelType")
-                    {
-                        throw new OmmInvalidConfigurationException("Invalid ConnectionType string format. Correct format is \"ChannelType::<RSSL_SOCKET or RSSL_ENCRYPTED>\".");
-                    }
-
-                    tmpConfig.ConnectInfo.ConnectOptions.ConnectionType = ClientChannelConfig.StringToConnectionType(channelArray[1]);
-                }
-
-                // EncryptedProtocolType string: This will remove the "EncryptedProtocolType::" prepend and call StringToConnectionType
-                CurrNode2 = channelListNode.SelectSingleNode("EncryptedProtocolType");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel EncryptedProtocolType element");
-                    }
-
-                    string[] channelArray = XmlAttribute.Value.Split("::");
-
-                    if (channelArray.Length != 2)
-                    {
-                        throw new OmmInvalidConfigurationException("Invalid EncryptedProtocolType string format. Correct format is \"EncryptedProtocolType::<RSSL_SOCKET>\".");
-                    }
-
-                    if (channelArray[0] != "EncryptedProtocolType")
-                    {
-                        throw new OmmInvalidConfigurationException("Invalid EncryptedProtocolType string format. Correct format is \"EncryptedProtocolType::<RSSL_SOCKET>\".");
-                    }
-
-                    tmpConfig.ConnectInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol = ClientChannelConfig.StringToConnectionType(channelArray[1]);
-                }
-
-                // ConnectionPingTimeout int
-                CurrNode2 = channelListNode.SelectSingleNode("ConnectionPingTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel ConnectionPingTimeout element");
-                    }
-
-                    try
-                    {
-                        int pingTimeout = Utilities.Convert_ulong_int(ulong.Parse(XmlAttribute.Value));
-                        tmpConfig.ConnectInfo.ConnectOptions.PingTimeout = pingTimeout >= 1000 ? pingTimeout / 1000 : 60;
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel ConnectionPingTimeout element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // EnableSessionManagement ulong
-                CurrNode2 = channelListNode.SelectSingleNode("EnableSessionManagement");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel EnableSessionManagement element");
-                    }
-
-
-                    try
-                    {
-                        tmpConfig.ConnectInfo.EnableSessionManagement = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel EnableSessionManagement element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // GuaranteedOutputBuffers uint
-                CurrNode2 = channelListNode.SelectSingleNode("GuaranteedOutputBuffers");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel GuaranteedOutputBuffers element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ConnectInfo.ConnectOptions.GuaranteedOutputBuffers = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel GuaranteedOutputBuffers element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // HighWaterMark uint
-                CurrNode2 = channelListNode.SelectSingleNode("HighWaterMark");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel HighWaterMark element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.HighWaterMark = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel HighWaterMark element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // InitializationTimeout uint, parsed as int because of the ConnectInfo method
-                CurrNode2 = channelListNode.SelectSingleNode("InitializationTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel InitializationTimeout element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ConnectInfo.SetInitTimeout(Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value)));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel InitializationTimeout element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // InterfaceName string
-                CurrNode2 = channelListNode.SelectSingleNode("InterfaceName");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel InterfaceName element");
-                    }
-                    tmpConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.InterfaceName = XmlAttribute.Value;
-                }
-
-                // Location string
-                CurrNode2 = channelListNode.SelectSingleNode("Location");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel Location element");
-                    }
-                    tmpConfig.ConnectInfo.Location = XmlAttribute.Value;
-                }
-
-                // NumInputBuffers uint, parsed as int.
-                CurrNode2 = channelListNode.SelectSingleNode("NumInputBuffers");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel NumInputBuffers element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ConnectInfo.ConnectOptions.NumInputBuffers = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel NumInputBuffers element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // ServiceDiscoveryRetryCount uint
-                CurrNode2 = channelListNode.SelectSingleNode("ServiceDiscoveryRetryCount");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel ServiceDiscoveryRetryCount element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ConnectInfo.ServiceDiscoveryRetryCount = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel ServiceDiscoveryRetryCount element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // SysRecvBufSize uint parsed as int
-                CurrNode2 = channelListNode.SelectSingleNode("SysRecvBufSize");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel SysRecvBufSize element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ConnectInfo.ConnectOptions.SysRecvBufSize = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel SysRecvBufSize element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // SysSendBufSize uint parsed as int
-                CurrNode2 = channelListNode.SelectSingleNode("SysSendBufSize");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel SysSendBufSize element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ConnectInfo.ConnectOptions.SysSendBufSize = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel SysSendBufSize element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // CompressionType enumeration
-                CurrNode2 = channelListNode.SelectSingleNode("CompressionType");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel CompressionType element");
-                    }
-
-                    string[] channelArray = XmlAttribute.Value.Split("::");
-
-                    if (channelArray.Length != 2)
-                    {
-                        throw new OmmInvalidConfigurationException("Invalid CompressionType string format. Correct format is \"CompressionType::<None/ZLib/LZ4>\".");
-
-                    }
-
-                    if (channelArray[0] != "CompressionType")
-                    {
-                        throw new OmmInvalidConfigurationException("Invalid CompressionType string format. Correct format is \"CompressionType::<None/ZLib/LZ4>\".");
-
-                    }
-
-                    tmpConfig.ConnectInfo.ConnectOptions.CompressionType = ClientChannelConfig.StringToCompressionType(channelArray[1]);
-
-                }
-
-                // CompressionThreshold
-                CurrNode2 = channelListNode.SelectSingleNode("CompressionThreshold");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel CompressionThreshold element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.CompressionThreshold = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                        tmpConfig.CompressionThresholdSet = true;
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel CompressionThreshold element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // DirectWrite uint->bool
-                CurrNode2 = channelListNode.SelectSingleNode("DirectWrite");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel DirectWrite element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.DirectWrite = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel DirectWrite element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // Host string
-                CurrNode2 = channelListNode.SelectSingleNode("Host");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel Host element");
-                    }
-                    tmpConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address = XmlAttribute.Value;
-                }
-
-                // Port string
-                CurrNode2 = channelListNode.SelectSingleNode("Port");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel Port element");
-                    }
-                    tmpConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = XmlAttribute.Value;
-                }
-
-                // ProxyHost string
-                CurrNode2 = channelListNode.SelectSingleNode("ProxyHost");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel ProxyHost element");
-                    }
-                    tmpConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyHostName = XmlAttribute.Value;
-                }
-
-                // ProxyPort string
-                CurrNode2 = channelListNode.SelectSingleNode("ProxyPort");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel ProxyPort element");
-                    }
-                    tmpConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPort = XmlAttribute.Value;
-                }
-
-                // TcpNodelay uint->bool
-                CurrNode2 = channelListNode.SelectSingleNode("TcpNodelay");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel TcpNodelay element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.ConnectInfo.ConnectOptions.TcpOpts.TcpNoDelay = (uint.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel TcpNodelay element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // SecurityProtocol enum
-                CurrNode2 = channelListNode.SelectSingleNode("SecurityProtocol");
-                if (CurrNode2 != null)
-                {
-                    uint tmpInt;
-
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel SecurityProtocol element");
-                    }
-                    try
-                    {
-                        tmpInt = uint.Parse(XmlAttribute.Value);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel SecurityProtocol element is incorrectly formatted. Correct values are combinations of flag values found in LSEG.Ema.Access.EmaConfig.EncryptedTLSProtocolFlags");
-                    }
-
-                    if (tmpInt != 0 && (tmpInt & EmaConfig.EncryptedTLSProtocolFlags.TLS_ALL) == 0)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Invalid value for Channel element SecurityProtocol. This must be an int type, with the flag values found in LSEG.Ema.Access.EmaConfig.EncryptedTLSProtocolFlags.");
-                    }
-
-                    tmpConfig.ConnectInfo.ConnectOptions.EncryptionOpts.EncryptionProtocolFlags = (EncryptionProtocolFlags)(tmpInt & EmaConfig.EncryptedTLSProtocolFlags.TLS_ALL);
-                }
-
-                // AuthenticationTimeout uint
-                CurrNode2 = channelListNode.SelectSingleNode("AuthenticationTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel AuthenticationTimeout element");
-                    }
-
-                    try
-                    {
-                        uint temp = uint.Parse(XmlAttribute.Value);
-
-                        if (temp > 0)
+                channelParser
+                    // ChannelType string: This will remove the "ChannelType::" prepend and call StringToConnectionType
+                    .Parse("ChannelType", () => tmpConfig.ConnectInfo.ConnectOptions.ConnectionType,
+                        CreatePrefixedValueParser("ChannelType", ClientChannelConfig.StringToConnectionType), 
+                        "Invalid ConnectionType string format. Correct format is \"ChannelType::<RSSL_SOCKET or RSSL_ENCRYPTED>\".")
+                    .Parse("ConnectionPingTimeout", () => tmpConfig.ConnectInfo.ConnectOptions.PingTimeout, pingTimeout => pingTimeout >= 1000 ? pingTimeout / 1000 : 60)
+                    .Parse(() => tmpConfig.ConnectInfo.EnableSessionManagement)
+                    .Parse(() => tmpConfig.ConnectInfo.ConnectOptions.GuaranteedOutputBuffers)
+                    .Parse(() => tmpConfig.HighWaterMark)
+                    .Parse(() => tmpConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.InterfaceName)
+                    .Parse(() => tmpConfig.ConnectInfo.Location)
+                    .Parse(() => tmpConfig.ConnectInfo.ConnectOptions.NumInputBuffers)
+                    .Parse(() => tmpConfig.ConnectInfo.ServiceDiscoveryRetryCount)
+                    .Parse(() => tmpConfig.ConnectInfo.ConnectOptions.SysRecvBufSize)
+                    .Parse(() => tmpConfig.ConnectInfo.ConnectOptions.SysSendBufSize)
+                    .Parse("CompressionThreshold",
+                        (uint v) =>
                         {
-                            tmpConfig.ConnectInfo.ConnectOptions.EncryptionOpts.AuthenticationTimeout = Utilities.Convert_uint_int(temp);
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel AuthenticationTimeout element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
+                            tmpConfig.CompressionThreshold = Utilities.Convert_uint_int(v);
+                            tmpConfig.CompressionThresholdSet = true;
+                        }, uint.TryParse, CorrectUnsignedNumericMessage)
+                    .Parse("Host", () => tmpConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address)
+                    .Parse("Port", () => tmpConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName)
+                    .Parse("ProxyHost", () => tmpConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyHostName)
+                    .Parse(() => tmpConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPort)
+                    .Parse("TcpNodelay", () => tmpConfig.ConnectInfo.ConnectOptions.TcpOpts.TcpNoDelay)
+                    .Parse(() => tmpConfig.DirectWrite)
+                    .Parse(() => tmpConfig.ConnectInfo.ConnectOptions.EncryptionOpts.AuthenticationTimeout,
+                            v => v > 0 ? v : tmpConfig.ConnectInfo.ConnectOptions.EncryptionOpts.AuthenticationTimeout)
+
+                    // InitializationTimeout uint, parsed as int because of the ConnectInfo method
+                    .Parse("InitializationTimeout", t => tmpConfig.ConnectInfo.SetInitTimeout(t))
+                    .Parse(() => tmpConfig.ConnectInfo.ConnectOptions.CompressionType,
+                        CreatePrefixedValueParser("CompressionType", ClientChannelConfig.StringToCompressionType), 
+                        "Invalid CompressionType string format. Correct format is \"CompressionType::<None/ZLib/LZ4>\".")
+
+                    // EncryptedProtocolType string: This will remove the "EncryptedProtocolType::" prepend and call StringToConnectionType
+                    .Parse("EncryptedProtocolType", () => tmpConfig.ConnectInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol,
+                        CreatePrefixedValueParser("EncryptedProtocolType", ClientChannelConfig.StringToConnectionType),  
+                        "Invalid EncryptedProtocolType string format. Correct format is \"EncryptedProtocolType::<RSSL_SOCKET>\".")
+
+                    // SecurityProtocol enum
+                    .Parse("SecurityProtocol", () => tmpConfig.ConnectInfo.ConnectOptions.EncryptionOpts.EncryptionProtocolFlags,
+                        TryParseEncryptionProtocolFlags , $"Invalid value for Channel element SecurityProtocol. This must be an int type, with the flag values found in {typeof(EmaConfig.EncryptedTLSProtocolFlags).FullName}.");
 
                 if (foundConfig == false)
                     configMap.Add(tmpConfig.Name, tmpConfig);
@@ -2654,7 +967,7 @@ namespace LSEG.Ema.Access
             {
                 bool foundConfig = false;
                 ServerConfig tmpConfig;
-
+                NodeParser serverNodeParser = new NodeParser("Server", serverListNode);
                 // Name string, this is required
                 CurrNode2 = serverListNode.SelectSingleNode("Name");
                 if (CurrNode2 != null)
@@ -2684,457 +997,46 @@ namespace LSEG.Ema.Access
                     throw new OmmInvalidConfigurationException("Missing Server Name element");
                 }
 
-                // ConnectionMinPingTimeout int
-                CurrNode2 = serverListNode.SelectSingleNode("ConnectionMinPingTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server ConnectionMinPingTimeout element");
-                    }
-
-                    try
-                    {
-                        int pingTimeout = Utilities.Convert_ulong_int(ulong.Parse(XmlAttribute.Value));
-                        tmpConfig.BindOptions.MinPingTimeout = pingTimeout >= 1000 ? pingTimeout / 1000 : 60;
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server ConnectionMinPingTimeout element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // ConnectionPingTimeout int
-                CurrNode2 = serverListNode.SelectSingleNode("ConnectionPingTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server ConnectionPingTimeout element");
-                    }
-
-                    try
-                    {
-                        int pingTimeout = Utilities.Convert_ulong_int(ulong.Parse(XmlAttribute.Value));
-                        tmpConfig.BindOptions.PingTimeout = pingTimeout >= 1000 ? pingTimeout / 1000 : 60;
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server ConnectionPingTimeout element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // CompressionThreshold uint
-                CurrNode2 = serverListNode.SelectSingleNode("CompressionThreshold");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server CompressionThreshold element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.CompressionThreshold = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                        tmpConfig.CompressionThresholdSet = true;
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server CompressionThreshold element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // CompressionType enumeration
-                CurrNode2 = serverListNode.SelectSingleNode("CompressionType");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server CompressionType element");
-                    }
-
-                    string[] channelArray = XmlAttribute.Value.Split("::");
-
-                    if (channelArray.Length != 2)
-                    {
-                        throw new OmmInvalidConfigurationException("Invalid Server CompressionType string format. Correct format is \"CompressionType::<None/ZLib/LZ4>\".");
-
-                    }
-
-                    if (channelArray[0] != "CompressionType")
-                    {
-                        throw new OmmInvalidConfigurationException("Invalid Server CompressionType string format. Correct format is \"CompressionType::<None/ZLib/LZ4>\".");
-
-                    }
-
-                    tmpConfig.BindOptions.CompressionType = ClientChannelConfig.StringToCompressionType(channelArray[1]);
-
-                }
-
-                // DirectWrite uint->bool
-                CurrNode2 = serverListNode.SelectSingleNode("DirectWrite");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server DirectWrite element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.DirectWrite = (uint.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server DirectWrite element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // GuaranteedOutputBuffers uint
-                CurrNode2 = serverListNode.SelectSingleNode("GuaranteedOutputBuffers");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server GuaranteedOutputBuffers element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.BindOptions.GuaranteedOutputBuffers = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server GuaranteedOutputBuffers element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // HighWaterMark uint
-                CurrNode2 = serverListNode.SelectSingleNode("HighWaterMark");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server HighWaterMark element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.HighWaterMark = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server HighWaterMark element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // InitializationTimeout uint
-                CurrNode2 = serverListNode.SelectSingleNode("InitializationTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server InitializationTimeout element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.InitializationTimeout = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server InitializationTimeout element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // AuthenticationTimeout uint
-                CurrNode2 = serverListNode.SelectSingleNode("AuthenticationTimeout");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server AuthenticationTimeout element");
-                    }
-
-                    try
-                    {
-                        uint temp = uint.Parse(XmlAttribute.Value);
-
-                        if (temp > 0)
+                serverNodeParser
+                    .Parse("ConnectionMinPingTimeout", () => tmpConfig.BindOptions.MinPingTimeout, pingTimeout => pingTimeout >= 1000 ? pingTimeout / 1000 : 60)
+                    .Parse("ConnectionPingTimeout", () => tmpConfig.BindOptions.PingTimeout, pingTimeout => pingTimeout >= 1000 ? pingTimeout / 1000 : 60)
+                    .Parse("CompressionThreshold",
+                        (uint v) =>
                         {
-                            tmpConfig.BindOptions.BindEncryptionOpts.AuthenticationTimeout = Utilities.Convert_uint_int(temp);
-                        }
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server AuthenticationTimeout element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
+                            tmpConfig.CompressionThreshold = Utilities.Convert_uint_int(v);
+                            tmpConfig.CompressionThresholdSet = true;
+                        }, uint.TryParse, CorrectUnsignedNumericMessage)
+                    // CompressionType enumeration
+                    .Parse(() => tmpConfig.BindOptions.CompressionType,
+                        CreatePrefixedValueParser("CompressionType", ClientChannelConfig.StringToCompressionType),
+                        "Invalid CompressionType string format. Correct format is \"CompressionType::<None/ZLib/LZ4>\".")
+                    .Parse(() => tmpConfig.DirectWrite)
+                    .Parse(() => tmpConfig.BindOptions.GuaranteedOutputBuffers)
+                    .Parse(() => tmpConfig.HighWaterMark)
+                    .Parse(() => tmpConfig.InitializationTimeout)
+                    .Parse(() => tmpConfig.BindOptions.BindEncryptionOpts.AuthenticationTimeout)
+                    .Parse(() => tmpConfig.BindOptions.InterfaceName)
+                    .Parse(() => tmpConfig.BindOptions.MaxFragmentSize)
+                    .Parse(() => tmpConfig.BindOptions.NumInputBuffers)
+                    .Parse("Port", () => tmpConfig.BindOptions.ServiceName)
 
-                // InterfaceName string
-                CurrNode2 = serverListNode.SelectSingleNode("InterfaceName");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
+                    // ServerType string: This will remove the "ServerType::" prepend and call StringToConnectionType
+                    .Parse("ServerType", () => tmpConfig.BindOptions.ConnectionType,
+                        CreatePrefixedValueParser("ServerType", ClientChannelConfig.StringToConnectionType),
+                        "Invalid ServerType string format. Correct format is \"ServerType::<RSSL_SOCKET or RSSL_ENCRYPTED>\".")
+                    .Parse(() => tmpConfig.BindOptions.SysRecvBufSize)
+                    .Parse(() => tmpConfig.BindOptions.SysSendBufSize)
+                    .Parse("TcpNodelay", () => tmpConfig.BindOptions.TcpOpts.TcpNoDelay)
+                    .Parse("ServerCert", () => tmpConfig.BindOptions.BindEncryptionOpts.ServerCertificate)
+                    .Parse(() => tmpConfig.BindOptions.BindEncryptionOpts.ServerPrivateKey)
 
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server InterfaceName element");
-                    }
-                    tmpConfig.BindOptions.InterfaceName = XmlAttribute.Value;
-                }
+                    // SecurityProtocol enum
+                    .Parse("SecurityProtocol", () => tmpConfig.BindOptions.BindEncryptionOpts.EncryptionProtocolFlags, 
+                        TryParseEncryptionProtocolFlags, 
+                        $"Invalid value for Channel element SecurityProtocol. This must be an int type, with the flag values found in {typeof(EmaConfig.EncryptedTLSProtocolFlags).FullName}.")
 
-                // MaxFragmentSize uint
-                CurrNode2 = serverListNode.SelectSingleNode("MaxFragmentSize");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server MaxFragmentSize element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.BindOptions.MaxFragmentSize = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server MaxFragmentSize element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // NumInputBuffers uint
-                CurrNode2 = serverListNode.SelectSingleNode("NumInputBuffers");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server NumInputBuffers element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.BindOptions.NumInputBuffers = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server NumInputBuffers element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // Port string
-                CurrNode2 = serverListNode.SelectSingleNode("Port");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server Port element");
-                    }
-                    tmpConfig.BindOptions.ServiceName = XmlAttribute.Value;
-                }
-
-                // ServerType string: This will remove the "ServerType::" prepend and call StringToConnectionType
-                CurrNode2 = serverListNode.SelectSingleNode("ServerType");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Channel ServerType element");
-                    }
-
-                    string[] channelArray = XmlAttribute.Value.Split("::");
-
-                    if (channelArray.Length != 2)
-                    {
-                        throw new OmmInvalidConfigurationException("Invalid ServerType string format. Correct format is \"ServerType::<RSSL_SOCKET or RSSL_ENCRYPTED>\".");
-                    }
-
-                    if (channelArray[0] != "ServerType")
-                    {
-                        throw new OmmInvalidConfigurationException("Invalid ServerType string format. Correct format is \"ChannelType::<RSSL_SOCKET or RSSL_ENCRYPTED>\".");
-                    }
-
-                    tmpConfig.BindOptions.ConnectionType = ClientChannelConfig.StringToConnectionType(channelArray[1]);
-                }
-
-                // SysRecvBufSize uint
-                CurrNode2 = serverListNode.SelectSingleNode("SysRecvBufSize");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server SysRecvBufSize element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.BindOptions.SysRecvBufSize = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server SysRecvBufSize element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // SysSendBufSize uint
-                CurrNode2 = serverListNode.SelectSingleNode("SysSendBufSize");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server SysSendBufSize element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.BindOptions.SysSendBufSize = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server SysSendBufSize element is incorrectly formatted. Correct format is an unsigned numeric string.");
-                    }
-                }
-
-                // TcpNodelay uint->bool
-                CurrNode2 = serverListNode.SelectSingleNode("TcpNodelay");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server TcpNodelay element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.BindOptions.TcpOpts.TcpNoDelay = (uint.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Server TcpNodelay element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
-                // ServerCert string
-                CurrNode2 = serverListNode.SelectSingleNode("ServerCert");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server ServerCert element");
-                    }
-                    tmpConfig.BindOptions.BindEncryptionOpts.ServerCertificate = XmlAttribute.Value;
-                }
-
-                // ServerPrivateKey string
-                CurrNode2 = serverListNode.SelectSingleNode("ServerPrivateKey");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server ServerPrivateKey element");
-                    }
-                    tmpConfig.BindOptions.BindEncryptionOpts.ServerPrivateKey = XmlAttribute.Value;
-                }
-
-                // SecurityProtocol enum
-                CurrNode2 = serverListNode.SelectSingleNode("SecurityProtocol");
-                if (CurrNode2 != null)
-                {
-                    uint tmpInt;
-
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server SecurityProtocol element");
-                    }
-                    try
-                    {
-                        tmpInt = uint.Parse(XmlAttribute.Value);
-                    }
-                    catch (SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Channel SecurityProtocol element is incorrectly formatted. Correct values are combinations of flag values found in LSEG.Ema.Access.EmaConfig.EncryptedTLSProtocolFlags");
-                    }
-
-                    if (tmpInt != 0 && (tmpInt & EmaConfig.EncryptedTLSProtocolFlags.TLS_ALL) == 0)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Invalid value for Channel element SecurityProtocol. This must be an int type, with the flag values found in LSEG.Ema.Access.EmaConfig.EncryptedTLSProtocolFlags.");
-                    }
-
-                    tmpConfig.BindOptions.BindEncryptionOpts.EncryptionProtocolFlags = (EncryptionProtocolFlags)(tmpInt & EmaConfig.EncryptedTLSProtocolFlags.TLS_ALL);
-                }
-
-                // CipherSuite This is a comma separated string with either the names or integer values of ciphers specified in System.Net.Security.TlsCipherSuite
-                CurrNode2 = serverListNode.SelectSingleNode("CipherSuite");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Server CipherSuite element");
-                    }
-                    tmpConfig.BindOptions.BindEncryptionOpts.TlsCipherSuites = ServerConfig.StringToCipherList(XmlAttribute.Value, configError);
-                }
+                    // CipherSuite This is a comma separated string with either the names or integer values of ciphers specified in System.Net.Security.TlsCipherSuite
+                    .Parse("CipherSuite", str => tmpConfig.BindOptions.BindEncryptionOpts.TlsCipherSuites = ServerConfig.StringToCipherList(str, configError));
 
                 if (foundConfig == false)
                     configMap.Add(tmpConfig.Name, tmpConfig);
@@ -3168,6 +1070,7 @@ namespace LSEG.Ema.Access
 
             foreach (XmlNode loggerListNode in CurrNodeList)
             {
+                NodeParser loggerParser = new NodeParser("Logger", loggerListNode);
                 bool foundConfig = false;
                 LoggerConfig tmpConfig;
 
@@ -3200,132 +1103,22 @@ namespace LSEG.Ema.Access
                     throw new OmmInvalidConfigurationException("Missing Logger Name element");
                 }
 
-                // FileName string
-                CurrNode2 = loggerListNode.SelectSingleNode("FileName");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Logger FileName element");
-                    }
-
-                    tmpConfig.FileName = XmlAttribute.Value;
-                }
-
-                // IncludeDateInLoggerOutput ulong
-                CurrNode2 = loggerListNode.SelectSingleNode("IncludeDateInLoggerOutput");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Logger IncludeDateInLoggerOutput element");
-                    }
-
-                    tmpConfig.IncludeDateInLoggerOutput = ulong.Parse(XmlAttribute.Value);
-                }
-
-                // NumberOfLogFiles ulong
-                CurrNode2 = loggerListNode.SelectSingleNode("NumberOfLogFiles");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Logger NumberOfLogFiles element");
-                    }
-
-                    tmpConfig.NumberOfLogFiles = ulong.Parse(XmlAttribute.Value);
-                }
-
-                // MaxLogFileSize ulong
-                CurrNode2 = loggerListNode.SelectSingleNode("MaxLogFileSize");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Logger MaxLogFileSize element");
-                    }
-
-                    tmpConfig.MaxLogFileSize = ulong.Parse(XmlAttribute.Value);
-                }
-
-                // LoggerSeverity enumeration
-                CurrNode2 = loggerListNode.SelectSingleNode("LoggerSeverity");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Logger LoggerSeverity element");
-                    }
-
-                    string[] channelArray = XmlAttribute.Value.Split("::");
-
-                    if (channelArray.Length != 2)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Invalid LoggerSeverity string format. Correct format is \"LoggerSeverity::<Trace/Debug/Info or Success/Warning/Error or Verbose/NoLogMsg>\".");
-
-                    }
-
-                    if (channelArray[0] != "LoggerSeverity")
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Invalid LoggerSeverity string format. Correct format is \"LoggerSeverity::<Trace/Debug/Info or Success/Warning/Error or Verbose/NoLogMsg>\".");
-                    }
-
-                    tmpConfig.LoggerSeverity = LoggerConfig.StringToLoggerLevel(channelArray[1]);
-
-                }
-
-                // LoggerType enumeration
-                CurrNode2 = loggerListNode.SelectSingleNode("LoggerType");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Logger LoggerType element");
-                    }
-
-                    string[] channelArray = XmlAttribute.Value.Split("::");
-
-                    if (channelArray.Length != 2)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Invalid LoggerType string format. Correct format is \"LoggerType::<File/Stdout>\".");
-                    }
-
-                    if (channelArray[0] != "LoggerType")
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Invalid LoggerType string format. Correct format is \"LoggerType::<File/Stdout>\".");
-                    }
-
-                    tmpConfig.LoggerType = LoggerConfig.StringToLoggerType(channelArray[1]);
-
-                }
+                loggerParser.
+                    Parse(() => tmpConfig.FileName)
+                    .Parse(() => tmpConfig.IncludeDateInLoggerOutput)
+                    .Parse(() => tmpConfig.NumberOfLogFiles)
+                    .Parse(() => tmpConfig.MaxLogFileSize)
+                    .Parse(() => tmpConfig.LoggerSeverity,
+                            CreatePrefixedValueParser("LoggerSeverity",
+                                    LoggerConfig.StringToLoggerLevel),
+                                    "Invalid LoggerSeverity string format. " +
+                                    "Correct format is \"LoggerSeverity::<Trace/Debug/Info " +
+                                    "or Success/Warning/Error or Verbose/NoLogMsg>\".")
+                    .Parse(() => tmpConfig.LoggerType,
+                            CreatePrefixedValueParser("LoggerType",
+                                    LoggerConfig.StringToLoggerType),
+                                    "Invalid LoggerType string format. " +
+                                    "Correct format is \"LoggerType::<File/Stdout>\".");
 
                 if (foundConfig == false)
                     configMap.Add(tmpConfig.Name, tmpConfig);
@@ -3360,6 +1153,7 @@ namespace LSEG.Ema.Access
 
             foreach (XmlNode dictionaryListNode in CurrNodeList)
             {
+                NodeParser dictionaryNodeParser = new NodeParser("Dictionary", dictionaryListNode);
                 bool foundConfig = false;
                 DictionaryConfig tmpConfig;
 
@@ -3392,100 +1186,20 @@ namespace LSEG.Ema.Access
                     throw new OmmInvalidConfigurationException("Missing Dictionary Name element");
                 }
 
-                // EnumTypeDefFileName string
-                CurrNode2 = dictionaryListNode.SelectSingleNode("EnumTypeDefFileName");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Dictionary EnumTypeDefFileName element");
-                    }
-
-                    tmpConfig.EnumTypeDefFileName = XmlAttribute.Value;
-                }
-
-                // EnumTypeDefItemName string
-                CurrNode2 = dictionaryListNode.SelectSingleNode("EnumTypeDefItemName");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Dictionary EnumTypeDefItemName element");
-                    }
-
-                    tmpConfig.EnumTypeDefItemName = XmlAttribute.Value;
-                }
-
-                // RdmFieldDictionaryFileName string
-                CurrNode2 = dictionaryListNode.SelectSingleNode("RdmFieldDictionaryFileName");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Dictionary RdmFieldDictionaryFileName element");
-                    }
-
-                    tmpConfig.RdmFieldDictionaryFileName = XmlAttribute.Value;
-                }
-
-                // RdmFieldDictionaryItemName string
-                CurrNode2 = dictionaryListNode.SelectSingleNode("RdmFieldDictionaryItemName");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Dictionary RdmFieldDictionaryItemName element");
-                    }
-
-                    tmpConfig.RdmFieldDictionaryItemName = XmlAttribute.Value;
-                }
-
-                // DictionaryType enumeration
-                CurrNode2 = dictionaryListNode.SelectSingleNode("DictionaryType");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Missing value attribute in the Dictionary DictionaryType element");
-                    }
-
-                    string[] channelArray = XmlAttribute.Value.Split("::");
-
-                    if (channelArray.Length != 2)
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Invalid DictionaryType string format. Correct format is \"DictionaryType::<FileDictionary/ChannelDictionary>\".");
-                    }
-
-                    if (channelArray[0] != "DictionaryType")
-                    {
-                        throw new OmmInvalidConfigurationException(
-                            "Invalid DictionaryType string format. Correct format is \"DictionaryType::<FileDictionary/ChannelDictionary>\".");
-                    }
-
-                    tmpConfig.DictionaryType = DictionaryConfig.StringToDictionaryMode(channelArray[1]);
-                    tmpConfig.IsLocalDictionary = (tmpConfig.DictionaryType == EmaConfig.DictionaryTypeEnum.FILE);
-                }
+                dictionaryNodeParser
+                    .Parse(() => tmpConfig.EnumTypeDefFileName)
+                    .Parse(() => tmpConfig.EnumTypeDefItemName)
+                    .Parse(() => tmpConfig.RdmFieldDictionaryFileName)
+                    .Parse(() => tmpConfig.RdmFieldDictionaryItemName)
+                    .Parse("DictionaryType", 
+                        (int dictionaryType) => 
+                        {
+                            tmpConfig.DictionaryType = dictionaryType;
+                            tmpConfig.IsLocalDictionary = dictionaryType == EmaConfig.DictionaryTypeEnum.FILE;
+                        }, CreatePrefixedValueParser(
+                            "DictionaryType",
+                            DictionaryConfig.StringToDictionaryMode),
+                        "Invalid DictionaryType string format. Correct format is \"DictionaryType::<FileDictionary/ChannelDictionary>\".");
 
                 if (foundConfig == false)
                     configMap.Add(tmpConfig.Name, tmpConfig);
@@ -3645,13 +1359,13 @@ namespace LSEG.Ema.Access
                                 {
                                     tmpServiceConfig.Service.ServiceId = Utilities.Convert_uint_int(uint.Parse(XmlAttribute.Value));
 
-                                    if(tmpServiceConfig.Service.ServiceId > ushort.MaxValue)
+                                    if (tmpServiceConfig.Service.ServiceId > ushort.MaxValue)
                                     {
                                         throw new OmmInvalidConfigurationException(
                                         $"service[{tmpServiceConfig.Service.Info.ServiceName}] specifies out of range ServiceId ({tmpServiceConfig.Service.ServiceId}).");
                                     }
 
-                                    if(serviceIds.Contains(tmpServiceConfig.Service.ServiceId))
+                                    if (serviceIds.Contains(tmpServiceConfig.Service.ServiceId))
                                     {
                                         throw new OmmInvalidConfigurationException(
                                        $"service[{tmpServiceConfig.Service.Info.ServiceName}] specifies the same ServiceId (value of {tmpServiceConfig.Service.ServiceId}) as already specified by another service.");
@@ -3662,8 +1376,7 @@ namespace LSEG.Ema.Access
                                 }
                                 catch (SystemException)
                                 {
-                                    throw new OmmInvalidConfigurationException(
-                                        "The value attribute in the Directory Service ServiceId element is incorrectly formatted. Correct format is an unsigned numeric string.");
+                                    throw new OmmInvalidConfigurationException(                                        IncorrectFormatMessage("Directory Service ServiceId") + CorrectUnsignedNumericMessage);
                                 }
                             }
 
@@ -3964,7 +1677,7 @@ namespace LSEG.Ema.Access
                                         Utilities.ToRsslQos(rate, timeliness, tmpQos);
 
                                         tmpServiceConfig.Service.Info.QosList.Add(tmpQos);
-                                        
+
                                         // Checks for unsupported elements
                                         foreach (XmlNode node in qosNode.ChildNodes)
                                         {
@@ -4324,14 +2037,14 @@ namespace LSEG.Ema.Access
 
                         if (foundServiceConfig == false)
                         {
-                            if(!setServiceId)
+                            if (!setServiceId)
                             {
                                 while (serviceIds.Contains(generateServiceID))
                                 {
                                     ++generateServiceID;
                                 }
 
-                                if(generateServiceID > ushort.MaxValue)
+                                if (generateServiceID > ushort.MaxValue)
                                 {
                                     throw new OmmInvalidConfigurationException(
                                         $"EMA ran out of assignable service ids.");
@@ -4370,199 +2083,29 @@ namespace LSEG.Ema.Access
             }
         }
 
-        private void ParseXmlTraceConfigNodes(string groupName, XmlTraceConfigurable configImpl, XmlNode configListNode)
+        private static void ParseXmlTraceConfigNodes(NodeParser nodeParser, XmlTraceConfigurable configImpl)
         {
-            XmlNode? CurrNode2;
-
             // XmlTraceToStdout bool
-            CurrNode2 = configListNode.SelectSingleNode("XmlTraceToStdout");
-            if (CurrNode2 != null)
-            {
-                ValueNode = (XmlElement)CurrNode2;
-                XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                if (XmlAttribute == null)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"Missing value attribute in the {groupName} XmlTraceToStdout element");
-                }
-
-                try
-                {
-                    configImpl.XmlTraceToStdout = (ulong.Parse(XmlAttribute.Value) != 0);
-                }
-                catch (SystemException)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"The value attribute in the {groupName} XmlTraceToStdout element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                }
-            }
-
+            nodeParser.Parse<bool>("XmlTraceToStdout", v => configImpl.XmlTraceToStdout = v, TryParseBoolnumeric, CorrectBooleanFormatMessage).
             // XmlTraceToFile bool
-            CurrNode2 = configListNode.SelectSingleNode("XmlTraceToFile");
-            if (CurrNode2 != null)
-            {
-                ValueNode = (XmlElement)CurrNode2;
-                XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                if (XmlAttribute == null)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"Missing value attribute in the {groupName} XmlTraceToFile element");
-                }
-
-                try
-                {
-                    configImpl.XmlTraceToFile = (ulong.Parse(XmlAttribute.Value) != 0);
-                }
-                catch (SystemException)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"The value attribute in the {groupName} XmlTraceToFile element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                }
-            }
-
+            Parse<bool>("XmlTraceToFile", v => configImpl.XmlTraceToFile = v, TryParseBoolnumeric, CorrectBooleanFormatMessage).
             // XmlTraceMaxFileSize ulong
-            CurrNode2 = configListNode.SelectSingleNode("XmlTraceMaxFileSize");
-            if (CurrNode2 != null)
-            {
-                ValueNode = (XmlElement)CurrNode2;
-                XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                if (XmlAttribute == null)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"Missing value attribute in the {groupName} XmlTraceMaxFileSize element");
-                }
-
-                try
-                {
-                    configImpl.XmlTraceMaxFileSize = ulong.Parse(XmlAttribute.Value);
-                }
-                catch (SystemException)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"The value attribute in the {groupName} XmlTraceMaxFileSize element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                }
-            }
-
+            Parse<ulong>("XmlTraceMaxFileSize", v => configImpl.XmlTraceMaxFileSize = v, ulong.TryParse, "Correct format is an unsigned numeric string").
             // XmlTraceFileName string
-            CurrNode2 = configListNode.SelectSingleNode("XmlTraceFileName");
-            if (CurrNode2 != null)
-            {
-                ValueNode = (XmlElement)CurrNode2;
-                XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                if (XmlAttribute == null)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"Missing value attribute in the {groupName} XmlTraceFileName element");
-                }
-                configImpl.XmlTraceFileName = XmlAttribute.Value;
-            }
-
-
+            Parse("XmlTraceFileName", v => configImpl.XmlTraceFileName = v).
             // XmlTraceToMultipleFiles bool
-            CurrNode2 = configListNode.SelectSingleNode("XmlTraceToMultipleFiles");
-            if (CurrNode2 != null)
-            {
-                ValueNode = (XmlElement)CurrNode2;
-                XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                if (XmlAttribute == null)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"Missing value attribute in the {groupName} XmlTraceToMultipleFiles element");
-                }
-
-                try
-                {
-                    configImpl.XmlTraceToMultipleFiles = (ulong.Parse(XmlAttribute.Value) != 0);
-                }
-                catch (SystemException)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"The value attribute in the {groupName} XmlTraceToMultipleFiles element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                }
-            }
-
+            Parse<bool>("XmlTraceToMultipleFiles", v => configImpl.XmlTraceToMultipleFiles = v, TryParseBoolnumeric, CorrectBooleanFormatMessage).
             // XmlTraceWrite bool
-            CurrNode2 = configListNode.SelectSingleNode("XmlTraceWrite");
-            if (CurrNode2 != null)
-            {
-                ValueNode = (XmlElement)CurrNode2;
-                XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                if (XmlAttribute == null)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"Missing value attribute in the {groupName} XmlTraceWrite element");
-                }
-
-                try
-                {
-                    configImpl.XmlTraceWrite = (ulong.Parse(XmlAttribute.Value) != 0);
-                }
-                catch (SystemException)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"The value attribute in the {groupName} XmlTraceWrite element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                }
-            }
-
+            Parse<bool>("XmlTraceWrite", v => configImpl.XmlTraceWrite = v, TryParseBoolnumeric, CorrectBooleanFormatMessage).
             // XmlTraceRead bool
-            CurrNode2 = configListNode.SelectSingleNode("XmlTraceRead");
-            if (CurrNode2 != null)
-            {
-                ValueNode = (XmlElement)CurrNode2;
-                XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                if (XmlAttribute == null)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"Missing value attribute in the {groupName} XmlTraceRead element");
-                }
-
-                try
-                {
-                    configImpl.XmlTraceRead = (ulong.Parse(XmlAttribute.Value) != 0);
-                }
-                catch (SystemException)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"The value attribute in the {groupName} XmlTraceRead element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                }
-            }
-
+            Parse<bool>("XmlTraceRead", v => configImpl.XmlTraceRead = v, TryParseBoolnumeric, CorrectBooleanFormatMessage).
             // XmlTracePing bool
-            CurrNode2 = configListNode.SelectSingleNode("XmlTracePing");
-            if (CurrNode2 != null)
-            {
-                ValueNode = (XmlElement)CurrNode2;
-                XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                if (XmlAttribute == null)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"Missing value attribute in the {groupName} XmlTracePing element");
-                }
-
-                try
-                {
-                    configImpl.XmlTracePing = (ulong.Parse(XmlAttribute.Value) != 0);
-                }
-                catch (SystemException)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"The value attribute in the {groupName} XmlTracePing element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                }
-            }
-
+            Parse<bool>("XmlTracePing", v => configImpl.XmlTracePing = v, TryParseBoolnumeric, CorrectBooleanFormatMessage);
         }
 
         // Load XML configuration document, and if XML schema definition file is detected,
         // validate it
-        private XmlDocument LoadXmlConfig(string? configFilePath)
+        private static XmlDocument LoadXmlConfig(string? configFilePath)
         {
             XmlDocument ConfigXml = new XmlDocument();
             ConfigXml.PreserveWhitespace = true;
@@ -4647,6 +2190,213 @@ namespace LSEG.Ema.Access
             }
 
             return ConfigXml;
+        }
+
+        private readonly static TryParseDelegate<bool> TryParseBoolnumeric = CombineTryParseWithConvert<ulong, bool>(ulong.TryParse, v => v != 0);
+
+        delegate bool TryParseDelegate<TValue>(string s, out TValue value);
+        delegate bool TryConvertDelegate<T, TResult>(T v, out TResult value);
+
+        private static TryParseDelegate<T> CombineTryParseWithTransform<T>(TryParseDelegate<T> tryParse, Func<T, T>? transform) =>
+                CombineTryParseWithConvert(tryParse, transform ?? ((T _) => _));
+
+        private static TryParseDelegate<TResult> CombineTryParseWithConvert<T, TResult>(TryParseDelegate<T> tryParse, Func<T, TResult> convert) =>
+         CombineTryParseWithTryConvert(tryParse, (T v, out TResult value) =>
+         {
+             value = convert(v);
+             return true;
+         });
+
+        private static TryParseDelegate<TResult> CombineTryParseWithTryConvert<T, TResult>(TryParseDelegate<T> tryParse, TryConvertDelegate<T, TResult> tryConvert) =>
+        (string s, out TResult value) =>
+        {
+            value = default!;
+            if (!tryParse(s, out var intermediateVal))
+                return false;
+
+            if (!tryConvert(intermediateVal, out value))
+                return false;
+            return true;
+        };
+
+        private class NodeParser
+        {
+            private readonly string prefixName;
+            private readonly XmlNode parentNode;
+
+            public NodeParser(string prefixName, XmlNode parentNode)
+            {
+                this.prefixName = prefixName;
+                this.parentNode = parentNode;
+            }
+
+            public NodeParser Parse(Expression<Func<string>> property)
+            {
+                Parse(ExtractPropertyName(property), ExtractSetter(property));
+                return this;
+            }
+
+            public NodeParser Parse(string nodeName, Expression<Func<string>> property)
+            {
+                Parse(nodeName, ExtractSetter(property));
+                return this;
+            }
+
+            public NodeParser Parse<T>(Expression<Func<T>> propertyExpression, TryParseDelegate<T> tryParse, string? correctValueFormatMessage)
+            {
+                Parse(ExtractPropertyName(propertyExpression), propertyExpression, tryParse, correctValueFormatMessage);
+                return this;
+            }
+
+            public NodeParser Parse<T>(string nodeName, Expression<Func<T>> propertyExpression, TryParseDelegate<T> tryParse, string? correctValueFormatMessage)
+            {
+                Parse(nodeName, ExtractSetter(propertyExpression), tryParse, correctValueFormatMessage);
+                return this;
+            }
+
+            public NodeParser Parse(Expression<Func<bool>> propertyExpression)
+            {
+                Parse(ExtractPropertyName(propertyExpression), propertyExpression);
+                return this;
+            }
+
+            public NodeParser Parse(string nodeName, Expression<Func<bool>> propertyExpression)
+            {
+                Parse(nodeName, propertyExpression, TryParseBoolnumeric, IncorrectFormatMessage($"{prefixName} {ExtractPropertyName(propertyExpression)}") + CorrectBooleanFormatMessage);
+                return this;
+            }
+
+            public NodeParser Parse(Expression<Func<uint>> propertyExpression, Func<uint, uint>? transform = null)
+            {
+                Parse(ExtractPropertyName(propertyExpression), propertyExpression, transform);
+                return this;
+            }
+
+            public NodeParser Parse(Expression<Func<int>> propertyExpression, Func<int, int>? transform = null)
+            {
+                Parse(ExtractPropertyName(propertyExpression), propertyExpression, transform);
+                return this;
+            }
+
+            public NodeParser Parse(Expression<Func<long>> propertyExpression, Func<long, long>? transform = null)
+            {
+                Parse(ExtractPropertyName(propertyExpression), propertyExpression, transform);
+                return this;
+            }
+
+            public NodeParser Parse(Expression<Func<ulong>> propertyExpression, Func<ulong, ulong>? transform = null)
+            {
+                Parse(ExtractPropertyName(propertyExpression), propertyExpression, transform);
+                return this;
+            }
+
+            public NodeParser Parse(string nodeName, Expression<Func<uint>> propertyExpression, Func<uint, uint>? transform = null)
+            {
+                ParseNumeric(nodeName, ExtractSetter(propertyExpression), 
+                    CombineTryParseWithTransform(CombineTryParseWithConvert<ulong, uint>(ulong.TryParse, Utilities.Convert_ulong_uint), transform));
+                return this;
+            }
+
+            public NodeParser Parse(string nodeName, Expression<Func<int>> propertyExpression, Func<int, int>? transform = null)
+            {
+                ParseNumeric(nodeName, ExtractSetter(propertyExpression), 
+                    CombineTryParseWithTransform(CombineTryParseWithConvert<uint, int>(uint.TryParse, Utilities.Convert_uint_int), transform));
+                return this;
+            }
+
+            public NodeParser Parse(string nodeName, Action<int> assign, Func<int, int>? transform = null)
+            {
+                ParseNumeric(nodeName, assign, 
+                    CombineTryParseWithTransform(CombineTryParseWithConvert<uint, int>(uint.TryParse, Utilities.Convert_uint_int), transform));
+                return this;
+            }
+
+            public NodeParser Parse(string nodeName, Expression<Func<long>> propertyExpression, Func<long, long>? transform = null)
+            {
+                ParseNumeric(nodeName, ExtractSetter(propertyExpression),
+                    CombineTryParseWithTransform(CombineTryParseWithConvert<ulong, long>(ulong.TryParse, Utilities.Convert_ulong_long), transform));
+                return this;
+            }
+
+            public NodeParser Parse(string nodeName, Expression<Func<ulong>> propertyExpression, Func<ulong, ulong>? transform = null)
+            {
+                ParseNumeric(nodeName, ExtractSetter(propertyExpression), 
+                    CombineTryParseWithTransform(ulong.TryParse, transform));
+                return this;
+            }
+
+            private void ParseNumeric<T>(string nodeName, Action<T> assign, TryParseDelegate<T> tryParse) =>
+                 Parse(nodeName, assign, tryParse, IncorrectFormatMessage($"{prefixName} {nodeName}") + CorrectUnsignedNumericMessage);
+
+            public NodeParser Parse(string nodeName, Action<string> assign)
+            {
+                Parse(
+                    nodeName,
+                    assign,
+                    (string s, out string value) =>
+                    {
+                        value = s;
+                        return true;
+                    },
+                    null);
+                return this;
+            }
+
+            public NodeParser Parse<TValue>(
+                string nodeName,
+                Action<TValue> assign,
+                TryParseDelegate<TValue> tryParse,
+                string? correctValueFormatMessage)
+            {
+                var currNode = parentNode.SelectSingleNode(nodeName);
+                if (currNode == null)
+                    return this;
+
+                var valueAttr = currNode.Attributes!["value"];
+
+                if (valueAttr == null)
+                    throw new OmmInvalidConfigurationException($"Missing value attribute in the {prefixName} {nodeName} element");
+
+                if (!tryParse(valueAttr.Value, out var parsedValue))
+                    throw new OmmInvalidConfigurationException(
+                        $"The value attribute in the {prefixName} {nodeName}  element is incorrectly formatted." +
+                        (!string.IsNullOrEmpty(correctValueFormatMessage)
+                            ? " " + correctValueFormatMessage
+                            : string.Empty));
+
+                assign(parsedValue);
+                return this;
+            }
+
+            private static Action<T> ExtractSetter<T>(Expression<Func<T>> propertyExpression)
+            {
+                if (propertyExpression.Body is MemberExpression memberExpression)
+                {
+                    if (memberExpression.Member is PropertyInfo propertyInfo)
+                    {
+                        var objectExpression = memberExpression.Expression;
+                        if (objectExpression is not null)
+                        {
+                            var compiledLambda = Expression.Lambda(objectExpression).Compile();
+                            var obj = compiledLambda.DynamicInvoke();
+                            return v => propertyInfo.SetValue(obj, v);
+                        }
+                    }
+                }
+                throw new ArgumentException($"Invalid expression: {propertyExpression.Body}. It needs to be a property.");
+            }
+
+            private static string ExtractPropertyName<T>(Expression<Func<T>> propertyExpression)
+            {
+                if (propertyExpression.Body is MemberExpression memberExpression)
+                {
+                    if (memberExpression.Member is PropertyInfo propertyInfo)
+                    {
+                        return propertyInfo.Name;
+                    }
+                }
+                throw new ArgumentException($"Invalid expression: {propertyExpression.Body}. It needs to be a property.");
+            }
         }
     }
 }

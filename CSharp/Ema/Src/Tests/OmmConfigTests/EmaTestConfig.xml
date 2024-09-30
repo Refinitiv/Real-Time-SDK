@@ -35,7 +35,9 @@
 			<!--XmlTraceDump value="1"/-->
 			<!--XmlTraceFileName value="testXmlTrace"/-->
 				<XmlTraceToStdout value="1"/>
-
+				
+				<RestProxyHostName value="proxy.local" />
+				<RestProxyPort value="3128" />
 			</Consumer>
 			<!-- ChannelSet should override Channel here. -->
 			<Consumer>
@@ -173,7 +175,7 @@
 				<ServerType value="ServerType::RSSL_ENCRYPTED"/>
 				<SysRecvBufSize value="90"/>
 				<SysSendBufSize value="100"/>
-				<TcpNodelay value="1"/>
+				<TcpNodelay value="0"/>
 				<ServerCert value="testCert"/>
 				<ServerPrivateKey value="testKey"/>
 				<SecurityProtocol value="6"/>
