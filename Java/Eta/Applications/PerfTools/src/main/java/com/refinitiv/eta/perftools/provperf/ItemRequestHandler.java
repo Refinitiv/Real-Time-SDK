@@ -148,7 +148,6 @@ public class ItemRequestHandler
                         // deep copy item name buffer
                         ByteBuffer nameBytes = ByteBuffer.allocate(msgKey.name().length());
                         msgKey.name().copy(nameBytes);
-                        nameBytes.flip();
                         itemAttributes.msgKey().name().data(nameBytes);
                     }
 
@@ -157,7 +156,6 @@ public class ItemRequestHandler
                         // deep copy attrib buffer
                         ByteBuffer attribBytes = ByteBuffer.allocate(msgKey.encodedAttrib().length());
                         msgKey.encodedAttrib().copy(attribBytes);
-                        attribBytes.flip();
                         itemAttributes.msgKey().encodedAttrib().data(attribBytes);
                     }
 
