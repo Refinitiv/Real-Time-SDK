@@ -19,8 +19,8 @@
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Ema.Core.xml" />
-      <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Ema.Core.dll" />
+      <DocumentationSource sourceFile="..\..\Libs\Release\net8.0\LSEG.Ema.Core.xml" />
+      <DocumentationSource sourceFile="..\..\Libs\Release\net8.0\LSEG.Ema.Core.dll" />
     </DocumentationSources>
     <HelpFileFormat>Website</HelpFileFormat>
     <SyntaxFilters>C#, F#</SyntaxFilters>

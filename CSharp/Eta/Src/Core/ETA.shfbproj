@@ -19,14 +19,14 @@
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Eta.Core.xml" />
-      <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Eta.Core.dll" />
-      <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Eta.ValueAdd.dll" />
-      <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Eta.ValueAdd.xml" />
-      <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Eta.Ansi.dll" />
-      <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Eta.Ansi.xml" />
-      <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Eta.AnsiPage.dll" />
-      <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Eta.AnsiPage.xml" />
+      <DocumentationSource sourceFile="..\..\Libs\Release\net8.0\LSEG.Eta.Core.xml" />
+      <DocumentationSource sourceFile="..\..\Libs\Release\net8.0\LSEG.Eta.Core.dll" />
+      <DocumentationSource sourceFile="..\..\Libs\Release\net8.0\LSEG.Eta.ValueAdd.dll" />
+      <DocumentationSource sourceFile="..\..\Libs\Release\net8.0\LSEG.Eta.ValueAdd.xml" />
+      <DocumentationSource sourceFile="..\..\Libs\Release\net8.0\LSEG.Eta.Ansi.dll" />
+      <DocumentationSource sourceFile="..\..\Libs\Release\net8.0\LSEG.Eta.Ansi.xml" />
+      <DocumentationSource sourceFile="..\..\Libs\Release\net8.0\LSEG.Eta.AnsiPage.dll" />
+      <DocumentationSource sourceFile="..\..\Libs\Release\net8.0\LSEG.Eta.AnsiPage.xml" />
     </DocumentationSources>
     <HelpFileFormat>Website</HelpFileFormat>
     <SyntaxFilters>C#, F#</SyntaxFilters>

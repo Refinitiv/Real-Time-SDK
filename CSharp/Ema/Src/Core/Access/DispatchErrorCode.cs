@@ -11,7 +11,7 @@ using LSEG.Eta.ValueAdd.Reactor;
 namespace LSEG.Ema.Access
 {
     /// <summary>
-    /// Dispatch error codes from <see cref="Reactor.Dispatch(ReactorDispatchOptions, out ReactorErrorInfo?)"/> method
+    /// Dispatch error codes from Reactor.Dispatch method.
     /// </summary>
     public class DispatchErrorCode
     {
