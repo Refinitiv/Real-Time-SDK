@@ -220,7 +220,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			{
 				strBuilder().append("Failed to open Selector: ").append(e.getLocalizedMessage());
 				String temp = _strBuilder.toString();
-				
+
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, temp, Severity.ERROR));
 
@@ -255,14 +255,13 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 						.append(_rsslErrorInfo.error().sysError()).append("' Error Location='")
 						.append(_rsslErrorInfo.location()).append("' Error Text='")
 						.append(_rsslErrorInfo.error().text()).append("'. ");
-				
+
 				String temp = _strBuilder.toString();
-				
+
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, temp, Severity.ERROR));
 
 				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR));
-				
 			} else
 			{
 				if (_loggerClient.isTraceEnabled())
@@ -360,27 +359,27 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			if ( productVersion == null)
 				productVersion = "EMA Java Edition";
 
-	        _bindOptions.componentVersion(productVersion);
-			
+			_bindOptions.componentVersion(productVersion);
+
 			_server = Transport.bind(_bindOptions, _transportError);
 			if (_server == null)
-		    {
+			{
 				strBuilder().append("Failed to initialize OmmServerBaseImpl (Transport.bind).")
 					.append("' Error Id='").append(_transportError.errorId()).append("' Internal sysError='")
 					.append(_transportError.sysError()).append("' Error Text='")
 					.append(_transportError.text()).append("'. ");
-					
+
 				String temp = _strBuilder.toString();
-					
+
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, temp, Severity.ERROR));
 
 				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.FAILURE));
-		    }
-			
+			}
+
 			if (_loggerClient.isTraceEnabled())
 				_loggerClient.trace(formatLogMessage(_activeServerConfig.instanceName, "Provider bound on port = " + _server.portNumber() + ".", Severity.TRACE));
-				
+
 			try
 			{
 				_server.selectableChannel().register(_selector, SelectionKey.OP_ACCEPT, _server);
@@ -1023,7 +1022,12 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			break;
 		}
 	}
-	
+
+	void onDispatchError(String text, int errorCode)
+	{
+		_ommProviderErrorClient.onDispatchError(text, errorCode);
+	}
+
 	OmmInvalidUsageExceptionImpl ommIUExcept()
 	{
 		if (_ommIUExcept == null)
@@ -1077,7 +1081,9 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			if (userLock().isLocked()) {
 				userLock().unlock();
 			}
-			throw (ommJCExcept().message(sessionInfo, errorCode, text));
+			if (_activeServerConfig.userDispatch != OperationModel.API_DISPATCH) {
+				throw (ommJCExcept().message(sessionInfo, errorCode, text));
+			}
 		}
 	}
 
@@ -1245,7 +1251,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 								reactorAcceptOptions.initTimeout(_activeServerConfig.serverConfig.initializationTimeout);
 								
 								if (_rsslReactor.accept(_server, reactorAcceptOptions, _providerRole, _rsslErrorInfo) == ReactorReturnCodes.FAILURE)
-		                        {
+								{
 									if (_loggerClient.isErrorEnabled()) 
 									{
 										_dispatchStrBuilder.setLength(0);
@@ -1266,7 +1272,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 									clientSession.returnToPool();
 									
 									return false;
-		                        }
+								}
 							}
 							if (key.isReadable())
 							{
@@ -1315,14 +1321,22 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 					{
 						_userLock.lock();
 						try {
-							if (_loggerClient.isErrorEnabled())
+							if (_loggerClient.isErrorEnabled() || hasErrorClient())
 							{
 								strBuilder().append("Call to rsslReactorDispatchLoop() failed. Internal sysError='")
 										.append(_rsslErrorInfo.error().sysError()).append("' Error text='")
 										.append(_rsslErrorInfo.error().text()).append("'. ");
+							}
 
+							if (_loggerClient.isErrorEnabled())
+							{
 								_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName,
 										_strBuilder.toString(), Severity.ERROR));
+							}
+
+							if (hasErrorClient())
+							{
+								onDispatchError(_strBuilder.toString(), ret);
 							}
 						} finally {
 							_userLock.unlock();

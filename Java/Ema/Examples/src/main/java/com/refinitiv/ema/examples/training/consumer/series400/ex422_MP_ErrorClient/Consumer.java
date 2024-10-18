@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.refinitiv.ema.examples.training.consumer.series400.ex422_MP_ErrorClient;
@@ -24,6 +24,7 @@ import com.refinitiv.ema.access.FieldList;
 import com.refinitiv.ema.access.OmmConsumer;
 import com.refinitiv.ema.access.OmmConsumerClient;
 import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.ConsumerSessionInfo;
 
 
 class AppClient implements OmmConsumerClient
@@ -121,7 +122,15 @@ class AppErrorClient implements OmmConsumerErrorClient
 	}
 
 	public void onInvalidUsage(String text, int errorCode) {
-		System.out.println("onInvalidUsage callback function" + "\nError text: " + text +" , Error code: " + errorCode); 
+		System.out.println("onInvalidUsage callback function" + "\nError text: " + text +" , Error code: " + errorCode);
+	}
+
+	public void onJsonConverterError(ConsumerSessionInfo consumerSessionInfo, int errorCode, String text) {
+		System.out.println("onJsonConverterError callback function" + "\nError text: " + text +" , Error code: " + errorCode);
+	}
+
+	public void onDispatchError(String text, int errorCode) {
+		System.out.println("onDispatchError callback function" + "\nError text: " + text +" , Error code: " + errorCode);
 	}
 }
 

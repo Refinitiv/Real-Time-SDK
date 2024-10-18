@@ -197,6 +197,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	
 	abstract void notifyErrorClient(OmmException ommException);
 	
+	abstract void onDispatchError(String text, int errorCode);
+	
 	abstract ConfigAttributes getAttributes(EmaConfigImpl config);
 	
 	abstract Object getAttributeValue(EmaConfigImpl config, int AttributeKey);
@@ -250,7 +252,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			{
 				strBuilder().append("Failed to open Selector: ").append(e.getLocalizedMessage());
 				String temp = _strBuilder.toString();
-				
+
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, temp, Severity.ERROR));
 
@@ -1884,9 +1886,28 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 						}
 					}
 
-					if (ret == ReactorReturnCodes.FAILURE)
+					if (ret < ReactorReturnCodes.SUCCESS)
 					{
 						System.out.println("ReactorChannel dispatch failed: " + ret + "(" + _rsslErrorInfo.error().text() + ")");
+
+						_userLock.lock();
+						try {
+							if (_loggerClient.isErrorEnabled() || hasErrorClient())
+							{
+								_dispatchStrBuilder.setLength(0);
+								_dispatchStrBuilder.append("Call to rsslReactorDispatch() failed. Internal sysError='")
+									.append(_rsslErrorInfo.error().sysError())
+									.append("' Error text='").append(_rsslErrorInfo.error().text()).append("'. ");
+ 
+								if (_loggerClient.isErrorEnabled())
+									_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
+ 
+								if (hasErrorClient())
+									onDispatchError(_dispatchStrBuilder.toString(), ret);
+							}
+						} finally {
+							_userLock.unlock();
+						}
 					}
 					
 					if (_eventReceived) return true;

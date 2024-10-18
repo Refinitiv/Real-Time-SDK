@@ -1242,6 +1242,12 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	}
 
 	@Override
+	void onDispatchError(String text, int errorCode)
+	{
+		_providerErrorClient.onDispatchError(text, errorCode);
+	}
+
+	@Override
 	public String formatLogMessage(String clientName, String temp, int level) {
 		strBuilder().append("loggerMsg\n").append("    ClientName: ").append(clientName).append("\n")
         .append("    Severity: ").append(OmmLoggerClient.loggerSeverityAsString(level)).append("\n")

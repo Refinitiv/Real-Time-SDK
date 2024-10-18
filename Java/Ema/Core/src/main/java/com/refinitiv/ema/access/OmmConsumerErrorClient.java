@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -55,6 +55,12 @@ public interface OmmConsumerErrorClient
 	 * @param errorCode specifies associated error code.
 	 * @param text specifies associated error text.
 	 */
-	default void onJsonConverterError(ConsumerSessionInfo consumerSessionInfo, int errorCode, String text) {
-	}
+	public default void onJsonConverterError(ConsumerSessionInfo consumerSessionInfo, int errorCode, String text) {}
+
+	/**
+	 * Invoked in case of error during dispatching.
+	 * @param text specifies associated error text.
+	 * @param errorCode specifies associated error code.
+	 */
+	public default void onDispatchError(String text, int errorCode) {}
 }

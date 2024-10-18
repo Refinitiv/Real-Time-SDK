@@ -52,12 +52,21 @@ public interface OmmProviderErrorClient
 	public default void onInvalidUsage(String text, int errorCode) {}
 
 	/**
-	 * In
+	 * Invoked in the case of error during RWF/JSON conversion.
 	 * <br>Requires OmmProvider constructor to have an OmmProviderErrorClient.
 	 * @param providerSessionInfo specifies associated info about converter session of provider.
 	 * @param errorCode specifies associated error code.
 	 * @param text specifies associated error text.
 	 */
 	public default void onJsonConverterError(ProviderSessionInfo providerSessionInfo, int errorCode, String text) {
+	}
+
+	/**
+	 * Invoked in the case of dispatching failures from Reactor component.
+	 * <br>Requires OmmProvider constructor to have an OmmProviderErrorClient.
+	 * @param text specifies associated error text.
+	 * @param errorCode specifies associated error code.
+	 */
+	public default void onDispatchError(String text, int errorCode) {
 	}
 }

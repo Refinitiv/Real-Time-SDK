@@ -1,0 +1,189 @@
+!
+!   This file contains information proprietary to
+!   Refinitiv and may not be reproduced, disclosed
+!   or used in whole or in part without the express written
+!   permission of Refinitiv. Refinitiv may
+!   update or remove this document at any time without
+!   notice.
+!
+!   Version	 4.20.03_Dictionary_13.81		16-09-2013
+!	* Modified 16/09/2013 at Bangkok:
+!     - This file is a based on RWF.DAT from RDMD V4.20.03.
+!
+!   RDM Field Dictionary
+!   --------------------
+!
+!   Version: 4.20.03
+!
+!   This file contains a complete list of acronyms used in Field Lists
+!   and, for each acronym, gives:
+!
+!     * DDE Acronym
+!     * associated FID
+!     * ripples to FID (by acronym)
+!     * Marketfeed field type
+!     * Marketfeed maximum field length
+!     * RWF field type (RWF_DT_)
+!     * RWF maximum field length (for caching)
+!
+! Copyright (C) 2019 LSEG
+!
+!tag Filename  RWF.DAT
+!tag Desc      LDFD RWF field set
+!tag Type      1
+!tag Version   4.20.03
+!tag Build     001
+!tag Date      19-Apr-2013
+!
+!ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
+!-------    -----------          ---  ----------  ----------     ------  --------   -------
+!
+MY_VECTOR	"MY_VECTOR"			  -22  NULL        NONE				  0  VECTOR			0
+
+MY_SERIES	"MY_SERIES"			  -21  NULL        NONE				  0  SERIES			0
+
+MY_FILTERLIST   "MY_FILTERLIST"   -20  NULL        NONE           	  0  FILTER_LIST    0
+
+MY_MSG   "MY_MSG"                 -19  NULL        NONE           	  0  MSG           0
+
+MY_ANSI_PAGE   "MY_ANSI_PAGE"     -18  NULL	       BINARY             10  ANSI_PAGE		300
+
+MY_OPAQUE  "MY_OPAQUE"            -17  NULL        ALPHANUMERIC       10  OPAQUE         30
+
+MY_ARRAY   "MY_ARRAY"             -16  NULL        ALPHANUMERIC       10  ARRAY           4
+
+MY_ELEMENTLIST  "MY_ELEMENTLIST"  -15  NULL        NONE       10  ELEMENT_LIST    0
+
+MY_MAP     "MY_MAP"               -14  NULL        ALPHANUMERIC       10  MAP             4
+
+MY_FIELDLIST  "MY_FIELDLIST"      -13  NULL        NONE       10  FIELD_LIST      0
+
+MY_UTF8    "MY_UTF8"              -12  NULL        ALPHANUMERIC       10  UTF8_STRING     4
+
+MY_BUFFER  "MY_BUFFER"            -11  NULL        ALPHANUMERIC       10  BUFFER          4
+
+MY_DOUBLE  "MY_DOUBLE"            -10  NULL        ALPHANUMERIC       10  DOUBLE          4
+
+MY_FLOAT   "MY_FLOAT"              -9  NULL        ALPHANUMERIC       10  FLOAT           4
+
+MY_STATE   "MY_STATE"              -6  NULL        ALPHANUMERIC       10  STATE           4
+
+MY_QOS     "MY_QOS"                -5  NULL        ALPHANUMERIC       10  QOS             4
+
+TRADE_DATE "DATETIME"              -3  NULL        DATE               11  DATETIME        4
+! 
+INTEGER    "INTEGER"               -2  NULL        INTEGER             5  INT64           2
+!
+XML        "XML"                   -1  NULL        ALPHANUMERIC       10  XML           100
+!
+!
+PROD_PERM  "PERMISSION"             1  NULL        INTEGER             5  UINT64           2
+!
+! Product permissions information.
+!
+RDNDISPLAY "DISPLAYTEMPLATE"        2  NULL        INTEGER             3  UINT32           1
+!
+! Display information for the IDN terminal device.
+!
+DSPLY_NAME "DISPLAY NAME"           3  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Full or abbreviated text instrument name.
+!
+RDN_EXCHID "IDN EXCHANGE ID"        4  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Identifier for the market on which the instrument trades.  Deprecated, use field 
+! RDN_EXCHD2 #1709.
+!
+TIMACT     "TIME OF UPDATE"         5  NULL        TIME                5  TIME             5
+!
+! Time when a certain field or fields in the record were updated, ideally based on 
+! source feed time.  Which field(s) cause this timestamp to update depends on the 
+! instrument.
+!
+TRDPRC_1   "LAST"                   6  TRDPRC_2    PRICE              17  REAL64           7
+!
+! Last trade price or value.
+!
+TRDPRC_2   "LAST 1"                 7  TRDPRC_3    PRICE              17  REAL64           7
+TRDPRC_3   "LAST 2"                 8  TRDPRC_4    PRICE              17  REAL64           7
+TRDPRC_4   "LAST 3"                 9  TRDPRC_5    PRICE              17  REAL64           7
+TRDPRC_5   "LAST 4"                10  NULL        PRICE              17  REAL64           7
+!
+! Previous last trade prices or values.
+!
+NETCHNG_1  "NET CHANGE"            11  NULL        PRICE              17  REAL64           7
+!
+! Difference between the lastest trading price or value and the adjusted historical 
+! closing value or settlement price.
+!
+HIGH_1     "TODAY'S HIGH"          12  HIGH_2      PRICE              17  REAL64           7
+!
+! Today's highest transaction value.
+!
+LOW_1      "TODAY'S LOW"           13  LOW_2       PRICE              17  REAL64           7
+!
+! Today's lowest transaction value.
+!
+PRCTCK_1   "TICK:UP/DOWN"          14  NULL        ENUMERATED    2 ( 1 )  ENUM             1
+!
+! The direction of price movement from the previous trade or "Last" price.
+!
+CURRENCY   "CURRENCY"              15  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! The currency in which the instrument is quoted.
+!
+TRADE_DATE "TRADE DATE"            16  NULL        DATE               11  DATE             4
+!
+! The date of the value in the field TRDPRC_1.
+!
+ACTIV_DATE "ACTIVE DATE"           17  NULL        DATE               11  DATE             4
+!
+! The date when the time in TIMACT was updated.
+!
+TRDTIM_1   "TRADE TIME"            18  NULL        TIME                5  TIME             5
+!
+! Time of the value in the TRDPRC_1 in minutes.
+!
+OPEN_PRC   "OPENING PRICE"         19  NULL        PRICE              17  REAL64           7
+!
+! Today's opening price or value. The source of this field depends upon the market and 
+! instrument type.
+!
+HST_CLOSE  "HISTORIC CLOSE"        21  NULL        PRICE              17  REAL64           7
+!
+! Historical unadjusted close or settlement price.
+!
+! BID        "BID"                   22  BID_1       PRICE              17  REAL64           7
+!
+! Latest Bid Price (price willing to buy)
+!
+BID_1      "BID 1"                 23  BID_2       PRICE              17  REAL64           7
+BID_2      "BID 2"                 24  BID_3       PRICE              17  REAL64           7
+!
+! Previous latest bid prices the first being most recent.
+!
+ASK        "ASK"                   25  ASK_1       PRICE              17  REAL64           7
+!
+! Latest Ask Price (price offering to sell)
+!
+ASK_1      "ASK 1"                 26  ASK_2       PRICE              17  REAL64           7
+ASK_2      "ASK 2"                 27  ASK_3       PRICE              17  REAL64           7
+!
+! Previous latest ask prices the first being most recent.
+!
+NEWS       "NEWS"                  28  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! News retrieval page code.
+!
+NEWS_TIME  "NEWS TIME"             29  NULL        TIME                5  TIME             5
+!
+! Time of generation of news item whose page code is given by NEWS.
+!
+BIDSIZE    "BID SIZE"              30  NULL        INTEGER            15  REAL64           7
+!
+! The number of shares, lots, or contracts willing to buy at the Bid price
+!
+ASKSIZE    "ASK SIZE"              31  NULL        INTEGER            15  REAL64           7
+!
+! The number of shares, lots, or contracts willing to sell at the Ask price
+!

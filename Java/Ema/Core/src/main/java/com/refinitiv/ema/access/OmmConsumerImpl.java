@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|          Copyright (C) 2019-2022 LSEG. All rights reserved.     
+// *|          Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.refinitiv.ema.access.ConfigManager.ConfigAttributes;
 import com.refinitiv.ema.access.ConfigManager.ConfigElement;
+import com.refinitiv.ema.access.OmmIProviderConfig.OperationModel;
 import com.refinitiv.ema.access.OmmException.ExceptionType;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.eta.transport.Channel;
@@ -322,6 +323,12 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		default:
 			break;
 		}
+	}
+
+	@Override
+	void onDispatchError(String text, int errorCode)
+	{
+		_consumerErrorClient.onDispatchError(text, errorCode);
 	}
 
 	@Override
@@ -668,7 +675,9 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			if (userLock().isLocked()) {
 				userLock().unlock();
 			}
-			throw (ommJCExcept().message(sessionInfo, errorCode, text));
+			if (_activeConfig.userDispatch != OperationModel.API_DISPATCH) {
+				throw (ommJCExcept().message(sessionInfo, errorCode, text));
+			}
 		}
 	}
 
