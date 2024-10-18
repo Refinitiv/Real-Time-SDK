@@ -477,28 +477,13 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			if (_eventTimeout)
 			{
 				strBuilder().append("directory retrieval failed (timed out after waiting ")
-						.append(_activeConfig.directoryRequestTimeOut).append(" milliseconds) for ");
-				ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
-				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET ||
-						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.WEBSOCKET)
-				{
-					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
-					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
-				}
-				else if (loginChanInfo._channelConfig.rsslConnectionType == ConnectionTypes.HTTP || 
-						 loginChanInfo._channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
-				{
-					HttpChannelConfig channelConfig = ((HttpChannelConfig) loginChanInfo._channelConfig);
-					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
-				}
-				
-				String excepText = _strBuilder.toString();
-				
+						.append(_activeConfig.directoryRequestTimeOut).append(" milliseconds) ");
+
+				String excepText = createExceptionMessage();
+
 				if (loggerClient().isErrorEnabled())
 					loggerClient().error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
-	
+
 				throw ommIUExcept().message(excepText, OmmInvalidUsageException.ErrorCode.DIRECTORY_REQUEST_TIME_OUT);
 			} else
 				timeoutEvent.cancel();
@@ -519,28 +504,13 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	
 			while (!_eventTimeout && !dictionaryCallbackClient().isDictionaryReady())
 				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
-	
+
 			if (_eventTimeout)
 			{
 				strBuilder().append("dictionary retrieval failed (timed out after waiting ")
-						.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) for ");
-				ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
-				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET ||
-						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.WEBSOCKET)
-				{
-					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
-					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
-				}
-				else if (loginChanInfo._channelConfig.rsslConnectionType == ConnectionTypes.HTTP || 
-						 loginChanInfo._channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
-				{
-					HttpChannelConfig channelConfig = ((HttpChannelConfig) loginChanInfo._channelConfig);
-					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
-				}
-	
-				String excepText = _strBuilder.toString();
+						.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) ");
+
+				String excepText = createExceptionMessage();
 				
 				if (loggerClient().isErrorEnabled())
 					loggerClient().error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
@@ -549,6 +519,34 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			} else
 				timeoutEvent.cancel();
 		}
+	}
+
+	private String createExceptionMessage() {
+		ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
+		if (loginChanInfo != null) {
+			if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET ||
+					loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.WEBSOCKET)
+			{
+				SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
+				_strBuilder.append("for ")
+						.append(channelConfig.hostName)
+						.append(":")
+						.append(channelConfig.serviceName)
+						.append(")");
+			}
+			else if (loginChanInfo._channelConfig.rsslConnectionType == ConnectionTypes.HTTP ||
+					loginChanInfo._channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+			{
+				HttpChannelConfig channelConfig = ((HttpChannelConfig) loginChanInfo._channelConfig);
+				_strBuilder.append("for ")
+						.append(channelConfig.hostName)
+						.append(":")
+						.append(channelConfig.serviceName)
+						.append(")");
+			}
+		}
+
+		return _strBuilder.toString();
 	}
 
 	@Override
