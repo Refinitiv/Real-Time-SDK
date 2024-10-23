@@ -109,17 +109,15 @@ public:
 
 	///@name Destructor
 	//@{
-	virtual ~OmmConsumerErrorClient();
+	virtual ~OmmConsumerErrorClient() = default;
 	//@}
 
 protected:
 
-	OmmConsumerErrorClient();
+	OmmConsumerErrorClient() = default;
+	OmmConsumerErrorClient( const OmmConsumerErrorClient& ) = default;
+	OmmConsumerErrorClient& operator=( const OmmConsumerErrorClient& ) = default;
 
-private:
-
-	OmmConsumerErrorClient( const OmmConsumerErrorClient& );
-	OmmConsumerErrorClient& operator=( const OmmConsumerErrorClient& );
 };
 
 }

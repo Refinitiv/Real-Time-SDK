@@ -11,14 +11,6 @@
 using namespace refinitiv::ema::access;
 
 
-OmmProviderErrorClient::OmmProviderErrorClient()
-{
-}
-
-OmmProviderErrorClient::~OmmProviderErrorClient()
-{
-}
-
 void OmmProviderErrorClient::onInvalidHandle( UInt64, const EmaString& )
 {
 }

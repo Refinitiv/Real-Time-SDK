@@ -10,13 +10,6 @@
 
 using namespace refinitiv::ema::access;
 
-OmmConsumerErrorClient::OmmConsumerErrorClient()
-{
-}
-
-OmmConsumerErrorClient::~OmmConsumerErrorClient()
-{
-}
 
 void OmmConsumerErrorClient::onInvalidHandle( UInt64, const EmaString& )
 {

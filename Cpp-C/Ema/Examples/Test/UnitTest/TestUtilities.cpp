@@ -8,6 +8,9 @@
 
 #include "TestUtilities.h"
 
+#include <vector>
+#include <memory>
+
 using namespace refinitiv::ema::access;
 using namespace std;
 
@@ -1396,4 +1399,114 @@ void prepareMsgToCopy(RsslEncodeIterator& encIter, RsslBuffer& msgBuf,
 	StaticDecoder::setRsslData(&respMsg, pRsslMsgDecode, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &dictionary);
 
 	return;
+}
+
+class DerivedConsumerClient : public OmmConsumerClient
+{
+};
+
+class DerivedConsumerErrorClient : public OmmConsumerErrorClient
+{
+};
+
+class DerivedProviderClient : public OmmProviderClient
+{
+};
+
+class DerivedProviderErrorClient : public OmmProviderErrorClient
+{
+};
+
+/* Test that all lines were compiled successfully. */
+template <class TAppClient, class TBaseClient>
+void testClientCompilationPass()
+{
+//#if defined(__cplusplus)
+//	std::cout << "__cplusplus: " << std::to_string(__cplusplus) << std::endl;
+//#endif
+//#if defined(_MSC_VER)
+//	std::cout << "_MSC_VER: " << std::to_string(_MSC_VER) << std::endl;
+//#endif
+//#if defined(_MSVC_LANG)
+//	std::cout << "_MSVC_LANG: " << std::to_string(_MSVC_LANG) << std::endl;
+//#endif
+//	std::cout << "AppClient:  main constructor" << std::endl;
+	TAppClient client;
+
+//	std::cout << "AppClient:  array declaration, definition" << std::endl;
+	TAppClient clients[3];
+
+//	std::cout << "AppClient: copy-constructor" << std::endl;
+	TAppClient client1(client);
+	TAppClient client2 = client;
+
+//	std::cout << "AppClient: assign op" << std::endl;
+	client2 = client;
+
+//	std::cout << "Array of clients. assign" << std::endl;
+	clients[0] = client;
+	clients[1] = client1;
+	clients[2] = client2;
+
+//	std::cout << "Array of clients. Initialization list" << std::endl;
+	TAppClient clients1[] = { client, client1, client2 };
+
+//	std::cout << "Vector of clients" << std::endl;
+	vector<TAppClient> vecClients;
+//	std::cout << "Vector of clients. push_back" << std::endl;
+	vecClients.push_back(client);
+	vecClients.push_back(client1);
+	vecClients.push_back(client2);
+
+	//TBaseClient ommClient( client );  // Compilation error: private copy-constructor OmmConsumerClient.
+	//TBaseClient ommClient1 = client;  // Compilation error: private copy-constructor OmmConsumerClient.
+
+//	std::cout << "AppClient: new" << std::endl;
+	TAppClient* pAppClient = new TAppClient;
+
+//	std::cout << "OmmConsumerClient: new" << std::endl;
+	//TBaseClient* pOmmConsumerClient = new TBaseClient;  // Compilation error: private main constructor OmmConsumerClient.
+	TBaseClient* pClient = new TAppClient;
+
+	// Public destructor should allow compile delete.
+	delete pAppClient;
+	delete pClient;
+
+//	std::cout << "shared_ptr" << std::endl;
+	std::shared_ptr<TBaseClient> sharedAppClient = std::make_shared<TAppClient>();
+	auto sharedAppClient1 = std::make_shared<TAppClient>();
+	auto sharedAppClient2 = sharedAppClient;
+	auto sharedAppClient3 = sharedAppClient1;
+
+//	std::cout << "unique_ptr" << std::endl;
+	std::unique_ptr<TBaseClient> uniqAppClient = std::unique_ptr<TAppClient>();
+	std::unique_ptr<TBaseClient> uniqAppClient1 = std::move(uniqAppClient);
+
+#if (defined(_MSVC_LANG) && (_MSVC_LANG >= 201402L) || __cplusplus >= 201402L)
+	// C++14 specific stuff here
+//	std::cout << "make_unique" << std::endl;
+	std::unique_ptr<TBaseClient> uniqAppClient2 = std::make_unique<TAppClient>();
+	auto uniqAppClient3 = std::move(uniqAppClient2);
+#endif
+
+}
+
+TEST(Compilation, OmmConsumerClientTest)
+{
+	testClientCompilationPass<DerivedConsumerClient, OmmConsumerClient>();
+}
+
+TEST(Compilation, OmmConsumerErrorClientTest)
+{
+	testClientCompilationPass<DerivedConsumerErrorClient, OmmConsumerErrorClient>();
+}
+
+TEST(Compilation, OmmProviderClientTest)
+{
+	testClientCompilationPass<DerivedProviderClient, OmmProviderClient>();
+}
+
+TEST(Compilation, OmmProviderErrorClientTest)
+{
+	testClientCompilationPass<DerivedProviderErrorClient, OmmProviderErrorClient>();
 }
