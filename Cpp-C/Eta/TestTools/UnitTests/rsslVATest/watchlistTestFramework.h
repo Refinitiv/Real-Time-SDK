@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2021 LSEG. All rights reserved.               --
+ *|         Copyright (C) 2019-2021,2024 LSEG. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -86,7 +86,7 @@ typedef struct
 {
 	WtfComponent		component;	/* Type of component (provider or consumer) */
 	WtfEventType		type;		/* The type of event (e.g. msg event, channel event) */
-	RsslTimeValue			timeUsec;	/* Time (in microseconds) at which the event occurred. */
+	RsslTimeValue		timeUsec;	/* Time (in microseconds) at which the event occurred. */
 } WtfEventBase;
 
 typedef enum
@@ -265,7 +265,7 @@ void wtfCleanup();
 /* Call when finishing a test. Closes component channels. */
 #define wtfFinishTest() (wtfFinishTestInt(), rssl_test_finish())
 
-/* Retrieves an event that was received while perforing an action or calling wtfDispatch(). */
+/* Retrieves an event that was received while performing an action or calling wtfDispatch(). */
 WtfEvent *wtfGetEvent();
 
 /* Uses notification & calls rsslReactorDispatch() on the given component's channel for the
@@ -456,7 +456,7 @@ typedef struct
  * options are provided for minor changes). */
 void wtfSetupConnection(WtfSetupConnectionOpts *pOpts, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET);
 
-void wtfSetupConnectionList(WtfSetupConnectionOpts* pOpts, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET, RsslUInt16 serverIndex = 0);
+void wtfSetupConnectionList(WtfSetupConnectionOpts* pOpts, RsslConnectionTypes connectionType, RsslBool noEventsExpected, RsslUInt16 serverIndex = 0);
 
 void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandbyExpectedMode* pExpectedWarmStandbyMode, 
 	RsslRDMService *pActiveServerService, RsslRDMService* pStandByServerService, RsslBool sendDirectoryRequest = RSSL_FALSE, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET, RsslBool multiLogin = RSSL_FALSE);

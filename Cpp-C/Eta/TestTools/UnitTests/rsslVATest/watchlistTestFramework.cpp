@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|         Copyright (C) 2019-2020,2024 LSEG. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1533,7 +1533,7 @@ void wtfSetupConnection(WtfSetupConnectionOpts *pOpts, RsslConnectionTypes conne
 	
 }
 
-void wtfSetupConnectionList(WtfSetupConnectionOpts* pOpts, RsslConnectionTypes connectionType, RsslUInt16 serverIndex)
+void wtfSetupConnectionList(WtfSetupConnectionOpts* pOpts, RsslConnectionTypes connectionType, RsslBool noEventsExpected, RsslUInt16 serverIndex)
 {
 	RsslReactorSubmitMsgOptions submitOpts;
 	WtfEvent* pEvent;
@@ -1614,7 +1614,7 @@ void wtfSetupConnectionList(WtfSetupConnectionOpts* pOpts, RsslConnectionTypes c
 	rsslClearReactorSubmitMsgOptions(&submitOpts);
 	submitOpts.pRDMMsg = (RsslRDMMsg*)&loginRequest;
 	submitOpts.requestMsgOptions.pUserSpec = (void*)WTF_DEFAULT_LOGIN_USER_SPEC_PTR;
-	wtfSubmitMsg(&submitOpts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+	wtfSubmitMsg(&submitOpts, WTF_TC_CONSUMER, NULL, noEventsExpected);
 
 	if (!pOpts->accept)
 		return;
@@ -1665,7 +1665,7 @@ void wtfSetupConnectionList(WtfSetupConnectionOpts* pOpts, RsslConnectionTypes c
 
 	rsslClearReactorSubmitMsgOptions(&submitOpts);
 	submitOpts.pRDMMsg = (RsslRDMMsg*)&loginRefresh;
-	wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, serverIndex);
+	wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, noEventsExpected, serverIndex);
 
 	/* Consumer receives login response. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
@@ -1776,14 +1776,12 @@ void wtfSetupConnectionList(WtfSetupConnectionOpts* pOpts, RsslConnectionTypes c
 
 		rsslClearReactorSubmitMsgOptions(&submitOpts);
 		submitOpts.pRDMMsg = (RsslRDMMsg*)&directoryRefresh;
-		wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, serverIndex);
-
+		wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, noEventsExpected, serverIndex);
 	}
 
 	/* Consumer should receive no more messages. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(wtf.eventCount == 0);
-
 }
 
 void wtfSendDefaultSourceDirectory(WtfSetupWarmStandbyOpts *pOpts, RsslRDMDirectoryRequest *pRDMDirectoryRequest, RsslUInt16 serverIndex)
@@ -1843,7 +1841,7 @@ void wtfSendDefaultSourceDirectory(WtfSetupWarmStandbyOpts *pOpts, RsslRDMDirect
 	}
 }
 
-void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandbyExpectedMode* pExpectedWarmStandbyMode, RsslRDMService *pActiveServerService, 
+void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandbyExpectedMode* pExpectedWarmStandbyMode, RsslRDMService *pActiveServerService,
 	RsslRDMService* pStandByServerService, RsslBool sendDirectoryRequest, RsslConnectionTypes connectionType, RsslBool multiLogin)
 {
 	RsslReactorSubmitMsgOptions submitOpts;
@@ -1981,7 +1979,7 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 		rsslClearReactorSubmitMsgOptions(&submitOpts);
 		submitOpts.pRDMMsg = (RsslRDMMsg*)&loginRequest;
 		submitOpts.requestMsgOptions.pUserSpec = (void*)WTF_DEFAULT_LOGIN_USER_SPEC_PTR;
-		wtfSubmitMsg(&submitOpts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+		wtfSubmitMsg(&submitOpts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
 
 		if (sendDirectoryRequest)
 		{

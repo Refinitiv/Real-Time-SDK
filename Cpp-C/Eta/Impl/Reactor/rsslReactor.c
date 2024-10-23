@@ -5976,6 +5976,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						case RSSL_RC_CET_CHANNEL_UP:
 						case RSSL_RC_CET_CHANNEL_READY:
 						case RSSL_RC_CET_CHANNEL_DOWN:
+						case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:
 						case RSSL_RCIMPL_CET_PREFERRED_HOST_RECONNECT_COMPLETE:
 							break;
 						case RSSL_RCIMPL_CET_DISPATCH_WL:

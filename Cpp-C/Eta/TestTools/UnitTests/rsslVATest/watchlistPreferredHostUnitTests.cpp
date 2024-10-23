@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2021 LSEG. All rights reserved.                    --
+ *|          Copyright (C) 2021,2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -30,7 +30,7 @@ public:
 
 	friend ostream& operator<<(ostream& out, const PreferredHostTestParameters& params)
 	{
-		out << "Multiple Login mode = " << params.multiLoginMsg << endl;
+		out << "Multiple Login mode = " << (params.multiLoginMsg ? "T" : "F") << endl;
 		return out;
 	}
 };
@@ -105,7 +105,7 @@ void preferredHost_WSBService_FallbackFunctionCall(PreferredHostTestParameters p
  *  WSB index 2 points to server 2 and server 3
  *  The starting connection does not have any services defined
  *  The secondary connection has the service "service1" defined in it's service list.
- *  PH config is set to true, with the WSB group index set to 2, the preferred host timer set to 2 seconds
+ *  PH config is set to true, with the WSB group index set to 2, the preferred host timer set to 3 seconds
  *
  * Test behaviors:
  *	Shut down sever 2 and server 3
@@ -290,7 +290,7 @@ void preferredHost_WSBLogin_FallbackFunctionCall(PreferredHostTestParameters par
  *  WSB index 2 points to server 2 and server 3
  *  The starting connection does not have any services defined
  *  The secondary connection has the service "service1" defined in it's service list.
- *  PH config is set to true, with the WSB group index set to 2, the preferred host timer set to 2 seconds
+ *  PH config is set to true, with the WSB group index set to 2, the preferred host timer set to 3 seconds
  *
  * Test behaviors:
  *	Shut down sever 2 and server 3
@@ -789,33 +789,21 @@ void preferredHost_ChannelList_IOCTL_Fail(PreferredHostTestParameters parameters
 class PreferredHostUnitTest : public ::testing::TestWithParam<PreferredHostTestParameters> {
 public:
 
-	static void SetUpTestCase()
+	virtual void SetUp()
 	{
 		WtfInitOpts wtfInitOpts;
 		wtfClearInitOpts(&wtfInitOpts);
 		wtfInitOpts.numberOfServer = 4;
 		wtfInit(&wtfInitOpts, 0);
+		wtfsleep(200);
 
-		
-	}
-
-	virtual void SetUp()
-	{
 		/* Creates four servers by default. */
 		wtfBindServer(RSSL_CONN_TYPE_SOCKET, const_cast<char*>("14011"));
 		wtfBindServer(RSSL_CONN_TYPE_SOCKET, const_cast<char*>("14012"));
 		wtfBindServer(RSSL_CONN_TYPE_SOCKET, const_cast<char*>("14013"));
 		wtfBindServer(RSSL_CONN_TYPE_SOCKET, const_cast<char*>("14014"));
 
-#ifdef WIN32
-		/* Server might have been closed recently. Give windows a chance to release it. */
-		Sleep(200);
-#endif
-	}
-
-	static void TearDownTestCase()
-	{
-		wtfCleanup();
+		wtfsleep(200);
 	}
 
 	virtual void TearDown()
@@ -824,11 +812,11 @@ public:
 		wtfCloseServer(1);
 		wtfCloseServer(2);
 		wtfCloseServer(3);
+		wtfsleep(200);
 
-#ifdef WIN32
-		/* Server might have been closed recently. Give windows a chance to release it. */
-		Sleep(200);
-#endif
+		wtfCleanup();
+
+		wtfsleep(200);
 	}
 };
 
@@ -2071,7 +2059,7 @@ void preferredHost_ChannelList_FallbackFunctionCall(PreferredHostTestParameters 
 	connOpts.preferredHostOpts.connectionListIndex = 2;
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, 2);
+	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, RSSL_TRUE, 2);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -2355,16 +2343,27 @@ void preferredHost_ChannelList_FallbackFunctionCall(PreferredHostTestParameters 
 	/* Consumer receives a update message from the active service. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+	if (pEvent->base.type == WTF_DE_RSSL_MSG)
+	{
+		RsslMsg* pMsg = (RsslMsg*)wtfGetRsslMsg(pEvent);
+		ASSERT_TRUE(pMsg != NULL);
+		if (pMsg->msgBase.msgClass == RSSL_MC_UPDATE)
+		{
+			ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
+			ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+			ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+			ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+			ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+
+			// Get the next event
+			ASSERT_TRUE(pEvent = wtfGetEvent());
+		}
+	}
 
 	/* Consumer receives Open/Suspect login status. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
 	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
 	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
@@ -2585,7 +2584,7 @@ void preferredHost_ChannelList_FallbackTimer(PreferredHostTestParameters paramet
 	connOpts.preferredHostOpts.detectionTimeInterval = 2;
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, 2);
+	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, RSSL_TRUE, 2);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -2874,16 +2873,27 @@ void preferredHost_ChannelList_FallbackTimer(PreferredHostTestParameters paramet
 	/* Consumer receives a update message from the active service. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+	if (pEvent->base.type == WTF_DE_RSSL_MSG)
+	{
+		RsslMsg* pMsg = (RsslMsg*)wtfGetRsslMsg(pEvent);
+		ASSERT_TRUE(pMsg != NULL);
+		if (pMsg->msgBase.msgClass == RSSL_MC_UPDATE)
+		{
+			ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
+			ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+			ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+			ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+			ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+
+			// Get the next event
+			ASSERT_TRUE(pEvent = wtfGetEvent());
+		}
+	}
 
 	/* Consumer receives Open/Suspect login status. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
 	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
 	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
@@ -3227,21 +3237,19 @@ void preferredHost_WSBLogin_FallbackFunctionCall(PreferredHostTestParameters par
 	/* Setup warm standby connections and source directory information. */
 	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, RSSL_CONN_TYPE_SOCKET, parameters.multiLoginMsg);
 
-	do
+	while(!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
@@ -3614,63 +3622,98 @@ void preferredHost_WSBLogin_FallbackFunctionCall(PreferredHostTestParameters par
 	// Events are expected to be queued here for the initialization of the provider 2 channel.
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_FALSE, 0);
 
-	/* Consumer receives a update message from the active service. */
+	/* Consumer receives several messages from the active service and channel events. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
 
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+	unsigned iRsslMsg = 0;
+	unsigned iRdmMsg = 0;
+	unsigned iChnlEvnt = 0;
 
-	/* Consumer receives Open/Suspect login status. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
-	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
-	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
-	ASSERT_TRUE(pLoginStatus->rdmMsgBase.rdmMsgType == RDM_LG_MT_STATUS);
-	ASSERT_TRUE(pLoginStatus->flags & RDM_LG_STF_HAS_STATE);
-	ASSERT_TRUE(pLoginStatus->state.streamState == RSSL_STREAM_OPEN);
-	ASSERT_TRUE(pLoginStatus->state.dataState == RSSL_DATA_SUSPECT);
-	ASSERT_TRUE(pLoginStatus->state.code == RSSL_SC_NONE);
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+		WtfEventType eventType = pEvent->base.type;
+		switch (eventType) {
+		case WTF_DE_RSSL_MSG:
+		{
+			RsslMsg* pMsg = (RsslMsg*)wtfGetRsslMsg(pEvent);
+			ASSERT_TRUE(pMsg != NULL);
+			if (pMsg->msgBase.msgClass == RSSL_MC_UPDATE)
+			{
+				ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)pMsg);
+				ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+				ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+				ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+				ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+				ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+				ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+			}
+			else if (pMsg->msgBase.msgClass == RSSL_MC_STATUS)
+			{
+				/* Consumer receives item status. */
+				ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)pMsg);
+				ASSERT_TRUE(pStatusMsg->msgBase.streamId == consumerStreamId);
+				ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+				ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
+				ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+				ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+				ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
+				ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+			}
+			else
+			{
+				/* We do not expect additional RsslMsgs. */
+				ASSERT_TRUE(0) << "We do not expect additional RsslMsgs. iRsslMsg: " << iRsslMsg;
+			}
+			++iRsslMsg;
+			break;
+		}
+		case WTF_DE_RDM_MSG:
+		{
+			ASSERT_EQ(0, iRdmMsg) << "We do not expect additional RdmMsgs. iRdmMsg: " << iRdmMsg;
 
-	/* Consumer receives item status. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
-	ASSERT_TRUE(pStatusMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
-	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
-	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
-	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
-	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+			/* Consumer receives Open/Suspect login status. */
+			ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
+			ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
+			ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+			ASSERT_TRUE(pLoginStatus->rdmMsgBase.rdmMsgType == RDM_LG_MT_STATUS);
+			ASSERT_TRUE(pLoginStatus->flags & RDM_LG_STF_HAS_STATE);
+			ASSERT_TRUE(pLoginStatus->state.streamState == RSSL_STREAM_OPEN);
+			ASSERT_TRUE(pLoginStatus->state.dataState == RSSL_DATA_SUSPECT);
+			ASSERT_TRUE(pLoginStatus->state.code == RSSL_SC_NONE);
 
-	// get down_reconnecting
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+			++iRdmMsg;
+			break;
+		}
+		case WTF_DE_CHNL:
+		{
+			/* Get the channel events in order, step by step. */
+			switch (iChnlEvnt) {
+			case 0:
+				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+				break;
+			case 1:
+				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+				break;
+			case 2:
+				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+				break;
+			case 3:
+				ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
+				break;
+			case 4:
+				ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
+				break;
+			default:
+				/* We do not expect additional Channel events. */
+				ASSERT_TRUE(0) << "We do not expect additional Channel events. iChnlEvnt: " << iChnlEvnt;
+			}
 
-	// get CHANNEL_UP
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
-
-	// get CHANNEL_READY or PREFERRED_HOST_COMPLETE
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
-
-	// get CHANNEL_READY or PREFERRED_HOST_COMPLETE
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
+			++iChnlEvnt;
+			break;
+		}
+		default:  break;
+		}
+	}
 
 	/* Provider channel up & ready */
 	wtfDispatch(WTF_TC_PROVIDER, 200, 2);
@@ -4233,6 +4276,16 @@ void preferredHost_WSBLogin_FallbackFunctionCallFromChannelList(PreferredHostTes
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+
+	/* Consumer channel FD change. */
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+
 	wtfDispatch(WTF_TC_CONSUMER, 400);
 
 	wtfDispatch(WTF_TC_PROVIDER, 400, 1);
@@ -4248,13 +4301,6 @@ void preferredHost_WSBLogin_FallbackFunctionCallFromChannelList(PreferredHostTes
 	wtfCloseChannel(WTF_TC_PROVIDER, 1);
 
 	wtfDispatch(WTF_TC_CONSUMER, 400);
-
-#if !defined(_WIN32)
-	/* Consumer channel FD change. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
-#endif
 
 	/* Consumer receives Open/Suspect login status. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -4283,67 +4329,52 @@ void preferredHost_WSBLogin_FallbackFunctionCallFromChannelList(PreferredHostTes
 	ASSERT_TRUE((pEvent = wtfGetEvent()));
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
+	ASSERT_TRUE(pEvent->channelEvent.port == 14012) << " actual port: " << pEvent->channelEvent.port;
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_TRUE(pEvent->channelEvent.port == 14012) << " actual port: " << pEvent->channelEvent.port;
 
-
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
-	ASSERT_TRUE(pEvent != NULL);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_TRUE(pEvent->channelEvent.port == 15000) << " actual port: " << pEvent->channelEvent.port;
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
+	ASSERT_TRUE(pEvent->channelEvent.port == 14011) << " actual port: " << pEvent->channelEvent.port;
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_TRUE(pEvent->channelEvent.port == 16000) << " actual port: " << pEvent->channelEvent.port;
+
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pEvent->channelEvent.port == 14011) << " actual port: " << pEvent->channelEvent.port;
 
 	wtfAccept(2);
 	// startup the servers here so there's time to initialize them in the OS
@@ -4525,59 +4556,96 @@ void preferredHost_WSBLogin_FallbackFunctionCallFromChannelList(PreferredHostTes
 	// Events are expected to be queued here for the initialization of the provider 2 channel.
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_FALSE, 2);
 
-	/* Consumer receives a update message from the active service. */
+	/* Consumer receives several messages from the active service and channel events. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
 
-	/* Consumer receives Open/Suspect login status. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
-	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
-	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
-	ASSERT_TRUE(pLoginStatus->rdmMsgBase.rdmMsgType == RDM_LG_MT_STATUS);
-	ASSERT_TRUE(pLoginStatus->flags & RDM_LG_STF_HAS_STATE);
-	ASSERT_TRUE(pLoginStatus->state.streamState == RSSL_STREAM_OPEN);
-	ASSERT_TRUE(pLoginStatus->state.dataState == RSSL_DATA_SUSPECT);
-	ASSERT_TRUE(pLoginStatus->state.code == RSSL_SC_NONE);
+	unsigned iRsslMsg = 0;
+	unsigned iRdmMsg = 0;
+	unsigned iChnlEvnt = 0;
 
-	/* Consumer receives item status. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
-	ASSERT_TRUE(pStatusMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
-	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
-	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
-	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
-	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+		WtfEventType eventType = pEvent->base.type;
+		switch (eventType) {
+		case WTF_DE_RSSL_MSG:
+		{
+			RsslMsg* pMsg = (RsslMsg*)wtfGetRsslMsg(pEvent);
+			ASSERT_TRUE(pMsg != NULL);
+			if (pMsg->msgBase.msgClass == RSSL_MC_UPDATE)
+			{
+				ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)pMsg);
+				ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+				ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+				ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+				ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+				ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+				ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+			}
+			else if (pMsg->msgBase.msgClass == RSSL_MC_STATUS)
+			{
+				/* Consumer receives item status. */
+				ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)pMsg);
+				ASSERT_TRUE(pStatusMsg->msgBase.streamId == consumerStreamId);
+				ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+				ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
+				ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+				ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+				ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
+				ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+			}
+			else
+			{
+				/* We do not expect additional RsslMsgs. */
+				ASSERT_TRUE(0) << "We do not expect additional RsslMsgs. iRsslMsg: " << iRsslMsg;
+			}
+			++iRsslMsg;
+			break;
+		}
+		case WTF_DE_RDM_MSG:
+		{
+			ASSERT_EQ(0, iRdmMsg) << "We do not expect additional RdmMsgs. iRdmMsg: " << iRdmMsg;
 
-	// get down_reconnecting
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+			/* Consumer receives Open/Suspect login status. */
+			ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
+			ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
+			ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+			ASSERT_TRUE(pLoginStatus->rdmMsgBase.rdmMsgType == RDM_LG_MT_STATUS);
+			ASSERT_TRUE(pLoginStatus->flags & RDM_LG_STF_HAS_STATE);
+			ASSERT_TRUE(pLoginStatus->state.streamState == RSSL_STREAM_OPEN);
+			ASSERT_TRUE(pLoginStatus->state.dataState == RSSL_DATA_SUSPECT);
+			ASSERT_TRUE(pLoginStatus->state.code == RSSL_SC_NONE);
 
-	// get CHANNEL_UP
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+			++iRdmMsg;
+			break;
+		}
+		case WTF_DE_CHNL:
+		{
+			/* Get the channel events in order, step by step. */
+			switch (iChnlEvnt) {
+			case 0:
+				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+				ASSERT_TRUE(pEvent->channelEvent.port == 14013) << " actual port: " << pEvent->channelEvent.port;
+				break;
+			case 1:
+				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+				break;
+			case 2:
+				ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
+				break;
+			case 3:
+				ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
+				break;
+			default:
+				/* We do not expect additional Channel events. */
+				ASSERT_TRUE(0) << "We do not expect additional Channel events. iChnlEvnt: " << iChnlEvnt;
+			}
 
-	// get CHANNEL_READY or PREFERRED_HOST_COMPLETE
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
-
-	// get CHANNEL_READY or PREFERRED_HOST_COMPLETE
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
+			++iChnlEvnt;
+			break;
+		}
+		default:  break;
+		}
+	}
 
 	/* Provider channel up & ready */
 	wtfDispatch(WTF_TC_PROVIDER, 200, 0);
@@ -5133,6 +5201,16 @@ void preferredHost_WSBLogin_FallbackFromChannelListAfterDisconnect(PreferredHost
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+
+	/* Consumer channel FD change. */
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+
 	wtfDispatch(WTF_TC_CONSUMER, 400);
 
 	wtfDispatch(WTF_TC_PROVIDER, 400, 1);
@@ -5148,13 +5226,6 @@ void preferredHost_WSBLogin_FallbackFromChannelListAfterDisconnect(PreferredHost
 	wtfCloseChannel(WTF_TC_PROVIDER, 1);
 
 	wtfDispatch(WTF_TC_CONSUMER, 400);
-
-#if !defined(_WIN32)
-	/* Consumer channel FD change. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
-#endif
 
 	/* Consumer receives Open/Suspect login status. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -5183,67 +5254,52 @@ void preferredHost_WSBLogin_FallbackFromChannelListAfterDisconnect(PreferredHost
 	ASSERT_TRUE((pEvent = wtfGetEvent()));
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
+	ASSERT_EQ(pEvent->channelEvent.port, 14012);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 14012);
 
-
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
-	ASSERT_TRUE(pEvent != NULL);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
+	ASSERT_EQ(pEvent->channelEvent.port, 14011);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 16000);
+
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_EQ(pEvent->channelEvent.port, 14011);
 
 	wtfAccept(2);
 	// startup the servers here so there's time to initialize them in the OS
@@ -6025,6 +6081,16 @@ void preferredHost_WSBLogin_ReconnectToPreferredAfterChannelListReconnectAttempt
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+
+	/* Consumer channel FD change. */
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+
 	wtfDispatch(WTF_TC_CONSUMER, 400);
 
 	wtfDispatch(WTF_TC_PROVIDER, 400, 1);
@@ -6068,81 +6134,65 @@ void preferredHost_WSBLogin_ReconnectToPreferredAfterChannelListReconnectAttempt
 	ASSERT_TRUE((pEvent = wtfGetEvent()));
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
+	ASSERT_EQ(pEvent->channelEvent.port, 14012);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 14012);
 
-
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
-	ASSERT_TRUE(pEvent != NULL);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
+	ASSERT_EQ(pEvent->channelEvent.port, 14011);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 16000);
+
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_EQ(pEvent->channelEvent.port, 14011);
 
 	// startup the servers here so there's time to initialize them in the OS
 	wtfRestartServer(0);
 	wtfRestartServer(1);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
+	ASSERT_EQ(pEvent->channelEvent.port, 10000);
 
 	// Accept the start of the WSB group.
 	wtfAccept(0);
@@ -6577,7 +6627,7 @@ void preferredHost_WSBLogin_FallbackTimer(PreferredHostTestParameters parameters
 	connOpts.preferredHostOpts.fallBackWithInWSBGroup = RSSL_FALSE;
 	connOpts.preferredHostOpts.warmStandbyGroupListIndex = 2;
 	connOpts.preferredHostOpts.connectionListIndex = 2;
-	connOpts.preferredHostOpts.detectionTimeInterval = 2;
+	connOpts.preferredHostOpts.detectionTimeInterval = 3;
 
 	wtfSetService1Info(&rdmService[0]);
 	wtfSetService1Info(&rdmService[1]);
@@ -6587,21 +6637,19 @@ void preferredHost_WSBLogin_FallbackTimer(PreferredHostTestParameters parameters
 	/* Setup warm standby connections and source directory information. */
 	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, RSSL_CONN_TYPE_SOCKET, parameters.multiLoginMsg);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
@@ -6609,6 +6657,9 @@ void preferredHost_WSBLogin_FallbackTimer(PreferredHostTestParameters parameters
 
 	/* Provider should now accept. */
 	wtfAccept(0);
+
+	/* Established connection on the non-preferred host. */
+	/* ReactorWorker starts timer: fallback by timeout. */
 
 	/* Provider channel up & ready
 	 * (must be checked before consumer; in the case of raw providers,
@@ -6727,7 +6778,7 @@ void preferredHost_WSBLogin_FallbackTimer(PreferredHostTestParameters parameters
 
 
 	/* Dispatch to make a connection to secondary server. */
-	wtfDispatch(WTF_TC_CONSUMER, 800);
+	wtfDispatch(WTF_TC_CONSUMER, 400);
 	/* Consumer should receive no more messages. */
 	ASSERT_FALSE(pEvent = wtfGetEvent());
 
@@ -6787,7 +6838,11 @@ void preferredHost_WSBLogin_FallbackTimer(PreferredHostTestParameters parameters
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.warmStandbyInfo.warmStandbyMode == warmStandbyExpectedMode[1].warmStandbyMode);
 	ASSERT_TRUE(pEvent->rdmMsg.serverIndex == 1);
 
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_PROVIDER, 200, 1, 1);
+	}
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REQUEST);
@@ -6834,9 +6889,12 @@ void preferredHost_WSBLogin_FallbackTimer(PreferredHostTestParameters parameters
 	wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 1);
 
 
-	wtfDispatch(WTF_TC_CONSUMER, 1000);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 500);
+	}
 	// Get PREFERRED_HOST_COMPLETE
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
 
@@ -6970,17 +7028,28 @@ void preferredHost_WSBLogin_FallbackTimer(PreferredHostTestParameters parameters
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_FALSE, 0);
 
 	/* Consumer receives a update message from the active service. */
-	wtfDispatch(WTF_TC_CONSUMER, 100);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+	wtfDispatch(WTF_TC_CONSUMER, 200);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
 
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	// Consumer might receive a update msg
+	ASSERT_TRUE(pEvent != NULL);
+	if (pEvent->base.type == WTF_DE_RSSL_MSG)
+	{
+		ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
+		ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+		ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+		ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+		ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+		ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+		ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+
+		// Get the next event
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+	}
+
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
@@ -7240,10 +7309,12 @@ void preferredHost_WSBLogin_FallbackTimer(PreferredHostTestParameters parameters
 	wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 3);
 
 
-	wtfDispatch(WTF_TC_CONSUMER, 1000);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 500);
+	}
 
-	// Consumer may get PREFERRED_HOST_COMPLETE
-	pEvent = wtfGetEvent();
+	// Consumer gets PREFERRED_HOST_COMPLETE
 	if (pEvent != NULL)
 	{
 		ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
@@ -7435,21 +7506,19 @@ void preferredHost_WSBService_InvalidWSBGroupFallbackFunctionCall(PreferredHostT
 	/* Setup warm standby connections and source directory information. */
 	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, RSSL_CONN_TYPE_SOCKET, RSSL_FALSE);
 
-	do
+	while(!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
@@ -8359,21 +8428,19 @@ void preferredHost_WSBService_FallbackFunctionCall(PreferredHostTestParameters p
 	/* Setup warm standby connections and source directory information. */
 	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, RSSL_CONN_TYPE_SOCKET, parameters.multiLoginMsg);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
@@ -8751,17 +8818,29 @@ void preferredHost_WSBService_FallbackFunctionCall(PreferredHostTestParameters p
 
 	/* Consumer receives a update message from the active service. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
+
 	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+	if (pEvent->base.type == WTF_DE_RSSL_MSG)
+	{
+		RsslMsg* pMsg = (RsslMsg*)wtfGetRsslMsg(pEvent);
+		ASSERT_TRUE(pMsg != NULL);
+		if (pMsg->msgBase.msgClass == RSSL_MC_UPDATE)
+		{
+			ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
+			ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+			ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+			ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+			ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+
+			// Get the next event
+			ASSERT_TRUE(pEvent = wtfGetEvent());
+		}
+	}
 
 	/* Consumer receives item status. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
 	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
 	ASSERT_TRUE(pStatusMsg->msgBase.streamId == consumerStreamId);
@@ -9376,19 +9455,20 @@ void preferredHost_WSBService_FallbackFunctionCallFromChannelList(PreferredHostT
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
-	wtfDispatch(WTF_TC_CONSUMER, 400);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+
+	/* Consumer channel FD change. */
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
 	/* Closes the channel of the active server. */
 	wtfCloseChannel(WTF_TC_PROVIDER, 1);
 
 	wtfDispatch(WTF_TC_CONSUMER, 400);
-
-#if !defined(_WIN32)
-	/* Consumer channel FD change. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
-#endif
 
 	/* Consumer receives Open/Suspect login status. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -9417,67 +9497,52 @@ void preferredHost_WSBService_FallbackFunctionCallFromChannelList(PreferredHostT
 	ASSERT_TRUE((pEvent = wtfGetEvent()));
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
+	ASSERT_EQ(pEvent->channelEvent.port, 14012);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 14012);
 
-
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
-	ASSERT_TRUE(pEvent != NULL);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
+	ASSERT_EQ(pEvent->channelEvent.port, 14011);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 16000);
+
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_EQ(pEvent->channelEvent.port, 14011);
 
 	wtfAccept(2);
 	// startup the servers here so there's time to initialize them in the OS
@@ -9485,8 +9550,11 @@ void preferredHost_WSBService_FallbackFunctionCallFromChannelList(PreferredHostT
 	wtfRestartServer(1);
 
 	/* Consumer channel up. */
-	wtfDispatch(WTF_TC_CONSUMER, 100);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 100);
+	}
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
 
@@ -9615,8 +9683,11 @@ void preferredHost_WSBService_FallbackFunctionCallFromChannelList(PreferredHostT
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 2);
 
 	/* Consumer receives a refresh message from the provider. */
-	wtfDispatch(WTF_TC_CONSUMER, 400);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 400);
+	}
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pRefreshMsg = (RsslRefreshMsg*)wtfGetRsslMsg(pEvent));
 	ASSERT_TRUE(pRefreshMsg->msgBase.streamId == consumerStreamId);
 	ASSERT_TRUE(pRefreshMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
@@ -9659,19 +9730,30 @@ void preferredHost_WSBService_FallbackFunctionCallFromChannelList(PreferredHostT
 	// Events are expected to be queued here for the initialization of the provider 2 channel.
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_FALSE, 2);
 
-	/* Consumer receives a update message from the active service. */
-	wtfDispatch(WTF_TC_CONSUMER, 100);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+	wtfDispatch(WTF_TC_CONSUMER, 200);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+	ASSERT_TRUE(pEvent != NULL);
+
+	/* Consumer may receive a update message from the active service. */
+	if (pEvent->base.type == WTF_DE_RSSL_MSG)
+	{
+		ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
+		ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+		ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+		ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+		ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+		ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+		ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+
+		// Get the next event
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+	}
 
 	/* Consumer receives Open/Suspect login status. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
 	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
 	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
@@ -10262,20 +10344,20 @@ void preferredHost_WSBService_FallbackFromChannelListAfterDisconnect(PreferredHo
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
-	wtfDispatch(WTF_TC_CONSUMER, 400);
-	ASSERT_FALSE(pEvent = wtfGetEvent());
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+
+	/* Consumer channel FD change. */
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
 	/* Closes the channel of the active server. */
 	wtfCloseChannel(WTF_TC_PROVIDER, 1);
 
 	wtfDispatch(WTF_TC_CONSUMER, 400);
-
-#if !defined(_WIN32)
-	/* Consumer channel FD change. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
-#endif
 
 	/* Consumer receives Open/Suspect login status. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -10304,67 +10386,52 @@ void preferredHost_WSBService_FallbackFromChannelListAfterDisconnect(PreferredHo
 	ASSERT_TRUE((pEvent = wtfGetEvent()));
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
+	ASSERT_EQ(pEvent->channelEvent.port, 14012);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 14012);
 
-
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
-	ASSERT_TRUE(pEvent != NULL);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
+	ASSERT_EQ(pEvent->channelEvent.port, 14011);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 16000);
+
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_EQ(pEvent->channelEvent.port, 14011);
 
 	wtfAccept(2);
 	// startup the servers here so there's time to initialize them in the OS
@@ -10502,8 +10569,11 @@ void preferredHost_WSBService_FallbackFromChannelListAfterDisconnect(PreferredHo
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 2);
 
 	/* Consumer receives a refresh message from the provider. */
-	wtfDispatch(WTF_TC_CONSUMER, 400);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 400);
+	}
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pRefreshMsg = (RsslRefreshMsg*)wtfGetRsslMsg(pEvent));
 	ASSERT_TRUE(pRefreshMsg->msgBase.streamId == consumerStreamId);
 	ASSERT_TRUE(pRefreshMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
@@ -11142,7 +11212,15 @@ void preferredHost_WSBService_ReconnectToPreferredAfterChannelListReconnectAttem
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
-	wtfDispatch(WTF_TC_CONSUMER, 400);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+
+	/* Consumer channel FD change. */
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
 	/* Closes the channel of the active server. */
 	wtfCloseChannel(WTF_TC_PROVIDER, 1);
@@ -11176,81 +11254,65 @@ void preferredHost_WSBService_ReconnectToPreferredAfterChannelListReconnectAttem
 	ASSERT_TRUE((pEvent = wtfGetEvent()));
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
+	ASSERT_EQ(pEvent->channelEvent.port, 14012);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 14012);
 
-
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14012);
-	ASSERT_TRUE(pEvent != NULL);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
-
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
+	ASSERT_EQ(pEvent->channelEvent.port, 14011);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14011);
+	ASSERT_EQ(pEvent->channelEvent.port, 16000);
+
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	}
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_EQ(pEvent->channelEvent.port, 14011);
 
 	// startup the servers here so there's time to initialize them in the OS
 	wtfRestartServer(0);
 	wtfRestartServer(1);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
+	ASSERT_EQ(pEvent->channelEvent.port, 10000);
 
 	// Accept the start of the WSB group.
 	wtfAccept(0);
@@ -11398,8 +11460,12 @@ void preferredHost_WSBService_ReconnectToPreferredAfterChannelListReconnectAttem
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
 
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_PROVIDER, 200, 1);
+	}
 	/* Provider receives login request. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
@@ -11689,7 +11755,7 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 	connOpts.preferredHostOpts.fallBackWithInWSBGroup = RSSL_FALSE;
 	connOpts.preferredHostOpts.warmStandbyGroupListIndex = 2;
 	connOpts.preferredHostOpts.connectionListIndex = 2;
-	connOpts.preferredHostOpts.detectionTimeInterval = 2;
+	connOpts.preferredHostOpts.detectionTimeInterval = 3;
 
 	wtfSetService1Info(&rdmService[0]);
 	wtfSetService1Info(&rdmService[1]);
@@ -11699,21 +11765,20 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 	/* Setup warm standby connections and source directory information. */
 	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, RSSL_CONN_TYPE_SOCKET, parameters.multiLoginMsg);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING || pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+	if (pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING)
+		ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
@@ -11721,6 +11786,9 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 
 	/* Provider should now accept. */
 	wtfAccept(0);
+
+	/* Established connection on the non-preferred host. */
+	/* ReactorWorker starts timer: fallback by timeout. */
 
 	/* Provider channel up & ready
 	 * (must be checked before consumer; in the case of raw providers,
@@ -11829,13 +11897,14 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 	submitOpts.pRDMMsg = (RsslRDMMsg*)&directoryRefresh;
 	wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 0);
 
-
 	/* Dispatch to make a connection to secondary server. */
-	wtfDispatch(WTF_TC_CONSUMER, 800);
+	wtfDispatch(WTF_TC_CONSUMER, 400);
+
 	/* Consumer should receive no more messages. */
 	ASSERT_FALSE(pEvent = wtfGetEvent());
 
 	wtfDispatch(WTF_TC_PROVIDER, 400, 0);
+
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
@@ -11890,9 +11959,12 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 	/* Consumer receives login response. */
 	wtfDispatch(WTF_TC_CONSUMER, 200);
 
-	wtfDispatch(WTF_TC_PROVIDER, 200, 1, 1);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_PROVIDER, 200, 1, 1);
+	}
 
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REQUEST);
@@ -11939,10 +12011,13 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 	wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 1);
 
 
-	wtfDispatch(WTF_TC_CONSUMER, 1000);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 500);
+	}
 
 	// Get PREFERRED_HOST_COMPLETE
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
 
@@ -12088,16 +12163,27 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 	/* Consumer receives a update message from the active service. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+	if (pEvent->base.type == WTF_DE_RSSL_MSG)
+	{
+		RsslMsg* pMsg = (RsslMsg*)wtfGetRsslMsg(pEvent);
+		ASSERT_TRUE(pMsg != NULL);
+		if (pMsg->msgBase.msgClass == RSSL_MC_UPDATE)
+		{
+			ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
+			ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+			ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+			ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+			ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+
+			// Get the next event
+			ASSERT_TRUE(pEvent = wtfGetEvent());
+		}
+	}
 
 	/* Consumer receives item status. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
 	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
 	ASSERT_TRUE(pStatusMsg->msgBase.streamId == consumerStreamId);
@@ -12576,21 +12662,19 @@ void preferredHost_WSBLogin_InvalidWSBGroupFallbackFunctionCall(PreferredHostTes
 	/* Setup warm standby connections and source directory information. */
 	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, RSSL_CONN_TYPE_SOCKET, RSSL_FALSE);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
@@ -13006,255 +13090,236 @@ void preferredHost_WSB_ReconnectOrder_FirstGroupPreferred(PreferredHostTestParam
 	// C0 is port 10000
 	// C1 is port 11000
 	// C2 is port 12000
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 11000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 12000);
+
+	// Get all of the new events before finish test.
+	// Under Linux the channel reconnection procedure performed really fast when the open operation returns fail.
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+	};
 
 	wtfFinishTest();
 }
@@ -13428,255 +13493,236 @@ void preferredHost_WSB_ReconnectOrder_MiddleGroupPreferred(PreferredHostTestPara
 	// C0 is port 10000
 	// C1 is port 11000
 	// C2 is port 12000
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 11000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 11000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 12000);
+
+	// Get all of the new events before finish test.
+	// Under Linux the channel reconnection procedure performed really fast when the open operation returns fail.
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+	};
 
 	wtfFinishTest();
 }
@@ -13850,255 +13896,236 @@ void preferredHost_WSB_ReconnectOrder_LastGroupPreferred(PreferredHostTestParame
 	// C0 is port 10000
 	// C1 is port 11000
 	// C2 is port 12000
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 	
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 12000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 12000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 11000);
+
+	// Get all of the new events before finish test.
+	// Under Linux the channel reconnection procedure performed really fast when the open operation returns fail.
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+	};
 
 	wtfFinishTest();
 }
@@ -14238,105 +14265,101 @@ void preferredHost_WSB_ReconnectOrder_FirstGroupPreferred_NoChannelList(Preferre
 	// G1 is port 16000
 	// G2 is port 17000
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
+
+	// Get all of the new events before finish test.
+	// Under Linux the channel reconnection procedure performed really fast when the open operation returns fail.
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+	};
 
 	wtfFinishTest();
 }
@@ -14475,105 +14498,101 @@ void preferredHost_WSB_ReconnectOrder_MiddleGroupPreferred_NoChannelList(Preferr
 	// G0 is port 15000
 	// G1 is port 16000
 	// G2 is port 17000
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
+
+	// Get all of the new events before finish test.
+	// Under Linux the channel reconnection procedure performed really fast when the open operation returns fail.
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+	};
 
 	wtfFinishTest();
 }
@@ -14712,105 +14731,101 @@ void preferredHost_WSB_ReconnectOrder_LastGroupPreferred_NoChannelList(Preferred
 	// G0 is port 15000
 	// G1 is port 16000
 	// G2 is port 17000
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 15000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 16000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 17000);
+
+	// Get all of the new events before finish test.
+	// Under Linux the channel reconnection procedure performed really fast when the open operation returns fail.
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+	};
 
 	wtfFinishTest();
 }
@@ -14896,7 +14911,7 @@ void preferredHost_ChannelList_IOCTL(PreferredHostTestParameters parameters)
 	connOpts.preferredHostOpts.connectionListIndex = 2;
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, 2);
+	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, RSSL_TRUE, 2);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -15321,16 +15336,27 @@ void preferredHost_ChannelList_IOCTL(PreferredHostTestParameters parameters)
 	/* Consumer receives a update message from the active service. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+	if (pEvent->base.type == WTF_DE_RSSL_MSG)
+	{
+		RsslMsg* pMsg = (RsslMsg*)wtfGetRsslMsg(pEvent);
+		ASSERT_TRUE(pMsg != NULL);
+		if (pMsg->msgBase.msgClass == RSSL_MC_UPDATE)
+		{
+			ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
+			ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+			ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+			ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+			ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+
+			// Get the next event
+			ASSERT_TRUE(pEvent = wtfGetEvent());
+		}
+	}
 
 	/* Consumer receives Open/Suspect login status. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
 	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
 	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
@@ -16443,21 +16469,19 @@ void preferredHost_WSB_IOCTL(PreferredHostTestParameters parameters)
 	/* Setup warm standby connections and source directory information. */
 	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, RSSL_CONN_TYPE_SOCKET, parameters.multiLoginMsg);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	}
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
@@ -17035,15 +17059,26 @@ void preferredHost_WSB_IOCTL(PreferredHostTestParameters parameters)
 	/* Consumer receives a update message from the active service. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+	if (pEvent->base.type == WTF_DE_RSSL_MSG)
+	{
+		RsslMsg* pMsg = (RsslMsg*)wtfGetRsslMsg(pEvent);
+		ASSERT_TRUE(pMsg != NULL);
+		if (pMsg->msgBase.msgClass == RSSL_MC_UPDATE)
+		{
+			ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
+			ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+			ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+			ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+			ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
 
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+			// Get the next event
+			ASSERT_TRUE(pEvent = wtfGetEvent());
+		}
+	}
+
+	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
@@ -17403,7 +17438,7 @@ void preferredHost_ChannelList_ReconnectOrder_FirstPreferred(PreferredHostTestPa
 	connOpts.accept = RSSL_FALSE;
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET);
+	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, RSSL_FALSE);
 
 	// Expected connection order(* is configured preferred):
 	// C0*, C1, C0*, C2...
@@ -17411,55 +17446,57 @@ void preferredHost_ChannelList_ReconnectOrder_FirstPreferred(PreferredHostTestPa
 	// C0 is port 10000
 	// C1 is port 11000
 	// C2 is port 12000
-	do
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
-	ASSERT_TRUE(pEvent != NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 11000);
+	ASSERT_TRUE(pEvent->channelEvent.port == 10000) << "Expected port is 10000. port: " << pEvent->channelEvent.port;
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
+	ASSERT_TRUE(pEvent->channelEvent.port == 11000) << "Expected port is 11000. port: " << pEvent->channelEvent.port;
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 12000);
+	ASSERT_TRUE(pEvent->channelEvent.port == 10000) << "Expected port is 10000. port: " << pEvent->channelEvent.port;
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
+	ASSERT_TRUE(pEvent->channelEvent.port == 12000) << "Expected port is 12000. port: " << pEvent->channelEvent.port;
+
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 200);
+	};
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pEvent->channelEvent.port == 10000) << "Expected port is 10000. port: " << pEvent->channelEvent.port;
+
+	// Get all of the new events before finish test.
+	// Under Linux the channel reconnection procedure performed really fast when the open operation returns fail.
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+	};
 
 	wtfFinishTest();
 }
@@ -17529,7 +17566,7 @@ void preferredHost_ChannelList_ReconnectOrder_MiddlePreferred(PreferredHostTestP
 	connOpts.accept = RSSL_FALSE;
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET);
+	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, RSSL_FALSE);
 
 	// Expected connection order(* is configured preferred):
 	// C1*, C0, C1*, C2...
@@ -17537,55 +17574,57 @@ void preferredHost_ChannelList_ReconnectOrder_MiddlePreferred(PreferredHostTestP
 	// C0 is port 10000
 	// C1 is port 11000
 	// C2 is port 12000
-	do
+
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 11000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 11000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 12000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 11000);
+
+	// Get all of the new events before finish test.
+	// Under Linux the channel reconnection procedure performed really fast when the open operation returns fail.
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+	};
 
 	wtfFinishTest();
 }
@@ -17655,7 +17694,7 @@ void preferredHost_ChannelList_ReconnectOrder_LastPreferred(PreferredHostTestPar
 	connOpts.accept = RSSL_FALSE;
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET);
+	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, RSSL_FALSE);
 
 	// Expected connection order(* is configured preferred):
 	// C2*, C0, C2*, C1...
@@ -17663,55 +17702,57 @@ void preferredHost_ChannelList_ReconnectOrder_LastPreferred(PreferredHostTestPar
 	// C0 is port 10000
 	// C1 is port 11000
 	// C2 is port 12000
-	do
+
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 12000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 10000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 12000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 11000);
 
-	do
+	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 200);
-		pEvent = wtfGetEvent();
-	} while (pEvent == NULL);
+	};
 	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 12000);
+
+	// Get all of the new events before finish test.
+	// Under Linux the channel reconnection procedure performed really fast when the open operation returns fail.
+	while ((pEvent = wtfGetEvent()) != NULL)
+	{
+	};
 
 	wtfFinishTest();
 }
@@ -17780,7 +17821,7 @@ void preferredHost_ChannelList_ConnectionUp(PreferredHostTestParameters paramete
 	connOpts.preferredHostOpts.connectionListIndex = 2;
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, 2);
+	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, RSSL_TRUE, 2);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -17879,7 +17920,7 @@ void preferredHost_ChannelList_ConnectionUp_NoWatchlist(PreferredHostTestParamet
 	connOpts.preferredHostOpts.connectionListIndex = 2;
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, 2);
+	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, RSSL_TRUE, 2);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -17994,7 +18035,7 @@ void preferredHost_ChannelList_InvalidServerFallbackFunctionCall(PreferredHostTe
 	connOpts.preferredHostOpts.connectionListIndex = 2;
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, 2);
+	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, RSSL_TRUE, 2);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -18283,24 +18324,57 @@ void preferredHost_ChannelList_InvalidServerFallbackFunctionCall(PreferredHostTe
 
 	/* Consumer receives a update message from the active service. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
-	ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
-	ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
-	ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
-	ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
 
-	// Get PREFERRED_HOST_COMPLETE
+	/* Expects 2 events: a update message event and PREFERRED_HOST_COMPLETE channel event */
+	RsslInt32 k = 0;
+	RsslBool updMsgEvent = RSSL_FALSE;
+	RsslBool prefHostEvent = RSSL_FALSE;
+
 	pEvent = wtfGetEvent();
-	if (pEvent == NULL)
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 10000);
-		ASSERT_TRUE(pEvent = wtfGetEvent());
-	}
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
+	do {
+		ASSERT_TRUE(pEvent != NULL);
+		WtfEventType eventType = pEvent->base.type;
+
+		if (eventType == WTF_DE_RSSL_MSG && !updMsgEvent)
+		{
+			updMsgEvent = RSSL_TRUE;
+			ASSERT_TRUE(pUpdateMsg = (RsslUpdateMsg*)wtfGetRsslMsg(pEvent));
+			ASSERT_TRUE(pUpdateMsg->msgBase.streamId == consumerStreamId);
+			ASSERT_TRUE(pUpdateMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+			ASSERT_TRUE(pUpdateMsg->msgBase.containerType == RSSL_DT_FIELD_LIST);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.flags == RSSL_MKF_HAS_SERVICE_ID);
+			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
+			ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
+		}
+		else if (eventType == WTF_DE_CHNL && !prefHostEvent)
+		{
+			// Get PREFERRED_HOST_COMPLETE
+			prefHostEvent = RSSL_TRUE;
+			ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
+			ASSERT_NE(pEvent->channelEvent.rsslErrorId, RSSL_RET_SUCCESS) << "Expected an error as a result of the fallback operation";
+		}
+		else
+		{
+			// If we are here, so this is an error.
+			ASSERT_TRUE(0) << "eventType: " << eventType << "; updMsgEvent: " << (updMsgEvent ? "T" : "F") << "; prefHostEvent: " << (prefHostEvent ? "T" : "F");
+		}
+
+		// When the both expected events were received - exit from the loop
+		if (updMsgEvent && prefHostEvent)
+			break;
+
+		// Waits for the next (2-nd) event
+		RsslUInt timeoutMs = 0;
+
+		pEvent = wtfGetEvent();
+		while (pEvent == NULL && timeoutMs < 10000)
+		{
+			wtfDispatch(WTF_TC_CONSUMER, 500);			
+			timeoutMs += 500;
+
+			pEvent = wtfGetEvent();
+		}
+	} while (++k < 2);
 
 	wtfFinishTest();
 }
@@ -18374,7 +18448,7 @@ void preferredHost_ChannelList_IOCTL_Fail(PreferredHostTestParameters parameters
 	connOpts.preferredHostOpts.connectionListIndex = 2;
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, 2);
+	wtfSetupConnectionList(&connOpts, RSSL_CONN_TYPE_SOCKET, RSSL_TRUE, 2);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
