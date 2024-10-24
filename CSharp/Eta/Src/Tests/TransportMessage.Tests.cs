@@ -849,7 +849,7 @@ public class TransportMessageTests
 
     /// Start and initialize the client channels.
     public IChannel StartClientChannel(int guaranteedOutputBuffers,
-            bool blocking, bool writeLocking, CompressionType compressionType, string portNumber, EncryptionProtocolFlags? encryption)
+            bool blocking, bool writeLocking, CompressionType compressionType, string portNumber, int? sysBufSize, EncryptionProtocolFlags? encryption)
     {
         output.WriteLine("StartClientChannel(): entered");
 
@@ -862,7 +862,11 @@ public class TransportMessageTests
         connectOptions.CompressionType = compressionType;
         connectOptions.ChannelWriteLocking = writeLocking;
         connectOptions.GuaranteedOutputBuffers = guaranteedOutputBuffers;
-
+        if (sysBufSize is not null)
+        {
+            connectOptions.SysSendBufSize = sysBufSize.Value;
+            connectOptions.SysRecvBufSize = sysBufSize.Value;
+        }
         Error error = new Error();
         InProgInfo inProgInfo = new InProgInfo();
 
@@ -1211,7 +1215,7 @@ public class TransportMessageTests
         internal int ExpectedUncompressedBytes = -1;
         internal bool Encrypted = false;
         internal EncryptionProtocolFlags EncryptionProtocol = EncryptionProtocolFlags.ENC_NONE;
-
+        internal int? SysBufSize;
         private static int portNumber = 15200;
         internal string PORT_NUMBER;
 
@@ -2084,6 +2088,7 @@ public class TransportMessageTests
         args.CompressionLevel = 6;
         args.Encrypted = true;
         args.EncryptionProtocol = encryptionProtocol;
+        args.SysBufSize = 65535 * 4;
 
         int[] sizes = { 500000 };
         args.MessageSizes = sizes;
@@ -2377,6 +2382,7 @@ public class TransportMessageTests
         EtaNetServer server = new EtaNetServer(bindOptions, acceptOptions, args.GlobalLocking, args, output);
         Thread serverThread = new Thread(server.Run);
         Thread clientThread = null;
+        EtaNetClient etaNetClient = null;
         try
         {
             serverThread.Start();
@@ -2399,11 +2405,12 @@ public class TransportMessageTests
                                                         args.WriteLocking,
                                                         args.CompressionType,
                                                         args.PORT_NUMBER,
+                                                        args.SysBufSize,
                                                         args.EncryptionProtocol);
             // "StartClientChannel failed, check output"
             Assert.NotNull(clientChannel);
 
-            EtaNetClient etaNetClient = new EtaNetClient(1, // etaNetClientCount
+            etaNetClient = new EtaNetClient(1, // etaNetClientCount
                                                          0, // priority
                                                          clientChannel,
                                                          args.GlobalLocking,
@@ -2501,7 +2508,7 @@ public class TransportMessageTests
         catch (Exception)
         {
             // gracefully terminate threads if something goes wrong (like assertion failure)
-            TerminateServerAndClients(serverThread, null, clientThread, null, null);
+            TerminateServerAndClients(serverThread, server, clientThread, etaNetClient, null);
             throw;
         }
         output.WriteLine("TestRunner finished");
@@ -2547,7 +2554,7 @@ public class TransportMessageTests
             {
                 // start the channels that represent client session
                 IChannel clientChannel = StartClientChannel(args.GuaranteedOutputBuffers,
-                                                            args.Blocking, args.WriteLocking, args.CompressionType, args.PORT_NUMBER, null);
+                                                            args.Blocking, args.WriteLocking, args.CompressionType, args.PORT_NUMBER, null, null);
                 // StartClientChannel failed, check output
                 Assert.NotNull(clientChannel);
 
@@ -2629,5 +2636,5 @@ public class TransportMessageTests
 
     }
 
-#endregion
+    #endregion
 }
