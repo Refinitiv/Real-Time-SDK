@@ -1382,8 +1382,7 @@ namespace LSEG.Eta.Codec
                         if (outIterCount + 1 > rmtesBuffer.AllocatedLength)
                             return CodecReturnCode.BUFFER_TOO_SMALL;
 
-                        rmtesBuffer.Data.WriteAt(outIterCount++, rmtesBuffer.Data.Contents[outIterCount]);
-                        inIterCount++;
+                        rmtesBuffer.Data.WriteAt(outIterCount++, cacheBuffer.Data.Contents[inIterCount++]);
                     }
                 }
             }

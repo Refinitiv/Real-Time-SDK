@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.eta.codec;
@@ -325,6 +325,15 @@ public class RmtesJunit
         decoder.RMTESToUTF8(rmtesBuffer, cacheBuffer);
 
         assertEquals(true, stringText2.regionMatches(0, new String(rmtesBuffer.byteData().array(), Charset.forName("UTF-8")), 0, stringText2.length()));
+
+        final byte[] test = new byte[] { 0x1B, '%', '0', 'C', 'P', 'I' };
+
+        inBuffer.data(ByteBuffer.wrap(test));
+
+        decoder.RMTESApplyToCache(inBuffer, cacheBuffer);
+        decoder.RMTESToUTF8(rmtesBuffer, cacheBuffer);
+
+        assertEquals(true, "CPI".regionMatches(0, new String(rmtesBuffer.byteData().array(), Charset.forName("UTF-8")), 0, "CPI".length()));
     }
 
     @Test
