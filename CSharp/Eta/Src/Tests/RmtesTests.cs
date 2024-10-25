@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -331,6 +331,18 @@ namespace LSEG.Eta.Tests
 
             String str2 = Encoding.UTF8.GetString(rmtesBuffer.Data.Contents, 0, rmtesBuffer.Length);
             Assert.Equal(0, String.CompareOrdinal(stringText2, 0, str2, 0, stringText2.Length));
+
+            char[] inBuf3 = { (char)0x1B, '%', '0', 'C', 'P', 'I' };
+            String inBuf3String = new String(inBuf3);
+
+            inBuffer.Data(inBuf3String);
+
+            decoder.RMTESApplyToCache(inBuffer, cacheBuffer);
+            decoder.RMTESToUTF8(rmtesBuffer, cacheBuffer);
+
+            String stringText3 = "CPI";
+            String str3 = Encoding.UTF8.GetString(rmtesBuffer.Data.Contents, 0, rmtesBuffer.Length);
+            Assert.Equal(0, String.CompareOrdinal(stringText3, 0, str3, 0, stringText3.Length));
         }
 
         [Fact]
