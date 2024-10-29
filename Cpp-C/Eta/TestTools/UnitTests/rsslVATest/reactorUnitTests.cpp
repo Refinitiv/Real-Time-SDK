@@ -1913,6 +1913,8 @@ TEST_P(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_usingDefaultLocat
 	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
 	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
 	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && (pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY ||
 		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP));
 
@@ -1952,9 +1954,13 @@ TEST_P(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_usingDefaultLocat
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
+	RsslRet ret;
+
 	/* Checks for the Channel up event */
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && (pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY ||
 		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP));
 
@@ -1994,10 +2000,15 @@ TEST_P(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_usingDefaultLocat
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
+	RsslRet ret;
+
 	/* Checks for the Channel up event */
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && (pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY ||
 		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP));
 
@@ -2047,11 +2058,19 @@ TEST_P(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_usingDefaultLocat
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
+	RsslRet ret;
+
 	/* Checks for the Channel up event */
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && (pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY ||
 		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP));
 
@@ -2097,12 +2116,25 @@ TEST_P(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_SpecifiedLocation
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
+	RsslRet ret;
+
 	/* Checks for the Channel up event */
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	if (param.oAuthVersion == 2)
+	{
+		while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+		ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	}
+	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && (pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP ||
+		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP));
+
 	ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 }
 
@@ -2153,10 +2185,15 @@ TEST_P(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_AuthTokenEventCal
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 1);
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 0);
 
+	RsslRet ret;
+
 	/* Checks for the Channel up event */
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 1800) >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
 
 	ASSERT_TRUE((pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP || pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY));
 	ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
@@ -2484,15 +2521,26 @@ TEST_P(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted)
 	ASSERT_TRUE(pConsMon->channelDownReconnectingEventCount == 1);
 
 	/* Wait until the connection is switched successfully to the encrypted connection */
-	ASSERT_TRUE(dispatchEvent(pConsMon, 10000) >= RSSL_RET_SUCCESS);
-	time_sleep(2000);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 3000) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 5000) >= RSSL_RET_SUCCESS);
+
+	RsslRet ret;
+
+	/* Checks for the Channel up event */
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
 
 	/* Check for token information */
 	ASSERT_TRUE(pConsMon->authEventStatusCode == 200);
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 1);
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 0);
+
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
 
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP ||
 			pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
@@ -2564,6 +2612,11 @@ TEST_P(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_WebSocket
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 1);
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 0);
 
+	RsslRet ret;
+
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
+
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP ||
 		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
 }
@@ -2634,6 +2687,11 @@ TEST_P(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_for_RsslR
 	ASSERT_TRUE(pConsMon->authEventStatusCode == 200);
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 1);
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 0);
+
+	RsslRet ret;
+
+	while ((ret = dispatchEvent(pConsMon, 300)) == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
 
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP ||
 		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
