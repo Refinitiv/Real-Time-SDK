@@ -771,13 +771,16 @@ public class Reactor
 									.startingActiveServer().perServiceBasedOptions();
 							for (int j = 0; j < serviceOpts.serviceNameList().size(); j++)
 							{
-								ReactorWSBService service = ReactorFactory.createWsbService();
 								Buffer serviceName = serviceOpts.serviceNameList().get(j);
 								
-								service.serviceName.data(serviceName.toString().strip());
-								service.standbyListIndex = ReactorWarmStandbyGroupImpl.REACTOR_WSB_STARTING_SERVER_INDEX;
+								if(serviceName.length() > 0)
+								{
+									ReactorWSBService service = ReactorFactory.createWsbService();	
+									service.serviceName.data(serviceName.toString().strip());
+									service.standbyListIndex = ReactorWarmStandbyGroupImpl.REACTOR_WSB_STARTING_SERVER_INDEX;
 								
-								reactorWarmStandbyGroupImpl._startupServiceNameList.put(service.serviceName, service);
+									reactorWarmStandbyGroupImpl._startupServiceNameList.put(service.serviceName, service);
+								}
 							}
 
 							// Now copy the Standby service Opts for the standbys
@@ -787,14 +790,16 @@ public class Reactor
 										.standbyServerList().get(j);
 								for (int k = 0; k < serverInfo.perServiceBasedOptions().serviceNameList().size(); k++)
 								{
-									ReactorWSBService service = ReactorFactory.createWsbService();
-									
 									Buffer serviceName = serverInfo.perServiceBasedOptions().serviceNameList().get(k);
-									
-									service.serviceName.data(serviceName.toString().strip());
-									service.standbyListIndex = j;
-									reactorWarmStandbyGroupImpl._startupServiceNameList.put(service.serviceName,
+
+									if(serviceName.length() > 0)
+									{
+										ReactorWSBService service = ReactorFactory.createWsbService();
+										service.serviceName.data(serviceName.toString().strip());
+										service.standbyListIndex = j;
+										reactorWarmStandbyGroupImpl._startupServiceNameList.put(service.serviceName,
 											service);
+									}
 								}
 							}
 						} else if (reactorWarmStandbyGroupImpl.warmStandbyMode() != ReactorWarmStandbyMode.LOGIN_BASED)

@@ -1312,7 +1312,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		{
 			for (String part : ce.asciiValue().split(","))
 			{
-				wsbServerInfoConfig.perServiceNameSet.add(part);
+				String serviceName = part.strip();
+				if(!serviceName.isEmpty())
+					wsbServerInfoConfig.perServiceNameSet.add(serviceName);
 			}
 		}
 

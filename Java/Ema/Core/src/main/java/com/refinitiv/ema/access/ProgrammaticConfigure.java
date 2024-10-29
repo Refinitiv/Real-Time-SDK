@@ -2731,8 +2731,12 @@ class ProgrammaticConfigure
 			
 			if((flags & 0x02) != 0)
 			{
-				for(String pServerName : perServiceNameSet.split(","))
-					currentCfg.perServiceNameSet.add(pServerName.trim());
+				for(String part : perServiceNameSet.split(","))
+				{
+					String serviceName = part.strip();
+					 if(!serviceName.isEmpty())
+						 currentCfg.perServiceNameSet.add(serviceName);
+				}
 			}
 			else if(fileCfg != null && fileCfg.perServiceNameSet.size() > 0)
 			{
