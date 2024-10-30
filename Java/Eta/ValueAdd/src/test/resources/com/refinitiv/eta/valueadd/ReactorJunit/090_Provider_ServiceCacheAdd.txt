@@ -96,8 +96,8 @@
 001B: 52 57 46 46 6C 64 07 52  57 46 45 6E 75 6D 10 44   RWFFld.RWFEnum.D
 001C: 69 63 74 69 6F 6E 61 72  69 65 73 55 73 65 64 0F   ictionariesUsed.
 001D: 13 11 00 00 02 06 52 57  46 46 6C 64 07 52 57 46   ......RWFFld.RWF
-001E: 45 6E 75 6D 06 56 65 6E  64 6F 72 11 07 52 65 75   Enum.Vendor..Reu
-001F: 74 65 72 73 07 68 61 73  68 49 44 73 0F 04 04 04   ters.hashIDs....
+001E: 45 6E 75 6D 06 56 65 6E  64 6F 72 11 07 4C 53 45   Enum.Vendor..LSE
+001F: 47 20 20 20 07 68 61 73  68 49 44 73 0F 04 04 04   G   .hashIDs....
 0020: 00 00 0E 64 64 6E 48 61  73 68 45 6E 74 72 69 65   ...ddnHashEntrie
 0021: 73 04 01 00 02 02 FE 00  28 08 00 02 0C 53 65 72   s.......(....Ser
 0022: 76 69 63 65 53 74 61 74  65 04 01 01 11 41 63 63   viceState....Acc
@@ -114,7 +114,7 @@
 002D: 52 57 46 45 6E 75 6D 10  44 69 63 74 69 6F 6E 61   RWFEnum.Dictiona
 002E: 72 69 65 73 55 73 65 64  0F 13 11 00 00 02 06 52   riesUsed.......R
 002F: 57 46 46 6C 64 07 52 57  46 45 6E 75 6D 06 56 65   WFFld.RWFEnum.Ve
-0030: 6E 64 6F 72 11 07 52 65  75 74 65 72 73 08 49 73   ndor..Reuters.Is
+0030: 6E 64 6F 72 11 07 4C 53  45 47 20 20 20 08 49 73   ndor..LSEG   .Is
 0031: 53 6F 75 72 63 65 04 01  01 08 49 74 65 6D 4C 69   Source....ItemLi
 0032: 73 74 11 09 4F 61 6B 62  72 6F 6F 6B 31 1A 53 75   st..Oakbrook1.Su
 0033: 70 70 6F 72 74 73 4F 75  74 4F 66 42 61 6E 64 53   pportsOutOfBandS
@@ -137,7 +137,7 @@
 0044: 64 07 52 57 46 45 6E 75  6D 10 44 69 63 74 69 6F   d.RWFEnum.Dictio
 0045: 6E 61 72 69 65 73 55 73  65 64 0F 13 11 00 00 02   nariesUsed......
 0046: 06 52 57 46 46 6C 64 07  52 57 46 45 6E 75 6D 06   .RWFFld.RWFEnum.
-0047: 56 65 6E 64 6F 72 11 07  52 65 75 74 65 72 73 08   Vendor..Reuters.
+0047: 56 65 6E 64 6F 72 11 07  4C 53 45 47 20 20 20 08   Vendor..LSEG   .
 0048: 49 73 53 6F 75 72 63 65  04 01 01 08 49 74 65 6D   IsSource....Item
 0049: 4C 69 73 74 11 09 4F 61  6B 62 72 6F 6F 6B 32 1A   List..Oakbrook2.
 004A: 53 75 70 70 6F 72 74 73  4F 75 74 4F 66 42 61 6E   SupportsOutOfBan
@@ -168,7 +168,7 @@
 0063: 00 02 0C 53 65 72 76 69  63 65 53 74 61 74 65 04   ...ServiceState.
 0064: 01 00 11 41 63 63 65 70  74 69 6E 67 52 65 71 75   ...AcceptingRequ
 0065: 65 73 74 73 04 01 01 02  04 FE 00 12 08 00 01 09   ests............
-0066: 4F 70 65 6E 4C 69 6D 69  74 04 03 07 A1 20         OpenLimit....
+0066: 4F 70 65 6E 4C 69 6D 69  74 04 03 07 A1 20         OpenLimit.... 
 
 <!-- rwfMajorVer="14" rwfMinorVer="1" -->
 <REFRESH domainType="SOURCE" streamId="2" containerType="MAP" flags="0x168 (HAS_MSG_KEY|SOLICITED|REFRESH_COMPLETE|CLEAR_CACHE)" groupId="0" State: Open/Ok/None - text: "" dataSize="1617">
@@ -269,7 +269,7 @@
                                     <arrayEntry data="RWFEnum"/>
                                 </array>
                             </elementEntry>
-                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Reuters"/>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="LSEG"/>
                             <elementEntry name="hashIDs" dataType="ARRAY">
                                 <array itemLength="4" primitiveType="UINT">
                                 </array>
@@ -320,7 +320,7 @@
                                     <arrayEntry data="RWFEnum"/>
                                 </array>
                             </elementEntry>
-                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Reuters"/>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="LSEG"/>
                             <elementEntry name="IsSource" dataType="UINT" data="1"/>
                             <elementEntry name="ItemList" dataType="ASCII_STRING" data="Oakbrook1"/>
                             <elementEntry name="SupportsOutOfBandSnapshots" dataType="UINT" data="0"/>
@@ -375,7 +375,7 @@
                                     <arrayEntry data="RWFEnum"/>
                                 </array>
                             </elementEntry>
-                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Reuters"/>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="LSEG"/>
                             <elementEntry name="IsSource" dataType="UINT" data="1"/>
                             <elementEntry name="ItemList" dataType="ASCII_STRING" data="Oakbrook2"/>
                             <elementEntry name="SupportsOutOfBandSnapshots" dataType="UINT" data="0"/>
@@ -484,8 +484,8 @@
 0003: 65 64 02 00 00 80 05 08  00 00 00 07 00 04 07 00   ed..............
 0004: 01 01 02 01 CC FE 01 68  00 05 03 02 01 FE 01 1E   .......h........
 0005: 08 00 0B 04 4E 61 6D 65  11 07 49 44 4E 5F 52 44   ....Name..IDN_RD
-0006: 46 06 56 65 6E 64 6F 72  11 0F 54 68 6F 6D 73 6F   F.Vendor..Thomso
-0007: 6E 20 52 65 75 74 65 72  73 08 49 73 53 6F 75 72   n Reuters.IsSour
+0006: 46 06 56 65 6E 64 6F 72  11 0F 4C 53 45 47 20 20   F.Vendor..LSEG  
+0007: 20 20 20 20 20 20 20 20  20 08 49 73 53 6F 75 72            .IsSour
 0008: 63 65 04 01 01 0C 43 61  70 61 62 69 6C 69 74 69   ce....Capabiliti
 0009: 65 73 0F FE 00 10 04 00  00 06 01 06 01 07 01 08   es..............
 000A: 01 05 01 0A 01 7F 14 44  69 63 74 69 6F 6E 61 72   .......Dictionar
@@ -503,7 +503,7 @@
 0016: 73 75 6D 65 72 53 74 61  74 75 73 04 01 00 02 04   sumerStatus.....
 0017: FE 00 10 08 00 01 09 4F  70 65 6E 4C 69 6D 69 74   .......OpenLimit
 0018: 04 01 0A 02 02 FE 00 28  08 00 02 0C 53 65 72 76   .......(....Serv
-0019: 69 63 65 53 74 61 74 65  04 01 00 11 41 63 63 65   iceState....Acce
+0019: 69 63 65 53 74 61 74 65  04 01 00 11 41 63 63 65    iceState....Acce
 001A: 70 74 69 6E 67 52 65 71  75 65 73 74 73 04 01 00   ptingRequests...
 
 <!-- rwfMajorVer="14" rwfMinorVer="1" -->
@@ -516,7 +516,7 @@
                     <filterEntry id="1" action="SET" flags="0x00" containerType="ELEMENT_LIST">
                         <elementList flags="0x08 (HAS_STANDARD_DATA)">
                             <elementEntry name="Name" dataType="ASCII_STRING" data="IDN_RDF"/>
-                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Refinitiv"/>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="LSEG"/>
                             <elementEntry name="IsSource" dataType="UINT" data="1"/>
                             <elementEntry name="Capabilities" dataType="ARRAY">
                                 <array itemLength="0" primitiveType="UINT">

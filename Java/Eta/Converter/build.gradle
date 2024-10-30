@@ -135,11 +135,6 @@ jar {
         from sharedManifest
     }
 
-    from ('impl')
-            {
-                include 'com/thomsonreuters/proxy/authentication/kerberos/login.conf'
-            }
-
     destinationDirectory.set(file("../Libs/"))
     archiveBaseName.convention('etajConverter');
     archiveBaseName.set('etajConverter');
