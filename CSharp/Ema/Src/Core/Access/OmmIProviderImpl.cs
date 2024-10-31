@@ -1071,10 +1071,12 @@ namespace LSEG.Ema.Access
         internal bool Submit(Msg msgImpl, List<ItemInfo> itemInfoList, string logText, bool applyDirectoryFilter)
         {
             ItemInfo itemInfo;
+	    int itemInfoCount;
 
-            for (int index = 0; index < itemInfoList.Count; index++)
+            for (int index = 0; index < itemInfoList.Count;)
             {
                 itemInfo = itemInfoList[index];
+		itemInfoCount = itemInfoList.Count;
 
                 if (GetLoggerClient().IsTraceEnabled)
                 {
@@ -1272,6 +1274,7 @@ namespace LSEG.Ema.Access
                     default:
                         break;
                 }
+		index += (itemInfoList.Count == itemInfoCount) ? 1 : 0;
             }
 
             return true;

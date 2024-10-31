@@ -884,18 +884,20 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	boolean submit(MsgImpl msgImpl, List<ItemInfo> itemInfoList, StringBuilder text, boolean applyDirectoryFilter)
 	{
 		ItemInfo itemInfo;
+		int itemInfoSize;
 		
-		for( int index = 0; index < itemInfoList.size(); index++ )
+		for( int index = 0; index < itemInfoList.size(); )
 		{
 			itemInfo = itemInfoList.get(index);
+			itemInfoSize = itemInfoList.size();
 			
 			if (loggerClient().isTraceEnabled())
-        	{
+			{
 				text.append(itemInfo.handle().value()).append(", client handle = ")
 				.append(itemInfo.clientSession().clientHandle().value()).append(".");
 				
 				loggerClient().error(formatLogMessage(instanceName() , _strBuilder.toString(), Severity.TRACE));
-        	}
+			}
 			
 			msgImpl._rsslMsg.streamId((int)itemInfo.streamId().value());
 			
@@ -1075,6 +1077,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			default:
 				break;
 			}
+			index += (itemInfoList.size() == itemInfoSize) ? 1 : 0; 
 		}
 		
 		return true;
