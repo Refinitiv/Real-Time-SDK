@@ -7237,12 +7237,24 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT0);
 	ASSERT_EQ(testReal.value,(-9223372036854775807 -1));
 
+	testStrBuf.length = sprintf(testString, "-9223372036854775808000");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT3);
+	ASSERT_EQ(testReal.value, (-9223372036854775807 - 1));
+	
 	testStrBuf.length = sprintf(testString, "9223372036854775807");
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
 	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT0);
 	ASSERT_TRUE(testReal.value == 9223372036854775807);
 
+	testStrBuf.length = sprintf(testString, "9223372036854775807000");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT3);
+	ASSERT_TRUE(testReal.value == 9223372036854775807);
+	
 	testStrBuf.length = sprintf(testString, "922337203685477.5807");
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
@@ -7254,6 +7266,306 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
 	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT_4);
 	ASSERT_EQ(testReal.value,(-9223372036854775807 - 1));
+
+	testStrBuf.length = sprintf(testString, "922337203685477580.7");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT_1);
+	ASSERT_TRUE(testReal.value == 9223372036854775807);
+
+	testStrBuf.length = sprintf(testString, "-922337203685477580.8");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT_1);
+	ASSERT_EQ(testReal.value, (-9223372036854775807 - 1));
+
+	testStrBuf.length = sprintf(testString, "1 2147483648/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT0);
+	ASSERT_EQ(testReal.value, 2147483650);
+
+	testStrBuf.length = sprintf(testString, "128/256");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_256);
+	ASSERT_EQ(testReal.value, 128);
+
+	testStrBuf.length = sprintf(testString, "256/128");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_128);
+	ASSERT_EQ(testReal.value, 256);
+
+	testStrBuf.length = sprintf(testString, "512/128");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_128);
+	ASSERT_EQ(testReal.value, 512);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775807/1");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_1);
+	ASSERT_EQ(testReal.value, 9223372036854775807);
+
+	testStrBuf.length = sprintf(testString, "-9223372036854775808/1");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_1);
+	ASSERT_EQ(testReal.value, -9223372036854775808);
+
+	testStrBuf.length = sprintf(testString, "0.01234567890123");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT_14);
+	ASSERT_EQ(testReal.value, 1234567890123);
+
+	testStrBuf.length = sprintf(testString, "");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_BLANK_DATA);
+	ASSERT_TRUE(testReal.hint == 0);
+	ASSERT_EQ(testReal.value, 0);
+
+	testStrBuf.length = sprintf(testString, "-9223372036854775806/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_2);
+	ASSERT_EQ(testReal.value, -9223372036854775806);
+
+	testStrBuf.length = sprintf(testString, "-2/256");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_256);
+	ASSERT_EQ(testReal.value, -2);
+
+	testStrBuf.length = sprintf(testString, "0.1234567890123456789");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775807 9223372036854775807/4");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775807 9223372036854775807/1");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775807 9223372036854775807/9223372036854775807");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "2/3/256");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "11 2/4 1.5");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "2/1o2"); 
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "999.2147483648 2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9992147483648 2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "999 1/2147483648");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775807 2147483647/256");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "4611686018427387903 2147483647/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "999 9223372036854775807/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "256/256/256");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "128/512");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1.2.3.4.5");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "-.-");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "+.+");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "+.-");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1 0.5/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "50 1/2.5");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "50 1");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "abcdefghijklmnopqrstuv");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "0.abcdefghijklmn");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775807 9223372036854775807/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "-9223372036854775808 9223372036854775807/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775807 -9223372036854775808/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "922337203685477580.6 9223372036854775807/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775807/ 9223372036854775807");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775809/ 9223372036854775807");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775809/1");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1 0.12345678901234/1");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "0.012345678901234");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "0.123456789012@3");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "0.123456789012@");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1234567@8901234.00");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "123456789@123456789.00");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1234567890./1234567891");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+	
+	testStrBuf.length = sprintf(testString, "1234567890./ 1234567891");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1234567890..1234567891");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "-9223372036854775805/5");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "-2/9223372036854775806");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "2/4/8");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1//128");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "/56372819.9876");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1/NaN");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "-1/NaN");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "NaN/NaN");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "-Nan/Nan");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "0.12345678901234/0.12345678901234");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "0.12345678901234/0.12345678901234");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775807.981");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "922337203685477580.999");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "12345678901234.12345678912345");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "12345678901234.1234567891234");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1.000000000000010");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1.000000000000010000");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
 
 	testStrBuf.length = sprintf(testString, "209223372036854775808");  // tests the value over than the maximum
 	testStrBuf.data = testString;
@@ -7276,6 +7588,38 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
 
 	testStrBuf.length = sprintf(testString, "1151194421449.1000976");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "922337203685477580.8");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "-922337203685477580.9");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+	
+	testStrBuf.length = sprintf(testString, "9223372036854775808.8");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+	
+	testStrBuf.length = sprintf(testString, "9223372036854775808123.8");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+	
+	testStrBuf.length = sprintf(testString, "-9223372036854775809.9");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "12345678901234567890.1");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "9223372036854775808");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "-9223372036854775809");
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
 

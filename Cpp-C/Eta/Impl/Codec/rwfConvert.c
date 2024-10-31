@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019,2024 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -30,12 +30,15 @@ static rwfTosOptions rwfDfltOpts = RWF_INIT_TOS_OPTS;
 static const char* _rwf_denominator[] = {"1/", "2/", "4/", "8/", "61/", "23/", "46/", "821/", "652/"};
 static const int _rwf_numeratorMask[] = {0x00, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF};
 
-rtrInt32	MAX_INT32DIV10 = INT_MAX/10;
-rtrInt8		MAX_INT8DIV10 = SCHAR_MAX/10;
-rtrInt16	MAX_INT16DIV10 = SHRT_MAX/10;
-
-
+rtrInt8		MAX_INT8 = SCHAR_MAX;
+rtrInt16	MAX_INT16 = SHRT_MAX;
+rtrInt32	MAX_INT32 = INT_MAX;
 rtrInt64	MAX_INT64 = RTR_LL(0x7FFFFFFFFFFFFFFF);
+rtrInt64	MAX_UINT64 = RTR_ULL(0xFFFFFFFFFFFFFFFF);
+
+rtrInt8		MAX_INT8DIV10 = SCHAR_MAX / 10;
+rtrInt16	MAX_INT16DIV10 = SHRT_MAX / 10;
+rtrInt32	MAX_INT32DIV10 = INT_MAX/10;
 rtrInt64	MAX_INT64DIV10 = (RTR_LL(0x7FFFFFFFFFFFFFFF))/10;
 rtrUInt64	MAX_UINT64DIV10 = (RTR_ULL(0xFFFFFFFFFFFFFFFF))/10;
 
@@ -840,27 +843,41 @@ char * rwfReal64tosOpts(char *str, RsslUInt32 strlen, RsslReal *iVal, rwfTosOpti
 	while ((ptr <= endstr) && (*ptr == ' ')) \
 	ptr++;
 
-#define __rwf_atonumber_null(ptr,result,foundDigit,maxValDiv10,nextDigit,tempValue) \
+
+#define __rwf_atonumber_null(ptr,result,foundDigit,maxVal,nextDigit,tempValue,isNeg) \
 	while ((*ptr != '\0') && _rtr_acisdigit(*ptr)) \
 	{ \
- 		if ( result > maxValDiv10 ) \
+		if ( result > maxVal/10 ) \
 			break; \
 		foundDigit = 1; \
 		tempValue = result * 10; \
 		nextDigit = _rtr_actoint(*ptr); \
+		if (isNeg && (tempValue + nextDigit == -maxVal - 1)) \
+		{ \
+			result = tempValue + nextDigit; \
+			ptr++; \
+			break; \
+		} \
 		if ( tempValue + nextDigit < tempValue) \
 			break; \
 		result = tempValue + nextDigit; \
 		ptr++; \
 	}
 
-#define __rwf_atonumber_null_trailzero(ptr,result,foundDigit,trailzerovalue,trailzerocount,maxValDiv10,nextDigit,tempValue) \
+#define __rwf_atonumber_null_trailzero(ptr,result,foundDigit,trailzerovalue,trailzerocount,maxVal,nextDigit,tempValue,isNeg) \
 	while ((*ptr != '\0') && _rtr_acisdigit(*ptr)) \
 	{ \
-		if ( result > maxValDiv10 ) \
+		if ( result > maxVal/10 ) \
 			break; \
 		tempValue = result * 10; \
 		nextDigit = _rtr_actoint(*ptr); \
+		if (isNeg && (tempValue + nextDigit == -maxVal - 1)) \
+		{ \
+			result = tempValue + nextDigit; \
+			trailzerocount = 0; \
+			ptr++; \
+			break; \
+		} \
 		if ( tempValue + nextDigit < tempValue) \
 			break; \
 		if (*ptr == '0') \
@@ -876,27 +893,40 @@ char * rwfReal64tosOpts(char *str, RsslUInt32 strlen, RsslReal *iVal, rwfTosOpti
 		ptr++; \
 	}
 
-#define __rwf_atonumber_end(ptr,endstr,result,foundDigit,maxValDiv10,nextDigit,tempValue) \
+#define __rwf_atonumber_end(ptr,endstr,result,foundDigit,maxVal,nextDigit,tempValue,isNeg) \
 	while ((ptr <= endstr) && _rtr_acisdigit(*ptr)) \
 	{ \
-		if ( result > maxValDiv10 ) \
+		if ( result > maxVal/10 ) \
 			break; \
 		foundDigit = 1; \
 		tempValue = result * 10; \
 		nextDigit = _rtr_actoint(*ptr); \
+		if (isNeg && (tempValue + nextDigit == -maxVal - 1)) \
+		{ \
+			result = tempValue + nextDigit; \
+			ptr++; \
+			break; \
+		} \
 		if ( tempValue + nextDigit < tempValue ) \
 			break; \
 		result = tempValue + nextDigit; \
 		ptr++; \
 	}
 
-#define __rwf_atonumber_end_trailzero(ptr,endstr,result,foundDigit,trailzerovalue,trailzerocount,maxValDiv10,nextDigit,tempValue) \
+#define __rwf_atonumber_end_trailzero(ptr,endstr,result,foundDigit,trailzerovalue,trailzerocount,maxVal,nextDigit,tempValue,isNeg) \
 	while ((ptr <= endstr) && _rtr_acisdigit(*ptr)) \
 	{ \
-		if ( result > maxValDiv10 ) \
+		if ( result > maxVal/10 ) \
 			break; \
 		tempValue = result * 10; \
 		nextDigit = _rtr_actoint(*ptr); \
+		if (isNeg && (tempValue + nextDigit == -maxVal - 1))\
+		{ \
+			result = tempValue + nextDigit; \
+			trailzerocount = 0; \
+			ptr++; \
+			break;\
+		}\
 		if ( tempValue + nextDigit < tempValue) \
 			break; \
 		if (*ptr == '0') \
@@ -959,7 +989,7 @@ RsslUInt8 _rwf_SetFractionHint( RsslInt32 denom )
 
 RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 {
-	RsslUInt64	value = 0,tempValue=0;
+	RsslInt64	value = 0,tempValue=0;
 	RsslInt64	trailzerovalue = 0;
 	RsslInt32	trailzerocount = 0;
 	int			isNeg;
@@ -994,29 +1024,47 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 
 	if (strncmp(strptr, "Inf", 3 ) == 0)
 	{
-		oReal64->isBlank = RSSL_FALSE;
-		oReal64->hint = RSSL_RH_INFINITY;
-		oReal64->value = 0;
-		return RSSL_RET_SUCCESS;
+		strptr += 3;
+		if (*strptr == '\0')
+		{
+			oReal64->isBlank = RSSL_FALSE;
+			oReal64->hint = RSSL_RH_INFINITY;
+			oReal64->value = 0;
+			return RSSL_RET_SUCCESS;
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 	else if (strncmp(strptr, "-Inf", 4) == 0)
 	{
-		oReal64->isBlank = RSSL_FALSE;
-		oReal64->hint = RSSL_RH_NEG_INFINITY;
-		oReal64->value = 0;
-		return RSSL_RET_SUCCESS;
+		strptr += 4;
+		if (*strptr == '\0')
+		{
+			oReal64->isBlank = RSSL_FALSE;
+			oReal64->hint = RSSL_RH_NEG_INFINITY;
+			oReal64->value = 0;
+			return RSSL_RET_SUCCESS;
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 	else if (strncmp(strptr, "NaN", 3) == 0)
 	{
-		oReal64->isBlank = RSSL_FALSE;
-		oReal64->hint = RSSL_RH_NOT_A_NUMBER;
-		oReal64->value = 0;
-		return RSSL_RET_SUCCESS;
+		strptr += 3;
+		if (*strptr == '\0')
+		{
+			oReal64->isBlank = RSSL_FALSE;
+			oReal64->hint = RSSL_RH_NOT_A_NUMBER;
+			oReal64->value = 0;
+			return RSSL_RET_SUCCESS;
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 
 	isNeg = __rtr_checknegative_skipsign(strptr);
 
-	__rwf_atonumber_null_trailzero(strptr,value,foundDigit,trailzerovalue,trailzerocount,MAX_UINT64DIV10,nextDigit,tempValue);
+	__rwf_atonumber_null_trailzero(strptr,value,foundDigit,trailzerovalue,trailzerocount,MAX_INT64,nextDigit,tempValue,isNeg);
 
 	/* Check for decimal value */
 	if (*strptr == '.')
@@ -1024,24 +1072,49 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 		/* It is a decimal value */
 		const char *startdec = ++strptr;
 		RsslUInt8 exponent;
+		const char* test = NULL;
 
-		__rwf_atonumber_null(strptr,value,foundDigit,MAX_UINT64DIV10,nextDigit,tempValue);
+		__rwf_atonumber_null(strptr,value,foundDigit,MAX_INT64,nextDigit,tempValue,isNeg);
+
+		if (foundDigit && strptr != '\0')
+		{
+			// We have more digits - if the rest are zeros, it might still fit
+			test = strptr;
+			while (*test == '0' && test != '\0')
+				test++;
+			if (test != '\0')
+				return RSSL_RET_INVALID_DATA;
+		}
 		exponent = (RsslUInt8)(strptr - startdec);
 
 		if (exponent > 14)
 		{
-			RsslInt64 expdiff;
-			powerof(expdiff, 10, (exponent - 14));
-			if (expdiff == 0)
-				value = 0;
-			else
-				value = value / expdiff;
-			exponent = 14;		// truncate the number by eliminate additional exp we can't handle
+			/* Returns invalid data as the number is larger than the maximum hint value. */
+			return RSSL_RET_INVALID_DATA;
 		}
 
-		oReal64->isBlank = RSSL_FALSE;
-		oReal64->hint = RSSL_RH_EXPONENT0 - exponent;
-		oReal64->value = (isNeg ? -1 * value : value);
+		if (value == 0)
+		{
+			/* this was +0.00000..... so its blank */
+			oReal64->isBlank = RSSL_TRUE;
+			oReal64->hint = RSSL_RH_EXPONENT0;
+			oReal64->value = 0;
+		}
+		else
+		{
+			/*Put a pointer on the last zero*/
+			if (test)
+				strptr = test;
+
+			if (strptr == '\0')
+			{
+				oReal64->isBlank = RSSL_FALSE;
+				oReal64->hint = RSSL_RH_EXPONENT0 - exponent;
+				oReal64->value = (isNeg ? -1 * value : value);
+			}
+			else
+				return RSSL_RET_INVALID_DATA;
+		}
 	}
 	else if (*strptr == ' ')
 	{
@@ -1051,24 +1124,40 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 		/* Check for another digit. Then might be a fraction. */
 		if (_rtr_acisdigit(*strptr))
 		{
-			RsslInt32	numerator=0,tempValue=0;
+			RsslInt64	numerator=0,tempValue=0;
 			RsslInt32	denominator=0;
 
-			__rwf_atonumber_null(strptr,numerator,foundDigit,MAX_INT32DIV10,nextDigit,tempValue);
+			__rwf_atonumber_null(strptr,numerator,foundDigit,MAX_INT64,nextDigit,tempValue,isNeg);
 
 			/* Verify fraction */
 			if (*strptr != '/')
 				return RSSL_RET_INVALID_DATA;
 
 			strptr++;
-			__rwf_atonumber_null(strptr,denominator,foundDigit,MAX_INT32DIV10,nextDigit,tempValue);
+			__rwf_atonumber_null(strptr,denominator,foundDigit,MAX_INT32,nextDigit,tempValue,isNeg);
 
 			if ((oReal64->hint = _rwf_SetFractionHint(denominator)) == 0)
 				return RSSL_RET_INVALID_DATA;
 
-			value = (value * denominator) + numerator;
-			oReal64->isBlank = RSSL_FALSE;
-			oReal64->value = (isNeg ? -1 * value : value);
+			if (*strptr == '\0')
+			{
+				RsslInt64	multiplyValue;
+
+				multiplyValue = value * denominator;
+				/*Check overflow by multiplying*/
+				if (value != 0 && multiplyValue / value != denominator)
+					return RSSL_RET_INVALID_DATA;
+
+				/*Check overflow by sum*/
+				if (numerator > 0 && multiplyValue > MAX_INT64 - numerator)
+					return RSSL_RET_INVALID_DATA;
+
+				value = multiplyValue + numerator;
+				oReal64->isBlank = RSSL_FALSE;
+				oReal64->value = (isNeg ? -1 * value : value);
+			}
+			else
+				return RSSL_RET_INVALID_DATA;
 		}
 		else if (*strptr == '\0')
 		{
@@ -1084,14 +1173,19 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 		RsslInt32	denominator=0,tempValue=0;
 
 		strptr++;
-		__rwf_atonumber_null(strptr,denominator,foundDigit,MAX_INT32DIV10,nextDigit,tempValue);
+		__rwf_atonumber_null(strptr,denominator,foundDigit,MAX_INT32,nextDigit,tempValue,isNeg);
 
 		if ((oReal64->hint = _rwf_SetFractionHint(denominator)) == 0)
 			return RSSL_RET_INVALID_DATA;
 
-		/* value stays as value */
-		oReal64->isBlank = RSSL_FALSE;
-		oReal64->value = (isNeg ? -1 * value : value);
+		if (strptr == '\0')
+		{
+			/* value stays as value */
+			oReal64->isBlank = RSSL_FALSE;
+			oReal64->value = (isNeg ? -1 * value : value);
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 	else if (foundDigit)
 	{
@@ -1107,7 +1201,7 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 					trailzerocount++;
 					strptr++;
 				}
-				if ( *strptr != '\0' && *strptr != '.')
+				if ( *strptr != '\0' )
 					return RSSL_RET_INVALID_DATA;
 			}
 			else
@@ -1155,7 +1249,7 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *endptr )
 {
 	RsslInt64	value = 0;
-	RsslUInt64	tempValue = 0;
+	RsslInt64	tempValue = 0;
 	RsslInt64	trailzerovalue = 0;
 	RsslInt32	trailzerocount = 0;
 	int			isNeg;
@@ -1188,29 +1282,47 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 
 	if (strnicmp(strptr, "Inf", 3 ) == 0)
 	{
-		oReal64->isBlank = RSSL_FALSE;
-		oReal64->hint = RSSL_RH_INFINITY;
-		oReal64->value = 0;
-		return RSSL_RET_SUCCESS;
+		strptr += 3;
+		if (strptr > endptr)
+		{
+			oReal64->isBlank = RSSL_FALSE;
+			oReal64->hint = RSSL_RH_INFINITY;
+			oReal64->value = 0;
+			return RSSL_RET_SUCCESS;
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 	else if (strnicmp(strptr, "-Inf", 4) == 0)
 	{
-		oReal64->isBlank = RSSL_FALSE;
-		oReal64->hint = RSSL_RH_NEG_INFINITY;
-		oReal64->value = 0;
-		return RSSL_RET_SUCCESS;
+		strptr += 4;
+		if (strptr > endptr)
+		{
+			oReal64->isBlank = RSSL_FALSE;
+			oReal64->hint = RSSL_RH_NEG_INFINITY;
+			oReal64->value = 0;
+			return RSSL_RET_SUCCESS;
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 	else if (strnicmp(strptr, "NaN", 3) == 0)
 	{
-		oReal64->isBlank = RSSL_FALSE;
-		oReal64->hint = RSSL_RH_NOT_A_NUMBER;
-		oReal64->value = 0;
-		return RSSL_RET_SUCCESS;
+		strptr += 3;
+		if (strptr > endptr)
+		{
+			oReal64->isBlank = RSSL_FALSE;
+			oReal64->hint = RSSL_RH_NOT_A_NUMBER;
+			oReal64->value = 0;
+			return RSSL_RET_SUCCESS;
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 
 	isNeg = __rtr_checknegative_skipsign(strptr);
 
-	__rwf_atonumber_end_trailzero(strptr,endptr,value,foundDigit,trailzerovalue,trailzerocount,MAX_INT64DIV10,nextDigit,tempValue);
+	__rwf_atonumber_end_trailzero(strptr,endptr,value,foundDigit,trailzerovalue,trailzerocount,MAX_INT64,nextDigit,tempValue,isNeg);
 
 	/* Check for decimal value */
 	if (*strptr == '.')
@@ -1218,13 +1330,14 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 		/* It is a decimal value */
 		const char *startdec = ++strptr;
 		RsslUInt8 exponent;
+		const char* test = NULL;
 
-		__rwf_atonumber_end(strptr,endptr,value,foundDigit,MAX_INT64DIV10,nextDigit,tempValue);
+		__rwf_atonumber_end(strptr,endptr,value,foundDigit,MAX_INT64,nextDigit,tempValue,isNeg);
 
 		if (foundDigit && strptr <= endptr)
 		{
 			// We have more digits - if the rest are zeros, it might still fit
-			const char* test = strptr;
+			test = strptr;
 			while (*test == '0' && test <= endptr)
 				test++;
 			if (test <= endptr)
@@ -1248,9 +1361,18 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 		}
 		else
 		{
-			oReal64->isBlank = RSSL_FALSE;
-			oReal64->hint = RSSL_RH_EXPONENT0 - exponent;
-			oReal64->value = (isNeg ? -1 * value : value);
+			/*Put a pointer on the last zero*/
+			if (test)
+				strptr = test;
+
+			if (strptr > endptr)
+			{
+				oReal64->isBlank = RSSL_FALSE;
+				oReal64->hint = RSSL_RH_EXPONENT0 - exponent;
+				oReal64->value = (isNeg ? -1 * value : value);
+			}
+			else
+				return RSSL_RET_INVALID_DATA;
 		}
 	}
 	else if (*strptr == ' ')
@@ -1261,26 +1383,43 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 		/* Check for another digit. Then might be a fraction. */
 		if (_rtr_acisdigit(*strptr))
 		{
-			RsslInt32	numerator=0,tempValue=0;
+			RsslInt64	numerator=0,tempValue=0;
 			RsslInt32	denominator=0;
 
-			__rwf_atonumber_end(strptr,endptr,numerator,foundDigit,MAX_INT32DIV10,nextDigit,tempValue);
+			__rwf_atonumber_end(strptr,endptr,numerator,foundDigit,MAX_INT64,nextDigit,tempValue,isNeg);
 
 			/* Verify fraction */
 			if (*strptr != '/')
 				return RSSL_RET_INVALID_DATA;
 
 			strptr++;
-			__rwf_atonumber_end(strptr,endptr,denominator,foundDigit,MAX_INT32DIV10,nextDigit,tempValue);
+			__rwf_atonumber_end(strptr,endptr,denominator,foundDigit,MAX_INT32,nextDigit,tempValue,isNeg);
 
 			if ((oReal64->hint = _rwf_SetFractionHint(denominator)) == 0)
 				return RSSL_RET_INVALID_DATA;
 
-			value = (value * denominator) + numerator;
-			oReal64->isBlank = RSSL_FALSE;
-			oReal64->value = (isNeg ? -1 * value : value);
+			if (strptr > endptr)
+			{
+				RsslInt64	multiplyValue;
+
+				multiplyValue = value * denominator;
+				/*Check overflow by multiplying*/
+				if (value != 0 && multiplyValue / value != denominator)
+					return RSSL_RET_INVALID_DATA;
+
+				/*Check overflow by sum*/
+				if (numerator > 0 && multiplyValue > MAX_INT64 - numerator)
+					return RSSL_RET_INVALID_DATA;
+
+				value = multiplyValue + numerator;
+				oReal64->isBlank = RSSL_FALSE;
+				oReal64->value = (isNeg ? -1 * value : value);
+			}
+			else
+				return RSSL_RET_INVALID_DATA;
 		}
-		else if (strptr > endptr)
+
+		if (strptr > endptr)
 		{
 			oReal64->isBlank = RSSL_FALSE;
 			oReal64->hint = RSSL_RH_EXPONENT0;
@@ -1294,14 +1433,20 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 		RsslInt32	denominator=0,tempValue=0;
 
 		strptr++;
-		__rwf_atonumber_end(strptr,endptr,denominator,foundDigit,MAX_INT32DIV10,nextDigit,tempValue);
+		__rwf_atonumber_end(strptr,endptr,denominator,foundDigit,MAX_INT32,nextDigit,tempValue,isNeg);
 
 		if ((oReal64->hint = _rwf_SetFractionHint(denominator)) == 0)
 			return RSSL_RET_INVALID_DATA;
 
-		/* value stays as value */
-		oReal64->isBlank = RSSL_FALSE;
-		oReal64->value = (isNeg ? -1 * value : value);
+		if (strptr > endptr)
+		{
+			/* value stays as value */
+			oReal64->isBlank = RSSL_FALSE;
+			oReal64->value = (isNeg ? -1 * value : value);
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
+
 	}
 	else if (foundDigit)
 	{
@@ -1317,7 +1462,7 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 					trailzerocount++;
 					strptr++;
 				}
-				if ( strptr <= endptr && *strptr != '.')
+				if (strptr <= endptr)
 					return RSSL_RET_INVALID_DATA;
 			}
 			else
@@ -1376,43 +1521,43 @@ RsslRet rwf_stodatetime( RsslDateTime *oDTime, const char *strptr )
 	rsslClearDateTime(oDTime);
 
 	__rtr_removewhitespace_null(strptr);
-	__rwf_atonumber_null(strptr,value8,foundDigit,MAX_INT8DIV10,nextDigit,tValue8);
+	__rwf_atonumber_null(strptr,value8,foundDigit,MAX_INT8,nextDigit,tValue8,RSSL_FALSE);
 	if (*strptr++ != '/')
 		return RSSL_RET_INVALID_DATA;
 	oDTime->date.month = value8;
 	value8 = 0;
 
-	__rwf_atonumber_null(strptr,value8,foundDigit,MAX_INT8DIV10,nextDigit,tValue8);
+	__rwf_atonumber_null(strptr,value8,foundDigit,MAX_INT8,nextDigit,tValue8,RSSL_FALSE);
 	if (*strptr++ != '/')
 		return RSSL_RET_INVALID_DATA;
 	oDTime->date.day = value8;
 	value8 = 0;
 
-	__rwf_atonumber_null(strptr,value16,foundDigit,MAX_INT16DIV10,nextDigit,tValue16);
+	__rwf_atonumber_null(strptr,value16,foundDigit,MAX_INT16,nextDigit,tValue16,RSSL_FALSE);
 	if (*strptr++ != ' ')
 		return RSSL_RET_INVALID_DATA;
 	oDTime->date.year = value16;
 	value16 = 0;
 
-	__rwf_atonumber_null(strptr,value8,foundDigit,MAX_INT8DIV10,nextDigit,tValue8);
+	__rwf_atonumber_null(strptr,value8,foundDigit,MAX_INT8,nextDigit,tValue8,RSSL_FALSE);
 	if (*strptr++ != ':')
 		return RSSL_RET_INVALID_DATA;
 	oDTime->time.hour = value8;
 	value8 = 0;
 
-	__rwf_atonumber_null(strptr,value8,foundDigit,MAX_INT8DIV10,nextDigit,tValue8);
+	__rwf_atonumber_null(strptr,value8,foundDigit,MAX_INT8,nextDigit,tValue8,RSSL_FALSE);
 	if (*strptr++ != ':')
 		return RSSL_RET_INVALID_DATA;
 	oDTime->time.minute = value8;
 	value8 = 0;
 
-	__rwf_atonumber_null(strptr,value8,foundDigit,MAX_INT8DIV10,nextDigit,tValue8);
+	__rwf_atonumber_null(strptr,value8,foundDigit,MAX_INT8,nextDigit,tValue8,RSSL_FALSE);
 	oDTime->time.second	= value8;
 	
 	/* milliseconds */
 	if (*strptr++ == ':') 
 	{
-		__rwf_atonumber_null(strptr,value16,foundDigit,MAX_INT16DIV10,nextDigit,tValue16);
+		__rwf_atonumber_null(strptr,value16,foundDigit,MAX_INT16,nextDigit,tValue16,RSSL_FALSE);
 		oDTime->time.millisecond = value16;
 	}
 	else
@@ -1430,42 +1575,42 @@ RsslRet rwf_stodatetime_size( RsslDateTime *oDTime, const char *strptr, const ch
 	rsslClearDateTime(oDTime);
 
 	__rtr_removewhitespace_end(strptr,endptr);
-	__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT8DIV10,nextDigit,tValue8);
+	__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT8,nextDigit,tValue8,RSSL_FALSE);
 	if (*strptr++ != '/')
 		return RSSL_RET_INVALID_DATA;
 	oDTime->date.month = value8;
 	value8 = 0;
 
-	__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT8DIV10,nextDigit,tValue8);
+	__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT8,nextDigit,tValue8,RSSL_FALSE);
 	if (*strptr++ != '/')
 		return RSSL_RET_INVALID_DATA;
 	oDTime->date.day = value8;
 	value8 = 0;
 
-	__rwf_atonumber_end(strptr,endptr,value16,foundDigit,MAX_INT16DIV10,nextDigit,tValue16);
+	__rwf_atonumber_end(strptr,endptr,value16,foundDigit,MAX_INT16,nextDigit,tValue16,RSSL_FALSE);
 	if (*strptr++ != ' ')
 		return RSSL_RET_INVALID_DATA;
 	oDTime->date.year = value16;
 
-	__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT8DIV10,nextDigit,tValue8);
+	__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT8,nextDigit,tValue8,RSSL_FALSE);
 	if (*strptr++ != ':')
 		return RSSL_RET_INVALID_DATA;
 	oDTime->time.hour = value8;
 	value8 = 0;
 
-	__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT8DIV10,nextDigit,tValue8);
+	__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT8,nextDigit,tValue8,RSSL_FALSE);
 	if (*strptr++ != ':')
 		return RSSL_RET_INVALID_DATA;
 	oDTime->time.minute = value8;
 	value8 = 0;
 
-	__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT8DIV10,nextDigit,tValue8);
+	__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT8,nextDigit,tValue8,RSSL_FALSE);
 	oDTime->time.second = value8;
 	value8 = 0;
 	
 	if (*strptr++ == ':')
 	{
-		__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT16DIV10,nextDigit,tValue8);
+		__rwf_atonumber_end(strptr,endptr,value8,foundDigit,MAX_INT16,nextDigit,tValue8,RSSL_FALSE);
 		oDTime->time.millisecond = value8;
 	}
 	else
@@ -1499,10 +1644,10 @@ RSSL_API RsslRet rsslIPAddrBufferToUInt(RsslUInt32 *pAddrUInt, const RsslBuffer 
 
 	while (byteCount < 4)
 	{
-		RsslUInt64 value = 0, tempValue = 0;
+		RsslInt64 value = 0, tempValue = 0;
 		int foundDigit = 0, nextDigit;
 
-		__rwf_atonumber_end(strptr, endptr, value, foundDigit, MAX_UINT64DIV10, nextDigit, tempValue);
+		__rwf_atonumber_end(strptr, endptr, value, foundDigit, MAX_INT64, nextDigit, tempValue, RSSL_FALSE);
 
 		if (!foundDigit) 
 			break;
