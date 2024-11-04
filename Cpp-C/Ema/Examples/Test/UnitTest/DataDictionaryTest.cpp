@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -582,7 +582,7 @@ TEST_F( DataDictionaryTest, DictionaryEntryHasEnumTypeGetEnumType ) {
 TEST_F( DataDictionaryTest, DictionaryToString ) {
   const EmaString& toStringValue = globalDataDictionary.toString();
 
-  EXPECT_NE( toStringValue.find("Data Dictionary Dump: MinFid=-19 MaxFid=32766 NumEntries 14488"), -1) << "Calling DataDictionary.toString() to check for summary data";
+  EXPECT_NE( toStringValue.find("Data Dictionary Dump: MinFid=-20 MaxFid=32766 NumEntries 14489"), -1) << "Calling DataDictionary.toString() to check for summary data";
   EXPECT_NE( toStringValue.find("Version=\"4.20.19\""), -1 ) << "Calling DataDictionary.toString() to check field dictionary version";
   EXPECT_NE( toStringValue.find("RT_Version=\"4.20.19\""), -1 ) << "Calling DataDictionary.toString() to check record template version";
   EXPECT_NE( toStringValue.find("DT_Version=\"15.61\""), -1 ) << "Calling DataDictionary.toString() to check display template version";

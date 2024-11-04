@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2022 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2022,2024 LSEG. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -35,6 +35,7 @@
 #include "OmmAnsiPageEncoder.h"
 #include "OmmOpaqueEncoder.h"
 #include "OmmXmlEncoder.h"
+#include "OmmJsonEncoder.h"
 
 #include "AckMsgEncoder.h"
 #include "GenericMsgEncoder.h"
@@ -93,6 +94,7 @@ public :
 	DO_ITEM_FUNCS(OmmAnsiPageEncoder, _ommAnsiPageEncoderPool)
 	DO_ITEM_FUNCS(OmmOpaqueEncoder, _ommOpaqueEncoderPool)
 	DO_ITEM_FUNCS(OmmXmlEncoder, _ommXmlEncoderPool)
+	DO_ITEM_FUNCS(OmmJsonEncoder, _ommJsonEncoderPool)
 
 	DO_ITEM_FUNCS(AckMsgEncoder, _ackMsgEncoderPool)
 	DO_ITEM_FUNCS(GenericMsgEncoder, _genericMsgEncoderPool)
@@ -136,6 +138,7 @@ private:
 	OmmAnsiPageEncoderPool		_ommAnsiPageEncoderPool;
 	OmmOpaqueEncoderPool		_ommOpaqueEncoderPool;
 	OmmXmlEncoderPool			_ommXmlEncoderPool;
+	OmmJsonEncoderPool			_ommJsonEncoderPool;
 
 	AckMsgEncoderPool			_ackMsgEncoderPool;
 	GenericMsgEncoderPool		_genericMsgEncoderPool;

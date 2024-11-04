@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1176,6 +1176,11 @@ void perfDecode( const ElementList& el )
 				const OmmXml& value = ee.getXml();
 			}
 			break;
+			case DataType::JsonEnum:
+			{
+				const OmmJson& value = ee.getJson();
+			}
+			break;
 			case DataType::AnsiPageEnum :
 			{
 				const OmmAnsiPage& value = ee.getAnsiPage();
@@ -1324,6 +1329,11 @@ void perfDecode( const FieldList& fl )
 			case DataType::XmlEnum :
 			{
 				const OmmXml& value = fe.getXml();
+			}
+			break;
+			case DataType::JsonEnum:
+			{
+				const OmmJson& value = fe.getJson();
 			}
 			break;
 			case DataType::AnsiPageEnum :

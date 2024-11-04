@@ -38,6 +38,7 @@ class UpdateMsg;
 class OmmAnsiPage;
 class OmmOpaque;
 class OmmXml;
+class OmmJson;
 
 class FieldListEncoder : public Encoder
 {
@@ -82,6 +83,8 @@ public :
 	void addOpaque( Int16 fieldId, const OmmOpaque& value );
 
 	void addXml( Int16 fieldId, const OmmXml& value );
+
+	void addJson( Int16 fieldId, const OmmJson& value );
 
 	void addAnsiPage( Int16 fieldId, const OmmAnsiPage& value );
 

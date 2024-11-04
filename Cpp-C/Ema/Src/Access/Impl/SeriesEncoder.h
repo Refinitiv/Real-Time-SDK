@@ -35,6 +35,7 @@ class RespMsg;
 class OmmAnsiPage;
 class OmmOpaque;
 class OmmXml;
+class OmmJson;
 
 class SeriesEncoder : public Encoder
 {

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019,2024 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -27,6 +27,7 @@
 #include "OmmError.h"
 #include "OmmOpaque.h"
 #include "OmmXml.h"
+#include "OmmJson.h"
 
 #include "OmmArray.h"
 #include "ElementList.h"
@@ -86,7 +87,7 @@ bool Decoder::setRsslData( Data* pData,
 		create( pData, dType );
 	}
 
-	if ( (dType < DataType::NoDataEnum) || (dType == DataType::OpaqueEnum)  || (dType == DataType::XmlEnum) || (dType == DataType::AnsiPageEnum))
+	if ( (dType < DataType::NoDataEnum) || (dType == DataType::OpaqueEnum) || (dType == DataType::XmlEnum) || (dType == DataType::JsonEnum) || (dType == DataType::AnsiPageEnum))
 	{
 		if ( !pData->getDecoder().setRsslData( pDecodeIter, pRsslBuffer ) )
 			setRsslData( pData, pData->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer );
@@ -122,7 +123,7 @@ Data* Decoder::setRsslData( Data** pLoadPool, RsslDataType rsslType, RsslDecodeI
 	else
 		dType = (DataType::DataTypeEnum)rsslType;
 
-	if ((dType < DataType::NoDataEnum) || (dType == DataType::OpaqueEnum) || (dType == DataType::XmlEnum) || (dType == DataType::AnsiPageEnum))
+	if ((dType < DataType::NoDataEnum) || (dType == DataType::OpaqueEnum) || (dType == DataType::XmlEnum) || (dType == DataType::JsonEnum) || (dType == DataType::AnsiPageEnum))
 	{
 		if ( !pLoadPool[dType]->getDecoder().setRsslData( pDecodeIter, pRsslBuffer ) )
 		{
@@ -223,6 +224,9 @@ void Decoder::create( Data* pData, DataType::DataTypeEnum dType ) const
 	case DataType::XmlEnum :
 		new (pData) OmmXml();
 		break;
+	case DataType::JsonEnum:
+		new (pData) OmmJson();
+		break;
 	case DataType::NoDataEnum :
 		new (pData) NoDataImpl();
 		break;
@@ -289,6 +293,7 @@ void Decoder::createLoadPool( Data**& pLoadPool )
 	pLoadPool[DataType::FilterListEnum] = new FilterList;
 	pLoadPool[DataType::OpaqueEnum] = new OmmOpaque;
 	pLoadPool[DataType::XmlEnum] = new OmmXml;
+	pLoadPool[DataType::JsonEnum] = new OmmJson;
 	pLoadPool[DataType::AnsiPageEnum] = new OmmAnsiPage;
 	pLoadPool[DataType::ArrayEnum] = new OmmArray;
 	pLoadPool[DataType::IntEnum] = new OmmInt;

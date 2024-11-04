@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -505,6 +505,9 @@ void decode( const FieldList& fl, EmaString& outText )
 			case DataType::XmlEnum :
 				outText.append( "Xml: " ).append( fe.getXml().toString() ).append( "\n" );
 				break;
+			case DataType::JsonEnum :
+				outText.append( "Json: " ).append( fe.getJson().toString() ).append( "\n" );
+				break;
 			case DataType::AnsiPageEnum :
 				outText.append( "AnsiPage: " ).append( fe.getAnsiPage().toString() ).append( "\n" );
 				break;
@@ -604,6 +607,9 @@ void decode( const ElementList& el, EmaString& outText )
 				break;
 			case DataType::XmlEnum :
 				outText.append( ee.getName() ).append( " Xml: " ).append( ee.getXml().toString() ).append( "\n" );
+				break;
+			case DataType::JsonEnum :
+				outText.append( ee.getName() ).append( " Json: " ).append( ee.getJson().toString() ).append( "\n" );
 				break;
 			case DataType::AnsiPageEnum :
 				outText.append( ee.getName() ).append( " AnsiPage: " ).append( ee.getAnsiPage().toString() ).append( "\n" );

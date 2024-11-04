@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -619,8 +619,25 @@ TEST(FilterListTests, testFilterListContainsOpaqueXmlAnsiPageDecodeAll)
 
 	filterEntry.flags = RSSL_FTEF_HAS_CONTAINER_TYPE;
 	filterEntry.action = RSSL_FTEA_SET_ENTRY;
-	filterEntry.encData = rsslBuf;
 	filterEntry.id = 3;
+	filterEntry.containerType = RSSL_DT_JSON;
+
+	RsslBuffer jsonValue;
+	jsonValue.data = ( char* )"{\"value\":\"KLMNOPQR\"}";
+	jsonValue.length = static_cast<rtrUInt32>( strlen( jsonValue.data ) );
+
+	encodeNonRWFData( &rsslBuf, &jsonValue );
+
+	filterEntry.encData = rsslBuf;
+
+	ret =  rsslEncodeFilterEntry( &filterEncodeIter, &filterEntry );
+
+	rsslClearFilterEntry( &filterEntry );
+
+	filterEntry.flags = RSSL_FTEF_HAS_CONTAINER_TYPE;
+	filterEntry.action = RSSL_FTEA_SET_ENTRY;
+	filterEntry.encData = rsslBuf;
+	filterEntry.id = 4;
 	filterEntry.containerType = RSSL_DT_ANSI_PAGE;
 
 	RsslBuffer ansiPageValue;
@@ -669,12 +686,24 @@ TEST(FilterListTests, testFilterListContainsOpaqueXmlAnsiPageDecodeAll)
 
 	const FilterEntry& fe3 = fl.getEntry();
 
-	EXPECT_EQ( fe3.getFilterId(), 3 ) << "fe1.getFilterId() == 3" ;
+	EXPECT_EQ( fe3.getFilterId(), 3 ) << "fe3.getFilterId() == 3" ;
 	EXPECT_EQ( fe3.getAction(), FilterEntry::SetEnum ) << "FilterEntry::getAction() == FilterEntry::SetEnum" ;
-	EXPECT_EQ( fe3.getLoad().getDataType(), DataType::AnsiPageEnum ) << "FilterEntry::getLoad().getDataType() == DataType::AnsiPageEnum" ;
+	EXPECT_EQ( fe3.getLoad().getDataType(), DataType::JsonEnum ) << "FilterEntry::getLoad().getDataType() == DataType::JsonEnum" ;
+	{
+		EmaBuffer Buf( "{\"value\":\"KLMNOPQR\"}", 20 );
+		EXPECT_STREQ( fe3.getJson().getBuffer(), Buf ) << "ElementEntry::getJson()" ;
+	}
+
+	EXPECT_TRUE( fl.forth() ) << "FilterList contains Xml - fourth forth()" ;
+
+	const FilterEntry& fe4 = fl.getEntry();
+
+	EXPECT_EQ( fe4.getFilterId(), 4 ) << "fe4.getFilterId() == 4" ;
+	EXPECT_EQ( fe4.getAction(), FilterEntry::SetEnum ) << "FilterEntry::getAction() == FilterEntry::SetEnum" ;
+	EXPECT_EQ( fe4.getLoad().getDataType(), DataType::AnsiPageEnum ) << "FilterEntry::getLoad().getDataType() == DataType::AnsiPageEnum" ;
 	{
 		EmaBuffer Buf( "328-srfsjkj43rouw-01-20ru2l24903$%", 34 );
-		EXPECT_STREQ( fe3.getAnsiPage().getBuffer(), Buf ) << "ElementEntry::getAnsiPage().getBuffer()" ;
+		EXPECT_STREQ( fe4.getAnsiPage().getBuffer(), Buf ) << "ElementEntry::getAnsiPage().getBuffer()" ;
 	}
 }
 

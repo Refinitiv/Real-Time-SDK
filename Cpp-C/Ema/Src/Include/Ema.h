@@ -42,6 +42,7 @@
 #include "Access/Include/OmmError.h"
 #include "Access/Include/OmmFloat.h"
 #include "Access/Include/OmmInt.h"
+#include "Access/Include/OmmJson.h"
 #include "Access/Include/OmmOpaque.h"
 #include "Access/Include/OmmQos.h"
 #include "Access/Include/OmmReal.h"

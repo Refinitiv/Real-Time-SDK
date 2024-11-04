@@ -100,6 +100,7 @@
 		FilterList,
 		OmmOpaque,
 		OmmXml,
+		Ommjson,
 		OmmAnsiPage,
 		OmmError,
 		EmaString,

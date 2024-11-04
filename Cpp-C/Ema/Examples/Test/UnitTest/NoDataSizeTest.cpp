@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,6 +12,7 @@
 #include "Access/Impl/OmmIntDecoder.h"
 #include "Access/Impl/OmmUIntDecoder.h"
 #include "Access/Impl/OmmXmlDecoder.h"
+#include "Access/Impl/OmmJsonDecoder.h"
 #include "Access/Impl/OmmAnsiPageDecoder.h"
 #include "Access/Impl/OmmAsciiDecoder.h"
 #include "Access/Impl/OmmDateDecoder.h"
@@ -71,6 +72,7 @@ TEST(NoDataSizeTest, testDataVsDecoderSize)
 		size_t rmtesSize = sizeof( OmmRmtes );
 		size_t utf8Size = sizeof( OmmUtf8 );
 		size_t xmlSize = sizeof( OmmXml );
+		size_t jsonSize = sizeof( OmmJson );
 
 		size_t errorSize = sizeof( OmmError );
 
@@ -113,6 +115,7 @@ TEST(NoDataSizeTest, testDataVsDecoderSize)
 		EXPECT_TRUE( rmtesSize >= rmtesDecoderSize + dataSize + voidPtrSize ) << "OmmRmtes >= OmmRmtesDecoder" ;
 		EXPECT_TRUE( utf8Size >= utf8DecoderSize + dataSize + voidPtrSize ) << "OmmUtf8 >= OmmUtf8Decoder" ;
 		EXPECT_TRUE( xmlSize >= xmlDecoderSize + dataSize + voidPtrSize + voidPtrSize + sizeof( EmaString ) ) << "OmmXml >= OmmXmlDecoder" ;
+		EXPECT_TRUE( jsonSize >= xmlDecoderSize + dataSize + voidPtrSize + voidPtrSize + sizeof( EmaString ) ) << "OmmJson >= OmmJsonDecoder" ;
 
 		EXPECT_TRUE( errorSize >= errorDecoderSize + dataSize + voidPtrSize + sizeof( EmaString ) ) << "OmmError >= OmmErrorDecoder" ;
 
@@ -150,6 +153,7 @@ TEST(NoDataSizeTest, testNoDataSize)
 		size_t rmtesSize = sizeof( OmmRmtes );
 		size_t utf8Size = sizeof( OmmUtf8 );
 		size_t xmlSize = sizeof( OmmXml );
+		size_t jsonSize = sizeof( OmmJson );
 
 		size_t arraySize = sizeof( OmmArray );
 		size_t fieldListSize = sizeof( FieldList );
@@ -184,8 +188,9 @@ TEST(NoDataSizeTest, testNoDataSize)
 		EXPECT_TRUE(noDataSize >= enumSize) << "NoData >= OmmEnum" ;
 		EXPECT_TRUE(noDataSize >= opaqueSize) << "NoData >= OmmOpaque" ;
 		EXPECT_TRUE(noDataSize >= rmtesSize) << "NoData >= OmmRmtes" ;
-		EXPECT_TRUE( noDataSize >= utf8Size ) << "NoData >= OmmUtf8" ;
+		EXPECT_TRUE(noDataSize >= utf8Size) << "NoData >= OmmUtf8" ;
 		EXPECT_TRUE(noDataSize >= xmlSize) << "NoData >= OmmXml" ;
+		EXPECT_TRUE(noDataSize >= jsonSize) << "NoData >= OmmXml" ;
 
 		EXPECT_TRUE(noDataSize >= arraySize) << "NoData >= OmmArray" ;
 		EXPECT_TRUE(noDataSize >= fieldListSize) << "NoData >= FieldList" ;
@@ -238,6 +243,7 @@ TEST(NoDataSizeTest, testNoDataDecoderSize)
 		size_t rmtesSize = sizeof( OmmRmtesDecoder );
 		size_t utf8Size = sizeof( OmmUtf8Decoder );
 		size_t xmlSize = sizeof( OmmXmlDecoder );
+		size_t jsonSize = sizeof( OmmJsonDecoder );
 
 		size_t arraySize = sizeof( OmmArrayDecoder );
 		size_t fieldListSize = sizeof( FieldListDecoder );
@@ -274,6 +280,7 @@ TEST(NoDataSizeTest, testNoDataDecoderSize)
 		EXPECT_TRUE(noDataSize >= rmtesSize) << "2160 >= OmmRmtesDecoder" ;
 		EXPECT_TRUE( noDataSize >= utf8Size ) << "2160 >= OmmUtf8Decoder" ;
 		EXPECT_TRUE(noDataSize >= xmlSize) << "2160 >= OmmXmlDecoder" ;
+		EXPECT_TRUE(noDataSize >= jsonSize) << "2160 >= OmmJsonDecoder" ;
 
 		EXPECT_TRUE(noDataSize >= arraySize) << "2160 >= ArrayDecoder" ;
 		EXPECT_TRUE(noDataSize >= fieldListSize) << "2160 >= FieldListDecoder" ;

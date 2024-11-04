@@ -792,7 +792,7 @@ TEST(SeriesTests, testSeriesContainsXmlDecodeAll)
 		Series series;
 		StaticDecoder::setRsslData( &series, &seriesBuffer, RSSL_DT_SERIES, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &dictionary );
 
-		EXPECT_TRUE( series.forth() ) << "Series contains Opaque - first forth()" ;
+		EXPECT_TRUE( series.forth() ) << "Series contains Xml - first forth()" ;
 
 		const SeriesEntry& se = series.getEntry();
 		EXPECT_EQ( se.getLoadType(), DataType::XmlEnum ) << "ElementEntry::getLoadType() == DataType::XmlEnum" ;
@@ -804,6 +804,71 @@ TEST(SeriesTests, testSeriesContainsXmlDecodeAll)
 	catch ( const OmmException& )
 	{
 		EXPECT_FALSE( true ) << "Series contains Xml payload - exception not expected" ;
+	}
+}
+
+TEST(SeriesTests, testSeriesContainsJsonDecodeAll)
+{
+
+	RsslDataDictionary dictionary;
+
+	try
+	{
+		RsslBuffer seriesBuffer;
+		seriesBuffer.length = 4096;
+		seriesBuffer.data = ( char* )malloc( sizeof( char ) * 4096 );
+
+		RsslSeries rsslSeries = RSSL_INIT_SERIES;
+		RsslEncodeIterator seriesEncodeIter;
+
+		rsslClearSeries( &rsslSeries );
+		rsslClearEncodeIterator( &seriesEncodeIter );
+		rsslSetEncodeIteratorRWFVersion( &seriesEncodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION );
+		rsslSetEncodeIteratorBuffer( &seriesEncodeIter, &seriesBuffer );
+		rsslSeries.flags = RSSL_SRF_HAS_TOTAL_COUNT_HINT;
+
+		rsslSeries.containerType = RSSL_DT_JSON;
+		rsslSeries.totalCountHint = 1;
+
+		RsslRet ret = rsslEncodeSeriesInit( &seriesEncodeIter, &rsslSeries, 0, 0 );
+		RsslSeriesEntry seriesEntry;
+
+		rsslClearSeriesEntry( &seriesEntry );
+
+		char buffer[200];
+		RsslBuffer rsslBuf;
+		rsslBuf.data = buffer;
+		rsslBuf.length = 200;
+
+		RsslBuffer jsonValue;
+		jsonValue.data = ( char* )"{\"consumerList\":{\"consumer\":{\"name\":\"\",\"dataType\":\"Ascii\",\"value\":\"Consumer_1\"}}}";
+		jsonValue.length = static_cast<rtrUInt32>( strlen( jsonValue.data ) );
+
+		encodeNonRWFData( &rsslBuf, &jsonValue );
+
+		seriesEntry.encData = rsslBuf;
+
+		ret = rsslEncodeSeriesEntry( &seriesEncodeIter, &seriesEntry );
+
+		ret = rsslEncodeSeriesComplete( &seriesEncodeIter, RSSL_TRUE );
+
+		seriesBuffer.length = rsslGetEncodedBufferLength( &seriesEncodeIter );
+
+		Series series;
+		StaticDecoder::setRsslData( &series, &seriesBuffer, RSSL_DT_SERIES, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &dictionary );
+
+		EXPECT_TRUE( series.forth() ) << "Series contains Json - first forth()" ;
+
+		const SeriesEntry& se = series.getEntry();
+		EXPECT_EQ( se.getLoadType(), DataType::JsonEnum ) << "ElementEntry::getLoadType() == DataType::JsonEnum" ;
+
+		EmaBuffer compareTo( jsonValue.data, jsonValue.length );
+		EXPECT_STREQ( se.getJson().getBuffer(), compareTo ) << "ElementEntry::getJson().getBuffer()" ;
+
+	}
+	catch ( const OmmException& )
+	{
+		EXPECT_FALSE( true ) << "Series contains Json payload - exception not expected" ;
 	}
 }
 

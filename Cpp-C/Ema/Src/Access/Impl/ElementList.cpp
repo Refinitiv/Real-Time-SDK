@@ -542,6 +542,16 @@ ElementList& ElementList::addXml( const EmaString& name, const OmmXml& value )
 	return *this;
 }
 
+ElementList& ElementList::addJson(const EmaString& name, const OmmJson& value)
+{
+	if (!_pEncoder)
+		_pEncoder = g_pool.getElementListEncoderItem();
+
+	_pEncoder->addJson(name, value);
+
+	return *this;
+}
+
 ElementList& ElementList::addAnsiPage( const EmaString& name, const OmmAnsiPage& value )
 {
 	if ( !_pEncoder )

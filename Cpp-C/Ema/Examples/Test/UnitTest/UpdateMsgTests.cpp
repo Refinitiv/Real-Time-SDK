@@ -226,6 +226,62 @@ TEST(UpdateMsgTests, testUpdateMsgWithXml)
 	}
 }
 
+TEST(UpdateMsgTests, testUpdateMsgWithJson)
+{
+
+	try
+	{
+		RsslUpdateMsg rsslUpdateMsg;
+		rsslClearUpdateMsg( &rsslUpdateMsg );
+
+		RsslMsgKey msgKey;
+		rsslClearMsgKey( &msgKey );
+
+		RsslBuffer nameBuffer;
+		nameBuffer.data = const_cast<char*>( "ABCDEF" );
+		nameBuffer.length = 6;
+
+		msgKey.name = nameBuffer;
+		rsslMsgKeyApplyHasName( &msgKey );
+
+		msgKey.nameType = 1;
+		rsslMsgKeyApplyHasNameType( &msgKey );
+
+		msgKey.serviceId = 2;
+		rsslMsgKeyApplyHasServiceId( &msgKey );
+
+		rsslUpdateMsg.msgBase.msgKey = msgKey;
+		rsslUpdateMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+
+		char buffer[200];
+		RsslBuffer rsslBuf;
+		rsslBuf.data = buffer;
+		rsslBuf.length = 200;
+
+		RsslBuffer jsonValue;
+		jsonValue.data = ( char* )"{\"consumerList\":{\"consumer\":{\"name\":\"\",\"dataType\":\"Ascii\",\"value\":\"Consumer_1\"}}}";
+		jsonValue.length = static_cast<rtrUInt32>( strlen( jsonValue.data ) );
+
+		encodeNonRWFData( &rsslBuf, &jsonValue );
+
+		rsslUpdateMsg.msgBase.encDataBody = rsslBuf;
+		rsslUpdateMsg.msgBase.containerType = RSSL_DT_JSON;
+
+		UpdateMsg updateMsg;
+
+		StaticDecoder::setRsslData( &updateMsg, ( RsslMsg* )&rsslUpdateMsg, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, 0 );
+
+		EXPECT_EQ( updateMsg.getPayload().getDataType(), DataType::JsonEnum ) << "UpdateMsg::getPayload().getDataType() == DataType::JsonEnum" ;
+
+		EmaBuffer compareTo( jsonValue.data, jsonValue.length );
+		EXPECT_STREQ( updateMsg.getPayload().getJson().getBuffer(), compareTo ) << "UpdateMsg::getPayload().getJson().getBuffer()" ;
+	}
+	catch ( const OmmException& )
+	{
+		EXPECT_FALSE( true ) << "UpdateMsg Decode with Json payload - exception not expected" ;
+	}
+}
+
 TEST(UpdateMsgTests, testUpdateMsgWithAnsiPage)
 {
 

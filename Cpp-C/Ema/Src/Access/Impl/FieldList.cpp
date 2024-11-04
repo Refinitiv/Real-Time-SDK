@@ -559,6 +559,16 @@ FieldList& FieldList::addXml( Int16 fieldId, const OmmXml& value )
 	return *this;
 }
 
+FieldList& FieldList::addJson( Int16 fieldId, const OmmJson& value )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool.getFieldListEncoderItem();
+
+	_pEncoder->addJson( fieldId, value );
+
+	return *this;
+}
+
 FieldList& FieldList::addAnsiPage( Int16 fieldId, const OmmAnsiPage& value )
 {
 	if ( !_pEncoder )
