@@ -257,6 +257,14 @@ TEST_F(ThreadBindProcessorCoreTest, rsslIsStrProcessorCoreBindValidTest)
 	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
 	snprintf(sValue, sizeof(sValue), "\nP:0 C:0 T:0");
 	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
+	snprintf(sValue, sizeof(sValue), "\tP:0 C:0 T:0");
+	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
+	snprintf(sValue, sizeof(sValue), "    P:0    C:0    T:0");
+	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
+	snprintf(sValue, sizeof(sValue), "P:0 C:0 T:0   ");
+	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
+	snprintf(sValue, sizeof(sValue), "\nP:0\tC:0\nT:0   ");
+	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
 
 	// Not valid strings - should return False.
 	snprintf(sValue, sizeof(sValue), "K:3");
@@ -409,10 +417,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToUnavailableCpuCoreFailTes
 	nProcessors = sysconf(_SC_NPROCESSORS_ONLN);
 #endif
 
-	if (nProcessors < 64)
-	{
-		CpuCoreId = nProcessors + 1;
-	}
+	CpuCoreId = nProcessors + 1;
 
 	//printf("nProcessors=%u, CpuCoreId=%d\n", nProcessors, CpuCoreId);
 
@@ -530,10 +535,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToUnavailableCpuCorePCTFail
 	nProcessors = sysconf(_SC_NPROCESSORS_ONLN);
 #endif
 
-	if (nProcessors < 64)
-	{
-		CpuCoreId = nProcessors + 1;
-	}
+	CpuCoreId = nProcessors + 1;
 
 	snprintf(sCpuCorePCT, sizeof(sCpuCorePCT), "P:0 C:%u T:0", CpuCoreId);
 
@@ -1224,20 +1226,20 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 {
 	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
 
-	char bufCpuIdThreadsPCT[256];
+	char bufCpuIdThreadsPCT[2560];
 
 	unsigned indCpu;
-	RsslInt32 CpuCores[64];
+	RsslUInt32 CpuCores[1024];
 	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
 	RsslRet ret = RSSL_RET_SUCCESS;
 
-	char outStr[256];
+	char outStr[2560];
 	int n;
 	unsigned i;
 	unsigned nTestProcessors;
 
 	RsslBuffer outputResult;
-	char textResult[256];
+	char textResult[2560];
 
 	// If one or two processor cores are available in this system then return.
 	// This test is required more than two cores.
@@ -1251,7 +1253,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 	n = snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s", sCpuCore0PCT);
 	CpuCores[0] = 0;
 	nTestProcessors = 1;
-	for (i = 1, indCpu = 2; i < 64 && indCpu < nProcessors && n < sizeof(bufCpuIdThreadsPCT); ++i, indCpu += 2)
+	for (i = 1, indCpu = 2; i < 1024 && indCpu < nProcessors && n < sizeof(bufCpuIdThreadsPCT); ++i, indCpu += 2)
 	{
 		n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, ",%u", indCpu);
 		CpuCores[i] = indCpu;
@@ -1299,21 +1301,21 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElements1Test)
 {
-	char bufCpuIdThreadsPCT[256];
+	char bufCpuIdThreadsPCT[2560];
 
 	int indCpu;
 
-	RsslInt32 CpuCores[64];
+	RsslUInt32 CpuCores[1024];
 	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
 	RsslRet ret = RSSL_RET_SUCCESS;
 
-	char outStr[256];
+	char outStr[2560];
 	int n;
 	int i;
 	int nTestProcessors;
 
 	RsslBuffer outputResult;
-	char textResult[256];
+	char textResult[2560];
 
 	// If one or two processor cores are available in this system then return.
 	// This test is required more than two cores.
@@ -1326,7 +1328,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 	// Construct binding string, i.e. list of processor cores that bind for the calling thread
 	n = 0;
 	nTestProcessors = 0;
-	for (i = 0, indCpu = nProcessors-1; i < 64 && 0 <= indCpu && n < sizeof(bufCpuIdThreadsPCT); ++i, indCpu -= 2)
+	for (i = 0, indCpu = nProcessors-1; i < 1024 && 0 <= indCpu && n < sizeof(bufCpuIdThreadsPCT); ++i, indCpu -= 2)
 	{
 		if (i > 0)
 			n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, ",");
@@ -1656,14 +1658,11 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCores1_FailedTes
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT0_FailedTest)
 {
 	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCore1PCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
+	// The next processor core
+	char sCpuCoreNextPCT[MAXLEN];  // P:X C:Y T:Z
 
 	char bufCpuIdThreadsPCT[128];
 
-	unsigned indCpu;
 	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
 	RsslRet ret = RSSL_RET_SUCCESS;
 
@@ -1681,28 +1680,47 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT0_Failed
 	}
 
 	// Pre-setup stage. Calculate topology for the 2-nd Cpu core.
-	// Try to choose one of the Cpu core templates.
 	// For Fail-test we choose an invalid CPU core.
-	for (indCpu = 0; indCpu < 3; ++indCpu)
-	{
+	// Construct an invalid topology.
+	unsigned indCpu = 0;
+	unsigned iPackage = indCpu / 3;
+	unsigned iCore = indCpu / 3;
+	unsigned iThread = indCpu / 3;
+
+	do {
+		switch (indCpu % 3)
+		{
+		case 0:  // Package
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:%u C:0 T:0", (++iPackage));
+			break;
+		case 1:  // Core
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:%u T:0", (++iCore));
+			break;
+		case 2:  // Thread
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:0 T:%u", (++iThread));
+			break;
+		}
+
 		outputResult.length = sizeof(textResult);
 		outputResult.data = textResult;
 
-		ret = rsslBindThreadEx(sCpuCore1PCT[indCpu], &outputResult, &errorInfo);
-		if (ret == RSSL_RET_FAILURE)  // invalid CPU topology
+		ret = rsslBindThreadEx(sCpuCoreNextPCT, &outputResult, &errorInfo);
+		if (ret == RSSL_RET_FAILURE)  // an invalid CPU topology
 		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
+			//printf("Binding failure: indCpu=%u (%s)\n", indCpu, sCpuCoreNextPCT);
 			break;
 		}
-	}
+
+		indCpu++;
+	} while (ret == RSSL_RET_SUCCESS && indCpu < nProcessors);
 	ASSERT_EQ(ret, RSSL_RET_FAILURE);
 
 	rsslClearBindings();
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s,%s", sCpuCore0PCT, sCpuCore1PCT[indCpu]);
-	snprintf(outStr, sizeof(outStr), "Configuration setting %s did not match any physical processors on the system.", sCpuCore1PCT[indCpu]);
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s,%s", sCpuCore0PCT, sCpuCoreNextPCT);
+	snprintf(outStr, sizeof(outStr), "Configuration setting %s did not match any physical processors on the system.", sCpuCoreNextPCT);
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThreadEx(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_FAILURE) << "outputResult: " << outputResult.data;
@@ -1714,14 +1732,11 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT0_Failed
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT1_FailedTest)
 {
 	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCore1PCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
+	// The next processor core
+	char sCpuCoreNextPCT[MAXLEN];  // P:X C:Y T:Z
 
 	char bufCpuIdThreadsPCT[128];
 
-	unsigned indCpu;
 	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
 	RsslRet ret = RSSL_RET_SUCCESS;
 
@@ -1739,28 +1754,47 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT1_Failed
 	}
 
 	// Pre-setup stage. Calculate topology for the 2-nd Cpu core.
-	// Try to choose one of the Cpu core templates.
 	// For Fail-test we choose an invalid CPU core.
-	for (indCpu = 0; indCpu < 3; ++indCpu)
-	{
+	// Construct an invalid topology.
+	unsigned indCpu = 0;
+	unsigned iPackage = indCpu / 3;
+	unsigned iCore = indCpu / 3;
+	unsigned iThread = indCpu / 3;
+
+	do {
+		switch (indCpu % 3)
+		{
+		case 0:  // Package
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:%u C:0 T:0", (++iPackage));
+			break;
+		case 1:  // Core
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:%u T:0", (++iCore));
+			break;
+		case 2:  // Thread
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:0 T:%u", (++iThread));
+			break;
+		}
+
 		outputResult.length = sizeof(textResult);
 		outputResult.data = textResult;
 
-		ret = rsslBindThreadEx(sCpuCore1PCT[indCpu], &outputResult, &errorInfo);
-		if (ret == RSSL_RET_FAILURE)  // invalid CPU topology
+		ret = rsslBindThreadEx(sCpuCoreNextPCT, &outputResult, &errorInfo);
+		if (ret == RSSL_RET_FAILURE)  // an invalid CPU topology
 		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
+			//printf("Binding failure: indCpu=%u (%s)\n", indCpu, sCpuCoreNextPCT);
 			break;
 		}
-	}
+
+		indCpu++;
+	} while (ret == RSSL_RET_SUCCESS && indCpu < nProcessors);
 	ASSERT_EQ(ret, RSSL_RET_FAILURE);
 
 	rsslClearBindings();
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s", sCpuCore1PCT[indCpu], sCpuCore0PCT);
-	snprintf(outStr, sizeof(outStr), "Configuration setting %s did not match any physical processors on the system.", sCpuCore1PCT[indCpu]);
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s", sCpuCoreNextPCT, sCpuCore0PCT);
+	snprintf(outStr, sizeof(outStr), "Configuration setting %s did not match any physical processors on the system.", sCpuCoreNextPCT);
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThreadEx(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_FAILURE) << "outputResult: " << outputResult.data;

@@ -116,12 +116,17 @@ typedef unsigned __int32 AFFINITY_MASK;
 #define MAX_WIN7_LOG_CPU (4*sizeof(DWORD_PTR)*8)
 #define MAX_PREWIN7_LOG_CPU (sizeof(DWORD_PTR)*8)
 #define MAX_PACKAGES MAX_LOG_CPU
-#define MAX_CORES MAX_LOG_CPU
 #define BLOCKSIZE_4K 4096
 #define MAX_THREAD_GROUPS_WIN7      4
 
-
+#ifdef WIN32
+// The current limit for CpuTopo that uses WinAPI SetThreadAffinityMask()
 #define MAX_CPUS_ARRAY 64
+#else
+// The current limit for CpuTopo that uses Linux sched_setaffinity()
+#define MAX_CPUS_ARRAY 1024
+#endif
+
 #define MAX_LEAFS 80
 #define MAX_CACHE_SUBLEAFS  32  // max allocation limit of data structure per sub leaf of cpuid leaf 4 enumerated results
 #define MAX_LEAFS_EXT MAX_LEAFS

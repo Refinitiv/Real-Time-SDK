@@ -31,9 +31,6 @@ typedef struct {
     GLKTSN_T* cpu_topology_ptr;  // full CPU topology describers
 } RsslCPUTopology;
 
-RsslUInt64 rsslGetAffinityMaskByCpuArray(RsslUInt* cpuArray, RsslUInt cpuCount);
-
-RsslRet rsslBindThreadToCpuArray(const char* cpuString, RsslUInt* cpuArray, RsslUInt cpuCount, RsslInt procSet, RsslErrorInfo* pError);
 
 /* Binds the calling thread to the core with the given CPU as cpuString in P:X C:Y T:Z format. */
 /* @param cpuString the Cpu core in string format (P:X C:Y T:Z format). */

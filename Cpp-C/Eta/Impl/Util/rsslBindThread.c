@@ -118,14 +118,13 @@ RsslRet checkCpuIdInitializationError(RsslErrorInfo* pError)
 *								  found,  this will be the logical id assigned
 *								  by the bios
 *
-*					The cpuArray and cpuCount store the list of logical ids
+*					The idArray and idCount store the list of logical ids
 *					found in this string
 *
-* Returns:		The number of logical cpus found in this string. The
-*					procSet variable will be set to 1 if processor sets are
-*					requested.
+* Returns:		The number of logical cpus found in this string in idCount, id of requested logical processor unit in idArray.
+*			RSSL_RET_SUCCESS when parsed a logical processor unit id successfuly; otherwise return RSSL_RET_FAILURE.
 */
-RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCount, RsslInt* procSet, RsslErrorInfo* pError)
+RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCount, RsslErrorInfo* pError)
 {
 	RsslRet ret = RSSL_RET_SUCCESS;
 	RsslUInt32 i;
@@ -287,7 +286,7 @@ RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCou
 *				parseSingleCpuString to actually extract the individual
 *				elements of this array.
 */
-RsslRet parseFullCpuString(const char* cpuString, RsslUInt* idArray, RsslUInt* idCount, RsslInt* procSet, RsslErrorInfo* pError)
+RsslRet parseFullCpuString(const char* cpuString, RsslUInt* idArray, RsslUInt* idCount, RsslErrorInfo* pError)
 {
 	char tempString[MAX_CPU_STRING_LEN];
 	char* stringIter = tempString;
@@ -308,7 +307,7 @@ RsslRet parseFullCpuString(const char* cpuString, RsslUInt* idArray, RsslUInt* i
 				endtoken = 1;
 			*stringIter = '\0';
 
-			if (parseSingleCpuString(currentString, idArray, idCount, procSet, pError) != RSSL_RET_SUCCESS)
+			if (parseSingleCpuString(currentString, idArray, idCount, pError) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;
 			if (endtoken)
 				break;
@@ -348,19 +347,41 @@ RsslUInt64 rsslGetAffinityMaskByCpuArray(RsslUInt* cpuArray, RsslUInt cpuCount)
 	return affinity;
 }
 
-RsslRet rsslBindThreadToCpuArray(const char* cpuString, RsslUInt* cpuArray, RsslUInt cpuCount, RsslInt procSet, RsslErrorInfo* pError)
+/* Calculate assignments for each logical processor units */
+RsslRet convertCpuIdArrayToAssignment(const RsslUInt* cpuIdArray, RsslUInt cpuCount, RsslUInt8* cpuIdAssign)
 {
 #ifdef _DUMP_DEBUG_
-	printf("rsslBindThreadToCpuArray. dumpCpuArray: ");
-	dumpCpuArray(cpuArray, cpuCount);
+	printf("rsslBindThreadToCpuArray. dump CpuIdArray: ");
+	dumpCpuArray(cpuIdArray, cpuCount);
 #endif // _DUMP_DEBUG_
+	RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount;
+	unsigned i;
+
+	for (i = 0; i < cpuCount; i++)
+	{
+		RsslUInt idProcessorUnit = cpuIdArray[i];
+		if (idProcessorUnit < lcl_maxcpu && idProcessorUnit < MAX_CPUS_ARRAY)
+		{
+			cpuIdAssign[idProcessorUnit] = 1;
+		}
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+RsslRet rsslBindThreadToCpuAssignmentArray(const char* cpuString, RsslUInt8* cpuIdAssign, RsslErrorInfo* pError)
+{
+	RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount;
 #if defined(Linux) && !defined(x86_Linux_2X)
 	RsslUInt i;
 	cpu_set_t currentCPUSet;
 	CPU_ZERO(&currentCPUSet);
-	for (i = 0; i < cpuCount; i++)
+	for (i = 0; i < lcl_maxcpu && i < MAX_CPUS_ARRAY; i++)
 	{
-		CPU_SET(cpuArray[i], &currentCPUSet);
+		if (cpuIdAssign[i] != 0)
+		{
+			CPU_SET(i, &currentCPUSet);
+		}
 	}
 #if defined(x86_Linux_3X) && !defined(x86_Linux_S9X)
 	if (sched_setaffinity(0, &currentCPUSet) < 0)
@@ -378,14 +399,25 @@ RsslRet rsslBindThreadToCpuArray(const char* cpuString, RsslUInt* cpuArray, Rssl
 	}
 #endif
 #elif WIN32
-	RsslUInt64 affinityMask = rsslGetAffinityMaskByCpuArray(cpuArray, cpuCount);
+	RsslUInt64 affinityMask = 0ULL;
+	RsslUInt i;
+
+	for (i = 0; i < lcl_maxcpu && i < MAX_CPUS_ARRAY; i++)
+	{
+		if (cpuIdAssign[i] != 0)
+		{
+			affinityMask = (affinityMask | (1ULL << i));
+		}
+	}
+
 	RsslInt32 errorCode = 0;
 
 	if (SetThreadAffinityMask(GetCurrentThread(), affinityMask) == 0)
 	{
 		errorCode = GetLastError();
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-			"Unable to set processor affinity for cpu mask 0x%llX, cpu configuration %s.  Error code is %d.", affinityMask, cpuString, errorCode);
+			"Unable to set processor affinity for cpu mask 0x%llX, cpu configuration %s.  Error code is %d.",
+			affinityMask, cpuString, errorCode);
 		return RSSL_RET_FAILURE;
 	}
 #endif
@@ -487,40 +519,44 @@ RSSL_API void dumpCpuTopology()
 RsslRet rsslBindThreadWithString(const char* cpuString, RsslBuffer* pOutputResult, RsslErrorInfo* pError)
 {
 	RsslUInt cpuCount = 0;
-	RsslUInt cpuArray[MAX_CPUS_ARRAY];
-	RsslInt procSet = 0;
+	RsslUInt cpuIdArray[MAX_CPUS_ARRAY]; // array of logical processor unit ids: result of parsing cpuString
+
+	RsslUInt8 cpuIdAssign[MAX_CPUS_ARRAY];  // For each logical processor unit: does it have a thread assignment True(1) / False(0)
+
+	memset((void*)cpuIdAssign, 0, sizeof(cpuIdAssign));
 
 	if (checkCpuIdInitializationError(pError) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
-	if (parseFullCpuString(cpuString, cpuArray, &cpuCount, &procSet, pError) != RSSL_RET_SUCCESS)
+	if (parseFullCpuString(cpuString, cpuIdArray, &cpuCount, pError) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
-	if (rsslBindThreadToCpuArray(cpuString, cpuArray, cpuCount, procSet, pError) != RSSL_RET_SUCCESS)
+	if (convertCpuIdArrayToAssignment(cpuIdArray, cpuCount, cpuIdAssign) != RSSL_RET_SUCCESS)
+		return RSSL_RET_FAILURE;
+
+	if (rsslBindThreadToCpuAssignmentArray(cpuString, cpuIdAssign, pError) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
 	// on Success, print the list of logical core id that were bound for the calling thread
 	if (cpuCount > 0 && pOutputResult != NULL && pOutputResult->length > 0 && pOutputResult->data != NULL)
 	{
-		RsslUInt64 affinityMask = rsslGetAffinityMaskByCpuArray(cpuArray, cpuCount);
-		RsslUInt64 iMask = 1UL;
-		RsslUInt32 nCpu = rsslCPUTopology.logicalCpuCount;
-
+		RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount;
 		int bytes = 0;
 		RsslUInt i;
 		RsslUInt iCpu = 0;
 
-		for (i = 0; i < nCpu; ++i, iMask <<= 1)
+		for (i = 0; i < lcl_maxcpu && bytes < (int)pOutputResult->length && i < MAX_CPUS_ARRAY; ++i)
 		{
-			if ( (affinityMask & iMask) == 0 )
-				continue;
+			if (cpuIdAssign[i] != 0)
+			{
+				if (iCpu > 0)
+					bytes += snprintf(pOutputResult->data + bytes, pOutputResult->length - bytes, ",");
 
-			if (iCpu > 0)
-				bytes += snprintf(pOutputResult->data + bytes, pOutputResult->length - bytes, ",");
-
-			bytes += snprintf(pOutputResult->data + bytes, pOutputResult->length - bytes, "%llu", i);
-			++iCpu;
+				bytes += snprintf(pOutputResult->data + bytes, pOutputResult->length - bytes, "%llu", i);
+				++iCpu;
+			}
 		}
+		
 		pOutputResult->length = bytes;
 	}
 
