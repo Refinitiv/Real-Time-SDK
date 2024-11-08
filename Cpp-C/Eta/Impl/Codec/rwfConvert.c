@@ -951,7 +951,7 @@ char * rwfReal64tosOpts(char *str, RsslUInt32 strlen, RsslReal *iVal, rwfTosOpti
 	(*ptr == '-' ? ptr++, 1 : (*ptr == '+' ? ptr++, 0 : 0 ) )
 
 
-RsslUInt8 _rwf_SetFractionHint( RsslInt32 denom )
+RsslUInt8 _rwf_SetFractionHint( RsslInt64 denom )
 {
 	RsslUInt8 retval = 0;
 	switch (denom)
@@ -1125,7 +1125,7 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 		if (_rtr_acisdigit(*strptr))
 		{
 			RsslInt64	numerator=0,tempValue=0;
-			RsslInt32	denominator=0;
+			RsslInt64	denominator=0;
 
 			__rwf_atonumber_null(strptr,numerator,foundDigit,MAX_INT64,nextDigit,tempValue,isNeg);
 
@@ -1384,7 +1384,7 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 		if (_rtr_acisdigit(*strptr))
 		{
 			RsslInt64	numerator=0,tempValue=0;
-			RsslInt32	denominator=0;
+			RsslInt64	denominator=0;
 
 			__rwf_atonumber_end(strptr,endptr,numerator,foundDigit,MAX_INT64,nextDigit,tempValue,isNeg);
 
