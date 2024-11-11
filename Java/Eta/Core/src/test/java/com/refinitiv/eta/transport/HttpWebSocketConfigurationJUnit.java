@@ -1,6 +1,5 @@
 package com.refinitiv.eta.transport;
 
-import com.refinitiv.eta.transport.*;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
@@ -19,7 +18,7 @@ import static org.junit.Assert.*;
 
 public class HttpWebSocketConfigurationJUnit {
 
-    private WebSocketHandler httpWebSocketConfiguration = new WebSocketHandlerImpl();
+    private final WebSocketHandler httpWebSocketConfiguration = new WebSocketHandlerImpl();
 
     private static final int REQUEST_RESPONSE_BUFFER_SIZE = 512;
 
@@ -40,7 +39,7 @@ public class HttpWebSocketConfigurationJUnit {
             "Sec-WebSocket-Version: 13\n" +
             "Cookie: testCook=2;testcook1=3\n";
 
-    private static final String REQUEST_HANDSHAKE_INVALID_TEST2 =
+    private static final String REQUEST_HANDSHAKE_INVALID_TEST2_1 =
             "GET /websocket HTTP/1.1\n" +
             "Host: server.example.com\n" +
             "Upgrade: none\n" +
@@ -48,6 +47,23 @@ public class HttpWebSocketConfigurationJUnit {
             "Origin: http://example.com\n" +
             "Sec-WebSocket-Protocol: not_real1, rssl.json.v2\n" +
             "Sec-WebSocket-Version: 13\n";
+
+    private static final String REQUEST_HANDSHAKE_INVALID_TEST2_2 =
+            "GET /websocket HTTP/1.1\n" +
+            "Host: server.example.com\n" +
+            "Upgrade: websocket\n" +
+            "Origin: http://example.com\n" +
+            "Sec-WebSocket-Protocol: tr_json2, rssl.json.v2\n" +
+            "Sec-WebSocket-Version: 13\n";
+
+    private static final String REQUEST_HANDSHAKE_INVALID_TEST2_3 =
+            "GET /websocket HTTP/1.1\n" +
+            "Host: server.example.com\n" +
+            "Upgrade: websocket\n" +
+            "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\n" +
+            "Origin: http://example.com\n" +
+            "Sec-WebSocket-Protocol: tr_json2, rssl.json.v2\n" +
+            "Sec-WebSocket-Version: 14\n";
 
     private static final String REQUEST_HANDSHAKE_NOT_SUPPORTED_PROTOCOLS_TEST3 =
             "GET /websocket HTTP/1.1\n" +
@@ -84,11 +100,11 @@ public class HttpWebSocketConfigurationJUnit {
             "Sec-WebSocket-Protocol: tr_json2\n";
 
 
-    private Buffer rwsKey = CodecFactory.createBuffer();
-    private Error error = TransportFactory.createError();
+    private final Buffer rwsKey = CodecFactory.createBuffer();
+    private final Error error = TransportFactory.createError();
 
     private WebSocketSession webSocketSession;
-    private WSocketOpts webSocketOptions;
+    private final WSocketOpts webSocketOptions;
 
 
     {
@@ -142,15 +158,39 @@ public class HttpWebSocketConfigurationJUnit {
         assertEquals(cookies.get("testcook1"), "3");
     }
 
-    //Test 2
+    //Test 2_1
     @Test
     public void givenIncorrectData_whenParseOpeningHandshake_thenOpeningHandshakeReturnFailure() {
         webSocketOptions.protocols(ALL_SUPPORTED_PROTOCOLS);
 
-        ByteBuffer byteBuffer = ByteBuffer.allocate(REQUEST_HANDSHAKE_INVALID_TEST2.length());
-        byteBuffer.put(REQUEST_HANDSHAKE_INVALID_TEST2.getBytes());
+        ByteBuffer byteBuffer = ByteBuffer.allocate(REQUEST_HANDSHAKE_INVALID_TEST2_1.length());
+        byteBuffer.put(REQUEST_HANDSHAKE_INVALID_TEST2_1.getBytes());
 
-        int returnCode = httpWebSocketConfiguration.readOpeningHandshake(byteBuffer, REQUEST_HANDSHAKE_INVALID_TEST2.length(), 0, error);
+        int returnCode = httpWebSocketConfiguration.readOpeningHandshake(byteBuffer, REQUEST_HANDSHAKE_INVALID_TEST2_1.length(), 0, error);
+        assertEquals(TransportReturnCodes.FAILURE, returnCode);
+    }
+
+    //Test 2_2
+    @Test
+    public void givenIncorrectDataWhereSecWebSocketKeyIsAbsent_whenParseOpeningHandshake_thenOpeningHandshakeReturnFailure() {
+        webSocketOptions.protocols(ALL_SUPPORTED_PROTOCOLS);
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(REQUEST_HANDSHAKE_INVALID_TEST2_2.length());
+        byteBuffer.put(REQUEST_HANDSHAKE_INVALID_TEST2_2.getBytes());
+
+        int returnCode = httpWebSocketConfiguration.readOpeningHandshake(byteBuffer, REQUEST_HANDSHAKE_INVALID_TEST2_2.length(), 0, error);
+        assertEquals(TransportReturnCodes.FAILURE, returnCode);
+    }
+
+    //Test 2_3
+    @Test
+    public void givenIncorrectDataWhereSecWebSocketVersionIsIncorrect_whenParseOpeningHandshake_thenOpeningHandshakeReturnFailure() {
+        webSocketOptions.protocols(ALL_SUPPORTED_PROTOCOLS);
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(REQUEST_HANDSHAKE_INVALID_TEST2_3.length());
+        byteBuffer.put(REQUEST_HANDSHAKE_INVALID_TEST2_3.getBytes());
+
+        int returnCode = httpWebSocketConfiguration.readOpeningHandshake(byteBuffer, REQUEST_HANDSHAKE_INVALID_TEST2_3.length(), 0, error);
         assertEquals(TransportReturnCodes.FAILURE, returnCode);
     }
 
@@ -362,11 +402,11 @@ public class HttpWebSocketConfigurationJUnit {
         assertEquals(error.text(), TransportReturnCodes.SUCCESS, returnCode);
     }
 
-    private class WebSocketCallbackFuncTest implements HttpCallback {
+    private static class WebSocketCallbackFuncTest implements HttpCallback {
 
-        private WebSocketSession clientSession;
+        private final WebSocketSession clientSession;
 
-        private WebSocketSession serverSession;
+        private final WebSocketSession serverSession;
 
         public WebSocketCallbackFuncTest(WebSocketSession clientSession, WebSocketSession serverSession) {
             this.clientSession = clientSession;
