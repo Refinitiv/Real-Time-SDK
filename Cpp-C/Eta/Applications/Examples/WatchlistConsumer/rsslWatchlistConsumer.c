@@ -57,8 +57,9 @@ static PostServiceInfo serviceInfo;
 static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
 RsslBool runTimeExpired = RSSL_FALSE;
-RsslSocket socketIdList[2] = { 0, 0 };
+RsslSocket* socketIdList = NULL;
 RsslUInt32 socketIdListCount = 0;
+RsslUInt32 socketIdListSize = 10;
 
 /* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
@@ -67,6 +68,24 @@ static RsslBool canSendLoginReissue;
 fd_set	readFds, exceptFds;
 
 extern RsslDataDictionary dictionary;
+
+static void resizeSocketIdList(RsslReactorWarmStandbyChannelInfo* wsbChannelInfo)
+{
+	/* Plus one for Reactor's FD */
+	if (wsbChannelInfo->socketIdCount + 1 > socketIdListSize)
+	{
+		free(socketIdList);
+
+		socketIdListSize = wsbChannelInfo->socketIdCount + 1;
+		socketIdList = calloc(socketIdListSize, sizeof(RsslSocket));
+
+		if (socketIdList == NULL)
+		{
+			printf("Memory allocation failed for socketIdList\n");
+			exit(-1);
+		}
+	}
+}
 
 int main(int argc, char **argv)
 {
@@ -484,6 +503,14 @@ int main(int argc, char **argv)
 	reactorConnectOpts.reconnectMinDelay = 500;
 	reactorConnectOpts.reconnectMaxDelay = 3000;
 
+	socketIdList = calloc(socketIdListSize, sizeof(RsslSocket));
+
+	if (socketIdList == NULL)
+	{
+		printf("Memory allocation failed for socketIdList\n");
+		exit(-1);
+	}
+
 	FD_ZERO(&readFds);
 	FD_ZERO(&exceptFds);
 
@@ -697,6 +724,11 @@ int main(int argc, char **argv)
 	rsslUninitialize();
 
 	itemDecoderCleanup();
+
+	if (socketIdList != NULL)
+	{
+		free(socketIdList);
+	}
 	
 	exit(0);
 }
@@ -1567,6 +1599,9 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			{
 				RsslUInt32 index;
 
+				/* Resize the socketIdList as needed */
+				resizeSocketIdList(pConsumerChannel->pWarmStandbyChInfo);
+
 				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
 					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
@@ -1623,6 +1658,9 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			else if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
 			{
 				RsslUInt32 index;
+
+				/* Resize the socketIdList as needed */
+				resizeSocketIdList(pConsumerChannel->pWarmStandbyChInfo);
 
 				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
