@@ -8,7 +8,7 @@
 package com.refinitiv.ema.access;
 
 /**
- * Dispatch error codes from {@link Reactor#dispatchAll(Set, ReactorDispatchOptions, ReactorErrorInfo)} method
+ * Dispatch error codes from Reactor.Dispatch method
  */
 public class DispatchErrorCode {
 	/**
