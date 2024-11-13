@@ -8,6 +8,8 @@
 
 include(rcdevExternalUtils)
 
+set(lz4_version_10 "1.10.0" CACHE STRING "")
+
 if( UNIX AND (RCDEV_HOST_SYSTEM_FLAVOR_REL LESS_EQUAL 7) )
 	if(NOT lz4_url)
 		# The 1.9.4 version is needed to support GCC 4.8.2 for OL7 only.
@@ -22,13 +24,13 @@ if( UNIX AND (RCDEV_HOST_SYSTEM_FLAVOR_REL LESS_EQUAL 7) )
 else()
 	if(NOT lz4_url)
 		# The 1.10.0 version is needed to support Visual Studio 2022 version 17.10.5 or higher.
-		set(lz4_url "https://github.com/lz4/lz4/archive/refs/tags/v1.10.0.tar.gz")
+		set(lz4_url "https://github.com/lz4/lz4/archive/refs/tags/v${lz4_version_10}.tar.gz")
 	endif()
 	if(NOT lz4_hash)
 		set(lz4_hash "MD5=dead9f5f1966d9ae56e1e32761e4e675")
 	endif()
 	if(NOT lz4_version)
-		set(lz4_version "1.10.0")
+		set(lz4_version "${lz4_version_10}")
 	endif()
 endif()
 
