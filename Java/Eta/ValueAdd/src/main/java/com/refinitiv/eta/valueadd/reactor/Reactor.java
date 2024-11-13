@@ -761,7 +761,7 @@ public class Reactor
 					for (int i = 0; i < reactorChannel.getReactorConnectOptions().reactorWarmStandbyGroupList()
 							.size(); i++)
 					{
-						ReactorWarmStandbyGroupImpl reactorWarmStandbyGroupImpl = (ReactorWarmStandbyGroupImpl) reactorConnectOptions
+						ReactorWarmStandbyGroupImpl reactorWarmStandbyGroupImpl = (ReactorWarmStandbyGroupImpl) warmStandbyHandlerImpl.getConnectionOptions()
 								.reactorWarmStandbyGroupList().get(i);
 
 						if (reactorWarmStandbyGroupImpl.warmStandbyMode() == ReactorWarmStandbyMode.SERVICE_BASED)
@@ -773,11 +773,10 @@ public class Reactor
 							{
 								ReactorWSBService service = ReactorFactory.createWsbService();
 								Buffer serviceName = serviceOpts.serviceNameList().get(j);
-								ByteBuffer nameBytes = ByteBuffer.allocate(serviceName.length());
-								service.serviceName.data(nameBytes);
-
-								serviceName.copy(service.serviceName);
+								
+								service.serviceName.data(serviceName.toString().strip());
 								service.standbyListIndex = ReactorWarmStandbyGroupImpl.REACTOR_WSB_STARTING_SERVER_INDEX;
+								
 								reactorWarmStandbyGroupImpl._startupServiceNameList.put(service.serviceName, service);
 							}
 
@@ -791,11 +790,9 @@ public class Reactor
 									ReactorWSBService service = ReactorFactory.createWsbService();
 									
 									Buffer serviceName = serverInfo.perServiceBasedOptions().serviceNameList().get(k);
-									ByteBuffer nameBytes = ByteBuffer.allocate(serviceName.length());
-									service.serviceName.data(nameBytes);
-
-									serviceName.copy(service.serviceName);
-									service.standbyListIndex = k;
+									
+									service.serviceName.data(serviceName.toString().strip());
+									service.standbyListIndex = j;
 									reactorWarmStandbyGroupImpl._startupServiceNameList.put(service.serviceName,
 											service);
 								}
