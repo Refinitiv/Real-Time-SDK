@@ -2474,6 +2474,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												if (pReactorWarmStandbyHandlerImpl)
 												{
 													RsslReactorWarmStandbyEvent* pEvent = NULL;
+													_rsslFreeWarmStandbyHandler(pReactorWarmStandbyHandlerImpl, pReactorWarmStandbyHandlerImpl->warmStandbyGroupCount, RSSL_FALSE);
 													pReactorWarmStandbyHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_INACTIVE;
 
 													pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
