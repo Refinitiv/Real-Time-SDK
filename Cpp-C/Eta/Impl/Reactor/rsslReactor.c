@@ -7317,8 +7317,6 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 						if(pReturnWarmStandByHandlerImpl != NULL)
 						{	
-							_rsslFreeWarmStandbyHandler(pReturnWarmStandByHandlerImpl, pReturnWarmStandByHandlerImpl->warmStandbyGroupCount, RSSL_FALSE);
-
 							/* Removes from the closing queue and returns warm standby handler back to pool to reuse. */
 							rsslQueueRemoveLink(&pReactorImpl->closingWarmstandbyChannel, &pReturnWarmStandByHandlerImpl->reactorQueueLink);
 
