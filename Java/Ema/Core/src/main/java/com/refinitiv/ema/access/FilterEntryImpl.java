@@ -282,6 +282,18 @@ class FilterEntryImpl extends EntryImpl implements FilterEntry
 	}
 
 	@Override
+	public FilterEntry json(int filterId, int action, OmmJson value)
+	{
+		return entryValue(filterId, action, (DataImpl) value, null);
+	}
+
+	@Override
+	public FilterEntry json(int filterId, int action, OmmJson value, ByteBuffer permissionData)
+	{
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
+	}
+
+	@Override
 	public FilterEntry ansiPage(int filterId, int action, OmmAnsiPage value)
 	{
 		return entryValue(filterId, action, (DataImpl) value, null);

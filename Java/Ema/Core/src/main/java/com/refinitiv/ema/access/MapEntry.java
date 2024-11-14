@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -84,6 +84,7 @@ import java.nio.ByteBuffer;
  * @see FilterList
  * @see OmmOpaque
  * @see OmmXml
+ * @see OmmJson
  * @see OmmAnsiPage
  * @see OmmError
  */
@@ -275,6 +276,15 @@ public interface MapEntry
 	 * @return {@link com.refinitiv.ema.access.OmmXml} class reference to contained entry's load object
 	 */
 	public OmmXml xml();
+
+	/**
+	 * Returns the current OMM data represented as a specific complex type.
+	 *
+	 * @throws OmmInvalidUsageException if contained object is not {@link com.refinitiv.ema.access.OmmJson}
+	 *
+	 * @return {@link com.refinitiv.ema.access.OmmJson} class reference to contained entry's load object
+	 */
+	public OmmJson json();
 
 	/**
 	 * Returns the current OMM data represented as a specific complex type.

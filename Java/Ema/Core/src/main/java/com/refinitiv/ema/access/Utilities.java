@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -79,6 +79,8 @@ class Utilities
 			return com.refinitiv.eta.codec.DataTypes.OPAQUE;
 		case DataTypes.XML:
 			return com.refinitiv.eta.codec.DataTypes.XML;
+			case DataTypes.JSON:
+				return com.refinitiv.eta.codec.DataTypes.JSON;
 		case DataTypes.ANSI_PAGE:
 			return com.refinitiv.eta.codec.DataTypes.ANSI_PAGE;
 		case DataTypes.ARRAY:

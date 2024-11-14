@@ -12,31 +12,14 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.ema.access.Data;
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.unittest.TestUtilities.EncodingTypeFlags;
-import com.refinitiv.ema.access.ElementEntry;
-import com.refinitiv.ema.access.ElementList;
-import com.refinitiv.ema.access.EmaFactory;
-import com.refinitiv.ema.access.FieldEntry;
-import com.refinitiv.ema.access.FieldList;
-import com.refinitiv.ema.access.JUnitTestConnect;
-import com.refinitiv.ema.access.Map;
-import com.refinitiv.ema.access.MapEntry;
-import com.refinitiv.ema.access.OmmArray;
-import com.refinitiv.ema.access.OmmArrayEntry;
-import com.refinitiv.ema.access.OmmError;
-import com.refinitiv.ema.access.OmmException;
-import com.refinitiv.ema.access.OmmOpaque;
-import com.refinitiv.ema.access.OmmQos;
-import com.refinitiv.ema.access.OmmReal;
-import com.refinitiv.ema.access.OmmState;
-import com.refinitiv.ema.access.OmmXml;
 import com.refinitiv.ema.unittest.TestUtilities;
 
 import junit.framework.TestCase;
@@ -848,6 +831,11 @@ public class FieldListTests extends TestCase
 			xml.string("OPQRST");
 			flEnc.add(EmaFactory.createFieldEntry().xml( -1 , xml));
 
+			//35th entry
+			OmmJson json = EmaFactory.createOmmJson();
+			json.string("{\"Key\" : \"Value\"}");
+			flEnc.add(EmaFactory.createFieldEntry().json( -23 , json));
+
 			//Decoding
 			FieldList flDec = JUnitTestConnect.createFieldList();
 			JUnitTestConnect.setRsslData(flDec, flEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
@@ -919,8 +907,8 @@ public class FieldListTests extends TestCase
 			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.DATE", fe5.loadType() == DataTypes.DATE );
 			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.DATE", fe5.load().dataType()== DataTypes.DATE );
 			TestUtilities.checkResult("FieldEntry.code() ==Data.DataCode.NO_CODE", fe5.code() ==Data.DataCode.NO_CODE);
-					TestUtilities.checkResult("FieldEntry.date().day()", fe5.date().day() == 7 );
-		TestUtilities.checkResult("FieldEntry.date().month()()", fe5.date().month()== 11 );
+			TestUtilities.checkResult("FieldEntry.date().day()", fe5.date().day() == 7 );
+			TestUtilities.checkResult("FieldEntry.date().month()()", fe5.date().month()== 11 );
 			TestUtilities.checkResult("FieldEntry.date().year()", fe5.date().year() == 1999 );
 
 			TestUtilities.checkResult("FieldList with all data types - 9th entry", iter.hasNext() );
@@ -1163,7 +1151,16 @@ public class FieldListTests extends TestCase
 			TestUtilities.checkResult("FieldEntry.code() ==Data.DataCode.NO_CODE", fe19.code() ==Data.DataCode.NO_CODE);
 			OmmXml xml2 = fe19.xml();
 			TestUtilities.checkResult( xml2.string().equals("OPQRST"), "FieldEntry.xml().string()" );
-				
+
+			TestUtilities.checkResult("FieldList with all data types - 35th entry", iter.hasNext() );
+			FieldEntry fe20 = iter.next();
+			TestUtilities.checkResult("FieldEntry.fieldId()", fe20.fieldId() == -23);
+			TestUtilities.checkResult("FieldEntry.name()", fe20.name().equals("JSON"));
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.JSON", fe20.loadType() == DataTypes.JSON);
+			TestUtilities.checkResult("FieldEntry.code() == Data.DataCode.NO_CODE", fe20.code() == Data.DataCode.NO_CODE);
+			OmmJson json2 = fe20.json();
+			TestUtilities.checkResult( json2.string().equals("{\"Key\" : \"Value\"}"), "FieldEntry.json().string()" );
+
 			TestUtilities.checkResult("FieldList after clear() - final hasNext()",  !(iter.hasNext()) );
 
 			TestUtilities.checkResult("FieldList with all data types - exception not expected" , true );

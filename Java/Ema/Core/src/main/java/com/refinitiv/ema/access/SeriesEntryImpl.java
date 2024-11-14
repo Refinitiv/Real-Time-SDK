@@ -130,6 +130,12 @@ class SeriesEntryImpl extends EntryImpl implements SeriesEntry
 	}
 
 	@Override
+	public SeriesEntry json(OmmJson value)
+	{
+		return entryValue((DataImpl) value);
+	}
+
+	@Override
 	public SeriesEntry ansiPage(OmmAnsiPage value)
 	{
 		return entryValue((DataImpl) value);

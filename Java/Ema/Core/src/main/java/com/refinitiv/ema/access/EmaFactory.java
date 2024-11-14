@@ -731,7 +731,16 @@ public class EmaFactory
 	{
 		return new OmmXmlImpl();
 	}
-	
+
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.OmmJson}.
+	 * @return {@link com.refinitiv.ema.access.OmmJson}
+	 */
+	public static OmmJson createOmmJson()
+	{
+		return new OmmJsonImpl();
+	}
+
 	/**
 	 * Creates a {@link com.refinitiv.ema.access.ClassOfService}.
 	 * @return {@link com.refinitiv.ema.access.ClassOfService}

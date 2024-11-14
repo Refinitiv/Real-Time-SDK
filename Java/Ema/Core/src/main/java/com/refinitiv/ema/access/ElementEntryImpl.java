@@ -151,6 +151,12 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	}
 
 	@Override
+	public ElementEntry json(String name, OmmJson value)
+	{
+		return entryValue(name, com.refinitiv.eta.codec.DataTypes.JSON, (DataImpl) value);
+	}
+
+	@Override
 	public ElementEntry ansiPage(String name, OmmAnsiPage value)
 	{
 		return entryValue(name, com.refinitiv.eta.codec.DataTypes.ANSI_PAGE, (DataImpl) value);

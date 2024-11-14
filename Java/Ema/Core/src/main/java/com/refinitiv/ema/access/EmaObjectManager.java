@@ -49,6 +49,7 @@ class EmaObjectManager
 	VaPool _opaquePool = new VaPool(false);
 	VaPool _ansiPagePool = new VaPool(false);
 	VaPool _xmlPool = new VaPool(false);
+	VaPool _jsonPool = new VaPool(false);
 	VaPool _reqMsgPool = new VaPool(false);
 	VaPool _refreshMsgPool = new VaPool(false);
 	VaPool _statusMsgPool = new VaPool(false);

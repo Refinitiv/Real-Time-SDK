@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -55,6 +55,7 @@ import java.nio.ByteBuffer;
  * @see FilterList
  * @see OmmOpaque
  * @see OmmXml
+ * @see OmmJson
  * @see OmmAnsiPage
  * @see OmmError
  */
@@ -266,7 +267,16 @@ public interface VectorEntry
 	 * @return {@link com.refinitiv.ema.access.OmmXml} class reference to contained entry's load object
 	 */
 	public OmmXml xml();
-	
+
+	/**
+	 * Returns the current OMM data represented as a specific complex type.
+	 *
+	 * @throws OmmInvalidUsageException if contained object is not {@link com.refinitiv.ema.access.OmmJson}
+	 *
+	 * @return {@link com.refinitiv.ema.access.OmmJson} class reference to contained entry's load object
+	 */
+	public OmmJson json();
+
 	/**
 	 * Returns the current OMM data represented as a specific complex type.
 	 * 
@@ -712,7 +722,34 @@ public interface VectorEntry
 	 * @return reference to this object
 	 */
 	public VectorEntry xml(long position, int action, OmmXml value, ByteBuffer permissionData);
-	
+
+	/** Adds a OmmJson type of OMM data identified by a position.
+	 * <br>All entries must have same complex data type.
+	 *
+	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+	 *
+	 * @param position specifies position of this entry in Vector
+	 * @param action specifies action to be performed on this entry
+	 * @param value complex type contained in this entry
+	 *
+	 * @return reference to this object
+	 */
+	public VectorEntry json(long position, int action, OmmJson value);
+
+	/** Adds a OmmJson type of OMM data identified by a position.
+	 * <br>All entries must have same complex data type.
+	 *
+	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+	 *
+	 * @param position specifies position of this entry in Vector
+	 * @param action specifies action to be performed on this entry
+	 * @param value complex type contained in this entry
+	 * @param permissionData specifies permission data for this entry
+	 *
+	 * @return reference to this object
+	 */
+	public VectorEntry json(long position, int action, OmmJson value, ByteBuffer permissionData);
+
 	/** Adds a OmmAnsiPage type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
 	 *

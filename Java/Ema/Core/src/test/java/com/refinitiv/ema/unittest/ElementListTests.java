@@ -11,30 +11,12 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.refinitiv.ema.access.*;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.ema.access.Data;
-import com.refinitiv.ema.access.DataType;
 import com.refinitiv.ema.access.DataType.DataTypes;
-import com.refinitiv.ema.access.ElementEntry;
-import com.refinitiv.ema.access.ElementList;
-import com.refinitiv.ema.access.EmaFactory;
-import com.refinitiv.ema.access.FieldEntry;
-import com.refinitiv.ema.access.FieldList;
-import com.refinitiv.ema.access.JUnitTestConnect;
-import com.refinitiv.ema.access.Map;
-import com.refinitiv.ema.access.MapEntry;
-import com.refinitiv.ema.access.OmmArray;
-import com.refinitiv.ema.access.OmmArrayEntry;
-import com.refinitiv.ema.access.OmmException;
-import com.refinitiv.ema.access.OmmOpaque;
-import com.refinitiv.ema.access.OmmQos;
-import com.refinitiv.ema.access.OmmReal;
-import com.refinitiv.ema.access.OmmState;
-import com.refinitiv.ema.access.OmmXml;
-import com.refinitiv.ema.access.Series;
 import com.refinitiv.ema.rdm.*;
 import com.refinitiv.ema.unittest.TestUtilities.EncodingTypeFlags;
 
@@ -827,7 +809,11 @@ public class ElementListTests extends TestCase
 			OmmXml xml = EmaFactory.createOmmXml();
 			xml.string("OPQRST");
 			elEnc.add(EmaFactory.createElementEntry().xml( "MY_XML" , xml));
-			
+
+			//35th entry
+			OmmJson json = EmaFactory.createOmmJson();
+			json.string("{\"Key\" : \"Value\"}");
+			elEnc.add(EmaFactory.createElementEntry().json( "MY_JSON" , json));
 
 			//Decoding
 			ElementList elDec = JUnitTestConnect.createElementList();
@@ -894,8 +880,8 @@ public class ElementListTests extends TestCase
 			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.DATE", ee5.loadType() == DataTypes.DATE );
 			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.DATE", ee5.load().dataType()== DataTypes.DATE );
 			TestUtilities.checkResult("ElementEntry.code() ==Data.DataCode.NO_CODE", ee5.code() ==Data.DataCode.NO_CODE);
-					TestUtilities.checkResult("ElementEntry.date().day()", ee5.date().day() == 7 );
-		TestUtilities.checkResult("ElementEntry.date().month()()", ee5.date().month()== 11 );
+			TestUtilities.checkResult("ElementEntry.date().day()", ee5.date().day() == 7 );
+			TestUtilities.checkResult("ElementEntry.date().month()()", ee5.date().month()== 11 );
 			TestUtilities.checkResult("ElementEntry.date().year()", ee5.date().year() == 1999 );
 
 			TestUtilities.checkResult("ElementList with all data types - 5th entry", iter.hasNext() );
@@ -1110,6 +1096,14 @@ public class ElementListTests extends TestCase
 			TestUtilities.checkResult("ElementEntry.code() ==Data.DataCode.NO_CODE", ee19.code() ==Data.DataCode.NO_CODE);
 			OmmXml xml2 = ee19.xml();
 			TestUtilities.checkResult( xml2.string().equals("OPQRST"), "ElementEntry.xml().string()" );
+
+			TestUtilities.checkResult("ElementList with all data types - 35th entry", iter.hasNext() );
+			ElementEntry ee20 = iter.next();
+			TestUtilities.checkResult("ElementEntry.name()", ee20.name().equals( "MY_JSON"));
+			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.JSON", ee20.loadType() == DataTypes.JSON);
+			TestUtilities.checkResult("ElementEntry.code() == Data.DataCode.NO_CODE", ee20.code() == Data.DataCode.NO_CODE);
+			OmmJson json2 = ee20.json();
+			TestUtilities.checkResult( json2.string().equals("{\"Key\" : \"Value\"}"), "ElementEntry.json().string()" );
 
 			TestUtilities.checkResult("ElementList after clear() - final hasNext()",  !(iter.hasNext()) );
 

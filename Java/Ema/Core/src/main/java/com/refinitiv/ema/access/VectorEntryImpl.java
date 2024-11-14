@@ -289,6 +289,18 @@ class VectorEntryImpl extends EntryImpl implements VectorEntry
 	}
 
 	@Override
+	public VectorEntry json(long position, int action, OmmJson value)
+	{
+		return entryValue(position, action, (DataImpl) value, null);
+	}
+
+	@Override
+	public VectorEntry json(long position, int action, OmmJson value, ByteBuffer permissionData)
+	{
+		return entryValue(position, action, (DataImpl) value, permissionData);
+	}
+
+	@Override
 	public VectorEntry ansiPage(long position, int action, OmmAnsiPage value)
 	{
 		return entryValue(position, action, (DataImpl) value, null);

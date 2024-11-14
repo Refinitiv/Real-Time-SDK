@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -57,6 +57,7 @@ import java.nio.ByteBuffer;
  * @see FilterList
  * @see OmmOpaque
  * @see OmmXml
+ * @see OmmJson
  * @see OmmAnsiPage
  * @see OmmError
  */
@@ -253,7 +254,16 @@ public interface FilterEntry
 	 * @return {@link com.refinitiv.ema.access.OmmXml} class reference to contained object
 	 */
 	public OmmXml xml();
-	
+
+	/**
+	 * Returns the current OMM data represented as a specific complex type.
+	 *
+	 * @throws OmmInvalidUsageException if contained object is not {@link com.refinitiv.ema.access.OmmJson}
+	 *
+	 * @return {@link com.refinitiv.ema.access.OmmJson} class reference to contained object
+	 */
+	public OmmJson json();
+
 	/**
 	 * Returns the current OMM data represented as a specific complex type.
 	 * 
@@ -669,7 +679,32 @@ public interface FilterEntry
 	 * @return reference to this object
 	 */
 	public FilterEntry xml(int filterId, int action, OmmXml value, ByteBuffer permissionData);
-	
+
+	/** Adds a OmmJson type of OMM data to the FilterEntry.
+	 *
+	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+	 *
+	 * @param filterId specifies filter id for the added FilterEntry
+	 * @param action specifies action for the added FilterEntry
+	 * @param value specifies load for the added FilterEntry
+	 *
+	 * @return reference to this object
+	 */
+	public FilterEntry json(int filterId, int action, OmmJson value);
+
+	/** Adds a OmmJson type of OMM data to the FilterEntry.
+	 *
+	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+	 *
+	 * @param filterId specifies filter id for the added FilterEntry
+	 * @param action specifies action for the added FilterEntry
+	 * @param value specifies load for the added FilterEntry
+	 * @param permissionData specifies permissions for the added FilterEntry
+	 *
+	 * @return reference to this object
+	 */
+	public FilterEntry json(int filterId, int action, OmmJson value, ByteBuffer permissionData);
+
 	/** Adds a OmmAnsiPage type of OMM data to the FilterEntry.
 	 * 
 	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)

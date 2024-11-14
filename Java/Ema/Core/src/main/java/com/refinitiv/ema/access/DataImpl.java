@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -341,6 +341,14 @@ class DataImpl extends VaNode implements Data
 	        	_objManager._xmlPool.updatePool(retData);
 	        }
 			break;
+		case DataTypes.JSON :
+			retData = (DataImpl)_objManager._jsonPool.poll();
+			if(retData == null)
+			{
+				retData = new OmmJsonImpl();
+				_objManager._jsonPool.updatePool(retData);
+			}
+			break;
 		case DataTypes.REQ_MSG :
 			retData = (DataImpl)_objManager._reqMsgPool.poll();
 	        if(retData == null)
@@ -441,6 +449,7 @@ class DataImpl extends VaNode implements Data
             	  return ((CollectionDataImpl)this).encodedData();
             case DataTypes.OPAQUE:
             case DataTypes.XML:
+			case DataTypes.JSON:
             case DataTypes.ANSI_PAGE:
             default :
             	return _rsslBuffer;

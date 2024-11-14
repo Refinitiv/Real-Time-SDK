@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -819,7 +819,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
 			TestUtilities.checkResult(excp.getMessage().indexOf("Unable to load field dictionary from file named " + fieldDictionaryFileName ) != -1 &&
-					excp.getMessage().indexOf("Reason='Duplicate definition for fid -22 (Line=41).'") != -1,
+					excp.getMessage().indexOf("Reason='Duplicate definition for fid -23 (Line=41).'") != -1,
 					"Calling DataDictionary.loadFieldDictionary() - exception expected");
 		}
 		
@@ -862,7 +862,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.getMessage().indexOf("Failed to decode the field dictionary information. Reason='Duplicate definition for fid -22.'") != -1, "Calling DataDictionary.decodeFieldDictionary() - exception expected");
+			TestUtilities.checkResult(excp.getMessage().indexOf("Failed to decode the field dictionary information. Reason='Duplicate definition for fid -23.'") != -1, "Calling DataDictionary.decodeFieldDictionary() - exception expected");
 		}
 		
 		globalDataDictionary.encodeEnumTypeDictionary(series, EmaRdm.DICTIONARY_NORMAL);
@@ -949,7 +949,7 @@ public class DataDictionaryJunitTest extends TestCase {
 
 		String toStringValue = globalDataDictionary.toString();
 
-		TestUtilities.checkResult(toStringValue.indexOf("Data Dictionary Dump: MinFid=-22 MaxFid=32766 NumEntries 13860") != -1, "Calling DataDictionary.toString() to check for summary data");
+		TestUtilities.checkResult(toStringValue.indexOf("Data Dictionary Dump: MinFid=-23 MaxFid=32766 NumEntries 13861") != -1, "Calling DataDictionary.toString() to check for summary data");
 
 		TestUtilities.checkResult(toStringValue.indexOf("Version=\"4.20.03\"") != -1, "Calling DataDictionary.toString() to check field dictionary version");
 

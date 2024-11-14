@@ -8895,7 +8895,32 @@ public final class TestUtilities extends TestCase
         checkResult(CodecReturnCodes.SUCCESS, msg.encodeComplete(encodeIter, true));
     }
 
-    
+	public static int eta_EncodeNonRWFData(com.refinitiv.eta.codec.Buffer destBuf, com.refinitiv.eta.codec.Buffer sourceBuf) {
+		// used to store and check return values
+		int retVal;
+
+		int majorVersion = Codec.majorVersion();  // This should be initialized to the MAJOR version of RWF being encoded
+		int minorVersion = Codec.minorVersion();  // This should be initialized to the MINOR version of RWF being encoded
+
+		// Create and clear iterator to prepare for encoding
+		com.refinitiv.eta.codec.EncodeIterator encodeIter = CodecFactory.createEncodeIterator();
+		encodeIter.clear();
+
+		// Associate buffer and iterator and set proper protocol version information on iterator.
+		if ((retVal = encodeIter.setBufferAndRWFVersion(destBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + " encountered with setBufferAndRWFVersion. "
+					+ " Error Text: " + CodecReturnCodes.info(retVal));
+			return retVal;
+		}
+
+		encodeIter.encodeNonRWFInit(destBuf);
+		destBuf.data().put(sourceBuf.data().array(), sourceBuf.position(), sourceBuf.length());
+		encodeIter.encodeNonRWFComplete(destBuf, true);
+
+		return CodecReturnCodes.SUCCESS;
+	}
+
 	// This method returns a preencoded buffer containing an encoded UInt type.
 	// Assuming encUInt is a ETA Buffer with length and data properly populated.
 	private static int eta_getPreEncodedUIntBuffer(com.refinitiv.eta.codec.Buffer encUInt, com.refinitiv.eta.codec.UInt uInt)

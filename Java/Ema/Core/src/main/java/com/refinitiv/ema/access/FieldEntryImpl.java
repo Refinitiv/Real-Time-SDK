@@ -207,6 +207,12 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	}
 
 	@Override
+	public FieldEntry json(int fieldId, OmmJson value)
+	{
+		return entryValue(fieldId, com.refinitiv.eta.codec.DataTypes.JSON, (DataImpl) value);
+	}
+
+	@Override
 	public FieldEntry ansiPage(int fieldId, OmmAnsiPage value)
 	{
 		return entryValue(fieldId, com.refinitiv.eta.codec.DataTypes.ANSI_PAGE, (DataImpl) value);

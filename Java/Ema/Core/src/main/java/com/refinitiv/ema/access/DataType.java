@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -40,6 +40,7 @@ public class DataType
 	private final static String FILTERLIST_STRING = "FilterList";
 	private final static String OPAQUE_STRING = "Opaque";
 	private final static String XML_STRING = "Xml";
+	private final static String JSON_STRING = "Json";
 	private final static String ANSIPAGE_STRING = "AnsiPage";
 	private final static String OMMARRAY_STRING = "OmmArray";
 	private final static String INT_STRING = "Int";
@@ -265,6 +266,11 @@ public class DataType
 		public final static int MSG = 141;
 
 		/**
+		 * An JSON buffer.
+		 */
+		public final static int JSON = 142;
+
+		/**
 		 * A message to specify item interest.<br>
 		 * A consumer sends this message.
 		 */
@@ -350,6 +356,8 @@ public class DataType
 				return OPAQUE_STRING;
 			case DataTypes.XML :
 				return XML_STRING;
+			case DataTypes.JSON :
+				return JSON_STRING;
 			case DataTypes.ANSI_PAGE :
 				return ANSIPAGE_STRING;
 			case DataTypes.ARRAY :

@@ -38,6 +38,8 @@
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
 !-------    -----------          ---  ----------  ----------     ------  --------   -------
 !
+JSON        "JSON"                -23  NULL        ALPHANUMERIC       10  JSON           100
+
 MY_VECTOR	"MY_VECTOR"			  -22  NULL        NONE				  0  VECTOR			0
 
 MY_SERIES	"MY_SERIES"			  -21  NULL        NONE				  0  SERIES			0
