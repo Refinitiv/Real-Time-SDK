@@ -777,9 +777,13 @@ public class Reactor
 								{
 									ReactorWSBService service = ReactorFactory.createWsbService();	
 									service.serviceName.data(serviceName.toString().strip());
-									service.standbyListIndex = ReactorWarmStandbyGroupImpl.REACTOR_WSB_STARTING_SERVER_INDEX;
-								
-									reactorWarmStandbyGroupImpl._startupServiceNameList.put(service.serviceName, service);
+									
+									/* Don't add to the service name list with the existing service name */
+									if(reactorWarmStandbyGroupImpl._startupServiceNameList.containsKey(service.serviceName) == false)
+									{
+										service.standbyListIndex = ReactorWarmStandbyGroupImpl.REACTOR_WSB_STARTING_SERVER_INDEX;
+										reactorWarmStandbyGroupImpl._startupServiceNameList.put(service.serviceName, service);
+									}
 								}
 							}
 
@@ -796,9 +800,13 @@ public class Reactor
 									{
 										ReactorWSBService service = ReactorFactory.createWsbService();
 										service.serviceName.data(serviceName.toString().strip());
-										service.standbyListIndex = j;
-										reactorWarmStandbyGroupImpl._startupServiceNameList.put(service.serviceName,
-											service);
+										
+										/* Don't add to the service name list with the existing service name */
+										if(reactorWarmStandbyGroupImpl._startupServiceNameList.containsKey(service.serviceName) == false)
+										{
+											service.standbyListIndex = j;
+											reactorWarmStandbyGroupImpl._startupServiceNameList.put(service.serviceName, service);
+										}
 									}
 								}
 							}
@@ -2504,8 +2512,15 @@ public class Reactor
 								warmStandbyHandler.startingReactorChannel()
 										.reactorChannelType(ReactorChannelType.WARM_STANDBY);
 								warmStandbyHandler.startingReactorChannel().resetReconnectTimers();
-								
+
 								queueRequestsForWSBGroupRecovery(warmStandbyHandler, errorInfo);
+								
+								/* Reset this flag for the submitWSBRequestQueue() method*/
+								warmStandbyHandler.startingReactorChannel().sendReqFromQueue = false;
+								
+								/* Submit the recovered queue message only for the standby servers */
+								warmStandbyHandler.startingReactorChannel().lastSubmitOptionsTime = System.nanoTime();
+								
 							} else
 							{
 								warmStandbyHandler
@@ -9131,9 +9146,9 @@ public class Reactor
 
 	void cleanUpWSBRequestQueue(ReactorWarmStandbyHandler wsbHandler, ReactorWarmStandbyGroupImpl wsbGroup)
 	{
-		if (wsbGroup.sendReqQueueCount <= wsbGroup.standbyServerList().size())
+		if (wsbGroup.sendReqQueueCount < wsbGroup.standbyServerList().size())
 		{
-			if ((wsbGroup.sendReqQueueCount) == wsbGroup.standbyServerList().size())
+			if ((wsbGroup.sendReqQueueCount + 1) == wsbGroup.standbyServerList().size())
 			{
 				wsbGroup.sendQueueReqForAll = true;
 				wsbGroup.sendReqQueueCount = wsbGroup.standbyServerList().size() + 1;
@@ -9160,9 +9175,14 @@ public class Reactor
 			ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
 	{
 		int retVal = ReactorReturnCodes.SUCCESS;
-		if (wsbGroup.sendReqQueueCount <= wsbGroup.standbyServerList().size())
+		
+		if(reactorChannel.sendReqFromQueue)
+			return retVal;
+		
+		/* Include the count for the starting server as well */
+		if (wsbGroup.sendReqQueueCount < wsbGroup.standbyServerList().size() + 1)
 		{
-			if ((wsbGroup.sendReqQueueCount) == wsbGroup.standbyServerList().size())
+			if ((wsbGroup.sendReqQueueCount + 1) == (wsbGroup.standbyServerList().size() + 1))
 			{
 				wsbGroup.sendQueueReqForAll = true;
 				wsbGroup.sendReqQueueCount = wsbGroup.standbyServerList().size() + 1;
@@ -9239,6 +9259,7 @@ public class Reactor
 		}
 		
 		reactorChannel.lastSubmitOptionsTime = System.nanoTime();
+		reactorChannel.sendReqFromQueue = true;
 
 		return retVal;
 	}

@@ -120,6 +120,7 @@ public class ReactorChannel extends VaNode
     LoginConsumerConnectionStatus _loginConsumerStatus = (LoginConsumerConnectionStatus)LoginMsgFactory.createMsg();
     DirectoryConsumerStatus _directoryConsumerStatus = (DirectoryConsumerStatus)DirectoryMsgFactory.createMsg();
     ConsumerStatusService _serviceConsumerStatus = DirectoryMsgFactory.createConsumerStatusService();
+    boolean sendReqFromQueue = false; /* This is used in the submitWSBRequestQueue() method to check whether a ReactorChannel is already handled in the method. */
 
 	// Original Login Request Information
 	Buffer userName;
@@ -390,6 +391,7 @@ public class ReactorChannel extends VaNode
         standByGroupListIndex = -1;
         isActiveServer = false;
         isStartingServerConfig = false;
+        sendReqFromQueue = false;
         _currentConnectOptionsInfo = null;
         
         if(_wsbDirectoryUpdate == null)
