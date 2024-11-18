@@ -61,6 +61,26 @@ RSSL_API RsslRet rsslBindThreadUninitialize();
 */
 RSSL_API void dumpCpuTopology();
 
+/**
+* @brief Get the physical CPU core identification in a PCT string that matched for logical core id.
+* P(Package):X C(Core):Y T(Thread):Z
+* @param (in) cpuId the logical index of Cpu core.
+* @param (in/out) pCpuPCTString RsslBuffer with allocated memory space, it will be filled by result PCT string.
+*
+* @return RSSL_RET_SUCCESS when operation was success.
+* @return RSSL_RET_FAILURE when got any error.
+*/
+RSSL_API RsslRet getPCTByProcessorCoreNumber(RsslInt32 cpuId, RsslBuffer* pCpuPCTString, RsslErrorInfo* pError);
+
+/**
+* @brief Is the logical core in online or offline.
+* @param (in) cpuId the logical index of Cpu core.
+*
+* @return RSSL_TRUE when the processor unit is in online.
+* @return RSSL_FALSE when the processor unit is in offline, or cputopology is not initialized.
+*/
+RSSL_API RsslBool isProcessorCoreOnline(RsslInt32 cpuId);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1317,12 +1317,11 @@ int QueryParseSubIDs(RsslErrorInfo* pError)
         // but we are using our generic bitmap representation for affinity
         if(TestGenericAffinityBit(&glbl_ptr->cpu_generic_processAffinity, i, pError) == 1) {
             // bind the execution context to the ith logical processor
-            // using OS-specifi API
+            // using OS-specified API
             if( BindContext(i) ) {
-                glbl_ptr->error |= _MSGTYP_UNKNOWNERR_OS;
-                rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                    "BindContext returned error i=%u.", i);
-                break;
+                glbl_ptr->pApicAffOrdMapping[numMappings].offline = 1;
+                numMappings++;
+                continue;
             }
             // now the execution context is on the i'th cpu, call the parsing routine
             ParseIDS4EachThread(i, numMappings);
@@ -1478,6 +1477,11 @@ static int AnalyzeCPUHierarchy(unsigned  numMappings, RsslErrorInfo* pError)
     for (i=0; i < numMappings; i++) {
         BOOL PkgMarked;
         unsigned  h;
+
+        // Don't check this logical id if its currently offline or unavailable. 
+        if (glbl_ptr->pApicAffOrdMapping[i].offline)
+            continue;
+
         APICID = glbl_ptr->pApicAffOrdMapping[i].APICID;
         packageID = glbl_ptr->pApicAffOrdMapping[i].pkg_IDAPIC ;
         coreID = glbl_ptr->pApicAffOrdMapping[i].Core_IDAPIC ;
@@ -1607,6 +1611,10 @@ static int AnalyzeEachCHierarchy(unsigned subleaf, unsigned  numMappings, RsslEr
     maxCacheDetected = 0;
     for (i=0; i < numMappings;i++) {
         unsigned  j;
+        // Don't check this logical id if its currently offline or unavailable. 
+        if (glbl_ptr->pApicAffOrdMapping[i].offline)
+            continue;
+
         for (j=0; j < maxCacheDetected; j++) {
             if(pEachCIDs[j] == glbl_ptr->pApicAffOrdMapping[i].EaCacheIDAPIC[subleaf]) {
                 break;
@@ -1622,6 +1630,10 @@ static int AnalyzeEachCHierarchy(unsigned subleaf, unsigned  numMappings, RsslEr
     maxThreadsDetected = 0;
     for (i=0; i < numMappings;i++) {
         unsigned  j;
+        // Don't check this logical id if its currently offline or unavailable. 
+        if (glbl_ptr->pApicAffOrdMapping[i].offline)
+            continue;
+
         for (j=0; j < maxThreadsDetected; j++) {
             if(pThreadIDsperEachC[j] == glbl_ptr->pApicAffOrdMapping[i].EaCacheSMTIDAPIC[subleaf]) {
                 break;
@@ -1664,6 +1676,10 @@ static int AnalyzeEachCHierarchy(unsigned subleaf, unsigned  numMappings, RsslEr
     for (i=0; i < numMappings;i++) {
         BOOL CacheMarked;
         unsigned  h;
+
+        // Don't check this logical id if its currently offline or unavailable. 
+        if (glbl_ptr->pApicAffOrdMapping[i].offline)
+            continue;
 
         APICID = glbl_ptr->pApicAffOrdMapping[i].APICID;
         CacheID = glbl_ptr->pApicAffOrdMapping[i].EaCacheIDAPIC[subleaf] ; // sub ID to enumerate different caches in the system
@@ -1778,7 +1794,6 @@ static int     BuildSystemTopologyTables(RsslErrorInfo* pError)
             }
         }
     }
-
     return ret;
 }
 
