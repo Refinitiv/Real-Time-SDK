@@ -1076,13 +1076,13 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 
 		__rwf_atonumber_null(strptr,value,foundDigit,MAX_INT64,nextDigit,tempValue,isNeg);
 
-		if (foundDigit && strptr != '\0')
+		if (foundDigit && *strptr != '\0')
 		{
 			// We have more digits - if the rest are zeros, it might still fit
 			test = strptr;
-			while (*test == '0' && test != '\0')
+			while (*test == '0' && *test != '\0')
 				test++;
-			if (test != '\0')
+			if (*test != '\0')
 				return RSSL_RET_INVALID_DATA;
 		}
 		exponent = (RsslUInt8)(strptr - startdec);
@@ -1106,7 +1106,7 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 			if (test)
 				strptr = test;
 
-			if (strptr == '\0')
+			if (*strptr == '\0')
 			{
 				oReal64->isBlank = RSSL_FALSE;
 				oReal64->hint = RSSL_RH_EXPONENT0 - exponent;
@@ -1178,7 +1178,7 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 		if ((oReal64->hint = _rwf_SetFractionHint(denominator)) == 0)
 			return RSSL_RET_INVALID_DATA;
 
-		if (strptr == '\0')
+		if (*strptr == '\0')
 		{
 			/* value stays as value */
 			oReal64->isBlank = RSSL_FALSE;
