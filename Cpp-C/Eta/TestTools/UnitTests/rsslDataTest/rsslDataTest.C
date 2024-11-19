@@ -7313,7 +7313,7 @@ TEST(stringConversionTest,stringConversionTest)
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
 	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_1);
-	ASSERT_EQ(testReal.value, -9223372036854775808);
+	ASSERT_EQ(testReal.value, (-9223372036854775807 - 1));
 
 	testStrBuf.length = sprintf(testString, "0.01234567890123");
 	testStrBuf.data = testString;
