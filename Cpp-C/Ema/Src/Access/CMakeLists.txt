@@ -187,6 +187,8 @@ else()
             Impl/OmmUtf8.cpp Impl/OmmUtf8Decoder.cpp Impl/OmmUtf8Decoder.h
             Impl/OmmXml.cpp Impl/OmmXmlDecoder.cpp Impl/OmmXmlDecoder.h
             Impl/OmmXmlEncoder.cpp Impl/OmmXmlEncoder.h
+            Impl/OmmJson.cpp Impl/OmmJsonDecoder.cpp Impl/OmmJsonDecoder.h
+            Impl/OmmJsonEncoder.cpp Impl/OmmJsonEncoder.h
             # Impl/R,P...
             Impl/Payload.cpp
             Impl/Pipe.cpp Impl/Pipe.h
@@ -290,6 +292,7 @@ else()
             Include/OmmInvalidHandleException.h
             Include/OmmInvalidUsageException.h
             Include/OmmIProviderConfig.h
+            Include/OmmJson.h
             Include/OmmJsonConverterException.h
             Include/OmmMemoryExhaustionException.h
             Include/OmmNiProviderConfig.h

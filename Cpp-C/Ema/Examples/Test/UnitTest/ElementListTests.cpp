@@ -53,7 +53,7 @@ TEST(ElementListTests, testElementListDecodeAll)
 	{
 		// encoding order:  UINT, REAL, INT, DATE, TIME, DATETIME, QOS, STATE, ASCII_STRING,
 		//                  RMTES_STRING, ENUM, FLOAT, DOUBLE, BLANK REAL, BUFFER, UTF8_STRING,
-		//					OPAQUE, XML, ANSI_PAGE, ARRAY
+		//					OPAQUE, XML, JSON, ANSI_PAGE, ARRAY
 		RsslElementList rsslEL;
 		RsslEncodeIterator iter;
 
@@ -262,6 +262,26 @@ TEST(ElementListTests, testElementListDecodeAll)
 		rsslEncodeElementEntryComplete( &iter, RSSL_TRUE );
 
 		// nineteenth entry
+		rsslEEntry.name.data = ( char* )"Element - JSON";
+		rsslEEntry.name.length = 14;
+		rsslEEntry.dataType = RSSL_DT_JSON;
+
+		char jsonBuffer[20];
+
+		RsslBuffer buffer_json;
+		buffer_json.data = jsonBuffer;
+		buffer_json.length = 20;
+
+		rsslEncodeElementEntryInit( &iter, &rsslEEntry, 0 );
+		rsslEncodeNonRWFDataTypeInit( &iter, &buffer_json );
+
+		memcpy( buffer_json.data , "{\"value\":\"KLMNOPQR\"}", 20 );
+		buffer_json.length = 20;
+
+		rsslEncodeNonRWFDataTypeComplete( &iter, &buffer_json, RSSL_TRUE );
+		rsslEncodeElementEntryComplete( &iter, RSSL_TRUE );
+
+		// twenty entry
 		rsslEEntry.name.data = ( char* )"Element - AnsiPage";
 		rsslEEntry.name.length = 18;
 		rsslEEntry.dataType = RSSL_DT_ANSI_PAGE;
@@ -281,7 +301,7 @@ TEST(ElementListTests, testElementListDecodeAll)
 		rsslEncodeNonRWFDataTypeComplete( &iter, &buffer_ansiPage, RSSL_TRUE );
 		rsslEncodeElementEntryComplete( &iter, RSSL_TRUE );
 
-		// twenty entry
+		// twenty first entry
 		rsslEEntry.name.data = (char*)"Element - Array";
 		rsslEEntry.name.length = 16;
 		rsslEEntry.dataType = RSSL_DT_ARRAY;
@@ -494,17 +514,25 @@ TEST(ElementListTests, testElementListDecodeAll)
 		EXPECT_TRUE( el.forth() ) << "ElementList with all data types - nineteen forth()" ;
 
 		const ElementEntry& ee19 = el.getEntry();
-		EXPECT_STREQ( ee19.getName(), "Element - AnsiPage" ) << "ElementEntry::getName()" ;
-		EXPECT_EQ( ee19.getLoadType(), DataType::AnsiPageEnum ) << "ElementEntry::getLoadType() == DataType::AnsiPage" ;
+		EXPECT_STREQ( ee19.getName(), "Element - JSON" ) << "ElementEntry::getName()" ;
+		EXPECT_EQ( ee19.getLoadType(), DataType::JsonEnum ) << "ElementEntry::getLoadType() == DataType::Json" ;
 		EXPECT_EQ( ee19.getCode(), Data::NoCodeEnum ) << "ElementEntry::getCode() == Data::NoCodeEnum" ;
-		EXPECT_STREQ( ee19.getAnsiPage().getBuffer(), EmaBuffer( "328-srfsjkj43rouw-01-20ru2l24903$%", 34 ) ) << "ElementEntry::getXml()" ;
+		EXPECT_STREQ( ee19.getJson().getBuffer(), EmaBuffer( "{\"value\":\"KLMNOPQR\"}", 20 ) ) << "ElementEntry::getJson()" ;
 
 		EXPECT_TRUE(el.forth()) << "ElementList with all data types - twenty forth()";
 
 		const ElementEntry& ee20 = el.getEntry();
-		EXPECT_STREQ(ee20.getName(), "Element - Array") << "ElementEntry::getName()";
-		EXPECT_EQ(ee20.getLoadType(), DataType::ArrayEnum) << "ElementEntry::getLoadType() == DataType::ArrayEnum";
-		EXPECT_EQ(ee20.getCode(), Data::BlankEnum) << "ElementEntry::getCode() == Data::BlankEnum";
+		EXPECT_STREQ( ee20.getName(), "Element - AnsiPage" ) << "ElementEntry::getName()" ;
+		EXPECT_EQ( ee20.getLoadType(), DataType::AnsiPageEnum ) << "ElementEntry::getLoadType() == DataType::AnsiPage" ;
+		EXPECT_EQ( ee20.getCode(), Data::NoCodeEnum ) << "ElementEntry::getCode() == Data::NoCodeEnum" ;
+		EXPECT_STREQ( ee20.getAnsiPage().getBuffer(), EmaBuffer( "328-srfsjkj43rouw-01-20ru2l24903$%", 34 ) ) << "ElementEntry::getXml()" ;
+
+		EXPECT_TRUE(el.forth()) << "ElementList with all data types - twenty one forth()";
+
+		const ElementEntry& ee21 = el.getEntry();
+		EXPECT_STREQ(ee21.getName(), "Element - Array") << "ElementEntry::getName()";
+		EXPECT_EQ(ee21.getLoadType(), DataType::ArrayEnum) << "ElementEntry::getLoadType() == DataType::ArrayEnum";
+		EXPECT_EQ(ee21.getCode(), Data::BlankEnum) << "ElementEntry::getCode() == Data::BlankEnum";
 
 		try
 		{

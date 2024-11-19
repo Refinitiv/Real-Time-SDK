@@ -131,6 +131,7 @@
 		FilterList,
 		OmmOpaque,
 		OmmXml,
+		OmmJson,
 		OmmAnsiPage,
 		OmmError,
 		EmaString,
@@ -171,6 +172,7 @@ class FilterList;
 class OmmArray;
 class OmmOpaque;
 class OmmXml;
+class OmmJson;
 class OmmAnsiPage;
 
 class FieldListDecoder;
@@ -413,6 +415,14 @@ public :
 		@return reference to this object
 	*/
 	FieldList& addXml( Int16 fieldId, const OmmXml& value );
+
+	/** Adds a complex type of OMM data to the FieldList.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] fieldId field id value
+		@param[in] value added OmmJson
+		@return reference to this object
+	*/
+	FieldList& addJson(Int16 fieldId, const OmmJson& value);
 
 	/** Adds a complex type of OMM data to the FieldList.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)

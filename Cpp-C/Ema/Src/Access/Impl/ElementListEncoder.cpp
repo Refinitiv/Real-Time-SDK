@@ -22,6 +22,7 @@
 #include "OmmAnsiPage.h"
 #include "OmmOpaque.h"
 #include "OmmXml.h"
+#include "OmmJson.h"
 #include "AckMsg.h"
 #include "GenericMsg.h"
 #include "PostMsg.h"
@@ -1115,6 +1116,35 @@ void ElementListEncoder::addXml( const EmaString& name, const OmmXml& ommXml )
 	else
 	{
 		/* This case (blank XML) handled in hasDecoder() section */
+	}
+}
+
+void ElementListEncoder::addJson( const EmaString& name, const OmmJson& ommJson )
+{
+	if ( rsslElementListCheckHasStandardData( &_rsslElementList ) == RSSL_FALSE )
+	{
+		rsslElementListApplyHasStandardData( &_rsslElementList );
+
+		acquireEncIterator();
+
+		initEncode();
+	}
+
+	const Encoder& enc = static_cast<const Data&>(ommJson).getEncoder();
+
+	_emaLoadType = ommJson.getDataType();
+
+	if ( enc.ownsIterator() )
+	{
+		addEncodedEntry( name, RSSL_DT_JSON, "addJson()", enc.getRsslBuffer());
+	}
+	else if ( static_cast<const Data&>(ommJson).hasDecoder() )
+	{
+		addEncodedEntry( name, RSSL_DT_JSON, "addJson()", static_cast<Data&>( const_cast<OmmJson&>(ommJson)).getDecoder().getRsslBuffer() );
+	}
+	else
+	{
+		/* This case (blank JSON) handled in hasDecoder() section */
 	}
 }
 

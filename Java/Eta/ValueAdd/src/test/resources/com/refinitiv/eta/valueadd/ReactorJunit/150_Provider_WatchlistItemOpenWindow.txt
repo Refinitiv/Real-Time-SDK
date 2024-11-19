@@ -47,40 +47,40 @@
 //
 // DirectoryRefresh
 //
-0000: 02 12 02 00 38 02 04 00  00 00 02 81 68 09 09 00   ....8.......h...
-0001: 22 53 6F 75 72 63 65 20  44 69 72 65 63 74 6F 72   "Source Director
-0002: 79 20 52 65 66 72 65 73  68 20 43 6F 6D 70 6C 65   y Refresh Comple
-0003: 74 65 64 02 00 00 80 05  08 00 00 00 3F 00 04 07   ted.........?...
-0004: 00 01 02 01 01 FE 01 CA  00 05 04 02 01 FE 01 22   ..............."
-0005: 08 00 0B 04 4E 61 6D 65  11 0B 44 49 52 45 43 54   ....Name..DIRECT
-0006: 5F 46 45 45 44 06 56 65  6E 64 6F 72 11 0F 54 68   _FEED.Vendor..Th
-0007: 6F 6D 73 6F 6E 20 52 65  75 74 65 72 73 08 49 73   omson Reuters.Is
-0008: 53 6F 75 72 63 65 04 01  01 0C 43 61 70 61 62 69   Source....Capabi
-0009: 6C 69 74 69 65 73 0F FE  00 10 04 00 00 06 01 06   lities..........
-000A: 01 07 01 08 01 05 01 0A  01 7F 14 44 69 63 74 69   ...........Dicti
-000B: 6F 6E 61 72 69 65 73 50  72 6F 76 69 64 65 64 0F   onariesProvided.
-000C: FE 00 13 11 00 00 02 06  52 57 46 46 6C 64 07 52   ........RWFFld.R
-000D: 57 46 45 6E 75 6D 10 44  69 63 74 69 6F 6E 61 72   WFEnum.Dictionar
-000E: 69 65 73 55 73 65 64 0F  FE 00 13 11 00 00 02 06   iesUsed.........
-000F: 52 57 46 46 6C 64 07 52  57 46 45 6E 75 6D 03 51   RWFFld.RWFEnum.Q
-0010: 6F 53 0F FE 00 06 0C 00  00 01 01 22 10 53 75 70   oS.........".Sup
-0011: 70 6F 72 74 73 51 6F 53  52 61 6E 67 65 04 01 00   portsQoSRange...
-0012: 08 49 74 65 6D 4C 69 73  74 11 0E 5F 45 54 41 5F   .ItemList.._ETA_
-0013: 49 54 45 4D 5F 4C 49 53  54 1A 53 75 70 70 6F 72   ITEM_LIST.Suppor
-0014: 74 73 4F 75 74 4F 66 42  61 6E 64 53 6E 61 70 73   tsOutOfBandSnaps
-0015: 68 6F 74 73 04 01 00 17  41 63 63 65 70 74 69 6E   hots....Acceptin
-0016: 67 43 6F 6E 73 75 6D 65  72 53 74 61 74 75 73 04   gConsumerStatus.
-0017: 01 00 22 06 09 FE 00 4A  00 11 05 00 01 02 11 55   .."....J.......U
-0018: 50 41 20 50 72 6F 76 69  64 65 72 20 4C 69 6E 6B   PA Provider Link
-0019: FE 00 2F 08 00 03 04 54  65 78 74 11 10 4C 69 6E   ../....Text..Lin
-001A: 6B 20 73 74 61 74 65 20  69 73 20 75 70 04 54 79   k state is up.Ty
-001B: 70 65 04 01 01 09 4C 69  6E 6B 53 74 61 74 65 04   pe....LinkState.
-001C: 01 00 02 04 FE 00 1E 08  00 02 09 4F 70 65 6E 4C   ...........OpenL
-001D: 69 6D 69 74 04 01 0A 0A  4F 70 65 6E 57 69 6E 64   imit....OpenWind
-001E: 6F 77 04 01 01 02 02 FE  00 28 08 00 02 0C 53 65   ow.......(....Se
-001F: 72 76 69 63 65 53 74 61  74 65 04 01 01 11 41 63   rviceState....Ac
-0020: 63 65 70 74 69 6E 67 52  65 71 75 65 73 74 73 04   ceptingRequests.
-0021: 01 01                                              ..
+0000: 02 07 02 00 38 02 04 00 00 00 02 81 68 09 09 00   ....8.......h...
+0001: 22 53 6f 75 72 63 65 20 44 69 72 65 63 74 6f 72   "Source Director
+0002: 79 20 52 65 66 72 65 73 68 20 43 6f 6d 70 6c 65   y Refresh Comple
+0003: 74 65 64 02 00 00 80 05 08 00 00 00 3f 00 04 07   ted.........?...
+0004: 00 01 02 01 01 fe 01 bf 00 05 04 02 01 fe 01 17   ................
+0005: 08 00 0b 04 4e 61 6d 65 11 0b 44 49 52 45 43 54   ....Name..DIRECT
+0006: 5f 46 45 45 44 06 56 65 6e 64 6f 72 11 04 4c 53   _FEED.Vendor..LS
+0007: 45 47 08 49 73 53 6f 75 72 63 65 04 01 01 0c 43   EG.IsSource....C
+0008: 61 70 61 62 69 6c 69 74 69 65 73 0f fe 00 10 04   apabilities.....
+0009: 00 00 06 01 06 01 07 01 08 01 05 01 0a 01 7f 14   ................
+000A: 44 69 63 74 69 6f 6e 61 72 69 65 73 50 72 6f 76   DictionariesProv
+000B: 69 64 65 64 0f fe 00 13 11 00 00 02 06 52 57 46   ided.........RWF
+000C: 46 6c 64 07 52 57 46 45 6e 75 6d 10 44 69 63 74   Fld.RWFEnum.Dict
+000D: 69 6f 6e 61 72 69 65 73 55 73 65 64 0f fe 00 13   ionariesUsed....
+000E: 11 00 00 02 06 52 57 46 46 6c 64 07 52 57 46 45   .....RWFFld.RWFE
+000F: 6e 75 6d 03 51 6f 53 0f fe 00 06 0c 00 00 01 01   num.QoS.........
+0010: 22 10 53 75 70 70 6f 72 74 73 51 6f 53 52 61 6e   ".SupportsQoSRan
+0011: 67 65 04 01 00 08 49 74 65 6d 4c 69 73 74 11 0e   ge....ItemList..
+0012: 5f 45 54 41 5f 49 54 45 4d 5f 4c 49 53 54 1a 53   _ETA_ITEM_LIST.S
+0013: 75 70 70 6f 72 74 73 4f 75 74 4f 66 42 61 6e 64   upportsOutOfBand
+0014: 53 6e 61 70 73 68 6f 74 73 04 01 00 17 41 63 63   Snapshots....Acc
+0015: 65 70 74 69 6e 67 43 6f 6e 73 75 6d 65 72 53 74   eptingConsumerSt
+0016: 61 74 75 73 04 01 00 22 06 09 fe 00 4a 00 11 05   atus..."....J...
+0017: 00 01 02 11 45 54 41 20 50 72 6f 76 69 64 65 72   ....ETA Provider
+0018: 20 4c 69 6e 6b fe 00 2f 08 00 03 04 54 65 78 74    Link../....Text
+0019: 11 10 4c 69 6e 6b 20 73 74 61 74 65 20 69 73 20   ..Link state is 
+001A: 75 70 04 54 79 70 65 04 01 01 09 4c 69 6e 6b 53   up.Type....LinkS
+001B: 74 61 74 65 04 01 00 02 04 fe 00 1e 08 00 02 09   tate............
+001C: 4f 70 65 6e 4c 69 6d 69 74 04 01 0a 0a 4f 70 65   OpenLimit....Ope
+001D: 6e 57 69 6e 64 6f 77 04 01 01 02 02 fe 00 28 08   nWindow.......(.
+001E: 00 02 0c 53 65 72 76 69 63 65 53 74 61 74 65 04   ...ServiceState.
+001F: 01 01 11 41 63 63 65 70 74 69 6e 67 52 65 71 75   ...AcceptingRequ
+0020: 65 73 74 73 04 01 01                              ests...
+
 
 <!-- rwfMajorVer="14" rwfMinorVer="1" -->
 <REFRESH domainType="SOURCE" streamId="2" containerType="MAP" flags="0x168 (HAS_MSG_KEY|SOLICITED|REFRESH_COMPLETE|CLEAR_CACHE)" groupId="0" State: Open/Ok/None - text: "Source Directory Refresh Completed" dataSize="469">
@@ -92,7 +92,7 @@
                     <filterEntry id="1" action="SET" flags="0x00" containerType="ELEMENT_LIST">
                         <elementList flags="0x08 (HAS_STANDARD_DATA)">
                             <elementEntry name="Name" dataType="ASCII_STRING" data="DIRECT_FEED"/>
-                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Refinitiv"/>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="LSEG"/>
                             <elementEntry name="IsSource" dataType="UINT" data="1"/>
                             <elementEntry name="Capabilities" dataType="ARRAY">
                                 <array itemLength="0" primitiveType="UINT">

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019,2024 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -175,6 +175,8 @@ public :
 									application to house a message within a message or a message within
 									another container's entries. This type is typically used with posting.*/
 		
+		JsonEnum = 142, 		/*!< JSON formatted data, use Non-RWF type encoders. */
+
 		ReqMsgEnum = 256,		/*!< A message to specify item interest. 
 									A consumer sends this message. */
 

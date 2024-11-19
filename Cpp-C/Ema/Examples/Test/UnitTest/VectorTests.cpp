@@ -816,6 +816,76 @@ TEST(VectorTests, testVectorContainsXmlDecodeAll)
 	}
 }
 
+TEST(VectorTests, testVectorContainsJsonDecodeAll)
+{
+
+	try
+	{
+		RsslBuffer vectorBuffer;
+		vectorBuffer.length = 4096;
+		vectorBuffer.data = ( char* )malloc( sizeof( char ) * 4096 );
+
+		RsslVector rsslVector = RSSL_INIT_VECTOR;
+		RsslEncodeIterator vectorEncodeIter;
+
+		rsslClearVector( &rsslVector );
+		rsslClearEncodeIterator( &vectorEncodeIter );
+		rsslSetEncodeIteratorRWFVersion( &vectorEncodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION );
+		rsslSetEncodeIteratorBuffer( &vectorEncodeIter, &vectorBuffer );
+		rsslVector.flags = RSSL_VTF_HAS_TOTAL_COUNT_HINT;
+
+		rsslVector.containerType = RSSL_DT_JSON;
+		rsslVector.totalCountHint = 1;
+
+		rsslEncodeVectorInit( &vectorEncodeIter, &rsslVector, 0, 0 );
+
+		RsslVectorEntry vectorEntry;
+
+		rsslClearVectorEntry( &vectorEntry );
+
+		char buffer[200];
+		RsslBuffer rsslBuf1;
+		rsslBuf1.data = buffer;
+		rsslBuf1.length = 200;
+
+		RsslBuffer jsonValue;
+		jsonValue.data = ( char* )"{\"consumerList\":{\"consumer\":{\"name\":\"\",\"dataType\":\"Ascii\",\"value\":\"Consumer_1\"}}}";
+		jsonValue.length = static_cast<rtrUInt32>( strlen( jsonValue.data ) );
+
+		encodeNonRWFData( &rsslBuf1, &jsonValue );
+
+		vectorEntry.index = 0;
+		vectorEntry.flags = RSSL_VTEF_NONE;
+		vectorEntry.action = RSSL_VTEA_SET_ENTRY;
+		vectorEntry.encData = rsslBuf1;
+		rsslEncodeVectorEntry( &vectorEncodeIter, &vectorEntry );
+
+		rsslEncodeVectorComplete( &vectorEncodeIter, RSSL_TRUE );
+
+		vectorBuffer.length = rsslGetEncodedBufferLength( &vectorEncodeIter );
+
+		Vector vector;
+		StaticDecoder::setRsslData( &vector, &vectorBuffer, RSSL_DT_VECTOR, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, 0 );
+
+		EXPECT_TRUE( vector.forth() ) << "Vector contains Json - first vector forth()" ;
+
+		const VectorEntry& ve = vector.getEntry();
+
+		EXPECT_EQ( ve.getPosition(), 0 ) << "ve.getPosition()" ;
+		EXPECT_EQ( ve.getAction(), VectorEntry::SetEnum ) << "VectorEntry::getAction() == VectorEntry::SetEnum" ;
+		EXPECT_EQ( ve.getLoad().getDataType(), DataType::JsonEnum ) << "VectorEntry::getLoad().getDataType() == DataType::JsonEnum" ;
+
+		EmaBuffer compareTo( jsonValue.data, jsonValue.length );
+		EXPECT_STREQ( ve.getJson().getBuffer(), compareTo ) << "VectorEntry::getJson().getBuffer()" ;
+
+		free( vectorBuffer.data );
+	}
+	catch ( const OmmException& )
+	{
+		EXPECT_FALSE( true ) << "Vector Decode with Json payload - exception not expected" ;
+	}
+}
+
 TEST(VectorTests, testVectorContainsAnsiPageDecodeAll)
 {
 

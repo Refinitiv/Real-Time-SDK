@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019,2024 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -15,6 +15,7 @@
 #include "FilterList.h"
 #include "OmmOpaque.h"
 #include "OmmXml.h"
+#include "OmmJson.h"
 #include "OmmAnsiPage.h"
 #include "ReqMsg.h"
 #include "RefreshMsg.h"
@@ -228,6 +229,18 @@ const OmmXml& Payload::getXml() const
 	}
 
 	return static_cast<const OmmXml&>( *_pPayload );
+}
+
+const OmmJson& Payload::getJson() const
+{
+	if ( _pPayload->getDataType() != DataType::JsonEnum )
+	{
+		EmaString temp( "Attempt to getJson() while actual dataType is " );
+		temp += getDTypeAsString( _pPayload->getDataType() );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
+	}
+
+	return static_cast<const OmmJson&>( *_pPayload );
 }
 
 const OmmAnsiPage& Payload::getAnsiPage() const

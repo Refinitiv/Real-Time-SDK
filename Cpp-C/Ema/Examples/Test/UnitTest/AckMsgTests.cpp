@@ -228,6 +228,55 @@ TEST(AckMsgTests, testAckMsgWithXml)
 	}
 }
 
+TEST(AckMsgTests, testAckMsgWithJson)
+{
+
+	try
+	{
+		RsslAckMsg rsslAckMsg;
+		rsslClearAckMsg( &rsslAckMsg );
+
+		RsslMsgKey msgKey;
+		rsslClearMsgKey( &msgKey );
+
+		RsslBuffer nameBuffer;
+		nameBuffer.data = const_cast<char*>("ABCDEF");
+		nameBuffer.length = 6;
+
+		msgKey.name = nameBuffer;
+
+		rsslAckMsg.ackId = 1;
+		rsslAckMsgApplyHasMsgKey( &rsslAckMsg );
+
+		char buffer[200];
+		RsslBuffer rsslBuf;
+		rsslBuf.data = buffer;
+		rsslBuf.length = 200;
+
+		RsslBuffer jsonValue;
+		jsonValue.data = ( char* )"{\"consumerList\":{\"consumer\":{\"name\":\"\",\"dataType\":\"Ascii\",\"value\":\"Consumer_1\"}}}";
+		jsonValue.length = static_cast<rtrUInt32>(strlen( jsonValue.data ));
+
+		encodeNonRWFData( &rsslBuf, &jsonValue );
+
+		rsslAckMsg.msgBase.encDataBody = rsslBuf;
+		rsslAckMsg.msgBase.containerType = RSSL_DT_JSON;
+
+		AckMsg ackMsg;
+
+		StaticDecoder::setRsslData( &ackMsg, ( RsslMsg* )&rsslAckMsg, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, 0 );
+
+		EXPECT_EQ( ackMsg.getPayload().getDataType(), DataType::JsonEnum ) << "ackMsg.getPayload().getDataType() == DataType::JsonEnum" ;
+
+		EmaBuffer compareTo( jsonValue.data, jsonValue.length );
+		EXPECT_STREQ( ackMsg.getPayload().getJson().getBuffer(), compareTo ) << "ackMsg.getPayload().getJson().getBuffer()" ;
+	}
+	catch ( const OmmException& )
+	{
+		EXPECT_FALSE( true ) << "ackMsg Decode with Json payload - exception not expected" ;
+	}
+}
+
 TEST(AckMsgTests, testAckMsgWithAnsiPage)
 {
 
@@ -273,7 +322,7 @@ TEST(AckMsgTests, testAckMsgWithAnsiPage)
 	}
 	catch ( const OmmException& )
 	{
-		EXPECT_FALSE( true ) << "ackMsg Decode with Xml payload - exception not expected" ;
+		EXPECT_FALSE( true ) << "ackMsg Decode with AnsiPage payload - exception not expected" ;
 	}
 }
 

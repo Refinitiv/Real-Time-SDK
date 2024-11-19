@@ -37,7 +37,8 @@ TEST(FieldListTests, testFieldListDecodeAll)
 	{
 		// encoding order:  ERROR, UINT, REAL, INT, DATE, TIME, DATETIME, QOS, STATE, ASCII_STRING,
 		//                  RMTES_STRING, ENUM, FLOAT, DOUBLE, BLANK REAL, BUFFRER, UTF8_STRING,
-		//					OPAUE, XML, ANSI_PAGE
+		//                  OPAUE, XML, ANSI_PAGE,
+		//                  JSON
 		RsslFieldList rsslFL;
 		RsslEncodeIterator iter;
 
@@ -290,6 +291,25 @@ TEST(FieldListTests, testFieldListDecodeAll)
 		rsslFEntry.fieldId = 8960;		// GBLISS_IND + ENUM
 		enumm = 2; // "  EURO  "
 		rsslEncodeFieldEntry(&iter, &rsslFEntry, (void*)&enumm);
+
+		// twenty seventh entry
+		rsslFEntry.fieldId = -20;
+		rsslFEntry.dataType = RSSL_DT_JSON;
+
+		char jsonBuffer[20];
+
+		RsslBuffer buffer_json;
+		buffer_json.data = jsonBuffer;
+		buffer_json.length = 20;
+
+		rsslEncodeFieldEntryInit( &iter, &rsslFEntry, 0 );
+		rsslEncodeNonRWFDataTypeInit( &iter, &buffer_json );
+
+		memcpy( buffer_json.data , "{\"value\":\"KLMNOPQR\"}", 20 );
+		buffer_json.length = 20;
+
+		rsslEncodeNonRWFDataTypeComplete( &iter, &buffer_json, RSSL_TRUE );
+		rsslEncodeFieldEntryComplete( &iter, RSSL_TRUE );
 
 		rsslEncodeFieldListComplete( &iter, RSSL_TRUE );
 
@@ -693,7 +713,17 @@ TEST(FieldListTests, testFieldListDecodeAll)
 		EXPECT_TRUE( fe26.hasEnumDisplay() ) << "FieldEntry::hasEnumDisplay()";
 		EXPECT_STREQ( fe26.getEnumDisplay(), "  EURO  " ) << "FieldEntry::getEnumDisplay()";
 
-		EXPECT_FALSE( fl.forth() ) << "FieldList with all data types - twenty seventh forth()";
+		EXPECT_TRUE( fl.forth() ) << "FieldList with all data types - twenty seventh forth()" ;
+
+		const FieldEntry& fe27 = fl.getEntry();
+
+		EXPECT_EQ( fe27.getFieldId(), -20 ) << "FieldEntry::getFieldId()" ;
+		EXPECT_STREQ( fe27.getName(), "JSON" ) << "FieldEntry::getName()" ;
+		EXPECT_EQ( fe27.getLoadType(), DataType::JsonEnum ) << "FieldEntry::getLoadType() == DataType::JsonEnum" ;
+		EXPECT_EQ( fe27.getCode(), Data::NoCodeEnum ) << "FieldEntry::getCode() == Data::NoCodeEnum" ;
+		EXPECT_STREQ( fe27.getJson().getBuffer(), EmaBuffer( "{\"value\":\"KLMNOPQR\"}", 20 ) ) << "FieldEntry::getJson()::getBuffer()" ;
+
+		EXPECT_FALSE( fl.forth() ) << "FieldList with all data types - twenty eighth forth()";
 
 		EXPECT_TRUE( true ) << "FieldList with all data types - exception not expected" ;
 
@@ -3943,7 +3973,7 @@ TEST(FieldListTests, testFieldListPrimitiveDecodingError)
 		{
 			// encoding order:  ERROR, UINT, REAL, INT, DATE, TIME, DATETIME, QOS, STATE, ASCII_STRING,
 			//                  RMTES_STRING, ENUM, FLOAT, DOUBLE, BLANK REAL, BUFFRER, UTF8_STRING,
-			//					OPAUE, XML, ANSI_PAGE
+			//                  OPAUE, XML, JSON, ANSI_PAGE
 			RsslFieldList rsslFL;
 			RsslEncodeIterator iter;
 
@@ -4149,7 +4179,26 @@ TEST(FieldListTests, testFieldListPrimitiveDecodingError)
 			rsslEncodeNonRWFDataTypeComplete( &iter, &buffer_xml, RSSL_TRUE );
 			rsslEncodeFieldEntryComplete( &iter, RSSL_TRUE );
 
-			// nineteenth entry
+			// twentieth entry
+			rsslFEntry.fieldId = -20;
+			rsslFEntry.dataType = RSSL_DT_JSON;
+
+			char jsonBuffer[20];
+
+			RsslBuffer buffer_json;
+			buffer_json.data = jsonBuffer;
+			buffer_json.length = 20;
+
+			rsslEncodeFieldEntryInit( &iter, &rsslFEntry, 0 );
+			rsslEncodeNonRWFDataTypeInit( &iter, &buffer_json );
+
+			memcpy( buffer_json.data , "{\"value\":\"KLMNOPQR\"}", 20 );
+			buffer_json.length = 20;
+
+			rsslEncodeNonRWFDataTypeComplete( &iter, &buffer_json, RSSL_TRUE );
+			rsslEncodeFieldEntryComplete( &iter, RSSL_TRUE );
+
+			// twenty first entry
 			rsslFEntry.fieldId = -18;
 			rsslFEntry.dataType = RSSL_DT_ANSI_PAGE;
 
@@ -4173,7 +4222,7 @@ TEST(FieldListTests, testFieldListPrimitiveDecodingError)
 
 
 			{
-				Data* pData = new FieldList();;
+				Data* pData = new FieldList();
 
 				StaticDecoder::setRsslData( pData, &rsslBuf, RSSL_DT_FIELD_LIST, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, 0 );
 
@@ -4212,7 +4261,7 @@ TEST(FieldListTests, testFieldListPrimitiveDecodingError)
 		{
 			// encoding order:  ERROR, UINT, REAL, INT, DATE, TIME, DATETIME, QOS, STATE, ASCII_STRING,
 			//                  RMTES_STRING, ENUM, FLOAT, DOUBLE, BLANK REAL, BUFFRER, UTF8_STRING,
-			//					OPAUE, XML, ANSI_PAGE
+			//                  OPAUE, XML, JSON, ANSI_PAGE
 			RsslFieldList rsslFL;
 			RsslEncodeIterator iter;
 

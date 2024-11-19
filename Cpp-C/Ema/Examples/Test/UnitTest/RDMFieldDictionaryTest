@@ -23,7 +23,7 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright (C) 2019 LSEG 
+! Copyright (C) 2019, 2024 LSEG 
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
@@ -34,6 +34,8 @@
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
 !-------    -----------          ---  ----------  ----------     ------  --------   -------
+!
+JSON        "JSON"                -20  NULL        ALPHANUMERIC       10  JSON           100
 !
 MY_MSG      "MY_MSG"              -19  NULL        BINARY           1000  MSG	        1000
 

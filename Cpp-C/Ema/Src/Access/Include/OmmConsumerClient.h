@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019,2024 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -135,15 +135,17 @@ public :
 	virtual void onAllMsg( const Msg& msg, const OmmConsumerEvent& consumerEvent );
 	//@}
 
+	///@name Destructor
+	//@{
+	virtual ~OmmConsumerClient() = default;
+	//@}
+
 protected :
 
-	OmmConsumerClient();
-	virtual ~OmmConsumerClient();
+	OmmConsumerClient() = default;
+	OmmConsumerClient( const OmmConsumerClient& ) = default;
+	OmmConsumerClient& operator=( const OmmConsumerClient& ) = default;
 
-private :
-
-	OmmConsumerClient( const OmmConsumerClient& );
-	OmmConsumerClient& operator=( const OmmConsumerClient& );
 };
 
 }

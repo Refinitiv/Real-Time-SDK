@@ -251,6 +251,67 @@ TEST(RefreshMsgTests, testRefreshMsgWithXml)
 	}
 }
 
+TEST(RefreshMsgTests, testRefreshMsgWithJson)
+{
+
+	RsslDataDictionary dictionary;
+
+	try
+	{
+		RsslRefreshMsg refresh;
+		rsslClearRefreshMsg( &refresh );
+
+		RsslMsgKey msgKey;
+		rsslClearMsgKey( &msgKey );
+
+		RsslBuffer nameBuffer;
+		nameBuffer.data = const_cast<char*>("ABCDEF");
+		nameBuffer.length = 6;
+
+		msgKey.name = nameBuffer;
+		rsslMsgKeyApplyHasName( &msgKey );
+
+		msgKey.nameType = 1;
+		rsslMsgKeyApplyHasNameType( &msgKey );
+
+		msgKey.serviceId = 2;
+		rsslMsgKeyApplyHasServiceId( &msgKey );
+
+		msgKey.identifier = 4;
+		rsslMsgKeyApplyHasIdentifier( &msgKey );
+
+		refresh.msgBase.msgKey = msgKey;
+		rsslRefreshMsgApplyHasMsgKey( &refresh );
+
+		char buffer[200];
+		RsslBuffer rsslBuf;
+		rsslBuf.data = buffer;
+		rsslBuf.length = 200;
+
+		RsslBuffer jsonValue;
+		jsonValue.data = ( char* )"{\"consumerList\":{\"consumer\":{\"name\":\"\",\"dataType\":\"Ascii\",\"value\":\"Consumer_1\"}}}";
+		jsonValue.length = static_cast<rtrUInt32>( strlen( jsonValue.data ) );
+
+		encodeNonRWFData( &rsslBuf, &jsonValue );
+
+		refresh.msgBase.encDataBody = rsslBuf;
+		refresh.msgBase.containerType = RSSL_DT_JSON;
+
+		RefreshMsg respMsg;
+
+		StaticDecoder::setRsslData( &respMsg, ( RsslMsg* )&refresh, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &dictionary );
+
+		EXPECT_EQ( respMsg.getPayload().getDataType(), DataType::JsonEnum ) << "respMsg.getPayload().getDataType() == DataType::JsonEnum" ;
+
+		EmaBuffer compareTo( jsonValue.data, jsonValue.length );
+		EXPECT_STREQ( respMsg.getPayload().getJson().getBuffer(), compareTo ) << "respMsg.getPayload().getJson().getBuffer()" ;
+	}
+	catch ( const OmmException& )
+	{
+		EXPECT_FALSE( true ) << "RefreshMsg Decode with Json payload - exception not expected" ;
+	}
+}
+
 TEST(RefreshMsgTests, testRefreshMsgWithAnsiPage)
 {
 

@@ -2,7 +2,7 @@
 *|            This source code is provided under the Apache 2.0 license
 *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 *|                See the project's LICENSE.md for details.
-*|           Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+*|           Copyright (C) 2019-2020, 2024 LSEG. All rights reserved.        --
 *|-----------------------------------------------------------------------------
 */
 
@@ -1487,7 +1487,11 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 					service.infoFilter.action = RSSL_FTEA_SET_ENTRY;
 					service.stateFilter.action = RSSL_FTEA_SET_ENTRY;
 					service.loadFilter.action = RSSL_FTEA_SET_ENTRY;
-					service.flags |= RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE | RDM_SVCF_HAS_LOAD;
+
+					service.flags |= RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE;
+
+					if (service.loadFilter.flags)
+						service.flags |= RDM_SVCF_HAS_LOAD;
 
 					if (pDirectoryCache)
 					{

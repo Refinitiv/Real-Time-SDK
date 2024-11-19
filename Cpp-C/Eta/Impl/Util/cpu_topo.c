@@ -1157,10 +1157,12 @@ int FreeArrays(void)
     free(glbl_ptr->pApicAffOrdMapping);
     glbl_ptr->pApicAffOrdMapping = NULL;
 
-    free(glbl_ptr->perPkg_detectedCoresCount.data);
+    if (glbl_ptr->perPkg_detectedCoresCount.data != NULL)
+        free(glbl_ptr->perPkg_detectedCoresCount.data);
     glbl_ptr->perPkg_detectedCoresCount.data = NULL;
 
-    free(glbl_ptr->perCore_detectedThreadsCount.data);
+    if (glbl_ptr->perCore_detectedThreadsCount.data != NULL)
+        free(glbl_ptr->perCore_detectedThreadsCount.data);
     glbl_ptr->perCore_detectedThreadsCount.data = NULL;
 
     free(glbl_ptr->perCache_detectedCoreCount.data);
@@ -1199,25 +1201,6 @@ int AllocArrays(unsigned  cpus)
             break;
         }
         memset(glbl_ptr->pApicAffOrdMapping, 0, i * sizeof(IdAffMskOrdMapping));
-
-        glbl_ptr->perPkg_detectedCoresCount.data = (unsigned*)malloc(i * sizeof(unsigned));
-        if (glbl_ptr->perPkg_detectedCoresCount.data == NULL)
-        {
-            result = -1;
-            break;
-        }
-        memset(glbl_ptr->perPkg_detectedCoresCount.data, 0, i * sizeof(unsigned));
-        glbl_ptr->perPkg_detectedCoresCount.dim[0] = i;
-
-        glbl_ptr->perCore_detectedThreadsCount.data = (unsigned*)malloc(MAX_CORES * i * sizeof(unsigned));
-        if (glbl_ptr->perCore_detectedThreadsCount.data == NULL)
-        {
-            result = -1;
-            break;
-        }
-        memset(glbl_ptr->perCore_detectedThreadsCount.data, 0, MAX_CORES * i * sizeof(unsigned));
-        glbl_ptr->perCore_detectedThreadsCount.dim[0] = i;
-        glbl_ptr->perCore_detectedThreadsCount.dim[1] = MAX_CORES;
 
         // workspace for storing hierarchical counts relative to the cache topology
         // of the largest unified cache (may be shared by several cores)
@@ -1334,12 +1317,11 @@ int QueryParseSubIDs(RsslErrorInfo* pError)
         // but we are using our generic bitmap representation for affinity
         if(TestGenericAffinityBit(&glbl_ptr->cpu_generic_processAffinity, i, pError) == 1) {
             // bind the execution context to the ith logical processor
-            // using OS-specifi API
+            // using OS-specified API
             if( BindContext(i) ) {
-                glbl_ptr->error |= _MSGTYP_UNKNOWNERR_OS;
-                rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                    "BindContext returned error i=%u.", i);
-                break;
+                glbl_ptr->pApicAffOrdMapping[numMappings].offline = 1;
+                numMappings++;
+                continue;
             }
             // now the execution context is on the i'th cpu, call the parsing routine
             ParseIDS4EachThread(i, numMappings);
@@ -1351,6 +1333,73 @@ int QueryParseSubIDs(RsslErrorInfo* pError)
     else return numMappings;
 }
 
+/*
+ * GetAmountPackages
+ * Analyze the Pkg_ID.
+ * Get the number of Packages and the maximum cores per packages.
+ * Arguments:
+ *      numMappings:    (in)  the number of logical processors successfully queried with SMT_ID, Core_ID, Pkg_ID extracted
+ *      maxPackages:    (out) the pointer to the number of detected Packages
+ *      maxCores:       (out) the pointer to the maximum cores per packages
+ *
+ * Return:        0 is no error
+ * Return:  0 - success; -1 - memory allocation error, -2 - cpu topology analyze errors.
+ */
+static int GetAmountPackages(unsigned numMappings, unsigned* maxPackages, unsigned* maxCores)
+{
+    unsigned i, j;
+    unsigned nPackageDetected = 0;
+    unsigned maxCoresPerPackage = 1;
+    unsigned packageID;
+    BOOL foundPkg;
+
+    *maxPackages = 0;
+    *maxCores = 0;
+
+    // 2-d array: unique packageID [0], amount of cpu cores per packageID [1]
+    unsigned* pDetectedPkgIDs = (unsigned*)_alloca(numMappings * 2 * sizeof(unsigned));
+    if (pDetectedPkgIDs == NULL)
+        return -1;
+
+    // iterate through each logical processor in the system.
+    for (i = 0; i < numMappings; i++)
+    {
+        packageID = glbl_ptr->pApicAffOrdMapping[i].pkg_IDAPIC;
+        foundPkg = FALSE;
+
+        // check: is this packageID new?
+        if (nPackageDetected > 0)
+        {
+            for (j = nPackageDetected; j > 0; j--)
+            {
+                if (pDetectedPkgIDs[(j-1) * 2] == packageID)  // pDetectedPkgIDs[j-1][0]
+                {
+                    foundPkg = TRUE;
+                    break;
+                }
+            }
+        }
+
+        if (!foundPkg)
+        {
+            pDetectedPkgIDs[nPackageDetected * 2] = packageID; // pDetectedPkgIDs[nPackageDetected][0]
+            pDetectedPkgIDs[nPackageDetected * 2 + 1] = 1;     // pDetectedPkgIDs[nPackageDetected][1]
+            nPackageDetected++;
+        }
+        else
+        {
+            pDetectedPkgIDs[(j-1) * 2 + 1]++;  // pDetectedPkgIDs[j-1][1]
+
+            if (maxCoresPerPackage < pDetectedPkgIDs[(j - 1) * 2 + 1])
+                maxCoresPerPackage = pDetectedPkgIDs[(j - 1) * 2 + 1];
+        }
+    }
+
+    *maxPackages = nPackageDetected;
+    *maxCores = maxCoresPerPackage;
+
+    return 0;
+}
 
 /*
  * AnalyzeCPUHierarchy
@@ -1362,56 +1411,84 @@ int QueryParseSubIDs(RsslErrorInfo* pError)
  */
 static int AnalyzeCPUHierarchy(unsigned  numMappings, RsslErrorInfo* pError)
 {
-    unsigned  i, ckDim, maxPackageDetetcted = 0;
+    unsigned  i;
+    unsigned  maxPackageDetected = 0;
     unsigned  APICID;
     unsigned  packageID, coreID, threadID;
     unsigned  *pDetectCoreIDsperPkg, *pDetectedPkgIDs;
+    int ret;
+
+    // Dimension
+    unsigned maxPackages = 0;
+    unsigned maxCores = 0;
+    
+    if (numMappings == 0)
+    {
+        rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+            "AnalyzeCPUHierarchy Error: numMappings is 0. CpuTopo could not detect any processor units.");
+        return -2;
+    }
+
+    ret = GetAmountPackages(numMappings, &maxPackages, &maxCores);
+    if (ret == -1)
+        return -1;
+
+    if (ret < 0 ||
+        maxPackages == 0 || maxCores == 0 ||
+        maxPackages > numMappings ||
+        maxCores > numMappings - maxPackages + 1)
+    {
+        rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+            "AnalyzeCPUHierarchy Error in dimension calculating. numMappings=%u maxPackages=%u maxCores=%u",
+            numMappings, maxPackages, maxCores);
+        return -2;
+    }
+
     // allocate workspace to sort parents and siblings in the topology
     // starting from pkg_ID and work our ways down each inner level
-    pDetectedPkgIDs = (unsigned  *)_alloca( numMappings * sizeof(unsigned ) );
+    pDetectedPkgIDs = (unsigned*)_alloca( maxPackages * sizeof(unsigned) );
     if(pDetectedPkgIDs == NULL) return -1;
+
     // we got a 1-D array to store unique Pkg_ID as we sort thru
     // each logical processor
-    memset(pDetectedPkgIDs, 0xff, numMappings*sizeof(unsigned ) );
-    ckDim = numMappings * ( 1 << glbl_ptr->PkgSelectMaskShift);
-    if (ckDim == numMappings)
-    {
-        if (numMappings == 1) {
-            ckDim++;
-        }
-        else {
-            // A system running on a virtual machine may have CPU configuration
-            // with multiple packages, one core per package, one thread per core.
-            ckDim *= ckDim;
-        }
-    }        
-    pDetectCoreIDsperPkg = (unsigned  *)_alloca( ckDim * sizeof(unsigned ) );
+    memset(pDetectedPkgIDs, 0xff, maxPackages * sizeof(unsigned));
+    pDetectCoreIDsperPkg = (unsigned*)_alloca( maxPackages * maxCores * sizeof(unsigned) );
     if(pDetectCoreIDsperPkg == NULL) return -1;
     // we got a 2-D array to store unique Core_ID within each Pkg_ID,
     // as we sort thru each logical processor
-    memset(pDetectCoreIDsperPkg, 0xff, ckDim * sizeof(unsigned ));
+    memset(pDetectCoreIDsperPkg, 0xff, maxPackages * maxCores * sizeof(unsigned));
 
-    if(numMappings >= glbl_ptr->perCore_detectedThreadsCount.dim[0]) {
-        // consistency check on the dimensions of allocated buffer
-        rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-            "got too large 1st dimension %u which is bigger than %u.",
-            numMappings, glbl_ptr->perCore_detectedThreadsCount.dim[0]);
-        return -2; // exit(2);
-    }
+    // Allocate global arrays perPkg_detectedCoresCount, perCore_detectedThreadsCount
+    glbl_ptr->perPkg_detectedCoresCount.data = (unsigned*)calloc(maxPackages, sizeof(unsigned));
+    if (glbl_ptr->perPkg_detectedCoresCount.data == NULL)
+        return -1;
+    glbl_ptr->perPkg_detectedCoresCount.dim[0] = maxPackages;
+
+    glbl_ptr->perCore_detectedThreadsCount.data = (unsigned*)calloc(maxPackages * maxCores, sizeof(unsigned));
+    if (glbl_ptr->perCore_detectedThreadsCount.data == NULL)
+        return -1;
+    glbl_ptr->perCore_detectedThreadsCount.dim[0] = maxPackages;
+    glbl_ptr->perCore_detectedThreadsCount.dim[1] = maxCores;
+
     // iterate throught each logical processor in the system.
     // mark up each unique physical package with a zero-based numbering scheme
     // Within each distinct package, mark up distinct cores within that package
     // with a zero-based numbering scheme
-    for (i=0; i < numMappings;i++) {
+    for (i=0; i < numMappings; i++) {
         BOOL PkgMarked;
         unsigned  h;
+
+        // Don't check this logical id if its currently offline or unavailable. 
+        if (glbl_ptr->pApicAffOrdMapping[i].offline)
+            continue;
+
         APICID = glbl_ptr->pApicAffOrdMapping[i].APICID;
         packageID = glbl_ptr->pApicAffOrdMapping[i].pkg_IDAPIC ;
         coreID = glbl_ptr->pApicAffOrdMapping[i].Core_IDAPIC ;
         threadID = glbl_ptr->pApicAffOrdMapping[i].SMT_IDAPIC;
 
         PkgMarked = FALSE;
-        for (h=0;h<maxPackageDetetcted;h++)
+        for (h=0; h < maxPackageDetected && h < maxPackages; h++)
         {
             if (pDetectedPkgIDs[h] == packageID)
             {
@@ -1423,44 +1500,39 @@ static int AnalyzeCPUHierarchy(unsigned  numMappings, RsslErrorInfo* pError)
                 if(glbl_ptr->perPkg_detectedCoresCount.data[h] >= glbl_ptr->perCore_detectedThreadsCount.dim[1]) {
                     // just a sanity check on the dimensions
                     rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                        "got too large 2nd dimension %u which is bigger than %u. i=%u, h=%u, APICID=%u packageID=%u coreID=%u threadID=%u",
+                        "got too large 2nd dimension %u which is bigger than %u. i=%u, h=%u, APICID=%u packageID=%u coreID=%u threadID=%u. numMappings=%u maxPackages=%u maxCores=%u",
                         glbl_ptr->perPkg_detectedCoresCount.data[h], glbl_ptr->perCore_detectedThreadsCount.dim[1],
-                        i, h, APICID, packageID, coreID, threadID);
+                        i, h, APICID, packageID, coreID, threadID, numMappings, maxPackages, maxCores);
                     return -2; // exit(2);
                 }
 
                 // look for core in marked packages
-                for (k=0;k<glbl_ptr->perPkg_detectedCoresCount.data[h];k++)
+                for (k = 0; k < glbl_ptr->perPkg_detectedCoresCount.data[h] && k < maxCores; k++)
                 {
-                    if (h * numMappings + k >= ckDim)
-                    {
-                        //printf("Error dim1 pDetectCoreIDsperPkg. numMappings=%u, h=%u, k=%u (%u), ckDim=%u\n",
-                        //    numMappings, h, k, (h * numMappings + k), ckDim);
-                        break;
-                    }
-                    if (coreID == pDetectCoreIDsperPkg[h* numMappings +k])
+                    if (coreID == pDetectCoreIDsperPkg[h*maxCores + k])
                     {
                         foundCore = TRUE;
                         // add thread - can't be that the thread already exists, breaks uniqe APICID spec
                         glbl_ptr->pApicAffOrdMapping[i].coreORD = k;
-                        glbl_ptr->pApicAffOrdMapping[i].threadORD = glbl_ptr->perCore_detectedThreadsCount.data[h*MAX_CORES+k];
-                        glbl_ptr->perCore_detectedThreadsCount.data[h*MAX_CORES+k]++;
+                        glbl_ptr->pApicAffOrdMapping[i].threadORD = glbl_ptr->perCore_detectedThreadsCount.data[h*maxCores + k];
+                        glbl_ptr->perCore_detectedThreadsCount.data[h*maxCores + k]++;
                         break;
                     }
                 }
                 if (!foundCore)
                 {   // mark up the Core_ID of an unmarked core in a marked package
                     unsigned  core = glbl_ptr->perPkg_detectedCoresCount.data[h];
-                    if( h* numMappings + core >= ckDim) {
+                    if (core >= maxCores)
+                    {
                         rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                            "got error. h* numMappings + core = %u and ckDim= %u. i=%u, h=%u, core=%u, APICID=%u packageID=%u coreID=%u threadID=%u",
-                            h * numMappings + core, ckDim, i, h, core, APICID, packageID, coreID, threadID);
+                            "got error. h*maxCores + core = %u, numMappings=%u maxPackages=%u maxCores=%u. i=%u, h=%u, core=%u, APICID=%u packageID=%u coreID=%u threadID=%u",
+                            h * maxCores + core, numMappings, maxPackages, maxCores, i, h, core, APICID, packageID, coreID, threadID);
                         return -2; // exit(2);
                     }
 
-                    pDetectCoreIDsperPkg[h* numMappings + core] = coreID;
+                    pDetectCoreIDsperPkg[h*maxCores + core] = coreID;
                     // keep track of respective hierarchical counts
-                    glbl_ptr->perCore_detectedThreadsCount.data[h*MAX_CORES+core] = 1;
+                    glbl_ptr->perCore_detectedThreadsCount.data[h*maxCores + core] = 1;
                     glbl_ptr->perPkg_detectedCoresCount.data[h]++;
                     // build a set of numbering system to iterate each topological hierarchy
                     glbl_ptr->pApicAffOrdMapping[i].coreORD = core;
@@ -1473,38 +1545,32 @@ static int AnalyzeCPUHierarchy(unsigned  numMappings, RsslErrorInfo* pError)
 
         if (!PkgMarked)
         {   // mark up the pkg_ID and Core_ID of an unmarked package
-            pDetectedPkgIDs[maxPackageDetetcted] = packageID;
-            if( maxPackageDetetcted* numMappings + 0 >= ckDim) {
+            if (maxPackageDetected >= maxPackages) {
                 rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                    "got error. maxPackageDetetcted= %u numMappings= %u maxPackageDetetcted* numMappings + 0 = %u and ckDim= %u. i=%u, APICID=%u packageID=%u coreID=%u threadID=%u",
-                    maxPackageDetetcted, numMappings, maxPackageDetetcted * numMappings + 0, ckDim, i, APICID, packageID, coreID, threadID);
+                    "got error. maxPackageDetected=%u numMappings=%u maxPackages=%u maxCores=%u. i=%u, APICID=%u packageID=%u coreID=%u threadID=%u",
+                    maxPackageDetected, numMappings, maxPackages, maxCores, i, APICID, packageID, coreID, threadID);
                 return -2; // exit(2);
             }
-            pDetectCoreIDsperPkg[maxPackageDetetcted* numMappings + 0] = coreID;
-            // keep track of respective hierarchical counts
-            if( maxPackageDetetcted >= glbl_ptr->perPkg_detectedCoresCount.dim[0]) {
-                rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                    "got error. maxPackageDetetcted(%u) >= glbl_ptr->perPkg_detectedCoresCount.dim[0](%u). i=%u, APICID=%u packageID=%u coreID=%u threadID=%u",
-                    maxPackageDetetcted, glbl_ptr->perPkg_detectedCoresCount.dim[0], i, APICID, packageID, coreID, threadID);
-                return -2; // exit(2);
-            }
+            pDetectedPkgIDs[maxPackageDetected] = packageID;
+            pDetectCoreIDsperPkg[maxPackageDetected * maxCores + 0] = coreID;
 
-            glbl_ptr->perPkg_detectedCoresCount.data[maxPackageDetetcted] = 1;
-            glbl_ptr->perCore_detectedThreadsCount.data[maxPackageDetetcted*MAX_CORES+0] = 1;
+            // keep track of respective hierarchical counts
+            glbl_ptr->perPkg_detectedCoresCount.data[maxPackageDetected] = 1;
+            glbl_ptr->perCore_detectedThreadsCount.data[maxPackageDetected*maxCores + 0] = 1;
             // build a set of zero-based numbering acheme so that
             // each logical processor in the same core can be referenced by a zero-based index
             // each core in the same package can be referenced by another zero-based index
             // each package in the system can be referenced by a third zero-based index scheme.
             // each system wide index i can be mapped to a triplet of zero-based hierarchical indices
-            glbl_ptr->pApicAffOrdMapping[i].packageORD = maxPackageDetetcted;
+            glbl_ptr->pApicAffOrdMapping[i].packageORD = maxPackageDetected;
             glbl_ptr->pApicAffOrdMapping[i].coreORD = 0;
             glbl_ptr->pApicAffOrdMapping[i].threadORD = 0;
 
-            maxPackageDetetcted++; // this is an unmarked pkg, increment pkg count by 1
+            maxPackageDetected++; // this is an unmarked pkg, increment pkg count by 1
             glbl_ptr->EnumeratedCoreCount++;  // there is at least one core in a package
         }
     }
-    glbl_ptr->EnumeratedPkgCount = maxPackageDetetcted;
+    glbl_ptr->EnumeratedPkgCount = maxPackageDetected;
     return 0;
 }
 
@@ -1545,6 +1611,10 @@ static int AnalyzeEachCHierarchy(unsigned subleaf, unsigned  numMappings, RsslEr
     maxCacheDetected = 0;
     for (i=0; i < numMappings;i++) {
         unsigned  j;
+        // Don't check this logical id if its currently offline or unavailable. 
+        if (glbl_ptr->pApicAffOrdMapping[i].offline)
+            continue;
+
         for (j=0; j < maxCacheDetected; j++) {
             if(pEachCIDs[j] == glbl_ptr->pApicAffOrdMapping[i].EaCacheIDAPIC[subleaf]) {
                 break;
@@ -1560,6 +1630,10 @@ static int AnalyzeEachCHierarchy(unsigned subleaf, unsigned  numMappings, RsslEr
     maxThreadsDetected = 0;
     for (i=0; i < numMappings;i++) {
         unsigned  j;
+        // Don't check this logical id if its currently offline or unavailable. 
+        if (glbl_ptr->pApicAffOrdMapping[i].offline)
+            continue;
+
         for (j=0; j < maxThreadsDetected; j++) {
             if(pThreadIDsperEachC[j] == glbl_ptr->pApicAffOrdMapping[i].EaCacheSMTIDAPIC[subleaf]) {
                 break;
@@ -1602,6 +1676,10 @@ static int AnalyzeEachCHierarchy(unsigned subleaf, unsigned  numMappings, RsslEr
     for (i=0; i < numMappings;i++) {
         BOOL CacheMarked;
         unsigned  h;
+
+        // Don't check this logical id if its currently offline or unavailable. 
+        if (glbl_ptr->pApicAffOrdMapping[i].offline)
+            continue;
 
         APICID = glbl_ptr->pApicAffOrdMapping[i].APICID;
         CacheID = glbl_ptr->pApicAffOrdMapping[i].EaCacheIDAPIC[subleaf] ; // sub ID to enumerate different caches in the system
@@ -1716,7 +1794,6 @@ static int     BuildSystemTopologyTables(RsslErrorInfo* pError)
             }
         }
     }
-
     return ret;
 }
 
@@ -2012,10 +2089,18 @@ unsigned  getEnumerateAPICID(unsigned  processor)
  */
 unsigned  GetEnumeratedCoreCount(unsigned  package_ordinal)
 {
-    if (!glbl_ptr->EnumeratedPkgCount)      InitCpuTopology();
-
-    if (glbl_ptr->error || package_ordinal >= glbl_ptr->EnumeratedPkgCount)     return 0;
-
+    if (!glbl_ptr->EnumeratedPkgCount)
+    {
+        InitCpuTopology();
+    }
+    if (glbl_ptr->error || package_ordinal >= glbl_ptr->EnumeratedPkgCount)
+    {
+        return 0;
+    }
+    if (package_ordinal >= glbl_ptr->perPkg_detectedCoresCount.dim[0])
+    {
+        return 0;
+    }
     return glbl_ptr->perPkg_detectedCoresCount.data[package_ordinal];
 }
 
@@ -2038,13 +2123,21 @@ unsigned  GetEnumeratedThreadCount(unsigned  package_ordinal, unsigned  core_ord
     {
         return 0;
     }
+    if (package_ordinal >= glbl_ptr->perPkg_detectedCoresCount.dim[0])
+    {
+        return 0;
+    }
     if (core_ordinal >= glbl_ptr->perPkg_detectedCoresCount.data[package_ordinal])
     {
         return 0;
     }
-    return glbl_ptr->perCore_detectedThreadsCount.data[package_ordinal*MAX_CORES+core_ordinal];
+    if (package_ordinal >= glbl_ptr->perCore_detectedThreadsCount.dim[0] ||
+        core_ordinal >= glbl_ptr->perCore_detectedThreadsCount.dim[1])
+    {
+        return 0;
+    }
+    return glbl_ptr->perCore_detectedThreadsCount.data[package_ordinal * glbl_ptr->perCore_detectedThreadsCount.dim[1] + core_ordinal];
 }
-
 
 /*
  * GetSysEachCacheCount
@@ -2748,15 +2841,15 @@ void ListVisibleCountsByCPUTopology()
         if (GetEnumeratedCoreCount(i) > 0 ) {
             printf(" # of cores in package %2d visible to this process: %d .\n", i, GetEnumeratedCoreCount(i));
             if( glbl_ptr->EnumeratedCoreCount < glbl_ptr->OSProcessorCount &&
-                    glbl_ptr->perCore_detectedThreadsCount.data[i*MAX_CORES+0] > 1) {
+                    glbl_ptr->perCore_detectedThreadsCount.data[i * glbl_ptr->perCore_detectedThreadsCount.dim[1] + 0] > 1) {
                 printf("\t # of logical processors in Core 0 visible to this process: %d .\n",
-                        glbl_ptr->perCore_detectedThreadsCount.data[i*MAX_CORES+0]);
+                        glbl_ptr->perCore_detectedThreadsCount.data[i * glbl_ptr->perCore_detectedThreadsCount.dim[1] + 0]);
             }
             for (j = 1; j < GetEnumeratedCoreCount(i); j ++){
                 if( glbl_ptr->EnumeratedCoreCount < glbl_ptr->OSProcessorCount &&
-                        glbl_ptr->perCore_detectedThreadsCount.data[i*MAX_CORES+j] > 1) {
+                        glbl_ptr->perCore_detectedThreadsCount.data[i * glbl_ptr->perCore_detectedThreadsCount.dim[1] + j] > 1) {
                     printf("\t # of logical processors in Core %2d visible to this process: %d .\n", j,
-                            glbl_ptr->perCore_detectedThreadsCount.data[i*MAX_CORES+j]);
+                            glbl_ptr->perCore_detectedThreadsCount.data[i * glbl_ptr->perCore_detectedThreadsCount.dim[1] + j]);
                 }
             }
         }

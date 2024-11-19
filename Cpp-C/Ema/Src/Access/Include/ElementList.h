@@ -133,6 +133,7 @@
 		FilterList,
 		OmmOpaque,
 		OmmXml,
+		OmmJson,
 		OmmAnsiPage,
 		OmmError,
 		EmaString,
@@ -169,6 +170,7 @@ class FilterList;
 class OmmArray;
 class OmmOpaque;
 class OmmXml;
+class OmmJson;
 class OmmAnsiPage;
 
 class ElementListDecoder;
@@ -397,6 +399,14 @@ public :
 		@return reference to this object
 	*/
 	ElementList& addXml( const EmaString& name, const OmmXml& value );
+
+	/** Adds a complex type of OMM data to the ElementList.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] name EmaString object containing ElementEntry name
+		@param[in] value added OmmJson
+		@return reference to this object
+	*/
+	ElementList& addJson(const EmaString& name, const OmmJson& value);
 
 	/** Adds a complex type of OMM data to the ElementList.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)

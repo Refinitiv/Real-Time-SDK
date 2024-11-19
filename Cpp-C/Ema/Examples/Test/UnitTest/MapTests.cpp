@@ -970,6 +970,118 @@ TEST(MapTests, testMapContainsXmlDecodeAll)
 	}
 }
 
+TEST(MapTests, testMapContainsJsonDecodeAll)
+{
+
+	RsslDataDictionary dictionary;
+
+	try
+	{
+		RsslBuffer mapBuffer;
+		mapBuffer.length = 4096;
+		mapBuffer.data = ( char* )malloc( sizeof( char ) * 4096 );
+
+		RsslMap rsslMap;
+		RsslEncodeIterator mapEncodeIter;
+
+		rsslClearMap( &rsslMap );
+		rsslClearEncodeIterator( &mapEncodeIter );
+		rsslSetEncodeIteratorRWFVersion( &mapEncodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION );
+		rsslSetEncodeIteratorBuffer( &mapEncodeIter, &mapBuffer );
+		rsslMap.flags = RSSL_MPF_HAS_KEY_FIELD_ID | RSSL_MPF_HAS_TOTAL_COUNT_HINT;
+
+		rsslMap.containerType = RSSL_DT_JSON;
+		rsslMap.totalCountHint = 2;
+
+		rsslMap.keyPrimitiveType = RSSL_DT_ASCII_STRING;
+		rsslMap.keyFieldId = 235;
+
+		RsslRet ret = rsslEncodeMapInit( &mapEncodeIter, &rsslMap, 0, 0 );
+		RsslMapEntry mapEntry;
+
+		rsslClearMapEntry( &mapEntry );
+
+		char buffer[200];
+		RsslBuffer rsslBuf1;
+		rsslBuf1.length = 200;
+		rsslBuf1.data = buffer;
+
+		RsslBuffer jsonValue;
+		jsonValue.data = ( char* )"{\"consumerList\":{\"consumer\":{\"name\":\"\",\"dataType\":\"Ascii\",\"value\":\"Consumer_1\"}}}";
+		jsonValue.length = static_cast<rtrUInt32>( strlen( jsonValue.data ) );
+
+		encodeNonRWFData( &rsslBuf1, &jsonValue );
+
+		mapEntry.flags = RSSL_MPEF_NONE;
+		mapEntry.action = RSSL_MPEA_ADD_ENTRY;
+		mapEntry.encData = rsslBuf1;
+
+		RsslBuffer key1;
+		key1.data = const_cast<char*>("Key1");
+		key1.length = 4;
+
+		ret = rsslEncodeMapEntry( &mapEncodeIter, &mapEntry, &key1 );
+
+		rsslClearMapEntry( &mapEntry );
+
+		char buffer2[100];
+		RsslBuffer rsslBuf2;
+		rsslBuf2.length = 100;
+		rsslBuf2.data = buffer2;
+
+		RsslBuffer jsonValue2;
+		jsonValue2.data = ( char* )"{\"value\":\"KLMNOPQR\"}";
+		jsonValue2.length = static_cast<rtrUInt32>( strlen( jsonValue2.data ) );
+
+		encodeNonRWFData( &rsslBuf2, &jsonValue2 );
+
+		mapEntry.flags = RSSL_MPEF_NONE;
+		mapEntry.action = RSSL_MPEA_ADD_ENTRY;
+		mapEntry.encData = rsslBuf2;
+
+		RsslBuffer key2;
+		key2.data = const_cast<char*>("Key2");
+		key2.length = 4;
+
+		ret = rsslEncodeMapEntry( &mapEncodeIter, &mapEntry, &key2 );
+
+		ret = rsslEncodeMapComplete( &mapEncodeIter, RSSL_TRUE );
+
+		mapBuffer.length = rsslGetEncodedBufferLength( &mapEncodeIter );
+
+		Map map;
+		StaticDecoder::setRsslData( &map, &mapBuffer, RSSL_DT_MAP, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &dictionary );
+
+		EXPECT_TRUE( map.forth() ) << "Map contains Json - first map forth()" ;
+
+		const MapEntry& me1 = map.getEntry();
+
+		EXPECT_EQ( me1.getKey().getDataType(), DataType::AsciiEnum ) << "MapEntry::getKey().getDataType() == DataType::AsciiEnum" ;
+		EXPECT_STREQ( me1.getKey().getAscii(), EmaString( "Key1" ) ) << "MapEntry::getKey().getAscii()";
+		EXPECT_EQ( me1.getAction(), MapEntry::AddEnum ) << "MapEntry::getAction() == MapEntry::AddEnum" ;
+		EXPECT_EQ( me1.getLoad().getDataType(), DataType::JsonEnum ) << "MapEntry::getLoad().getDataType() == DataType::JsonEnum" ;
+
+		EmaBuffer compareTo( jsonValue.data, jsonValue.length );
+		EXPECT_STREQ( me1.getJson().getBuffer(), compareTo ) << "MapEntry::getJson().getBuffer()" ;
+
+		EXPECT_TRUE( map.forth() ) << "Map contains Json - second map forth()" ;
+
+		const MapEntry& me2 = map.getEntry();
+
+		EXPECT_EQ( me2.getKey().getDataType(), DataType::AsciiEnum ) << "MapEntry::getKey().getDataType() == DataType::AsciiEnum" ;
+		EXPECT_STREQ( me2.getKey().getAscii(), EmaString( "Key2" ) ) << "MapEntry::getKey().getAscii()";
+		EXPECT_EQ( me2.getAction(), MapEntry::AddEnum ) << "MapEntry::getAction() == MapEntry::AddEnum" ;
+		EXPECT_EQ( me2.getLoad().getDataType(), DataType::JsonEnum ) << "MapEntry::getLoad().getDataType() == DataType::JsonEnum" ;
+
+		EmaBuffer compareTo2( jsonValue2.data, jsonValue2.length );
+		EXPECT_EQ( me2.getJson().getBuffer(), compareTo2 ) << "MapEntry::getJson().getBuffer()";
+	}
+	catch ( const OmmException& )
+	{
+		EXPECT_FALSE( true ) << "Map Decode with Json payload - exception not expected" ;
+	}
+}
+
 TEST(MapTests, testMapContainsAnsiPageDecodeAll)
 {
 

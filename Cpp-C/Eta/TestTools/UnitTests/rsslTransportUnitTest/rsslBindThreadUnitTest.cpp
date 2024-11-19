@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <iostream>
+#include <mutex>
 
 #include "gtest/gtest.h"
 
@@ -50,10 +51,79 @@ const char* STR_ERROR_CPU_IS_NOT_SET = "cpuString is not set.";
 const char* STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE = "Cpu topology information is unavailable.";
 const char* STR_ERROR_CPU_TOPOLOGY_TEST = "CpuId topology error: This is a test error.";
 
+const unsigned MAX_TEST_CORES = 1024;
+
 typedef struct {
-	unsigned n;
-	char* strCpuCore;
+	unsigned cpuIdOnline[MAX_TEST_CORES];      // list of online processor units id
+	std::string cpuPCTOnline[MAX_TEST_CORES];  // list of online processor units PCT
+	unsigned nCpuOnline;
+} ProcessorUnitOnlineInfo;
+
+static ProcessorUnitOnlineInfo processorsOnline;
+
+typedef struct {
+	const char* strCpuCore;
 } CpuCoreArg;
+
+static std::mutex mutexInitProcessorUnitInfo;
+
+void initProcessorUnitOnlineInfo()
+{
+	if (processorsOnline.nCpuOnline == 0)
+	{
+		mutexInitProcessorUnitInfo.lock();
+		
+		if (processorsOnline.nCpuOnline == 0)
+		{
+			RsslErrorInfo errorInfo;
+
+			memset((void*)&errorInfo, 0, sizeof(RsslErrorInfo));
+			if (rsslBindThreadInitialize(&errorInfo.rsslError) == RSSL_RET_SUCCESS)
+			{
+				RsslUInt32 nProcessors = 0;
+				RsslUInt32 nProcessorsOnline = 0;
+				char pctText[32];
+				RsslBuffer procUnitPCT = { sizeof(pctText), pctText };
+
+				RsslErrorInfo rsslErrorInfo;
+
+#ifdef WIN32
+				SYSTEM_INFO systemInfo;
+				GetSystemInfo(&systemInfo);
+				nProcessors = systemInfo.dwNumberOfProcessors;
+#else	// Linux
+				nProcessors = sysconf(_SC_NPROCESSORS_CONF);  // all configured processor units: online + offline
+#endif
+				for (RsslUInt32 cpuId = 0; cpuId < nProcessors && cpuId < MAX_TEST_CORES; ++cpuId)
+				{
+					if ( isProcessorCoreOnline(cpuId) == RSSL_TRUE )
+					{
+						*pctText = '\0';
+						procUnitPCT.data = pctText;
+						procUnitPCT.length = sizeof(pctText);
+						if ( getPCTByProcessorCoreNumber(cpuId, &procUnitPCT, &rsslErrorInfo) != RSSL_RET_SUCCESS )
+						{
+							continue;
+						}
+
+						processorsOnline.cpuPCTOnline[nProcessorsOnline].assign(procUnitPCT.data);
+						processorsOnline.cpuIdOnline[nProcessorsOnline] = cpuId;
+
+						nProcessorsOnline++;
+					}
+				}
+				processorsOnline.nCpuOnline = nProcessorsOnline;
+			}
+
+			rsslClearBindings();
+			rsslBindThreadUninitialize();
+
+			time_sleep(50);
+		}
+
+		mutexInitProcessorUnitInfo.unlock();
+	}
+}
 
 RSSL_THREAD_DECLARE(runBindProcessTestThread, pArg)
 {
@@ -89,27 +159,19 @@ RSSL_THREAD_DECLARE(runBindProcessTestThreadStr, pArg)
 	if (pArg != 0)
 		cpuCoreArgs = ((CpuCoreArg*)pArg);
 
-	if (cpuCoreArgs != NULL && cpuCoreArgs->n > 0)
+	if (cpuCoreArgs != NULL && cpuCoreArgs->strCpuCore != NULL)
 	{
-		// A lot of different topologies for the the processor core.
-		// At least, one of them must be correct.
-		// P:X C:Y T:Z
-		for (unsigned long long k = 0; k < cpuCoreArgs->n; ++k)
-		{
-			cpuString = (cpuCoreArgs->strCpuCore + k*MAXLEN);
-			//printf("runBindProcessTestThreadStr: %s\n", cpuString);
+		cpuString = cpuCoreArgs->strCpuCore;
+		
+		ret = rsslBindThread(cpuString, &errorInfoThread);
 
-			ret = rsslBindThread(cpuString, &errorInfoThread);
-			if (ret == RSSL_RET_SUCCESS)
-			{
-				//printf("runBindProcessTestThreadStr Binding success: k=%u (%s)\n", k, cpuString);
-				break;
-			}
+		if (ret == RSSL_RET_SUCCESS)
+		{
+			//printf("runBindProcessTestThreadStr Binding success: (%s)\n", cpuString);
 		}
-
-		if (ret != RSSL_RET_SUCCESS)
+		else
 		{
-			printf("runBindProcessTestThreadStr error: binding fail.\n");
+			printf("runBindProcessTestThreadStr error: binding fail. (%s)\n", cpuString);
 			return RSSL_THREAD_RETURN();
 		}
 	}
@@ -157,7 +219,7 @@ bool isThreadAffinityIncludeCpuId(RsslThreadId rsslThread, RsslInt32 CpuCoreId)
 		res = (CPU_ISSET(CpuCoreId, &cpuSet));
 
 		//long i;
-		//long nproc = sysconf(_SC_NPROCESSORS_ONLN);
+		//long nproc = sysconf(_SC_NPROCESSORS_CONF);
 		//printf("pthread_getaffinity_np = ");
 		//for (i = 0; i < nproc; i++) {
 		//	printf("%d ", CPU_ISSET(i, &cpuSet));
@@ -177,6 +239,9 @@ protected:
 
 	virtual void SetUp()
 	{
+		initProcessorUnitOnlineInfo();
+		ASSERT_TRUE(processorsOnline.nCpuOnline > 0);
+
 		memset((void*)&errorInfo, 0, sizeof(RsslErrorInfo));
 		ASSERT_EQ(rsslBindThreadInitialize(&errorInfo.rsslError), RSSL_RET_SUCCESS);
 	}
@@ -257,6 +322,14 @@ TEST_F(ThreadBindProcessorCoreTest, rsslIsStrProcessorCoreBindValidTest)
 	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
 	snprintf(sValue, sizeof(sValue), "\nP:0 C:0 T:0");
 	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
+	snprintf(sValue, sizeof(sValue), "\tP:0 C:0 T:0");
+	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
+	snprintf(sValue, sizeof(sValue), "    P:0    C:0    T:0");
+	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
+	snprintf(sValue, sizeof(sValue), "P:0 C:0 T:0   ");
+	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
+	snprintf(sValue, sizeof(sValue), "\nP:0\tC:0\nT:0   ");
+	ASSERT_EQ(rsslIsStrProcessorCoreBindValid(sValue), RSSL_TRUE);
 
 	// Not valid strings - should return False.
 	snprintf(sValue, sizeof(sValue), "K:3");
@@ -289,7 +362,14 @@ TEST_F(ThreadBindProcessorCoreTest, rsslIsStrProcessorCoreBindValidMaxLengthTest
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCoreTest)
 {
-	RsslInt32 CpuCoreId = 1;
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	RsslInt32 CpuCoreId = processorsOnline.cpuIdOnline[1];
 
 	// Setup stage
 	ASSERT_EQ(rsslBindProcessorCoreThread(CpuCoreId, &errorInfo), RSSL_RET_SUCCESS);
@@ -317,8 +397,15 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCoreTest)
 
 TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCore_BindMainThenThread_Test)
 {
-	RsslInt32 cpuIdMainThread = 0;
-	RsslInt32 cpuIdThread = 1;
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	RsslInt32 cpuIdMainThread = processorsOnline.cpuIdOnline[0];
+	RsslInt32 cpuIdThread = processorsOnline.cpuIdOnline[1];
 
 	RsslThreadId rsslThreadId;
 
@@ -357,8 +444,15 @@ TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCore_BindMainThenThread_T
 
 TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCore_BindThreadThenMain_Test)
 {
-	RsslInt32 cpuIdMainThread = 1;
-	RsslInt32 cpuIdThread = 0;
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	RsslInt32 cpuIdMainThread = processorsOnline.cpuIdOnline[1];
+	RsslInt32 cpuIdThread = processorsOnline.cpuIdOnline[0];
 
 	RsslThreadId rsslThreadId;
 
@@ -406,13 +500,10 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToUnavailableCpuCoreFailTes
 	GetSystemInfo(&systemInfo);
 	nProcessors = systemInfo.dwNumberOfProcessors;
 #else	// Linux
-	nProcessors = sysconf(_SC_NPROCESSORS_ONLN);
+	nProcessors = sysconf(_SC_NPROCESSORS_CONF);
 #endif
 
-	if (nProcessors < 64)
-	{
-		CpuCoreId = nProcessors + 1;
-	}
+	CpuCoreId = nProcessors + 1;
 
 	//printf("nProcessors=%u, CpuCoreId=%d\n", nProcessors, CpuCoreId);
 
@@ -436,8 +527,9 @@ TEST_F(ThreadBindProcessorCoreTest, BindThreadShouldReturnFailOnNullCoreStringTe
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCore0PCTTest)
 {
-	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	RsslInt32 CpuCoreId = 0;
+	// "P:0 C:0 T:0";  // P:X C:Y T:Z
+	const char* sCpuCorePCT = processorsOnline.cpuPCTOnline[0].c_str();
+	RsslInt32 CpuCoreId = processorsOnline.cpuIdOnline[0];
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThread(sCpuCorePCT, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
@@ -465,14 +557,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCore0PCTTest)
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCore1PCTTest)
 {
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCorePCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-	RsslInt32 CpuCoreId = 1;
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// Case binding to Core:0 has already tested.
 	if (nProcessors <= 1)
@@ -481,17 +566,13 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCore1PCTTest)
 		return;
 	}
 
+	// P:X C:Y T:Z
+	const char* sCpuCorePCT = processorsOnline.cpuPCTOnline[1].c_str();
+	RsslInt32 CpuCoreId = processorsOnline.cpuIdOnline[1];
+	RsslRet ret = RSSL_RET_SUCCESS;
+
 	// Setup stage
-	// Try to choose one of the Cpu core templates
-	for (unsigned k = 0; k < 3; ++k)
-	{
-		ret = rsslBindThread(sCpuCorePCT[k], &errorInfo);
-		if (ret == RSSL_RET_SUCCESS)
-		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
-			break;
-		}
-	}
+	ret = rsslBindThread(sCpuCorePCT, &errorInfo);
 	ASSERT_EQ(ret, RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
 	
 	// Check stage
@@ -527,16 +608,12 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToUnavailableCpuCorePCTFail
 	GetSystemInfo(&systemInfo);
 	nProcessors = systemInfo.dwNumberOfProcessors;
 #else	// Linux
-	nProcessors = sysconf(_SC_NPROCESSORS_ONLN);
+	nProcessors = sysconf(_SC_NPROCESSORS_CONF);
 #endif
 
-	if (nProcessors < 64)
-	{
-		CpuCoreId = nProcessors + 1;
-	}
+	CpuCoreId = nProcessors + 1;
 
 	snprintf(sCpuCorePCT, sizeof(sCpuCorePCT), "P:0 C:%u T:0", CpuCoreId);
-
 	//printf("nProcessors=%u, CpuCoreId=%d, PCT={%s}\n", nProcessors, CpuCoreId, sCpuCorePCT);
 
 	// Test stage
@@ -547,33 +624,29 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToUnavailableCpuCorePCTFail
 
 TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCorePCT_BindMainThenThread_Test)
 {
-	char cpuIdMainThreadPCT[MAXLEN] = "P:0 C:0 T:0";
-
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCorePCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	CpuCoreArg threadPCTArg = { 3, &(sCpuCorePCT[0][0]) };
-
-	RsslInt32 cpuIdMainThread = 0;
-	RsslInt32 cpuIdThread = 1;
-
-	RsslThreadId rsslThreadId;
-
 	// If one processor core is available in this system then return.
 	// Case binding to Core:0 has already tested.
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	if (nProcessors <= 1)
 	{
 		ASSERT_TRUE(1);
 		return;
 	}
 
+	const char* cpuMainThreadPCT = processorsOnline.cpuPCTOnline[0].c_str(); //"P:0 C:0 T:0";
+	const char* sCpuCorePCT = processorsOnline.cpuPCTOnline[1].c_str();
+
+	CpuCoreArg threadPCTArg = { sCpuCorePCT };
+
+	RsslInt32 cpuIdMainThread = processorsOnline.cpuIdOnline[0];
+	RsslInt32 cpuIdThread = processorsOnline.cpuIdOnline[1];
+
+	RsslThreadId rsslThreadId;
+
 	// Initialization stage
 	threadBreak = false;
 
-	ASSERT_EQ(rsslBindThread(cpuIdMainThreadPCT, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_EQ(rsslBindThread(cpuMainThreadPCT, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
 
 	time_sleep(50);
 
@@ -605,29 +678,26 @@ TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCorePCT_BindMainThenThrea
 
 TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCorePCT_BindThreadThenMain_Test)
 {
-	char cpuIdThreadPCT[MAXLEN] = "P:0 C:0 T:0";
-
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCorePCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	CpuCoreArg threadPCTArg = { 1, &(cpuIdThreadPCT[0]) };
-
-	RsslInt32 cpuIdMainThread = 1;
-	RsslInt32 cpuIdThread = 0;
-
-	RsslThreadId rsslThreadId;
-	RsslRet ret;
-
 	// If one processor core is available in this system then return.
 	// Case binding to Core:0 has already tested.
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	if (nProcessors <= 1)
 	{
 		ASSERT_TRUE(1);
 		return;
 	}
+
+	// "P:0 C:0 T:0";
+	const char* cpuIdThreadPCT = processorsOnline.cpuPCTOnline[0].c_str();
+	const char* cpuIdMainThreadPCT = processorsOnline.cpuPCTOnline[1].c_str();
+
+	CpuCoreArg threadPCTArg = { cpuIdThreadPCT };
+
+	RsslInt32 cpuIdThread = processorsOnline.cpuIdOnline[0];
+	RsslInt32 cpuIdMainThread = processorsOnline.cpuIdOnline[1];
+
+	RsslThreadId rsslThreadId;
+	RsslRet ret;
 
 	// Initialization stage
 	threadBreak = false;
@@ -636,18 +706,8 @@ TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCorePCT_BindThreadThenMai
 
 	time_sleep(50);
 
-	// Try to choose one of the Cpu core templates
-	for (unsigned k = 0; k < 3; ++k)
-	{
-		ret = rsslBindThread(sCpuCorePCT[k], &errorInfo);
-		if (ret == RSSL_RET_SUCCESS)
-		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
-			break;
-		}
-	}
+	ret = rsslBindThread(cpuIdMainThreadPCT, &errorInfo);
 	ASSERT_EQ(ret, RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
-
 
 	time_sleep(50);
 
@@ -675,31 +735,29 @@ TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCorePCT_BindThreadThenMai
 
 TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCoreCombinePCT_BindMainThenThread_Test)
 {
-	char cpuIdMainThreadPCT[MAXLEN] = "0";
-
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCorePCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	CpuCoreArg threadPCTArg = { 3, &(sCpuCorePCT[0][0]) };
-
-	RsslInt32 cpuIdMainThread = 0;
-	RsslInt32 cpuIdThread = 1;
-
-	RsslThreadId rsslThreadId;
-
 	// If one processor core is available in this system then return.
 	// Case binding to Core:0 has already tested.
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	if (nProcessors <= 1)
 	{
 		ASSERT_TRUE(1);
 		return;
 	}
 
+	char cpuIdMainThreadPCT[MAXLEN] = "0";
+	const char* sCpuCorePCT = processorsOnline.cpuPCTOnline[1].c_str();
+
+	CpuCoreArg threadPCTArg = { sCpuCorePCT };
+
+	RsslInt32 cpuIdMainThread = processorsOnline.cpuIdOnline[0];
+	RsslInt32 cpuIdThread = processorsOnline.cpuIdOnline[1];
+
+	RsslThreadId rsslThreadId;
+
 	// Initialization stage
 	threadBreak = false;
+
+	snprintf(cpuIdMainThreadPCT, sizeof(cpuIdMainThreadPCT), "%d", cpuIdMainThread);
 
 	ASSERT_EQ(rsslBindThread(cpuIdMainThreadPCT, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
 
@@ -733,49 +791,38 @@ TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCoreCombinePCT_BindMainTh
 
 TEST_F(ThreadBindProcessorCoreTest, BindTwoThreadsToCpuCoreCombinePCT_BindThreadThenMain_Test)
 {
-	char cpuIdThreadPCT[MAXLEN] = "0";
-
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCorePCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	CpuCoreArg threadPCTArg = { 1, &(cpuIdThreadPCT[0]) };
-
-	RsslInt32 cpuIdMainThread = 1;
-	RsslInt32 cpuIdThread = 0;
-
-	RsslThreadId rsslThreadId;
-	RsslRet ret;
-
 	// If one processor core is available in this system then return.
 	// Case binding to Core:0 has already tested.
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	if (nProcessors <= 1)
 	{
 		ASSERT_TRUE(1);
 		return;
 	}
 
+	char cpuIdThreadPCT[MAXLEN] = "0";
+
+	const char* sCpuMainCorePCT = processorsOnline.cpuPCTOnline[1].c_str();
+
+	CpuCoreArg threadPCTArg = { cpuIdThreadPCT };
+
+	RsslInt32 cpuIdMainThread = processorsOnline.cpuIdOnline[1];
+	RsslInt32 cpuIdThread = processorsOnline.cpuIdOnline[0];
+
+	RsslThreadId rsslThreadId;
+	RsslRet ret;
+
 	// Initialization stage
 	threadBreak = false;
+
+	snprintf(cpuIdThreadPCT, sizeof(cpuIdThreadPCT), "%d", cpuIdThread);
 
 	RSSL_THREAD_START(&rsslThreadId, runBindProcessTestThreadStr, &threadPCTArg);
 
 	time_sleep(50);
 
-	// Try to choose one of the Cpu core templates
-	for (unsigned k = 0; k < 3; ++k)
-	{
-		ret = rsslBindThread(sCpuCorePCT[k], &errorInfo);
-		if (ret == RSSL_RET_SUCCESS)
-		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
-			break;
-		}
-	}
+	ret = rsslBindThread(sCpuMainCorePCT, &errorInfo);
 	ASSERT_EQ(ret, RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
-
 
 	time_sleep(50);
 
@@ -824,9 +871,10 @@ TEST_F(ThreadBindProcessorCoreTest, BindThreadExShouldReturnFailOnNullCoreString
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToCpuCore0PCTTest)
 {
-	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	RsslInt32 CpuCoreId = 0;
-	const char* outStr = "0";
+	// "P:0 C:0 T:0";  // P:X C:Y T:Z
+	const char* sCpuCorePCT = processorsOnline.cpuPCTOnline[0].c_str();
+	RsslInt32 CpuCoreId = processorsOnline.cpuIdOnline[0];
+	char outStr[MAXLEN] = "0";
 
 	RsslBuffer outputResult;
 	char textResult[256];
@@ -835,6 +883,8 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToCpuCore0PCTTest)
 	outputResult.data = textResult;
 
 	// Setup stage
+	snprintf(outStr, sizeof(outStr), "%d", CpuCoreId);
+
 	ASSERT_EQ(rsslBindThreadEx(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
 
 	// Check stage
@@ -862,19 +912,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToCpuCore0PCTTest)
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToCpuCore1PCTTest)
 {
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCorePCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-	RsslInt32 CpuCoreId = 1;
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	const char* outStr = "1";
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// Case binding to Core:0 has already tested.
 	if (nProcessors <= 1)
@@ -883,20 +921,23 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToCpuCore1PCTTest)
 		return;
 	}
 
-	// Setup stage
-	// Try to choose one of the Cpu core templates
-	for (unsigned k = 0; k < 3; ++k)
-	{
-		outputResult.length = sizeof(textResult);
-		outputResult.data = textResult;
+	// P:X C:Y T:Z
+	const char* sCpuCorePCT = processorsOnline.cpuPCTOnline[1].c_str();
+	RsslInt32 CpuCoreId = processorsOnline.cpuIdOnline[1];
+	RsslRet ret = RSSL_RET_SUCCESS;
 
-		ret = rsslBindThreadEx(sCpuCorePCT[k], &outputResult, &errorInfo);
-		if (ret == RSSL_RET_SUCCESS)
-		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
-			break;
-		}
-	}
+	char outStr[MAXLEN] = "1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(outStr, sizeof(outStr), "%d", CpuCoreId);
+
+	// Setup stage
+	ret = rsslBindThreadEx(sCpuCorePCT, &outputResult, &errorInfo);
 	ASSERT_EQ(ret, RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
 
 	// Check stage
@@ -924,20 +965,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToCpuCore1PCTTest)
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresTest)
 {
-	const char* listCpuIdThread = "0,1";
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	const char* outStr = "0,1";
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
-	outputResult.length = sizeof(textResult);
-	outputResult.data = textResult;
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -945,6 +973,22 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresTest)
 		ASSERT_TRUE(1);
 		return;
 	}
+
+	char listCpuIdThread[MAXLEN] = "0,1";
+	RsslInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[MAXLEN] = "0,1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(listCpuIdThread, sizeof(listCpuIdThread), "%d,%d", CpuCoreId0, CpuCoreId1);
+	snprintf(outStr, sizeof(outStr), "%d,%d", CpuCoreId0, CpuCoreId1);
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThreadEx(listCpuIdThread, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "outputResult: " << outputResult.data;
@@ -976,26 +1020,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresTest)
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTTest)
 {
-	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCore1PCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	char bufCpuIdThreadsPCT[128];
-
-	unsigned indCpu;
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	const char* outStrPreSetup = "1";
-	const char* outStr = "0,1";
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -1003,29 +1028,26 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTTest)
 		ASSERT_TRUE(1);
 		return;
 	}
-	
-	// Pre-setup stage. Calculate topology for the 2-nd Cpu core.
-	// Try to choose one of the Cpu core templates
-	for (indCpu = 0; indCpu < 3; ++indCpu)
-	{
-		outputResult.length = sizeof(textResult);
-		outputResult.data = textResult;
 
-		ret = rsslBindThreadEx(sCpuCore1PCT[indCpu], &outputResult, &errorInfo);
-		if (ret == RSSL_RET_SUCCESS)
-		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
-			break;
-		}
-	}
-	ASSERT_EQ(ret, RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
-	ASSERT_STREQ(outputResult.data, outStrPreSetup);  // "1"
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str(); // "P:0 C:0 T:0";  // P:X C:Y T:Z
+	const char* sCpuCore1PCT = processorsOnline.cpuPCTOnline[1].c_str();
 
-	rsslClearBindings();
+	char bufCpuIdThreadsPCT[128];
+
+	RsslInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[MAXLEN] = "0,1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s", sCpuCore0PCT, sCpuCore1PCT[indCpu]);
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s", sCpuCore0PCT, sCpuCore1PCT);
+	snprintf(outStr, sizeof(outStr), "%d,%d", CpuCoreId0, CpuCoreId1);
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThreadEx(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "outputResult: " << outputResult.data;
@@ -1058,26 +1080,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTTest)
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTElementsRepeat0Test)
 {
-	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCore1PCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	char bufCpuIdThreadsPCT[256];
-
-	unsigned indCpu;
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	const char* outStrPreSetup = "1";
-	const char* outStr = "0,1";
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -1086,28 +1089,25 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTElements
 		return;
 	}
 
-	// Pre-setup stage. Calculate topology for the 2-nd Cpu core.
-	// Try to choose one of the Cpu core templates
-	for (indCpu = 0; indCpu < 3; ++indCpu)
-	{
-		outputResult.length = sizeof(textResult);
-		outputResult.data = textResult;
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str(); // "P:0 C:0 T:0";  // P:X C:Y T:Z
+	const char* sCpuCore1PCT = processorsOnline.cpuPCTOnline[1].c_str();
 
-		ret = rsslBindThreadEx(sCpuCore1PCT[indCpu], &outputResult, &errorInfo);
-		if (ret == RSSL_RET_SUCCESS)
-		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
-			break;
-		}
-	}
-	ASSERT_EQ(ret, RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
-	ASSERT_STREQ(outputResult.data, outStrPreSetup);  // "1"
+	char bufCpuIdThreadsPCT[256];
 
-	rsslClearBindings();
+	RsslInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[MAXLEN] = "0,1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s, %s, %s, %s, %s, %s", sCpuCore0PCT, sCpuCore1PCT[indCpu], sCpuCore0PCT, sCpuCore1PCT[indCpu], sCpuCore0PCT, sCpuCore1PCT[indCpu], sCpuCore1PCT[indCpu]);
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s, %s, %s, %s, %s, %s", sCpuCore0PCT, sCpuCore1PCT, sCpuCore0PCT, sCpuCore1PCT, sCpuCore0PCT, sCpuCore1PCT, sCpuCore1PCT);
+	snprintf(outStr, sizeof(outStr), "%d,%d", CpuCoreId0, CpuCoreId1);
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThreadEx(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "outputResult: " << outputResult.data;
@@ -1140,26 +1140,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTElements
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTElementsRepeat1Test)
 {
-	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCore1PCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	char bufCpuIdThreadsPCT[256];
-
-	unsigned indCpu;
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	const char* outStrPreSetup = "1";
-	const char* outStr = "0,1";
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -1168,28 +1149,25 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTElements
 		return;
 	}
 
-	// Pre-setup stage. Calculate topology for the 2-nd Cpu core.
-	// Try to choose one of the Cpu core templates
-	for (indCpu = 0; indCpu < 3; ++indCpu)
-	{
-		outputResult.length = sizeof(textResult);
-		outputResult.data = textResult;
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str(); // "P:0 C:0 T:0";  // P:X C:Y T:Z
+	const char* sCpuCore1PCT = processorsOnline.cpuPCTOnline[1].c_str();
 
-		ret = rsslBindThreadEx(sCpuCore1PCT[indCpu], &outputResult, &errorInfo);
-		if (ret == RSSL_RET_SUCCESS)
-		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
-			break;
-		}
-	}
-	ASSERT_EQ(ret, RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
-	ASSERT_STREQ(outputResult.data, outStrPreSetup);  // "1"
+	char bufCpuIdThreadsPCT[256];
 
-	rsslClearBindings();
+	RsslInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[MAXLEN] = "0,1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s, %s, %s, %s, %s, %s", sCpuCore1PCT[indCpu], sCpuCore0PCT, sCpuCore0PCT, sCpuCore1PCT[indCpu], sCpuCore0PCT, sCpuCore1PCT[indCpu], sCpuCore0PCT);
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s, %s, %s, %s, %s, %s", sCpuCore1PCT, sCpuCore0PCT, sCpuCore0PCT, sCpuCore1PCT, sCpuCore0PCT, sCpuCore1PCT, sCpuCore0PCT);
+	snprintf(outStr, sizeof(outStr), "%d,%d", CpuCoreId0, CpuCoreId1);
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThreadEx(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "outputResult: " << outputResult.data;
@@ -1222,23 +1200,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTElements
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElements0Test)
 {
-	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-
-	char bufCpuIdThreadsPCT[256];
-
-	unsigned indCpu;
-	RsslInt32 CpuCores[64];
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	char outStr[256];
-	int n;
-	unsigned i;
-	unsigned nTestProcessors;
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one or two processor cores are available in this system then return.
 	// This test is required more than two cores.
 	if (nProcessors <= 2)
@@ -1247,18 +1209,34 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 		return;
 	}
 
-	// Construct binding string, i.e. list of processor cores that bind for the calling thread
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str(); // "P:0 C:0 T:0";  // P:X C:Y T:Z
+
+	char bufCpuIdThreadsPCT[2560];
+
+	unsigned indCpu;
+	RsslUInt32 CpuCores[MAX_TEST_CORES];
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[2560];
+	int n;
+	unsigned i;
+	unsigned nTestProcessors;
+
+	RsslBuffer outputResult;
+	char textResult[2560];
+
+	// Construct binding string, i.e. list of processor cores will bind for the calling thread
 	n = snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s", sCpuCore0PCT);
-	CpuCores[0] = 0;
+	CpuCores[0] = processorsOnline.cpuIdOnline[0];
 	nTestProcessors = 1;
-	for (i = 1, indCpu = 2; i < 64 && indCpu < nProcessors && n < sizeof(bufCpuIdThreadsPCT); ++i, indCpu += 2)
+	for (i = 1, indCpu = 2; i < MAX_TEST_CORES && indCpu < processorsOnline.nCpuOnline && n < sizeof(bufCpuIdThreadsPCT); ++i, indCpu += 2)
 	{
-		n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, ",%u", indCpu);
-		CpuCores[i] = indCpu;
+		n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, ",%u", processorsOnline.cpuIdOnline[indCpu]);
+		CpuCores[i] = processorsOnline.cpuIdOnline[indCpu];
 		++nTestProcessors;
 	}
 
-	// Construct result string, i.e. list of processor cores that bind for the calling thread in ascending order
+	// Construct result string, i.e. list of processor cores will bind for the calling thread in ascending order
 	n = 0;
 	for (i = 0; i < nTestProcessors && n < sizeof(outStr); ++i)
 	{
@@ -1299,22 +1277,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElements1Test)
 {
-	char bufCpuIdThreadsPCT[256];
-
-	int indCpu;
-
-	RsslInt32 CpuCores[64];
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	char outStr[256];
-	int n;
-	int i;
-	int nTestProcessors;
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one or two processor cores are available in this system then return.
 	// This test is required more than two cores.
 	if (nProcessors <= 2)
@@ -1323,17 +1286,32 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 		return;
 	}
 
-	// Construct binding string, i.e. list of processor cores that bind for the calling thread
+	char bufCpuIdThreadsPCT[2560];
+
+	int indCpu;
+
+	RsslUInt32 CpuCores[MAX_TEST_CORES];
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[2560];
+	int n;
+	int i;
+	int nTestProcessors;
+
+	RsslBuffer outputResult;
+	char textResult[2560];
+
+	// Construct binding string, i.e. list of processor cores will bind for the calling thread
 	n = 0;
 	nTestProcessors = 0;
-	for (i = 0, indCpu = nProcessors-1; i < 64 && 0 <= indCpu && n < sizeof(bufCpuIdThreadsPCT); ++i, indCpu -= 2)
+	for (i = 0, indCpu = processorsOnline.nCpuOnline-1; i < MAX_TEST_CORES && 0 <= indCpu && n < sizeof(bufCpuIdThreadsPCT); ++i, indCpu -= 2)
 	{
 		if (i > 0)
 			n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, ",");
 
-		n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, "%d", indCpu);
+		n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, "%u", processorsOnline.cpuIdOnline[indCpu]);
 
-		CpuCores[i] = indCpu;
+		CpuCores[i] = processorsOnline.cpuIdOnline[indCpu];
 		++nTestProcessors;
 	}
 
@@ -1377,26 +1355,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresCombine0Test)
 {
-	char sCpuCore0[MAXLEN] = "0";  // CPU core id
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCore1PCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	char bufCpuIdThreadsPCT[128];
-
-	unsigned indCpu;
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	const char* outStrPreSetup = "1";
-	const char* outStr = "0,1";
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -1405,28 +1364,25 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresCombine0Tes
 		return;
 	}
 
-	// Pre-setup stage. Calculate topology for the 2-nd Cpu core.
-	// Try to choose one of the Cpu core templates
-	for (indCpu = 0; indCpu < 3; ++indCpu)
-	{
-		outputResult.length = sizeof(textResult);
-		outputResult.data = textResult;
+	// P:X C:Y T:Z
+	const char* sCpuCore1PCT = processorsOnline.cpuPCTOnline[1].c_str();
 
-		ret = rsslBindThreadEx(sCpuCore1PCT[indCpu], &outputResult, &errorInfo);
-		if (ret == RSSL_RET_SUCCESS)
-		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
-			break;
-		}
-	}
-	ASSERT_EQ(ret, RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
-	ASSERT_STREQ(outputResult.data, outStrPreSetup);  // "1"
+	char bufCpuIdThreadsPCT[128];
 
-	rsslClearBindings();
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslUInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[MAXLEN] = "0,1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s", sCpuCore0, sCpuCore1PCT[indCpu]);
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%u, %s", CpuCoreId0, sCpuCore1PCT);
+	snprintf(outStr, sizeof(outStr), "%u,%u", CpuCoreId0, CpuCoreId1);
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThreadEx(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "outputResult: " << outputResult.data;
@@ -1459,25 +1415,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresCombine0Tes
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresCombine1Test)
 {
-	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	char sCpuCore1[MAXLEN] = "1";  // CPU core id
-
-	char bufCpuIdThreadsPCT[128];
-
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	const char* outStrPreSetup = "1";
-	const char* outStr = "0,1";
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
-	outputResult.length = sizeof(textResult);
-	outputResult.data = textResult;
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -1486,7 +1424,25 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresCombine1Tes
 		return;
 	}
 
-	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s", sCpuCore1, sCpuCore0PCT);
+	// "P:0 C:0 T:0";  // P:X C:Y T:Z
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str();
+
+	char bufCpuIdThreadsPCT[128];
+
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslUInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[MAXLEN] = "0,1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%u, %s", CpuCoreId1, sCpuCore0PCT);
+	snprintf(outStr, sizeof(outStr), "%u,%u", CpuCoreId0, CpuCoreId1);
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThreadEx(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "outputResult: " << outputResult.data;
@@ -1519,22 +1475,25 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresCombine1Tes
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCoreList_01_Test)
 {
-	char cpuIdList[MAXLEN] = "0, 1";
-	
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-
 	// If one processor core is available in this system then return.
 	// Case binding to Core:0 has already tested.
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	if (nProcessors <= 1)
 	{
 		ASSERT_TRUE(1);
 		return;
 	}
 
+	char cpuIdList[MAXLEN] = "0, 1";
+	
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslUInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+
+	snprintf(cpuIdList, sizeof(cpuIdList), "%u, %u", CpuCoreId0, CpuCoreId1);
+
 	// Initialization stage
 	ASSERT_EQ(rsslBindThread(cpuIdList, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	//printf("Binding success: %s\n", cpuIdList);
 
 	// Check stage
 #ifdef WIN32
@@ -1556,22 +1515,25 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCoreList_01_Test)
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCoreList_10_Test)
 {
-	char cpuIdList[MAXLEN] = "1, 0";
-
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-
 	// If one processor core is available in this system then return.
 	// Case binding to Core:0 has already tested.
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	if (nProcessors <= 1)
 	{
 		ASSERT_TRUE(1);
 		return;
 	}
 
+	char cpuIdList[MAXLEN] = "1, 0";
+
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslUInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+
+	snprintf(cpuIdList, sizeof(cpuIdList), "%u, %u", CpuCoreId1, CpuCoreId0);
+
 	// Initialization stage
 	ASSERT_EQ(rsslBindThread(cpuIdList, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	//printf("Binding success: %s\n", cpuIdList);
 
 	// Check stage
 #ifdef WIN32
@@ -1593,8 +1555,18 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCoreList_10_Test)
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCores0_FailedTest)
 {
-	char listCpuIdThread[MAXLEN];
 	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	char listCpuIdThread[MAXLEN];
+
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
 
 	char outStr[256];
 
@@ -1604,15 +1576,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCores0_FailedTes
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	// If one processor core is available in this system then return.
-	// This test is required two cores.
-	if (nProcessors <= 1)
-	{
-		ASSERT_TRUE(1);
-		return;
-	}
-
-	snprintf(listCpuIdThread, sizeof(listCpuIdThread), "0,%u", nProcessors);
+	snprintf(listCpuIdThread, sizeof(listCpuIdThread), "%u,%u", CpuCoreId0, nProcessors);
 	snprintf(outStr, sizeof(outStr), "Configuration setting %u did not match any physical processors on the system.", nProcessors);
 
 	// Setup stage
@@ -1624,8 +1588,18 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCores0_FailedTes
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCores1_FailedTest)
 {
-	char listCpuIdThread[MAXLEN];
 	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	char listCpuIdThread[MAXLEN];
+
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
 
 	char outStr[256];
 
@@ -1635,15 +1609,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCores1_FailedTes
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	// If one processor core is available in this system then return.
-	// This test is required two cores.
-	if (nProcessors <= 1)
-	{
-		ASSERT_TRUE(1);
-		return;
-	}
-
-	snprintf(listCpuIdThread, sizeof(listCpuIdThread), "%u, 0", nProcessors);
+	snprintf(listCpuIdThread, sizeof(listCpuIdThread), "%u, %u", nProcessors, CpuCoreId0);
 	snprintf(outStr, sizeof(outStr), "Configuration setting %u did not match any physical processors on the system.", nProcessors);
 
 	// Setup stage
@@ -1655,23 +1621,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCores1_FailedTes
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT0_FailedTest)
 {
-	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCore1PCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	char bufCpuIdThreadsPCT[128];
-
-	unsigned indCpu;
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	char outStr[256];
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -1680,29 +1630,63 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT0_Failed
 		return;
 	}
 
+	// "P:0 C:0 T:0";  // P:X C:Y T:Z
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str();
+
+	// The next processor core
+	char sCpuCoreNextPCT[MAXLEN];  // P:X C:Y T:Z
+
+	char bufCpuIdThreadsPCT[128];
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[256];
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
 	// Pre-setup stage. Calculate topology for the 2-nd Cpu core.
-	// Try to choose one of the Cpu core templates.
 	// For Fail-test we choose an invalid CPU core.
-	for (indCpu = 0; indCpu < 3; ++indCpu)
-	{
+	// Construct an invalid topology.
+	unsigned indCpu = 0;
+	unsigned iPackage = indCpu / 3;
+	unsigned iCore = indCpu / 3;
+	unsigned iThread = indCpu / 3;
+
+	do {
+		switch (indCpu % 3)
+		{
+		case 0:  // Package
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:%u C:0 T:0", (++iPackage));
+			break;
+		case 1:  // Core
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:%u T:0", (++iCore));
+			break;
+		case 2:  // Thread
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:0 T:%u", (++iThread));
+			break;
+		}
+
 		outputResult.length = sizeof(textResult);
 		outputResult.data = textResult;
 
-		ret = rsslBindThreadEx(sCpuCore1PCT[indCpu], &outputResult, &errorInfo);
-		if (ret == RSSL_RET_FAILURE)  // invalid CPU topology
+		ret = rsslBindThreadEx(sCpuCoreNextPCT, &outputResult, &errorInfo);
+		if (ret == RSSL_RET_FAILURE)  // an invalid CPU topology
 		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
+			//printf("Binding failure: indCpu=%u (%s)\n", indCpu, sCpuCoreNextPCT);
 			break;
 		}
-	}
+
+		indCpu++;
+	} while (ret == RSSL_RET_SUCCESS && indCpu < nProcessors);
 	ASSERT_EQ(ret, RSSL_RET_FAILURE);
 
 	rsslClearBindings();
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s,%s", sCpuCore0PCT, sCpuCore1PCT[indCpu]);
-	snprintf(outStr, sizeof(outStr), "Configuration setting %s did not match any physical processors on the system.", sCpuCore1PCT[indCpu]);
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s,%s", sCpuCore0PCT, sCpuCoreNextPCT);
+	snprintf(outStr, sizeof(outStr), "Configuration setting %s did not match any physical processors on the system.", sCpuCoreNextPCT);
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThreadEx(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_FAILURE) << "outputResult: " << outputResult.data;
@@ -1713,23 +1697,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT0_Failed
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT1_FailedTest)
 {
-	char sCpuCore0PCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCore1PCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	char bufCpuIdThreadsPCT[128];
-
-	unsigned indCpu;
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	char outStr[256];
-
-	RsslBuffer outputResult;
-	char textResult[256];
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -1738,29 +1706,63 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT1_Failed
 		return;
 	}
 
+	// "P:0 C:0 T:0";  // P:X C:Y T:Z
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str();
+
+	// The next processor core
+	char sCpuCoreNextPCT[MAXLEN];  // P:X C:Y T:Z
+
+	char bufCpuIdThreadsPCT[128];
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[256];
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
 	// Pre-setup stage. Calculate topology for the 2-nd Cpu core.
-	// Try to choose one of the Cpu core templates.
 	// For Fail-test we choose an invalid CPU core.
-	for (indCpu = 0; indCpu < 3; ++indCpu)
-	{
+	// Construct an invalid topology.
+	unsigned indCpu = 0;
+	unsigned iPackage = indCpu / 3;
+	unsigned iCore = indCpu / 3;
+	unsigned iThread = indCpu / 3;
+
+	do {
+		switch (indCpu % 3)
+		{
+		case 0:  // Package
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:%u C:0 T:0", (++iPackage));
+			break;
+		case 1:  // Core
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:%u T:0", (++iCore));
+			break;
+		case 2:  // Thread
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:0 T:%u", (++iThread));
+			break;
+		}
+
 		outputResult.length = sizeof(textResult);
 		outputResult.data = textResult;
 
-		ret = rsslBindThreadEx(sCpuCore1PCT[indCpu], &outputResult, &errorInfo);
-		if (ret == RSSL_RET_FAILURE)  // invalid CPU topology
+		ret = rsslBindThreadEx(sCpuCoreNextPCT, &outputResult, &errorInfo);
+		if (ret == RSSL_RET_FAILURE)  // an invalid CPU topology
 		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
+			//printf("Binding failure: indCpu=%u (%s)\n", indCpu, sCpuCoreNextPCT);
 			break;
 		}
-	}
+
+		indCpu++;
+	} while (ret == RSSL_RET_SUCCESS && indCpu < nProcessors);
 	ASSERT_EQ(ret, RSSL_RET_FAILURE);
 
 	rsslClearBindings();
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s", sCpuCore1PCT[indCpu], sCpuCore0PCT);
-	snprintf(outStr, sizeof(outStr), "Configuration setting %s did not match any physical processors on the system.", sCpuCore1PCT[indCpu]);
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s", sCpuCoreNextPCT, sCpuCore0PCT);
+	snprintf(outStr, sizeof(outStr), "Configuration setting %s did not match any physical processors on the system.", sCpuCoreNextPCT);
 
 	// Setup stage
 	ASSERT_EQ(rsslBindThreadEx(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_FAILURE) << "outputResult: " << outputResult.data;
@@ -1796,25 +1798,101 @@ TEST_F(ThreadBindProcessorCoreTest, BindThreadExShouldReturnFailOnBadFormatCoreS
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-TEST(ThreadBindProcessorCoreTestInit, BindThreadBeforeInitializationShouldReturnError)
+class ThreadBindProcessorCoreTestInit : public ::testing::Test {
+protected:
+	virtual void SetUp()
+	{
+		initProcessorUnitOnlineInfo();
+		ASSERT_TRUE(processorsOnline.nCpuOnline > 0);
+	}
+
+	virtual void TearDown()
+	{
+	}
+};
+
+TEST_F(ThreadBindProcessorCoreTestInit, BindThreadBeforeInitializationShouldReturnOk)
 {
-	char cpuIdThreadPCT[MAXLEN] = "0";
+	// If one processor core is available in this system then return.
+	// Case binding to Core:0 has already tested.
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	char cpuIdList[MAXLEN] = "0, 1";
+
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslUInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
 	RsslErrorInfo errorInfo;
 
-	// Setup stage
-	ASSERT_EQ(rsslBindThread(cpuIdThreadPCT, &errorInfo), RSSL_RET_FAILURE);
+	snprintf(cpuIdList, sizeof(cpuIdList), "%u, %u", CpuCoreId0, CpuCoreId1);
 
-	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
-	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+	// Initialization stage
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslBindThread(cpuIdList, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+	// Check stage
+#ifdef WIN32
+
+	RsslThreadId rsslThreadId = { 0, GetCurrentThread() };
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(rsslThreadId, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(rsslThreadId, CpuCoreId1));
+
+#else	// Linux
+
+	pthread_t threadId = pthread_self();
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId1));
+
+#endif
 }
 
-TEST(ThreadBindProcessorCoreTestInit, BindThreadPCTBeforeInitializationShouldReturnError)
+TEST_F(ThreadBindProcessorCoreTestInit, BindProcessorCoreThreadBeforeInitializationShouldReturnOk)
+{
+	// If one processor core is available in this system then return.
+	// Case binding to Core:0 has already tested.
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	RsslInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+	RsslErrorInfo errorInfo;
+
+	// Initialization stage
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslBindProcessorCoreThread(CpuCoreId1, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+	// Check stage
+#ifdef WIN32
+
+	RsslThreadId rsslThreadId = { 0, GetCurrentThread() };
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(rsslThreadId, CpuCoreId1));
+
+#else	// Linux
+
+	pthread_t threadId = pthread_self();
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId1));
+
+#endif
+}
+
+TEST_F(ThreadBindProcessorCoreTestInit, BindThreadPCTBeforeInitializationShouldReturnError)
 {
 	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
 	RsslErrorInfo errorInfo;
 
 	// Setup stage
+	// Mapping from PCT to number - should return an error.
 	ASSERT_EQ(rsslBindThread(sCpuCorePCT, &errorInfo), RSSL_RET_FAILURE);
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
@@ -1822,22 +1900,94 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadPCTBeforeInitializationShouldRet
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 }
 
-TEST(ThreadBindProcessorCoreTestInit, BindProcessorCoreThreadBeforeInitializationShouldReturnError)
+TEST_F(ThreadBindProcessorCoreTestInit, BindThreadPCTCombine1BeforeInitializationShouldReturnError)
 {
-	RsslInt32 cpuIdThread = 0;
+	char sCpuCorePCT[MAXLEN] = "0, P:0 C:0 T:0";  // P:X C:Y T:Z
 	RsslErrorInfo errorInfo;
 
 	// Setup stage
-	ASSERT_EQ(rsslBindProcessorCoreThread(cpuIdThread, &errorInfo), RSSL_RET_FAILURE);
+	// Mapping from PCT to number - should return an error.
+	ASSERT_EQ(rsslBindThread(sCpuCorePCT, &errorInfo), RSSL_RET_FAILURE);
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 }
 
-TEST(ThreadBindProcessorCoreTestInit, BindThreadExBeforeInitializationShouldReturnError)
+TEST_F(ThreadBindProcessorCoreTestInit, BindThreadPCTCombine2BeforeInitializationShouldReturnError)
 {
-	char cpuIdThreadPCT[MAXLEN] = "0";
+	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0, 1";  // P:X C:Y T:Z
+	RsslErrorInfo errorInfo;
+
+	// Setup stage
+	// Mapping from PCT to number - should return an error.
+	ASSERT_EQ(rsslBindThread(sCpuCorePCT, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+}
+
+TEST_F(ThreadBindProcessorCoreTestInit, BindThreadExBeforeInitializationShouldReturnOk)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	char listCpuIdThread[MAXLEN] = "0,1";
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslUInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+	RsslRet ret = RSSL_RET_SUCCESS;
+	RsslErrorInfo errorInfo;
+
+	char outStr[MAXLEN] = "0,1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(listCpuIdThread, sizeof(listCpuIdThread), "%u, %u", CpuCoreId0, CpuCoreId1);
+	snprintf(outStr, sizeof(outStr), "%u,%u", CpuCoreId0, CpuCoreId1);
+
+	// Setup stage
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslBindThreadEx(listCpuIdThread, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "outputResult: " << outputResult.data;
+
+	// Check stage
+#ifdef WIN32
+	DWORD_PTR cpuMask = (1ULL << CpuCoreId0) | (1ULL << CpuCoreId1);
+	DWORD_PTR dwprocessAffinity, dwSystemAffinity;
+
+	ASSERT_TRUE(GetProcessAffinityMask(GetCurrentProcess(), &dwprocessAffinity, &dwSystemAffinity));
+	ASSERT_EQ((cpuMask & dwprocessAffinity), cpuMask);
+
+	RsslThreadId threadId = { 0, GetCurrentThread() };
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId1));
+	//printf("cpuMask=%llu, dwprocessAffinity=%llu, dwSystemAffinity=%llu\n", cpuMask, dwprocessAffinity, dwSystemAffinity);
+
+#else	// Linux
+
+	pthread_t threadMain = pthread_self();
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId1));
+#endif
+
+	ASSERT_STREQ(outputResult.data, outStr);
+}
+
+TEST_F(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationShouldReturnError)
+{
+	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
 	RsslErrorInfo errorInfo;
 	RsslBuffer outputResult;
 	char textResult[256];
@@ -1846,25 +1996,7 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExBeforeInitializationShouldRetu
 	outputResult.data = textResult;
 
 	// Setup stage
-	ASSERT_EQ(rsslBindThreadEx(cpuIdThreadPCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
-
-	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
-	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
-	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
-}
-
-TEST(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationShouldReturnError)
-{
-	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
-	RsslErrorInfo errorInfo;
-	RsslBuffer outputResult;
-	char textResult[256];
-
-	outputResult.length = sizeof(textResult);
-	outputResult.data = textResult;
-
-	// Setup stage
+	// Mapping from PCT to number - should return an error.
 	ASSERT_EQ(rsslBindThreadEx(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
@@ -1873,26 +2005,41 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationShouldR
 	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 }
 
-TEST(ThreadBindProcessorCoreTestInit, BindThreadExBeforeInitializationEmptyOutputResultShouldReturnError)
+TEST_F(ThreadBindProcessorCoreTestInit, BindThreadExBeforeInitializationEmptyOutputResultShouldReturnOk)
 {
 	char cpuIdThreadPCT[MAXLEN] = "0";
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+
 	RsslErrorInfo errorInfo;
 	RsslBuffer outputResult;
 
 	rsslClearBuffer(&outputResult);
 
-	// Setup stage
-	ASSERT_EQ(rsslBindThreadEx(cpuIdThreadPCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+	snprintf(cpuIdThreadPCT, sizeof(cpuIdThreadPCT), "%u", CpuCoreId0);
 
-	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
-	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
-	
+	// Setup stage
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslBindThreadEx(cpuIdThreadPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+#ifdef WIN32
+
+	RsslThreadId rsslThreadId = { 0, GetCurrentThread() };
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(rsslThreadId, CpuCoreId0));
+
+#else	// Linux
+
+	pthread_t threadId = pthread_self();
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+
+#endif
+
 	ASSERT_EQ(NULL, outputResult.data);
 	ASSERT_EQ(0, outputResult.length);
 }
 
-TEST(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationEmptyOutputResultShouldReturnError)
+TEST_F(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationEmptyOutputResultShouldReturnError)
 {
 	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
 	RsslErrorInfo errorInfo;
@@ -1901,6 +2048,7 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationEmptyOu
 	rsslClearBuffer(&outputResult);
 
 	// Setup stage
+	// Mapping from PCT to number - should return an error.
 	ASSERT_EQ(rsslBindThreadEx(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
@@ -1911,12 +2059,32 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationEmptyOu
 	ASSERT_EQ(0, outputResult.length);
 }
 
-TEST(ThreadBindProcessorCoreTestInit, BindThreadWhenSkipCpuIDTopoInitShouldReturnError)
+/////////////////////////////////////////////////////////////////////////////////////
+
+class ThreadBindProcessorCoreTestETAInit : public ::testing::Test {
+protected:
+	virtual void SetUp()
+	{
+		initProcessorUnitOnlineInfo();
+		ASSERT_TRUE(processorsOnline.nCpuOnline > 0);
+	}
+
+	virtual void TearDown()
+	{
+		rsslClearBindings();
+		rsslUninitialize();
+	}
+};
+
+TEST_F(ThreadBindProcessorCoreTestETAInit, BindThreadWhenSkipCpuIDTopoInitShouldReturnOk)
 {
 	char cpuIdThreadPCT[MAXLEN] = "0";
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
 	RsslErrorInfo errorInfo;
 	RsslError error;
 	RsslInitializeExOpts rsslInitExOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+
+	snprintf(cpuIdThreadPCT, sizeof(cpuIdThreadPCT), "%u", CpuCoreId0);
 
 	// Setup stage
 	// Set the flag to skip CpuID Topology initialization
@@ -1925,16 +2093,25 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadWhenSkipCpuIDTopoInitShouldRetur
 	ASSERT_EQ(rsslInitializeEx(&rsslInitExOpts, &error), RSSL_RET_SUCCESS);
 
 	// Test stage
-	ASSERT_EQ(rsslBindThread(cpuIdThreadPCT, &errorInfo), RSSL_RET_FAILURE);
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslBindThread(cpuIdThreadPCT, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
 
-	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
-	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+#ifdef WIN32
 
-	rsslUninitialize();
+	RsslThreadId rsslThreadId = { 0, GetCurrentThread() };
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(rsslThreadId, CpuCoreId0));
+
+#else	// Linux
+
+	pthread_t threadId = pthread_self();
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+
+#endif
 }
 
-TEST(ThreadBindProcessorCoreTestInit, BindThreadExWhenSkipCpuIDTopoInitShouldReturnError)
+TEST_F(ThreadBindProcessorCoreTestETAInit, BindThreadExWhenSkipCpuIDTopoInitShouldReturnError)
 {
 	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
 	RsslErrorInfo errorInfo;
@@ -1951,6 +2128,7 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExWhenSkipCpuIDTopoInitShouldRet
 	ASSERT_EQ(rsslInitializeEx(&rsslInitExOpts, &error), RSSL_RET_SUCCESS);
 
 	// Test stage
+	// Mapping from PCT to number - should return an error.
 	ASSERT_EQ(rsslBindThreadEx(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
@@ -1959,11 +2137,9 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExWhenSkipCpuIDTopoInitShouldRet
 
 	ASSERT_EQ(NULL, outputResult.data);
 	ASSERT_EQ(0, outputResult.length);
-
-	rsslUninitialize();
 }
 
-TEST(ThreadBindProcessorCoreTestInit, CpuTopologyInitializationShouldReturnOk)
+TEST_F(ThreadBindProcessorCoreTestETAInit, CpuTopologyInitializationShouldReturnOk)
 {
 	RsslError error;
 	RsslInitializeExOpts rsslInitExOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
@@ -1980,8 +2156,6 @@ TEST(ThreadBindProcessorCoreTestInit, CpuTopologyInitializationShouldReturnOk)
 	// Verify that there are no Cpu topology initialization errors.
 	RsslErrorInfo* pInitCpuIdLibError = getErrorInitializationStage();
 	ASSERT_EQ((RsslErrorInfo *)NULL, pInitCpuIdLibError) << "Please report about the CPU topology detection error to RTSDK developers.";
-
-	rsslUninitialize();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1991,6 +2165,9 @@ class ThreadBindProcessorCoreInitializationFail : public ::testing::Test {
 protected:
 	virtual void SetUp()
 	{
+		initProcessorUnitOnlineInfo();
+		ASSERT_TRUE(processorsOnline.nCpuOnline > 0);
+
 		RsslError error;
 		RsslInitializeExOpts rsslInitExOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 		ASSERT_EQ(rsslInitializeEx(&rsslInitExOpts, &error), RSSL_RET_SUCCESS);
@@ -2006,17 +2183,31 @@ protected:
 	}
 };
 
-TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadShouldReturnError)
+TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadShouldReturnOk)
 {
 	char cpuIdThreadPCT[MAXLEN] = "0";
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
 	RsslErrorInfo errorInfo;
 
-	// Test stage
-	ASSERT_EQ(rsslBindThread(cpuIdThreadPCT, &errorInfo), RSSL_RET_FAILURE);
+	snprintf(cpuIdThreadPCT, sizeof(cpuIdThreadPCT), "%u", CpuCoreId0);
 
-	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
-	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
-	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
+	// Test stage
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslBindThread(cpuIdThreadPCT, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+#ifdef WIN32
+
+	RsslThreadId rsslThreadId = { 0, GetCurrentThread() };
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(rsslThreadId, CpuCoreId0));
+
+#else	// Linux
+
+	pthread_t threadId = pthread_self();
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+
+#endif
 }
 
 TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadPCTShouldReturnError)
@@ -2032,36 +2223,66 @@ TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadPCTShouldReturnError
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
 }
 
-TEST_F(ThreadBindProcessorCoreInitializationFail, BindProcessorCoreThreadShouldReturnError)
+TEST_F(ThreadBindProcessorCoreInitializationFail, BindProcessorCoreThreadShouldReturnOk)
 {
-	RsslInt32 cpuIdThread = 0;
+	RsslInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
 	RsslErrorInfo errorInfo;
 
 	// Test stage
-	ASSERT_EQ(rsslBindProcessorCoreThread(cpuIdThread, &errorInfo), RSSL_RET_FAILURE);
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslBindProcessorCoreThread(CpuCoreId0, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
 
-	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
-	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
-	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
+#ifdef WIN32
+
+	RsslThreadId rsslThreadId = { 0, GetCurrentThread() };
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(rsslThreadId, CpuCoreId0));
+
+#else	// Linux
+
+	pthread_t threadId = pthread_self();
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+
+#endif
 }
 
-TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadExShouldReturnError)
+TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadExShouldReturnOk)
 {
 	char cpuIdThreadPCT[MAXLEN] = "0";
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+
 	RsslErrorInfo errorInfo;
 	RsslBuffer outputResult;
 	char textResult[256];
 
+	char outStr[MAXLEN] = "0";
+
 	outputResult.length = sizeof(textResult);
 	outputResult.data = textResult;
 
-	// Test stage
-	ASSERT_EQ(rsslBindThreadEx(cpuIdThreadPCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+	snprintf(cpuIdThreadPCT, sizeof(cpuIdThreadPCT), "%u", CpuCoreId0);
+	snprintf(outStr, sizeof(outStr), "%u", CpuCoreId0);
 
-	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
-	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
-	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
-	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_TEST);
+	// Test stage
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslBindThreadEx(cpuIdThreadPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+#ifdef WIN32
+
+	RsslThreadId rsslThreadId = { 0, GetCurrentThread() };
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(rsslThreadId, CpuCoreId0));
+
+#else	// Linux
+
+	pthread_t threadId = pthread_self();
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+
+#endif
+
+	ASSERT_STREQ(outputResult.data, outStr);
 }
 
 TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadExPCTShouldReturnError)
@@ -2091,7 +2312,8 @@ protected:
 
 	virtual void SetUp()
 	{
-		//ASSERT_EQ(rsslBindThreadInitialize(&errorInfo.rsslError), RSSL_RET_SUCCESS);
+		initProcessorUnitOnlineInfo();
+		ASSERT_TRUE(processorsOnline.nCpuOnline > 0);
 	}
 
 	virtual void TearDown()
@@ -2128,12 +2350,7 @@ protected:
 
 TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore0_CheckAfterInitialization)
 {
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -2141,6 +2358,11 @@ TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore0_CheckAft
 		ASSERT_TRUE(1);
 		return;
 	}
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	RsslInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
 
 	// Bind the current thread by not using rsslBindThread method - system API
 	ASSERT_EQ(RSSL_RET_SUCCESS, testBindThread(CpuCoreId0));
@@ -2176,12 +2398,7 @@ TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore0_CheckAft
 
 TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore1_CheckAfterInitialization)
 {
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -2189,6 +2406,11 @@ TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore1_CheckAft
 		ASSERT_TRUE(1);
 		return;
 	}
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	RsslInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
 
 	// Bind the current thread by not using rsslBindThread method - system API
 	ASSERT_EQ(RSSL_RET_SUCCESS, testBindThread(CpuCoreId1));
@@ -2224,12 +2446,7 @@ TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore1_CheckAft
 
 TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore01_CheckAfterInitialization)
 {
-	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
-	RsslRet ret = RSSL_RET_SUCCESS;
-
-	RsslInt32 CpuCoreId0 = 0;
-	RsslInt32 CpuCoreId1 = 1;
-
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
 	// If one processor core is available in this system then return.
 	// This test is required two cores.
 	if (nProcessors <= 1)
@@ -2237,6 +2454,11 @@ TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore01_CheckAf
 		ASSERT_TRUE(1);
 		return;
 	}
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	RsslInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
 
 	// Bind the current thread by not using rsslBindThread method - system API only
 	ASSERT_EQ(RSSL_RET_SUCCESS, testBindThread(CpuCoreId0, CpuCoreId1));

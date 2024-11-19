@@ -36,6 +36,7 @@ class RespMsg;
 class OmmAnsiPage;
 class OmmOpaque;
 class OmmXml;
+class OmmJson;
 
 class VectorEncoder : public Encoder
 {

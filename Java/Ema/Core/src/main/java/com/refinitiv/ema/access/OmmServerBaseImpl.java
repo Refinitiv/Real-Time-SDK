@@ -1250,7 +1250,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 								reactorAcceptOptions.acceptOptions().nakMount(false);
 								reactorAcceptOptions.initTimeout(_activeServerConfig.serverConfig.initializationTimeout);
 								
-								if (_rsslReactor.accept(_server, reactorAcceptOptions, _providerRole, _rsslErrorInfo) == ReactorReturnCodes.FAILURE)
+								if (_rsslReactor.accept(_server, reactorAcceptOptions, _providerRole, _rsslErrorInfo) != ReactorReturnCodes.SUCCESS)
 								{
 									if (_loggerClient.isErrorEnabled()) 
 									{

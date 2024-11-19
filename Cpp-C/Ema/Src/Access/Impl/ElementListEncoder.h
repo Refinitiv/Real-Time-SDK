@@ -38,6 +38,7 @@ class UpdateMsg;
 class OmmAnsiPage;
 class OmmOpaque;
 class OmmXml;
+class OmmJson;
 
 class ElementListEncoder : public Encoder
 {
@@ -122,6 +123,8 @@ public :
 	void addOpaque( const EmaString& name, const OmmOpaque& value );
 
 	void addXml( const EmaString& name, const OmmXml& value );
+
+	void addJson(const EmaString& name, const OmmJson& value);
 
 	void addAnsiPage( const EmaString& name, const OmmAnsiPage& value );
 

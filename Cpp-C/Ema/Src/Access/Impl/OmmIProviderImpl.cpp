@@ -777,11 +777,11 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 	_userLock.unlock();
 }
 
-void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
+void OmmIProviderImpl::submit(const StatusMsg& statusMsg, UInt64 handle)
 {
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
-	const StatusMsgEncoder& statusMsgEncoder = static_cast<const StatusMsgEncoder&>(stausMsg.getEncoder());
+	const StatusMsgEncoder& statusMsgEncoder = static_cast<const StatusMsgEncoder&>(statusMsg.getEncoder());
 	submitMsgOpts.pRsslMsg = (RsslMsg*)statusMsgEncoder.getRsslStatusMsg();
 
 	_userLock.lock();
@@ -1051,10 +1051,12 @@ void OmmIProviderImpl::submit(const PackedMsg& packedMsg)
 bool OmmIProviderImpl::submit(RsslReactorSubmitMsgOptions submitMsgOptions, const EmaVector< ItemInfo* >& itemList, EmaString& text, bool applyDirectoryFilter, RsslErrorInfo& rsslErrorInfo)
 {
 	RsslMsg* pRsslMsg = submitMsgOptions.pRsslMsg;
+	UInt32 itemListSize;
 
-	for (UInt32 idx = 0; idx < itemList.size(); idx++)
+	for (UInt32 idx = 0; idx < itemList.size();)
 	{
 		ItemInfo* itemInfo = itemList[idx];
+		itemListSize = itemList.size();
 
 		if (OmmLoggerClient::VerboseEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 		{
@@ -1189,6 +1191,8 @@ bool OmmIProviderImpl::submit(RsslReactorSubmitMsgOptions submitMsgOptions, cons
 			handleItemInfo(pRsslMsg->msgBase.domainType, itemInfo->getHandle(), pRsslMsg->statusMsg.state);
 			break;
 		}
+
+		idx += (itemList.size() == itemListSize) ? 1 : 0;
 	}
 
 	return true;

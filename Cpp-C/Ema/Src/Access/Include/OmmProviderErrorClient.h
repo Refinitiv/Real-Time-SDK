@@ -99,8 +99,8 @@ public:
 	*/
 	virtual void onJsonConverter( const EmaString& text, Int32 errorCode, const ProviderSessionInfo& sessionInfo );
 
-	/** Invoked in the case of dispatching failures from Reactor component. Requires OmmConsumer
-		constructor to have an OmmConsumerErrorClient.
+	/** Invoked in the case of dispatching failures from Reactor component. Requires OmmProvider
+		constructor to have an OmmProviderErrorClient.
 		@param[out] text specifies associated error text
 		@param[out] errorCode specifies associated error code defined in DispatchError
 	*/
@@ -109,17 +109,15 @@ public:
 
 	///@name Destructor
 	//@{
-	virtual ~OmmProviderErrorClient();
+	virtual ~OmmProviderErrorClient() = default;
 	//@}
 
 protected:
 
-	OmmProviderErrorClient();
+	OmmProviderErrorClient() = default;
+	OmmProviderErrorClient( const OmmProviderErrorClient& ) = default;
+	OmmProviderErrorClient& operator=( const OmmProviderErrorClient& ) = default;
 
-private:
-
-	OmmProviderErrorClient( const OmmProviderErrorClient& );
-	OmmProviderErrorClient& operator=( const OmmProviderErrorClient& );
 };
 
 }

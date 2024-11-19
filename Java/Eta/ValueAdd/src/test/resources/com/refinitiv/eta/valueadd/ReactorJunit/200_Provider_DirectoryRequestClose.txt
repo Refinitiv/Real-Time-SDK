@@ -45,109 +45,120 @@
 //
 // DirectoryRefresh
 //
-0000: 06 6E 12 06 69 00 16 02  04 00 00 00 02 81 68 09   .n..i.........h.
-0001: 09 00 00 02 00 00 80 05  08 00 00 00 3F 00 04 07   ............?...
-0002: 00 05 02 02 01 CC FE 01  03 00 05 03 02 01 FE 00   ................
-0003: B7 08 00 08 04 4E 61 6D  65 11 07 49 44 4E 5F 52   .....Name..IDN_R
-0004: 44 46 10 53 75 70 70 6F  72 74 73 51 6F 53 52 61   DF.SupportsQoSRa
-0005: 6E 67 65 04 01 00 0C 43  61 70 61 62 69 6C 69 74   nge....Capabilit
-0006: 69 65 73 0F 07 04 01 00  03 05 06 0A 03 51 6F 53   ies..........QoS
-0007: 0F 06 0C 00 00 01 01 22  14 44 69 63 74 69 6F 6E   .......".Diction
-0008: 61 72 69 65 73 50 72 6F  76 69 64 65 64 0F 13 11   ariesProvided...
-0009: 00 00 02 06 52 57 46 46  6C 64 07 52 57 46 45 6E   ....RWFFld.RWFEn
-000A: 75 6D 10 44 69 63 74 69  6F 6E 61 72 69 65 73 55   um.DictionariesU
-000B: 73 65 64 0F 13 11 00 00  02 06 52 57 46 46 6C 64   sed.......RWFFld
-000C: 07 52 57 46 45 6E 75 6D  07 68 61 73 68 49 44 73   .RWFEnum.hashIDs
-000D: 0F 04 04 04 00 00 0E 64  64 6E 48 61 73 68 45 6E   .......ddnHashEn
-000E: 74 72 69 65 73 04 01 00  02 02 FE 00 28 08 00 02   tries.......(...
-000F: 0C 53 65 72 76 69 63 65  53 74 61 74 65 04 01 01   .ServiceState...
-0010: 11 41 63 63 65 70 74 69  6E 67 52 65 71 75 65 73   .AcceptingReques
-0011: 74 73 04 01 01 02 04 FE  00 12 08 00 01 09 4F 70   ts............Op
-0012: 65 6E 4C 69 6D 69 74 04  03 07 A1 20 02 02 1C 17   enLimit.... ....
-0013: FE 01 25 00 05 03 02 01  FE 00 D9 08 00 09 04 4E   ..%............N
-0014: 61 6D 65 11 0B 45 4C 45  4B 54 52 4F 4E 5F 44 44   ame..ELEKTRON_DD
-0015: 10 53 75 70 70 6F 72 74  73 51 6F 53 52 61 6E 67   .SupportsQoSRang
-0016: 65 04 01 00 0C 43 61 70  61 62 69 6C 69 74 69 65   e....Capabilitie
-0017: 73 0F 15 04 01 00 11 05  06 07 08 09 0A 0B 0D 12   s...............
-0018: 13 14 15 17 18 19 1A 1C  03 51 6F 53 0F 06 0C 00   .........QoS....
-0019: 00 01 01 22 14 44 69 63  74 69 6F 6E 61 72 69 65   ...".Dictionarie
-001A: 73 50 72 6F 76 69 64 65  64 0F 13 11 00 00 02 06   sProvided.......
-001B: 52 57 46 46 6C 64 07 52  57 46 45 6E 75 6D 10 44   RWFFld.RWFEnum.D
-001C: 69 63 74 69 6F 6E 61 72  69 65 73 55 73 65 64 0F   ictionariesUsed.
-001D: 13 11 00 00 02 06 52 57  46 46 6C 64 07 52 57 46   ......RWFFld.RWF
-001E: 45 6E 75 6D 06 56 65 6E  64 6F 72 11 07 52 65 75   Enum.Vendor..Reu
-001F: 74 65 72 73 07 68 61 73  68 49 44 73 0F 04 04 04   ters.hashIDs....
-0020: 00 00 0E 64 64 6E 48 61  73 68 45 6E 74 72 69 65   ...ddnHashEntrie
-0021: 73 04 01 00 02 02 FE 00  28 08 00 02 0C 53 65 72   s.......(....Ser
-0022: 76 69 63 65 53 74 61 74  65 04 01 01 11 41 63 63   viceState....Acc
-0023: 65 70 74 69 6E 67 52 65  71 75 65 73 74 73 04 01   eptingRequests..
-0024: 01 02 04 FE 00 12 08 00  01 09 4F 70 65 6E 4C 69   ..........OpenLi
-0025: 6D 69 74 04 03 07 A1 20  02 02 1B 59 FE 01 6B 00   mit.... ...Y..k.
-0026: 05 03 02 01 FE 01 1F 08  00 0D 04 4E 61 6D 65 11   ...........Name.
-0027: 06 51 50 52 4F 56 31 10  53 75 70 70 6F 72 74 73   .QPROV1.Supports
-0028: 51 6F 53 52 61 6E 67 65  04 01 00 0C 43 61 70 61   QoSRange....Capa
-0029: 62 69 6C 69 74 69 65 73  0F 07 04 01 00 03 05 0A   bilities........
-002A: 7F 03 51 6F 53 0F 06 0C  00 00 01 01 22 14 44 69   ..QoS.......".Di
-002B: 63 74 69 6F 6E 61 72 69  65 73 50 72 6F 76 69 64   ctionariesProvid
-002C: 65 64 0F 13 11 00 00 02  06 52 57 46 46 6C 64 07   ed.......RWFFld.
-002D: 52 57 46 45 6E 75 6D 10  44 69 63 74 69 6F 6E 61   RWFEnum.Dictiona
-002E: 72 69 65 73 55 73 65 64  0F 13 11 00 00 02 06 52   riesUsed.......R
-002F: 57 46 46 6C 64 07 52 57  46 45 6E 75 6D 06 56 65   WFFld.RWFEnum.Ve
-0030: 6E 64 6F 72 11 07 52 65  75 74 65 72 73 08 49 73   ndor..Reuters.Is
-0031: 53 6F 75 72 63 65 04 01  01 08 49 74 65 6D 4C 69   Source....ItemLi
-0032: 73 74 11 09 4F 61 6B 62  72 6F 6F 6B 31 1A 53 75   st..Oakbrook1.Su
-0033: 70 70 6F 72 74 73 4F 75  74 4F 66 42 61 6E 64 53   pportsOutOfBandS
-0034: 6E 61 70 73 68 6F 74 73  04 01 00 17 41 63 63 65   napshots....Acce
-0035: 70 74 69 6E 67 43 6F 6E  73 75 6D 65 72 53 74 61   ptingConsumerSta
-0036: 74 75 73 04 01 00 07 68  61 73 68 49 44 73 0F 04   tus....hashIDs..
-0037: 04 04 00 00 0E 64 64 6E  48 61 73 68 45 6E 74 72   .....ddnHashEntr
-0038: 69 65 73 04 01 00 02 02  FE 00 28 08 00 02 0C 53   ies.......(....S
-0039: 65 72 76 69 63 65 53 74  61 74 65 04 01 00 11 41   erviceState....A
-003A: 63 63 65 70 74 69 6E 67  52 65 71 75 65 73 74 73   cceptingRequests
-003B: 04 01 01 02 04 FE 00 12  08 00 01 09 4F 70 65 6E   ............Open
-003C: 4C 69 6D 69 74 04 03 07  A1 20 02 02 1B 5A FE 01   Limit.... ...Z..
-003D: 6B 00 05 03 02 01 FE 01  1F 08 00 0D 04 4E 61 6D   k............Nam
-003E: 65 11 06 51 50 52 4F 56  32 10 53 75 70 70 6F 72   e..QPROV2.Suppor
-003F: 74 73 51 6F 53 52 61 6E  67 65 04 01 00 0C 43 61   tsQoSRange....Ca
-0040: 70 61 62 69 6C 69 74 69  65 73 0F 07 04 01 00 03   pabilities......
-0041: 05 0A 7F 03 51 6F 53 0F  06 0C 00 00 01 01 22 14   ....QoS.......".
-0042: 44 69 63 74 69 6F 6E 61  72 69 65 73 50 72 6F 76   DictionariesProv
-0043: 69 64 65 64 0F 13 11 00  00 02 06 52 57 46 46 6C   ided.......RWFFl
-0044: 64 07 52 57 46 45 6E 75  6D 10 44 69 63 74 69 6F   d.RWFEnum.Dictio
-0045: 6E 61 72 69 65 73 55 73  65 64 0F 13 11 00 00 02   nariesUsed......
-0046: 06 52 57 46 46 6C 64 07  52 57 46 45 6E 75 6D 06   .RWFFld.RWFEnum.
-0047: 56 65 6E 64 6F 72 11 07  52 65 75 74 65 72 73 08   Vendor..Reuters.
-0048: 49 73 53 6F 75 72 63 65  04 01 01 08 49 74 65 6D   IsSource....Item
-0049: 4C 69 73 74 11 09 4F 61  6B 62 72 6F 6F 6B 32 1A   List..Oakbrook2.
-004A: 53 75 70 70 6F 72 74 73  4F 75 74 4F 66 42 61 6E   SupportsOutOfBan
-004B: 64 53 6E 61 70 73 68 6F  74 73 04 01 00 17 41 63   dSnapshots....Ac
-004C: 63 65 70 74 69 6E 67 43  6F 6E 73 75 6D 65 72 53   ceptingConsumerS
-004D: 74 61 74 75 73 04 01 00  07 68 61 73 68 49 44 73   tatus....hashIDs
-004E: 0F 04 04 04 00 00 0E 64  64 6E 48 61 73 68 45 6E   .......ddnHashEn
-004F: 74 72 69 65 73 04 01 00  02 02 FE 00 28 08 00 02   tries.......(...
-0050: 0C 53 65 72 76 69 63 65  53 74 61 74 65 04 01 01   .ServiceState...
-0051: 11 41 63 63 65 70 74 69  6E 67 52 65 71 75 65 73   .AcceptingReques
-0052: 74 73 04 01 01 02 04 FE  00 12 08 00 01 09 4F 70   ts............Op
-0053: 65 6E 4C 69 6D 69 74 04  03 07 A1 20 02 02 92 15   enLimit.... ....
-0054: FE 01 2B 00 05 03 02 01  FE 00 DF 08 00 0A 04 4E   ..+............N
-0055: 61 6D 65 11 06 4E 49 5F  50 55 42 10 53 75 70 70   ame..NI_PUB.Supp
-0056: 6F 72 74 73 51 6F 53 52  61 6E 67 65 04 01 00 0C   ortsQoSRange....
-0057: 43 61 70 61 62 69 6C 69  74 69 65 73 0F 07 04 01   Capabilities....
-0058: 00 03 05 06 0A 03 51 6F  53 0F 06 0C 00 00 01 01   ......QoS.......
-0059: 22 14 44 69 63 74 69 6F  6E 61 72 69 65 73 50 72   ".DictionariesPr
-005A: 6F 76 69 64 65 64 0F 13  11 00 00 02 06 52 57 46   ovided.......RWF
-005B: 46 6C 64 07 52 57 46 45  6E 75 6D 10 44 69 63 74   Fld.RWFEnum.Dict
-005C: 69 6F 6E 61 72 69 65 73  55 73 65 64 0F 13 11 00   ionariesUsed....
-005D: 00 02 06 52 57 46 46 6C  64 07 52 57 46 45 6E 75   ...RWFFld.RWFEnu
-005E: 6D 06 56 65 6E 64 6F 72  11 14 4F 4D 4D 4E 49 50   m.Vendor..OMMNIP
-005F: 72 6F 76 5F 56 45 4E 44  4F 52 4E 41 4D 45 08 49   rov_VENDORNAME.I
-0060: 73 53 6F 75 72 63 65 04  01 01 07 68 61 73 68 49   sSource....hashI
-0061: 44 73 0F 04 04 04 00 00  0E 64 64 6E 48 61 73 68   Ds.......ddnHash
-0062: 45 6E 74 72 69 65 73 04  01 00 02 02 FE 00 28 08   Entries.......(.
-0063: 00 02 0C 53 65 72 76 69  63 65 53 74 61 74 65 04   ...ServiceState.
-0064: 01 00 11 41 63 63 65 70  74 69 6E 67 52 65 71 75   ...AcceptingRequ
-0065: 65 73 74 73 04 01 01 02  04 FE 00 12 08 00 01 09   ests............
-0066: 4F 70 65 6E 4C 69 6D 69  74 04 03 07 A1 20         OpenLimit....
+0000: 06 fd 02 00 38 02 04 00 00 00 02 81 68 09 09 00   ....8.......h...
+0001: 22 53 6f 75 72 63 65 20 44 69 72 65 63 74 6f 72   "Source Director
+0002: 79 20 52 65 66 72 65 73 68 20 43 6f 6d 70 6c 65   y Refresh Comple
+0003: 74 65 64 02 00 00 80 05 08 00 00 00 03 00 04 07   ted.............
+0004: 00 05 02 01 00 fe 01 4a 00 05 02 02 01 fe 01 09   .......J........
+0005: 08 00 0b 04 4e 61 6d 65 11 07 49 44 4e 5f 52 44   ....Name..IDN_RD
+0006: 46 06 56 65 6e 64 6f 72 11 04 4c 53 45 47 08 49   F.Vendor..LSEG.I
+0007: 73 53 6f 75 72 63 65 04 01 00 0c 43 61 70 61 62   sSource....Capab
+0008: 69 6c 69 74 69 65 73 0f fe 00 0a 04 00 00 03 01   ilities.........
+0009: 05 01 06 01 0a 14 44 69 63 74 69 6f 6e 61 72 69   ......Dictionari
+000A: 65 73 50 72 6f 76 69 64 65 64 0f fe 00 13 11 00   esProvided......
+000B: 00 02 06 52 57 46 46 6c 64 07 52 57 46 45 6e 75   ...RWFFld.RWFEnu
+000C: 6d 10 44 69 63 74 69 6f 6e 61 72 69 65 73 55 73   m.DictionariesUs
+000D: 65 64 0f fe 00 13 11 00 00 02 06 52 57 46 46 6c   ed.........RWFFl
+000E: 64 07 52 57 46 45 6e 75 6d 03 51 6f 53 0f fe 00   d.RWFEnum.QoS...
+000F: 06 0c 00 00 01 01 22 10 53 75 70 70 6f 72 74 73   ......".Supports
+0010: 51 6f 53 52 61 6e 67 65 04 01 00 08 49 74 65 6d   QoSRange....Item
+0011: 4c 69 73 74 11 0a 23 2e 69 74 65 6d 6c 69 73 74   List..#.itemlist
+0012: 1a 53 75 70 70 6f 72 74 73 4f 75 74 4f 66 42 61   .SupportsOutOfBa
+0013: 6e 64 53 6e 61 70 73 68 6f 74 73 04 01 00 17 41   ndSnapshots....A
+0014: 63 63 65 70 74 69 6e 67 43 6f 6e 73 75 6d 65 72   cceptingConsumer
+0015: 53 74 61 74 75 73 04 01 00 02 02 fe 00 34 08 00   Status.......4..
+0016: 03 0c 53 65 72 76 69 63 65 53 74 61 74 65 04 01   ..ServiceState..
+0017: 01 11 41 63 63 65 70 74 69 6e 67 52 65 71 75 65   ..AcceptingReque
+0018: 73 74 73 04 01 01 06 53 74 61 74 75 73 0d 03 09   sts....Status...
+0019: 00 00 02 01 01 fe 01 6a 00 05 02 02 01 fe 01 29   .......j.......)
+001A: 08 00 0b 04 4e 61 6d 65 11 0b 45 4c 45 4b 54 52   ....Name..ELEKTR
+001B: 4f 4e 5f 44 44 06 56 65 6e 64 6f 72 11 04 4c 53   ON_DD.Vendor..LS
+001C: 45 47 08 49 73 53 6f 75 72 63 65 04 01 00 0c 43   EG.IsSource....C
+001D: 61 70 61 62 69 6c 69 74 69 65 73 0f fe 00 26 04   apabilities...&.
+001E: 00 00 11 01 05 01 06 01 07 01 08 01 09 01 0a 01   ................
+001F: 0b 01 0d 01 12 01 13 01 14 01 15 01 17 01 18 01   ................
+0020: 19 01 1a 01 1c 14 44 69 63 74 69 6f 6e 61 72 69   ......Dictionari
+0021: 65 73 50 72 6f 76 69 64 65 64 0f fe 00 13 11 00   esProvided......
+0022: 00 02 06 52 57 46 46 6c 64 07 52 57 46 45 6e 75   ...RWFFld.RWFEnu
+0023: 6d 10 44 69 63 74 69 6f 6e 61 72 69 65 73 55 73   m.DictionariesUs
+0024: 65 64 0f fe 00 13 11 00 00 02 06 52 57 46 46 6c   ed.........RWFFl
+0025: 64 07 52 57 46 45 6e 75 6d 03 51 6f 53 0f fe 00   d.RWFEnum.QoS...
+0026: 06 0c 00 00 01 01 22 10 53 75 70 70 6f 72 74 73   ......".Supports
+0027: 51 6f 53 52 61 6e 67 65 04 01 00 08 49 74 65 6d   QoSRange....Item
+0028: 4c 69 73 74 11 0a 23 2e 69 74 65 6d 6c 69 73 74   List..#.itemlist
+0029: 1a 53 75 70 70 6f 72 74 73 4f 75 74 4f 66 42 61   .SupportsOutOfBa
+002A: 6e 64 53 6e 61 70 73 68 6f 74 73 04 01 00 17 41   ndSnapshots....A
+002B: 63 63 65 70 74 69 6e 67 43 6f 6e 73 75 6d 65 72   cceptingConsumer
+002C: 53 74 61 74 75 73 04 01 00 02 02 fe 00 34 08 00   Status.......4..
+002D: 03 0c 53 65 72 76 69 63 65 53 74 61 74 65 04 01   ..ServiceState..
+002E: 01 11 41 63 63 65 70 74 69 6e 67 52 65 71 75 65   ..AcceptingReque
+002F: 73 74 73 04 01 01 06 53 74 61 74 75 73 0d 03 09   sts....Status...
+0030: 00 00 02 01 02 fe 01 48 00 05 02 02 01 fe 01 07   .......H........
+0031: 08 00 0b 04 4e 61 6d 65 11 06 51 50 52 4f 56 31   ....Name..QPROV1
+0032: 06 56 65 6e 64 6f 72 11 04 4c 53 45 47 08 49 73   .Vendor..LSEG.Is
+0033: 53 6f 75 72 63 65 04 01 01 0c 43 61 70 61 62 69   Source....Capabi
+0034: 6c 69 74 69 65 73 0f fe 00 0a 04 00 00 03 01 05   lities..........
+0035: 01 0a 01 7f 14 44 69 63 74 69 6f 6e 61 72 69 65   .....Dictionarie
+0036: 73 50 72 6f 76 69 64 65 64 0f fe 00 13 11 00 00   sProvided.......
+0037: 02 06 52 57 46 46 6c 64 07 52 57 46 45 6e 75 6d   ..RWFFld.RWFEnum
+0038: 10 44 69 63 74 69 6f 6e 61 72 69 65 73 55 73 65   .DictionariesUse
+0039: 64 0f fe 00 13 11 00 00 02 06 52 57 46 46 6c 64   d.........RWFFld
+003A: 07 52 57 46 45 6e 75 6d 03 51 6f 53 0f fe 00 06   .RWFEnum.QoS....
+003B: 0c 00 00 01 01 22 10 53 75 70 70 6f 72 74 73 51   .....".SupportsQ
+003C: 6f 53 52 61 6e 67 65 04 01 00 08 49 74 65 6d 4c   oSRange....ItemL
+003D: 69 73 74 11 09 4f 61 6b 62 72 6f 6f 6b 31 1a 53   ist..Oakbrook1.S
+003E: 75 70 70 6f 72 74 73 4f 75 74 4f 66 42 61 6e 64   upportsOutOfBand
+003F: 53 6e 61 70 73 68 6f 74 73 04 01 00 17 41 63 63   Snapshots....Acc
+0040: 65 70 74 69 6e 67 43 6f 6e 73 75 6d 65 72 53 74   eptingConsumerSt
+0041: 61 74 75 73 04 01 00 02 02 fe 00 34 08 00 03 0c   atus.......4....
+0042: 53 65 72 76 69 63 65 53 74 61 74 65 04 01 00 11   ServiceState....
+0043: 41 63 63 65 70 74 69 6e 67 52 65 71 75 65 73 74   AcceptingRequest
+0044: 73 04 01 01 06 53 74 61 74 75 73 0d 03 09 00 00   s....Status.....
+0045: 02 01 03 fe 01 48 00 05 02 02 01 fe 01 07 08 00   .....H..........
+0046: 0b 04 4e 61 6d 65 11 06 51 50 52 4f 56 32 06 56   ..Name..QPROV2.V
+0047: 65 6e 64 6f 72 11 04 4c 53 45 47 08 49 73 53 6f   endor..LSEG.IsSo
+0048: 75 72 63 65 04 01 01 0c 43 61 70 61 62 69 6c 69   urce....Capabili
+0049: 74 69 65 73 0f fe 00 0a 04 00 00 03 01 05 01 0a   ties............
+004A: 01 7f 14 44 69 63 74 69 6f 6e 61 72 69 65 73 50   ...DictionariesP
+004B: 72 6f 76 69 64 65 64 0f fe 00 13 11 00 00 02 06   rovided.........
+004C: 52 57 46 46 6c 64 07 52 57 46 45 6e 75 6d 10 44   RWFFld.RWFEnum.D
+004D: 69 63 74 69 6f 6e 61 72 69 65 73 55 73 65 64 0f   ictionariesUsed.
+004E: fe 00 13 11 00 00 02 06 52 57 46 46 6c 64 07 52   ........RWFFld.R
+004F: 57 46 45 6e 75 6d 03 51 6f 53 0f fe 00 06 0c 00   WFEnum.QoS......
+0050: 00 01 01 22 10 53 75 70 70 6f 72 74 73 51 6f 53   ...".SupportsQoS
+0051: 52 61 6e 67 65 04 01 00 08 49 74 65 6d 4c 69 73   Range....ItemLis
+0052: 74 11 09 4f 61 6b 62 72 6f 6f 6b 32 1a 53 75 70   t..Oakbrook2.Sup
+0053: 70 6f 72 74 73 4f 75 74 4f 66 42 61 6e 64 53 6e   portsOutOfBandSn
+0054: 61 70 73 68 6f 74 73 04 01 00 17 41 63 63 65 70   apshots....Accep
+0055: 74 69 6e 67 43 6f 6e 73 75 6d 65 72 53 74 61 74   tingConsumerStat
+0056: 75 73 04 01 00 02 02 fe 00 34 08 00 03 0c 53 65   us.......4....Se
+0057: 72 76 69 63 65 53 74 61 74 65 04 01 01 11 41 63   rviceState....Ac
+0058: 63 65 70 74 69 6e 67 52 65 71 75 65 73 74 73 04   ceptingRequests.
+0059: 01 01 06 53 74 61 74 75 73 0d 03 09 00 00 02 01   ...Status.......
+005A: 04 fe 01 59 00 05 02 02 01 fe 01 18 08 00 0b 04   ...Y............
+005B: 4e 61 6d 65 11 06 4e 49 5f 50 55 42 06 56 65 6e   Name..NI_PUB.Ven
+005C: 64 6f 72 11 14 4f 4d 4d 4e 49 50 72 6f 76 5f 56   dor..OMMNIProv_V
+005D: 45 4e 44 4f 52 4e 41 4d 45 08 49 73 53 6f 75 72   ENDORNAME.IsSour
+005E: 63 65 04 01 01 0c 43 61 70 61 62 69 6c 69 74 69   ce....Capabiliti
+005F: 65 73 0f fe 00 0a 04 00 00 03 01 05 01 06 01 0a   es..............
+0060: 14 44 69 63 74 69 6f 6e 61 72 69 65 73 50 72 6f   .DictionariesPro
+0061: 76 69 64 65 64 0f fe 00 13 11 00 00 02 06 52 57   vided.........RW
+0062: 46 46 6c 64 07 52 57 46 45 6e 75 6d 10 44 69 63   FFld.RWFEnum.Dic
+0063: 74 69 6f 6e 61 72 69 65 73 55 73 65 64 0f fe 00   tionariesUsed...
+0064: 13 11 00 00 02 06 52 57 46 46 6c 64 07 52 57 46   ......RWFFld.RWF
+0065: 45 6e 75 6d 03 51 6f 53 0f fe 00 06 0c 00 00 01   Enum.QoS........
+0066: 01 22 10 53 75 70 70 6f 72 74 73 51 6f 53 52 61   .".SupportsQoSRa
+0067: 6e 67 65 04 01 00 08 49 74 65 6d 4c 69 73 74 11   nge....ItemList.
+0068: 0a 23 2e 69 74 65 6d 6c 69 73 74 1a 53 75 70 70   .#.itemlist.Supp
+0069: 6f 72 74 73 4f 75 74 4f 66 42 61 6e 64 53 6e 61   ortsOutOfBandSna
+006A: 70 73 68 6f 74 73 04 01 00 17 41 63 63 65 70 74   pshots....Accept
+006B: 69 6e 67 43 6f 6e 73 75 6d 65 72 53 74 61 74 75   ingConsumerStatu
+006C: 73 04 01 00 02 02 fe 00 34 08 00 03 0c 53 65 72   s.......4....Ser
+006D: 76 69 63 65 53 74 61 74 65 04 01 00 11 41 63 63   viceState....Acc
+006E: 65 70 74 69 6e 67 52 65 71 75 65 73 74 73 04 01   eptingRequests..
+006F: 01 06 53 74 61 74 75 73 0d 03 09 00 00            ..Status.....
+
+
 
 <!-- rwfMajorVer="14" rwfMinorVer="1" -->
 <REFRESH domainType="SOURCE" streamId="2" containerType="MAP" flags="0x168 (HAS_MSG_KEY|SOLICITED|REFRESH_COMPLETE|CLEAR_CACHE)" groupId="0" State: Open/Ok/None - text: "" dataSize="1617">
@@ -248,7 +259,7 @@
                                     <arrayEntry data="RWFEnum"/>
                                 </array>
                             </elementEntry>
-                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Reuters"/>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="LSEG"/>
                             <elementEntry name="hashIDs" dataType="ARRAY">
                                 <array itemLength="4" primitiveType="UINT">
                                 </array>
@@ -299,7 +310,7 @@
                                     <arrayEntry data="RWFEnum"/>
                                 </array>
                             </elementEntry>
-                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Reuters"/>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="LSEG"/>
                             <elementEntry name="IsSource" dataType="UINT" data="1"/>
                             <elementEntry name="ItemList" dataType="ASCII_STRING" data="Oakbrook1"/>
                             <elementEntry name="SupportsOutOfBandSnapshots" dataType="UINT" data="0"/>
@@ -354,7 +365,7 @@
                                     <arrayEntry data="RWFEnum"/>
                                 </array>
                             </elementEntry>
-                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Reuters"/>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="LSEG"/>
                             <elementEntry name="IsSource" dataType="UINT" data="1"/>
                             <elementEntry name="ItemList" dataType="ASCII_STRING" data="Oakbrook2"/>
                             <elementEntry name="SupportsOutOfBandSnapshots" dataType="UINT" data="0"/>
