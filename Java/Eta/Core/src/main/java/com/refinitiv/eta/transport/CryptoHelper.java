@@ -511,13 +511,19 @@ class CryptoHelper
                         throw new IOException("Tunnel Channel disconnected");
 
                     _netRecvBuffer.flip();
-                    SSLEngineResult unwrap_result = _engine.unwrap(_netRecvBuffer, _appRecvBuffer);
 
-                    if (unwrap_result.getStatus() == Status.BUFFER_OVERFLOW) {
-                        ByteBuffer temp = ByteBuffer.allocateDirect(_appRecvBuffer.capacity() * 2);
-                        _appRecvBuffer.flip();
-                        temp.put(_appRecvBuffer);
-                        _appRecvBuffer = temp;
+                    HandshakeStatus handshakeStatus = HandshakeStatus.NEED_UNWRAP;
+                    while (_netRecvBuffer.hasRemaining() &&
+                            handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
+                        SSLEngineResult unwrap_result = _engine.unwrap(_netRecvBuffer, _appRecvBuffer);
+
+                        if (unwrap_result.getStatus() == Status.BUFFER_OVERFLOW) {
+                            ByteBuffer temp = ByteBuffer.allocateDirect(_appRecvBuffer.capacity() * 2);
+                            _appRecvBuffer.flip();
+                            temp.put(_appRecvBuffer);
+                            _appRecvBuffer = temp;
+                        }
+                        handshakeStatus = unwrap_result.getHandshakeStatus();
                     }
 
                     _netRecvBuffer.compact();

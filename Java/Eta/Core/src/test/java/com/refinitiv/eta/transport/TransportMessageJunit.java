@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.eta.transport;
@@ -1947,7 +1947,6 @@ public class TransportMessageJunit
         args.blocking = true;
         args.compressionType = CompressionTypes.LZ4;
         args.compressionLevel = 6;
-        args.securityProtocolVersions = new String[] {"1.2"};
 
         int[] sizes = { 6140};
         args.messageSizes = sizes;
@@ -2019,7 +2018,6 @@ public class TransportMessageJunit
         args.compressionType = CompressionTypes.LZ4;
         args.compressionLevel = 6;
         args.encrypted = true;
-        args.securityProtocolVersions = new String[] {"1.2"};
 
         int[] sizes = { 6100, 6101, 6102, 6103, 6104, 6105, 6106, 6107, 6108, 6109, 6110};
         args.messageSizes = sizes;
