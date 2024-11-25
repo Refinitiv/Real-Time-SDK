@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -5041,7 +5041,7 @@ public class ReactorJunit
             // create a mock SelectableBiDirectionalQueue
             SelectableBiDirectionalQueue workerQueue = Mockito.mock(SelectableBiDirectionalQueue.class);
             // the first call to write() will fail
-            when(workerQueue.write((VaNode)Mockito.anyObject())).thenReturn(false);
+            when(workerQueue.write(Mockito.any(VaNode.class))).thenReturn(false);
             // set reactor worker queue to mock worker queue
             reactor._workerQueue = workerQueue;
             assertEquals(ReactorReturnCodes.FAILURE, reactor.connect(rcOpts, consumerRole, errorInfo));

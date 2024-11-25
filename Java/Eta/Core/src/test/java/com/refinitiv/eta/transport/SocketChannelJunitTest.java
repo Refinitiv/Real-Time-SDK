@@ -1,3 +1,10 @@
+///*|-----------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
+///*|-----------------------------------------------------------------------------
+
 package com.refinitiv.eta.transport;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -2793,7 +2800,7 @@ public class SocketChannelJunitTest
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
             //java.nio.channels.SocketChannel.write() returns all bytes sent
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)(bufLen + 3));
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)(bufLen + 3));
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             rsslChnl._scktChannel = scktChnl;
@@ -2867,7 +2874,7 @@ public class SocketChannelJunitTest
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
             //java.nio.channels.SocketChannel.write() returns 5 bytes sent (3 is for RIPC header)
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)(5 + 3));
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)(5 + 3));
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             rsslChnl._scktChannel = scktChnl;
@@ -2951,7 +2958,7 @@ public class SocketChannelJunitTest
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
             //java.nio.channels.SocketChannel.write() returns 5 bytes sent (3 is for RIPC header)
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)(5 + 3));
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)(5 + 3));
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             rsslChnl._scktChannel = scktChnl;
@@ -3034,7 +3041,7 @@ public class SocketChannelJunitTest
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
             //java.nio.channels.SocketChannel.write() returns 5 bytes sent (3 is for RIPC header)
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)(5 + 3));
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)(5 + 3));
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             rsslChnl._scktChannel = scktChnl;
@@ -3710,7 +3717,7 @@ public class SocketChannelJunitTest
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
             //java.nio.channels.SocketChannel.write() returns all bytes sent
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)cumulativeBytesQueued);
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)cumulativeBytesQueued);
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             rsslChnl._scktChannel = scktChnl;
@@ -3903,7 +3910,7 @@ public class SocketChannelJunitTest
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
             //java.nio.channels.SocketChannel.write() returns partial bytes sent
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)92);
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)92);
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             rsslChnl._scktChannel = scktChnl;
@@ -4880,7 +4887,7 @@ public class SocketChannelJunitTest
 
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
-            when(scktChnl.write((ByteBuffer)Mockito.anyObject())).thenReturn(3);
+            when(scktChnl.write(Mockito.any(ByteBuffer.class))).thenReturn(3);
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             ScktChnl._scktChannel = scktChnl;
@@ -4920,7 +4927,7 @@ public class SocketChannelJunitTest
 
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
-            when(scktChnl.write((ByteBuffer)Mockito.anyObject())).thenReturn(1);
+            when(scktChnl.write(Mockito.any(ByteBuffer.class))).thenReturn(1);
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             ScktChnl._scktChannel = scktChnl;
@@ -5091,7 +5098,7 @@ public class SocketChannelJunitTest
 
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenThrow(new IOException());
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenThrow(new IOException());
 
             ScktChnl._scktChannel = scktChnl;
 
@@ -5162,7 +5169,7 @@ public class SocketChannelJunitTest
 
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenThrow(new IOException());
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenThrow(new IOException());
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             rsslChnl._scktChannel = scktChnl;
@@ -5234,7 +5241,7 @@ public class SocketChannelJunitTest
 
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenThrow(new IOException());
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenThrow(new IOException());
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             ScktChnl._scktChannel = scktChnl;
@@ -5301,7 +5308,7 @@ public class SocketChannelJunitTest
 
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
-            when(scktChnl.write((ByteBuffer)Mockito.anyObject())).thenThrow(new IOException());
+            when(scktChnl.write(Mockito.any(ByteBuffer.class))).thenThrow(new IOException());
 
             // set RsslSocketChannel internal socket channel to mock socket channel
             ScktChnl._scktChannel = scktChnl;
@@ -8416,7 +8423,7 @@ public class SocketChannelJunitTest
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
             // java.nio.channels.SocketChannel.write() returns all bytes sent
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)cumulativeBytesQueued);
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)cumulativeBytesQueued);
 
             // set RsslSocketChannel internal socket channel to mock socket
             // channel
@@ -8614,7 +8621,7 @@ public class SocketChannelJunitTest
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
             // java.nio.channels.SocketChannel.write() returns all bytes sent
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)cumulativeBytesQueued);
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)cumulativeBytesQueued);
 
             // set RsslSocketChannel internal socket channel to mock socket
             // channel
@@ -8649,7 +8656,7 @@ public class SocketChannelJunitTest
              */
 
             // java.nio.channels.SocketChannel.write() returns all bytes sent
-            when(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)smallCumulativeBytesQueued);
+            when(scktChnl.write(Mockito.any(ByteBuffer[].class), Mockito.anyInt(), Mockito.anyInt())).thenReturn((long)smallCumulativeBytesQueued);
 
             // create SocketBuffer and set to test data
             TransportBufferImpl smallTransBuf1 = new TransportBufferImpl(smallBufLen1 + 3);

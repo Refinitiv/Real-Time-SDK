@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.eta.codec;
@@ -738,18 +738,18 @@ public class DictionaryJunit
         
         // create a mock Objects for testing
         SeriesImpl mockSeries = Mockito.mock(SeriesImpl.class);
-        when(mockSeries.encodeInit((EncodeIterator)Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
-        when(mockSeries.encodeSetDefsComplete((EncodeIterator)Mockito.anyObject(), Mockito.anyBoolean())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockSeries.encodeInit(Mockito.any(EncodeIterator.class), Mockito.anyInt(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockSeries.encodeSetDefsComplete(Mockito.any(EncodeIterator.class), Mockito.anyBoolean())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.series = mockSeries;
         LocalElementSetDefDbImpl mockLocalElementSetDefDb = Mockito.mock(LocalElementSetDefDbImpl.class);
-        when(mockLocalElementSetDefDb.encode((EncodeIterator)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockLocalElementSetDefDb.encode(Mockito.any(EncodeIterator.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         when(mockLocalElementSetDefDb.definitions()).thenReturn(dictionary.setDb.definitions());
         dictionary.setDb = mockLocalElementSetDefDb;
         ElementListImpl mockElemList = Mockito.mock(ElementListImpl.class);
-        when(mockElemList.encodeInit((EncodeIterator)Mockito.anyObject(), (LocalElementSetDefDb)Mockito.anyObject(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElemList.encodeInit(Mockito.any(EncodeIterator.class), Mockito.any(LocalElementSetDefDb.class), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.elemList = mockElemList;
         SeriesEntryImpl mockSeriesEntry = Mockito.mock(SeriesEntryImpl.class);
-        when(mockSeriesEntry.encodeInit((EncodeIterator)Mockito.anyObject(), Mockito.anyInt())).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockSeriesEntry.encodeInit(Mockito.any(EncodeIterator.class), Mockito.anyInt())).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.seriesEntry = mockSeriesEntry;
 
         /* verify encodeFieldDictionary() failures */
@@ -809,11 +809,11 @@ public class DictionaryJunit
         
         // create a mock Objects for testing
         ElementListImpl mockElemList = Mockito.mock(ElementListImpl.class);
-        when(mockElemList.encodeInit((EncodeIterator)Mockito.anyObject(), (LocalElementSetDefDb)Mockito.anyObject(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElemList.encodeInit(Mockito.any(EncodeIterator.class), Mockito.any(LocalElementSetDefDb.class), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.elemList = mockElemList;
         ElementEntryImpl mockElem = Mockito.mock(ElementEntryImpl.class);
-        when(mockElem.encode((EncodeIterator)Mockito.anyObject(), (Int)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.FAILURE);
-        when(mockElem.encode((EncodeIterator)Mockito.anyObject(), (Buffer)Mockito.anyObject())).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElem.encode(Mockito.any(EncodeIterator.class), Mockito.any(Int.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElem.encode(Mockito.any(EncodeIterator.class), Mockito.any(Buffer.class))).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.elemEntry = mockElem;
         
         /* verify encodeDataDictSummaryData() failures */
@@ -874,15 +874,15 @@ public class DictionaryJunit
         
         // create a mock Objects for testing
         SeriesEntryImpl mockSeriesEntry = Mockito.mock(SeriesEntryImpl.class);
-        when(mockSeriesEntry.encodeInit((EncodeIterator)Mockito.anyObject(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockSeriesEntry.encodeInit(Mockito.any(EncodeIterator.class), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.seriesEntry = mockSeriesEntry;
         ElementListImpl mockElemList = Mockito.mock(ElementListImpl.class);
-        when(mockElemList.encodeInit((EncodeIterator)Mockito.anyObject(), (LocalElementSetDefDb)Mockito.anyObject(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElemList.encodeInit(Mockito.any(EncodeIterator.class), Mockito.any(LocalElementSetDefDb.class), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.elemList = mockElemList;
         ElementEntryImpl mockElem = Mockito.mock(ElementEntryImpl.class);
-        when(mockElem.encode((EncodeIterator)Mockito.anyObject(), (Buffer)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
-        when(mockElem.encode((EncodeIterator)Mockito.anyObject(), (Int)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.FAILURE);
-        when(mockElem.encode((EncodeIterator)Mockito.anyObject(), (UInt)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElem.encode(Mockito.any(EncodeIterator.class), Mockito.any(Buffer.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElem.encode(Mockito.any(EncodeIterator.class), Mockito.any(Int.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElem.encode(Mockito.any(EncodeIterator.class), Mockito.any(UInt.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.elemEntry = mockElem;
         
         /* verify encodeDataDictEntry() failures */
@@ -947,30 +947,30 @@ public class DictionaryJunit
         
         // create a mock Objects for testing
         SeriesImpl mockSeries = Mockito.mock(SeriesImpl.class);
-        when(mockSeries.encodeInit((EncodeIterator)Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
-        when(mockSeries.encodeSetDefsComplete((EncodeIterator)Mockito.anyObject(), Mockito.anyBoolean())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockSeries.encodeInit(Mockito.any(EncodeIterator.class), Mockito.anyInt(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockSeries.encodeSetDefsComplete(Mockito.any(EncodeIterator.class), Mockito.anyBoolean())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.series = mockSeries;
         LocalElementSetDefDbImpl mockLocalElementSetDefDb = Mockito.mock(LocalElementSetDefDbImpl.class);
-        when(mockLocalElementSetDefDb.encode((EncodeIterator)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockLocalElementSetDefDb.encode(Mockito.any(EncodeIterator.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         when(mockLocalElementSetDefDb.definitions()).thenReturn(dictionary.setDb.definitions());
         dictionary.setDb = mockLocalElementSetDefDb;
         ElementListImpl mockElemList = Mockito.mock(ElementListImpl.class);
-        when(mockElemList.encodeInit((EncodeIterator)Mockito.anyObject(), (LocalElementSetDefDb)Mockito.anyObject(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElemList.encodeInit(Mockito.any(EncodeIterator.class), Mockito.any(LocalElementSetDefDb.class), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.elemList = mockElemList;
         SeriesEntryImpl mockSeriesEntry = Mockito.mock(SeriesEntryImpl.class);
-        when(mockSeriesEntry.encodeInit((EncodeIterator)Mockito.anyObject(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockSeriesEntry.encodeInit(Mockito.any(EncodeIterator.class), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.seriesEntry = mockSeriesEntry;
         ElementEntryImpl mockElem = Mockito.mock(ElementEntryImpl.class);
-        when(mockElem.encodeInit((EncodeIterator)Mockito.anyObject(), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElem.encodeInit(Mockito.any(EncodeIterator.class), Mockito.anyInt())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.elemEntry = mockElem;
         ArrayImpl mockArray = Mockito.mock(ArrayImpl.class);
-        when(mockArray.encodeInit((EncodeIterator)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockArray.encodeInit(Mockito.any(EncodeIterator.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.arr = mockArray;
         ArrayEntryImpl mockArrayEntry = Mockito.mock(ArrayEntryImpl.class);
-        when(mockArrayEntry.encode((EncodeIterator)Mockito.anyObject(), (Int)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockArrayEntry.encode(Mockito.any(EncodeIterator.class), Mockito.any(Int.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         dictionary.arrEntry = mockArrayEntry;
-        when(mockArray.encodeComplete((EncodeIterator)Mockito.anyObject(), Mockito.anyBoolean())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
-        when(mockElem.encodeComplete((EncodeIterator)Mockito.anyObject(), Mockito.anyBoolean())).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockArray.encodeComplete(Mockito.any(EncodeIterator.class), Mockito.anyBoolean())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElem.encodeComplete(Mockito.any(EncodeIterator.class), Mockito.anyBoolean())).thenReturn(CodecReturnCodes.FAILURE);
 
         /* verify encodeFieldDictionary() failures */
         assertEquals(CodecReturnCodes.FAILURE, dictionary.encodeEnumTypeDictionary(encodeIter, Dictionary.VerbosityValues.NORMAL, error));
@@ -1056,17 +1056,17 @@ public class DictionaryJunit
         assertEquals(CodecReturnCodes.SUCCESS, msg.decode(decodeIter));
         
         ElementListImpl mockElemList = Mockito.mock(ElementListImpl.class);
-        when(mockElemList.decode((DecodeIterator)Mockito.anyObject(), (LocalElementSetDefDb)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElemList.decode(Mockito.any(DecodeIterator.class), Mockito.any(LocalElementSetDefDb.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         decodedDictionary.elemList = mockElemList;
         ElementEntryImpl mockElem = Mockito.mock(ElementEntryImpl.class);
-        when(mockElem.decode((DecodeIterator)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockElem.decode(Mockito.any(DecodeIterator.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.FAILURE).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.END_OF_CONTAINER).thenReturn(CodecReturnCodes.FAILURE);
         decodedDictionary.elemEntry = mockElem;
         LocalElementSetDefDbImpl mockLocalElementSetDefDb = Mockito.mock(LocalElementSetDefDbImpl.class);
-        when(mockLocalElementSetDefDb.decode((DecodeIterator)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockLocalElementSetDefDb.decode(Mockito.any(DecodeIterator.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         when(mockLocalElementSetDefDb.definitions()).thenReturn(dictionary.setDb.definitions());
         decodedDictionary.setDb = mockLocalElementSetDefDb;
         SeriesEntryImpl mockSeriesEntry = Mockito.mock(SeriesEntryImpl.class);
-        when(mockSeriesEntry.decode((DecodeIterator)Mockito.anyObject())).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
+        when(mockSeriesEntry.decode(Mockito.any(DecodeIterator.class))).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.SUCCESS).thenReturn(CodecReturnCodes.FAILURE);
         decodedDictionary.seriesEntry = mockSeriesEntry;
         
         assertEquals(CodecReturnCodes.FAILURE, decodedDictionary.decodeEnumTypeDictionary(decodeIter, Dictionary.VerbosityValues.NORMAL, error));
