@@ -138,7 +138,6 @@ namespace LSEG.Ema.Access
 
         public class DataArray
         {
-            internal bool InPool;
             internal Data[] Array;
             internal bool OwnedByPool;
             internal GCHandle m_handle;
@@ -173,7 +172,6 @@ namespace LSEG.Ema.Access
                 Array[DataType.DataTypes.UTF8] = new OmmUtf8();
                 Array[DataType.DataTypes.RMTES] = new OmmRmtes();
 
-                InPool = true;
                 OwnedByPool = true;
                 m_handle = GCHandle.Alloc(Array);
             }
@@ -204,7 +202,6 @@ namespace LSEG.Ema.Access
 
         public class ComplexTypeArray
         {
-            internal bool InPool;
             internal ComplexType[] Array;
             internal bool OwnedByPool;
             internal GCHandle m_handle;
@@ -254,7 +251,6 @@ namespace LSEG.Ema.Access
 
         public class MsgTypeArray
         {
-            internal bool InPool;
             internal Msg[] Array;
             internal bool OwnedByPool;
             internal GCHandle m_handle;
@@ -272,7 +268,6 @@ namespace LSEG.Ema.Access
                 m_handle = GCHandle.Alloc(Array);
 
                 OwnedByPool = true;
-                InPool = true;
             }
 
             public MsgTypeArray()
@@ -287,7 +282,6 @@ namespace LSEG.Ema.Access
                 Array[DataType.DataTypes.GENERIC_MSG - DataType.DataTypes.REQ_MSG] = new GenericMsg();
 
                 OwnedByPool = false;
-                InPool = true;
             }
         }
 
@@ -307,7 +301,6 @@ namespace LSEG.Ema.Access
             internal DataArray CreateElement(EmaObjectManager manager)
             {
                 DataArray dataArray = new DataArray(manager);
-                dataArray.InPool = true;
                 return dataArray;
             }
 
@@ -345,12 +338,12 @@ namespace LSEG.Ema.Access
             [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
             public void ReturnToPool(DataArray obj)
             {
-                obj.InPool = true;
                 if (!m_global)
                 {
-                    current--;
                     if (current == 0)
                         return;
+
+                    current--;
                     pool[current] = obj;
                 }
                 else
@@ -358,9 +351,10 @@ namespace LSEG.Ema.Access
                     Monitor.Enter(_lock);
                     try
                     {
-                        current--;
                         if (current == 0)
                             return;
+
+                        current--;
                         pool[current] = obj;
                     }
                     finally
@@ -437,9 +431,10 @@ namespace LSEG.Ema.Access
             {
                 if (!m_global)
                 {
-                    current--;
                     if (current == 0)
                         return;
+
+                    current--;
                     pool[current] = obj;
                 }
                 else
@@ -447,9 +442,10 @@ namespace LSEG.Ema.Access
                     Monitor.Enter(_lock);
                     try
                     {
-                        current--;
                         if (current == 0)
                             return;
+
+                        current--;
                         pool[current] = obj;
                     }
                     finally
@@ -487,7 +483,6 @@ namespace LSEG.Ema.Access
             internal MsgTypeArray CreateElement(EmaObjectManager manager)
             {
                 MsgTypeArray dataArray = new MsgTypeArray(manager);
-                dataArray.InPool = true;
                 return dataArray;
             }
 
@@ -527,10 +522,10 @@ namespace LSEG.Ema.Access
             {
                 if (!m_global)
                 {
-                    obj.InPool = true;
-                    current--;
                     if (current == 0)
                         return;
+
+                    current--;
                     pool[current] = obj;
                 }
                 else
@@ -538,10 +533,10 @@ namespace LSEG.Ema.Access
                     Monitor.Enter(_lock);
                     try
                     {
-                        obj.InPool = true;
-                        current--;
                         if (current == 0)
                             return;
+
+                        current--;
                         pool[current] = obj;
                     }
                     finally
@@ -657,21 +652,21 @@ namespace LSEG.Ema.Access
         {
             m_global = global;
 
-            m_ommArrayEnumeratorPool = new EmaPool<OmmArrayEnumerator>(initialPoolSize, () => { var res = new OmmArrayEnumerator(this); return res; });
-            m_ommFieldListEnumeratorPool = new EmaPool<FieldListEnumerator>(initialPoolSize, () => { var res = new FieldListEnumerator(); res.m_objectManager = this; return res; });
-            m_ommElementListEnumeratorPool = new EmaPool<ElementListEnumerator>(initialPoolSize, () => { var res = new ElementListEnumerator(); res.m_objectManager = this; return res; });
-            m_ommFilterListEnumeratorPool = new EmaPool<FilterListEnumerator>(initialPoolSize, () => { var res = new FilterListEnumerator(); res.m_objectManager = this; return res; });
-            m_ommSeriesEnumeratorPool = new EmaPool<SeriesEnumerator>(initialPoolSize, () => { var res = new SeriesEnumerator(); res.m_objectManager = this; return res; });
-            m_ommMapEnumeratorPool = new EmaPool<MapEnumerator>(initialPoolSize, () => { var res = new MapEnumerator(this); return res; });
-            m_ommVectorEnumeratorPool = new EmaPool<VectorEnumerator>(initialPoolSize, () => { var res = new VectorEnumerator(); res.m_objectManager = this; return res; });
+            m_ommArrayEnumeratorPool = new EmaPool<OmmArrayEnumerator>(initialPoolSize, () => new OmmArrayEnumerator(this), global: global);
+            m_ommFieldListEnumeratorPool = new EmaPool<FieldListEnumerator>(initialPoolSize, () => new FieldListEnumerator() { m_objectManager = this }, global: global);
+            m_ommElementListEnumeratorPool = new EmaPool<ElementListEnumerator>(initialPoolSize, () => new ElementListEnumerator() { m_objectManager = this }, global: global);
+            m_ommFilterListEnumeratorPool = new EmaPool<FilterListEnumerator>(initialPoolSize, () => new FilterListEnumerator() { m_objectManager = this }, global: global);
+            m_ommSeriesEnumeratorPool = new EmaPool<SeriesEnumerator>(initialPoolSize, () => new SeriesEnumerator() { m_objectManager = this }, global: global);
+            m_ommMapEnumeratorPool = new EmaPool<MapEnumerator>(initialPoolSize, () => new MapEnumerator(this), global: global);
+            m_ommVectorEnumeratorPool = new EmaPool<VectorEnumerator>(initialPoolSize, () => new VectorEnumerator() { m_objectManager = this }, global: global);
 
-            m_ommArrayErrorEnumeratorPool = new EmaPool<OmmArrayErrorEnumerator>(initialPoolSize, () => { var res = new OmmArrayErrorEnumerator(this); return res; });
-            m_ommFieldListErrorEnumeratorPool = new EmaPool<FieldListErrorEnumerator>(initialPoolSize, () => { var res = new FieldListErrorEnumerator(); res.m_objectManager = this; return res; });
-            m_ommElementListErrorEnumeratorPool = new EmaPool<ElementListErrorEnumerator>(initialPoolSize, () => { var res = new ElementListErrorEnumerator(); res.m_objectManager = this; return res; });
-            m_ommFilterListErrorEnumeratorPool = new EmaPool<FilterListErrorEnumerator>(initialPoolSize, () => { var res = new FilterListErrorEnumerator(); res.m_objectManager = this; return res; });
-            m_ommSeriesErrorEnumeratorPool = new EmaPool<SeriesErrorEnumerator>(initialPoolSize, () => { var res = new SeriesErrorEnumerator(); res.m_objectManager = this; return res; });
-            m_ommMapErrorEnumeratorPool = new EmaPool<MapErrorEnumerator>(initialPoolSize, () => { var res = new MapErrorEnumerator(); res.m_objectManager = this; return res; });
-            m_ommVectorErrorEnumeratorPool = new EmaPool<VectorErrorEnumerator>(initialPoolSize, () => { var res = new VectorErrorEnumerator(); res.m_objectManager = this; return res; });
+            m_ommArrayErrorEnumeratorPool = new EmaPool<OmmArrayErrorEnumerator>(initialPoolSize, () => new OmmArrayErrorEnumerator(this), global: global);
+            m_ommFieldListErrorEnumeratorPool = new EmaPool<FieldListErrorEnumerator>(initialPoolSize, () => new FieldListErrorEnumerator() { m_objectManager = this }, global: global);
+            m_ommElementListErrorEnumeratorPool = new EmaPool<ElementListErrorEnumerator>(initialPoolSize, () => new ElementListErrorEnumerator() { m_objectManager = this }, global: global);
+            m_ommFilterListErrorEnumeratorPool = new EmaPool<FilterListErrorEnumerator>(initialPoolSize, () => new FilterListErrorEnumerator() { m_objectManager = this }, global: global);
+            m_ommSeriesErrorEnumeratorPool = new EmaPool<SeriesErrorEnumerator>(initialPoolSize, () => new SeriesErrorEnumerator() { m_objectManager = this }, global: global);
+            m_ommMapErrorEnumeratorPool = new EmaPool<MapErrorEnumerator>(initialPoolSize, () => new MapErrorEnumerator() { m_objectManager = this }, global: global);
+            m_ommVectorErrorEnumeratorPool = new EmaPool<VectorErrorEnumerator>(initialPoolSize, () => new VectorErrorEnumerator() { m_objectManager = this }, global: global);
 
             m_ommOpaquePool = new EmaPool<OmmOpaque>(initialPoolSize, () => { var res = new OmmOpaque(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
                 global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
