@@ -13,11 +13,11 @@ if(NOT l8w8jwt_url)
 endif()
 
 if(NOT l8w8jwt_tag)
-	set(l8w8jwt_tag "2.3.4" CACHE STRING "l8w8jwt tag")
+	set(l8w8jwt_tag "2.4.0" CACHE STRING "l8w8jwt tag")
 endif()
 
 if(NOT l8w8jwt_version)
-	set(l8w8jwt_version "2.3.4" CACHE STRING "l8w8jwt version")
+	set(l8w8jwt_version "2.4.0" CACHE STRING "l8w8jwt version")
 endif()
 
 unset(_cfg_type)

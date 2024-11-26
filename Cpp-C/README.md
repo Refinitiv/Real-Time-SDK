@@ -23,10 +23,10 @@ External modules used by this version of RTSDK C/C++:
      openSSL               3.1.X  ** 
      ccron                 2.0.0
      cJSON                 1.7.18
-     curl                  8.9.1
+     curl                  8.11.0
      googletest            1.8.1 (for older than Linux7) and 1.12.1 
-     l8w8jwt               2.3.4
-     libxml2               2.13.3
+     l8w8jwt               2.4.0
+     libxml2               2.13.5
      lz4                   1.9.4 (for older than Linux7) and 1.10.0
      zlib                  1.3.1
 \* Tested on supported Linux and Windows platforms; \*\* Tested on supported Windows platform 

@@ -9,13 +9,13 @@
 include(rcdevExternalUtils)
 
 if(NOT curl_url)
-	set(curl_url "https://github.com/curl/curl/releases/download/curl-8_9_1/curl-8.9.1.tar.xz")
+	set(curl_url "https://github.com/curl/curl/releases/download/curl-8_11_0/curl-8.11.0.tar.xz")
 endif()
 if(NOT curl_hash)
-	set(curl_hash "MD5=5882f056460240d98cdb5b7f86a06153")
+	set(curl_hash "MD5=49dd886ac84ed3de693464f78f1ee926")
 endif()
 if(NOT curl_version)
-	set(curl_version "8.9.1")
+	set(curl_version "8.11.0")
 endif()
 
 # If the option for using the system installed 
