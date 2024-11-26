@@ -6,11 +6,14 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
 using LSEG.Eta.Rdm;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Reactor;
-using System;
-using System.Collections.Generic;
+
 using static LSEG.Ema.Access.EmaConfig;
 using static LSEG.Ema.Access.Tests.OmmConfigTests.ConfigTestsUtils;
 using static LSEG.Eta.Rdm.Directory;
@@ -35,8 +38,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             // Arrange
             var expectedProxyHost = "some-proxy.com";
             var expectedProxyPort = "1234";
-            var consumerConfig = LoadEmaBlankConfig();
-            var configImpl = consumerConfig.OmmConsConfigImpl;
+            var configImpl = LoadEmaBlankConfig().OmmConsConfigImpl;
 
             var emaConfigMap = new Map();
             var groupList = new ElementList();
@@ -1365,6 +1367,46 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.Equal(Dictionary.VerbosityValues.VERBOSE, testRole.RdmFieldDictionaryRequest?.Verbosity);
             Assert.Equal(10, testRole.RdmFieldDictionaryRequest?.ServiceId);
 
+        }
+
+        /// Parse programmatic config in concurrent threads in attempt to detect possible data races
+        [Fact]
+        public void ConcurrentParserTest()
+        {
+            // problems caused by data races are inherently probabalistic. This test attempts to
+            // create a reasonable number of concurrent threads performing programmatic config
+            // parsing. Distinct programmatic config parser instances are not expected to share
+            // state, but they might - via the EmaGlobalObjectPool.
+
+            int ATTEMPTS = 7;
+            int THREADS_COUNT = 23;
+
+            for (int attempts = 0; attempts < ATTEMPTS ; attempts++)
+            {
+                Thread[] parserThreads = new Thread[THREADS_COUNT];
+
+                var exceptions = new System.Collections.Concurrent.ConcurrentBag<Exception>();
+
+                for (int i = 0; i < parserThreads.Length; i++)
+                {
+                    parserThreads[i] = new Thread(new ThreadStart(() =>
+                    {
+                        try
+                        {
+                            RestProxyParamsLoadTest();
+                        }
+                        catch (Exception ex)
+                        {
+                            exceptions.Add(ex);
+                        }
+                    }));
+                }
+                Array.ForEach(parserThreads, (parserThread) => parserThread.Start());
+                Array.ForEach(parserThreads, (parserThread) => parserThread.Join());
+
+                Assert.Empty(exceptions);
+            }
+            // reaching this point without exceptions means that the test has passed
         }
     }
 }
