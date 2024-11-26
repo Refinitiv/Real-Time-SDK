@@ -8,6 +8,7 @@
 package com.refinitiv.ema.access;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystems;
@@ -937,7 +938,7 @@ class ConfigReader
 		 * If a configuration cannot be constructed from the given path, throw an
 		 * OmmInvalidConfigurationException exception
 		 *
-		 * @param path  XML Configuration file name
+		 * @param pathToXml  XML Configuration file name
 		 * 
 		 * @throws {@link OmmInvalidConfigurationException}
 		 */
@@ -952,16 +953,12 @@ class ConfigReader
 			{
 				try
 				{
-                    // validate XML Config only when the XML Schema file is present in the current working directory
-					if (Files.exists(Paths.get(defaultXsdFileName)))
-					{
-						Validator validator = initValidator(defaultXsdFileName);
-						validator.validate(new StreamSource(new File(xmlFileName)));
-					}
+					Validator validator = initValidator("/" + defaultXsdFileName);
+					validator.validate(new StreamSource(new File(xmlFileName)));
 				}
 				catch (IOException | SAXException e)
 				{
-					throw _parent.oommICExcept().message(e.getMessage());
+					throw _parent.oommICExcept().message("\nError validating XML configuration:\n" + e.getMessage());
 				}
 			}
 
@@ -1118,9 +1115,13 @@ class ConfigReader
 			return fileName;
 		}
 
-		private Validator initValidator(String pathToXsd) throws SAXException {
+		private Validator initValidator(String pathToXsd) throws SAXException, FileNotFoundException {
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Schema schema = factory.newSchema(new File(pathToXsd));
+			InputStream inputStream = ConfigReader.class.getResourceAsStream(pathToXsd);
+			if (inputStream == null) {
+				throw new FileNotFoundException("XML Schema file is absent");
+			}
+			Schema schema = factory.newSchema(new StreamSource(inputStream));
 			return schema.newValidator();
 		}
 

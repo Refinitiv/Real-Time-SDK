@@ -48,7 +48,7 @@ public class EmaFileConfigValidationTests
 	private static final String EMA_MALFORMED_CONFIG_FILE = "./src/test/resources/com/refinitiv/ema/unittest/EmaFileConfigTests/Malformed.xml";
 	private static final String EMA_DEFAULT_CONFIG_FILE = "../EmaConfig.xml";
 
-	private static final String EMA_SCHEMA_FILE = "../EmaConfig.xsd";
+	private static final String EMA_SCHEMA_FILE = "EmaConfig.xsd";
 
 	@DataPoints
 	public static String[] paths = { EMA_BLANK_CONFIG_FILE, EMA_MINIMAL_CONFIG_FILE, EMA_TEST_CONFIG_FILE, EMA_DEFAULT_CONFIG_FILE };
@@ -275,7 +275,7 @@ public class EmaFileConfigValidationTests
 
 		// Load schema and validate this generated document
 		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		Schema schema = factory.newSchema(new File(EMA_SCHEMA_FILE));
+		Schema schema = factory.newSchema(new File("../" + EMA_SCHEMA_FILE));
 		Validator validator = schema.newValidator();
 
 		validator.validate(new DOMSource(doc));

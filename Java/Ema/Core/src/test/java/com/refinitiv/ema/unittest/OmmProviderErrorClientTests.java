@@ -219,7 +219,7 @@ public class OmmProviderErrorClientTests {
             innerElementList.add(EmaFactory.createElementEntry().intValue( "PipePort", 4001 ));
             innerElementList.add(EmaFactory.createElementEntry().intValue( "ReconnectAttemptLimit", 10 ));
             innerElementList.add(EmaFactory.createElementEntry().intValue( "ReconnectMinDelay", 2000 ));
-            innerElementList.add(EmaFactory.createElementEntry().intValue( "ReconnectMaxDelay", 6000 ));
+            innerElementList.add(EmaFactory.createElementEntry().intValue( "ReconnectMaxDelay", 3000 ));
             innerElementList.add(EmaFactory.createElementEntry().intValue( "XmlTraceToStdout", 0 ));
             innerElementList.add(EmaFactory.createElementEntry().intValue( "XmlTraceToFile", 0 ));
             innerElementList.add(EmaFactory.createElementEntry().intValue( "XmlTraceWrite", 0 ));
@@ -285,7 +285,7 @@ public class OmmProviderErrorClientTests {
                         .serviceName("DIRECT_FEED")
                         .name("IBM.N"), consumerClient, consumer);
 
-                Thread.sleep(3000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+                Thread.sleep(6000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
             }
             catch (Exception e) {
                 // Do nothing
@@ -302,7 +302,7 @@ public class OmmProviderErrorClientTests {
         }
     }
 
-    private static Map createProgrammaticConfig()
+    private static Map createProgrammaticConfig(String port)
     {
         Map innerMap = EmaFactory.createMap();
         Map configMap = EmaFactory.createMap();
@@ -337,7 +337,7 @@ public class OmmProviderErrorClientTests {
         innerElementList.add( EmaFactory.createElementEntry().intValue( "ConnectionPingTimeout", 30000 ));
         innerElementList.add( EmaFactory.createElementEntry().intValue( "TcpNodelay", 1 ));
         innerElementList.add( EmaFactory.createElementEntry().intValue( "MaxFragmentSize", 6144 ));
-        innerElementList.add( EmaFactory.createElementEntry().ascii( "Port", "14002"));
+        innerElementList.add( EmaFactory.createElementEntry().ascii( "Port", port));
         innerElementList.add( EmaFactory.createElementEntry().ascii( "WsProtocols", "rssl.json.v2, rssl.rwf, tr_json2"));
 
         innerMap.add( EmaFactory.createMapEntry().keyAscii( "Server_A", MapEntry.MapAction.ADD, innerElementList));
@@ -435,15 +435,16 @@ public class OmmProviderErrorClientTests {
     public void fidIsAbsentInDictionary_onJsonConverterErrorCallback() {
         TestUtilities.printTestHead("fidIsAbsentInDictionary_onJsonConverterErrorCallback", "Receiving Fid doesn't defined in Dictionary, error handling by onJsonConverterError callback");
 
+        final String port = "14005";
         OmmProvider provider = null;
-        OmmProviderErrorClientTests.ConsumerThread consumerThread = new OmmProviderErrorClientTests.ConsumerThread("14002");
+        OmmProviderErrorClientTests.ConsumerThread consumerThread = new OmmProviderErrorClientTests.ConsumerThread(port);
 
         try {
             OmmProviderErrorClientTests.AppProviderClient providerClient = new OmmProviderErrorClientTests.AppProviderClient();
             OmmProviderErrorClientTests.AppErrorClient appErrorClient = new OmmProviderErrorClientTests.AppErrorClient();
 
             provider = EmaFactory.createOmmProvider( EmaFactory.createOmmIProviderConfig()
-                    .config( createProgrammaticConfig()), providerClient, appErrorClient);
+                    .config( createProgrammaticConfig(port)), providerClient, appErrorClient);
 
             consumerThread.start();
 
@@ -473,15 +474,16 @@ public class OmmProviderErrorClientTests {
     public void fidIsAbsentInDictionary_UserDispatch_ExceptionThrown() {
         TestUtilities.printTestHead("fidIsAbsentInDictionary_UserDispatch_ExceptionThrown", "Receiving Fid doesn't defined in Dictionary, there is no OmmProviderErrorClient, USER_DISPATCH operation model, OmmException is thrown");
 
+        final String port = "14006";
         boolean JsonConverterErrorThrown = false;
         OmmProvider provider = null;
-        OmmProviderErrorClientTests.ConsumerThread consumerThread = new OmmProviderErrorClientTests.ConsumerThread("14002");
+        OmmProviderErrorClientTests.ConsumerThread consumerThread = new OmmProviderErrorClientTests.ConsumerThread(port);
 
         try {
             OmmProviderErrorClientTests.AppProviderClient providerClient = new OmmProviderErrorClientTests.AppProviderClient();
 
             provider = EmaFactory.createOmmProvider( EmaFactory.createOmmIProviderConfig()
-                    .config(createProgrammaticConfig()).operationModel(OmmIProviderConfig.OperationModel.USER_DISPATCH), providerClient );
+                    .config(createProgrammaticConfig(port)).operationModel(OmmIProviderConfig.OperationModel.USER_DISPATCH), providerClient );
 
             consumerThread.start();
 
@@ -490,7 +492,7 @@ public class OmmProviderErrorClientTests {
                 Thread.sleep(1000);
             }
 
-            provider.dispatch(1000);
+            provider.dispatch(3000);
         }
         catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
@@ -517,14 +519,15 @@ public class OmmProviderErrorClientTests {
     public void fidIsAbsentInDictionary_ApiDispatch_NoException() {
         TestUtilities.printTestHead("fidIsAbsentInDictionary_ApiDispatch_NoException", "Receiving Fid doesn't defined in Dictionary, there is no OmmProviderErrorClient, API_DISPATCH operation model, OmmException isn't thrown");
 
+        final String port = "14007";
         OmmProvider provider = null;
-        OmmProviderErrorClientTests.ConsumerThread consumerThread = new OmmProviderErrorClientTests.ConsumerThread("14002");
+        OmmProviderErrorClientTests.ConsumerThread consumerThread = new OmmProviderErrorClientTests.ConsumerThread(port);
 
         try {
             OmmProviderErrorClientTests.AppProviderClient providerClient = new OmmProviderErrorClientTests.AppProviderClient();
 
             provider = EmaFactory.createOmmProvider( EmaFactory.createOmmIProviderConfig()
-                    .config( createProgrammaticConfig()), providerClient);
+                    .config( createProgrammaticConfig(port)), providerClient);
 
             consumerThread.start();
 
