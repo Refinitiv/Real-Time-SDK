@@ -8710,7 +8710,53 @@ public class Reactor
 			submitChannel = wsbHandler.channelList().get(i);
 			
 			if(submitChannel.watchlist().directoryHandler()._serviceCache.initDirectory == false)
-				continue;
+			{
+				if (msg.domainType() != DomainTypes.LOGIN && 
+						msg.msgClass() == MsgClasses.REQUEST)
+				{
+					if(wsbGroup.sendQueueReqForAll)
+					{
+						if(submitChannel.sendReqFromQueue)
+						{
+							wsbGroup.sendQueueReqForAll = false; // Reset this flag to get message from the queue later once the service is available
+							wsbGroup.sendReqQueueCount--; // Reduce the counter for this channel
+							submitChannel.sendReqFromQueue = false; // Reset to send from the queue again
+							
+							if (wsbHandler.freeSubmitMsgQueue().size() > 0)
+								submitOpts = wsbHandler.freeSubmitMsgQueue().remove(0);
+							else
+								submitOpts = new ReactorWLSubmitMsgOptions();
+	
+							if (msg.copy(submitOpts.msg, CopyMsgFlags.ALL_FLAGS) == CodecReturnCodes.FAILURE)
+							{
+								return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, "reactor.submitWSBMsg",
+										"Cannot copy submit message options");
+							}
+	
+							submitOpts.submitOptions.serviceName(submitOptions.serviceName());
+							submitOpts.submitOptions.requestMsgOptions()
+									.userSpecObj(submitOptions.requestMsgOptions().userSpecObj());
+	
+							addMsgToQueue = true;
+							submitOpts.submitTime = System.nanoTime();
+						}
+					}
+					else
+					{
+						if(submitChannel.sendReqFromQueue)
+						{
+							wsbGroup.sendReqQueueCount--; // Reduce the counter for this channel
+							submitChannel.sendReqFromQueue = false; // Reset to send from the queue again
+						}
+					}
+					
+					continue;
+				}
+				else if(msg.msgClass() != MsgClasses.CLOSE)
+				{
+					continue;
+				}
+			}
 
 			switch (msg.msgClass())
 			{
@@ -8890,13 +8936,18 @@ public class Reactor
 				}
 			}
 
-			if (ret != ReactorReturnCodes.SUCCESS || stopSubmitLoop)
+			if (ret != ReactorReturnCodes.SUCCESS)
 			{
 				break;
 			}
+			else
+			{
+				submitChannel.lastSubmitOptionsTime = System.nanoTime();
+				
+				if(stopSubmitLoop)
+					break;
+			}
 		}
-		
-		this._reactorChannel.lastSubmitOptionsTime = System.nanoTime();
 
 		if (addMsgToQueue)
 		{

@@ -2872,8 +2872,25 @@ class WlItemHandler implements WlHandler
 	        			sendChannelDownText = false;
 	        		}
         		}
+        		
+        		// Checks whether there is a channel down for others channel.
+        		ReactorChannel processChannel;
+        		boolean hasChannelDown = false;
+        		for (int i = 0; i < wsbHandler.channelList().size(); i++)
+        		{
+        			processChannel = wsbHandler.channelList().get(i);
 
-        		if(hasService == false)
+        			if (_watchlist.reactorChannel() != null && processChannel != _watchlist.reactorChannel())
+        			{
+        				if(processChannel.state() != ReactorChannel.State.READY || processChannel.state() != ReactorChannel.State.UP)
+        				{
+        					hasChannelDown = true;
+        					break;
+        				}
+        			}
+        		}
+
+        		if(!hasChannelDown && hasService == false)
         		{
         			forceClose = true;
         			sendChannelDownText = false;
