@@ -36,19 +36,19 @@ namespace LSEG.Eta.Transports
         {
             if (channel == null)
             {
-                error = new Error(errorId: TransportReturnCode.FAILURE, text: "Input Channel must not be null.\n");
+                error = new Error(errorId: TransportReturnCode.FAILURE, text: $"Input Channel must not be null.{NewLine}");
                 return TransportReturnCode.FAILURE;
             }
 
             if (buffer == null)
             {
-                error = new Error(errorId: TransportReturnCode.FAILURE, text: "Input TransportBuffer must not be null.\n");
+                error = new Error(errorId: TransportReturnCode.FAILURE, text: $"Input TransportBuffer must not be null.{NewLine}");
                 return TransportReturnCode.FAILURE;
             }
 
             if (buffer.Length() <= 0)
             {
-                error = new Error(errorId: TransportReturnCode.FAILURE, text: "Buffer of length zero cannot be dumped.\n");
+                error = new Error(errorId: TransportReturnCode.FAILURE, text: $"Buffer of length zero cannot be dumped.{NewLine}");
                 return TransportReturnCode.FAILURE;
             }
 
@@ -60,7 +60,7 @@ namespace LSEG.Eta.Transports
                 result = xmlDumpMsg.DecodeToXml(xmlDumpIterator, dataDictionary);
             } else
             {
-                error = new Error(errorId: TransportReturnCode.FAILURE, text: "Unsupported protocol type: " + protocolType + "\n");
+                error = new Error(errorId: TransportReturnCode.FAILURE, text: "Unsupported protocol type: " + protocolType + NewLine);
                 return TransportReturnCode.FAILURE;
             }
 
@@ -84,13 +84,13 @@ namespace LSEG.Eta.Transports
         {
             if (buffer == null)
             {
-                error = new Error(errorId: TransportReturnCode.FAILURE, text: "Input TransportBuffer must not be null.\n");
+                error = new Error(errorId: TransportReturnCode.FAILURE, text: $"Input TransportBuffer must not be null.{NewLine}");
                 return TransportReturnCode.FAILURE;
             }
 
             if (buffer.GetLength() <= 0)
             {
-                error = new Error(errorId: TransportReturnCode.FAILURE, text: "Buffer of length zero cannot be dumped.\n");
+                error = new Error(errorId: TransportReturnCode.FAILURE, text: $"Buffer of length zero cannot be dumped.{NewLine}");
                 return TransportReturnCode.FAILURE;
             }
 
@@ -103,7 +103,7 @@ namespace LSEG.Eta.Transports
             }
             else
             {
-                error = new Error(errorId: TransportReturnCode.FAILURE, text: "Unsupported protocol type: " + protocolType + "\n");
+                error = new Error(errorId: TransportReturnCode.FAILURE, text: "Unsupported protocol type: " + protocolType + NewLine);
                 return TransportReturnCode.FAILURE;
             }
 

@@ -158,7 +158,7 @@ namespace LSEG.Eta.Transports
             string s = "";
             if (Context != null)
             {
-                s = Context + "\n";
+                s = Context + NewLine;
             }
 
             s += m_message;

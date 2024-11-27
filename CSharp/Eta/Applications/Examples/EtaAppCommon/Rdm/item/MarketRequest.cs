@@ -429,22 +429,22 @@ namespace LSEG.Eta.Example.Common
             stringBuf.Append(tab);
             stringBuf.Append("streaming: ");
             stringBuf.Append(Streaming);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("domain: ");
             stringBuf.Append(DomainTypes.ToString(DomainType));
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("isPrivateStream: ");
             stringBuf.Append(PrivateStream);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("hasView: ");
             stringBuf.Append(HasView);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (!HasIdentifier())
             {
@@ -455,14 +455,14 @@ namespace LSEG.Eta.Example.Common
                     stringBuf.Append(name);
                     stringBuf.Append(" ");
                 }         
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             else
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("Identifier: ");
                 stringBuf.Append(Identifier);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasServiceId)
@@ -470,7 +470,7 @@ namespace LSEG.Eta.Example.Common
                 stringBuf.Append(tab);
                 stringBuf.Append("serviceId: ");
                 stringBuf.Append(ServiceId);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasPriority)
             {
@@ -479,14 +479,14 @@ namespace LSEG.Eta.Example.Common
                 stringBuf.Append(PriorityClass);
                 stringBuf.Append(", priority count: ");
                 stringBuf.Append(PriorityCount);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasQos)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("qos: ");
                 stringBuf.Append(Qos.ToString());
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

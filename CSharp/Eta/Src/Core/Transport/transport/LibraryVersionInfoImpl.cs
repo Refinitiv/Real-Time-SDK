@@ -47,9 +47,9 @@ namespace LSEG.Eta.Transports
         /// <returns>The string value</returns>
         public override string ToString()
         {
-            return "Enterprise Transport API (ETA), C# Edition, LibraryVersionInfo" + "\n" +
-               "\tproductVersion: " + m_ProductVersion + "\n" +
-               "\tproductInternalVersion: " + m_ProductInternalVersion + "\n" +
+            return "Enterprise Transport API (ETA), C# Edition, LibraryVersionInfo" + NewLine +
+               "\tproductVersion: " + m_ProductVersion + NewLine +
+               "\tproductInternalVersion: " + m_ProductInternalVersion + NewLine +
                "\tproductDate: " + m_ProductDate;
         }
     }

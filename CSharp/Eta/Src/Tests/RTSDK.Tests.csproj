@@ -9,7 +9,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>namekeys.snk</AssemblyOriginatorKeyFile>
     <AssemblyName>ESDK.Tests</AssemblyName>
-    <BaseOutputPath>$(SolutionDir)Eta\Executables\RTSDK.Tests</BaseOutputPath>
+    <BaseOutputPath>$(ProjectDir)..\..\Executables\RTSDK.Tests</BaseOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -125,8 +125,8 @@ namespace LSEG.Ema.Access
             m_ToString.Length = 0;
 
             Utilities.AddIndent(m_ToString, indent);
-            m_ToString.Append("Opaque\n").Append(EmaUtility.AsHexString(AsHex()));
-            Utilities.AddIndent(m_ToString.Append("\n"), indent).Append("OpaqueEnd\n");
+            m_ToString.Append($"Opaque{NewLine}").Append(EmaUtility.AsHexString(AsHex()));
+            Utilities.AddIndent(m_ToString.AppendLine(), indent).Append($"OpaqueEnd{NewLine}");
 
             return m_ToString.ToString();
         }

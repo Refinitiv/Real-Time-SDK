@@ -166,31 +166,31 @@ namespace LSEG.Eta.Example.Common
             toStringBuilder.Append(tab);
             toStringBuilder.Append("state: ");
             toStringBuilder.Append(State);
-            toStringBuilder.Append(eol);
+            toStringBuilder.AppendLine();
 
             toStringBuilder.Append(tab);
             toStringBuilder.Append("solicited: ");
             toStringBuilder.Append(Solicited);
-            toStringBuilder.Append(eol);
+            toStringBuilder.AppendLine();
 
             toStringBuilder.Append(tab);
             toStringBuilder.Append("refreshComplete: ");
             toStringBuilder.Append(RefreshComplete);
-            toStringBuilder.Append(eol);
+            toStringBuilder.AppendLine();
 
             if (HasServiceId)
             {
                 toStringBuilder.Append(tab);
                 toStringBuilder.Append("serviceId: ");
                 toStringBuilder.Append(ServiceId);
-                toStringBuilder.Append(eol);
+                toStringBuilder.AppendLine();
             }
             if (HasQos)
             {
                 toStringBuilder.Append(tab);
                 toStringBuilder.Append("qos: ");
                 toStringBuilder.Append(m_RefreshMsg.Qos.ToString());
-                toStringBuilder.Append(eol);
+                toStringBuilder.AppendLine();
             }
 
             return toStringBuilder.ToString();

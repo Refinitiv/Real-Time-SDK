@@ -251,7 +251,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder toStringBuilder = PrepareStringBuilder();
-            toStringBuilder.Insert(0, "LoginConsumerConnectionStatus: \n");
+            toStringBuilder.Insert(0, $"LoginConsumerConnectionStatus: {NewLine}");
 
             if (HasWarmStandbyInfo)
             {

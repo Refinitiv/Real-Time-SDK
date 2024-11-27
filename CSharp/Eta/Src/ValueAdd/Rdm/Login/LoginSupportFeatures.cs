@@ -233,7 +233,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
         }
 
         private StringBuilder stringBuf = new StringBuilder();
-        private const string eol = "\n";
         private const string tab = "\t";
 
         /// <summary>
@@ -327,70 +326,70 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportBatchRequests: ");
                 stringBuf.Append(SupportBatchRequests);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasSupportBatchReissues)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportBatchReissues: ");
                 stringBuf.Append(SupportBatchReissues);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasSupportBatchCloses)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportBatchCloses: ");
                 stringBuf.Append(SupportBatchCloses);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasSupportPost)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportOMMPost: ");
                 stringBuf.Append(SupportOMMPost);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasSupportOptimizedPauseResume)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportOptimizedPauseResume: ");
                 stringBuf.Append(SupportOptimizedPauseResume);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasSupportStandby)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportStandby: ");
                 stringBuf.Append(SupportStandby);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasSupportViewRequests)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportViewRequests: ");
                 stringBuf.Append(SupportViewRequests);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasSupportProviderDictionaryDownload)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportProviderDictionaryDownload: ");
                 stringBuf.Append(SupportProviderDictionaryDownload);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasSupportEnhancedSymbolList)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportEnhancedSymbolList: ");
                 stringBuf.Append(SupportEnhancedSymbolList);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasSupportStandbyMode)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportStandbyMode: ");
                 stringBuf.Append(SupportStandbyMode);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

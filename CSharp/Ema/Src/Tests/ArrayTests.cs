@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -17,8 +17,13 @@ using Xunit.Abstractions;
 
 namespace LSEG.Ema.Access.Tests;
 
-public class ArrayTests
+public class ArrayTests : IDisposable
 {
+    public void Dispose()
+    {
+        EtaGlobalPoolTestUtil.Clear();
+    }
+
     private const int DEFAULT_BUFFER_SIZE = 1024;
 
     ITestOutputHelper output;
@@ -1783,7 +1788,7 @@ public class ArrayTests
         if (fixedSize)
             encArray.FixedWidth = 4;
 
-        encArray.AddInt(-11).AddInt(22).AddInt(-33).Complete();
+        encArray.AddInt(-11).AddInt(22).AddInt(-33).MarkForClear().Complete();
 
         // Now do ETA decoding of OmmArray of Ints
         Eta.Codec.Array array = new();
@@ -1835,7 +1840,7 @@ public class ArrayTests
         else
             encArray.AddBuffer(buff);
 
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // decode
 
@@ -1964,7 +1969,7 @@ public class ArrayTests
         else
             encArray.AddBuffer(new EmaBuffer(Encoding.ASCII.GetBytes("KLMNOPQRS")));
 
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         decArray = new();
 
@@ -2122,7 +2127,7 @@ public class ArrayTests
         // compare with original
         TestUtilities.EmaDecode_ETAArrayAll(arrayDecCopy);
 
-        output.WriteLine("\ntestArray_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA passed");
+        output.WriteLine($"{NewLine}testArray_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA passed");
     }
 #endif
 
@@ -2131,21 +2136,21 @@ public class ArrayTests
     {
         {
             OmmArray arr = new();
-            Assert.Throws<OmmInvalidUsageException>(() => arr.Complete());
+            Assert.Throws<OmmInvalidUsageException>(() => arr.MarkForClear().Complete());
         }
 
         {
             OmmArray arr = new();
             arr.AddAscii("entry 1");
             Assert.Throws<OmmInvalidUsageException>(() => arr.AddUInt(123));
-            arr.Complete();
+            arr.MarkForClear().Complete();
         }
 
         {
             OmmArray arr = new();
             arr.AddAscii("entry 1");
             Assert.Throws<OmmInvalidUsageException>(() => arr.AddCodeUInt());
-            arr.Complete();
+            arr.MarkForClear().Complete();
         }
 
         {
@@ -2153,21 +2158,21 @@ public class ArrayTests
             double d1 = 1.0;
             arr.AddDouble(d1);
             Assert.Throws<OmmInvalidUsageException>(() => arr.AddRealFromDouble(d1));
-            arr.Complete();
+            arr.MarkForClear().Complete();
         }
 
         {
             OmmArray arr = new();
             arr.AddCodeUInt();
             Assert.Throws<OmmInvalidUsageException>(() => arr.AddAscii("entry 1"));
-            arr.Complete();
+            arr.MarkForClear().Complete();
         }
 
         {
             OmmArray arr = new OmmArray();
             arr.AddAscii("entry 1");
             arr.AddAscii("entry 2");
-            arr.Complete();
+            arr.MarkForClear().Complete();
 
             Assert.Throws<OmmInvalidUsageException>(() => arr.AddAscii("entry 3"));
         }
@@ -2176,7 +2181,7 @@ public class ArrayTests
             OmmArray arr = new();
             arr.AddAscii("entry 1");
             arr.AddAscii("entry 2");
-            arr.Complete();
+            arr.MarkForClear().Complete();
 
             arr.Clear();
 
@@ -2194,7 +2199,7 @@ public class ArrayTests
         if (fixedSize)
             encArray.FixedWidth = 8;
 
-        encArray.AddInt(-11).AddInt(22).AddInt(-33).Complete();
+        encArray.AddInt(-11).AddInt(22).AddInt(-33).MarkForClear().Complete();
 
         DecodeIterator decodeIter = new DecodeIterator();
         decodeIter.SetBufferAndRWFVersion(encArray!.Encoder!.m_encodeIterator!.Buffer(),
@@ -2275,7 +2280,7 @@ public class ArrayTests
             encArray.AddCodeInt();
 
         encArray.AddInt(-33);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -2380,7 +2385,7 @@ public class ArrayTests
         if (fixedSize)
             encArray.FixedWidth = 8;
 
-        encArray.AddUInt(11).AddUInt(22).AddUInt(33).Complete();
+        encArray.AddUInt(11).AddUInt(22).AddUInt(33).MarkForClear().Complete();
 
         DecodeIterator decodeIter = new DecodeIterator();
         decodeIter.SetBufferAndRWFVersion(encArray!.Encoder!.m_encodeIterator!.Buffer(),
@@ -2459,7 +2464,7 @@ public class ArrayTests
             encArray.AddCodeUInt();
 
         encArray.AddUInt(33);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -2567,7 +2572,7 @@ public class ArrayTests
         if (fixedSize)
             encArray.FixedWidth = 4;
 
-        encArray.AddFloat(-11.11f).AddFloat(22.22f).AddFloat(-33.33f).Complete();
+        encArray.AddFloat(-11.11f).AddFloat(22.22f).AddFloat(-33.33f).MarkForClear().Complete();
 
         DecodeIterator decodeIter = new DecodeIterator();
         decodeIter.SetBufferAndRWFVersion(encArray!.Encoder!.m_encodeIterator!.Buffer(),
@@ -2646,7 +2651,7 @@ public class ArrayTests
             encArray.AddCodeFloat();
 
         encArray.AddFloat(-33.33f);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         decodeIter = new DecodeIterator();
         decodeIter.SetBufferAndRWFVersion(encArray!.Encoder!.m_encodeIterator!.Buffer(),
@@ -2753,7 +2758,7 @@ public class ArrayTests
         if (fixedSize)
             encArray.FixedWidth = 8;
 
-        encArray.AddDouble(-11.1111).AddDouble(22.2222).AddDouble(-33.3333).Complete();
+        encArray.AddDouble(-11.1111).AddDouble(22.2222).AddDouble(-33.3333).MarkForClear().Complete();
 
         // Decoding
 
@@ -2834,7 +2839,7 @@ public class ArrayTests
             encArray.AddCodeDouble();
 
         encArray.AddDouble(-33.3333);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -2952,7 +2957,7 @@ public class ArrayTests
                 .AddReal(11, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                 .AddReal(22, OmmReal.MagnitudeTypes.DIVISOR_2)
                 .AddReal(-33, OmmReal.MagnitudeTypes.DIVISOR_2)
-                .Complete();
+                .MarkForClear().Complete();
         }
         catch (OmmInvalidUsageException exp)
         {
@@ -3033,7 +3038,7 @@ public class ArrayTests
         encArray.AddReal(22, OmmReal.MagnitudeTypes.DIVISOR_2);
         encArray.AddCodeReal();
         encArray.AddReal(-33, OmmReal.MagnitudeTypes.DIVISOR_2);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -3132,7 +3137,7 @@ public class ArrayTests
         encArray.AddDate(1111, 11, 1);
         encArray.AddDate(2222, 2, 2);
         encArray.AddDate(3333, 3, 3);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         //Decoding
 
@@ -3215,7 +3220,7 @@ public class ArrayTests
         encArray.AddDate(2222, 2, 2);
         encArray.AddCodeDate();
         encArray.AddDate(3333, 3, 3);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         //Decoding
 
@@ -3343,7 +3348,7 @@ public class ArrayTests
 
         encArray.AddTime(04, 05, 06, 07);
         encArray.AddTime(14, 15, 16, 17);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -3433,7 +3438,7 @@ public class ArrayTests
         encArray.AddTime(04, 05, 06, 07);
         encArray.AddCodeTime();
         encArray.AddTime(14, 15, 16, 17);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -3551,7 +3556,7 @@ public class ArrayTests
         encArray.AddDateTime(2222, 2, 2, 14, 15, 16, 17);
         encArray.AddDateTime(3333, 3, 3, 14, 15, 16, 17);
 
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         //Decoding
 
@@ -3663,7 +3668,7 @@ public class ArrayTests
 
         encArray.AddDateTime(3333, 3, 3, 14, 15, 16, 17);
 
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         //Decoding
 
@@ -3816,7 +3821,7 @@ public class ArrayTests
         encArray.AddQos(OmmQos.Timelinesses.INEXACT_DELAYED, 659);
         encArray.AddQos(938u, OmmQos.Rates.JUST_IN_TIME_CONFLATED);
         encArray.AddQos(70000u, 80000u);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -3966,7 +3971,7 @@ public class ArrayTests
         encArray.AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.JUST_IN_TIME_CONFLATED);
         encArray.AddCodeQos();
         encArray.AddQos(555u, 7777u);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -4102,7 +4107,7 @@ public class ArrayTests
 
         encArray.AddState(OmmState.StreamStates.CLOSED_RECOVER, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.TIMEOUT, "Suspect Data");
         encArray.AddState(OmmState.StreamStates.CLOSED, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.USAGE_ERROR, "Usage Error");
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -4201,7 +4206,7 @@ public class ArrayTests
         encArray.AddState(OmmState.StreamStates.CLOSED_RECOVER, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.TIMEOUT, "Suspect Data");
         encArray.AddCodeState();
         encArray.AddState(OmmState.StreamStates.CLOSED, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.USAGE_ERROR, "Usage Error");
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         //Decoding
 
@@ -4325,7 +4330,7 @@ public class ArrayTests
         encArray.AddEnum(29);
         encArray.AddEnum(5300);
         encArray.AddEnum(8100);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -4410,7 +4415,7 @@ public class ArrayTests
         if (!fixedSize)
             encArray.AddCodeEnum();
         encArray.AddEnum(8100);
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -4538,7 +4543,7 @@ public class ArrayTests
             }
         }
 
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         DecodeIterator decodeIter = new DecodeIterator();
         decodeIter.SetBufferAndRWFVersion(encArray!.Encoder!.m_encodeIterator!.Buffer(),
@@ -4627,7 +4632,7 @@ public class ArrayTests
             encArray.AddCodeUtf8();
             encArray.AddUtf8(new EmaBuffer(Encoding.UTF8.GetBytes("KLMNOPQRS")));
         }
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 
@@ -4759,7 +4764,7 @@ public class ArrayTests
             }
         }
 
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         DecodeIterator decodeIter = new DecodeIterator();
         decodeIter.SetBufferAndRWFVersion(encArray!.Encoder!.m_encodeIterator!.Buffer(),
@@ -4862,7 +4867,7 @@ public class ArrayTests
             }
         }
 
-        encArray.Complete();
+        encArray.MarkForClear().Complete();
 
         // Decoding
 

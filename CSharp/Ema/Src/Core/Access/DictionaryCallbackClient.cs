@@ -1315,7 +1315,7 @@ internal class DictionaryItem<T> : SingleItem<T>, ITimeoutClient
 
                     temp.Append("Invalid ReqMsg's name : ")
                         .Append(m_Name)
-                        .Append("\nReqMsg's name must be \"").Append(DictionaryCallbackClient<T>.DICTIONARY_RWFFID)
+                        .Append($"{NewLine}ReqMsg's name must be \"").Append(DictionaryCallbackClient<T>.DICTIONARY_RWFFID)
                         .Append("\" or \"").Append(DictionaryCallbackClient<T>.DICTIONARY_RWFENUM).Append("\" for MMT_DICTIONARY domain type. ")
                         .Append("Instance name='").Append(m_OmmBaseImpl.InstanceName).Append("'.");
 

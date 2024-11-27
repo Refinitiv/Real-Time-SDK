@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -16,8 +16,14 @@ using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class EmaMsgTests
+    public class EmaMsgTests : IDisposable
     {
+        public void Dispose()
+        {
+            EtaGlobalPoolTestUtil.Clear();
+            EtaGlobalPoolTestUtil.CheckEtaGlobalPoolSizes();
+        }
+
         bool[] values = { true, false };
         int[] msgDataTypes = {(int)DataType.DataTypes.UPDATE_MSG, (int)DataType.DataTypes.REFRESH_MSG, (int)DataType.DataTypes.STATUS_MSG,
             (int)DataType.DataTypes.REQ_MSG, (int)DataType.DataTypes.ACK_MSG, (int)DataType.DataTypes.GENERIC_MSG, (int)DataType.DataTypes.POST_MSG };
@@ -103,7 +109,7 @@ namespace LSEG.Ema.Access.Tests
                                                                     reqMsg.ClearAndReturnToPool_All();
                                                                     decodeMsg.ClearAndReturnToPool_All();
                                                                 }
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -176,7 +182,7 @@ namespace LSEG.Ema.Access.Tests
                                                                             refMsg.ClearAndReturnToPool_All();
                                                                             decodeMsg.ClearAndReturnToPool_All();                                                                            
                                                                         }
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -249,7 +255,7 @@ namespace LSEG.Ema.Access.Tests
                                                                 updateMsg.ClearAndReturnToPool_All();
                                                                 decodeMsg.ClearAndReturnToPool_All();
                                                             }
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -318,7 +324,7 @@ namespace LSEG.Ema.Access.Tests
                                                                 statusMsg.ClearAndReturnToPool_All();
                                                                 decodeMsg.ClearAndReturnToPool_All();
                                                             }
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -387,7 +393,7 @@ namespace LSEG.Ema.Access.Tests
                                                             }
 
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -453,7 +459,7 @@ namespace LSEG.Ema.Access.Tests
                                                                 postMsg.ClearAndReturnToPool_All();
                                                                 decodeMsg.ClearAndReturnToPool_All();
                                                             }
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -514,7 +520,7 @@ namespace LSEG.Ema.Access.Tests
                                                     decodeMsg.ClearAndReturnToPool_All();
                                                 }
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -535,10 +541,10 @@ namespace LSEG.Ema.Access.Tests
             ElementList payload = m_objectManager.GetOmmElementList();
             OmmArray array = m_objectManager.GetOmmArray();          
             payload.AddArray(":ItemList", array);
-            array.AddAscii("TRI.N").AddAscii("IBM.N").Complete();
-            payload.Complete();
-            reqMsg.Payload(payload);
-            reqMsg.EncodeComplete();
+            array.AddAscii("TRI.N").AddAscii("IBM.N").MarkForClear().Complete();
+            payload.MarkForClear().Complete();
+            reqMsg.MarkForClear().Payload(payload);
+            reqMsg.MarkForClear().EncodeComplete();
 
             Assert.Equal(2, ((RequestMsgEncoder)reqMsg.Encoder!).BatchItemList!.Count);
             Assert.True(reqMsg.m_rsslMsg.CheckHasBatch());
@@ -547,7 +553,7 @@ namespace LSEG.Ema.Access.Tests
             RequestMsg decodedReqMsg = m_objectManager.GetOmmRequestMsg();
 
             Assert.Equal(CodecReturnCode.SUCCESS, decodedReqMsg.Decode(body, Codec.MajorVersion(), Codec.MinorVersion(), dictionary, null));
-            var decodedPayload = decodedReqMsg.Payload();
+            var decodedPayload = decodedReqMsg.MarkForClear().Payload();
             Assert.Equal(DataTypes.ELEMENT_LIST, decodedPayload.DataType);
             var elementList = decodedPayload.ElementList();
             int count = 0;
@@ -579,7 +585,7 @@ namespace LSEG.Ema.Access.Tests
             payload.ClearAndReturnToPool_All();
             array.ClearAndReturnToPool_All();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -598,12 +604,12 @@ namespace LSEG.Ema.Access.Tests
             reqMsg.StreamId(5);
 
             ElementList payload = m_objectManager.GetOmmElementList();
-            reqMsg.Payload(payload);
+            reqMsg.MarkForClear().Payload(payload);
             OmmArray array = m_objectManager.GetOmmArray();
             payload.AddArray(":ItemList", array);
-            array.AddAscii("TRI.N").AddAscii("IBM.N").Complete();
-            payload.Complete();       
-            reqMsg.EncodeComplete();
+            array.AddAscii("TRI.N").AddAscii("IBM.N").MarkForClear().Complete();
+            payload.MarkForClear().Complete();       
+            reqMsg.MarkForClear().EncodeComplete();
 
             Assert.Equal(2, ((RequestMsgEncoder)reqMsg.Encoder!).BatchItemList!.Count);
             Assert.True(reqMsg.m_rsslMsg.CheckHasBatch());
@@ -612,7 +618,7 @@ namespace LSEG.Ema.Access.Tests
             RequestMsg decodedReqMsg = m_objectManager.GetOmmRequestMsg();
 
             Assert.Equal(CodecReturnCode.SUCCESS, decodedReqMsg.Decode(body, Codec.MajorVersion(), Codec.MinorVersion(), dictionary, null));
-            var decodedPayload = decodedReqMsg.Payload();
+            var decodedPayload = decodedReqMsg.MarkForClear().Payload();
             Assert.Equal(DataTypes.ELEMENT_LIST, decodedPayload.DataType);
             var elementList = decodedPayload.ElementList();
             int count = 0;
@@ -644,7 +650,7 @@ namespace LSEG.Ema.Access.Tests
             payload.ClearAndReturnToPool_All();
             array.ClearAndReturnToPool_All();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -665,15 +671,15 @@ namespace LSEG.Ema.Access.Tests
             ElementList elementList = m_objectManager.GetOmmElementList();
             OmmArray array = m_objectManager.GetOmmArray();
             elementList.AddArray(":ItemList", array);
-            array.AddAscii("TRI.N").AddAscii("IBM.N").Complete();
-            elementList.Complete();
+            array.AddAscii("TRI.N").AddAscii("IBM.N").MarkForClear().Complete();
+            elementList.MarkForClear().Complete();
 
             ElementList decodedElementList = m_objectManager.GetOmmElementList();
             var elementListBuffer = elementList.Encoder!.m_encodeIterator!.Buffer();
             Assert.Equal(CodecReturnCode.SUCCESS, decodedElementList.DecodeElementList(Codec.MajorVersion(), Codec.MinorVersion(), elementListBuffer, dictionary, null));
 
-            reqMsg.Payload(decodedElementList);
-            reqMsg.EncodeComplete();
+            reqMsg.MarkForClear().Payload(decodedElementList);
+            reqMsg.MarkForClear().EncodeComplete();
 
             Assert.Equal(2, ((RequestMsgEncoder)reqMsg.Encoder!).BatchItemList!.Count);
             Assert.True(reqMsg.m_rsslMsg.CheckHasBatch());
@@ -682,7 +688,7 @@ namespace LSEG.Ema.Access.Tests
             RequestMsg decodedReqMsg = m_objectManager.GetOmmRequestMsg();
 
             Assert.Equal(CodecReturnCode.SUCCESS, decodedReqMsg.Decode(body, Codec.MajorVersion(), Codec.MinorVersion(), dictionary, null));
-            var decodedPayload = decodedReqMsg.Payload();
+            var decodedPayload = decodedReqMsg.MarkForClear().Payload();
             Assert.Equal(DataTypes.ELEMENT_LIST, decodedPayload.DataType);
             var finalElementList = decodedPayload.ElementList();
             int count = 0;
@@ -715,7 +721,7 @@ namespace LSEG.Ema.Access.Tests
             decodedReqMsg.ClearAndReturnToPool_All();
             decodedElementList.ClearAndReturnToPool_All();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -738,22 +744,22 @@ namespace LSEG.Ema.Access.Tests
                 ElementList elementList = m_objectManager.GetOmmElementList();
                 OmmArray array = m_objectManager.GetOmmArray();
                 elementList.AddArray(":ItemList", array);
-                array.AddAscii("TRI.N").AddAscii("IBM.N").Complete();
-                elementList.Complete();
+                array.AddAscii("TRI.N").AddAscii("IBM.N").MarkForClear().Complete();
+                elementList.MarkForClear().Complete();
 
                 ElementList decodedElementList = m_objectManager.GetOmmElementList();
                 var elementListBuffer = elementList.Encoder!.m_encodeIterator!.Buffer();
                 Assert.Equal(CodecReturnCode.SUCCESS, decodedElementList.DecodeElementList(Codec.MajorVersion(), Codec.MinorVersion(), elementListBuffer, dictionary, null));
 
-                sourceMsg.Payload(decodedElementList);
-                if (completeEnc) sourceMsg.EncodeComplete();
+                sourceMsg.MarkForClear().Payload(decodedElementList);
+                if (completeEnc) sourceMsg.MarkForClear().EncodeComplete();
 
                 RequestMsg destinationMsg = m_objectManager.GetOmmRequestMsg();
 
                 sourceMsg.CopyMsg(destinationMsg);
                 sourceMsg.Clear(); // ensure that we have a deep copy so that data in destination persists even after the source is cleared
 
-                var payload = destinationMsg.Payload();
+                var payload = destinationMsg.MarkForClear().Payload();
                 Assert.Equal(DataTypes.ELEMENT_LIST, payload.DataType);
                 var finalElementList = payload.ElementList();
                 int count = 0;
@@ -786,7 +792,7 @@ namespace LSEG.Ema.Access.Tests
                 sourceMsg.ClearAndReturnToPool_All();
                 destinationMsg.ClearAndReturnToPool_All();
 
-                CheckEtaGlobalPoolSizes();
+                
                 CheckEmaObjectManagerPoolSizes(m_objectManager);
             }
             
@@ -809,15 +815,15 @@ namespace LSEG.Ema.Access.Tests
             ElementList elementList = m_objectManager.GetOmmElementList();
             OmmArray array = m_objectManager.GetOmmArray();
             elementList.AddArray(":ItemList", array);
-            array.AddAscii("TRI.N").AddAscii("IBM.N").Complete();
-            elementList.Complete();
+            array.AddAscii("TRI.N").AddAscii("IBM.N").MarkForClear().Complete();
+            elementList.MarkForClear().Complete();
 
             ElementList decodedElementList = m_objectManager.GetOmmElementList();
             var elementListBuffer = elementList.Encoder!.m_encodeIterator!.Buffer();
             Assert.Equal(CodecReturnCode.SUCCESS, decodedElementList.DecodeElementList(Codec.MajorVersion(), Codec.MinorVersion(), elementListBuffer, dictionary, null));
 
-            msg.Payload(decodedElementList);
-            msg.EncodeComplete();
+            msg.MarkForClear().Payload(decodedElementList);
+            msg.MarkForClear().EncodeComplete();
 
             var body = msg.Encoder!.m_encodeIterator!.Buffer();
             RequestMsg decodedSourceMsg = m_objectManager.GetOmmRequestMsg();
@@ -829,7 +835,7 @@ namespace LSEG.Ema.Access.Tests
             decodedSourceMsg.CopyMsg(destinationMsg);
             decodedSourceMsg.Clear(); // ensure that we have a deep copy so that data in destnation persists even after the source is cleared
 
-            var payload = destinationMsg.Payload();
+            var payload = destinationMsg.MarkForClear().Payload();
             Assert.Equal(DataTypes.ELEMENT_LIST, payload.DataType);
             var finalElementList = payload.ElementList();
             int count = 0;
@@ -863,7 +869,7 @@ namespace LSEG.Ema.Access.Tests
             decodedSourceMsg.ClearAndReturnToPool_All();
             destinationMsg.ClearAndReturnToPool_All();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -884,15 +890,15 @@ namespace LSEG.Ema.Access.Tests
             ElementList elementList = m_objectManager.GetOmmElementList();
             OmmArray array = m_objectManager.GetOmmArray();
             elementList.AddArray(":ItemList", array);
-            array.AddAscii("TRI.N").AddAscii("IBM.N").Complete();
-            elementList.Complete();
+            array.AddAscii("TRI.N").AddAscii("IBM.N").MarkForClear().Complete();
+            elementList.MarkForClear().Complete();
 
             ElementList decodedElementList = m_objectManager.GetOmmElementList();
             var elementListBuffer = elementList.Encoder!.m_encodeIterator!.Buffer();
             Assert.Equal(CodecReturnCode.SUCCESS, decodedElementList.DecodeElementList(Codec.MajorVersion(), Codec.MinorVersion(), elementListBuffer, dictionary, null));
 
-            msg.Payload(decodedElementList);
-            msg.EncodeComplete();
+            msg.MarkForClear().Payload(decodedElementList);
+            msg.MarkForClear().EncodeComplete();
 
             var body = msg.Encoder!.m_encodeIterator!.Buffer();
             RequestMsg decodedSourceMsg = m_objectManager.GetOmmRequestMsg();
@@ -903,7 +909,7 @@ namespace LSEG.Ema.Access.Tests
 
             decodedSourceMsg.Clear(); // ensure that we have a deep copy so that data in destnation persists even after the source is cleared
 
-            var payload = destinationMsg.Payload();
+            var payload = destinationMsg.MarkForClear().Payload();
             Assert.Equal(DataTypes.ELEMENT_LIST, payload.DataType);
             var finalElementList = payload.ElementList();
             int count = 0;
@@ -937,7 +943,7 @@ namespace LSEG.Ema.Access.Tests
             decodedSourceMsg.ClearAndReturnToPool_All();
             destinationMsg.Clear();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -960,21 +966,21 @@ namespace LSEG.Ema.Access.Tests
                 ElementList elementList = m_objectManager.GetOmmElementList();
                 OmmArray array = m_objectManager.GetOmmArray();
                 elementList.AddArray(":ItemList", array);
-                array.AddAscii("TRI.N").AddAscii("IBM.N").Complete();
-                elementList.Complete();
+                array.AddAscii("TRI.N").AddAscii("IBM.N").MarkForClear().Complete();
+                elementList.MarkForClear().Complete();
 
                 ElementList decodedElementList = m_objectManager.GetOmmElementList();
                 var elementListBuffer = elementList.Encoder!.m_encodeIterator!.Buffer();
                 Assert.Equal(CodecReturnCode.SUCCESS, decodedElementList.DecodeElementList(Codec.MajorVersion(), Codec.MinorVersion(), elementListBuffer, dictionary, null));
 
-                sourceMsg.Payload(decodedElementList);
-                if (completeEnc) sourceMsg.EncodeComplete();
+                sourceMsg.MarkForClear().Payload(decodedElementList);
+                if (completeEnc) sourceMsg.MarkForClear().EncodeComplete();
 
                 RequestMsg destinationMsg = sourceMsg.Clone();
 
                 sourceMsg.Clear(); // ensure that we have a deep copy so that data in destination persists even after the source is cleared
 
-                var payload = destinationMsg.Payload();
+                var payload = destinationMsg.MarkForClear().Payload();
                 Assert.Equal(DataTypes.ELEMENT_LIST, payload.DataType);
                 var finalElementList = payload.ElementList();
                 int count = 0;
@@ -1006,7 +1012,7 @@ namespace LSEG.Ema.Access.Tests
                 array.ClearAndReturnToPool_All();
                 sourceMsg.ClearAndReturnToPool_All();
 
-                CheckEtaGlobalPoolSizes();
+                
                 CheckEmaObjectManagerPoolSizes(m_objectManager);
             }
         }
@@ -1030,16 +1036,16 @@ namespace LSEG.Ema.Access.Tests
             ElementList elementList = m_objectManager.GetOmmElementList();
             OmmArray array = m_objectManager.GetOmmArray();
             elementList.AddArray(":ItemList", array);
-            array.AddAscii("TRI.N").AddAscii("IBM.N").Complete();
-            elementList.Complete();
+            array.AddAscii("TRI.N").AddAscii("IBM.N").MarkForClear().Complete();
+            elementList.MarkForClear().Complete();
 
             ElementList attribElementList = m_objectManager.GetOmmElementList();
             attribElementList.AddInt("Int1", 25);
             attribElementList.AddAscii("Ascii1", "SomeAscii");
 
-            msg.Payload(elementList);
+            msg.MarkForClear().Payload(elementList);
             msg.Attrib(attribElementList);
-            msg.EncodeComplete();
+            msg.MarkForClear().EncodeComplete();
 
             Assert.Equal(attribElementList.Encoder!.m_encodeIterator!.Buffer().Data(), msg.m_rsslMsg.MsgKey.EncodedAttrib.Data());
             Assert.Equal(elementList.Encoder!.m_encodeIterator!.Buffer().Data(), msg.m_rsslMsg.EncodedDataBody.Data());
@@ -1049,7 +1055,7 @@ namespace LSEG.Ema.Access.Tests
 
             Assert.Equal(CodecReturnCode.SUCCESS, decodedMsg.Decode(body, Codec.MajorVersion(), Codec.MinorVersion(), dictionary, null));
 
-            var payload = decodedMsg.Payload();
+            var payload = decodedMsg.MarkForClear().Payload();
             Assert.Equal(DataTypes.ELEMENT_LIST, payload.DataType);
             var finalElementList = payload.ElementList();
             int count = 0;
@@ -1082,7 +1088,7 @@ namespace LSEG.Ema.Access.Tests
             msg.ClearAndReturnToPool_All();
             decodedMsg.ClearAndReturnToPool_All();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1132,14 +1138,14 @@ namespace LSEG.Ema.Access.Tests
             Assert.Equal(5, requestMsg.StreamId());
             Assert.Equal((int)DomainType.MARKET_PRICE, requestMsg.DomainType());
             Assert.True(requestMsg.HasMsgKey);
-            Assert.Equal(Access.DataType.DataTypes.ELEMENT_LIST, requestMsg.Payload().DataType);
+            Assert.Equal(Access.DataType.DataTypes.ELEMENT_LIST, requestMsg.MarkForClear().Payload().DataType);
             Assert.Equal(Access.DataType.DataTypes.FIELD_LIST, requestMsg.Attrib().DataType);
             Assert.True(requestMsg.HasName);
             Assert.True(requestMsg.HasNameType);
 
             requestMsg.Clear();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1180,13 +1186,13 @@ namespace LSEG.Ema.Access.Tests
             Assert.Equal(5, requestMsg.StreamId());
             Assert.Equal((int)DomainType.MARKET_PRICE, requestMsg.DomainType());
             Assert.True(requestMsg.HasMsgKey);
-            Assert.Equal(Access.DataType.DataTypes.ELEMENT_LIST, requestMsg.Payload().DataType);
+            Assert.Equal(Access.DataType.DataTypes.ELEMENT_LIST, requestMsg.MarkForClear().Payload().DataType);
             Assert.True(requestMsg.HasName);
             Assert.True(requestMsg.HasNameType);
 
             requestMsg.Clear();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1224,7 +1230,7 @@ namespace LSEG.Ema.Access.Tests
 
             requestMsg.ClearAndReturnToPool_All();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1249,7 +1255,7 @@ namespace LSEG.Ema.Access.Tests
             elementList.ClearAndReturnToPool_All();
             decodedElementList.ClearAndReturnToPool_All();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1278,7 +1284,7 @@ namespace LSEG.Ema.Access.Tests
 
             ResetDefaultMsgParameters();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1320,7 +1326,7 @@ namespace LSEG.Ema.Access.Tests
             EmaComplexTypeHandler.defaultPostMsgParameters.Preencoded = false;
             EmaComplexTypeHandler.defaultUpdateMsgParameters.Preencoded = false;
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1358,7 +1364,7 @@ namespace LSEG.Ema.Access.Tests
 
             ResetDefaultMsgParameters();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1388,7 +1394,7 @@ namespace LSEG.Ema.Access.Tests
                 decodedSeries.ClearAndReturnToPool_All();
             }
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1422,7 +1428,7 @@ namespace LSEG.Ema.Access.Tests
 
             ResetDefaultMsgParameters();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1454,7 +1460,7 @@ namespace LSEG.Ema.Access.Tests
                 decodedMap.ClearAndReturnToPool_All();
             }
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1490,7 +1496,7 @@ namespace LSEG.Ema.Access.Tests
 
             ResetDefaultMsgParameters();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1519,7 +1525,7 @@ namespace LSEG.Ema.Access.Tests
             filterList.ClearAndReturnToPool_All();
             decodedFilterList.ClearAndReturnToPool_All();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1552,7 +1558,7 @@ namespace LSEG.Ema.Access.Tests
 
             ResetDefaultMsgParameters();
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1594,7 +1600,7 @@ namespace LSEG.Ema.Access.Tests
             EmaComplexTypeHandler.defaultPostMsgParameters.CompleteMsgEncoding = true;
             EmaComplexTypeHandler.defaultUpdateMsgParameters.CompleteMsgEncoding = true;
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1634,7 +1640,7 @@ namespace LSEG.Ema.Access.Tests
             EmaComplexTypeHandler.defaultPostMsgParameters.CompleteMsgEncoding = true;
             EmaComplexTypeHandler.defaultUpdateMsgParameters.CompleteMsgEncoding = true;
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1687,7 +1693,7 @@ namespace LSEG.Ema.Access.Tests
                 decodedPostMsg.ClearAndReturnToPool_All();
             }
 
-            CheckEtaGlobalPoolSizes();
+            
             CheckEmaObjectManagerPoolSizes(m_objectManager);
         }
 
@@ -1779,17 +1785,6 @@ namespace LSEG.Ema.Access.Tests
             Assert.Equal(EmaObjectManager.INITIAL_POOL_SIZE, objectManager.primitivePool.Count);
             Assert.Equal(EmaObjectManager.INITIAL_POOL_SIZE, objectManager.complexTypePool.Count);
             Assert.Equal(EmaObjectManager.INITIAL_POOL_SIZE, objectManager.msgTypePool.Count);
-        }
-
-        private void CheckEtaGlobalPoolSizes()
-        {
-            var pool = EtaObjectGlobalPool.Instance;
-            Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaBufferPool.Count);
-            Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaEncodeIteratorPool.Count);
-            foreach (var keyVal in pool.m_etaByteBufferBySizePool)
-            {
-                Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, keyVal.Value.Count);
-            }
         }
     }
 }

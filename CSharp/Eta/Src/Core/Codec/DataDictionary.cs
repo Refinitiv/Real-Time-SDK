@@ -15,6 +15,7 @@ using LSEG.Eta.Common;
 using LSEG.Eta.Rdm;
 using System.Runtime.CompilerServices;
 
+
 namespace LSEG.Eta.Codec
 {
     /// <summary>
@@ -2473,23 +2474,23 @@ namespace LSEG.Eta.Codec
             if (dictionaryString.Length == 0)
             {
                 dictionaryString
-                    .Append("Data Dictionary Dump: MinFid=" + MinFid + " MaxFid=" + MaxFid + " NumEntries " + NumberOfEntries + "\n\n")
-                    .Append("Tags:\n  DictionaryId=\"" + InfoDictionaryId + "\"\n\n")
-                    .Append("  [Field Dictionary Tags]\n" + "      Filename=\"" + _infoFieldFilename + "\"\n" + "          Desc=\"" + _infoFieldDesc + "\"\n" + "       Version=\"" + _infoFieldVersion + "\"\n" + "         Build=\"" + _infoFieldBuild + "\"\n" + "          Date=\"" + _infoFieldDate + "\"\n\n")
-                    .Append("  [Enum Type Dictionary Tags]\n" + "      Filename=\"" + _infoEnumFilename + "\"\n" + "          Desc=\"" + _infoEnumDesc + "\"\n" + "    RT_Version=\"" + _infoEnumRTVersion + "\"\n" + "    DT_Version=\"" + _infoEnumDTVersion + "\"\n" + "          Date=\"" + _infoEnumDate + "\"\n\n")
-                    .Append("Field Dictionary:\n");
+                    .Append("Data Dictionary Dump: MinFid=" + MinFid + " MaxFid=" + MaxFid + " NumEntries " + NumberOfEntries + $"{NewLine}{NewLine}")
+                    .Append("Tags:\n  DictionaryId=\"" + InfoDictionaryId + $"\"{NewLine}{NewLine}")
+                    .Append($"  [Field Dictionary Tags]{NewLine}" + "      Filename=\"" + _infoFieldFilename + $"\"{NewLine}" + "          Desc=\"" + _infoFieldDesc + $"\"{NewLine}" + "       Version =\"" + _infoFieldVersion + $"\"{NewLine}" + "         Build=\"" + _infoFieldBuild + $"\"{NewLine}" + "          Date=\"" + _infoFieldDate + $"\"{NewLine}{NewLine}")
+                    .Append($"  [Enum Type Dictionary Tags]{NewLine}" + "      Filename=\"" + _infoEnumFilename + $"\"{NewLine}" + "          Desc=\"" + _infoEnumDesc + $"\"{NewLine}" + "    RT_Version=\"" + _infoEnumRTVersion + $"\"{NewLine}" + "    DT_Version=\"" + _infoEnumDTVersion + $"\"{NewLine}" + "          Date=\"" + _infoEnumDate + $"\"{NewLine}{NewLine}")
+                    .Append($"Field Dictionary:{NewLine}");
 
                 for (int i = 0; i <= MAX_FID - MIN_FID; i++)
                 {
                     if (_entriesArray[i] != null && _entriesArray[i]._rwfType != DataTypes.UNKNOWN)
                     {
-                        dictionaryString.Append("  Fid=" + _entriesArray[i]._fid + " '" + _entriesArray[i]._acronym + "' '" + _entriesArray[i]._ddeAcronym + "' Type=" + _entriesArray[i]._fieldType + " RippleTo=" + _entriesArray[i]._rippleToField + " Len=" + _entriesArray[i]._length + " EnumLen=" + _entriesArray[i]._enumLength + " RwfType=" + _entriesArray[i]._rwfType + " RwfLen=" + _entriesArray[i]._rwfLength + "\n");
+                        dictionaryString.Append("  Fid=" + _entriesArray[i]._fid + " '" + _entriesArray[i]._acronym + "' '" + _entriesArray[i]._ddeAcronym + "' Type=" + _entriesArray[i]._fieldType + " RippleTo=" + _entriesArray[i]._rippleToField + " Len=" + _entriesArray[i]._length + " EnumLen=" + _entriesArray[i]._enumLength + " RwfType=" + _entriesArray[i]._rwfType + " RwfLen=" + _entriesArray[i]._rwfLength + NewLine);
                     }
                 }
 
                 /* Enum Tables Dump */
 
-                dictionaryString.Append("\nEnum Type Tables:\n");
+                dictionaryString.Append($"{NewLine}Enum Type Tables:{NewLine}");
 
                 for (int i = 0; i < EnumTableCount; ++i)
                 {
@@ -2497,7 +2498,7 @@ namespace LSEG.Eta.Codec
 
                     for (int j = 0; j < table.FidReferences.Count; ++j)
                     {
-                        dictionaryString.Append("(Referenced by Fid " + table.FidReferences[j] + ")\n");
+                        dictionaryString.Append("(Referenced by Fid " + table.FidReferences[j] + $"){NewLine}");
                     }
 
                     for (int j = 0; j <= table.MaxValue; ++j)
@@ -2506,11 +2507,11 @@ namespace LSEG.Eta.Codec
 
                         if (enumType != null)
                         {
-                            dictionaryString.Append("value=" + enumType.Value + " display=\"" + enumType.Display + "\" meaning=\"" + enumType.Meaning + "\"\n");
+                            dictionaryString.Append("value=" + enumType.Value + " display=\"" + enumType.Display + "\" meaning=\"" + enumType.Meaning + $"\"{NewLine}");
                         }
                     }
 
-                    dictionaryString.Append("\n");
+                    dictionaryString.AppendLine();
                 }
             }
 

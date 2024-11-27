@@ -2,23 +2,28 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Ema.Rdm;
 using LSEG.Eta.Codec;
 using LSEG.Eta.ValueAdd.Reactor;
-
+using System;
 using System.Threading;
 using Xunit.Abstractions;
 
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests;
 
 /// testing the <see cref="Access.DictionaryCallbackClient"/>
-public class DictionaryCallbackClientTests
+public class DictionaryCallbackClientTests : IDisposable
 {
-    private const int TEST_TIMEOUT_MS = 4_000;
+    public void Dispose()
+    {
+        EtaGlobalPoolTestUtil.Clear();
+    }
+
+    private const int TEST_TIMEOUT_MS = 10_000;
 
     private ITestOutputHelper output;
 
@@ -183,9 +188,9 @@ public class DictionaryCallbackClientTests
         * received dictionaries into dataDictionary */
         consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
         {
-            bool complete = refreshMsg.Complete();
+            bool complete = refreshMsg.MarkForClear().Complete();
 
-            switch (refreshMsg.Payload().DataType)
+            switch (refreshMsg.MarkForClear().Payload().DataType)
             {
                 case DataTypes.SERIES:
                     if (refreshMsg.Name().Equals("RWFFld"))
@@ -193,11 +198,11 @@ public class DictionaryCallbackClientTests
                         if (!extractFidType)
                         {
                             Rdm.DataDictionary dataDictionaryTemp = new();
-                            Assert.Equal(1, dataDictionaryTemp.ExtractDictionaryType(refreshMsg.Payload().Series()));
+                            Assert.Equal(1, dataDictionaryTemp.ExtractDictionaryType(refreshMsg.MarkForClear().Payload().Series()));
                             extractFidType = true;
                         }
 
-                        dataDictionary.DecodeFieldDictionary(refreshMsg.Payload().Series(), EmaRdm.DICTIONARY_NORMAL);
+                        dataDictionary.DecodeFieldDictionary(refreshMsg.MarkForClear().Payload().Series(), EmaRdm.DICTIONARY_NORMAL);
                         fldDictComplete = complete;
                     }
                     else if (refreshMsg.Name().Equals("RWFEnum"))
@@ -205,11 +210,11 @@ public class DictionaryCallbackClientTests
                         if (!extractEnumType)
                         {
                             Rdm.DataDictionary dataDictionaryTemp = new();
-                            Assert.Equal(2, dataDictionaryTemp.ExtractDictionaryType(refreshMsg.Payload().Series()));
+                            Assert.Equal(2, dataDictionaryTemp.ExtractDictionaryType(refreshMsg.MarkForClear().Payload().Series()));
                             extractEnumType = true;
                         }
 
-                        dataDictionary.DecodeEnumTypeDictionary(refreshMsg.Payload().Series(), EmaRdm.DICTIONARY_NORMAL);
+                        dataDictionary.DecodeEnumTypeDictionary(refreshMsg.MarkForClear().Payload().Series(), EmaRdm.DICTIONARY_NORMAL);
                         enumTypeComplete = complete;
                     }
                     break;

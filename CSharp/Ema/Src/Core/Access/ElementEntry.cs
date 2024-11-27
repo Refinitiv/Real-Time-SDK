@@ -9,6 +9,7 @@
 using LSEG.Eta.Codec;
 using System;
 
+
 namespace LSEG.Ema.Access
 {
     /// <summary>
@@ -473,7 +474,7 @@ namespace LSEG.Ema.Access
         public override string ToString()
         {
             if (Load == null)
-                return "\nToString() method could not be used for just encoded object.\n";
+                return $"{NewLine}ToString() method could not be used for just encoded object.{NewLine}";
 
             m_toString.Length = 0;
             m_toString.Append("ElementEntry ")

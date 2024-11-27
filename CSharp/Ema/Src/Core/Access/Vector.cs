@@ -345,9 +345,9 @@ namespace LSEG.Ema.Access
             {
                 var load = vectorEntry.Load;
                 if (load == null)
-                    return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
+                    return $"{NewLine}ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.{NewLine}";
 
-                Utilities.AddIndent(m_ToString.Append("\n"), indent).Append("VectorEntry action=\"")
+                Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("VectorEntry action=\"")
                         .Append(vectorEntry.VectorActionAsString()).Append("\" index=\"").Append(vectorEntry.Position).Append("\"");
 
                 if (vectorEntry.HasPermissionData)
@@ -356,7 +356,7 @@ namespace LSEG.Ema.Access
                     Utilities.AsHexString(m_ToString, vectorEntry.PermissionData).Append("\"");
                 }
 
-                m_ToString.Append(" dataType=\"").Append(Access.DataType.AsString(load.DataType)).Append("\"\n");
+                m_ToString.Append(" dataType=\"").Append(Access.DataType.AsString(load.DataType)).Append($"\"{NewLine}");
 
                 ++indent;
                 m_ToString.Append(load.ToString(indent));
@@ -366,7 +366,7 @@ namespace LSEG.Ema.Access
             }
 
             --indent;
-            Utilities.AddIndent(m_ToString.Append("\n"), indent).Append("VectorEnd\n");
+            Utilities.AddIndent(m_ToString.AppendLine(), indent).Append($"VectorEnd{NewLine}");
             return m_ToString.ToString();
         }
 

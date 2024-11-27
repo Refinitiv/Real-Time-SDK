@@ -177,7 +177,7 @@ public sealed class OmmError : Data
         Utilities.AddIndent(m_ToString, indent, true).Append("  ErrorCode=\"").Append(ErrorCodeAsString()).Append('"');
         --indent;
 
-        Utilities.AddIndent(m_ToString, indent, true).Append("OmmErrorEnd\n");
+        Utilities.AddIndent(m_ToString, indent, true).Append($"OmmErrorEnd{NewLine}");
 
         return m_ToString.ToString();
     }

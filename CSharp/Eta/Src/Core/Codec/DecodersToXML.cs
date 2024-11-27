@@ -9,6 +9,7 @@
 using System.Text;
 using LSEG.Eta.Rdm;
 
+
 namespace LSEG.Eta.Codec
 {
 	internal class DecodersToXML
@@ -36,7 +37,7 @@ namespace LSEG.Eta.Codec
 
 			if (indents == 0)
 			{
-				xmlString.Append("\n<!-- rwfMajorVer=\"").Append(iter.MajorVersion()).Append("\" rwfMinorVer=\"").Append(iter.MinorVersion()).Append("\" -->\n");
+				xmlString.Append($"{NewLine}<!-- rwfMajorVer=\"").Append(iter.MajorVersion()).Append("\" rwfMinorVer=\"").Append(iter.MinorVersion()).Append("\" -->").AppendLine();
 			}
 
 			switch (dataType)
@@ -323,7 +324,7 @@ namespace LSEG.Eta.Codec
 
 			xmlString.Append("<opaque data=\"");
 			xmlString.Append(XmlDumpHexBuffer(buffer));
-			xmlString.Append("\" />\n");
+			xmlString.Append("\" />").AppendLine();
 
 			indents--;
 
@@ -339,7 +340,7 @@ namespace LSEG.Eta.Codec
 
 			xmlString.Append("<json data=\"");
 			xmlString.Append(XmlDumpString(buffer));
-			xmlString.Append("\" />\n");
+			xmlString.Append("\" />").AppendLine();
 
 			indents--;
 
@@ -386,7 +387,7 @@ namespace LSEG.Eta.Codec
 
 			indents--;
 			xmlString.Append(Encodeindents());
-			xmlString.Append("</").Append(tagName).Append(">\n");
+			xmlString.Append("</").Append(tagName).Append(">").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -395,12 +396,12 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</dataBody>\n");
+			return Encodeindents() + $"</dataBody>{NewLine}";
 		}
 
 		private static string XmlDumpDataBodyBegin()
 		{
-			string ret = Encodeindents() + "<dataBody>\n";
+			string ret = Encodeindents() + $"<dataBody>{NewLine}";
 
 			indents++;
 
@@ -519,7 +520,7 @@ namespace LSEG.Eta.Codec
 			xmlString.Append(Encodeindents());
 			xmlString.Append("<extendedHeader data=\"");
 			xmlString.Append(XmlDumpHexBuffer(extendedHeader));
-			xmlString.Append("\"/>\n");
+			xmlString.Append("\"/>").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -542,8 +543,8 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</key>\n");
-		}
+			return (Encodeindents() + $"</key>{NewLine}");
+        }
 
 		private static string DecodeKeyOpaque(IMsg msg, DecodeIterator iter, DataDictionary dictionary)
 		{
@@ -551,7 +552,7 @@ namespace LSEG.Eta.Codec
             CodecReturnCode ret;
 			int attribContainerType = msg.MsgKey.AttribContainerType;
 
-			xmlString.Append("<attrib>\n");
+			xmlString.Append("<attrib>").AppendLine();
 
 			indents++;
 
@@ -588,9 +589,9 @@ namespace LSEG.Eta.Codec
 					xmlString.Append(DecodeMapToXML(iter, dictionary, false));
 					break;
 				case DataTypes.XML:
-					xmlString.Append(DataTypes.ToString(msg.MsgKey.AttribContainerType)).Append("\n");
+					xmlString.Append(DataTypes.ToString(msg.MsgKey.AttribContainerType)).AppendLine();
 					xmlString.Append(msg.MsgKey.EncodedAttrib.ToString());
-					xmlString.Append("\n");
+					xmlString.AppendLine();
 					break;
 				case DataTypes.JSON:
 					xmlString.Append(DumpJSONToXML(msg.MsgKey.EncodedAttrib, dictionary));
@@ -600,13 +601,13 @@ namespace LSEG.Eta.Codec
 					break;
 				default:
 					xmlString.Append(Encodeindents());
-					xmlString.Append("Unknown data\n");
+					xmlString.Append("Unknown data").AppendLine();
 					break;
 			}
 
 			indents--;
 			xmlString.Append(Encodeindents());
-			xmlString.Append("</attrib>\n");
+			xmlString.Append("</attrib>").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -729,13 +730,13 @@ namespace LSEG.Eta.Codec
 			{
 				xmlString.Append(" attribContainerType=\"");
 				xmlString.Append(XmlDumpDataType(msgKey.AttribContainerType));
-				xmlString.Append("\">\n");
+				xmlString.Append("\">").AppendLine();
 				indents++;
 				xmlString.Append(Encodeindents());
 			}
 			else
 			{
-				xmlString.Append("/>\n");
+				xmlString.Append("/>").AppendLine();
 			}
 
 			return xmlString.ToString();
@@ -750,7 +751,7 @@ namespace LSEG.Eta.Codec
 
 			xmlString.Append("<ansiPage data=\"");
 			xmlString.Append(XmlDumpHexBuffer(buffer));
-			xmlString.Append("\"/>\n");
+			xmlString.Append("\"/>").AppendLine();
 
 			indents--;
 
@@ -1143,7 +1144,7 @@ namespace LSEG.Eta.Codec
 
 				if (Encoders.ValidAggregateDataType(dataType) || dataType == DataTypes.ARRAY)
 				{
-					xmlString.Append(">\n");
+					xmlString.Append(">").AppendLine();
 				}
 
 				if (dataType != DataTypes.UNKNOWN)
@@ -1250,7 +1251,7 @@ namespace LSEG.Eta.Codec
 				xmlString.Append(XmlDumpElementBegin(element));
 				if ((Encoders.ValidAggregateDataType(element.DataType)) || (element.DataType == DataTypes.ARRAY))
 				{
-					xmlString.Append(">\n");
+					xmlString.Append(">").AppendLine();
 				}
 				if (element.Name.Equals(ElementNames.GROUP))
 				{
@@ -1288,22 +1289,22 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</elementList>\n");
-		}
+			return (Encodeindents() + $"</elementList>{NewLine}");
+        }
 
 		private static string XmlDumpEndNoTag()
 		{
 			indents--;
 
-			return "/>\n";
+			return $"/>{NewLine}";
 		}
 
 		private static string XmlDumpElementEnd()
 		{
 			indents--;
 
-			return (Encodeindents() + "</elementEntry>\n");
-		}
+			return (Encodeindents() + $"</elementEntry>{NewLine}");
+        }
 
 		private static string XmlDumpGroupId(Buffer buffer)
 		{
@@ -1472,7 +1473,7 @@ namespace LSEG.Eta.Codec
 				}
 
 			}
-			xmlString.Append(">\n");
+			xmlString.Append(">").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -2621,7 +2622,7 @@ namespace LSEG.Eta.Codec
 					xmlString.Append("\"");
 				break;
 			}
-			xmlString.Append(" dataSize=\"").Append(msg.EncodedDataBody.GetLength()).Append("\">\n");
+			xmlString.Append(" dataSize=\"").Append(msg.EncodedDataBody.GetLength()).Append("\">").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -2639,7 +2640,7 @@ namespace LSEG.Eta.Codec
 				{
 					if (i != 0)
 					{
-						xmlString.Append("\n");
+						xmlString.AppendLine();
 						xmlString.Append(Encodeindents());
 					}
 				}
@@ -2657,15 +2658,15 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</fieldList>\n");
-		}
+			return (Encodeindents() + $"</fieldList>{NewLine}");
+        }
 
 		private static string XmlDumpFieldEnd()
 		{
 			indents--;
 
-			return (Encodeindents() + "</fieldEntry>\n");
-		}
+			return (Encodeindents() + $"</fieldEntry>{NewLine}");
+        }
 
 		private static string XmlDumpFieldBegin(FieldEntry field, int dataType)
 		{
@@ -2758,7 +2759,7 @@ namespace LSEG.Eta.Codec
 					xmlString.Append(" setId=\"").Append(fList.SetId).Append("\"");
 				}
 			}
-			xmlString.Append(">\n");
+			xmlString.Append(">").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -2780,15 +2781,15 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</map>\n");
-		}
+			return Encodeindents() + $"</map>{NewLine}";
+        }
 
 		private static string XmlDumpMapEntryEnd()
 		{
 			indents--;
 
-			return (Encodeindents() + "</mapEntry>\n");
-		}
+			return Encodeindents() + $"</mapEntry>{NewLine}";
+        }
 
 		private static string XmlDumpMapEntryBegin(int keyPrimitiveType, MapEntry mapEntry, object mapKeyData)
 		{
@@ -2834,11 +2835,11 @@ namespace LSEG.Eta.Codec
 			{
 				xmlString.Append(" permData=\"");
 				xmlString.Append(XmlDumpHexBuffer(mapEntry.PermData));
-				xmlString.Append("\">\n");
+				xmlString.Append("\">").AppendLine();
 			}
 			else
 			{
-				xmlString.Append(">\n");
+				xmlString.Append(">").AppendLine();
 			}
 
 			return xmlString.ToString();
@@ -2848,7 +2849,7 @@ namespace LSEG.Eta.Codec
 		{
 			StringBuilder xmlString = new StringBuilder(INIT_STRING_SIZE);
 
-			xmlString.Append(Encodeindents()).Append("<elementSetDefs>\n");
+			xmlString.Append(Encodeindents()).Append("<elementSetDefs>").AppendLine();
 			indents++;
 
 			for (int i = 0; i <= LocalElementSetDefDb.MAX_LOCAL_ID; ++i)
@@ -2857,7 +2858,7 @@ namespace LSEG.Eta.Codec
 				{
 					ElementSetDef setDef = elListSetDb.Definitions[i];
 					xmlString.Append(Encodeindents());
-					xmlString.Append("<elementSetDef setId=\"").Append(elListSetDb.Definitions[i].SetId).Append("\">\n");
+					xmlString.Append("<elementSetDef setId=\"").Append(elListSetDb.Definitions[i].SetId).Append("\">").AppendLine();
 
 					++indents;
 					for (int j = 0; j < setDef.Count; ++j)
@@ -2866,18 +2867,18 @@ namespace LSEG.Eta.Codec
 						xmlString.Append(Encodeindents());
 						xmlString.Append("<elementSetDefEntry name=\"").Append(entry.Name.ToString()).Append("\" dataType=\"");
 						xmlString.Append(XmlDumpDataType(entry.DataType));
-						xmlString.Append("\" />\n");
+						xmlString.Append("\" />").AppendLine();
 					}
 					--indents;
 
 					xmlString.Append(Encodeindents());
-					xmlString.Append("</elementSetDef>\n");
+					xmlString.Append("</elementSetDef>").AppendLine();
 				}
 			}
 
 			indents--;
 			xmlString.Append(Encodeindents());
-			xmlString.Append("</elementSetDefs>\n");
+			xmlString.Append("</elementSetDefs>").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -2886,7 +2887,7 @@ namespace LSEG.Eta.Codec
 		{
 			StringBuilder xmlString = new StringBuilder(INIT_STRING_SIZE);
 
-			xmlString.Append(Encodeindents()).Append("<fieldSetDefs>\n");
+			xmlString.Append(Encodeindents()).Append("<fieldSetDefs>").AppendLine();
 
 			indents++;
 
@@ -2896,7 +2897,7 @@ namespace LSEG.Eta.Codec
 				{
 					FieldSetDef setDef = flListSetDb.Definitions[i];
 					xmlString.Append(Encodeindents());
-					xmlString.Append("<fieldSetDef setId=\"").Append(flListSetDb.Definitions[i].SetId).Append("\">\n");
+					xmlString.Append("<fieldSetDef setId=\"").Append(flListSetDb.Definitions[i].SetId).Append("\">").AppendLine();
 
 					++indents;
 					for (int j = 0; j < setDef.Count; ++j)
@@ -2905,18 +2906,18 @@ namespace LSEG.Eta.Codec
 						xmlString.Append(Encodeindents());
 						xmlString.Append("<fieldSetDefEntry fieldId=\"").Append(entry.FieldId).Append("\" dataType=\"");
 						xmlString.Append(XmlDumpDataType((int)entry.DataType));
-						xmlString.Append("\" />\n");
+						xmlString.Append("\" />").AppendLine();
 					}
 					--indents;
 
 					xmlString.Append(Encodeindents());
-					xmlString.Append("</fieldSetDef>\n");
+					xmlString.Append("</fieldSetDef>").AppendLine();
 				}
 			}
 
 			indents--;
 			xmlString.Append(Encodeindents());
-			xmlString.Append("</fieldSetDefs>\n");
+			xmlString.Append("</fieldSetDefs>").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -3002,7 +3003,7 @@ namespace LSEG.Eta.Codec
 			{
 				xmlString.Append("keyFieldId=\"").Append(map.KeyFieldId).Append("\" ");
 			}
-			xmlString.Append(">\n");
+			xmlString.Append(">").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -3011,8 +3012,8 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</summaryData>\n");
-		}
+			return (Encodeindents() + $"</summaryData>{NewLine}");
+        }
 
 		private static string XmlDumpSummaryDataBegin()
 		{
@@ -3020,7 +3021,7 @@ namespace LSEG.Eta.Codec
 
 			xmlString.Append(Encodeindents());
 			indents++;
-			xmlString.Append("<summaryData>\n");
+			xmlString.Append("<summaryData>").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -3029,15 +3030,15 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</filterList>\n");
-		}
+			return (Encodeindents() + $"</filterList>{NewLine}");
+        }
 
 		private static string XmlDumpFilterItemEnd()
 		{
 			indents--;
 
-			return (Encodeindents() + "</filterEntry>\n");
-		}
+			return (Encodeindents() + $"</filterEntry>{NewLine}");
+        }
 
 		private static string XmlDumpFilterItemBegin(FilterEntry filterItem)
 		{
@@ -3097,11 +3098,11 @@ namespace LSEG.Eta.Codec
 			{
 				xmlString.Append("\" permData=\"");
 				xmlString.Append(XmlDumpHexBuffer(filterItem.PermData));
-				xmlString.Append("\">\n");
+				xmlString.Append("\">").AppendLine();
 			}
 			else
 			{
-				xmlString.Append("\">\n");
+				xmlString.Append("\">").AppendLine();
 			}
 
 			return xmlString.ToString();
@@ -3143,7 +3144,7 @@ namespace LSEG.Eta.Codec
 			{
 				xmlString.Append(")");
 			}
-			xmlString.Append("\">\n");
+			xmlString.Append("\">").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -3202,7 +3203,7 @@ namespace LSEG.Eta.Codec
 
 		private static string XmlDumpArrayItemEnd()
 		{
-			return "/>\n";
+			return $"/>{NewLine}";
 		}
 
 		private static string XmlDumpArrayItemBegin()
@@ -3214,8 +3215,8 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</array>\n");
-		}
+			return (Encodeindents() + $"</array>{NewLine}");
+        }
 
 		private static string XmlDumpArrayBegin(Array array)
 		{
@@ -3225,7 +3226,7 @@ namespace LSEG.Eta.Codec
 			indents++;
 			xmlString.Append("<array itemLength=\"").Append(array.ItemLength).Append("\" primitiveType=\"");
 			xmlString.Append(XmlDumpDataType(array.PrimitiveType));
-			xmlString.Append("\">\n");
+			xmlString.Append("\">").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -3269,8 +3270,8 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</seriesEntry>\n");
-		}
+			return (Encodeindents() + $"</seriesEntry>{NewLine}");
+        }
 
 		private static string XmlDumpSeriesRowBegin(SeriesEntry row)
 		{
@@ -3278,7 +3279,7 @@ namespace LSEG.Eta.Codec
 
 			xmlString.Append(Encodeindents());
 			indents++;
-			xmlString.Append("<seriesEntry>\n");
+			xmlString.Append("<seriesEntry>").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -3287,8 +3288,8 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</series>\n");
-		}
+			return (Encodeindents() + $"</series>{NewLine}");
+        }
 
 		private static string XmlDumpSeriesBegin(Series series)
 		{
@@ -3339,7 +3340,7 @@ namespace LSEG.Eta.Codec
 
 			xmlString.Append("\" countHint=\"").Append(series.TotalCountHint).Append("\" containerType=\"");
 			xmlString.Append(XmlDumpDataType(series.ContainerType));
-			xmlString.Append("\">\n");
+			xmlString.Append("\">").AppendLine();
 
 			return xmlString.ToString();
 		}
@@ -3348,14 +3349,14 @@ namespace LSEG.Eta.Codec
 		{
 			indents--;
 
-			return (Encodeindents() + "</vector>\n");
-		}
+			return (Encodeindents() + $"</vector>{NewLine}");
+        }
 
 		private static string XmlDumpVectorEntryEnd()
 		{
 			indents--;
 
-			return (Encodeindents() + "</vectorEntry>\n");
+			return (Encodeindents() + $"</vectorEntry>{NewLine}");
 		}
 
 		private static string XmlDumpVectorEntryBegin(VectorEntry vectorEntry)
@@ -3394,11 +3395,11 @@ namespace LSEG.Eta.Codec
 				xmlString.Append(" (HAS_PERM_DATA)\"");
 				xmlString.Append(" permData=\"");
 				xmlString.Append(XmlDumpHexBuffer(vectorEntry.PermData));
-				xmlString.Append("\">\n");
+				xmlString.Append("\">").AppendLine();
 			}
 			else
 			{
-				xmlString.Append("\">\n");
+				xmlString.Append("\">").AppendLine();
 			}
 
 			return xmlString.ToString();
@@ -3478,7 +3479,7 @@ namespace LSEG.Eta.Codec
 
 			xmlString.Append(" countHint=\"").Append(vec.TotalCountHint).Append("\" containerType=\"");
 			xmlString.Append(XmlDumpDataType(vec.ContainerType));
-			xmlString.Append("\">\n");
+			xmlString.Append("\">").AppendLine();
 
 			return xmlString.ToString();
 		}

@@ -16,6 +16,7 @@ using DateTime = LSEG.Eta.Codec.DateTime;
 using Double = LSEG.Eta.Codec.Double;
 using Enum = LSEG.Eta.Codec.Enum;
 
+
 namespace LSEG.Ema.Access
 {
     /// <summary>
@@ -1071,7 +1072,7 @@ namespace LSEG.Ema.Access
             {
                 var load = mapEntry.Load;
                 if(load == null)
-                    return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
+                    return $"{NewLine}ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.{NewLine}";
 
                 var key = mapEntry.Key.Data;
                 Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("MapEntry action=\"")

@@ -18,8 +18,13 @@ using Enum = LSEG.Eta.Codec.Enum;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class EmaComplexTypeHandler
+    public class EmaComplexTypeHandler : IDisposable
     {
+        public void Dispose()
+        {
+            EtaGlobalPoolTestUtil.Clear();
+        }
+
         public static int length = 5;
         public static int defaultArrayDataType = DataType.DataTypes.QOS;
         public static int mapKeyFieldId = 1;
@@ -582,7 +587,7 @@ namespace LSEG.Ema.Access.Tests
                         break;
                 }
             }
-            array.Complete();
+            array.MarkForClear().Complete();
         }
 
         public static void EncodeFieldList(FieldList fieldList, int[] dataTypes, bool addPreencodedContainerEntries = false)
@@ -667,7 +672,7 @@ namespace LSEG.Ema.Access.Tests
                         break;
                 }
             }
-            fieldList.Complete();
+            fieldList.MarkForClear().Complete();
         }
 
         public static void EncodeVector(Vector vector,
@@ -713,7 +718,7 @@ namespace LSEG.Ema.Access.Tests
                     complexType!.ClearAndReturnToPool_All();
                 }
             }
-            vector.Complete();
+            vector.MarkForClear().Complete();
         }
 
         public static void EncodeElementList(ElementList elementList, int[] dataTypes, bool addPreencodedContainerEntries = false)
@@ -1029,7 +1034,7 @@ namespace LSEG.Ema.Access.Tests
                         break;
                 }
             }
-            elementList.Complete();
+            elementList.MarkForClear().Complete();
         }
 
         public static void EncodeMap(Map map,
@@ -1119,7 +1124,7 @@ namespace LSEG.Ema.Access.Tests
                 }
                 complexType!.ClearAndReturnToPool_All();
             }
-            map.Complete();
+            map.MarkForClear().Complete();
         }
 
         public static void EncodeSeries(Series series,
@@ -1156,7 +1161,7 @@ namespace LSEG.Ema.Access.Tests
                 }
                 complexType!.ClearAndReturnToPool_All();
             }
-            series.Complete();
+            series.MarkForClear().Complete();
         }
 
         public static void EncodeFilterList(FilterList filterList,
@@ -1198,7 +1203,7 @@ namespace LSEG.Ema.Access.Tests
                     complexType!.ClearAndReturnToPool_All();
                 }
             }
-            filterList.Complete();
+            filterList.MarkForClear().Complete();
         }
 
         #endregion Encode containers & Array
@@ -1340,15 +1345,15 @@ namespace LSEG.Ema.Access.Tests
                 if (msgParameters.Preencoded)
                 {
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                 }
                 else
                 {
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
                 }
             }
-            if (msgParameters.CompleteMsgEncoding) msg.EncodeComplete();
+            if (msgParameters.CompleteMsgEncoding) msg.MarkForClear().EncodeComplete();
 
             attrib?.ClearAndReturnToPool_All();
             payload?.ClearAndReturnToPool_All();
@@ -1402,7 +1407,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.MessageComplete)
             {
-                msg.Complete(true);
+                msg.MarkForClear().Complete(true);
             }
             if (msgParameters.DoNotCache)
             {
@@ -1448,15 +1453,15 @@ namespace LSEG.Ema.Access.Tests
                 if (msgParameters.Preencoded)
                 {
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                 }
                 else
                 {
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
                 }
             }
-            if (msgParameters.CompleteMsgEncoding) msg.EncodeComplete();
+            if (msgParameters.CompleteMsgEncoding) msg.MarkForClear().EncodeComplete();
 
             attrib?.ClearAndReturnToPool_All();
             payload?.ClearAndReturnToPool_All();
@@ -1541,15 +1546,15 @@ namespace LSEG.Ema.Access.Tests
                 if (msgParameters.Preencoded)
                 {
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                 }
                 else
                 {
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
                 }
             }
-            if (msgParameters.CompleteMsgEncoding) msg.EncodeComplete();
+            if (msgParameters.CompleteMsgEncoding) msg.MarkForClear().EncodeComplete();
 
             attrib?.ClearAndReturnToPool_All();
             payload?.ClearAndReturnToPool_All();
@@ -1625,15 +1630,15 @@ namespace LSEG.Ema.Access.Tests
                 if (msgParameters.Preencoded)
                 {
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                 }
                 else
                 {
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
                 }
             }
-            if (msgParameters.CompleteMsgEncoding) msg.EncodeComplete();
+            if (msgParameters.CompleteMsgEncoding) msg.MarkForClear().EncodeComplete();
 
             attrib?.ClearAndReturnToPool_All();
             payload?.ClearAndReturnToPool_All();
@@ -1687,7 +1692,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.MessageComplete)
             {
-                msg.Complete(true);
+                msg.MarkForClear().Complete(true);
             }
             if (msgParameters.HasAttrib)
             {
@@ -1709,15 +1714,15 @@ namespace LSEG.Ema.Access.Tests
                 if (msgParameters.Preencoded)
                 {
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                 }
                 else
                 {
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
                 }
             }
-            if (msgParameters.CompleteMsgEncoding) msg.EncodeComplete();
+            if (msgParameters.CompleteMsgEncoding) msg.MarkForClear().EncodeComplete();
 
             attrib?.ClearAndReturnToPool_All();
             payload?.ClearAndReturnToPool_All();
@@ -1783,7 +1788,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.MessageComplete)
             {
-                msg.Complete(true);
+                msg.MarkForClear().Complete(true);
             }
             if (msgParameters.HasAttrib)
             {
@@ -1805,15 +1810,15 @@ namespace LSEG.Ema.Access.Tests
                 if (msgParameters.Preencoded)
                 {
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                 }
                 else
                 {
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
                 }
             }
-            if (msgParameters.CompleteMsgEncoding) msg.EncodeComplete();
+            if (msgParameters.CompleteMsgEncoding) msg.MarkForClear().EncodeComplete();
 
             attrib?.ClearAndReturnToPool_All();
             payload?.ClearAndReturnToPool_All();
@@ -1886,15 +1891,15 @@ namespace LSEG.Ema.Access.Tests
                 if (msgParameters.Preencoded)
                 {
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                 }
                 else
                 {
-                    msg.Payload(payload!);
+                    msg.MarkForClear().Payload(payload!);
                     EncodeDefaultContainer(payload!, msgParameters.ContainerType);
                 }
             }
-            if (msgParameters.CompleteMsgEncoding) msg.EncodeComplete();
+            if (msgParameters.CompleteMsgEncoding) msg.MarkForClear().EncodeComplete();
 
             attrib?.ClearAndReturnToPool_All();
             payload?.ClearAndReturnToPool_All();
@@ -2605,7 +2610,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -2674,7 +2679,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(DataStates.SUSPECT, msg.State().DataState);
             }
             Assert.Equal(msgParameters.ClearCache, msg.ClearCache());
-            Assert.Equal(msgParameters.MessageComplete, msg.Complete());
+            Assert.Equal(msgParameters.MessageComplete, msg.MarkForClear().Complete());
             Assert.Equal(msgParameters.DoNotCache, msg.DoNotCache());
             Assert.Equal(msgParameters.Solicited, msg.Solicited());
             Assert.Equal(msgParameters.HasSeqNum, msg.HasSeqNum);
@@ -2710,7 +2715,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -2782,7 +2787,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -2851,7 +2856,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -2903,7 +2908,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(7, msg.Filter());
             }
             Assert.Equal(msgParameters.ProviderDriven, msg.ProviderDriven());
-            Assert.Equal(msgParameters.MessageComplete, msg.Complete());
+            Assert.Equal(msgParameters.MessageComplete, msg.MarkForClear().Complete());
             if (msgParameters.HasAttrib)
             {
                 Assert.True(msg.HasAttrib);
@@ -2917,7 +2922,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -2979,7 +2984,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(52, msg.PublisherIdUserAddress());
             }
             Assert.Equal(msgParameters.SolicitAck, msg.SolicitAck());
-            Assert.Equal(msgParameters.MessageComplete, msg.Complete());
+            Assert.Equal(msgParameters.MessageComplete, msg.MarkForClear().Complete());
             Assert.Equal(msgParameters.HasPostId, msg.HasPostId);
             if (msgParameters.HasPostId)
             {
@@ -2998,7 +3003,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -3063,7 +3068,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -3167,7 +3172,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -3235,7 +3240,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(DataStates.SUSPECT, msg.State().DataState);
             }
             Assert.Equal(msgParameters.ClearCache, msg.ClearCache());
-            Assert.Equal(msgParameters.MessageComplete, msg.Complete());
+            Assert.Equal(msgParameters.MessageComplete, msg.MarkForClear().Complete());
             Assert.Equal(msgParameters.DoNotCache, msg.DoNotCache());
             Assert.Equal(msgParameters.Solicited, msg.Solicited());
             Assert.Equal(msgParameters.HasSeqNum, msg.HasSeqNum);
@@ -3271,7 +3276,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -3342,7 +3347,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -3410,7 +3415,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -3461,7 +3466,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(7, msg.Filter());
             }
             Assert.Equal(msgParameters.ProviderDriven, msg.ProviderDriven());
-            Assert.Equal(msgParameters.MessageComplete, msg.Complete());
+            Assert.Equal(msgParameters.MessageComplete, msg.MarkForClear().Complete());
             if (msgParameters.HasAttrib)
             {
                 Assert.True(msg.HasAttrib);
@@ -3475,7 +3480,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -3536,7 +3541,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(52, msg.PublisherIdUserAddress());
             }
             Assert.Equal(msgParameters.SolicitAck, msg.SolicitAck());
-            Assert.Equal(msgParameters.MessageComplete, msg.Complete());
+            Assert.Equal(msgParameters.MessageComplete, msg.MarkForClear().Complete());
             Assert.Equal(msgParameters.HasPostId, msg.HasPostId);
             if (msgParameters.HasPostId)
             {
@@ -3555,7 +3560,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -3619,7 +3624,7 @@ namespace LSEG.Ema.Access.Tests
             }
             if (msgParameters.HasPayload)
             {
-                ComplexTypeData payload = msg.Payload();
+                ComplexTypeData payload = msg.MarkForClear().Payload();
                 Assert.Equal(msgParameters.ContainerType, payload.DataType);
                 DecodeAndCheckDefaultContainer(payload.Data);
             }
@@ -4064,7 +4069,7 @@ namespace LSEG.Ema.Access.Tests
                         break;
                 }
             }
-            elementList.Complete();
+            elementList.MarkForClear().Complete();
         }
 
         public static void DecodeAndCheckElementListWithCodeValues(ElementList elementList)
@@ -4206,7 +4211,7 @@ namespace LSEG.Ema.Access.Tests
                         break;
                 }
             }
-            fieldList.Complete();
+            fieldList.MarkForClear().Complete();
         }
         public static void DecodeAndCheckFieldListWithCodeValues(FieldList fieldList)
         {

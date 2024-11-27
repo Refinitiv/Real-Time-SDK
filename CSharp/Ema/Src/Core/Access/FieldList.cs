@@ -1178,7 +1178,7 @@ namespace LSEG.Ema.Access
             {
                 var load = fieldEntry.Load;
                 if (load == null)
-                    return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
+                    return $"{NewLine}ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.{NewLine}";
 
                 loadDataType = load.m_dataType;
                 Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("FieldEntry fid=\"")
@@ -1208,7 +1208,7 @@ namespace LSEG.Ema.Access
 
             --indent;
 
-            Utilities.AddIndent(m_ToString.Append("\n"), indent).Append("FieldListEnd").AppendLine();
+            Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("FieldListEnd").AppendLine();
             return m_ToString.ToString();
         }
 

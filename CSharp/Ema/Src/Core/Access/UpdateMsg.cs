@@ -575,7 +575,7 @@ namespace LSEG.Ema.Access
                 {
                     indent++;
                     Utilities.AddIndent(m_ToString, indent, true).Append("Attrib dataType=\"").Append(Access.DataType.AsString(Attrib().DataType))
-                                                                 .Append("\"\n");
+                                                                 .Append($"\"{NewLine}");
 
                     indent++;
                     m_ToString.Append(Attrib().ToString(indent));
@@ -589,7 +589,7 @@ namespace LSEG.Ema.Access
             if (HasExtendedHeader)
             {
                 indent++;
-                Utilities.AddIndent(m_ToString, indent, true).Append("ExtendedHeader\n");
+                Utilities.AddIndent(m_ToString, indent, true).Append($"ExtendedHeader{NewLine}");
 
                 indent++;
                 Utilities.AddIndent(m_ToString, indent);
@@ -602,7 +602,7 @@ namespace LSEG.Ema.Access
 
             indent++;
             Utilities.AddIndent(m_ToString, indent, true).Append("Payload dataType=\"").Append(Access.DataType.AsString(Payload().DataType))
-                                                         .Append("\"\n");
+                                                         .Append($"\"{NewLine}");
 
             indent++;
             m_ToString.Append(Payload().ToString(indent));
@@ -611,7 +611,7 @@ namespace LSEG.Ema.Access
             Utilities.AddIndent(m_ToString, indent).Append("PayloadEnd");
             indent--;
 
-            Utilities.AddIndent(m_ToString, indent, true).Append("UpdateMsgEnd\n");
+            Utilities.AddIndent(m_ToString, indent, true).Append($"UpdateMsgEnd{NewLine}");
             return m_ToString.ToString();
         }
     }

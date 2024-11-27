@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023, 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -17,8 +17,13 @@ using DataDictionary = LSEG.Eta.Codec.DataDictionary;
 
 namespace LSEG.Ema.Access.Tests.ComplexTypeTests
 {
-    public class ComplexTypeToStringTests
+    public class ComplexTypeToStringTests : IDisposable
     {
+        public void Dispose()
+        {
+            EtaGlobalPoolTestUtil.Clear();
+        }
+
         private EmaObjectManager m_objectManager = new EmaObjectManager();
 
         private int[] containerTypes = { DataType.DataTypes.FILTER_LIST,
@@ -32,7 +37,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
                 DataType.DataTypes.ANSI_PAGE
         };
 
-        private bool[] boolValues = { true, false };
+        private bool[] boolValues = { true, false };        
 
         private void LoadEnumTypeDictionary(DataDictionary dataDictionary)
         {
@@ -1005,9 +1010,9 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             fieldList.AddReal(25, 3994, MagnitudeTypes.EXPONENT_NEG_2);
             fieldList.AddReal(30, 9, MagnitudeTypes.EXPONENT_0);
             fieldList.AddReal(31, 19, MagnitudeTypes.EXPONENT_0);
-            fieldList.Complete();
+            fieldList.MarkForClear().Complete();
 
-            Assert.Equal("\nFieldList.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}FieldList.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 fieldList.ToString());
         }
 
@@ -1018,9 +1023,9 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             elementList.AddAscii("addAscii", "ascii value");
             elementList.AddInt("addInt", 50000000);
             elementList.AddUInt("addUInt", 1);
-            elementList.Complete();
+            elementList.MarkForClear().Complete();
 
-            Assert.Equal("\nElementList.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}ElementList.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 elementList.ToString());
         }
 
@@ -1030,10 +1035,10 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             Map map = new Map();
             ElementList elementList = new ElementList();
             elementList.AddAscii("addAscii", "ascii value");
-            map.AddKeyAscii("QATestMap", 1, elementList.Complete());
-            map.Complete();
+            map.AddKeyAscii("QATestMap", 1, elementList.MarkForClear().Complete());
+            map.MarkForClear().Complete();
 
-            Assert.Equal("\nMap.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}Map.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 map.ToString());
         }
 
@@ -1044,10 +1049,10 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             FieldList fieldList = new FieldList();
             fieldList.AddReal(22, 3990, MagnitudeTypes.EXPONENT_NEG_2);
             fieldList.AddReal(25, 3994, MagnitudeTypes.EXPONENT_NEG_2);
-            filterList.AddEntry(1, 1, fieldList.Complete(), new EmaBuffer());
-            filterList.Complete();
+            filterList.AddEntry(1, 1, fieldList.MarkForClear().Complete(), new EmaBuffer());
+            filterList.MarkForClear().Complete();
 
-            Assert.Equal("\nFilterList.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}FilterList.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 filterList.ToString());
         }
 
@@ -1057,10 +1062,10 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             Series series = new Series();
             ElementList elementList = new ElementList();
             elementList.AddAscii("addAscii", "ascii value");
-            series.AddEntry(elementList.Complete());
-            series.Complete();
+            series.AddEntry(elementList.MarkForClear().Complete());
+            series.MarkForClear().Complete();
 
-            Assert.Equal("\nSeries.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}Series.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 series.ToString());
         }
 
@@ -1072,12 +1077,12 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             FieldList fieldList = new FieldList();
             fieldList.AddReal(22, 3990, MagnitudeTypes.EXPONENT_NEG_2);
             fieldList.AddReal(25, 3994, MagnitudeTypes.EXPONENT_NEG_2);
-            filterList.AddEntry(1, 1, fieldList.Complete(), new EmaBuffer());
-            filterList.Complete();
+            filterList.AddEntry(1, 1, fieldList.MarkForClear().Complete(), new EmaBuffer());
+            filterList.MarkForClear().Complete();
             vector.Add(1, 1, filterList, null);
-            vector.Complete();
+            vector.MarkForClear().Complete();
 
-            Assert.Equal("\nVector.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}Vector.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 vector.ToString());
         }
 
@@ -1085,9 +1090,9 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
         public void OmmArray_Just_Encoded_ToString_Test()
         {
             OmmArray ommArray = new OmmArray();
-            ommArray.AddAscii("1").AddAscii("2").AddAscii("3").Complete();
+            ommArray.AddAscii("1").AddAscii("2").AddAscii("3").MarkForClear().Complete();
 
-            Assert.Equal("\nOmmArray.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}OmmArray.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 ommArray.ToString());
         }
 
@@ -1099,41 +1104,41 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             fieldList.AddReal(22, 3990, MagnitudeTypes.EXPONENT_NEG_2);
             fieldList.AddReal(25, 3994, MagnitudeTypes.EXPONENT_NEG_2);
             refreshMsg.DomainType(6).ServiceId(1).Name("IBM.N").State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Refresh Completed")
-                .Solicited(true).Payload(fieldList.Complete()).Complete();
+                .Solicited(true).MarkForClear().Payload(fieldList.MarkForClear().Complete()).MarkForClear().Complete();
 
-            Assert.Equal("\nRefreshMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}RefreshMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 refreshMsg.ToString());
 
             GenericMsg genericMsg = new GenericMsg();
-            genericMsg.DomainType(133).ServiceId(1).Name("IBM.N").Payload(fieldList).Complete();
+            genericMsg.DomainType(133).ServiceId(1).Name("IBM.N").MarkForClear().Payload(fieldList).MarkForClear().Complete();
 
-            Assert.Equal("\nGenericMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}GenericMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 genericMsg.ToString());
 
             StatusMsg statusMsg = new StatusMsg();
             statusMsg.Name("IBM.N").ServiceId(1).DomainType(6).State(OmmState.StreamStates.CLOSED, OmmState.DataStates.SUSPECT,
                 OmmState.StatusCodes.NOT_FOUND, "Item Not Found");
-            Assert.Equal("\nStatusMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}StatusMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 statusMsg.ToString());
 
             UpdateMsg updateMsg = new UpdateMsg();
-            updateMsg.Payload(fieldList);
-            Assert.Equal("\nUpdateMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            updateMsg.MarkForClear().Payload(fieldList);
+            Assert.Equal($"{NewLine}UpdateMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 updateMsg.ToString());
 
             PostMsg postMsg = new PostMsg();
-            postMsg.PostId(55).ServiceId(1).Name("IBM.N").SolicitAck(true).Complete(true).Payload(updateMsg);
-            Assert.Equal("\nPostMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            postMsg.PostId(55).ServiceId(1).Name("IBM.N").SolicitAck(true).MarkForClear().Complete(true).MarkForClear().Payload(updateMsg);
+            Assert.Equal($"{NewLine}PostMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 postMsg.ToString());
 
             AckMsg ackMsg = new AckMsg();
             ackMsg.SeqNum(1).Name("IBM.N").ServiceId(1).AckId(1).DomainType(6);
-            Assert.Equal("\nAckMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}AckMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 ackMsg.ToString());
 
             RequestMsg requestMsg = new RequestMsg();
             requestMsg.DomainType(133).ServiceId(1).Name("IBM.N");
-            Assert.Equal("\nRequestMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
+            Assert.Equal($"{NewLine}RequestMsg.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.",
                 requestMsg.ToString());
         }
 
@@ -1297,7 +1302,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             if (msgParameters.HasExtendedHeader)
             {
                 string headerStr = GetContainerTypeEntry(GetIndent(indent + 1) + "ExtendedHeader", GetIndent(indent + 1) + "ExtendedHeaderEnd", msgString);
-                Assert.Contains("\n" + GetIndent(indent + 2) + "0x65 0x78 0x74 0x68 0x64 0x72", headerStr);
+                Assert.Contains(NewLine + GetIndent(indent + 2) + "0x65 0x78 0x74 0x68 0x64 0x72", headerStr);
             }
         }
 
@@ -1308,7 +1313,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
                 GetContainerLimits(msgParameters.AttribContainerType, out string b, out string e);
                 string sum = GetContainerTypeEntry(GetIndent(indent + 1) + "Attrib ", GetIndent(indent + 1) + "AttribEnd", msgString);
                 Assert.Contains($"Attrib dataType=\"{Access.DataType.AsString(msgParameters.AttribContainerType)}\"", msgString);
-                string innerContainer = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, sum);
+                string innerContainer = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, sum);
                 CheckDefaultContainerString(msgParameters.AttribContainerType, innerContainer, indent + 2);
             }
 
@@ -1317,7 +1322,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
                 GetContainerLimits(msgParameters.ContainerType, out string b, out string e);
                 string sum = GetContainerTypeEntry(GetIndent(indent + 1) + "Payload ", GetIndent(indent + 1) + "PayloadEnd", msgString);
                 Assert.Contains($"Payload dataType=\"{Access.DataType.AsString(msgParameters.ContainerType)}\"", msgString);
-                string innerContainer = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, sum);
+                string innerContainer = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, sum);
                 CheckDefaultContainerString(msgParameters.ContainerType, innerContainer, indent + 2);
             }
         }
@@ -1328,11 +1333,11 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             string entryIndent = GetIndent(indent + 1);
 
             Assert.Contains(indentStr + "ElementList", elString);
-            Assert.Contains("\n" + indentStr + "ElementListEnd", elString);
+            Assert.Contains(NewLine + indentStr + "ElementListEnd", elString);
 
-            string currString = elString.Substring(elString.IndexOf("\n" + entryIndent + "ElementEntry"));
-            string currEntryStartString = "\n" + entryIndent + "ElementEntry";
-            string currEntryEndString = "\n" + entryIndent + "ElementEntryEnd";
+            string currString = elString.Substring(elString.IndexOf(NewLine + entryIndent + "ElementEntry"));
+            string currEntryStartString = NewLine + entryIndent + "ElementEntry";
+            string currEntryEndString = NewLine + entryIndent + "ElementEntryEnd";
 
             for (int i = 0; i < dataTypes.Length; i++)
             {
@@ -1341,15 +1346,15 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
                 string s, s2;
                 if (dataTypes[i] < DataTypes.BASE_PRIMITIVE_MAX && dataTypes[i] != DataTypes.ARRAY)
                 {
-                    s = GetValueTypeEntry(currEntryStartString, "\n", currString);
+                    s = GetValueTypeEntry(currEntryStartString, NewLine, currString);
                     Assert.Contains($"ElementEntry name=\"{name}\" dataType=\"{dataType}\" value=\"{GetPrimitiveValueString(dataTypes[i])}\"", s);
-                    currString = currString.Substring(currString.IndexOf("\n") + 1);
+                    currString = currString.Substring(currString.IndexOf(NewLine) + 1);
                 }
                 else
                 {
                     GetContainerLimits(dataTypes[i], out string b, out string e);
                     s = GetContainerTypeEntry(currEntryStartString, currEntryEndString, currString);
-                    s2 = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, currString);
+                    s2 = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, currString);
 
                     Assert.Contains($"ElementEntry name=\"{name}\" dataType=\"{dataType}\"", s);
 
@@ -1365,10 +1370,10 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             string entryIndent = GetIndent(indent + 1);
 
             Assert.Contains(indentStr + "FieldList", elString);
-            Assert.Contains("\n" + indentStr + "FieldListEnd", elString);
+            Assert.Contains(NewLine + indentStr + "FieldListEnd", elString);
 
-            string currEntryStartString = "\n" + entryIndent + "FieldEntry";
-            string currEntryEndString = "\n" + entryIndent + "FieldEntryEnd";
+            string currEntryStartString = NewLine + entryIndent + "FieldEntry";
+            string currEntryEndString = NewLine + entryIndent + "FieldEntryEnd";
 
             string currString = elString.Substring(elString.IndexOf(currEntryStartString));
 
@@ -1380,15 +1385,15 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
                 string s, s2;
                 if (dataTypes[i] < DataTypes.BASE_PRIMITIVE_MAX && dataTypes[i] != DataTypes.ARRAY)
                 {
-                    s = GetValueTypeEntry(currEntryStartString, "\n", currString);
+                    s = GetValueTypeEntry(currEntryStartString, NewLine, currString);
                     Assert.Contains($"FieldEntry fid=\"{fid}\" name=\"{name}\" dataType=\"{dataType}\" value=\"{GetPrimitiveValueString(dataTypes[i])}\"", s);
-                    currString = currString.Substring(currString.IndexOf("\n") + 1);
+                    currString = currString.Substring(currString.IndexOf(NewLine) + 1);
                 }
                 else
                 {
                     GetContainerLimits(dataTypes[i], out string b, out string e);
                     s = GetContainerTypeEntry(currEntryStartString, currEntryEndString, currString);
-                    s2 = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, s);
+                    s2 = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, s);
                     Assert.Contains($"FieldEntry fid=\"{fid}\" name=\"{name}\" dataType=\"{dataType}\"", s);
                     CheckDefaultContainerString(dataTypes[i], s2, indent + 2);
                     currString = currString.Substring(currString.IndexOf(currEntryEndString) + currEntryEndString.Length);
@@ -1404,15 +1409,15 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             string entryIndent = GetIndent(indent + 1);
 
             Assert.Contains(indentStr + "FilterList", source);
-            Assert.Contains("\n" + indentStr + "FilterListEnd", source);
+            Assert.Contains(NewLine + indentStr + "FilterListEnd", source);
 
             if (hasCountHint)
             {
                 Assert.Contains($"totalCountHint=\"{countHint}\"", source);
             }
 
-            string currEntryStartString = "\n" + entryIndent + "FilterEntry";
-            string currEntryEndString = "\n" + entryIndent + "FilterEntryEnd";
+            string currEntryStartString = NewLine + entryIndent + "FilterEntry";
+            string currEntryEndString = NewLine + entryIndent + "FilterEntryEnd";
 
             string currString = source.Substring(source.IndexOf(currEntryStartString));
 
@@ -1429,7 +1434,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
                     if (!permDataPresent[i]) Assert.Contains($"FilterEntry action=\"{FilterAction.FilterActionToString(filterActions[i])}\" filterId=\"{i}\" dataType=\"{dataType}\"", s);
                     else Assert.Contains($"FilterEntry action=\"{FilterAction.FilterActionToString(filterActions[i])}\" filterId=\"{i}\" permissionData=\"0x70\" dataType=\"{dataType}\"", s);
 
-                    s2 = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, s);
+                    s2 = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, s);
                     CheckDefaultContainerString(dataTypes[i], s2, indent + 2);
                 }
                 else
@@ -1454,7 +1459,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             string entryIndent = GetIndent(indent + 1);
 
             Assert.Contains(indentStr + "Vector", containerString);
-            Assert.Contains("\n" + indentStr + "VectorEnd", containerString);
+            Assert.Contains(NewLine + indentStr + "VectorEnd", containerString);
 
             if (hasTotalCountHint)
             {
@@ -1468,12 +1473,12 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             {
                 sum = GetContainerTypeEntry(entryIndent + "SummaryData ", entryIndent + "SummaryDataEnd", containerString);
                 Assert.Contains($"SummaryData dataType=\"{strDataType}\"", sum);
-                string innerContainer = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, sum);
+                string innerContainer = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, sum);
                 CheckDefaultContainerString(dataType, innerContainer, indent + 2);
             }
 
-            string currEntryStartString = "\n" + entryIndent + "VectorEntry";
-            string currEntryEndString = "\n" + entryIndent + "VectorEntryEnd";
+            string currEntryStartString = NewLine + entryIndent + "VectorEntry";
+            string currEntryEndString = NewLine + entryIndent + "VectorEntryEnd";
 
             string currString = containerString.Substring(containerString.IndexOf(currEntryStartString));
 
@@ -1484,7 +1489,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
 
                 if (actions[i] != (int)VectorEntryActions.CLEAR && actions[i] != (int)VectorEntryActions.DELETE)
                 {
-                    s2 = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, s);
+                    s2 = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, s);
 
                     if (!hasPermData[i]) Assert.Contains($"VectorEntry action=\"{VectorAction.VectorActionToString(actions[i])}\" index=\"{i}\" dataType=\"{strDataType}\"", s);
                     else Assert.Contains($"VectorEntry action=\"{VectorAction.VectorActionToString(actions[i])}\" index=\"{i}\" permissionData=\"0x70\" dataType=\"{strDataType}\"", s);
@@ -1510,7 +1515,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             string entryIndent = GetIndent(indent + 1);
 
             Assert.Contains(indentStr + "Map", containerString);
-            Assert.Contains("\n" + indentStr + "MapEnd", containerString);
+            Assert.Contains(NewLine + indentStr + "MapEnd", containerString);
 
             if (hasTotalHintCount)
             {
@@ -1528,12 +1533,12 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             {
                 sum = GetContainerTypeEntry(entryIndent + "SummaryData ", entryIndent + "SummaryDataEnd", containerString);
                 Assert.Contains($"SummaryData dataType=\"{strDataType}\"", sum);
-                string innerContainer = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, sum);
+                string innerContainer = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, sum);
                 CheckDefaultContainerString(dataType, innerContainer, indent + 2);
             }
 
-            string currEntryStartString = "\n" + entryIndent + "MapEntry";
-            string currEntryEndString = "\n" + entryIndent + "MapEntryEnd";
+            string currEntryStartString = NewLine + entryIndent + "MapEntry";
+            string currEntryEndString = NewLine + entryIndent + "MapEntryEnd";
 
             string currString = containerString.Substring(containerString.IndexOf(currEntryStartString));
 
@@ -1544,7 +1549,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
 
                 if (entryActions[i] != (int)MapEntryActions.DELETE)
                 {
-                    s2 = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, s);
+                    s2 = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, s);
 
                     if (!permDataPresent[i])
                         Assert.Contains($"MapEntry action=\"{MapAction.MapActionToString(entryActions[i])}\" key dataType=\"{Access.DataType.AsString(keyType)}\" value=\"{GetPrimitiveValueString(keyType)}\" dataType=\"{strDataType}\"", s);
@@ -1570,7 +1575,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             string entryIndent = GetIndent(indent + 1);
 
             Assert.Contains(indentStr + "Series", source);
-            Assert.Contains("\n" + indentStr + "SeriesEnd", source);
+            Assert.Contains(NewLine + indentStr + "SeriesEnd", source);
 
             if (hasCountHint)
             {
@@ -1585,19 +1590,19 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
             {
                 sum = GetContainerTypeEntry(entryIndent + "SummaryData ", entryIndent + "SummaryDataEnd", source);
                 Assert.Contains($"SummaryData dataType=\"{dataTypeStr}\"", sum);
-                string innerContainer = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, sum);
+                string innerContainer = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, sum);
                 CheckDefaultContainerString(dataType, innerContainer, indent + 2);
             }
 
-            string currEntryStartString = "\n" + entryIndent + "SeriesEntry";
-            string currEntryEndString = "\n" + entryIndent + "SeriesEntryEnd";
+            string currEntryStartString = NewLine + entryIndent + "SeriesEntry";
+            string currEntryEndString = NewLine + entryIndent + "SeriesEntryEnd";
 
             string currString = source.Substring(source.IndexOf(currEntryStartString));
 
             for (int i = 0; i < length; i++)
             {
                 string s = GetContainerTypeEntry(currEntryStartString, currEntryEndString, currString);
-                string s2 = GetContainerTypeEntry("\n" + GetIndent(indent + 2) + b, "\n" + GetIndent(indent + 2) + e, s);
+                string s2 = GetContainerTypeEntry(NewLine + GetIndent(indent + 2) + b, NewLine + GetIndent(indent + 2) + e, s);
 
                 Assert.Contains($"SeriesEntry dataType=\"{dataTypeStr}\"", s);
                 CheckDefaultContainerString(dataType, s2, indent + 2);
@@ -1791,7 +1796,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
 
         private static string Decode(Msg msg)
         {
-            msg.EncodeComplete();
+            msg.MarkForClear().EncodeComplete();
             var encodedBuffer = msg.Encoder!.m_encodeIterator!.Buffer();
             msg.Decode(encodedBuffer, Codec.MajorVersion(), Codec.MinorVersion(), msg.m_dataDictionary, null);
             return msg.FillString(0);

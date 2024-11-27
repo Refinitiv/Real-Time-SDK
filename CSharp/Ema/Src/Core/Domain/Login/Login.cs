@@ -33,9 +33,4 @@ public abstract class Login
     internal ElementList? m_ElementList;
 
     internal StringBuilder m_ToString = new StringBuilder();
-
-    /// <summary>
-    /// Newline string used in ToString() methods in derived classes.
-    /// </summary>
-    protected readonly string NEWLINE = System.Environment.NewLine;
 }

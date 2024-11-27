@@ -125,7 +125,7 @@ namespace LSEG.Eta.Example.Common
                 stringBuf.Append(tab);
                 stringBuf.Append("state: ");
                 stringBuf.Append(State);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

@@ -337,7 +337,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder toStringBuilder = PrepareStringBuilder();
-            toStringBuilder.Insert(0, "LoginRTT: \n");
+            toStringBuilder.Insert(0, $"LoginRTT: {NewLine}");
 
             toStringBuilder.Append(tab);
             toStringBuilder.Append("Ticks: ");

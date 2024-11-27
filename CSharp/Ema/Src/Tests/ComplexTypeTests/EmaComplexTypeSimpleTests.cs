@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,8 +12,14 @@ using System;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class EmaComplexTypeSimpleTests
+    public class EmaComplexTypeSimpleTests : IDisposable
     {
+        public void Dispose()
+        {
+            EtaGlobalPoolTestUtil.Clear();
+            EtaGlobalPoolTestUtil.CheckEtaGlobalPoolSizes();
+        }
+
         private void LoadEnumTypeDictionary(DataDictionary dataDictionary)
         {
             if (dataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out CodecError error) < 0)
@@ -43,15 +49,15 @@ namespace LSEG.Ema.Access.Tests
 
             Series series = new Series();
             ElementList elementList = new ElementList();
-            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").Complete();
+            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").MarkForClear().Complete();
             
             series.TotalCountHint(2);
             series.SummaryData(elementList);
             elementList.Clear();
-            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).Complete();
-            series.AddEntry(elementList).AddEntry(elementList).Complete();
+            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).MarkForClear().Complete();
+            series.AddEntry(elementList).AddEntry(elementList).MarkForClear().Complete();
 
-            vector.Sortable(false).Add(1, VectorAction.SET, series, null).Complete();
+            vector.Sortable(false).Add(1, VectorAction.SET, series, null).MarkForClear().Complete();
 
             var buffer = vector.Encoder!.GetEncodedBuffer(false);
 
@@ -80,8 +86,6 @@ namespace LSEG.Ema.Access.Tests
             decodedVector.Clear();
             series.Clear();
             elementList.Clear();
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact]
@@ -95,11 +99,11 @@ namespace LSEG.Ema.Access.Tests
             ElementList entry = new ElementList();
 
             series.TotalCountHint(3).AddEntry(entry);
-            entry.AddAscii("awesome ascii", "some interesting stuff").AddInt("secret value", 10).Complete();
+            entry.AddAscii("awesome ascii", "some interesting stuff").AddInt("secret value", 10).MarkForClear().Complete();
             entry.Clear();
             series.AddEntry(entry);
-            entry.AddAscii("awesome ascii 2", "even more interesting stuff").AddInt("public value", 25).Complete();
-            series.Complete();
+            entry.AddAscii("awesome ascii 2", "even more interesting stuff").AddInt("public value", 25).MarkForClear().Complete();
+            series.MarkForClear().Complete();
 
             Series decodedSeries = new Series();
             var buffer = series.Encoder!.GetEncodedBuffer(false);
@@ -108,8 +112,6 @@ namespace LSEG.Ema.Access.Tests
 
             series.Clear();
             decodedSeries.Clear();
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact]
@@ -123,10 +125,10 @@ namespace LSEG.Ema.Access.Tests
             ElementList entry = new ElementList();
             map.KeyFieldId(2);
             map.AddKeyAscii("key 1", MapAction.ADD, entry);
-            entry.AddAscii("name 1", "ascii 1").AddAscii("name 2", "ascii 2").Complete();
+            entry.AddAscii("name 1", "ascii 1").AddAscii("name 2", "ascii 2").MarkForClear().Complete();
             entry.Clear();
-            entry.AddAscii("name 3", "ascii 3").AddAscii("name 4", "ascii 4").Complete();
-            map.AddKeyAscii("key 2", MapAction.UPDATE, entry).Complete();
+            entry.AddAscii("name 3", "ascii 3").AddAscii("name 4", "ascii 4").MarkForClear().Complete();
+            map.AddKeyAscii("key 2", MapAction.UPDATE, entry).MarkForClear().Complete();
 
             var buffer = map.Encoder!.GetEncodedBuffer(false);
 
@@ -177,8 +179,6 @@ namespace LSEG.Ema.Access.Tests
             map.Clear();
             decodedMap.Clear();
             entry.Clear();
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact]
@@ -192,31 +192,31 @@ namespace LSEG.Ema.Access.Tests
             
             Series seriesPayload = new Series();       
             ElementList elementList = new ElementList();
-            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").Complete();
+            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").MarkForClear().Complete();
 
             seriesPayload.TotalCountHint(2);
             seriesPayload.SummaryData(elementList);
             elementList.Clear();
-            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).Complete();
-            seriesPayload.AddEntry(elementList).AddEntry(elementList).Complete();
+            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).MarkForClear().Complete();
+            seriesPayload.AddEntry(elementList).AddEntry(elementList).MarkForClear().Complete();
 
             ElementList elementListAttrib = new ElementList();
-            elementListAttrib.AddUInt("uint", 55).AddInt("int", 44).Complete();
+            elementListAttrib.AddUInt("uint", 55).AddInt("int", 44).MarkForClear().Complete();
 
             requestMsg.StreamId(1)
                 .DomainType((int)DomainType.LOGIN)
                 .InterestAfterRefresh(true)
-                .Payload(seriesPayload)
+                .MarkForClear().Payload(seriesPayload)
                 .Attrib(elementListAttrib);
 
-            requestMsg.EncodeComplete(); // called by API
+            requestMsg.MarkForClear().EncodeComplete(); // called by API
 
             var body = requestMsg.Encoder!.GetEncodedBuffer(false);
 
             RequestMsg decodedRequestMsg = new RequestMsg();
             Assert.Equal(CodecReturnCode.SUCCESS, decodedRequestMsg.Decode(body, Codec.MajorVersion(), Codec.MinorVersion(), dataDictionary, null));
 
-            var decodedSeriesPayload = decodedRequestMsg.Payload().Series();
+            var decodedSeriesPayload = decodedRequestMsg.MarkForClear().Payload().Series();
             var seriesSummary = decodedSeriesPayload.SummaryData();
             Assert.Equal(DataTypes.ELEMENT_LIST, seriesSummary.DataType);
             foreach (var seriesEntry in decodedSeriesPayload)
@@ -233,8 +233,6 @@ namespace LSEG.Ema.Access.Tests
             elementList.Clear();
             decodedElementListAttribs.Clear();
             elementListAttrib.Clear();
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact]
@@ -256,27 +254,27 @@ namespace LSEG.Ema.Access.Tests
 
             requestMsg.Attrib(elementListAttrib);
 
-            elementListAttrib.AddUInt("uint", 55).AddInt("int", 44).Complete(); // complete encoding already added Attributes
+            elementListAttrib.AddUInt("uint", 55).AddInt("int", 44).MarkForClear().Complete(); // complete encoding already added Attributes
 
             ElementList elementList = new ElementList();
-            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").Complete();
+            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").MarkForClear().Complete();
 
             seriesPayload.TotalCountHint(2);
             seriesPayload.SummaryData(elementList);
             elementList.Clear();
-            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).Complete();
+            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).MarkForClear().Complete();
 
-            requestMsg.Payload(seriesPayload);
-            seriesPayload.AddEntry(elementList).AddEntry(elementList).Complete(); // complete encoding Payload that is already added to message
+            requestMsg.MarkForClear().Payload(seriesPayload);
+            seriesPayload.AddEntry(elementList).AddEntry(elementList).MarkForClear().Complete(); // complete encoding Payload that is already added to message
 
-            requestMsg.EncodeComplete(); // called by API
+            requestMsg.MarkForClear().EncodeComplete(); // called by API
 
             var body = requestMsg.Encoder!.GetEncodedBuffer(false);
 
             RequestMsg decodedRequestMsg = new RequestMsg();
             Assert.Equal(CodecReturnCode.SUCCESS, decodedRequestMsg.Decode(body, Codec.MajorVersion(), Codec.MinorVersion(), dataDictionary, null));
 
-            var decodedSeriesPayload = decodedRequestMsg.Payload().Series();
+            var decodedSeriesPayload = decodedRequestMsg.MarkForClear().Payload().Series();
             var seriesSummary = decodedSeriesPayload.SummaryData();
             Assert.Equal(DataTypes.ELEMENT_LIST, seriesSummary.DataType);
             foreach (var seriesEntry in decodedSeriesPayload)
@@ -293,8 +291,6 @@ namespace LSEG.Ema.Access.Tests
             elementList.Clear();
             decodedElementListAttribs.Clear();
             elementListAttrib.Clear();
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact]
@@ -311,17 +307,17 @@ namespace LSEG.Ema.Access.Tests
             requestMsg.StreamId(1)
                 .DomainType((int)DomainType.LOGIN)
                 .InterestAfterRefresh(true)
-                .Payload(seriesPayload);
+                .MarkForClear().Payload(seriesPayload);
 
             ElementList elementList = new ElementList();
-            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").Complete();
+            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").MarkForClear().Complete();
 
             seriesPayload.TotalCountHint(2);
             seriesPayload.SummaryData(elementList);
             elementList.Clear();
-            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).Complete();
+            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).MarkForClear().Complete();
 
-            seriesPayload.AddEntry(elementList).AddEntry(elementList).Complete(); // complete encoding Payload that is already added to message
+            seriesPayload.AddEntry(elementList).AddEntry(elementList).MarkForClear().Complete(); // complete encoding Payload that is already added to message
 
             ElementList elementListAttrib = new ElementList();
 
@@ -336,8 +332,6 @@ namespace LSEG.Ema.Access.Tests
                 elementList.Clear();
                 elementListAttrib.Clear();
             }
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact]
@@ -356,21 +350,21 @@ namespace LSEG.Ema.Access.Tests
                 .InterestAfterRefresh(true);
 
             ElementList elementListAttrib = new ElementList();
-            elementListAttrib.AddUInt("uint", 55).AddInt("int", 44).Complete(); // complete encoding preencoded Attributes
+            elementListAttrib.AddUInt("uint", 55).AddInt("int", 44).MarkForClear().Complete(); // complete encoding preencoded Attributes
 
             requestMsg.Attrib(elementListAttrib);         
 
             ElementList elementList = new ElementList();
-            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").Complete();
+            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").MarkForClear().Complete();
 
             seriesPayload.TotalCountHint(2);
             seriesPayload.SummaryData(elementList);
             elementList.Clear();
-            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).Complete();
+            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).MarkForClear().Complete();
 
             try
             {
-                Assert.Throws<OmmInvalidUsageException>(() => requestMsg.Payload(seriesPayload)); // cannot add pre-encoded payload if post-encoded attributes were already added
+                Assert.Throws<OmmInvalidUsageException>(() => requestMsg.MarkForClear().Payload(seriesPayload)); // cannot add pre-encoded payload if post-encoded attributes were already added
             }
             finally
             {
@@ -379,8 +373,6 @@ namespace LSEG.Ema.Access.Tests
                 elementList.Clear();
                 elementListAttrib.Clear();
             }        
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact]
@@ -394,17 +386,17 @@ namespace LSEG.Ema.Access.Tests
 
             Series seriesPayload = new Series();
             ElementList elementList = new ElementList();
-            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").Complete();
+            elementList.AddUInt("uint", 2).AddAscii("ascii", "asci_string").MarkForClear().Complete();
 
             seriesPayload.TotalCountHint(2);
             seriesPayload.SummaryData(elementList);
             elementList.Clear();
-            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).Complete();
-            seriesPayload.Complete();
+            elementList.AddInt("int", 4).AddTime("time", 5, 30, 25).MarkForClear().Complete();
+            seriesPayload.MarkForClear().Complete();
 
             requestMsg.StreamId(1)
                 .DomainType((int)DomainType.LOGIN)
-                .InterestAfterRefresh(true).Payload(seriesPayload);
+                .InterestAfterRefresh(true).MarkForClear().Payload(seriesPayload);
 
             ElementList elementListAttrib = new ElementList();
 
@@ -414,8 +406,6 @@ namespace LSEG.Ema.Access.Tests
             seriesPayload.Clear();
             elementList.Clear();
             elementListAttrib.Clear();
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact(Skip = "Obsolete")]
@@ -434,8 +424,6 @@ namespace LSEG.Ema.Access.Tests
 
             series.Clear();
             msg.Clear();
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact(Skip = "Obsolete")]
@@ -454,15 +442,13 @@ namespace LSEG.Ema.Access.Tests
             try
             {
                 // Messages should not allow adding empty messages that contain no preencoded data as Payload
-                Assert.Throws<OmmInvalidUsageException>(() => post.Payload(msg)); // message encoding has not started - messages do not allow post-encoded messages as payload
+                Assert.Throws<OmmInvalidUsageException>(() => post.MarkForClear().Payload(msg)); // message encoding has not started - messages do not allow post-encoded messages as payload
             }
             finally
             {
                 post.Clear();
                 msg.Clear();
             }        
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact(Skip = "Obsolete")]
@@ -488,8 +474,6 @@ namespace LSEG.Ema.Access.Tests
                 post.Clear();
                 msg.Clear();
             }
-
-            CheckEtaGlobalPoolSizes();
         }
 
         [Fact]
@@ -503,23 +487,23 @@ namespace LSEG.Ema.Access.Tests
 
             UpdateMsg updateMsg = new UpdateMsg();
             ElementList elemList = new ElementList();
-            elemList.AddInt("int", 2).Complete();
+            elemList.AddInt("int", 2).MarkForClear().Complete();
 
-            updateMsg.StreamId(7).Payload(elemList);
+            updateMsg.StreamId(7).MarkForClear().Payload(elemList);
 
             postMsg.StreamId(1)
                 .DomainType((int)DomainType.LOGIN)
-                .Payload(updateMsg).Complete(true);
+                .MarkForClear().Payload(updateMsg).MarkForClear().Complete(true);
 
-            postMsg.EncodeComplete(); // called by API
+            postMsg.MarkForClear().EncodeComplete(); // called by API
 
             var body = postMsg.Encoder!.GetEncodedBuffer(false);
 
             PostMsg decodedPostMsg = new PostMsg();
             Assert.Equal(CodecReturnCode.SUCCESS, decodedPostMsg.Decode(body, Codec.MajorVersion(), Codec.MinorVersion(), dataDictionary, null));
 
-            var decodedMsgPayload = decodedPostMsg.Payload().UpdateMsg();
-            var decodedElemList = decodedMsgPayload.Payload().ElementList();
+            var decodedMsgPayload = decodedPostMsg.MarkForClear().Payload().UpdateMsg();
+            var decodedElemList = decodedMsgPayload.MarkForClear().Payload().ElementList();
 
             var enumer = decodedElemList.GetEnumerator();
             Assert.True(enumer.MoveNext());
@@ -534,19 +518,6 @@ namespace LSEG.Ema.Access.Tests
             decodedElemList.Clear();
             elemList.Clear();
             updateMsg.Clear();
-
-            CheckEtaGlobalPoolSizes();
-        }
-
-        private void CheckEtaGlobalPoolSizes()
-        {
-            var pool = EtaObjectGlobalPool.Instance;
-            Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaBufferPool.Count);
-            Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaEncodeIteratorPool.Count);
-            foreach (var keyVal in pool.m_etaByteBufferBySizePool)
-            {
-                Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, keyVal.Value.Count);
-            }
         }
     }
 }

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -15,13 +15,14 @@ using System.Text;
 using Xunit;
 using Xunit.Categories;
 using LSEG.Eta.Internal;
+using System;
 
 namespace LSEG.Eta.Transports.Tests
 {
     [Collection("Transport")]
     [Category("Unit")]
     [Category("ReadWriteTest")]
-    public class SocketReadWriteTests
+    public class SocketReadWriteTests : IDisposable
     {
         const string RWF_MSG_1 = "123456RWFEncodedBufferxxxfweirfsdfkjl";
 
@@ -803,7 +804,7 @@ namespace LSEG.Eta.Transports.Tests
 
             if (compressionLevel != 0)
             {
-                if(compressionLevel == 1 && fragmentSize == 30) // One more read
+                if (compressionLevel == 1 && fragmentSize == 30 && OSVersion.Platform == PlatformID.Win32NT) // One more read
                 {
                     recevBuf = channel.Read(readArgs, out error);
                     Assert.True(readArgs.ReadRetVal > TransportReturnCode.SUCCESS);
@@ -993,6 +994,11 @@ namespace LSEG.Eta.Transports.Tests
         {
             WriteFragmentedRWFMessage(RipcVersions.VERSION12, CompressionType.LZ4, false, LARGE_FRAGMENT_SIZE);
         }
-		
+
+        public void Dispose()
+            => Transport.Clear();
+
+        public SocketReadWriteTests()
+            => Transport.Clear();
     }
 }

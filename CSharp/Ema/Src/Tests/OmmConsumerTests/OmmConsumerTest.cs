@@ -22,8 +22,13 @@ using System.Collections.Generic;
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 {
 
-    public class OmmConsumerTest
+    public class OmmConsumerTest : IDisposable
     {
+        public void Dispose()
+        {
+            EtaGlobalPoolTestUtil.Clear();
+        }
+
         ITestOutputHelper output;
 
         public OmmConsumerTest(ITestOutputHelper output)
@@ -37,7 +42,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
         {
             Assert.Equal((int)DomainType.MARKET_PRICE, refreshMsg.DomainType());
             Assert.True(refreshMsg.ClearCache());
-            Assert.True(refreshMsg.Complete());
+            Assert.True(refreshMsg.MarkForClear().Complete());
             Assert.True(refreshMsg.Solicited());
 
             if (expectedState is null)
@@ -68,9 +73,9 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             MarketPriceItem marketPriceItem = providerTest.MarketItemHandler
                 .MarketPriceItems[itemIndex];
 
-            Assert.Equal(DataType.DataTypes.FIELD_LIST, refreshMsg.Payload().DataType);
+            Assert.Equal(DataType.DataTypes.FIELD_LIST, refreshMsg.MarkForClear().Payload().DataType);
 
-            FieldList fieldList = refreshMsg.Payload().FieldList();
+            FieldList fieldList = refreshMsg.MarkForClear().Payload().FieldList();
             var fieldIt = fieldList.GetEnumerator();
             FieldEntry fieldEntry;
 
@@ -130,7 +135,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             MarketPriceItem marketPriceItem = providerTest.MarketItemHandler
                 .MarketPriceItems[itemIndex];
 
-            FieldList fieldList = updateMsg.Payload().FieldList();
+            FieldList fieldList = updateMsg.MarkForClear().Payload().FieldList();
 
             var fieldIt = fieldList.GetEnumerator();
 
@@ -233,7 +238,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             {
                 consumerClient.StatusMsgHandler = (statusMsg, consEvent) =>
                 {
-                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(statusMsg.HasState);
                     Assert.Equal(OmmState.StreamStates.CLOSED, statusMsg.State().StreamState);
@@ -375,9 +380,9 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 {
                     Assert.Equal(handle, consEvent.Handle);
 
-                    Assert.Equal(DataType.DataTypes.MAP, refreshMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.MAP, refreshMsg.MarkForClear().Payload().DataType);
 
-                    Map map = refreshMsg.Payload().Map();
+                    Map map = refreshMsg.MarkForClear().Payload().Map();
 
                     foreach (var mapEntry in map)
                     {
@@ -593,7 +598,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 {
                     Assert.Equal(handle, consEvent.Handle);
 
-                    Assert.Equal(DataType.DataTypes.NO_DATA, refreshMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.NO_DATA, refreshMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(refreshMsg.HasMsgKey);
                     Assert.True(refreshMsg.HasNameType);
@@ -750,7 +755,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 {
                     Assert.Equal(handle, consEvent.Handle);
                     Assert.Same(this, consEvent.Closure);
-                    Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.MarkForClear().Payload().DataType);
 
                     CheckUpdatePayload(providerTest, 0, updateMsg);
                 };
@@ -833,7 +838,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 consumerClient.StatusMsgHandler = (statusMsg, consEvent) =>
                 {
                     Assert.Equal(handle, consEvent.Handle);
-                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(statusMsg.HasState);
                     Assert.Equal(OmmState.StreamStates.OPEN, statusMsg.State().StreamState);
@@ -917,7 +922,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 consumerClient.StatusMsgHandler = (statusMsg, consEvent) =>
                 {
                     Assert.Equal(handle, consEvent.Handle);
-                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(statusMsg.HasState);
                     Assert.Equal(OmmState.StreamStates.OPEN, statusMsg.State().StreamState);
@@ -1002,7 +1007,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 consumerClient.StatusMsgHandler = (statusMsg, consEvent) =>
                 {
                     Assert.Equal(handle, consEvent.Handle);
-                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(statusMsg.HasState);
                     Assert.Equal(OmmState.StreamStates.OPEN, statusMsg.State().StreamState);
@@ -1086,7 +1091,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 consumerClient.StatusMsgHandler = (statusMsg, consEvent) =>
                 {
                     Assert.Equal(handle, consEvent.Handle);
-                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(statusMsg.HasState);
                     Assert.Equal(OmmState.StreamStates.CLOSED, statusMsg.State().StreamState);
@@ -1132,12 +1137,12 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 ElementList payload = new ElementList();
                 OmmArray array = new OmmArray();
                 array.AddAscii(itemNames[0]).AddAscii(itemNames[1]).AddAscii(itemNames[2])
-                    .AddAscii(itemNames[3]).AddAscii(itemNames[4]).AddAscii(itemNames[5]).Complete();
-                payload.AddArray(EmaRdm.ENAME_BATCH_ITEM_LIST, array).Complete();
+                    .AddAscii(itemNames[3]).AddAscii(itemNames[4]).AddAscii(itemNames[5]).MarkForClear().Complete();
+                payload.AddArray(EmaRdm.ENAME_BATCH_ITEM_LIST, array).MarkForClear().Complete();
 
                 RequestMsg requestMsg = new();
                 requestMsg.DomainType(EmaRdm.MMT_MARKET_PRICE).ServiceId(1)
-                    .Payload(payload);
+                    .MarkForClear().Payload(payload);
             });
 
             Assert.Equal("RequestMsgEncoder.CheckBatchView: Batch request item list is blank.", exception!.Message);
@@ -1183,12 +1188,12 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 ElementList payload = new ElementList();
                 OmmArray array = new OmmArray();
                 array.AddAscii(itemNames[0]).AddAscii(itemNames[1]).AddAscii(itemNames[2])
-                    .AddAscii(itemNames[3]).AddAscii(itemNames[4]).AddAscii(itemNames[5]).Complete();
-                payload.AddArray(EmaRdm.ENAME_BATCH_ITEM_LIST, array).Complete();
+                    .AddAscii(itemNames[3]).AddAscii(itemNames[4]).AddAscii(itemNames[5]).MarkForClear().Complete();
+                payload.AddArray(EmaRdm.ENAME_BATCH_ITEM_LIST, array).MarkForClear().Complete();
 
                 RequestMsg requestMsg = new();
                 requestMsg.DomainType(EmaRdm.MMT_MARKET_PRICE).ServiceId(1)
-                    .Payload(payload);
+                    .MarkForClear().Payload(payload);
 
                 long handle = consumer.RegisterClient(requestMsg, consumerClient, this);
 
@@ -1228,7 +1233,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 {
                     // Checks with the batch's handle only.
                     Assert.Equal(handle, consEvent.Handle);
-                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(statusMsg.HasState);
                     Assert.Equal(OmmState.StreamStates.CLOSED, statusMsg.State().StreamState);
@@ -1310,14 +1315,14 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 ElementList payload = new ElementList();
                 OmmArray array = new OmmArray();
                 //array.FixedWidth = 2;
-                array.AddInt(MarketPriceItem.BID_FID).AddInt(MarketPriceItem.ASK_FID).Complete();
+                array.AddInt(MarketPriceItem.BID_FID).AddInt(MarketPriceItem.ASK_FID).MarkForClear().Complete();
 
                 payload.AddUInt(EmaRdm.ENAME_VIEW_TYPE, 1)
-                    .AddArray(EmaRdm.ENAME_VIEW_DATA, array).Complete();
+                    .AddArray(EmaRdm.ENAME_VIEW_DATA, array).MarkForClear().Complete();
 
                 RequestMsg requestMsg = new();
                 requestMsg.DomainType(EmaRdm.MMT_MARKET_PRICE).ServiceId(1).Name("ItemName")
-                    .Payload(payload).InterestAfterRefresh(true);
+                    .MarkForClear().Payload(payload).InterestAfterRefresh(true);
 
                 long handle = consumer.RegisterClient(requestMsg, consumerClient, this);
 
@@ -1327,7 +1332,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 {
                     Assert.Equal((int)DomainType.MARKET_PRICE, refreshMsg.DomainType());
                     Assert.True(refreshMsg.ClearCache());
-                    Assert.True(refreshMsg.Complete());
+                    Assert.True(refreshMsg.MarkForClear().Complete());
                     Assert.True(refreshMsg.Solicited());
                     Assert.Equal(StreamStates.OPEN, refreshMsg.State().StreamState);
                     Assert.Equal(DataStates.OK, refreshMsg.State().DataState);
@@ -1347,9 +1352,9 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                     MarketPriceItem marketPriceItem = providerTest.MarketItemHandler
                         .MarketPriceItems[0];
 
-                    Assert.Equal(DataType.DataTypes.FIELD_LIST, refreshMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.FIELD_LIST, refreshMsg.MarkForClear().Payload().DataType);
 
-                    FieldList fieldList = refreshMsg.Payload().FieldList();
+                    FieldList fieldList = refreshMsg.MarkForClear().Payload().FieldList();
                     var fieldIt = fieldList.GetEnumerator();
 
                     Assert.True(fieldIt.MoveNext());
@@ -1372,7 +1377,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                     MarketPriceItem marketPriceItem = providerTest.MarketItemHandler
                            .MarketPriceItems[0];
 
-                    FieldList fieldList = updateMsg.Payload().FieldList();
+                    FieldList fieldList = updateMsg.MarkForClear().Payload().FieldList();
 
                     var fieldIt = fieldList.GetEnumerator();
 
@@ -1620,15 +1625,15 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 ElementList payload = new ElementList();
                 OmmArray array = new OmmArray();
-                array.AddInt(MarketPriceItem.BID_FID).AddInt(MarketPriceItem.ASK_FID).Complete();
+                array.AddInt(MarketPriceItem.BID_FID).AddInt(MarketPriceItem.ASK_FID).MarkForClear().Complete();
 
                 payload.AddUInt(EmaRdm.ENAME_VIEW_TYPE, 1)
-                    .AddArray(EmaRdm.ENAME_VIEW_DATA, array).Complete();
+                    .AddArray(EmaRdm.ENAME_VIEW_DATA, array).MarkForClear().Complete();
 
                 RequestMsg requestMsg = new();
                 requestMsg.DomainType(EmaRdm.MMT_MARKET_PRICE)
                     .ServiceId(ProviderTest.DefaultService.ServiceId).Name("ItemName")
-                    .Payload(payload);
+                    .MarkForClear().Payload(payload);
 
                 long handle = consumer.RegisterClient(requestMsg, consumerClient, this);
                 int sequenceOfRefresh = 1;
@@ -1639,7 +1644,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 {
                     Assert.Equal((int)DomainType.MARKET_PRICE, refreshMsg.DomainType());
                     Assert.True(refreshMsg.ClearCache());
-                    Assert.True(refreshMsg.Complete());
+                    Assert.True(refreshMsg.MarkForClear().Complete());
                     Assert.True(refreshMsg.Solicited());
                     Assert.Equal(StreamStates.OPEN, refreshMsg.State().StreamState);
                     Assert.Equal(DataStates.OK, refreshMsg.State().DataState);
@@ -1659,9 +1664,9 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                     MarketPriceItem marketPriceItem = providerTest.MarketItemHandler
                         .MarketPriceItems[0];
 
-                    Assert.Equal(DataType.DataTypes.FIELD_LIST, refreshMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.FIELD_LIST, refreshMsg.MarkForClear().Payload().DataType);
 
-                    FieldList fieldList = refreshMsg.Payload().FieldList();
+                    FieldList fieldList = refreshMsg.MarkForClear().Payload().FieldList();
                     var fieldIt = fieldList.GetEnumerator();
 
                     Assert.True(fieldIt.MoveNext());
@@ -1688,13 +1693,13 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 payload.Clear();
                 array.Clear();
-                array.AddInt(MarketPriceItem.BID_FID).Complete();
+                array.AddInt(MarketPriceItem.BID_FID).MarkForClear().Complete();
 
                 payload.AddUInt(EmaRdm.ENAME_VIEW_TYPE, 1)
-                    .AddArray(EmaRdm.ENAME_VIEW_DATA, array).Complete();
+                    .AddArray(EmaRdm.ENAME_VIEW_DATA, array).MarkForClear().Complete();
 
                 requestMsg.Clear();
-                requestMsg.DomainType(EmaRdm.MMT_MARKET_PRICE).Payload(payload);
+                requestMsg.DomainType(EmaRdm.MMT_MARKET_PRICE).MarkForClear().Payload(payload);
 
                 consumer.Reissue(requestMsg, handle);
 
@@ -1782,13 +1787,13 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 // Submit Post message to the provider side.
                 {
                     ElementList elementList = new();
-                    elementList.AddInt("element1", 555).AddUInt("element2", 666).Complete();
+                    elementList.AddInt("element1", 555).AddUInt("element2", 666).MarkForClear().Complete();
                     UpdateMsg updateMsg = new();
-                    updateMsg.DomainType(EmaRdm.MMT_MARKET_PRICE).Name("updateMsg").Payload(elementList);
+                    updateMsg.DomainType(EmaRdm.MMT_MARKET_PRICE).Name("updateMsg").MarkForClear().Payload(elementList);
 
                     consumer.Submit(new PostMsg().PostId(1).DomainType(EmaRdm.MMT_MARKET_PRICE).Name("postMsg")
                         .ServiceId(ProviderTest.DefaultService.ServiceId)
-                        .SolicitAck(true).Complete(true).Payload(updateMsg), handle);
+                        .SolicitAck(true).MarkForClear().Complete(true).MarkForClear().Payload(updateMsg), handle);
 
                     consumerClient.AckMsgHandler = (ackMsg, consEvent) =>
                     {
@@ -1799,14 +1804,14 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                         Assert.True(ackMsg.HasName);
                         Assert.Equal("postMsg", ackMsg.Name());
 
-                        Assert.Equal(DataType.DataTypes.UPDATE_MSG, ackMsg.Payload().DataType);
+                        Assert.Equal(DataType.DataTypes.UPDATE_MSG, ackMsg.MarkForClear().Payload().DataType);
 
-                        UpdateMsg updateMsg = ackMsg.Payload().UpdateMsg();
+                        UpdateMsg updateMsg = ackMsg.MarkForClear().Payload().UpdateMsg();
                         Assert.True(updateMsg.HasName);
                         Assert.Equal("updateMsg", updateMsg.Name());
                         Assert.Equal(EmaRdm.MMT_MARKET_PRICE, updateMsg.DomainType());
 
-                        ElementList elementList = updateMsg.Payload().ElementList();
+                        ElementList elementList = updateMsg.MarkForClear().Payload().ElementList();
 
                         var elementListIt = elementList.GetEnumerator();
 
@@ -1911,13 +1916,13 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 // Submit Post message to the provider side.
                 {
                     ElementList elementList = new();
-                    elementList.AddInt("element1", 555).AddUInt("element2", 666).Complete();
+                    elementList.AddInt("element1", 555).AddUInt("element2", 666).MarkForClear().Complete();
                     UpdateMsg updateMsg = new();
-                    updateMsg.DomainType(EmaRdm.MMT_MARKET_PRICE).Name("updateMsg").Payload(elementList);
+                    updateMsg.DomainType(EmaRdm.MMT_MARKET_PRICE).Name("updateMsg").MarkForClear().Payload(elementList);
 
                     consumer.Submit(new PostMsg().PostId(1).DomainType(EmaRdm.MMT_MARKET_PRICE).Name("postMsg")
                         .ServiceId(ProviderTest.DefaultService.ServiceId)
-                        .SolicitAck(true).Payload(updateMsg).Complete(true), loginHandle);
+                        .SolicitAck(true).MarkForClear().Payload(updateMsg).MarkForClear().Complete(true), loginHandle);
 
                     consumerClient.AckMsgHandler = (ackMsg, consEvent) =>
                     {
@@ -1929,14 +1934,14 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                         Assert.Equal("postMsg", ackMsg.Name());
                         Assert.Equal(1, ackMsg.StreamId());
 
-                        Assert.Equal(DataType.DataTypes.UPDATE_MSG, ackMsg.Payload().DataType);
+                        Assert.Equal(DataType.DataTypes.UPDATE_MSG, ackMsg.MarkForClear().Payload().DataType);
 
-                        UpdateMsg updateMsg = ackMsg.Payload().UpdateMsg();
+                        UpdateMsg updateMsg = ackMsg.MarkForClear().Payload().UpdateMsg();
                         Assert.True(updateMsg.HasName);
                         Assert.Equal("updateMsg", updateMsg.Name());
                         Assert.Equal(EmaRdm.MMT_MARKET_PRICE, updateMsg.DomainType());
 
-                        ElementList elementList = updateMsg.Payload().ElementList();
+                        ElementList elementList = updateMsg.MarkForClear().Payload().ElementList();
 
                         var elementListIt = elementList.GetEnumerator();
 
@@ -2036,8 +2041,8 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 // Submit generic message to the provider side.
                 {
                     ElementList elementList = new();
-                    elementList.AddInt("element1", 555).AddUInt("element2", 666).Complete();
-                    consumer.Submit(new GenericMsg().DomainType(200).Name("genericMsg").Payload(elementList),
+                    elementList.AddInt("element1", 555).AddUInt("element2", 666).MarkForClear().Complete();
+                    consumer.Submit(new GenericMsg().DomainType(200).Name("genericMsg").MarkForClear().Payload(elementList),
                         handle);
 
                     consumerClient.GenericMsgHandler = (genericMsg, consEvent) =>
@@ -2049,9 +2054,9 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                         Assert.Equal("genericMsg", genericMsg.Name());
 
                         // Check generic message from provider side
-                        Assert.Equal(DataType.DataTypes.ELEMENT_LIST, genericMsg.Payload().DataType);
+                        Assert.Equal(DataType.DataTypes.ELEMENT_LIST, genericMsg.MarkForClear().Payload().DataType);
 
-                        ElementList elementList = genericMsg.Payload().ElementList();
+                        ElementList elementList = genericMsg.MarkForClear().Payload().ElementList();
 
                         var elementListIt = elementList.GetEnumerator();
 
@@ -2179,7 +2184,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 {
                     Assert.Equal(handle, consEvent.Handle);
                     Assert.Same(this, consEvent.Closure);
-                    Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.MarkForClear().Payload().DataType);
 
                     CheckUpdatePayload(providerTest, 0, updateMsg);
                 };

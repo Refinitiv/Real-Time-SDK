@@ -14,8 +14,14 @@ using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class EmaContainersTest
+    public class EmaContainersTest : IDisposable
     {
+        public void Dispose()
+        {
+            EtaGlobalPoolTestUtil.Clear();
+            EtaGlobalPoolTestUtil.CheckEtaGlobalPoolSizes();
+        }
+
         private EmaObjectManager m_objectManager = new EmaObjectManager();
 
         private int[] containerTypes = { DataType.DataTypes.FILTER_LIST,
@@ -77,7 +83,7 @@ namespace LSEG.Ema.Access.Tests
 
                     CheckEmaObjectManagerPoolSizes(m_objectManager);
                 }
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
@@ -99,7 +105,7 @@ namespace LSEG.Ema.Access.Tests
             m_objectManager.ReturnToPool(elementList);
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
@@ -130,9 +136,9 @@ namespace LSEG.Ema.Access.Tests
                                     decodedSeries.ClearAndReturnToPool_All();
 
                                     CheckEmaObjectManagerPoolSizes(m_objectManager);
-                                    CheckEtaGlobalPoolSizes();
+                                    
                                 }
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
@@ -218,7 +224,7 @@ namespace LSEG.Ema.Access.Tests
                                         }
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
@@ -286,7 +292,7 @@ namespace LSEG.Ema.Access.Tests
                                             CheckEmaObjectManagerPoolSizes(m_objectManager);
                                         }
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
@@ -363,7 +369,7 @@ namespace LSEG.Ema.Access.Tests
                                         filterList.ClearAndReturnToPool_All();
 
                                         CheckEmaObjectManagerPoolSizes(m_objectManager);
-                                        CheckEtaGlobalPoolSizes();
+                                        
                                     }
         }
 
@@ -398,7 +404,7 @@ namespace LSEG.Ema.Access.Tests
             filterList.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
@@ -428,7 +434,7 @@ namespace LSEG.Ema.Access.Tests
                     fieldList.ClearAndReturnToPool_All();
 
                     CheckEmaObjectManagerPoolSizes(m_objectManager);
-                    CheckEtaGlobalPoolSizes();
+                    
                 }
         }
 
@@ -451,7 +457,7 @@ namespace LSEG.Ema.Access.Tests
             fieldList.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
@@ -473,7 +479,7 @@ namespace LSEG.Ema.Access.Tests
             array.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
@@ -511,7 +517,7 @@ namespace LSEG.Ema.Access.Tests
             elementList.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
@@ -549,7 +555,7 @@ namespace LSEG.Ema.Access.Tests
             fieldList.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
@@ -570,7 +576,7 @@ namespace LSEG.Ema.Access.Tests
             Map map = m_objectManager.GetOmmMap();
             map.KeyType(DataTypes.INT);
             map.AddKeyInt(5, MapAction.ADD, elementList);
-            map.Complete();
+            map.MarkForClear().Complete();
 
             var mapBuffer = map!.Encoder!.m_encodeIterator!.Buffer();
             map.DecodeMap(Codec.MajorVersion(), Codec.MinorVersion(), mapBuffer, null, null);
@@ -602,7 +608,7 @@ namespace LSEG.Ema.Access.Tests
             elementList.Clear();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         private void CheckEmaObjectManagerPoolSizes(EmaObjectManager objectManager)
@@ -647,12 +653,12 @@ namespace LSEG.Ema.Access.Tests
             LoadEnumTypeDictionary(dataDictionary);
             LoadFieldDictionary(dataDictionary);
             FieldList fieldListEnc = new();
-            OmmArray ommArrayEnc = new OmmArray().AddInt(1).AddInt(2).Complete();
-            OmmArray ommArrayEnc2 = new OmmArray().AddUInt(3).AddUInt(4).Complete();
+            OmmArray ommArrayEnc = new OmmArray().AddInt(1).AddInt(2).MarkForClear().Complete();
+            OmmArray ommArrayEnc2 = new OmmArray().AddUInt(3).AddUInt(4).MarkForClear().Complete();
             fieldListEnc.AddArray(30013, ommArrayEnc);
             fieldListEnc.AddCodeArray(30015);
             fieldListEnc.AddArray(30020, ommArrayEnc2);
-            fieldListEnc.Complete();
+            fieldListEnc.MarkForClear().Complete();
 
             FieldList fieldListDec = new();
             fieldListDec.Decode(Codec.MajorVersion(), Codec.MinorVersion(), fieldListEnc.Encoder!.GetEncodedBuffer(false), dataDictionary, null);
@@ -703,19 +709,19 @@ namespace LSEG.Ema.Access.Tests
             fieldListEnc.ClearAndReturnToPool_All();
             fieldListDec.ClearAndReturnToPool_All();
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
+            
         }
 
         [Fact]
         public void OmmArrayInFieldEntryWithBlankDataElementList_Test()
         {
             ElementList elementListEnc = new();
-            OmmArray ommArrayEnc = new OmmArray().AddInt(1).AddInt(2).Complete();
-            OmmArray ommArrayEnc2 = new OmmArray().AddUInt(3).AddUInt(4).Complete();
+            OmmArray ommArrayEnc = new OmmArray().AddInt(1).AddInt(2).MarkForClear().Complete();
+            OmmArray ommArrayEnc2 = new OmmArray().AddUInt(3).AddUInt(4).MarkForClear().Complete();
             elementListEnc.AddArray("30013", ommArrayEnc);
             elementListEnc.AddCodeArray("30015");
             elementListEnc.AddArray("30020", ommArrayEnc2);
-            elementListEnc.Complete();
+            elementListEnc.MarkForClear().Complete();
 
             ElementList elementListDec = new();
             elementListDec.Decode(Codec.MajorVersion(), Codec.MinorVersion(), elementListEnc.Encoder!.GetEncodedBuffer(false), null, null);
@@ -766,18 +772,7 @@ namespace LSEG.Ema.Access.Tests
             elementListEnc.ClearAndReturnToPool_All();
             elementListDec.ClearAndReturnToPool_All();
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            CheckEtaGlobalPoolSizes();
-        }
-
-        private void CheckEtaGlobalPoolSizes()
-        {
-            var pool = EtaObjectGlobalPool.Instance;
-            Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaBufferPool.Count);
-            Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaEncodeIteratorPool.Count);
-            foreach (var keyVal in pool.m_etaByteBufferBySizePool)
-            {
-                Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, keyVal.Value.Count);
-            }
+            
         }
     }
 }

@@ -379,14 +379,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
-            stringBuf.Insert(0, "DirectoryUpdate: \n");
+            stringBuf.Insert(0, $"DirectoryUpdate: {NewLine}");
 
             if (HasServiceId)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("serviceId: ");
                 stringBuf.Append(ServiceId);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasSequenceNumber)
@@ -394,7 +394,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("sequenceNumber: ");
                 stringBuf.Append(SequenceNumber);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             stringBuf.Append(tab);
@@ -440,12 +440,12 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append("STATE");
                 addOr = true;
             }
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             foreach (Service service in ServiceList)
             {
                 stringBuf.Append(service.ToString());
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

@@ -147,12 +147,12 @@ namespace LSEG.Eta.Example.Common
             stringBuf.Append(tab);
             stringBuf.Append("itemName: ");
             stringBuf.Append(ItemName);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("item info: ");
             stringBuf.Append(MboInfo.ToString());
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             return stringBuf;
         }

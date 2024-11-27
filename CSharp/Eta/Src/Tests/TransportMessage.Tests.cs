@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -41,7 +41,7 @@ namespace LSEG.Eta.Transports.Tests;
 /// The client/server framework for this test was based on {@link TransportLockJunit}.
 ///
 [Category("TransportMessage")]
-public class TransportMessageTests
+public class TransportMessageTests : IDisposable
 {
     #region Utilities
 
@@ -785,6 +785,7 @@ public class TransportMessageTests
     public TransportMessageTests(ITestOutputHelper output)
     {
         this.output = output;
+        Transport.Clear();
     }
 
     public BindOptions DefaultBindOptions(String portNumber)
@@ -1115,9 +1116,9 @@ public class TransportMessageTests
 
         public override string ToString()
         {
-            return $"RunTime={RunTime}\n"
-                + $"GuaranteedOutputBuffers={GuaranteedOutputBuffers}\n"
-                + $"GlobalLocking={GlobalLocking}\twriteLocking={WriteLocking}\tblocking={Blocking}\n"
+            return $"RunTime={RunTime}{NewLine}"
+                + $"GuaranteedOutputBuffers={GuaranteedOutputBuffers}{NewLine}"
+                + $"GlobalLocking={GlobalLocking}\twriteLocking={WriteLocking}\tblocking={Blocking}{NewLine}"
                 + $"CompressionType={CompressionType}\tcompressionLevel={CompressionLevel}\tdataType={MessageContent}";
         }
 
@@ -1236,9 +1237,9 @@ public class TransportMessageTests
 
         public override string ToString()
         {
-            return $"RunTime={RunTime}\n"
-                + $"GuaranteedOutputBuffers={GuaranteedOutputBuffers}\n"
-                + $"GlobalLocking={GlobalLocking}\twriteLocking={WriteLocking}\tblocking={Blocking}\n"
+            return $"RunTime={RunTime}{NewLine}"
+                + $"GuaranteedOutputBuffers={GuaranteedOutputBuffers}{NewLine}"
+                + $"GlobalLocking={GlobalLocking}\twriteLocking={WriteLocking}\tblocking={Blocking}{NewLine}"
                 + $"CompressionType={CompressionType}\tcompressionLevel={CompressionLevel}\tdataType={MessageContent}";
         }
 
@@ -1532,6 +1533,7 @@ public class TransportMessageTests
         args.Blocking = false;
         args.CompressionType = CompressionType.LZ4;
         args.CompressionLevel = 6;
+        args.SysBufSize = 65535 * 4;
 
         int[] sizes = { 500000 };
         args.MessageSizes = sizes;
@@ -2635,6 +2637,9 @@ public class TransportMessageTests
         }
 
     }
+
+    public void Dispose()
+        => Transport.Clear();
 
     #endregion
 }

@@ -48,7 +48,7 @@ namespace LSEG.Eta.Example.Common
             toStringBuilder.Append(tab);
             toStringBuilder.Append("domain: ");
             toStringBuilder.Append(DomainType);
-            toStringBuilder.Append(eol);
+            toStringBuilder.AppendLine();
             return toStringBuilder.ToString();
         }
   

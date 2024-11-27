@@ -874,22 +874,22 @@ namespace LSEG.Eta.ValueAdd.Rdm
         {
             StringBuilder stringBuf = PrepareStringBuilder();
 
-            stringBuf.Insert(0, "LoginRequest: \n");
+            stringBuf.Insert(0, $"LoginRequest: {NewLine}");
             stringBuf.Append(tab);
             stringBuf.Append("userName: ");
             stringBuf.Append(UserName.ToString());
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             stringBuf.Append(tab);
             stringBuf.Append("streaming: ");
             stringBuf.Append("true");
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (HasUserNameType)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("nameType: ");
                 stringBuf.Append(UserNameType);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (Pause)
@@ -897,14 +897,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("pauseAll:");
                 stringBuf.Append("true");
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (NoRefresh)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("noRefresh:");
                 stringBuf.Append("true");
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasAttrib)
@@ -917,14 +917,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("downloadConnectionConfig: ");
                 stringBuf.Append(DownloadConnectionConfig);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasInstanceId)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("instanceId: ");
                 stringBuf.Append(InstanceId);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasRole)
@@ -932,7 +932,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("role: ");
                 stringBuf.Append(Role);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasAuthenticationExtended)
@@ -940,7 +940,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("authenticationExtended: ");
                 stringBuf.Append(AuthenticationExtended);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

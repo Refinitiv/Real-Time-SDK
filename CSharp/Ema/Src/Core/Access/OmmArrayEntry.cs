@@ -453,7 +453,7 @@ public sealed class OmmArrayEntry
     public override string ToString()
     {
         if (Load == null)
-            return "\nToString() method could not be used for just encoded object.\n";
+            return $"{NewLine}ToString() method could not be used for just encoded object.{NewLine}";
 
         return m_ToString.Clear()
             .Append("OmmArrayEntry ")

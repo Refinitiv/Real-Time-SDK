@@ -81,7 +81,7 @@ namespace LSEG.Ema.Access
         {
             if (!dataDictionary.IsEnumTypeDefLoaded || !dataDictionary.IsFieldDictionaryLoaded)
             {
-                return "\nThe provided DataDictionary is not properly loaded.";
+                return $"{NewLine}The provided DataDictionary is not properly loaded.";
             }
 
             if (Encoder != null && Encoder.m_encodeIterator != null && Encoder.m_containerComplete)
@@ -91,7 +91,7 @@ namespace LSEG.Ema.Access
                 var tmpObject = m_objectManager.GetComplexTypeFromPool(this.DataType);
                 if (tmpObject == null)
                 {
-                    return $"\nToString(DataDictionary) is called on an invalid DataType {DataType}";
+                    return $"{NewLine}ToString(DataDictionary) is called on an invalid DataType {DataType}";
                 }
 
                 string result = string.Empty;
@@ -100,7 +100,7 @@ namespace LSEG.Ema.Access
                     CodecReturnCode ret;
                     if ((ret = tmpObject!.Decode(Codec.MajorVersion(), Codec.MinorVersion(), encodedBuffer, dataDictionary.rsslDataDictionary(), null)) != CodecReturnCode.SUCCESS)
                     {
-                        return $"\nFailed to decode ComplexType of type {DataType}: {ret.GetAsString()}";
+                        return $"{NewLine}Failed to decode ComplexType of type {DataType}: {ret.GetAsString()}";
                     }
                     result = tmpObject!.ToString()!;
                 }
@@ -112,7 +112,7 @@ namespace LSEG.Ema.Access
             }
             else
             {
-                return $"\nComplexType instance of type {DataType} contains no valid encoded data.";
+                return $"{NewLine}ComplexType instance of type {DataType} contains no valid encoded data.";
             }
         }
 
@@ -124,7 +124,7 @@ namespace LSEG.Ema.Access
                 return FillString(indent);
             }
 
-            return $"\n{GetType().Name}.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.";
+            return $"{NewLine}{GetType().Name}.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.";
         }
 
         internal abstract string FillString(int indent);

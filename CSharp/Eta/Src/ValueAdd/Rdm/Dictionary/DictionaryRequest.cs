@@ -175,22 +175,22 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
-            stringBuf.Insert(0, "DictionaryRequest: \n");
+            stringBuf.Insert(0, $"DictionaryRequest: {NewLine}");
 
             stringBuf.Append(tab);
             stringBuf.Append("serviceId: ");
             stringBuf.Append(ServiceId);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("dictionaryName: ");
             stringBuf.Append(DictionaryName);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("streaming: ");
             stringBuf.Append(Streaming);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("verbosity: ");
@@ -209,7 +209,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
             {
                 stringBuf.Append(" | ").Append("VERBOSE");
             }
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             return stringBuf.ToString();
         }

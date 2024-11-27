@@ -29,7 +29,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
         private State m_TmpStatus = new State();
 
         private StringBuilder m_StringBuf = new StringBuilder();
-        private const string eol = "\n";
         private const string tab = "\t";
 
         /// <summary>
@@ -281,14 +280,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append("StateFilter:");
-            m_StringBuf.Append(eol);
+            m_StringBuf.AppendLine();
 
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append("ServiceState: ");
             m_StringBuf.Append(ServiceStateVal);
-            m_StringBuf.Append(eol);
+            m_StringBuf.AppendLine();
 
             if (HasAcceptingRequests)
             {
@@ -297,7 +296,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 m_StringBuf.Append(tab);
                 m_StringBuf.Append("AcceptingRequests: ");
                 m_StringBuf.Append(AcceptingRequests);
-                m_StringBuf.Append(eol);
+                m_StringBuf.AppendLine();
             }
 
             if (HasStatus)
@@ -306,7 +305,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 m_StringBuf.Append(tab);
                 m_StringBuf.Append(tab);
                 m_StringBuf.Append(Status);
-                m_StringBuf.Append(eol);
+                m_StringBuf.AppendLine();
             }
 
             return m_StringBuf.ToString();

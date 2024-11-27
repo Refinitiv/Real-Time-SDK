@@ -23,7 +23,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
     {
         private Buffer m_Data = new Buffer();
 
-        private const string eol = "\n";
         private const string tab = "\t";
 
         private StringBuilder m_StringBuf = new StringBuilder();
@@ -226,14 +225,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append("DataFilter:");
-            m_StringBuf.Append(eol);
+            m_StringBuf.AppendLine();
 
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append("Type: ");
             m_StringBuf.Append(Type);
-            m_StringBuf.Append(eol);
+            m_StringBuf.AppendLine();
 
             if (HasData)
             {
@@ -242,14 +241,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 m_StringBuf.Append(tab);
                 m_StringBuf.Append("Data: ");
                 m_StringBuf.Append(Data);
-                m_StringBuf.Append(eol);
+                m_StringBuf.AppendLine();
 
                 m_StringBuf.Append(tab);
                 m_StringBuf.Append(tab);
                 m_StringBuf.Append(tab);
                 m_StringBuf.Append("DataType: ");
                 m_StringBuf.Append(DataType);
-                m_StringBuf.Append(eol);
+                m_StringBuf.AppendLine();
             }
             return m_StringBuf.ToString();
         }

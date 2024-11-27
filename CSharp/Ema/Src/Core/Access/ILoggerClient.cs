@@ -30,7 +30,7 @@ namespace LSEG.Ema.Access
 
     internal interface ILoggerClient
     {
-        public static readonly string CR = Environment.NewLine + "\t";
+        public static readonly string CR = NewLine + "\t";
         public const string INFO_STRING = "Info";
         public const string WARNING_STRING = "Warning";
         public const string ERROR_STRING = "Error";

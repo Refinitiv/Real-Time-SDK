@@ -30,7 +30,7 @@ public sealed class ServiceEndpointDiscoveryResp
     {
         _strBuilder.Length = 0;
 
-        Utilities.AddIndent(_strBuilder.Append("Services : \n"), 1);
+        Utilities.AddIndent(_strBuilder.Append($"Services : {NewLine}"), 1);
         for (int index = 0; index < ServiceEndpointInfoList.Count; index++)
         {
             Utilities.AddIndent(_strBuilder.Append(ServiceEndpointInfoList[index].ToString(2))

@@ -388,18 +388,18 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
-            stringBuf.Insert(0, "DirectoryRefresh: \n");
+            stringBuf.Insert(0, $"DirectoryRefresh: {NewLine}");
 
             stringBuf.Append(tab);
             stringBuf.Append(State);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (HasServiceId)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("serviceId: ");
                 stringBuf.Append(ServiceId);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasSequenceNumber)
@@ -407,18 +407,18 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("sequenceNumber: ");
                 stringBuf.Append(SequenceNumber);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             stringBuf.Append(tab);
             stringBuf.Append("clearCache: ");
             stringBuf.Append(ClearCache);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("solicited: ");
             stringBuf.Append(Solicited);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("filter: ");
@@ -463,7 +463,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append("STATE");
                 addOr = true;
             }
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             foreach (Service service in ServiceList)
             {

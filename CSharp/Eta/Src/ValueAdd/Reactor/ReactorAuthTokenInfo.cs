@@ -60,10 +60,10 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <returns>The string value.</returns>
         public override string ToString()
         {
-            return "ReactorAuthTokenInfo" + "\n" +
-                   "\taccessToken: " + AccessToken + "\n" +
-                   "\texpiresIn: " + ExpiresIn + "\n" +
-                   "\tscope: " + Scope + "\n" +
+            return "ReactorAuthTokenInfo" + NewLine +
+                   "\taccessToken: " + AccessToken + NewLine +
+                   "\texpiresIn: " + ExpiresIn + NewLine +
+                   "\tscope: " + Scope + NewLine +
                    "\ttokenType: " + TokenType;
         }
     }

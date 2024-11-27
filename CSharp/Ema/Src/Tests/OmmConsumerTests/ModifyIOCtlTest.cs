@@ -12,12 +12,18 @@ using Xunit.Abstractions;
 
 using LSEG.Ema.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
+using System;
 
 
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests;
 
-public class ModifyIOCtlTest
+public class ModifyIOCtlTest : IDisposable
 {
+    public void Dispose()
+    {
+        EtaGlobalPoolTestUtil.Clear();
+    }
+
     ITestOutputHelper output;
 
     public ModifyIOCtlTest(ITestOutputHelper output)
@@ -204,8 +210,8 @@ public class ModifyIOCtlTest
             ElementList elementList = new();
             elementList.AddInt("element1", 555)
                 .AddUInt("element2", 666)
-                .Complete();
-            consumer.Submit(new GenericMsg().DomainType(200).Name("genericMsg").Payload(elementList),
+                .MarkForClear().Complete();
+            consumer.Submit(new GenericMsg().DomainType(200).Name("genericMsg").MarkForClear().Payload(elementList),
                 handle);
 
             consumerClient.GenericMsgHandler = (genericMsg, consEvent) =>
@@ -217,9 +223,9 @@ public class ModifyIOCtlTest
                 Assert.Equal("genericMsg", genericMsg.Name());
 
                 // Check generic message from provider side
-                Assert.Equal(DataType.DataTypes.ELEMENT_LIST, genericMsg.Payload().DataType);
+                Assert.Equal(DataType.DataTypes.ELEMENT_LIST, genericMsg.MarkForClear().Payload().DataType);
 
-                ElementList elementList = genericMsg.Payload().ElementList();
+                ElementList elementList = genericMsg.MarkForClear().Payload().ElementList();
 
                 var elementListIt = elementList.GetEnumerator();
 

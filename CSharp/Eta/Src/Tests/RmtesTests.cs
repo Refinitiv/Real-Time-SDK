@@ -213,7 +213,7 @@ namespace LSEG.Eta.Tests
                 retVal = decoder.RMTESApplyToCache(inBuffer, cacheBuffer);
                 if (retVal < CodecReturnCode.SUCCESS)
                 {
-                    Console.Write("Error in RMTESApplyToCache: " + retVal.GetAsString() + "\n");
+                    Console.Write("Error in RMTESApplyToCache: " + retVal.GetAsString() + NewLine);
                 }
 
                 // Fully clear out buffer because the tests do not account for previous partial update existences
@@ -244,7 +244,7 @@ namespace LSEG.Eta.Tests
                     if (i % 2 != 0)
                         Console.Write(" ");
                 }
-                Console.Write("\n");
+                Console.WriteLine();
 
                 // Validation
                 byte[] endResult = testCase.endResult();
@@ -256,12 +256,12 @@ namespace LSEG.Eta.Tests
                     if (i % 2 != 0)
                         Console.Write(" ");
                 }
-                Console.Write("\n");
+                Console.WriteLine();
                 for (int i = 0; i < endResult.Length; ++i)
                 {
                     if (endResult[i] != rmtesBuffer.Data.Contents[i])
                     {
-                        Console.Write("Assert error on above test\n");
+                        Console.WriteLine($"Assert error on above test");
                     }
                     Assert.Equal(endResult[i], rmtesBuffer.Data.Contents[i]);
                 }
@@ -653,7 +653,7 @@ namespace LSEG.Eta.Tests
 
             RmtesInfo tempInfo;
 
-            Console.Write("Control Parse Tests:\n\n");
+            Console.Write($"Control Parse Tests:{NewLine}{NewLine}");
 
             WorkingSetSetup();
 
@@ -671,16 +671,16 @@ namespace LSEG.Eta.Tests
                 retCode = tempInfo.ESCRetCode;
 
                 Assert.Equal(curTest.expectedRet, retCode);
-                Console.Write("retCode = " + retCode + "\n");
+                Console.WriteLine("retCode = " + retCode);
                 Assert.Equal(curTest.returnValue, ret);
-                Console.Write("ret = " + ret + "\n");
+                Console.WriteLine("ret = " + ret);
 
                 Assert.True(curTest.endSet.G0.Equals(testSet.G0));
                 Console.Write("testSet.G0 = " + testSet.G0 + ", curTest.endSet.G0 = "
                                    + curTest.endSet.G0);
                 Assert.True(curTest.endSet.G1.Equals(testSet.G1));
-                Console.Write("testSet.G1 = " + testSet.G1 + ", curTest.endSet.G1 = "
-                                   + curTest.endSet.G1 + "\n");
+                Console.WriteLine("testSet.G1 = " + testSet.G1 + ", curTest.endSet.G1 = "
+                                   + curTest.endSet.G1);
                 Assert.True(curTest.endSet.G2.Equals(testSet.G2));
                 Assert.True(curTest.endSet.G3.Equals(testSet.G3));
 

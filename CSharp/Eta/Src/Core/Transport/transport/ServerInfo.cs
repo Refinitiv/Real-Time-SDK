@@ -6,6 +6,7 @@
  *|-----------------------------------------------------------------------------
  */
 
+
 namespace LSEG.Eta.Transports
 {
     /// <summary>
@@ -51,8 +52,8 @@ namespace LSEG.Eta.Transports
         /// <returns>The string value</returns>
         public override string ToString()
         {
-            return $"ServerInfo\n\nCurrentBufferUsage: {CurrentBufferUsage}\n" +
-                $"\nPeakBufferUsage: {PeakBufferUsage}\n";
+            return $"ServerInfo\n\nCurrentBufferUsage: {CurrentBufferUsage}{NewLine}" +
+                $"{NewLine}PeakBufferUsage: {PeakBufferUsage}{NewLine}";
         }
     }
 }

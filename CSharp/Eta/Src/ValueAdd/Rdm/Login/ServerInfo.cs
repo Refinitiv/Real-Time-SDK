@@ -24,7 +24,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// </summary>
     sealed public class ServerInfo
     {
-        private const string eol = "\n";
         private const string tab = "\t";
         private StringBuilder stringBuf = new();
 
@@ -181,24 +180,24 @@ namespace LSEG.Eta.ValueAdd.Rdm
             stringBuf.Clear();
             stringBuf.Append(tab);
             stringBuf.Append("Server:");
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("hostName: ");
             stringBuf.Append(HostName.ToString());
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("port: ");
             stringBuf.Append(Port);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("serverIndex: ");
             stringBuf.Append(ServerIndex);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (HasLoadFactor)
             {
@@ -206,7 +205,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("loadFactor: ");
                 stringBuf.Append(LoadFactor);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasType)
             {
@@ -214,7 +213,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("serverType: ");
                 stringBuf.Append(ServerType);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

@@ -49,7 +49,7 @@ namespace LSEG.Eta.Example.Common
             toStringBuilder.Append(tab);
             toStringBuilder.Append("domain: ");
             toStringBuilder.Append(DomainTypes.ToString((int)Rdm.DomainType.MARKET_BY_ORDER));
-            toStringBuilder.Append(eol);
+            toStringBuilder.AppendLine();
             return toStringBuilder.ToString();
         }
 

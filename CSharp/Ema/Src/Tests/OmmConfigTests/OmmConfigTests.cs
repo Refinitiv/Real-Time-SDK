@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023, 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -21,8 +21,13 @@ using static LSEG.Ema.Access.EmaConfig;
 using static LSEG.Eta.Rdm.Directory;
 namespace LSEG.Ema.Access.Tests.OmmConfigTests;
 
-public class OmmConfigTests
+public class OmmConfigTests : IDisposable
 {
+    public void Dispose()
+    {
+        EtaGlobalPoolTestUtil.Clear();
+    }
+
     // Default objects to compare to in the below tests.
     private static readonly NiProviderConfig defaultNiProviderConfig = new();
     private static readonly IProviderConfig defaultIProviderConfig = new();
@@ -2244,24 +2249,24 @@ public class OmmConfigTests
             .AddUInt("XmlTraceWrite", 1)
             .AddUInt("XmlTraceRead", 1)
             .AddUInt("XmlTracePing", 0)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgNiProvider_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
 
         encodeObjectList.AddAscii("ChannelSet", "ProgChannel_1, ProgChannel_2")
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgNiProvider_2", MapAction.ADD, encodeObjectList);
 
-        innerMap.Complete();
+        innerMap.MarkForClear().Complete();
 
         encodeGroupList.Clear();
 
         encodeGroupList.AddAscii("DefaultNiProvider", "ProgNiProvider_1")
             .AddMap("NiProviderList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("NiProviderGroup", MapAction.ADD, encodeGroupList);
 
@@ -2294,20 +2299,20 @@ public class OmmConfigTests
             .AddUInt("TcpNodelay", 1)
             .AddUInt("SecurityProtocol", EncryptedTLSProtocolFlags.TLSv1_2 | 0x01)
             .AddUInt("CompressionThreshold", 666)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgChannel_1", MapAction.ADD, encodeObjectList);
 
 
         // Second channel is all defaults, so add an empty Element List
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgChannel_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("ChannelList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("ChannelGroup", MapAction.ADD, encodeGroupList);
 
@@ -2322,19 +2327,19 @@ public class OmmConfigTests
             .AddUInt("MaxLogFileSize", 100)
             .AddEnum("LoggerSeverity", LoggerLevelEnum.INFO)
             .AddEnum("LoggerType", LoggerTypeEnum.STDOUT)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_1", MapAction.ADD, encodeObjectList);
 
         // Blank logger config
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("LoggerList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("LoggerGroup", MapAction.ADD, encodeGroupList);
 
@@ -2348,18 +2353,18 @@ public class OmmConfigTests
             .AddAscii("RdmFieldDictionaryFileName", "ProgFieldFile")
             .AddAscii("RdmFieldDictionaryItemName", "ProgFieldItem")
             .AddEnum("DictionaryType", DictionaryTypeEnum.FILE)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DictionaryList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DictionaryGroup", MapAction.ADD, encodeGroupList);
 
@@ -2391,7 +2396,7 @@ public class OmmConfigTests
 
         serviceArray.AddUInt(130)
                     .AddUInt(5)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
                             .AddUInt("AcceptingConsumerStatus", 1)
@@ -2400,35 +2405,35 @@ public class OmmConfigTests
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
                     .AddAscii("ProgDictionary_2")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesProvided", serviceArray);
 
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
                     .AddAscii("ProgDictionary_2")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesUsed", serviceArray);
 
         qosSeries.Clear();
         innerServiceElementList.Clear();
         innerServiceElementList.AddAscii("Timeliness", "Timeliness::InexactDelayed")
                                 .AddAscii("Rate", "Rate::JustInTimeConflated")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         qosSeries.AddEntry(innerServiceElementList);
 
         innerServiceElementList.Clear();
         innerServiceElementList.AddUInt("Timeliness", 100)
                                 .AddUInt("Rate", 200)
-                                .Complete();
+                                .MarkForClear().Complete();
         qosSeries.AddEntry(innerServiceElementList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddSeries("QoS", qosSeries);
 
         serviceElementList.AddUInt("SupportsQoSRange", 1)
                             .AddUInt("SupportsOutOfBandSnapshots", 1)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("InfoFilter", serviceElementList);
 
@@ -2443,10 +2448,10 @@ public class OmmConfigTests
                                 .AddAscii("DataState", "DataState::Suspect")
                                 .AddAscii("StatusCode", "StatusCode::NotOpen")
                                 .AddAscii("StatusText", "ProgStatusText")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         serviceElementList.AddElementList("Status", innerServiceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("StateFilter", serviceElementList);
 
@@ -2456,9 +2461,9 @@ public class OmmConfigTests
         serviceElementList.AddUInt("OpenLimit", 500)
                             .AddUInt("OpenWindow", 600)
                             .AddUInt("LoadFactor", 700)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("LoadFilter", serviceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_1", MapAction.ADD, serviceFilterList);
 
@@ -2471,25 +2476,25 @@ public class OmmConfigTests
                             .AddUInt("IsSource", 1);
 
         serviceArray.AddAscii("MMT_HISTORY")
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("InfoFilter", serviceElementList)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_2", MapAction.ADD, serviceFilterList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDirectory_1", MapAction.ADD, serviceMap)
-                .Complete();
+                .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DirectoryList", innerMap)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DirectoryGroup", MapAction.ADD, encodeGroupList);
 
-        outerMap.Complete();
+        outerMap.MarkForClear().Complete();
 
         niProvConfigImpl.Config(outerMap);
 
@@ -2855,24 +2860,24 @@ public class OmmConfigTests
             .AddUInt("XmlTraceWrite", 0)
             .AddUInt("XmlTraceRead", 0)
             .AddUInt("XmlTracePing", 1)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgNiProvider_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
 
         encodeObjectList.AddAscii("ChannelSet", "ProgChannel_1, ProgChannel_2")
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgNiProvider_2", MapAction.ADD, encodeObjectList);
 
-        innerMap.Complete();
+        innerMap.MarkForClear().Complete();
 
         encodeGroupList.Clear();
 
         encodeGroupList.AddAscii("DefaultNiProvider", "ProgNiProvider_1")
             .AddMap("NiProviderList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("NiProviderGroup", MapAction.ADD, encodeGroupList);
 
@@ -2905,20 +2910,20 @@ public class OmmConfigTests
             .AddUInt("TcpNodelay", 1)
             .AddUInt("SecurityProtocol", EncryptedTLSProtocolFlags.TLSv1_2 | 0x01)
             .AddUInt("CompressionThreshold", 666)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgChannel_1", MapAction.ADD, encodeObjectList);
 
 
         // Second channel is all defaults, so add an empty Element List
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgChannel_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("ChannelList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("ChannelGroup", MapAction.ADD, encodeGroupList);
 
@@ -2933,19 +2938,19 @@ public class OmmConfigTests
             .AddUInt("MaxLogFileSize", 100)
             .AddEnum("LoggerSeverity", LoggerLevelEnum.INFO)
             .AddEnum("LoggerType", LoggerTypeEnum.STDOUT)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_1", MapAction.ADD, encodeObjectList);
 
         // Blank logger config
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("LoggerList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("LoggerGroup", MapAction.ADD, encodeGroupList);
 
@@ -2959,18 +2964,18 @@ public class OmmConfigTests
             .AddAscii("RdmFieldDictionaryFileName", "ProgFieldFile")
             .AddAscii("RdmFieldDictionaryItemName", "ProgFieldItem")
             .AddEnum("DictionaryType", DictionaryTypeEnum.FILE)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DictionaryList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DictionaryGroup", MapAction.ADD, encodeGroupList);
 
@@ -3002,7 +3007,7 @@ public class OmmConfigTests
 
         serviceArray.AddUInt(130)
                     .AddUInt(5)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
                             .AddUInt("AcceptingConsumerStatus", 1)
@@ -3011,35 +3016,35 @@ public class OmmConfigTests
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
                     .AddAscii("ProgDictionary_2")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesProvided", serviceArray);
 
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
                     .AddAscii("ProgDictionary_2")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesUsed", serviceArray);
 
         qosSeries.Clear();
         innerServiceElementList.Clear();
         innerServiceElementList.AddAscii("Timeliness", "Timeliness::InexactDelayed")
                                 .AddAscii("Rate", "Rate::JustInTimeConflated")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         qosSeries.AddEntry(innerServiceElementList);
 
         innerServiceElementList.Clear();
         innerServiceElementList.AddUInt("Timeliness", 100)
                                 .AddUInt("Rate", 200)
-                                .Complete();
+                                .MarkForClear().Complete();
         qosSeries.AddEntry(innerServiceElementList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddSeries("QoS", qosSeries);
 
         serviceElementList.AddUInt("SupportsQoSRange", 1)
                             .AddUInt("SupportsOutOfBandSnapshots", 1)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("InfoFilter", serviceElementList);
 
@@ -3054,10 +3059,10 @@ public class OmmConfigTests
                                 .AddAscii("DataState", "DataState::Suspect")
                                 .AddAscii("StatusCode", "StatusCode::NotOpen")
                                 .AddAscii("StatusText", "ProgStatusText")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         serviceElementList.AddElementList("Status", innerServiceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("StateFilter", serviceElementList);
 
@@ -3067,9 +3072,9 @@ public class OmmConfigTests
         serviceElementList.AddUInt("OpenLimit", 500)
                             .AddUInt("OpenWindow", 600)
                             .AddUInt("LoadFactor", 700)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("LoadFilter", serviceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_1", MapAction.ADD, serviceFilterList);
 
@@ -3082,25 +3087,25 @@ public class OmmConfigTests
                             .AddUInt("IsSource", 1);
 
         serviceArray.AddAscii("MMT_HISTORY")
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("InfoFilter", serviceElementList)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_2", MapAction.ADD, serviceFilterList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDirectory_1", MapAction.ADD, serviceMap)
-                .Complete();
+                .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DirectoryList", innerMap)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DirectoryGroup", MapAction.ADD, encodeGroupList);
 
-        outerMap.Complete();
+        outerMap.MarkForClear().Complete();
 
         niProvConfigImpl.Config(outerMap);
 
@@ -3416,24 +3421,24 @@ public class OmmConfigTests
             .AddUInt("XmlTraceWrite", 0)
             .AddUInt("XmlTraceRead", 0)
             .AddUInt("XmlTracePing", 1)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgNiProvider_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
 
         encodeObjectList.AddAscii("ChannelSet", "ProgChannel_1, ProgChannel_2")
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgNiProvider_2", MapAction.ADD, encodeObjectList);
 
-        innerMap.Complete();
+        innerMap.MarkForClear().Complete();
 
         encodeGroupList.Clear();
 
         encodeGroupList.AddAscii("DefaultNiProvider", "ProgNiProvider_1")
             .AddMap("NiProviderList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("NiProviderGroup", MapAction.ADD, encodeGroupList);
 
@@ -3466,20 +3471,20 @@ public class OmmConfigTests
             .AddUInt("TcpNodelay", 0)
             .AddUInt("SecurityProtocol", EncryptedTLSProtocolFlags.TLSv1_2 | 0x01)
             .AddUInt("CompressionThreshold", 1666)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgChannel_1", MapAction.ADD, encodeObjectList);
 
 
         // Second channel is all defaults, so add an empty Element List
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgChannel_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("ChannelList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("ChannelGroup", MapAction.ADD, encodeGroupList);
 
@@ -3494,19 +3499,19 @@ public class OmmConfigTests
             .AddUInt("MaxLogFileSize", 1100)
             .AddEnum("LoggerSeverity", LoggerLevelEnum.WARNING)
             .AddEnum("LoggerType", LoggerTypeEnum.FILE)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_1", MapAction.ADD, encodeObjectList);
 
         // Blank logger config
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("LoggerList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("LoggerGroup", MapAction.ADD, encodeGroupList);
 
@@ -3520,18 +3525,18 @@ public class OmmConfigTests
             .AddAscii("RdmFieldDictionaryFileName", "NewProgFieldFile")
             .AddAscii("RdmFieldDictionaryItemName", "NewProgFieldItem")
             .AddEnum("DictionaryType", DictionaryTypeEnum.CHANNEL)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DictionaryList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DictionaryGroup", MapAction.ADD, encodeGroupList);
 
@@ -3563,7 +3568,7 @@ public class OmmConfigTests
 
         serviceArray.AddUInt(131)
                     .AddUInt(6)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
                             .AddUInt("AcceptingConsumerStatus", 0)
@@ -3571,34 +3576,34 @@ public class OmmConfigTests
 
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesProvided", serviceArray);
 
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesUsed", serviceArray);
 
         qosSeries.Clear();
         innerServiceElementList.Clear();
         innerServiceElementList.AddAscii("Timeliness", "Timeliness::RealTime")
                                 .AddAscii("Rate", "Rate::TickByTick")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         qosSeries.AddEntry(innerServiceElementList);
 
         innerServiceElementList.Clear();
         innerServiceElementList.AddUInt("Timeliness", 1100)
                                 .AddUInt("Rate", 1200)
-                                .Complete();
+                                .MarkForClear().Complete();
         qosSeries.AddEntry(innerServiceElementList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddSeries("QoS", qosSeries);
 
         serviceElementList.AddUInt("SupportsQoSRange", 0)
                             .AddUInt("SupportsOutOfBandSnapshots", 0)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("InfoFilter", serviceElementList);
 
@@ -3613,10 +3618,10 @@ public class OmmConfigTests
                                 .AddAscii("DataState", "DataState::Ok")
                                 .AddAscii("StatusCode", "StatusCode::AlreadyOpen")
                                 .AddAscii("StatusText", "NewProgStatusText")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         serviceElementList.AddElementList("Status", innerServiceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("StateFilter", serviceElementList);
 
@@ -3626,9 +3631,9 @@ public class OmmConfigTests
         serviceElementList.AddUInt("OpenLimit", 1500)
                             .AddUInt("OpenWindow", 1600)
                             .AddUInt("LoadFactor", 1700)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("LoadFilter", serviceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_1", MapAction.ADD, serviceFilterList);
 
@@ -3641,25 +3646,25 @@ public class OmmConfigTests
                             .AddUInt("IsSource", 0);
 
         serviceArray.AddAscii("MMT_STORY")
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("InfoFilter", serviceElementList)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_2", MapAction.ADD, serviceFilterList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDirectory_1", MapAction.ADD, serviceMap)
-                .Complete();
+                .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DirectoryList", innerMap)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DirectoryGroup", MapAction.ADD, encodeGroupList);
 
-        outerMap.Complete();
+        outerMap.MarkForClear().Complete();
 
         niProvConfigImpl.Config(outerMap);
 
@@ -3973,8 +3978,8 @@ public class OmmConfigTests
                 .AddAscii("Position", "TestPosition")
                 .AddAscii("Password", "TestPassword")
                 .AddAscii("ApplicationName", "TestEMAApp")
-                .Complete()
-        ).EncodeComplete();
+                .MarkForClear().Complete()
+        ).MarkForClear().EncodeComplete();
 
         try
         {
@@ -4079,7 +4084,7 @@ public class OmmConfigTests
         Assert.Equal(CodecReturnCode.SUCCESS, directoryRefresh.Encode(refreshMsg.Encoder!.m_encodeIterator!));
 
         refreshMsg.Encoder!.m_containerComplete = true;
-
+        refreshMsg.MarkForClear();
         niProviderConfig.AddAdminMsg(refreshMsg);
 
         // Verify the configuration
@@ -4907,24 +4912,24 @@ public class OmmConfigTests
             .AddUInt("EnforceAckIDValidation", 1)
             .AddUInt("EnumTypeFragmentSize", 2080)
             .AddUInt("FieldDictionaryFragmentSize", 2090)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgIProvider_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
 
         encodeObjectList.AddAscii("Server", "ProgServer_2")
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgIProvider_2", MapAction.ADD, encodeObjectList);
 
-        innerMap.Complete();
+        innerMap.MarkForClear().Complete();
 
         encodeGroupList.Clear();
 
         encodeGroupList.AddAscii("DefaultIProvider", "ProgIProvider_1")
             .AddMap("IProviderList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("IProviderGroup", MapAction.ADD, encodeGroupList);
 
@@ -4955,20 +4960,20 @@ public class OmmConfigTests
             .AddUInt("SecurityProtocol", 6)
             .AddAscii("CipherSuite", "TLS_RSA_WITH_NULL_MD5, TLS_RSA_WITH_NULL_SHA, 3, 5")
             .AddUInt("AuthenticationTimeout", 30000)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgServer_1", MapAction.ADD, encodeObjectList);
 
 
         // Second channel is all defaults, so add an empty Element List
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgServer_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("ServerList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("ServerGroup", MapAction.ADD, encodeGroupList);
 
@@ -4983,19 +4988,19 @@ public class OmmConfigTests
             .AddUInt("MaxLogFileSize", 100)
             .AddEnum("LoggerSeverity", LoggerLevelEnum.INFO)
             .AddEnum("LoggerType", LoggerTypeEnum.STDOUT)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_1", MapAction.ADD, encodeObjectList);
 
         // Blank logger config
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("LoggerList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("LoggerGroup", MapAction.ADD, encodeGroupList);
 
@@ -5009,18 +5014,18 @@ public class OmmConfigTests
             .AddAscii("RdmFieldDictionaryFileName", "ProgFieldFile")
             .AddAscii("RdmFieldDictionaryItemName", "ProgFieldItem")
             .AddEnum("DictionaryType", DictionaryTypeEnum.FILE)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DictionaryList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DictionaryGroup", MapAction.ADD, encodeGroupList);
 
@@ -5052,7 +5057,7 @@ public class OmmConfigTests
 
         serviceArray.AddUInt(130)
                     .AddUInt(5)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
                             .AddUInt("AcceptingConsumerStatus", 1)
@@ -5061,35 +5066,35 @@ public class OmmConfigTests
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
                     .AddAscii("ProgDictionary_2")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesProvided", serviceArray);
 
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
                     .AddAscii("ProgDictionary_2")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesUsed", serviceArray);
 
         qosSeries.Clear();
         innerServiceElementList.Clear();
         innerServiceElementList.AddAscii("Timeliness", "Timeliness::InexactDelayed")
                                 .AddAscii("Rate", "Rate::JustInTimeConflated")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         qosSeries.AddEntry(innerServiceElementList);
 
         innerServiceElementList.Clear();
         innerServiceElementList.AddUInt("Timeliness", 100)
                                 .AddUInt("Rate", 200)
-                                .Complete();
+                                .MarkForClear().Complete();
         qosSeries.AddEntry(innerServiceElementList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddSeries("QoS", qosSeries);
 
         serviceElementList.AddUInt("SupportsQoSRange", 1)
                             .AddUInt("SupportsOutOfBandSnapshots", 1)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("InfoFilter", serviceElementList);
 
@@ -5104,10 +5109,10 @@ public class OmmConfigTests
                                 .AddAscii("DataState", "DataState::Suspect")
                                 .AddAscii("StatusCode", "StatusCode::NotOpen")
                                 .AddAscii("StatusText", "ProgStatusText")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         serviceElementList.AddElementList("Status", innerServiceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("StateFilter", serviceElementList);
 
@@ -5117,9 +5122,9 @@ public class OmmConfigTests
         serviceElementList.AddUInt("OpenLimit", 500)
                             .AddUInt("OpenWindow", 600)
                             .AddUInt("LoadFactor", 700)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("LoadFilter", serviceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_1", MapAction.ADD, serviceFilterList);
 
@@ -5132,25 +5137,25 @@ public class OmmConfigTests
                             .AddUInt("IsSource", 1);
 
         serviceArray.AddAscii("MMT_HISTORY")
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("InfoFilter", serviceElementList)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_2", MapAction.ADD, serviceFilterList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDirectory_1", MapAction.ADD, serviceMap)
-                .Complete();
+                .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DirectoryList", innerMap)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DirectoryGroup", MapAction.ADD, encodeGroupList);
 
-        outerMap.Complete();
+        outerMap.MarkForClear().Complete();
 
         try
         {
@@ -5536,24 +5541,24 @@ public class OmmConfigTests
             .AddUInt("EnforceAckIDValidation", 1)
             .AddUInt("EnumTypeFragmentSize", 2080)
             .AddUInt("FieldDictionaryFragmentSize", 2090)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgIProvider_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
 
         encodeObjectList.AddAscii("Server", "ProgServer_2")
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgIProvider_2", MapAction.ADD, encodeObjectList);
 
-        innerMap.Complete();
+        innerMap.MarkForClear().Complete();
 
         encodeGroupList.Clear();
 
         encodeGroupList.AddAscii("DefaultIProvider", "ProgIProvider_1")
             .AddMap("IProviderList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("IProviderGroup", MapAction.ADD, encodeGroupList);
 
@@ -5583,20 +5588,20 @@ public class OmmConfigTests
             .AddAscii("ServerPrivateKey", "ProgKey_1")
             .AddUInt("SecurityProtocol", 6)
             .AddAscii("CipherSuite", "TLS_RSA_WITH_NULL_MD5, TLS_RSA_WITH_NULL_SHA, 3, 5")
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgServer_1", MapAction.ADD, encodeObjectList);
 
 
         // Second channel is all defaults, so add an empty Element List
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgServer_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("ServerList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("ServerGroup", MapAction.ADD, encodeGroupList);
 
@@ -5611,19 +5616,19 @@ public class OmmConfigTests
             .AddUInt("MaxLogFileSize", 100)
             .AddEnum("LoggerSeverity", LoggerLevelEnum.INFO)
             .AddEnum("LoggerType", LoggerTypeEnum.STDOUT)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_1", MapAction.ADD, encodeObjectList);
 
         // Blank logger config
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("LoggerList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("LoggerGroup", MapAction.ADD, encodeGroupList);
 
@@ -5637,18 +5642,18 @@ public class OmmConfigTests
             .AddAscii("RdmFieldDictionaryFileName", "ProgFieldFile")
             .AddAscii("RdmFieldDictionaryItemName", "ProgFieldItem")
             .AddEnum("DictionaryType", DictionaryTypeEnum.FILE)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DictionaryList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DictionaryGroup", MapAction.ADD, encodeGroupList);
 
@@ -5680,7 +5685,7 @@ public class OmmConfigTests
 
         serviceArray.AddUInt(130)
                     .AddUInt(5)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
                             .AddUInt("AcceptingConsumerStatus", 1)
@@ -5689,35 +5694,35 @@ public class OmmConfigTests
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
                     .AddAscii("ProgDictionary_2")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesProvided", serviceArray);
 
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
                     .AddAscii("ProgDictionary_2")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesUsed", serviceArray);
 
         qosSeries.Clear();
         innerServiceElementList.Clear();
         innerServiceElementList.AddAscii("Timeliness", "Timeliness::InexactDelayed")
                                 .AddAscii("Rate", "Rate::JustInTimeConflated")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         qosSeries.AddEntry(innerServiceElementList);
 
         innerServiceElementList.Clear();
         innerServiceElementList.AddUInt("Timeliness", 100)
                                 .AddUInt("Rate", 200)
-                                .Complete();
+                                .MarkForClear().Complete();
         qosSeries.AddEntry(innerServiceElementList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddSeries("QoS", qosSeries);
 
         serviceElementList.AddUInt("SupportsQoSRange", 1)
                             .AddUInt("SupportsOutOfBandSnapshots", 1)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("InfoFilter", serviceElementList);
 
@@ -5732,10 +5737,10 @@ public class OmmConfigTests
                                 .AddAscii("DataState", "DataState::Suspect")
                                 .AddAscii("StatusCode", "StatusCode::NotOpen")
                                 .AddAscii("StatusText", "ProgStatusText")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         serviceElementList.AddElementList("Status", innerServiceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("StateFilter", serviceElementList);
 
@@ -5745,9 +5750,9 @@ public class OmmConfigTests
         serviceElementList.AddUInt("OpenLimit", 500)
                             .AddUInt("OpenWindow", 600)
                             .AddUInt("LoadFactor", 700)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("LoadFilter", serviceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_1", MapAction.ADD, serviceFilterList);
 
@@ -5760,25 +5765,25 @@ public class OmmConfigTests
                             .AddUInt("IsSource", 1);
 
         serviceArray.AddAscii("MMT_HISTORY")
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("InfoFilter", serviceElementList)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_2", MapAction.ADD, serviceFilterList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDirectory_1", MapAction.ADD, serviceMap)
-                .Complete();
+                .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DirectoryList", innerMap)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DirectoryGroup", MapAction.ADD, encodeGroupList);
 
-        outerMap.Complete();
+        outerMap.MarkForClear().Complete();
 
         // Apply the config and verify the contents
         iProvConfigImpl.Config(outerMap);
@@ -6105,24 +6110,24 @@ public class OmmConfigTests
         .AddUInt("EnforceAckIDValidation", 0)
         .AddUInt("EnumTypeFragmentSize", 3080)
         .AddUInt("FieldDictionaryFragmentSize", 3090)
-        .Complete();
+        .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgIProvider_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
 
         encodeObjectList.AddAscii("Server", "ProgServer_2")
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgIProvider_2", MapAction.ADD, encodeObjectList);
 
-        innerMap.Complete();
+        innerMap.MarkForClear().Complete();
 
         encodeGroupList.Clear();
 
         encodeGroupList.AddAscii("DefaultIProvider", "ProgIProvider_1")
             .AddMap("IProviderList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("IProviderGroup", MapAction.ADD, encodeGroupList);
 
@@ -6152,20 +6157,20 @@ public class OmmConfigTests
             .AddAscii("ServerPrivateKey", "ProgKey_2")
             .AddUInt("SecurityProtocol", 6)
             .AddAscii("CipherSuite", "TLS_RSA_WITH_NULL_MD5")
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgServer_1", MapAction.ADD, encodeObjectList);
 
 
         // Second channel is all defaults, so add an empty Element List
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgServer_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("ServerList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("ServerGroup", MapAction.ADD, encodeGroupList);
 
@@ -6180,19 +6185,19 @@ public class OmmConfigTests
             .AddUInt("MaxLogFileSize", 1100)
             .AddEnum("LoggerSeverity", LoggerLevelEnum.WARNING)
             .AddEnum("LoggerType", LoggerTypeEnum.FILE)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_1", MapAction.ADD, encodeObjectList);
 
         // Blank logger config
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("LoggerList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("LoggerGroup", MapAction.ADD, encodeGroupList);
 
@@ -6206,18 +6211,18 @@ public class OmmConfigTests
             .AddAscii("RdmFieldDictionaryFileName", "NewProgFieldFile")
             .AddAscii("RdmFieldDictionaryItemName", "NewProgFieldItem")
             .AddEnum("DictionaryType", DictionaryTypeEnum.CHANNEL)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_1", MapAction.ADD, encodeObjectList);
 
         encodeObjectList.Clear();
-        encodeObjectList.Complete();
+        encodeObjectList.MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDictionary_2", MapAction.ADD, encodeObjectList)
-            .Complete();
+            .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DictionaryList", innerMap)
-            .Complete();
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DictionaryGroup", MapAction.ADD, encodeGroupList);
 
@@ -6249,7 +6254,7 @@ public class OmmConfigTests
 
         serviceArray.AddUInt(131)
                     .AddUInt(6)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
                             .AddUInt("AcceptingConsumerStatus", 0)
@@ -6257,34 +6262,34 @@ public class OmmConfigTests
 
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesProvided", serviceArray);
 
         serviceArray.Clear();
         serviceArray.AddAscii("ProgDictionary_1")
-                    .Complete();
+                    .MarkForClear().Complete();
         serviceElementList.AddArray("DictionariesUsed", serviceArray);
 
         qosSeries.Clear();
         innerServiceElementList.Clear();
         innerServiceElementList.AddAscii("Timeliness", "Timeliness::RealTime")
                                 .AddAscii("Rate", "Rate::TickByTick")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         qosSeries.AddEntry(innerServiceElementList);
 
         innerServiceElementList.Clear();
         innerServiceElementList.AddUInt("Timeliness", 1100)
                                 .AddUInt("Rate", 1200)
-                                .Complete();
+                                .MarkForClear().Complete();
         qosSeries.AddEntry(innerServiceElementList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddSeries("QoS", qosSeries);
 
         serviceElementList.AddUInt("SupportsQoSRange", 0)
                             .AddUInt("SupportsOutOfBandSnapshots", 0)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("InfoFilter", serviceElementList);
 
@@ -6299,10 +6304,10 @@ public class OmmConfigTests
                                 .AddAscii("DataState", "DataState::Ok")
                                 .AddAscii("StatusCode", "StatusCode::AlreadyOpen")
                                 .AddAscii("StatusText", "NewProgStatusText")
-                                .Complete();
+                                .MarkForClear().Complete();
 
         serviceElementList.AddElementList("Status", innerServiceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceFilterList.AddElementList("StateFilter", serviceElementList);
 
@@ -6312,9 +6317,9 @@ public class OmmConfigTests
         serviceElementList.AddUInt("OpenLimit", 1500)
                             .AddUInt("OpenWindow", 1600)
                             .AddUInt("LoadFactor", 1700)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("LoadFilter", serviceElementList)
-                            .Complete();
+                            .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_1", MapAction.ADD, serviceFilterList);
 
@@ -6327,25 +6332,25 @@ public class OmmConfigTests
                             .AddUInt("IsSource", 0);
 
         serviceArray.AddAscii("MMT_STORY")
-                    .Complete();
+                    .MarkForClear().Complete();
 
         serviceElementList.AddArray("Capabilities", serviceArray)
-                            .Complete();
+                            .MarkForClear().Complete();
         serviceFilterList.AddElementList("InfoFilter", serviceElementList)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         serviceMap.AddKeyAscii("ProgService_2", MapAction.ADD, serviceFilterList)
-                    .Complete();
+                    .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgDirectory_1", MapAction.ADD, serviceMap)
-                .Complete();
+                .MarkForClear().Complete();
 
         encodeGroupList.AddMap("DirectoryList", innerMap)
-                        .Complete();
+                        .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("DirectoryGroup", MapAction.ADD, encodeGroupList);
 
-        outerMap.Complete();
+        outerMap.MarkForClear().Complete();
 
         // Apply and verify the overlaid config
         iProvConfigImpl.Config(outerMap);

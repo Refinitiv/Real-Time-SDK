@@ -114,7 +114,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
-            stringBuf.Insert(0, "LoginClose: \n");
+            stringBuf.Insert(0, $"LoginClose: {NewLine}");
             return stringBuf.ToString();
         }
     }
