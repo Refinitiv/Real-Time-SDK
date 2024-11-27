@@ -10,6 +10,7 @@ import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.codec.Qos;
 import com.refinitiv.eta.codec.QosRates;
 import com.refinitiv.eta.codec.QosTimeliness;
+import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceInfo;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceState;
@@ -20,6 +21,7 @@ import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -206,7 +208,19 @@ public class EmaFileConfigJunitTests extends TestCase
 		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_8");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
+		
+		// Checks values of Consumer_9
+		System.out.println("\nRetrieving Consumer_9 configuration values "); 
 
+		ConsChannelVal = JUnitTestConnect.configGetChannelName(testConfig, "Consumer_9");
+		String SessionChannel = JUnitTestConnect.configGetSessionChannel(testConfig, "Consumer_9");
+	    TestUtilities.checkResult("SessionChannel value == Connection_1, Connection_2", SessionChannel.contentEquals("Connection_1, Connection_2") );
+		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_9");
+		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
+		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
+
+		System.out.println("\nRetrieving WarmStandbyGroup");
+		
 		// Check all values from WarmStandbyChannel_1
 		String WSBGroupAttrib = JUnitTestConnect.configGetStringValue(testConfig, "WarmStandbyChannel_1", JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StartingActiveServer);
 		TestUtilities.checkResult("StartingActiveServer value != null", WSBGroupAttrib != null);
@@ -244,6 +258,31 @@ public class EmaFileConfigJunitTests extends TestCase
 		WSBServerAttrib = JUnitTestConnect.configGetStringValue(testConfig, "Server_Info_2", JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet);
 		TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
 		TestUtilities.checkResult("PerServiceNameSet value == DIRECT_FEED2, DIRECT_FEED3", WSBServerAttrib.contentEquals("DIRECT_FEED2, DIRECT_FEED3") );
+		
+		
+		// Checks all values from Connection_1 for session channel
+		System.out.println("\nRetrieving Connection_1 for session channel");
+		String sessionChannelInfoAttrib = JUnitTestConnect.configGetStringValue(testConfig, "Connection_1", JUnitTestConnect.ConfigGroupTypeSessionChannel, JUnitTestConnect.ChannelSet);
+		TestUtilities.checkResult("ChannelSet value != null", sessionChannelInfoAttrib != null);
+		TestUtilities.checkResult("ChannelSet value == Channel_1,Channel_2,Channel_3", sessionChannelInfoAttrib.contentEquals("Channel_1,Channel_2,Channel_3") );
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, "Connection_1", JUnitTestConnect.ConfigGroupTypeSessionChannel, JUnitTestConnect.ReconnectAttemptLimit);
+		TestUtilities.checkResult("ReconnectAttemptLimit value == 10", intValue == 10 );
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, "Connection_1", JUnitTestConnect.ConfigGroupTypeSessionChannel, JUnitTestConnect.ReconnectMinDelay);
+		TestUtilities.checkResult("ReconnectMinDelay value == 2000", intValue == 2000 );
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, "Connection_1", JUnitTestConnect.ConfigGroupTypeSessionChannel, JUnitTestConnect.ReconnectMaxDelay);
+		TestUtilities.checkResult("ReconnectMaxDelay value == 6000", intValue == 6000 );
+		
+		// Checks all values from Connection_2 for session channel
+		sessionChannelInfoAttrib = JUnitTestConnect.configGetStringValue(testConfig, "Connection_2", JUnitTestConnect.ConfigGroupTypeSessionChannel, JUnitTestConnect.ChannelSet);
+		TestUtilities.checkResult("ChannelSet value != null", sessionChannelInfoAttrib != null);
+		TestUtilities.checkResult("ChannelSet value == Channel_4,Channel_5", sessionChannelInfoAttrib.contentEquals("Channel_4,Channel_5") );
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, "Connection_2", JUnitTestConnect.ConfigGroupTypeSessionChannel, JUnitTestConnect.ReconnectAttemptLimit);
+		TestUtilities.checkResult("ReconnectAttemptLimit value == 4", intValue == 4 );
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, "Connection_2", JUnitTestConnect.ConfigGroupTypeSessionChannel, JUnitTestConnect.ReconnectMinDelay);
+		TestUtilities.checkResult("ReconnectMinDelay value == 3000", intValue == 3000 );
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, "Connection_2", JUnitTestConnect.ConfigGroupTypeSessionChannel, JUnitTestConnect.ReconnectMaxDelay);
+		TestUtilities.checkResult("ReconnectMaxDelay value == 4000", intValue == 4000 );
+		
 
 		// Check Channel configuration:
 		// Check Channel_1 configuration.
@@ -882,6 +921,248 @@ public class EmaFileConfigJunitTests extends TestCase
 			tempTestName = "VerifyIndividualChannelAttributes are valid";
 			TestUtilities.checkResult(tempTestName, result == 0);		
 			chanelSetConsumer = null;
+		}
+		catch ( OmmException excp)
+		{
+			System.out.println(excp.getMessage());
+			TestUtilities.checkResult("Receiving exception, test failed.", false );
+		}
+	}
+	
+	public void testLoadFromFileCfgSessionChannelSet()
+	{
+		String consumerName = "";
+		TestUtilities.printTestHead("testLoadFromFileCfgSessionChannelSet","Test reading SessionChannel is configured in EmaConfig.xml file");
+
+		// To specify EmaConfigTest.xml file location use -DEmaConfigFileLocation=EmaConfigTest.xml
+		String EmaConfigFileLocation = System.getProperty("EmaConfigFileLocation");
+		if ( EmaConfigFileLocation == null )
+		{
+			EmaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/EmaFileConfigTests/EmaConfigTest.xml";
+			System.out.println("EmaConfigTest.xml file not specified, using default file");
+		}
+		else
+		{
+			System.out.println("Using Ema Config: " + EmaConfigFileLocation);
+		}
+		
+		OmmConsumerConfig testConfig = EmaFactory.createOmmConsumerConfig(EmaConfigFileLocation);
+		
+		// Test Individual Channel attributes and Common attributes.
+		String tempTestName = "testLoadFromFileCfgSessionChannelSet";
+		
+		consumerName = "Consumer_9";
+		OmmConsumer sessionChannelConsumer = null;
+		testConfig.consumerName(consumerName);
+		try 
+		{
+			sessionChannelConsumer = JUnitTestConnect.createOmmConsumer(testConfig);
+			
+			
+			// Expected result for a list of SessionChannelConfig
+			List<SessionChannelConfig> expectedSessionChannelSet = new ArrayList<SessionChannelConfig>();
+			
+			SessionChannelConfig sessionChannelConfig = new SessionChannelConfig("Connection_1");
+			sessionChannelConfig.reconnectAttemptLimit = 10;
+			sessionChannelConfig.reconnectMinDelay = 2000;
+			sessionChannelConfig.reconnectMaxDelay = 6000;
+			sessionChannelConfig.configChannelSet = new ArrayList<ChannelConfig>();
+			
+			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
+			socketChannelConfig.name = "Channel_1";
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			sessionChannelConfig.configChannelSet.add(socketChannelConfig);
+			
+			socketChannelConfig = new SocketChannelConfig();
+			socketChannelConfig.name = "Channel_2";
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			sessionChannelConfig.configChannelSet.add(socketChannelConfig);
+			
+			socketChannelConfig = new SocketChannelConfig();
+			socketChannelConfig.name = "Channel_3";
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			sessionChannelConfig.configChannelSet.add(socketChannelConfig);
+			
+			expectedSessionChannelSet.add(sessionChannelConfig);
+			sessionChannelConfig = new SessionChannelConfig("Connection_2");
+			sessionChannelConfig.reconnectAttemptLimit = 4;
+			sessionChannelConfig.reconnectMinDelay = 3000;
+			sessionChannelConfig.reconnectMaxDelay = 4000;
+			sessionChannelConfig.configChannelSet = new ArrayList<ChannelConfig>();
+			
+			socketChannelConfig = new SocketChannelConfig();
+			socketChannelConfig.name = "Channel_4";
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			sessionChannelConfig.configChannelSet.add(socketChannelConfig);
+			
+			socketChannelConfig = new SocketChannelConfig();
+			socketChannelConfig.name = "Channel_5";
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			sessionChannelConfig.configChannelSet.add(socketChannelConfig);
+			
+			expectedSessionChannelSet.add(sessionChannelConfig);
+			
+			int result = JUnitTestConnect.configVerifyConsSessionChannelAttribs(sessionChannelConsumer, testConfig, consumerName, expectedSessionChannelSet);
+			tempTestName = "VerifyIndividualSessionChannelAttributes are valid";
+			TestUtilities.checkResult(tempTestName, result == 0);		
+			sessionChannelConsumer = null;
+		}
+		catch ( OmmException excp)
+		{
+			System.out.println(excp.getMessage());
+			TestUtilities.checkResult("Receiving exception, test failed.", false );
+		}
+	}
+	
+	public void testLoadFromProgrammaticCfgSessionChannelSet()
+	{
+		String consumerName = "";
+		TestUtilities.printTestHead("testLoadFromProgrammaticCfgSessionChannelSet","Test reading SessionChannel is configured in programmatic configuration");
+
+		OmmConsumerConfig testConfig = EmaFactory.createOmmConsumerConfig();
+		
+		// Test Individual Channel attributes and Common attributes.
+		String tempTestName = "testLoadFromProgrammaticCfgSessionChannelSet";
+		
+		consumerName = "Consumer_9";
+		OmmConsumer sessionChannelConsumer = null;
+		testConfig.consumerName(consumerName);
+		try 
+		{
+			Map outermostMap = EmaFactory.createMap();
+			Map innerMap = EmaFactory.createMap();
+			ElementList elementList = EmaFactory.createElementList();
+			ElementList innerElementList = EmaFactory.createElementList();
+			
+			// Setting up programmatic configuration
+			elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_9"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("SessionChannelSet", "Connection_1, Connection_2"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 10));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 4444));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMaxDelay", 7777));
+			
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_9", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			elementList.add(EmaFactory.createElementEntry().map( "ConsumerList", innerMap ));
+			innerMap.clear();
+			
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "ConsumerGroup", MapEntry.MapAction.ADD, elementList ));
+			elementList.clear();
+			
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelSet", "Channel_1, Channel_2, Channel_3"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 10));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 2000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMaxDelay", 6000));
+			
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Connection_1", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelSet", "Channel_4,Channel_5"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 4));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 3000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMaxDelay", 4000));
+			
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Connection_2", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			elementList.add(EmaFactory.createElementEntry().map( "SessionChannelList", innerMap ));
+			innerMap.clear();
+			
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "SessionChannelGroup", MapEntry.MapAction.ADD, elementList ));
+			elementList.clear();
+			
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_SOCKET"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14002"));
+			
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_1", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_SOCKET"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14003"));
+				
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_2", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_SOCKET"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14004"));
+				
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_3", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_SOCKET"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14005"));
+				
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_4", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_SOCKET"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14006"));
+				
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_5", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			elementList.add(EmaFactory.createElementEntry().map( "ChannelList", innerMap ));
+			innerMap.clear();
+
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "ChannelGroup", MapEntry.MapAction.ADD, elementList ));
+			
+			testConfig.config(outermostMap);
+			
+			sessionChannelConsumer = JUnitTestConnect.createOmmConsumer(testConfig);
+			
+			// Expected result for a list of SessionChannelConfig
+			List<SessionChannelConfig> expectedSessionChannelSet = new ArrayList<SessionChannelConfig>();
+			
+			SessionChannelConfig sessionChannelConfig = new SessionChannelConfig("Connection_1");
+			sessionChannelConfig.reconnectAttemptLimit = 10;
+			sessionChannelConfig.reconnectMinDelay = 2000;
+			sessionChannelConfig.reconnectMaxDelay = 6000;
+			sessionChannelConfig.configChannelSet = new ArrayList<ChannelConfig>();
+			
+			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
+			socketChannelConfig.name = "Channel_1";
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			sessionChannelConfig.configChannelSet.add(socketChannelConfig);
+			
+			socketChannelConfig = new SocketChannelConfig();
+			socketChannelConfig.name = "Channel_2";
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			sessionChannelConfig.configChannelSet.add(socketChannelConfig);
+			
+			socketChannelConfig = new SocketChannelConfig();
+			socketChannelConfig.name = "Channel_3";
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			sessionChannelConfig.configChannelSet.add(socketChannelConfig);
+			
+			expectedSessionChannelSet.add(sessionChannelConfig);
+			sessionChannelConfig = new SessionChannelConfig("Connection_2");
+			sessionChannelConfig.reconnectAttemptLimit = 4;
+			sessionChannelConfig.reconnectMinDelay = 3000;
+			sessionChannelConfig.reconnectMaxDelay = 4000;
+			sessionChannelConfig.configChannelSet = new ArrayList<ChannelConfig>();
+			
+			socketChannelConfig = new SocketChannelConfig();
+			socketChannelConfig.name = "Channel_4";
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			sessionChannelConfig.configChannelSet.add(socketChannelConfig);
+			
+			socketChannelConfig = new SocketChannelConfig();
+			socketChannelConfig.name = "Channel_5";
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			sessionChannelConfig.configChannelSet.add(socketChannelConfig);
+			
+			expectedSessionChannelSet.add(sessionChannelConfig);
+			
+			int result = JUnitTestConnect.configVerifyConsSessionChannelAttribs(sessionChannelConsumer, testConfig, consumerName, expectedSessionChannelSet);
+			tempTestName = "VerifyIndividualSessionChannelAttributes are valid";
+			TestUtilities.checkResult(tempTestName, result == 0);		
+			sessionChannelConsumer = null;
 		}
 		catch ( OmmException excp)
 		{

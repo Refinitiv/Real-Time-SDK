@@ -75,6 +75,11 @@ public abstract class OmmInvalidUsageException extends OmmException
 	    public static final int PERSISTENCE_FULL = -9;
 	    
 	    /**
+	     * Indicates that the Reactor is shutdown
+	     */
+	    public static final int SHUTDOWN = -10;
+	    
+	    /**
 	     * Indicates that the specified version is not supported
 	     */
 	    public static final int VERSION_NOT_SUPPORTED = -16;

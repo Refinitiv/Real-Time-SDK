@@ -55,6 +55,7 @@ public class TunnelStreamRequestImpl implements TunnelStreamRequest
 			throw ommIUExcept().message("Attempt to set serviceId while serviceName is already set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		_serviceIdSet = true;
+		_serviceId = serviceId;
 		return this;
 
 	}

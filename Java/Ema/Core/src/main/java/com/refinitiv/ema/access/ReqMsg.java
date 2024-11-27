@@ -132,6 +132,14 @@ public interface ReqMsg extends Msg
 	 * @return true if service name is set; false otherwise
 	 */
 	public boolean hasServiceName();
+	
+	/**
+	 * Indicates presence of the ServiceListName.<br>
+	 * serviceListName is an optional member of ReqMsg.
+	 * 
+	 * @return true if service list name is set; false otherwise
+	 */
+	public boolean hasServiceListName();
 
 	/**
 	 * Returns PriorityClass.<br>
@@ -217,6 +225,16 @@ public interface ReqMsg extends Msg
 	 * @return service name
 	 */
 	public String serviceName();
+	
+	/**
+	 * Returns the ServiceListName within the MsgKey.<br>
+	 * Calling this method must be preceded by a call to {@link #hasServiceListName()}.
+	 * 
+	 * @throws OmmInvalidUsageException if {@link #hasServiceListName()} returns false
+	 * 
+	 * @return service list name
+	 */
+	public String serviceListName();
 
 	/**
 	 * Clears the ReqMsg.<br>
@@ -278,6 +296,17 @@ public interface ReqMsg extends Msg
 	 * @return reference to this object
 	 */
 	public ReqMsg serviceName(String serviceName);
+	
+	/**
+	 * Specifies a service list name defined in a {@link ServiceList}.<br>
+	 * <p>EMA sends item request according of the order of concrete services defined in {@link ServiceList}.</p> 
+	 * 
+	 * @throws OmmInvalidUsageException if service id or service name is already set or if serviceListName does not exist.
+	 * 
+	 * @param serviceListName specifies a service list name
+	 * @return reference to this object
+	 */
+	public ReqMsg serviceListName(String serviceListName);
 
 	/**
 	 * Specifies ServiceId.<br>

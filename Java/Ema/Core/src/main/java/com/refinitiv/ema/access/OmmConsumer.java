@@ -2,11 +2,12 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
+import java.util.List;
 
 /**
  * OmmConsumer class encapsulates functionality of an Omm consuming type application.
@@ -278,6 +279,8 @@ public interface OmmConsumer
 
 	/**
 	 * Retrieves channel information on the OmmConsumer object.
+	 * 
+	 * @throws OmmInvalidUsageException if the request routing feature is enabled on the OmmConsumer object.
 	 *
 	 * @param ci the ChannelInformation
 	 */
@@ -304,5 +307,14 @@ public interface OmmConsumer
 	 *	@throws OmmInvalidUsageException if the credential update fails or if this method is called outside of an onCredentialRenewal callback.
 	 */
 	public void renewOAuthCredentials(OAuth2CredentialRenewal credentials);
+	
+	/**
+	 * Returns a list of channel information for session channels associated with the OmmConsumer object.
+	 * 
+	 * <p>This function returns an empty list if this event does not have any session channels.</p>
+	 * 
+	 * @param sessionChannelInfo the ChannelInformation List
+	 */
+	public void sessionChannelInfo(List<ChannelInformation> sessionChannelInfo);
 }
 

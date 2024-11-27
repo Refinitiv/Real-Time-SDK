@@ -197,15 +197,23 @@ Series200Consumer270-ConsFunc-001
 
 Module:  Series300Consumer300
 -----------------------------
-
 Series300Consumer300-ConsFunc-001
     Alters consumer to provide the following command line options: -at ${TOKEN} -aid ${APPID}
     TOKEN is sent as "user" in Login Request
     APPID is sent as "applicationId" in Login Request
 
+Module:  Series300Consumer320
+-----------------------------
+Series300Consumer320-RequestRouting-001
+    Alters consumer 320 to include printSessionInfo for testing with RequestRouting feature.
+
+Module:  Series300Consumer330
+-----------------------------
+Series300Consumer330-RequestRouting-001
+   Alters consumer 300 to include printSessionInfo for testing with RequestRouting feature.
+   	
 Module:  Series300Consumer331
 -----------------------------
-
 Series300Consumer331-GenM-001
     Alters consumer send genericMsg with connection status on directory stream, should proccess 
     genericMsg from provider. Need to run with Series300Provider320-GenM-001 provider qatool.
@@ -326,14 +334,19 @@ Series300Consumer333-GenM-003
 
 Module:  Series300Consumer340
 -----------------------------
-
 Series300Consumer340-ConsFunc-001
    Alters consumer to clone and decode these messages: RefreshMsg, AckMsg, UpdateMsg and StatusMsg 
+   
+Series300Consumer340-RequestRouting-001
+   Alters consumer 340 to include printSessionInfo for testing with RequestRouting feature.
 
 Module:  Series300Consumer341
 ---------------------------
 Series300Consumer341-ConsFunc-001
-   Alters the Consumer to send repeatedly offstream post with a delay of 20 seconds in between
+   Alters the Consumer to send repeatedly offstream post with a delay of 20 seconds in between.
+   
+Series300Consumer341-RequestRouting-001
+   Alters consumer 341 to include printSessionInfo for testing with RequestRouting feature.
 
 Module:  Series300Consumer360
 ---------------------------
@@ -606,6 +619,81 @@ Series400Consumer490-Dict-003
 	Note: RDMFieldDictionart1 must append this into last line
 	NEG_ACVOL_1    "NEG VOL ACCUMULATED"       -32  NULL        INTEGER            15  REAL64           7
 
+Series500Consumer510-ConsFunc-001
+	Alters to add options for testing qos on ReqMsg and prin event.ChannelInformation instead of SessionInformation.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.INEXACT_DELAYED, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JUST_IN_TIME_CONFLATED).
+
+Series500Consumer510-ConsFunc-002
+	Alters to add options for testing with identifying a concrete service name and qos on ReqMsg and prin event.ChannelInformation instead of SessionInformation.
+	-i itemName.\n"        
+	-s Identifying service name.
+	-user userName.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.INEXACT_DELAYED, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JUST_IN_TIME_CONFLATED).
+
+Series500Consumer510-ConsFunc-003
+	Alters to add options for testing with requesting view1(2,22,25) and view2(2,30,31) on LSEG.L with qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.INEXACT_DELAYED, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JUST_IN_TIME_CONFLATED).
+
+Series500Consumer510-ConsFunc-004
+	Alters to add options for testing with identifying a concrete service name & requesting view1(2,22,25) and view2(2,30,31) on LSEG.L with qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-s Identifying service name.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.INEXACT_DELAYED, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JUST_IN_TIME_CONFLATED).
+
+Series500Consumer510-ConsFunc-005
+	Alters to add options for testing requesting same item but 2 streams, one is normal and one is private, qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-itemName to identify itemName.
+	-domain follow by domainType mp=MARKET_PRICE, mbp=MARKET_BY_PRICE, mbo=MARKET_BY_ORDER.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.BEST_DELAYED_TIMELINESS, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JIT_CONFLATED).
+
+Series500Consumer510-ConsFunc-006
+	Alters to add options for testing requesting batch with view for TRI.N IBM.N LSEG.L, qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.BEST_DELAYED_TIMELINESS, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JIT_CONFLATED).
+	
+Series500Consumer510-ConsFunc-007
+	Alters to add options to identify serviceName1 and serviceName2 in serviceList SVG1, qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-s1 serviceName1.
+	-s2 serviceName2.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.BEST_DELAYED_TIMELINESS, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JIT_CONFLATED).
+
+Series500Consumer510-ConsFunc-008
+	Alters to add options for testing with identifying service id and qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-sid service Id.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.INEXACT_DELAYED, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JUST_IN_TIME_CONFLATED).
+	
+Series500Consumer510-ConsFunc-009
+	Alters to add options to identify concrete serviceName1 and serviceName2 to request TRI.N on serviceName1 and IBM.N on serviceName2, qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-s1 serviceName1.
+	-s2 serviceName2.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.BEST_DELAYED_TIMELINESS, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JIT_CONFLATED).
+
+	
 Module:  Series100Provider100 
 -------------------------------
 Series100Provider100-ByteBufferCloning-001
@@ -680,6 +768,12 @@ Series100Provider100-ProvFunc-009
 Series100Provider100-ProvFunc-010
 	Alters Interactive Provider to register appClientError (since v. 1.4.0) and submit huge updateMsg.
 
+Series100Provider100-ProvFunc-011	
+	 Alters IProvider100 to accept -p (portNumber) as commandline argument.
+
+Series100Provider100-ProvFunc-012	
+	 Alters IProvider100 to accept -p (portNumber) and -delayLogin (to delay LoginResponse in milliseconds) as commandline argument.
+
 Series100Provider100-InitAuthFail-001
     Alters Interactive provide to reject login request
 
@@ -749,6 +843,9 @@ Series300Provider320-ProvFunc-006
     Alters Interactive Provider to send a dictionary in fragments starting at size 9600 
     bytes and incrementing subsequent fragments by 10000 bytes.
 
+Series300Provider320-ProvFunc-007
+	Alters Interactive Provider 320 to accept -p for portNumber via commandline arguments.
+
 Series300Provider320-GenM-001
     Alters Interactive Provider which can process genericMsg on login stream and directory Stream,
     after receive genericMsg from consumer it send a genericMsg back to consumer. 
@@ -757,7 +854,21 @@ Series300Provider320-GenM-001
 Series300Provider320-GenM-002
     Alters Series300Provider320-GenM-001 to clone and decode these messages: RequestMsg and GenericMsg 
 
+Module:  Series300Provider331
+---------------------------
+Series300Provider331-ProvFunc-001
+   Alters IProvider331 to accept -p (portNumber) and -delayDir (to delay DirectoryResponse in milliseconds) as commandline argument.
 
+Module:  Series300Provider332
+---------------------------
+Series300Provider332-ProvFunc-001
+   Alters IProvider332 to accept -p (portNumber) and -delayDict (to delay DictionaryResponse in milliseconds) as commandline argument.
+
+Module:  Series300provider340
+---------------------------
+Series300Provider340-ProvFunc-002
+   Alters IProvider340 to accept -p (portNumber) as commandline argument.
+   
 Module:  Series300provider350
 ---------------------------
 Series300Provider350-ViewDuplicates-001

@@ -39,10 +39,12 @@ import com.refinitiv.ema.access.OmmIProviderConfig.OperationModel;
 import com.refinitiv.ema.access.OmmException.ExceptionType;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.eta.transport.BindOptions;
+import com.refinitiv.eta.transport.ChannelState;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.transport.Server;
 import com.refinitiv.eta.transport.Transport;
 import com.refinitiv.eta.transport.TransportFactory;
+import com.refinitiv.eta.transport.TransportReturnCodes;
 import com.refinitiv.eta.transport.WriteFlags;
 import com.refinitiv.eta.transport.WritePriorities;
 abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClient, ReactorServiceNameToIdCallback, ReactorJsonConversionEventCallback
@@ -573,6 +575,20 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			{
 				_serverChannelHandler.closeActiveSessions();
 				_serverChannelHandler = null;
+			}
+			
+			if(_server != null && _server.state() == ChannelState.ACTIVE &&  TransportReturnCodes.SUCCESS != _server.close(_rsslErrorInfo.error()))
+			{
+				if (_loggerClient.isErrorEnabled())
+				{
+					strBuilder().append("Server.Close() failed while uninitializing OmmServerBaseImpl.")
+							.append("Error Id ").append(_rsslErrorInfo.error().errorId())
+							.append("Internal sysError ").append(_rsslErrorInfo.error().sysError())
+							.append("Error Text ")
+							.append(_rsslErrorInfo.error().text()).append("'. ");
+
+					_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
+				}
 			}
 
 			_pipe.sink().close();

@@ -75,7 +75,18 @@
             <WarmStandbyChannelSet value="WarmStandbyChannel_1"/>
             <Dictionary value="Dictionary_2"/>
             <XmlTraceToStdout value="0"/>
-        </Consumer>    
+        </Consumer>
+		<Consumer>
+			<Name value="Consumer_10"/>
+			<SessionChannelSet value="Connection_1, Connection_2"/>
+			<SessionEnhancedItemRecovery value="1"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+		</Consumer>		
 		<!-- Performance tools consumers -->
 		<Consumer>
 			<Name value="Perf_Consumer_1"/>
@@ -358,6 +369,26 @@
 			<ObjectName value=""/>
 		</Channel>
 		<Channel>
+			<Name value="Channel_10"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="14004"/>
+			<!-- ObjectName is optional: defaulted to ""	-->
+			<ObjectName value=""/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_11"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="14005"/>
+			<!-- ObjectName is optional: defaulted to ""	-->
+			<ObjectName value=""/>
+		</Channel>
+		<Channel>
 			<Name value="Channel_RRTViewer_SE"/>
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 			<CompressionType value="CompressionType::None"/>
@@ -433,6 +464,25 @@
 		</Channel>
 	</ChannelList>
 </ChannelGroup>
+
+<SessionChannelGroup>
+        <SessionChannelList>
+                <SessionChannelInfo>
+                        <Name value="Connection_1"/>
+                        <ChannelSet value="Channel_1,Channel_7"/>
+                        <ReconnectAttemptLimit value="10"/>
+                        <ReconnectMinDelay value="2000"/>
+                        <ReconnectMaxDelay value="6000"/>
+                </SessionChannelInfo>
+                <SessionChannelInfo>
+                        <Name value="Connection_2"/>
+                        <ChannelSet value="Channel_10,Channel_11"/>
+                        <ReconnectAttemptLimit value="4"/>
+                        <ReconnectMinDelay value="3000"/>
+                        <ReconnectMaxDelay value="4000"/>
+                </SessionChannelInfo>
+        </SessionChannelList>
+</SessionChannelGroup>
 
 <ServerGroup>
     <ServerList>

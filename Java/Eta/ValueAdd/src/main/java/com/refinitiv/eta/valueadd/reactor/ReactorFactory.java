@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -18,7 +18,6 @@ import java.io.OutputStream;
  */
 public class ReactorFactory
 {
-    static VaPool _reactorChannelPool = new VaPool(true);
     static VaPool _rdmLoginMsgEventPool = new VaPool(true);
     static VaPool _rdmDirectoryMsgEventPool = new VaPool(true);
     static VaPool _rdmDictionaryMsgEventPool = new VaPool(true);
@@ -423,14 +422,14 @@ public class ReactorFactory
      *
      * @return the reactor channel
      */
-    static ReactorChannel createReactorChannel()
+    static ReactorChannel createReactorChannel(Reactor reactor)
     {
-        ReactorChannel reactorChannel = (ReactorChannel)_reactorChannelPool.poll();
+        ReactorChannel reactorChannel = (ReactorChannel)reactor._reactorChannelPool.poll();
         if(reactorChannel == null)
         {
             reactorChannel = new ReactorChannel();
             reactorChannel.clear();
-            _reactorChannelPool.updatePool(reactorChannel);
+            reactor._reactorChannelPool.updatePool(reactorChannel);
         }
         else
         {

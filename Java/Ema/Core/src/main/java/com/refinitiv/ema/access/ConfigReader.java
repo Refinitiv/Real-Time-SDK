@@ -861,6 +861,10 @@ class ConfigReader
 						{
 							tagDict = ConfigManager.WarmStandbyServerDict;
 						}
+						else if ( configNodeChild.getNodeName().equals("SessionChannelGroup"))
+						{
+							tagDict = ConfigManager.SessionChannelGroupDict;
+						}						
 					}
 					
 					if ( level == 5 )
@@ -1769,6 +1773,16 @@ class ConfigReader
 			}
 
 			return(xmlRoot.getNodeWithAttributeList(ConfigManager.WARMSTANDBYSERVER_LIST,WSBServerInfo,ConfigManager.WarmStandbyServerName));
+		}
+		
+		ConfigAttributes getSessionChannelGroupAttributes(String channelName) 
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.SESSIONCHANNEL_LIST, channelName, ConfigManager.SessionChannelInfoName));
 		}
 		
 		ConfigAttributes getGlobalConfig(){

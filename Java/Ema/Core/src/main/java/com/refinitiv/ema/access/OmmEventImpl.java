@@ -20,6 +20,16 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 	LongObject _handle;
 	ReactorChannel _channel;
 	ChannelInformationImpl _channelInfo;
+	OmmBaseImpl<T> _ommBaseImpl;
+	
+	OmmEventImpl(OmmBaseImpl<T> baseImpl)
+	{
+		_ommBaseImpl = baseImpl;
+	}
+	
+	OmmEventImpl()
+	{
+	}
 	
 	@Override
 	public long handle()
@@ -59,6 +69,32 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 	{
 		return _clientHandle.value();
 	}
+	
+	void populateChannelInfomation(ChannelInformationImpl channelInfoImpl, ReactorChannel reactorChannel, ChannelInfo channelInfo)
+	{
+		if (reactorChannel != null) {
+			channelInfoImpl.set(reactorChannel);
+			
+			if(channelInfo != null)
+			{
+				@SuppressWarnings("unchecked")
+				SessionChannelInfo<T> sessionChannelInfo = (SessionChannelInfo<T>) channelInfo.sessionChannelInfo();
+				
+				channelInfoImpl.channelName(channelInfo._channelConfig.name);
+				
+				if(sessionChannelInfo != null)
+				{
+					channelInfoImpl.sessionChannelName(sessionChannelInfo.sessionChannelConfig().name);
+				}
+			}
+			
+			if (_ommProvider == null) {
+				channelInfoImpl.ipAddress("not available for OmmConsumer connections");
+				channelInfoImpl.port(reactorChannel.port());
+			} else if (_ommProvider != null && _ommProvider.providerRole() == ProviderRole.NON_INTERACTIVE)
+				channelInfoImpl.ipAddress("not available for OmmNiProvider connections");		
+		}
+	}
 
 	@Override
 	public ChannelInformation channelInformation()
@@ -70,12 +106,12 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 		
 		// this should work for consumers and interactive providers
 		if (_channel != null) {
-			_channelInfo.set(_channel);
-			if (_ommProvider == null) {
-				_channelInfo.ipAddress("not available for OmmConsumer connections");
-				_channelInfo.port(_channel.port());
-			} else if (_ommProvider != null && _ommProvider.providerRole() == ProviderRole.NON_INTERACTIVE)
-				_channelInfo.ipAddress("not available for OmmNiProvider connections");			
+			
+			ChannelInfo channelInfo = null;
+			
+			channelInfo = (ChannelInfo)_channel.userSpecObj();
+			
+			populateChannelInfomation(_channelInfo, _channel, channelInfo);
 			return _channelInfo;
 		}
 
@@ -96,5 +132,41 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 
 		// at this point, something wasn't set
 		return _channelInfo;
+	}
+
+	@Override
+	public void sessionChannelInfo(List<ChannelInformation> channelInfoList) 
+	{
+		if(channelInfoList == null)
+			return;
+		
+		channelInfoList.clear();
+		
+		ChannelInfo channelInfo = null;
+		ChannelInformationImpl channelInfoImpl;
+		
+		if(_ommBaseImpl != null && _ommBaseImpl.consumerSession() != null)
+		{
+			List<SessionChannelInfo<T>> sessionChannelInfoList = _ommBaseImpl.consumerSession().sessionChannelList();
+			
+			for(SessionChannelInfo<T> sessionChInfo : sessionChannelInfoList)
+			{
+				ReactorChannel reactorChannel = sessionChInfo.reactorChannel();
+				
+				if(reactorChannel != null)
+				{
+					channelInfo = (ChannelInfo)reactorChannel.userSpecObj();
+					
+					if(channelInfo != null)
+					{
+						channelInfoImpl = new ChannelInformationImpl();
+						
+						populateChannelInfomation(channelInfoImpl, reactorChannel, channelInfo);
+						
+						channelInfoList.add(channelInfoImpl);
+					}
+				}
+			}
+		}		
 	}
 }

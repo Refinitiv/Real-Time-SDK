@@ -29,6 +29,7 @@ public class JUnitTestConnect
 	public static final int ConfigGroupTypeWarmStandbyGroup = 7;
 	public static final int ConfigGroupTypeWarmStandbyStartingServerInfo = 8;
 	public static final int ConfigGroupTypeWarmStandbyStandbyServerInfo = 9;
+	public static final int ConfigGroupTypeSessionChannel = 10;
 
 	// Common Parameters:
 	public static final int ChannelSet  = ConfigManager.ChannelSet; 
@@ -230,6 +231,13 @@ public class JUnitTestConnect
 	public static final int WarmStandbyServerName = ConfigManager.WarmStandbyServerName;
 	public static final int WarmStandbyServerChannel = ConfigManager.WarmStandbyServerChannel;
 	public static final int PerServiceNameSet = ConfigManager.PerServiceNameSet;
+	
+	// SessionChannel
+	public static final int ConsumerSessionChannelSet = ConfigManager.ConsumerSessionChannelSet;
+	public static final int SessionChannelGroup = ConfigManager.SessionChannelGroup;
+	public static final int SessionChannelList = ConfigManager.SessionChannelList;
+	public static final int SessionChannelInfo = ConfigManager.SessionChannelInfo;
+	public static final int SessionChannelInfoName = ConfigManager.SessionChannelInfoName;
 	
 	public static String _lastErrorText = "";
 	public static EmaObjectManager _objManager = new EmaObjectManager();
@@ -757,6 +765,90 @@ public class JUnitTestConnect
 		return result;
 	}
 	
+	public static int configVerifyConsSessionChannelAttribs(OmmConsumer consumer, OmmConsumerConfig consConfig, String consumerName, List<SessionChannelConfig> sessionConfigSet)
+	{
+		int result = 0;
+		_lastErrorText = "";
+		OmmConsumerImpl consImpl = ( OmmConsumerImpl )consumer;
+		
+		String sessionChannelSet = configGetSessionChannel(consConfig, consumerName);
+		if(sessionChannelSet == null)
+		{
+			_lastErrorText = "SessionChannelSet is null for ";
+			_lastErrorText += consImpl.consumerName();
+			result = 1;
+			return 1;
+		}
+		
+		String [] connections  = sessionChannelSet.split(",");
+		if(connections.length != consImpl.activeConfig().configSessionChannelSet.size())
+		{
+			_lastErrorText = "SessionChannelSet size is != number of session channels in the file config SessionChannel for ";
+			_lastErrorText += consImpl.consumerName();
+			return 2;
+		}
+		
+		String connectionName = null;
+		String position = null;
+
+		for (int i = 0; i < connections.length; i++)
+		{
+			SessionChannelConfig sessionCfg = consImpl.activeConfig().configSessionChannelSet.get(i);
+			connectionName = connections[i].trim();
+			position = Integer.toString(i);
+			if( connectionName.equals(sessionCfg.name) == false )
+			{
+				_lastErrorText = "ConnectionName mismatch: FileConfig name='";
+				_lastErrorText += connectionName;
+				_lastErrorText += "' Internal Active SessionChannelSet[";
+				_lastErrorText += position;
+				_lastErrorText += "] name='";
+				_lastErrorText += sessionCfg.name;
+				_lastErrorText += "' for ";
+				_lastErrorText += consImpl.consumerName();
+				return 3;
+			}
+		}
+		
+		List<SessionChannelConfig> activeSessionConfigSet = consImpl.activeConfig().configSessionChannelSet;
+		
+		SessionChannelConfig expectedCfg, activeCfg;
+		for(int i = 0; i < activeSessionConfigSet.size(); i++)
+		{
+			expectedCfg = sessionConfigSet.get(i);
+			activeCfg = activeSessionConfigSet.get(i);
+			
+			if(expectedCfg.name.equals(activeCfg.name) == false)
+				return 4;
+			
+			if(expectedCfg.reconnectAttemptLimit != activeCfg.reconnectAttemptLimit)
+				return 4;
+			
+			if(expectedCfg.reconnectMaxDelay != activeCfg.reconnectMaxDelay)
+				return 4;
+			
+			if(expectedCfg.reconnectMinDelay != activeCfg.reconnectMinDelay)
+				return 4;
+			
+			if(expectedCfg.configChannelSet.size() != activeCfg.configChannelSet.size())
+				return 4;
+			
+			for(int j = 0; j < expectedCfg.configChannelSet.size(); j++)
+			{
+				ChannelConfig expectedChannelConfig = expectedCfg.configChannelSet.get(j);
+				ChannelConfig activeChannelConfig = activeCfg.configChannelSet.get(j);
+				
+				if (expectedChannelConfig.name.equals(activeChannelConfig.name) == false)
+					return 5;
+				
+				if (expectedChannelConfig.rsslConnectionType != activeChannelConfig.rsslConnectionType)
+					return 5;
+			}
+		}
+		
+		return result;
+	}
+	
 	// used only for JUNIT tests
 	public static String configGetChannelName(OmmConsumerConfig consConfig, String consumerName)
 	{
@@ -767,6 +859,12 @@ public class JUnitTestConnect
 	public static String configGetWarmStandbyChannelSet(OmmConsumerConfig consConfig, String warmStandbyChannelSet)
 	{
 		return ((OmmConsumerConfigImpl) consConfig).warmStandbyChannelSet(warmStandbyChannelSet);
+	}
+	
+	// used only for JUNIT tests
+	public static String configGetSessionChannel(OmmConsumerConfig consConfig, String consumerName)
+	{
+		return ((OmmConsumerConfigImpl) consConfig).sessionChannel(consumerName);
 	}
 	
 	// used only for JUNIT tests
@@ -795,7 +893,16 @@ public class JUnitTestConnect
 			}
 		}
 		return connectionType;
-	}	
+	}
+	
+	public static SessionChannelConfig configGetSessionChannelInfo(OmmConsumerConfig consConfig, String connectionName)
+	{
+		OmmConsumerConfigImpl configImpl = ( (OmmConsumerConfigImpl ) consConfig);
+		ConfigAttributes attributes = configImpl.xmlConfig().getSessionChannelGroupAttributes(connectionName);
+		ConfigElement ce = null;
+		
+		return null;
+	}
 	
 	// used only for JUNIT tests
 	public static String configGetChanHost(OmmConsumerConfig consConfig, String channelName)
@@ -881,6 +988,8 @@ public class JUnitTestConnect
 			attributes = consConfig.xmlConfig().getWSBServerInfoAttributes(name);
 		else if (type == ConfigGroupTypeWarmStandbyStandbyServerInfo)
 			attributes = consConfig.xmlConfig().getWSBServerInfoAttributes(name);
+		else if (type == ConfigGroupTypeSessionChannel)
+			attributes = consConfig.xmlConfig().getSessionChannelGroupAttributes(name);
 		if (attributes != null) {
 			return attributes.getPrimitiveValue(configParam);
 		}

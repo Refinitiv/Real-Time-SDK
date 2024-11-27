@@ -614,6 +614,9 @@ class Watchlist extends VaNode
      * the received StreamState. */
     boolean isRequestRecoverable(WlRequest wlRequest, int streamState)
     {
+    	/* The warmstandby feature always enables the single open */
+    	boolean supportSingleOpen = reactor().reactorHandlesWarmStandby(reactorChannel()) ? true : loginHandler().supportSingleOpen();
+    	
         return
             (
              // A request is recoverable if:
@@ -624,7 +627,7 @@ class Watchlist extends VaNode
              && (wlRequest.requestMsg().domainType() != DomainTypes.DICTIONARY || wlRequest.state() != WlRequest.State.OPEN)
 
              // - and the StreamState is CLOSED_RECOVER and SingleOpen is enabled
-             && loginHandler().supportSingleOpen() && streamState == StreamStates.CLOSED_RECOVER
+             && supportSingleOpen && streamState == StreamStates.CLOSED_RECOVER
             );
     }
     

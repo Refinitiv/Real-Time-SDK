@@ -8,6 +8,7 @@
 package com.refinitiv.ema.access;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -55,7 +56,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 	protected static final String DICTIONARY_RWFENUM = "RWFEnum";
 	
 	private List<ChannelDictionary<T>>						_channelDictList;
-	private List<ChannelDictionary<T>>							_channelDictPool;
+	private ArrayDeque<ChannelDictionary<T>>							_channelDictPool;
 	private com.refinitiv.eta.codec.DataDictionary		_rsslLocalDictionary;
 	private ChannelDictionary<T> 						_channelDictionary;
 	private com.refinitiv.eta.codec.Buffer 			_rsslEncBuffer;
@@ -114,7 +115,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		else
 		{
 			_channelDictList = new ArrayList<>();
-			_channelDictPool = new ArrayList<>();
+			_channelDictPool = new ArrayDeque<>();
 			_channelDictionary = new ChannelDictionary<T>(_ommBaseImpl);
 			_channelDictPool.add(_channelDictionary);
 		}
@@ -155,6 +156,8 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 			
 			return ReactorCallbackReturnCodes.SUCCESS;
 		}
+		
+		_eventImpl._channel = rsslChannel;
 		
 		switch (msg.msgClass())
 		{
@@ -306,7 +309,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 	
 	private void specifyServiceNameFromId(MsgImpl msgImpl)
 	{
-		Directory directory = _ommBaseImpl.directoryCallbackClient().directory(msgImpl._rsslMsg.msgKey().serviceId());
+		Directory<T> directory = _ommBaseImpl.directoryCallbackClient().directory(msgImpl._rsslMsg.msgKey().serviceId());
 			
 		if ( directory != null )
 		{
@@ -326,9 +329,16 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 	ChannelDictionary<T> pollChannelDict(OmmBaseImpl<T> baseImpl)
 	{
 		if (_channelDictPool != null && !_channelDictPool.isEmpty())
-			return (_channelDictPool.get(0).clear());
+		{
+			ChannelDictionary<T> channelDict = _channelDictPool.removeFirst();
+			channelDict.clear();
+			
+			return channelDict;
+		}
 		else
+		{
 			return (new ChannelDictionary<T>(baseImpl));
+		}
 	}
 	
 	void returnToChannelDictPool(ChannelDictionary<T> channelDict)
@@ -370,7 +380,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		return null;
 	}
 
-	boolean downloadDictionary(Directory directory)
+	boolean downloadDictionary(Directory<T> directory, ChannelDictionary<T> dictionary)
 	{
 		if (_ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
 		{
@@ -394,7 +404,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		{
 			if (_ommBaseImpl.activeConfig().rsslFldDictRequest.serviceId() == directory.service().serviceId() ||
 					( _ommBaseImpl.activeConfig().fldDictReqServiceName != null && _ommBaseImpl.activeConfig().fldDictReqServiceName.equals(directory.serviceName())))
-				downloadDictionaryFromService(directory);
+				downloadDictionaryFromService(directory, dictionary);
 			
 			return true;
 		}
@@ -409,7 +419,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		msgKey.applyHasFilter();
 		msgKey.filter(com.refinitiv.eta.rdm.Dictionary.VerbosityValues.NORMAL);
 
-		ChannelDictionary<T> dictionary = pollChannelDict(_ommBaseImpl);
+		//ChannelDictionary<T> dictionary = pollChannelDict(_ommBaseImpl);
 		dictionary.channelInfo(directory.channelInfo());
 		
 		ReactorSubmitOptions rsslSubmitOptions = _ommBaseImpl.rsslSubmitOptions();
@@ -475,7 +485,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		return true;
 	}
 	
-	boolean downloadDictionaryFromService(Directory directory)
+	boolean downloadDictionaryFromService(Directory<T> directory, ChannelDictionary<T> dictionary)
 	{
 		com.refinitiv.eta.codec.RequestMsg rsslRequestMsg = rsslRequestMsg();
 		
@@ -493,7 +503,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		msgKey.name(rsslDictRequest.dictionaryName());
 		rsslRequestMsg.streamId(3);
 
-		ChannelDictionary<T> dictionary = pollChannelDict(_ommBaseImpl);
+		//ChannelDictionary<T> dictionary = pollChannelDict(_ommBaseImpl);
 		dictionary.channelInfo(directory.channelInfo());
 		
 		ReactorSubmitOptions rsslSubmitOptions = _ommBaseImpl.rsslSubmitOptions();
@@ -1452,7 +1462,7 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 		{
 			if(!_removed) 
 			{
-				_baseImpl.itemCallbackClient().removeFromMap(this);
+				_baseImpl.itemCallbackClient().removeFromMap(this, true);
 				this.itemIdObj().returnToPool();
 				this.returnToPool();
 				_removed = true;
@@ -1783,13 +1793,13 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 		
 		_isPrivateStream = reqMsgImpl.privateStream();
 		
-		_directory = new Directory(serviceName);
+		_directory = new Directory<T>(serviceName);
 			
 		_itemWatchList.addItem(this);
 		
 		reqMsgImpl.rsslMsg().msgKey().copy(_rsslMsgKey);
 		
-		return rsslSubmit(((ReqMsgImpl)reqMsg).rsslMsg());
+		return rsslSubmit(((ReqMsgImpl)reqMsg).rsslMsg(), true);
 	}
 	
 	@Override
@@ -1899,7 +1909,7 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 	}
 	
 	@Override
-	boolean rsslSubmit(com.refinitiv.eta.codec.RequestMsg rsslRequestMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.RequestMsg rsslRequestMsg, boolean reportError)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);

@@ -8,6 +8,9 @@
 package com.refinitiv.ema.access;
 
 
+import java.util.Map;
+import java.util.HashMap;
+
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
 import com.refinitiv.ema.rdm.DataDictionary;
@@ -16,6 +19,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 {
 	private int 				_operationModel;
 	private DataDictionary 		dataDictionary;
+	private Map<String, ServiceListImpl> 	_serviceListMap;
 	
 	OmmConsumerConfigImpl()
 	{
@@ -332,6 +336,21 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		return warmStandbyChannelSet;
 	}
 	
+	String sessionChannel(String instanceName)
+	{
+		String sessionChannel = null;
+
+		if ( _programmaticConfigure != null )
+		{
+			sessionChannel = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.SESSION_CHANNEL_FLAG);
+			if (sessionChannel != null)
+				return sessionChannel;
+		}
+	
+		sessionChannel = (String) xmlConfig().getConsumerAttributeValue(instanceName, ConfigManager.ConsumerSessionChannelSet);
+		return sessionChannel;
+	}
+	
 	String dictionaryName(String instanceName)
 	{
 		String dictionaryName = null;
@@ -530,5 +549,38 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	{
 		restProxyKrb5ConfigFileInt(restProxyKrb5ConfigFile);
 		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig addServiceList(ServiceList serviceList) 
+	{
+		if(serviceList.name() == null || serviceList.name().isEmpty())
+		{
+			_serviceListMap = null;
+			throw ommIUExcept().message("The ServiceList's name must be non-empty string value.",
+					OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+		
+		if(_serviceListMap == null)
+		{
+			_serviceListMap = new HashMap<String, ServiceListImpl>();
+		}
+		
+		if(_serviceListMap.containsKey(serviceList.name()))
+		{
+			_serviceListMap = null;
+			throw ommIUExcept().message("The " + serviceList.name() + " name of ServiceList has been added to OmmConsumerConfig.",
+					OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+		
+		/* Deep copy of the passed in ServiceList and keeps a list of ServiceList for handling by ConsumerSession */
+		_serviceListMap.put(serviceList.name(), new ServiceListImpl((ServiceListImpl)serviceList));
+		
+		return this;
+	}
+	
+	Map<String, ServiceListImpl> serviceListMap()
+	{
+		return _serviceListMap;
 	}
 }

@@ -92,6 +92,7 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT		= 3;
 	final static boolean DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG = true;
 	final static int DEFAULT_WSB_MODE							= ReactorWarmStandbyMode.LOGIN_BASED;
+	final static boolean DEFAULT_SESSION_ENHANCED_ITEM_RECOVERY = true;
 	
 	final static int SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL   = 0x01;  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 	final static int SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL = 0x02;  /*!< Indicates that server listen port set though EMA interface function call from server client*/
@@ -131,8 +132,10 @@ abstract class ActiveConfig extends BaseConfig
 	int						maxFragmentSize;
 	List<ChannelConfig>		configChannelSetForWSB;
 	List<WarmStandbyChannelConfig> configWarmStandbySet;
+	List<SessionChannelConfig> configSessionChannelSet;
 	String					restProxyHostName;
 	String					restProxyPort;
+	boolean					sessionEnhancedItemRecovery;
 	
 	ActiveConfig(String defaultServiceName)
 	{
@@ -160,6 +163,8 @@ abstract class ActiveConfig extends BaseConfig
 		 channelConfigSet = new ArrayList<>();
 		 configChannelSetForWSB = new ArrayList<>();
 		 configWarmStandbySet = new ArrayList<>();
+		 configSessionChannelSet = new ArrayList<>();
+		 sessionEnhancedItemRecovery = DEFAULT_SESSION_ENHANCED_ITEM_RECOVERY;
 	}
 
 	void clear()
@@ -184,6 +189,7 @@ abstract class ActiveConfig extends BaseConfig
 		wsProtocols = DEFAULT_WS_PROTOCOLS;
 		wsMaxMsgSize = DEFAULT_WS_MAX_MSG_SIZE;
 		maxFragmentSize = DEFAULT_MAX_FRAGMENT_SIZE;
+		sessionEnhancedItemRecovery = DEFAULT_SESSION_ENHANCED_ITEM_RECOVERY;
 		dictionaryConfig.clear();
 
 		rsslRDMLoginRequest = null;
@@ -218,7 +224,8 @@ abstract class ActiveConfig extends BaseConfig
 		.append("\n\t maxFragmentSize: ").append(maxFragmentSize)
 		.append("\n\t serviceDiscoveryRetryCount: ")
 		.append("\n\t restProxyHostName: ").append(restProxyHostName)
-		.append("\n\t restProxyPort: ").append(restProxyPort);
+		.append("\n\t restProxyPort: ").append(restProxyPort)
+		.append("\n\t sessionEnhancedItemRecovery: ").append(sessionEnhancedItemRecovery);
 
 		return traceStr;
 	}
@@ -275,6 +282,11 @@ abstract class ActiveConfig extends BaseConfig
 	void clearChannelSetForWSB()
 	{
 		configChannelSetForWSB.clear();
+	}
+	
+	void clearSessionChannelSet()
+	{
+		configSessionChannelSet.clear();
 	}
 
 	public static boolean findChannelConfig(List<ChannelConfig> configChannelSetForWSB, String queryName, int pos)

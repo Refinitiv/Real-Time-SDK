@@ -38,6 +38,8 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 	private com.refinitiv.eta.codec.ArrayEntry _rsslArrayEntry;
 	private com.refinitiv.eta.codec.Buffer _rsslItemBuffer;
     private List<String> _batchItemList;
+    private String _serviceListName;
+    
 	
     ReqMsgImpl()
 	{
@@ -98,6 +100,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 	{
 		msgClear();
 		initialEncoding();
+		_serviceListName = null;
 		return this;
 	}
 
@@ -204,6 +207,11 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 				Utilities.addIndent(_toString, indent, true).append("serviceName=\"")
 															 .append(serviceName())
 															 .append("\"");
+			
+			if (hasServiceListName())
+				Utilities.addIndent(_toString, indent, true).append("hasServiceListName=\"")
+															 .append(serviceListName())
+															 .append("\"");
 
 			if (hasFilter())
 				Utilities.addIndent(_toString, indent, true).append("filter=\"")
@@ -289,6 +297,12 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 	public boolean hasBatch()
 	{
 		return ((com.refinitiv.eta.codec.RequestMsg)_rsslMsg).checkHasBatch();
+	}
+	
+	@Override
+	public boolean hasServiceListName() {
+
+		return _serviceListName != null ? true : false;
 	}
 
 	@Override
@@ -509,6 +523,27 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 	public ReqMsg serviceName(String serviceName)
 	{
 		msgServiceName(serviceName);
+		return this;
+	}
+	
+	@Override
+	public ReqMsg serviceListName(String serviceListName)
+	{
+		if (serviceListName == null)
+			throw ommIUExcept().message("Passed in serviceListName is null.", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		
+		if(_serviceNameSet)
+		{
+			throw ommIUExcept().message("Service name is already set for this ReqMsg.", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+		
+		if(_rsslMsg.msgKey().checkHasServiceId())
+		{
+			throw ommIUExcept().message("Service Id is already set for this ReqMsg.", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+		
+		_serviceListName = serviceListName;
+			
 		return this;
 	}
 
@@ -918,5 +953,11 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 	List<String> batchItemList()
 	{
 		return _batchItemList;
+	}
+
+	@Override
+	public String serviceListName() 
+	{
+		return _serviceListName;
 	}
 }

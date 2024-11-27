@@ -35,6 +35,7 @@ class LoginSupportFeaturesImpl implements LoginSupportFeatures
 
     public void clear()
     {
+    	flags = 0;
         supportBatchRequests = 0;
         supportBatchReissues = 0;
         supportBatchCloses = 0;

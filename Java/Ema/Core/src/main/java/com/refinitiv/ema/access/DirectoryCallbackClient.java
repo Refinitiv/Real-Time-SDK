@@ -1,15 +1,17 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.refinitiv.ema.access.OmmBaseImpl.OmmImplState;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
@@ -25,10 +27,10 @@ import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsg;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryStatus;
-import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceInfo;
 import com.refinitiv.eta.valueadd.reactor.RDMDirectoryMsgCallback;
@@ -43,9 +45,12 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 {
 	private static final String CLIENT_NAME = "DirectoryCallbackClient";
 	
-	private Map<Integer, Directory>					_serviceById;
-	private Map<String, Directory>					_serviceByName;
+	private Map<Integer, Directory<T>>					_serviceById;
+	private Map<String, Directory<T>>					_serviceByName;
 	private OmmBaseImpl<T>							_ommBaseImpl;
+	
+	// This is used only for request routing to fan out source directory aggregation 
+	private List<DirectoryItem<T>>				    _directoryItemList;
 
 	DirectoryCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
@@ -54,8 +59,10 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		_ommBaseImpl = baseImpl;
 		 
 		int initialHashSize =  (int)(_ommBaseImpl.activeConfig().serviceCountHint/ 0.75 + 1);
-		_serviceById = new HashMap<Integer, Directory>(initialHashSize);
-		_serviceByName = new HashMap<String, Directory>(initialHashSize);
+		_serviceById = new HashMap<Integer, Directory<T>>(initialHashSize);
+		_serviceByName = new HashMap<String, Directory<T>>(initialHashSize);
+		
+		_directoryItemList = new ArrayList<DirectoryItem<T>>();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -67,10 +74,19 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		DirectoryMsg directoryMsg = event.rdmDirectoryMsg();
 		ReactorChannel rsslReactorChannel = event.reactorChannel();
 		ChannelInfo channelInfo = (ChannelInfo)rsslReactorChannel.userSpecObj();
+		SessionChannelInfo<OmmConsumerClient> sessionChannelInfo = channelInfo.sessionChannelInfo();
+		ConsumerSession<OmmConsumerClient> consumerSession = sessionChannelInfo!= null ? sessionChannelInfo.consumerSession() : null;
 		
 		if (directoryMsg == null)
 		{
-			_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
+			if(consumerSession != null)
+			{
+				_ommBaseImpl.closeSessionChannel((SessionChannelInfo<T>) sessionChannelInfo);
+			}
+			else
+			{
+				_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
+			}
 
 			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
@@ -102,9 +118,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 				com.refinitiv.eta.codec.State state = ((DirectoryRefresh)directoryMsg).state();
 	
 				if (state.streamState() != StreamStates.OPEN)
-				{
-					_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
-	
+				{	
 					if (_baseImpl.loggerClient().isErrorEnabled())
 		        	{
 			        	StringBuilder temp = _baseImpl.strBuilder();
@@ -114,7 +128,18 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 		        	}
 					
-					processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+					if(consumerSession != null)
+					{
+						consumerSession.processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+						
+						_ommBaseImpl.closeSessionChannel((SessionChannelInfo<T>) sessionChannelInfo);
+					}
+					else
+					{
+						_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
+						
+						processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+					}
 	
 					break;
 				}
@@ -129,25 +154,59 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 		        	}
 					
-					_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
-	
-					processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+					if(consumerSession != null)
+					{
+						sessionChannelInfo.state(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+						
+						if(consumerSession.checkAllSessionChannelHasState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT))
+						{
+							_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+						}
+						
+						consumerSession.processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+					}
+					else
+					{
+						_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);						
+						processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+					}
 					break;
 				}
-	
-				_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_OK);
-	
-				if (_baseImpl.loggerClient().isTraceEnabled())
-	        	{
-		        	StringBuilder temp = _baseImpl.strBuilder();
-		        	temp.append("RDMDirectory stream state was open with refresh message ").append(OmmLoggerClient.CR)
-		        		.append("State: ").append(state.toString());
-	
-		        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
-	        	}
 				
+				boolean changeToOpenOk = false;
 	
-				processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+				if(consumerSession != null)
+				{
+					sessionChannelInfo.state(OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+					
+					if(consumerSession.checkAllSessionChannelHasState(OmmImplState.DIRECTORY_STREAM_OPEN_OK))
+					{
+						changeToOpenOk = true;
+					}
+					
+					consumerSession.processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+				}
+				else
+				{
+					processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+					changeToOpenOk = true;
+				}
+				
+				if(changeToOpenOk)
+				{
+					_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+		
+					if (_baseImpl.loggerClient().isTraceEnabled())
+		        	{
+			        	StringBuilder temp = _baseImpl.strBuilder();
+			        	temp.append("RDMDirectory stream state was open with refresh message ").append(OmmLoggerClient.CR)
+			        		.append("State: ").append(state.toString());
+		
+			        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
+		        	}
+				}
+				
+				
 				break;
 			}
 			case STATUS:
@@ -158,7 +217,14 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	
 					if (state.streamState() != StreamStates.OPEN)
 					{
-						_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
+						if(consumerSession != null)
+						{
+							_ommBaseImpl.closeSessionChannel((SessionChannelInfo<T>) sessionChannelInfo);
+						}
+						else
+						{
+							_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
+						}
 	
 						if (_baseImpl.loggerClient().isErrorEnabled())
 			        	{
@@ -181,8 +247,21 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	
 				        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 			        	}
-	
-						_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+						
+						if(consumerSession != null)
+						{
+							sessionChannelInfo.state(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+							
+							if(consumerSession.checkAllSessionChannelHasState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT))
+							{
+								_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+							}
+						}
+						else
+						{
+							_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);						
+						}
+						
 						break;
 					}
 					
@@ -195,8 +274,20 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	
 			        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		        	}
-	
-					_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+					
+					if(consumerSession != null)
+					{
+						sessionChannelInfo.state(OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+						
+						if(consumerSession.checkAllSessionChannelHasState(OmmImplState.DIRECTORY_STREAM_OPEN_OK))
+						{
+							_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+						}
+					}
+					else
+					{
+						_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_OK);						
+					}
 				}
 				else
 				{
@@ -214,7 +305,17 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, "Received RDMDirectory update message", Severity.TRACE));
 	        	}
 	
-				processDirectoryPayload(((DirectoryUpdate)directoryMsg).serviceList(), rsslReactorChannel);
+				if(consumerSession != null)
+				{
+					consumerSession.processDirectoryPayload(((DirectoryUpdate)directoryMsg).serviceList(), rsslReactorChannel);
+					
+					consumerSession.fanoutSourceDirectoryResponse(DirectoryMsgType.UPDATE);
+				}
+				else
+				{
+					processDirectoryPayload(((DirectoryUpdate)directoryMsg).serviceList(), rsslReactorChannel);
+				}
+				
 				break;
 			}
 			default:
@@ -285,7 +386,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		            }
 
 		            Service existService = null;
-		            Directory existDirectory = null;
+		            Directory<T> existDirectory = null;
 		            if (_serviceByName.size() > 0)
 		            {
 		            	existDirectory = _serviceByName.get(serviceName);
@@ -311,7 +412,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		            	Service newService = DirectoryMsgFactory.createService();
 		            	oneService.copy(newService);
 		            	
-		            	Directory directory = new Directory(newService); 
+		            	Directory<T> directory = new Directory<T>(newService); 
 		            	directory.channelInfo(chnlInfo);
 		            	directory.serviceName(serviceName);
 		            	
@@ -320,7 +421,8 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 
 						if (_ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary ||
 						(newService.state().acceptingRequests() == 1 && newService.state().serviceState() == 1))
-							_ommBaseImpl.dictionaryCallbackClient().downloadDictionary(directory);
+							_ommBaseImpl.dictionaryCallbackClient().downloadDictionary(directory, 
+									_ommBaseImpl.dictionaryCallbackClient().pollChannelDict(_ommBaseImpl));
 		            }
 	
 					break;
@@ -328,7 +430,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 				case MapEntryActions.UPDATE :
 				{
 					Service existService = null;
-					Directory existDirectory = null; 
+					Directory<T> existDirectory = null; 
 			        if (_serviceById.size() > 0 && _serviceById.containsKey(oneService.serviceId()))
 			        {
 			        	existDirectory = _serviceById.get(oneService.serviceId());
@@ -391,7 +493,8 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 					{
 						oneService.state().copy(existService.state());
 						if (oneService.state().acceptingRequests() == 1 && oneService.state().serviceState() == 1)
-							_ommBaseImpl.dictionaryCallbackClient().downloadDictionary(existDirectory);
+							_ommBaseImpl.dictionaryCallbackClient().downloadDictionary(existDirectory,
+									_ommBaseImpl.dictionaryCallbackClient().pollChannelDict(_ommBaseImpl));
 					}
 					
 					existService.action(MapEntryActions.UPDATE);
@@ -620,14 +723,102 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		return _ommBaseImpl.activeConfig().rsslDirectoryRequest;
 	}
 	
-	Directory directory(String serviceName)
+	Directory<T> directory(String serviceName)
 	{
 		return _serviceByName.get(serviceName);
 	}
 	
-	Directory directory(int serviceId)
+	Directory<T> directory(int serviceId)
 	{
 		return _serviceById.get(serviceId);
+	}
+	
+	@SuppressWarnings("unchecked")
+	DirectoryItem<T> directoryItem(ConsumerSession<T> consumerSession, ReqMsg reqMsg, T client, Object closure)
+	{		
+		if(_updateMsg == null)
+			_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
+		
+		DirectoryItem<T> item;
+		if( (item = (DirectoryItem<T>)_ommBaseImpl.objManager()._directoryItemPool.poll()) == null)
+		{
+			item = new DirectoryItem<T>(_ommBaseImpl, client, closure);
+			_ommBaseImpl.objManager()._directoryItemPool.updatePool(item);
+		}
+		else
+		{
+			item.reset(_ommBaseImpl, client, closure, item);
+		}
+		
+		// Checks for service ID or service name and filter ID
+		if(reqMsg.hasServiceName())
+		{
+			String serviceName = reqMsg.serviceName();
+			
+			SessionDirectory<T> sessionDir = consumerSession.sessionDirectoryByName().get(serviceName);
+			
+			if(sessionDir == null && (!consumerSession.loginRefresh().attrib().checkHasSingleOpen() || consumerSession.loginRefresh().attrib().singleOpen() == 0))
+			{
+				/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+				_ommBaseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), item);
+				
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Service name of '")
+					.append(reqMsg.serviceName()).append("' is not found.");
+
+				item.scheduleItemClosedStatus(_ommBaseImpl.directoryCallbackClient(),
+															item, ((ReqMsgImpl)reqMsg).rsslMsg(),
+															temp.toString(), serviceName);
+				
+				return item;
+			}
+			
+			item.serviceName(serviceName);
+			
+		}
+		else if (reqMsg.hasServiceId())
+		{
+			int serviceId = reqMsg.serviceId();
+			
+			SessionDirectory<T> sessionDir = consumerSession.sessionDirectoryById().get(serviceId);
+			
+			if(sessionDir == null && (!consumerSession.loginRefresh().attrib().checkHasSingleOpen() || consumerSession.loginRefresh().attrib().singleOpen() == 0))
+			{
+				/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+				_ommBaseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), item);
+				
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Service Id of '")
+					.append(serviceId).append("' is not found.");
+
+				item.scheduleItemClosedStatus(_ommBaseImpl.directoryCallbackClient(),
+															item, ((ReqMsgImpl)reqMsg).rsslMsg(),
+															temp.toString(), null);
+				
+				return item;
+			}
+			
+			if(sessionDir != null)
+				item.serviceName(sessionDir.serviceName());
+			else
+				item.serviceId(serviceId);
+		}
+		
+		if(reqMsg.hasFilter())
+		{
+			item.filterId(reqMsg.filter());
+		}
+		
+		_directoryItemList.add(item);
+		
+		_ommBaseImpl.addTimeoutEvent(10, item);
+		
+		return item;
+	}
+	
+	List<DirectoryItem<T>> directoryItemList()
+	{
+		return _directoryItemList;
 	}
 }
 
@@ -702,11 +893,15 @@ class DirectoryCallbackClientProvider extends DirectoryCallbackClient<OmmProvide
 }
 
 
-class Directory
+class Directory<T>
 {
+	/* The generated service Id is used for the request routing feature only.*/
 	private ChannelInfo		_channelInfo;
 	private Service			_service;
 	private String 			_serviceName;
+	private boolean         _hasGenServiceId;
+	private int				_genServiceId;
+	private SessionDirectory<T> _sessionDirectory;
 	
 	Directory(Service service)
 	{
@@ -718,12 +913,30 @@ class Directory
 		_serviceName = serviceName;
 	}
 	
+	void generatedServiceId(int genServiceId)
+	{
+		_hasGenServiceId = true;
+		_genServiceId = genServiceId;
+	}
+	
+	/* Checks whether there is a generated service ID */
+	boolean hasGeneratedServiceId()
+	{
+		return _hasGenServiceId;
+	}
+	
+	/* Gets generated service Id */
+	int generatedServiceId()
+	{
+		return _genServiceId;
+	}
+	
 	ChannelInfo channelInfo()
 	{
 		return _channelInfo;
 	}
 	
-	Directory channelInfo(ChannelInfo channelInfo)
+	Directory<T> channelInfo(ChannelInfo channelInfo)
 	{
 		_channelInfo = channelInfo;
 		return this;
@@ -734,13 +947,13 @@ class Directory
 		return _service;
 	}
 
-	Directory service(Service service)
+	Directory<T> service(Service service)
 	{
 		_service = service;
 		return this;
 	}
 	
-	Directory serviceName(String serviceName)
+	Directory<T> serviceName(String serviceName)
 	{
 		_serviceName = serviceName;
 		return this;
@@ -750,17 +963,47 @@ class Directory
 	{
 		return _serviceName;
 	}
+
+	void sessionDirectory(SessionDirectory<T> sessionDirectory)
+	{
+		_sessionDirectory = sessionDirectory;
+	}
 	
+	SessionDirectory<T>  sessionDirectory()
+	{
+		return _sessionDirectory;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Name: " + _serviceName + ",\tId: " + _service.serviceId() 
+		+ ",\tGeneratedServiceId: " + _genServiceId;
+	}
 }
 
-class DirectoryItem<T> extends SingleItem<T>
+class DirectoryItem<T> extends SingleItem<T> implements TimeoutClient
 {
 	private static final String 	CLIENT_NAME = "DirectoryItem";
 	private ChannelInfo	_channelInfo;
+	
+	protected int _serviceId;
+	protected long _filterId;
+	protected boolean _hasServiceId;
 
 	DirectoryItem(OmmBaseImpl<T> baseImpl, T client, Object closure)
 	{
 		super(baseImpl, client, closure, null);
+		
+		_filterId = com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.INFO |
+				 com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.STATE |
+				 com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.GROUP |
+				 com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.LOAD |
+				 com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.DATA |
+				 com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.LINK;
+		
+		_serviceName = "";
+		_hasServiceId = false;
 	}
 	
 	@Override
@@ -769,6 +1012,16 @@ class DirectoryItem<T> extends SingleItem<T>
 		super.reset(baseImpl, client, closure, item);
 		
 		_channelInfo = null;
+		
+		_filterId = com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.INFO |
+				 com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.STATE |
+				 com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.GROUP |
+				 com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.LOAD |
+				 com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.DATA |
+				 com.refinitiv.eta.rdm.Directory.ServiceFilterFlags.LINK;
+		
+		_serviceName = "";
+		_hasServiceId = false;
 	}
 	
 	void channelInfo(ChannelInfo channelInfo)
@@ -776,10 +1029,46 @@ class DirectoryItem<T> extends SingleItem<T>
 		_channelInfo = channelInfo;
 	}
 	
+	void serviceName(String serviceName)
+	{
+		_serviceName = serviceName;
+	}
+	
+	String serviceName()
+	{
+		return _serviceName;
+	}
+	
+	void serviceId(int serviceId)
+	{
+		_hasServiceId = true;
+		_serviceId = serviceId;
+	}
+	
+	int serviceId()
+	{
+		return _serviceId;
+	}
+	
+	void filterId(long filterId)
+	{
+		_filterId = filterId;
+	}
+	
+	long filterId()
+	{
+		return _filterId;
+	}
+	
+	boolean hasServiceId()
+	{
+		return _hasServiceId;
+	}
+	
 	@Override
 	boolean open(ReqMsg reqMsg)
 	{
-		Directory directory = null;
+		Directory<T> directory = null;
 
 		if (reqMsg.hasServiceName())
 		{
@@ -908,20 +1197,31 @@ class DirectoryItem<T> extends SingleItem<T>
 	@Override
 	boolean close()
 	{
-		CloseMsg rsslCloseMsg = _baseImpl.directoryCallbackClient().rsslCloseMsg();
-		rsslCloseMsg.containerType(DataTypes.NO_DATA);
-		rsslCloseMsg.domainType(_domainType);
-
-		boolean retCode = submit(rsslCloseMsg);
-
-		remove();
-		return retCode;
+		if(_baseImpl.consumerSession() == null)
+		{
+			CloseMsg rsslCloseMsg = _baseImpl.directoryCallbackClient().rsslCloseMsg();
+			rsslCloseMsg.containerType(DataTypes.NO_DATA);
+			rsslCloseMsg.domainType(_domainType);
+	
+			boolean retCode = submit(rsslCloseMsg);
+	
+			remove();
+			return retCode;
+		}
+		else
+		{
+			remove();
+			
+			_baseImpl.directoryCallbackClient().directoryItemList().remove(this);
+			
+			return true;
+		}
 	}
 	
 	@Override
 	void remove()
 	{
-		_baseImpl.itemCallbackClient().removeFromMap(this);
+		_baseImpl.itemCallbackClient().removeFromMap(this, true);
 	}
 	
 	boolean submit(RequestMsg rsslRequestMsg, String serviceName)
@@ -1056,5 +1356,19 @@ class DirectoryItem<T> extends SingleItem<T>
 	    }
 	
 		return true;
+	}
+
+	@Override
+	public void handleTimeoutEvent()
+	{
+		if(_baseImpl.directoryCallbackClient().directoryItemList().isEmpty())
+			return;
+		
+		_baseImpl.consumerSession().fanoutSourceDirectoryResponsePerItem(this, DirectoryMsgType.REFRESH, true);
+	}
+
+	@Override
+	public ReentrantLock userLock() {
+		return _baseImpl.userLock();
 	}
 }

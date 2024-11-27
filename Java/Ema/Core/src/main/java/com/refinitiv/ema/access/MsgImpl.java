@@ -912,9 +912,18 @@ class MsgImpl extends DataImpl implements Msg
 		        encodeStatusMsg.msgClass(MsgClasses.STATUS);
 				encodeStatusMsg.domainType(statusMsg.domainType());
 				encodeStatusMsg.containerType(statusMsg.containerType());
-				encodeStatusMsg.flags(StatusMsgFlags.HAS_STATE | StatusMsgFlags.HAS_MSG_KEY);
-				encodeStatusMsg.msgKey().flags(MsgKeyFlags.HAS_NAME);
-				encodeStatusMsg.msgKey().name(statusMsg.msgKey().name());
+				
+				if( (statusMsg.flags() & StatusMsgFlags.HAS_MSG_KEY) != 0)
+				{
+					encodeStatusMsg.flags(StatusMsgFlags.HAS_STATE | StatusMsgFlags.HAS_MSG_KEY);
+					encodeStatusMsg.msgKey().flags(MsgKeyFlags.HAS_NAME);
+					encodeStatusMsg.msgKey().name(statusMsg.msgKey().name());
+				}
+				else
+				{
+					encodeStatusMsg.flags(StatusMsgFlags.HAS_STATE);
+				}
+								
 				encodeStatusMsg.state().code(statusMsg.state().code());
 				encodeStatusMsg.state().dataState(statusMsg.state().dataState());
 				encodeStatusMsg.state().streamState(statusMsg.state().streamState());
@@ -928,7 +937,31 @@ class MsgImpl extends DataImpl implements Msg
 				destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
 			
 				destMsg._rsslMsg.streamId(other.streamId());
-			} else {
+			}
+			else if(other._rsslMsg.msgClass() == MsgClasses.REQUEST)
+			{
+				com.refinitiv.eta.codec.RequestMsg reqMsg = (com.refinitiv.eta.codec.RequestMsg)other._rsslMsg;
+				com.refinitiv.eta.codec.RequestMsg encodeReqMsg = (com.refinitiv.eta.codec.RequestMsg)CodecFactory.createMsg();
+				com.refinitiv.eta.codec.EncodeIterator encIter = CodecFactory.createEncodeIterator();
+				
+				encodeReqMsg.msgClass(MsgClasses.REQUEST);
+				encodeReqMsg.domainType(reqMsg.domainType());
+				encodeReqMsg.containerType(reqMsg.containerType());
+				
+				//encodeReqMsg.flags(RequestMsgFlags.HAS_MSG_KEY);
+				encodeReqMsg.msgKey().flags(MsgKeyFlags.HAS_NAME);
+				encodeReqMsg.msgKey().name(reqMsg.msgKey().name());
+
+				destMsg._copiedBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
+				
+				encIter.setBufferAndRWFVersion(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer);
+				encodeReqMsg.encode(encIter);
+				
+				destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
+			
+				destMsg._rsslMsg.streamId(other.streamId());
+			}
+			else {
 				String errText = errorString()
 						.append("Failed to clone empty encoded buffer for ")
 						.append(functionName)

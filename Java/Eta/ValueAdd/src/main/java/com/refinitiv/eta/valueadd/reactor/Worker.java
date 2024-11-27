@@ -913,7 +913,7 @@ class Worker implements Runnable
         try
         {
             _selector = SelectorProvider.provider().openSelector();
-            _workerReactorChannel = ReactorFactory.createReactorChannel();
+            _workerReactorChannel = ReactorFactory.createReactorChannel(_reactor);
             _workerReactorChannel.selectableChannel(_queue.readChannel());
             _queue.readChannel().register(_selector, SelectionKey.OP_READ, _workerReactorChannel);
         }

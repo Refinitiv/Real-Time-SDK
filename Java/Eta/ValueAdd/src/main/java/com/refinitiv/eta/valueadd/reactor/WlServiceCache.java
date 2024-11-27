@@ -421,7 +421,7 @@ class WlServiceCache
     			{
     				for(int i = 0; i < wlService.rdmService().info().capabilitiesList().size(); i++)
     				{
-    					if(wlService.rdmService().info().capabilitiesList().get(i) != wsbService.serviceInfo.info().capabilitiesList().get(i))
+    					if(wlService.rdmService().info().capabilitiesList().get(i).longValue() != wsbService.serviceInfo.info().capabilitiesList().get(i).longValue())
     					{
     						return false;
     					}
@@ -493,7 +493,7 @@ class WlServiceCache
     			{
     				if(wlService.rdmService().info().itemList().length() != 0 && wsbService.serviceInfo.info().itemList().length() != 0)
     				{
-		    			if(wlService.rdmService().info().itemList().equals(wsbService.serviceInfo.info().itemList()))
+		    			if(!wlService.rdmService().info().itemList().equals(wsbService.serviceInfo.info().itemList()))
 		    			{
 		    				return false;
 		    			}
@@ -555,6 +555,22 @@ class WlServiceCache
 					sendWsbMsg = true;
 					
 				}
+				else if(newService.rdmService().state().serviceState() == 0)
+				{
+					if(containsChannel)
+					{
+						wsbService.channels.remove(_watchlist._reactorChannel);
+					}
+					
+					if(wsbService.channels.size() == 0)
+					{
+						wsbService.serviceState.serviceState(0);
+					
+						wsbService.updateServiceFilter |= ServiceFlags.HAS_STATE;
+						wsbService.serviceAction = MapEntryActions.UPDATE;
+						addToUpdateList = true;
+					}
+				}
 			}
 			else if(entryAction != MapEntryActions.DELETE && !containsChannel && (newService.rdmService().state().serviceState() == 1))
 			{
@@ -584,6 +600,12 @@ class WlServiceCache
 					addToUpdateList = true;
 				}
 			}
+			else if(wsbService.serviceAction == MapEntryActions.DELETE && entryAction == MapEntryActions.ADD)
+			{
+				wsbService.serviceAction = MapEntryActions.ADD;
+				wsbService.updateServiceFilter = newService.rdmService().flags();
+				addToUpdateList = true;
+			}
 			
 			if(addToUpdateList)
 			{
@@ -605,6 +627,8 @@ class WlServiceCache
 			newService.rdmService().state().copy(wsbService.serviceState);
 
 			wsbService.serviceAction = newService.rdmService().action();
+			wsbService.updateServiceFilter = newService.rdmService().flags();
+			
 			wsbService.serviceId.value(newService.tableKey().value());
 			/* If the service is active on this current connection, set the Active channel here */
 			if(wsbService.serviceState.serviceState() == 1)

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import com.refinitiv.ema.access.DataType.DataTypes;
@@ -42,6 +43,8 @@ class ProgrammaticConfigure
 		final static int DIRECTORY_FLAG =		0x010;
 		final static int SERVER_FLAG =			0x020;
 		final static int WARM_STANDBY_CHANNELSET_FLAG = 0x040;
+		final static int SESSION_CHANNEL_FLAG = 0x080;
+		final static int ITEM_RECOVERY_CHANNEL_DOWN_FLAG = 0x100;
 	}
 	
 	/** @class ChannelEntryFlag
@@ -130,6 +133,14 @@ class ProgrammaticConfigure
 		final static int WS_MAX_MSG_SIZE_FLAG = 	0x002;
 	}
 	
+	class SessionChannelFlag {
+		final static int CHANNELSET_FLAG = 0x001;
+		final static int WSB_CHANNELSET_FLAG = 0x002;
+		final static int RECONNECT_ATTEMPT_LIMIT = 0x004;
+		final static int RECONNECT_MIN_DELAY = 0x008;
+		final static int RECONNECT_MAX_DELAY = 0x010;
+	}
+	
 	
 	final static int MAX_UNSIGNED_INT16	= 0xFFFF;
 	final static long MAX_UNSIGNED_INT32 = 0xFFFFFFFFL;
@@ -146,6 +157,8 @@ class ProgrammaticConfigure
 	private String	_directoryName;
 	private String	_channelSet;
 	private String  _warmStandbyChannelSetName;
+	private String  _sessionChannelSetName;
+	private boolean _sessionEnhancedItemRecovery;
 	
 	private	boolean		_overrideConsName;
 	private	boolean		_overrideNiProvName;
@@ -360,6 +373,11 @@ class ProgrammaticConfigure
 			{
 				return _warmStandbyChannelSetName;
 			}
+			else if ( (InstanceEntryFlag.SESSION_CHANNEL_FLAG & flag) != 0 )
+			{
+				return _sessionChannelSetName;
+			}
+			
 		}
 		
 		return null;
@@ -488,6 +506,11 @@ class ProgrammaticConfigure
 														_warmStandbyChannelSetName  = instanceEntry.ascii().ascii();
 														_nameflags |= InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG;
 													}
+													else if ( instanceEntry.name().equals("SessionChannelSet") )
+													{
+														_sessionChannelSetName  = instanceEntry.ascii().ascii();
+														_nameflags |= InstanceEntryFlag.SESSION_CHANNEL_FLAG;
+													}
 													break;
 												default:
 													break;
@@ -602,16 +625,22 @@ class ProgrammaticConfigure
 		return INVALID_RETVAL;
 	}
 	
-	void  retrieveChannelConfig( String channelName,  ActiveConfig activeConfig, int hostFnCalled, ChannelConfig fileCfg)
+	void  retrieveChannelConfig( String channelName,  ActiveConfig activeConfig, List<ChannelConfig> channelConfigSet, int hostFnCalled, ChannelConfig fileCfg)
 	{
 		 for (Map map : _configList)
-			retrieveChannel(map, channelName, activeConfig, hostFnCalled, fileCfg);
+			retrieveChannel(map, channelName, activeConfig, channelConfigSet, hostFnCalled, fileCfg);
 	}
 	
 	void retrieveWSBChannelConfig(String wsbChannelName, ActiveConfig activeConfig, WarmStandbyChannelConfig fileCfg)
 	{
 		for (Map map : _configList)
 			retrieveWSBChannel(map, wsbChannelName, activeConfig, fileCfg);
+	}
+	
+	void retrieveSessionChannelConfig(String connectionName, ActiveConfig activeConfig, SessionChannelConfig fileCfg)
+	{
+		for (Map map : _configList)
+			retrieveSessionChannel(map, connectionName, activeConfig, fileCfg);
 	}
 
 	void retrieveWSBServerInfoConfig(String serverName, ActiveConfig activeConfig,WarmStandbyServerInfoConfig currentCfg,
@@ -1227,6 +1256,13 @@ class ProgrammaticConfigure
 													((ActiveConfig)activeConfig).rsslRDMLoginRequest.attrib().applyHasSupportRoundTripLatencyMonitoring();
 												}
 											}
+											else if (eentry.name().equals("SessionEnhancedItemRecovery")) {
+												if (eentry.uintValue() > 0) {
+													((ActiveConfig)activeConfig).sessionEnhancedItemRecovery = true;
+												}
+												else
+													((ActiveConfig)activeConfig).sessionEnhancedItemRecovery = false;
+											}
 											break;
 										case DataTypes.DOUBLE:
 											if ( eentry.name().equals("TokenReissueRatio"))
@@ -1376,7 +1412,8 @@ class ProgrammaticConfigure
 		}
 	}
 	
-	void retrieveChannel( Map map, String channelName, ActiveConfig activeConfig, int hostFnCalled, ChannelConfig fileCfg)
+	void retrieveChannel( Map map, String channelName, ActiveConfig activeConfig, List<ChannelConfig> channelConfigSet, 
+			int hostFnCalled, ChannelConfig fileCfg)
 	{
 		for (MapEntry mapEntry : map)
 		{
@@ -1394,7 +1431,36 @@ class ProgrammaticConfigure
 								mapListEntry.key().ascii().ascii().equals(channelName) &&
 								mapListEntry.loadType() == DataTypes.ELEMENT_LIST )
 							{
-								retrieveChannelInfo( mapListEntry, channelName, activeConfig, hostFnCalled, fileCfg);
+								retrieveChannelInfo( mapListEntry, channelName, activeConfig, hostFnCalled, fileCfg, 
+										channelConfigSet, ActiveConfig.defaultServiceName);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	void retrieveChannelForSessionChannel( Map map, String channelName, SessionChannelConfig sessionChannelConfig, int hostFnCalled, ChannelConfig fileCfg)
+	{
+		for (MapEntry mapEntry : map)
+		{
+			if ( mapEntry.key().dataType() == DataTypes.ASCII &&
+				 mapEntry.key().ascii().ascii().equals("ChannelGroup") &&
+				 mapEntry.loadType() == DataTypes.ELEMENT_LIST )
+			{
+				for (ElementEntry elementEntry : mapEntry.elementList())
+				{
+					if ( elementEntry.loadType() == DataTypes.MAP && elementEntry.name().equals("ChannelList"))
+					{
+						for (MapEntry mapListEntry : elementEntry.map())
+						{
+							if ( mapListEntry.key().dataType() == DataTypes.ASCII  &&
+								mapListEntry.key().ascii().ascii().equals(channelName) &&
+								mapListEntry.loadType() == DataTypes.ELEMENT_LIST )
+							{
+								retrieveChannelInfo( mapListEntry, channelName, null, hostFnCalled, fileCfg, sessionChannelConfig.configChannelSet, 
+										ActiveConfig.defaultServiceName);
 							}
 						}
 					}
@@ -1422,6 +1488,33 @@ class ProgrammaticConfigure
 								mapListEntry.loadType() == DataTypes.ELEMENT_LIST )
 							{
 								retrieveWSBChannelInfo( mapListEntry, wsbChannelName, activeConfig, fileCfg);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	void retrieveSessionChannel(Map map, String sessionChannelName, ActiveConfig activeConfig, SessionChannelConfig fileCfg)
+	{
+		for (MapEntry mapEntry : map)
+		{
+			if ( mapEntry.key().dataType() == DataTypes.ASCII &&
+				 mapEntry.key().ascii().ascii().equals("SessionChannelGroup") &&
+				 mapEntry.loadType() == DataTypes.ELEMENT_LIST )
+			{
+				for (ElementEntry elementEntry : mapEntry.elementList())
+				{
+					if ( elementEntry.loadType() == DataTypes.MAP && elementEntry.name().equals("SessionChannelList"))
+					{
+						for (MapEntry mapListEntry : elementEntry.map())
+						{
+							if ( mapListEntry.key().dataType() == DataTypes.ASCII  &&
+								mapListEntry.key().ascii().ascii().equals(sessionChannelName) &&
+								mapListEntry.loadType() == DataTypes.ELEMENT_LIST )
+							{
+								retrieveSessionChannelInfo( mapListEntry, sessionChannelName, activeConfig, fileCfg);
 							}
 						}
 					}
@@ -1510,7 +1603,8 @@ class ProgrammaticConfigure
 	}
 
 	@SuppressWarnings("static-access")
-	void retrieveChannelInfo( MapEntry mapEntry, String channelName, ActiveConfig activeConfig, int setByFnCalled, ChannelConfig fileCfg)
+	void retrieveChannelInfo( MapEntry mapEntry, String channelName, ActiveConfig activeConfig, int setByFnCalled, ChannelConfig fileCfg, 
+			List<ChannelConfig> channelSet, String defaultServiceName)
 	{
 		String interfaceName = null, host = null, port = null, objectName = null, tunnelingProxyHost = null, tunnelingProxyPort = null,
 				location = null, wsProtocols = null;
@@ -1686,21 +1780,25 @@ class ProgrammaticConfigure
 		}
 
 		if ((flags & ChannelEntryFlag.CHANNELTYPE_FLAG) != 0) {
-			if (setByFnCalled == ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
-				channelType = ConnectionTypes.SOCKET;
-				activeConfig.channelConfigSet.clear();
-			} else if (setByFnCalled > ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
-				activeConfig.channelConfigSet.clear();
+			
+			if(activeConfig != null)
+			{
+				if (setByFnCalled == ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
+					channelType = ConnectionTypes.SOCKET;
+					channelSet.clear();
+				} else if (setByFnCalled > ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
+					channelSet.clear();
+				}
 			}
 
 			ChannelConfig currentChannelConfig = null;
 
 			if (channelType == ConnectionTypes.SOCKET || channelType == ConnectionTypes.WEBSOCKET) {
 				SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig();
-				socketChannelConfig.serviceName = activeConfig.defaultServiceName;
+				socketChannelConfig.serviceName = defaultServiceName;
 				socketChannelConfig.rsslConnectionType = channelType;
 				currentChannelConfig = socketChannelConfig;
-				activeConfig.channelConfigSet.add(currentChannelConfig);
+				channelSet.add(currentChannelConfig);
 
 				SocketChannelConfig fileCfgSocket = null;
 				if (fileCfg != null
@@ -1766,7 +1864,7 @@ class ProgrammaticConfigure
 				HttpChannelConfig httpChannelConfig = new EncryptedChannelConfig();
 				httpChannelConfig.rsslConnectionType = channelType;
 				currentChannelConfig = httpChannelConfig;
-				activeConfig.channelConfigSet.add(currentChannelConfig);
+				channelSet.add(currentChannelConfig);
 
 				HttpChannelConfig fileCfgEncrypt = null;
 				if (fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED || fileCfg.rsslConnectionType == ConnectionTypes.HTTP))
@@ -1826,7 +1924,7 @@ class ProgrammaticConfigure
 						encryptedChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
 						encryptedChannelConfig.encryptedProtocolType = ConnectionTypes.HTTP;
 						currentChannelConfig = encryptedChannelConfig;
-						activeConfig.channelConfigSet.add(currentChannelConfig);
+						channelSet.add(currentChannelConfig);
 
 						HttpChannelConfig fileCfgEncrypt = null;
 						if (fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED || fileCfg.rsslConnectionType == ConnectionTypes.HTTP))
@@ -1899,7 +1997,7 @@ class ProgrammaticConfigure
 						encryptedSocketChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
 						encryptedSocketChannelConfig.encryptedProtocolType = encryptedProtocol;
 						currentChannelConfig = encryptedSocketChannelConfig;
-						activeConfig.channelConfigSet.add(currentChannelConfig);
+						channelSet.add(currentChannelConfig);
 
 						EncryptedChannelConfig fileCfgEncryptSocket = null;
 						if (fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED))
@@ -2672,6 +2770,144 @@ class ProgrammaticConfigure
 		activeConfig.configWarmStandbySet.add(wsbChannelConfig);
 	}
 	
+	void retrieveSessionChannelInfo(MapEntry mapEntry, String sessionChannelName, ActiveConfig activeConfig,
+			SessionChannelConfig fileSessionChannelConfig)
+	{
+		String channelSet = "";
+		String warmStandbyChannelSet = "";
+
+		int reconnectAttemptLimit = 0;
+		int reconnectMinDelay = 0;
+		int reconnectMaxDelay = 0;
+		int flags = 0;
+		
+		for(ElementEntry sessionChannelEntry : mapEntry.elementList())
+		{
+		switch (sessionChannelEntry.loadType())
+		{
+			case DataTypes.ASCII:
+			if(sessionChannelEntry.name().equalsIgnoreCase("ChannelSet"))
+			{
+				channelSet = sessionChannelEntry.ascii().ascii();
+				flags |= SessionChannelFlag.CHANNELSET_FLAG;
+			}
+			else if(sessionChannelEntry.name().equalsIgnoreCase("WarmStandbyChannelSet"))
+			{
+				warmStandbyChannelSet = sessionChannelEntry.ascii().ascii();
+				flags |= SessionChannelFlag.WSB_CHANNELSET_FLAG;
+			}
+			break;
+			case DataTypes.INT:
+				if (sessionChannelEntry.name().equals("ReconnectAttemptLimit"))
+				{
+					if (sessionChannelEntry.intValue() >= -1)
+					{
+						reconnectAttemptLimit = convertToInt(sessionChannelEntry.intValue());
+						flags |= SessionChannelFlag.RECONNECT_ATTEMPT_LIMIT;
+					}
+				}
+				else if (sessionChannelEntry.name().equals("ReconnectMinDelay"))
+				{
+					if (sessionChannelEntry.intValue() >= 0)
+					{
+						reconnectMinDelay = convertToInt(sessionChannelEntry.intValue());
+						flags |= SessionChannelFlag.RECONNECT_MIN_DELAY;
+					}
+				}
+				else if (sessionChannelEntry.name().equals("ReconnectMaxDelay"))
+				{
+					if (sessionChannelEntry.intValue() >= 0)
+					{
+						reconnectMaxDelay = convertToInt(sessionChannelEntry.intValue());
+						flags |= SessionChannelFlag.RECONNECT_MAX_DELAY;
+					}
+				} 
+			break;
+			}
+		}
+		
+		SessionChannelConfig sessionChannelConfig = new SessionChannelConfig(sessionChannelName);
+		
+		sessionChannelConfig.reconnectAttemptLimit = activeConfig.reconnectAttemptLimit;
+		sessionChannelConfig.reconnectMaxDelay = activeConfig.reconnectMaxDelay;
+		sessionChannelConfig.reconnectMinDelay = activeConfig.reconnectMinDelay;
+		
+		if ((flags & SessionChannelFlag.RECONNECT_ATTEMPT_LIMIT) != 0)
+		{
+			sessionChannelConfig.reconnectAttemptLimit = reconnectAttemptLimit;
+		}
+		
+		if ((flags & SessionChannelFlag.RECONNECT_MIN_DELAY) != 0)
+		{
+			sessionChannelConfig.reconnectMinDelay = reconnectMinDelay;
+		}
+		
+		if ((flags & SessionChannelFlag.RECONNECT_MAX_DELAY) != 0)
+		{
+			sessionChannelConfig.reconnectMaxDelay = reconnectMaxDelay;
+		}
+		
+		if( (flags & (SessionChannelFlag.CHANNELSET_FLAG | SessionChannelFlag.WSB_CHANNELSET_FLAG)) != 0)
+		{
+			if((flags & SessionChannelFlag.CHANNELSET_FLAG) != 0)
+			{
+				String[] names = channelSet.split(",");
+				for (int i = 0; i < names.length; i++)
+				{
+					String channelName = names[i].trim();
+					ChannelConfig fileConfig = null;
+					if(fileSessionChannelConfig != null)
+					{
+						Optional<ChannelConfig> optionalConfig = fileSessionChannelConfig.configChannelSet.stream()
+								.filter(e -> e.name.equals(channelName)).findFirst();
+						
+						if(optionalConfig.isPresent())
+							fileConfig = optionalConfig.get();
+					}
+					
+					retrieveChannelConfig( channelName, null, sessionChannelConfig.configChannelSet, 0, fileConfig );
+				}
+			}
+			else
+			{
+				if(fileSessionChannelConfig.configChannelSet != null)
+					sessionChannelConfig.configChannelSet = fileSessionChannelConfig.configChannelSet;
+			}
+			
+			if((flags & SessionChannelFlag.WSB_CHANNELSET_FLAG) != 0)
+			{
+				String[] names = warmStandbyChannelSet.split(",");
+				for (int i = 0; i < names.length; i++)
+				{
+					String wsbChannelName = names[i].trim();
+					WarmStandbyChannelConfig fileConfig = null;
+					if(fileSessionChannelConfig != null)
+					{
+						Optional<WarmStandbyChannelConfig> optionalConfig = fileSessionChannelConfig.configWarmStandbySet.stream()
+								.filter(e -> e.name.equals(wsbChannelName)).findFirst();
+						
+						if(optionalConfig.isPresent())
+							fileConfig = optionalConfig.get();
+					}
+					
+					retrieveWSBChannelConfig(wsbChannelName, activeConfig, fileConfig);
+				}
+			}
+			else
+			{
+				if(fileSessionChannelConfig != null)
+					sessionChannelConfig.configWarmStandbySet = fileSessionChannelConfig.configWarmStandbySet;
+			}
+			
+			/* Remove the session configure from the file configuration if any. */
+			if(fileSessionChannelConfig != null)
+				activeConfig.configSessionChannelSet.removeIf(e -> e.name.equals(fileSessionChannelConfig.name));
+			
+			/* Add session channel configure to the active configuration. */
+			activeConfig.configSessionChannelSet.add(sessionChannelConfig);
+		}
+	}
+	
 	@SuppressWarnings("static-access")
 	void retrieveWSBServerInfo(MapEntry mapEntry, String serverInfoName, ActiveConfig activeConfig,
 			   WarmStandbyServerInfoConfig currentCfg, WarmStandbyServerInfoConfig fileCfg)
@@ -2723,7 +2959,7 @@ class ProgrammaticConfigure
 				int orgSize = activeConfig.channelConfigSet.size();
 				
 				/* Get channel config from programmatic configuration instead */
-				retrieveChannelConfig(queryName, activeConfig, pos, fileChannelConfig);
+				retrieveChannelConfig(queryName, activeConfig, activeConfig.channelConfigSet, pos, fileChannelConfig);
 				
 				currentCfg.channelConfig = activeConfig.channelConfigSet.get(orgSize);
 				activeConfig.channelConfigSet.remove(orgSize);
@@ -2756,7 +2992,7 @@ class ProgrammaticConfigure
 				else
 				{
 					/* Get channel config from programmatic configuration instead */
-					retrieveChannelConfig(queryName, activeConfig, pos, fileCfg.channelConfig);
+					retrieveChannelConfig(queryName, activeConfig, activeConfig.channelConfigSet, pos, fileCfg.channelConfig);
 				
 					if(activeConfig.findChannelConfig(activeConfig.channelConfigSet, queryName, pos))
 					{

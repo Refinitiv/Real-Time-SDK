@@ -86,6 +86,7 @@ import com.refinitiv.eta.transport.WriteArgs;
 import com.refinitiv.eta.transport.WriteArgsImpl;
 import com.refinitiv.eta.valueadd.common.SelectableBiDirectionalQueue;
 import com.refinitiv.eta.valueadd.common.VaDoubleLinkList;
+import com.refinitiv.eta.valueadd.common.VaPool;
 import com.refinitiv.eta.valueadd.common.VaQueue;
 import com.refinitiv.eta.valueadd.domainrep.rdm.MsgBase;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryClose;
@@ -151,6 +152,8 @@ public class Reactor
 	ReactorChannel _reactorChannel = null;
 	ReactorChannelInfo _reactorChannelInfo = ReactorFactory.createReactorChannelInfo();
 	FileDumper _fileDumper;
+	
+	VaPool _reactorChannelPool = new VaPool(true);
 
 	// queue between reactor and worker
 	SelectableBiDirectionalQueue _workerQueue = null;
@@ -357,7 +360,7 @@ public class Reactor
 
 			// create a new ReactorChannel and populate with the readChannel
 			// side of our _workerQueue.
-			_reactorChannel = ReactorFactory.createReactorChannel();
+			_reactorChannel = ReactorFactory.createReactorChannel(this);
 			_reactorChannel.reactor(this);
 			_reactorChannel.userSpecObj(this);
 
@@ -585,7 +588,7 @@ public class Reactor
 			}
 
 			// create a ReactorChannel and add it to the initChannelQueue.
-			ReactorChannel reactorChannel = ReactorFactory.createReactorChannel();
+			ReactorChannel reactorChannel = ReactorFactory.createReactorChannel(this);
 			reactorChannel.state(State.INITIALIZING);
 			reactorChannel.role(role);
 			reactorChannel.reactor(this);
@@ -728,7 +731,7 @@ public class Reactor
 			}
 
 			// create a ReactorChannel
-			ReactorChannel reactorChannel = ReactorFactory.createReactorChannel();
+			ReactorChannel reactorChannel = ReactorFactory.createReactorChannel(this);
 			reactorChannel.reactor(this);
 
 			reactorChannel.reactorConnectOptions(reactorConnectOptions);
@@ -865,7 +868,7 @@ public class Reactor
 
 					reactorChannel.standByServerListIndex = ReactorWarmStandbyGroupImpl.REACTOR_WSB_STARTING_SERVER_INDEX;
 
-					warmStandbyHandlerImpl.mainReactorChannelImpl(ReactorFactory.createReactorChannel());
+					warmStandbyHandlerImpl.mainReactorChannelImpl(ReactorFactory.createReactorChannel(this));
 					warmStandbyHandlerImpl.mainReactorChannelImpl().warmStandByHandlerImpl = warmStandbyHandlerImpl;
 					warmStandbyHandlerImpl.mainReactorChannelImpl().role(reactorChannel.role());
 					warmStandbyHandlerImpl.setConnectingToStartingServerState();
@@ -2503,31 +2506,35 @@ public class Reactor
 							warmStandbyHandler.warmStandbyHandlerState(state);
 							incrementWsbGroupIndex = true;
 							
-							if ((warmStandbyHandler.warmStandbyHandlerState()
-									& ReactorWarmStandbyHandlerState.MOVE_TO_NEXT_WSB_GROUP) != 0)
+							/* Checks whether this channel is recoverable before moving to a WSB group or channel list */
+							if(eventType != ReactorChannelEventTypes.CHANNEL_DOWN)
 							{
-								warmStandbyHandler.warmStandbyHandlerState(
-										ReactorWarmStandbyHandlerState.CONNECTING_TO_A_STARTING_SERVER);
-
-								warmStandbyHandler.startingReactorChannel()
-										.reactorChannelType(ReactorChannelType.WARM_STANDBY);
-								warmStandbyHandler.startingReactorChannel().resetReconnectTimers();
-
-								queueRequestsForWSBGroupRecovery(warmStandbyHandler, errorInfo);
-								
-								/* Reset this flag for the submitWSBRequestQueue() method*/
-								warmStandbyHandler.startingReactorChannel().sendReqFromQueue = false;
-								
-								/* Submit the recovered queue message only for the standby servers */
-								warmStandbyHandler.startingReactorChannel().lastSubmitOptionsTime = System.nanoTime();
-								
-							} else
-							{
-								warmStandbyHandler
-										.warmStandbyHandlerState(ReactorWarmStandbyHandlerState.MOVE_TO_CHANNEL_LIST);
-								warmStandbyHandler.startingReactorChannel()
-										.reactorChannelType(ReactorChannelType.NORMAL);
-								warmStandbyHandler.startingReactorChannel().resetReconnectTimers();
+								if ((warmStandbyHandler.warmStandbyHandlerState()
+										& ReactorWarmStandbyHandlerState.MOVE_TO_NEXT_WSB_GROUP) != 0)
+								{
+									warmStandbyHandler.warmStandbyHandlerState(
+											ReactorWarmStandbyHandlerState.CONNECTING_TO_A_STARTING_SERVER);
+	
+									warmStandbyHandler.startingReactorChannel()
+											.reactorChannelType(ReactorChannelType.WARM_STANDBY);
+									warmStandbyHandler.startingReactorChannel().resetReconnectTimers();
+									
+									queueRequestsForWSBGroupRecovery(warmStandbyHandler, errorInfo);
+									
+									/* Reset this flag for the submitWSBRequestQueue() method*/
+									warmStandbyHandler.startingReactorChannel().sendReqFromQueue = false;
+									
+									/* Submit the recovered queue message only for the standby servers */
+									warmStandbyHandler.startingReactorChannel().lastSubmitOptionsTime = System.nanoTime();
+								} 
+								else if (warmStandbyHandler.getConnectionOptions().connectionList().size() > 0)
+								{ /* Ensure that there is ChannelSet before changing to the MOVE_TO_CHANNEL_LIST state */
+									warmStandbyHandler
+											.warmStandbyHandlerState(ReactorWarmStandbyHandlerState.MOVE_TO_CHANNEL_LIST);
+									warmStandbyHandler.startingReactorChannel()
+											.reactorChannelType(ReactorChannelType.NORMAL);
+									warmStandbyHandler.startingReactorChannel().resetReconnectTimers();
+								}
 							}
 						}
 						
@@ -3535,7 +3542,7 @@ public class Reactor
 							if(reactorChannel.warmStandByHandlerImpl.rdmLoginRefresh().checkHasFeatures())
 							{
 								if (refreshRdmMsg.features().checkHasSupportPost())
-								{
+								{								
 									if(reactorChannel.warmStandByHandlerImpl.rdmLoginRefresh().features().checkHasSupportPost())
 									{
 										if(refreshRdmMsg.features().supportOMMPost() != reactorChannel.warmStandByHandlerImpl
@@ -3914,6 +3921,11 @@ public class Reactor
 							ReactorWSBService service = wsbGroup._updateServiceList.get(i);
 							service.serviceInfo.flags(service.updateServiceFilter);
 							service.serviceInfo.action(service.serviceAction);
+							
+							if((service.updateServiceFilter & ServiceFlags.HAS_STATE) != 0)
+							{
+								service.serviceState.copy(service.serviceInfo.state());
+							}
 	
 							updateMsg.serviceList().add(service.serviceInfo);
 	
@@ -5823,7 +5835,7 @@ public class Reactor
 							tokenSession = null;
 							warmStandbyServerInfo = warmStandbyGroup.standbyServerList().get(index);
 
-							standbyReactorChannel = ReactorFactory.createReactorChannel();
+							standbyReactorChannel = ReactorFactory.createReactorChannel(this);
 
 							/* just need to store the reference here */
 							standbyReactorChannel._reactorConnectOptions = startingReactorChannel
@@ -5831,7 +5843,7 @@ public class Reactor
 
 							standbyReactorChannel
 									.initializationTimeout(warmStandbyServerInfo.reactorConnectInfo().initTimeout());
-							standbyReactorChannel.userSpecObj(startingReactorChannel.userSpecObj());
+							standbyReactorChannel.userSpecObj(warmStandbyServerInfo.reactorConnectInfo().connectOptions().userSpecObject());
 							standbyReactorChannel.flags(startingReactorChannel.flags);
 							standbyReactorChannel.reconnectAttemptLimit(startingReactorChannel.reconnectAttemptLimit());
 							standbyReactorChannel.reconnectMinDelay(startingReactorChannel.reconnectMinDelay());

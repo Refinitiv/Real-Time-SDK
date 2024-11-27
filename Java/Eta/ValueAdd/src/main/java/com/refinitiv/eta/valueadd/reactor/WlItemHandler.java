@@ -2850,13 +2850,15 @@ class WlItemHandler implements WlHandler
 
         			if(wsbHandler.nextActiveReactorChannel().watchlist()._directoryHandler._serviceCache._servicesByIdTable.get(wlService._tableKey) == null)
         			{
-        				
-        				// Don't have the service in the next active channel, force close the item 
-        				forceClose = true;
-        				statusFlags = WlStreamStatusFlags.SEND_STATUS;
+                		ReactorWSBService wsbService = _watchlist.reactorChannel().warmStandByHandlerImpl.currentWarmStandbyGroupImpl()._perServiceById.get(wlService.tableKey());
+                		
+                		if(wsbService == null || (wsbService.channels.size() == 0))
+                		{
+                			// Don't have the service in any channels, force close the item 
+                			forceClose = true;
+                		}
         			}
-        		}
-        		
+        		}		
         	}
         	else
         	{

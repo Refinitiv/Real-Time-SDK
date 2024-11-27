@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|          Copyright (C) 2019-2020 LSEG. All rights reserved.     
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|          Copyright (C) 2019-2021,2023-2024 LSEG. All rights reserved.     --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -150,6 +150,18 @@ public interface ChannelInformation
 		 */
 		public static final int LZ4 = 0x02;
 	}
+	
+	/**
+	 * Gets the EMA's configuration channel name
+	 * @return the channel name
+	 */
+	public String channelName();
+	
+	/**
+	 * Gets the EMA's configuration session channel name
+	 * @return the session channel name
+	 */
+	public String sessionChannelName();
 
 	/** Clears the ChannelInformation
 	 *  <p>invoking clear() resets all member variables to their default values</p>

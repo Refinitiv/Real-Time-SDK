@@ -9,6 +9,7 @@ package com.refinitiv.ema.access;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,7 @@ import com.refinitiv.eta.codec.CopyMsgFlags;
 import com.refinitiv.eta.codec.DataStates;
 import com.refinitiv.eta.codec.DataTypes;
 import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.MapEntryActions;
 import com.refinitiv.eta.codec.Msg;
 import com.refinitiv.eta.codec.MsgClasses;
 import com.refinitiv.eta.codec.MsgKey;
@@ -56,11 +58,13 @@ import com.refinitiv.eta.valueadd.reactor.ReactorCallbackReturnCodes;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannelEventTypes;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannelType;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
 import com.refinitiv.eta.valueadd.reactor.ReactorMsgEvent;
 import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
 import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyMode;
 import com.refinitiv.eta.valueadd.reactor.TunnelStream;
 import com.refinitiv.eta.valueadd.reactor.TunnelStreamDefaultMsgCallback;
 import com.refinitiv.eta.valueadd.reactor.TunnelStreamMsgEvent;
@@ -102,7 +106,7 @@ class CallbackClient<T> implements CallbackRsslMsgPool
 	CallbackClient(OmmBaseImpl<T> baseImpl, String clientName)
 	{
 		_baseImpl = baseImpl;
-		_eventImpl = new OmmEventImpl<T>();
+		_eventImpl = new OmmEventImpl<T>(baseImpl);
 		_refreshMsg = new RefreshMsgImpl(_baseImpl.objManager());
 		
 		if  ( _baseImpl.loggerClient().isTraceEnabled() )
@@ -195,7 +199,7 @@ class TunnelItem<T> extends Item<T> {
 	private static final String CLIENT_NAME = "TunnelItem";
 	private int _nextSubItemStreamId;
 	private LinkedList<IntObject> _returnedSubItemStreamIds;
-	private Directory _directory;
+	private Directory<T> _directory;
 	private TunnelStream _rsslTunnelStream;
 	private ArrayList<Item<T>> _subItems;
 	private static final int STARTING_SUBITEM_STREAMID = 5;
@@ -396,50 +400,109 @@ class TunnelItem<T> extends Item<T> {
 
 	boolean open(TunnelStreamRequest tunnelStreamRequest)
 	{
-		Directory directory = null;
+		Directory<T> directory = null;
+		ConsumerSession<T> consumerSession = _baseImpl.consumerSession();
+		SessionDirectory<T> sessionDirectory = null;
 
 		if (tunnelStreamRequest.hasServiceName())
 		{
-			directory = _baseImpl.directoryCallbackClient().directory(tunnelStreamRequest.serviceName());
-			if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
+			if(consumerSession != null)
 			{
-				StringBuilder temp = _baseImpl.strBuilder();
-				temp.append("Service name of  ").append("tunnelStreamRequest.getServiceName()")
-						.append(" is not found.");
-
-				if (_baseImpl.loggerClient().isErrorEnabled())
-					_baseImpl.loggerClient()
-							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-
-				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+				sessionDirectory = consumerSession.sessionDirectoryByName(tunnelStreamRequest.serviceName());
 				
-				/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
-				_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
+				if(sessionDirectory != null)
+				{
+					directory = sessionDirectory.directory();
+				}
+				
+				if(directory == null)
+				{
+					StringBuilder temp = new StringBuilder();
+					temp.append("Service name of  ").append(tunnelStreamRequest.serviceName())
+							.append(" is not found.");
 
-				scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
+					if (_baseImpl.loggerClient().isErrorEnabled())
+						_baseImpl.loggerClient()
+								.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+					
+					/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
+					_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
 
-				return true;
+					scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
+
+					return true;
+				}
 			}
-		} else if (tunnelStreamRequest.hasServiceId())
-		{
-			directory = _baseImpl.directoryCallbackClient().directory(tunnelStreamRequest.serviceId());
-			if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
+			else
 			{
-				StringBuilder temp = _baseImpl.strBuilder();
-				temp.append("Service id of  ").append(tunnelStreamRequest.serviceId()).append(" is not found.");
-
-				if (_baseImpl.loggerClient().isErrorEnabled())
-					_baseImpl.loggerClient()
-							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-
-				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+				directory = _baseImpl.directoryCallbackClient().directory(tunnelStreamRequest.serviceName());
 				
-				/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
-				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+				if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
+				{
+					StringBuilder temp = new StringBuilder();
+					temp.append("Service name of  ").append(tunnelStreamRequest.serviceName())
+							.append(" is not found.");
 
-				scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
+					if (_baseImpl.loggerClient().isErrorEnabled())
+						_baseImpl.loggerClient()
+								.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+					
+					/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
+					_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
 
-				return true;
+					scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
+
+					return true;
+				}
+			}
+		} 
+		else if (tunnelStreamRequest.hasServiceId())
+		{
+			if(consumerSession != null)
+			{
+				sessionDirectory = consumerSession.sessionDirectoryById(tunnelStreamRequest.serviceId());
+				
+				if(sessionDirectory != null)
+				{
+					directory = sessionDirectory.directory();
+				}
+				
+				if (directory == null)
+				{
+					StringBuilder temp = new StringBuilder();
+					temp.append("Service id of  ").append(tunnelStreamRequest.serviceId()).append(" is not found.");
+
+					if (_baseImpl.loggerClient().isErrorEnabled())
+						_baseImpl.loggerClient()
+								.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+					
+					/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
+					_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+
+					scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
+
+					return true;
+				}
+			}
+			else
+			{
+				directory = _baseImpl.directoryCallbackClient().directory(tunnelStreamRequest.serviceId());
+				if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
+				{
+					StringBuilder temp = new StringBuilder();
+					temp.append("Service id of  ").append(tunnelStreamRequest.serviceId()).append(" is not found.");
+
+					if (_baseImpl.loggerClient().isErrorEnabled())
+						_baseImpl.loggerClient()
+								.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+					
+					/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
+					_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+
+					scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
+
+					return true;
+				}
 			}
 		}
 
@@ -523,6 +586,18 @@ class TunnelItem<T> extends Item<T> {
 
 		tsOpenOptions.domainType(_domainType);
 		tsOpenOptions.name(tunnelStreamRequest.name());
+		ChannelInfo channelInfo = null;
+		ReactorChannel rsslChannel = null;
+		if(_baseImpl.consumerSession() != null)
+		{
+			channelInfo = _directory.channelInfo();
+			rsslChannel = channelInfo.rsslReactorChannel();
+		}
+		else
+		{
+			channelInfo = _baseImpl.loginCallbackClient().activeChannelInfo();
+			rsslChannel = (channelInfo != null) ? channelInfo.rsslReactorChannel() : null;
+		}
 
 		if (tunnelStreamRequest.hasLoginReqMsg())
 		{
@@ -532,7 +607,7 @@ class TunnelItem<T> extends Item<T> {
 
 			if (ReactorReturnCodes.SUCCESS > (dIter.setBufferAndRWFVersion(
 					((TunnelStreamRequestImpl) tunnelStreamRequest).tunnelStreamLoginReqMsg().buffer(),
-					_baseImpl.loginCallbackClient().activeChannelInfo()._majorVersion, _baseImpl.loginCallbackClient().activeChannelInfo()._minorVersion)))
+					channelInfo._majorVersion, channelInfo._minorVersion)))
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Internal Error. Failed to set decode iterator version in TunnelItem.submit");
@@ -598,9 +673,6 @@ class TunnelItem<T> extends Item<T> {
 		tsOpenOptions.classOfService().guarantee().type(cos.guarantee().type());
 		tsOpenOptions.classOfService().guarantee().persistLocally(cos.guarantee().persistedLocally());
 		tsOpenOptions.classOfService().guarantee().persistenceFilePath(cos.guarantee().persistenceFilePath());
-
-		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
-		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
 
 		if (rsslChannel == null)
 		{
@@ -708,8 +780,21 @@ class TunnelItem<T> extends Item<T> {
 
 		_baseImpl.rsslEncIter().clear();
 		int ret;
+		
+		 ChannelInfo channelInfo = null;
+		 
+        if(_baseImpl.consumerSession() != null)
+        {
+        	channelInfo = _directory.channelInfo();
+        }
+        else
+        {
+        	channelInfo = _baseImpl.loginCallbackClient().activeChannelInfo();
+        }
+
+		
 		if (ReactorReturnCodes.SUCCESS > (ret = _baseImpl.rsslEncIter().setBufferAndRWFVersion(tunnelStreamBuf,
-				_baseImpl.loginCallbackClient().activeChannelInfo()._majorVersion, _baseImpl.loginCallbackClient().activeChannelInfo()._minorVersion)))
+				channelInfo._majorVersion, channelInfo._minorVersion)))
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			temp.append("Internal Error. Failed to set encode iterator in TunnelItem.submitSubItemMsg");
@@ -744,7 +829,7 @@ class TunnelItem<T> extends Item<T> {
 			}
 			_baseImpl.rsslEncIter().clear();
 			if (ReactorReturnCodes.SUCCESS > (ret = _baseImpl.rsslEncIter().setBufferAndRWFVersion(tunnelStreamBuf,
-					_baseImpl.loginCallbackClient().activeChannelInfo()._majorVersion, _baseImpl.loginCallbackClient().activeChannelInfo()._minorVersion)))
+					channelInfo._majorVersion, channelInfo._minorVersion)))
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Internal Error. Failed to set encode iterator in in TunnelItem.submitSubItemMsg");
@@ -808,7 +893,7 @@ class TunnelItem<T> extends Item<T> {
 		}
 		_subItems.clear();
 
-		_baseImpl.itemCallbackClient().removeFromMap(this);
+		_baseImpl.itemCallbackClient().removeFromMap(this, true);
 	}
 
 	@Override
@@ -818,7 +903,7 @@ class TunnelItem<T> extends Item<T> {
 	}
 
 	@Override
-	Directory directory()
+	Directory<T> directory()
 	{
 		return _directory;
 	}
@@ -878,7 +963,7 @@ class SubItem<T> extends Item<T>
 {
 
 	private static final String CLIENT_NAME = "SubItem";
-	Directory _directory;
+	Directory<T> _directory;
 	protected OmmBaseImpl<T>	_baseImpl;
 
 	SubItem()
@@ -995,7 +1080,7 @@ class SubItem<T> extends Item<T>
 	{
 		((TunnelItem<T>) (_parent)).removeSubItem(_streamId);
 		((TunnelItem<T>) (_parent)).returnSubItemStreamId(_streamId);
-		_baseImpl.itemCallbackClient().removeFromMap(this);
+		_baseImpl.itemCallbackClient().removeFromMap(this, true);
 	}
 
 	@Override
@@ -1005,7 +1090,7 @@ class SubItem<T> extends Item<T>
 	}
 
 	@Override
-	Directory directory()
+	Directory<T> directory()
 	{
 		return _directory;
 	}
@@ -1062,20 +1147,32 @@ TunnelStreamStatusEventCallback
 	private int	_nextStreamId;
 	boolean	_nextStreamIdWrapAround;
 	private ReentrantLock _streamIdAccessLock;
+	private ConsumerSession<T> _consumerSession; /* This is used when there is a consumer session */
 
 	ItemCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
 		super(baseImpl, CLIENT_NAME);
-
-		if(baseImpl.activeConfig().userDispatch == OmmConsumerConfig.OperationModel.API_DISPATCH)
-		{
-			_itemMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
-			_streamIdMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		
+		_consumerSession = baseImpl.consumerSession();
+		
+		if(_consumerSession != null)
+		{	/* Gets HashMap from the watchlist when the consumer session is enabled. */
+			_itemMap = _consumerSession.watchlist().itemHandleMap();
+			_streamIdMap = _consumerSession.watchlist().streamIdMap();
+			_consumerSession.watchlist().callbackClient(this);
 		}
 		else
 		{
-			_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
-			_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			if(baseImpl.activeConfig().userDispatch == OmmConsumerConfig.OperationModel.API_DISPATCH)
+			{
+				_itemMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+				_streamIdMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			}
+			else
+			{
+				_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+				_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			}
 		}
 
 		_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
@@ -1201,7 +1298,12 @@ TunnelStreamStatusEventCallback
 		((TunnelItem<T>) (_eventImpl._item)).rsslTunnelStream(tunnelStreamStatusEvent.tunnelStream());
 		
 		if(_eventImpl._item.directory() != null)
+		{
 			_statusMsg.service(_eventImpl._item.directory().serviceName());
+			
+			if(_eventImpl._item.directory().hasGeneratedServiceId()) /* Gets the mapping alternate service Id if any */
+				_statusMsg.serviceId(_eventImpl._item.directory().generatedServiceId());
+		}
 		else
 			_statusMsg.service(null);
 
@@ -1331,7 +1433,7 @@ TunnelStreamStatusEventCallback
 			if (_baseImpl.loggerClient().isErrorEnabled())
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
-				temp.append("Received a tunnel stream message event containing an unsupported data type of")
+				temp.append("Received a tunnel stream message event containing an unsupported data type of ")
 						.append(DataTypes.toString(tunnelStreamMsgEvent.containerType()))
 						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
 						.append(OmmLoggerClient.CR).append("RsslReactor ")
@@ -1798,8 +1900,10 @@ TunnelStreamStatusEventCallback
 	{
 		_refreshMsg.decode(rsslMsg, reactorChannel.majorVersion(), reactorChannel.minorVersion(), dataDictionary);
 	
+		boolean fromBatchRequest = false;
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
 		{
+			fromBatchRequest = true;
 			_eventImpl._item = ((BatchItem<T>) _eventImpl._item).singleItem(rsslMsg.streamId());
 			if (_eventImpl._item == null)
 			{
@@ -1820,7 +1924,61 @@ TunnelStreamStatusEventCallback
 		}
 
 		if(_eventImpl._item.directory() != null)
+		{
 			_refreshMsg.service(_eventImpl._item.directory().serviceName());
+			
+			if(_eventImpl._item.type() == Item.ItemType.SINGLE_ITEM)
+			{
+				SingleItem<T> singleItem = ((SingleItem<T>)_eventImpl._item);
+				
+				singleItem._itemClosedDirHash = null;
+				
+				if(singleItem._serviceList != null)
+				{
+					_refreshMsg.service(singleItem._serviceList.name());
+					_refreshMsg.serviceId(singleItem._serviceList.serviceId());
+				}
+				else if(singleItem.directory().hasGeneratedServiceId()) /* Gets the mapping alternate service Id if any */
+					_refreshMsg.serviceId(singleItem.directory().generatedServiceId());
+				
+				if(singleItem.directory().channelInfo().getReactorChannelType() == ReactorChannelType.WARM_STANDBY)
+				{
+					if(singleItem.state() == SingleItem.ItemStates.RECOVERING)
+					{
+						@SuppressWarnings("unchecked")
+						SessionChannelInfo<T> sessionChannelInfo = (SessionChannelInfo<T>)singleItem.directory().channelInfo().sessionChannelInfo();
+						
+						if(sessionChannelInfo != null)
+						{
+							singleItem.state(SingleItem.ItemStates.NORMAL);
+							
+							int wsbMode = sessionChannelInfo.getWarmStandbyMode(sessionChannelInfo.reactorChannel());
+
+							if(wsbMode == ReactorWarmStandbyMode.LOGIN_BASED)
+							{
+								sessionChannelInfo.removeWSBStaleItem(singleItem);
+							}
+							else if (wsbMode == ReactorWarmStandbyMode.SERVICE_BASED)
+							{
+								sessionChannelInfo.removeWSBServiceBasedStaleItem(singleItem.directory().serviceName(), singleItem);
+							}
+						}
+					}
+				}
+			}
+			
+			/* Adds the item to the item map of SessionDirectory when the item is requested by batch request. */
+			if(fromBatchRequest)
+			{
+				if( _eventImpl._item.directory().sessionDirectory() != null && _eventImpl._item.type() == Item.ItemType.SINGLE_ITEM)
+				{
+					if(_refreshMsg.hasName())
+					{
+						_eventImpl._item.directory().sessionDirectory().putDirectoryByItemName(_refreshMsg.name(),((SingleItem<T>)_eventImpl._item));
+					}
+				}
+			}
+		}
 		else if (_eventImpl._item.type() == Item.ItemType.SINGLE_ITEM)
 		{
 			_refreshMsg.service(((SingleItem<T>)_eventImpl._item)._serviceName);
@@ -1871,7 +2029,53 @@ TunnelStreamStatusEventCallback
 		}
 
 		if(_eventImpl._item.directory() != null)
+		{
 			_updateMsg.service(_eventImpl._item.directory().serviceName());
+			
+			if(_eventImpl._item.type() == Item.ItemType.SINGLE_ITEM)
+			{
+				SingleItem<T> singleItem = ((SingleItem<T>)_eventImpl._item);
+				
+				if(singleItem._serviceList != null)
+				{
+					_updateMsg.service(singleItem._serviceList.name());
+					_updateMsg.serviceId(singleItem._serviceList.serviceId());
+					
+					singleItem._itemClosedDirHash = null;
+				}
+				else if(_eventImpl._item.directory().hasGeneratedServiceId()) /* Gets the mapping alternate service Id if any */
+				{
+					_updateMsg.serviceId(_eventImpl._item.directory().generatedServiceId());
+					
+					singleItem._itemClosedDirHash = null;
+				}
+				
+				if(singleItem.directory().channelInfo().getReactorChannelType() == ReactorChannelType.WARM_STANDBY)
+				{
+					if(singleItem.state() == SingleItem.ItemStates.RECOVERING)
+					{
+						@SuppressWarnings("unchecked")
+						SessionChannelInfo<T> sessionChannelInfo = (SessionChannelInfo<T>)singleItem.directory().channelInfo().sessionChannelInfo();
+						
+						if(sessionChannelInfo != null)
+						{
+							singleItem.state(SingleItem.ItemStates.NORMAL);
+							
+							int wsbMode = sessionChannelInfo.getWarmStandbyMode(sessionChannelInfo.reactorChannel());
+							
+							if(wsbMode == ReactorWarmStandbyMode.LOGIN_BASED)
+							{
+								sessionChannelInfo.removeWSBStaleItem(singleItem);
+							}
+							else if (wsbMode == ReactorWarmStandbyMode.SERVICE_BASED)
+							{
+								sessionChannelInfo.removeWSBServiceBasedStaleItem(singleItem.directory().serviceName(), singleItem);
+							}
+						}
+					}
+				}
+			}
+		}
 		else if (_eventImpl._item.type() == Item.ItemType.SINGLE_ITEM)
 		{
 			_updateMsg.service(((SingleItem<T>)_eventImpl._item)._serviceName);
@@ -1893,7 +2097,6 @@ TunnelStreamStatusEventCallback
 		_statusMsg.decode(rsslMsg, reactorChannel.majorVersion(), reactorChannel.minorVersion(), dataDictionary);
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
 		{
-
 			if((_eventImpl._item._streamId == _statusMsg.streamId()) &&
 					_statusMsg.hasState() && _statusMsg.state().streamState() == StreamState.CLOSED)
 				((BatchItem<T>) _eventImpl._item)._statusFlag = true;
@@ -1918,20 +2121,30 @@ TunnelStreamStatusEventCallback
 		}
 		
 		if (_eventImpl._item.directory() != null)
+		{
 			_statusMsg.service(_eventImpl._item.directory().serviceName());
+		}
 		else if (_eventImpl._item.type() == Item.ItemType.SINGLE_ITEM)
 		{
 			_statusMsg.service(((SingleItem<T>)_eventImpl._item)._serviceName);
 		}
 		else
 			_statusMsg.service(null);
-
+		
+		if(_consumerSession != null)
+		{
+			return _consumerSession.watchlist().handleItemStatus(((com.refinitiv.eta.codec.StatusMsg)rsslMsg), 
+					_statusMsg, _eventImpl._item);
+		}
+		
 		notifyOnAllMsg(_statusMsg);
 		notifyOnStatusMsg();
 
 		if (((com.refinitiv.eta.codec.StatusMsg)rsslMsg).checkHasState() &&  
-				((com.refinitiv.eta.codec.StatusMsg)rsslMsg).state().streamState() != StreamStates.OPEN) 
+				((com.refinitiv.eta.codec.StatusMsg)rsslMsg).state().streamState() != StreamStates.OPEN)
+		{
 			_eventImpl._item.remove();
+		}
 
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
@@ -1961,6 +2174,20 @@ TunnelStreamStatusEventCallback
 				}
 
 				return ReactorCallbackReturnCodes.FAILURE;
+			}
+		}
+		
+		if(_eventImpl._item.directory() != null)
+		{
+			if(rsslMsg.msgKey().checkHasServiceId())
+			{
+				int serviceId = rsslMsg.msgKey().serviceId();
+				if(serviceId == _eventImpl._item.directory().service().serviceId())
+				{
+					/* Gets the mapping alternate service Id if any */
+					if(_eventImpl._item.directory().hasGeneratedServiceId())
+						_genericMsg.serviceId(_eventImpl._item.directory().generatedServiceId());
+				}
 			}
 		}
 
@@ -1999,7 +2226,20 @@ TunnelStreamStatusEventCallback
 		}
 
 		if(_eventImpl._item.directory() != null)
+		{
 			_ackMsg.service(_eventImpl._item.directory().serviceName());
+			
+			if(rsslMsg.msgKey().checkHasServiceId())
+			{
+				int serviceId = rsslMsg.msgKey().serviceId();
+				if(serviceId == _eventImpl._item.directory().service().serviceId())
+				{
+					/* Gets the mapping alternate service Id if any */
+					if(_eventImpl._item.directory().hasGeneratedServiceId())
+						_ackMsg.serviceId(_eventImpl._item.directory().generatedServiceId());
+				}
+			}
+		}
 		else
 			_ackMsg.service(null);
 		
@@ -2097,7 +2337,7 @@ TunnelStreamStatusEventCallback
 					
 					if (!item.open(reqMsg))
 					{
-						removeFromMap(item);
+						removeFromMap(item, true);
 						return 0;
 					}
 					else
@@ -2106,6 +2346,14 @@ TunnelStreamStatusEventCallback
 				case DomainTypes.SOURCE :
 				{
 					OmmBaseImpl<T> ommBaseImpl = ((OmmBaseImpl<T>)_baseImpl);
+					ConsumerSession<T> consumerSession = ommBaseImpl.consumerSession();
+					
+					if(consumerSession != null)
+					{
+						SingleItem<T> item = ((OmmBaseImpl<T>)_baseImpl).directoryCallbackClient().directoryItem(consumerSession, reqMsg, client, closure);
+						/* Assign an available handle to the request */
+						return addToItemMap(_baseImpl.nextLongId(), item);
+					}
 					
 					ChannelInfo channel = ommBaseImpl.loginCallbackClient().activeChannelInfo();
 					if (channel == null)
@@ -2138,14 +2386,14 @@ TunnelStreamStatusEventCallback
 					
 					if (!item.open(reqMsg))
 					{
-						removeFromMap(item);
+						removeFromMap(item, true);
 						return 0;
 					}
 					else
 						return item.itemId();
 				}
 				default :
-				{
+				{					
 					if (requestMsg.checkHasBatch())
 					{
 						BatchItem<T> batchItem;
@@ -2180,7 +2428,7 @@ TunnelStreamStatusEventCallback
 
 								if (!item.open(reqMsg))
 								{
-									removeFromMap(item);
+									removeFromMap(item, true);
 									return 0;
 								}
 							}
@@ -2198,7 +2446,7 @@ TunnelStreamStatusEventCallback
 						}
 						else
 						{
-							batchItem.addBatchItems( ((ReqMsgImpl)reqMsg).batchItemList().size() );
+							batchItem.addBatchItems( ((ReqMsgImpl)reqMsg).batchItemList());
 							List<SingleItem<T>> items = batchItem.singleItemList();
 							int numOfItem = items.size();
 							
@@ -2208,10 +2456,10 @@ TunnelStreamStatusEventCallback
 								for ( int i = 1 ; i < numOfItem ; i++ )
 								{
 									item = items.get(i);
-									removeFromMap(item);
+									removeFromMap(item, true);
 								}
 							
-								removeFromMap(batchItem);
+								removeFromMap(batchItem, true);
 								
 								return 0;
 							}
@@ -2232,7 +2480,7 @@ TunnelStreamStatusEventCallback
 					
 						if (!item.open(reqMsg))
 						{
-							removeFromMap(item);
+							removeFromMap(item, true);
 							return 0;
 						}
 						else
@@ -2293,7 +2541,7 @@ TunnelStreamStatusEventCallback
 					((TunnelItem<T>) (parent)).returnSubItemStreamId(subItem.streamId());
 				}
 				
-				removeFromMap(subItem);
+				removeFromMap(subItem, true);
 
 				return 0;
 			}
@@ -2316,7 +2564,7 @@ TunnelStreamStatusEventCallback
 
 		if (!item.open(tunnelStreamReq))
 		{
-			removeFromMap(item);
+			removeFromMap(item, true);
 			return 0;
 		}
 		return item.itemId();
@@ -2498,7 +2746,7 @@ TunnelStreamStatusEventCallback
 		return _itemMap.get(_longObjHolder.value(handle));
 	}
 	
-	void removeFromMap(Item<T> item)
+	void removeFromMap(Item<T> item, boolean returnToPool)
 	{
 		if (_baseImpl.loggerClient().isTraceEnabled())
 		{
@@ -2523,7 +2771,10 @@ TunnelStreamStatusEventCallback
 			_streamIdMap.remove(item.streamIdObj());
 		}
 
-		item.backToPool();
+		if(returnToPool)
+		{
+			item.backToPool();
+		}
 	}
 
 	boolean isStreamIdInUse(int nextStreamId)
@@ -2725,6 +2976,9 @@ class ItemCallbackClientProvider extends ItemCallbackClient<OmmProviderClient>
 
 abstract class Item<T> extends VaNode
 {
+	// non private stream copy flags
+    static final int DEFAULT_COPY_FLAGS = CopyMsgFlags.ALL_FLAGS & ~CopyMsgFlags.EXTENDED_HEADER & ~CopyMsgFlags.DATA_BODY;
+	
 	static final class ItemType
 	{
 		final static int SINGLE_ITEM = 0;
@@ -2745,6 +2999,7 @@ abstract class Item<T> extends VaNode
 	Item<T>					_parent;
 	T						_client;
 	long 					_itemId;
+	boolean					_assignedItemId;
 	LongObject _itemIdObj;
 	IntObject _streamIdObj;
 	ClosedStatusClient<T>	_closedStatusClient;
@@ -2791,6 +3046,7 @@ abstract class Item<T> extends VaNode
 		_parent = null;
 		_client = null;
 		_closedStatusClient = null;
+		_assignedItemId = false;
 		
 		returnToPool();
 	}
@@ -2818,6 +3074,7 @@ abstract class Item<T> extends VaNode
 		_parent = parent;
 		_client = client;
 		_closedStatusClient = null;
+		_assignedItemId = false;
 	}
 	
 	int streamId()
@@ -2851,7 +3108,7 @@ abstract class Item<T> extends VaNode
 	abstract boolean close();
 	abstract void remove();
 	abstract int type();
-	abstract Directory directory();
+	abstract Directory<T> directory();
 	abstract int getNextStreamId(int numOfItem);
 }
 
@@ -2859,9 +3116,39 @@ class SingleItem<T> extends Item<T>
 {
 	private static final String 	CLIENT_NAME = "SingleItem";
 	
-	protected Directory	_directory;
+	protected Directory<T>	_directory;
 	protected String _serviceName;
 	protected OmmBaseImpl<T>			_baseImpl;
+	protected RequestMsg  _requestMsg;
+	protected int _state =  ItemStates.NORMAL;
+	protected ServiceListImpl _serviceList;
+	protected boolean _retrytosameChannel = false;
+	protected OpenSuspectClient<T> _openSuspectClient;
+	String _itemName = "";
+	
+	/* The following is used to handle the closed status message from provider. */
+	HashSet<Directory<T>> _itemClosedDirHash; /* This keep a list of Directory objects which sends item closed status for this item */
+	int _lastDataState = 0;
+	int _lastStatusCode = 0;
+	String _lastStatusText = "";
+	
+	/* Defines Item states for handling item watchlist by EMA */
+	public static class ItemStates
+	{
+		public final static int NORMAL = 0;
+		
+		/* This indicates that this item is being recovered */
+		public final static int RECOVERING = 1;
+		
+		/* This indicates that this item is being recovered but there is no matching service */
+		public final static int RECOVERING_NO_MATHCING = 2;
+		
+		/* This is used to close this stream with the watchlist only without removing this item */
+		public final static int CLOSING_STREAM = 3;
+		
+		/* This is used to indicate that this item is removed so it is not recovered */
+		public final static int REMOVED = 4;
+	}
 
 	SingleItem() {}
 	
@@ -2869,6 +3156,8 @@ class SingleItem<T> extends Item<T>
 	{
 		super(client, closure, batchItem);
 		_baseImpl = baseImpl;
+		
+		_state = ItemStates.NORMAL;
 	}
 	
 	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure , Item<T> batchItem)
@@ -2877,10 +3166,43 @@ class SingleItem<T> extends Item<T>
 		_baseImpl = baseImpl;
 		
 		_directory = null;
+		
+		_serviceList = null;
+		
+		_state = ItemStates.NORMAL;
+		
+		_retrytosameChannel = false;
+		
+		_itemName = "";
+		
+		_requestMsg = null;
+		
+		_serviceName = null;
+		
+		_itemClosedDirHash = null;
+		
+		_lastDataState = 0;
+		_lastStatusCode = 0;
+		_lastStatusText = "";
+	}
+	
+	int state()
+	{
+		return _state;
+	}
+	
+	void state(int state)
+	{
+		_state = state;
+	}
+	
+	ConsumerSession<T> session()
+	{
+		return _baseImpl.consumerSession();
 	}
 	
 	@Override
-	Directory directory()
+	Directory<T> directory()
 	{
 		return _directory;
 	}
@@ -2891,24 +3213,70 @@ class SingleItem<T> extends Item<T>
 		return ItemType.SINGLE_ITEM;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	boolean open(com.refinitiv.ema.access.ReqMsg reqMsg)
 	{
-		Directory directory = null;
+		Directory<T> directory = null;
+		ConsumerSession<T> consumerSession = session();
+		LoginRefresh loginRefreshMsg = null;
+		RequestMsg rsslRequestMsg = ((ReqMsgImpl)reqMsg).rsslMsg();
+		SessionDirectory<T> sessionDirectory = null;
 
 		if (reqMsg.hasServiceName())
-		{
-			directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceName());
-			if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
+		{	
+			if(consumerSession != null)
 			{
+				sessionDirectory = consumerSession.sessionDirectoryByName(reqMsg.serviceName());
+				
+				if(sessionDirectory != null)
+				{
+					HashSet<SingleItem<T>> existingItemSet = null;
+					
+					if(reqMsg.hasName())
+					{
+						_itemName = reqMsg.name();
+						
+						existingItemSet = sessionDirectory.getDirectoryByItemName(reqMsg.name());
+						
+						directory = sessionDirectory.matchingWithExistingDirectory(existingItemSet, rsslRequestMsg);
+					}
+					
+					/* Joins the same ReactorChannel with the existing item */
+					if(directory != null && existingItemSet != null)
+					{
+						sessionDirectory.putDirectoryByHashSet(existingItemSet, this);
+					}
+					else
+					{
+						directory = sessionDirectory.directory(rsslRequestMsg);
+						
+						if(reqMsg.hasName() && directory != null)
+						{
+							_itemName = reqMsg.name();
+							sessionDirectory.putDirectoryByItemName(_itemName, this);
+						}
+					}
+				}
+				
+				loginRefreshMsg = consumerSession.loginRefresh();
+			}
+			else
+			{
+				directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceName());
+				loginRefreshMsg = _baseImpl.loginCallbackClient().loginRefreshMsg();
+			}
+			
+			if (directory == null && (!loginRefreshMsg.attrib().checkHasSingleOpen() || loginRefreshMsg.attrib().singleOpen() == 0))
+			{
+	        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
+				
 				/* EMA is generating the status down response because the service is not valid */
 				StringBuilder temp = _baseImpl.strBuilder();
 	        	temp.append("Service name of '")
 	        		.append(reqMsg.serviceName())
 	        		.append("' is not found.");
-	        	
-	        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
-				_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
 
 	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 											this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
@@ -2916,11 +3284,213 @@ class SingleItem<T> extends Item<T>
 	        	
 	        	return true;
 			}
+			else if (directory == null && consumerSession != null)
+			{
+				/* Add this item into the pending queue of the requested service name */
+				consumerSession.addPendingRequestByServiceName(reqMsg.serviceName(), this, reqMsg);
+				
+				if(reqMsg.hasName())
+				{
+					_itemName = reqMsg.name();
+				}
+				
+				/* Specify service name */
+				_serviceName = reqMsg.serviceName();
+	        	
+	        	/* Assign a handle to this request.  This will be valid until the user close this handle */
+				_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
+				_assignedItemId = true;
+				
+				StringBuilder temp = _baseImpl.strBuilder();
+				if(sessionDirectory == null)
+				{
+					temp.append("No matching service present.");
+				}
+				else
+				{
+					temp.append(sessionDirectory.watchlistResult().resultText);
+				}
+
+				scheduleItemOpenOkStatus(_baseImpl.itemCallbackClient(),
+											this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
+											temp.toString(), reqMsg.serviceName());
+	        	return true;
+			}
+		}
+		else if (reqMsg.hasServiceListName())
+		{	
+			if(consumerSession != null)
+			{
+				ServiceListImpl serviceList = consumerSession.serviceList(reqMsg.serviceListName());
+				
+				if(serviceList != null)
+				{
+					_serviceList = serviceList;
+					
+					for(String serviceName : serviceList.concreteServiceList())
+					{
+						sessionDirectory = consumerSession.sessionDirectoryByName(serviceName);
+						
+						if(sessionDirectory != null)
+						{
+							HashSet<SingleItem<T>> existingItemSet = null;
+							
+							if(reqMsg.hasName())
+							{
+								_itemName = reqMsg.name();
+								
+								existingItemSet = sessionDirectory.getDirectoryByItemName(reqMsg.name());
+							
+								directory = sessionDirectory.matchingWithExistingDirectory(existingItemSet, rsslRequestMsg);
+							}
+							
+							/* Joins the same ReactorChannel with the existing item */
+							if(directory != null && existingItemSet != null)
+							{
+								sessionDirectory.putDirectoryByHashSet(existingItemSet, this);
+								break;
+							}
+							else
+							{
+								directory = consumerSession.sessionDirectoryByName(serviceName).directory(rsslRequestMsg);
+								
+								if(directory != null)
+								{	
+									if(reqMsg.hasName())
+									{
+										_itemName = reqMsg.name();
+										sessionDirectory.putDirectoryByItemName(_itemName, this);
+									}
+									
+									break;
+								}
+							}
+						}
+					}
+					
+					if(directory == null)
+					{	
+						serviceList.addPendingRequest((SingleItem<OmmConsumerClient>) this, reqMsg);
+						
+						if(reqMsg.hasName())
+						{
+							_itemName = reqMsg.name();
+						}
+						
+						/* Specify service list name */
+						_serviceName = reqMsg.serviceListName();
+						
+			        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+						_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
+						
+						StringBuilder temp = _baseImpl.strBuilder();
+						if(sessionDirectory == null)
+						{
+							temp.append("No matching service present.");
+						}
+						else
+						{
+							temp.append(sessionDirectory.watchlistResult().resultText);
+						}
+
+						scheduleItemOpenOkStatus(_baseImpl.itemCallbackClient(),
+													this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
+													temp.toString(), reqMsg.serviceListName());
+			        	return true;
+					}
+				}
+				else
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					
+					temp.append("The service list name '" + reqMsg.serviceListName() + "' does not exist.");
+					
+					_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+					
+					return false;
+				}
+			}
+			else
+			{				
+				ServiceListImpl serviceList = _baseImpl.serviceList(reqMsg.serviceListName());
+				
+				if(serviceList != null)
+				{
+					for(String serviceName : serviceList.concreteServiceList())
+					{
+						directory = _baseImpl.directoryCallbackClient().directory(serviceName);
+						
+						if(directory != null)
+						{
+							break;
+						}
+					}
+				}
+				else
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					
+					temp.append("The service list name '" + reqMsg.serviceListName() + "' does not exist.");
+					
+					_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+					
+					return false;
+				}
+			}
 		}
 		else
 		{
 			if (reqMsg.hasServiceId())
-				directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceId());
+			{
+				if(consumerSession != null)
+				{
+					sessionDirectory = consumerSession.sessionDirectoryById(reqMsg.serviceId());
+					
+					if(sessionDirectory != null)
+					{
+						HashSet<SingleItem<T>> existingItemSet = null;
+						
+						if(reqMsg.hasName())
+						{
+							_itemName = reqMsg.name();
+							
+							existingItemSet = sessionDirectory.getDirectoryByItemName(reqMsg.name());
+							
+							directory = sessionDirectory.matchingWithExistingDirectory(existingItemSet, rsslRequestMsg);
+						}
+						
+						/* Joins the same ReactorChannel with the existing item */
+						if(directory != null && existingItemSet != null)
+						{
+							sessionDirectory.putDirectoryByHashSet(existingItemSet, this);
+						}
+						else
+						{
+							directory = sessionDirectory.directory(rsslRequestMsg);
+							
+							if(reqMsg.hasName() && directory != null)
+							{
+								_itemName = reqMsg.name();
+								sessionDirectory.putDirectoryByItemName(_itemName, this);
+							}
+						}
+						
+						if(directory != null)
+						{
+							/* Overrides with the actual service ID from source directory */
+							reqMsg.serviceId(directory.service().serviceId());
+						}
+					}
+					
+					loginRefreshMsg = consumerSession.loginRefresh();
+				}
+				else
+				{
+					directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceId());
+					
+					loginRefreshMsg = _baseImpl.loginCallbackClient().loginRefreshMsg();
+				}
+			}
 			else
 			{
 				/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
@@ -2932,23 +3502,75 @@ class SingleItem<T> extends Item<T>
 	        	
 				return true;
 			}
-
-			if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
+			
+			if(consumerSession == null)
 			{
-				StringBuilder temp = _baseImpl.strBuilder();
-				
-	        	temp.append("Service id of '")
-	        		.append(reqMsg.serviceId())
-	        		.append("' is not found.");
-	        	
-	        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
-				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
-	        	
-	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
-						this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
-						temp.toString(), null);
-	        	
-	        	return true;
+				if(directory == null && (!loginRefreshMsg.attrib().checkHasSingleOpen() || loginRefreshMsg.attrib().singleOpen() == 0))
+				{		        	
+		        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+					_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+					
+					StringBuilder temp = _baseImpl.strBuilder();
+					
+		        	temp.append("Service id of '")
+		        		.append(reqMsg.serviceId())
+		        		.append("' is not found.");
+		        	
+		        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
+							this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
+							temp.toString(), null);
+		        	
+		        	return true;
+				}
+			}
+			else
+			{	/* ConsumerSession is enabled */
+				if (directory == null)
+				{
+					if(sessionDirectory == null)
+					{
+			        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+						_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+						
+						StringBuilder temp = _baseImpl.strBuilder();
+						
+			        	temp.append("Service id of '")
+			        		.append(reqMsg.serviceId())
+			        		.append("' is not found.");
+			        	
+			        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
+								this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
+								temp.toString(), null);
+			        	
+			        	return true;
+					}
+					else
+					{
+						StringBuilder temp = _baseImpl.strBuilder();
+						
+						/* Add this item into the pending queue of the requested service Id */	
+						consumerSession.addPendingRequestByServiceId(sessionDirectory, this, reqMsg);
+						
+						if(reqMsg.hasName())
+						{
+							_itemName = reqMsg.name();
+						}
+						
+						/* Specify service name */
+						_serviceName = sessionDirectory.serviceName();
+			        	
+			        	/* Assign a handle to this request.  This will be valid until the user close this handle */
+						_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
+						_assignedItemId = true;
+						
+						temp.append(sessionDirectory.watchlistResult().resultText);
+		
+						scheduleItemOpenOkStatus(_baseImpl.itemCallbackClient(),
+													this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
+													temp.toString(), sessionDirectory.serviceName());
+			        	return true;
+					}
+				}
 			}
 		}
 
@@ -2956,13 +3578,13 @@ class SingleItem<T> extends Item<T>
 		
 		_serviceName = reqMsg.hasServiceName() ? reqMsg.serviceName() : null;
 
-		return rsslSubmit(((ReqMsgImpl)reqMsg).rsslMsg());
+		return rsslSubmit(rsslRequestMsg, true);
 	}
 	
 	@Override
 	boolean modify(com.refinitiv.ema.access.ReqMsg reqMsg)
 	{
-		return rsslSubmit(((ReqMsgImpl) reqMsg).rsslMsg());
+		return rsslSubmit(((ReqMsgImpl) reqMsg).rsslMsg(), true);
 	}
 
 	@Override
@@ -2974,7 +3596,26 @@ class SingleItem<T> extends Item<T>
 	@Override
 	boolean submit(com.refinitiv.ema.access.GenericMsg genericMsg)
 	{
-		return rsslSubmit(((GenericMsgImpl) genericMsg).rsslMsg());
+		ConsumerSession<T> consumerSession = session();
+		if(consumerSession != null)
+		{
+			if(genericMsg.hasServiceId())
+			{
+				int serviceId =genericMsg.serviceId();
+				
+				if(serviceId == _directory.generatedServiceId())
+				{
+					/* Translate to the actual service Id */
+					genericMsg.serviceId(_directory.service().serviceId());
+				}
+			}
+			
+			return rsslSubmit(((GenericMsgImpl) genericMsg).rsslMsg());
+		}
+		else
+		{
+			return rsslSubmit(((GenericMsgImpl) genericMsg).rsslMsg());
+		}
 	}
 	
 	@Override
@@ -2998,13 +3639,23 @@ class SingleItem<T> extends Item<T>
 	@Override
 	boolean close()
 	{
-		CloseMsg rsslCloseMsg = _baseImpl.itemCallbackClient().rsslCloseMsg();
-		rsslCloseMsg.containerType(DataTypes.NO_DATA);
-		rsslCloseMsg.domainType(_domainType);
-
-		boolean retCode = rsslSubmit(rsslCloseMsg);
+		boolean retCode = true;
+		
+		/* Don't send a close message to the ReactorChannel when the item is being recovered by EMA */
+		if(_state == ItemStates.NORMAL || _state == ItemStates.CLOSING_STREAM)
+		{
+			CloseMsg rsslCloseMsg = _baseImpl.itemCallbackClient().rsslCloseMsg();
+			rsslCloseMsg.containerType(DataTypes.NO_DATA);
+			rsslCloseMsg.domainType(_domainType);
+			
+			retCode = rsslSubmit(rsslCloseMsg);
+			
+			if(_state == ItemStates.CLOSING_STREAM)
+				return retCode;
+		}
 
 		remove();
+		
 		return retCode;
 	}
 	
@@ -3019,11 +3670,46 @@ class SingleItem<T> extends Item<T>
 					((BatchItem<T>)_parent).decreaseItemCount();
 			}
 			
-			_baseImpl.itemCallbackClient().removeFromMap(this);
+			if(_directory != null)
+			{
+				SessionDirectory<T> sessionDirectory = _directory.sessionDirectory();
+				if(_directory.sessionDirectory() != null)
+				{
+					sessionDirectory.removeDirectoryByItemName(_itemName, this);
+					
+					@SuppressWarnings("unchecked")
+					SessionChannelInfo<T> sessionChannelInfo = (SessionChannelInfo<T>)_directory.channelInfo().sessionChannelInfo();
+					if(sessionChannelInfo != null)
+					{
+						 if (_directory.channelInfo().getReactorChannelType() == ReactorChannelType.WARM_STANDBY)
+						 {
+							 int wsbMode = sessionChannelInfo.getWarmStandbyMode(sessionChannelInfo.reactorChannel());
+								
+								if(wsbMode == ReactorWarmStandbyMode.LOGIN_BASED)
+								{
+									sessionChannelInfo.removeWSBStaleItem(this);
+								}
+								else if (wsbMode == ReactorWarmStandbyMode.SERVICE_BASED)
+								{
+									sessionChannelInfo.removeWSBServiceBasedStaleItem(_directory.serviceName(), this);
+								}
+						 }
+					}
+				}
+				
+				_requestMsg = null;
+				_itemClosedDirHash = null;
+			}
+			
+			boolean returnToPool = !(state() == SingleItem.ItemStates.RECOVERING || state() == SingleItem.ItemStates.RECOVERING_NO_MATHCING);
+			
+			_baseImpl.itemCallbackClient().removeFromMap(this, returnToPool);
+			
+			state(SingleItem.ItemStates.REMOVED);
 		}
 	}
 
-	boolean rsslSubmit(com.refinitiv.eta.codec.RequestMsg rsslRequestMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.RequestMsg rsslRequestMsg, boolean reportError)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		
@@ -3061,18 +3747,49 @@ class SingleItem<T> extends Item<T>
 
 				rsslRequestMsg.streamId(getNextStreamId(numOfItem));
 				_streamId = rsslRequestMsg.streamId();
-				_baseImpl._itemCallbackClient.addToMap(_baseImpl.nextLongId(), this);
+
+				if(_assignedItemId == false)
+				{
+					_baseImpl._itemCallbackClient.addToMap(_baseImpl.nextLongId(), this);
+				}
+				else
+				{
+					_baseImpl._itemCallbackClient.addToMap(_itemId, this);
+				}
 				
 				SingleItem<T> item;
 				int itemStreamIdStart = _streamId;
+				int originalBatchFlags = rsslRequestMsg.flags();
 				for ( int index = 0; index < numOfItem; index++)
 				{
 					item = items.get(index);
 					item._directory = _directory;
 					item._streamId = ++itemStreamIdStart;
 					item._domainType = domainType;
+					item._serviceList = _serviceList;
 					_baseImpl._itemCallbackClient.addToMap(_baseImpl.nextLongId(), item);
+					
+					if(session() != null)
+					{
+						int flags =  rsslRequestMsg.flags();
+						flags &= ~RequestMsgFlags.HAS_BATCH;
+						rsslRequestMsg.flags(flags);
+						
+						if(item._requestMsg == null)
+						{
+							item._requestMsg  = (RequestMsg)CodecFactory.createMsg();
+							
+							item._requestMsg .msgClass(MsgClasses.REQUEST);
+							rsslRequestMsg.copy(item._requestMsg , CopyMsgFlags.ALL_FLAGS);
+							item._requestMsg.msgKey().applyHasName();
+							item._requestMsg.msgKey().name().data(item._itemName);
+							item._requestMsg.streamId(item._streamId);
+						}
+					}
 				}
+				
+				/* Restore the original flags for the batch request */
+				rsslRequestMsg.flags(originalBatchFlags);
 			}
 			else
 			{
@@ -3081,7 +3798,14 @@ class SingleItem<T> extends Item<T>
 				/* Here need to add the item to hashmap FIRST because the response for this item driven by dispatch thread could comes back before open() returns.
 				 * If it is the case, the response of closed state could call remove() without removing anything from the hashmap. It will leads to mem growth finally.
 				 */
-				_baseImpl._itemCallbackClient.addToMap(LongIdGenerator.nextLongId(), this);
+				if(_assignedItemId == false)
+				{
+					_baseImpl._itemCallbackClient.addToMap(_baseImpl.nextLongId(), this);
+				}
+				else
+				{
+					_baseImpl._itemCallbackClient.addToMap(_itemId, this);
+				}
 			}
 		}
 		else
@@ -3094,27 +3818,38 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-
-		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
-		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+		ReactorChannel rsslChannel; 
+				
+		if(session() != null)
+		{
+		    rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		}
+		else
+		{
+			ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+			rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+		}
 
 		if (rsslChannel == null)
 		{
 			StringBuilder message = _baseImpl.strBuilder();
 
-			if (_baseImpl.loggerClient().isErrorEnabled())
+			if(reportError)
 			{
-				message.append("Internal error: rsslChannel.Submit() failed in SingleItem.submit(RequestMsg)").append(OmmLoggerClient.CR)
-					.append("\tReactorChannel is not available");
-
-				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, message.toString(), Severity.ERROR));
-
-				message.setLength(0);
+				if (_baseImpl.loggerClient().isErrorEnabled())
+				{
+					message.append("Internal error: rsslChannel.Submit() failed in SingleItem.submit(RequestMsg)").append(OmmLoggerClient.CR)
+						.append("\tReactorChannel is not available");
+	
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, message.toString(), Severity.ERROR));
+	
+					message.setLength(0);
+				}
+	
+				message.append("Failed to open or modify item request. Reason: ReactorChannel is not available");
+	
+				_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
 			}
-
-			message.append("Failed to open or modify item request. Reason: ReactorChannel is not available");
-
-			_baseImpl.handleInvalidUsage(message.toString(), ReactorReturnCodes.FAILURE);
 
 			return false;
 		}
@@ -3122,32 +3857,46 @@ class SingleItem<T> extends Item<T>
 		int ret;
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
 	    {
-			StringBuilder temp = _baseImpl.strBuilder();
-			if (_baseImpl.loggerClient().isErrorEnabled())
-        	{
-				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
+			if(reportError)
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				if (_baseImpl.loggerClient().isErrorEnabled())
+	        	{
+					com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
+					
+		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RequestMsg)")
+		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+		    			.append(OmmLoggerClient.CR)
+		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+		    			.append("Error Text ").append(error.text());
+		        	
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		        	
+		        	temp.setLength(0);
+	        	}
 				
-	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RequestMsg)")
-	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-	    			.append(OmmLoggerClient.CR)
-	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-	    			.append("Error Text ").append(error.text());
-	        	
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-	        	
-	        	temp.setLength(0);
-        	}
+				temp.append("Failed to open or modify item request. Reason: ")
+					.append(ReactorReturnCodes.toString(ret))
+					.append(". Error text: ")
+					.append(rsslErrorInfo.error().text());
+					
+				_baseImpl.handleInvalidUsage(temp.toString(), ret);
+			}
 			
-			temp.append("Failed to open or modify item request. Reason: ")
-				.append(ReactorReturnCodes.toString(ret))
-				.append(". Error text: ")
-				.append(rsslErrorInfo.error().text());
-				
-			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 			return false;
 	    }
+		
+		/* There is no need to clone batch request as it is not used for recovering */
+		if(session() != null && _requestMsg == null && !rsslRequestMsg.checkHasBatch())
+		{
+			_requestMsg = (RequestMsg)CodecFactory.createMsg();
+			
+			_requestMsg.msgClass(MsgClasses.REQUEST);
+			rsslRequestMsg.copy(_requestMsg, CopyMsgFlags.ALL_FLAGS);
+		}
+		
 
 		return true;
 	}
@@ -3171,10 +3920,15 @@ class SingleItem<T> extends Item<T>
 	
 		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-
-		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
-		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
-
+		ReactorChannel rsslChannel;
+		
+		if(session() == null)
+		{	ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+			rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+		}
+		else
+			rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		
 		if (rsslChannel == null)
 		{
 			StringBuilder message = _baseImpl.strBuilder();
@@ -3236,7 +3990,7 @@ class SingleItem<T> extends Item<T>
 	boolean rsslSubmit(com.refinitiv.eta.codec.PostMsg rsslPostMsg, String serviceName)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
-		if(!validateServiceName(serviceName)){
+		if(!validateServiceName(rsslPostMsg, serviceName)){
 			return false;
 		}
 		rsslSubmitOptions.serviceName(serviceName);
@@ -3247,10 +4001,16 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-
-		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
-		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
-
+		ReactorChannel rsslChannel;
+		
+		if(session() == null)
+		{
+			ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+			rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+		}
+		else
+			rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		
 		if (rsslChannel == null)
 		{
 			StringBuilder message = _baseImpl.strBuilder();
@@ -3308,12 +4068,64 @@ class SingleItem<T> extends Item<T>
 		return true;
 	}
 
-	private boolean validateServiceName(String serviceName)
+	private boolean validateServiceName(com.refinitiv.eta.codec.PostMsg rsslPostMsg, String serviceName)
 	{
-		if (serviceName == null || _baseImpl.directoryCallbackClient().directory(serviceName) != null)
+		Directory<T> directory = null;
+		String errorText = null;
+		
+		if(_baseImpl.consumerSession() != null)
 		{
-			return true;
+			@SuppressWarnings("unchecked")
+			SessionChannelInfo<T> sessionChannelInfo = (SessionChannelInfo<T>) _directory.channelInfo().sessionChannelInfo();
+			
+			if(serviceName != null)
+			{
+				directory = sessionChannelInfo.getDirectoryByName(serviceName);
+				
+				if(directory != null && directory.service().action() != MapEntryActions.DELETE)
+				{
+					return true;
+				}
+				
+				errorText = "Message submitted with unknown service name " + serviceName;
+			}
+			else if(rsslPostMsg.checkHasMsgKey() && rsslPostMsg.msgKey().checkHasServiceId())
+			{
+				/* Search from the generated service Id */
+				SessionDirectory<T> sessionDirectory =_baseImpl.consumerSession().sessionDirectoryById(rsslPostMsg.msgKey().serviceId());
+				
+				if(sessionDirectory != null)
+				{
+					/* Search from service name whether this SessionChannelInfo has it. */ 
+				    directory = sessionChannelInfo.getDirectoryByName(sessionDirectory.serviceName());
+				
+				    if(directory != null && directory.service().action() != MapEntryActions.DELETE)
+				    {
+				    	/* Translate to the actual service ID from the provider */
+				    	rsslPostMsg.msgKey().serviceId(directory.service().serviceId());
+				    	return true;
+				    }
+				}
+				
+				errorText = "Message submitted with unknown service Id " + rsslPostMsg.msgKey().serviceId();
+			}
+			else
+			{
+				errorText = "Message submitted with unspecified service Name and Id";
+			}
 		}
+		else
+		{
+			directory = _baseImpl.directoryCallbackClient().directory(serviceName);
+			
+			if (serviceName == null || directory != null)
+			{
+				return true;
+			}
+			
+			errorText = "Message submitted with unknown service name " + serviceName;
+		}
+
 		StringBuilder temp = _baseImpl.strBuilder();
 		if (_baseImpl.loggerClient().isErrorEnabled())
 		{
@@ -3321,7 +4133,7 @@ class SingleItem<T> extends Item<T>
 					.append(OmmLoggerClient.CR)
 					.append("Error Id ").append(ReactorReturnCodes.INVALID_USAGE).append(OmmLoggerClient.CR)
 					.append("Error Location ").append("ItemCallbackClient.rsslSubmit(PostMsg,String)").append(OmmLoggerClient.CR)
-					.append("Error Text ").append("Message submitted with unknown service name ").append(serviceName);
+					.append("Error Text ").append(errorText);
 
 			_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
@@ -3331,7 +4143,7 @@ class SingleItem<T> extends Item<T>
 		temp.append("Failed to submit PostMsg on item stream. Reason: ")
 				.append(ReactorReturnCodes.toString(ReactorReturnCodes.INVALID_USAGE))
 				.append(". Error text: ")
-				.append("Message submitted with unknown service name ").append(serviceName);
+				.append(errorText);
 
 		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		return false;
@@ -3349,10 +4161,16 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-
-		ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
-		ReactorChannel rsslChannel = (activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
-
+		ReactorChannel rsslChannel;
+		
+		if(session() == null)
+		{
+			ChannelInfo activeChannel = _baseImpl.loginCallbackClient().activeChannelInfo();
+			rsslChannel =(activeChannel != null) ? activeChannel.rsslReactorChannel() : null;
+		}
+		else
+			rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		
 		if (rsslChannel == null)
 		{
 			StringBuilder message = _baseImpl.strBuilder();
@@ -3632,6 +4450,14 @@ class SingleItem<T> extends Item<T>
 		_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
 		_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
 	}
+	
+	void scheduleItemOpenOkStatus(CallbackClient<T> client, SingleItem<T> item, Msg rsslMsg, String statusText, String serviceName)
+	{
+		if(_openSuspectClient != null) return;
+		
+		_openSuspectClient = new OpenSuspectClient<T>(client, item, rsslMsg, statusText, serviceName);
+		_baseImpl.addTimeoutEvent(1000, _openSuspectClient);
+	}
 		
 	@Override
 	int getNextStreamId(int numOfItem) {
@@ -3674,7 +4500,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 {
 	private static final String 	CLIENT_NAME = "IProviderSingleItem";
 	
-	protected Directory									_directory;
+	protected Directory<OmmProviderClient>									_directory;
 	protected OmmServerBaseImpl						    _baseImpl;
 	protected MsgKey									_rsslMsgKey = CodecFactory.createMsgKey();
 	protected ItemWatchList 							_itemWatchList;
@@ -3712,7 +4538,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 	}
 	
 	@Override
-	Directory directory()
+	Directory<OmmProviderClient> directory()
 	{
 		return _directory;
 	}
@@ -3785,7 +4611,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 		
 		_isPrivateStream = reqMsgImpl.privateStream();
 		
-		_directory = new Directory(serviceName);
+		_directory = new Directory<OmmProviderClient>(serviceName);
 		
 		reqMsgImpl.rsslMsg().msgKey().copy(_rsslMsgKey);	
 		_itemWatchList.addItem(this);
@@ -3905,7 +4731,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 	{
 		cancelReqTimerEvent();
 		
-		_baseImpl.<OmmProviderClient>itemCallbackClient().removeFromMap( this );
+		_baseImpl.<OmmProviderClient>itemCallbackClient().removeFromMap( this, true );
 		
 		_itemWatchList.removeItem(this);
 	}
@@ -4220,10 +5046,10 @@ class BatchItem<T> extends SingleItem<T>
 	}
 	
 	@SuppressWarnings("unchecked")
-	void addBatchItems(int numOfItem )
+	void addBatchItems(List<String> itemList)
 	{
 		SingleItem<T> item;
-		for( int i = 0 ; i < numOfItem ; i++ )
+		for( int i = 0 ; i < itemList.size() ; i++ )
 		{
 			if ((item = (SingleItem<T>)_baseImpl._objManager._singleItemPool.poll()) == null)
 			{
@@ -4233,10 +5059,12 @@ class BatchItem<T> extends SingleItem<T>
 			else
 				item.reset(_baseImpl, _client, _closure, this);
 			
+			item._itemName = itemList.get(i);
+			
 			_singleItemList.add( item );
 		}
 		
-		_itemCount = numOfItem;
+		_itemCount = itemList.size();
 	}
 	
 	List<SingleItem<T>> singleItemList()
@@ -4256,13 +5084,13 @@ class BatchItem<T> extends SingleItem<T>
 	void decreaseItemCount()
 	{
 		if ( --_itemCount == 0 && _statusFlag )
-			_baseImpl.itemCallbackClient().removeFromMap(this);
+			_baseImpl.itemCallbackClient().removeFromMap(this, true);
 	}
 
 	@Override
 	void remove() {
 		if(_itemCount == 0)
-			_baseImpl.itemCallbackClient().removeFromMap(this);
+			_baseImpl.itemCallbackClient().removeFromMap(this, true);
 	}
 }
 
@@ -4391,7 +5219,8 @@ class ClosedStatusClient<T> implements TimeoutClient
 		
 		_client._statusMsg.decode(rsslStatusMsg, Codec.majorVersion(), Codec.majorVersion(), null);
 
-		_client._statusMsg.service(_serviceName);
+		if(_serviceName != null)
+			_client._statusMsg.service(_serviceName);
 
 		_client._eventImpl._item = _item;
 		
@@ -4401,7 +5230,101 @@ class ClosedStatusClient<T> implements TimeoutClient
 		if(_item.type() != Item.ItemType.BATCH_ITEM)
 			_client._eventImpl._item.remove();
 		else
-			((ItemCallbackClient<T>)_client).removeFromMap(_item);
+			((ItemCallbackClient<T>)_client).removeFromMap(_item, true);
+	}
+
+	@Override
+	public ReentrantLock userLock()
+	{
+		return _client._baseImpl.userLock();
+	}
+}
+
+class OpenSuspectClient<T> implements TimeoutClient
+{
+	private MsgKey 			_rsslMsgKey = CodecFactory.createMsgKey();
+	private Buffer 			_statusText =  CodecFactory.createBuffer();
+	private String 			_serviceName;
+	private int 			_domainType;
+	private int 			_streamId;
+	private SingleItem<T> 	_singleItem;
+	private boolean 	_isPrivateStream; 
+	private CallbackClient<T> _client;
+	private com.refinitiv.eta.codec.State		_rsslState = CodecFactory.createState();
+	
+	public OpenSuspectClient(CallbackClient<T> client, SingleItem<T> item, Msg rsslMsg, String statusText,
+			String serviceName) 
+	{
+		_client = client;
+		_singleItem = item;
+		_statusText.data(statusText);
+		_domainType = rsslMsg.domainType();
+		_rsslMsgKey.clear();
+		_serviceName = serviceName;
+		
+		if (rsslMsg.msgKey() != null)
+			rsslMsg.msgKey().copy(_rsslMsgKey);
+		
+		_rsslState.streamState(StreamStates.OPEN);
+		_rsslState.dataState(DataStates.SUSPECT);
+		_rsslState.code(StateCodes.NONE);
+		
+		switch (rsslMsg.msgClass())
+	    {
+	     	case MsgClasses.REFRESH :
+	           	_isPrivateStream = (rsslMsg.flags() & RefreshMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+	           	break;
+	        case MsgClasses.STATUS :
+	        	_isPrivateStream = (rsslMsg.flags() & StatusMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+	        	break;
+	        case MsgClasses.REQUEST :
+	           	_isPrivateStream = (rsslMsg.flags() & RequestMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+	        	break;
+	        case MsgClasses.ACK :
+	           	_isPrivateStream = (rsslMsg.flags() & AckMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+	        	break;
+	        default :
+	           	_isPrivateStream = false;
+	        	break;
+	    }
+	}
+
+	@Override
+	public void handleTimeoutEvent()
+	{
+		StatusMsg rsslStatusMsg = _client.rsslStatusMsg();
+
+		rsslStatusMsg.streamId(_streamId);
+		rsslStatusMsg.domainType(_domainType);
+		rsslStatusMsg.containerType(DataTypes.NO_DATA);
+	
+		rsslStatusMsg.applyHasState();
+		rsslStatusMsg.state().streamState(_rsslState.streamState());
+		if (_singleItem.type() !=  Item.ItemType.BATCH_ITEM)
+			rsslStatusMsg.state().dataState(_rsslState.dataState());
+		else
+			rsslStatusMsg.state().dataState(DataStates.OK);
+		rsslStatusMsg.state().code(_rsslState.code());
+		rsslStatusMsg.state().text(_statusText);
+		    
+		rsslStatusMsg.applyHasMsgKey();
+		_rsslMsgKey.copy(rsslStatusMsg.msgKey()); 
+		
+		if (_isPrivateStream)
+			rsslStatusMsg.applyPrivateStream();
+
+		if (_client._statusMsg == null)
+			_client._statusMsg = new StatusMsgImpl(_client._baseImpl.objManager());
+		
+		_client._statusMsg.decode(rsslStatusMsg, Codec.majorVersion(), Codec.majorVersion(), null);
+
+		if(_serviceName != null)
+			_client._statusMsg.service(_serviceName);
+
+		_client._eventImpl._item = _singleItem;
+		
+		_client.notifyOnAllMsg(_client._statusMsg);
+		_client.notifyOnStatusMsg();
 	}
 
 	@Override

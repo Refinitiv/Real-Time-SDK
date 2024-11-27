@@ -470,4 +470,12 @@ public interface OmmConsumerConfig
      * @return reference to this object
      */	
 	public OmmConsumerConfig restProxyKrb5ConfigFile(String restProxyKrb5ConfigFile);
+	
+	/**
+	 * Specifies a list of concrete service names which is used to subscribe items with the service list name.
+	 * 
+	 * @param serviceList ServiceList object that contains the concrete service names.
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig addServiceList(ServiceList serviceList);
 }

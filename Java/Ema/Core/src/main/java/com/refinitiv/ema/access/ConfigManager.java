@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.              --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -33,6 +33,7 @@ class ConfigManager
 	static TagDictionary GlobalConfigDict;
 	static TagDictionary WarmStandbyGroupDict;
 	static TagDictionary WarmStandbyServerDict;
+	static TagDictionary SessionChannelGroupDict;
 	
 	static Branch DEFAULT_CONSUMER;
 	static Branch DEFAULT_NIPROVIDER;
@@ -51,6 +52,7 @@ class ConfigManager
 	static Branch DIRECTORY_LIST;
 	static Branch WARMSTANDBYGROUP_LIST;
 	static Branch WARMSTANDBYSERVER_LIST;
+	static Branch SESSIONCHANNEL_LIST;
 	
 	
 	private static StringBuilder _stringMaker;
@@ -123,6 +125,8 @@ class ConfigManager
 	
 	public static final int RestProxyHostName = 56;
 	public static final int RestProxyPort = 57;
+	
+	public static final int SessionChannel = 58;
 
 	// Channel: Global
 	public static final int ChannelGroup = 100;
@@ -309,6 +313,15 @@ class ConfigManager
 	public static final int WarmStandbyServerChannel = 1212;
 	public static final int PerServiceNameSet = 1213;
 	
+	// SessionChannel
+	
+	public static final int ConsumerSessionChannelSet = 1300;
+	public static final int ConsumerSessionEnhancedItemRecovery = 1301;
+	
+	public static final int SessionChannelGroup = 1305;
+	public static final int SessionChannelList = 1306;
+	public static final int SessionChannelInfo = 1307;
+	public static final int SessionChannelInfoName = 1308;
 	
 	public static final int MAX_UINT16 = 0xFFFF;
 	
@@ -328,6 +341,7 @@ class ConfigManager
 		GlobalConfigDict = acquire().new TagDictionary();
 		WarmStandbyGroupDict = acquire().new TagDictionary();
 		WarmStandbyServerDict = acquire().new TagDictionary();
+		SessionChannelGroupDict = acquire().new TagDictionary();
 		
 		ConsumerTagDict.add( "ConsumerGroup",ConsumerGroup );
 		ConsumerTagDict.add( "DefaultConsumer",DefaultConsumer );
@@ -380,6 +394,8 @@ class ConfigManager
 		ConsumerTagDict.add("SendJsonConvError", SendJsonConvError);
 		ConsumerTagDict.add("RestProxyHostName", RestProxyHostName);
 		ConsumerTagDict.add("RestProxyPort", RestProxyPort);
+		ConsumerTagDict.add("SessionChannelSet", ConsumerSessionChannelSet);
+		ConsumerTagDict.add("SessionEnhancedItemRecovery", ConsumerSessionEnhancedItemRecovery);
 
 		ChannelTagDict.add( "ChannelGroup",ChannelGroup );
 		ChannelTagDict.add( "ChannelList",ChannelList );
@@ -618,6 +634,16 @@ class ConfigManager
 		WarmStandbyServerDict.add( "Channel", WarmStandbyServerChannel);
 		WarmStandbyServerDict.add( "PerServiceNameSet", PerServiceNameSet);
 		
+		SessionChannelGroupDict.add( "SessionChannelGroup", SessionChannelGroup);
+		SessionChannelGroupDict.add( "SessionChannelList", SessionChannelList);
+		SessionChannelGroupDict.add( "SessionChannelInfo", SessionChannelInfo);
+		SessionChannelGroupDict.add( "Name", SessionChannelInfoName);
+		SessionChannelGroupDict.add( "ChannelSet", ChannelSet);
+		SessionChannelGroupDict.add( "WarmStandbyChannelSet", ConsumerWarmStandbyChannelSet);
+		SessionChannelGroupDict.add( "ReconnectAttemptLimit", ReconnectAttemptLimit);
+		SessionChannelGroupDict.add( "ReconnectMinDelay", ReconnectMinDelay);
+		SessionChannelGroupDict.add( "ReconnectMaxDelay", ReconnectMaxDelay);
+		
 		CONSUMER_GROUP = ConfigManager.acquire().new Branch();
 		CONSUMER_GROUP.add(ConfigManager.ConsumerGroup,ConfigManager.ConsumerTagDict);
 		CONSUMER_GROUP.complete();
@@ -699,6 +725,11 @@ class ConfigManager
 		WARMSTANDBYSERVER_LIST.add(ConfigManager.WarmStandbyServerInfoList, ConfigManager.WarmStandbyServerDict);
 		WARMSTANDBYSERVER_LIST.complete();
 		
+		SESSIONCHANNEL_LIST = ConfigManager.acquire().new Branch();
+		SESSIONCHANNEL_LIST.add(ConfigManager.SessionChannelGroup, ConfigManager.SessionChannelGroupDict);
+		SESSIONCHANNEL_LIST.add(ConfigManager.SessionChannelList, ConfigManager.SessionChannelGroupDict);
+		SESSIONCHANNEL_LIST.complete();
+		
 	}
 
 	public static String AsciiValues[] = {
@@ -754,7 +785,8 @@ class ConfigManager
 			"WarmStandbyServerChannel",
 			"PerServiceNameSet",
 			"RestProxyHostName",
-			"RestProxyPort"
+			"RestProxyPort",
+			"SessionChannelSet"
 	};
 	
 	public static String EnumeratedValues[] = {
@@ -867,7 +899,8 @@ class ConfigManager
 		"OpenWindow",
 		"LoadFactor",
 		"JsonConverterPoolsSize",
-		"SendJsonConvError"
+		"SendJsonConvError",
+		"SessionEnhancedItemRecovery"
 	};
 	public static String DoubleValues[] = {
 		"TokenReissueRatio"	

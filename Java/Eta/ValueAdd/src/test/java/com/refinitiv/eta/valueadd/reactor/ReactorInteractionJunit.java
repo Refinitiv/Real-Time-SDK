@@ -487,9 +487,9 @@ public class ReactorInteractionJunit
     public void VerifyNIProviderRoleMsgCopyTest()
     {
         /* Verify message attached to the NIProviderRole are copied. */
-        
+    	
         /* Create dummy ReactorChannel for test. */
-        ReactorChannel reactorChannel = ReactorFactory.createReactorChannel();
+        ReactorChannel reactorChannel = new ReactorChannel();
         
         /* Create user NIProviderRole, initialize default messages and set on dummy ReactorChannel. */
         NIProviderRole userNIProviderRole = ReactorFactory.createNIProviderRole();

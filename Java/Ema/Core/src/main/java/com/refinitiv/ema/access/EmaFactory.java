@@ -992,4 +992,13 @@ public class EmaFactory
 	public static PackedMsg createPackedMsg(OmmProvider provider) {
 		return new PackedMsgImpl(provider);
 	}
+	
+	/**
+	 * Create an instance of {@link ServiceList}
+	 * @param name specifies a virtual service list name
+	 * @return {@link ServiceList}
+	 */
+	public static ServiceList createServiceList(String name) {
+		return new ServiceListImpl(name);
+	}
 }

@@ -12,10 +12,12 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import com.refinitiv.ema.access.EmaFileConfigJunitTests;
+import com.refinitiv.ema.access.OmmConsumerTests;
 
 @RunWith(Suite.class)
 @SuiteClasses({FieldListTests.class, ElementListTests.class, MapTests.class, SeriesTests.class, FilterListTests.class, VectorTests.class, DataDictionaryJunitTest.class,
-	ArrayTests.class, AckMsgTests.class, GenericMsgTests.class, ReqMsgTests.class, RefreshMsgTests.class, StatusMsgTests.class, UpdateMsgTests.class, PostMsgTests.class, RmtesUnitTest.class, DateTimeTests.class, EmaFileConfigJunitTests.class, LoginHelperTest.class, EmaUtilityTests.class})
+	ArrayTests.class, AckMsgTests.class, GenericMsgTests.class, ReqMsgTests.class, RefreshMsgTests.class, StatusMsgTests.class, UpdateMsgTests.class, PostMsgTests.class, 
+	RmtesUnitTest.class, DateTimeTests.class, EmaFileConfigJunitTests.class, LoginHelperTest.class, EmaUtilityTests.class, OmmConsumerTests.class})
 public class RunAllTests {
 
 } 

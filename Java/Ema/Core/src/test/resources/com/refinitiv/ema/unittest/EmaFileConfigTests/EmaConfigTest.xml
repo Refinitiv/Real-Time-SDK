@@ -147,6 +147,14 @@
 			<XmlTraceRead value="0"/>
 			<XmlTracePing value="0"/>
 		</Consumer>
+		<Consumer>
+			<Name value="Consumer_9"/>
+			<SessionChannelSet value="Connection_1, Connection_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
 
@@ -542,6 +550,32 @@
         </Server>
     </ServerList>
 </ServerGroup>
+
+<SessionChannelGroup>
+        <SessionChannelList>
+                <SessionChannelInfo>
+                        <Name value="Connection_1"/>
+                        <ChannelSet value="Channel_1,Channel_2,Channel_3"/>
+                        <ReconnectAttemptLimit value="10"/>
+                        <ReconnectMinDelay value="2000"/>
+                        <ReconnectMaxDelay value="6000"/>
+                </SessionChannelInfo>
+                <SessionChannelInfo>
+                        <Name value="Connection_2"/>
+                        <ChannelSet value="Channel_4,Channel_5"/>
+                        <ReconnectAttemptLimit value="4"/>
+                        <ReconnectMinDelay value="3000"/>
+                        <ReconnectMaxDelay value="4000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_3"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
+                        <ReconnectAttemptLimit value="40"/>
+                        <ReconnectMinDelay value="5000"/>
+                        <ReconnectMaxDelay value="8000"/>
+                </SessionChannelInfo>
+        </SessionChannelList>
+</SessionChannelGroup>
 
 <!-- source directory refresh configuration used by provider											-->
 <DirectoryGroup>

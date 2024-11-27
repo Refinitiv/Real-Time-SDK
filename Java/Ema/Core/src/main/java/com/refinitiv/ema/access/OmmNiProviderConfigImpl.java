@@ -385,4 +385,9 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	String warmStandbyChannelSet(String instanceName) {
 		return null;
 	}
+
+	@Override
+	String sessionChannel(String instanceName) {
+		return null;
+	}
 }
