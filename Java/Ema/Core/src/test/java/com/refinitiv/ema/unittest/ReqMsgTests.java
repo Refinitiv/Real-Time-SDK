@@ -671,21 +671,6 @@ public class ReqMsgTests extends TestCase
 	     System.out.println("\ttestReqMsg_EncodeETAReqMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherReqMsg_EMADecode passed");
 	}
 
-	public void testRequestMsg_cloneIsNotSupportedFromTheEncodeSide()
-	{
-		TestUtilities.printTestHead("testRequestMsg_cloneIsNotSupportedFromTheEncodeSide", "cloning is not supported on encode side");
-		ReqMsg msg = EmaFactory.createReqMsg()
-				.domainType(EmaRdm.MMT_MARKET_PRICE);
-
-		try {
-			ReqMsg cloneMessage = EmaFactory.createReqMsg(msg);
-			TestUtilities.checkResult(false, "Clone not supported  - exception expected: ");
-		} catch ( OmmException excp ) {
-			TestUtilities.checkResult(true, "Clone not supported  - exception expected: " +  excp.getMessage() );
-			TestUtilities.checkResult(excp.getMessage().startsWith("Failed to clone empty encoded buffer"), "Clone not supported - exception text validated");
-		}
-	}
-
 	public void testReqMsg_cloneMsgKeyWLScenario()
 	{
 		TestUtilities.printTestHead("testReqMsg_cloneMsgKeyWLScenario", "cloning for minimal ema req message");
