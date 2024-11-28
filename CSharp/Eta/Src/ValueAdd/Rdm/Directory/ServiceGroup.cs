@@ -26,7 +26,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
         private State _status;
         private FilterEntryActions _action;
 
-        private const string eol = "\n";
         private const string tab = "\t";
 
         private StringBuilder stringBuf = new StringBuilder();
@@ -244,14 +243,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("GroupFilter:");
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("group: ");
             stringBuf.Append(Group.ToHexString());
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (HasMergedToGroup)
             {
@@ -260,7 +259,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("mergedToGroup: ");
                 stringBuf.Append(MergedToGroup.ToHexString());
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasStatus)
             {
@@ -269,7 +268,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("status: ");
                 stringBuf.Append(Status);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

@@ -105,7 +105,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder stringBuilder = PrepareStringBuilder();
-            stringBuilder.Insert(0, "DictionaryClose: \n");
+            stringBuilder.Insert(0, $"DictionaryClose: {NewLine}");
             return stringBuilder.ToString();
         }
     }

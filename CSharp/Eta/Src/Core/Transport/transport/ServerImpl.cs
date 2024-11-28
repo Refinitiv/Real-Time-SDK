@@ -607,11 +607,11 @@ namespace LSEG.Eta.Transports
 
         public override string ToString()
         {
-            return "Server" + "\n" +
-                   "\tsrvrSckt: " + (m_ServerSocket != null ? m_ServerSocket.Handle.ToInt64() : "null") + "\n" +
-                   "\tstate: " + State + "\n" +
-                   "\tportNumber: " + PortNumber + "\n" +
-                   "\tuserSpecObject: " + UserSpecObject + "\n";
+            return "Server" + NewLine +
+                   "\tsrvrSckt: " + (m_ServerSocket != null ? m_ServerSocket.Handle.ToInt64() : "null") + NewLine +
+                   "\tstate: " + State + NewLine +
+                   "\tportNumber: " + PortNumber + NewLine +
+                   "\tuserSpecObject: " + UserSpecObject + NewLine;
         }
 
     }

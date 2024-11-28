@@ -1789,7 +1789,7 @@ public class ReactorWlLoginHandlerTest
                 Assert.Equal(consRefresh[1].UserName.ToString(), userNames[1]);
             output.WriteLine($"{test} 8) Consumer validated login refresh[1]");
         }
-        output.WriteLine($"{test} Done\n");
+        output.WriteLine($"{test} Done{NewLine}");
     }
 
     [Fact]
@@ -2104,7 +2104,7 @@ public class ReactorWlLoginHandlerTest
             TestReactorComponent.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor);
         }
-        output.WriteLine($"{test} Done\n");
+        output.WriteLine($"{test} Done{NewLine}");
     }
 
     [Fact]
@@ -2113,7 +2113,7 @@ public class ReactorWlLoginHandlerTest
     public void LoginReissue_Scenario_C_Test()
     {
         string test = "LoginReissueTest_Scenario_C_Test()";
-        output.WriteLine($"\n{test} Running...");
+        output.WriteLine($"{NewLine}{test} Running...");
         int loginStreamId;
         TestReactorEvent reactorEvent;
         RDMLoginMsgEvent loginMsgEvent;
@@ -2483,7 +2483,7 @@ public class ReactorWlLoginHandlerTest
                 }
             }
         }
-        output.WriteLine($"{test} Done\n");
+        output.WriteLine($"{test} Done{NewLine}");
     }
 
     [Fact]
@@ -2912,7 +2912,7 @@ public class ReactorWlLoginHandlerTest
             TestReactorComponent.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor);
         }
-        output.WriteLine($"{test} Done\n");
+        output.WriteLine($"{test} Done{NewLine}");
 
     }
 
@@ -2927,7 +2927,7 @@ public class ReactorWlLoginHandlerTest
     private void LoginReissueWithConnectionRecovery_BeforeLoginSubmit(bool isWebsocket, string protocolList)
     {
         string test = "loginReissueWithConnectionRecovery_BeforeLoginSubmitTest()";
-        output.WriteLine("\n" + test + " Running...");
+        output.WriteLine(NewLine + test + " Running...");
         output.WriteLine("/*   CONS                 WatchList                 PROV\n" +
                 "   1) |    Cons Request[0] -> |                       |\n" +
                 "   2) |                       |    Prov Request[0] -> |\n" +
@@ -3174,7 +3174,7 @@ public class ReactorWlLoginHandlerTest
             TestReactorComponent.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor);
         }
-        output.WriteLine($"{test} Done\n");
+        output.WriteLine($"{test} Done{NewLine}");
     }
 
     [Fact]
@@ -3188,7 +3188,7 @@ public class ReactorWlLoginHandlerTest
     private void LoginReissueWithConnectionRecovery_AfterLoginSubmit(bool isWebsocket, string protocolList)
     {
         string test = "loginReissueWithConnectionRecovery_AfterLoginSubmitTest()";
-        output.WriteLine("\n" + test + " Running...");
+        output.WriteLine(NewLine + test + " Running...");
         output.WriteLine("/*   CONS                 WatchList                 PROV\n" +
                 "   1) |    Cons Request[0] -> |                       |\n" +
                 "   2) |                       |    Prov Request[0] -> |\n" +
@@ -3467,7 +3467,7 @@ public class ReactorWlLoginHandlerTest
             TestReactorComponent.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor);
         }
-        output.WriteLine($"{test} Done\n");
+        output.WriteLine($"{test} Done{NewLine}");
     }
 
 

@@ -2042,7 +2042,7 @@ void OmmNiProviderImpl::getChannelInformation(ChannelInformation& ci) {
 	ci.clear();
 	return;
   }
-  return getChannelInformationImpl(rsslReactorChannel, OmmCommonImpl::NiProviderEnum, ci);
+  return ChannelInfoImpl::getChannelInformationImpl(rsslReactorChannel, OmmCommonImpl::NiProviderEnum, ci);
 }
 
 void OmmNiProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)

@@ -36,7 +36,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 try
                 {
                     m_StringBuilder.Length = 0;
-                    m_StringBuilder.AppendLine($"{Environment.NewLine}------ REST REQUEST ------");
+                    m_StringBuilder.AppendLine($"{NewLine}------ REST REQUEST ------");
                     m_StringBuilder.AppendLine($"Time stamp: {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)}");
 
                     if(!string.IsNullOrEmpty(restConnetOptions.ProxyOptions.ProxyHostName) && !string.IsNullOrEmpty(restConnetOptions.ProxyOptions.ProxyPort))
@@ -94,7 +94,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 try
                 {
                     m_StringBuilder.Length = 0;
-                    m_StringBuilder.AppendLine($"{Environment.NewLine}------ REST RESPONSE ------");
+                    m_StringBuilder.AppendLine($"{NewLine}------ REST RESPONSE ------");
                     m_StringBuilder.AppendLine($"Time stamp: {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)}");
                     m_StringBuilder.AppendLine(responseMessage.ToString());
 

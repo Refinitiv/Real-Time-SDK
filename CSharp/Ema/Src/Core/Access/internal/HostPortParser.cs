@@ -6,9 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
-
-using Microsoft.IdentityModel.Tokens;
-
 namespace LSEG.Ema.Access
 {
     internal class HostPortParser
@@ -25,7 +22,7 @@ namespace LSEG.Ema.Access
         public void StringToHostPort(string inputHost, out string host, out string port)
         {
             // Blank or null string indicates that this is the default defaultHost:defaultPort e.g. localhost:14002
-            if (inputHost.IsNullOrEmpty() == true)
+            if (string.IsNullOrEmpty(inputHost))
             {
                 host = defaultHost;
                 port = defaultPort;
@@ -56,7 +53,7 @@ namespace LSEG.Ema.Access
             if (stringArray.Length == 2)
             {
                 host = stringArray[0];
-                if (stringArray[1].IsNullOrEmpty() == true)
+                if (string.IsNullOrEmpty(stringArray[1]))
                 {
                     port = defaultPort;
                 }

@@ -1217,35 +1217,35 @@ namespace LSEG.Eta.Internal.Interfaces
         {
             StringBuilder s = new StringBuilder();
             s.Append("Rssl Channel");
-            s.Append("\n\tscktChannel: ");
-            s.Append(SocketChannel != null? SocketChannel.ToString() : "null");
-            s.Append("\n\tconnected: ");
+            s.Append($"{NewLine}\tscktChannel: ");
+            s.Append(SocketChannel != null ? SocketChannel.ToString() : "null");
+            s.Append($"{NewLine}\tconnected: ");
             if (SocketChannel != null)
                 s.Append(SocketChannel.IsConnected);
             else
                 s.Append("false");
-            s.Append("\n\tstate: ");
+            s.Append($"{NewLine}\tstate: ");
             s.Append(State.ToString());
-            s.Append("\n\tconnectionType: ");
+            s.Append($"{NewLine}\tconnectionType: ");
             s.Append(ConnectionType.ToString());
             if (m_ChannelInfo != null)
             {
-                s.Append("\n\tclientIP: ");
+                s.Append($"{NewLine}\tclientIP: ");
                 s.Append(m_ChannelInfo.ClientIP);
-                s.Append("\n\tclientHostname: ");
+                s.Append($"{NewLine}\tclientHostname: ");
                 s.Append(m_ChannelInfo.ClientHostname);
-                s.Append("\n\tpingTimeout: ");
+                s.Append($"{NewLine}\tpingTimeout: ");
                 s.Append(m_ChannelInfo.PingTimeout);
             }
-            s.Append("\n\tmajorVersion: ");
+            s.Append($"{NewLine}\tmajorVersion: ");
             s.Append(MajorVersion);
-            s.Append("\n\tminorVersion: ");
+            s.Append($"{NewLine}\tminorVersion: ");
             s.Append(MinorVersion);
-            s.Append("\n\tprotocolType: ");
+            s.Append($"{NewLine}\tprotocolType: ");
             s.Append(ProtocolType);
-            s.Append("\n\tuserSpecObject: ");
+            s.Append($"{NewLine}\tuserSpecObject: ");
             s.Append(UserSpecObject != null ? UserSpecObject.ToString() : "null");
-            s.Append("\n");
+            s.Append(NewLine);
 
             return s.ToString();
         }

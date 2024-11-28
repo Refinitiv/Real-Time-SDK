@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2024 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -27,6 +27,7 @@
 */   
 
 #include "Access/Include/EmaString.h"
+#include "PreferredHostInfo.h"
 
 namespace refinitiv {
 
@@ -35,6 +36,7 @@ namespace ema {
 namespace access {
 
 class EmaString;
+class ChannelInfoImpl;
 
 class EMA_ACCESS_API ChannelInformation
 {
@@ -234,7 +236,12 @@ public:
   */
   UInt64 getEncryptionProtocol() const { return _encryptionProtocol; }
 
-  /** Gets a string representation of the class instance.
+  /** Gets the preferred host information
+	@return Preferred host information for current channel 
+  */
+  const PreferredHostInfo& getPreferredHostInfo() const { return _preferredHostInfo; }
+
+  /** Gets a string representation of the class instance
 	  @return string representation of the class instance.
   */
   const EmaString& toString() const;
@@ -243,7 +250,7 @@ public:
 	  \remark invokes toString.c_str()
 	  @return a NULL terminated character string representation of this object
   */
-	operator const char* () const;
+  operator const char* () const;
   
   //@}
 
@@ -364,6 +371,7 @@ public:
   ChannelInformation& encryptionProtocol(UInt64 encryptionProtocol);
   //@}
 
+
 private:
   ChannelState _channelState;
   ConnectionType _connectionType;
@@ -384,7 +392,12 @@ private:
   CompressionType _compressionType;
   UInt32 _compressionThreshold;
   UInt64 _encryptionProtocol;
+  PreferredHostInfo _preferredHostInfo;
   mutable EmaString _toString;
+
+  ChannelInformation& preferredHostInfo(void* preferredHostInfo, const void* channel);
+
+  friend class ChannelInfoImpl;
 };
 
 }

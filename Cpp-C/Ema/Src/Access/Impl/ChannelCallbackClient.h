@@ -91,6 +91,8 @@ public :
 
 	bool getAddedToDeleteList() const;
 
+	const ActiveConfig& getActiveConfig() const;
+
 private :
 
 	EmaString				_name;
@@ -110,8 +112,10 @@ private :
 
 	bool					_addedToDeleteList;
 
+	const ActiveConfig&		_activeConfig;
+
 		
-	Channel( const EmaString&, RsslReactor*, ReactorChannelType reactorChannelType = NORMAL);
+	Channel( const EmaString&, RsslReactor*, ActiveConfig&, ReactorChannelType reactorChannelType = NORMAL);
 	virtual ~Channel();
 
 	Channel();

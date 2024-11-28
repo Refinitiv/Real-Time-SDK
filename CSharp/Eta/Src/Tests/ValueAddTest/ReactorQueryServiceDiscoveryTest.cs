@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -152,7 +152,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             serviceDiscoveryOptions.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
             serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;
             expectedNumOfEndpoint = 0;
-            expectedErrorTextFromCallback = "Failed to perform a REST request to the token service. Text: {\"error_description\":\"Client not found in client database for JWT's sub claim value 'InvalidClientID'.\",\"error\":\"invalid_client\"}";
+            expectedErrorTextFromCallback = "Failed to perform a REST request to the token service. Text: {\"error\":\"invalid_client\"  ,\"error_description\":\"Client not found in client database for JWT's sub claim value 'InvalidClientID'.\" }";
             ReactorErrorInfo errorInfo;
             Assert.Equal(ReactorReturnCode.SUCCESS, reactor.QueryServiceDiscovery(serviceDiscoveryOptions, out errorInfo));
             Assert.Null(errorInfo);
@@ -352,7 +352,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             else // Invalid audience
             {
                 expectedNumOfEndpoint = 0;
-                expectedErrorTextFromCallback = "Failed to perform a REST request to the token service. Text: {\"error_description\":\"Client not found in client database for JWT's sub claim value";
+                expectedErrorTextFromCallback = "Failed to perform a REST request to the token service. Text: {\"error\":\"invalid_client\"  ,\"error_description\":\"Client not found in client database for JWT's sub claim value";
             }
 
             serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;

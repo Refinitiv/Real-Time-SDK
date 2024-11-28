@@ -20,8 +20,13 @@ using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 {
-    public class IProviderTests
+    public class IProviderTests : IDisposable
     {
+        public void Dispose()
+        {
+            EtaGlobalPoolTestUtil.Clear();
+        }
+
         ITestOutputHelper m_Output;
 
         public IProviderTests(ITestOutputHelper output)
@@ -249,12 +254,12 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                         case (int)DomainType.SOURCE:
                             var payload = new Map();
                             var service = new FilterList();
-                            service.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, new ElementList().AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED").Complete());
-                            payload.AddKeyUInt(5, MapAction.ADD, service.Complete()).Complete();
+                            service.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, new ElementList().AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED").MarkForClear().Complete());
+                            payload.AddKeyUInt(5, MapAction.ADD, service.MarkForClear().Complete()).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType())
-                                .Solicited(true).Payload(payload), providerEvent.Handle);
+                                .Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         default:
                             break;
@@ -382,8 +387,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -393,24 +398,24 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
-                                                 .Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                 new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                            .Complete();
+                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                            .MarkForClear().Complete();
 
-                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).Complete();
+                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+                                .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         case (int)DomainType.MARKET_PRICE:
 
@@ -427,13 +432,13 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             /* Send refresh message to the consumer */
                             provider.Submit(new RefreshMsg().ServiceName(serviceName).Name(itemName).DomainType(domainType)
                             .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Solicited Refresh Completed")
-                            .Payload(new FieldList()
+                            .MarkForClear().Payload(new FieldList()
                             .AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                             .AddUInt(3, 55)
                             .AddAscii(967, "ascii value")
                             .AddTime(375, 4, 15, 59, 100, 200, 300)
-                            .Complete())
-                            .Complete(true).ClearCache(true).Solicited(true), providerEvent.Handle);
+                            .MarkForClear().Complete())
+                            .MarkForClear().Complete(true).ClearCache(true).Solicited(true), providerEvent.Handle);
 
                             break;
                         default:
@@ -748,8 +753,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -759,23 +764,23 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
-                                                 .Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
-                                new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP).Complete())
-                            .Complete();
+                                new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP).MarkForClear().Complete())
+                            .MarkForClear().Complete();
 
-                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).Complete();
+                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+                                .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         case (int)DomainType.MARKET_PRICE:
 
@@ -1126,8 +1131,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -1137,24 +1142,24 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
-                                                 .Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                 new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 0).Complete()) /* Don't accept the item requests */
-                            .Complete();
+                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 0).MarkForClear().Complete()) /* Don't accept the item requests */
+                            .MarkForClear().Complete();
 
-                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).Complete();
+                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+                                .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         case (int)DomainType.MARKET_PRICE:
 
@@ -1358,8 +1363,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -1369,26 +1374,26 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_QOS, new OmmArray()
-                                                        .AddQos(OmmQos.Timelinesses.INEXACT_DELAYED, OmmQos.Rates.JUST_IN_TIME_CONFLATED).Complete())
-                                                 .Complete())
+                                                        .AddQos(OmmQos.Timelinesses.INEXACT_DELAYED, OmmQos.Rates.JUST_IN_TIME_CONFLATED).MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                 new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                            .Complete();
+                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                            .MarkForClear().Complete();
 
-                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).Complete();
+                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+                                .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         case (int)DomainType.MARKET_PRICE:
 
@@ -1587,8 +1592,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -1598,26 +1603,26 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_QOS, new OmmArray()
-                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).Complete())
-                                                 .Complete())
+                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                 new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                            .Complete();
+                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                            .MarkForClear().Complete();
 
-                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).Complete();
+                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+                                .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         case (int)DomainType.MARKET_PRICE:
 
@@ -1827,8 +1832,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -1838,47 +1843,47 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_QOS, new OmmArray()
-                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).Complete())
-                                                 .Complete())
+                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                 new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                            .Complete();
+                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                            .MarkForClear().Complete();
 
                             var service2 = new FilterList();
                             service2.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET,
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName2)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_QOS, new OmmArray()
-                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).Complete())
-                                                 .Complete())
+                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                 new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                            .Complete();
+                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                            .MarkForClear().Complete();
 
                             payload.AddKeyUInt(serviceID, MapAction.ADD, service)
-                                .AddKeyUInt(serviceID2, MapAction.ADD, service2).Complete();
+                                .AddKeyUInt(serviceID2, MapAction.ADD, service2).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+                                .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         case (int)DomainType.MARKET_PRICE:
 
@@ -2140,8 +2145,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -2151,26 +2156,26 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_QOS, new OmmArray()
-                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).Complete())
-                                                 .Complete())
+                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                 new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                            .Complete();
+                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                            .MarkForClear().Complete();
 
-                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).Complete();
+                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+                                .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         case (int)DomainType.MARKET_PRICE:
 
@@ -2188,13 +2193,13 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             /* Send refresh message to the consumer */
                             provider.Submit(new RefreshMsg().ServiceName(serviceName).Name(itemName).DomainType(domainType)
                             .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Solicited Refresh Completed")
-                            .Payload(new FieldList()
+                            .MarkForClear().Payload(new FieldList()
                             .AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                             .AddUInt(3, 55)
                             .AddAscii(967, "ascii value")
                             .AddTime(375, 4, 15, 59, 100, 200, 300)
-                            .Complete())
-                            .Complete(true).ClearCache(true).Solicited(true), providerEvent.Handle);
+                            .MarkForClear().Complete())
+                            .MarkForClear().Complete(true).ClearCache(true).Solicited(true), providerEvent.Handle);
 
                             break;
                         default:
@@ -2383,8 +2388,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -2394,26 +2399,26 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_QOS, new OmmArray()
-                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).Complete())
-                                                 .Complete())
+                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                 new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                            .Complete();
+                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                            .MarkForClear().Complete();
 
-                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).Complete();
+                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+                                .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         case (int)DomainType.MARKET_PRICE:
 
@@ -2431,13 +2436,13 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             /* Send refresh message to the consumer */
                             provider.Submit(new RefreshMsg().ServiceName(serviceName).Name(itemName).DomainType(domainType)
                             .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Solicited Refresh Completed")
-                            .Payload(new FieldList()
+                            .MarkForClear().Payload(new FieldList()
                             .AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                             .AddUInt(3, 55)
                             .AddAscii(967, "ascii value")
                             .AddTime(375, 4, 15, 59, 100, 200, 300)
-                            .Complete())
-                            .Complete(true).ClearCache(true).Solicited(true), providerEvent.Handle);
+                            .MarkForClear().Complete())
+                            .MarkForClear().Complete(true).ClearCache(true).Solicited(true), providerEvent.Handle);
 
                             break;
                         default:
@@ -2630,8 +2635,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -2641,26 +2646,26 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_QOS, new OmmArray()
-                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).Complete())
-                                                 .Complete())
+                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                 new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                            .Complete();
+                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                            .MarkForClear().Complete();
 
-                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).Complete();
+                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+                                .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         case (int)DomainType.MARKET_PRICE:
 
@@ -2678,13 +2683,13 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             /* Send refresh message to the consumer */
                             provider.Submit(new RefreshMsg().ServiceName(serviceName).Name(itemName).DomainType(domainType)
                             .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Solicited Refresh Completed")
-                            .Payload(new FieldList()
+                            .MarkForClear().Payload(new FieldList()
                             .AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                             .AddUInt(3, 55)
                             .AddAscii(967, "ascii value")
                             .AddTime(375, 4, 15, 59, 100, 200, 300)
-                            .Complete())
-                            .Complete(true).ClearCache(true).Solicited(true), providerEvent.Handle);
+                            .MarkForClear().Complete())
+                            .MarkForClear().Complete(true).ClearCache(true).Solicited(true), providerEvent.Handle);
 
                             break;
                         default:
@@ -2881,8 +2886,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -2897,24 +2902,24 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                     new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                      .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                             .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                            .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                            .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                      .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                             .AddAscii("RWFFld")
-                                                            .AddAscii("RWFEnum").Complete())
+                                                            .AddAscii("RWFEnum").MarkForClear().Complete())
                                                      .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                             .AddAscii("RWFFld")
-                                                            .AddAscii("RWFEnum").Complete())
-                                                     .Complete())
+                                                            .AddAscii("RWFEnum").MarkForClear().Complete())
+                                                     .MarkForClear().Complete())
                                 .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                     new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                    .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                                .Complete();
+                                    .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                                .MarkForClear().Complete();
 
-                                payload.AddKeyUInt(serviceID, MapAction.ADD, service).Complete();
+                                payload.AddKeyUInt(serviceID, MapAction.ADD, service).MarkForClear().Complete();
 
                                 provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                     .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                    .Complete(true).Solicited(true).Payload(payload), 0); // Submit to all consumers
+                                    .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), 0); // Submit to all consumers
                             }
                             break;
                         case (int)DomainType.MARKET_PRICE:
@@ -2932,13 +2937,13 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             /* Send refresh message to the consumer */
                             provider.Submit(new RefreshMsg().ServiceName(serviceName).Name(itemName).DomainType(domainType)
                             .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Solicited Refresh Completed")
-                            .Payload(new FieldList()
+                            .MarkForClear().Payload(new FieldList()
                             .AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                             .AddUInt(3, 55)
                             .AddAscii(967, "ascii value")
                             .AddTime(375, 4, 15, 59, 100, 200, 300)
-                            .Complete())
-                            .Complete(true).ClearCache(true).Solicited(true), providerEvent.Handle);
+                            .MarkForClear().Complete())
+                            .MarkForClear().Complete(true).ClearCache(true).Solicited(true), providerEvent.Handle);
 
                             break;
                         default:
@@ -2967,6 +2972,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                     Thread.Sleep(10000); // Wait for the provider to accept the client connection.
                 }
 
+                Assert.Equal(4, providerClient.ReceivedOnReqMsg);
+                Assert.Equal(2, serverBaseImpl.ConnectedChannelList.Count);
 
                 foreach (var simpleConsumer in simpleConsumerArray)
                 {
@@ -3041,10 +3048,6 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                     reactorEvent = simpleConsumer.EventQueue.Dequeue();
                     channelEvent = (ReactorChannelEvent)reactorEvent.ReactorEvent;
                     Assert.Equal(ReactorChannelEventType.CHANNEL_READY, channelEvent.EventType);
-
-                    Assert.Equal(4, providerClient.ReceivedOnReqMsg);
-
-                    Assert.Equal(2, serverBaseImpl.ConnectedChannelList.Count);
 
                     simpleConsumer.SubmitItemRequest(streamID, (int)serviceID, itemName, domainType);
                 }
@@ -3218,8 +3221,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
                             break;
                         case (int)DomainType.SOURCE:
@@ -3229,26 +3232,26 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                                 new ElementList().AddAscii(EmaRdm.ENAME_NAME, serviceName)
                                                  .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                                         .AddUInt(EmaRdm.MMT_MARKET_PRICE)
-                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).Complete())
+                                                        .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE).MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                                         .AddAscii("RWFFld")
-                                                        .AddAscii("RWFEnum").Complete())
+                                                        .AddAscii("RWFEnum").MarkForClear().Complete())
                                                  .AddArray(EmaRdm.ENAME_QOS, new OmmArray()
-                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).Complete())
-                                                 .Complete())
+                                                        .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK).MarkForClear().Complete())
+                                                 .MarkForClear().Complete())
                             .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
                                 new ElementList().AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                            .Complete();
+                                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                            .MarkForClear().Complete();
 
-                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).Complete();
+                            payload.AddKeyUInt(serviceID, MapAction.ADD, service).MarkForClear().Complete();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                                 .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                                .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+                                .MarkForClear().Complete(true).Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                             break;
                         case (int)DomainType.MARKET_PRICE:
 
@@ -3556,8 +3559,8 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                             expecedLoginUser = requestMsg.Name();
 
                             provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.Complete())
-                                .Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
+                                .DomainType(requestMsg.DomainType()).Name(requestMsg.Name()).NameType(Rdm.EmaRdm.USER_NAME).Attrib(attrib.MarkForClear().Complete())
+                                .MarkForClear().Complete(true).Solicited(true).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK,
                                 OmmState.StatusCodes.NONE, "Login accepted"), providerEvent.Handle);
 
                             loginInCount++;

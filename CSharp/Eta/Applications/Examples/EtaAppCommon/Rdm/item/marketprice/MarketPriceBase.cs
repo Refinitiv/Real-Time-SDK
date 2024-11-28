@@ -248,20 +248,20 @@ namespace LSEG.Eta.Example.Common
             stringBuf.Append(tab);
             stringBuf.Append("itemName: ");
             stringBuf.Append(_itemName);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (HasServiceId)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("serviceId: ");
                 stringBuf.Append(ServiceId);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             stringBuf.Append(tab);
             stringBuf.Append("item info: ");
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             stringBuf.Append(_mpInfo?.ToString());
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             return stringBuf;
         }
     

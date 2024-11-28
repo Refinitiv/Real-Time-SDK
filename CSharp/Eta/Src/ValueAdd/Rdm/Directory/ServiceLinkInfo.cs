@@ -19,8 +19,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// </summary>
     sealed public class ServiceLinkInfo
     {
-
-        private const string eol = "\n";
         private const string tab = "\t";
 
         private StringBuilder m_StringBuf = new StringBuilder();
@@ -248,7 +246,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 m_StringBuf.Append(tab);
                 m_StringBuf.Append(tab);
                 m_StringBuf.Append("LinkFilter: ");
-                m_StringBuf.Append(eol);
+                m_StringBuf.AppendLine();
                 m_StringBuf.Append(link.ToString());
             }
 

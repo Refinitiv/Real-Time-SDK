@@ -7,17 +7,14 @@
  */
 
 using LSEG.Eta.ValueAdd.Reactor;
-using Microsoft.IdentityModel.Tokens;
 using LSEG.Eta.ValueAdd.Rdm;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
 using static LSEG.Eta.Rdm.Directory;
 
 using System.IO;
-using System.Net.Security;
 
 namespace LSEG.Ema.Access
 {

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -35,14 +35,19 @@ namespace LSEG.Eta.Transports.Tests
     /// Independent of each other, sequence isn't an issue.
     /// </summary>
     [Collection("Transport")]
-    public class TransportInitializationTests
+    public class TransportInitializationTests : IDisposable
     {
+        public TransportInitializationTests()
+            => Transport.Clear();
+
+        public void Dispose()
+            => Transport.Clear();
+
         [Fact]
         [Category("Unit")]
         [Category("Transport")]
         public void TransportInitializeNotInitialize()
         {
-            Transport.Clear();
             Assert.True(TransportReturnCode.INIT_NOT_INITIALIZED == Transport.Uninitialize());
         }
         [Fact]
@@ -50,7 +55,6 @@ namespace LSEG.Eta.Transports.Tests
         [Category("Transport")]
         public void TransportInitializedOK()
         {
-            Transport.Clear();
             InitArgs initArgs = new InitArgs { GlobalLocking = true };
             Assert.True(TransportReturnCode.SUCCESS == Transport.Initialize(initArgs, out Error error));
         }
@@ -59,8 +63,6 @@ namespace LSEG.Eta.Transports.Tests
         [Category("Transport")]
         public void TransportInitializeSubsequentInit()
         {
-            // transport still open
-            Transport.Clear();
             InitArgs initArgs = new InitArgs { GlobalLocking = true };
             Transport.Initialize(initArgs, out Error error);
             Transport.Initialize(initArgs, out error);
@@ -73,7 +75,6 @@ namespace LSEG.Eta.Transports.Tests
         [Category("Transport")]
         public void TransportUninitializeOK()
         {
-            Transport.Clear();
             InitArgs initArgs = new InitArgs { GlobalLocking = true };
             Transport.Initialize(initArgs, out Error error);
             Assert.True(TransportReturnCode.SUCCESS == Transport.Uninitialize());
@@ -84,7 +85,6 @@ namespace LSEG.Eta.Transports.Tests
         [Category("Transport")]
         public void TransportUninitializeMoreThanOne()
         {
-            Transport.Clear();
             InitArgs initArgs = new InitArgs { GlobalLocking = true };
             Transport.Initialize(initArgs, out Error error);
             Transport.Uninitialize();
@@ -196,8 +196,6 @@ namespace LSEG.Eta.Transports.Tests
         {
             try
             {
-                Transport.Clear();
-
                 var channel = Transport.Connect(new ConnectOptions
                 {
                     ConnectionType = ConnectionType.SOCKET,
@@ -248,7 +246,7 @@ namespace LSEG.Eta.Transports.Tests
     /// Created 30 Task random intervals
     /// </summary>
     [Collection("Transport")]
-    public class TransportTestsThreadSafety
+    public class TransportTestsThreadSafety : IDisposable
     {
         [Fact]
         [Category("Unit")]
@@ -259,7 +257,6 @@ namespace LSEG.Eta.Transports.Tests
             object result1 = null;
             object result2 = null;
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            Transport.Clear(); //
             Task taskA = new Task<TransportReturnCode>(
                 () =>
                 {
@@ -300,7 +297,6 @@ namespace LSEG.Eta.Transports.Tests
             object result1 = null;
             object result2 = null;
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            Transport.Clear(); //
             Task taskA = new Task<TransportReturnCode>(
                 () =>
                 {
@@ -329,6 +325,12 @@ namespace LSEG.Eta.Transports.Tests
             Task.WaitAll(taskA, taskB);
             Assert.Equal(TransportReturnCode.INIT_NOT_INITIALIZED, Transport.Uninitialize());
         }
+
+        public void Dispose()
+            => Transport.Clear();
+
+        public TransportTestsThreadSafety()
+            => Transport.Clear();
     }
     #endregion
 
@@ -372,15 +374,11 @@ namespace LSEG.Eta.Transports.Tests
     [Collection("Transport")]
     public class TransportGlobalLockingTests : IDisposable
     {
-
-        public TransportGlobalLockingTests(ITestOutputHelper output)
-        {
-
-        }
-
         public void Dispose()
-        {
-        }
+            => Transport.Clear();
+
+        public TransportGlobalLockingTests()
+            => Transport.Clear();
 
         [Fact]
         [Category("Unit")]
@@ -431,7 +429,7 @@ namespace LSEG.Eta.Transports.Tests
     #region Transport Write and Flush
     [Category("Unit")]
     [Category("Transport")]
-    public class TransportWriteFlushTests
+    public class TransportWriteFlushTests : IDisposable
     {
         [Fact]
         public void TransportGetBufferInActiveChannelTest()
@@ -1110,6 +1108,9 @@ namespace LSEG.Eta.Transports.Tests
             Assert.Equal(ChannelState.CLOSED, channel.State);
 
         }
+
+        public void Dispose()
+            => Transport.Clear();
     }
 
     #endregion
@@ -1597,6 +1598,7 @@ namespace LSEG.Eta.Transports.Tests
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384);
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256);
+            Transport.Clear();
         }
 
         private void ServerEncryptionBindToAPortWithInvalid(string certificate, string privateKey, EncryptionProtocolFlags protocol)
@@ -2288,6 +2290,7 @@ namespace LSEG.Eta.Transports.Tests
             // enforce cleanup in case a test case ended prematurely
             while (Transport.Uninitialize() != TransportReturnCode.INIT_NOT_INITIALIZED)
             { }
+            Transport.Clear();
         }
     }
     #endregion

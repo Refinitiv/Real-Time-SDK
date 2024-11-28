@@ -36,7 +36,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
         private long _acceptingConsumerStatus;
 
         private StringBuilder stringBuf = new StringBuilder();
-        private const string eol = "\n";
         private const string tab = "\t";
 
         private ElementList m_ElementList = new ElementList();
@@ -795,55 +794,55 @@ namespace LSEG.Eta.ValueAdd.Rdm
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("InfoFilter:");
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("serviceName: ");
             stringBuf.Append(ServiceName);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("vendor: ");
             stringBuf.Append(Vendor);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("isSource: ");
             stringBuf.Append(IsSource);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("supportsQosRange: ");
             stringBuf.Append(SupportsQosRange);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("supportsOutOfBandSnapshots: ");
             stringBuf.Append(SupportsOOBSnapshots);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("acceptingConsumerStatus: ");
             stringBuf.Append(AcceptConsumerStatus);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("capabilities: ");
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
@@ -853,12 +852,12 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(cap);
                 stringBuf.Append(" ");
             }
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("dictionariesProvided: ");
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             foreach (var dict in DictionariesProvidedList)
             {
                 stringBuf.Append(tab);
@@ -866,13 +865,13 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append(tab);
                 stringBuf.Append(dict);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("dictionariesUsed: ");
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             foreach (var dict in DictionariesUsedList)
             {
                 stringBuf.Append(tab);
@@ -880,13 +879,13 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append(tab);
                 stringBuf.Append(dict);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("qos: ");
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             foreach (var q in QosList)
             {
                 stringBuf.Append(tab);
@@ -894,7 +893,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append(tab);
                 stringBuf.Append(q.ToString());
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

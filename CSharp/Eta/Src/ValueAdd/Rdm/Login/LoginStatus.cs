@@ -469,14 +469,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
-            stringBuf.Insert(0, "LoginStatus: \n");
+            stringBuf.Insert(0, $"LoginStatus: {NewLine}");
 
             if (HasUserNameType)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("nameType: ");
                 stringBuf.Append(UserNameType);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasUserName)
@@ -484,7 +484,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("name: ");
                 stringBuf.Append(UserName);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasState)
@@ -492,7 +492,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("state: ");
                 stringBuf.Append(State);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasAuthenticationErrorCode)
@@ -500,14 +500,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("authenticationErrorCode: ");
                 stringBuf.Append(AuthenticationErrorCode);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasAuthenticationErrorText)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("authenticationErrorText: ");
                 stringBuf.Append(AuthenticationErrorText);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

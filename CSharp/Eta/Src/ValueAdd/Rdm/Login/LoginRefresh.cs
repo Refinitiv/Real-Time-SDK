@@ -1125,26 +1125,26 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
-            stringBuf.Insert(0, "LoginRefresh: \n");
+            stringBuf.Insert(0, $"LoginRefresh: {NewLine}");
             stringBuf.Append(tab);
             stringBuf.Append("name: ");
             stringBuf.Append(UserName);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             stringBuf.Append(tab);
             stringBuf.Append("nameType: ");
             stringBuf.Append(UserNameType);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(State);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (Solicited)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("isSolicited: ");
                 stringBuf.Append(true);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasAuthenicationTTReissue)
@@ -1152,28 +1152,28 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("authenticationTTReissue: ");
                 stringBuf.Append(AuthenticationTTReissue);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasAuthenticationExtendedResp)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("authenticationExtendedResp: ");
                 stringBuf.Append(AuthenticationExtendedResp);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasAuthenticationErrorCode)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("authenticationErrorCode: ");
                 stringBuf.Append(AuthenticationErrorCode);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasAuthenticationErrorText)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("authenticationErrorText: ");
                 stringBuf.Append(HasAuthenticationErrorText);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             if (HasAttrib)

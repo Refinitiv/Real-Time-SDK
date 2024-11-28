@@ -34,6 +34,7 @@ public class XmlConfigParserTests : IDisposable
     public void Dispose()
     {
         XmlConfigParser.DEFAULT_SCHEMA_FILE = "EmaConfig.xsd";
+        EtaGlobalPoolTestUtil.Clear();
     }
 
     [Theory]
@@ -139,15 +140,15 @@ public class XmlConfigParserTests : IDisposable
             .AddUInt("MaxLogFileSize", 100)
             .AddEnum("LoggerSeverity", LoggerLevelEnum.INFO)
             .AddEnum("LoggerType", LoggerTypeEnum.STDOUT)
-            .Complete();
+            .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgLogger_1", MapAction.ADD, encodeObjectList);
 
-        encodeGroupList.AddMap("LoggerList", innerMap.Complete())
-            .Complete();
+        encodeGroupList.AddMap("LoggerList", innerMap.MarkForClear().Complete())
+            .MarkForClear().Complete();
 
         outerMap.AddKeyAscii("LoggerGroup", MapAction.ADD, encodeGroupList);
-        outerMap.Complete();
+        outerMap.MarkForClear().Complete();
 
         consConfigImpl.Config(outerMap);
 

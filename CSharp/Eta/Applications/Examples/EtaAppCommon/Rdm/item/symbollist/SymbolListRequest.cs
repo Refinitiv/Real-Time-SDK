@@ -149,19 +149,19 @@ namespace LSEG.Eta.Example.Common
             stringBuf.Append(tab);
             stringBuf.Append("streaming: ");
             stringBuf.Append(Streaming);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("symbolListName: ");
             stringBuf.Append(SymbolListName);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (HasServiceId)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("serviceId: ");
                 stringBuf.Append(ServiceId);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasPriority)
             {
@@ -170,14 +170,14 @@ namespace LSEG.Eta.Example.Common
                 stringBuf.Append(PriorityClass);
                 stringBuf.Append(", priority count: ");
                 stringBuf.Append(PriorityCount);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasQos)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("qos: ");
                 stringBuf.Append(qos.ToString());
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

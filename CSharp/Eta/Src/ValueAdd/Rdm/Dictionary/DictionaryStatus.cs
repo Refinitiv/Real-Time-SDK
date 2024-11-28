@@ -191,14 +191,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
-            stringBuf.Insert(0, "DictionaryStatus: \n");
+            stringBuf.Insert(0, $"DictionaryStatus: {NewLine}");
 
             if (HasState)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("state: ");
                 stringBuf.Append(State);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

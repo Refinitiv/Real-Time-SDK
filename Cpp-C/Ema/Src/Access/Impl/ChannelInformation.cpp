@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2024 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -35,6 +35,7 @@ ChannelInformation::ChannelInformation( const EmaString& connectedComponentInfo,
 	_compressionType = NoneEnum;
 	_compressionThreshold = 0;
 	_encryptionProtocol = 0;
+	_preferredHostInfo.clear();
  }
 
 ChannelInformation::~ChannelInformation() {}
@@ -93,6 +94,8 @@ const EmaString& ChannelInformation::toString() const {
 	_toString.append("\n\tcompression threshold: ").append( _compressionThreshold )
 		.append("\n\tencryption protocol: ").append( _encryptionProtocol );
 	
+	_toString.append(_preferredHostInfo.toString());
+
   return _toString;
 }
 
@@ -120,6 +123,7 @@ void ChannelInformation::clear() {
   _compressionType = NoneEnum;
   _compressionThreshold = 0;
   _encryptionProtocol = 0;
+  _preferredHostInfo.clear();
 }
 
 ChannelInformation& ChannelInformation::hostname(const EmaString& value) {
@@ -208,7 +212,20 @@ ChannelInformation& ChannelInformation::encryptionProtocol(UInt64 encryptionProt
   return *this;
 }
 
-void refinitiv::ema::access::getChannelInformationImpl(const RsslReactorChannel* rsslReactorChannel,
+ChannelInformation& ChannelInformation::preferredHostInfo(void* rsslPreferredHostInfo, const void* channel) {
+	_preferredHostInfo.enablePreferredHostOptions(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isPreferredHostEnabled);
+	_preferredHostInfo.preferredChannelName(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->connectionListIndex, channel);
+	_preferredHostInfo.phDetectionTimeInterval(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->detectionTimeInterval);
+	_preferredHostInfo.phDetectionTimeSchedule(EmaString(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->detectionTimeSchedule.data, ((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->detectionTimeSchedule.length));
+	_preferredHostInfo.preferredWSBChannelName(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->warmStandbyGroupListIndex, channel);
+	_preferredHostInfo.phFallBackWithInWSBGroup((bool)((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->fallBackWithInWSBGroup);
+	_preferredHostInfo.isChannelPreferred(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isChannelPreferred);
+	_preferredHostInfo.remainingDetectionTime(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->remainingDetectionTime);
+
+  return *this;
+}
+
+void refinitiv::ema::access::ChannelInfoImpl::getChannelInformationImpl(const RsslReactorChannel* rsslReactorChannel,
 															OmmCommonImpl::ImplementationType implType,
 															ChannelInformation& ci) 
 {
@@ -235,7 +252,7 @@ void refinitiv::ema::access::getChannelInformationImpl(const RsslReactorChannel*
 /* ci has been cleared and calling function has verified that channel arguments are non-null.
  * Calling function has also updated hostname and ipAddress
  */
-void refinitiv::ema::access::getChannelInformation(const RsslReactorChannel* rsslReactorChannel,
+void refinitiv::ema::access::ChannelInfoImpl::getChannelInformation(const RsslReactorChannel* rsslReactorChannel,
 												 const RsslChannel* rsslChannel,
 												 ChannelInformation& ci) {
   // create channel info
@@ -260,7 +277,8 @@ void refinitiv::ema::access::getChannelInformation(const RsslReactorChannel* rss
 		.sysRecvBufSize(rsslReactorChannelInfo.rsslChannelInfo.sysRecvBufSize)
 		.compressionType(rsslReactorChannelInfo.rsslChannelInfo.compressionType)
 		.compressionThreshold(rsslReactorChannelInfo.rsslChannelInfo.compressionThreshold)
-		.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol);
+		.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol)
+		.preferredHostInfo(&rsslReactorChannelInfo.rsslPreferredHostInfo, rsslReactorChannel->userSpecPtr);
   }
   else
 	componentInfo.append("unavailable");

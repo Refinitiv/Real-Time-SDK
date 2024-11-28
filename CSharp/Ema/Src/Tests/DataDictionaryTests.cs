@@ -15,10 +15,16 @@ using Xunit.Abstractions;
 using LSEG.Ema.Rdm;
 using LSEG.Eta.Codec;
 
+
 namespace LSEG.Ema.Access.Tests;
 
-public class DataDictionaryTests
+public class DataDictionaryTests : IDisposable
 {
+    public void Dispose()
+    {
+        EtaGlobalPoolTestUtil.CheckEtaGlobalPoolSizes();
+    }
+
     #region Helpers
 
     public const string FIELD_DICTIONARY_FILENAME = "../../../ComplexTypeTests/RDMFieldDictionary";
@@ -270,8 +276,6 @@ public class DataDictionaryTests
         output.WriteLine("TestDataDictionary_LoadDictionaryFromFile(): Test load dictionary information from local file");
 
         AssertEqualDataDictionary(m_GlobalEtaDataDictionary, m_GlobalDataDictionary, false);
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -289,9 +293,9 @@ public class DataDictionaryTests
         catch (OmmException excp)
         {
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
-            Assert.Equal(("Exception Type='OmmInvalidUsageException', Text='Unable to load field dictionary from file named Invalid_RDMFieldDictionary\r\n\tCurrent working directory "
+            Assert.Equal(($"Exception Type='OmmInvalidUsageException', Text='Unable to load field dictionary from file named Invalid_RDMFieldDictionary{NewLine}\tCurrent working directory "
                 + System.IO.Directory.GetCurrentDirectory()
-                + "\r\n\tReason='Can't open file: Invalid_RDMFieldDictionary'', Error Code='-1'"),
+                + $"{NewLine}\tReason='Can't open file: Invalid_RDMFieldDictionary'', Error Code='-1'"),
                 excp.ToString());
         }
 
@@ -304,13 +308,11 @@ public class DataDictionaryTests
         {
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
             Assert.Equal((
-                "Exception Type='OmmInvalidUsageException', Text='Unable to load enumerated type definition from file named Invalid_enumtype.def\r\n\tCurrent working directory "
+                $"Exception Type='OmmInvalidUsageException', Text='Unable to load enumerated type definition from file named Invalid_enumtype.def{NewLine}\tCurrent working directory "
                 + System.IO.Directory.GetCurrentDirectory()
-                + "\r\n\tReason='Can't open file: Invalid_enumtype.def'', Error Code='-1'"),
+                + $"{NewLine}\tReason='Can't open file: Invalid_enumtype.def'', Error Code='-1'"),
             excp.ToString());
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -437,8 +439,6 @@ public class DataDictionaryTests
         }
 
         series.ClearAndReturnToPool_All();
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -498,8 +498,6 @@ public class DataDictionaryTests
 
         series.ClearAndReturnToPool_All();
         decodeSeries.ClearAndReturnToPool_All();
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -554,8 +552,6 @@ public class DataDictionaryTests
 
         series.ClearAndReturnToPool_All();
         decodeSeries.ClearAndReturnToPool_All();
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact(Skip = "Obsolete")]
@@ -591,8 +587,6 @@ public class DataDictionaryTests
         }
 
         series.ClearAndReturnToPool_All();
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -677,8 +671,6 @@ public class DataDictionaryTests
             Assert.Fail(
                 $"Calling DataDictionary.LoadEnumTypeDictionary() multiple times after clearing the data dictionary - exception not expected: {excp}");
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -730,8 +722,6 @@ public class DataDictionaryTests
 
         series.ClearAndReturnToPool_All();
         decodeSeries.ClearAndReturnToPool_All();
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -767,8 +757,6 @@ public class DataDictionaryTests
             Assert.Contains("Unable to load enumerated type definition from file named " + ENUM_TABLE_FILENAME, excp.Message);
             Assert.Contains("Reason='FieldId 32767 has duplicate Enum Table reference'", excp.Message);
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -813,8 +801,6 @@ public class DataDictionaryTests
 
         series.ClearAndReturnToPool_All();
         decodeSeries.ClearAndReturnToPool_All();
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact(Skip = "Obsolete")]
@@ -840,8 +826,6 @@ public class DataDictionaryTests
             Assert.Equal("Exception Type='OmmInvalidUsageException', Text='Failed to extract DataDictionary from the passed in FieldList', Error Code='-22'",
                 excp.ToString());
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -858,8 +842,6 @@ public class DataDictionaryTests
         {
             Assert.Fail($"DataDictionary.DataDictionary(DataDictionary) failed to clone dictionary - exception not expected: {excp}");
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -880,8 +862,6 @@ public class DataDictionaryTests
         {
             Assert.Fail($"DataDictionary.DataDictionary(DataDictionary) failed to clone from uninitialized DataDictionary - exception not expected: {excp}");
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -900,8 +880,6 @@ public class DataDictionaryTests
         Assert.Contains("value=1 display=\"ASE\" meaning=\"NYSE AMEX\"", toStringValue);
         Assert.Contains("(Referenced by Fid 14157)", toStringValue);
         Assert.Contains("value=1 display=\"AUT  \" meaning=\"Authorised\"", toStringValue);
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -924,13 +902,12 @@ public class DataDictionaryTests
         Assert.Equal((int)dictionaryType, new Rdm.DataDictionary().ExtractDictionaryType(series));
 
         series.ClearAndReturnToPool_All();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
     public void TestDataDictionary_EnumTypeDef_Encode_With_Fragmentation()
     {
-        output.WriteLine("TestDataDictionary_EnumTypeDef_encode_with_fragmentation(): Test to encode and decode enumerated types payload with fragmentation size.\n");
+        output.WriteLine($"TestDataDictionary_EnumTypeDef_encode_with_fragmentation(): Test to encode and decode enumerated types payload with fragmentation size.{NewLine}");
 
         int fragmentationSize = 12800;
         int currentCount = 0;
@@ -983,8 +960,6 @@ public class DataDictionaryTests
         }
 
         series.ClearAndReturnToPool_All();
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1013,7 +988,6 @@ public class DataDictionaryTests
             .AppendLine("value=2 display=\"    1\" meaning=\"Suspect\"");
 
         Assert.Equal(expected.ToString(), dictionaryEntry.ToString());
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1050,8 +1024,6 @@ public class DataDictionaryTests
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
             Assert.Fail($"Calling DictionaryEntry.GetEnumTypeTable() for an existing EnumTypeTable - exception not expected: {excp}");
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1088,8 +1060,6 @@ public class DataDictionaryTests
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
             Assert.Fail($"Calling DictionaryEntry.EnumType() for an existing EnumType - exception not expected: {excp}");
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1122,8 +1092,6 @@ public class DataDictionaryTests
         {
             Assert.Fail($"Calling DictionaryUtility.Entry(fid) from an existing DictionaryEntry - exception not expected: {excp}");
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1156,8 +1124,6 @@ public class DataDictionaryTests
         {
             Assert.Fail($"Calling DictionaryUtility.Entry(fid) from an existing DictionaryEntry - exception not expected: {excp}");
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1189,8 +1155,6 @@ public class DataDictionaryTests
         {
             Assert.Fail($"Calling DictionaryUtility.EnumType(fid, enumvalue) from an existing EnumType - exception not expected: {excp}");
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1219,8 +1183,6 @@ public class DataDictionaryTests
         m_GlobalDataDictionary.Entry(12, entry12);
         Assert.NotEqual(entry11, entry12);
         Assert.Equal(entry11AcronymBefore, entry11.Acronym);
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1242,10 +1204,7 @@ public class DataDictionaryTests
         finally
         {
             Assert.True(entryCallFailed, "OmmInvalidUsageException was expected");
-            CheckEtaGlobalPoolSizes();
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1265,8 +1224,6 @@ public class DataDictionaryTests
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
             Assert.Equal(OmmInvalidUsageException.ErrorCodes.INVALID_USAGE, ((OmmInvalidUsageException)excp).ErrorCode);
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1288,8 +1245,6 @@ public class DataDictionaryTests
             Assert.Equal("Exception Type='OmmInvalidUsageException', Text='The Field ID -555 does not exist in the field dictionary', Error Code='-22'",
                 excp.ToString());
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1312,8 +1267,6 @@ public class DataDictionaryTests
                 "Exception Type='OmmInvalidUsageException', Text='The Field name UNKNOWN_FID does not exist in the field dictionary', Error Code='-22'",
                 excp.ToString());
         }
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1415,19 +1368,6 @@ public class DataDictionaryTests
         catch (OmmException excp)
         {
             Assert.Fail($"DataDictionary.DataDictionary(DataDictionary) failed to clone dictionary - exception not expected: {excp}");
-        }
-
-        CheckEtaGlobalPoolSizes();
-    }
-
-    private void CheckEtaGlobalPoolSizes()
-    {
-        var pool = EtaObjectGlobalPool.Instance;
-        Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaBufferPool.Count);
-        Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaEncodeIteratorPool.Count);
-        foreach (var keyVal in pool.m_etaByteBufferBySizePool)
-        {
-            Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, keyVal.Value.Count);
         }
     }
 

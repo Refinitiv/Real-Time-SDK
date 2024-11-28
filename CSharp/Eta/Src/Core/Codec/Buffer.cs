@@ -702,7 +702,7 @@ namespace LSEG.Eta.Codec
                 }
 
                 return hashCode;
-            }           
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]

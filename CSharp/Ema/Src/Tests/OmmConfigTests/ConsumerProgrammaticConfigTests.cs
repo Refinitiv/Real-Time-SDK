@@ -2,13 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2024 Refinitiv. All rights reserved.        --
+ *|           Copyright (C) 2024 LSEG. All rights reserved.                   --
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Rdm;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Reactor;
+using System;
 using System.Collections.Generic;
 using static LSEG.Ema.Access.EmaConfig;
 using static LSEG.Ema.Access.Tests.OmmConfigTests.ConfigTestsUtils;
@@ -16,8 +17,13 @@ using static LSEG.Eta.Rdm.Directory;
 
 namespace LSEG.Ema.Access.Tests.OmmConfigTests
 {
-    public class ConsumerProgrammaticConfigTests
+    public class ConsumerProgrammaticConfigTests : IDisposable
     {
+        public void Dispose()
+        {
+            EtaGlobalPoolTestUtil.Clear();
+        }
+
         private static readonly ConsumerConfig defaultConsConfig = new ();
         private static readonly ClientChannelConfig defaultChannelConfig = new ();
         private static readonly LoggerConfig defaultLoggerConfig = new ();
@@ -51,10 +57,10 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                                         .Clear()
                                         .AddAscii("RestProxyHostName", expectedProxyHost)
                                         .AddAscii("RestProxyPort", expectedProxyPort)
-                                        .Complete())
-                                .Complete())
-                        .Complete())
-                .Complete();
+                                        .MarkForClear().Complete())
+                                .MarkForClear().Complete())
+                        .MarkForClear().Complete())
+                .MarkForClear().Complete();
 
             // Act
             configImpl.Config(emaConfigMap);
@@ -192,24 +198,24 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                 .AddUInt("XmlTraceWrite", 1)
                 .AddUInt("XmlTraceRead", 1)
                 .AddUInt("XmlTracePing", 0)
-                .Complete();
+                .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("ProgConsumer_1", MapAction.ADD, encodeObjectList);
 
             encodeObjectList.Clear();
 
             encodeObjectList.AddAscii("ChannelSet", "ProgChannel_1, ProgChannel_2")
-                .Complete();
+                .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("ProgConsumer_2", MapAction.ADD, encodeObjectList);
 
-            innerMap.Complete();
+            innerMap.MarkForClear().Complete();
 
             encodeGroupList.Clear();
 
             encodeGroupList.AddAscii("DefaultConsumer", "ProgConsumer_1")
                 .AddMap("ConsumerList", innerMap)
-                .Complete();
+                .MarkForClear().Complete();
 
             outerMap.AddKeyAscii("ConsumerGroup", MapAction.ADD, encodeGroupList);
 
@@ -242,20 +248,20 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                 .AddUInt("TcpNodelay", 1)
                 .AddUInt("SecurityProtocol", EncryptedTLSProtocolFlags.TLSv1_2 | 0x01)
                 .AddUInt("CompressionThreshold", 666)
-                .Complete();
+                .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("ProgChannel_1", MapAction.ADD, encodeObjectList);
 
 
             // Second channel is all defaults, so add an empty Element List
             encodeObjectList.Clear();
-            encodeObjectList.Complete();
+            encodeObjectList.MarkForClear().Complete();
 
             innerMap.AddKeyAscii("ProgChannel_2", MapAction.ADD, encodeObjectList)
-                .Complete();
+                .MarkForClear().Complete();
 
             encodeGroupList.AddMap("ChannelList", innerMap)
-                .Complete();
+                .MarkForClear().Complete();
 
             outerMap.AddKeyAscii("ChannelGroup", MapAction.ADD, encodeGroupList);
 
@@ -270,19 +276,19 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                 .AddUInt("MaxLogFileSize", 100)
                 .AddEnum("LoggerSeverity", LoggerLevelEnum.INFO)
                 .AddEnum("LoggerType", LoggerTypeEnum.STDOUT)
-                .Complete();
+                .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("ProgLogger_1", MapAction.ADD, encodeObjectList);
 
             // Blank logger config
             encodeObjectList.Clear();
-            encodeObjectList.Complete();
+            encodeObjectList.MarkForClear().Complete();
 
             innerMap.AddKeyAscii("ProgLogger_2", MapAction.ADD, encodeObjectList)
-                .Complete();
+                .MarkForClear().Complete();
 
             encodeGroupList.AddMap("LoggerList", innerMap)
-                .Complete();
+                .MarkForClear().Complete();
 
             outerMap.AddKeyAscii("LoggerGroup", MapAction.ADD, encodeGroupList);
 
@@ -296,22 +302,22 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                 .AddAscii("RdmFieldDictionaryFileName", "ProgFieldFile")
                 .AddAscii("RdmFieldDictionaryItemName", "ProgFieldItem")
                 .AddEnum("DictionaryType", DictionaryTypeEnum.FILE)
-                .Complete();
+                .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("ProgDictionary_1", MapAction.ADD, encodeObjectList);
 
             encodeObjectList.Clear();
-            encodeObjectList.Complete();
+            encodeObjectList.MarkForClear().Complete();
 
             innerMap.AddKeyAscii("ProgDictionary_2", MapAction.ADD, encodeObjectList)
-                .Complete();
+                .MarkForClear().Complete();
 
             encodeGroupList.AddMap("DictionaryList", innerMap)
-                .Complete();
+                .MarkForClear().Complete();
 
             outerMap.AddKeyAscii("DictionaryGroup", MapAction.ADD, encodeGroupList);
 
-            outerMap.Complete();
+            outerMap.MarkForClear().Complete();
 
             consConfigImpl.Config(outerMap);
 
@@ -580,24 +586,24 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                 .AddUInt("XmlTraceWrite", 0)
                 .AddUInt("XmlTraceRead", 0)
                 .AddUInt("XmlTracePing", 1)
-                .Complete();
+                .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("TestConsumer_1", MapAction.ADD, encodeObjectList);
 
             encodeObjectList.Clear();
 
             encodeObjectList.AddAscii("ChannelSet", "ProgChannel_1, ProgChannel_2")
-                .Complete();
+                .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("TestConsumer_2", MapAction.ADD, encodeObjectList);
 
-            innerMap.Complete();
+            innerMap.MarkForClear().Complete();
 
             encodeGroupList.Clear();
 
             encodeGroupList.AddAscii("DefaultConsumer", "TestConsumer_1")
                 .AddMap("ConsumerList", innerMap)
-                .Complete();
+                .MarkForClear().Complete();
 
             outerMap.AddKeyAscii("ConsumerGroup", MapAction.ADD, encodeGroupList);
 
@@ -628,20 +634,20 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                 .AddAscii("ProxyPort", "ProgProxyPort_1")
                 .AddUInt("TcpNodelay", 0)
                 .AddUInt("SecurityProtocol", EncryptedTLSProtocolFlags.TLSv1_2 | 0x01)
-                .Complete();
+                .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("TestChannel_1", MapAction.ADD, encodeObjectList);
 
 
             // Second channel is all defaults, so add an empty Element List
             encodeObjectList.Clear();
-            encodeObjectList.Complete();
+            encodeObjectList.MarkForClear().Complete();
 
             innerMap.AddKeyAscii("TestChannel_2", MapAction.ADD, encodeObjectList)
-                .Complete();
+                .MarkForClear().Complete();
 
             encodeGroupList.AddMap("ChannelList", innerMap)
-                .Complete();
+                .MarkForClear().Complete();
 
             outerMap.AddKeyAscii("ChannelGroup", MapAction.ADD, encodeGroupList);
 
@@ -656,19 +662,19 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                 .AddUInt("MaxLogFileSize", 100)
                 .AddEnum("LoggerSeverity", LoggerLevelEnum.ERROR)
                 .AddEnum("LoggerType", LoggerTypeEnum.FILE)
-                .Complete();
+                .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("TestLogger_1", MapAction.ADD, encodeObjectList);
 
             // Blank logger config
             encodeObjectList.Clear();
-            encodeObjectList.Complete();
+            encodeObjectList.MarkForClear().Complete();
 
             innerMap.AddKeyAscii("TestLogger_2", MapAction.ADD, encodeObjectList)
-                .Complete();
+                .MarkForClear().Complete();
 
             encodeGroupList.AddMap("LoggerList", innerMap)
-                .Complete();
+                .MarkForClear().Complete();
 
             outerMap.AddKeyAscii("LoggerGroup", MapAction.ADD, encodeGroupList);
 
@@ -682,22 +688,22 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                 .AddAscii("RdmFieldDictionaryFileName", "ProgFieldFile")
                 .AddAscii("RdmFieldDictionaryItemName", "ProgFieldItem")
                 .AddEnum("DictionaryType", DictionaryTypeEnum.CHANNEL)
-                .Complete();
+                .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("TestDictionary_1", MapAction.ADD, encodeObjectList);
 
             encodeObjectList.Clear();
-            encodeObjectList.Complete();
+            encodeObjectList.MarkForClear().Complete();
 
             innerMap.AddKeyAscii("TestDictionary_2", MapAction.ADD, encodeObjectList)
-                .Complete();
+                .MarkForClear().Complete();
 
             encodeGroupList.AddMap("DictionaryList", innerMap)
-                .Complete();
+                .MarkForClear().Complete();
 
             outerMap.AddKeyAscii("DictionaryGroup", MapAction.ADD, encodeGroupList);
 
-            outerMap.Complete();
+            outerMap.MarkForClear().Complete();
 
             consConfigImpl.Config(outerMap);
 
@@ -1068,8 +1074,8 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                     .AddAscii("Position", "TestPosition")
                     .AddAscii("Password", "TestPassword")
                     .AddAscii("ApplicationName", "TestEMAApp")
-                    .Complete()
-            ).EncodeComplete();
+                    .MarkForClear().Complete()
+            ).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1097,7 +1103,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             // Test a Source directory request without a filter and without a streaming request.
             // This should succeed, with the resulting directory request having a filter with everything, no serviceId specified, and with Streaming unset.
             // There should also be two logged warnings in the ConfigErrorLog
-            reqMsg.DomainType((int)DomainType.SOURCE).InterestAfterRefresh(false).EncodeComplete();
+            reqMsg.DomainType((int)DomainType.SOURCE).InterestAfterRefresh(false).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1123,7 +1129,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // Set a directory request with a filter and a serviceId
             reqMsg.Clear();
-            reqMsg.DomainType((int)DomainType.SOURCE).Filter((int)ServiceFilterFlags.DATA).ServiceId(150).EncodeComplete();
+            reqMsg.DomainType((int)DomainType.SOURCE).Filter((int)ServiceFilterFlags.DATA).ServiceId(150).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1141,7 +1147,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             // Test Dictionary
             // No set name, so error in log
             reqMsg.Clear();
-            reqMsg.DomainType((int)DomainType.DICTIONARY).EncodeComplete();
+            reqMsg.DomainType((int)DomainType.DICTIONARY).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1156,7 +1162,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // set name, no service name or service id, so error in log
             reqMsg.Clear();
-            reqMsg.Name("BadDictName").DomainType((int)DomainType.DICTIONARY).EncodeComplete();
+            reqMsg.Name("BadDictName").DomainType((int)DomainType.DICTIONARY).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1171,7 +1177,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // set name, set service id, no filter, so error in log
             reqMsg.Clear();
-            reqMsg.Name("BadDictName").ServiceId(10).DomainType((int)DomainType.DICTIONARY).EncodeComplete();
+            reqMsg.Name("BadDictName").ServiceId(10).DomainType((int)DomainType.DICTIONARY).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1186,7 +1192,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // set name, set service id, filter, set no_refresh so error in log
             reqMsg.Clear();
-            reqMsg.Name("BadDictName").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).InitialImage(false).DomainType((int)DomainType.DICTIONARY).EncodeComplete();
+            reqMsg.Name("BadDictName").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).InitialImage(false).DomainType((int)DomainType.DICTIONARY).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1201,7 +1207,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // set name, set service id, filter, set no_refresh so error in log
             reqMsg.Clear();
-            reqMsg.Name("BadDictName").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).InitialImage(false).DomainType((int)DomainType.DICTIONARY).EncodeComplete();
+            reqMsg.Name("BadDictName").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).InitialImage(false).DomainType((int)DomainType.DICTIONARY).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1216,7 +1222,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // bad dictionary name, set service id, filter, set no_refresh so error in log
             reqMsg.Clear();
-            reqMsg.Name("BadDictName").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).DomainType((int)DomainType.DICTIONARY).EncodeComplete();
+            reqMsg.Name("BadDictName").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).DomainType((int)DomainType.DICTIONARY).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1231,7 +1237,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // correct dictionary name, set service id, filter, set no_refresh so error in log
             reqMsg.Clear();
-            reqMsg.Name("RWFFld").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).DomainType((int)DomainType.DICTIONARY).EncodeComplete();
+            reqMsg.Name("RWFFld").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).DomainType((int)DomainType.DICTIONARY).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1255,7 +1261,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // correct enum dictionary name, set service id, filter, set no_refresh so error in log
             reqMsg.Clear();
-            reqMsg.Name("RWFEnum").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).DomainType((int)DomainType.DICTIONARY).EncodeComplete();
+            reqMsg.Name("RWFEnum").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).DomainType((int)DomainType.DICTIONARY).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 
@@ -1275,7 +1281,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // Add the RWFFld request back in.
             reqMsg.Clear();
-            reqMsg.Name("RWFFld").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).DomainType((int)DomainType.DICTIONARY).EncodeComplete();
+            reqMsg.Name("RWFFld").ServiceId(10).Filter(Dictionary.VerbosityValues.VERBOSE).DomainType((int)DomainType.DICTIONARY).MarkForClear().EncodeComplete();
 
             consumerConfig.AddAdminMsg(reqMsg);
 

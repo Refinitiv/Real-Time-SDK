@@ -1339,9 +1339,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         Error dumpError;
                         m_XmlString.Length = 0;
                         m_XmlString
-                                .Append("\n<!-- Outgoing Reactor message -->\n")
-                                .Append("<!-- ").Append(reactorChannel?.Channel?.ToString()).Append(" -->\n")
-                                .Append("<!-- ").Append(System.DateTime.Now).Append(" -->\n");
+                                .Append($"{NewLine}<!-- Outgoing Reactor message -->{NewLine}")
+                                .Append("<!-- ").Append(reactorChannel?.Channel?.ToString()).Append($" -->{NewLine}")
+                                .Append("<!-- ").Append(System.DateTime.Now).Append($" -->{NewLine}");
 
                         if (TransportReturnCode.SUCCESS ==
                                 m_XmlTraceDump.DumpBuffer(reactorChannel?.Channel, (int)reactorChannel!.Channel!.ProtocolType, writeBuffer, null, m_XmlString, out dumpError))
@@ -1621,9 +1621,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 {
                     m_XmlString.Length = 0;
                     m_XmlString
-                            .Append("\n<!-- Incoming Reactor message -->\n")
-                    .Append("<!-- ").Append(channel).Append(" -->\n")
-                    .Append("<!-- ").Append(System.DateTime.Now).Append(" -->\n");
+                            .Append($"{NewLine}<!-- Incoming Reactor message -->{NewLine}")
+                    .Append("<!-- ").Append(channel).Append($" -->{NewLine}")
+                    .Append("<!-- ").Append(System.DateTime.Now).Append($" -->{NewLine}");
 
                     m_XmlTraceDump.DumpBuffer(channel, (int)channel.ProtocolType, msgBuf, null, m_XmlString, out error);
 
@@ -2214,9 +2214,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
             {
                 m_XmlString.Length = 0;
                 m_XmlString
-                    .Append("\n<!-- Outgoing Reactor message -->\n")
-                    .Append("<!-- ").Append(reactorChannel.Channel).Append(" -->\n")
-                    .Append("<!-- ").Append(System.DateTime.Now).Append(" -->\n");
+                    .Append($"{NewLine}<!-- Outgoing Reactor message -->{NewLine}")
+                    .Append("<!-- ").Append(reactorChannel.Channel).Append($" -->{NewLine}")
+                    .Append("<!-- ").Append(System.DateTime.Now).Append($" -->{NewLine}");
 
                 if (m_XmlTraceDump.DumpBuffer(reactorChannel.Channel,
                     (int)reactorChannel.Channel!.ProtocolType, msgBuf, null, m_XmlString, out var dumpError)
@@ -2791,9 +2791,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
             {
                 m_XmlString.Length = 0;
                 m_XmlString
-                    .Append("\n<!-- Outgoing Reactor message -->\n")
-                    .Append("<!-- ").Append(reactorChannel.Channel!.ToString()).Append(" -->\n")
-                    .Append("<!-- ").Append(System.DateTime.Now).Append(" -->\n");
+                    .Append($"{NewLine}<!-- Outgoing Reactor message -->{NewLine}")
+                    .Append("<!-- ").Append(reactorChannel.Channel!.ToString()).Append($" -->{NewLine}")
+                    .Append("<!-- ").Append(System.DateTime.Now).Append($" -->{NewLine}");
 
                 TransportReturnCode dumpReturnCode = m_XmlTraceDump.DumpBuffer(reactorChannel.Channel,
                     (int)reactorChannel.Channel.ProtocolType,

@@ -16,9 +16,13 @@ namespace refinitiv {
 namespace ema {
 namespace access {
 
-  void getChannelInformation(const RsslReactorChannel*, const RsslChannel*, ChannelInformation&);
-  void getChannelInformationImpl(const RsslReactorChannel*, OmmCommonImpl::ImplementationType,
+class ChannelInfoImpl
+{
+public:
+  static void getChannelInformation(const RsslReactorChannel*, const RsslChannel*, ChannelInformation&);
+  static void getChannelInformationImpl(const RsslReactorChannel*, OmmCommonImpl::ImplementationType,
 								 ChannelInformation&);
+};
 }
 }
 }

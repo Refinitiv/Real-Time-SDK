@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2024 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -16,6 +16,7 @@
 #include "PostMsgEncoder.h"
 #include "Utilities.h"
 #include "OmmInvalidUsageException.h"
+#include "OmmState.h"
 
 #include <new>
 
@@ -1413,6 +1414,39 @@ void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 			item->setEventChannel( pEvent->pReactorChannel );
 			item->onAllMsg( _statusMsg );
 			item->onStatusMsg( _statusMsg );
+		}
+	}
+	break;
+	case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:
+	{
+		RsslStatusMsg rsslStatusMsg;
+		char tempBuffer[1000];
+		RsslBuffer temp;
+		temp.data = tempBuffer;
+		temp.length = 1000;
+
+		_loginList[0]->populate(rsslStatusMsg, temp);
+
+		rsslStatusMsg.state.dataState = RSSL_DATA_OK;
+		rsslStatusMsg.state.streamState = RSSL_STREAM_OPEN;
+		rsslStatusMsg.state.code = OmmState::StatusCode::SocketPHComplete;
+		rsslStatusMsg.state.text.data = (char*)"Preferred host complete";
+		rsslStatusMsg.state.text.length = 23;
+		rsslStatusMsg.flags |= RSSL_STMF_HAS_STATE;
+
+		StaticDecoder::setRsslData(&_statusMsg, (RsslMsg*)&rsslStatusMsg,
+			pEvent->pReactorChannel->majorVersion,
+			pEvent->pReactorChannel->minorVersion,
+			0);
+
+		for (UInt32 idx = 0; idx < _loginItems.size(); ++idx)
+		{
+			_ommBaseImpl.msgDispatched();
+			Item* item = _loginItems[idx];
+
+			item->setEventChannel(pEvent->pReactorChannel);
+			item->onAllMsg(_statusMsg);
+			item->onStatusMsg(_statusMsg);
 		}
 	}
 	break;

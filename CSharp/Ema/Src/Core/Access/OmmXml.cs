@@ -132,7 +132,7 @@ namespace LSEG.Ema.Access
             Utilities.AddIndent(m_ToString, indent).Append("Xml");
 
             ++indent;
-            Utilities.AddIndent(m_ToString.Append("\n"), indent);
+            Utilities.AddIndent(m_ToString.AppendLine(), indent);
             if (DataCode.BLANK == Code)
                 m_ToString.Append(BLANK_STRING);
             else if (m_bodyBuffer!.Length > 0)
@@ -140,7 +140,7 @@ namespace LSEG.Ema.Access
 
             --indent;
 
-            Utilities.AddIndent(m_ToString.Append("\n"), indent).Append("XmlEnd\n");
+            Utilities.AddIndent(m_ToString.AppendLine(), indent).Append($"XmlEnd{NewLine}");
 
             return m_ToString.ToString();
         }

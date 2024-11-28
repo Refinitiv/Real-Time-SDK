@@ -15,61 +15,59 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 {
     public class ConsumerLoggerTest
     {
-        private static readonly string NL = Environment.NewLine;
-
         private static readonly string EMA_FILE_PATH = "../../../OmmConsumerTests/EmaConfigLoggerTest.xml";
 
-        private static readonly string VERBOSE_LOG = $"{NL}TRACE|: loggerMsg{NL}    ClientName: Consumer_1_Verbose{NL}    Severity: Trace    Text:    " +
-            $"Print out active configuration detail.{NL}\tConfiguredName: Consumer_1_Verbose{NL}\tInstanceName: Consumer_1_Verbose{NL}\tItemCountHint: 100000{NL}\t" +
-            $"ServiceCountHint: 513{NL}\tMaxDispatchCountApiThread: 100{NL}\tMaxDispatchCountUserThread: 100{NL}\tDispatchTimeoutApiThread: 0{NL}\tRequestTimeout: 15000{NL}\t" +
-            $"XmlTraceToStdout: False{NL}\tXmlTraceToFile: False{NL}\tXmlTraceMaxFileSize: 100000000{NL}\tXmlTraceFileName: EmaTrace{NL}\tXmlTraceToMultipleFiles: False{NL}\t" +
-            $"XmlTraceWrite: True{NL}\tXmlTraceRead: True{NL}\tXmlTracePing: False{NL}\tObeyOpenWindow: True{NL}\tPostAckTimeout: 15000{NL}\tMaxOutstandingPosts: 100000{NL}\t" +
-            $"DispatchMode: 2{NL}\tDispatchTimeoutApiThread: 0{NL}\tReconnectAttemptLimit: -1{NL}\tReconnectMinDelay: 1000{NL}\tReconnectMaxDelay: 5000{NL}\tMsgKeyInUpdates: True{NL}\t" +
-            $"DirectoryRequestTimeOut: 45000{NL}\tDictionaryRequestTimeOut: 45000{NL}\tRestRequestTimeOut: 15000{NL}\tLoginRequestTimeOut: 3000{NL}loggerMsgEnd{NL}";
+        private static readonly string VERBOSE_LOG = $"{NewLine}TRACE|: loggerMsg{NewLine}    ClientName: Consumer_1_Verbose{NewLine}    Severity: Trace    Text:    " +
+            $"Print out active configuration detail.{NewLine}\tConfiguredName: Consumer_1_Verbose{NewLine}\tInstanceName: Consumer_1_Verbose{NewLine}\tItemCountHint: 100000{NewLine}\t" +
+            $"ServiceCountHint: 513{NewLine}\tMaxDispatchCountApiThread: 100{NewLine}\tMaxDispatchCountUserThread: 100{NewLine}\tDispatchTimeoutApiThread: 0{NewLine}\tRequestTimeout: 15000{NewLine}\t" +
+            $"XmlTraceToStdout: False{NewLine}\tXmlTraceToFile: False{NewLine}\tXmlTraceMaxFileSize: 100000000{NewLine}\tXmlTraceFileName: EmaTrace{NewLine}\tXmlTraceToMultipleFiles: False{NewLine}\t" +
+            $"XmlTraceWrite: True{NewLine}\tXmlTraceRead: True{NewLine}\tXmlTracePing: False{NewLine}\tObeyOpenWindow: True{NewLine}\tPostAckTimeout: 15000{NewLine}\tMaxOutstandingPosts: 100000{NewLine}\t" +
+            $"DispatchMode: 2{NewLine}\tDispatchTimeoutApiThread: 0{NewLine}\tReconnectAttemptLimit: -1{NewLine}\tReconnectMinDelay: 1000{NewLine}\tReconnectMaxDelay: 5000{NewLine}\tMsgKeyInUpdates: True{NewLine}\t" +
+            $"DirectoryRequestTimeOut: 45000{NewLine}\tDictionaryRequestTimeOut: 45000{NewLine}\tRestRequestTimeOut: 15000{NewLine}\tLoginRequestTimeOut: 3000{NewLine}loggerMsgEnd{NewLine}";
 
-        private static readonly string VERBOSE_LOG_1 = $"{NL}TRACE|: loggerMsg{NL}    ClientName: Consumer_1_Verbose{NL}    Severity: Trace    Text:" +
-            $"    Successfully created Reactor.{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: LoginCallbackClient{NL}    Severity: Trace" +
-            $"    Text:    RDMLogin request message was populated with this info: LoginRequest: \n\tstreamId: 1{NL}\tuserName: user{NL}\tstreaming:" +
-            $" true{NL}\tnameType: NAME{NL}\tapplicationId: 256\n\tapplicationName: ema\n\tposition:";
+        private static readonly string VERBOSE_LOG_1 = $"{NewLine}TRACE|: loggerMsg{NewLine}    ClientName: Consumer_1_Verbose{NewLine}    Severity: Trace    Text:" +
+            $"    Successfully created Reactor.{NewLine}loggerMsgEnd{NewLine}{NewLine}TRACE|: loggerMsg{NewLine}    ClientName: LoginCallbackClient{NewLine}    Severity: Trace" +
+            $"    Text:    RDMLogin request message was populated with this info: LoginRequest: {NewLine}\tstreamId: 1{NewLine}\tuserName: user{NewLine}\tstreaming:" +
+            $" true{NewLine}\tnameType: NAME{NewLine}\tapplicationId: 256{NewLine}\tapplicationName: ema{NewLine}\tposition:";
 
-        private static readonly string VERBOSE_LOG_2 = $"    ClientName: DirectoryCallbackClient{NL}    Severity: Trace    Text:    RDMDirectoryRequest" +
-            $" message was populated with Filter(s){NL}\tRDM_DIRECTORY_SERVICE_INFO_FILTER{NL}\tRDM_DIRECTORY_SERVICE_STATE_FILTER{NL}\tRDM_DIRECTORY_SERVICE_GROUP_FILTER" +
-            $"{NL}\tRDM_DIRECTORY_SERVICE_LOAD_FILTER{NL}\tRDM_DIRECTORY_SERVICE_DATA_FILTER{NL}\tRDM_DIRECTORY_SERVICE_LINK_FILTER{NL}\trequesting all services{NL}" +
-            $"loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: DictionaryCallbackClient{NL}    Severity: Trace    Text:    Successfully loaded local dictionaries:" +
-            $" {NL}\tRDMFieldDictionary file named ../../../../../../etc/RDMFieldDictionary{NL}\tEnumTypeDef file named ../../../../../../etc/enumtype.def{NL}loggerMsgEnd{NL}{NL}" +
-            $"TRACE|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    Severity: Trace    Text:    Created ChannelCallbackClient{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}" +
-            $"    ClientName: ChannelCallbackClient{NL}    Severity: Trace    Text:    Attempt to connect using{NL}\t1] SOCKET{NL}\tChannel name Channel_1{NL}\tInstance name" +
-            $" Consumer_1_Verbose{NL}\tReactor";
+        private static readonly string VERBOSE_LOG_2 = $"    ClientName: DirectoryCallbackClient{NewLine}    Severity: Trace    Text:    RDMDirectoryRequest" +
+            $" message was populated with Filter(s){NewLine}\tRDM_DIRECTORY_SERVICE_INFO_FILTER{NewLine}\tRDM_DIRECTORY_SERVICE_STATE_FILTER{NewLine}\tRDM_DIRECTORY_SERVICE_GROUP_FILTER" +
+            $"{NewLine}\tRDM_DIRECTORY_SERVICE_LOAD_FILTER{NewLine}\tRDM_DIRECTORY_SERVICE_DATA_FILTER{NewLine}\tRDM_DIRECTORY_SERVICE_LINK_FILTER{NewLine}\trequesting all services{NewLine}" +
+            $"loggerMsgEnd{NewLine}{NewLine}TRACE|: loggerMsg{NewLine}    ClientName: DictionaryCallbackClient{NewLine}    Severity: Trace    Text:    Successfully loaded local dictionaries:" +
+            $" {NewLine}\tRDMFieldDictionary file named ../../../../../../etc/RDMFieldDictionary{NewLine}\tEnumTypeDef file named ../../../../../../etc/enumtype.def{NewLine}loggerMsgEnd{NewLine}{NewLine}" +
+            $"TRACE|: loggerMsg{NewLine}    ClientName: ChannelCallbackClient{NewLine}    Severity: Trace    Text:    Created ChannelCallbackClient{NewLine}loggerMsgEnd{NewLine}{NewLine}TRACE|: loggerMsg{NewLine}" +
+            $"    ClientName: ChannelCallbackClient{NewLine}    Severity: Trace    Text:    Attempt to connect using{NewLine}\t1] SOCKET{NewLine}\tChannel name Channel_1{NewLine}\tInstance name" +
+            $" Consumer_1_Verbose{NewLine}\tReactor";
 
-        private static readonly string VERBOSE_LOG_3 = $"CompressionType None{NL}\tTcpNodelay True{NL}\tEnableSessionMgnt False{NL}\tLocation us-east-1{NL}\t" +
-            $"ReconnectAttemptLimit -1{NL}\tReconnectMinDelay 1000 msec{NL}\tReconnectMaxDelay 5000 msec{NL}\tGuaranteedOutputBuffers 5000{NL}\tNumInputBuffers 100{NL}\tSysRecvBufSize" +
-            $" 0{NL}\tSysSendBufSize 0{NL}\tConnectionPingTimeout 30 sec{NL}\tInitializationTimeout 60 sec{NL}\tDirectWrite False{NL}{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    " +
-            $"Severity: Trace    Text:    Received ChannelOpened event on channel Channel_1{NL}\tInstance Name Consumer_1_Verbose{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    " +
-            $"ClientName: ChannelCallbackClient{NL}    Severity: Trace    Text:    Successfully created a Reactor and Channel(s){NL}\tChannel name(s) Channel_1{NL}\tInstance name " +
-            $"Consumer_1_Verbose{NL}{NL}loggerMsgEnd{NL}{NL}INFO|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    Severity: Info    Text:    Received ChannelUp event on " +
-            $"channel Channel_1{NL}\tInstance Name Consumer_1_Verbose{NL}\tComponent Version etacsharp";
+        private static readonly string VERBOSE_LOG_3 = $"CompressionType None{NewLine}\tTcpNodelay True{NewLine}\tEnableSessionMgnt False{NewLine}\tLocation us-east-1{NewLine}\t" +
+            $"ReconnectAttemptLimit -1{NewLine}\tReconnectMinDelay 1000 msec{NewLine}\tReconnectMaxDelay 5000 msec{NewLine}\tGuaranteedOutputBuffers 5000{NewLine}\tNumInputBuffers 100{NewLine}\tSysRecvBufSize" +
+            $" 0{NewLine}\tSysSendBufSize 0{NewLine}\tConnectionPingTimeout 30 sec{NewLine}\tInitializationTimeout 60 sec{NewLine}\tDirectWrite False{NewLine}{NewLine}loggerMsgEnd{NewLine}{NewLine}TRACE|: loggerMsg{NewLine}    ClientName: ChannelCallbackClient{NewLine}    " +
+            $"Severity: Trace    Text:    Received ChannelOpened event on channel Channel_1{NewLine}\tInstance Name Consumer_1_Verbose{NewLine}loggerMsgEnd{NewLine}{NewLine}TRACE|: loggerMsg{NewLine}    " +
+            $"ClientName: ChannelCallbackClient{NewLine}    Severity: Trace    Text:    Successfully created a Reactor and Channel(s){NewLine}\tChannel name(s) Channel_1{NewLine}\tInstance name " +
+            $"Consumer_1_Verbose{NewLine}{NewLine}loggerMsgEnd{NewLine}{NewLine}INFO|: loggerMsg{NewLine}    ClientName: ChannelCallbackClient{NewLine}    Severity: Info    Text:    Received ChannelUp event on " +
+            $"channel Channel_1{NewLine}\tInstance Name Consumer_1_Verbose{NewLine}\tComponent Version etacsharp";
 
-        private static readonly string VERBOSE_LOG_4 = $"{NL}loggerMsgEnd" +
-            $"{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: LoginCallbackClient{NL}    Severity: Trace    Text:    RDMLogin stream was open with refresh message{NL}" +
-            $"LoginRefresh: \n\tstreamId: 1{NL}\tname: user{NL}\tnameType: NAME{NL}\tState: Open/Ok/None - text: \"Login accepted by host localhost\"{NL}\tisSolicited:" +
-            $" True{NL}\tapplicationId: 256\n\tapplicationName: ETA Provider Test\n\tposition:";
+        private static readonly string VERBOSE_LOG_4 = $"{NewLine}loggerMsgEnd" +
+            $"{NewLine}{NewLine}TRACE|: loggerMsg{NewLine}    ClientName: LoginCallbackClient{NewLine}    Severity: Trace    Text:    RDMLogin stream was open with refresh message{NewLine}" +
+            $"LoginRefresh: {NewLine}\tstreamId: 1{NewLine}\tname: user{NewLine}\tnameType: NAME{NewLine}\tState: Open/Ok/None - text: \"Login accepted by host localhost\"{NewLine}\tisSolicited:" +
+            $" True{NewLine}\tapplicationId: 256{NewLine}\tapplicationName: ETA Provider Test{NewLine}\tposition:";
 
-        private static readonly string VERBOSE_LOG_5 = $"\n\tsingleOpen: 1\n\tallowSuspectData: 1\n\tSupportBatchRequests: 1\n\tSupportOMMPost: 1\n" +
-            $"\tSupportEnhancedSymbolList: 1\n{NL}{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}    ClientName: DirectoryCallbackClient{NL}    Severity: Trace" +
-            $"    Text:    RDMDirectory stream state was open with refresh message {NL}\tState: Open/Ok/None - text: \"\"{NL}loggerMsgEnd{NL}{NL}TRACE|: loggerMsg{NL}" +
-            $"    ClientName: ChannelCallbackClient{NL}    Severity: Trace    Text:    Received ChannelReady event on channel Channel_1{NL}\tInstance Name" +
-            $" Consumer_1_Verbose{NL}loggerMsgEnd{NL}";
+        private static readonly string VERBOSE_LOG_5 = $"{NewLine}\tsingleOpen: 1{NewLine}\tallowSuspectData: 1{NewLine}\tSupportBatchRequests: 1{NewLine}\tSupportOMMPost: 1{NewLine}" +
+            $"\tSupportEnhancedSymbolList: 1{NewLine}{NewLine}{NewLine}loggerMsgEnd{NewLine}{NewLine}TRACE|: loggerMsg{NewLine}    ClientName: DirectoryCallbackClient{NewLine}    Severity: Trace" +
+            $"    Text:    RDMDirectory stream state was open with refresh message {NewLine}\tState: Open/Ok/None - text: \"\"{NewLine}loggerMsgEnd{NewLine}{NewLine}TRACE|: loggerMsg{NewLine}" +
+            $"    ClientName: ChannelCallbackClient{NewLine}    Severity: Trace    Text:    Received ChannelReady event on channel Channel_1{NewLine}\tInstance Name" +
+            $" Consumer_1_Verbose{NewLine}loggerMsgEnd{NewLine}";
 
-        private static readonly string SUCCESS_LOG = $"{NL}INFO|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    Severity: Info    Text:    Received ChannelUp event on" +
-            $" channel Channel_1{NL}\tInstance Name Consumer_1_Success{NL}\tComponent Version";
+        private static readonly string SUCCESS_LOG = $"{NewLine}INFO|: loggerMsg{NewLine}    ClientName: ChannelCallbackClient{NewLine}    Severity: Info    Text:    Received ChannelUp event on" +
+            $" channel Channel_1{NewLine}\tInstance Name Consumer_1_Success{NewLine}\tComponent Version";
 
-        private static readonly string ERROR_LOG = $"{NL}ERROR|: loggerMsg{NL}    ClientName: Consumer_1_Error{NL}    Severity: Error    Text:    login failed (timed out after" +
-            $" waiting 3000 milliseconds) for localhost:5555){NL}loggerMsgEnd{NL}{NL}ERROR|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    Severity: Error    Text:    Received ChannelDown" +
-            $" event on channel Channel_1{NL}\tInstance Name Consumer_1_Error{NL}\tChannel is null{NL}\tError Id SUCCESS{NL}\tInternal sysError 0{NL}\tError Location {NL}\tError text {NL}loggerMsgEnd{NL}";
+        private static readonly string ERROR_LOG = $"{NewLine}ERROR|: loggerMsg{NewLine}    ClientName: Consumer_1_Error{NewLine}    Severity: Error    Text:    login failed (timed out after" +
+            $" waiting 3000 milliseconds) for localhost:5555){NewLine}loggerMsgEnd{NewLine}{NewLine}ERROR|: loggerMsg{NewLine}    ClientName: ChannelCallbackClient{NewLine}    Severity: Error    Text:    Received ChannelDown" +
+            $" event on channel Channel_1{NewLine}\tInstance Name Consumer_1_Error{NewLine}\tChannel is null{NewLine}\tError Id SUCCESS{NewLine}\tInternal sysError 0{NewLine}\tError Location {NewLine}\tError text {NewLine}loggerMsgEnd{NewLine}";
 
-        private static readonly string WARNING_LOG = $"{NL}WARN|: loggerMsg{NL}    ClientName: ChannelCallbackClient{NL}    Severity: Warning    Text:" +
-            $"    Received ChannelDownReconnecting event on channel Channel_1{NL}\tInstance Name Consumer_1_Warning{NL}\tChannel is null{NL}\tError Id SUCCESS{NL}" +
-            $"\tInternal sysError 0{NL}\tError Location Reactor.Connect{NL}\tError text DNS resolution failure for address \"Invalidhost.abc\" with error text \"No such host is known.\".";
+        private static readonly string WARNING_LOG = $"{NewLine}WARN|: loggerMsg{NewLine}    ClientName: ChannelCallbackClient{NewLine}    Severity: Warning    Text:" +
+            $"    Received ChannelDownReconnecting event on channel Channel_1{NewLine}\tInstance Name Consumer_1_Warning{NewLine}\tChannel is null{NewLine}\tError Id SUCCESS{NewLine}" +
+            $"\tInternal sysError 0{NewLine}\tError Location Reactor.Connect{NewLine}\tError text DNS resolution failure for address \"Invalidhost.abc\" with error text \"No such host is known.\".";
 
         ITestOutputHelper output;
 
@@ -411,7 +409,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             Assert.NotNull(logOutput);
             Assert.NotEmpty(logOutput);
 
-            Assert.StartsWith("\r\nTRACE", logOutput);
+            Assert.StartsWith($"{NewLine}TRACE", logOutput);
             Assert.Contains("Successfully created Reactor", logOutput);
             Assert.Contains("Print out active configuration detail.", logOutput);
         }

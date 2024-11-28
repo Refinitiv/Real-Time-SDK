@@ -21,10 +21,16 @@ using Xunit.Abstractions;
 using static LSEG.Ema.Access.Tests.OmmConsumerTests.ModifyIOCtlTest;
 using static LSEG.Eta.Rdm.Directory;
 
+
 namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 {
-    public class NiProviderTest
+    public class NiProviderTest : IDisposable
     {
+        public void Dispose()
+        {
+            EtaGlobalPoolTestUtil.Clear();
+        }
+
         ITestOutputHelper m_Output;
 
         public NiProviderTest(ITestOutputHelper output)
@@ -179,13 +185,13 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
             provider?.Submit(new RefreshMsg().ServiceName("NI_PUB").Name("IBM.N")
                 .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "UnSolicited Refresh Completed")
-                .Payload(new FieldList()
+                .MarkForClear().Payload(new FieldList()
                     .AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                     .AddReal(25, 3994, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                     .AddReal(30, 0, OmmReal.MagnitudeTypes.EXPONENT_0)
                     .AddReal(31, 19, OmmReal.MagnitudeTypes.EXPONENT_0)
-                    .Complete())
-                .Complete(true).ClearCache(true), itemHandle);
+                    .MarkForClear().Complete())
+                .MarkForClear().Complete(true).ClearCache(true), itemHandle);
 
             Thread.Sleep(1000);
 
@@ -211,12 +217,12 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             Assert.Equal(OmmState.StreamStates.OPEN, decodeRefreshMsg.State().StreamState);
             Assert.Equal(OmmState.DataStates.OK, decodeRefreshMsg.State().DataState);
             Assert.Equal(OmmState.StatusCodes.NONE, decodeRefreshMsg.State().StatusCode);
-            Assert.True(decodeRefreshMsg.Complete());
+            Assert.True(decodeRefreshMsg.MarkForClear().Complete());
             Assert.True(decodeRefreshMsg.ClearCache());
             Assert.False(decodeRefreshMsg.Solicited());
-            Assert.Equal(DataType.DataTypes.FIELD_LIST, decodeRefreshMsg.Payload().DataType);
+            Assert.Equal(DataType.DataTypes.FIELD_LIST, decodeRefreshMsg.MarkForClear().Payload().DataType);
 
-            FieldList fieldList = decodeRefreshMsg.Payload().FieldList();
+            FieldList fieldList = decodeRefreshMsg.MarkForClear().Payload().FieldList();
 
             var iterator = fieldList.GetEnumerator();
             Assert.True(iterator.MoveNext());
@@ -244,10 +250,10 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             Assert.Empty(adhSimulator.EventQueue); // There is no message in the Event queue.
 
             provider?.Submit(new UpdateMsg().ServiceName("NI_PUB").Name("IBM.N")
-                            .Payload(new FieldList()
+                            .MarkForClear().Payload(new FieldList()
                                 .AddReal(22, 3391 + 5, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                                 .AddReal(30, 10 + 5, OmmReal.MagnitudeTypes.EXPONENT_0)
-                                .Complete()), itemHandle);
+                                .MarkForClear().Complete()), itemHandle);
 
             Thread.Sleep(1000);
 
@@ -268,9 +274,9 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             Assert.Equal("IBM.N", decodeUpdateMsg.Name());
             Assert.True(decodeUpdateMsg.HasServiceId);
             Assert.Equal(0, decodeUpdateMsg.ServiceId());
-            Assert.Equal(DataType.DataTypes.FIELD_LIST, decodeUpdateMsg.Payload().DataType);
+            Assert.Equal(DataType.DataTypes.FIELD_LIST, decodeUpdateMsg.MarkForClear().Payload().DataType);
 
-            fieldList = decodeUpdateMsg.Payload().FieldList();
+            fieldList = decodeUpdateMsg.MarkForClear().Payload().FieldList();
 
             iterator = fieldList.GetEnumerator();
             Assert.True(iterator.MoveNext());
@@ -288,10 +294,10 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             Assert.Empty(adhSimulator.EventQueue); // There is no message in the Event queue.
 
             provider?.Submit(new UpdateMsg().ServiceId(0).Name("IBM.N")
-                            .Payload(new FieldList()
+                            .MarkForClear().Payload(new FieldList()
                                 .AddReal(22, 3391 + 9, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                                 .AddReal(30, 10 + 10, OmmReal.MagnitudeTypes.EXPONENT_0)
-                                .Complete()), itemHandle);
+                                .MarkForClear().Complete()), itemHandle);
 
             Thread.Sleep(1000);
 
@@ -310,9 +316,9 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             Assert.Equal("IBM.N", decodeUpdateMsg.Name());
             Assert.True(decodeUpdateMsg.HasServiceId);
             Assert.Equal(0, decodeUpdateMsg.ServiceId());
-            Assert.Equal(DataType.DataTypes.FIELD_LIST, decodeUpdateMsg.Payload().DataType);
+            Assert.Equal(DataType.DataTypes.FIELD_LIST, decodeUpdateMsg.MarkForClear().Payload().DataType);
 
-            fieldList = decodeUpdateMsg.Payload().FieldList();
+            fieldList = decodeUpdateMsg.MarkForClear().Payload().FieldList();
 
             iterator = fieldList.GetEnumerator();
             Assert.True(iterator.MoveNext());
@@ -375,13 +381,13 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             {
                 provider?.Submit(new RefreshMsg().ServiceName("UNKNOWN_SERVICE_NAME").Name("IBM.N")
                     .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "UnSolicited Refresh Completed")
-                    .Payload(new FieldList()
+                    .MarkForClear().Payload(new FieldList()
                         .AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                         .AddReal(25, 3994, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                         .AddReal(30, 0, OmmReal.MagnitudeTypes.EXPONENT_0)
                         .AddReal(31, 19, OmmReal.MagnitudeTypes.EXPONENT_0)
-                        .Complete())
-                    .Complete(true).ClearCache(true), itemHandle);
+                        .MarkForClear().Complete())
+                    .MarkForClear().Complete(true).ClearCache(true), itemHandle);
             }
             catch (OmmException execp)
             {
@@ -399,13 +405,13 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             {
                 provider?.Submit(new RefreshMsg().ServiceId(999).Name("IBM.N")
                     .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "UnSolicited Refresh Completed")
-                    .Payload(new FieldList()
+                    .MarkForClear().Payload(new FieldList()
                         .AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                         .AddReal(25, 3994, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                         .AddReal(30, 0, OmmReal.MagnitudeTypes.EXPONENT_0)
                         .AddReal(31, 19, OmmReal.MagnitudeTypes.EXPONENT_0)
-                        .Complete())
-                    .Complete(true).ClearCache(true), itemHandle);
+                        .MarkForClear().Complete())
+                    .MarkForClear().Complete(true).ClearCache(true), itemHandle);
             }
             catch (OmmException execp)
             {
@@ -461,10 +467,10 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             try
             {
                 provider?.Submit(new UpdateMsg().Name("IBM.N")
-                .Payload(new FieldList()
+                .MarkForClear().Payload(new FieldList()
                     .AddReal(22, 3391 + 9, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                     .AddReal(30, 10 + 10, OmmReal.MagnitudeTypes.EXPONENT_0)
-                    .Complete()), itemHandle);
+                    .MarkForClear().Complete()), itemHandle);
             }
             catch (OmmException execp)
             {
@@ -709,41 +715,41 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                             .AddArray(EmaRdm.ENAME_CAPABILITIES, new OmmArray()
                                 .AddUInt(EmaRdm.MMT_MARKET_PRICE)
                                 .AddUInt(EmaRdm.MMT_MARKET_BY_PRICE)
-                                .Complete())
+                                .MarkForClear().Complete())
                             .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                                 .AddAscii("RWFFld_user_used")
                                 .AddAscii("RWFEnum_user_used")
-                                .Complete())
+                                .MarkForClear().Complete())
                             .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                                 .AddAscii("RWFFld_user_provided")
                                 .AddAscii("RWFEnum_user_provided")
-                                .Complete())
+                                .MarkForClear().Complete())
                             .AddUInt(EmaRdm.ENAME_LINK_STATE, 0)
                             .AddUInt(EmaRdm.ENAME_SUPPS_QOS_RANGE, 0)
                             .AddArray(EmaRdm.ENAME_QOS, new OmmArray()
                                 .AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK)
                                 .AddQos(OmmQos.Timelinesses.INEXACT_DELAYED, OmmQos.Rates.JUST_IN_TIME_CONFLATED)
-                                .Complete())
+                                .MarkForClear().Complete())
                             .AddAscii(EmaRdm.ENAME_ITEM_LIST, "#.itemlist_user")
                             .AddUInt(EmaRdm.ENAME_ACCEPTING_CONS_STATUS, 0)
                             .AddUInt(EmaRdm.ENAME_SUPPS_OOB_SNAPSHOTS, 0)
-                            .Complete())
+                            .MarkForClear().Complete())
                         .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, new ElementList()
                             .AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
                             .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1)
                             .AddState(EmaRdm.ENAME_STATUS, OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "User Submitted Status Text 2")
-                            .Complete())
+                            .MarkForClear().Complete())
                         .AddEntry(EmaRdm.SERVICE_LOAD_ID, FilterAction.SET, new ElementList()
                             .AddUInt(EmaRdm.ENAME_OPEN_LIMIT, 100)
                             .AddUInt(EmaRdm.ENAME_OPEN_WINDOW, 50)
                             .AddUInt(EmaRdm.ENAME_LOAD_FACT, 30)
-                            .Complete())
-                        .Complete())
-                    .Complete();
+                            .MarkForClear().Complete())
+                        .MarkForClear().Complete())
+                    .MarkForClear().Complete();
 
                 provider.Submit(refresh.DomainType(EmaRdm.MMT_DIRECTORY).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).ClearCache(true)
-                    .Payload(map).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Source Directory Refresh Completed")
-                    .Complete(true), sourceDirectoryHandle);
+                    .MarkForClear().Payload(map).State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Source Directory Refresh Completed")
+                    .MarkForClear().Complete(true), sourceDirectoryHandle);
 
             }
             catch (OmmException ommException)
@@ -893,7 +899,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                 {
                     Assert.Equal(handle, consEvent.Handle);
 
-                    Assert.Equal(DataType.DataTypes.NO_DATA, refreshMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.NO_DATA, refreshMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(refreshMsg.HasMsgKey);
                     Assert.True(refreshMsg.HasNameType);
@@ -1012,11 +1018,11 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
             string expectedConnectedComponentInfo = Transport.QueryVersion().ProductInternalVersion();
             string expectedChannelInfoStr =
-                $"hostname: localhost\r\n\tIP address: not available for OmmNiProvider connections\r\n\tport: {adhSimulator.ServerPort}" +
-                $"\r\n\tconnected component info: {expectedConnectedComponentInfo}\r\n\tchannel state: active\r\n\tconnection type: SOCKET\r\n\tprotocol type: Rssl wire format" +
-                "\r\n\tmajor version: 14\r\n\tminor version: 1\r\n\tping timeout: 60\r\n\tmax fragmentation size: 6142\r\n\tmax output buffers: 100\r\n\tguaranteed output buffers: 100" +
-                "\r\n\tnumber input buffers: 100\r\n\tsystem send buffer size: 0\r\n\tsystem receive buffer size: 0\r\n\tcompression type: none\r\n\tcompression threshold: 0" +
-                "\r\n\tencryptionProtocol: None";
+                $"hostname: localhost{NewLine}\tIP address: not available for OmmNiProvider connections{NewLine}\tport: {adhSimulator.ServerPort}" +
+                $"{NewLine}\tconnected component info: {expectedConnectedComponentInfo}{NewLine}\tchannel state: active{NewLine}\tconnection type: SOCKET{NewLine}\tprotocol type: Rssl wire format" +
+                $"{NewLine}\tmajor version: 14{NewLine}\tminor version: 1{NewLine}\tping timeout: 60{NewLine}\tmax fragmentation size: 6142{NewLine}\tmax output buffers: 100{NewLine}\tguaranteed output buffers: 100" +
+                $"{NewLine}\tnumber input buffers: 100{NewLine}\tsystem send buffer size: 0{NewLine}\tsystem receive buffer size: 0{NewLine}\tcompression type: none{NewLine}\tcompression threshold: 0" +
+                $"{NewLine}\tencryptionProtocol: None";
 
             try
             {
@@ -1119,13 +1125,13 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                 // Submit a refresh message using the login handle
                 provider.Submit(new RefreshMsg().ServiceName("NI_PUB").Name("IBM.N")
                 .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "UnSolicited Refresh Completed")
-                .Payload(new FieldList()
+                .MarkForClear().Payload(new FieldList()
                     .AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                     .AddReal(25, 3994, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                     .AddReal(30, 0, OmmReal.MagnitudeTypes.EXPONENT_0)
                     .AddReal(31, 19, OmmReal.MagnitudeTypes.EXPONENT_0)
-                    .Complete())
-                .Complete(true).ClearCache(true), loginhandle);
+                    .MarkForClear().Complete())
+                .MarkForClear().Complete(true).ClearCache(true), loginhandle);
 
                 provider.Unregister(loginhandle);
             }
@@ -1147,13 +1153,13 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                 // Submit a refresh message using the login handle
                 provider!.Submit(new RefreshMsg().ServiceName("NI_PUB").Name("IBM.N")
                 .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "UnSolicited Refresh Completed")
-                .Payload(new FieldList()
+                .MarkForClear().Payload(new FieldList()
                     .AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                     .AddReal(25, 3994, OmmReal.MagnitudeTypes.EXPONENT_NEG_2)
                     .AddReal(30, 0, OmmReal.MagnitudeTypes.EXPONENT_0)
                     .AddReal(31, 19, OmmReal.MagnitudeTypes.EXPONENT_0)
-                    .Complete())
-                .Complete(true).ClearCache(true), loginhandle);
+                    .MarkForClear().Complete())
+                .MarkForClear().Complete(true).ClearCache(true), loginhandle);
             }
             catch (OmmException ommException)
             {
@@ -1214,7 +1220,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                 {
                     Assert.Equal(fldHandle, consEvent.Handle);
 
-                    Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(refreshMsg.HasMsgKey);
                     Assert.False(refreshMsg.HasNameType);
@@ -1231,7 +1237,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
                     Assert.True(refreshMsg.Solicited());
 
-                    fldComplelte = refreshMsg.Complete();
+                    fldComplelte = refreshMsg.MarkForClear().Complete();
                 };
 
                 providerEnumClient = new OmmProviderItemClientTest(provider);
@@ -1249,7 +1255,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                 {
                     Assert.Equal(enumHandle, consEvent.Handle);
 
-                    Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(refreshMsg.HasMsgKey);
                     Assert.False(refreshMsg.HasNameType);
@@ -1265,7 +1271,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                     Assert.Equal(OmmState.StreamStates.OPEN, refreshMsg.State().StreamState);
 
                     Assert.True(refreshMsg.Solicited());
-                    enumComplete = refreshMsg.Complete();
+                    enumComplete = refreshMsg.MarkForClear().Complete();
                 };
 
                 if (userDispatch)

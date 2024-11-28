@@ -737,78 +737,78 @@ public sealed class LoginReq : Login
 
         if (m_AllowSuspectDataSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_ALLOW_SUSPECT_DATA).Append(" : ").Append(m_AllowSuspectData);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_ALLOW_SUSPECT_DATA).Append(" : ").Append(m_AllowSuspectData);
         }
 
         if (m_ApplicationIdSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_APP_ID).Append(" : ").Append(m_ApplicationId);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_APP_ID).Append(" : ").Append(m_ApplicationId);
         }
 
         if (m_ApplicationNameSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_APP_NAME).Append(" : ").Append(m_ApplicationName);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_APP_NAME).Append(" : ").Append(m_ApplicationName);
         }
 
         if (m_ApplicationAuthTokenSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_APPAUTH_TOKEN).Append(" : ").Append(m_ApplicationAuthToken);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_APPAUTH_TOKEN).Append(" : ").Append(m_ApplicationAuthToken);
         }
 
         if (m_DownloadConnectionConfigSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_DOWNLOAD_CON_CONFIG).Append(" : ").Append(m_DownloadConnectionConfig);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_DOWNLOAD_CON_CONFIG).Append(" : ").Append(m_DownloadConnectionConfig);
         }
 
         if (m_InstanceIdSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_INST_ID).Append(" : ").Append(m_InstanceId);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_INST_ID).Append(" : ").Append(m_InstanceId);
         }
 
         if (m_PasswordSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_PASSWORD).Append(" : ").Append(m_Password);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_PASSWORD).Append(" : ").Append(m_Password);
         }
 
         if (m_PositionSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_POSITION).Append(" : ").Append(m_Position);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_POSITION).Append(" : ").Append(m_Position);
         }
 
         if (m_ProvidePermissionExpressionsSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_PROV_PERM_EXP).Append(" : ").Append(m_ProvidePermissionExpressions);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_PROV_PERM_EXP).Append(" : ").Append(m_ProvidePermissionExpressions);
         }
 
         if (m_ProvidePermissionProfileSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_PROV_PERM_PROF).Append(" : ").Append(m_ProvidePermissionProfile);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_PROV_PERM_PROF).Append(" : ").Append(m_ProvidePermissionProfile);
         }
 
         if (m_RoleSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_ROLE).Append(" : ").Append(m_Role);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_ROLE).Append(" : ").Append(m_Role);
         }
 
         if (m_SingleOpenSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_SINGLE_OPEN).Append(" : ").Append(m_SingleOpen);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_SINGLE_OPEN).Append(" : ").Append(m_SingleOpen);
         }
 
         if (m_SupportProviderDictionaryDownloadSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD).Append(" : ")
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD).Append(" : ")
                 .Append(m_SupportProviderDictionaryDownload);
         }
 
         if (m_PauseSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_PAUSE).Append(" : ").Append(m_Pause);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_PAUSE).Append(" : ").Append(m_Pause);
         }
 
         if (m_AuthenticationExtendedSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_AUTHN_EXTENDED).Append(" : ")
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_AUTHN_EXTENDED).Append(" : ")
                 .Append(Encoding.ASCII.GetString(m_AuthenticationExtended!.Buffer));
         }
 
@@ -816,15 +816,15 @@ public sealed class LoginReq : Login
         {
             if (m_NameTypeSet && m_NameType == EmaRdm.USER_AUTH_TOKEN)
             {
-                m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_AUTHN_TOKEN).Append(" : ").Append(m_AuthenticationToken);
+                m_ToString.AppendLine().Append(EmaRdm.ENAME_AUTHN_TOKEN).Append(" : ").Append(m_AuthenticationToken);
             }
             else
-                m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_USERNAME).Append(" : ").Append(m_Name);
+                m_ToString.AppendLine().Append(EmaRdm.ENAME_USERNAME).Append(" : ").Append(m_Name);
         }
 
         if (m_NameTypeSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_USERNAME_TYPE).Append(" : ").Append(m_NameType);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_USERNAME_TYPE).Append(" : ").Append(m_NameType);
         }
 
         return m_ToString.ToString();

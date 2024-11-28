@@ -193,31 +193,31 @@ namespace LSEG.Eta.Example.Common
             stringBuf.Append(tab);
             stringBuf.Append("state: ");
             stringBuf.Append(State);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("solicited: ");
             stringBuf.Append(Solicited);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("refreshComplete: ");
             stringBuf.Append(RefreshComplete);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (HasServiceId)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("serviceId: ");
                 stringBuf.Append(ServiceId);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasQos)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("qos: ");
                 stringBuf.Append(m_RefreshMsg.Qos.ToString());
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

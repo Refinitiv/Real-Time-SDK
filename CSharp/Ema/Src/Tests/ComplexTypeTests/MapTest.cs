@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -14,8 +14,13 @@ using LSEG.Eta.Tests;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class MapTest
+    public class MapTest : IDisposable
     {
+        public void Dispose()
+        {
+            EtaGlobalPoolTestUtil.Clear();
+        }
+
         [Fact]
         public void MapDecodingTest()
         {
@@ -119,12 +124,12 @@ namespace LSEG.Ema.Access.Tests
             
             ElementList elementList = objectManager.GetOmmElementList();
             elementList.AddInt("first", 1);
-            elementList.Complete();
+            elementList.MarkForClear().Complete();
             map.SummaryData(elementList);
 
             map.AddKeyInt(2, MapAction.ADD, elementList);
             map.AddKeyInt(3, MapAction.DELETE, elementList);
-            map.Complete();
+            map.MarkForClear().Complete();
 
             var buffer = map!.Encoder!.m_encodeIterator!.Buffer();
 

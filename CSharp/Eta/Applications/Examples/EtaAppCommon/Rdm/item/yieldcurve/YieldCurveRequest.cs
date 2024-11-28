@@ -335,22 +335,22 @@ namespace LSEG.Eta.Example.Common
             stringBuf.Append(tab);
             stringBuf.Append("streaming: ");
             stringBuf.Append(Streaming);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("domain: ");
             stringBuf.Append(DomainTypes.ToString(m_RequestMsg.DomainType));
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("isPrivateStream: ");
             stringBuf.Append(IsPrivateStream);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("hasView: ");
             stringBuf.Append(HasView);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("itemNames: ");
@@ -359,13 +359,13 @@ namespace LSEG.Eta.Example.Common
                 stringBuf.Append(name);
                 stringBuf.Append(" ");
             }
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
             if (HasServiceId)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("serviceId: ");
                 stringBuf.Append(ServiceId);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasPriority)
             {
@@ -374,14 +374,14 @@ namespace LSEG.Eta.Example.Common
                 stringBuf.Append(PriorityClass);
                 stringBuf.Append(", priority count: ");
                 stringBuf.Append(PriorityCount);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
             if (HasQos)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("qos: ");
                 stringBuf.Append(qos.ToString());
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

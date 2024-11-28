@@ -22,6 +22,7 @@
 #include "OmmInvalidUsageException.h"
 #include "OmmJsonConverterException.h"
 #include "OmmNiProviderImpl.h"
+#include "PreferredHostOptions.h"
 #ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
 #endif
@@ -860,6 +861,19 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "SendJsonConvError", tmp))
 		_activeConfig.sendJsonConvError = tmp > 0 ? true : false;
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "EnablePreferredHostOptions", tmp))
+		_activeConfig.enablePreferredHostOptions  = tmp > 0 ? true : false;
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "PHDetectionTimeInterval", tmp))
+		_activeConfig.phDetectionTimeInterval = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "PHFallBackWithInWSBGroup", tmp))
+		_activeConfig.phFallBackWithInWSBGroup = tmp > 0 ? true : false;
+
+	pConfigImpl->get<EmaString>(instanceNodeName + "PHDetectionTimeSchedule", _activeConfig.phDetectionTimeSchedule);
+	pConfigImpl->get<EmaString>(instanceNodeName + "PreferredChannelName", _activeConfig.preferredChannelName);
+	pConfigImpl->get<EmaString>(instanceNodeName + "PreferredWSBChannelName", _activeConfig.preferredWSBChannelName);
 
 	if (pConfigImpl->isUserSetShouldInitializeCPUIDlib())
 	{
@@ -3711,6 +3725,121 @@ void OmmBaseImpl::modifyReactorIOCtl(Int32 code, Int32 value)
 	_userLock.unlock();
 	return;
 }
+
+// Allows modifying some I/O values programmatically for Reactor to override the default values.
+void OmmBaseImpl::modifyReactorChannelIOCtl(Int32 code, void* value)
+{
+	if (code != RsslReactorChannelIoctlCodes::RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE &&
+		code != RsslReactorChannelIoctlCodes::RSSL_REACTOR_CHANNEL_IOCTL_PREFERRED_HOST_OPTIONS)
+	{
+		EmaString temp("Income IOCtl code: ");
+		temp.append(code);
+		temp.append(" is not valid.");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+	
+	if (value == NULL)
+	{
+		EmaString temp("Income IOCtl value is NULL.");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
+	_userLock.lock();
+
+	Channel* pChannel;
+	if ((pChannel = getLoginCallbackClient().getActiveChannel()) == NULL || (pChannel->getRsslChannel() == NULL))
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to modify I/O option.");
+		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+		return;
+	}
+
+	RsslErrorInfo rsslErrorInfo;
+	RsslPreferredHostOptions rsslPreferredHost;
+	void *valueIOCtl = NULL;
+
+	clearRsslErrorInfo(&rsslErrorInfo);
+
+	if (code == RSSL_REACTOR_CHANNEL_IOCTL_PREFERRED_HOST_OPTIONS)
+	{
+		PreferredHostOptions *prefHost = (PreferredHostOptions *)value;
+
+		rsslClearRsslPreferredHostOptions(&rsslPreferredHost);
+
+		rsslPreferredHost.enablePreferredHostOptions = prefHost->getEnablePreferredHostOptions();
+		rsslPreferredHost.detectionTimeSchedule.data = const_cast<char*>(prefHost->getPHDetectionTimeSchedule().c_str());
+		rsslPreferredHost.detectionTimeSchedule.length = prefHost->getPHDetectionTimeSchedule().length();
+		rsslPreferredHost.detectionTimeInterval = prefHost->getPHDetectionTimeInterval();
+		rsslPreferredHost.fallBackWithInWSBGroup = prefHost->getPHFallBackWithInWSBGroup();
+
+		if (!prefHost->getPreferredChannelName().empty())
+		{
+			for (unsigned i = 0; i < _activeConfig.configChannelSet.size(); i++)
+			{
+				if (_activeConfig.configChannelSet[i]->name == prefHost->getPreferredChannelName())
+				{
+					rsslPreferredHost.connectionListIndex = i;
+					break;
+				}
+				if (i == _activeConfig.configChannelSet.size() - 1) 
+				{
+					_userLock.unlock();
+					EmaString temp("Preferred host channel name: ");
+						temp.append(prefHost->getPreferredChannelName());
+						temp.append(" is not present in configuration.");
+					handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+					return;
+				}
+			}
+		}
+
+		if (!prefHost->getPreferredWSBChannelName().empty())
+		{
+			for (unsigned i = 0; i < _activeConfig.configWarmStandbySet.size(); i++)
+			{
+				if (_activeConfig.configWarmStandbySet[i]->name == prefHost->getPreferredWSBChannelName())
+				{
+					rsslPreferredHost.warmStandbyGroupListIndex = i;
+					break;
+				}
+				if (i == _activeConfig.configWarmStandbySet.size() - 1)
+				{
+					_userLock.unlock();
+					EmaString temp("Preferred host WSB channel name: ");
+					temp.append(prefHost->getPreferredWSBChannelName());
+					temp.append(" is not present in configuration.");
+					handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+					return;
+				}
+			}
+		}
+
+		valueIOCtl = &rsslPreferredHost;
+	}
+	else
+		valueIOCtl = value;
+
+	RsslRet ret = rsslReactorChannelIoctl(pChannel->getRsslChannel(), (RsslReactorChannelIoctlCodes)code, valueIOCtl, &rsslErrorInfo);
+
+	if (ret != RSSL_RET_SUCCESS)
+	{
+		_userLock.unlock();
+		EmaString temp("Failed to modify I/O option for code = ");
+		temp.append(code).append(".").append(CR)
+			.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+			.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+		handleIue(temp, ret);
+		return;
+	}
+
+	_userLock.unlock();
+	return;
+}
+
 
 void OmmBaseImpl::saveNegotiatedPingTimeout(UInt32 timeoutMs)
 {

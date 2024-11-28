@@ -96,6 +96,7 @@ public:
 
 	void renewLoginMsgCredentials(LoginMsgCredentialRenewal&);
 
+	void fallbackPreferredHost();
 
 private :
 

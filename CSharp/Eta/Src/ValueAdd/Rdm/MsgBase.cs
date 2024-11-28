@@ -19,11 +19,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
         private StringBuilder stringBuf = new StringBuilder();
 
         /// <summary>
-        /// Defines end of line character.
-        /// </summary>
-        protected string eol = System.Environment.NewLine;
-
-        /// <summary>
         /// Define tabulation character.
         /// </summary>
         protected const string tab = "\t";
@@ -75,7 +70,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
             stringBuf.Append(tab);
             stringBuf.Append("streamId: ");
             stringBuf.Append(StreamId);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             return stringBuf;
         }

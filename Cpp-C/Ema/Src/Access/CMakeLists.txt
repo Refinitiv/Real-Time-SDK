@@ -194,8 +194,10 @@ else()
             Impl/Pipe.cpp Impl/Pipe.h
             Impl/PostMsg.cpp Impl/PostMsgDecoder.cpp Impl/PostMsgDecoder.h
             Impl/PostMsgEncoder.cpp Impl/PostMsgEncoder.h
+            Impl/PreferredHostOptions.cpp
+            Impl/PreferredHostInfo.cpp
             Impl/ProgrammaticConfigure.cpp Impl/ProgrammaticConfigure.h
-	    Impl/ProviderSessionInfo.cpp
+            Impl/ProviderSessionInfo.cpp
             Impl/RefreshMsg.cpp Impl/RefreshMsgDecoder.cpp Impl/RefreshMsgDecoder.h
             Impl/RefreshMsgEncoder.cpp Impl/RefreshMsgEncoder.h
             Impl/ReqMsg.cpp Impl/ReqMsgDecoder.cpp Impl/ReqMsgDecoder.h
@@ -251,6 +253,7 @@ else()
             Include/EmaBufferU16.h
             Include/EmaString.h
             Include/EmaVector.h
+            Include/EmaConfig.h
             Include/FieldEntry.h
             Include/FieldList.h
             Include/FilterEntry.h
@@ -259,6 +262,7 @@ else()
             Include/GetTime.h
             Include/IOCtlCode.h
             Include/IOCtlReactorCode.h
+            Include/IOCtlReactorChannelCode.h
             Include/Key.h
             Include/LoginMsgCredentialRenewal.h
             Include/Map.h
@@ -315,9 +319,12 @@ else()
             Include/OmmUnsupportedDomainTypeException.h
             Include/OmmUtf8.h
             Include/OmmXml.h
+            Include/PackedMsg.h
             Include/Payload.h
             Include/PostMsg.h
+            Include/PreferredHostOptions.h
             Include/ProviderSessionInfo.h
+            Include/PreferredHostInfo.h
             Include/RefreshMsg.h
             Include/ReqMsg.h
             Include/RmtesBuffer.h
@@ -337,8 +344,6 @@ else()
             Include/UpdateMsg.h
             Include/Vector.h
             Include/VectorEntry.h
-            Include/PackedMsg.h
-            Include/EmaConfig.h
             #Domain
             ../Domain/Login/Impl/LoginRefresh.cpp
             ../Domain/Login/Impl/LoginRefreshImpl.cpp

@@ -87,7 +87,7 @@ void ErrorClientHandler::onJsonConverter(const char* text, Int32 errorCode, Rssl
 	if (_pConsumerErrorClient)
 	{
 		ConsumerSessionInfo sessionInfo;
-		getChannelInformationImpl(reactorChannel, OmmCommonImpl::ConsumerEnum, const_cast<ChannelInformation&>(sessionInfo._channelInfo));
+		ChannelInfoImpl::getChannelInformationImpl(reactorChannel, OmmCommonImpl::ConsumerEnum, const_cast<ChannelInformation&>(sessionInfo._channelInfo));
 		_pConsumerErrorClient->onJsonConverter(text, errorCode, sessionInfo);
 	}
 	else if (_pProviderErrorClient)
@@ -99,13 +99,13 @@ void ErrorClientHandler::onJsonConverter(const char* text, Int32 errorCode, Rssl
 			sessionInfo._clientHandle = clientSession->getClientHandle();
 			sessionInfo._handle = clientSession->getLoginHandle();
 			sessionInfo._provider = pProvider;
-			getChannelInformationImpl(reactorChannel, OmmCommonImpl::IProviderEnum, const_cast<ChannelInformation&>(sessionInfo._channelInfo));
+			ChannelInfoImpl::getChannelInformationImpl(reactorChannel, OmmCommonImpl::IProviderEnum, const_cast<ChannelInformation&>(sessionInfo._channelInfo));
 		}
 		else
 		{
 			sessionInfo._provider = pProvider;
 
-			getChannelInformationImpl(reactorChannel, OmmCommonImpl::NiProviderEnum, const_cast<ChannelInformation&>(sessionInfo._channelInfo));
+			ChannelInfoImpl::getChannelInformationImpl(reactorChannel, OmmCommonImpl::NiProviderEnum, const_cast<ChannelInformation&>(sessionInfo._channelInfo));
 		}
 
 		_pProviderErrorClient->onJsonConverter(text, errorCode, sessionInfo);

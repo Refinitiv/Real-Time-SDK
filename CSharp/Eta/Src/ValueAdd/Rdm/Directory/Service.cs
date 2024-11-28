@@ -79,7 +79,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public MapEntryActions Action { get; set; } = MapEntryActions.ADD;
 
         private StringBuilder stringBuf = new StringBuilder();
-        private const string eol = "\n";
         private const string tab = "\t";
 
         private FilterEntry filterEntry = new FilterEntry();
@@ -555,13 +554,13 @@ namespace LSEG.Eta.ValueAdd.Rdm
             stringBuf.Clear();
             stringBuf.Append(tab);
             stringBuf.Append("Service:");
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append(tab);
             stringBuf.Append("serviceId: ");
             stringBuf.Append(ServiceId);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (HasInfo)
             {

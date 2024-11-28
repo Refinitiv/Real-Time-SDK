@@ -77,9 +77,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
             {
                 m_XmlString.Length = 0;
                 m_XmlString
-                    .Append("\n<!-- Incoming Ping message -->\n<!-- ")
+                    .Append($"{NewLine}<!-- Incoming Ping message -->{NewLine}<!-- ")
                     .Append(reactorChannel.Channel)
-                    .Append("-->\n<!-- ").Append(DateTime.Now).Append(" -->\n");
+                    .Append($"-->{NewLine}<!-- ").Append(DateTime.Now).Append($" -->{NewLine}");
 
                 if (reactorOptions.XmlTracing)
                     Console.WriteLine(m_XmlString);
@@ -163,9 +163,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         m_XmlString.Length = 0;
 
                         m_XmlString
-                            .Append("\n<!-- Outgoing Ping message -->\n<!-- ")
+                            .Append($"{NewLine}<!-- Outgoing Ping message -->{NewLine}<!-- ")
                             .Append(reactorChannel.Channel)
-                            .Append("-->\n<!-- ").Append(DateTime.Now).Append(" -->\n");
+                            .Append($"-->{NewLine}<!-- ").Append(DateTime.Now).Append($" -->{NewLine}");
 
                         if (reactorOptions.XmlTracing)
                             Console.WriteLine(m_XmlString);

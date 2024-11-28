@@ -144,6 +144,7 @@
 
 #include "Access/Include/IOCtlCode.h"
 #include "Access/Include/IOCtlReactorCode.h"
+#include "Access/Include/IOCtlReactorChannelCode.h"
 
 #include "Access/Include/SessionInfo.h"
 #include "Access/Include/ConsumerSessionInfo.h"
@@ -152,5 +153,8 @@
 #include "Access/Include/GetTime.h"
 
 #include "Access/Include/EmaConfig.h"
+
+#include "Access/Include/PreferredHostOptions.h"
+#include "Access/Include/PreferredHostInfo.h"
 
 #endif // __refinitiv_ema_Ema_h

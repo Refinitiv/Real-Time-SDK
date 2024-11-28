@@ -350,27 +350,27 @@ public sealed class LoginStatus : Login
 
         if (m_AuthenticationErrorCodeSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_AUTHN_ERRORCODE).Append(" : ").Append(m_AuthenticationErrorCode);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_AUTHN_ERRORCODE).Append(" : ").Append(m_AuthenticationErrorCode);
         }
 
         if (m_AuthenticationErrorTextSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_AUTHN_ERRORTEXT).Append(" : ").Append(m_AuthenticationErrorText);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_AUTHN_ERRORTEXT).Append(" : ").Append(m_AuthenticationErrorText);
         }
 
         if (m_NameSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_USERNAME).Append(" : ").Append(m_Name);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_USERNAME).Append(" : ").Append(m_Name);
         }
 
         if (m_NameTypeSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_USERNAME_TYPE).Append(" : ").Append(m_NameType);
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_USERNAME_TYPE).Append(" : ").Append(m_NameType);
         }
 
         if (m_StateSet)
         {
-            m_ToString.Append(NEWLINE).Append(EmaRdm.ENAME_STATE)
+            m_ToString.AppendLine().Append(EmaRdm.ENAME_STATE)
                 .Append(" : StreamState: ").Append(m_rsslState!.StreamState())
                 .Append(" DataState: ").Append(m_rsslState.DataState())
                 .Append(" StatusCode: ").Append(m_rsslState.Code())

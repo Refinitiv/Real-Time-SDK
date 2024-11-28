@@ -29,7 +29,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
         private UInt m_TmpUInt = new UInt();
          
         private StringBuilder m_StringBuf = new StringBuilder();
-        private const string eol = "\n";
         private const string tab = "\t";
 
         /// <summary>
@@ -284,28 +283,28 @@ namespace LSEG.Eta.ValueAdd.Rdm
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append("LoadFilter:");
-            m_StringBuf.Append(eol);
+            m_StringBuf.AppendLine();
 
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append("OpenLimit: ");
             m_StringBuf.Append(OpenLimit);
-            m_StringBuf.Append(eol);
+            m_StringBuf.AppendLine();
 
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append("OpenWindow: ");
             m_StringBuf.Append(OpenWindow);
-            m_StringBuf.Append(eol);
+            m_StringBuf.AppendLine();
 
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append(tab);
             m_StringBuf.Append("LoadFactor: ");
             m_StringBuf.Append(LoadFactor);
-            m_StringBuf.Append(eol);
+            m_StringBuf.AppendLine();
 
             return m_StringBuf.ToString();
         }

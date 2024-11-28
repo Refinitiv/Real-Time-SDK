@@ -372,7 +372,13 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	restProxyPort(),
 	restProxyUserName(),
 	restProxyPasswd(),
-	restProxyDomain()
+	restProxyDomain(),
+	enablePreferredHostOptions(DEFAULT_ENABLE_PREFERRED_HOST),
+	phDetectionTimeSchedule(DEFAULT_DETECTION_TIME_SCHEDULE),
+	phDetectionTimeInterval(DEFAULT_DETECTION_TIME_INTERVAL),
+	preferredChannelName(DEFAULT_CHANNEL_NAME),
+	preferredWSBChannelName(DEFAULT_WSB_CHANNEL_NAME),
+	phFallBackWithInWSBGroup(DEFAULT_FALL_BACK_WITH_IN_WSB_GROUP)
 {
 }
 
@@ -402,7 +408,13 @@ EmaString ActiveConfig::configTrace()
 		.append("\n\t restRequestTimeOut : ").append(restRequestTimeOut)
 		.append("\n\t restProxyHostName : ").append(restProxyHostName)
 		.append("\n\t restProxyPort : ").append(restProxyPort)
-		.append("\n\t restProxyDomain : ").append(restProxyDomain);
+		.append("\n\t restProxyDomain : ").append(restProxyDomain)
+		.append("\n\t enablePreferredHostOptions : ").append(enablePreferredHostOptions)
+		.append("\n\t phDetectionTimeSchedule : ").append(phDetectionTimeSchedule)
+		.append("\n\t phDetectionTimeInterval : ").append(phDetectionTimeInterval)
+		.append("\n\t preferredChannelName : ").append(preferredChannelName)
+		.append("\n\t preferredWSBChannelName : ").append(preferredWSBChannelName)
+		.append("\n\t phFallBackWithInWSBGroup : ").append(phFallBackWithInWSBGroup);
 
 	return traceStr;
 }
@@ -481,6 +493,13 @@ void ActiveConfig::clear()
 	restProxyUserName.clear();
 	restProxyPasswd.clear();
 	restProxyDomain.clear();
+	enablePreferredHostOptions = false;
+	phDetectionTimeSchedule.clear();
+	phDetectionTimeInterval = 0;
+	preferredChannelName.clear();
+	preferredWSBChannelName.clear();
+	phFallBackWithInWSBGroup = false;
+
 
 	if ( pDirectoryRefreshMsg )
 		delete pDirectoryRefreshMsg;
@@ -529,6 +548,45 @@ void ActiveConfig::setDictionaryRequestTimeOut( UInt64 value )
 		dictionaryRequestTimeOut = RWF_MAX_32;
 	else
 		dictionaryRequestTimeOut = ( UInt32 ) value;
+}
+
+void ActiveConfig::setEnablePreferredHostOptions( UInt64 value )
+{
+	if ( value <= 0 )
+		enablePreferredHostOptions = 0;
+	else
+		enablePreferredHostOptions = 1;
+}
+
+void ActiveConfig::setDetectionTimeSchedule( const EmaString& value )
+{
+	phDetectionTimeSchedule = value;
+}
+
+void ActiveConfig::setChannelName( const EmaString& value )
+{
+	preferredChannelName = value;
+}
+
+void ActiveConfig::setWSBChannelName(const EmaString& value)
+{
+	preferredWSBChannelName = value;
+}
+
+void ActiveConfig::setDetectionTimeInterval( UInt64 value )
+{
+	if (value > RWF_MAX_32)
+		phDetectionTimeInterval = RWF_MAX_32;
+	else
+		phDetectionTimeInterval = (UInt32)value;
+}
+
+void ActiveConfig::setFallBackWithInWSBGroup( UInt64 value )
+{
+	if (value <= 0)
+		phFallBackWithInWSBGroup = 0;
+	else
+		phFallBackWithInWSBGroup = 1;
 }
 
 void ActiveConfig::setMaxOutstandingPosts( UInt64 value )

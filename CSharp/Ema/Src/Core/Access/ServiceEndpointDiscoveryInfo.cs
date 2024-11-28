@@ -57,17 +57,17 @@ public sealed class ServiceEndpointDiscoveryInfo
     {
         StringBuilder _strBuilder = new(64);
 
-        Utilities.AddIndent(_strBuilder.Append("Service : \n"), indent);
-        Utilities.AddIndent(_strBuilder.Append("Provider : ").Append(Provider).Append("\n"), indent);
-        Utilities.AddIndent(_strBuilder.Append("Transport : ").Append(Transport).Append("\n"), indent);
-        Utilities.AddIndent(_strBuilder.Append("Endpoint : ").Append(Endpoint).Append("\n"), indent);
-        Utilities.AddIndent(_strBuilder.Append("Port : ").Append(Port).Append("\n"), indent);
+        Utilities.AddIndent(_strBuilder.Append($"Service : {NewLine}"), indent);
+        Utilities.AddIndent(_strBuilder.Append("Provider : ").Append(Provider).AppendLine(), indent);
+        Utilities.AddIndent(_strBuilder.Append("Transport : ").Append(Transport).AppendLine(), indent);
+        Utilities.AddIndent(_strBuilder.Append("Endpoint : ").Append(Endpoint).AppendLine(), indent);
+        Utilities.AddIndent(_strBuilder.Append("Port : ").Append(Port).AppendLine(), indent);
 
         _strBuilder.Append("Data Format : ");
         for (int index = 0; index < DataFormatList.Count; index++)
             _strBuilder.Append(DataFormatList[index]).Append("  ");
 
-        Utilities.AddIndent(_strBuilder.Append("\n"), indent);
+        Utilities.AddIndent(_strBuilder.AppendLine(), indent);
         _strBuilder.Append("Location : ");
         for (int index = 0; index < LocationList.Count; index++)
             _strBuilder.Append(LocationList[index]).Append("  ");

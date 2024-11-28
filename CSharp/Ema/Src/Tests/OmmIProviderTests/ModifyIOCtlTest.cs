@@ -13,11 +13,17 @@ using Xunit.Abstractions;
 
 using LSEG.Eta.ValueAdd.Reactor;
 using LSEG.Eta.Rdm;
+using System;
 
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests;
 
-public class ModifyIOCtlTest
+public class ModifyIOCtlTest : IDisposable
 {
+    public void Dispose()
+    {
+        EtaGlobalPoolTestUtil.Clear();
+    }
+
     ITestOutputHelper m_Output;
 
     public ModifyIOCtlTest(ITestOutputHelper output)
@@ -259,12 +265,12 @@ public class ModifyIOCtlTest
                     case (int)DomainType.SOURCE:
                         var payload = new Map();
                         var service = new FilterList();
-                        service.AddEntry(23, FilterAction.SET, new ElementList().AddInt("Name", 1).Complete());
-                        payload.AddKeyUInt(5, MapAction.ADD, service.Complete());
+                        service.AddEntry(23, FilterAction.SET, new ElementList().AddInt("Name", 1).MarkForClear().Complete());
+                        payload.AddKeyUInt(5, MapAction.ADD, service.MarkForClear().Complete());
 
                         provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                             .DomainType(requestMsg.DomainType())
-                            .Solicited(true).Payload(payload), providerEvent.Handle);
+                            .Solicited(true).MarkForClear().Payload(payload), providerEvent.Handle);
                         break;
 
                     default:

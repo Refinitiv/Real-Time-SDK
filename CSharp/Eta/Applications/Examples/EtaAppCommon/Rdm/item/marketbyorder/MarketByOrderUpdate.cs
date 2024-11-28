@@ -275,7 +275,7 @@ namespace LSEG.Eta.Example.Common
                 stringBuf.Append(tab);
                 stringBuf.Append("serviceId: ");
                 stringBuf.Append(ServiceId);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

@@ -38,7 +38,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
         private UInt m_TmpUInt = new UInt();
         private StringBuilder m_StringBuffer = new StringBuilder();
 
-        private const string eol = "\n";
         private const string tab = "\t";
 
         /// <summary>
@@ -166,21 +165,21 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public StringBuilder BuildStringBuf()
         {
             m_StringBuffer.Clear();
-            m_StringBuffer.Insert(0, "ConsumerStatusService: \n");
+            m_StringBuffer.Insert(0, $"ConsumerStatusService: {NewLine}");
             m_StringBuffer.Append(tab);
 
             m_StringBuffer.Append(tab);
             m_StringBuffer.Append("action: ");
             m_StringBuffer.Append(Action);
-            m_StringBuffer.Append(eol);
+            m_StringBuffer.AppendLine();
             m_StringBuffer.Append(tab);
             m_StringBuffer.Append("serviceId: ");
             m_StringBuffer.Append(ServiceId);
-            m_StringBuffer.Append(eol);
+            m_StringBuffer.AppendLine();
             m_StringBuffer.Append(tab);
             m_StringBuffer.Append("sourceMirroringMode: ");
             m_StringBuffer.Append(SourceMirroringModeVal);
-            m_StringBuffer.Append(eol);
+            m_StringBuffer.AppendLine();
 
             return m_StringBuffer;
         }

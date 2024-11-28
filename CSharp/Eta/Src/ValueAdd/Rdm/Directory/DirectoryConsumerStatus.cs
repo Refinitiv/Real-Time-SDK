@@ -270,11 +270,11 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
-            stringBuf.Insert(0, "DirectoryConsumerStatus: \n");
+            stringBuf.Insert(0, $"DirectoryConsumerStatus: {NewLine}");
             stringBuf.Append(tab);
             stringBuf.Append("streamId: ");
             stringBuf.Append(StreamId);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             if (ConsumerServiceStatusList != null && ConsumerServiceStatusList.Count != 0)
             {
@@ -284,7 +284,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 {
                     stringBuf.Append(consStatusService.BuildStringBuf());
                 }
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             return stringBuf.ToString();

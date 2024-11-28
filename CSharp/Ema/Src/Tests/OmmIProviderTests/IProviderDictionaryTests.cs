@@ -28,8 +28,13 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests;
 /// <summary>
 /// Tests for <see cref="Ema.Access.DictionaryHandler"/> of the EMA Interactive Provider.
 /// </summary>
-public class IProviderDictionaryTests
+public class IProviderDictionaryTests : IDisposable
 {
+    public void Dispose()
+    {
+        EtaGlobalPoolTestUtil.Clear();
+    }
+
     ITestOutputHelper m_Output;
 
     // Test cases within a class are expected to be executed sequentially and therefore
@@ -189,7 +194,7 @@ public class IProviderDictionaryTests
                 default:
                     provider!.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                         .DomainType(requestMsg.DomainType())
-                        .Solicited(true), providerEvent.Handle);
+                        .Solicited(true).MarkForClear(), providerEvent.Handle);
                     break;
             }
         };
@@ -523,13 +528,13 @@ public class IProviderDictionaryTests
                 case EmaRdm.MMT_LOGIN:
                     provider!.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                         .DomainType(requestMsg.DomainType())
-                        .Solicited(true), providerEvent.Handle);
+                        .Solicited(true).MarkForClear(), providerEvent.Handle);
                     break;
 
                 default:
                     provider!.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                         .DomainType(requestMsg.DomainType())
-                        .Solicited(true), providerEvent.Handle);
+                        .Solicited(true).MarkForClear(), providerEvent.Handle);
                     break;
             }
         };
@@ -635,9 +640,9 @@ public class IProviderDictionaryTests
                 case EmaRdm.MMT_LOGIN:
                     providerEvent.Provider.Submit(new RefreshMsg()
                         .DomainType(EmaRdm.MMT_LOGIN).Name(reqMsg.Name()).NameType(EmaRdm.USER_NAME)
-                        .Complete(true).Solicited(true)
+                        .MarkForClear().Complete(true).Solicited(true)
                         .State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Login accepted")
-                        .Attrib(new ElementList().Complete()),
+                        .Attrib(new ElementList().MarkForClear().Complete()),
                         providerEvent.Handle);
                     break;
 
@@ -685,7 +690,7 @@ public class IProviderDictionaryTests
             {
                 Assert.Equal(fldHandle, consEvent.Handle);
 
-                Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.Payload().DataType);
+                Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.MarkForClear().Payload().DataType);
 
                 Assert.True(refreshMsg.HasMsgKey);
                 Assert.False(refreshMsg.HasNameType);
@@ -702,7 +707,7 @@ public class IProviderDictionaryTests
 
                 Assert.True(refreshMsg.Solicited());
 
-                fldComplelte = refreshMsg.Complete();
+                fldComplelte = refreshMsg.MarkForClear().Complete();
             };
 
             providerEnumClient = new OmmProviderItemClientTest(provider);
@@ -720,7 +725,7 @@ public class IProviderDictionaryTests
             {
                 Assert.Equal(enumHandle, consEvent.Handle);
 
-                Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.Payload().DataType);
+                Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.MarkForClear().Payload().DataType);
 
                 Assert.True(refreshMsg.HasMsgKey);
                 Assert.False(refreshMsg.HasNameType);
@@ -736,7 +741,7 @@ public class IProviderDictionaryTests
                 Assert.Equal(OmmState.StreamStates.OPEN, refreshMsg.State().StreamState);
 
                 Assert.True(refreshMsg.Solicited());
-                enumComplete = refreshMsg.Complete();
+                enumComplete = refreshMsg.MarkForClear().Complete();
             };
 
             Thread.Sleep(5_000);
@@ -776,7 +781,7 @@ public class IProviderDictionaryTests
             initDirectoryRequest: true,
             initDictionaryRequest: initDictionaryRequest);
 
-        Thread.Sleep(3_000);
+        Thread.Sleep(4_000);
 
         Assert.Equal(4, simpleConsumer.EventQueue.Count);
 
@@ -835,22 +840,22 @@ public class IProviderDictionaryTests
                 .AddAscii(EmaRdm.ENAME_NAME, serviceName)
                 .AddArray(EmaRdm.ENAME_DICTIONARYS_USED, new OmmArray()
                     .AddAscii("RWFFld")
-                    .AddAscii("RWFEnum").Complete())
+                    .AddAscii("RWFEnum").MarkForClear().Complete())
                 .AddArray(EmaRdm.ENAME_DICTIONARYS_PROVIDED, new OmmArray()
                     .AddAscii("RWFFld")
-                    .AddAscii("RWFEnum").Complete())
-                    .Complete())
+                    .AddAscii("RWFEnum").MarkForClear().Complete())
+                    .MarkForClear().Complete())
                .AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET,
             new ElementList()
                 .AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP)
-                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).Complete())
-                .Complete();
+                .AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1).MarkForClear().Complete())
+                .MarkForClear().Complete();
 
-        payload.AddKeyUInt(serviceId, MapAction.ADD, service).Complete();
+        payload.AddKeyUInt(serviceId, MapAction.ADD, service).MarkForClear().Complete();
 
         provider!.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
             .DomainType(requestMsg.DomainType()).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-            .Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
+            .MarkForClear().Complete(true).Solicited(true).Payload(payload), providerEvent.Handle);
     }
 
     private static void SubmitDictionaryResponse(RequestMsg requestMsg, IOmmProviderEvent providerEvent, Rdm.DataDictionary dataDictionary)
@@ -879,7 +884,7 @@ public class IProviderDictionaryTests
 
                 providerEvent.Provider.Submit(refreshMsg.Name(requestMsg.Name())//.ServiceName(requestMsg.ServiceName())
                     .ServiceId(requestMsg.ServiceId())
-                    .DomainType(EmaRdm.MMT_DICTIONARY).Filter(requestMsg.Filter()).Payload(series)
+                    .DomainType(EmaRdm.MMT_DICTIONARY).Filter(requestMsg.Filter()).MarkForClear().Payload(series)
                     .Complete(result).Solicited(true),
                     providerEvent.Handle);
             }
@@ -895,7 +900,7 @@ public class IProviderDictionaryTests
 
                 providerEvent.Provider.Submit(refreshMsg.Name(requestMsg.Name())
                     .ServiceId(requestMsg.ServiceId())
-                    .DomainType(EmaRdm.MMT_DICTIONARY).Filter(requestMsg.Filter()).Payload(series)
+                    .DomainType(EmaRdm.MMT_DICTIONARY).Filter(requestMsg.Filter()).MarkForClear().Payload(series)
                     .Complete(result).Solicited(true),
                     providerEvent.Handle);
 
@@ -905,7 +910,7 @@ public class IProviderDictionaryTests
         {
             // The consumer requested dictionary with an invalid name, emulate corresponding
             // Dictionary Status message in response
-            providerEvent.Provider.Submit(new StatusMsg().Name(requestMsg.Name()).ServiceId(requestMsg.ServiceId())
+            providerEvent.Provider.Submit(new StatusMsg().MarkForClear().Name(requestMsg.Name()).ServiceId(requestMsg.ServiceId())
                 .State(OmmState.StreamStates.CLOSED_RECOVER, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.ERROR,
                     $"Dictionary request message rejected - the reqesting dictionary name '{requestMsg.Name()}' not found.")
                 .DomainType(EmaRdm.MMT_DICTIONARY),
@@ -1015,7 +1020,6 @@ public class IProviderDictionaryTests
 
             Assert.NotNull(logOutput);
             Assert.NotEmpty(logOutput);
-
             // expected error message
             Assert.Contains(expectedMessage, logOutput);
         }

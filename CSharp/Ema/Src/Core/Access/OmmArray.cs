@@ -168,7 +168,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
     {
         if (!dataDictionary.IsEnumTypeDefLoaded || !dataDictionary.IsFieldDictionaryLoaded)
         {
-            return "\nThe provided DataDictionary is not properly loaded.";
+            return $"{NewLine}The provided DataDictionary is not properly loaded.";
         }
 
         if (Encoder != null && Encoder.m_encodeIterator != null && Encoder.m_containerComplete)
@@ -178,7 +178,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
             var tmpObject = m_objectManager.GetOmmArray();
             if (tmpObject == null)
             {
-                return "\nToString(DataDictionary) is called on an invalid DataType.";
+                return $"{NewLine}ToString(DataDictionary) is called on an invalid DataType.";
             }
 
             string result = string.Empty;
@@ -186,7 +186,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
             {
                 if (!tmpObject!.SetRsslData(Codec.MajorVersion(), Codec.MinorVersion(), encodedBuffer, dataDictionary.rsslDataDictionary()))
                 {
-                    return $"\nFailed to decode OmmArray.";
+                    return $"{NewLine}Failed to decode OmmArray.";
                 }
                 result = tmpObject!.ToString()!;
             }
@@ -198,7 +198,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
         }
         else
         {
-            return $"\nOmmArray contains no valid encoded data.";
+            return $"{NewLine}OmmArray contains no valid encoded data.";
         }
     }
 
@@ -217,7 +217,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
             }
             else
             {
-                return $"\n{GetType().Name}.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.";
+                return $"{NewLine}{GetType().Name}.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.";
             }
 
             if (Code == DataCode.BLANK)
@@ -247,7 +247,7 @@ public sealed class OmmArray : Data, IEnumerable<OmmArrayEntry>
                 {
                     Data load = arrayEntry.Load;
                     if (load == null)
-                        return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
+                        return $"{NewLine}ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.{NewLine}";
 
                     Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("value=\"");
 

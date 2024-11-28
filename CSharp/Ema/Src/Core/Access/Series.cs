@@ -344,7 +344,7 @@ namespace LSEG.Ema.Access
                 var load = seriesEntry.Load;
 
                 if (load == null)
-                    return "\nToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.\n";
+                    return $"{NewLine}ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.{NewLine}";
 
                 Utilities.AddIndent(m_ToString.AppendLine(), indent).Append("SeriesEntry dataType=\"").Append(Access.DataType.AsString(load.DataType)).Append("\"").AppendLine();
 

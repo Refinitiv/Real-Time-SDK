@@ -101,7 +101,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder sb = PrepareStringBuilder();
-            sb.Insert(0, "DirectoryClose: \n");
+            sb.Insert(0, $"DirectoryClose: {NewLine}");
             return sb.ToString();
         }
     }

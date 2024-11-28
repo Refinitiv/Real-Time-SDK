@@ -10,12 +10,8 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Rdm;
-using LSEG.Eta.ValueAdd.Reactor;
-using Microsoft.IdentityModel.Tokens;
-using System;
 using System.Collections.Generic;
 using System.Net.Security;
-using static LSEG.Ema.Access.EmaConfig;
 
 namespace LSEG.Ema.Access
 {

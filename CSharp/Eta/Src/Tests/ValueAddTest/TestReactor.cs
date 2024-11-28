@@ -2,21 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
 using System.Collections.Generic;
 
 using Xunit;
-
-using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Reactor;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.Codec;
 using System;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace LSEG.Eta.ValuedAdd.Tests;
 
@@ -181,8 +178,6 @@ public class TestReactor
         {
             if (lastDispatchRet == 0)
             {
-                m_ReadSocketList.RemoveAll(socket => socket.SafeHandle.IsClosed);
-
                 TimeSpan selectTime;
 
                 var eventSocket = m_Reactor.EventSocket;
@@ -195,7 +190,6 @@ public class TestReactor
                     else
                         TestUtil.Fail("No selectable channel exists");
                 }
-
                 m_ReadSocketList.Add(m_Reactor.EventSocket);
 
                 foreach (TestReactorComponent component in m_ComponentList)
@@ -213,14 +207,23 @@ public class TestReactor
                     selectRet = 1;
                 else
                 {
-                    if (selectTime > TimeSpan.Zero)
+                    m_ReadSocketList.RemoveAll(socket => socket.SafeHandle.IsClosed);
+                    try
                     {
-                        Socket.Select(m_ReadSocketList, null, null, (int)selectTime.TotalMilliseconds * 1000);
+                        if (selectTime > TimeSpan.Zero)
+                        {
+                            Socket.Select(m_ReadSocketList, null, null, (int)selectTime.TotalMilliseconds * 1000);
+                        }
+                        else
+                        {
+                            Socket.Select(m_ReadSocketList, null, null, 0);
+                        }
                     }
-                    else
+                    catch (ObjectDisposedException)
                     {
-                        Socket.Select(m_ReadSocketList, null, null, 0);
-                    }
+                        m_ReadSocketList.RemoveAll(socket => socket.SafeHandle.IsClosed);
+                    }             
+
                     selectRet = m_ReadSocketList.Count;
                 }
             }

@@ -11,7 +11,7 @@ using LSEG.Eta.Common;
 using System.Collections.Generic;
 using System.Text;
 using System.Security.Authentication;
-
+using static System.Environment;
 namespace LSEG.Eta.Transports
 {
     /// <summary>
@@ -203,21 +203,21 @@ namespace LSEG.Eta.Transports
                 }
             }
 
-            return $"ChannelInfo\n\tmaxFragmentSize: {MaxFragmentSize}\n" +
-                $"\tmaxOutputBuffers: {MaxOutputBuffers}\n" +
-                $"\tguaranteedOutputBuffers: {GuaranteedOutputBuffers}\n" +
-                $"\tnumInputBuffers: {NumInputBuffers}\n" +
-                $"\tpingTimeout: {PingTimeout}\n" +
-                $"\tclientToServerPings: {ClientToServerPings}\n" +
-                $"\tserverToClientPings: {ServerToClientPings}\n" +
-                $"\tsysSendBufSize: {SysSendBufSize}\n" +
-                $"\tsysRecvBufSize: {SysRecvBufSize}\n" +
-                $"\tCompressionType: {(long)CompressionType}\n" +
-                $"\tCompressionThreshold: {CompressionThresHold}\n" +
-                $"\tpriorityFlushStrategy: {PriorityFlushStrategy}\n" +
-                $"\tclientIP: {ClientIP}\n" +
-                $"\tclientHostName: {ClientHostname}\n" +
-                $"\tComponentInfo: {stringBuilder}\n" +
+            return $"ChannelInfo{NewLine}\tmaxFragmentSize: {MaxFragmentSize}{NewLine}" +
+                $"\tmaxOutputBuffers: {MaxOutputBuffers}{NewLine}" +
+                $"\tguaranteedOutputBuffers: {GuaranteedOutputBuffers}{NewLine}" +
+                $"\tnumInputBuffers: {NumInputBuffers}{NewLine}" +
+                $"\tpingTimeout: {PingTimeout}{NewLine}" +
+                $"\tclientToServerPings: {ClientToServerPings}{NewLine}" +
+                $"\tserverToClientPings: {ServerToClientPings}{NewLine}" +
+                $"\tsysSendBufSize: {SysSendBufSize}{NewLine}" +
+                $"\tsysRecvBufSize: {SysRecvBufSize}{NewLine}" +
+                $"\tCompressionType: {(long)CompressionType}{NewLine}" +
+                $"\tCompressionThreshold: {CompressionThresHold}{NewLine}" +
+                $"\tpriorityFlushStrategy: {PriorityFlushStrategy}{NewLine}" +
+                $"\tclientIP: {ClientIP}{NewLine}" +
+                $"\tclientHostName: {ClientHostname}{NewLine}" +
+                $"\tComponentInfo: {stringBuilder}{NewLine}" +
                 $"\tEncryptionProtocol: {EncryptionProtocol}";
         }
 

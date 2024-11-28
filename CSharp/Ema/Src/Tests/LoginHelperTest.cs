@@ -2,10 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
+using System;
 using System.Text;
 
 using LSEG.Ema.Domain.Login;
@@ -14,8 +15,12 @@ using LSEG.Eta.Codec;
 
 namespace LSEG.Ema.Access.Tests;
 
-public class LoginHelperTest
+public class LoginHelperTest : IDisposable
 {
+    public void Dispose()
+    {
+        EtaGlobalPoolTestUtil.CheckEtaGlobalPoolSizes();
+    }
 
     [Fact]
     public void EncodeLoginRequest_Test()
@@ -161,7 +166,6 @@ public class LoginHelperTest
         decReqMsg.Clear();
         decodedEl.Clear();
         msg.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -184,8 +188,6 @@ public class LoginHelperTest
 
         reqMsg.Clear();
         loginReq.Clear();
-
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -277,7 +279,6 @@ public class LoginHelperTest
         Assert.False(loginReq.Pause());
 
         loginReq.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -365,7 +366,6 @@ public class LoginHelperTest
         encReqMsg.Clear();
         decReqMsg.Clear();
         loginReq.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -420,7 +420,6 @@ public class LoginHelperTest
         encReqMsg.Clear();
         decReqMsg.Clear();
         loginReq.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -486,7 +485,6 @@ public class LoginHelperTest
         }
 
         loginReq.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -526,8 +524,6 @@ public class LoginHelperTest
         loginReq.Clear();
         decReqMsg.Clear();
         encReqMsg.Clear();
-        CheckEtaGlobalPoolSizes();
-
     }
 
     [Fact]
@@ -701,7 +697,6 @@ public class LoginHelperTest
         decodedEl.Clear();
         decRefreshMsg.Clear();
         encRefreshMsg.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -808,7 +803,6 @@ public class LoginHelperTest
         encRefreshMsg.Clear();
         decRefreshMsg.Clear();
         loginRefresh.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -860,7 +854,6 @@ public class LoginHelperTest
         loginRefresh.Clear();
         decRefreshMsg.Clear();
         encRefreshMsg.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -891,7 +884,6 @@ public class LoginHelperTest
         Assert.True(loginRefresh.Solicited());
 
         loginRefresh.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1030,7 +1022,6 @@ public class LoginHelperTest
         Assert.True(loginRefresh.Solicited());
 
         loginRefresh.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1079,7 +1070,6 @@ public class LoginHelperTest
         }
 
         loginRefresh.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1122,7 +1112,6 @@ public class LoginHelperTest
         decRefreshMsg.Clear();
         encRefreshMsg.Clear();
         encRefreshMsg.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1179,7 +1168,6 @@ public class LoginHelperTest
         decStatusMsg.Clear();
         decodedEl.Clear();
         msg.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1224,8 +1212,6 @@ public class LoginHelperTest
         encStatusMsg.Clear();
         decStatusMsg.Clear();
         loginStatus.Clear();
-        
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1267,7 +1253,6 @@ public class LoginHelperTest
         encStatusMsg.Clear();
         decStatusMsg.Clear();
         loginStatus.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
 
@@ -1294,7 +1279,6 @@ public class LoginHelperTest
         Assert.Equal(EmaRdm.USER_NAME, loginStatus.NameType());
 
         loginStatus.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1336,7 +1320,6 @@ public class LoginHelperTest
         Assert.Equal(EmaRdm.USER_NAME, loginStatus.NameType());
 
         loginStatus.Clear();
-        CheckEtaGlobalPoolSizes();
     }
 
     [Fact]
@@ -1364,18 +1347,5 @@ public class LoginHelperTest
             Assert.Contains("AuthenticationErrorText element is not set", ex.Message);
         }
         loginStatus.Clear();
-
-        CheckEtaGlobalPoolSizes();
-    }
-
-    private void CheckEtaGlobalPoolSizes()
-    {
-        var pool = EtaObjectGlobalPool.Instance;
-        Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaBufferPool.Count);
-        Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaEncodeIteratorPool.Count);
-        foreach (var keyVal in pool.m_etaByteBufferBySizePool)
-        {
-            Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, keyVal.Value.Count);
-        }
     }
 }

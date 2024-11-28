@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
@@ -117,6 +117,7 @@
 #include "Access/Include/ChannelInformation.h"
 #include "Access/Include/ChannelStatistics.h"
 #include "Access/Include/IOCtlReactorCode.h"
+#include "Access/Include/IOCtlReactorChannelCode.h"
 #include "Access/Include/OAuth2CredentialRenewal.h"
 #include "Access/Include/LoginMsgCredentialRenewal.h"
 
@@ -358,6 +359,15 @@ public :
 	void modifyReactorIOCtl(Int32 code, Int32 value);
 
 
+	/** Allows modifying some I/O values programmatically for ReactorChannel to override the default values.
+		@param[in] code provides Code of I/O option defined in IOCtlReactorCode::IOCtlReactorChannelCodeEnum to modify.
+		@param[in] value provides pointer to  modify I/O option to
+		@return void
+		@throw OmmInvalidUsageException if failed to modify I/O option to
+	\remark This method is \ref ObjectLevelSafe
+*/
+	void modifyReactorChannelIOCtl(Int32 code, void* value);
+
 	/** Provide updated OAuth2 credentials when the callback OmmOAuth2ConsumerClient::onCredentialRenewal is called.
 		This function allows the application to use a secure credential storage when using RDP functionality such as the RDP token service
 		or RDP service discovery.
@@ -378,6 +388,14 @@ public :
 	@throw OmmInvalidUsageException if the credential update fails.
 */
 	void renewLoginCredentials(LoginMsgCredentialRenewal&);
+
+	/** Perform switch to preferred host. 
+	@return void
+	@throw OmmInvalidUsageException if no active channel.
+	@throw OmmInvalidUsageException if failed to perform preferred host fall back.
+	*/
+
+	void fallbackPreferredHost();
 	//@}
 
 private :

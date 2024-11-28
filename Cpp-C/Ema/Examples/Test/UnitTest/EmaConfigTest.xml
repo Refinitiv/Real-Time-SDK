@@ -70,6 +70,12 @@
 			<ShouldInitializeCPUIDlib value="0"/>
 			<RestProxyHostName value="restproxylocalhost"/>
 			<RestProxyPort value="9028"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeSchedule value="*/5 1,2,3 * * *"/>
+			<PHDetectionTimeInterval value="123"/>
+			<PreferredChannelName value="Channel_2"/>
+			<PreferredWSBChannelName value="Channel_3"/>
+			<PHFallBackWithInWSBGroup value="1"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>
@@ -151,6 +157,38 @@
 			<Logger value="Logger_1"/>
 			<Dictionary value="Dictionary_2"/>
 			<XmlTraceToStdout value="1"/>
+		</Consumer>
+		<!-- Consumer for preferred host with warm standby feature -->
+		<Consumer>
+			<Name value="Consumer_9"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeSchedule value="*/10 * * * * *"/>
+			<PHDetectionTimeInterval value="10"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_2"/>
+			<PHFallBackWithInWSBGroup value="1"/>
+			<XmlTraceToStdout value="0" />
+			<XmlTraceToFile value="0" />
+			<XmlTraceMaxFileSize value="40000"/>
+			<XmlTraceFileName value="log_test_server"/>
+			<XmlTraceToMultipleFiles value="0"/>
+			<XmlTraceWrite value="0"/>
+			<XmlTraceRead value="0"/>
+			<XmlTracePing value="0"/>
+		</Consumer>
+		<!-- Consumer for fallback to preferred host feature -->
+		<Consumer>
+			<Name value="Consumer_10"/>
+			<ChannelSet value="Channel_10, Channel_13"/>
+			<Logger value="Logger_1"/>
+			<Dictionary value="Dictionary_2"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeSchedule value="*/10 * * * * *"/>
+			<PHDetectionTimeInterval value="10"/>
+			<PreferredChannelName value="Channel_13"/>
+			<XmlTraceToStdout value="0"/>
+			<XmlTraceToFile value="1" />
 		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
@@ -472,6 +510,15 @@
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
 			<Port value="14012"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_13"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
 		</Channel>
 	</ChannelList>
 </ChannelGroup>

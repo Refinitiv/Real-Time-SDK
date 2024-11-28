@@ -66,7 +66,10 @@ refinitiv::ema::access::EmaString AsciiValues[] = {
 	"XmlTraceFileName",
 	"WsProtocols",
 	"RestLogFileName",
-	"WarmStandbyChannelSet"
+	"WarmStandbyChannelSet",
+	"PHDetectionTimeSchedule",
+	"PreferredChannelName",
+	"PreferredWSBChannelName"
 };
 
 refinitiv::ema::access::EmaString EnumeratedValues[] = {
@@ -191,6 +194,9 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"OpenWindow",
 	"LoadFactor",
 	"SendJsonConvError",
+	"EnablePreferredHostOptions",
+	"PHDetectionTimeInterval",
+	"PHFallBackWithInWSBGroup"
 };
 
 refinitiv::ema::access::EmaString DoubleValues[] = {

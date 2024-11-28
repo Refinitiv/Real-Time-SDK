@@ -176,20 +176,20 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
-            stringBuf.Insert(0, "DirectoryRequest: \n");
+            stringBuf.Insert(0, $"DirectoryRequest: {NewLine}");
 
             if (HasServiceId)
             {
                 stringBuf.Append(tab);
                 stringBuf.Append("serviceId: ");
                 stringBuf.Append(ServiceId);
-                stringBuf.Append(eol);
+                stringBuf.AppendLine();
             }
 
             stringBuf.Append(tab);
             stringBuf.Append("streaming: ");
             stringBuf.Append(Streaming);
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             stringBuf.Append(tab);
             stringBuf.Append("filter: ");
@@ -233,7 +233,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                     stringBuf.Append(" | ");
                 stringBuf.Append("STATE");
             }
-            stringBuf.Append(eol);
+            stringBuf.AppendLine();
 
             return stringBuf.ToString();
         }

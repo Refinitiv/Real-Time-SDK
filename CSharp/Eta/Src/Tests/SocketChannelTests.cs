@@ -26,14 +26,22 @@ using System.Runtime.InteropServices;
 
 namespace LSEG.Eta.Transports.Tests
 {
-    public class SocketChannelTests
+    public class SocketChannelTests : IDisposable
     {
 		private const int TIMEOUTMS = 10000;
 
 		private const string RWF_MSG_1 = "This is a complete RWF message";
 
 		private const string RWF_MSG_2 = "This is a second RWF message";
+        private static readonly bool isDoubleSockoptSize = false;
 
+        static SocketChannelTests()
+        {
+            using Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
+            int desiredBufferSize = 8192;
+            socket.ReceiveBufferSize = desiredBufferSize;
+            isDoubleSockoptSize = socket.ReceiveBufferSize == desiredBufferSize * 2;
+        }
         #region Misc Tests
 
         [Fact]
@@ -43,7 +51,7 @@ namespace LSEG.Eta.Transports.Tests
 			try
             {
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = clientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = clientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Null(recevBuf);
 				Assert.Null(error);
@@ -77,13 +85,13 @@ namespace LSEG.Eta.Transports.Tests
 				Assert.Equal(TransportReturnCode.SUCCESS, ret);
 				Assert.Null(error);
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = serverClientChannel.Read(readArgs, out error);
+				ITransportBuffer recevBuf = serverClientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.NotNull(recevBuf);
 				Assert.Null(error);
 				Assert.True(TestUtilities.CompareByteArray(DataByteArray, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
 				Assert.Equal(DataByteArray.Length, recevBuf.Length() - recevBuf.GetDataStartPosition() + 3);
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Null(recevBuf);
 				Assert.Null(error);
@@ -118,7 +126,7 @@ namespace LSEG.Eta.Transports.Tests
 				ReadArgs readArgs = new ReadArgs();
 				ChannelBase serverChannelBase = (ChannelBase)serverClientChannel;
 				serverChannelBase.m_ReadBufferStateMachine.State = ReadBufferStateMachine.BufferState.END_OF_STREAM;
-				ITransportBuffer recevBuf = serverClientChannel.Read(readArgs, out error);
+				ITransportBuffer recevBuf = serverClientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.FAILURE, readArgs.ReadRetVal);
 				Assert.Null(recevBuf);
 			} finally
@@ -161,19 +169,19 @@ namespace LSEG.Eta.Transports.Tests
 				Assert.Equal(TransportReturnCode.SUCCESS, ret);
 				Assert.Null(error);
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = serverClientChannel.Read(readArgs, out error);
+				ITransportBuffer recevBuf = serverClientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(readArgs.ReadRetVal > TransportReturnCode.SUCCESS);
 				Assert.NotNull(recevBuf);
 				Assert.Null(error);
 				Assert.True(TestUtilities.CompareByteArray(DataByteArray, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
 				Assert.Equal(DataByteArray.Length, recevBuf.Length() - recevBuf.GetDataStartPosition() + 3);
-				recevBuf = serverClientChannel.Read(readArgs, out error);
+				recevBuf = serverClientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.NotNull(recevBuf);
 				Assert.Null(error);
 				Assert.True(TestUtilities.CompareByteArray(DataByteArray2, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
 				Assert.Equal(DataByteArray2.Length, recevBuf.Length());
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Null(recevBuf);
 				Assert.Null(error);
@@ -476,7 +484,7 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase clientBase = (ChannelBase)clientChannel;
 				clientBase.Socket.Send(DataByteArray);
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = serverClientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = serverClientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.True(readArgs.ReadRetVal > TransportReturnCode.SUCCESS);
 				Assert.Equal(ReadBufferStateMachine.BufferState.KNOWN_INCOMPLETE, ((ChannelBase)serverClientChannel).m_ReadBufferStateMachine.State);
 				Assert.Null(recevBuf);
@@ -484,11 +492,11 @@ namespace LSEG.Eta.Transports.Tests
 				Assert.Equal(DataByteArray.Length, readArgs.BytesRead);
 				clientBase.Socket.Send(DataByteArray2);
 				readArgs.Clear();
-				recevBuf = serverClientChannel.Read(readArgs, out error);
+				recevBuf = serverClientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(readArgs.ReadRetVal == TransportReturnCode.SUCCESS);
 				Assert.NotNull(recevBuf);
 				Assert.Null(error);
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Null(recevBuf);
 				Assert.Null(error);
@@ -535,7 +543,7 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase clientBase = (ChannelBase)clientChannel;
 				clientBase.Socket.Send(DataByteArray);
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = serverClientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = serverClientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.True(readArgs.ReadRetVal > TransportReturnCode.SUCCESS);
 				Assert.Equal(ReadBufferStateMachine.BufferState.UNKNOWN_INCOMPLETE, ((ChannelBase)serverClientChannel).m_ReadBufferStateMachine.State);
 				Assert.Null(recevBuf);
@@ -543,11 +551,11 @@ namespace LSEG.Eta.Transports.Tests
 				Assert.Equal(DataByteArray.Length, readArgs.BytesRead);
 				clientBase.Socket.Send(DataByteArray2);
 				readArgs.Clear();
-				recevBuf = serverClientChannel.Read(readArgs, out error);
+				recevBuf = serverClientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(readArgs.ReadRetVal == TransportReturnCode.SUCCESS);
 				Assert.NotNull(recevBuf);
 				Assert.Null(error);
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Null(recevBuf);
 				Assert.Null(error);
@@ -577,7 +585,7 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(DataArray);
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = clientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = clientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.Equal(ReadBufferStateMachine.BufferState.KNOWN_INSUFFICENT, clientBase.m_ReadBufferStateMachine.State);
 				Assert.Null(error);
 			} finally
@@ -612,10 +620,10 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(DataArray);
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = clientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = clientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.Equal(length - 4 - 3, recevBuf.Length());
 				Assert.Null(error);
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(ReadBufferStateMachine.BufferState.KNOWN_INCOMPLETE, clientBase.m_ReadBufferStateMachine.State);
 				DataArray = new byte[7];
 				for (int j = 0; j < 7; j++)
@@ -623,7 +631,7 @@ namespace LSEG.Eta.Transports.Tests
 					DataArray[j] = (byte)j;
 				}
 				serverBase.Socket.Send(DataArray);
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(ReadBufferStateMachine.BufferState.KNOWN_COMPLETE, clientBase.m_ReadBufferStateMachine.State);
 				Assert.Equal(7, recevBuf.Length());
 				Assert.Null(error);
@@ -649,7 +657,7 @@ namespace LSEG.Eta.Transports.Tests
 			try
             {
 				ChannelBase clientBase = (ChannelBase)clientChannel;
-				int length = clientBase.m_ReadBufferStateMachine.Buffer.Contents.Length;
+                int length = clientBase.m_ReadBufferStateMachine.Buffer.Contents.Length;
 				byte[] DataArray = new byte[length + 9];
 				DataArray[0] = (byte)(length - 1 >> 8);
 				DataArray[1] = (byte)((uint)(length - 1) & 0xFFu);
@@ -659,9 +667,9 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(DataArray);
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = clientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = clientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.Equal(length - 1 - RipcLengths.HEADER, recevBuf.Length());
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(7, recevBuf.Length());
 				Assert.Null(error);
 			} 
@@ -714,12 +722,12 @@ namespace LSEG.Eta.Transports.Tests
 				serverBase.Socket.Send(DataArray);
 
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = clientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = clientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.NotNull(recevBuf);
 				Assert.Equal(DataArray.Length - FirstPackedHeaderLength(), recevBuf.Length());
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 			} finally
             {
@@ -744,7 +752,7 @@ namespace LSEG.Eta.Transports.Tests
 				serverBase.Socket.Send(DataArray);
 
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = clientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = clientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.Null(recevBuf);
 				Assert.Equal(FirstPackedHeaderLength(), readArgs.BytesRead);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
@@ -781,15 +789,15 @@ namespace LSEG.Eta.Transports.Tests
 				serverBase.Socket.Send(DataArray);
 
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = clientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = clientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.NotNull(recevBuf);
 				Assert.Equal(DataArray[4], recevBuf.Length());
 				Assert.True(readArgs.ReadRetVal > TransportReturnCode.SUCCESS);
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.NotNull(recevBuf);
 				Assert.Equal(DataArray.Length - FirstPackedHeaderLength() - DataArray[4] - RipcOffsets.PACKED_MSG_DATA, recevBuf.Length());
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Null(recevBuf);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 			} 
@@ -832,24 +840,24 @@ namespace LSEG.Eta.Transports.Tests
 			try
             {
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
-				serverBase.Socket.Send(DataArray);
+                serverBase.Socket.Send(DataArray);
 
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = clientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = clientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.NotNull(recevBuf);
 				Assert.True(readArgs.ReadRetVal > TransportReturnCode.SUCCESS);
 				Assert.Equal(firstMsg.Length, recevBuf.Length());
 				for (int i = 0; i < firstMsg.Length; i++)
 					Assert.Equal(firstMsg[i], recevBuf.Data.Contents[i + recevBuf.GetDataStartPosition()]);
 
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.NotNull(recevBuf);
 				Assert.Equal(secondMsg.Length, recevBuf.Length());
 				Assert.True(readArgs.ReadRetVal > TransportReturnCode.SUCCESS);
 				for (int i = 0; i < secondMsg.Length; i++)
 					Assert.Equal(secondMsg[i], recevBuf.Data.Contents[i + recevBuf.GetDataStartPosition()]);
 
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Null(recevBuf);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 			} 
@@ -885,7 +893,7 @@ namespace LSEG.Eta.Transports.Tests
 				int cumulativeUncompressedBytesRead = 0;
 
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = clientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = clientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.Null(recevBuf);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Equal(fragmentHeader.Length, readArgs.BytesRead);
@@ -893,7 +901,7 @@ namespace LSEG.Eta.Transports.Tests
 				cumulativeUncompressedBytesRead += readArgs.UncompressedBytesRead;
 
 				serverBase.Socket.Send(fragment);
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(fragment.Length, readArgs.BytesRead);
 				cumulativeBytesRead += readArgs.BytesRead;
@@ -904,7 +912,7 @@ namespace LSEG.Eta.Transports.Tests
 				for (int i = 0; i < normalMsg.Length; i++)
 					Assert.Equal(normalMsg[i], recevBuf.Data.Contents[i + recevBuf.GetDataStartPosition()]);
 
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Null(recevBuf);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 			} 
@@ -933,12 +941,12 @@ namespace LSEG.Eta.Transports.Tests
 				serverBase.Socket.Send(DataArray);
 
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = clientChannel.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = clientChannel.ReadWithWait(readArgs, out Error error);
 				Assert.True(readArgs.ReadRetVal > TransportReturnCode.SUCCESS);
 
 				int bytesRead = readArgs.BytesRead;
 
-				recevBuf = clientChannel.Read(readArgs, out error);
+				recevBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.NotNull(recevBuf);
 				Assert.Equal(outputMsg.Length, recevBuf.Length());
@@ -977,14 +985,14 @@ namespace LSEG.Eta.Transports.Tests
 				serverBase.Socket.Send(firstFragHeader);
 
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = client.Read(readArgs, out Error error);
+				ITransportBuffer recevBuf = client.ReadWithWait(readArgs, out Error error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Equal(firstFragHeader.Length, readArgs.BytesRead);
 				cumulativeBytesRead += readArgs.BytesRead;
 				cumulativeUncompressedbytesRead += readArgs.UncompressedBytesRead;
 
 				serverBase.Socket.Send(firstFrag);
-				recevBuf = client.Read(readArgs, out error);
+				recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.NotNull(recevBuf);
 				Assert.Equal(firstFrag.Length, readArgs.BytesRead);
@@ -1000,14 +1008,14 @@ namespace LSEG.Eta.Transports.Tests
 				cumulativeUncompressedbytesRead = 0;
 				serverBase.Socket.Send(secondFragHeader);
 
-				recevBuf = client.Read(readArgs, out error);
+				recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Equal(secondFragHeader.Length, readArgs.BytesRead);
 				cumulativeBytesRead += readArgs.BytesRead;
 				cumulativeUncompressedbytesRead += readArgs.UncompressedBytesRead;
 
 				serverBase.Socket.Send(secondFrag);
-				recevBuf = client.Read(readArgs, out error);
+				recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.NotNull(recevBuf);
 				Assert.Equal(secondFrag.Length, readArgs.BytesRead);
@@ -1043,13 +1051,13 @@ namespace LSEG.Eta.Transports.Tests
 
 				Error error;
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = client.Read(readArgs, out error);
+				ITransportBuffer recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, outOfSeqFrag.Length);
 
 				serverBase.Socket.Send(normalMsg);
 
-				recevBuf = client.Read(readArgs, out error);
+				recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(normalMsg.Length, recevBuf.Length() + RipcLengths.HEADER);
 			} finally
@@ -1070,33 +1078,33 @@ namespace LSEG.Eta.Transports.Tests
 			byte[] exceedFrag = { 0x00, 0x10, 0x03, 0x08, 0xB2, 0xD0, 0x5E, 0x00, 0x01, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
 			byte[] normalMsg = { 0x00, 0x0D, 0x02, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
 			byte[] fragment = { 0x00, 0x08, 0x03, 0x04, 0x01, 0x07, 0x08, 0x09 };
-
-			try
+            
+            try
             {
 				ChannelBase serverBase = (ChannelBase)serverChannel;
-				serverBase.Socket.Send(exceedFrag);
+                serverBase.Socket.Send(exceedFrag);
 
 				Error error;
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = client.Read(readArgs, out error);
+				ITransportBuffer recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, exceedFrag.Length);
 
-				serverBase.Socket.Send(normalMsg);
+                serverBase.Socket.Send(normalMsg);
 
-				recevBuf = client.Read(readArgs, out error);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(normalMsg.Length, recevBuf.Length() + RipcLengths.HEADER);
 				for (int i = 0; i < normalMsg.Length - RipcLengths.HEADER; i++)
 					Assert.Equal(normalMsg[i + RipcLengths.HEADER], recevBuf.Data.Contents[i + recevBuf.GetDataStartPosition()]);
 
-				serverBase.Socket.Send(fragment);
-				recevBuf = client.Read(readArgs, out error);
+                serverBase.Socket.Send(fragment);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 
-				serverBase.Socket.Send(normalMsg);
+                serverBase.Socket.Send(normalMsg);
 
-				recevBuf = client.Read(readArgs, out error);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(normalMsg.Length, recevBuf.Length() + RipcLengths.HEADER);
 				for (int i = 0; i < normalMsg.Length - RipcLengths.HEADER; i++)
@@ -1127,26 +1135,26 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverChannel;
 				serverBase.Socket.Send(firstFragHeader);
 
-				Error error;
+                Error error;
 				ReadArgs readArgs = new ReadArgs();
-				ITransportBuffer recevBuf = client.Read(readArgs, out error);
+				ITransportBuffer recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, firstFragHeader.Length);
 
-				serverBase.Socket.Send(normalMsg);
-				recevBuf = client.Read(readArgs, out error);
+                serverBase.Socket.Send(normalMsg); 
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(normalMsg.Length, recevBuf.Length() + RipcLengths.HEADER);
 				for (int i = 0; i < normalMsg.Length - RipcLengths.HEADER; i++)
 					Assert.Equal(normalMsg[i + RipcLengths.HEADER], recevBuf.Data.Contents[i + recevBuf.GetDataStartPosition()]);
 
-				serverBase.Socket.Send(duplicateFragHeader);
-				recevBuf = client.Read(readArgs, out error);
+                serverBase.Socket.Send(duplicateFragHeader);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, duplicateFragHeader.Length);
 
-				serverBase.Socket.Send(fragment);
-				recevBuf = client.Read(readArgs, out error);
+                serverBase.Socket.Send(fragment);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(reassembledMsg.Length, recevBuf.Length());
 				for (int i = 0; i < reassembledMsg.Length; i++)
@@ -1203,21 +1211,21 @@ namespace LSEG.Eta.Transports.Tests
 				ReadArgs readArgs = new ReadArgs();
 
 				ChannelBase serverBase = (ChannelBase)serverChannel;
-				serverBase.Socket.Send(firstFragHeader);
+                serverBase.Socket.Send(firstFragHeader);
 
-				ITransportBuffer recevBuf = client.Read(readArgs, out error);
+				ITransportBuffer recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, firstFragHeader.Length);
 
-				serverBase.Socket.Send(secondFragHeader);
+                serverBase.Socket.Send(secondFragHeader);
 
-				recevBuf = client.Read(readArgs, out error);
-				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
+                recevBuf = client.ReadWithWait(readArgs, out error);
+                Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, secondFragHeader.Length);
 
-				serverBase.Socket.Send(normalMsg);
+                serverBase.Socket.Send(normalMsg);
 
-				recevBuf = client.Read(readArgs, out error);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, normalMsg.Length);
 				Assert.Equal(normalMsg.Length, recevBuf.Length() + RipcLengths.HEADER);
@@ -1226,7 +1234,7 @@ namespace LSEG.Eta.Transports.Tests
 
 				serverBase.Socket.Send(firstFrag);
 
-				recevBuf = client.Read(readArgs, out error);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, firstFrag.Length);
 				Assert.Equal(firstFrag.Length + firstFragHeader.Length, recevBuf.Length() + FirstFragmentHeaderLength(serverBase) + AdditionalFragmentHeaderLength(serverBase));
@@ -1238,7 +1246,7 @@ namespace LSEG.Eta.Transports.Tests
 
 				serverBase.Socket.Send(secondFrag);
 
-				recevBuf = client.Read(readArgs, out error);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, secondFrag.Length);
 				Assert.Equal(secondFrag.Length + secondFragHeader.Length, recevBuf.Length() + FirstFragmentHeaderLength(serverBase) + AdditionalFragmentHeaderLength(serverBase));
@@ -1291,9 +1299,9 @@ namespace LSEG.Eta.Transports.Tests
 
 				ChannelBase serverBase = (ChannelBase)serverChannel;
 
-				serverBase.Socket.Send(normalMsg);
+                serverBase.Socket.Send(normalMsg);
 
-				ITransportBuffer recevBuf = client.Read(readArgs, out error);
+				ITransportBuffer recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, normalMsg.Length);
 				Assert.Equal(normalMsg.Length, recevBuf.Length() + RipcLengths.HEADER);
@@ -1303,13 +1311,13 @@ namespace LSEG.Eta.Transports.Tests
 
 				serverBase.Socket.Send(firstFragHeader);
 
-				recevBuf = client.Read(readArgs, out error);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, firstFragHeader.Length);
 
 				serverBase.Socket.Send(normalMsg);
 
-				recevBuf = client.Read(readArgs, out error);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, normalMsg.Length);
 				Assert.Equal(normalMsg.Length, recevBuf.Length() + RipcLengths.HEADER);
@@ -1318,7 +1326,7 @@ namespace LSEG.Eta.Transports.Tests
 
 				serverBase.Socket.Send(firstFrag);
 
-				recevBuf = client.Read(readArgs, out error);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, firstFrag.Length);
 				Assert.Equal(firstFrag.Length + firstFragHeader.Length, recevBuf.Length() + FirstFragmentHeaderLength(serverBase) + AdditionalFragmentHeaderLength(serverBase));
@@ -1330,14 +1338,14 @@ namespace LSEG.Eta.Transports.Tests
 
 				serverBase.Socket.Send(normalMsg);
 
-				recevBuf = client.Read(readArgs, out error);
+                recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(readArgs.BytesRead, normalMsg.Length);
 				Assert.Equal(normalMsg.Length, recevBuf.Length() + RipcLengths.HEADER);
 				for (int i = 0; i < normalMsg.Length - RipcLengths.HEADER; i++)
 					Assert.Equal(normalMsg[i + RipcLengths.HEADER], recevBuf.Data.Contents[recevBuf.GetDataStartPosition() + i]);
 
-				recevBuf = client.Read(readArgs, out error);
+				recevBuf = client.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.READ_WOULD_BLOCK, readArgs.ReadRetVal);
 			} finally
             {
@@ -4004,19 +4012,19 @@ namespace LSEG.Eta.Transports.Tests
 
 			ITransportBuffer msgBuf = null;
 
-			msgBuf = clientChannel.Read(readArgs, out error);
+			msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 			Assert.True(msgBuf != null);
 			Assert.Equal(1, (int)readArgs.ReadRetVal);
 			for (int i = 0; i < packed_1_expected_1.Length; i++)
 				Assert.Equal(packed_1_expected_1[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 
-			msgBuf = clientChannel.Read(readArgs, out error);
+			msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 			Assert.Equal(1, (int)readArgs.ReadRetVal);
 			Assert.Equal(0, readArgs.BytesRead); // compressed bytes read
 			for (int i = 0; i < packed_1_expected_2.Length; i++)
 				Assert.Equal(packed_1_expected_2[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 
-			msgBuf = clientChannel.Read(readArgs, out error);
+			msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 			for (int i = 0; i < packed_1_expected_3.Length; i++)
 				Assert.Equal(packed_1_expected_3[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 
@@ -4035,19 +4043,19 @@ namespace LSEG.Eta.Transports.Tests
 			writeArgs.Flags = WriteFlags.DIRECT_SOCKET_WRITE;
 			serverClientChannel.Write(sendBuffer, writeArgs, out error);
 
-			msgBuf = clientChannel.Read(readArgs, out error);
+			msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 			Assert.True(msgBuf != null);
 			Assert.Equal(1, (int)readArgs.ReadRetVal);
 			for (int i = 0; i < packed_2_expected_1.Length; i++)
 				Assert.Equal(packed_2_expected_1[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 
-			msgBuf = clientChannel.Read(readArgs, out error);
+			msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 			Assert.Equal(1, (int)readArgs.ReadRetVal);
 			Assert.Equal(0, readArgs.BytesRead); // compressed bytes read
 			for (int i = 0; i < packed_2_expected_2.Length; i++)
 				Assert.Equal(packed_2_expected_2[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 
-			msgBuf = clientChannel.Read(readArgs, out error);
+			msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 			for (int i = 0; i < packed_2_expected_3.Length; i++)
 				Assert.Equal(packed_2_expected_3[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 		}
@@ -4163,7 +4171,7 @@ namespace LSEG.Eta.Transports.Tests
 				serverBase.Socket.Send(input_msg1);
 
 				// read login response from the channel
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(msgBuf.Length(), expected_msg1.Length);
@@ -4172,7 +4180,7 @@ namespace LSEG.Eta.Transports.Tests
 
 				serverBase.Socket.Send(input_msg2);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(msgBuf.Length(), expected_msg2.Length);
@@ -4225,7 +4233,7 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(packed_1);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(1, (int)readArgs.ReadRetVal);
 				Assert.Equal(packed_1.Length, readArgs.BytesRead); // compressed bytes read
@@ -4234,7 +4242,7 @@ namespace LSEG.Eta.Transports.Tests
 					Assert.Equal(packed_1_expected_1[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 				cumulativeUncompressedBytesRead += readArgs.UncompressedBytesRead;
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(1, (int)readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead); // compressed bytes read
 				Assert.Equal(0, readArgs.UncompressedBytesRead);
@@ -4242,7 +4250,7 @@ namespace LSEG.Eta.Transports.Tests
 				for (int i = 0; i < packed_1_expected_2.Length; i++)
 					Assert.Equal(packed_1_expected_2[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead); // compressed bytes read
 				Assert.Equal(0, readArgs.UncompressedBytesRead);
@@ -4252,7 +4260,7 @@ namespace LSEG.Eta.Transports.Tests
 
 				serverBase.Socket.Send(packed_2);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(1, (int)readArgs.ReadRetVal);
 				Assert.Equal(packed_2.Length, readArgs.BytesRead); // compressed bytes read
@@ -4261,7 +4269,7 @@ namespace LSEG.Eta.Transports.Tests
 					Assert.Equal(packed_2_expected_1[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 				cumulativeUncompressedBytesRead += readArgs.UncompressedBytesRead;
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(1, (int)readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead); // compressed bytes read
 				Assert.Equal(0, readArgs.UncompressedBytesRead);
@@ -4269,7 +4277,7 @@ namespace LSEG.Eta.Transports.Tests
 				for (int i = 0; i < packed_2_expected_2.Length; i++)
 					Assert.Equal(packed_2_expected_2[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead); // compressed bytes read
 				Assert.Equal(0, readArgs.UncompressedBytesRead);
@@ -4329,13 +4337,13 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(fragmented_compressed);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf == null);
 				Assert.Equal(22, (int)readArgs.ReadRetVal);
 				Assert.Equal(fragmented_compressed.Length, readArgs.BytesRead); // compressed bytes read
 				Assert.Equal(6138, readArgs.UncompressedBytesRead);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead); // compressed bytes read
@@ -4364,13 +4372,13 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(TestMessages.compressed_fragmented_6144L0);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf == null);
 				Assert.Equal(23, (int)readArgs.ReadRetVal);
 				Assert.Equal(6164 + RipcLengths.HEADER, readArgs.BytesRead);
 				Assert.Equal(3, readArgs.UncompressedBytesRead);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead);
@@ -4402,7 +4410,7 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(TestMessages.compressed_fragmented_6144L9);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(337, readArgs.BytesRead);
@@ -4412,7 +4420,7 @@ namespace LSEG.Eta.Transports.Tests
 					Assert.Equal(TestMessages.fragmented_6144L0[i], msgBuf.Data.Contents[i + msgBuf.GetDataStartPosition()]);
 			} finally
             {
-				if (clientChannel != null) clientChannel.Close(out var error);
+                if (clientChannel != null) clientChannel.Close(out var error);
 				if (serverClientChannel != null) serverClientChannel.Close(out var error);
 				if (server != null) server.Close(out var error);
 
@@ -4434,13 +4442,13 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(TestMessages.compressed_fragmented_6131L0);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf == null);
 				Assert.Equal(15, (int)readArgs.ReadRetVal);
 				Assert.Equal(6156 + RipcLengths.HEADER, readArgs.BytesRead);
 				Assert.Equal(3, readArgs.UncompressedBytesRead);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead);
@@ -4472,7 +4480,7 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(TestMessages.compressed_fragmented6131L9);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(337, readArgs.BytesRead);
@@ -4505,13 +4513,13 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(TestMessages.compressed_fragmented6131L0X2_1);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf == null);
 				Assert.Equal(15, (int)readArgs.ReadRetVal);
 				Assert.Equal(6159, readArgs.BytesRead);
 				Assert.Equal(3, readArgs.UncompressedBytesRead);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead);
@@ -4522,13 +4530,13 @@ namespace LSEG.Eta.Transports.Tests
 
 				serverBase.Socket.Send(TestMessages.compressed_fragmented6131L0X2_2);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf == null);
 				Assert.Equal(13, (int)readArgs.ReadRetVal);
 				Assert.Equal(6157, readArgs.BytesRead);
 				Assert.Equal(3, readArgs.UncompressedBytesRead);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead);
@@ -4561,19 +4569,19 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(TestMessages.compressed_fragmented_6145L0);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf == null);
 				Assert.Equal(40, (int)readArgs.ReadRetVal);
 				Assert.Equal(6184, readArgs.BytesRead);
 				Assert.Equal(6137, readArgs.UncompressedBytesRead);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf == null);
 				Assert.Equal(23, (int)readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead);
 				Assert.Equal(7, readArgs.UncompressedBytesRead);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(0, readArgs.BytesRead);
@@ -4602,13 +4610,13 @@ namespace LSEG.Eta.Transports.Tests
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
 				serverBase.Socket.Send(TestMessages.compressed_fragmented_6145L9);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf == null);
 				Assert.Equal(23, (int)readArgs.ReadRetVal);
 				Assert.Equal(6138, readArgs.UncompressedBytesRead);
 				Assert.Equal(TestMessages.compressed_fragmented_6145L9.Length, readArgs.BytesRead);
 
-				msgBuf = clientChannel.Read(readArgs, out error);
+				msgBuf = clientChannel.ReadWithWait(readArgs, out error);
 				Assert.True(msgBuf != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 				Assert.Equal(23, readArgs.UncompressedBytesRead);
@@ -4743,7 +4751,7 @@ namespace LSEG.Eta.Transports.Tests
 					Error error = new Error();
 					ITransportBuffer writeBuf;
 
-					Assert.True((readBuf = serverClientChannel.Read(readArgs, out error)) != null);
+					Assert.True((readBuf = serverClientChannel.ReadWithWait(readArgs, out error)) != null);
 					Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 					for (int i = 0; i < msg1.Length; i++)
 						Assert.Equal(Encoding.ASCII.GetBytes(msg1)[i], readBuf.Data.Contents[i + readBuf.GetDataStartPosition()]);
@@ -4756,7 +4764,7 @@ namespace LSEG.Eta.Transports.Tests
 					writeBuf.Data.Put(Encoding.ASCII.GetBytes(msg2));
 					Assert.Equal(TransportReturnCode.SUCCESS, serverClientChannel.Write(writeBuf, writeArgs, out error));
 
-					Assert.True((readBuf = serverClientChannel.Read(readArgs, out error)) != null);
+					Assert.True((readBuf = serverClientChannel.ReadWithWait(readArgs, out error)) != null);
 					Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 
 					for (int i = 0; i < msg3.Length; i++)
@@ -4777,7 +4785,7 @@ namespace LSEG.Eta.Transports.Tests
 				writeBuf.Data.Put(Encoding.ASCII.GetBytes(msg1));
 				Assert.Equal(TransportReturnCode.SUCCESS, clientChannel.Write(writeBuf, writeArgs, out error));
 
-				Assert.True((readBuf = clientChannel.Read(readArgs, out error)) != null);
+				Assert.True((readBuf = clientChannel.ReadWithWait(readArgs, out error)) != null);
 				Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
 
 				for (int i = 0; i < msg2.Length; i++)
@@ -4939,7 +4947,7 @@ namespace LSEG.Eta.Transports.Tests
 
                 ChannelBase serverBase = (ChannelBase)serverChannel;
                 serverBase.Socket.Send(connectMsg);
-
+                Thread.Sleep(15);
                 Assert.Equal(TransportReturnCode.SUCCESS, clientChannel.Init(inProg, out error));
                 Assert.Equal(ChannelState.ACTIVE, clientChannel.State);
 
@@ -5783,7 +5791,10 @@ namespace LSEG.Eta.Transports.Tests
 			Transport.Uninitialize();
 		}
 
-		[Fact]
+        int GetSockoptSize(int size)
+            => isDoubleSockoptSize ? size * 2 : size;
+        
+        [Fact]
 		public void IOCtlSystemReadWriteBuffersDefaultServerTest()
         {
 			InitializeConnection("14043", 10, 10, CompressionType.NONE, out IChannel clientChannel, out IChannel serverClientChannel, out IServer server);			
@@ -5791,17 +5802,20 @@ namespace LSEG.Eta.Transports.Tests
 			try
             {
 				ChannelBase serverBase = (ChannelBase)serverClientChannel;
-				Assert.Equal(65535, serverBase.Socket.ReceiveBufferSize);
-				Assert.Equal(65535, serverBase.Socket.SendBufferSize);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    Assert.Equal(65535, serverBase.Socket.ReceiveBufferSize);
+                    Assert.Equal(65535, serverBase.Socket.SendBufferSize);
+                }
 
 				int recvBufSize = 42000;
 				int sendBufSize = 45000;
 				Assert.Equal(TransportReturnCode.SUCCESS, server.IOCtl(IOCtlCode.SYSTEM_READ_BUFFERS, recvBufSize, out var error));
-				Assert.Equal(recvBufSize, ((ServerImpl)server).Socket.ReceiveBufferSize);
+				Assert.Equal(GetSockoptSize(recvBufSize), ((ServerImpl)server).Socket.ReceiveBufferSize);
 				Assert.Equal(TransportReturnCode.SUCCESS, serverClientChannel.IOCtl(IOCtlCode.SYSTEM_READ_BUFFERS, recvBufSize, out error));
-				Assert.Equal(recvBufSize, ((ChannelBase)serverClientChannel).Socket.ReceiveBufferSize);
+				Assert.Equal(GetSockoptSize(recvBufSize), ((ChannelBase)serverClientChannel).Socket.ReceiveBufferSize);
 				Assert.Equal(TransportReturnCode.SUCCESS, serverClientChannel.IOCtl(IOCtlCode.SYSTEM_WRITE_BUFFERS, sendBufSize, out error));
-				Assert.Equal(sendBufSize, ((ChannelBase)serverClientChannel).Socket.SendBufferSize);
+				Assert.Equal(GetSockoptSize(sendBufSize), ((ChannelBase)serverClientChannel).Socket.SendBufferSize);
 			} 
 			finally
             {
@@ -5812,6 +5826,19 @@ namespace LSEG.Eta.Transports.Tests
 				Transport.Uninitialize();
 			}
 		}
+
+        /// <summary>
+        /// In case the kernel doubles the buffer value, for the sake of testing and simplicity in testing we need to normalize it.
+        /// </summary>
+        /// <remarks>https://github.com/google/gvisor/issues/2926</remarks>
+        static void NormalizeBufferSize(Socket socket)
+        {
+            if(isDoubleSockoptSize)
+            {
+                socket.ReceiveBufferSize = (int)(socket.ReceiveBufferSize / 4.0);
+                socket.SendBufferSize = (int)(socket.SendBufferSize / 4.0);
+            }
+        }
 
 		[Fact]
 		public void IOCtlSystemReadWriteBuffersServerTest()
@@ -5851,6 +5878,7 @@ namespace LSEG.Eta.Transports.Tests
 			try
             {
 				s = BindServer(bindOpt);
+                NormalizeBufferSize(s.Socket);
 				Assert.NotNull(s);
 
 				Task acceptTask = Task.Factory.StartNew(delegate
@@ -5864,8 +5892,8 @@ namespace LSEG.Eta.Transports.Tests
 					acceptOptions.SysRecvBufSize = recvBufSize;
 
 					sc = s.Accept(acceptOptions, out Error error);
-
-					while (sc.State != ChannelState.ACTIVE)
+                    NormalizeBufferSize(sc.Socket);
+                    while (sc.State != ChannelState.ACTIVE)
 					{
 						var ret = sc.Init(inProg, out error);
 						Assert.True(ret >= TransportReturnCode.SUCCESS);
@@ -5964,7 +5992,6 @@ namespace LSEG.Eta.Transports.Tests
 					acceptOptions.SysRecvBufSize = recvBufSize;
 
 					sc = s.Accept(acceptOptions, out Error error);
-
 					while (sc.State != ChannelState.ACTIVE)
 					{
 						var ret = sc.Init(inProg, out error);
@@ -5988,7 +6015,10 @@ namespace LSEG.Eta.Transports.Tests
 				Assert.True(cc.State == ChannelState.ACTIVE);
 				Assert.True(sc.State == ChannelState.ACTIVE);
 
-				ChannelBase serverBase = (ChannelBase)sc;
+                NormalizeBufferSize(sc.Socket);
+                NormalizeBufferSize(cc.Socket);
+                NormalizeBufferSize(((ServerImpl)s).Socket);
+                ChannelBase serverBase = (ChannelBase)sc;
 				Assert.Equal(sendBufSize, sc.Socket.SendBufferSize);
 				Assert.Equal(recvBufSize, sc.Socket.ReceiveBufferSize);
 				Assert.Equal(recvBufSize, ((ServerImpl)s).Socket.ReceiveBufferSize);
@@ -6001,11 +6031,11 @@ namespace LSEG.Eta.Transports.Tests
 				sendBufSize = 55000;
 
 				Assert.Equal(TransportReturnCode.SUCCESS, s.IOCtl(IOCtlCode.SYSTEM_READ_BUFFERS, recvBufSize, out error));
-				Assert.Equal(recvBufSize, ((ServerImpl)s).Socket.ReceiveBufferSize);
+				Assert.Equal(GetSockoptSize( recvBufSize), ((ServerImpl)s).Socket.ReceiveBufferSize);
 				Assert.Equal(TransportReturnCode.SUCCESS, sc.IOCtl(IOCtlCode.SYSTEM_READ_BUFFERS, recvBufSize, out error));
-				Assert.Equal(recvBufSize, ((ChannelBase)sc).Socket.ReceiveBufferSize);
+				Assert.Equal(GetSockoptSize(recvBufSize), ((ChannelBase)sc).Socket.ReceiveBufferSize);
 				Assert.Equal(TransportReturnCode.SUCCESS, sc.IOCtl(IOCtlCode.SYSTEM_WRITE_BUFFERS, sendBufSize, out error));
-				Assert.Equal(sendBufSize, ((ChannelBase)sc).Socket.SendBufferSize);
+				Assert.Equal(GetSockoptSize(sendBufSize), ((ChannelBase)sc).Socket.SendBufferSize);
 
 				/*
 				 * Use ioctl to change System Read Buffer size on server and System
@@ -6014,11 +6044,11 @@ namespace LSEG.Eta.Transports.Tests
 				recvBufSize = 128000;
 				sendBufSize = 127000;
 				Assert.Equal(TransportReturnCode.SUCCESS, s.IOCtl(IOCtlCode.SYSTEM_READ_BUFFERS, recvBufSize, out error));
-				Assert.Equal(recvBufSize, ((ServerImpl)s).Socket.ReceiveBufferSize);
+				Assert.Equal(GetSockoptSize(recvBufSize), ((ServerImpl)s).Socket.ReceiveBufferSize);
 				Assert.Equal(TransportReturnCode.SUCCESS, sc.IOCtl(IOCtlCode.SYSTEM_READ_BUFFERS, recvBufSize, out error));
-				Assert.Equal(recvBufSize, ((ChannelBase)sc).Socket.ReceiveBufferSize);
+				Assert.Equal(GetSockoptSize(recvBufSize), ((ChannelBase)sc).Socket.ReceiveBufferSize);
 				Assert.Equal(TransportReturnCode.SUCCESS, sc.IOCtl(IOCtlCode.SYSTEM_WRITE_BUFFERS, sendBufSize, out error));
-				Assert.Equal(sendBufSize, ((ChannelBase)sc).Socket.SendBufferSize);
+				Assert.Equal(GetSockoptSize(sendBufSize), ((ChannelBase)sc).Socket.SendBufferSize);
 			} 
 			finally
             {
@@ -6649,10 +6679,12 @@ namespace LSEG.Eta.Transports.Tests
 
 			clientChannel = cc;
 			serverClientChannel = sc;
-			server = s;
+            NormalizeBufferSize(clientChannel.Socket);
+            NormalizeBufferSize(serverClientChannel.Socket);
+            server = s;
 		}
 
-		private void InitializeConnection(BindOptions bindOpts, ConnectOptions connectOpts, out IChannel clientChannel, out IChannel serverClientChannel, out IServer server, bool globalLocking = false)
+        private void InitializeConnection(BindOptions bindOpts, ConnectOptions connectOpts, out IChannel clientChannel, out IChannel serverClientChannel, out IServer server, bool globalLocking = false)
 		{
 			InProgInfo inProgInfo = new InProgInfo();
 			IChannel cc = null;
@@ -6685,7 +6717,9 @@ namespace LSEG.Eta.Transports.Tests
 
 			clientChannel = cc;
 			serverClientChannel = sc;
-			server = s;
+            NormalizeBufferSize(clientChannel.Socket);
+            NormalizeBufferSize(serverClientChannel.Socket);
+            server = s;
 		}
 
 		private int FirstPackedHeaderLength()
@@ -6715,11 +6749,16 @@ namespace LSEG.Eta.Transports.Tests
 			return 4 + InternalFragLength(channel);
 		}
 
-		#endregion
+        public void Dispose()
+            => Transport.Clear();
 
-		#region Mock Objects
+        public SocketChannelTests()
+            => Transport.Clear();
+        #endregion
 
-		internal class MockChannel : ISocketChannel, IDisposable
+        #region Mock Objects
+
+        internal class MockChannel : ISocketChannel, IDisposable
 		{
 			public MockChannel(int v1, int v2)
 			{
@@ -6796,5 +6835,17 @@ namespace LSEG.Eta.Transports.Tests
 
 	
         #endregion
+    }
+
+    public static class SocketChannelTestsExtension
+    {
+        public static ITransportBuffer ReadWithWait(this IChannel channel, ReadArgs readArgs, out Error error)
+        {
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Thread.Sleep(60);
+            }
+            return channel.Read(readArgs, out error);
+        }
     }
 }
