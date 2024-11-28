@@ -219,6 +219,18 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && retrievedValue == "restproxylocalhost") << "extracting RestProxyHostName name from EmaConfig.xml";
 	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|RestProxyPort", retrievedValue);
 	EXPECT_TRUE(debugResult && retrievedValue == "9028") << "extracting RestProxyPort name from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|EnablePreferredHostOptions", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting EnablePreferredHostOptions name from EmaConfig.xml";
+	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|PHDetectionTimeSchedule", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "*/5 1,2,3 * * *") << "extracting PHDetectionTimeSchedule name from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|PHDetectionTimeInterval", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 123) << "extracting PHDetectionTimeInterval name from EmaConfig.xml";
+	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|PreferredChannelName", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "Channel_2") << "extracting PreferredChannelName name from EmaConfig.xml";
+	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|PreferredWSBChannelName", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "Channel_3") << "extracting PreferredWSBChannelName name from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|PHFallBackWithInWSBGroup", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting PHFallBackWithInWSBGroup name from EmaConfig.xml";
 
 	/*Check sendJsonConvError in Consumer group*/
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|SendJsonConvError", uintValue);
@@ -546,7 +558,14 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 			.addUInt("XmlTraceHex", 1)
 			.addAscii("RestProxyHostName", "restProxySrv1")
 			.addAscii("RestProxyPort", "39918")
-			.addUInt("MaxDispatchCountUserThread", 700).complete()).complete();
+			.addUInt("MaxDispatchCountUserThread", 700)
+			.addUInt("EnablePreferredHostOptions", 1)
+			.addAscii("PHDetectionTimeSchedule", "45 23 * * 6")
+			.addUInt("PHDetectionTimeInterval", 321)
+			.addAscii("PreferredChannelName", "Channel_1")
+			.addAscii("PreferredWSBChannelName", "Channel_2")
+			.addUInt("PHFallBackWithInWSBGroup", 1)
+			.complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
 
@@ -654,6 +673,12 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.restProxyHostName == "restProxySrv1" ) << "restProxyHostName == \"restProxySrv1\"";
 		EXPECT_TRUE( activeConfig.restProxyPort == "39918" ) << "restProxyPort == \"39918\"";
 		EXPECT_TRUE( activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
+		EXPECT_TRUE( activeConfig.enablePreferredHostOptions == 1) << "enablePreferredHostOptions , \"True\"";
+		EXPECT_TRUE( activeConfig.phDetectionTimeSchedule == "45 23 * * 6") << "phDetectionTimeSchedule , 45 23 * * 6";
+		EXPECT_TRUE( activeConfig.phDetectionTimeInterval == 321) << "phDetectionTimeSchedule , 321";
+		EXPECT_TRUE( activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
+		EXPECT_TRUE( activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
+		EXPECT_TRUE( activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -733,7 +758,14 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			.addUInt("OutputBufferSize", 4294967296)
 			.addUInt("JsonTokenIncrementSize", 4294967296)
 			.addUInt("MaxDispatchCountUserThread", 700)
-			.addUInt("SendJsonConvError", 1).complete()).complete();
+			.addUInt("SendJsonConvError", 1)
+			.addUInt("EnablePreferredHostOptions", 1)
+			.addAscii("PHDetectionTimeSchedule", "45 23 * * 6")
+			.addUInt("PHDetectionTimeInterval", 321)
+			.addAscii("PreferredChannelName", "Channel_1")
+			.addAscii("PreferredWSBChannelName", "Channel_2")
+			.addUInt("PHFallBackWithInWSBGroup", 1)
+			.complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
 
@@ -849,6 +881,12 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.outputBufferSize == 4294967295) << "outputBufferSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.jsonTokenIncrementSize == 4294967295) << "jsonTokenIncrementSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
+		EXPECT_TRUE(activeConfig.enablePreferredHostOptions == 1) << "enablePreferredHostOptions , \"True\"";
+		EXPECT_TRUE(activeConfig.phDetectionTimeSchedule == "45 23 * * 6") << "detectionTimeSchedule , 45 23 * * 6";
+		EXPECT_TRUE(activeConfig.phDetectionTimeInterval == 321) << "phDetectionTimeSchedule , 321";
+		EXPECT_TRUE(activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
+		EXPECT_TRUE(activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
+		EXPECT_TRUE(activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -927,7 +965,14 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 			.addUInt("JsonExpandedEnumFields", 1)
 			.addUInt("OutputBufferSize", 4294967296)
 			.addUInt("JsonTokenIncrementSize", 4294967296)
-			.addUInt("MaxDispatchCountUserThread", 700).complete()).complete();
+			.addUInt("MaxDispatchCountUserThread", 700)
+			.addUInt("EnablePreferredHostOptions", 1)
+			.addAscii("PHDetectionTimeSchedule", "45 23 * * 6")
+			.addUInt("PHDetectionTimeInterval", 321)
+			.addAscii("PreferredChannelName", "Channel_1")
+			.addAscii("PreferredWSBChannelName", "Channel_2")
+			.addUInt("PHFallBackWithInWSBGroup", 1)
+			.complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
 
@@ -1044,6 +1089,12 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.outputBufferSize == 4294967295) << "outputBufferSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.jsonTokenIncrementSize == 4294967295) << "jsonTokenIncrementSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
+		EXPECT_TRUE(activeConfig.enablePreferredHostOptions == 1) << "enablePreferredHostOptions , \"True\"";
+		EXPECT_TRUE(activeConfig.phDetectionTimeSchedule == "45 23 * * 6") << "phDetectionTimeSchedule , 45 23 * * 6";
+		EXPECT_TRUE(activeConfig.phDetectionTimeInterval == 321) << "phDetectionTimeSchedule , 321";
+		EXPECT_TRUE(activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
+		EXPECT_TRUE(activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
+		EXPECT_TRUE(activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -1119,7 +1170,14 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			.addInt("ReconnectMinDelay", 4444)
 			.addInt("ReconnectMaxDelay", 7777)
 			.addInt("PipePort", 13650)
-			.addDouble("TokenReissueRatio", 0.55).complete())
+			.addDouble("TokenReissueRatio", 0.55)
+			.addUInt("EnablePreferredHostOptions", 1)
+			.addAscii("PHDetectionTimeSchedule", "45 23 * * 6")
+			.addUInt("PHDetectionTimeInterval", 321)
+			.addAscii("PreferredChannelName", "Channel_1")
+			.addAscii("PreferredWSBChannelName", "Channel_2")
+			.addUInt("PHFallBackWithInWSBGroup", 1)
+			.complete())
 			.addKeyAscii("Consumer_2", MapEntry::AddEnum, ElementList()
 				.addAscii("Channel", "Channel_2")
 				.addAscii("Dictionary", "Dictionary_1")
@@ -1241,6 +1299,12 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.tokenReissueRatio == 0.55) << "tokenReissueRatio , 0.55";
 		EXPECT_TRUE(activeConfig.reissueTokenAttemptLimit == -1) << "reissueTokenAttemptLimit , -1";
 		EXPECT_TRUE(activeConfig.reissueTokenAttemptInterval == 5000) << "reissueTokenAttemptInterval , 5000";
+		EXPECT_TRUE(activeConfig.enablePreferredHostOptions == 1) << "enablePreferredHostOptions , \"True\"";
+		EXPECT_TRUE(activeConfig.phDetectionTimeSchedule == "45 23 * * 6") << "phDetectionTimeSchedule , 45 23 * * 6";
+		EXPECT_TRUE(activeConfig.phDetectionTimeInterval == 321) << "phDetectionTimeSchedule , 321";
+		EXPECT_TRUE(activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
+		EXPECT_TRUE(activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
+		EXPECT_TRUE(activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -1666,6 +1730,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		innerMap.addKeyAscii("Consumer_2", MapEntry::AddEnum,
 			ElementList()
 			.addAscii("Channel", "Channel_2")
+			.addAscii("ChannelSet", "Channel_1, Channel_2")
 			.addAscii("Logger", "Logger_2")
 			.addAscii("Dictionary", "Dictionary_2")
 			.addAscii("RestLogFileName", "Rest.log")
@@ -1703,6 +1768,12 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addInt("ReissueTokenAttemptInterval", 15000)
 			.addAscii("RestProxyHostName", "restProxyNonLocalHost")
 			.addAscii("RestProxyPort", "9083")
+			.addUInt("EnablePreferredHostOptions", 1)
+			.addAscii("PHDetectionTimeSchedule", "45 23 * * 6")
+			.addUInt("PHDetectionTimeInterval", 321)
+			.addAscii("PreferredChannelName", "Channel_1")
+			.addAscii("PreferredWSBChannelName", "Channel_2")
+			.addUInt("PHFallBackWithInWSBGroup", 1)
 			.complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap).complete();
@@ -1776,7 +1847,8 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 
 		bool found = ommConsumerImpl.getInstanceName().find( "Consumer_2" ) >= 0 ? true : false;
 		EXPECT_TRUE( found) << "ommConsumerImpl.getConsumerName() , \"Consumer_2_3\"";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->name == "Channel_2" ) << "Connection name , \"Channel_2\"";
+		EXPECT_TRUE( activeConfig.configChannelSet[0]->name == "Channel_1" ) << "Connection name , \"Channel_1\"";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->name == "Channel_2" ) << "Connection name , \"Channel_2\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerName == "Logger_2" ) << "Logger name , \"Logger_2\"";
 		EXPECT_TRUE( activeConfig.dictionaryConfig.dictionaryName == "Dictionary_2" ) << "dictionaryName , \"Dictionary_2\"";
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
@@ -1814,21 +1886,27 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.reissueTokenAttemptInterval == 15000) << "reissueTokenAttemptInterval , 15000";
 		EXPECT_TRUE( activeConfig.restProxyHostName == "restProxyNonLocalHost" ) << "restProxyHostName , \"restProxyNonLocalHost\"";
 		EXPECT_TRUE( activeConfig.restProxyPort == "9083" ) << "restProxyPort , \"9083\"";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->compressionType == 2) << "compressionType , 2";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 7000) << "guaranteedOutputBuffers , 7000";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->numInputBuffers == 888888) << "numInputBuffers , 888888";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->sysRecvBufSize == 550000) << "sysRecvBufSize , 550000";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->sysSendBufSize == 700000) << "sysSendBufSize , 700000";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->compressionThreshold == 12758) << "compressionThreshold , compressionThreshold";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionPingTimeout == 70000) << "connectionPingTimeout , 70000";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "connectionType , ChannelType::RSSL_SOCKET";
-		EXPECT_TRUE( activeConfig.configChannelSet[0]->directWrite == 1) << "directWrite , 1";
-		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
-		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
-		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->tcpNodelay == 1) << "SocketChannelConfig::tcpNodelay , 1";
-		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->initializationTimeout == 77) << "SocketChannelConfig::initializationTimeout , 77";
-		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->enableSessionMgnt == 0) << "SocketChannelConfig::enableSessionMgnt , 0";
+		EXPECT_TRUE(activeConfig.enablePreferredHostOptions == 1) << "enablePreferredHostOptions , \"True\"";
+		EXPECT_TRUE(activeConfig.phDetectionTimeSchedule == "45 23 * * 6") << "prefferdDetectionTimeSchedule , 45 23 * * 6";
+		EXPECT_TRUE(activeConfig.phDetectionTimeInterval == 321) << "phDetectionTimeSchedule , 321";
+		EXPECT_TRUE(activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
+		EXPECT_TRUE(activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
+		EXPECT_TRUE(activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->compressionType == 2) << "compressionType , 2";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->guaranteedOutputBuffers == 7000) << "guaranteedOutputBuffers , 7000";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->numInputBuffers == 888888) << "numInputBuffers , 888888";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->sysRecvBufSize == 550000) << "sysRecvBufSize , 550000";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->sysSendBufSize == 700000) << "sysSendBufSize , 700000";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->compressionThreshold == 12758) << "compressionThreshold , compressionThreshold";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->connectionPingTimeout == 70000) << "connectionPingTimeout , 70000";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->connectionType == RSSL_CONN_TYPE_SOCKET) << "connectionType , ChannelType::RSSL_SOCKET";
+		EXPECT_TRUE( activeConfig.configChannelSet[1]->directWrite == 1) << "directWrite , 1";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[1] )->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[1] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[1] )->tcpNodelay == 1) << "SocketChannelConfig::tcpNodelay , 1";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[1] )->initializationTimeout == 77) << "SocketChannelConfig::initializationTimeout , 77";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[1] )->enableSessionMgnt == 0) << "SocketChannelConfig::enableSessionMgnt , 0";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerFileName == "ConfigDB2_logFile" ) << "loggerFileName = \"ConfigDB2_logFile\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::NoLogMsgEnum) << "minLoggerSeverity = OmmLoggerClient::NoLogMsgEnum";

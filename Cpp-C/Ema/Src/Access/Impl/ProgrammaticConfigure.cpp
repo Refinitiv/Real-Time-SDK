@@ -1501,6 +1501,18 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 											switch ( eentry.getLoadType() )
 											{
 											case DataType::AsciiEnum:
+												if (eentry.getName() == "PHDetectionTimeSchedule")
+												{
+													static_cast<ActiveConfig&>(activeConfig).setDetectionTimeSchedule( eentry.getAscii() );
+												}
+												else if (eentry.getName() == "PreferredChannelName")
+												{
+													static_cast<ActiveConfig&>(activeConfig).setChannelName(eentry.getAscii());
+												}
+												else if (eentry.getName() == "PreferredWSBChannelName")
+												{
+													static_cast<ActiveConfig&>(activeConfig).setWSBChannelName(eentry.getAscii());
+												}
 												break;
 
 											case DataType::UIntEnum:
@@ -1523,6 +1535,18 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 												else if ( eentry.getName() == "DictionaryRequestTimeOut" )
 												{
 													static_cast<ActiveConfig&>(activeConfig).setDictionaryRequestTimeOut( eentry.getUInt() );
+												}
+												else if (eentry.getName() == "EnablePreferredHostOptions")
+												{
+													static_cast<ActiveConfig&>(activeConfig).setEnablePreferredHostOptions(eentry.getUInt());
+												}
+												else if (eentry.getName() == "PHDetectionTimeInterval")
+												{
+													static_cast<ActiveConfig&>(activeConfig).setDetectionTimeInterval(eentry.getUInt());
+												}
+												else if (eentry.getName() == "PHFallBackWithInWSBGroup")
+												{
+													static_cast<ActiveConfig&>(activeConfig).setFallBackWithInWSBGroup(eentry.getUInt());
 												}
 												break;
 

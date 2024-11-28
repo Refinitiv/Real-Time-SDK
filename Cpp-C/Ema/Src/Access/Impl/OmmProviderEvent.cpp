@@ -64,9 +64,9 @@ UInt64 OmmProviderEvent::getClientHandle() const
 const ChannelInformation& OmmProviderEvent::getChannelInformation() const {
 	RsslReactorChannel* rsslReactorChannel = reinterpret_cast<RsslReactorChannel*>( _channel );
 	if ( getProvider().getProviderRole() == OmmProviderConfig::InteractiveEnum ) 
-		getChannelInformationImpl( rsslReactorChannel, OmmCommonImpl::IProviderEnum, const_cast<ChannelInformation&>( _channelInfo ) );
+		ChannelInfoImpl::getChannelInformationImpl( rsslReactorChannel, OmmCommonImpl::IProviderEnum, const_cast<ChannelInformation&>( _channelInfo ) );
 	else 
-		getChannelInformationImpl( rsslReactorChannel, OmmCommonImpl::NiProviderEnum, const_cast<ChannelInformation&>( _channelInfo ) );
+		ChannelInfoImpl::getChannelInformationImpl( rsslReactorChannel, OmmCommonImpl::NiProviderEnum, const_cast<ChannelInformation&>( _channelInfo ) );
 
 	return _channelInfo;
 }

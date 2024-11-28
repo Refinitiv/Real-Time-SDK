@@ -809,7 +809,7 @@ bool EmaString::operator!= ( const EmaString& other ) const
 
     if ( _pString && !other._pString ) return true;
 
-    if ( !_pString && !other._pString ) return true;
+    if ( !_pString && !other._pString ) return false;
 
     return ( 0 == memcmp ( _pString, other._pString, _length ) ? false : true );
 }

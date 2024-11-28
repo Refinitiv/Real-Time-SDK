@@ -671,6 +671,12 @@ void EmaActiveConfigTest::ActiveConfigTestDefaultValues(ActiveConfig & activeCon
 	EXPECT_TRUE(activeConfig.restProxyUserName.empty());
 	EXPECT_TRUE(activeConfig.restProxyPasswd.empty());
 	EXPECT_TRUE(activeConfig.restProxyDomain.empty());
+	EXPECT_EQ(activeConfig.enablePreferredHostOptions, DEFAULT_ENABLE_PREFERRED_HOST);
+	EXPECT_EQ(activeConfig.phDetectionTimeSchedule, DEFAULT_DETECTION_TIME_SCHEDULE);
+	EXPECT_EQ(activeConfig.phDetectionTimeInterval, DEFAULT_DETECTION_TIME_INTERVAL);
+	EXPECT_EQ(activeConfig.preferredChannelName, DEFAULT_CHANNEL_NAME);
+	EXPECT_EQ(activeConfig.preferredWSBChannelName, DEFAULT_WSB_CHANNEL_NAME);
+	EXPECT_EQ(activeConfig.phFallBackWithInWSBGroup, DEFAULT_FALL_BACK_WITH_IN_WSB_GROUP);
 }
 
 TEST_F(EmaActiveConfigTest, ActiveConfigTest)
@@ -788,6 +794,13 @@ TEST_F(EmaActiveConfigTest, ActiveConfigTest)
 	activeConfig.restProxyUserName = "non def restProxyUserName";
 	activeConfig.restProxyPasswd = "non def restProxyPasswd";
 	activeConfig.restProxyDomain = "non def restProxyDomain";
+
+	activeConfig.enablePreferredHostOptions = true;
+	activeConfig.phDetectionTimeSchedule = "non def phDetectionTimeSchedule";
+	activeConfig.phDetectionTimeInterval = 123;
+	activeConfig.preferredChannelName = "non def preferredChannelName";
+	activeConfig.preferredWSBChannelName = "non def preferredWSBChannelName";
+	activeConfig.phFallBackWithInWSBGroup = true;
 
 	// Tests clear method
 	activeConfig.clear();

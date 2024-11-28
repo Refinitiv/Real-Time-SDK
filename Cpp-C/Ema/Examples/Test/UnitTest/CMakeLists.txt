@@ -13,13 +13,14 @@ set(_UnitTestSrcFiles
         FieldListTests.cpp FilterListTests.cpp
         GenericMsgTests.cpp LoginHelperTest.cpp
         MapTests.cpp NoDataSizeTest.cpp
-        OmmExceptionTests.cpp PollFdMaintenanceTest.cpp
-        PostMsgTests.cpp RefreshMsgTests.cpp
+        OmmExceptionTests.cpp PackedMsgTest.cpp
+        PollFdMaintenanceTest.cpp PostMsgTests.cpp
+        PreferredHostTest.cpp RefreshMsgTests.cpp
         RequestMsgTests.cpp RmtesBufferTest.cpp
         SeriesTests.cpp StatusMsgTests.cpp
         TestUtilities.cpp TestUtilities.h
         TunnelStreamRequestTests.cpp UpdateMsgTests.cpp
-        VectorTests.cpp PackedMsgTest.cpp
+        VectorTests.cpp
         )
 
 add_executable( EmaUnitTest ${_UnitTestSrcFiles} )

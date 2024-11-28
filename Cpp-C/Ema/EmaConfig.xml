@@ -101,6 +101,22 @@
 			<Dictionary value="Dictionary_2"/>
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
+		
+		<!-- Consumer for preferred host feature -->
+		<Consumer>
+			<Name value="Consumer_9"/>
+			<ChannelSet value="Channel_1, Channel_7"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<Logger value="Logger_1"/>
+			<Dictionary value="Dictionary_2"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredChannelName value="Channel_1"/>
+			<!-- <PreferredWSBChannelName value="WarmStandbyChannel_1"/> -->
+			<!-- <PHFallBackWithInWSBGroup value="1"/> -->
+			<PHDetectionTimeSchedule value="* * ? * *"/>
+			<PHDetectionTimeInterval value="15"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
 
 		<!-- Performance tools consumers -->
 		<Consumer>
@@ -583,6 +599,12 @@
 			<Name value="WarmStandbyChannel_1"/>
 			<StartingActiveServer value="Server_Info_1"/>
 			<StandbyServerSet value="Server_Info_2"/>
+			<WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_2"/>
+			<StartingActiveServer value="Server_Info_2"/>
+			<StandbyServerSet value="Server_Info_1"/>
 			<WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
 		</WarmStandbyChannel>
 	</WarmStandbyList>

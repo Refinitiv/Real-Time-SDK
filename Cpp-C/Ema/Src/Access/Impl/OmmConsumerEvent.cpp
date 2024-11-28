@@ -44,7 +44,7 @@ UInt64 OmmConsumerEvent::getParentHandle() const
 const ChannelInformation& OmmConsumerEvent::getChannelInformation() const 
 {
 	RsslReactorChannel* rsslReactorChannel = reinterpret_cast<RsslReactorChannel*>( _channel );
-	getChannelInformationImpl( rsslReactorChannel, OmmCommonImpl::ConsumerEnum, const_cast<ChannelInformation&>( _channelInfo ) );
+	ChannelInfoImpl::getChannelInformationImpl( rsslReactorChannel, OmmCommonImpl::ConsumerEnum, const_cast<ChannelInformation&>( _channelInfo ) );
 	return _channelInfo;
 }
 

@@ -29,7 +29,7 @@ Channel* Channel::create( OmmBaseImpl& ommBaseImpl, const EmaString& name , Rssl
 {
 	try
 	{
-		return new Channel( name, pRsslReactor, reactorChannelType);
+		return new Channel( name, pRsslReactor, ommBaseImpl.getActiveConfig(), reactorChannelType);
 	}
 	catch ( std::bad_alloc& )
 	{
@@ -52,7 +52,7 @@ void Channel::destroy( Channel*& pChannel )
 	}
 }
 
-Channel::Channel( const EmaString& name, RsslReactor* pRsslReactor, ReactorChannelType reactorChannelType) :
+Channel::Channel( const EmaString& name, RsslReactor* pRsslReactor, ActiveConfig& activeConfig, ReactorChannelType reactorChannelType) :
 	_name( name ),
 	_pRsslReactor( pRsslReactor ),
 	_toString(),
@@ -65,7 +65,8 @@ Channel::Channel( const EmaString& name, RsslReactor* pRsslReactor, ReactorChann
 	_reactorChannelType( reactorChannelType ),
 	_pParentChannel( NULL ),
 	_inOAuthCallback( false ),
-	_addedToDeleteList( false )
+	_addedToDeleteList( false ),
+	_activeConfig(activeConfig)
 {
 	_pRsslSocketList = new EmaVector< RsslSocket >(EMA_INIT_NUMBER_OF_SOCKET);
 }
@@ -188,6 +189,11 @@ void Channel::setAddedToDeleteList(bool isAdded)
 bool Channel::getAddedToDeleteList() const
 {
 	return _addedToDeleteList;
+}
+
+const ActiveConfig& Channel::getActiveConfig() const 
+{
+	return _activeConfig;
 }
 
 const EmaString& Channel::toString() const
@@ -768,11 +774,55 @@ void ChannelCallbackClient::initialize()
 	connectOpt.reconnectAttemptLimit = activeConfig.reconnectAttemptLimit;
 	connectOpt.reconnectMinDelay = activeConfig.reconnectMinDelay;
 	connectOpt.reconnectMaxDelay = activeConfig.reconnectMaxDelay;
+	connectOpt.preferredHostOptions.enablePreferredHostOptions = activeConfig.enablePreferredHostOptions;
+	connectOpt.preferredHostOptions.detectionTimeSchedule.data = const_cast<char*>(activeConfig.phDetectionTimeSchedule.c_str());
+	connectOpt.preferredHostOptions.detectionTimeSchedule.length = (RsslUInt32)strlen(activeConfig.phDetectionTimeSchedule.c_str());
+	connectOpt.preferredHostOptions.detectionTimeInterval = activeConfig.phDetectionTimeInterval;
+	connectOpt.preferredHostOptions.fallBackWithInWSBGroup = activeConfig.phFallBackWithInWSBGroup;
+
+	if (!activeConfig.preferredChannelName.empty())
+	{
+		for (unsigned i = 0; i < activeConfigChannelSet.size(); i++)
+		{
+			if (activeConfigChannelSet[i]->name == activeConfig.preferredChannelName)
+			{
+				connectOpt.preferredHostOptions.connectionListIndex = i;
+				break;
+			}
+			if ( i == activeConfigChannelSet.size() - 1)
+			{
+				EmaString temp("Preferred host channel name: ");
+				temp.append(activeConfig.preferredChannelName);
+				temp.append(" is not present in configuration.");
+				throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
+			}
+		}
+	}
 
 	if (warmStandbyChannelGroup)
 	{
 		connectOpt.warmStandbyGroupCount = warmStandbyChannelSet.size();
 		connectOpt.reactorWarmStandbyGroupList = warmStandbyChannelGroup;
+
+		if (!activeConfig.preferredWSBChannelName.empty())
+		{
+			for (unsigned i = 0; i < warmStandbyChannelSet.size(); i++)
+			{
+				if (warmStandbyChannelSet[i]->name == activeConfig.preferredWSBChannelName)
+				{
+					connectOpt.preferredHostOptions.warmStandbyGroupListIndex = i;
+					break;
+				}
+
+				if (i == warmStandbyChannelSet.size() - 1)
+				{
+					EmaString temp("Preferred host WSB channel name: ");
+					temp.append(activeConfig.preferredWSBChannelName);
+					temp.append(" is not present in configuration.");
+					throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
+				}
+			}
+		}
 	}
 
 	EmaString channelParams;
@@ -1501,15 +1551,18 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		if ( OmmLoggerClient::WarningEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received ChannelDownReconnecting event on channel " );
-			temp.append(pChannelConfig->name).append( CR )
-			.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
-			.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
-			.append( "RsslChannel " ).append( ptrToStringAsHex( pEvent->pError->rsslError.channel ) ).append( CR )
-			.append( "Error Id " ).append( pEvent->pError->rsslError.rsslErrorId ).append( CR )
-			.append( "Internal sysError " ).append( pEvent->pError->rsslError.sysError ).append( CR )
-			.append( "Error Location " ).append( pEvent->pError->errorLocation ).append( CR )
-			.append( "Error Text " ).append( pEvent->pError->rsslError.rsslErrorId ? pEvent->pError->rsslError.text : "" );
-
+			temp.append(pChannelConfig->name).append(CR)
+				.append("Instance Name ").append(_ommBaseImpl.getInstanceName()).append(CR)
+				.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR);
+			
+			if (pEvent && pEvent->pError)
+			{
+				temp.append( "RsslChannel " ).append( ptrToStringAsHex( pEvent->pError->rsslError.channel ) ).append( CR )
+				.append( "Error Id " ).append( pEvent->pError->rsslError.rsslErrorId ).append( CR )
+				.append( "Internal sysError " ).append( pEvent->pError->rsslError.sysError ).append( CR )
+				.append( "Error Location " ).append( pEvent->pError->errorLocation ).append( CR )
+				.append( "Error Text " ).append( pEvent->pError->rsslError.rsslErrorId ? pEvent->pError->rsslError.text : "" );
+			}
 			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp.trimWhitespace() );
 		}
 
@@ -1545,6 +1598,16 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		}
 		return RSSL_RC_CRET_SUCCESS;
 	}
+	case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:
+		if (OmmLoggerClient::SuccessEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+		{
+			EmaString temp("Received Channel preferred host on channel ");
+			temp.append(pChannelConfig->name);
+			temp.append(" complete.");
+			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::SuccessEnum, temp.trimWhitespace());
+		}
+		_ommBaseImpl.getLoginCallbackClient().processChannelEvent(pEvent);
+		break;
 	default:
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -1565,6 +1628,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		return RSSL_RC_CRET_FAILURE;
 	}
 	}
+	return RSSL_RC_CRET_SUCCESS;
 }
 
 const ChannelList& ChannelCallbackClient::getChannelList()

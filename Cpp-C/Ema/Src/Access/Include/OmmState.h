@@ -122,6 +122,7 @@ public :
 		DacsUserAccessToAppDeniedEnum	= 32,	/*!< User is not allowed to use application */
 		GapFillEnum						= 34,	/*!< Content is intended to fill a recognized gap */
 		AppAuthorizationFailedEnum		= 35,	/*!< Application Authorization Failed */
+		SocketPHComplete				= 201,	/*!< Socket preferred host complete>*/
 		InvalidFormedMsgEnum			= 256,  /*!< DEPRECATED: Not Used */
 		ChannelUnavailableEnum			= 257, /*!< DEPRECATED: Not Used */
 		ServiceUnavailableEnum			= 258, /*!< DEPRECATED: Not Used */

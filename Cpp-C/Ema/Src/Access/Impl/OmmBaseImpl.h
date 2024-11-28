@@ -202,6 +202,8 @@ public :
 
 	void modifyReactorIOCtl(Int32 code, Int32 value);
 
+	void modifyReactorChannelIOCtl(Int32 code, void* value);
+
 	UInt8 getLoginArrayIndex(EmaString& channelName);
 
 	UInt8 getOAuthArrayIndex(EmaString& channelName);

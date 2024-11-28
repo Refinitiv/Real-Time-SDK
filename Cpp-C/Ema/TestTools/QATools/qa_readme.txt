@@ -455,7 +455,21 @@ Series400Consumer430-Auth-006
 Series400Consumer430-Auth-007
     Alters consumer which supports an authentication to do offstream posting.
 
+Series500-Consumer500-ConsFunc-001
+    Alter consumer to have file config, retister client for logitn to test preferred host feature.
 
+Series500-Consumer501-ConsFunc-001
+    Alter consumer to have programaticaly config, 3 warm standby groups with two channels each, 3 channels in channelset to test preferred host feature.
+
+Series500-Consumer501-ConsFunc-002
+    Alter consumer to have programatic config, retister client for logitn to test preferred host feature.
+
+Series500-Consumer501-BatchView-10Consumers
+    Alters the Consumer to bring miltiple consumers up and down triggering any memory issues.
+
+Series500-Consumer502-ConsFunc-001
+    Alter consumer retister client for logitn to test preferred host feature.
+	
 Module:  Series400Consumer440
 -----------------------------
 Series400Consumer440-TS-001
@@ -576,6 +590,10 @@ Series100IProvider100-ProvFunc-009
 	
 Series100IProvider100-ProvFunc-010
 	Alters Interactive Provider to register appClientError (since v. 1.4.0) and submit huge updateMsg.
+
+Series100IProvider100-ProvFunc-011
+	Alerts Interactive Provider to support the following user inputs:
+	-port: Provider port
 
 Module:	 Series100IProvider170
 ---------------------------

@@ -90,6 +90,12 @@
 #define DEFAULT_REQUEST_TIMEOUT						   15000
 #define DEFAULT_REST_REQUEST_TIMEOUT				   90
 #define DEFAULT_SERVICE_COUNT_HINT					   513
+#define DEFAULT_ENABLE_PREFERRED_HOST				   false
+#define DEFAULT_DETECTION_TIME_SCHEDULE                EmaString( "" )
+#define DEFAULT_DETECTION_TIME_INTERVAL				   0
+#define DEFAULT_CHANNEL_NAME						   EmaString( "" )
+#define DEFAULT_WSB_CHANNEL_NAME					   EmaString( "" )
+#define DEFAULT_FALL_BACK_WITH_IN_WSB_GROUP			   false
 #define DEFAULT_OBJECT_NAME							   EmaString( "" )
 #define DEFAULT_SSL_CA_STORE						   EmaString( "" )
 #define DEFAULT_TCP_NODELAY							   RSSL_TRUE
@@ -529,10 +535,16 @@ public:
 	void setLoginRequestTimeOut( UInt64 );
 	void setDirectoryRequestTimeOut( UInt64 );
 	void setDictionaryRequestTimeOut( UInt64 );
-	void setReconnectAttemptLimit(Int64 value);
-	void setReconnectMinDelay(Int64 value);
-	void setReconnectMaxDelay(Int64 value);
-	void setRestRequestTimeOut(UInt64 value);
+	void setEnablePreferredHostOptions(UInt64);
+	void setDetectionTimeSchedule ( const EmaString& );
+	void setChannelName( const EmaString& );
+	void setWSBChannelName( const EmaString& );
+	void setDetectionTimeInterval( UInt64 );
+	void setFallBackWithInWSBGroup( UInt64 );
+	void setReconnectAttemptLimit( Int64 value );
+	void setReconnectMinDelay( Int64 value );
+	void setReconnectMaxDelay( Int64 value );
+	void setRestRequestTimeOut( UInt64 value );
 
 	ChannelConfig* findChannelConfig( const Channel* pChannel );
 	static bool findChannelConfig( EmaVector< ChannelConfig* >&, const EmaString&, unsigned int& );
@@ -575,6 +587,14 @@ public:
 	EmaString				restProxyUserName;
 	EmaString				restProxyPasswd;
 	EmaString				restProxyDomain;
+
+	// Preferred host
+	bool            enablePreferredHostOptions;
+	EmaString		phDetectionTimeSchedule;
+	UInt32          phDetectionTimeInterval;
+	EmaString       preferredChannelName;
+	EmaString       preferredWSBChannelName;
+	bool			phFallBackWithInWSBGroup;
 
 protected:
 

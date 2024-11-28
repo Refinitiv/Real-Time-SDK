@@ -200,6 +200,11 @@ void OmmConsumer::modifyReactorIOCtl(Int32 code, Int32 value)
 	_pImpl->modifyReactorIOCtl(code, value);
 }
 
+void OmmConsumer::modifyReactorChannelIOCtl(Int32 code, void* value)
+{
+	_pImpl->modifyReactorChannelIOCtl(code, value);
+}
+
 void OmmConsumer::renewOAuth2Credentials(OAuth2CredentialRenewal& credentials)
 {
 	_pImpl->renewOAuth2Credentials(credentials);
@@ -208,4 +213,9 @@ void OmmConsumer::renewOAuth2Credentials(OAuth2CredentialRenewal& credentials)
 void OmmConsumer::renewLoginCredentials(LoginMsgCredentialRenewal& credentials)
 {
 	_pImpl->renewLoginMsgCredentials(credentials);
+}
+
+void OmmConsumer::fallbackPreferredHost() 
+{
+	_pImpl->fallbackPreferredHost();
 }

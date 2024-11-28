@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2022 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -186,6 +186,27 @@ void OmmConsumerImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 
 		if (pConfigImpl->get<UInt64>(instanceNodeName + "MaxOutstandingPosts", tmp))
 			_activeConfig.maxOutstandingPosts = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+
+		if (pConfigImpl->get<UInt64>(instanceNodeName + "EnablePreferredHostOptions", tmp))
+			_activeConfig.enablePreferredHostOptions = static_cast<UInt32>(tmp > 0 ? 1 : 0);
+
+		if (pConfigImpl->get<UInt64>(instanceNodeName + "PHDetectionTimeInterval", tmp))
+			_activeConfig.phDetectionTimeInterval = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+
+		if (pConfigImpl->get<UInt64>(instanceNodeName + "PHFallBackWithInWSBGroup", tmp))
+			_activeConfig.phFallBackWithInWSBGroup = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+
+		EmaString tmpStr;
+		if (pConfigImpl->get<EmaString>(instanceNodeName + "PHDetectionTimeSchedule", tmpStr))
+			_activeConfig.phDetectionTimeSchedule = tmpStr;
+
+		tmpStr.clear();
+		if (pConfigImpl->get<EmaString>(instanceNodeName + "PreferredChannelName", tmpStr))
+			_activeConfig.preferredChannelName = tmpStr;
+
+		tmpStr.clear();
+		if (pConfigImpl->get<EmaString>(instanceNodeName + "PreferredWSBChannelName", tmpStr))
+			_activeConfig.preferredWSBChannelName = tmpStr;
 
 		_activeConfig.pRsslDirectoryRequestMsg = pConfigImpl->getDirectoryReq();
 
@@ -483,7 +504,7 @@ void OmmConsumerImpl::getChannelInformation(ChannelInformation& ci) {
 	ci.clear();
 	return;
   }
-  return getChannelInformationImpl(pChannel->getRsslChannel(), OmmCommonImpl::ConsumerEnum, ci);
+  return ChannelInfoImpl::getChannelInformationImpl(pChannel->getRsslChannel(), OmmCommonImpl::ConsumerEnum, ci);
 }
 
 void OmmConsumerImpl::getChannelStatistics(ChannelStatistics& cs) {
@@ -691,4 +712,36 @@ void OmmConsumerImpl::renewLoginMsgCredentials(LoginMsgCredentialRenewal& creden
 	}
 
 	_userLock.unlock();
+}
+
+void OmmConsumerImpl::fallbackPreferredHost()
+{
+	_userLock.lock();
+
+	Channel* pChannel;
+	if ((pChannel = getLoginCallbackClient().getActiveChannel()) == NULL || (pChannel->getRsslChannel() == NULL))
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to perform fall back.");
+		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+		return;
+	}
+
+	RsslErrorInfo rsslErrorInfo;
+	RsslRet ret = rsslReactorFallbackToPreferredHost(pChannel->getRsslChannel(), &rsslErrorInfo);
+
+	if (ret != RSSL_RET_SUCCESS)
+	{
+		_userLock.unlock();
+		EmaString temp("Failed to perform preferred host fall back.");
+			temp.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+			.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+			.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+		handleIue(temp, ret);
+		return;
+	}
+
+	_userLock.unlock();
+
 }

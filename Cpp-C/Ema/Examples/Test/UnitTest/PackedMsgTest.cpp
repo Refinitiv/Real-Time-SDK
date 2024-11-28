@@ -13,11 +13,11 @@ using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
 using namespace std;
 
-UInt64 clientHandle = 0;
-UInt64 itemHandle = 0;
-const Int32 packedMsgNum = 10;
+static UInt64 clientHandle = 0;
+static UInt64 itemHandle = 0;
+static const Int32 packedMsgNum = 10;
 
-void sleep(int millisecs)
+static void sleep(int millisecs)
 {
 #if defined WIN32
 	::Sleep((DWORD)(millisecs));
