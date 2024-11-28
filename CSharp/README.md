@@ -17,15 +17,15 @@ External modules used by this version of RTSDK CSharp:
 
         Dependency                                 Version
         ----------                                 -------
-        K4os.Compression.LZ4                       1.2.16
+        K4os.Compression.LZ4                       1.3.8
         Microsoft.Csharp                           4.5.0
         Microsoft.IdentityModel.Abstractions       7.5.1 
         Microsoft.IdentityModel.Jsonwebtokends     7.5.1 
         Microsoft.IdentityModel.Logging            7.5.1 
         Microsoft.IdentityModel.Tokens             7.5.1 
         Microsoft.Netcore.Platforms                5.0.0
-        NLog                                       5.2.8
-        NLog.Extensions.Logging                    5.3.8
+        NLog                                       5.3.4
+        NLog.Extensions.Logging                    5.3.14
         System.IdentityModel.Tokens.Jwt            7.5.1
         System.Runtime                             4.3.0
         System.Security.Cryptography.Cng           5.0.0 

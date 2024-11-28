@@ -12,7 +12,6 @@ using LSEG.Eta.Rdm;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1853,7 +1852,7 @@ public class OmmConfigTests : IDisposable
         Assert.Equal(MapEntryActions.ADD, testService!.Action);
         Assert.Equal(FilterEntryActions.SET, testService!.Info.Action);
         Assert.True(testService!.Info.HasVendor);
-        Assert.True(testService!.Info.Vendor.ToString().IsNullOrEmpty());
+        Assert.True(string.IsNullOrEmpty(testService!.Info.Vendor.ToString()));
         Assert.True(testService!.Info.HasIsSource);
         Assert.Equal(0, testService!.Info.IsSource);
         Assert.Contains(Ema.Rdm.EmaRdm.MMT_MARKET_PRICE, testService!.Info.CapabilitiesList);
@@ -1869,7 +1868,7 @@ public class OmmConfigTests : IDisposable
         Assert.Contains(DictionaryCallbackClient<IOmmProviderClient>.DICTIONARY_RWFFID, testService!.Info.DictionariesUsedList);
         Assert.Contains(DictionaryCallbackClient<IOmmProviderClient>.DICTIONARY_RWFENUM, testService!.Info.DictionariesUsedList);
         Assert.True(testService!.Info.HasItemList);
-        Assert.True(testService!.Info.ItemList.ToString().IsNullOrEmpty());
+        Assert.True(string.IsNullOrEmpty(testService!.Info.ItemList.ToString()));
         Assert.True(testService!.Info.HasAcceptingConsStatus);
         Assert.Equal(1, testService!.Info.AcceptConsumerStatus);
         Assert.True(testService!.Info.HasSupportOOBSnapshots);
@@ -6873,7 +6872,7 @@ public class OmmConfigTests : IDisposable
         Assert.Equal(MapEntryActions.ADD, testService!.Action);
         Assert.Equal(FilterEntryActions.SET, testService!.Info.Action);
         Assert.True(testService!.Info.HasVendor);
-        Assert.True(testService!.Info.Vendor.ToString().IsNullOrEmpty());
+        Assert.True(string.IsNullOrEmpty(testService!.Info.Vendor.ToString()));
         Assert.True(testService!.Info.HasIsSource);
         Assert.Equal(0, testService!.Info.IsSource);
         Assert.Contains(Ema.Rdm.EmaRdm.MMT_MARKET_PRICE, testService!.Info.CapabilitiesList);
@@ -6894,7 +6893,7 @@ public class OmmConfigTests : IDisposable
         Assert.Contains(DictionaryCallbackClient<IOmmProviderClient>.DICTIONARY_RWFFID, testService!.Info.DictionariesUsedList);
         Assert.Contains(DictionaryCallbackClient<IOmmProviderClient>.DICTIONARY_RWFENUM, testService!.Info.DictionariesUsedList);
         Assert.True(testService!.Info.HasItemList);
-        Assert.True(testService!.Info.ItemList.ToString().IsNullOrEmpty());
+        Assert.True(string.IsNullOrEmpty(testService!.Info.ItemList.ToString()));
         Assert.True(testService!.Info.HasAcceptingConsStatus);
         Assert.Equal(1, testService!.Info.AcceptConsumerStatus);
         Assert.True(testService!.Info.HasSupportOOBSnapshots);
