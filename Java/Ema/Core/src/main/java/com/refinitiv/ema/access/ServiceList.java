@@ -24,7 +24,7 @@ public interface ServiceList
 	
 	/**
 	 * Sets the name of this service list
-	 * @param name 
+	 * @param name specifies the service list name 
 	 */
 	void name(String name);
 	/*
