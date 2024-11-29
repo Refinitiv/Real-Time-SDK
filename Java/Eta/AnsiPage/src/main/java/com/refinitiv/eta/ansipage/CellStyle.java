@@ -108,6 +108,7 @@ public final class CellStyle implements Cloneable{
    * @param bUnderlinEnable Enable/Disable the Underline style of the cell. Type: boolean
    * @deprecated - replaced by {@link #setStyle(CellStyle) setStyle(CellStyle.underline)}
    */
+  @Deprecated
   public void setUnderline(boolean bUnderlinEnable)
   {
     _underlineEnable = bUnderlinEnable;
@@ -119,6 +120,7 @@ public final class CellStyle implements Cloneable{
    * @return true if the Underline is enabled.
    * @deprecated - replaced by {@link #hasStyle(CellStyle)}
    */
+  @Deprecated
   public boolean getUnderline()
   {
     return _underlineEnable;

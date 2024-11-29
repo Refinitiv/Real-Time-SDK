@@ -20,6 +20,7 @@ public final class CellColor implements Cloneable
     * 
     * @deprecated - CellColor is immutable, so clone is not needed
     */
+   @Deprecated
    public Object clone()
    {
      return this;
@@ -51,6 +52,7 @@ public final class CellColor implements Cloneable
     * 
     * @deprecated - static CellColor constants should be used
     */
+   @Deprecated
    public CellColor()
    {
      _name = "mono";
@@ -65,6 +67,7 @@ public final class CellColor implements Cloneable
     * 
     * @deprecated - static CellColor constants should be used
     */
+   @Deprecated
    public CellColor(byte value)
    {
        this((int)value);

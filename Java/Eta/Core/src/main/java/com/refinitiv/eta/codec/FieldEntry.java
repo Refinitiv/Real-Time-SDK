@@ -84,6 +84,7 @@ public interface FieldEntry
      * 
      * @deprecated as of ETAJ3.0.0.L1.  Similar, but more type safe, functionality is provided by other FieldEntry interfaces	
      */
+    @Deprecated
     public int encode(EncodeIterator iter, Object data);
 
     /**

@@ -17,6 +17,7 @@ public final class GraphicSet implements Cloneable{
    * 
    * @deprecated - GraphicSet is immutable, so clone is not needed
    */
+  @Deprecated
   public Object clone()
   {
     return this;
@@ -168,6 +169,7 @@ public final class GraphicSet implements Cloneable{
    * 
    * @deprecated - static GraphicSet constants should be used
    */
+  @Deprecated
   public GraphicSet(byte value)
   {
       this((int) value);

@@ -120,6 +120,7 @@ public class ElementNames
     /** @deprecated due to spelling error
      * 				use {@link #SOURCE_MIRROR_MODE}
      */
+    @Deprecated
     public static final Buffer SOURCE_MIROR_MODE = CodecFactory.createBuffer();
     /** SourceMirroringMode */
     public static final Buffer SOURCE_MIRROR_MODE = CodecFactory.createBuffer();

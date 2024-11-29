@@ -240,6 +240,7 @@ public class Page implements Cloneable
    * 
    * @deprecated - returns a new object with each call.  The other "<code>get</code>" functions are more efficient.
    */
+  @Deprecated
   public PageCell getPageCell(short nRow, short nColumn)
   {
     //Check to make sure that the requested cell is within the page bounds before returning the cell.
