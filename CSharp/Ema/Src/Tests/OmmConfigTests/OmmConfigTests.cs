@@ -301,15 +301,15 @@ public class OmmConfigTests : IDisposable
         streamState = DirectoryConfig.StringToStreamState(testString);
         Assert.Equal(OmmState.StreamStates.NON_STREAMING, streamState);
 
-        testString = "CLOSED";
+        testString = "Closed";
         streamState = DirectoryConfig.StringToStreamState(testString);
         Assert.Equal(OmmState.StreamStates.CLOSED, streamState);
 
-        testString = "CLOSEDRecover";
+        testString = "ClosedRecover";
         streamState = DirectoryConfig.StringToStreamState(testString);
         Assert.Equal(OmmState.StreamStates.CLOSED_RECOVER, streamState);
 
-        testString = "CLOSEDRedirected";
+        testString = "ClosedRedirected";
         streamState = DirectoryConfig.StringToStreamState(testString);
         Assert.Equal(OmmState.StreamStates.CLOSED_REDIRECTED, streamState);
 
@@ -2443,7 +2443,7 @@ public class OmmConfigTests : IDisposable
                             .AddUInt("AcceptingRequests", 1);
 
         innerServiceElementList.Clear();
-        innerServiceElementList.AddAscii("StreamState", "StreamState::CLOSEDRedirected")
+        innerServiceElementList.AddAscii("StreamState", "StreamState::ClosedRedirected")
                                 .AddAscii("DataState", "DataState::Suspect")
                                 .AddAscii("StatusCode", "StatusCode::NotOpen")
                                 .AddAscii("StatusText", "ProgStatusText")
@@ -3054,7 +3054,7 @@ public class OmmConfigTests : IDisposable
                             .AddUInt("AcceptingRequests", 1);
 
         innerServiceElementList.Clear();
-        innerServiceElementList.AddAscii("StreamState", "StreamState::CLOSEDRedirected")
+        innerServiceElementList.AddAscii("StreamState", "StreamState::ClosedRedirected")
                                 .AddAscii("DataState", "DataState::Suspect")
                                 .AddAscii("StatusCode", "StatusCode::NotOpen")
                                 .AddAscii("StatusText", "ProgStatusText")
@@ -3613,7 +3613,7 @@ public class OmmConfigTests : IDisposable
                             .AddUInt("AcceptingRequests", 0);
 
         innerServiceElementList.Clear();
-        innerServiceElementList.AddAscii("StreamState", "StreamState::CLOSED")
+        innerServiceElementList.AddAscii("StreamState", "StreamState::Closed")
                                 .AddAscii("DataState", "DataState::Ok")
                                 .AddAscii("StatusCode", "StatusCode::AlreadyOpen")
                                 .AddAscii("StatusText", "NewProgStatusText")
@@ -5104,7 +5104,7 @@ public class OmmConfigTests : IDisposable
                             .AddUInt("AcceptingRequests", 1);
 
         innerServiceElementList.Clear();
-        innerServiceElementList.AddAscii("StreamState", "StreamState::CLOSEDRedirected")
+        innerServiceElementList.AddAscii("StreamState", "StreamState::ClosedRedirected")
                                 .AddAscii("DataState", "DataState::Suspect")
                                 .AddAscii("StatusCode", "StatusCode::NotOpen")
                                 .AddAscii("StatusText", "ProgStatusText")
@@ -5732,7 +5732,7 @@ public class OmmConfigTests : IDisposable
                             .AddUInt("AcceptingRequests", 1);
 
         innerServiceElementList.Clear();
-        innerServiceElementList.AddAscii("StreamState", "StreamState::CLOSEDRedirected")
+        innerServiceElementList.AddAscii("StreamState", "StreamState::ClosedRedirected")
                                 .AddAscii("DataState", "DataState::Suspect")
                                 .AddAscii("StatusCode", "StatusCode::NotOpen")
                                 .AddAscii("StatusText", "ProgStatusText")
@@ -6299,7 +6299,7 @@ public class OmmConfigTests : IDisposable
                             .AddUInt("AcceptingRequests", 0);
 
         innerServiceElementList.Clear();
-        innerServiceElementList.AddAscii("StreamState", "StreamState::CLOSED")
+        innerServiceElementList.AddAscii("StreamState", "StreamState::Closed")
                                 .AddAscii("DataState", "DataState::Ok")
                                 .AddAscii("StatusCode", "StatusCode::AlreadyOpen")
                                 .AddAscii("StatusText", "NewProgStatusText")

@@ -1124,7 +1124,9 @@ public:
 
 	OmmLoggerClient::Severity readXMLconfiguration(const EmaString&);
 
-	bool extractXMLdataFromCharBuffer(const EmaString&, const EmaString&, const char*, const char*, int, int);
+	bool validateXMLdata(xmlDocPtr xmlDoc);
+
+	bool extractXMLdataFromCharBuffer(const EmaString&, const char*, size_t);
 
 	void processXMLnodePtr(XMLnode*, const xmlNodePtr&);
 
@@ -1156,7 +1158,9 @@ public:
 
 	static void setDefaultConfigFileName(const EmaString&);
 
-	static void setDefaultSchemaFileName(const EmaString&);
+	static const char* getSchemaData();
+
+	static size_t getSchemaDataLen();
 
 	const EmaString& getCpuWorkerThreadBind()
 	{

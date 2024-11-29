@@ -39,10 +39,8 @@ using namespace refinitiv::ema::access;
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 
 static const char* strEmaConfigXMLFileName = "EmaConfig.xml";
-static const char* strEmaSchemaXMLFileName = "EmaConfig.xsd";
 
 EmaString EmaConfigBaseImpl::defaultEmaConfigXMLFileName{ strEmaConfigXMLFileName };
-EmaString EmaConfigBaseImpl::defaultEmaSchemaXMLFileName{ strEmaSchemaXMLFileName };
 
 EmaConfigBaseImpl::EmaConfigBaseImpl( const EmaString & configPath) :
 	_pEmaConfig{ new XMLnode("EmaConfig", 0, 0) },
@@ -175,14 +173,6 @@ void EmaConfigBaseImpl::setDefaultConfigFileName(const EmaString& pathConfigFile
 		defaultEmaConfigXMLFileName = pathConfigFileName;
 	else
 		defaultEmaConfigXMLFileName = strEmaConfigXMLFileName;
-}
-
-void EmaConfigBaseImpl::setDefaultSchemaFileName(const EmaString& pathSchemaFileName)
-{
-	if (!pathSchemaFileName.empty())
-		defaultEmaSchemaXMLFileName = pathSchemaFileName;
-	else
-		defaultEmaSchemaXMLFileName = strEmaSchemaXMLFileName;
 }
 
 //  helper function for handling errors in readXMLconfiguration
@@ -332,44 +322,27 @@ OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaStrin
 {
 	OmmLoggerClient::Severity retCode;
 
-    EmaString schemaPath;
 	EmaString configFileName;		// eventual location of config file
-	EmaString schemaFileName;
-	const EmaString defaultConfigFileName{ defaultEmaConfigXMLFileName }; // used if path is empty or contains a directory
-	const EmaString defaultSchemaFileName{ defaultEmaSchemaXMLFileName }; // used if path is empty or contains a directory
 	size_t configBytesRead{ 0 };
-	size_t schemaBytesRead{ 0 };
 	BufferPtrT configByteData{ nullptr, std::free };
-	BufferPtrT schemaByteData{ nullptr, std::free };
 
 	if (OmmLoggerClient::SuccessEnum
-		!= (retCode = readFileToMemory(configPath, defaultConfigFileName, configFileName, configByteData, configBytesRead)))
+		!= (retCode = readFileToMemory(configPath, defaultEmaConfigXMLFileName, configFileName, configByteData, configBytesRead)))
 	{
 		return retCode;
 	}
 
-	// schema is optional: it is only an error when the schema file is present but can not be read
-	if (OmmLoggerClient::SuccessEnum
-		!= (retCode = readFileToMemory(schemaPath, defaultSchemaFileName, schemaFileName, schemaByteData, schemaBytesRead))
-		&& !schemaPath.empty())
-	{
-		return retCode;
-	}
-
-	bool retVal = extractXMLdataFromCharBuffer(configPath.c_str(), schemaPath.c_str(), configByteData.get(), schemaByteData.get(),
-		static_cast<int>(configBytesRead), static_cast<int>(schemaBytesRead));
+	bool retVal = extractXMLdataFromCharBuffer(configPath.c_str(), configByteData.get(), configBytesRead);
 
 	if ( retVal )
 		return OmmLoggerClient::SuccessEnum;
 	else
 	{
 		EmaString errorMsg;
-		if (schemaBytesRead)
-			errorMsg.append("error validating XML configuration");
-		else if (configBytesRead)
-			errorMsg.append("error parsing XML file");
-		else if (!configPath.empty())
-			errorMsg.append("could not construct configuration from file [").append(configFileName).append("]");
+		if (!configPath.empty())
+			errorMsg.append("could not construct configuration from file [").append(configFileName).append("] ");
+
+		errorMsg.append("error parsing XML file");
 
 		return handleConfigurationPathError(errorMsg, !configPath.empty());
 	}
@@ -381,7 +354,61 @@ void EmaConfigBaseImpl::errorHandler(void *userData, xmlErrorPtr error)
 		error->line, error->int2, error->message);
 }
 
-bool EmaConfigBaseImpl::extractXMLdataFromCharBuffer(const EmaString& configName, const EmaString& schemaName, const char* xmlData, const char* schemaData, int xmlLength, int schemaLength)
+bool EmaConfigBaseImpl::validateXMLdata(xmlDocPtr xmlDoc)
+{
+	const char* data = getSchemaData();
+	int len = static_cast<int>(getSchemaDataLen());
+	xmlSchemaParserCtxtPtr schemaCtxtPtr = xmlSchemaNewMemParserCtxt(data, len);
+	if (schemaCtxtPtr == nullptr)
+	{
+		EmaString errorMsg("extractXMLdataFromCharBuffer: xmlSchemaNewMemParserCtxt failed");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+		return false;
+	}
+
+	xmlSchemaPtr schemaPtr = xmlSchemaParse(schemaCtxtPtr);
+	if (schemaPtr == nullptr)
+	{
+		EmaString errorMsg("extractXMLdataFromCharBuffer: xmlSchemaParse failed");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+		xmlSchemaFreeParserCtxt(schemaCtxtPtr);
+		return false;
+	}
+
+	xmlSchemaValidCtxtPtr schemaValidCtxtPtr = xmlSchemaNewValidCtxt(schemaPtr);
+	if (schemaValidCtxtPtr == nullptr)
+	{
+		EmaString errorMsg("extractXMLdataFromCharBuffer: xmlSchemaNewValidCtxt failed");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+		xmlSchemaFreeParserCtxt(schemaCtxtPtr);
+		xmlSchemaFree(schemaPtr);
+		return false;
+	}
+
+	xmlSchemaSetValidStructuredErrors(schemaValidCtxtPtr, (xmlStructuredErrorFunc)errorHandler, nullptr);
+
+	/*Validate XML configuration with XML schema*/
+	int schemaValidateResult = xmlSchemaValidateDoc(schemaValidCtxtPtr, xmlDoc);
+
+	if (schemaValidateResult > 0)
+	{
+		EmaString errorMsg("extractXMLdataFromCharBuffer: xmlSchemaValidateDoc fails to validate");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+	}
+	else if (schemaValidateResult < 0)
+	{
+		EmaString errorMsg("extractXMLdataFromCharBuffer: xmlSchemaValidateDoc generated an internal error");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+	}
+
+	xmlSchemaFreeParserCtxt(schemaCtxtPtr);
+	xmlSchemaFree(schemaPtr);
+	xmlSchemaFreeValidCtxt(schemaValidCtxtPtr);
+
+	return (schemaValidateResult == 0);
+}
+
+bool EmaConfigBaseImpl::extractXMLdataFromCharBuffer(const EmaString& configName, const char* xmlData, size_t xmlLength)
 {
 	LIBXML_TEST_VERSION
 
@@ -389,7 +416,7 @@ bool EmaConfigBaseImpl::extractXMLdataFromCharBuffer(const EmaString& configName
 	note.append(configName);
 	_pEmaConfig->appendErrorMessage(note, OmmLoggerClient::VerboseEnum);
 
-	xmlDocPtr xmlDoc = xmlReadMemory(xmlData, xmlLength, "notnamed.xml", nullptr, XML_PARSE_HUGE);
+	xmlDocPtr xmlDoc = xmlReadMemory(xmlData, static_cast<int>(xmlLength), "notnamed.xml", nullptr, XML_PARSE_HUGE);
 	if (xmlDoc == nullptr)
 	{
 		EmaString errorMsg("extractXMLdataFromCharBuffer: xmlReadMemory failed while processing ");
@@ -398,74 +425,12 @@ bool EmaConfigBaseImpl::extractXMLdataFromCharBuffer(const EmaString& configName
 		return false;
 	}
 
-	if (schemaData != nullptr && schemaLength != 0)
+	if (!validateXMLdata(xmlDoc))
 	{
-		xmlSchemaParserCtxtPtr schemaParsePtr = xmlSchemaNewMemParserCtxt(schemaData, schemaLength);
-		if (schemaParsePtr == nullptr)
-		{
-			EmaString errorMsg("extractXMLdataFromCharBuffer: xmlSchemaNewMemParserCtxt failed while processing");
-			errorMsg.append(schemaName);
-			_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-            xmlFreeDoc(xmlDoc);
-			return false;
-		}
+		xmlFreeDoc(xmlDoc);
 
-		xmlSchemaPtr schemaPtr = xmlSchemaParse(schemaParsePtr);
-		if (schemaPtr == nullptr)
-		{
-			EmaString errorMsg("extractXMLdataFromCharBuffer: xmlSchemaParse failed while processing ");
-			errorMsg.append(configName);
-			_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-			xmlSchemaFreeParserCtxt(schemaParsePtr);
-            xmlFreeDoc(xmlDoc);
-			return false;
-		}
-
-		xmlSchemaValidCtxtPtr schemaValidPtr = xmlSchemaNewValidCtxt(schemaPtr);
-		if (schemaValidPtr == nullptr)
-		{
-			EmaString errorMsg("extractXMLdataFromCharBuffer: xmlSchemaNewValidCtxt failed while processing ");
-			errorMsg.append(configName);
-			_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-			xmlSchemaFreeParserCtxt(schemaParsePtr);
-			xmlSchemaFree(schemaPtr);
-            xmlFreeDoc(xmlDoc);
-			return false;
-		}
-      
-        /*Validate configuration with schema file*/
-        xmlSchemaSetValidStructuredErrors(schemaValidPtr, (xmlStructuredErrorFunc)errorHandler, nullptr);
-
-		int ret = xmlSchemaValidateDoc(schemaValidPtr, xmlDoc);
-
-		if (ret > 0)
-		{
-			EmaString errorMsg("extractXMLdataFromCharBuffer: xmlSchemaValidateDoc fails to validate ");
-			errorMsg.append(configName);
-			_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-			xmlSchemaFreeParserCtxt(schemaParsePtr);
-			xmlSchemaFree(schemaPtr);
-			xmlSchemaFreeValidCtxt(schemaValidPtr);
-			xmlFreeDoc(xmlDoc);
-			return false;
-		}
-		else if (ret < 0)
-		{
-			EmaString errorMsg("extractXMLdataFromCharBuffer: xmlSchemaValidateDoc generated an internal error ");
-			errorMsg.append(configName);
-			_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-			xmlSchemaFreeParserCtxt(schemaParsePtr);
-			xmlSchemaFree(schemaPtr);
-			xmlSchemaFreeValidCtxt(schemaValidPtr);
-			xmlFreeDoc(xmlDoc);
-			return false;
-		}
-
-        xmlSchemaFreeParserCtxt(schemaParsePtr);
-        xmlSchemaFree(schemaPtr);
-        xmlSchemaFreeValidCtxt(schemaValidPtr);
-
-		// ret == 0 means document has passed validation
+		EmaString errorMsg("error validating XML configuration");
+		throwIceException(errorMsg);
 	}
 
 	xmlNodePtr _xmlNodePtr = xmlDocGetRootElement(xmlDoc);

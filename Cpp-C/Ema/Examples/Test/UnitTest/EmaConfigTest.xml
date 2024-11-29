@@ -139,7 +139,7 @@
 			<!-- dictionary is optional: defaulted to "ChannelDictionary" -->
 			<Dictionary value="Dictionary_3"/>
 		</Consumer>
-		<Consumer>
+		<!-- <Consumer>
 			<Name value="Check_Multiple_Occurrences"/>
 			<Logger value="Logger_1"/>
 			<Logger value="Logger_2"/>
@@ -150,7 +150,7 @@
 			<ChannelSet value="CS1"/>
 			<Channel value="C3"/>
 			<ChannelSet value="CS2"/>
-		</Consumer>
+		</Consumer> -->
 		<Consumer>
 			<Name value="Consumer_8"/>
 			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
@@ -233,9 +233,7 @@
 
 			<ItemCountHint value="500000"/>
 			<ServiceCountHint value="655"/>
-			<ObeyOpenWindow value="0"/>
 			<RequestTimeout value="8000"/>
-			<MaxOutstandingPosts value="90000"/>
 			<DispatchTimeoutApiThread value="90"/>
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
@@ -253,9 +251,6 @@
 			<XmlTraceRead value="1"/>
 			<XmlTracePing value="1"/>
 			<XmlTraceHex value="1"/>
-			<MsgKeyInUpdates value="1"/>
-			<MergeSourceDirectoryStreams value="1"/>
-			<RecoverUserSubmitSourceDirectory value="1"/>
 			<RecoverUserSubmitSourceDirectory value="1"/>
 			<RemoveItemsOnDisconnect value="1"/>
 			<LoginRequestTimeOut value="10000"/>
@@ -345,7 +340,6 @@
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
-			<MaxEventsInPool value="300"/>
 			<PipePort value="7001"/>
 			<XmlTraceFileName value="EmaMyTrace2"/>
 			<XmlTraceMaxFileSize value="66666666" />

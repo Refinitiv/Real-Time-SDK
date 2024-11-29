@@ -1685,6 +1685,7 @@
                                   <xs:restriction base="xs:string">
                                     <xs:enumeration value="LoggerType::File" />
                                     <xs:enumeration value="LoggerType::Stdout" />
+                                    <xs:enumeration value="LoggerType::Stderr" />
                                   </xs:restriction>
                                 </xs:simpleType>
                               </xs:attribute>
