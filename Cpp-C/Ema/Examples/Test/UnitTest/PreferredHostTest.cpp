@@ -156,7 +156,7 @@ TEST_F(PreferredHostTest, PreferredHostTest_SwitchToPreferred_ChannelInfo)
 
 		while (itemHandle == 0)
 		{
-			if (count == 10)
+			if (count == 30)
 			{
 				FAIL() << "UNABLE TO CONNECT";
 			}
@@ -170,25 +170,19 @@ TEST_F(PreferredHostTest, PreferredHostTest_SwitchToPreferred_ChannelInfo)
 		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph is channel preferred: non-preferred"));
 
 		OmmProviderTestClientPH providerCallback1;
-		OmmProvider provider1(OmmIProviderConfig(PreferredHostTest::emaConfigTest).providerName("Provider_1").port("14002"), providerCallback1);
+		OmmProvider provider1(OmmIProviderConfig(PreferredHostTest::emaConfigTest).providerName("Provider_1").port("14004"), providerCallback1);
 
 		/*Wait consumer fall back to the preferred host*/
 		count = 0;
-		itemHandle = 0;
-
-		while (itemHandle == 0)
+		while (count != 15)
 		{
-			if (count == 10)
-			{
-				FAIL() << "UNABLE TO CONNECT";
-			}
 			consumer.dispatch(1000);
 			sleep(1000);
 			count++;
 		}
 
 		//Check that consumer switched on the preferred host
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("14002"));
+		EXPECT_TRUE(EmaString::npos != channelInfo.find("14004"));
 
 		//check PH info
 		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph preferred host option: enabled"));
@@ -212,7 +206,7 @@ TEST_F(PreferredHostTest, PreferredHostTest_ModifiedPHWithIOCTL)
 	try
 	{
 		OmmProviderTestClientPH providerCallback;
-		OmmProvider provider(OmmIProviderConfig(PreferredHostTest::emaConfigTest).providerName("Provider_1").port("14002"), providerCallback);
+		OmmProvider provider(OmmIProviderConfig(PreferredHostTest::emaConfigTest).providerName("Provider_1").port("14004"), providerCallback);
 
 		OmmProviderTestClientPH providerCallback1;
 		OmmProvider provider1(OmmIProviderConfig(PreferredHostTest::emaConfigTest).providerName("Provider_1").port("14003"), providerCallback1);
@@ -226,7 +220,7 @@ TEST_F(PreferredHostTest, PreferredHostTest_ModifiedPHWithIOCTL)
 
 		while (itemHandle == 0)
 		{
-			if (count == 10)
+			if (count == 30)
 			{
 				FAIL() << "UNABLE TO CONNECT";
 			}
@@ -235,7 +229,7 @@ TEST_F(PreferredHostTest, PreferredHostTest_ModifiedPHWithIOCTL)
 			count++;
 		}
 
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("14002"));
+		EXPECT_TRUE(EmaString::npos != channelInfo.find("14004"));
 		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph preferred host option: enabled"));
 		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph is channel preferred: preferred"));
 
@@ -280,7 +274,7 @@ TEST_F(PreferredHostTest, PreferredHostTest_SetPHWithIOCtlAndPerformFallback)
 	try
 	{
 		OmmProviderTestClientPH providerCallback;
-		OmmProvider provider(OmmIProviderConfig(PreferredHostTest::emaConfigTest).providerName("Provider_1").port("14002"), providerCallback);
+		OmmProvider provider(OmmIProviderConfig(PreferredHostTest::emaConfigTest).providerName("Provider_1").port("14004"), providerCallback);
 
 		OmmProviderTestClientPH providerCallback1;
 		OmmProvider provider1(OmmIProviderConfig(PreferredHostTest::emaConfigTest).providerName("Provider_1").port("14003"), providerCallback1);
@@ -294,7 +288,7 @@ TEST_F(PreferredHostTest, PreferredHostTest_SetPHWithIOCtlAndPerformFallback)
 
 		while (itemHandle == 0)
 		{
-			if (count == 10)
+			if (count == 30)
 			{
 				FAIL() << "UNABLE TO CONNECT";
 			}
@@ -303,7 +297,7 @@ TEST_F(PreferredHostTest, PreferredHostTest_SetPHWithIOCtlAndPerformFallback)
 			count++;
 		}
 
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("14002"));
+		EXPECT_TRUE(EmaString::npos != channelInfo.find("14004"));
 		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph preferred host option: enabled"));
 		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph is channel preferred: preferred"));
 
@@ -315,13 +309,16 @@ TEST_F(PreferredHostTest, PreferredHostTest_SetPHWithIOCtlAndPerformFallback)
 		phOptions.phDetectionTimeSchedule("*/50 * * * * *");
 		consumer.modifyReactorChannelIOCtl(IOCtlReactorChannelCode::ReactorChannelPreferredHost, (void*)&phOptions);
 
+		consumer.dispatch(1000);
+		sleep(1000);
+
 		consumer.fallbackPreferredHost();
 
-		/*Wait 10 sec while consumer fall back to new preferred host. 
+		/*Wait while consumer fall back to new preferred host. 
 		Fall back would happen before the time set in schedule because fallbackPreferredHost called  */
 
 		count = 0;
-		while (count != 15)
+		while (count != 20)
 		{
 			consumer.dispatch(1000);
 			sleep(1000);

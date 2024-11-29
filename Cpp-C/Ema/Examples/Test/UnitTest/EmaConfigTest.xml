@@ -518,7 +518,7 @@
 			<ConnectionPingTimeout value="30000"/>
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
-			<Port value="14002"/>
+			<Port value="14004"/>
 		</Channel>
 	</ChannelList>
 </ChannelGroup>
