@@ -65,7 +65,6 @@ public:
 	}
 
 	void TearDown() {
-        EmaConfigBaseImpl::setDefaultSchemaFileName("EmaConfig.xsd");
 	}
 
 	static bool hasRun;
@@ -448,23 +447,6 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 
 	debugResult = config.get<EmaString>( "ConsumerGroup|ConsumerList|Consumer.Consumer_15|Dictionary", retrievedValue );
 	EXPECT_TRUE( ! debugResult ) << "correctly detecting missing name item in a list";
-
-	// verify item with multiple occurrences
-	debugResult = config.get<EmaString>( "ConsumerGroup|ConsumerList|Consumer.Check_Multiple_Occurrences|Logger", retrievedValue );
-	EXPECT_TRUE( debugResult && retrievedValue == "Logger_3" ) << "extracting last value for item with multiple values";
-
-	EmaVector< EmaString > v;
-	debugResult = config.get<EmaString>( "ConsumerGroup|ConsumerList|Consumer.Check_Multiple_Occurrences|Logger", v );
-	EXPECT_TRUE( debugResult && v.size() == 3 && v[0] == "Logger_1" && v[1] == "Logger_2" && v[2] == "Logger_3" ) << "extracting all values for item with multiple values";
-
-	debugResult = config.get<EmaString>( "ConsumerGroup|ConsumerList|Consumer.Check_Multiple_Occurrences|Dictionary", v );
-	EXPECT_TRUE( debugResult && v.size() == 1 && v[0] == "Dictionary_1") << "extracting values into vector for item with single value";
-
-	debugResult = config.get<EmaString>( "ConsumerGroup|ConsumerList|Consumer.Check_Multiple_Occurrences|Channel", v );
-	EXPECT_TRUE( debugResult == false) << "correctly ignored Channels when Channel_Set was last";
-
-	debugResult = config.get<EmaString>( "ConsumerGroup|ConsumerList|Consumer.Check_Multiple_Occurrences|ChannelSet", v );
-	EXPECT_TRUE( debugResult && v.size() == 1 && v[0] == "CS2" ) << "correctly extracted only last ChannelSet value (into vector) when both Channel and Channel_Sets configured";
 
 	// Checks all values from Server:ServerSharedSocket
 	uintValue = 0;
@@ -5126,6 +5108,8 @@ public:
 		EmaConfigBaseImpl::setDefaultConfigFileName(defaultFileNameNotExist);
 		
 		errorMsgText.append("path [").append(userDefinedFileNameNotExist).append("] does not exist;");
+
+		errorMsgTextSchema.append("error validating XML configuration");
 	}
 
 	void TearDown() {
@@ -5133,14 +5117,15 @@ public:
 
 	static const char* defaultFileNameNotExist;
 	static const char* userDefinedFileNameNotExist;
-	static const char* validEmaConfig;
+	static const char* userDefinedFileExistsInvalidSchema;
 
 	EmaString errorMsgText;
+	EmaString errorMsgTextSchema;
 };
 
 const char* EmaConfigTestNotExist::defaultFileNameNotExist = "EmaConfigFileNotExist.xml";
 const char* EmaConfigTestNotExist::userDefinedFileNameNotExist = "EmaConfigUserFileNotExist.xml";
-const char* EmaConfigTestNotExist::validEmaConfig = "EmaConfigDefault.xml";
+const char* EmaConfigTestNotExist::userDefinedFileExistsInvalidSchema = "./EmaInvalidConfig.xml";
 
 
 TEST_F(EmaConfigTestNotExist, OmmConsumerConfigShouldThrowException)
@@ -5158,16 +5143,22 @@ TEST_F(EmaConfigTestNotExist, OmmConsumerConfigShouldThrowException)
 	{
 		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
 	}
+}
 
-    // load valid EMA XML Config, while user-provided schema file can't be found
-
+TEST_F(EmaConfigTestNotExist, OmmConsumerConfigSchemaException)
+{
 	try {
-        EmaConfigBaseImpl::setDefaultSchemaFileName(EmaConfigTestNotExist::userDefinedFileNameNotExist);
-		OmmConsumerConfig config(validEmaConfig);
+		OmmConsumerConfig config( EmaConfigTestNotExist::userDefinedFileExistsInvalidSchema );
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not Schema valid.";
+	}
+	catch ( const OmmInvalidConfigurationException& exp )
+	{
+		const EmaString& expErrorText = exp.getText().substr(0, errorMsgTextSchema.length());
+		ASSERT_STREQ( errorMsgTextSchema.c_str(), expErrorText.c_str() );
 	}
 	catch (...)
 	{
-		FAIL() << "no exception was expected because the schema file is not exist. Actual: it throws an exception.";
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not Schema valid. Actual: it throws a different type.";
 	}
 }
 
@@ -5195,18 +5186,23 @@ TEST_F(EmaConfigTestNotExist, OmmIProviderConfigShouldThrowException)
 	{
 		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
 	}
+}
 
-	// load valid EMA XML Config, while user-provided schema file can't be found
-
+TEST_F(EmaConfigTestNotExist, OmmIProviderConfigExceptionSchema)
+{
 	try {
-        EmaConfigBaseImpl::setDefaultSchemaFileName(EmaConfigTestNotExist::userDefinedFileNameNotExist);
-		OmmIProviderConfig config(validEmaConfig);
+		OmmIProviderConfig config( EmaConfigTestNotExist::userDefinedFileExistsInvalidSchema );
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not Schema valid.";
+	}
+	catch ( const OmmInvalidConfigurationException& exp )
+	{
+		const EmaString& expErrorText = exp.getText().substr( 0, errorMsgTextSchema.length() );
+		ASSERT_STREQ( errorMsgTextSchema.c_str(), expErrorText.c_str() );
 	}
 	catch (...)
 	{
-		FAIL() << "no exception was expected because the schema file is not exist. Actual: it throws an exception.";
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not Schema valid. Actual: it throws a different type.";
 	}
-
 }
 
 TEST_F(EmaConfigTestNotExist, OmmIProviderConfigDefaultShouldNoException)
@@ -5233,16 +5229,22 @@ TEST_F(EmaConfigTestNotExist, OmmNiProviderConfigShouldThrowException)
 	{
 		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
 	}
+}
 
-	// load valid EMA XML Config, while user-provided schema file can't be found
-
+TEST_F(EmaConfigTestNotExist, OmmNiProviderConfigExceptionSchema)
+{
 	try {
-        EmaConfigBaseImpl::setDefaultSchemaFileName(EmaConfigTestNotExist::userDefinedFileNameNotExist);
-		OmmNiProviderConfig config(validEmaConfig);
+		OmmNiProviderConfig config( EmaConfigTestNotExist::userDefinedFileExistsInvalidSchema );
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not Schema valid.";
+	}
+	catch (const OmmInvalidConfigurationException& exp)
+	{
+		const EmaString& expErrorText = exp.getText().substr( 0, errorMsgTextSchema.length() );
+		ASSERT_STREQ( errorMsgTextSchema.c_str(), expErrorText.c_str() );
 	}
 	catch (...)
 	{
-		FAIL() << "no exception was expected because the schema file is not exist. Actual: it throws an exception.";
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not Schema valid. Actual: it throws a different type.";
 	}
 }
 

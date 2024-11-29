@@ -14,3 +14,7 @@ indent_size = 2
 
 [Ema*Config.xml]
 indent_style = tab
+
+[EmaConfig.xsd]
+indent_style = space
+indent_size = 2

@@ -368,9 +368,9 @@ public sealed class OmmState : Data
 
     internal const string OPEN_STRING = "Open";
     internal const string NONSTREAMING_STRING = "NonStreaming";
-    internal const string CLOSED_STRING = "CLOSED";
-    internal const string CLOSEDRECOVER_STRING = "CLOSEDRecover";
-    internal const string CLOSEDREDIRECTED_STRING = "CLOSEDRedirected";
+    internal const string CLOSED_STRING = "Closed";
+    internal const string CLOSEDRECOVER_STRING = "ClosedRecover";
+    internal const string CLOSEDREDIRECTED_STRING = "ClosedRedirected";
 
     internal const string NOCHANGE_STRING = "NoChange";
     internal const string OK_STRING = "Ok";

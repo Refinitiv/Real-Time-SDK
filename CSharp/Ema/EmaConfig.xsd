@@ -695,6 +695,7 @@
                                 <xs:simpleType>
                                   <xs:restriction base="xs:string">
                                     <xs:enumeration value="EncryptedProtocolType::RSSL_SOCKET" />
+                                    <xs:enumeration value="EncryptedProtocolType::RSSL_ENCRYPTED" />
                                   </xs:restriction>
                                 </xs:simpleType>
                               </xs:attribute>
@@ -1236,7 +1237,7 @@
                                       <xs:element name="DictionariesUsed" minOccurs="0" maxOccurs="1">
                                         <xs:complexType>
                                           <xs:sequence>
-                                            <xs:element name="DictionariesUsedEntry">
+                                            <xs:element name="DictionariesUsedEntry" maxOccurs="unbounded">
                                               <xs:complexType>
                                                 <xs:attribute name="value" type="xs:string" use="required" />
                                               </xs:complexType>
@@ -1301,13 +1302,13 @@
                                         </xs:complexType>
                                       </xs:element> <!-- end QoS -->
 
-                                      <xs:element name="SupportsQoSRange">
+                                      <xs:element name="SupportsQoSRange" minOccurs="0">
                                         <xs:complexType>
                                           <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                                         </xs:complexType>
                                       </xs:element>
 
-                                      <xs:element name="SupportsOutOfBandSnapshots">
+                                      <xs:element name="SupportsOutOfBandSnapshots" minOccurs="0">
                                         <xs:complexType>
                                           <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                                         </xs:complexType>

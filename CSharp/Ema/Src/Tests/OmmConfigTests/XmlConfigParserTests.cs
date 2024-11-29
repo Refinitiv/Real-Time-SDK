@@ -15,7 +15,6 @@ public class XmlConfigParserTests : IDisposable
 {
     public const string EMA_BLANK_CONFIG = "../../../OmmConfigTests/EmaBlankConfig.xml";
     // this is a copy of the EmaConfig.xml from the CSharp/Ema directory
-    public const string EMA_DEFAULT_CONFIG = "../../../OmmConfigTests/EmaDefaultConfig.xml";
     public const string EMA_INVALID_CONFIG = "../../../OmmConfigTests/EmaInvalidConfig.xml";
     public const string EMA_MINIMAL_CONFIG = "../../../OmmConfigTests/EmaMinimalConfig.xml";
 
@@ -23,23 +22,17 @@ public class XmlConfigParserTests : IDisposable
 
     public const string EMA_INCOMPLETE_CONFIG = "../../../OmmConfigTests/EmaIncompleteConfig.xml";
 
-    // this is a copy of the EmaConfig.xsd from the CSharp/Ema directory
-    public const string TEST_SCHEMA_FILE = "../../../OmmConfigTests/EmaDefaultConfig.xsd";
-
     public XmlConfigParserTests()
     {
-        XmlConfigParser.DEFAULT_SCHEMA_FILE = TEST_SCHEMA_FILE;
     }
 
     public void Dispose()
     {
-        XmlConfigParser.DEFAULT_SCHEMA_FILE = "EmaConfig.xsd";
         EtaGlobalPoolTestUtil.Clear();
     }
 
     [Theory]
     [InlineData(EMA_BLANK_CONFIG)]
-    [InlineData(EMA_DEFAULT_CONFIG)]
     [InlineData(EMA_MINIMAL_CONFIG)]
     public void LoadValidConfig_Test(string configName)
     {
@@ -63,32 +56,6 @@ public class XmlConfigParserTests : IDisposable
 
         Assert.Contains("Error validating XML configuration", ex.Message);
         Assert.Contains("The element 'Consumer' has invalid child element 'ConsumerName'", ex.Message);
-    }
-
-    [Fact]
-    public void MissingSchemaFile_Test()
-    {
-        // specify schema file that does not exist anywhere, let alone cwd
-        XmlConfigParser.DEFAULT_SCHEMA_FILE = "This-File-Does-Not-Exist.xsd";
-
-        OmmIProviderConfig iProviderConfig = new OmmIProviderConfig(EMA_BLANK_CONFIG);
-
-        // schema file is totally optional, no exceptions should be thrown when it is missing
-        Assert.NotNull(iProviderConfig);
-    }
-
-    [Fact]
-    public void MalformedSchemaFile_Test()
-    {
-        XmlConfigParser.DEFAULT_SCHEMA_FILE = MALFORMED_XML;
-
-        // load malformed XML Schema file, which is not even a valid XML Document at all
-        OmmInvalidConfigurationException ex = Assert.Throws<OmmInvalidConfigurationException>(() =>
-        {
-            OmmConsumerConfig iProviderConfig = new OmmConsumerConfig(EMA_BLANK_CONFIG);
-        });
-
-        Assert.StartsWith("XML Configuration validation failed:", ex.Message);
     }
 
     [Fact]

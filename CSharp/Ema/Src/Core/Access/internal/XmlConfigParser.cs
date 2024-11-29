@@ -14,6 +14,7 @@ using System.Xml.Schema;
 
 using LSEG.Eta.Transports;
 using LSEG.Eta.Codec;
+using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -30,8 +31,6 @@ namespace LSEG.Ema.Access
     {
 
         private const string DEFAULT_CONFIG_FILE = "EmaConfig.xml";
-        // let unit-tests modify this value for testing purposes
-        internal static string DEFAULT_SCHEMA_FILE = "EmaConfig.xsd";
 
         private XmlDocument ConfigXml { get; set; }
 
@@ -2103,8 +2102,7 @@ namespace LSEG.Ema.Access
             Parse<bool>("XmlTracePing", v => configImpl.XmlTracePing = v, TryParseBoolnumeric, CorrectBooleanFormatMessage);
         }
 
-        // Load XML configuration document, and if XML schema definition file is detected,
-        // validate it
+        // Load and validate XML configuration document
         private static XmlDocument LoadXmlConfig(string? configFilePath)
         {
             XmlDocument ConfigXml = new XmlDocument();
@@ -2160,33 +2158,30 @@ namespace LSEG.Ema.Access
             }
 
             // XML Document is loaded, now validate it (but only when XML Schema is present)
-            string schemaFileName = DEFAULT_SCHEMA_FILE;
-
-            if (System.IO.File.Exists(schemaFileName))
+            try
             {
-                try
-                {
-                    ConfigXml.Schemas.Add("", schemaFileName);
+                XmlSchema ? schema = XmlSchema.Read(new StringReader(Properties.Resources.EmaConfigSchema), null);
 
-                    ConfigXml.Validate((object? sender, ValidationEventArgs e) =>
-                    {
-                        if (e.Severity == XmlSeverityType.Error)
-                        {
-                            throw new OmmInvalidConfigurationException(
-                                $"Error validating XML configuration: {e.Message}");
-                        }
-                    });
-                }
-                catch (XmlException ex)
+                if (schema != null)
                 {
-                    throw new OmmInvalidConfigurationException(
-                        $"XML Configuration validation failed: {ex.Message}");
+                    ConfigXml.Schemas.Add(schema);
+                    ConfigXml.Validate(null);
                 }
-                catch (XmlSchemaException ex)
-                {
-                    throw new OmmInvalidConfigurationException(
-                        $"XML Schema is not valid: {ex.Message} at line {ex.LineNumber}");
-                }
+            }
+            catch (XmlException ex)
+            {
+                throw new OmmInvalidConfigurationException(
+                    $"XML Configuration validation failed: {ex.Message}");
+            }
+            catch (XmlSchemaValidationException ex)
+            {
+                throw new OmmInvalidConfigurationException(
+                    $"Error validating XML configuration: {ex.Message}");
+            }
+            catch (XmlSchemaException ex)
+            {
+                throw new OmmInvalidConfigurationException(
+                    $"XML Schema is not valid: {ex.Message} at line {ex.LineNumber}");
             }
 
             return ConfigXml;

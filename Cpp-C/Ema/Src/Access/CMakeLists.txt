@@ -34,6 +34,18 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
                         )
 else()
 
+    find_package(Python3 REQUIRED)
+
+    add_custom_command(
+        OUTPUT Impl/EmaConfigImplSchemaByteData.cpp
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/Impl/ # Create output directory
+        COMMAND ${Python3_EXECUTABLE} "EmaConfigImplSchemaByteData.py"
+                         > ${CMAKE_CURRENT_BINARY_DIR}/Impl/EmaConfigImplSchemaByteData.cpp
+        DEPENDS ${Ema_SOURCE_DIR}/EmaConfig.xsd
+        WORKING_DIRECTORY ${Ema_SOURCE_DIR}/Src/Access/Impl
+        COMMENT "Generating EmaConfigImplSchemaByteData .... "
+        VERBATIM)
+
     set(EmaSrcFiles
             Impl/AckMsg.cpp Impl/Attrib.cpp
             Impl/AckMsgDecoder.cpp Impl/AckMsgDecoder.h
@@ -65,6 +77,7 @@ else()
             Impl/EmaBufferInt.cpp Impl/EmaBufferInt.h
             Impl/EmaBufferU16.cpp Impl/EmaBufferU16Int.cpp Impl/EmaBufferU16Int.h
             Impl/EmaConfigImpl.cpp Impl/EmaConfigImpl.h
+            Impl/EmaConfigImplSchemaByteData.cpp
             Impl/EmaList.h
             Impl/EmaPool.cpp Impl/EmaPool.h
             Impl/EmaStaticCombined.cpp

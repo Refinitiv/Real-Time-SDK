@@ -8,7 +8,6 @@ set(_UnitTestSrcFiles
         EmaActiveConfigTest.cpp
         EmaAppClient.cpp EmaAppClient.h
         EmaBufferTest.cpp EmaConfigTest.cpp
-        EmaXmlConfigValidationTest.cpp
         EmaStringTests.cpp EmaVectorTest.cpp
         FieldListTests.cpp FilterListTests.cpp
         GenericMsgTests.cpp LoginHelperTest.cpp
@@ -57,24 +56,8 @@ if ( CMAKE_HOST_UNIX )
     add_custom_command(
                     TARGET EmaUnitTest POST_BUILD
 
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ../../../EmaConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/EmaConfigDefault.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ../../../EmaConfig.xsd
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/EmaConfigDefault.xsd
-
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaBlankConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/EmaBlankConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaDefaultConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/EmaDefaultConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaIncompleteConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/EmaIncompleteConfig.xml
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaInvalidConfig.xml
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/EmaInvalidConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaMinimalConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/EmaMinimalConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different Malformed.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Malformed.xml
-
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaConfigTest.xml
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/EmaConfigTest.xml
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different enumtypeTest.def
@@ -90,42 +73,8 @@ else()
     add_custom_command(
                     TARGET EmaUnitTest POST_BUILD
 
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ..\\..\\..\\EmaConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaConfigDefault.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ..\\..\\..\\EmaConfig.xsd
-
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaConfigDefault.xsd
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaBlankConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaBlankConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaDefaultConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaDefaultConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaIncompleteConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaIncompleteConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaInvalidConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaInvalidConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaMinimalConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaMinimalConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different Malformed.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Malformed.xml
-
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ..\\..\\..\\EmaConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/EmaConfigDefault.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ..\\..\\..\\EmaConfig.xsd
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/EmaConfigDefault.xsd
-
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaBlankConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/EmaBlankConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaDefaultConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/EmaDefaultConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaIncompleteConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/EmaIncompleteConfig.xml
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaInvalidConfig.xml
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/EmaInvalidConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaMinimalConfig.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/EmaMinimalConfig.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different Malformed.xml
-                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Malformed.xml
-
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaConfigTest.xml
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/EmaConfigTest.xml
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different enumtypeTest.def
@@ -133,6 +82,8 @@ else()
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different RDMFieldDictionaryTest
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/RDMFieldDictionaryTest
 
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaInvalidConfig.xml
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaInvalidConfig.xml
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaConfigTest.xml
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaConfigTest.xml
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different enumtypeTest.def

@@ -222,8 +222,8 @@
 	</DictionaryGroup>
 
 	<DirectoryGroup>
+		<DefaultDirectory value="TestDirectory_1"/>
 		<DirectoryList>
-			<DefaultDirectory value="TestDirectory_1"/>
 			<Directory>
 				<Name value="TestDirectory_1"/>
 				<Service>
@@ -258,13 +258,13 @@
 							</QoSEntry>
 						</QoS>
 						<SupportsQoSRange value="1"/>
-						<SupportsOutOfBandSnapshots value="1"/>							
+						<SupportsOutOfBandSnapshots value="1"/>
 					</InfoFilter>
 					<StateFilter>
 						<ServiceState value="0"/>
 						<AcceptingRequests value="1"/>
 						<Status>
-							<StreamState value="StreamState::CLOSED"/>
+							<StreamState value="StreamState::Closed"/>
 							<DataState value="DataState::Suspect"/>
 							<StatusCode value="StatusCode::NotAuthorized"/>
 							<StatusText value="TestText"/>
