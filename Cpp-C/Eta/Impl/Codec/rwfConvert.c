@@ -989,12 +989,12 @@ RsslUInt8 _rwf_SetFractionHint( RsslInt64 denom )
 
 RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 {
-	RsslInt64	value = 0,tempValue=0;
+	volatile RsslInt64	value = 0,tempValue=0;
 	RsslInt64	trailzerovalue = 0;
 	RsslInt32	trailzerocount = 0;
-	int			isNeg;
+	int			isNeg = 0;
 	int			foundDigit = 0;
-	int			nextDigit;
+	int			nextDigit = 0;
 
 	if (!strptr)
 	{
@@ -1248,13 +1248,12 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 
 RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *endptr )
 {
-	RsslInt64	value = 0;
-	RsslInt64	tempValue = 0;
+	volatile RsslInt64	value = 0, tempValue = 0;
 	RsslInt64	trailzerovalue = 0;
 	RsslInt32	trailzerocount = 0;
-	int			isNeg;
+	int			isNeg = 0;
 	int			foundDigit = 0;
-	int			nextDigit;
+	int			nextDigit = 0;
 	int			plusZero = 0;
 
 	__rtr_removewhitespace_end(strptr,endptr);
