@@ -150,7 +150,7 @@ Series100Consumer112-ConsFunc-002
 
 Series100Consumer112-PConfig-001
     Alters consumer to specify programatic config for parameters related to EncryptedType connection: 
-    Host,Port,ProxyHost,ProxyPort and ObjectName
+    Host,Port,ProxyHost,ProxyPort
 	
 Series100Consumer113-ConsFunc-001
     Alters consumer to specify tokenServiceUrl and serviceDiscoveryUrl.

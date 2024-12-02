@@ -111,7 +111,6 @@ public class NIProvider
         innerElementList.AddUInt("ConnectionPingTimeout", 50000);
         innerElementList.AddAscii("Host", "localhost");
         innerElementList.AddAscii("Port", "14002");
-        innerElementList.AddAscii("ObjectName", "P_ObjectName");
         innerElementList.AddUInt("TcpNodelay", 1);
         innerElementList.AddAscii("ProxyHost", "proxyHostToConnectTo");
         innerElementList.AddAscii("ProxyPort", "proxyPortToConnectTo");

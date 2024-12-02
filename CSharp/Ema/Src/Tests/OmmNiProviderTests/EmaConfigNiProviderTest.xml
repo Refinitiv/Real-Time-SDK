@@ -196,8 +196,6 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="localhost"/>
 			<Port value="14002"/>
-			<!-- ObjectName is optional: defaulted to ""												-->
-			<ObjectName value=""/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_4"/>
@@ -209,8 +207,6 @@
 			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>
 			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_SOCKET"/>
-			<!-- ObjectName is optional: defaulted to ""												-->
-			<ObjectName value=""/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_5"/>
@@ -219,11 +215,9 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<ConnectionPingTimeout value="30000"/>
 			<TcpNodelay value="1"/>
-			<WsMaxMsgSize value="61440"/>
 			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>
 			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_SOCKET"/>
-			<WsProtocols value="tr_json2"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_6"/>
@@ -232,8 +226,6 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="localhost"/>
 			<Port value="15000"/>
-			<WsMaxMsgSize value="61440"/>
-			<WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_7"/>
@@ -251,7 +243,6 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="localhost"/>
 			<Port value="14003"/>
-			<ObjectName value=""/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_9"/>
@@ -260,17 +251,10 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="localhost"/>
 			<Port value="14003"/>
-			<!-- ObjectName is optional: defaulted to ""												-->
-			<ObjectName value=""/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_10"/>
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
-			<RecvAddress value="235.5.2.6"/>
-			<RecvPort value="15008"/>
-			<SendAddress value="235.5.2.2"/>
-			<SendPort value="15007"/>
-			<UnicastPort value="40102"/>
 			<InterfaceName value="localhost"/>
 		</Channel>
 	</ChannelList>
