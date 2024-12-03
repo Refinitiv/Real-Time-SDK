@@ -10,6 +10,7 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 using LSEG.Eta.Tests;
 using System;
+using System.Linq;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Ema.Access.Tests
@@ -83,7 +84,7 @@ namespace LSEG.Ema.Access.Tests
 
                     CheckEmaObjectManagerPoolSizes(m_objectManager);
                 }
-            
+
         }
 
         [Fact]
@@ -105,7 +106,7 @@ namespace LSEG.Ema.Access.Tests
             m_objectManager.ReturnToPool(elementList);
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
         }
 
         [Fact]
@@ -136,9 +137,9 @@ namespace LSEG.Ema.Access.Tests
                                     decodedSeries.ClearAndReturnToPool_All();
 
                                     CheckEmaObjectManagerPoolSizes(m_objectManager);
-                                    
+
                                 }
-            
+
         }
 
         [Fact]
@@ -224,7 +225,7 @@ namespace LSEG.Ema.Access.Tests
                                         }
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
         }
 
         [Fact]
@@ -292,7 +293,7 @@ namespace LSEG.Ema.Access.Tests
                                             CheckEmaObjectManagerPoolSizes(m_objectManager);
                                         }
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
         }
 
         [Fact]
@@ -369,7 +370,7 @@ namespace LSEG.Ema.Access.Tests
                                         filterList.ClearAndReturnToPool_All();
 
                                         CheckEmaObjectManagerPoolSizes(m_objectManager);
-                                        
+
                                     }
         }
 
@@ -404,7 +405,7 @@ namespace LSEG.Ema.Access.Tests
             filterList.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
         }
 
         [Fact]
@@ -434,7 +435,7 @@ namespace LSEG.Ema.Access.Tests
                     fieldList.ClearAndReturnToPool_All();
 
                     CheckEmaObjectManagerPoolSizes(m_objectManager);
-                    
+
                 }
         }
 
@@ -457,7 +458,7 @@ namespace LSEG.Ema.Access.Tests
             fieldList.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
         }
 
         [Fact]
@@ -479,7 +480,7 @@ namespace LSEG.Ema.Access.Tests
             array.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
         }
 
         [Fact]
@@ -517,7 +518,7 @@ namespace LSEG.Ema.Access.Tests
             elementList.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
         }
 
         [Fact]
@@ -555,7 +556,7 @@ namespace LSEG.Ema.Access.Tests
             fieldList.ClearAndReturnToPool_All();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
         }
 
         [Fact]
@@ -608,7 +609,7 @@ namespace LSEG.Ema.Access.Tests
             elementList.Clear();
 
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
         }
 
         private void CheckEmaObjectManagerPoolSizes(EmaObjectManager objectManager)
@@ -709,7 +710,7 @@ namespace LSEG.Ema.Access.Tests
             fieldListEnc.ClearAndReturnToPool_All();
             fieldListDec.ClearAndReturnToPool_All();
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
         }
 
         [Fact]
@@ -772,7 +773,54 @@ namespace LSEG.Ema.Access.Tests
             elementListEnc.ClearAndReturnToPool_All();
             elementListDec.ClearAndReturnToPool_All();
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-            
+
+        }
+
+        /// Ensure that the FieldListEnumerator works fine with the LINQ
+        [Fact]
+        public void FieldListEnumerator_Test()
+        {
+            DataDictionary dataDictionary = new DataDictionary();
+            LoadEnumTypeDictionary(dataDictionary);
+            LoadFieldDictionary(dataDictionary);
+
+            System.Collections.Generic.List<int> values = new() { 0, 1, 0, 10, 5, 4, 3, 2, 9 };
+            int valuesSum = values.Aggregate(0, (total, next) => total + next);
+
+            FieldList fieldList = m_objectManager.GetOmmFieldList();
+            int fieldId = 1;
+            foreach (var val in values)
+            {
+                fieldList.AddUInt(fieldId, (uint)val);
+            }
+            fieldList.Complete();
+
+            var buffer = fieldList.Encoder!.m_encodeIterator!.Buffer();
+
+            fieldList.DecodeFieldList(Codec.MajorVersion(), Codec.MinorVersion(), buffer, dataDictionary, null);
+
+            Assert.True(fieldList.Any());
+            int sum = 0;
+            int count = 0;
+            foreach (var entry in fieldList)
+            {
+                sum += (int)entry.UIntValue();
+                count++;
+            }
+            Assert.Equal(values.Count, count);
+            Assert.Equal(valuesSum, sum);
+
+            Assert.Equal(valuesSum,
+                fieldList.Aggregate(0, (total, next) => total + (int)next.UIntValue()));
+
+            Assert.Equal(values.Count((val) => val > 0),
+                fieldList.Count((val) => val.UIntValue() > 0));
+
+            Assert.Equal(values.First(), (int)fieldList.First().UIntValue());
+
+            Assert.Null(fieldList.FirstOrDefault((val) => (int)val.UIntValue() == 1500));
+
+            fieldList.ClearAndReturnToPool_All();
         }
     }
 }
