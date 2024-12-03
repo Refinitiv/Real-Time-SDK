@@ -167,23 +167,6 @@ dependencies {
     testRuntimeOnly 'org.hamcrest:hamcrest-core:3.0'
 }
 
-task copyEmaConfigSchema {
-    outputs.files files('../EmaConfig.xsd')
-            .asFileTree
-            .files
-            .collect{'./${it.name}'}
-    outputs.upToDateWhen { false }
-
-    doLast {
-        copy{
-            from '../EmaConfig.xsd'
-            into './src/main/resources'
-        }
-    }
-}
-
-compileJava.dependsOn copyEmaConfigSchema
-
 jar {
 	doFirst { println 'Creating EMA jar file' }
 
