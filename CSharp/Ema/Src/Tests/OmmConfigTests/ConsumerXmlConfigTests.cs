@@ -67,7 +67,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.Equal(10, testConsConfig.DictionaryRequestTimeOut);
             Assert.Equal(20, testConsConfig.DirectoryRequestTimeOut);
             Assert.Equal(30, testConsConfig.LoginRequestTimeOut);
-            Assert.Equal(40, testConsConfig.DispatchTimeoutApiThread);
+            Assert.Equal(-1, testConsConfig.DispatchTimeoutApiThread);
             Assert.True(testConsConfig.EnableRtt);
             Assert.Equal((ulong)50, testConsConfig.ItemCountHint);
             Assert.Equal(60, testConsConfig.MaxDispatchCountApiThread);
@@ -76,7 +76,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.False(testConsConfig.MsgKeyInUpdates);
             Assert.False(testConsConfig.ObeyOpenWindow);
             Assert.Equal((ulong)100, testConsConfig.PostAckTimeout);
-            Assert.Equal(110, testConsConfig.ReconnectAttemptLimit);
+            Assert.Equal(-1, testConsConfig.ReconnectAttemptLimit);
             Assert.Equal(1400, testConsConfig.ReconnectMaxDelay);
             Assert.Equal(1300, testConsConfig.ReconnectMinDelay);
             Assert.Equal((ulong)140, testConsConfig.RequestTimeout);

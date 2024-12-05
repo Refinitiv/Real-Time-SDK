@@ -2295,21 +2295,21 @@ namespace LSEG.Ema.Access
             public NodeParser Parse(string nodeName, Expression<Func<int>> propertyExpression, Func<int, int>? transform = null)
             {
                 ParseNumeric(nodeName, ExtractSetter(propertyExpression), 
-                    CombineTryParseWithTransform(CombineTryParseWithConvert<uint, int>(uint.TryParse, Utilities.Convert_uint_int), transform));
+                    CombineTryParseWithTransform(int.TryParse, transform));
                 return this;
             }
 
             public NodeParser Parse(string nodeName, Action<int> assign, Func<int, int>? transform = null)
             {
                 ParseNumeric(nodeName, assign, 
-                    CombineTryParseWithTransform(CombineTryParseWithConvert<uint, int>(uint.TryParse, Utilities.Convert_uint_int), transform));
+                    CombineTryParseWithTransform(int.TryParse, transform));
                 return this;
             }
 
             public NodeParser Parse(string nodeName, Expression<Func<long>> propertyExpression, Func<long, long>? transform = null)
             {
                 ParseNumeric(nodeName, ExtractSetter(propertyExpression),
-                    CombineTryParseWithTransform(CombineTryParseWithConvert<ulong, long>(ulong.TryParse, Utilities.Convert_ulong_long), transform));
+                    CombineTryParseWithTransform(long.TryParse, transform));
                 return this;
             }
 

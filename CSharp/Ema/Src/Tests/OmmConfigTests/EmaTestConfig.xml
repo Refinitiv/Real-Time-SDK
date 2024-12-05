@@ -14,7 +14,7 @@
 				<DictionaryRequestTimeOut value="10"/>
 				<DirectoryRequestTimeOut value="20"/>
 				<LoginRequestTimeOut value="30"/>
-				<DispatchTimeoutApiThread value="40"/>
+				<DispatchTimeoutApiThread value="-1"/>
 				<EnableRtt value="1"/>
 				<ItemCountHint value="50"/>
 				<MaxDispatchCountApiThread value="60"/>
@@ -23,7 +23,7 @@
 				<MsgKeyInUpdates value="0"/>
 				<ObeyOpenWindow value="0"/>
 				<PostAckTimeout value="100"/>
-				<ReconnectAttemptLimit value="110"/>
+				<ReconnectAttemptLimit value="-1"/>
 				<ReconnectMaxDelay value="1400"/>
 				<ReconnectMinDelay value="1300"/>
 				<RequestTimeout value="140"/>
