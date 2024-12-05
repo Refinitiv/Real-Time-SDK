@@ -21,9 +21,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
     internal class WlStream : VaNode
     {
         /// Post messages are identified by the PostId and an optional SeqNum (sequence number).
-        private Dictionary<Tuple<long, long>, WlPostTimeoutInfo> m_PostIdToMsgTable = new ();
+        private Dictionary<Tuple<long, long>, WlPostTimeoutInfo>? m_PostIdToMsgTable;
         /// list to track post ACK timeouts
-        private LinkedList<WlPostTimeoutInfo> m_PostTimeoutInfoPool = new LinkedList<WlPostTimeoutInfo>();
+        private LinkedList<WlPostTimeoutInfo>? m_PostTimeoutInfoPool;
         private WlTimeoutTimer? m_RequestTimeoutTimer;
         private Watchlist? m_Watchlist;
         internal ByteBuffer m_stateTextBuffer = new ByteBuffer(256);
@@ -141,7 +141,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             State.Clear();
             State.Text().Data(m_stateTextBuffer);
             // outstanding post messages
-            if (m_PostTimeoutInfoPool.Count > 0)
+            if (m_PostTimeoutInfoPool?.Count > 0)
             {
                 foreach (var timeoutInfo in m_PostTimeoutInfoPool)
                 {
@@ -150,7 +150,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 m_PostTimeoutInfoPool.Clear();
             }
             
-            if (m_PostIdToMsgTable.Values.Count > 0)
+            if (m_PostIdToMsgTable?.Values.Count > 0)
             {
                 foreach (var timeoutInfo in m_PostIdToMsgTable.Values)
                 {
@@ -462,6 +462,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal ReactorReturnCode UpdatePostTables(IPostMsg postMsg, out ReactorErrorInfo? errorInfo)
         {
+            if(m_PostIdToMsgTable == null)
+            {
+                m_PostIdToMsgTable = new();
+            }
+
             // insert PostMsg into postSeqNumToMsgTable by sequence number
             long seqNum = postMsg.CheckHasSeqNum() ? postMsg.SeqNum : 0;
 
@@ -494,6 +499,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal ReactorReturnCode ValidatePostSubmit(IPostMsg postMsg, out ReactorErrorInfo? errorInfo)
         {
+            if (m_PostIdToMsgTable == null)
+            {
+                m_PostIdToMsgTable = new();
+            }
+
             if (StreamDomainType != (int)DomainType.LOGIN || postMsg.CheckHasMsgKey())
             {
                 // make sure post message domain isn't an administrative domain
@@ -571,6 +581,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal bool HandlePostAck(IMsg msg)
         {
+            if (m_PostIdToMsgTable == null)
+            {
+                return false;
+            }
+
             // return false if post id was already removed from table, true if still in table
             bool ret = false;
 
@@ -649,6 +664,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     SendNak(postMsg, out _);
                 }
 
+                if (m_PostIdToMsgTable == null)
+                {
+                    return;
+                }
+
                 long seqNum = postMsg.CheckHasSeqNum() ? postMsg.SeqNum : 0;
                 var postKey = Tuple.Create(postMsg.PostId, seqNum);
 
@@ -675,6 +695,12 @@ namespace LSEG.Eta.ValueAdd.Reactor
         private WlPostTimeoutInfo PostTimeoutInfoPoolPoll(IPostMsg postMsg)
         {
             WlPostTimeoutInfo timeoutInfo;
+
+            if(m_PostTimeoutInfoPool == null)
+            {
+                m_PostTimeoutInfoPool = new LinkedList<WlPostTimeoutInfo>();
+            }
+
             if (m_PostTimeoutInfoPool.Count > 0)
             {
                 timeoutInfo = m_PostTimeoutInfoPool.First!.Value;
@@ -699,12 +725,22 @@ namespace LSEG.Eta.ValueAdd.Reactor
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private void PostTimeoutInfoReturnToPool(WlPostTimeoutInfo timeoutInfo)
         {
+            if(m_PostTimeoutInfoPool == null)
+            {
+                m_PostTimeoutInfoPool = new LinkedList<WlPostTimeoutInfo>();
+            }
+
             m_PostTimeoutInfoPool.AddLast(timeoutInfo);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private void CloseAllOutStandingPost()
         {
+           if(m_PostIdToMsgTable == null)
+            {
+                return;
+            }
+
             foreach (var postTimeoutInfo in m_PostIdToMsgTable.Values)
             {
                 if (postTimeoutInfo != null && postTimeoutInfo.Timer != null)

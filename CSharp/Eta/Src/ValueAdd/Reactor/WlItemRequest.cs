@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -16,7 +16,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
     internal sealed class WlItemRequest : WlRequest
     {
         internal GCHandle m_matchedQosHandle;
-        internal GCHandle m_viewHandle;
         /// <summary>
         /// Defines item request flags
         /// </summary>
@@ -91,7 +90,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public WlItemRequest() : base()
         {
             m_matchedQosHandle = GCHandle.Alloc(MatchedQos, GCHandleType.Normal);
-            m_viewHandle = GCHandle.Alloc(View, GCHandleType.Normal);
         }
 
         /// <summary>
@@ -216,7 +214,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
         internal void FreeWlItemRequest()
         {
             FreeWlRequest();
-            m_viewHandle.Free();
             m_matchedQosHandle.Free();
         }
     }
