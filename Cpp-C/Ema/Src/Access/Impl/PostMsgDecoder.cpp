@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|        Copyright (C) 2019 LSEG. All rights reserved.              --
+ *|        Copyright (C) 2019,2024 LSEG. All rights reserved. 
  *|-----------------------------------------------------------------------------
  */
 
@@ -260,6 +260,13 @@ UInt32 PostMsgDecoder::getSeqNum() const
 	}
 
 	return _pRsslMsg->postMsg.seqNum;
+}
+
+void PostMsgDecoder::setServiceName( const char* serviceName, UInt32 length, bool nullTerm )
+{
+	_serviceNameSet = length ? true : false;
+
+	_serviceName.setInt( serviceName, length, nullTerm );
 }
 
 UInt32 PostMsgDecoder::getPublisherIdUserId() const

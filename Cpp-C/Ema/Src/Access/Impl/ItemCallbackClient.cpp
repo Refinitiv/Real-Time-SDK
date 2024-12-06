@@ -41,6 +41,7 @@
 
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
+using namespace std;
 
 const EmaString ItemCallbackClient::_clientName( "ItemCallbackClient" );
 const EmaString SingleItem::_clientName( "SingleItem" );
@@ -3293,8 +3294,20 @@ RsslReactorCallbackRet ItemCallbackClient::processAckMsg( RsslMsg* pRsslMsg, Rss
 
 	if ( item->getType() == Item::BatchItemEnum )
 		item = static_cast<BatchItem *>(item)->getSingleItem( pRsslMsg->msgBase.streamId );
-	
-	_ackMsg.getDecoder().setServiceName( item->getDirectory()->getName().c_str(), item->getDirectory()->getName().length() );
+
+	// Set serviceName on received AckMsg	
+	if ( pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) 
+	{
+		/* Ensure that the ItemCallbackClient is created for OmmBaseImpl instance */
+		if (_ommCommonImpl.getImplType() != OmmCommonImpl::IProviderEnum) 
+		{
+			const Directory* pDirectory = static_cast<OmmBaseImpl&>(_ommCommonImpl).getDirectoryCallbackClient().getDirectory( pRsslMsg->msgBase.msgKey.serviceId );
+			if ( pDirectory ) 
+			{
+				_ackMsg.getDecoder().setServiceName( pDirectory->getName().c_str(), pDirectory->getName().length() );
+			}
+		}
+	}
 
 	_ommCommonImpl.msgDispatched();
 

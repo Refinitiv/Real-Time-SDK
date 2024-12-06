@@ -1288,6 +1288,16 @@ RsslReactorCallbackRet LoginCallbackClient::processAckMsg( RsslMsg* pRsslMsg, Rs
 	                            pRsslReactorChannel->minorVersion,
 								channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
+	// Sets serviceName on received AckMsg assuming serviceId exists
+	if ( pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) 
+	{
+		const Directory* pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory(pRsslMsg->msgBase.msgKey.serviceId);
+		if ( pDirectory ) 
+		{
+			_ackMsg.getDecoder().setServiceName(pDirectory->getName().c_str(), pDirectory->getName().length());
+		}
+	}
+
 	for ( UInt32 idx = 0; idx < _loginItems.size(); ++idx )
 	{
 		_ommBaseImpl.msgDispatched();

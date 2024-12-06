@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020,2024 LSEG. All rights reserved. 
  *|-----------------------------------------------------------------------------
 */
 
@@ -401,7 +401,8 @@ RsslReactorCallbackRet MarketItemHandler::itemCallback(RsslReactor* pReactor, Rs
 			{
 				const RsslDataDictionary* rsslDataDictionary = 0;
 				Dictionary* dictionary = NULL;
-
+				const EmaString** serviceNamePtr;
+				
 				/* Get the default dictionary */
 				if (ommServerBaseImpl->getDictionaryHandler().getDefaultDictionaryUse())
 				{
@@ -410,7 +411,7 @@ RsslReactorCallbackRet MarketItemHandler::itemCallback(RsslReactor* pReactor, Rs
 
 				if (pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID)
 				{
-					const EmaString** serviceNamePtr = ommServerBaseImpl->getDirectoryServiceStore().getServiceNameById(pRsslMsg->msgBase.msgKey.serviceId);
+					serviceNamePtr = ommServerBaseImpl->getDirectoryServiceStore().getServiceNameById(pRsslMsg->requestMsg.msgBase.msgKey.serviceId);
 					
 					dictionary = ommServerBaseImpl->getDictionaryHandler().getDictionaryByServiceId(pRsslMsg->msgBase.msgKey.serviceId);
 
@@ -454,6 +455,9 @@ RsslReactorCallbackRet MarketItemHandler::itemCallback(RsslReactor* pReactor, Rs
 					pReactorChannel->majorVersion,
 					pReactorChannel->minorVersion,
 					rsslDataDictionary);
+				
+				if ((pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID) && serviceNamePtr) 
+					ommServerBaseImpl->_postMsg.getDecoder().setServiceName((*serviceNamePtr)->c_str(), (*serviceNamePtr)->length());
 
 				ommServerBaseImpl->ommProviderEvent._clientHandle = clientSession->getClientHandle();
 				ommServerBaseImpl->ommProviderEvent._closure = ommServerBaseImpl->_pClosure;

@@ -643,6 +643,17 @@ Series300Provider320-ProvFunc-006
     Alters Interactive Provider to send a dictionary in fragments starting at size 9600 
     bytes and incrementing subsequent fragments by 10000 bytes.
 
+Module:  Series300Provider340
+----------------------------------
+Series300Provider340-ProvFunc-001
+    Alter IProv340 to set AckId
+
+Series300Provider340-ProvFunc-002	
+    Alter IProv340 to add 3 options for testing set ackMsg with serviceName or serviceId or invalid serviceId.
+   -ackWithServiceId Set serviceName on Ack messages.
+   -ackWithServiceName Set serviceId on Ack messages.
+   -ackWithInvalidSID Set invalid serviceId on Ack messages.
+
 Module:  Series300Provider350
 ----------------------------------
 Series300Provider350-ProvFunc-001:  Alters Series300Provider350 to request dictionary

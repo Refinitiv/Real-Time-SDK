@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2023 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2023-2024 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
 */
 
@@ -1359,7 +1359,7 @@ void OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle)
 		{
 			submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId = (RsslUInt16)*pServiceId;
 			submitMsgOpts.pRsslMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
-			submitMsgOpts.pRsslMsg->ackMsg.flags |= RSSL_RFMF_HAS_MSG_KEY;
+			submitMsgOpts.pRsslMsg->ackMsg.flags |= RSSL_AKMF_HAS_MSG_KEY;
 		}
 	}
 	else if (ackMsgEncoder.hasServiceId())
