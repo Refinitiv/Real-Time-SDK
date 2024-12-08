@@ -42,6 +42,7 @@ class SessionDirectory<T>
 	private ConsumerSession<T> _consumerSession;
 	private WatchlistResult _watchlistResult;
 	private WatchlistResult tempWatchlistResult;
+	private LongObject tmpLongObject = new LongObject();
 	
 	SessionDirectory(ConsumerSession<T> consumerSession, String serviceName)
 	{
@@ -60,6 +61,12 @@ class SessionDirectory<T>
 		_watchlistResult = new WatchlistResult();
 		
 		tempWatchlistResult = new WatchlistResult();
+	}
+	
+	@SuppressWarnings("unchecked")
+	ConsumerSession<OmmConsumerClient> consumerSession()
+	{
+		return (ConsumerSession<OmmConsumerClient>) _consumerSession;
 	}
 	
 	void restoreServiceFlags()
@@ -384,23 +391,29 @@ class SessionDirectory<T>
 		
 		while(singleItem != null)
 		{
-			directory = directory(singleItem._requestMsg);
+			tmpLongObject.value(singleItem.itemId());
 			
-			if(directory != null)
+			/* Handles this item when it hasn't been removed from the item map */
+			if(_consumerSession.watchlist().itemHandleMap().containsKey(tmpLongObject))
 			{
-				singleItem._directory = directory;
-				singleItem._serviceName = _serviceName;
-		
-				/* The item state is changed to normal item stream */
-				singleItem.state(SingleItem.ItemStates.NORMAL);
-				singleItem.rsslSubmit(singleItem._requestMsg, false);
+				directory = directory(singleItem._requestMsg);
 				
-				if(!singleItem._itemName.isEmpty())
-					putDirectoryByItemName(singleItem._itemName, singleItem);
-			}
-			else
-			{
-				_pendingItemQueue.add(singleItem);
+				if(directory != null)
+				{
+					singleItem._directory = directory;
+					singleItem._serviceName = _serviceName;
+			
+					/* The item state is changed to normal item stream */
+					singleItem.state(SingleItem.ItemStates.NORMAL);
+					singleItem.rsslSubmit(singleItem._requestMsg, false);
+					
+					if(!singleItem._itemName.isEmpty())
+						putDirectoryByItemName(singleItem._itemName, singleItem);
+				}
+				else
+				{
+					_pendingItemQueue.add(singleItem);
+				}
 			}
 			
 			if ( (--count) == 0)
@@ -600,9 +613,14 @@ class SessionDirectory<T>
 		
 		while(singleItem != null && singleItem._requestMsg != null)
 		{
+			tmpLongObject.value(singleItem.itemId());
 			
-			_consumerSession.watchlist().sendItemStatus(singleItem, singleItem._requestMsg, OmmState.StreamState.CLOSED,
+			/* Handles this item when it hasn't been removed from the item map */
+			if(_consumerSession.watchlist().itemHandleMap().containsKey(tmpLongObject))
+			{
+				_consumerSession.watchlist().sendItemStatus(singleItem, singleItem._requestMsg, OmmState.StreamState.CLOSED,
 					OmmState.DataState.SUSPECT, OmmState.StatusCode.NONE, "Consumer session is closed.");
+			}
 			
 			singleItem = _pendingItemQueue.poll();
 		}

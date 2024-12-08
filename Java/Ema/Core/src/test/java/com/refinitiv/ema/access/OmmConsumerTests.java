@@ -7019,6 +7019,10 @@ public class OmmConsumerTests extends TestCase
 		System.out.println("Uninitializing...");
 		
 		consumer.uninitialize();
+		
+		/* Ensure that there is no item status as the item is unregistered */
+		assertEquals(0, consumerClient.queueSize());
+		
 		ommprovider.uninitialize();
 		ommprovider2.uninitialize();
 	}
@@ -13748,6 +13752,221 @@ public class OmmConsumerTests extends TestCase
 		consumer.uninitialize();
 		ommprovider2.uninitialize();
 		ommprovider3.uninitialize();
+	}
+	
+	@Test
+	public void testRequestingSingleItemWithNonExistenceServiceNameAndUnregisterRequestThenAddTheService()
+	{
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
+		
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+		
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+		
+		ProviderTestClient providerClient1 = new ProviderTestClient(providerTestOptions);
+		
+		// Provider_1 provides the DIRECT_FEED service name
+		OmmProvider ommprovider = EmaFactory.createOmmProvider(config.port("19001").providerName("Provider_1"), providerClient1);
+		
+		assertNotNull(ommprovider);
+		
+		ProviderTestClient providerClient2 = new ProviderTestClient(providerTestOptions);
+		
+		// Provider_1 provides the DIRECT_FEED service name
+		OmmProvider ommprovider2 = EmaFactory.createOmmProvider(config.port("19004").providerName("Provider_1"), providerClient2);
+		
+		assertNotNull(ommprovider2);
+		
+		OmmConsumer consumer = null;
+		ConsumerTestClient consumerClient = new ConsumerTestClient();
+		
+		try
+		{
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_9"));
+			
+			ReqMsg reqMsg = EmaFactory.createReqMsg();
+			
+			long itemHandle1 = consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED2").name("LSEG.O"), consumerClient);
+			
+			Thread.sleep(2000);
+			
+			/* Ensure that the provider doesn't receive any request message */
+			assertEquals(0, providerClient1.queueSize());
+			
+			assertEquals(1, consumerClient.queueSize());
+			
+			Msg message = consumerClient.popMessage();
+			
+			StatusMsg statusMsg = (StatusMsg)message;
+			
+			assertEquals("DIRECT_FEED2", statusMsg.serviceName());
+			assertEquals("LSEG.O", statusMsg.name());
+			assertEquals(OmmState.StreamState.OPEN, statusMsg.state().streamState());
+			assertEquals(OmmState.DataState.SUSPECT, statusMsg.state().dataState());
+			assertEquals(OmmState.StatusCode.NONE, statusMsg.state().statusCode());
+			assertEquals("No matching service present.", statusMsg.state().statusText());
+			
+			/* Cancel the request to remove the item */
+			consumer.unregister(itemHandle1);
+			
+			/* Provider send source directory update message to add the DIRECT_FEED2 service */
+			OmmArray capablities = EmaFactory.createOmmArray();
+			capablities.add(EmaFactory.createOmmArrayEntry().uintValue( EmaRdm.MMT_MARKET_PRICE));
+			capablities.add(EmaFactory.createOmmArrayEntry().uintValue( EmaRdm.MMT_MARKET_BY_PRICE));
+			OmmArray dictionaryUsed = EmaFactory.createOmmArray();
+			dictionaryUsed.add(EmaFactory.createOmmArrayEntry().ascii( "RWFFld"));
+			dictionaryUsed.add(EmaFactory.createOmmArrayEntry().ascii( "RWFEnum"));
+	      
+			ElementList serviceInfoId = EmaFactory.createElementList();    
+	      
+			serviceInfoId.add( EmaFactory.createElementEntry().ascii(EmaRdm.ENAME_NAME, "DIRECT_FEED2"));     
+			serviceInfoId.add( EmaFactory.createElementEntry().array(EmaRdm.ENAME_CAPABILITIES, capablities));         
+			serviceInfoId.add( EmaFactory.createElementEntry().array(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed));
+
+			ElementList serviceStateId = EmaFactory.createElementList();
+			serviceStateId.add( EmaFactory.createElementEntry().uintValue(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP));
+				
+			FilterList filterList = EmaFactory.createFilterList();
+			filterList.add( EmaFactory.createFilterEntry().elementList(EmaRdm.SERVICE_INFO_ID, FilterEntry.FilterAction.SET, serviceInfoId) );
+			filterList.add( EmaFactory.createFilterEntry().elementList(EmaRdm.SERVICE_STATE_ID, FilterEntry.FilterAction.SET, serviceStateId));
+	      
+			Map map = EmaFactory.createMap();
+			map.add( EmaFactory.createMapEntry().keyUInt(2, MapEntry.MapAction.ADD, filterList));
+	      
+			UpdateMsg updateMsg = EmaFactory.createUpdateMsg();
+			ommprovider.submit( updateMsg.domainType(EmaRdm.MMT_DIRECTORY).
+													filter( EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
+													payload(map), 0);
+			
+			Thread.sleep(2000);
+			
+			/* There is no recover to the provider as the request is canceled */	
+			assertEquals(0, providerClient1.queueSize());	
+			assertEquals(0, consumerClient.queueSize());
+		}
+		catch(OmmException excep)
+		{
+			assertFalse(true);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		assertNotNull(consumer);
+		
+		System.out.println("Uninitializing...");
+		
+		consumer.uninitialize();
+		ommprovider.uninitialize();
+		ommprovider2.uninitialize();
+	}
+	
+	@Test
+	public void testMultiConnectionsItemRequestsWithServiceListNameButConcreteServicesAreNotAvaliableUnregisterRequestThenConcreateServiceIsAdded()
+	{
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
+		
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+		
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+		
+		ProviderTestClient providerClient1 = new ProviderTestClient(providerTestOptions);
+		
+		// Provider_1 provides the DIRECT_FEED service name
+		OmmProvider ommprovider = EmaFactory.createOmmProvider(config.port("19001").providerName("Provider_1"), providerClient1);
+		
+		assertNotNull(ommprovider);
+		
+		ProviderTestClient providerClient2 = new ProviderTestClient(providerTestOptions);
+		
+		// Provider_1 provides the DIRECT_FEED service name
+		OmmProvider ommprovider2 = EmaFactory.createOmmProvider(config.port("19004").providerName("Provider_1"), providerClient2);
+		
+		assertNotNull(ommprovider2);
+		
+		OmmConsumer consumer = null;
+		ConsumerTestClient consumerClient = new ConsumerTestClient();
+		
+		try
+		{
+			ServiceList serviceList = EmaFactory.createServiceList("SVG1");
+			
+			serviceList.concreteServiceList().add("UNKNOWN_SERVICE");
+			serviceList.concreteServiceList().add("DIRECT_FEED2");
+			
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_9").addServiceList(serviceList));
+			
+			ReqMsg reqMsg = EmaFactory.createReqMsg();
+			
+			long itemHandle = consumer.registerClient(reqMsg.clear().serviceListName("SVG1").name("LSEG.O"), consumerClient);
+			
+			Thread.sleep(2000);
+					
+			assertEquals(1, consumerClient.queueSize());
+			
+			Msg message = consumerClient.popMessage();
+			
+			StatusMsg statusMsg = (StatusMsg)message;
+			
+			assertEquals("SVG1", statusMsg.serviceName());
+			assertEquals("LSEG.O", statusMsg.name());
+			assertEquals(OmmState.StreamState.OPEN, statusMsg.state().streamState());
+			assertEquals(OmmState.DataState.SUSPECT, statusMsg.state().dataState());
+			assertEquals(OmmState.StatusCode.NONE, statusMsg.state().statusCode());
+			assertEquals("No matching service present.", statusMsg.state().statusText());
+			
+			/* Cancel the request to remove the item */
+			consumer.unregister(itemHandle);
+			
+			/* Provider send source directory update message to add the DIRECT_FEED2 service */
+			OmmArray capablities = EmaFactory.createOmmArray();
+			capablities.add(EmaFactory.createOmmArrayEntry().uintValue( EmaRdm.MMT_MARKET_PRICE));
+			capablities.add(EmaFactory.createOmmArrayEntry().uintValue( EmaRdm.MMT_MARKET_BY_PRICE));
+			OmmArray dictionaryUsed = EmaFactory.createOmmArray();
+			dictionaryUsed.add(EmaFactory.createOmmArrayEntry().ascii( "RWFFld"));
+			dictionaryUsed.add(EmaFactory.createOmmArrayEntry().ascii( "RWFEnum"));
+	      
+			ElementList serviceInfoId = EmaFactory.createElementList();    
+	      
+			serviceInfoId.add( EmaFactory.createElementEntry().ascii(EmaRdm.ENAME_NAME, "DIRECT_FEED2"));     
+			serviceInfoId.add( EmaFactory.createElementEntry().array(EmaRdm.ENAME_CAPABILITIES, capablities));         
+			serviceInfoId.add( EmaFactory.createElementEntry().array(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed));
+
+			ElementList serviceStateId = EmaFactory.createElementList();
+			serviceStateId.add( EmaFactory.createElementEntry().uintValue(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP));
+				
+			FilterList filterList = EmaFactory.createFilterList();
+			filterList.add( EmaFactory.createFilterEntry().elementList(EmaRdm.SERVICE_INFO_ID, FilterEntry.FilterAction.SET, serviceInfoId) );
+			filterList.add( EmaFactory.createFilterEntry().elementList(EmaRdm.SERVICE_STATE_ID, FilterEntry.FilterAction.SET, serviceStateId));
+	      
+			Map map = EmaFactory.createMap();
+			map.add( EmaFactory.createMapEntry().keyUInt(2, MapEntry.MapAction.ADD, filterList));
+	      
+			UpdateMsg updateMsg = EmaFactory.createUpdateMsg();
+			ommprovider.submit( updateMsg.domainType(EmaRdm.MMT_DIRECTORY).
+													filter( EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
+													payload(map), 0);
+			
+			Thread.sleep(2000);
+			
+			/* There is no recover to the provider as the request is canceled */			
+			assertEquals(0, providerClient1.queueSize());
+					
+			assertEquals(0, consumerClient.queueSize());
+		}
+		catch(OmmException excep)
+		{
+			assertFalse(true);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		assertNotNull(consumer);
+		
+		System.out.println("Uninitializing...");
+		
+		consumer.uninitialize();
+		ommprovider.uninitialize();
+		ommprovider2.uninitialize();
 	}
 	
 }

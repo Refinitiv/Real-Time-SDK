@@ -28,6 +28,8 @@ class ServiceListImpl implements ServiceList {
 	
 	private ArrayDeque<SingleItem<OmmConsumerClient>> _pendingItemQueue; // This is used to recover items when the concrete service is available.
 	
+	private LongObject tmpLongObject = new LongObject();
+	
 	ServiceListImpl(String name)
 	{
 		_name = name;
@@ -137,25 +139,33 @@ class ServiceListImpl implements ServiceList {
 		SingleItem<OmmConsumerClient> singleItem = _pendingItemQueue.poll();
 		Directory<OmmConsumerClient> directory;
 		
+		ConsumerSession<OmmConsumerClient> consumerSession = sessionDirectory.consumerSession();
+		
 		while(singleItem != null)
 		{
-			directory = sessionDirectory.directory(singleItem._requestMsg);
+			tmpLongObject.value(singleItem.itemId());
 			
-			if(directory != null)
+			/* Handles this item when it hasn't been removed from the item map */
+			if(consumerSession.watchlist().itemHandleMap().containsKey(tmpLongObject))
 			{
-				singleItem._directory = directory;
-				singleItem._serviceName = sessionDirectory.serviceName();
-		
-				/* The item state is changed to normal item stream */
-				singleItem.state(SingleItem.ItemStates.NORMAL);
-				singleItem.rsslSubmit(singleItem._requestMsg, false);
+				directory = sessionDirectory.directory(singleItem._requestMsg);
 				
-				if(!singleItem._itemName.isEmpty())
-					sessionDirectory.putDirectoryByItemName(singleItem._itemName, singleItem);
-			}
-			else
-			{
-				_pendingItemQueue.add(singleItem);
+				if(directory != null)
+				{
+					singleItem._directory = directory;
+					singleItem._serviceName = sessionDirectory.serviceName();
+			
+					/* The item state is changed to normal item stream */
+					singleItem.state(SingleItem.ItemStates.NORMAL);
+					singleItem.rsslSubmit(singleItem._requestMsg, false);
+					
+					if(!singleItem._itemName.isEmpty())
+						sessionDirectory.putDirectoryByItemName(singleItem._itemName, singleItem);
+				}
+				else
+				{
+					_pendingItemQueue.add(singleItem);
+				}
 			}
 			
 			if ( (--count) == 0)
@@ -174,9 +184,14 @@ class ServiceListImpl implements ServiceList {
 		
 		while(singleItem != null && singleItem._requestMsg != null)
 		{
+			tmpLongObject.value(singleItem.itemId());
 			
-			consumerSession.watchlist().sendItemStatus(singleItem, singleItem._requestMsg, OmmState.StreamState.CLOSED,
-					OmmState.DataState.SUSPECT, OmmState.StatusCode.NONE, "Consumer session is closed.");
+			/* Handles this item when it hasn't been removed from the item map */
+			if(consumerSession.watchlist().itemHandleMap().containsKey(tmpLongObject))
+			{
+				consumerSession.watchlist().sendItemStatus(singleItem, singleItem._requestMsg, OmmState.StreamState.CLOSED,
+						OmmState.DataState.SUSPECT, OmmState.StatusCode.NONE, "Consumer session is closed.");
+			}
 			
 			singleItem = _pendingItemQueue.poll();
 		}
