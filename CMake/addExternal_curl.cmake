@@ -83,6 +83,9 @@ if((NOT curl_USE_INSTALLED) AND
 						"-DENABLE_IPV6:BOOL=OFF"
 						"-DENABLE_MANUAL:BOOL=OFF"
 						"-DCURL_CA_PATH=none"
+						"-DBUILD_LIBCURL_DOCS=OFF"
+						"-DBUILD_MISC_DOCS=OFF"
+						"-DENABLE_CURL_MANUAL=OFF"
 						)
 	endif()
 
