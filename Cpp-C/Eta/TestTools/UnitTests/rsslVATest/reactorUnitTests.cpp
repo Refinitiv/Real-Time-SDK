@@ -7160,13 +7160,24 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreForReactorWorkerShouldSucc
 
 	char strCpuBind[MAXLEN] = { '\0' };
 
+	// Calculate the id of processor unit
+	unsigned nOnlineProcessorUnit = 0;
+	for (RsslUInt32 cpuId = 0; cpuId < nProcessors && nOnlineProcessorUnit < 2; ++cpuId)
+	{
+		if (isProcessorCoreOnline(cpuId) == RSSL_TRUE)
+		{
+			iProc = cpuId;
+			nOnlineProcessorUnit++;
+		}
+	}
+
 	rsslClearCreateReactorOptions(&createReactorOpts);
 	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
 	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%u", iProc);
 
 	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
 
-	ASSERT_NE((void*)NULL, pReactor);
+	ASSERT_NE((void*)NULL, pReactor) << "iProc: " << iProc;
 
 	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 }
@@ -7206,27 +7217,42 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCorePCTForReactorWorkerShouldS
 		return;
 	}
 
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCorePCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
 	char strCpuBind[MAXLEN] = { '\0' };
+	RsslBuffer procUnitPCT = { sizeof(strCpuBind), strCpuBind };
 
-	// Try to choose one of the Cpu core templates
-	for (unsigned k = 0; k < 3; ++k)
+	// Calculate the next processor unit
+	unsigned nOnlineProcessorUnit = 0;
+	for (RsslUInt32 cpuId = 0; cpuId < nProcessors && nOnlineProcessorUnit < 2; ++cpuId)
 	{
-		rsslClearCreateReactorOptions(&createReactorOpts);
-		createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
-		createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%s", sCpuCorePCT[k]);
-
-		pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
-		if (pReactor != NULL)
+		if (isProcessorCoreOnline(cpuId) == RSSL_TRUE)
 		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
-			break;
+			if (nOnlineProcessorUnit == 1)
+			{
+				*strCpuBind = '\0';
+				procUnitPCT.data = strCpuBind;
+				procUnitPCT.length = sizeof(strCpuBind);
+				if (getPCTByProcessorCoreNumber(cpuId, &procUnitPCT, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+				{
+					continue;
+				}
+			}
+			nOnlineProcessorUnit++;
 		}
 	}
-	ASSERT_NE((void*)NULL, pReactor);
+
+	if (nOnlineProcessorUnit <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	rsslClearCreateReactorOptions(&createReactorOpts);
+	createReactorOpts.cpuBindWorkerThread.data = procUnitPCT.data;
+	createReactorOpts.cpuBindWorkerThread.length = procUnitPCT.length;
+
+	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
+
+	ASSERT_NE((void*)NULL, pReactor) << "PCT: " << strCpuBind;
 
 	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 }
@@ -7244,17 +7270,28 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreForReactorWorkerTest)
 
 	char strCpuBind[MAXLEN] = { '\0' };
 
+	// Calculate the id of processor unit
+	unsigned nOnlineProcessorUnit = 0;
+	for (RsslUInt32 cpuId = 0; cpuId < nProcessors && nOnlineProcessorUnit < 2; ++cpuId)
+	{
+		if (isProcessorCoreOnline(cpuId) == RSSL_TRUE)
+		{
+			proccessorForReactorWorker = cpuId;
+			nOnlineProcessorUnit++;
+		}
+	}
+
 	rsslClearCreateReactorOptions(&createReactorOpts);
 	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
 	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%u", proccessorForReactorWorker);
 
 	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
 
-	ASSERT_NE((void*)NULL, pReactor);
+	ASSERT_NE((void*)NULL, pReactor) << "proccessorForReactorWorker: " << proccessorForReactorWorker;
 
 	time_sleep(10);
 
-	ASSERT_EQ(checkProcessorIdByPS(proccessorForReactorWorker), RSSL_TRUE);
+	ASSERT_EQ(checkProcessorIdByPS(proccessorForReactorWorker), RSSL_TRUE) << "proccessorForReactorWorker: " << proccessorForReactorWorker;
 
 	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 }
@@ -7276,31 +7313,38 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCorePCTForReactorWorkerTest)
 
 	RsslUInt32 proccessorForReactorWorker = (nProcessors > 1 ? 1 : 0);
 	char strCpuBind[MAXLEN] = { '\0' };
+	RsslBuffer procUnitPCT = { sizeof(strCpuBind), strCpuBind };
 
-	// Three different topologies for the next processor core.
-	// At least, one of them must be correct.
-	// P:X C:Y T:Z
-	char sCpuCorePCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
-
-	// Try to choose one of the Cpu core templates
-	for (unsigned k = 0; k < 3; ++k)
+	// Calculate the processor unit in PCT format
+	unsigned nOnlineProcessorUnit = 0;
+	for (RsslUInt32 cpuId = 0; cpuId < nProcessors && nOnlineProcessorUnit < 2; ++cpuId)
 	{
-		rsslClearCreateReactorOptions(&createReactorOpts);
-		createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
-		createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%s", sCpuCorePCT[k]);
-
-		pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
-		if (pReactor != NULL)
+		if (isProcessorCoreOnline(cpuId) == RSSL_TRUE)
 		{
-			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
-			break;
+			*strCpuBind = '\0';
+			procUnitPCT.data = strCpuBind;
+			procUnitPCT.length = sizeof(strCpuBind);
+			if (getPCTByProcessorCoreNumber(cpuId, &procUnitPCT, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				continue;
+			}
+
+			proccessorForReactorWorker = cpuId;
+			nOnlineProcessorUnit++;
 		}
 	}
-	ASSERT_NE((void*)NULL, pReactor);
+
+	rsslClearCreateReactorOptions(&createReactorOpts);
+	createReactorOpts.cpuBindWorkerThread.data = procUnitPCT.data;
+	createReactorOpts.cpuBindWorkerThread.length = procUnitPCT.length;
+
+	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
+
+	ASSERT_NE((void*)NULL, pReactor) << "proccessorForReactorWorker: " << proccessorForReactorWorker << "; PCT: " << strCpuBind;
 
 	time_sleep(10);
 
-	ASSERT_EQ(checkProcessorIdByPS(proccessorForReactorWorker), RSSL_TRUE);
+	ASSERT_EQ(checkProcessorIdByPS(proccessorForReactorWorker), RSSL_TRUE) << "proccessorForReactorWorker: " << proccessorForReactorWorker << "; PCT: " << strCpuBind;
 
 	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 }
