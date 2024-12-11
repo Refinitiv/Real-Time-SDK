@@ -779,7 +779,7 @@ public class Reactor
 								if(serviceName.length() > 0)
 								{
 									ReactorWSBService service = ReactorFactory.createWsbService();	
-									service.serviceName.data(serviceName.toString().strip());
+									service.serviceName.data(serviceName.toString().trim());
 									
 									/* Don't add to the service name list with the existing service name */
 									if(reactorWarmStandbyGroupImpl._startupServiceNameList.containsKey(service.serviceName) == false)
@@ -802,7 +802,7 @@ public class Reactor
 									if(serviceName.length() > 0)
 									{
 										ReactorWSBService service = ReactorFactory.createWsbService();
-										service.serviceName.data(serviceName.toString().strip());
+										service.serviceName.data(serviceName.toString().trim());
 										
 										/* Don't add to the service name list with the existing service name */
 										if(reactorWarmStandbyGroupImpl._startupServiceNameList.containsKey(service.serviceName) == false)

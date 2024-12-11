@@ -2969,7 +2969,7 @@ class ProgrammaticConfigure
 			{
 				for(String part : perServiceNameSet.split(","))
 				{
-					String serviceName = part.strip();
+					String serviceName = part.trim();
 					 if(!serviceName.isEmpty())
 						 currentCfg.perServiceNameSet.add(serviceName);
 				}
