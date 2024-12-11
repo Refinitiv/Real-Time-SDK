@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.64_RealTimeDistributionSystem_24.71		09/02/2024
-!	* Modified 09/02/2024 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.64.
+!   Version	 4.20.65_RealTimeDistributionSystem_24.91		11/17/2024
+!	* Modified 11/17/2024 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.65.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.64_RealTimeDistributionSystem
+!   Version: 4.20.65_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -24,14 +24,14 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright LSEG 2024
+! Copyright Refinitiv 2024
 !
 !tag Filename  RWF.DAT
-!tag Desc      LDFD RWF field set
+!tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.64
-!tag Build     1
-!tag Date      25-Jul-2024
+!tag Version   4.20.65
+!tag Build     5
+!tag Date      14-Oct-2024
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -5690,8 +5690,9 @@ ASK_NET_CH "LT ASK-HIS CL ASK"   2286  NULL        PRICE              17  REAL64
 !
 TIME_MATUR "DEBT TIME TO MAT"    2287  NULL        INTEGER            15  REAL64           9
 !
-! The to maturity for a debt instrument qualified by the field MATUR_FLAG (2364) which 
-! indicates whether the units of time involved are years, months, weeks or days.
+! The remaining time to maturity for a debt instrument, qualified by the field 
+! MATUR_UNIT (#2378) which indicates whether the units of time involved are years, 
+! months, weeks or days (or other).
 !
 GEN_VAL11  "GEN VAL11"           2288  NULL        PRICE              17  REAL64           9
 GEN_VAL12  "GEN VAL12"           2289  NULL        PRICE              17  REAL64           9
@@ -5948,8 +5949,8 @@ YTM_ASKNCH "NETCH MAT ASK YLD"   2377  NULL        PRICE              17  REAL64
 !
 MATUR_UNIT "TIM TO MAT QUALFR"   2378  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! This field qualifies the time to maturity field (TIME_MATUR) and indicates whether 
-! the units of time involved are years, months, weeks or days.
+! This field qualifies the time to maturity field TIM_TO_MAT (#2466) and indicates 
+! whether the units of time involved are years, months, weeks or days.
 !
 BID_CURRCY "BID CURRENCY"        2379  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
@@ -6153,7 +6154,9 @@ CRT_YLDHC  "CURR YLD HIS CL"     2465  NULL        PRICE              17  REAL64
 !
 TIM_TO_MAT "TIME TO MATURITY"    2466  NULL        PRICE              17  REAL64           9
 !
-! Time to maturity
+! The remaining time to maturity for a debt instrument, qualified by the field 
+! MATUR_UNIT (#2378) which indicates whether the units of time involved are years, 
+! months, weeks or days (or other).
 !
 BS_PNT_VAL "BASED PNT VALUE"     2467  NULL        PRICE              17  REAL64           9
 !
@@ -9932,7 +9935,7 @@ TIM_TRK_8  "TIME TRACKER 8"      3909  NULL        INTEGER            15  UINT64
 TIM_TRK_9  "TIME TRACKER 9"      3910  NULL        INTEGER            15  UINT64           8
 MSG_IN_BUF "MSG IN BUF"          3911  NULL        INTEGER            15  UINT64           8
 !
-! LDFD time trackers
+! RDF-D time trackers
 !
 IND_AUC    "IND AUC PRICE"       3912  NULL        PRICE              17  REAL64           9
 !
@@ -11466,11 +11469,11 @@ IRGDATE    "IRG DATE"            4349  NULL        DATE               11  DATE  
 !
 MID_HIGH   "MID HIGH"            4350  NULL        PRICE              17  REAL64           9
 !
-! Mid high price
+! Highest value in current trading day for MID_PRICE1 (#4990).
 !
 MID_LOW    "MID LOW"             4351  NULL        PRICE              17  REAL64           9
 !
-! Mid low price
+! Lowest value in current trading day for MID_PRICE1 (#4990).
 !
 MID_HTIM   "MID HIGH TIME"       4352  NULL        TIME_SECONDS        8  TIME             8
 !
@@ -13598,7 +13601,7 @@ WTCHL_CT_U "WTCHL CNT UNIQ"      5200  NULL        INTEGER            10  UINT64
 LTNC_MVAVG "LATENCY MV AVG"      5201  NULL        INTEGER            10  UINT64           8
 !
 ! Ten second moving average of latency, in microseconds, as measured from the top 
-! (Message Formatter) to the bottom (P2PS Fan-Out) of the LDFD.  
+! (Message Formatter) to the bottom (P2PS Fan-Out) of the RDF-D.  
 !
 WTCHL_CT   "WTCHL CNT"           5202  NULL        INTEGER            10  UINT64           8
 !
@@ -14451,7 +14454,7 @@ UPDATE_RT  "UPDATE RATE"         5553  NULL        INTEGER            10  UINT64
 !
 CPU_CT     "CPU COUNT"           5554  NULL        BINARY              3  UINT64           2
 !
-! Number of physical CPUs on the LDFD
+! Number of physical CPUs on the RDF-D
 !
 CPU_SPEED  "CPU SPEED"           5555  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
@@ -14907,7 +14910,7 @@ ALERT_ID   "ALERT ID"            5700  NULL        INTEGER            15  REAL64
 !
 START_TMS  "START TIME SEC"      5701  NULL        TIME_SECONDS        8  TIME             8
 !
-! Start time in seconds of outage or planned maintenance
+! Countdown time in seconds to the publication of delayed data.
 !
 PAIR_CLIP1 "PAIR CLIP1"          5702  NULL        ALPHANUMERIC        9  RMTES_STRING     9
 !
@@ -17320,7 +17323,7 @@ METADATA5  "METADATA 5"          6393  NULL        ALPHANUMERIC      255  RMTES_
 !
 DDS_DSO_ID "DDS DSO ID"          6401  NULL        BINARY              3  UINT64           2
 !
-! LSEG Real-Time equivalent of the IDN FID DSO_ID. Has its own set of values.
+! Refinitiv Real-Time equivalent of the IDN FID DSO_ID. Has its own set of values.
 !
 BR_PNAC    "BR PNAC"             6402  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
@@ -19557,7 +19560,7 @@ MN_LIQM_OZ "MIN LIQ MKER ORD"    7059  NULL        INTEGER            15   INT64
 !
 CD_NAK_REJ "CONTRB NAK FID"      7060  NULL        INTEGER            15   INT64           8
 !
-! LSEG Real-Time Contributions NAK FID
+! Refinitiv Real-Time Contributions NAK FID
 !
 DUDT_MAXLA "DUDT MAX LATENCY"    7061  NULL        INTEGER            15   INT64           8
 !
@@ -32210,9 +32213,9 @@ BLK_DVA_RG "BLK DYVAL RNG"      11152  NULL        PRICE              17  REAL64
 ! Dynamic price range for block trades. The variation range combines with a reference 
 ! price which determines the upper and lower price limits for block trades.
 !
-PRERL2162  "PRED REAL 2162"     11153  NULL        PRICE              17  REAL64           9
+SESS3_TURN "SESSION 3 TURNOVER" 11153  NULL        PRICE              17  REAL64           9
 !
-! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+! Turnover of session 3 (3rd normal trading session).
 !
 ROLL_RATE  "ROLL DOWN RATE"     11154  NULL        PRICE              17  REAL64           9
 !
@@ -32266,7 +32269,10 @@ TOCR_HSTCL "TOT CA DWN HST CLS" 11166  NULL        PRICE              17  REAL64
 !
 ! Total Carry Roll Down historical close.
 !
-PRERL2176  "PRED REAL 2176"     11167  NULL        PRICE              17  REAL64           9
+CNTR_VALUE "CONTRACT VALUE"     11167  NULL        PRICE              17  REAL64           9
+!
+! Contract Value.
+!
 PRERL2177  "PRED REAL 2177"     11168  NULL        PRICE              17  REAL64           9
 PRERL2178  "PRED REAL 2178"     11169  NULL        PRICE              17  REAL64           9
 PRERL2179  "PRED REAL 2179"     11170  NULL        PRICE              17  REAL64           9
@@ -34866,7 +34872,7 @@ BLKTRDP_UT "BLK TRD PRC PRE UT" 12847  NULL        ENUMERATED    3 ( 4 )  ENUM  
 !
 EP_SCO_CAT "EP SCORE CATEGORY"  12848  NULL        ENUMERATED    3 ( 6 )  ENUM             1
 !
-! LSEG Real-Time Pulse Score Category.
+! Refinitiv Real-Time Pulse Score Category.
 !
 RQT_ITM_NT "REQUEST ITEM NM TP" 12849  NULL        ENUMERATED    3 ( 5 )  ENUM             1
 !
@@ -35789,9 +35795,18 @@ BASE_PRCTP "BASE PRICE TYPE"    13114  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 ! Indicates the type of the Base Price.
 !
-PRE_1ET414 "PRED 1 ET 414"      13115  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET415 "PRED 1 ET 415"      13116  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET416 "PRED 1 ET 416"      13117  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+IRG_AGG_S1 "AGGRS IRG ORD SD1"  13115  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! An indicator to show the aggressive order condition for last irregular trade.
+!
+PD_AGG_S1  "AGGRS PD ORD SD1"   13116  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! An indicator to show the aggressive order condition for last previous day trade.
+!
+VAL_METHOD "VALUATION METHOD"   13117  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Margin style valuation method.
+!
 PRE_1ET417 "PRED 1 ET 417"      13118  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET418 "PRED 1 ET 418"      13119  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET419 "PRED 1 ET 419"      13120  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -36976,7 +36991,10 @@ ORD_SZ_Q3  "ORDER SIZE 3 QUAL"  13637  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Qualifier associated with third order size and value, i.e., MAX_ORD_S3.
 !
-PRE_2ET317 "PRED 2 ET 317"      13638  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+MET_TYP26  "METRIC TYPE 26"     13638  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 26.
+!
 PRE_2ET318 "PRED 2 ET 318"      13639  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET319 "PRED 2 ET 319"      13640  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET320 "PRED 2 ET 320"      13641  NULL        ENUMERATED    5 ( 8 )  ENUM             2

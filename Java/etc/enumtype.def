@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.64
-!tag Build_RDMD  4.20.64
-!tag DT_Version  24.71
-!tag Date        2-Sep-2024
+!tag RT_Version  4.20.65
+!tag Build_RDMD  4.20.65
+!tag DT_Version  24.91
+!tag Date        18-Nov-2024
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -77,7 +77,7 @@ RDN_EXCHID     4
      46        "BSQ"   Consolidated Issue, listed by Boston SE
      47        "CHI"   CHI - X Europe
      48        "WCQ"   Consolidated Issue, listed by CBOE
-     49        "TRC"   Source is a Refinitiv Contributor
+     49        "TRC"   Source is an LSEG Contributor
      50        "KBT"   Kansas City Board of Trade
      51        "SOM"   Stockholmsborsen - derivatives (was Om Stockholm)
      52        "ADS"   NASD Alternative Display Facility for Nasdaq Capital Market
@@ -86,7 +86,7 @@ RDN_EXCHID     4
      55        "JSF"   Japan Securities Finance
      56        "TCE"   Tokyo Commodity Exchange
      57        "TFF"   Tokyo Financial Futures Exchange
-     58        "RPS"   Refinitiv Evaluated Pricing Service
+     58        "RPS"   LSEG Pricing Service
      59        "HOM"   Helsinki Options and Futures Exchange
      60        "FOM"   Finland Options Market (Suomen Optiomeklait)
      61        "FIR"   Florence Stock Exchange
@@ -209,7 +209,7 @@ RDN_EXCHID     4
     178        "CIR"   Irish SE - Chi-X
     179        "CLU"   Luxemburg SE - Chi-X
     180        "SOP"   Suomen Optioporssi
-    181        "REU"   Refinitiv
+    181        "REU"   LSEG
     182        "LIS"   Lisbon Stock Exchange
     183        "OPO"   Oporto Stock Exchange
     184        "NOM"   Norwegian Options Market (Norsk Opsjonmarked)
@@ -242,7 +242,7 @@ RDN_EXCHID     4
     211        "MCP"   Interbolsa - Portuguese Continuous Market
     212        "OTB"   Osterreichische Termin und Optionenboerse (Austrian FOX)
     213        "SIC"   Singapore Commodity Exchange
-    214        "RCT"   Source is a Refinitiv Contributor
+    214        "RCT"   Source is an LSEG Contributor
     215        "IGF"   Italian Government Forwards
     216        "MWQ"   Consolidated issue, listed by Midwest SE
     217        "PSQ"   Consolidated issue, listed by Pacific SE
@@ -5248,6 +5248,7 @@ OFF_CD_IN2  1055
      60        "TSH"   TOSHO - Tokyo SE security Identification number
      61        "BAS"   Buenos Aires code
      62        "FGI"   Financial Instrument Global Identifier
+     63        "BSD"   Basket Id
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5553,7 +5554,7 @@ YIELD_TP     969
       7        "FLT"   flat yield
       8        "CNS"   consortium yield
       9        "F/C"   flat yield and consortium yield
-     10        "REQ"   Refinitiv equivalent yield
+     10        "REQ"   LSEG equivalent yield
      11        "DIS"   discount yield
      12        "BEY"   bond equivalent yield
      13        "NA "   native ask
@@ -6689,7 +6690,7 @@ ERROR_DESC  1389
       1   "        "   no error.
       2   "Prob Inv"   problem under investigation.
       3   "Stopped "   problem at exchange or data source.
-      4   "Tech Dif"   problem due to technical difficulty at Refinitiv.
+      4   "Tech Dif"   Problem due to technical difficulty at LSEG
       5   "Logd Off"   logged off by Exchange.
 !
 ! ACRONYM    FID
@@ -7171,7 +7172,7 @@ CLS_A_EXID 13625
      46        "BSQ"   Consolidated Issue, listed by Boston SE
      47        "CHI"   CHI - X Europe
      48        "WCQ"   Consolidated Issue, listed by CBOE
-     49        "TRC"   Source is a Refinitiv Contributor
+     49        "TRC"   Source is an LSEG Contributor
      50        "KBT"   Kansas City Board of Trade
      51        "SOM"   Stockholmsborsen - derivatives (was Om Stockholm)
      52        "ADS"   NASD Alternative Display Facility for Nasdaq Capital Market
@@ -7180,7 +7181,7 @@ CLS_A_EXID 13625
      55        "JSF"   Japan Securities Finance
      56        "TCE"   Tokyo Commodity Exchange
      57        "TFF"   Tokyo Financial Futures Exchange
-     58        "RPS"   Refinitiv Evaluated Pricing Service
+     58        "RPS"   LSEG Pricing Service
      59        "HOM"   Helsinki Options and Futures Exchange
      60        "FOM"   Finland Options Market (Suomen Optiomeklait)
      61        "FIR"   Florence Stock Exchange
@@ -7303,7 +7304,7 @@ CLS_A_EXID 13625
     178        "CIR"   Irish SE - Chi-X
     179        "CLU"   Luxemburg SE - Chi-X
     180        "SOP"   Suomen Optioporssi
-    181        "REU"   Refinitiv
+    181        "REU"   LSEG
     182        "LIS"   Lisbon Stock Exchange
     183        "OPO"   Oporto Stock Exchange
     184        "NOM"   Norwegian Options Market (Norsk Opsjonmarked)
@@ -7336,7 +7337,7 @@ CLS_A_EXID 13625
     211        "MCP"   Interbolsa - Portuguese Continuous Market
     212        "OTB"   Osterreichische Termin und Optionenboerse (Austrian FOX)
     213        "SIC"   Singapore Commodity Exchange
-    214        "RCT"   Source is a Refinitiv Contributor
+    214        "RCT"   Source is an LSEG Contributor
     215        "IGF"   Italian Government Forwards
     216        "MWQ"   Consolidated issue, listed by Midwest SE
     217        "PSQ"   Consolidated issue, listed by Pacific SE
@@ -7747,7 +7748,7 @@ CLS_A_EXID 13625
     622        "HNX"   Hanoi Stock Exchange
     623        "KRB"    Korea Interbank Offered Rate
     624        "LOP"    London Metal Exchange - Plastic 
-    625        "RCU"   Source is a Refinitiv FI Contributor
+    625        "RCU"   Source is an LSEG FI Contributor
     626        "RCV"   Source is a London Broker 
     627        "FTY"   FTSE Xinhua - China
     628        "PLU"   Plus Markets Group PLC
@@ -8030,7 +8031,7 @@ CLS_A_EXID 13625
     905        "SDN"   SECURITISED DERIVATIVES NETWORK
     906        "NEI"   NEW ENGLAND ISO
     907        "IDS"   Indore soyabean, soymeal & soyoil prices
-    908        "RFI"   Refinitiv Contributed Fixed Income Indices
+    908        "RFI"   LSEG Contributed Fixed Income Indices
     909        "NPC"   Newcastle Port Corporation
     910        "GCA"   Green Coffee Association
     911        "JNA"   TOKYO PRO-BOND Market
@@ -8070,7 +8071,7 @@ CLS_A_EXID 13625
     945        "CCD"   Consolidated Currency Future Level 1
     946        "BS2"   BSE Ltd
     947        "BAE"   Baku Stock Exchange
-    948        "TRX"   REFINITIV INDICES
+    948        "TRX"   LSEG Indices
     949        "PRV"   PSEUDO PACIFIC STOCK EXCHANGE
     950        "BKL"   BAIKAL
     951        "CHA"   Cboe Australia
@@ -8109,8 +8110,8 @@ CLS_A_EXID 13625
     984        "STI"   The Steel Index
     985        "SMX"   SINGAPORE MERCANTILE EXCHANGE
     986        "SBB"   Steel Business Briefing
-    987        "TRE"   Refinitiv Indices (Not Exch)
-    988        "TRZ"   Refinitiv Indices (RFV indices)
+    987        "TRE"   LSEG Indices
+    988        "TRZ"   LSEG Indices
     989        "CIF"   CONSOLIDATED INDIAN INTEREST RATE FUTURES
     990        "XI2"   XETRA INTERNATIONAL MARKET LEVEL 2
     991        "NZE"   NEW ZEALAND STOCK EXCHANGE (DO NOT USE)
@@ -8688,7 +8689,7 @@ CLS_A_EXID 13625
    1563        "SLT"   SL tools: Short Selling transactions (Brazilian market)
    1564        "PRD"   PORT OF ROTTERDAM
    1565        "NXE"   NOREXECO
-   1566        "RFV"   Refinitiv
+   1566        "RFV"   LSEG
    1567        "WUX"   Wuxi Stainless Steel Electronic Trading Center Co., Ltd.
    1568        "CMG"   COMMERG
    1569        "SWZ"   StarWiz Co., Ltd
@@ -8796,7 +8797,7 @@ CLS_A_EXID 13625
    1671        "PME"   Ministry of Energy and Mines, Peru.
    1672        "RAT"   Rubber Authority of Thailand
    1673        "CAD"   CHINA MINISTRY OF AGRICULTURE (CASDE)
-   1674        "RPA"   Refinitiv-Research Price Assessment
+   1674        "RPA"   LSEG Research Price Assessment
    1675        "IPX"   IPSX
    1676        "CDE"   Cboe Europe Derivatives - CEDX
    1677        "CRA"   Commodity Futures Trading Regulatory Agency
@@ -8895,6 +8896,11 @@ CLS_A_EXID 13625
    1770        "MBF"   Marius Brun & Fils
    1771        "EPR"   United States Environmental Protection Agency
    1772        "FUS"   FINRA Trace US Treasury
+   1773        "LSG"   LSEG Calculated/Derived
+   1774        "OTX"   BEKB OTC-X
+   1775        "PFY"   Profercy
+   1776        "FMX"   FMX Futures Exchange
+   1777        "CTL"   Container Trades Statistics Limited
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10655,7 +10661,7 @@ BID_YLD_TP 12888
       6        "SIM"   simple yield in RT_YIELD_n
       7        "FLT"   flat yield in RT_YIELD_n
       8        "CNS"   consortium yield in RT_YIELD_n
-      9        "REQ"   Refinitiv equivalent yield in RT_YIELD_n
+      9        "REQ"   LSEG equivalent yield RT_YIELD_n
      10        "DIS"   discount yield in RT_YIELD_n
      11        "BEY"   bond equivalent yield in RT_YIELD_n
      12        "NA "   native ask in RT_YIELD_n
@@ -10688,7 +10694,7 @@ SEC_YLD_TP  3137
       6        "SIM"   Simple yield in SEC_YLD_n
       7        "FLT"   Flat yield in SEC_YLD_n
       8        "CNS"   Consortium yield in SEC_YLD_n
-      9        "REQ"   Refinitiv equivalent yield in SEC_YLD_n
+      9        "REQ"   LSEG equivalent yield in SEC_YLD_n
      10        "DIS"   Discount yield in SEC_YLD_n
      11        "BEY"   Bond equivalent yield in SEC_YLD_n
      12        "NA "   Native ask in SEC_YLD_n
@@ -11643,6 +11649,7 @@ PR_FREQ     4236
      12     "Irregu"   Erratic / Irregular Updates
      13     "TwWkly"   Twice Weekly Updates
      14     "TwMtly"   Twice Monthly
+     15     "Wkdays"   Daily Weekday Updates
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12990,7 +12997,7 @@ SRC_HB_TSO  8922
 ! -----      -------   -------
       0   "        "   Undefined
       1   "3rd Prty"   Heart-Beat Time-Stamp -- Source Supplied (3rd Party Feed)
-      2   "TR      "   Heart-Beat Time-Stamp -- Derived by Refinitiv
+      2   "TR      "   Heart-Beat Time-Stamp -- Derived by LSEG
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13338,7 +13345,7 @@ IND_L2_IND  8944
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
-      1   "TRBC    "   The Refinitiv Business Classification Schema
+      1   "TRBC    "   TRBC Sector Classification
       2   "FTICB   "   FTSE Industry Classification Benchmark (ICB)
       3   "GICS    "   Global Industry Classification Standard
       4   "NAICS   "   North American Industry Classification System
@@ -13492,7 +13499,7 @@ REFPRC_TP4 13491
      66   "Tariff  "   Tariff Rate
      67   "WAVG    "   Weighted Average Price
      68   "GBP/KG  "   Pound Sterling per kilogramme
-     69   "CalcClos"   Refinitiv Calculated Close
+     69   "CalcClos"   LSEG Calculated Close
      70   "UVWAP   "   VWAP of the underlying asset
      71   "POS IMB "   Positive Imbalance Price
      72   "NEG IMB "   Negative Imbalance Price
@@ -15468,7 +15475,7 @@ L2_REPR     9050
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
-      1   "MBP-D   "   Market By Price, derived by Refinitiv
+      1   "MBP-D   "   Market By Price, derived by LSEG
       2   "MBP-N   "   Market by Price, exchange sourced data (Native)
       3   "MBO     "   Market By Order
 !
@@ -15927,8 +15934,8 @@ SRC_MYLD5  13066
 ! -----      -------   -------
       0   "        "   Undefined
       1   "CTB     "   Data contributed by source
-      2   "TRC     "   Data contributed by Refinitiv
-      3   "RFVC    "   Data contributed by Refinitiv
+      2   "TRC     "   Data contributed by LSEG
+      3   "RFVC    "   Data contributed by LSEG
       4   "ETP     "   Data contributed by Electronic Trading Platform
       5   "PD      "   Data contributed by Primary Dealers
 !
@@ -18457,9 +18464,54 @@ BASE_PRCTP 13114
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET414 13115
-PRE_1ET415 13116
-PRE_1ET416 13117
+IRG_AGG_S1 13115
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "BID     "   Aggressive order initiated from BID side
+      2   "ASK     "   Aggressive order initiated from ASK side
+!
+! ACRONYM    FID
+! -------    ---
+!
+PD_AGG_S1  13116
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "BID     "   Aggressive order initiated from BID side
+      2   "ASK     "   Aggressive order initiated from ASK side
+!
+! ACRONYM    FID
+! -------    ---
+!
+VAL_METHOD 13117
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "EQTY    "   Equity Premium Style
+      2   "FUT     "   Futures Style Mark-to-Market
+      3   "FUTDA   "   Cash Adjusted Futures Style
+      4   "FUTER   "   Futures Style with Erosion
+      5   "FUTI    "   Futures Style Inverse
+      6   "FUTOP   "   Futures Style for Options
+      7   "FWD     "   Forward
+      8   "FWDC    "   Forward, Cash
+      9   "BILL    "   Bills
+     10   "BOND    "   Cash Notes and bonds
+     11   "IRS     "   Interest Rate Swap
+     12   "SPOT    "   Spot
+     13   "RPO     "   Repo Specific
+     14   "RPOBS   "   Repo Specific / GC
+     15   "RPOGC   "   Repo General Collateral
+     16   "RPOGF   "   Repo GCF / DBV / GC+
+     17   "RPOSC   "   Repo Specific general and specific securities / GC
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET417 13118
 PRE_1ET418 13119
 PRE_1ET419 13120
@@ -19160,6 +19212,7 @@ MET_TYP25  13632
     273   "TRDACGRD"   Trading Activity Grade
     274   "CLINTGRD"   Client Interest Grade
     275   "DLRMKGRD"   Dealer Market Grade
+    276   "MARG_RTO"   Margin Ratio
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19269,12 +19322,13 @@ OWNER      13414
 ! -----      -------   -------
       0   "        "   Undefined
       1   "FXALL   "   FXALL
-      2   "ThomRtrs"   Thomson Reuters
+      2   "ThomRtrs"   LSEG
       3   "CFETS   "   CHN FX TRADE
       4   "MKTAXESS"   MarketAxess
       5   "CBID    "   CBID/Perimeter Markets Inc.
       6   "CANPX   "   CanPx - Real Time Data Feed
-      7   "REFINITV"   Refinitiv
+      7   "REFINITV"   LSEG
+      8   "LSEG    "   LSEG
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23032,6 +23086,41 @@ CMD_TYPE   13618
    1197   "WOOL    "   Wool
    1198   "YOG     "   Yoghurt
    1199   "HSS     "   Heavy Grains, Soybeans and Sorghums
+   1200   "BLKPEPPR"   Black Pepper
+   1201   "WHTPEPPR"   White Pepper
+   1202   "ALLSPICE"   Allspice
+   1203   "CASSACNM"   Cassia / Cinnamon
+   1204   "CLOVES  "   Cloves
+   1205   "GARLIC  "   Garlic
+   1206   "GINGER  "   Ginger
+   1207   "MACE    "   Mace
+   1208   "NUTMEG  "   Nutmeg
+   1209   "BLPEPPER"   Bell Pepper
+   1210   "TURMERIC"   Turmeric
+   1211   "PAPRIKA "   Paprika
+   1212   "ANISE   "   Anise
+   1213   "ANNATTO "   Annatto
+   1214   "CARAWAY "   Caraway
+   1215   "CARDAMOM"   Cardamom
+   1216   "CELERY  "   Celery
+   1217   "CORIANDR"   Coriander / Cilantro
+   1218   "CUMIN   "   Cumin
+   1219   "FENNEL  "   Fennel
+   1220   "FENUGREK"   Fenugreek
+   1221   "POPPY   "   Poppy
+   1222   "BASIL   "   Basil
+   1223   "DILLWEED"   Dill / Dill Weed
+   1224   "LRLEAVES"   Laurel Leaves
+   1225   "MARJORAM"   Marjoram
+   1226   "MINT    "   Mint
+   1227   "OREGANO "   Oregano
+   1228   "PARSLEY "   Parsley
+   1229   "ROSEMARY"   Rosemary
+   1230   "SAFFRON "   Saffron
+   1231   "SAGE    "   Sage
+   1232   "SAVORY  "   Savory
+   1233   "TARRAGON"   Tarragon
+   1234   "THYME   "   Thyme
    1600   "ACEACID "   Acetic Acid (Commodity)
    1601   "ACETONE "   Acetone (Commodity)
    1602   "ACIDDERI"   Acids / Acid Derivatives (Commodity)
@@ -23584,7 +23673,291 @@ ORD_SZ_Q3  13637
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET317 13638
+MET_TYP26  13638
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "LTPGA   "   Last Trade Price Gain (Absolute)
+      2   "LTPLA   "   Last Trade Price Loss (Absolute)
+      3   "LTPGP   "   Last Trade Price Gain (Percentage)
+      4   "LTPLP   "   Last Trade Price Loss (Percentage)
+      5   "OTPGA   "   Open Trade Price Gain (Absolute)
+      6   "OTPLA   "   Open Trade Price Loss (Absolute)
+      7   "OTPGP   "   Open Trade Price Gain (Percentage)
+      8   "OTPLP   "   Open Trade Price Loss (Percentage)
+      9   "TV      "   Total Volume
+     10   "TCV     "   Total Call Volume
+     11   "TPV     "   Total Put Volume
+     12   "VGA     "   Volume Gain (Absolute)
+     13   "VLA     "   Volume Loss (Absolute)
+     14   "VGP     "   Volume Gain (Percentage)
+     15   "VLP     "   Volume Loss (Percentage)
+     16   "CVVAA   "   Current Volume Versus Average (Absolute)
+     17   "CVVAP   "   Current Volume Versus Average (Percentage)
+     18   "BCT     "   Block Count - Total
+     19   "BCL     "   Block Count - Large
+     20   "BCM     "   Block Count - Medium
+     21   "BCS     "   Block Count - Small
+     22   "TTO     "   Total Turnover
+     23   "CTVAA   "   Current Turnover Versus Average (Absolute)
+     24   "CTVAP   "   Current Turnover Versus Average (Percentage)
+     25   "TGA     "   Turnover Gain (Absolute)
+     26   "TLA     "   Turnover Loss (Absolute)
+     27   "TGP     "   Turnover Gain (Percentage)
+     28   "TLP     "   Turnover Loss (Percentage)
+     29   "TM      "   Total Moves
+     30   "TTR     "   Total Trades
+     31   "MV      "   Market Value
+     32   "NYH     "   New Year High
+     33   "NYL     "   New Year Low
+     34   "AIAA    "   Average Issues Advanced (Absolute)
+     35   "AIAP    "   Average Issues Advanced (Percentage)
+     36   "AIDA    "   Average Issues Declined (Absolute)
+     37   "AIDP    "   Average Issues Declined (Percentage)
+     38   "AIUA    "   Average Issues Unchanged (Absolute)
+     39   "AIUP    "   Average Issues Unchanged (Percentage)
+     40   "ShortLmt"   Short Limit
+     41   "OpnAucVo"   Opening Auction Volume
+     42   "TTIA    "   Total Numbers of Tradable Issues (Absolute)
+     43   "TIAAULmt"   Total Numbers of Issues Advanced AND trade price equals to the upper limit price
+     44   "TIDALLmt"   Total Numbers of Issues Declined AND trade price equals to the lower limit price
+     45   "TINTC   "   Total Numbers of Issues have no trade but meets criteria for source derived close price
+     46   "TINTCh  "   Total Numbers of Issues have no trade but meets criteria for source derived close price and where...
+     47   "TINTCl  "   Total Numbers of Issues have no trade but meets criteria for source derived close price and where...
+     48   "TCL100K "   Total Trade Count for Trades with Volume < 100K
+     49   "TCL500K "   Total Trade Count for Trades with Volume from 100K + 1 to 500K
+     50   "TCL1MM  "   Total Trade Count for Trades with Volume from 500K + 1 to 1MM
+     51   "TCL5MM  "   Total Trade Count for Trades with Volume from 1MM + 1 to 5MM
+     52   "TCG5MM  "   Total Trade Count for Trades with Volume > 5MM
+     53   "TVL100K "   Total Volume for Trades with Volume < 100K
+     54   "TVL500K "   Total Volume for Trades with Volume from 100K + 1 to 500K
+     55   "TVL1MM  "   Total Volume for Trades with Volume from 500K +1 to 1MM
+     56   "TVL5MM  "   Total Volume for Trades with Volume from 1MM + 1 to 5MM
+     57   "TVG5MM  "   Total Volume for Trades with Volume > 5MM
+     58   "LR3D    "   Lending Rate for 3-Day Tenor
+     59   "LR7D    "   Lending Rate for 7-Day Tenor
+     60   "LR14D   "   Lending Rate for 14-Day Tenor
+     61   "LR28D   "   Lending Rate for 28-Day Tenor
+     62   "LR182D  "   Lending Rate for 182-Day Tenor
+     63   "LV3D    "   Lending Volume for 3-Day Tenor
+     64   "LV7D    "   Lending Volume for 7-Day Tenor
+     65   "LV14D   "   Lending Volume for 14-Day Tenor
+     66   "LV28D   "   Lending Volume for 28-Day Tenor
+     67   "LV182D  "   Lending Volume for 182-Day Tenor
+     68   "MAAMCP  "   Monthly Average AM Close Price
+     69   "MAPMCP  "   Monthly Average PM Close Price
+     70   "YAAMCP  "   Yearly Average AM Close Price
+     71   "YAPMCP  "   Yearly Average PM Close Price
+     72   "MAAV    "   Monthly AM Daily Accumulated Volume
+     73   "MPAV    "   Monthly PM Daily Accumulated Volume
+     74   "WCOMSS  "   Weekly Change on Outstanding Margin Selling Shares
+     75   "WCOMBS  "   Weekly Change on Outstanding Margin Buying Shares
+     76   "NMSS    "   Negotiable Margin Selling Shares
+     77   "SMSS    "   Standardized Margin Selling Shares
+     78   "NMBS    "   Negotiable Margin Buying Shares
+     79   "SMBS    "   Standardized Margin Buying Shares
+     80   "OMSV    "   Outstanding Margin Selling Value
+     81   "OMBV    "   Outstanding Margin Buying Value
+     82   "WCOMSV  "   Weekly Change on Outstanding Margin Selling Value
+     83   "WCOMBV  "   Weekly Change on Outstanding Margin Buying Value
+     84   "NMSV    "   Negotiable Margin Selling Value
+     85   "SMSV    "   Standardized Margin Selling Value
+     86   "NMBV    "   Negotiable Margin Buying Value
+     87   "SMBV    "   Standardized Margin Buying Value
+     88   "WCNMSS  "   Weekly Change on Negotiable Margin Selling Shares
+     89   "WCSMSS  "   Weekly Change on Standardized Margin Selling Shares
+     90   "WCNMBS  "   Weekly Change on Negotiable Margin Buying Shares
+     91   "WCSMBS  "   Weekly Change on Standardized Margin Buying Shares
+     92   "WCNMSV  "   Weekly Change on Negotiable Margin Selling Value
+     93   "WCSMSV  "   Weekly Change on Standardized Margin Selling Value
+     94   "WCNMBV  "   Weekly Change on Negotiable Margin Buying Value
+     95   "WCSMBV  "   Weekly Change on Standardized Margin Buying Value
+     96   "CAMSS   "   Customer Account Margin Selling Shares
+     97   "CAMBS   "   Customer Account Margin Buying Shares
+     98   "DAMSS   "   Dealer Account Margin Selling Shares
+     99   "DAMBS   "   Dealer Account Margin Buying Shares
+    100   "CAMSV   "   Customer Account Margin Selling Value
+    101   "CAMBV   "   Customer Account Margin Buying Value
+    102   "DAMSV   "   Dealer Account Margin Selling Value
+    103   "DAMBV   "   Dealer Account Margin Buying Value
+    104   "WCAMSS  "   Weekly Change on Customer Account Margin Selling Shares
+    105   "WCCAMBS "   Weekly Change on Customer Account Margin Buying Shares
+    106   "WCDAMSS "   Weekly Change on Dealer Account Margin Selling Shares
+    107   "WCDAMBS "   Weekly Change on Dealer Account Margin Buying Shares
+    108   "WCCAMSV "   Weekly Change on Customer Account Margin Selling Value
+    109   "WCCAMBV "   Weekly Change on Customer Account Margin Buying Value
+    110   "WCDAMSV "   Weekly Change on Dealer Account Margin Selling Value
+    111   "WCDAMBV "   Weekly Change on Dealer Account Margin Buying Value
+    112   "CALS    "   Customer Account Loan Shares
+    113   "CALF    "   Customer Account Loan Funds
+    114   "WCCALS  "   Weekly Change on Customer Account Loan Shares
+    115   "WCCALF  "   Weekly Change on Customer Account Loan Funds
+    116   "DALS    "   Dealer Account Loan Shares
+    117   "DALF    "   Dealer Account Loan Funds
+    118   "WCDALS  "   Weekly Change on Dealer Account Loan Shares
+    119   "WCDALF  "   Weekly Change on Dealer Account Loan Funds
+    120   "CALSV   "   Value of Customer Account Loan Shares
+    121   "CALFV   "   Value of Customer Account Loan Funds
+    122   "WCCALSV "   Weekly Change on Value of Customer Account Loan Shares
+    123   "WCCALFV "   Weekly Change on Value of Customer Account Loan Funds
+    124   "DALSV   "   Value of Dealer Account Loan Shares
+    125   "DALFV   "   Value of Dealer Account Loan Funds
+    126   "WCDALSV "   Weekly Change on Value of Dealer Account Loan Shares
+    127   "WCDALFV "   Weekly Change on Value of Dealer Account Loan Funds
+    128   "IMS     "   Internal Matched Shares
+    129   "WCIMS   "   Weekly Change on Internal Matched Shares
+    130   "SLS     "   Stock Loan Shortage.
+    131   "FLS     "   Funding Loan Shortage
+    132   "TNSP    "   Today's net short position. New short position opened minus existing short position closed.
+    133   "TNMP    "   Today's net margin buying position. New margin long position opened minus existing margin long po...
+    134   "TNLP    "   Today's net loan position change. Net margin buying position minus net short position.
+    135   "MTDTC   "   Margin Trading Days To Cover.
+    136   "TTLP    "   Today's total long positions created from margin buy and short cover.
+    137   "TTSP    "   Today's total short positions created from short selling and the closed of long margin buy positi...
+    138   "TNMV    "   Today's net margin buying value. The value of the new margin long position opened minus the value...
+    139   "TNSV    "   Today's net short position value. The value of the new short position opened minus the value of t...
+    140   "TALB    "   Total amount of loan balance.
+    141   "TALBNC  "   Total amount of loan balance net change.
+    142   "05-<10% "   LME Banding 5-<10% - DO NOT USE
+    143   "10-<20% "   LME Banding 10-<20% - DO NOT USE
+    144   "20-<30% "   LME Banding 20-<30% - DO NOT USE
+    145   "30-<40% "   LME Banding 30-<40% - DO NOT USE
+    146   ">40%    "   LME Banding >40% - DO NOT USE
+    147   "40-<50% "   LME Banding 40-<50% - DO NOT USE
+    148   "50-<80% "   LME Banding 50-<80% - DO NOT USE
+    149   "80-<90% "   LME Banding 80-<90% - DO NOT USE
+    150   ">90%    "   LME Banding >90% - DO NOT USE
+    151   "Unrept  "   LME Banding Unreported % - DO NOT USE
+    152   "Beta1   "   First Beta Value
+    153   "Beta2   "   Second Beta Value
+    154   "Beta3   "   Third Beta Value
+    155   "Beta4   "   Fourth Beta Value
+    156   "Lambda1 "   First Lambda Value
+    157   "Lambda2 "   Second Lambda Value
+    158   "OLD_S_OI"   Old season open interest
+    159   "NEW_S_OI"   New season open interest
+    160   "BSPD PY "   Benchmark Spread - Par Yield
+    161   "BSPD ZY "   Benchmark Spread - Zero Coupon Yield
+    162   "PYLD    "   Par Yield
+    163   "Demand  "   Total Demand
+    164   "SUPPLY  "   Supply
+    165   "GEN     "   Generation
+    166   "ISSWHRCP"   Issued Warehouse Receipts
+    167   "CANWHRCP"   Cancelled Warehouse Receipts
+    168   "ASKBCKT "   Ask Bucket
+    169   "BIDBCKT "   Bid Bucket
+    170   "ASKDECIL"   Ask Decile
+    171   "BIDDECIL"   Bid Decile
+    172   "ASKPCTLE"   Ask Percentile
+    173   "BIDPCTLE"   Bid Percentile
+    174   "kBPD    "   Thousands of barrels per day
+    175   "HTV_MNP "   Minimum Price of the highest accumulated trade volume price block of the trading session(s)
+    176   "2HTV_MNP"   Minimum Price of the 2nd highest accumulated trade volume price block of the trading session(s).
+    177   "3HTV_MNP"   Minimum Price of the 3rd highest accumulated trade volume price block of the trading session(s).
+    178   "4HTV_MNP"   Minimum Price of the 4th highest accumulated trade volume price block of the trading session(s).
+    179   "5HTV_MNP"   Minimum Price of the 5th highest accumulated trade volume price block of the trading session(s).
+    180   "HTV_BTO "   Buy To Open trade volume that associated with the highest accumulated trade volume price block of...
+    181   "2HTV_BTO"   Buy To Open trade volume that associated with the 2nd highest accumulated trade volume price bloc...
+    182   "3HTV_BTO"   Buy To Open trade volume that associated with the 3rd highest accumulated trade volume price bloc...
+    183   "4HTV_BTO"   Buy To Open trade volume that associated with the 4th highest accumulated trade volume price bloc...
+    184   "5HTV_BTO"   Buy To Open trade volume that associated with the 5th highest accumulated trade volume price bloc...
+    185   "HTV_BTC "   Buy To Close trade volume that associated with the highest accumulated trade volume price block o...
+    186   "2HTV_BTC"   Buy To Close trade volume that associated with the 2nd highest accumulated trade volume price blo...
+    187   "3HTV_BTC"   Buy To Close trade volume that associated with the 3rd highest accumulated trade volume price blo...
+    188   "4HTV_BTC"   Buy To Close trade volume that associated with the 4th highest accumulated trade volume price blo...
+    189   "5HTV_BTC"   Buy To Close trade volume that associated with the 5th highest accumulated trade volume price blo...
+    190   "HTV_STO "   Sell To Open trade volume that associated with the highest accumulated trade volume price block o...
+    191   "2HTV_STO"   Sell To Open trade volume that associated with the 2nd highest accumulated trade volume price blo...
+    192   "3HTV_STO"   Sell To Open trade volume that associated with the 3rd highest accumulated trade volume price blo...
+    193   "4HTV_STO"   Sell To Open trade volume that associated with the 4th highest accumulated trade volume price blo...
+    194   "5HTV_STO"   Sell To Open trade volume that associated with the 5th highest accumulated trade volume price blo...
+    195   "HTV_STC "   Sell To Close trade volume that associated with the highest accumulated trade volume price block ...
+    196   "2HTV_STC"   Sell To Close trade volume that associated with the 2nd highest accumulated trade volume price bl...
+    197   "3HTV_STC"   Sell To Close trade volume that associated with the 3rd highest accumulated trade volume price bl...
+    198   "4HTV_STC"   Sell To Close trade volume that associated with the 4th highest accumulated trade volume price bl...
+    199   "5HTV_STC"   Sell To Close trade volume that associated with the 5th highest accumulated trade volume price bl...
+    200   "30_40PC "   30-<40% banding
+    201   "40_50PC "   40-<50% banding
+    202   "50_80PC "   50-<80% banding
+    203   "80_90PC "   80-<90% banding
+    204   "90_100PC"   >90% banding
+    205   "UNRPT   "   Unreported banding
+    206   "L5_9PC  "   5-9% long banding
+    207   "L10_19PC"   10-19% long banding
+    208   "L20_29PC"   20-29% long banding
+    209   "L30_39PC"   30-39% long banding
+    210   "L40pPC  "   40%+ long banding
+    211   "S5_9PC  "   5-9% short banding
+    212   "S10_19PC"   10-19% short banding
+    213   "S20_29PC"   20-29% short banding
+    214   "S30_39PC"   30-39% short banding
+    215   "S40pPC  "   40%+ short banding
+    216   "WTRL03  "   Water Level at 03:00
+    217   "WTRL05  "   Water Level at 05:00
+    218   "WTRL11  "   Water Level at 11:00
+    219   "WTRL19  "   Water Level at 19:00
+    220   "$/T     "   US Dollars per Tonne
+    221   "$/mmBTU "   US Dollars per Million British Thermal Units
+    222   "IntRUp  "   InterestRateRiskUp
+    223   "IntRDn  "   InterestRateRiskDown
+    224   "IntR2Up "   InterestRate2RiskUp
+    225   "IntR2Dn "   InterestRate2RiskDown
+    226   "Nof_ENTI"   Number of Entities
+    227   "EV_CPRC "   Evaluated Clean Price
+    228   "EV_DPRC "   Evaluated Dirty Price
+    229   "VaR1M99 "   1-day Value-at-Risk (VaR) % with 99% confidence level
+    230   "VaR5M99 "   5-day Value-at-Risk (VaR) % with 99% confidence level
+    231   "VaR10M99"   10-day Value-at-Risk (VaR) % with 99% confidence level
+    232   "VaR1M95 "   1-day Value-at-Risk (VaR) % with 95% confidence level
+    233   "VaR5M95 "   5-day Value-at-Risk (VaR) % with 95% confidence level
+    234   "VaR10M95"   10-day Value-at-Risk (VaR) % with 95% confidence level
+    235   "CaR1M99 "   1-day conditional Value-at-Risk (VaR) % with 99% confidence level
+    236   "CaR5M99 "   5-day conditional Value-at-Risk (VaR) % with 99% confidence level
+    237   "CaR10M99"   10-day conditional Value-at-Risk (VaR) % with 99% confidence level
+    238   "CaR1M95 "   1-day conditional Value-at-Risk (VaR) % with 95% confidence level
+    239   "CaR5M95 "   5-day conditional Value-at-Risk (VaR) % with 95% confidence level
+    240   "CaR10M95"   10-day conditional Value-at-Risk (VaR) % with 95% confidence level
+    241   "LR %    "   Liquidity Ranking (%)
+    242   "LR Pos  "   Liquidity Ranking Position
+    243   "SELAVOL "   Sell-side Arbitrage Volume
+    244   "SELAVAL "   Sell-side Arbitrage Value
+    245   "SELNAVOL"   Sell-side Non-arbitrage Volume
+    246   "SELNAVAL"   Sell-side Non-arbitrage Value
+    247   "BUYAVOL "   Buy-side Arbitrage Volume
+    248   "BUYAVAL "   Buy-side Arbitrage Value
+    249   "BUYNAVOL"   Buy-side Non-arbitrage Volume
+    250   "BUYNAVAL"   Buy-side Non-arbitrage Value
+    251   "EV_YTM  "   Evaluated Yield to Maturity
+    252   "EV_ACINT"   Evaluated Accrued Interest
+    253   "EV_T2MAT"   Time to maturity (in number of years) for the evaluated values
+    254   "HOACI   "   House Account - Issued (Notice Issued)
+    255   "HOACS   "   House Account - Stopped (Notice Received)
+    256   "CUACI   "   Customer Account - Issued (Notice Issued)
+    257   "CUACS   "   Customer Account - Stopped (Notice Received)
+    258   "DEPO_TTL"   Total Deposit Balance
+    259   "LOAN_TTL"   Total Loan Balance
+    260   "RMIT_TTL"   Total Remittance
+    261   "DDEP_TTL"   Total amount of demand deposit balance
+    262   "TDEP_TTL"   Total amount of term deposit balance
+    263   "CDEP_TTL"   Total amount of cross-border deposit balance
+    264   "OMO_WCM "   Weekly Open Market Operations (OMOs) capital movement
+    265   "CBBIA   "   Central Bank Bills Issue Amount
+    266   "CBBMA   "   Central Bank Bills Maturity Amount
+    267   "REPOIA  "   Repurchase Agreement Issue Amount
+    268   "REPOMA  "   Repurchase Agreement Maturity Amount
+    269   "RREPOIA "   Reverse Repurchase Agreement Issue Amount
+    270   "RREPOMA "   Reverse Repurchase Agreement Maturity Amount
+    271   "SND     "   Seasonal Normal Demand
+    272   "SNDD    "   Seasonal Normal Demand Differential
+    273   "TRDACGRD"   Trading Activity Grade
+    274   "CLINTGRD"   Client Interest Grade
+    275   "DLRMKGRD"   Dealer Market Grade
+    276   "MARG RTO"   Margin Ratio
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET318 13639
 PRE_2ET319 13640
 PRE_2ET320 13641

@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.8.2.L1
+    libema.lib                ema3.8.3.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.8.2.L1
-    libema.dll                ema3.8.2.L1
+    libema.lib                ema3.8.3.L1
+    libema.dll                ema3.8.3.L1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.8.2.L1
+    libema.a                    ema3.8.3.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.8.2.L1          libema.so.21          ema3.8.2.L1
+    libema.so.3.8.3.L1          libema.so.22          ema3.8.3.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -156,26 +156,26 @@ This will create all necessary soft links for example makefiles to link. It is s
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.8.2
+    Release Number: 3.8.3
     Load Number: 1
-    Windows Load ID: ema3.8.2.L1.win
-        Supersedes: ema3.8.1.L1.win
-    Linux Load ID: ema3.8.2.L1.linux
-        Supersedes: ema3.8.1.L1.linux
+    Windows Load ID: ema3.8.3.L1.win
+        Supersedes: ema3.8.2.L1.win
+    Linux Load ID: ema3.8.3.L1.linux
+        Supersedes: ema3.8.2.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.64_RealTimeDistributionSystem_24.71 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.65_RealTimeDistributionSystem_24.91 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2023.3.0.1060, https://www.blackducksoftware.com/
-    SemGrep 1.2.1, https://semgrep.dev/
+    Black Duck by Synopsis, 2023.10.2, https://www.blackducksoftware.com/
+    Coverity, 2023.12.2, https://scan.coverity.com/
 
 # Notes:
 - This package contains APIs that are subject to proprietary and open source licenses. Please make sure to read the top level README.md files for clarification.

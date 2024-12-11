@@ -10,18 +10,48 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.2.2.L1 aka EMA/ETA 3.3.0.L1 aka 3.3.0.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.2.3.L1 aka EMA/ETA 3.3.1.L1 aka 3.3.1.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with minor enhancements and fixes. This release introduces an EMA schema file to reflect Ema configuration. Note that the schema file is not enforced in this version.
+This is a maintenance release with support for Windows 11, customer issue fixes and other minor enhancements. Note that starting with this version, EMA configuration is validated/enforced using an embedded schema file.
+
+Customer Issues Resolved
+----------------------------------------------------------------------------------------
+- [Case Number: 13278230] - [RTSDK-8244] - Qualification on Windows 11
+- [GitHub #289] - [RTSDK-9142] - ETA C# RMTESToUTF8 does not work 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 ---------------------------------------------
+RTSDK CSharp Release 2.2.3.L1 (Dec 13, 2024)
+---------------------------------------------
+
+EMA CSharp 3.3.1.L1 Issues Resolved
+-----------------------------------
+- [RTSDK-9169] - EMA C# Lack of thread safety when decoding complex types which is created by application
+- [RTSDK-8524] - Enforce EmaConfig validation using embedded schema file
+
+ETA CSharp 3.3.1.L1 Issues Resolved
+-----------------------------------
+- [RTSDK-7092] - Some unit tests are failing when executed as a batch on Windows platform
+- [RTSDK-9109] - Unittest LSEG.Eta.Transports.Tests.TransportMessageTests.test7_encrypted failed
+- [RTSDK-9142] - ETA C# RMTESToUTF8 does not work [GitHub #289]
+
+Both ETA and EMA CSharp 3.3.1.L1 Issues Resolved
+------------------------------------------------
+- [RTSDK-8244] - Qualification on Windows 11 [Case Number: 13278230] 
+- [RTSDK-8510] - Rebranding to LSEG in CSharp code: URLs, unit tests, etc.
+- [RTSDK-9073] - Rebranding to LSEG in CSharp documentation
+- [RTSDK-9198] - Update to C# dependencies: NLog, LZ4, Tokens, xunit
+- [RTSDK-9306] - EMA C# | memory growth: Fix was to un-reference view handling objects from WlItemRequest and WlItemStream. Also it was to create m_PostIdToMsgTable and m_PostTimeoutInfoPool as needed instead of defaults in the WlStream class.
+
+---------------------------------------------
 RTSDK CSharp Release 2.2.2.L1 (Sep 30, 2024)
 ---------------------------------------------
+
+This is a maintenance release with minor enhancements and fixes. This release introduces an EMA schema file to reflect Ema configuration. Note that the schema file is not enforced in this version.
 
 EMA CSharp 3.3.0.L1 Issues Resolved 
 -----------------------------------

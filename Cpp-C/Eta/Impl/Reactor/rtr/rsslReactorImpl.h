@@ -207,7 +207,7 @@ RTR_C_INLINE void rsslClearReactorWSRecoveryMsgInfo(RsslReactorWSRecoveryMsgInfo
 }
 
 /* RsslReactorDictionaryVersion
-* - Represents Refinitiv Data Dictionary version
+* - Represents LSEG Data Dictionary version
 */
 typedef struct
 {

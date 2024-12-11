@@ -1,5 +1,5 @@
 # LSEG Real-Time SDK - C/C++ Edition
-This is the LSEG Real-Time SDK. This SDK encompasses a couple of APIs:  Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
+This is the LSEG Real-Time SDK. This SDK encompasses a couple of APIs: Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
 
 The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
@@ -94,6 +94,7 @@ Platforms:
      Microsoft Windows Server 2019 Standard Edition or later 64-bit
      Microsoft Windows Server 2022 Standard Edition or later 64-bit
      Microsoft Windows 10 Professional 64-bit 
+     Microsoft Windows 11 Professional 64-bit 
 
 Compilers (only on OSs supported by Microsoft): 
 
@@ -178,8 +179,8 @@ NOTE: Connectivity to Data Feed Direct (LDFD) is supported for Level 1 and Level
 
 This release has been tested with the following:
 
-- ADS 3.8.0
-- ADH 3.8.0
+- ADS 3.8.1
+- ADH 3.8.1
 - DACS 7.12
 
 # Documentation
@@ -195,9 +196,9 @@ There are 3 ways to install Real-Time SDK:
 
 Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
-Real-Time SDK package may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Cpp-C directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
+Real-Time SDK packages may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/rt-sdk-cc/downloads). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Cpp-C directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
 
-Real-Time SDK package is also available for download on [MyAccount](https://myaccount.lseg.com/en/downloadcenter). In addition, these distributions depend on a Binary Pack found in the above download location. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Cpp-C directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
+Real-Time SDK packages are also available for download on [MyAccount](https://myaccount.lseg.com/en/downloadcenter). In addition, these distributions depend on a Binary Pack found in the above download location. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Cpp-C directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
 ## Building RTSDK
 
@@ -278,7 +279,7 @@ In the event you would like to contribute to this repository, it is required tha
 - [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
 - [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
-Please email a signed and scanned copy to sdkagreement@refinitiv.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to sdkagreement@lseg.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 
 # Notes:

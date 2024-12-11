@@ -19,33 +19,32 @@ External modules used by this version of RTSDK CSharp:
         ----------                                 -------
         K4os.Compression.LZ4                       1.3.8
         Microsoft.Csharp                           4.5.0
-        Microsoft.IdentityModel.Abstractions       7.5.1 
-        Microsoft.IdentityModel.Jsonwebtokends     7.5.1 
-        Microsoft.IdentityModel.Logging            7.5.1 
-        Microsoft.IdentityModel.Tokens             7.5.1 
+        Microsoft.IdentityModel.Abstractions       8.1.2 
+        Microsoft.IdentityModel.Jsonwebtokends     8.1.2 
+        Microsoft.IdentityModel.Logging            8.1.2 
+        Microsoft.IdentityModel.Tokens             8.1.2 
         Microsoft.Netcore.Platforms                5.0.0
         NLog                                       5.3.4
         NLog.Extensions.Logging                    5.3.14
-        System.IdentityModel.Tokens.Jwt            7.5.1
-        System.Runtime                             4.3.0
-        System.Security.Cryptography.Cng           5.0.0 
+        System.IdentityModel.Tokens.Jwt            8.1.2
 
 
 # Software Requirements
 - Visual Studio 2022
 - .NET Core 6 or .NET Core 8. NOTE: .NET 8 is used in default build
-- xUnit 2.7.0 or higher for unit testing.
+- xUnit 2.9.2 or higher for unit testing.
 
 ### Platforms and Compilers used in Test
 
         Windows Server 2019 Standard Edition or later 64-bit, .NET SDK 6.0.421
-        Windows Server 2022 Standard Edition or later 64-bit, .NET SDK 8.0.401
+        Windows Server 2022 Standard Edition or later 64-bit, .NET SDK 8.0.403
+	Windows 11 64-bit, .NET SDK 8.0.403
         Oracle Linux Server 7.X 64-bit, .NET SDK 6.0.421
         Red Hat Enterprise Server 7.X Release 64-bit, .NET SDK 6.0.421
         Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 6.0.421
         Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 8.0.401
         Red Hat Enterprise Server 9.X Release 64-bit, .NET SDK 8.0.401
-        Ubuntu 20.04 64-bit, .NET SDK 6.0.402
+        Ubuntu 20.04 64-bit, .NET SDK 6.0.421
 
 ### Encryption Support
 
@@ -71,8 +70,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data. Conn
 
 This release has been tested with the following:
 
-- ADS 3.8.0
-- ADH 3.8.0
+- ADS 3.8.1
+- ADH 3.8.1
 - DACS 7.12
 
 # Documentation
@@ -89,7 +88,7 @@ Install all prerequisites list in Software Requirements section.
 
 Obtain the source **from this repository** on GitHub. It will contain a solution file and all required source to build RTSDK.
 
-Real-Time SDK package may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/download). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the CSharp directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
+Real-Time SDK package may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/rt-sdk-csharp/downloads). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the CSharp directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
 
 Real-Time SDK package is also available on [MyAccount](https://myaccount.lseg.com/content/mytr/en/downloadcenter.html). In addition, these distributions depend on a Binary Pack found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the CSharp directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
 
@@ -156,9 +155,9 @@ Navigate to `RTSDK/CSharp` and issue the appropriate dotnet command to run vario
 
 Sample command lines to run examples using .dll:
 
-        dotnet Eta/Applications/Consumer/bin/Debug/net6.0/Consumer.dll [arguments] 
-        dotnet Eta/Applications/Training/Consumer/Module_1a_Connect/bin/Debug/net6.0/Module_1a_Connect.dll [arguments]
-        dotnet Ema/Examples/Training/Consumer/100_Series/100_MP_Streaming/obj/Release/net6.0/Cons100.dll 
+        dotnet Eta/Applications/Consumer/bin/Debug/net8.0/Consumer.dll [arguments] 
+        dotnet Eta/Applications/Training/Consumer/Module_1a_Connect/bin/Debug/net8.0/Module_1a_Connect.dll [arguments]
+        dotnet Ema/Examples/Training/Consumer/100_Series/100_MP_Streaming/obj/Release/net8.0/Cons100.dll 
 
 - Linux: Run executable:  ./Consumer [arguments]
 - Windows: Run executable:  Consumer.exe [arguments]
@@ -177,11 +176,11 @@ You can download RTSDK libraries and dependencies from NuGet. Choose the appropr
 
         <dependency>
                 <ItemGroup>
-                    <PackageReference Include="LSEG.Eta.Core" Version="3.3.0"/>
-                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.3.0"/>
-                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.3.0"/>
-                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.3.0"/>
-                    <PackageReference Include="LSEG.Ema.Core" Version="3.3.0"/>
+                    <PackageReference Include="LSEG.Eta.Core" Version="3.3.1"/>
+                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.3.1"/>
+                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.3.1"/>
+                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.3.1"/>
+                    <PackageReference Include="LSEG.Ema.Core" Version="3.3.1"/>
                 </ItemGroup/>
         </dependency>
 
@@ -202,7 +201,7 @@ In the event you would like to contribute to this repository, it is required tha
 - [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
 
-Please email a signed and scanned copy to sdkagreement@refinitiv.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to sdkagreement@lseg.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 # Notes:
 - For more details on each API, please see the corresponding readme file in their top level directory.

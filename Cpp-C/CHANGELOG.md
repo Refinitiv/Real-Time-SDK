@@ -7,29 +7,73 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.2.L1 aka EMA/ETA 3.8.2.L1 aka 3.8.2.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.3.L1 aka EMA/ETA 3.8.3.L1 aka 3.8.3.0
 ----------------------------------------------------------------------------------------
-This release of ETAC has support for the Preferred Host feature which applies to both connection recovery and warm standby: the feature allows a switch back to a preferred host in a channel list or a prefereed group in a warm standby configuration. In addition, this release introduces an EMA schema file to reflect Ema configuration. Note that the schema file is not enforced in this version. Also included with this release are some critical fixes.
+
+This release of EMA C++ has support for the Preferred Host feature which applies to both channelset and warm standby: the feature allows a switch back to a preferred host in channelSet configuration or a preferred group in warm standby configuration. 
+
+In addition, this release serves as a maintenance release with support for Windows 11, customer issue fixes and other minor enhancements. Note that starting with this version, EMA configuration is validated and enforced using an embedded schema file.
 
 Customer Issues Resolved
 ------------------------
-- [Case Number: 13884979] - [RTSDK-9049, RTSDK-8833] - EMA hangs due to initialization failure or login denied
-- [GitHub #186] - [RTSDK-5724] - Provider Example does not return RSSL_RET_FAILURE up receiving Unhandled Item Msg
-- [GitHub #224] - [RTSDK-7430] - Address performance issue with EMA FieldList and all containers
+- [Case Number: 13278230] - [RTSDK-8244] - Qualification on Windows 11
+- [Case Number: 13982810] - [RTSDK-9149] - OmmProvider not fanout message when submit DIRECTORY close message with handle 0
+- [GitHub #275] - [RTSDK-8431] - EMA support for OmmJson to represent JSON data type 
+- [GitHub #280] - [RTSDK-8662] - Memory leak in LoginRefreshImpl and LoginStatusImpl
+- [GitHub #286] - [RTSDK-9074] - EMA C++ : OmmConsumerClient, OmmConsumerErrorClient forbid copy-constructor for no reason
+- [GitHub #287] - [RTSDK-9082] - NIProv does not submit LoadFilter data
+- [GitHub Pull Request #294] - [RTSDK-9323] - Remove trailing spaces from compiler options
+- [GitHub #295, #296] - EMA C++: Setting service name in AckMsg on provider leads to time-out on consumer 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.2.3.L1 (Dec 12, 2024)
+--------------------------------------------
+
+EMA C++ 3.8.3.L1 Issues Resolved
+--------------------------------
+- [RTSDK-8421] - EMA C++: Create QATool Series300Consumer360-MultiThreadViews-001
+- [RTSDK-8431] - EMA support for OmmJson to represent JSON data type 
+- [RTSDK-8524] - Enforces EMA configuration with embedded schema
+- [RTSDK-8662] - Memory leak in LoginRefreshImpl and LoginStatusImpl [GitHub #280]
+- [RTSDK-9074] - EMA C++ : OmmConsumerClient, OmmConsumerErrorClient forbid copy-constructor for no reason [GitHub #286]
+- [RTSDK-9082] - NIProv does not submit LoadFilter data [GitHub #287] 
+- [RTSDK-9149] - OmmProvider not fanout message when submit DIRECTORY close message with handle 0 [Case Number: 13982810] 
+- [RTSDK-9323] - EMA C++: Fixes to setting service name in AckMsg and retrieving service name from PostMsg [GitHub #295, #296]
+- [RTSDK-9347] - Fix to GCC 9.4.0 on Ubuntu 20.04 reports warnings in the Core library code
+
+ETA C 3.8.3.L1 Issues Resolved
+--------------------------------
+- [RTSDK-9152] - Thread binding failure due to cpu topology limitations
+- [RTSDK-9228] - Thread binding on "turned off" processors should not error out
+- [RTSDK-8862] - ETA C encoding Real: additional edge cases handling
+- [RTSDK-9057] - Memory leak reported when running MultiWLConsumer with WarmStandby
+- [RTSDK-9081] - Fixes to preferred host unit tests and minor fix to Reactor in channel cleanup to handle preferred host complete event
+- [RTSDK-9107] - Fixes to rsslVATest \*ReactorSessionMgntTest\* for 3 failed tests
+- [RTSDK-9216] - Example fix to MultiCredWLConsumer which fails to register FD when switching to a WSB group when configured with more than one standby server
+
+Both ETA C and EMA C++ 3.8.3.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-8244] - Qualification on Windows 11 [Case Number: 13278230] 
+- [RTSDK-9323] - Remove trailing spaces from compiler options - [GitHub Pull Request #294]
+- [RTSDK-9097] - Cmake generated build failed on RH8/RH9/Ubuntu 20.04 with option -DRTSDK_OPT_BUILD_ETA_EMA_LIBRARIES:BOOL=ON
+- [RTSDK-8510] - Rebranding to LSEG in C/C++ code: URLs, unit tests, etc.
+- [RTSDK-9093] - Update to C/C++ dependencies: curl, l8w8jwt, libxml2
+
+--------------------------------------------
 RTSDK C++/C Release 2.2.2.L1 (Sep 30, 2024)
 --------------------------------------------
+
+This release of ETA C has support for the Preferred Host feature which applies to both connection recovery and warm standby: the feature allows a switch back to a preferred host in a channel list configuration or to a preferred group in a warm standby configuration. In addition, this release introduces an EMA schema file to reflect EMA configuration. Note that the schema file is not enforced in this version. Also included with this release are some critical fixes.
 
 EMA C++ 3.8.2.L1 Issues Resolved
 --------------------------------
 - [RTSDK-5724] - Provider Example does not return RSSL_RET_FAILURE up receiving Unhandled Item Msg [ GitHub #186 ]
 - [RTSDK-7430] - Address performance issue with EMA FieldList and all containers [ GitHub #224 ]
-- [RTSDK-8043] - Create and ship a schema file that reflects Ema Configuration
+- [RTSDK-8043] - Create and ship a schema file that reflects EMA Configuration
 - [RTSDK-8609] - Create tool in EMA C++ that utilizes multiple OmmConsumers
 - [RTSDK-8811] - EMAC++ should convey dispatch errors from Reactor via error callback to EMA applications
 - [RTSDK-8833, RTSDK-9049] - EMA hangs due to initialization failure or login denied
@@ -150,7 +194,7 @@ ETA C 3.7.3.E1 Issues Resolved
 RTSDK C++/C Release 2.1.3.L1 (Dec 22, 2023)
 --------------------------------------------
 
-In this release, support for TLS 1.3 is introduced along with updates to dependent libraries and fixes to customers issues. Addtionally, API supports non-blocking application driven or explict service discovery and non-blocking API-drive or implicit service discovery calls. The default behavior of implicit service discovery has been changed to use the non-blocking call.
+In this release, support for TLS 1.3 is introduced along with updates to dependent libraries and fixes to customer issues. Addtionally, API supports non-blocking application driven or explict service discovery and non-blocking API-drive or implicit service discovery calls. The default behavior of implicit service discovery has been changed to use the non-blocking call.
 
 EMA C++ 3.7.3.L1 Issues Resolved
 --------------------------------
@@ -336,7 +380,7 @@ This is a maintenance release with fixes
 EMA C++ 3.6.7.L1 Issues Resolved
 --------------------------------
 - [RTSDK-5561] - EMA C++ exception due to prior random data in RMTES cache buffer
-- [RTSDK-5686] - Add support DirectWrite to Ema configuration for IProvPerf and NIProvPerf
+- [RTSDK-5686] - Add support DirectWrite to EMA configuration for IProvPerf and NIProvPerf
 - [RTSDK-5938] - EMA Support: Reactor should bind threads to specified cores
 - [RTSDK-6303] - Fix libxml2 utilities for encoding/decoding to check for flags wrt. counthint, updatetype, serviceID, etc.
 - [RTSDK-6151] - Add ability to append to existing file upon application restart
@@ -504,7 +548,7 @@ EMA C++ 3.6.3.L1 Issues Resolved
 --------------------------------
 - [RTSDK-3540] - Change EMA log files from \_pid.log to a rolling log file.  [GitHub #121]
 - [RTSDK-5219] - Item name is missing in a NACK message for a post upon acknowledgement timeout [Case Number: 09915927] 
-- [RTSDK-5412] - Documentation error in EMA Java Config guide [GitHub #179] 
+- [RTSDK-5412] - Documentation error in EMA Config guide [GitHub #179] 
 
 ETA C 3.6.3.L1 Issues Resolved
 --------------------------------
@@ -688,11 +732,11 @@ RTSDK C++/C Release 2.0.0.L1 (Oct 19, 2020)
 
 New Features Added
 ------------------
-The primary object of this release is to completely rebrand RTSDK:  change namespace to com.refinitiv, change library names and alter documentation to reflect new branding. A new file explaining impact to customer, REBRAND.md was also added. In addition, there were a few fixes included. This release also introduces qualification on CentOS8.
+The primary objective of this release is to rebrand RTSDK: change namespace to com.refinitiv, change library names and alter documentation to reflect new branding. A new file explaining impact to customers, REBRAND.md was also added. In addition, there were a few fixes included. This release also introduces qualification on CentOS8.
 
 EMA C++ 3.6.0.L1 Issues Resolved
 --------------------------------
-- [RTSDK-3222] - Multiple config files shipped with EmaCpp
+- [RTSDK-3222] - Multiple config files shipped with EMA C++
 - [RTSDK-3367] - EMA CPP Config Guide contradicts between the Section Headings and the title for tables for Channel parameter
 - [RTSDK-3671] - Shorten EMA example names to avoid build errors on windows
 - [RTSDK-4151] - Change namespace to refinitiv
@@ -779,7 +823,7 @@ EMA C++ 3.5.0.G1 Issues Resolved
 - [RTSDK-2587] Cons170 memory leak reported from valgrind
 - [RTSDK-3292] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance [Case Number: 07697024] [GitHub # 141]
 - [RTSDK-3843] Support SO_REUSEADDR to permit server side socket to be reused for loadbalancing
-- [RTSDK-3907] Ema Cons113 Example does NOT work with EncryptedProtocolType::RSSL_WEBSOCKET
+- [RTSDK-3907] EMA Cons113 Example does NOT work with EncryptedProtocolType::RSSL_WEBSOCKET
 - [RTSDK-3908] Support EMA RDP Websocket encrypted connection example 
 - [RTSDK-3933] Support Round Trip Latency Monitoring
 - [RTSDK-3988] Change EMA RDP example to take RIC as an input
@@ -915,14 +959,14 @@ EMA C++ 3.3.1.L1 Issues Resolved
 - [RTSDK-633] EmaCppConsPerf does not reach steady state occasionally [Case Number: 05594510]
 - [RTSDK-900] Change documentation to reflect user-defined Config filename
 - [RTSDK-1750] Clone/copy facility for message payload to decode it outside of onUpdateMsg() [Case Number: 06854285,5201994]
-- [RTSDK-3238] Incorrect spelling in interface name in EmaCpp
+- [RTSDK-3238] Incorrect spelling in interface name in EMA C++
 - [RTSDK-3251] Fix extendedHeader typo where Status is returned instead of Close
 - [RTSDK-3252] Please restore version headers, eg EmaVersion.h [GitHub #105]
 
 ETA C 3.3.1.L1 Issues Resolved
 --------------------------------
 - [RTSDK-3176] Windows build warning
-- [RTSDK-3182] Documentation, ETAJ Dev Guide: Fix "UPA" in Figure 36 to "Transport API Consumer App"
+- [RTSDK-3182] Documentation, ETA Dev Guide: Fix "UPA" in Figure 36 to "Transport API Consumer App"
 - [RTSDK-3184] Warning when building rsslTransportUnitTest on RH6
 - [RTSDK-3185] Warning rsslRestClientImpl.c about RsslRestCurlHandleSumFunction
 - [RTSDK-3202] RTSDK Documentation: Remove links to "Transport API Value Added Components" in html and refer to VARefman
@@ -1019,7 +1063,7 @@ EMA C++ 3.2.2.L1 Issues Resolved
 
 ETA C 3.2.2.L1 Issues Resolved
 --------------------------------
-- [RTSDK-647] EMAJ or ETAJ consumer sends duplicate FIDs in a snapshot view request
+- [RTSDK-647] EMA or ETA consumer sends duplicate FIDs in a snapshot view request
 - [RTSDK-1753] Add support for WindowsServer2016 
 - [RTSDK-2550] ETA RDM Usage guide section 6.2.4 shows market price update instead of status [Developer Community]
 
@@ -1040,7 +1084,7 @@ EMA C++ 3.2.1.L1 Issues Resolved
 - [RTSDK-430, RTSDK-1323, RTSDK-1552] EMA C++ crashes when encoding a large Map [Case Numbers: 05354708, 06292070, GitHub #54]
 - [RTSDK-635] EMA C++ Compiler warnings [Case Number: 05830919]
 - [RTSDK-1496] Double login reissue & Exception with EMA C++ NIProvider (430)
-- [RTSDK-1529] Ema Example Cons100 valgrind errors when EmaConfig.xml is present
+- [RTSDK-1529] EMA Example Cons100 valgrind errors when EmaConfig.xml is present
 - [RTSDK-1548] Update RDMUsageGuide to include information on the required filters to mark a service back Up [Case Number: 06538048]
 - [RTSDK-1556] Update Doxygen for OmmDateTime, OmmDate and OmmTime [GitHub #55]
 - [RTSDK-1560] Provide ability to modify the configuration programmatically for IProvider [Case Number: 06548186]

@@ -1,8 +1,8 @@
 !
 !   This file contains information proprietary to
-!   Refinitiv and may not be reproduced, disclosed
+!   LSEG and may not be reproduced, disclosed
 !   or used in whole or in part without the express written
-!   permission of Refinitiv. Refinitiv may
+!   permission of LSEG. LSEG may
 !   update or remove this document at any time without
 !   notice.
 !
@@ -11021,7 +11021,7 @@ QUOTE_TYPE "QUOTE TYPE"          4237  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 RCS_AS_CLA "RCS ASSET CLASS"     4238  NULL        ALPHANUMERIC        3  RMTES_STRING     3
 !
-! Three Character alphabetical identifier for the Refinitiv Classification 
+! Three Character alphabetical identifier for the LSEG Classification 
 ! Scheme (TRCS) Asset Classification.
 !
 CONVEXITY2 "CONVEXITY 2"         4239  NULL        PRICE              17  REAL64           7
@@ -15366,7 +15366,7 @@ DELTA_1Y   "DELTA 1Y"            5864  NULL        PRICE              17  REAL64
 !
 TR_OWNER   "TR DATA OWNER"       5865  NULL        ALPHANUMERIC       17  RMTES_STRING    17
 !
-! Internal TR team responsible for maintaining instrument
+! The internal LSEG team that is responsible for maintaining the instrument.
 !
 SWAP_CURVE "SWAP CURVE"          5866  NULL        ALPHANUMERIC       12  RMTES_STRING    12
 !
@@ -15548,17 +15548,15 @@ ACT_SETTLE "ACTUAL SETTLE"       5909  NULL        PRICE              17  REAL64
 !
 PTRD_VENUE "PREF TRADING VENUE"  5910  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! Field to select the Refinitiv primary execution venue for trading the 
-! instrument.
+! Field to select the primary execution venue for trading the instrument.
 !
 STRD_VENUE "SEC TRADING VENUE"   5911  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! Field to select the Refinitiv secondary execution venue for trading the 
-! instrument.
+! Field to select the secondary execution venue for trading the instrument.
 !
 TTRD_VENUE "3RD TRADING VENUE"   5912  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! Field to select the Refinitiv third execution venue for trading the instrument.
+! Field to select the third execution venue for trading the instrument.
 !
 TW_UNI     "TRADEWEB UNIVERSE"   5913  NULL        ALPHANUMERIC       17  RMTES_STRING    17
 !
@@ -17262,7 +17260,7 @@ METADATA5  "METADATA 5"          6393  NULL        ALPHANUMERIC      255  RMTES_
 !
 DDS_DSO_ID "DDS DSO ID"          6401  NULL        BINARY              3  UINT32           2
 !
-! LSEG Real-Time (DDS) equivalent of the IDN FID DSO_ID. Has its own set of values.
+! LSEG Real-Time equivalent of the IDN FID DSO_ID. Has its own set of values.
 !
 BR_PNAC    "BR PNAC"             6402  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
@@ -20254,7 +20252,7 @@ FR_MARGIN  "MARGIN"              7615  NULL        PRICE              17  REAL64
 !
 MEAN_YIELD "MID YIELD"           7616  NULL        PRICE              17  REAL64           7
 !
-! Yield-to-worst based on the 3:00 PM mean price set by Refinitiv Pricing Service
+! Yield-to-worst based on the 3:00 PM mean price set by LSEG Pricing Service
 !
 OAS_DUR    "OAS DURATION"        7617  NULL        PRICE              17  REAL64           7
 !
@@ -20276,7 +20274,7 @@ UNDL_CL_PR "UNDERLYING CLS PRC"  7620  NULL        PRICE              17  REAL64
 UNDR_CLOSE "UN UNIVSL CLS PRC"   7621  NULL        PRICE              17  REAL64           7
 !
 ! Single end of day close price field for the underlying RIC of an instrument. Values 
-! are exchange-provided official close or Refinitiv determined prices
+! are exchange-provided official close or LSEG determined prices
 !
 HSTVLT_10D "VOLTY - 10 DAYS"     7622  NULL        PRICE              17  REAL64           7
 !
@@ -20435,7 +20433,7 @@ FVP_ADJMID "FVP ADJ MID"         7656  NULL        PRICE              17  REAL64
 FVP_ADJUCP "FVP ADJ UNI CLS"     7657  NULL        PRICE              17  REAL64           7
 !
 ! Single end of day close price field multiplied by the FVP Adjustment Factor. Values 
-! are exchange-provided official close or Refinitiv determined prices
+! are exchange-provided official close or LSEG determined prices
 !
 FVP_CFDLVL "FVP CONFIDENCE LV"   7658  NULL        PRICE              17  REAL64           7
 !
@@ -20448,7 +20446,7 @@ MACD_IND   "MACD INDICATOR"      7659  NULL        PRICE              17  REAL64
 !
 TR_DIV_YLD "TR DIVIDEND YIELD"   7660  NULL        PRICE              17  REAL64           7
 !
-! Gross dividend yield of the index as calculated by Refinitiv
+! Gross dividend yield of the index as calculated by LSEG
 !
 YLD_TO_IDX "DIV YLD TO INDEX"    7661  NULL        PRICE              17  REAL64           7
 !
@@ -20891,12 +20889,12 @@ U_DIVIDEND "UNDLY DIV RATE"      7764  NULL        PRICE              17  REAL64
 U_UNI_ASK  "UNDLY UNI ASK"       7765  NULL        PRICE              17  REAL64           7
 !
 ! Last quoted ask price for the underlying RIC of an instrument. Values are derived 
-! based on Refinitiv logic
+! based on LSEG logic
 !
 U_UNI_BID  "UNDLY UNI BID"       7766  NULL        PRICE              17  REAL64           7
 !
 ! Last quoted bid price for the underlying RIC of an instrument. Values are derived 
-! based on Refinitiv logic
+! based on LSEG logic
 !
 U_VOL_10D  "UNDLY VOLTY 10D"     7767  NULL        PRICE              17  REAL64           7
 !
@@ -20921,16 +20919,16 @@ U_VOL_200D "UNDLY VOLTY 200D"    7771  NULL        PRICE              17  REAL64
 !
 UNI_ASK    "UNI ASK PRC"         7772  NULL        PRICE              17  REAL64           7
 !
-! Last quoted ask price. Values are derived based on Refinitiv logic
+! Last quoted ask price. Values are derived based on LSEG logic
 !
 UNI_BID    "UNI BID PRC"         7773  NULL        PRICE              17  REAL64           7
 !
-! Last quoted bid price. Values are derived based on Refinitiv logic
+! Last quoted bid price. Values are derived based on LSEG logic
 !
 UNI_CLOSE  "UNI CLS PRC"         7774  NULL        PRICE              17  REAL64           7
 !
 ! Single end of day close price field. Values are exchange-provided official close or 
-! Refinitiv determined prices
+! LSEG determined prices
 !
 VMA_80D    "VMA 80D"             7775  NULL        PRICE              17  REAL64           7
 !
@@ -20994,7 +20992,7 @@ VOT_PER_SH "VOTING RTS PER SHR"  7789  NULL        PRICE              17  REAL64
 !
 Y1GDIV_YLD "GROSS DIV YLD FY1"   7790  NULL        PRICE              17  REAL64           7
 !
-! Estimated Year 1 gross Dividend Yield for the index, as calculated by Refinitiv. 
+! Estimated Year 1 gross Dividend Yield for the index, as calculated by LSEG. 
 ! Year 1 is the twelve month financial period following the year covered in 
 ! the most recently reported annual results.
 !
@@ -21891,7 +21889,7 @@ DS_TRD_STA "DS TRD STATUS"       8453  NULL        ALPHANUMERIC        4  RMTES_
 !
 ASSET_TP   "ASSET TYPE"          8454  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Asset Type: Refinitiv instrument classification code that identifies the asset 
+! Asset Type: LSEG instrument classification code that identifies the asset 
 ! type.
 !
 PRE_4TX008 "PRED 4 TXT 008"      8455  NULL        ALPHANUMERIC        4  RMTES_STRING     4
@@ -22434,7 +22432,7 @@ INST_ID_TP "USER DEF INSTID TP"  8700  NULL        ALPHANUMERIC       40  RMTES_
 !
 DS_CODE    "DATASCOPE CODE"      8701  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
-! DS CODE: Internal identifier used for cross reference within Refinitiv
+! DS CODE: Internal identifier used for cross reference within LSEG
 !
 AS_TP_DES  "ASSET TYPE DES"      8702  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
@@ -22641,7 +22639,7 @@ SERIES_DES "SERIES DES"          8754  NULL        ALPHANUMERIC      255  RMTES_
 !
 RCS_DSC    "RCS DESCRIPTION"     8755  NULL        ALPHANUMERIC      255  RMTES_STRING   255
 !
-! Text description for the Refinitiv Classification Scheme Asset Classification
+! Text description for the LSEG Classification Scheme Asset Classification
 !
 EXCH_LIST  "EXCHANGE LIST"       8756  NULL        ALPHANUMERIC      255  RMTES_STRING   255
 !
