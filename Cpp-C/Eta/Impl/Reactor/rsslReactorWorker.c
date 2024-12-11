@@ -1853,7 +1853,7 @@ RsslRet _reactorWorkerPreferredHostHandleChannelFailure(RsslReactorImpl* pReacto
 {
 	/* Only set an error about failure on connect to the preferred host. */
 	/* The current non-preferred channel continue to work. */
-	char debugtext[256];
+	char debugtext[1320];
 	RsslError* pRsslError = &pReactorChannel->channelWorkerCerr.rsslError;
 	RsslReactorWorker* pReactorWorker = &pReactorImpl->reactorWorker;
 	RsslReactorChannelEventImpl* pEvent = NULL;
