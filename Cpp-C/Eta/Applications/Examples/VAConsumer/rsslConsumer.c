@@ -2463,6 +2463,13 @@ int main(int argc, char **argv)
 					pInfo->enableSessionManagement = enableSessionMgnt;
 					pInfo->pAuthTokenEventCallback = authTokenEventCallback;
 				}
+
+				pInfo->rsslConnectOptions.proxyOpts.proxyHostName = proxyHost;
+				pInfo->rsslConnectOptions.proxyOpts.proxyPort = proxyPort;
+				pInfo->rsslConnectOptions.proxyOpts.proxyUserName = proxyUserName;
+				pInfo->rsslConnectOptions.proxyOpts.proxyPasswd = proxyPasswd;
+				pInfo->rsslConnectOptions.proxyOpts.proxyDomain = proxyDomain;
+				pInfo->rsslConnectOptions.encryptionOpts.openSSLCAStore = sslCAStore;
 			}
 
 			pOpts->reactorConnectionList = pCommand->InfoItems;
