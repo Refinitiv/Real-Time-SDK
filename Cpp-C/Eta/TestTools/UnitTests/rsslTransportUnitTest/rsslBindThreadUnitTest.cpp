@@ -50,6 +50,8 @@ const unsigned MAXLEN = 32;
 const char* STR_ERROR_CPU_IS_NOT_SET = "cpuString is not set.";
 const char* STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE = "Cpu topology information is unavailable.";
 const char* STR_ERROR_CPU_TOPOLOGY_TEST = "CpuId topology error: This is a test error.";
+const char* STR_ERROR_OUTPUTBUF_IS_NOT_SET = "pLogicalIds buffer is not provided.";
+const char* STR_ERROR_OUTPUTBUF_SMALL = "pLogicalIds buffer length is not sufficient for the CPU logical Ids.";
 
 const unsigned MAX_TEST_CORES = 1024;
 
@@ -525,6 +527,16 @@ TEST_F(ThreadBindProcessorCoreTest, BindThreadShouldReturnFailOnNullCoreStringTe
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_IS_NOT_SET);
 }
 
+TEST_F(ThreadBindProcessorCoreTest, BindThreadTrivialParamTest)
+{
+	// Corner test cases
+	const char* bufTest1 = "";
+	const char* bufTest2 = "-1";
+
+	ASSERT_EQ(rsslBindThread(bufTest1, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_EQ(rsslBindThread(bufTest2, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+}
+
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadToCpuCore0PCTTest)
 {
 	// "P:0 C:0 T:0";  // P:X C:Y T:Z
@@ -867,6 +879,30 @@ TEST_F(ThreadBindProcessorCoreTest, BindThreadExShouldReturnFailOnNullCoreString
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_IS_NOT_SET);
 
 	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_IS_NOT_SET);
+}
+
+TEST_F(ThreadBindProcessorCoreTest, BindThreadExTrivialParamTest)
+{
+	// Corner test cases
+	const char* bufTest1 = "";
+	const char* bufTest2 = "-1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslBindThreadEx(bufTest1, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+	ASSERT_STREQ(outputResult.data, "");
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslBindThreadEx(bufTest2, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+	ASSERT_STREQ(outputResult.data, "");
 }
 
 TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToCpuCore0PCTTest)
@@ -1796,6 +1832,667 @@ TEST_F(ThreadBindProcessorCoreTest, BindThreadExShouldReturnFailOnBadFormatCoreS
 	}
 }
 
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTCPU0Test)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	if (nProcessors < 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	// Get the 0-th CPU processor unit
+	RsslUInt32 CpuCore0Id = processorsOnline.cpuIdOnline[0];  // logical Cpu Id
+
+	// P:X C:Y T:Z - the 0-th physical CPU core in PCT format
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str();
+
+	char bufferCpu[128];
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char expectedOutStr[256];
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	// The 0-th Processor core, logical Id
+	snprintf(bufferCpu, sizeof(bufferCpu), "%u", CpuCore0Id);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u", CpuCore0Id);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// The 0-th Processor core, PCT
+	snprintf(bufferCpu, sizeof(bufferCpu), "%s", sCpuCore0PCT);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u", CpuCore0Id);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// Mix. The 0-th Processor core, logical Id + PCT
+	snprintf(bufferCpu, sizeof(bufferCpu), "%u, %s", CpuCore0Id, sCpuCore0PCT);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u", CpuCore0Id);  // only the 0-th logical Id
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// Mix. The 0-th Processor core, PCT + logical Id
+	snprintf(bufferCpu, sizeof(bufferCpu), "%s, %u", sCpuCore0PCT, CpuCore0Id);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u", CpuCore0Id);  // only the 0-th logical Id
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTCPU1Test)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	// This test requires two cores.
+	if (nProcessors < 2)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	char bufferCpu[128];
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char expectedOutStr[256];
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	// Get the 1-st CPU processor unit
+	RsslUInt32 CpuCore1Id = processorsOnline.cpuIdOnline[1];  // logical Cpu Id
+
+	// P:X C:Y T:Z - the 1-st physical CPU core in PCT format
+	const char* sCpuCore1PCT = processorsOnline.cpuPCTOnline[1].c_str();
+
+	// The 1-st Processor core, logical Id
+	snprintf(bufferCpu, sizeof(bufferCpu), "%u", CpuCore1Id);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u", CpuCore1Id);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// The 1-st Processor core, PCT
+	snprintf(bufferCpu, sizeof(bufferCpu), "%s", sCpuCore1PCT);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u", CpuCore1Id);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// Mix. The 1-st Processor core, logical Id + PCT
+	snprintf(bufferCpu, sizeof(bufferCpu), "%u, %s", CpuCore1Id, sCpuCore1PCT);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u", CpuCore1Id);  // only the 1-st logical Id
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// Mix. The 1-st Processor core, PCT + logical Id
+	snprintf(bufferCpu, sizeof(bufferCpu), "%s, %u", sCpuCore1PCT, CpuCore1Id);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u", CpuCore1Id);  // only the 1-st logical Id
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTCPU01Test)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	// This test requires two cores.
+	if (nProcessors < 2)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	RsslUInt32 CpuCore0Id = processorsOnline.cpuIdOnline[0];  // the 0-th logical Cpu Id
+	RsslUInt32 CpuCore1Id = processorsOnline.cpuIdOnline[1];  // the 1-st logical Cpu Id
+
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str();  // the 0-th physical CPU core in PCT format
+	const char* sCpuCore1PCT = processorsOnline.cpuPCTOnline[1].c_str();  // the 1-st physical CPU core in PCT format
+
+	char bufferCpu[128];
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char expectedOutStr[256];
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	// Several processor cores. The 0-th, 1-st Processor core, logical Id
+	snprintf(bufferCpu, sizeof(bufferCpu), "%u,%u", CpuCore0Id, CpuCore1Id);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u,%u", CpuCore0Id, CpuCore1Id);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// Several processor cores. The 1-st, 0-th Processor core, logical Id
+	snprintf(bufferCpu, sizeof(bufferCpu), "%u, %u", CpuCore1Id, CpuCore0Id);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u,%u", CpuCore0Id, CpuCore1Id);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// Several processor cores. The 0-th, 1-st Processor core, PCT + PCT
+	snprintf(bufferCpu, sizeof(bufferCpu), "%s, %s", sCpuCore0PCT, sCpuCore1PCT);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u,%u", CpuCore0Id, CpuCore1Id);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// Several processor cores. The 1-st, 0-th Processor core, PCT + PCT
+	snprintf(bufferCpu, sizeof(bufferCpu), "%s, %s", sCpuCore1PCT, sCpuCore0PCT);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u,%u", CpuCore0Id, CpuCore1Id);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// Several processor cores. Mix The 0-th, 1-st Processor core, logical Id + PCT
+	snprintf(bufferCpu, sizeof(bufferCpu), "%u, %s", CpuCore0Id, sCpuCore1PCT);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u,%u", CpuCore0Id, CpuCore1Id);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+
+	// Several processor cores. Mix The 1-st, 0-th Processor core, logical Id + PCT
+	snprintf(bufferCpu, sizeof(bufferCpu), "%u, %s", CpuCore1Id, sCpuCore0PCT);
+	snprintf(expectedOutStr, sizeof(expectedOutStr), "%u,%u", CpuCore0Id, CpuCore1Id);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufferCpu: " << bufferCpu;
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTLongListCPUAscendingOrderTest)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	// This test requires at least two cores.
+	if (nProcessors < 2)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	// Long list of the processor units.
+	char bufCpuIdThreadsPCT[2560];
+
+	int indCpu;
+	RsslUInt32 CpuCores[MAX_TEST_CORES];
+
+	char expectedOutStr[2560];
+
+	RsslBuffer outputResult;
+	char textResult[2560];
+
+	int i;
+	int n = 0;
+	int nTestProcessors = 0;
+
+	// Construct a long list of CPU cores in ascending order
+	for (i = 0, indCpu = 1; i < MAX_TEST_CORES && indCpu < (int)nProcessors && n < sizeof(bufCpuIdThreadsPCT); ++i, indCpu += 2)
+	{
+		if (i > 0)
+			n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, ",");
+
+		n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, "%s", processorsOnline.cpuPCTOnline[indCpu].c_str());
+
+		CpuCores[i] = processorsOnline.cpuIdOnline[indCpu];
+		++nTestProcessors;
+	}
+
+	// Construct expected result string, i.e. list of processor core Ids in ascending order
+	n = 0;
+	for (i = 0; i < nTestProcessors && n < sizeof(expectedOutStr); ++i)
+	{
+		if (i > 0)
+			n += snprintf(expectedOutStr + n, sizeof(expectedOutStr) - n, ",");
+
+		n += snprintf(expectedOutStr + n, sizeof(expectedOutStr) - n, "%u", CpuCores[i]);
+	}
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufCpuIdThreadsPCT: " << bufCpuIdThreadsPCT;
+
+//	printf("req bufCpuIdThreadsPCT: %s; expected res: %s; outputResult: %s\n", bufCpuIdThreadsPCT, expectedOutStr, outputResult.data);
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTLongListCPUDescendingOrderTest)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	// This test requires at least two cores.
+	if (nProcessors < 2)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	// Long list of the processor units.
+	char bufCpuIdThreadsPCT[2560];
+
+	int indCpu;
+	RsslUInt32 CpuCores[MAX_TEST_CORES];
+
+	char expectedOutStr[2560];
+
+	RsslBuffer outputResult;
+	char textResult[2560];
+
+	int i;
+	int n = 0;
+	int nTestProcessors = 0;
+
+	// Construct a long list of CPU cores in descending order
+	for (i = 0, indCpu = processorsOnline.nCpuOnline - 1; i < MAX_TEST_CORES && 0 <= indCpu && n < sizeof(bufCpuIdThreadsPCT); ++i, indCpu -= 2)
+	{
+		if (i > 0)
+			n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, ",");
+
+		n += snprintf(bufCpuIdThreadsPCT + n, sizeof(bufCpuIdThreadsPCT) - n, "%s", processorsOnline.cpuPCTOnline[indCpu].c_str());
+
+		CpuCores[i] = processorsOnline.cpuIdOnline[indCpu];
+		++nTestProcessors;
+	}
+
+	// Construct expected result string, i.e. list of processor core Ids in ascending order
+	n = 0;
+	for (i = nTestProcessors - 1; 0 <= i && n < sizeof(expectedOutStr); --i)
+	{
+		if (i < nTestProcessors - 1)
+			n += snprintf(expectedOutStr + n, sizeof(expectedOutStr) - n, ",");
+
+		n += snprintf(expectedOutStr + n, sizeof(expectedOutStr) - n, "%u", CpuCores[i]);
+	}
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+	ASSERT_STREQ(outputResult.data, expectedOutStr) << "requested bufCpuIdThreadsPCT: " << bufCpuIdThreadsPCT;
+
+//	printf("req bufCpuIdThreadsPCT: %s; expected res: %s; outputResult: %s\n", bufCpuIdThreadsPCT, expectedOutStr, outputResult.data);
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTNullCpuString_FailedTest)
+{
+	char* pCoreStr = NULL;
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	// Setup stage
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(pCoreStr, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+
+	// Test stage
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_IS_NOT_SET);
+
+	ASSERT_STREQ(outputResult.data, "");
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTTrivialParamTest)
+{
+	// Corner test cases
+	const char* bufTest1 = "";
+	const char* bufTest2 = "-1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufTest1, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+	ASSERT_STREQ(outputResult.data, "");
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufTest2, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+	ASSERT_STREQ(outputResult.data, "");
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTNullOutputString_FailedTest)
+{
+	char pCoreStr[128] = "0";
+	RsslBuffer outputResult;
+
+	rsslClearBuffer(&outputResult);
+
+	// Setup stage
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(pCoreStr, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+
+	// Test stage
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_OUTPUTBUF_IS_NOT_SET);
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTToListCpuCores0_FailedTest)
+{
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	char listCpuIdThread[MAXLEN];
+
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+
+	char outStr[256];
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(listCpuIdThread, sizeof(listCpuIdThread), "%u,%u", CpuCoreId0, nProcessors);
+	snprintf(outStr, sizeof(outStr), "Configuration setting %u did not match any physical processors on the system.", nProcessors);
+
+	// Setup stage
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(listCpuIdThread, &outputResult, &errorInfo), RSSL_RET_FAILURE) << "outputResult: " << outputResult.data;
+
+	// Check stage
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, outStr);
+
+	ASSERT_STREQ(outputResult.data, "");
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTToListCpuCores1_FailedTest)
+{
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	char listCpuIdThread[MAXLEN];
+
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+
+	char outStr[256];
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(listCpuIdThread, sizeof(listCpuIdThread), "%u, %u", nProcessors, CpuCoreId0);
+	snprintf(outStr, sizeof(outStr), "Configuration setting %u did not match any physical processors on the system.", nProcessors);
+
+	// Setup stage
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(listCpuIdThread, &outputResult, &errorInfo), RSSL_RET_FAILURE) << "outputResult: " << outputResult.data;
+
+	// Check stage
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, outStr);
+
+	ASSERT_STREQ(outputResult.data, "");
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTToListCpuCoresPCT0_FailedTest)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	// "P:0 C:0 T:0";  // P:X C:Y T:Z
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str();
+
+	// The next processor core
+	char sCpuCoreNextPCT[MAXLEN];  // P:X C:Y T:Z
+
+	char bufCpuIdThreadsPCT[128];
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[256];
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	// Pre-setup stage. Calculate topology for the 2-nd Cpu core.
+	// For Fail-test we choose an invalid CPU core.
+	// Construct an invalid topology.
+	unsigned indCpu = 0;
+	unsigned iPackage = indCpu / 3;
+	unsigned iCore = indCpu / 3;
+	unsigned iThread = indCpu / 3;
+
+	do {
+		switch (indCpu % 3)
+		{
+		case 0:  // Package
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:%u C:0 T:0", (++iPackage));
+			break;
+		case 1:  // Core
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:%u T:0", (++iCore));
+			break;
+		case 2:  // Thread
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:0 T:%u", (++iThread));
+			break;
+		}
+
+		outputResult.length = sizeof(textResult);
+		outputResult.data = textResult;
+
+		ret = rsslBindThreadEx(sCpuCoreNextPCT, &outputResult, &errorInfo);
+		if (ret == RSSL_RET_FAILURE)  // an invalid CPU topology
+		{
+			//printf("Binding failure: indCpu=%u (%s)\n", indCpu, sCpuCoreNextPCT);
+			break;
+		}
+
+		indCpu++;
+	} while (ret == RSSL_RET_SUCCESS && indCpu < nProcessors);
+	ASSERT_EQ(ret, RSSL_RET_FAILURE);
+
+	rsslClearBindings();
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s,%s", sCpuCore0PCT, sCpuCoreNextPCT);
+	snprintf(outStr, sizeof(outStr), "Configuration setting %s did not match any physical processors on the system.", sCpuCoreNextPCT);
+
+	// Setup stage
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_FAILURE) << "outputResult: " << outputResult.data;
+
+	// Check stage
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, outStr);
+
+	ASSERT_STREQ(outputResult.data, "");
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTToListCpuCoresPCT1_FailedTest)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	// "P:0 C:0 T:0";  // P:X C:Y T:Z
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str();
+
+	// The next processor core
+	char sCpuCoreNextPCT[MAXLEN];  // P:X C:Y T:Z
+
+	char bufCpuIdThreadsPCT[128];
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	char outStr[256];
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	// Pre-setup stage. Calculate topology for the 2-nd Cpu core.
+	// For Fail-test we choose an invalid CPU core.
+	// Construct an invalid topology.
+	unsigned indCpu = 0;
+	unsigned iPackage = indCpu / 3;
+	unsigned iCore = indCpu / 3;
+	unsigned iThread = indCpu / 3;
+
+	do {
+		switch (indCpu % 3)
+		{
+		case 0:  // Package
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:%u C:0 T:0", (++iPackage));
+			break;
+		case 1:  // Core
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:%u T:0", (++iCore));
+			break;
+		case 2:  // Thread
+			snprintf(sCpuCoreNextPCT, sizeof(sCpuCoreNextPCT), "P:0 C:0 T:%u", (++iThread));
+			break;
+		}
+
+		outputResult.length = sizeof(textResult);
+		outputResult.data = textResult;
+
+		ret = rsslBindThreadEx(sCpuCoreNextPCT, &outputResult, &errorInfo);
+		if (ret == RSSL_RET_FAILURE)  // an invalid CPU topology
+		{
+			//printf("Binding failure: indCpu=%u (%s)\n", indCpu, sCpuCoreNextPCT);
+			break;
+		}
+
+		indCpu++;
+	} while (ret == RSSL_RET_SUCCESS && indCpu < nProcessors);
+	ASSERT_EQ(ret, RSSL_RET_FAILURE);
+
+	rsslClearBindings();
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(bufCpuIdThreadsPCT, sizeof(bufCpuIdThreadsPCT), "%s, %s", sCpuCoreNextPCT, sCpuCore0PCT);
+	snprintf(outStr, sizeof(outStr), "Configuration setting %s did not match any physical processors on the system.", sCpuCoreNextPCT);
+
+	// Setup stage
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufCpuIdThreadsPCT, &outputResult, &errorInfo), RSSL_RET_FAILURE) << "outputResult: " << outputResult.data;
+
+	// Check stage
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, outStr);
+
+	ASSERT_STREQ(outputResult.data, "");
+}
+
+TEST_F(ThreadBindProcessorCoreTest, GetLogicalCpuIdsbyPCTSmallBuffer_FailedTest)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	// This test requires two cores.
+	if (nProcessors < 2)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	const char* sCpuCore0PCT = processorsOnline.cpuPCTOnline[0].c_str();  // the 0-th physical CPU core in PCT format
+	const char* sCpuCore1PCT = processorsOnline.cpuPCTOnline[1].c_str();  // the 1-st physical CPU core in PCT format
+
+	char bufferCpu[128];
+
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	RsslBuffer outputResult;
+	char textResult[2];  // a small buffer test
+
+	// Several processor cores. The 0-th, 1-st Processor core, logical Id
+	snprintf(bufferCpu, sizeof(bufferCpu), "%s, %s", sCpuCore0PCT, sCpuCore1PCT);
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(bufferCpu, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+
+	// Check stage
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_OUTPUTBUF_SMALL);
+
+	ASSERT_STREQ(outputResult.data, "");
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 class ThreadBindProcessorCoreTestInit : public ::testing::Test {
@@ -2059,6 +2756,97 @@ TEST_F(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationEmpty
 	ASSERT_EQ(0, outputResult.length);
 }
 
+TEST_F(ThreadBindProcessorCoreTestInit, GetLogicalCpuIdsbyPCTCpu0BeforeInitializationShouldReturnOk)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors < 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	char listCpuIdThread[MAXLEN] = "0";
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslRet ret = RSSL_RET_SUCCESS;
+	RsslErrorInfo errorInfo;
+
+	char outStr[MAXLEN] = "0";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(listCpuIdThread, sizeof(listCpuIdThread), "%u", CpuCoreId0);
+	snprintf(outStr, sizeof(outStr), "%u", CpuCoreId0);
+
+	// Setup stage
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(listCpuIdThread, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "outputResult: " << outputResult.data;
+
+	// Check stage
+	ASSERT_STREQ(outputResult.data, outStr) << "requested listCpuIdThread: " << listCpuIdThread;
+}
+
+TEST_F(ThreadBindProcessorCoreTestInit, GetLogicalCpuIdsbyPCTListCpuIdsBeforeInitializationShouldReturnOk)
+{
+	RsslUInt32 nProcessors = processorsOnline.nCpuOnline;
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors < 2)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	char listCpuIdThread[MAXLEN] = "0,1";
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslUInt32 CpuCoreId1 = processorsOnline.cpuIdOnline[1];
+	RsslRet ret = RSSL_RET_SUCCESS;
+	RsslErrorInfo errorInfo;
+
+	char outStr[MAXLEN] = "0,1";
+
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(listCpuIdThread, sizeof(listCpuIdThread), "%u, %u", CpuCoreId0, CpuCoreId1);
+	snprintf(outStr, sizeof(outStr), "%u,%u", CpuCoreId0, CpuCoreId1);
+
+	// Setup stage
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(listCpuIdThread, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "outputResult: " << outputResult.data;
+
+	// Check stage
+	ASSERT_STREQ(outputResult.data, outStr) << "requested listCpuIdThread: " << listCpuIdThread;
+}
+
+TEST_F(ThreadBindProcessorCoreTestInit, GetLogicalCpuIdsbyPCTCpuPCTBeforeInitializationShouldReturnError)
+{
+	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
+	RsslErrorInfo errorInfo;
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	// Setup stage
+	// Mapping from PCT to number - should return an error.
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+	ASSERT_STREQ(outputResult.data, "");
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 class ThreadBindProcessorCoreTestETAInit : public ::testing::Test {
@@ -2137,6 +2925,65 @@ TEST_F(ThreadBindProcessorCoreTestETAInit, BindThreadExWhenSkipCpuIDTopoInitShou
 
 	ASSERT_EQ(NULL, outputResult.data);
 	ASSERT_EQ(0, outputResult.length);
+}
+
+TEST_F(ThreadBindProcessorCoreTestETAInit, GetLogicalCpuIdsbyPCTCpu0WhenSkipCpuIDTopoInitShouldReturnOk)
+{
+	char cpuIdThreadPCT[MAXLEN] = "0";
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+	RsslErrorInfo errorInfo;
+	RsslError error;
+	RsslInitializeExOpts rsslInitExOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+
+	RsslBuffer outputResult;
+	char textResult[256];
+	char outStr[MAXLEN];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(cpuIdThreadPCT, sizeof(cpuIdThreadPCT), "%u", CpuCoreId0);
+	snprintf(outStr, sizeof(outStr), "%u", CpuCoreId0);
+
+	// Setup stage
+	// Set the flag to skip CpuID Topology initialization
+	rsslInitExOpts.shouldInitializeCPUIDlib = RSSL_FALSE;
+
+	ASSERT_EQ(rsslInitializeEx(&rsslInitExOpts, &error), RSSL_RET_SUCCESS);
+
+	// Test stage
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(cpuIdThreadPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+	ASSERT_STREQ(outputResult.data, outStr) << "requested cpuIdThreadPCT: " << cpuIdThreadPCT;
+}
+
+TEST_F(ThreadBindProcessorCoreTestETAInit, GetLogicalCpuIdsbyPCTCpuPCTWhenSkipCpuIDTopoInitShouldReturnError)
+{
+	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
+	RsslErrorInfo errorInfo;
+	RsslError error;
+	RsslInitializeExOpts rsslInitExOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	// Setup stage
+	// Set the flag to skip CpuID Topology initialization
+	rsslInitExOpts.shouldInitializeCPUIDlib = RSSL_FALSE;
+
+	ASSERT_EQ(rsslInitializeEx(&rsslInitExOpts, &error), RSSL_RET_SUCCESS);
+
+	// Test stage
+	// Mapping from PCT to number - should return an error.
+	ASSERT_EQ(rsslBindThreadEx(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 }
 
 TEST_F(ThreadBindProcessorCoreTestETAInit, CpuTopologyInitializationShouldReturnOk)
@@ -2302,6 +3149,49 @@ TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadExPCTShouldReturnErr
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
 	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_TEST);
+}
+
+TEST_F(ThreadBindProcessorCoreInitializationFail, GetLogicalCpuIdsbyPCTCpu0ShouldReturnOk)
+{
+	char cpuIdThreadPCT[MAXLEN] = "0";
+	RsslUInt32 CpuCoreId0 = processorsOnline.cpuIdOnline[0];
+
+	RsslErrorInfo errorInfo;
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	char outStr[MAXLEN] = "0";
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	snprintf(cpuIdThreadPCT, sizeof(cpuIdThreadPCT), "%u", CpuCoreId0);
+	snprintf(outStr, sizeof(outStr), "%u", CpuCoreId0);
+
+	// Test stage
+	// No mapping from PCT to number - should passed ok.
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(cpuIdThreadPCT, &outputResult, &errorInfo), RSSL_RET_SUCCESS) << "errorInfo: " << errorInfo.rsslError.text;
+
+	ASSERT_STREQ(outputResult.data, outStr) << "requested cpuIdThreadPCT: " << cpuIdThreadPCT;
+}
+
+TEST_F(ThreadBindProcessorCoreInitializationFail, GetLogicalCpuIdsbyPCTCpuPCTShouldReturnError)
+{
+	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
+	RsslErrorInfo errorInfo;
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	outputResult.length = sizeof(textResult);
+	outputResult.data = textResult;
+
+	// Test stage
+	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
+	ASSERT_STREQ(outputResult.data, "");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

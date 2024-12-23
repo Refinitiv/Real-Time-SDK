@@ -14,6 +14,7 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 #ifndef WIN32
 #include <unistd.h>
@@ -313,6 +314,11 @@ RsslRet parseFullCpuString(const char* cpuString, RsslUInt* idArray, RsslUInt* i
 
 	*idCount = 0;
 
+	if (cpuString[0] == '\0' ||  strcmp(cpuString, "-1") == 0)
+	{
+		return RSSL_RET_SUCCESS;
+	}
+
 	strncpy(tempString, cpuString, (MAX_CPU_STRING_LEN - 1));
 	tempString[(MAX_CPU_STRING_LEN - 1)] = '\0';
 	while (*idCount < MAX_CPUS_ARRAY)
@@ -529,6 +535,59 @@ RSSL_API void dumpCpuTopology()
 	}
 }
 
+RsslRet printLogicalIds(RsslUInt cpuCount, RsslUInt8* cpuIdAssign, RsslBuffer* pOutputResult)
+{
+	if (pOutputResult != NULL && pOutputResult->length > 0 && pOutputResult->data != NULL)
+	{
+		if (cpuCount == 0)
+		{
+			pOutputResult->length = snprintf(pOutputResult->data, pOutputResult->length, "");
+			return RSSL_RET_SUCCESS;
+		}
+
+		RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount;
+		int bytes = 0;
+		int n;
+		RsslUInt i;
+		RsslUInt iCpu = 0;
+		RsslRet ret = RSSL_RET_SUCCESS;
+
+		for (i = 0; i < lcl_maxcpu && bytes < (int)pOutputResult->length && i < MAX_CPUS_ARRAY; ++i)
+		{
+			if (cpuIdAssign[i] != 0)  // Is the CPU core assigned?
+			{
+				if (iCpu > 0)
+				{
+					if (pOutputResult->length - bytes < 2)
+					{
+						ret = RSSL_RET_FAILURE;
+						break;
+					}
+					bytes += snprintf(pOutputResult->data + bytes, pOutputResult->length - bytes, ",");
+				}
+
+				if (pOutputResult->length - bytes < 6)
+				{
+					n = snprintf(NULL, 0, "%llu", i);
+					if ((int)pOutputResult->length - bytes < (n + 1))
+					{
+						ret = RSSL_RET_FAILURE;
+						break;
+					}
+				}
+
+				bytes += snprintf(pOutputResult->data + bytes, pOutputResult->length - bytes, "%llu", i);
+				++iCpu;
+			}
+		}
+
+		pOutputResult->length = bytes;
+		return ret;
+	}
+
+	return RSSL_RET_FAILURE;
+}
+
 RsslRet rsslBindThreadWithString(const char* cpuString, RsslBuffer* pOutputResult, RsslErrorInfo* pError)
 {
 	RsslUInt cpuCount = 0;
@@ -541,34 +600,17 @@ RsslRet rsslBindThreadWithString(const char* cpuString, RsslBuffer* pOutputResul
 	if (parseFullCpuString(cpuString, cpuIdArray, &cpuCount, pError) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
-	if (convertCpuIdArrayToAssignment(cpuIdArray, cpuCount, cpuIdAssign) != RSSL_RET_SUCCESS)
-		return RSSL_RET_FAILURE;
+	if (cpuCount > 0)
+	{
+		if (convertCpuIdArrayToAssignment(cpuIdArray, cpuCount, cpuIdAssign) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
 
-	if (rsslBindThreadToCpuAssignmentArray(cpuString, cpuIdAssign, pError) != RSSL_RET_SUCCESS)
-		return RSSL_RET_FAILURE;
+		if (rsslBindThreadToCpuAssignmentArray(cpuString, cpuIdAssign, pError) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
+	}
 
 	// on Success, print the list of logical core id that were bound for the calling thread
-	if (cpuCount > 0 && pOutputResult != NULL && pOutputResult->length > 0 && pOutputResult->data != NULL)
-	{
-		RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount;
-		int bytes = 0;
-		RsslUInt i;
-		RsslUInt iCpu = 0;
-
-		for (i = 0; i < lcl_maxcpu && bytes < (int)pOutputResult->length && i < MAX_CPUS_ARRAY; ++i)
-		{
-			if (cpuIdAssign[i] != 0)
-			{
-				if (iCpu > 0)
-					bytes += snprintf(pOutputResult->data + bytes, pOutputResult->length - bytes, ",");
-
-				bytes += snprintf(pOutputResult->data + bytes, pOutputResult->length - bytes, "%llu", i);
-				++iCpu;
-			}
-		}
-		
-		pOutputResult->length = bytes;
-	}
+	printLogicalIds(cpuCount, cpuIdAssign, pOutputResult);
 
 	return RSSL_RET_SUCCESS;
 }
@@ -828,4 +870,55 @@ RSSL_API RsslBool isProcessorCoreOnline(RsslInt32 cpuId)
 	}
 
 	return RSSL_FALSE;
+}
+
+RsslRet rsslGetLogicalCpuIdsbyPCTImpl(const char* cpuString, RsslBuffer* pLogicalIds, RsslErrorInfo* pError)
+{
+	RsslUInt cpuCount = 0;
+	RsslUInt cpuIdArray[MAX_CPUS_ARRAY]; // array of logical processor unit ids: result of parsing cpuString
+	RsslUInt8 cpuIdAssign[MAX_CPUS_ARRAY];  // For each logical processor unit: does it have a thread assignment True(1) / False(0)
+
+	memset((void*)cpuIdAssign, 0, sizeof(cpuIdAssign));
+
+	if (parseFullCpuString(cpuString, cpuIdArray, &cpuCount, pError) != RSSL_RET_SUCCESS)
+		return RSSL_RET_FAILURE;
+
+	if (convertCpuIdArrayToAssignment(cpuIdArray, cpuCount, cpuIdAssign) != RSSL_RET_SUCCESS)
+		return RSSL_RET_FAILURE;
+
+	// on Success, print the list of logical core id
+	if (printLogicalIds(cpuCount, cpuIdAssign, pLogicalIds) != RSSL_RET_SUCCESS)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+			"pLogicalIds buffer length is not sufficient for the CPU logical Ids.");
+		return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+RSSL_API RsslRet rsslGetLogicalCpuIdsbyPCT(const char* cpuString, RsslBuffer* pLogicalIds, RsslErrorInfo* pError)
+{
+	if (pLogicalIds == NULL || pLogicalIds->length == 0 || pLogicalIds->data == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+			"pLogicalIds buffer is not provided.");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (!cpuString)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+			"cpuString is not set.");
+		pLogicalIds->length = snprintf(pLogicalIds->data, pLogicalIds->length, "");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (rsslGetLogicalCpuIdsbyPCTImpl(cpuString, pLogicalIds, pError) != RSSL_RET_SUCCESS)
+	{
+		pLogicalIds->length = snprintf(pLogicalIds->data, pLogicalIds->length, "");
+		return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
 }

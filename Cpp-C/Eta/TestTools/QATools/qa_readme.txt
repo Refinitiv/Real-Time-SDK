@@ -115,6 +115,15 @@ vaconsumer-CpuBind-001: Alter VAConsumer to add command-line options for testing
 -mainThreadCPU specifies the CPU to bind for main VAConsumer thread: Cpu core id or P:X C:Y T:Z format;
 -workerThreadCPU specifies the CPU to bind for Reactor worker thread: Cpu core id or P:X C:Y T:Z format.
 
+vaconsumer-CpuBind-002: Alter VAConsumer to add command-line options for testing bind CPU API.
+ Command line options.
+-mainThreadBindVer specifies the method of API call to bind main thread: 1 - use regular (default), 2 - use extended,
+   i.e. when 1 - will call rsslBindThread() to bind CPU specified in "-mainThreadCPU" for the main thread of VAConsumer,
+        when 2 - will call rsslBindThreadEx() to bind CPU specified in "-mainThreadCPU" for the main thread of VAConsumer;
+-mainThreadCPU specifies the CPU to bind for main VAConsumer thread: Cpu core id or P:X C:Y T:Z format;
+-workerThreadCPU specifies the CPU to bind for Reactor worker thread: Cpu core id or P:X C:Y T:Z format;
+-cpuStrToConvert specifies CPU (list of CPUs) in PCT format or logical Ids to convert to logical Ids.
+
 vaConsumer-ExtConn-001: Alter VAConsumer to test reconnect.
  Added special monitoring thread to check inconsistent state of RsslSocketChannels.
  Enhanced channel commands to support connection list from 2 or 3 options: (1)direct, (2)via proxy and (3)additonal proxy.
