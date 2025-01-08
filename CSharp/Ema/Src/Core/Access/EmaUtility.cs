@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -14,7 +14,7 @@ namespace LSEG.Ema.Access;
 /// <summary>
 /// Utilities that can be used by the EMA applications.
 /// </summary>
-public class EmaUtility
+public static class EmaUtility
 {
 
     /// <summary>
@@ -23,7 +23,7 @@ public class EmaUtility
     /// </summary>
     /// <param name="buffer">EmaBuffer used</param>
     /// <returns>string representation of the ByteBuffer</returns>
-    public static string AsHexString(EmaBuffer buffer)
+    public static string AsHexString(this EmaBuffer buffer)
     {
         int charsPerLine = 16;
         StringBuilder asString = new StringBuilder();

@@ -1,19 +1,14 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using Buffer = LSEG.Eta.Codec.Buffer;
 using DateTime = LSEG.Eta.Codec.DateTime;
 using Double = LSEG.Eta.Codec.Double;
@@ -103,12 +98,7 @@ namespace LSEG.Ema.Access
                 return;
             }
 
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             var ret = m_rsslFieldList.EncodeComplete(m_encodeIterator, true);
             if (ret < CodecReturnCode.SUCCESS)
@@ -197,12 +187,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddInt(int fieldId, Int value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.INT, value);
         }
@@ -210,12 +195,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddUInt(int fieldId, UInt value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.UINT, value);
         }
@@ -223,12 +203,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddFloat(int fieldId, Float value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.FLOAT, value);
         }
@@ -236,12 +211,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddDouble(int fieldId, Double value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.DOUBLE, value);
         }
@@ -249,12 +219,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddReal(int fieldId, Real value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.REAL, value);
         }
@@ -262,12 +227,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddDate(int fieldId, Date value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.DATE, value);
         }
@@ -275,12 +235,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddTime(int fieldId, Time value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.TIME, value);
         }
@@ -288,12 +243,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddDateTime(int fieldId, DateTime value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.DATETIME, value);
         }
@@ -301,12 +251,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddQos(int fieldId, Qos value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.QOS, value);
         }
@@ -314,12 +259,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddState(int fieldId, State value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.STATE, value);
         }
@@ -327,12 +267,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddEnum(int fieldId, Enum value)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, DataType.DataTypes.ENUM, value);
         }
@@ -341,12 +276,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddBuffer(int fieldId, Buffer value, int bufferType)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             AddPrimitiveTypeEntry(fieldId, bufferType, value);
         }
@@ -379,321 +309,95 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddArray(int fieldId, OmmArray array)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
-            Encoder? encoder = array.Encoder;
-            if (encoder != null && encoder.OwnsIterator())
-            {
-                if (encoder.IsComplete)
-                {
-                    AddEncodedEntry(fieldId, DataType.DataTypes.ARRAY, encoder!.m_encodeIterator!.Buffer());
-                }
-                else
-                {
-                    throw new OmmInvalidUsageException($"Attempt to call AddArray() while OmmArray.Complete() was not called.");
-                }
-            }
-            else if (encoder!.m_encoderOwner!.m_hasDecodedDataSet)
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.ARRAY, encoder!.m_encoderOwner!.m_bodyBuffer!);
-            }
-            else
-            {
-                PassEncIterator(encoder);
-                StartEncodingEntry(fieldId, DataType.DataTypes.ARRAY);
-            }
+            AddComplexTypePreencodedEntry(fieldId, array, "Attempt to call AddArray() while OmmArray.Complete() was not called.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddElementList(int fieldId, ElementList elementList)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
-            Encoder? encoder = elementList.Encoder;
-            if (encoder != null && encoder.OwnsIterator())
-            {
-                if (encoder.IsComplete)
-                {
-                    AddEncodedEntry(fieldId, DataType.DataTypes.ELEMENT_LIST, encoder!.m_encodeIterator!.Buffer());
-                }
-                else
-                {
-                    throw new OmmInvalidUsageException($"Attempt to call AddElementList() while ElementList.Complete() was not called.");
-                }
-            }
-            else if (encoder!.m_encoderOwner!.m_hasDecodedDataSet)
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.ELEMENT_LIST, encoder!.m_encoderOwner!.m_bodyBuffer!);
-            }
-            else
-            {
-                PassEncIterator(encoder);
-                StartEncodingEntry(fieldId, DataType.DataTypes.ELEMENT_LIST);
-            }
+            AddComplexTypePreencodedEntry(fieldId, elementList, "Attempt to call AddElementList() while ElementList.Complete() was not called.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddFieldList(int fieldId, FieldList fieldList)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
-            Encoder? encoder = fieldList.Encoder;
-            if (encoder != null && encoder.OwnsIterator())
-            {
-                if (encoder.IsComplete)
-                {
-                    AddEncodedEntry(fieldId, DataType.DataTypes.FIELD_LIST, encoder!.m_encodeIterator!.Buffer());
-                }
-                else
-                {
-                    throw new OmmInvalidUsageException($"Attempt to call AddFieldList() while FieldList.Complete() was not called.");
-                }
-            }
-            else if (encoder!.m_encoderOwner!.m_hasDecodedDataSet)
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.FIELD_LIST, encoder!.m_encoderOwner!.m_bodyBuffer!);
-            }
-            else
-            {
-                PassEncIterator(encoder);
-                StartEncodingEntry(fieldId, DataType.DataTypes.FIELD_LIST);
-            }
+            AddComplexTypePreencodedEntry(fieldId, fieldList, "Attempt to call AddFieldList() while FieldList.Complete() was not called.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddMap(int fieldId, Map map)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
-            Encoder? encoder = map.Encoder;
-            if (encoder != null && encoder.OwnsIterator())
-            {
-                if (encoder.IsComplete)
-                {
-                    AddEncodedEntry(fieldId, DataType.DataTypes.MAP, encoder!.m_encodeIterator!.Buffer());
-                }
-                else
-                {
-                    throw new OmmInvalidUsageException($"Attempt to call AddFieldList() while Map.Complete() was not called.");
-                }
-            }
-            else if (encoder!.m_encoderOwner!.m_hasDecodedDataSet)
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.MAP, encoder!.m_encoderOwner!.m_bodyBuffer!);
-            }
-            else
-            {
-                PassEncIterator(encoder);
-                StartEncodingEntry(fieldId, DataType.DataTypes.MAP);
-            }
+            AddComplexTypePreencodedEntry(fieldId, map, "Attempt to call AddMap() while Map.Complete() was not called.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddVector(int fieldId, Vector vector)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
-            Encoder? encoder = vector.Encoder;
-            if (encoder != null && encoder.OwnsIterator())
-            {
-                if (encoder.IsComplete)
-                {
-                    AddEncodedEntry(fieldId, DataType.DataTypes.VECTOR, encoder!.m_encodeIterator!.Buffer());
-                }
-                else
-                {
-                    throw new OmmInvalidUsageException($"Attempt to call AddVector() while Vector.Complete() was not called.");
-                }
-            }
-            else if (encoder!.m_encoderOwner!.m_hasDecodedDataSet)
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.VECTOR, encoder!.m_encoderOwner!.m_bodyBuffer!);
-            }
-            else
-            {
-                PassEncIterator(encoder);
-                StartEncodingEntry(fieldId, DataType.DataTypes.VECTOR);
-            }
+            AddComplexTypePreencodedEntry(fieldId, vector, "Attempt to call AddVector() while Vector.Complete() was not called.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddSeries(int fieldId, Series series)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
-            Encoder? encoder = series.Encoder;
-            if (encoder != null && encoder.OwnsIterator())
-            {
-                if (encoder.IsComplete)
-                {
-                    AddEncodedEntry(fieldId, DataType.DataTypes.SERIES, encoder!.m_encodeIterator!.Buffer());
-                }
-                else
-                {
-                    throw new OmmInvalidUsageException($"Attempt to call AddSeries() while Series.Complete() was not called.");
-                }
-            }
-            else if (encoder!.m_encoderOwner!.m_hasDecodedDataSet)
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.SERIES, encoder!.m_encoderOwner!.m_bodyBuffer!);
-            }
-            else
-            {
-                PassEncIterator(encoder);
-                StartEncodingEntry(fieldId, DataType.DataTypes.SERIES);
-            }
+            AddComplexTypePreencodedEntry(fieldId, series, "Attempt to call AddSeries() while Series.Complete() was not called.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddFilterList(int fieldId, FilterList filterList)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
-            Encoder? encoder = filterList.Encoder;
-            if (encoder != null && encoder.OwnsIterator())
-            {
-                if (encoder.IsComplete)
-                {
-                    AddEncodedEntry(fieldId, DataType.DataTypes.FILTER_LIST, encoder!.m_encodeIterator!.Buffer());
-                }
-                else
-                {
-                    throw new OmmInvalidUsageException($"Attempt to call AddFilterList() while FilterList.Complete() was not called.");
-                }
-            }
-            else if (encoder!.m_encoderOwner!.m_hasDecodedDataSet)
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.FILTER_LIST, encoder!.m_encoderOwner!.m_bodyBuffer!);
-            }
-            else
-            {
-                PassEncIterator(encoder);
-                StartEncodingEntry(fieldId, DataType.DataTypes.FILTER_LIST);
-            }
+            AddComplexTypePreencodedEntry(fieldId, filterList, "Attempt to call AddFilterList() while FilterList.Complete() was not called.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddOpaque(int fieldId, OmmOpaque opaque)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
-            Encoder? encoder = opaque.Encoder;
-            if (encoder != null && encoder.OwnsIterator())
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.OPAQUE, encoder!.m_encodeIterator!.Buffer());
-            }
-            else if (encoder!.m_encoderOwner!.m_hasDecodedDataSet)
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.OPAQUE, encoder!.m_encoderOwner!.m_bodyBuffer!);
-            }
-            else
-            {
-                throw new OmmInvalidUsageException("Attempt to pass an empty OmmOpaque to AddOpaque() while it is not supported.",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
+            AddComplexTypeNonEmptyEntry(fieldId, opaque, "Attempt to pass an empty OmmOpaque to AddOpaque() while it is not supported.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddXml(int fieldId, OmmXml xml)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
-            Encoder? encoder = xml.Encoder;
-            if (encoder != null && encoder.OwnsIterator())
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.XML, encoder!.m_encodeIterator!.Buffer());
-            }
-            else if (encoder!.m_encoderOwner!.m_hasDecodedDataSet)
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.XML, encoder!.m_encoderOwner!.m_bodyBuffer!);
-            }
-            else
-            {
-                throw new OmmInvalidUsageException("Attempt to pass an empty OmmXml to AddXml() while it is not supported.",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
+            AddComplexTypeNonEmptyEntry(fieldId, xml, "Attempt to pass an empty OmmXml to AddXml() while it is not supported.");
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void AddJson(int fieldId, OmmJson json)
+        {
+            InitContainer();
+
+            AddComplexTypeNonEmptyEntry(fieldId, json, "Attempt to pass an empty OmmJson to AddJson() while it is not supported.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddAnsiPage(int fieldId, OmmAnsiPage ansiPage)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
-            Encoder? encoder = ansiPage.Encoder;
-            if (encoder != null && encoder.OwnsIterator())
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.ANSI_PAGE, encoder!.m_encodeIterator!.Buffer());
-            }
-            else if (encoder!.m_encoderOwner!.m_hasDecodedDataSet)
-            {
-                AddEncodedEntry(fieldId, DataType.DataTypes.ANSI_PAGE, encoder!.m_encoderOwner!.m_bodyBuffer!);
-            }
-            else
-            {
-                throw new OmmInvalidUsageException("Attempt to pass an empty OmmAnsiPage to AddAnsiPage() while it is not supported.",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
+            AddComplexTypeNonEmptyEntry(fieldId, ansiPage, "Attempt to pass an empty OmmAnsiPage to AddAnsiPage() while it is not supported.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddNoData(int fieldId)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             Buffer buffer = new Buffer();
             buffer.Clear();
@@ -704,17 +408,58 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddBlankPrimitive(int fieldId, int dataType)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             Buffer buffer = new Buffer();
             buffer.Clear();
 
             AddEncodedEntry(fieldId, dataType, buffer);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        private void AddComplexTypePreencodedEntry(int fieldId, Data data, string incompleteEncoderErrorMessage)
+        {
+            var encoder = data.Encoder;
+            var dataType = data.DataType;
+            if (encoder != null && encoder.OwnsIterator())
+            {
+                if (encoder.IsComplete)
+                {
+                    AddEncodedEntry(fieldId, dataType, encoder.m_encodeIterator!.Buffer());
+                }
+                else
+                {
+                    throw new OmmInvalidUsageException(incompleteEncoderErrorMessage);
+                }
+            }
+            else if (encoder?.m_encoderOwner?.m_hasDecodedDataSet ?? false)
+            {
+                AddEncodedEntry(fieldId, dataType, encoder.m_encoderOwner.m_bodyBuffer!);
+            }
+            else
+            {
+                PassEncIterator(encoder);
+                StartEncodingEntry(fieldId, dataType);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        private void AddComplexTypeNonEmptyEntry(int fieldId, Data data, string emptyDataErrorMessage)
+        {
+            var encoder = data.Encoder;
+            var dataType = data.DataType;
+            if (encoder != null && encoder.OwnsIterator())
+            {
+                AddEncodedEntry(fieldId, dataType, encoder!.m_encodeIterator!.Buffer());
+            }
+            else if (encoder?.m_encoderOwner?.m_hasDecodedDataSet ?? false)
+            {
+                AddEncodedEntry(fieldId, dataType, encoder!.m_encoderOwner!.m_bodyBuffer!);
+            }
+            else
+            {
+                throw new OmmInvalidUsageException(emptyDataErrorMessage, OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
+            }
         }
 
         #endregion
@@ -724,12 +469,7 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private void AddMessage(int fieldId, Msg msg)
         {
-            if (!m_rsslFieldList.CheckHasStandardData())
-            {
-                m_rsslFieldList.ApplyHasStandardData();
-                AcquireEncodeIterator();
-                InitEncode();
-            }
+            InitContainer();
 
             MsgEncoder encoder = msg.m_msgEncoder!;
             if (encoder.m_encoded)
@@ -809,5 +549,20 @@ namespace LSEG.Ema.Access
             m_rsslFieldList.Clear();
             m_rsslFieldEntry.Clear();
         }
+
+        #region Utilities
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        private void InitContainer()
+        {
+            if (!m_rsslFieldList.CheckHasStandardData())
+            {
+                m_rsslFieldList.ApplyHasStandardData();
+                AcquireEncodeIterator();
+                InitEncode();
+            }
+        }
+
+        #endregion
     }
 }

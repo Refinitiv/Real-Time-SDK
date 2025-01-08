@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -86,224 +86,113 @@ public abstract class Entry
     /// </summary>
     /// <returns><see cref="Access.RequestMsg"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.RequestMsg"/></exception>
-    public RequestMsg RequestMsg() 
-    {
-        if (Load!.m_dataType != DataType.DataTypes.REQ_MSG)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use RequestMsg while actual entry data type is {DataType.AsString(Load.DataType)}", 
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (RequestMsg)Load;
-    }
+    public RequestMsg RequestMsg()  => GetData<RequestMsg>(DataType.DataTypes.REQ_MSG);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.RefreshMsg"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.RefreshMsg"/></exception>
-    public RefreshMsg RefreshMsg()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.REFRESH_MSG)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use RefreshMsg while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (RefreshMsg)Load;
-    }
+    public RefreshMsg RefreshMsg() => GetData<RefreshMsg>(DataType.DataTypes.REFRESH_MSG);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.UpdateMsg"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.UpdateMsg"/></exception>
-    public UpdateMsg UpdateMsg()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.UPDATE_MSG)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use UpdateMsg while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (UpdateMsg)Load;
-    }
+    public UpdateMsg UpdateMsg() => GetData<UpdateMsg>(DataType.DataTypes.UPDATE_MSG);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.StatusMsg"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.StatusMsg"/></exception>
-    public StatusMsg StatusMsg()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.STATUS_MSG)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use StatusMsg while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (StatusMsg)Load;
-    }
+    public StatusMsg StatusMsg() => GetData<StatusMsg>(DataType.DataTypes.STATUS_MSG);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.PostMsg"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.PostMsg"/></exception>
-    public PostMsg PostMsg()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.POST_MSG)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use PostMsg while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (PostMsg)Load;
-    }
+    public PostMsg PostMsg() => GetData<PostMsg>(DataType.DataTypes.POST_MSG);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.AckMsg"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.AckMsg"/></exception>
-    public AckMsg AckMsg()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.ACK_MSG)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use AckMsg while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (AckMsg)Load;
-    }
+    public AckMsg AckMsg() => GetData<AckMsg>(DataType.DataTypes.ACK_MSG);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.GenericMsg"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.GenericMsg"/></exception>
-    public GenericMsg GenericMsg()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.GENERIC_MSG)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use GenericMsg while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (GenericMsg)Load;
-    }
+    public GenericMsg GenericMsg() => GetData<GenericMsg>(DataType.DataTypes.GENERIC_MSG);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.FieldList"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.FieldList"/></exception>
-    public FieldList FieldList()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.FIELD_LIST)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use FiledList while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (FieldList)Load;
-    }
+    public FieldList FieldList() => GetData<FieldList>(DataType.DataTypes.FIELD_LIST);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.ElementList"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.ElementList"/></exception>
-    public ElementList ElementList()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.ELEMENT_LIST)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use ElementList while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (ElementList)Load;
-    }
+    public ElementList ElementList() => GetData<ElementList>(DataType.DataTypes.ELEMENT_LIST);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.Map"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.Map"/></exception>
-    public Map Map()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.MAP)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use Map while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (Map)Load;
-    }
+    public Map Map() => GetData<Map>(DataType.DataTypes.MAP);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.Vector"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.Vector"/></exception>
-    public Vector Vector()
-    {
-        if (Load!.m_dataType != Access.DataType.DataTypes.VECTOR)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use Vector while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (Vector)Load;
-    }
+    public Vector Vector() => GetData<Vector>(Access.DataType.DataTypes.VECTOR);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.Series"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.Series"/></exception>
-    public Series Series()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.SERIES)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use Series while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (Series)Load;
-    }
+    public Series Series() => GetData<Series>(DataType.DataTypes.SERIES);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="Access.FilterList"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.FilterList"/></exception>
-    public FilterList FilterList()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.FILTER_LIST)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use FilterList while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (FilterList)Load;
-    }
+    public FilterList FilterList() => GetData<FilterList>(DataType.DataTypes.FILTER_LIST);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="OmmOpaque"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.OmmOpaque"/></exception>
-    public OmmOpaque Opaque()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.OPAQUE)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use Opaque while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (OmmOpaque)Load;
-    }
+    public OmmOpaque Opaque() => GetData<OmmOpaque>(DataType.DataTypes.OPAQUE);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="OmmXml"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.OmmXml"/></exception>
-    public OmmXml Xml()
-    {
-        if (Load!.m_dataType != DataType.DataTypes.XML)
-        {
-            throw new OmmInvalidUsageException($"Attempt to use Xml while actual entry data type is {DataType.AsString(Load.DataType)}",
-                OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-        }
-        return (OmmXml)Load;
-    }
+    public OmmXml Xml() => GetData<OmmXml>(DataType.DataTypes.XML);
+    /// <summary>
+    /// Returns the current OMM data represented as a specific complex type.
+    /// </summary>
+    /// <returns><see cref="OmmJson"/> class reference to contained object.</returns>
+    /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.OmmJson"/></exception>
+    public OmmJson Json() => GetData<OmmJson>(DataType.DataTypes.JSON);
     /// <summary>
     /// Returns the current OMM data represented as a specific complex type.
     /// </summary>
     /// <returns><see cref="OmmAnsiPage"/> class reference to contained object.</returns>
     /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.OmmAnsiPage"/></exception>
-    public OmmAnsiPage AnsiPage()
+    public OmmAnsiPage AnsiPage() => GetData<OmmAnsiPage>(DataType.DataTypes.ANSI_PAGE);
+
+    private T GetData<T>(int dataType)
+        where T : Data
     {
-        if (Load!.m_dataType != DataType.DataTypes.ANSI_PAGE)
+        if (Load!.m_dataType != dataType)
         {
-            throw new OmmInvalidUsageException($"Attempt to use AnsiPage while actual entry data type is {DataType.AsString(Load.DataType)}",
+            throw new OmmInvalidUsageException($"Attempt to use {DataType.AsString(dataType)} while actual entry data type is {DataType.AsString(Load.DataType)}",
                 OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
         }
-        return (OmmAnsiPage)Load;
+        return (T)Load;
     }
 
     #endregion

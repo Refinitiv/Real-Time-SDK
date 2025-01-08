@@ -2,10 +2,9 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
-
 
 using LSEG.Eta.Codec;
 using Microsoft.VisualBasic;
@@ -57,6 +56,7 @@ public sealed class DataType
     private const string FILTERLIST_STRING = "FilterList";
     private const string OPAQUE_STRING = "Opaque";
     private const string XML_STRING = "Xml";
+    private const string JSON_STRING = "Json";
     private const string ANSIPAGE_STRING = "AnsiPage";
     private const string OMMARRAY_STRING = "OmmArray";
     private const string INT_STRING = "Int";
@@ -265,6 +265,11 @@ public sealed class DataType
         public const int MSG = 141;
 
         /// <summary>
+        /// An JSON buffer.
+        /// </summary>
+        public const int JSON = 142;
+
+        /// <summary>
         /// A message to specify item interest.<br/>
         /// A consumer sends this message.
         /// </summary>
@@ -336,6 +341,7 @@ public sealed class DataType
             DataTypes.FILTER_LIST => FILTERLIST_STRING,
             DataTypes.OPAQUE => OPAQUE_STRING,
             DataTypes.XML => XML_STRING,
+            DataTypes.JSON => JSON_STRING,
             DataTypes.ANSI_PAGE => ANSIPAGE_STRING,
             DataTypes.ARRAY => OMMARRAY_STRING,
             DataTypes.INT => INT_STRING,

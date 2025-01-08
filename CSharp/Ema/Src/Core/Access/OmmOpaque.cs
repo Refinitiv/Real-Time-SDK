@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023, 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -40,7 +40,7 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
-        /// Returns contained XML buffer.
+        /// Returns contained data buffer.
         /// </summary>
         /// <returns><see cref="EmaBuffer"/> containing the Opaque data</returns>
         public EmaBuffer Buffer { get => m_buffer.Value; }
@@ -124,9 +124,10 @@ namespace LSEG.Ema.Access
         {
             m_ToString.Length = 0;
 
-            Utilities.AddIndent(m_ToString, indent);
-            m_ToString.Append($"Opaque{NewLine}").Append(EmaUtility.AsHexString(AsHex()));
-            Utilities.AddIndent(m_ToString.AppendLine(), indent).Append($"OpaqueEnd{NewLine}");
+            m_ToString
+                .AddIndent(indent).AppendLine("Opaque")
+                .AppendLine(AsHex().AsHexString())
+                .AddIndent(indent).AppendLine("OpaqueEnd");
 
             return m_ToString.ToString();
         }

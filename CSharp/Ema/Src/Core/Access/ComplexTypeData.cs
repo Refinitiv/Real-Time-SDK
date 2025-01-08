@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -95,15 +95,7 @@ namespace LSEG.Ema.Access
         /// <returns>The <see cref="Access.RequestMsg"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="RequestMsg"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RequestMsg RequestMsg()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.REQ_MSG)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use RequestMsg while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (RequestMsg)m_data;
-        }
+        public RequestMsg RequestMsg() => GetComplexData<RequestMsg>(Access.DataType.DataTypes.REQ_MSG);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.RefreshMsg"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.RefreshMsg"/>
@@ -111,15 +103,7 @@ namespace LSEG.Ema.Access
         /// <returns>The <see cref="Access.RefreshMsg"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="RefreshMsg"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public RefreshMsg RefreshMsg()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.REFRESH_MSG)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use RefreshMsg while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (RefreshMsg)m_data;
-        }
+        public RefreshMsg RefreshMsg() => GetComplexData<RefreshMsg>(Access.DataType.DataTypes.REFRESH_MSG);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.UpdateMsg"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.UpdateMsg"/>
@@ -127,15 +111,7 @@ namespace LSEG.Ema.Access
         /// <returns>The <see cref="Access.UpdateMsg"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.UpdateMsg"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public UpdateMsg UpdateMsg()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.UPDATE_MSG)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use UpdateMsg while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (UpdateMsg)m_data;
-        }
+        public UpdateMsg UpdateMsg() => GetComplexData<UpdateMsg>(Access.DataType.DataTypes.UPDATE_MSG);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.StatusMsg"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.StatusMsg"/>
@@ -143,15 +119,7 @@ namespace LSEG.Ema.Access
         /// <returns>The <see cref="Access.StatusMsg"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.StatusMsg"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public StatusMsg StatusMsg()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.STATUS_MSG)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use StatusMsg while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (StatusMsg)m_data;
-        }
+        public StatusMsg StatusMsg() => GetComplexData<StatusMsg>(Access.DataType.DataTypes.STATUS_MSG);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.PostMsg"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.PostMsg"/>
@@ -159,15 +127,7 @@ namespace LSEG.Ema.Access
         /// <returns>The <see cref="Access.PostMsg"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.PostMsg"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public PostMsg PostMsg()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.POST_MSG)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use PostMsg while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (PostMsg)m_data;
-        }
+        public PostMsg PostMsg() => GetComplexData<PostMsg>(Access.DataType.DataTypes.POST_MSG);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.AckMsg"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.AckMsg"/>
@@ -175,15 +135,7 @@ namespace LSEG.Ema.Access
         /// <returns>The <see cref="Access.AckMsg"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.AckMsg"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public AckMsg AckMsg()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.ACK_MSG)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use AckMsg while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (AckMsg)m_data;
-        }
+        public AckMsg AckMsg() => GetComplexData<AckMsg>(Access.DataType.DataTypes.ACK_MSG);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.GenericMsg"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.GenericMsg"/>
@@ -191,15 +143,7 @@ namespace LSEG.Ema.Access
         /// <returns>The <see cref="Access.GenericMsg"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.GenericMsg"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public GenericMsg GenericMsg()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.GENERIC_MSG)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use GenericMsg while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (GenericMsg)m_data;
-        }
+        public GenericMsg GenericMsg() => GetComplexData<GenericMsg>(Access.DataType.DataTypes.GENERIC_MSG);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.FieldList"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.FieldList"/>
@@ -207,15 +151,7 @@ namespace LSEG.Ema.Access
         /// <returns>The <see cref="Access.FieldList"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.FieldList"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public FieldList FieldList()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.FIELD_LIST)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use FiledList while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (FieldList)m_data;
-        }
+        public FieldList FieldList() => GetComplexData<FieldList>(Access.DataType.DataTypes.FIELD_LIST);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.ElementList"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.ElementList"/>
@@ -223,15 +159,7 @@ namespace LSEG.Ema.Access
         /// <returns>The <see cref="Access.ElementList"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.ElementList"/></exception>
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public ElementList ElementList()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.ELEMENT_LIST)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use ElementList while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (ElementList)m_data;
-        }
+        public ElementList ElementList() => GetComplexData<ElementList>(Access.DataType.DataTypes.ELEMENT_LIST);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.Vector"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.Vector"/>
@@ -239,15 +167,7 @@ namespace LSEG.Ema.Access
         /// <returns><see cref="Access.Vector"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.Vector"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public Vector Vector()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.VECTOR)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use Vector while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (Vector)m_data;
-        }
+        public Vector Vector() => GetComplexData<Vector>(Access.DataType.DataTypes.VECTOR);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.Map"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.Map"/>
@@ -255,15 +175,7 @@ namespace LSEG.Ema.Access
         /// <returns><see cref="Access.Map"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.Map"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public Map Map()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.MAP)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use Map while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (Map)m_data;
-        }
+        public Map Map() => GetComplexData<Map>(Access.DataType.DataTypes.MAP);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.Series"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.Series"/>
@@ -271,15 +183,7 @@ namespace LSEG.Ema.Access
         /// <returns><see cref="Access.Series"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.Series"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public Series Series()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.SERIES)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use Series while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (Series)m_data;
-        }
+        public Series Series() => GetComplexData<Series>(Access.DataType.DataTypes.SERIES);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.FilterList"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.FilterList"/>
@@ -287,15 +191,7 @@ namespace LSEG.Ema.Access
         /// <returns><see cref="Access.FilterList"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.FilterList"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public FilterList FilterList()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.FILTER_LIST)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use FilterList while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (FilterList)m_data;
-        }
+        public FilterList FilterList() => GetComplexData<FilterList>(Access.DataType.DataTypes.FILTER_LIST);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.OmmOpaque"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.OmmOpaque"/>
@@ -303,15 +199,7 @@ namespace LSEG.Ema.Access
         /// <returns><see cref="Access.OmmOpaque"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.OmmOpaque"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public OmmOpaque OmmOpaque()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.OPAQUE)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use Opaque while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (OmmOpaque)m_data;
-        }
+        public OmmOpaque OmmOpaque() => GetComplexData<OmmOpaque>(Access.DataType.DataTypes.OPAQUE);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.OmmXml"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.OmmXml"/>
@@ -319,15 +207,15 @@ namespace LSEG.Ema.Access
         /// <returns><see cref="Access.OmmXml"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.OmmXml"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public OmmXml OmmXml()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.XML)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use Xml while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (OmmXml)m_data;
-        }
+        public OmmXml OmmXml() => GetComplexData<OmmXml>(Access.DataType.DataTypes.XML);
+        /// <summary>
+        /// Returns the current OMM data represented as a <see cref="Access.OmmJson"/> type.
+        /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.OmmJson"/>
+        /// </summary>
+        /// <returns><see cref="Access.OmmJson"/> structure representing the current OMM data</returns>
+        /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.OmmJson"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public OmmJson OmmJson() => GetComplexData<OmmJson>(Access.DataType.DataTypes.JSON);
         /// <summary>
         /// Returns the current OMM data represented as a <see cref="Access.OmmAnsiPage"/> type.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="Access.OmmAnsiPage"/>
@@ -335,15 +223,7 @@ namespace LSEG.Ema.Access
         /// <returns><see cref="Access.OmmAnsiPage"/> structure representing the current OMM data</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if contained object is not <see cref="Access.OmmAnsiPage"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public OmmAnsiPage OmmAnsiPage()
-        {
-            if (m_hasError || m_data.m_dataType != Access.DataType.DataTypes.ANSI_PAGE)
-            {
-                throw new OmmInvalidUsageException($"Attempt to use AnsiPage while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
-                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
-            }
-            return (OmmAnsiPage)m_data;
-        }
+        public OmmAnsiPage OmmAnsiPage() => GetComplexData<OmmAnsiPage>(Access.DataType.DataTypes.ANSI_PAGE);
         /// <summary>
         /// Returns Error.
         /// Throws OmmInvalidUsageException if contained object is not <see cref="OmmError"/>
@@ -360,6 +240,17 @@ namespace LSEG.Ema.Access
             }
 
             return m_error;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        private T GetComplexData<T>(int dataType) where T : ComplexType
+        {
+            if (m_hasError || m_data.m_dataType != dataType)
+            {
+                throw new OmmInvalidUsageException($"Attempt to use {Access.DataType.AsString(dataType)} while actual entry data type is {Access.DataType.AsString(m_data.DataType)}",
+                    OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
+            }
+            return (T)m_data;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]

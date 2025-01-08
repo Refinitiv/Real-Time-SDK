@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -14,7 +14,7 @@ using LSEG.Eta.Common;
 
 namespace LSEG.Ema.Access;
 
-internal class Utilities
+internal static class Utilities
 {
     private const int UnknownDT = -1;
 
@@ -48,19 +48,11 @@ internal class Utilities
         return eIter.RealignBuffer(eIter.Buffer());
     }
 
-    internal static StringBuilder AddIndent(StringBuilder temp, long indent, bool addLine)
+    internal static StringBuilder AddIndent(this StringBuilder temp, long indent, bool addLine = false)
     {
         if (addLine)
             temp.AppendLine();
 
-        while (indent-- > 0)
-            temp.Append("    ");
-
-        return temp;
-    }
-
-    internal static StringBuilder AddIndent(StringBuilder temp, long indent)
-    {
         while (indent-- > 0)
             temp.Append("    ");
 

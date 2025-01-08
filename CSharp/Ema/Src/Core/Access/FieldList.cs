@@ -453,6 +453,22 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
+        /// Adds a <see cref="OmmJson"/> of OMM data to the FieldList.
+        /// </summary>
+        /// <param name="fieldId">field id value</param>
+        /// <param name="value">added OmmJson</param>
+        /// <returns>Reference to current <see cref="FieldList"/> object.</returns>
+        /// <exception cref="OmmInvalidUsageException">Thrown if an error is detected (exception will
+        /// specify the cause of the error)
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public FieldList AddJson(int fieldId, OmmJson value)
+        {
+            m_fieldListEncoder.AddJson(fieldId, value);
+            return this;
+        }
+
+        /// <summary>
         /// Adds a <see cref="OmmAnsiPage"/> of OMM data to the FieldList.
         /// </summary>
         /// <param name="fieldId">field id value</param>

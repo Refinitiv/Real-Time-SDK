@@ -129,10 +129,12 @@ namespace LSEG.Ema.Access.Tests
         public static Series ommSeries = new Series();
 
         public static EmaBuffer xmlEmaBuffer = new EmaBuffer();
+        public static EmaBuffer jsonEmaBuffer = new EmaBuffer();
         public static EmaBuffer opaqueEmaBuffer = new EmaBuffer();
         public static EmaBuffer ansiPageEmaBuffer = new EmaBuffer();
 
         public static byte[] xmlBytes = Encoding.GetEncoding("UTF-8").GetBytes("<tag> some XML stuff </tag>");
+        public static byte[] jsonBytes = Encoding.GetEncoding("UTF-8").GetBytes("{\"field\": \"some JSON stuff\"}");
         public static byte[] opaqueBytes = Encoding.GetEncoding("UTF-8").GetBytes("Opaque string");
         public static byte[] ansiPageBytes = Encoding.GetEncoding("UTF-8").GetBytes("Ansi Page goes here");
 
@@ -328,6 +330,7 @@ namespace LSEG.Ema.Access.Tests
         static EmaComplexTypeHandler()
         {
             xmlEmaBuffer.CopyFrom(xmlBytes);
+            jsonEmaBuffer.CopyFrom(jsonBytes);
             opaqueEmaBuffer.CopyFrom(opaqueBytes);
             ansiPageEmaBuffer.CopyFrom(ansiPageBytes);
             intName.Data("int");
@@ -516,6 +519,10 @@ namespace LSEG.Ema.Access.Tests
 
                 case DataType.DataTypes.XML:
                     EncodeDefaultXml((OmmXml)summary!);
+                    break;
+
+                case DataType.DataTypes.JSON:
+                    EncodeDefaultJson((OmmJson)summary!);
                     break;
 
                 case DataType.DataTypes.ANSI_PAGE:
@@ -908,6 +915,21 @@ namespace LSEG.Ema.Access.Tests
                             EncodeDefaultXml(xml);
                         }
                         xml.ClearAndReturnToPool_All();
+                        break;
+
+                    case DataType.DataTypes.JSON:
+                        OmmJson json = m_objectManager.GetOmmJson();
+                        if (addPreencodedContainerEntries)
+                        {
+                            EncodeDefaultJson(json);
+                            elementList.AddJson(elDataTypeNameMap[dataTypes[i]], json);
+                        }
+                        else
+                        {
+                            elementList.AddJson(elDataTypeNameMap[dataTypes[i]], json);
+                            EncodeDefaultJson(json);
+                        }
+                        json.ClearAndReturnToPool_All();
                         break;
 
                     case DataType.DataTypes.ANSI_PAGE:
@@ -1927,6 +1949,11 @@ namespace LSEG.Ema.Access.Tests
             xml.SetBuffer(xmlEmaBuffer);
         }
 
+        public static void EncodeDefaultJson(OmmJson json)
+        {
+            json.SetBuffer(jsonEmaBuffer);
+        }
+
         public static void EncodeDefaultAnsiPage(OmmAnsiPage ansiPage)
         {
             ansiPage.SetBuffer(ansiPageEmaBuffer);
@@ -1962,6 +1989,10 @@ namespace LSEG.Ema.Access.Tests
 
                 case DataType.DataTypes.XML:
                     EncodeDefaultXml((OmmXml)container);
+                    break;
+
+                case DataType.DataTypes.JSON:
+                    EncodeDefaultJson((OmmJson)container);
                     break;
 
                 case DataType.DataTypes.ANSI_PAGE:
@@ -2037,6 +2068,10 @@ namespace LSEG.Ema.Access.Tests
 
                 case DataType.DataTypes.XML:
                     EncodeDefaultXml((OmmXml)container);
+                    break;
+
+                case DataType.DataTypes.JSON:
+                    EncodeDefaultJson((OmmJson)container);
                     break;
 
                 case DataType.DataTypes.ANSI_PAGE:
@@ -3667,30 +3702,19 @@ namespace LSEG.Ema.Access.Tests
             }
         }
 
-        public static void DecodeAndCheckDefaultOpaque(OmmOpaque container)
-        {
-            var buffer = container.Buffer;
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                Assert.Equal(opaqueBytes[i], buffer[i]);
-            }
-        }
+        public static void DecodeAndCheckDefaultOpaque(OmmOpaque container) => AssertBufferBytesEqual(container.Buffer, opaqueBytes);
 
-        public static void DecodeAndCheckDefaultAnsiPage(OmmAnsiPage container)
-        {
-            var buffer = container.Buffer;
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                Assert.Equal(ansiPageBytes[i], buffer[i]);
-            }
-        }
+        public static void DecodeAndCheckDefaultAnsiPage(OmmAnsiPage container) => AssertBufferBytesEqual(container.Buffer, ansiPageBytes);
 
-        public static void DecodeAndCheckDefaultXml(OmmXml container)
+        public static void DecodeAndCheckDefaultXml(OmmXml container) => AssertBufferBytesEqual(container.Value, xmlBytes);
+
+        public static void DecodeAndCheckDefaultJson(OmmJson container) => AssertBufferBytesEqual(container.Value, jsonBytes);
+
+        private static void AssertBufferBytesEqual(EmaBuffer buffer, byte[] bytes)
         {
-            var buffer = container.Value;
             for (int i = 0; i < buffer.Length; i++)
             {
-                Assert.Equal(xmlBytes[i], buffer[i]);
+                Assert.Equal(bytes[i], buffer[i]);
             }
         }
 
@@ -3739,6 +3763,10 @@ namespace LSEG.Ema.Access.Tests
 
                 case DataType.DataTypes.XML:
                     DecodeAndCheckDefaultXml((OmmXml)container);
+                    break;
+
+                case DataType.DataTypes.JSON:
+                    DecodeAndCheckDefaultJson((OmmJson)container);
                     break;
 
                 case DataType.DataTypes.ACK_MSG:

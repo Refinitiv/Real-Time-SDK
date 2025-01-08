@@ -138,13 +138,12 @@ namespace LSEG.Ema.Access
 
         public class DataArray
         {
-            internal Data[] Array;
+            internal Data[] Array = new Data[20];
             internal bool OwnedByPool;
             internal GCHandle m_handle;
 
             public DataArray(EmaObjectManager manager)
             {
-                Array = new Data[20];
                 Array[DataType.DataTypes.INT] = new OmmInt();
                 Array[DataType.DataTypes.INT].m_objectManager = manager;
                 Array[DataType.DataTypes.UINT] = new OmmUInt();
@@ -178,7 +177,6 @@ namespace LSEG.Ema.Access
 
             public DataArray()
             {
-                Array = new Data[20];
                 Array[DataType.DataTypes.INT] = new OmmInt();
                 Array[DataType.DataTypes.UINT] = new OmmUInt();
                 Array[DataType.DataTypes.FLOAT] = new OmmFloat();
@@ -202,17 +200,18 @@ namespace LSEG.Ema.Access
 
         public class ComplexTypeArray
         {
-            internal ComplexType[] Array;
+            internal ComplexType[] Array = new ComplexType[DataType.DataTypes.JSON - DataType.DataTypes.OPAQUE + 2];
             internal bool OwnedByPool;
             internal GCHandle m_handle;
 
             public ComplexTypeArray(EmaObjectManager manager)
             {
-                Array = new ComplexType[DataType.DataTypes.SERIES - DataType.DataTypes.OPAQUE + 2];
                 Array[DataType.DataTypes.OPAQUE - DataType.DataTypes.OPAQUE] = new OmmOpaque();
                 Array[DataType.DataTypes.OPAQUE - DataType.DataTypes.OPAQUE].m_objectManager = manager;
                 Array[DataType.DataTypes.XML - DataType.DataTypes.OPAQUE] = new OmmXml();
                 Array[DataType.DataTypes.XML - DataType.DataTypes.OPAQUE].m_objectManager = manager;
+                Array[DataType.DataTypes.JSON - DataType.DataTypes.OPAQUE] = new OmmJson();
+                Array[DataType.DataTypes.JSON - DataType.DataTypes.OPAQUE].m_objectManager = manager;
                 Array[DataType.DataTypes.FIELD_LIST - DataType.DataTypes.OPAQUE] = new FieldList();
                 Array[DataType.DataTypes.FIELD_LIST - DataType.DataTypes.OPAQUE].m_objectManager = manager;
                 Array[DataType.DataTypes.ELEMENT_LIST - DataType.DataTypes.OPAQUE] = new ElementList();
@@ -234,9 +233,9 @@ namespace LSEG.Ema.Access
 
             public ComplexTypeArray()
             {
-                Array = new ComplexType[DataType.DataTypes.SERIES - DataType.DataTypes.OPAQUE + 2];
                 Array[DataType.DataTypes.OPAQUE - DataType.DataTypes.OPAQUE] = new OmmOpaque();
                 Array[DataType.DataTypes.XML - DataType.DataTypes.OPAQUE] = new OmmXml();
+                Array[DataType.DataTypes.JSON - DataType.DataTypes.OPAQUE] = new OmmJson();
                 Array[DataType.DataTypes.FIELD_LIST - DataType.DataTypes.OPAQUE] = new FieldList();
                 Array[DataType.DataTypes.ELEMENT_LIST - DataType.DataTypes.OPAQUE] = new ElementList();
                 Array[DataType.DataTypes.ANSI_PAGE - DataType.DataTypes.OPAQUE] = new OmmAnsiPage();
@@ -251,13 +250,12 @@ namespace LSEG.Ema.Access
 
         public class MsgTypeArray
         {
-            internal Msg[] Array;
+            internal Msg[] Array = new Msg[DataType.DataTypes.GENERIC_MSG - DataType.DataTypes.REQ_MSG + 2];
             internal bool OwnedByPool;
             internal GCHandle m_handle;
 
             public MsgTypeArray(EmaObjectManager manager)
             {
-                Array = new Msg[DataType.DataTypes.GENERIC_MSG - DataType.DataTypes.REQ_MSG + 2];
                 Array[DataType.DataTypes.REQ_MSG - DataType.DataTypes.REQ_MSG] = new RequestMsg(manager);
                 Array[DataType.DataTypes.REFRESH_MSG - DataType.DataTypes.REQ_MSG] = new RefreshMsg(manager);
                 Array[DataType.DataTypes.UPDATE_MSG - DataType.DataTypes.REQ_MSG] = new UpdateMsg(manager);
@@ -272,7 +270,6 @@ namespace LSEG.Ema.Access
 
             public MsgTypeArray()
             {
-                Array = new Msg[DataType.DataTypes.GENERIC_MSG - DataType.DataTypes.REQ_MSG + 2];
                 Array[DataType.DataTypes.REQ_MSG - DataType.DataTypes.REQ_MSG] = new RequestMsg();
                 Array[DataType.DataTypes.REFRESH_MSG - DataType.DataTypes.REQ_MSG] = new RefreshMsg();
                 Array[DataType.DataTypes.UPDATE_MSG - DataType.DataTypes.REQ_MSG] = new UpdateMsg();
@@ -589,6 +586,7 @@ namespace LSEG.Ema.Access
 
         private EmaPool<OmmOpaque> m_ommOpaquePool;
         private EmaPool<OmmXml> m_ommXmlPool;
+        private EmaPool<OmmJson> m_ommJsonPool;
         private EmaPool<FieldList> m_ommFieldListPool;
         private EmaPool<ElementList> m_ommElementListPool;
         private EmaPool<OmmAnsiPage> m_ommAnsiPagePool;
@@ -671,6 +669,8 @@ namespace LSEG.Ema.Access
             m_ommOpaquePool = new EmaPool<OmmOpaque>(initialPoolSize, () => { var res = new OmmOpaque(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
                 global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommXmlPool = new EmaPool<OmmXml>(initialPoolSize, () => { var res = new OmmXml(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
+                global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
+            m_ommJsonPool = new EmaPool<OmmJson>(initialPoolSize, () => new OmmJson() { m_ownedByPool = true, m_objectManager = this },
                 global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
             m_ommFieldListPool = new EmaPool<FieldList>(initialPoolSize, () => { var res = new FieldList(); res.m_ownedByPool = true; res.m_objectManager = this; return res; },
                 global ? null : o => o.m_handle = GCHandle.Alloc(o), global ? null : o => { if (o.m_handle.IsAllocated) o.m_handle.Free(); }, global);
@@ -759,6 +759,7 @@ namespace LSEG.Ema.Access
             pools[DataType.DataTypes.NO_DATA] = m_ommNoDataPool;
             pools[DataType.DataTypes.OPAQUE] = m_ommOpaquePool;
             pools[DataType.DataTypes.XML] = m_ommXmlPool;
+            pools[DataType.DataTypes.JSON] = m_ommJsonPool;
             pools[DataType.DataTypes.FIELD_LIST] = m_ommFieldListPool;
             pools[DataType.DataTypes.ELEMENT_LIST] = m_ommElementListPool;
             pools[DataType.DataTypes.ANSI_PAGE] = m_ommAnsiPagePool;
@@ -839,6 +840,8 @@ namespace LSEG.Ema.Access
                     return new OmmOpaque();
                 case DataType.DataTypes.XML:
                     return new OmmXml();
+                case DataType.DataTypes.JSON:
+                    return new OmmJson();
                 case DataType.DataTypes.FIELD_LIST:
                     return new FieldList();
                 case DataType.DataTypes.ELEMENT_LIST:
@@ -915,6 +918,8 @@ namespace LSEG.Ema.Access
                     return new OmmOpaque();
                 case DataType.DataTypes.XML:
                     return new OmmXml();
+                case DataType.DataTypes.JSON:
+                    return new OmmJson();
                 case DataType.DataTypes.FIELD_LIST:
                     return new FieldList();
                 case DataType.DataTypes.ELEMENT_LIST:
@@ -1120,6 +1125,12 @@ namespace LSEG.Ema.Access
         public void ReturnToPool(OmmXml value)
         {
             m_ommXmlPool.ReturnToPool(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void ReturnToPool(OmmJson value)
+        {
+            m_ommJsonPool.ReturnToPool(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -1432,6 +1443,13 @@ namespace LSEG.Ema.Access
             return result;
         }
 
+        public OmmJson GetOmmJson()
+        {
+            var result = m_ommJsonPool.Get();
+            result.m_inPool = false;
+            return result;
+        }
+
         public OmmAnsiPage GetOmmAnsiPage()
         {
             var result = m_ommAnsiPagePool.Get();
@@ -1691,6 +1709,8 @@ namespace LSEG.Ema.Access
                     return m_ommOpaquePool.Count;
                 case DataType.DataTypes.XML:
                     return m_ommXmlPool.Count;
+                case DataType.DataTypes.JSON:
+                    return m_ommJsonPool.Count;
                 case DataType.DataTypes.FIELD_LIST:
                     return m_ommFieldListPool.Count;
                 case DataType.DataTypes.ELEMENT_LIST:

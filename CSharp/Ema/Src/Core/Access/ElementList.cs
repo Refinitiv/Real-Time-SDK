@@ -417,6 +417,19 @@ namespace LSEG.Ema.Access
         /// Adds a complex type of OMM data to the ElementEntry.
         /// </summary>
         /// <param name="name">string object containing ElementEntry name</param>
+        /// <param name="value">added <see cref="OmmJson"/> object</param>
+        /// <returns>Reference to the current <see cref="ElementList"/> object.</returns>
+        /// <exception cref="OmmInvalidUsageException">throws if an error is detected (exception will specify the cause of the error)</exception>
+        public ElementList AddJson(string name, OmmJson value)
+        {
+            m_elementListEncoder.AddJson(name, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a complex type of OMM data to the ElementEntry.
+        /// </summary>
+        /// <param name="name">string object containing ElementEntry name</param>
         /// <param name="value">added <see cref="OmmAnsiPage"/> object</param>
         /// <returns>Reference to the current <see cref="ElementList"/> object.</returns>
         /// <exception cref="OmmInvalidUsageException">throws if an error is detected (exception will specify the cause of the error)</exception>
