@@ -68,7 +68,7 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 	@Override
 	public OmmIProviderConfig port(String port)
 	{
-		super.portInt(port, OmmIProviderActiveConfig.DEFAULT_SERVICE_NAME);
+		super.portInt(port, OmmIProviderActiveConfig.DEFAULT_IPROVIDER_PORT);
 		return this;
 	}
 

@@ -1088,9 +1088,9 @@ abstract class EmaConfigServerImpl extends EmaConfigBaseImpl
 		if ( ( port == null ) || ( port.isEmpty() ) )
 		{
 			_portSetViaFunctionCall = defaultService;
+		} else {
+			_portSetViaFunctionCall = port;
 		}
-		
-		_portSetViaFunctionCall = port;
 	}
 	
 	public String getUserSpecifiedPort() 

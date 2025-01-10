@@ -22,7 +22,7 @@ class OmmIProviderActiveConfig extends ActiveServerConfig
 	static final int DEFAULT_DIRECTORY_ADMIN_CONTROL					=	OmmIProviderConfig.AdminControl.API_CONTROL;
 	static final int DEFAULT_DICTIONARY_ADMIN_CONTROL					=	OmmIProviderConfig.AdminControl.API_CONTROL;
 	static final boolean DEFAULT_RECOVER_USER_SUBMIT_SOURCEDIRECTORY	=	true;
-	static final String DEFAULT_IPROVIDER_SERVICE_NAME 					= 	"14002";
+	static final String DEFAULT_IPROVIDER_PORT 							= 	"14002";
 	static final String DEFAULT_SERVICE_NAME							=   "DIRECT_FEED";
 	static final int DEFAULT_FIELD_DICT_FRAGMENT_SIZE         = 8192;
 	static final int DEFAULT_ENUM_TYPE_FRAGMENT_SIZE        = 12800;
@@ -37,7 +37,7 @@ class OmmIProviderActiveConfig extends ActiveServerConfig
 
 	OmmIProviderActiveConfig()
 	{
-		super(DEFAULT_IPROVIDER_SERVICE_NAME);
+		super(DEFAULT_IPROVIDER_PORT);
 		operationModel = DEFAULT_USER_DISPATCH;
 		directoryAdminControl = DEFAULT_DIRECTORY_ADMIN_CONTROL;
 		dictionaryAdminControl = DEFAULT_DICTIONARY_ADMIN_CONTROL;
