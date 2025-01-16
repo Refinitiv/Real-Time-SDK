@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -101,6 +101,13 @@ namespace LSEG.Ema.Access
     /// <seealso cref="OmmException"/>
     public sealed class OmmProvider
     {
+        private void Initialize()
+        {
+            // properties should return the same value regardless of the value of m_OmmConsumerImpl
+            ProviderName = m_OmmProviderImpl!.ProviderName;
+            ProviderRole = m_OmmProviderImpl!.ProviderRole;
+        }
+
         /// <summary>
         /// Creates an OmmProvider with <see cref="OmmNiProviderConfig"/>. The OmmProvider enables functionality
         /// that includes non interactive distribution of item refresh, update, status and generic messages.
@@ -117,6 +124,7 @@ namespace LSEG.Ema.Access
             else
                 throw new OmmInvalidUsageException("Attempt to pass an OmmIProvConfig instance to non interactive provider OmmProvider constructor.",
                     OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+            Initialize();
         }
 
         /// <summary>
@@ -137,6 +145,7 @@ namespace LSEG.Ema.Access
                 m_OmmProviderImpl = new OmmNiProviderImpl(this, ((OmmNiProviderConfig)config).OmmNiProvConfigImpl, client, closure);
             else
                 m_OmmProviderImpl = new OmmIProviderImpl(this, ((OmmIProviderConfig)config).OmmIProvConfigImpl, client, closure);
+            Initialize();
         }
 
         /// <summary>
@@ -157,6 +166,7 @@ namespace LSEG.Ema.Access
             else
                 throw new OmmInvalidUsageException("Attempt to pass an OmmIProvConfig instance to non interactive provider OmmProvider constructor.",
                     OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+            Initialize();
         }
 
         /// <summary>
@@ -181,6 +191,7 @@ namespace LSEG.Ema.Access
                 errorClient, closure);
             else
                 m_OmmProviderImpl = new OmmIProviderImpl(this, ((OmmIProviderConfig)config).OmmIProvConfigImpl, client, errorClient, closure);
+            Initialize();
         }
 
         /// <summary>
@@ -188,18 +199,19 @@ namespace LSEG.Ema.Access
         /// </summary>
         public void Uninitialize()
         {
-            m_OmmProviderImpl.Uninitialize();
+            m_OmmProviderImpl?.Uninitialize();
+            m_OmmProviderImpl = null;
         }
 
         /// <summary>
         /// Gets internally generated provider instance name.
         /// </summary>
-        public string ProviderName { get => m_OmmProviderImpl.ProviderName; }
+        public string ProviderName { get; private set; } = ""; // prevent warning about uninitialized property in constructor
 
         /// <summary>
         /// Gets role of this OmmProvider instance.
         /// </summary>
-        public OmmProviderConfig.ProviderRoleEnum ProviderRole { get => m_OmmProviderImpl.ProviderRole; }
+        public OmmProviderConfig.ProviderRoleEnum ProviderRole { get; private set; } = default; // prevent warning about uninitialized property in constructor
 
         /// <summary>
         /// Opens an item stream (i.e. login stream and dictionary stream)
@@ -213,10 +225,8 @@ namespace LSEG.Ema.Access
         /// <para>This method is ObjectLevelSafe</para>
         /// <para>if <see cref="IOmmProviderErrorClient"/> is used and an error condition is encountered, then null handle is returned</para>
         /// </remarks>
-        public long RegisterClient(RequestMsg reqMsg, IOmmProviderClient client, object? closure = null)
-        {
-            return m_OmmProviderImpl.RegisterClient(reqMsg, client, closure);
-        }
+        public long RegisterClient(RequestMsg reqMsg, IOmmProviderClient client, object? closure = null) =>
+            m_OmmProviderImpl?.RegisterClient(reqMsg, client, closure) ?? 0;
 
         /// <summary>
         /// Changes the interest in an open item stream. The first formal parameter houses a <see cref="RequestMsg"/>.<br/>
@@ -230,10 +240,8 @@ namespace LSEG.Ema.Access
         /// <remarks>
         /// This method is ObjectLevelSafe
         /// </remarks>
-        public void Reissue(RequestMsg reqMsg, long handle)
-        {
-            m_OmmProviderImpl.Reissue(reqMsg, handle);
-        }
+        public void Reissue(RequestMsg reqMsg, long handle) =>
+            m_OmmProviderImpl?.Reissue(reqMsg, handle);
 
         /// <summary>
         /// Sends a <see cref="GenericMsg"/>.
@@ -245,10 +253,8 @@ namespace LSEG.Ema.Access
         /// <remarks>
         /// This method is ObjectLevelSafe
         /// </remarks>
-        public void Submit(GenericMsg genericMsg, long handle)
-        {
-            m_OmmProviderImpl.Submit(genericMsg, handle);
-        }
+        public void Submit(GenericMsg genericMsg, long handle) =>
+            m_OmmProviderImpl?.Submit(genericMsg, handle);
 
         /// <summary>
         /// Sends a <see cref="RefreshMsg"/>.
@@ -260,10 +266,8 @@ namespace LSEG.Ema.Access
         /// <remarks>
         /// This method is ObjectLevelSafe
         /// </remarks>
-        public void Submit(RefreshMsg refreshMsg, long handle)
-        {
-            m_OmmProviderImpl.Submit(refreshMsg, handle);
-        }
+        public void Submit(RefreshMsg refreshMsg, long handle) =>
+            m_OmmProviderImpl?.Submit(refreshMsg, handle);
 
         /// <summary>
         /// Sends a <see cref="UpdateMsg"/>.
@@ -275,10 +279,8 @@ namespace LSEG.Ema.Access
         /// <remarks>
         /// This method is ObjectLevelSafe
         /// </remarks>
-        public void Submit(UpdateMsg updateMsg, long handle)
-        {
-            m_OmmProviderImpl.Submit(updateMsg, handle);
-        }
+        public void Submit(UpdateMsg updateMsg, long handle) =>
+            m_OmmProviderImpl?.Submit(updateMsg, handle);
 
         /// <summary>
         /// Sends a <see cref="StatusMsg"/>.
@@ -290,10 +292,8 @@ namespace LSEG.Ema.Access
         /// <remarks>
         /// This method is ObjectLevelSafe
         /// </remarks>
-        public void Submit(StatusMsg statusMsg, long handle)
-        {
-            m_OmmProviderImpl.Submit(statusMsg, handle);
-        }
+        public void Submit(StatusMsg statusMsg, long handle) =>
+            m_OmmProviderImpl?.Submit(statusMsg, handle);
 
         /// <summary>
         /// Sends a <see cref="AckMsg"/>
@@ -302,20 +302,16 @@ namespace LSEG.Ema.Access
         /// <param name="handle">identifies handle associated with an item stream on which to send the AckMsg</param>
         /// <exception cref="OmmInvalidHandleException">if passed in handle does not refer to an open stream</exception>
         /// <exception cref="OmmInvalidUsageException">if failed to submit ackMsg</exception>
-        public void Submit(AckMsg ackMsg, long handle)
-        {
-            m_OmmProviderImpl.Submit(ackMsg, handle);
-        }
+        public void Submit(AckMsg ackMsg, long handle) =>
+            m_OmmProviderImpl?.Submit(ackMsg, handle);
 
         /// <summary>
         /// Sends a PackedMsg.
         /// </summary>
         /// <param name="packedMsg">specifies PackedMsg to be sent on the active channel</param>
         /// <exception cref="OmmInvalidUsageException">if failed to submit packedMsg</exception>
-        public void Submit(PackedMsg packedMsg)
-        {
-            m_OmmProviderImpl.Submit(packedMsg);
-        }
+        public void Submit(PackedMsg packedMsg) =>
+            m_OmmProviderImpl?.Submit(packedMsg);
 
         /// <summary>
         /// Relinquishes application thread of control to receive callbacks via <see cref="IOmmProviderClient"/> descendant.
@@ -328,10 +324,8 @@ namespace LSEG.Ema.Access
         /// <remarks>
         /// This method is ObjectLevelSafe
         /// </remarks>
-        public int Dispatch(int dispatchTimeout = DispatchTimeout.NO_WAIT)
-        {
-            return m_OmmProviderImpl.Dispatch(dispatchTimeout);
-        }
+        public int Dispatch(int dispatchTimeout = DispatchTimeout.NO_WAIT) =>
+            m_OmmProviderImpl?.Dispatch(dispatchTimeout) ?? DispatchReturn.TIMEOUT;
 
         /// <summary>
         /// Relinquishes interest in an open item stream if item handle is passed in.
@@ -340,10 +334,8 @@ namespace LSEG.Ema.Access
         /// <remarks>
         /// This method is ObjectLevelSafe
         /// </remarks>
-        public void Unregister(long handle)
-        {
-            m_OmmProviderImpl.Unregister(handle);
-        }
+        public void Unregister(long handle) =>
+            m_OmmProviderImpl?.Unregister(handle);
 
         /// <summary>
         /// Returns the channel information for an NiProvider application. The channel
@@ -353,10 +345,8 @@ namespace LSEG.Ema.Access
         /// <exception cref="OmmInvalidUsageException">
         /// if is called by a interactive provider application.
         /// </exception>
-        public void ChannelInformation(ChannelInformation channelInfo)
-        {
-            m_OmmProviderImpl.ChannelInformation(channelInfo);
-        }
+        public void ChannelInformation(ChannelInformation channelInfo) =>
+            m_OmmProviderImpl?.ChannelInformation(channelInfo);
 
         /// <summary>
         /// Gets a list of client ChannelInformation (e.g, the host name from which the client connected)
@@ -366,10 +356,8 @@ namespace LSEG.Ema.Access
         /// <exception cref="OmmInvalidUsageException">
         /// if is called by a non-interactive provider application.
         /// </exception>
-        public void ConnectedClientChannelInfo(List<ChannelInformation> clientInfoList)
-        {
-            m_OmmProviderImpl.ConnectedClientChannelInfo(clientInfoList);
-        }
+        public void ConnectedClientChannelInfo(List<ChannelInformation> clientInfoList) =>
+            m_OmmProviderImpl?.ConnectedClientChannelInfo(clientInfoList);
 
         /// <summary>
         /// Allows modifying some I/O values programmatically for a channel to override
@@ -385,10 +373,8 @@ namespace LSEG.Ema.Access
         /// <exception cref="OmmInvalidUsageException">
         /// if failed to modify I/O option to
         /// </exception>
-        public void ModifyIOCtl(IOCtlCode code, int val)
-        {
-            m_OmmProviderImpl.ModifyIOCtl(code, val);
-        }
+        public void ModifyIOCtl(IOCtlCode code, int val) =>
+            m_OmmProviderImpl?.ModifyIOCtl(code, val);
 
         /// <summary>
         /// Allows modifying some I/O values programmatically for a channel to override
@@ -405,10 +391,8 @@ namespace LSEG.Ema.Access
         /// <exception cref="OmmInvalidUsageException">
         /// if failed to modify I/O option to
         /// </exception>
-        public void ModifyIOCtl(IOCtlCode code, int val, long handle)
-        {
-            m_OmmProviderImpl.ModifyIOCtl(code, val, handle);
-        }
+        public void ModifyIOCtl(IOCtlCode code, int val, long handle) =>
+            m_OmmProviderImpl?.ModifyIOCtl(code, val, handle);
 
         /// <summary>
         /// Closes channel for connected client's channel and associated items. Only relevant to
@@ -418,12 +402,10 @@ namespace LSEG.Ema.Access
         /// <exception cref="OmmInvalidUsageException">
         /// if is called by a non-interactive provider application.
         /// </exception>
-        public void CloseChannel(long clientHandle)
-        {
-            m_OmmProviderImpl.CloseChannel(clientHandle);
-        }
+        public void CloseChannel(long clientHandle) =>
+            m_OmmProviderImpl?.CloseChannel(clientHandle);
 
 
-        internal IOmmProviderImpl m_OmmProviderImpl;
+        internal IOmmProviderImpl? m_OmmProviderImpl;
     }
 }

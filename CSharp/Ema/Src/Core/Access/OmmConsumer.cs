@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -84,7 +84,14 @@ namespace LSEG.Ema.Access
     /// </remarks>
     public sealed class OmmConsumer
     {
-        internal OmmConsumerImpl m_OmmConsumerImpl;
+        internal OmmConsumerImpl? m_OmmConsumerImpl;
+
+        private void Initialize()
+        {
+            m_OmmConsumerImpl!.Initialize();
+            // property should return the same name as the it is unique per OmmConsumer instance regardless of the value of m_OmmConsumerImpl
+            ConsumerName = m_OmmConsumerImpl!.ConsumerName;
+        }
 
         /// <summary>
         /// Creates a OmmConsumer
@@ -93,7 +100,7 @@ namespace LSEG.Ema.Access
         public OmmConsumer(OmmConsumerConfig config)
         {
             m_OmmConsumerImpl = new OmmConsumerImpl(this, config);
-            m_OmmConsumerImpl.Initialize();
+            Initialize();
         }
 
         /// <summary>
@@ -105,7 +112,7 @@ namespace LSEG.Ema.Access
         public OmmConsumer(OmmConsumerConfig config, IOmmOAuth2ConsumerClient oauthClient, object? closure = null)
         {
             m_OmmConsumerImpl = new OmmConsumerImpl(this, config, oauthClient, closure);
-            m_OmmConsumerImpl.Initialize();
+            Initialize();
         }
 
         /// <summary>
@@ -117,7 +124,7 @@ namespace LSEG.Ema.Access
         public OmmConsumer(OmmConsumerConfig config, IOmmConsumerClient client, object? closure = null)
         {
             m_OmmConsumerImpl = new OmmConsumerImpl(this, config, client, closure);
-            m_OmmConsumerImpl.Initialize();
+            Initialize();
         }
 
         /// <summary>
@@ -130,7 +137,7 @@ namespace LSEG.Ema.Access
         public OmmConsumer(OmmConsumerConfig config, IOmmConsumerClient client, IOmmOAuth2ConsumerClient oauthClient, object? closure = null)
         {
             m_OmmConsumerImpl = new OmmConsumerImpl(this, config, client, oauthClient, closure);
-            m_OmmConsumerImpl.Initialize();
+            Initialize();
         }
 
         /// <summary>
@@ -141,7 +148,7 @@ namespace LSEG.Ema.Access
         public OmmConsumer(OmmConsumerConfig config, IOmmConsumerErrorClient errorClient)
         {
             m_OmmConsumerImpl = new OmmConsumerImpl(this, config, errorClient);
-            m_OmmConsumerImpl.Initialize();
+            Initialize();
         }
 
         /// <summary>
@@ -154,7 +161,7 @@ namespace LSEG.Ema.Access
         public OmmConsumer(OmmConsumerConfig config, IOmmConsumerErrorClient errorClient, IOmmOAuth2ConsumerClient oauthClient, object? closure = null)
         {
             m_OmmConsumerImpl = new OmmConsumerImpl(this, config, errorClient, oauthClient, closure);
-            m_OmmConsumerImpl.Initialize();
+            Initialize();
         }
 
         /// <summary>
@@ -167,7 +174,7 @@ namespace LSEG.Ema.Access
         public OmmConsumer(OmmConsumerConfig config, IOmmConsumerClient client, IOmmConsumerErrorClient errorClient, object? closure = null)
         {
             m_OmmConsumerImpl = new OmmConsumerImpl(this, config, client, errorClient, closure);
-            m_OmmConsumerImpl.Initialize();
+            Initialize();
         }
 
         /// <summary>
@@ -181,7 +188,7 @@ namespace LSEG.Ema.Access
         public OmmConsumer(OmmConsumerConfig config, IOmmConsumerClient client, IOmmConsumerErrorClient errorClient, IOmmOAuth2ConsumerClient oauthClient, object? closure = null)
         {
             m_OmmConsumerImpl = new OmmConsumerImpl(this, config, client, errorClient, oauthClient, closure);
-            m_OmmConsumerImpl.Initialize();
+            Initialize();
         }
 
         /// <summary>
@@ -189,16 +196,14 @@ namespace LSEG.Ema.Access
         /// </summary>
         public void Uninitialize()
         {
-            m_OmmConsumerImpl.Uninitialize();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            m_OmmConsumerImpl?.Uninitialize();
             m_OmmConsumerImpl = null;
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         /// <summary>
         /// Gets internally generated consumer instance name.
         /// </summary>
-        public string ConsumerName { get => m_OmmConsumerImpl.ConsumerName; }
+        public string ConsumerName { get; private set; } = ""; // prevent warning about uninitialized property in constructor
 
         /// <summary>
         /// Opens an item stream.
@@ -212,10 +217,8 @@ namespace LSEG.Ema.Access
         /// <param name="closure">specifies application defined item identification</param>
         /// <returns>item identifier (a.k.a handle)</returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if application passes invalid RequestMsg</exception>
-        public long RegisterClient(RequestMsg requestMsg, IOmmConsumerClient client, object? closure = null)
-        {
-            return m_OmmConsumerImpl.RegisterClient(requestMsg, client, closure);
-        }
+        public long RegisterClient(RequestMsg requestMsg, IOmmConsumerClient client, object? closure = null) =>
+            m_OmmConsumerImpl?.RegisterClient(requestMsg, client, closure) ?? 0;
 
         /// <summary>
         /// Changes the interest in an open item stream.
@@ -233,10 +236,8 @@ namespace LSEG.Ema.Access
         /// <param name="handle">identifies item to be modified</param>
         /// <exception cref="OmmInvalidHandleException">Thrown if passed in handle does not refer to an open stream</exception>
         /// <exception cref="OmmInvalidUsageException">Thrown if passed in RequestMsg violates reissue rules</exception>
-        public void Reissue(RequestMsg requestMsg, long handle)
-        {
-            m_OmmConsumerImpl.Reissue(requestMsg, handle);
-        }
+        public void Reissue(RequestMsg requestMsg, long handle) =>
+            m_OmmConsumerImpl?.Reissue(requestMsg, handle);
 
         /// <summary>
         /// Sends a <see cref="GenericMsg"/>.
@@ -245,10 +246,8 @@ namespace LSEG.Ema.Access
         /// <param name="genericMsg">specifies GenericMsg to be sent on the open item stream</param>
         /// <param name="handle">identifies item stream on which to send the GenericMsg</param>
         /// <exception cref="OmmInvalidHandleException">Thrown if passed in handle does not refer to an open stream</exception>
-        public void Submit(GenericMsg genericMsg, long handle)
-        {
-            m_OmmConsumerImpl.Submit(genericMsg, handle);
-        }
+        public void Submit(GenericMsg genericMsg, long handle) =>
+            m_OmmConsumerImpl?.Submit(genericMsg, handle);
 
         /// <summary>
         /// Sends a <see cref="PostMsg"/>
@@ -262,19 +261,15 @@ namespace LSEG.Ema.Access
         /// <param name="postMsg">specifies PostMsg to be sent on the open item stream</param>
         /// <param name="handle">identifies item stream on which to send the PostMsg</param>
         /// <exception cref="OmmInvalidHandleException">Thrown if passed in handle does not refer to an open stream</exception>
-        public void Submit(PostMsg postMsg, long handle)
-        {
-            m_OmmConsumerImpl.Submit(postMsg, handle);
-        }
+        public void Submit(PostMsg postMsg, long handle) =>
+            m_OmmConsumerImpl?.Submit(postMsg, handle);
 
         /// <summary>
         /// Gets Channel information for the current OmmConsumer instance.
         /// </summary>
         /// <param name="ci"><see cref="Access.ChannelInformation"/> instance to fill with Channel information.</param>
-        public void ChannelInformation(ChannelInformation ci)
-        {
-            m_OmmConsumerImpl.ChannelInformation(ci);
-        }
+        public void ChannelInformation(ChannelInformation ci) =>
+            m_OmmConsumerImpl?.ChannelInformation(ci);
 
         /// <summary>
         /// Relinquishes application thread of control to receive callbacks via <see cref="IOmmConsumerClient"/> descendant.
@@ -284,10 +279,8 @@ namespace LSEG.Ema.Access
         /// </returns>
         /// <exception cref="OmmInvalidUsageException">Thrown if OperationModel is not set to
         /// <see cref="OmmConsumerConfig.OperationModelMode.USER_DISPATCH"/></exception>
-        public int Dispatch(int dispatchTimeout = DispatchTimeout.NO_WAIT)
-        {
-            return m_OmmConsumerImpl.Dispatch(dispatchTimeout);
-        }
+        public int Dispatch(int dispatchTimeout = DispatchTimeout.NO_WAIT) =>
+            m_OmmConsumerImpl?.Dispatch(dispatchTimeout) ?? DispatchReturn.TIMEOUT;
 
         /// <summary>
         /// Provide updated OAuth2 credentials when the callback
@@ -307,10 +300,8 @@ namespace LSEG.Ema.Access
         /// <param name="credentials"><see cref="OAuth2CredentialRenewal"/> object that contains the credentials.</param>
         /// <exception cref="OmmInvalidUsageException">Thrown if the credential update fails or if this method is called outside of an onCredentialRenewal callback.
         /// </exception>
-        public void RenewOAuthCredentials(OAuth2CredentialRenewal credentials)
-        {
-            m_OmmConsumerImpl.OAuthCallbackClient!.RenewOAuthCredentials(credentials);
-        }
+        public void RenewOAuthCredentials(OAuth2CredentialRenewal credentials) =>
+            m_OmmConsumerImpl?.OAuthCallbackClient!.RenewOAuthCredentials(credentials);
 
         /// <summary>
         /// Allows modifying some I/O values programmatically for a channel to override
@@ -326,10 +317,8 @@ namespace LSEG.Ema.Access
         /// <exception cref="OmmInvalidUsageException">
         /// if failed to modify I/O option to
         /// </exception>
-        public void ModifyIOCtl(IOCtlCode code, int val)
-        {
-            m_OmmConsumerImpl.ModifyIOCtl(code, val);
-        }
+        public void ModifyIOCtl(IOCtlCode code, int val) =>
+            m_OmmConsumerImpl?.ModifyIOCtl(code, val);
 
         /// <summary>
         /// Relinquishes interest in an open item stream.
@@ -338,9 +327,7 @@ namespace LSEG.Ema.Access
         /// This method is ObjectLevelSafe.
         /// </remarks>
         /// <param name="handle">identifies item to close</param>
-        public void Unregister(long handle)
-        {
-            m_OmmConsumerImpl.Unregister(handle);
-        }
+        public void Unregister(long handle) =>
+            m_OmmConsumerImpl?.Unregister(handle);
     }
 }

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -158,6 +158,37 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             Assert.Equal(marketPriceItem.ASK.ToString(), fieldEntry.OmmRealValue().ToString());
 
             Assert.False(fieldIt.MoveNext());
+        }
+
+        [Fact]
+        public void SecondUninitializeTest()
+        {
+            // Arrange
+            ProviderSessionOptions providerSessionOpts = new()
+            {
+                SendLoginReject = false,
+                SendDictionaryResp = true
+            };
+            ProviderTest providerTest = new(providerSessionOpts, output);
+            ReactorOptions reactorOptions = new();
+            providerTest.Initialize(reactorOptions);
+
+            string hostString = $"localhost:{providerTest.ServerPort}";
+
+            output.WriteLine($"Connect with {hostString}");
+
+            OmmConsumerConfig config = new();
+            OmmConsumer consumer = new(config.Host(hostString));
+            string consumerNameInitial = consumer.ConsumerName;
+
+            consumer.Uninitialize();
+            providerTest.UnInitialize();
+
+            // Act/Assert
+            consumer.Uninitialize();
+            // No exception should be at this point
+
+            Assert.Equal(consumerNameInitial, consumer.ConsumerName);
         }
 
         [Fact]

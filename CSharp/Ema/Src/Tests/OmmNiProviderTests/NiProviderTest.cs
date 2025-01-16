@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1525,6 +1525,47 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
             provider?.Uninitialize();
             adhSimulator.UnInitialize();
+        }
+
+        [Fact]
+        public void SecondUninitializeTest()
+        {
+            // Arrange
+            ProviderSessionOptions providerSessionOpts = new()
+            {
+                SendLoginReject = false
+            };
+            ADHSimulator? adhSimulator = null;
+
+            try
+            {
+                adhSimulator = new(providerSessionOpts, m_Output);
+
+                ReactorOptions reactorOptions = new();
+                adhSimulator.Initialize(reactorOptions);
+
+                string hostString = $"localhost:{adhSimulator.ServerPort}";
+
+                m_Output.WriteLine($"Connect with {hostString}");
+
+                OmmNiProviderConfig config = new();
+                OmmProvider provider = new(config.Host(hostString));
+                string providerNameInitial = provider.ProviderName;
+                OmmProviderConfig.ProviderRoleEnum providerRoleInitial = provider.ProviderRole;
+                m_Output.WriteLine("Created OmmProvider successfully");
+
+                provider.Uninitialize();
+                // Act/Assert
+                provider.Uninitialize();
+                // No exception should be at this point
+
+                Assert.Equal(providerNameInitial, provider.ProviderName);
+                Assert.Equal(providerRoleInitial, provider.ProviderRole);
+            }
+            finally
+            {
+                adhSimulator?.UnInitialize();
+            }
         }
     }
 }
