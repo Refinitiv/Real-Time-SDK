@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2019-2022, 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -7282,7 +7282,7 @@ TEST(stringConversionTest,stringConversionTest)
 	testStrBuf.length = sprintf(testString, "1 2147483648/2");
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
-	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT0);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_2);
 	ASSERT_EQ(testReal.value, 2147483650);
 
 	testStrBuf.length = sprintf(testString, "128/256");
@@ -7297,10 +7297,52 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_128);
 	ASSERT_EQ(testReal.value, 256);
 
+	testStrBuf.length = sprintf(testString, "512/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_2);
+	ASSERT_EQ(testReal.value, 512);
+
+	testStrBuf.length = sprintf(testString, "512/4");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_4);
+	ASSERT_EQ(testReal.value, 512);
+
+	testStrBuf.length = sprintf(testString, "512/8");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_8);
+	ASSERT_EQ(testReal.value, 512);
+
+	testStrBuf.length = sprintf(testString, "512/16");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_16);
+	ASSERT_EQ(testReal.value, 512);
+
+	testStrBuf.length = sprintf(testString, "512/32");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_32);
+	ASSERT_EQ(testReal.value, 512);
+
+	testStrBuf.length = sprintf(testString, "512/64");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_64);
+	ASSERT_EQ(testReal.value, 512);
+
 	testStrBuf.length = sprintf(testString, "512/128");
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
 	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_128);
+	ASSERT_EQ(testReal.value, 512);
+
+	testStrBuf.length = sprintf(testString, "512/256");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_256);
 	ASSERT_EQ(testReal.value, 512);
 
 	testStrBuf.length = sprintf(testString, "9223372036854775807/1");
@@ -7339,6 +7381,72 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_256);
 	ASSERT_EQ(testReal.value, -2);
 
+	testStrBuf.length = sprintf(testString, "1 1/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_2);
+	ASSERT_EQ(testReal.value, 3);
+
+	testStrBuf.length = sprintf(testString, "12 1/1");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_1);
+	ASSERT_EQ(testReal.value, 13);
+
+	testStrBuf.length = sprintf(testString, "12 1/2");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_2);
+	ASSERT_EQ(testReal.value, 25);
+
+	testStrBuf.length = sprintf(testString, "12 2/4");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_4);
+	ASSERT_EQ(testReal.value, 50);
+
+	testStrBuf.length = sprintf(testString, "12 2/8");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_8);
+	ASSERT_EQ(testReal.value, 98);
+
+	testStrBuf.length = sprintf(testString, "12 2/16");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_16);
+	ASSERT_EQ(testReal.value, 194);
+
+	testStrBuf.length = sprintf(testString, "12 2/32");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_32);
+	ASSERT_EQ(testReal.value, 386);
+
+	testStrBuf.length = sprintf(testString, "12 2/64");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_64);
+	ASSERT_EQ(testReal.value, 770);
+
+	testStrBuf.length = sprintf(testString, "12 2/128");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_128);
+	ASSERT_EQ(testReal.value, 1538);
+
+	testStrBuf.length = sprintf(testString, "12 2/256");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_256);
+	ASSERT_EQ(testReal.value, 3074);
+
+	testStrBuf.length = sprintf(testString, "118 180/256");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_FRACTION_256);
+	ASSERT_EQ(testReal.value, 30388);
+
 	testStrBuf.length = sprintf(testString, "0.1234567890123456789");
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
@@ -7352,6 +7460,22 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
 
 	testStrBuf.length = sprintf(testString, "9223372036854775807 9223372036854775807/9223372036854775807");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "12 2/512");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "12 2/1024");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "512/512");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "512/1024");
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
 
@@ -7380,6 +7504,10 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
 
 	testStrBuf.length = sprintf(testString, "9223372036854775807 2147483647/256");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1 9223372036854775807/256");
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
 

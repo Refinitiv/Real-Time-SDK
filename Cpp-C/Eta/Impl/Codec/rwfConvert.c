@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019,2024 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1159,12 +1159,6 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 			else
 				return RSSL_RET_INVALID_DATA;
 		}
-		else if (*strptr == '\0')
-		{
-			oReal64->isBlank = RSSL_FALSE;
-			oReal64->hint = RSSL_RH_EXPONENT0;
-			oReal64->value = (isNeg ? -1 * value : value);
-		}
 		else
 			return RSSL_RET_INVALID_DATA;
 	}
@@ -1416,13 +1410,6 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 			}
 			else
 				return RSSL_RET_INVALID_DATA;
-		}
-
-		if (strptr > endptr)
-		{
-			oReal64->isBlank = RSSL_FALSE;
-			oReal64->hint = RSSL_RH_EXPONENT0;
-			oReal64->value = (isNeg ? -1 * value : value);
 		}
 		else
 			return RSSL_RET_INVALID_DATA;
