@@ -2,7 +2,7 @@
 *|            This source code is provided under the Apache 2.0 license
 *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 *|                See the project's LICENSE.md for details.
-*|          Copyright (C) 2019-2023 LSEG. All rights reserved.               --
+*|          Copyright (C) 2019-2023, 2024 LSEG. All rights reserved.         --
 *|-----------------------------------------------------------------------------
 */
 
@@ -228,10 +228,8 @@ public:
 
 		if (_CtrlC_Activated)
 			runExitThread(NULL);
-
-		_monitorThreadMutex.lock();
-		_monitorThreadId = 0;
-		_monitorThreadMutex.unlock();
+		else
+			stopMonitorThread();
 
 		return (void*)NULL;
 	}
@@ -249,6 +247,17 @@ public:
 			_monitorThreadMutex.unlock();
 		}
 		return;
+	}
+
+	static void stopMonitorThread()
+	{
+		_monitorThreadMutex.lock();
+		if (_monitorThreadId != 0)
+		{
+			pthread_detach(_monitorThreadId);
+			_monitorThreadId = 0;
+		}
+		_monitorThreadMutex.unlock();
 	}
 #endif
 
