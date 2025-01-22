@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.14.7)
+cmake_minimum_required (VERSION 3.22.0)
 
 add_executable( Cons410_static Consumer.cpp ConsumerManager.cpp ConsumerMutex.cpp ConsumerResultValidation.cpp ConsumerThread.cpp )
 add_executable( Cons410_shared Consumer.cpp ConsumerManager.cpp ConsumerMutex.cpp ConsumerResultValidation.cpp ConsumerThread.cpp )

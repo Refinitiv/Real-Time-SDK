@@ -1,4 +1,5 @@
-cmake_minimum_required (VERSION 3.14.7)
+cmake_minimum_required (VERSION 3.22.0)
+
 # The minimum version was chosen from a combination of the need for
 # critical bug fixes by CMake, the idea of taking advantage of future
 # CMake fixes soon to be released and wanting to fully embrace the

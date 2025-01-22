@@ -204,7 +204,7 @@ Real-Time SDK packages are also available for download on [MyAccount](https://my
 
 **Using CMake**:
 
-Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.14.7 (cmake_minimum_required) or later. 
+Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.22.0 (cmake_minimum_required) or later.
 
 In addition, Python 3 is required. This can be installed either through yum or a windows installer.
 
