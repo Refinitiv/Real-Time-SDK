@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -23,7 +23,9 @@
 #define __RSZRSSLMSG    sizeof(RsslMsg)
 
 #if defined (_WIN32) || defined(WIN32)
+#if _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
 #else
 #include <strings.h>
 #endif

@@ -43,7 +43,9 @@
 #include <math.h>
 
 #ifdef WIN32
+#if _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
 #include <windows.h>
 
 #if defined(_MSC_VER) && (_MSC_VER == 1700 || _MSC_VER == 1800)
