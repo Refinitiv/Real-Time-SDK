@@ -74,7 +74,8 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		return this;
 	}
 	
-	OmmConsumerConfig applicationName(String applicationName)
+	@Override
+	public OmmConsumerConfig applicationName(String applicationName)
 	{
 		applicationNameInt(applicationName);
 		return this;

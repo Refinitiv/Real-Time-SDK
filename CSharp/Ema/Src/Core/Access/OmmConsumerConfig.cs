@@ -148,6 +148,17 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
+        /// Specifies the authorization application name set in login request attribute.
+        /// </summary>
+        /// <param name="applicationName">specifies the application name used on login request</param>
+        /// <returns>Reference to current <see cref="OmmConsumerConfig"/> object.</returns>
+        public OmmConsumerConfig ApplicationName(string applicationName)
+        {
+            OmmConsConfigImpl.ApplicationName = applicationName;
+            return this;
+        }
+
+        /// <summary>
         /// Specifies the authorization application identifier. Must be unique for each application.
         /// Range 257 to 65535 is available for site-specific use.Range 1 to 256 is reserved.
         /// Overrides the value specified in Login domain via the <see cref="AddAdminMsg"/> method.

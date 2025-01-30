@@ -40,6 +40,8 @@ namespace LSEG.Ema.Access
         internal string Password = string.Empty;
         // Position config from OmmNiProviderConfig methods. 
         internal string Position { get; set; } = string.Empty;
+
+        internal string ApplicationName { get; set; } = string.Empty;
         // ApplicationId config from OmmNiProviderConfig methods. 
         internal string ApplicationId { get; set; } = string.Empty;
         // Instance Id config from OmmNiProviderConfig methods
@@ -99,6 +101,7 @@ namespace LSEG.Ema.Access
             Password = string.Empty;
             Position = string.Empty;
             ApplicationId = string.Empty;
+            ApplicationName = string.Empty;
             ProxyHost = string.Empty;
             ProxyPort = string.Empty;
             ProxyUserName = string.Empty;

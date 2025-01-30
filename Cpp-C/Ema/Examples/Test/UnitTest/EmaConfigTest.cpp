@@ -87,6 +87,43 @@ const char* EmaConfigTest::enumTableFileNameTest = "./enumtypeTest.def";
 const char* EmaConfigTest::fieldDictionaryFileNameDefault = "./RDMFieldDictionary";
 const char* EmaConfigTest::enumTableFileNameDefault = "./enumtype.def";
 
+// change applicationId and applicationName, check that new values are
+// propagated to the login request message
+TEST_F(EmaConfigTest, testConsumerAppIdName)
+{
+	OmmConsumerConfigImpl config{ configPath };
+
+	// check that the default values are as expected
+	EmaString defaultAppId{ "256" };
+	EmaString defaultAppName{ "ema" };
+
+	EmaString defaultAppIdCfg{ config.getLoginReq()->applicationId.data,
+		config.getLoginReq()->applicationId.length };
+	EmaString defaultAppNameCfg{ config.getLoginReq()->applicationName.data,
+		config.getLoginReq()->applicationName.length};
+
+	EXPECT_TRUE(defaultAppId == defaultAppIdCfg);
+	EXPECT_TRUE(defaultAppName == defaultAppNameCfg);
+
+	// modify them via API calls
+	EmaString testAppId{ "652" };
+	EmaString testAppName{ "test-app-name" };
+
+	config.applicationId( testAppId );
+	config.applicationName( testAppName );
+
+	EmaString testAppIdCfg{ config.getLoginReq()->applicationId.data,
+		config.getLoginReq()->applicationId.length };
+	EmaString testAppNameCfg{ config.getLoginReq()->applicationName.data,
+		config.getLoginReq()->applicationName.length };
+
+	EXPECT_FALSE(defaultAppId == testAppIdCfg);
+	EXPECT_FALSE(defaultAppName == testAppNameCfg);
+
+	EXPECT_TRUE(testAppId == testAppIdCfg);
+	EXPECT_TRUE(testAppName == testAppNameCfg);
+}
+
 TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 {
 	OmmConsumerConfigImpl config(configPath);

@@ -86,6 +86,14 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig position(String position);
 
 	/**
+	 * Specifies the authorization application name set in login request attribute.
+	 *
+	 * @param applicationName specifies respective login request attribute
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig applicationName(String applicationName);
+
+	/**
 	 * Specifies the authorization application identifier. Must be unique for
 	 * each application. Range 257 to 65535 is available for site-specific use.
 	 * Range 1 to 256 is reserved.

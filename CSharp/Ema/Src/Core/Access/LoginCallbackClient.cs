@@ -322,6 +322,17 @@ namespace LSEG.Ema.Access
                     }
                 }
             }
+
+            if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName))
+            {
+                if (CurrentLoginRequest.HasAttrib && CurrentLoginRequest.LoginAttrib.HasApplicationName)
+                {
+                    if (!m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName.Equals(CurrentLoginRequest.LoginAttrib.ApplicationName.ToString()))
+                    {
+                        CurrentLoginRequest.LoginAttrib.ApplicationName.Data(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName);
+                    }
+                }
+            }
         }
 
         public LoginRefresh LoginRefresh

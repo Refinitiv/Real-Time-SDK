@@ -67,6 +67,7 @@ namespace LSEG.Ema.Access
         internal string FieldDictionaryRequestServiceName { get; set; } = string.Empty;
         internal string EnumDictionaryRequestServiceName { get; set; } = string.Empty;
 
+        private const string DefaultAppName = "ema";
         private const string DefaultHost = "localhost";
         private const string DefaultPort = "14002";
 
@@ -87,9 +88,6 @@ namespace LSEG.Ema.Access
                 XmlConfigPath = path;
 
             XmlParser = new XmlConfigParser(this);
-
-            // Overwrite the ApplicationName to "ema"
-            AdminLoginRequest.LoginAttrib.ApplicationName.Data("ema");
         }
 
         // Copy Constructor that will be used in OmmBaseImpl.  This will contain only the information needed by EMA to generate
@@ -114,6 +112,7 @@ namespace LSEG.Ema.Access
             Password = OldConfigImpl.Password;
             Position = OldConfigImpl.Position;
             ApplicationId = OldConfigImpl.ApplicationId;
+            ApplicationName = OldConfigImpl.ApplicationName;
             ClientId = OldConfigImpl.ClientId;
             ClientSecret = OldConfigImpl.ClientSecret;
             ClientJwk = OldConfigImpl.ClientJwk;
@@ -316,6 +315,7 @@ namespace LSEG.Ema.Access
             Password = string.Empty;
             Position = string.Empty;
             ApplicationId = string.Empty;
+            ApplicationName = string.Empty;
             ClientId = string.Empty;
             ClientSecret = string.Empty;
             ClientJwk = string.Empty;
@@ -670,6 +670,13 @@ namespace LSEG.Ema.Access
                 AdminLoginRequest.HasAttrib = true;
                 AdminLoginRequest.LoginAttrib.Flags |= LoginAttribFlags.HAS_APPLICATION_ID;
                 AdminLoginRequest.LoginAttrib.ApplicationId.Data(ApplicationId);
+            }
+
+            if (!string.IsNullOrEmpty(ApplicationName))
+            {
+                AdminLoginRequest.HasAttrib = true;
+                AdminLoginRequest.LoginAttrib.Flags |= LoginAttribFlags.HAS_APPLICATION_NAME;
+                AdminLoginRequest.LoginAttrib.ApplicationName.Data(ApplicationName);
             }
 
             if (consConfig.EnableRtt)
