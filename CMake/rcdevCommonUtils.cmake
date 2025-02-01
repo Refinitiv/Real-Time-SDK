@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
 #]=============================================================================]
 
 if (_rcdevCommonUtilsInclude)
@@ -408,9 +408,9 @@ macro(rcdev_wrap_prebuilt_library TARGET_NAME )
         elseif ( ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "CENTOS") OR
                 (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND 
                  ((RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 8 ) OR (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 9 )) )
-             rcdev_get_platform_suffix(_plat_suffix2 "gcc" "rhel")
-		elseif (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "UBUNTU")
-			rcdev_get_platform_suffix(_plat_suffix2 "ubuntu" "compiler_rhel8")
+            rcdev_get_platform_suffix(_plat_suffix2 "gcc" "rhel")
+        elseif ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "UBUNTU") OR (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "KYLIN"))
+            rcdev_get_platform_suffix(_plat_suffix2 "ubuntu" "compiler_rhel8")
         else()
             rcdev_get_platform_suffix(_plat_suffix2 "gcc" )
         endif()

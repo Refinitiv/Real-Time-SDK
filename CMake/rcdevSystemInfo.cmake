@@ -204,7 +204,7 @@ function(rcdev_get_normalized_platform_suffix suffix)
 				 (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND 
 				((RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 8 ) OR (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 9)) )
 			rcdev_get_platform_suffix(_sfx "gcc" "rhel")
-		elseif (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "UBUNTU")
+		elseif ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "UBUNTU") OR (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "KYLIN"))
 			rcdev_get_platform_suffix(_sfx "ubuntu" "compiler_rhel8")
 		else()
 			rcdev_get_platform_suffix(_sfx "gcc" )
