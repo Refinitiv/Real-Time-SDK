@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2018-2024 LSEG. All rights reserved.
+Copyright (C) 2018-2025 LSEG. All rights reserved.
   
 # EMA C++ Documentation
 
@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.8.3.L1
+    libema.lib                ema3.8.3.G1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.8.3.L1
-    libema.dll                ema3.8.3.L1
+    libema.lib                ema3.8.3.G1
+    libema.dll                ema3.8.3.G1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.8.3.L1
+    libema.a                    ema3.8.3.G1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.8.3.L1          libema.so.22          ema3.8.3.L1
+    libema.so.3.8.3.G1          libema.so.22          ema3.8.3.G1
     
   
 # EMA C++ Issues and Workarounds

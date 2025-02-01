@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source LSEG low-level Transport and OMM encoder/decoder API. It is used by the LSEG Real-Time Distribution Systems and LSEG Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA (RSSL), to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2024 LSEG. All rights reserved.
+Copyright (C) 2019-2025 LSEG. All rights reserved.
 
 # New In This Release
 
@@ -70,11 +70,12 @@ Linux system libraries used by RTSDK C/C++:
 - HP Intel PC or AMD Opteron (64-bit)
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
-- Oracle Linux Server 7.X Release 64-bit
-- Red Hat Enterprise Server 7.X Release 64-bit
-- Red Hat Enterprise Server 8.X Release 64-bit
-- Red Hat Enterprise Server 9.X Release 64-bit
-- Ubuntu 20.04 Release 64-bit
+- Oracle Linux Server 7.X, 64-bit
+- Red Hat Enterprise Server 7.X, 64-bit
+- Red Hat Enterprise Server 8.X, 64-bit
+- Red Hat Enterprise Server 9.X, 64-bit
+- Ubuntu 20.04, 64-bit
+- Galaxy Kylin 10, 64-bit (TCP qualification only; multicast transport not tested)
 
 - TCP/IP networking support installed if using TCP Socket connection types
 - UDP Multicast networking support if using Reliable Multicast connection type
@@ -113,6 +114,7 @@ Notes:
 Platforms & Compilers:
 
      GCC compiler suite version 4.8.2 or higher for Oracle Linux 7.X, 64-bit, Native build
+     GCC compiler suite version 7.3.0 or higher for Galaxy Kylin 10, 64-bit, qualification with RH8 library build
      GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
      Clang compiler version 9.0.1 for Linux 8 64-bit, qualification with RH8 library build 
      GCC compiler suite version 9.3.0 or higher for Ubuntu 20.04, 64-bit, qualification with RH8 library build
@@ -134,9 +136,11 @@ This release has been tested with the following on supported platform/OS combina
      --------------------------------             ------------    --------------------     ----------------------------          
      Oracle Linux Server 7.7 64-bit               GCC 4.8.5       OL7_64_GCC482            OL7_64_GCC485
      Red Hat Enterprise Linux Server 7.7 64-bit   GCC 4.8.5       OL7_64_GCC482            RHEL7_64_GCC485
+     Galaxy Kylin 10 64-bit                       GCC 7.3.0       RHEL8_64_GCC831          RHEL8_64_GCC740
      Oracle Linux Server 7.7 64-bit               GCC 7.4.0       n/a                      OL7_64_GCC740
      Red Hat Enterprise Linux Server 7.7 64-bit   GCC 7.4.0       n/a                      RHEL7_64_GCC740
      Red Hat Enterprise Linux Server 8.X 64-bit   GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
+     Galaxy Kylin 10 64-bit                       GCC 8.4.0       RHEL8_64_GCC831          RHEL8_64_GCC840
      Red Hat Enterprise Linux Server 8.X 64-bit   GCC 9.2.1       RHEL8_64_GCC831          RHEL8_64_GCC921
      Ubuntu 20.04 64-bit                          GCC 9.4.0       RHEL8_64_GCC831          RHEL8_64_GCC831
      Red Hat Enterprise Linux Server 9.2 64-bit   GCC 11.4.1      RHEL9_64_GCC1141         RHEL9_64_GCC1141
