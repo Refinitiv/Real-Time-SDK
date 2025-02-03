@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2024, 2025 LSEG. All rights reserved.
 #]=============================================================================]
 
 ################################################################################################
@@ -489,6 +489,14 @@ endif()
 if ((NOT ZLIB_FOUND) OR
 		(NOT TARGET ZLIB::ZLIB) )
 	
+	# For linking to static library CMAKE_FIND_LIBRARY_SUFFIXES need to be set.
+	if (CMAKE_VERSION VERSION_LESS 3.24)
+		set(TEMP_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+		set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+	else()
+		set(ZLIB_USE_STATIC_LIBS "ON")
+	endif()
+
 	# Calling find_package with a required version number will fail if the
 	# package does not have a <name>version.cmake in the same location as
 	# the <package>config.cmake.  Unfortunately, CMake will not use the version
@@ -509,6 +517,10 @@ if ((NOT ZLIB_FOUND) OR
 	endif()
 
 	rcdev_add_external_target(ZLIB::ZLIB)
+
+	if (CMAKE_VERSION VERSION_LESS 3.24)
+		set(CMAKE_FIND_LIBRARY_SUFFIXES ${TEMP_CMAKE_FIND_LIBRARY_SUFFIXES})
+	endif()
 
 endif()
 

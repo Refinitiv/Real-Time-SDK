@@ -1,4 +1,5 @@
-cmake_minimum_required (VERSION 3.14.7)
+cmake_minimum_required (VERSION 3.22.0)
+
 # The minimum version was chosen from a combination of the need for
 # critical bug fixes by CMake, the idea of taking advantage of future
 # CMake fixes soon to be released and wanting to fully embrace the
@@ -7,7 +8,7 @@ cmake_minimum_required (VERSION 3.14.7)
 # guarantee of a successful build if changed.
 
 project (rtsdk
-		VERSION 2.2.3.0
+		VERSION 2.2.3.2
 		LANGUAGES C CXX)
 
 set(rtsdk_CMAKE_DIR "${rtsdk_SOURCE_DIR}/CMake")

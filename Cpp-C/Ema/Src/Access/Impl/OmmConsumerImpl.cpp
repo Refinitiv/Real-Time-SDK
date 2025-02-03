@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.         --
+ *|          Copyright (C) 2019-2022, 2024-2025 LSEG. All rights reserved.    --
  *|-----------------------------------------------------------------------------
  */
 
@@ -194,7 +194,7 @@ void OmmConsumerImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 			_activeConfig.phDetectionTimeInterval = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
 		if (pConfigImpl->get<UInt64>(instanceNodeName + "PHFallBackWithInWSBGroup", tmp))
-			_activeConfig.phFallBackWithInWSBGroup = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+			_activeConfig.phFallBackWithInWSBGroup = static_cast<UInt32>(tmp > 0 ? 1 : 0);
 
 		EmaString tmpStr;
 		if (pConfigImpl->get<EmaString>(instanceNodeName + "PHDetectionTimeSchedule", tmpStr))
