@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2021 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2021, 2025 LSEG. All rights reserved.
 #]=============================================================================]
 
 # build flags
@@ -157,6 +157,9 @@ else()
 	
 	#Release flags for non-static projects 
 	set(RCDEV_FLAGS_NONSTATIC_RELEASE "/GL")
+
+	#CMake 3.15 CMP0091 rule for selecting MSVC runtime
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug_Mdd>:MultiThreadedDebugDLL>$<$<CONFIG:Release_MD>:MultiThreadedDLL>" CACHE STRING "" FORCE)
 
 	# flags for C
 	set(RCDEV_C_FLAGS_INIT "/GS /W3 /Zc:wchar_t- /fp:precise /fp:except- /Gm- /D WIN32 /D _WINDOWS /D _WIN32 /D WIN32_LEAN_AND_MEAN /D _WIN32_WINNT=_WIN32_WINNT_VISTA /D x86_WindowsNT_5X /D _CRT_SECURE_NO_WARNINGS ${RCDEV_COMPILE_BITS} /D _iso_stdcpp_ /errorReport:prompt /WX- /Gd /Zc:forScope /EHsc /nologo /Oi " CACHE STRING "" FORCE)

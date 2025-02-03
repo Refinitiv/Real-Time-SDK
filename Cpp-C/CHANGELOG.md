@@ -7,31 +7,42 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.3.L1 aka EMA/ETA 3.8.3.L1 aka 3.8.3.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.3.G1 aka EMA/ETA 3.8.3.G1 aka 3.8.3.2
 ----------------------------------------------------------------------------------------
 
-This release of EMA C++ has support for the Preferred Host feature which applies to both channelset and warm standby: the feature allows a switch back to a preferred host in channelSet configuration or a preferred group in warm standby configuration. 
-
-In addition, this release serves as a maintenance release with support for Windows 11, customer issue fixes and other minor enhancements. Note that starting with this version, EMA configuration is validated and enforced using an embedded schema file.
+This is a maintenance release of C/C++ with support for Galaxy Kylin 10, and fixes for issues including a fix for rsslNumericStringToReal introduced in 2.2.3.L1.
 
 Customer Issues Resolved
 ------------------------
-- [Case Number: 13278230] - [RTSDK-8244] - Qualification on Windows 11
-- [Case Number: 13982810] - [RTSDK-9149] - OmmProvider not fanout message when submit DIRECTORY close message with handle 0
-- [GitHub #275] - [RTSDK-8431] - EMA support for OmmJson to represent JSON data type 
-- [GitHub #280] - [RTSDK-8662] - Memory leak in LoginRefreshImpl and LoginStatusImpl
-- [GitHub #286] - [RTSDK-9074] - EMA C++ : OmmConsumerClient, OmmConsumerErrorClient forbid copy-constructor for no reason
-- [GitHub #287] - [RTSDK-9082] - NIProv does not submit LoadFilter data
-- [GitHub Pull Request #294] - [RTSDK-9323] - Remove trailing spaces from compiler options
-- [GitHub #295, #296] - EMA C++: Setting service name in AckMsg on provider leads to time-out on consumer 
+- [Case Number: 14187771] - [RTSDK-9334] - Building RTSDK locally with "-Dzlib_USE_INSTALLED=ON -Dlibxml2_USE_INSTALLED=ON" flags [Case Number: 14187771]
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.2.3.G1 (Jan 31, 2025)
+--------------------------------------------
+
+ETA C 3.8.3.G1 Issues Resolved
+--------------------------------
+- [RTSDK-9355] - Provide an API to convert "P:C:T" into a core # using cpu topology
+- [RTSDK-9415] - String to Real64 conversion produces invalid values affecting rsslNumericStringToReal interface
+
+Both ETA C and EMA C++ 3.8.3.G1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-8872] - Galaxy Kylin Qualification (socket/websocket only; multicast not tested)
+- [RTSDK-9060] - CMake changes for Container build of RTSDK: build in docker containers
+- [RTSDK-9334] - Building RTSDK locally with "-Dzlib_USE_INSTALLED=ON -Dlibxml2_USE_INSTALLED=ON" flags [Case Number: 14187771]
+- [RTSDK-9409] - Fix to snprintf #define: From Visual Studio 2015 onwards, it is not necessary to define snprintf as _snprintf
+
+--------------------------------------------
 RTSDK C++/C Release 2.2.3.L1 (Dec 12, 2024)
 --------------------------------------------
+
+This release of EMA C++ has support for the Preferred Host feature which applies to both channelset and warm standby: the feature allows a switch back to a preferred host in channelSet configuration or a preferred group in warm standby configuration. 
+
+In addition, this release serves as a maintenance release with support for Windows 11, customer issue fixes and other minor enhancements. Note that starting with this version, EMA configuration is validated and enforced using an embedded schema file.
 
 EMA C++ 3.8.3.L1 Issues Resolved
 --------------------------------

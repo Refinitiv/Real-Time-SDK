@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license 
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details. 
- *|             Copyright (C) 2024 LSEG. All rights reserved.
+ *|             Copyright (C) 2024, 2025 LSEG. All rights reserved.
 #]=============================================================================]
 
 
@@ -252,13 +252,15 @@ if ((NOT CURL_FOUND) OR
 		set_property(TARGET CURL::libcurl APPEND PROPERTY IMPORTED_LOCATION "${CURL_LIBRARY}")
 	endif()
 
-	get_property(aliased_target TARGET CURL::libcurl PROPERTY ALIASED_TARGET)
-	if("${aliased_target}" STREQUAL "")
-		# is not an alias
-		rcdev_map_imported_ep_types(CURL::libcurl)
-	else()
-		# is an alias
-		rcdev_map_imported_ep_types(${aliased_target})
+	if(WIN32)
+		get_property(aliased_target TARGET CURL::libcurl PROPERTY ALIASED_TARGET)
+		if("${aliased_target}" STREQUAL "")
+			# is not an alias
+			rcdev_map_imported_ep_types(CURL::libcurl)
+		else()
+			# is an alias
+			rcdev_map_imported_ep_types(${aliased_target})
+		endif()
 	endif()
 
 	if( (DEFINED CURL_VERSION_STRING) AND

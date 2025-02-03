@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020, 2024 LSEG. All rights reserved.         --
+ *|          Copyright (C) 2019-2020, 2024-2025 LSEG. All rights reserved.    --
  *|-----------------------------------------------------------------------------
  */
 
@@ -213,13 +213,13 @@ ChannelInformation& ChannelInformation::encryptionProtocol(UInt64 encryptionProt
 }
 
 ChannelInformation& ChannelInformation::preferredHostInfo(void* rsslPreferredHostInfo, const void* channel) {
-	_preferredHostInfo.enablePreferredHostOptions(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isPreferredHostEnabled);
+	_preferredHostInfo.enablePreferredHostOptions(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isPreferredHostEnabled != RSSL_FALSE);
 	_preferredHostInfo.preferredChannelName(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->connectionListIndex, channel);
 	_preferredHostInfo.phDetectionTimeInterval(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->detectionTimeInterval);
 	_preferredHostInfo.phDetectionTimeSchedule(EmaString(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->detectionTimeSchedule.data, ((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->detectionTimeSchedule.length));
 	_preferredHostInfo.preferredWSBChannelName(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->warmStandbyGroupListIndex, channel);
-	_preferredHostInfo.phFallBackWithInWSBGroup((bool)((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->fallBackWithInWSBGroup);
-	_preferredHostInfo.isChannelPreferred(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isChannelPreferred);
+	_preferredHostInfo.phFallBackWithInWSBGroup(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->fallBackWithInWSBGroup != RSSL_FALSE);
+	_preferredHostInfo.isChannelPreferred(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isChannelPreferred != RSSL_FALSE);
 	_preferredHostInfo.remainingDetectionTime(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->remainingDetectionTime);
 
   return *this;

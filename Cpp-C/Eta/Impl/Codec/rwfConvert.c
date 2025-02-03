@@ -12,7 +12,9 @@
 
 #if defined (_WIN32) || defined(WIN32)
 #include <string.h>
+#if _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
 #define strnicmp _strnicmp
 #else
 #include <strings.h>
