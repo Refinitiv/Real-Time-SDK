@@ -67,7 +67,6 @@ namespace LSEG.Ema.Access
         internal string FieldDictionaryRequestServiceName { get; set; } = string.Empty;
         internal string EnumDictionaryRequestServiceName { get; set; } = string.Empty;
 
-        private const string DefaultAppName = "ema";
         private const string DefaultHost = "localhost";
         private const string DefaultPort = "14002";
 
