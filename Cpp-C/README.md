@@ -124,6 +124,8 @@ Platforms & Compilers:
 
 NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 9, Red Hat 8 and Oracle Linux 7 are available in release packages available on LSEG Developer Portal. 
 
+NOTE: We do not support container builds with RTSDK C/C++ where RTSDK C/C++ is being built natively using a container. This is because depending on container install, specifically the librarires or toolsets available in that container vs. underlying OS, the build may vary. There are too many combinations for us to state with confidence that build will succeed or is valid with any combination of container and underlying OS. This is because the RTSDK C/C++ build depends on certain system libraries. The open question for any given combination: what is being installing in container vs. using underlying OS libs? Therefore, our stance is that we do not recommend building RTSDK C/C++ editions in a container. We have made changes in CMake to pick up characteristics of container instead of underly OS with RTSDK-9060; however, that does not guarantee a valid build depending on combination of container versus the underlying operating system. An alternate option is to choose the appropriate pre-build libraries from our official archives/packages.
+
 #### Tested Versions
 
 ##### Windows
@@ -136,13 +138,14 @@ This release has been tested with the following on supported platform/OS combina
      --------------------------------             ------------    --------------------     ----------------------------          
      Oracle Linux Server 7.7 64-bit               GCC 4.8.5       OL7_64_GCC482            OL7_64_GCC485
      Red Hat Enterprise Linux Server 7.7 64-bit   GCC 4.8.5       OL7_64_GCC482            RHEL7_64_GCC485
-     Galaxy Kylin 10 64-bit                       GCC 7.3.0       RHEL8_64_GCC831          RHEL8_64_GCC740
+     Galaxy Kylin 10 64-bit                       GCC 7.3.0       RHEL8_64_GCC831          KYL10_64_GCC730
      Oracle Linux Server 7.7 64-bit               GCC 7.4.0       n/a                      OL7_64_GCC740
      Red Hat Enterprise Linux Server 7.7 64-bit   GCC 7.4.0       n/a                      RHEL7_64_GCC740
      Red Hat Enterprise Linux Server 8.X 64-bit   GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
-     Galaxy Kylin 10 64-bit                       GCC 8.4.0       RHEL8_64_GCC831          RHEL8_64_GCC840
+     Galaxy Kylin 10 64-bit                       GCC 8.4.0       RHEL8_64_GCC831          KYL10_64_GCC840
      Red Hat Enterprise Linux Server 8.X 64-bit   GCC 9.2.1       RHEL8_64_GCC831          RHEL8_64_GCC921
-     Ubuntu 20.04 64-bit                          GCC 9.4.0       RHEL8_64_GCC831          RHEL8_64_GCC831
+     Ubuntu 20.04 64-bit                          GCC 9.4.0       RHEL8_64_GCC831          UBU20_64_GCC940
+     Ubuntu 22.04 64-bit                          GCC 11.4.1      RHEL9_64_GCC1141         UBU22_64_GCC1140
      Red Hat Enterprise Linux Server 9.2 64-bit   GCC 11.4.1      RHEL9_64_GCC1141         RHEL9_64_GCC1141
      Red Hat Enterprise Linux Server 9.2 64-bit   GCC 12.2.1      RHEL9_64_GCC1141         RHEL9_64_GCC1221
 
