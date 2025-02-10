@@ -32,9 +32,11 @@ ETA C 3.8.3.G1 Issues Resolved
 Both ETA C and EMA C++ 3.8.3.G1 Issues Resolved
 -----------------------------------------------
 - [RTSDK-8872] - Galaxy Kylin Qualification (socket/websocket only; multicast not tested)
-- [RTSDK-9060] - CMake changes for Container build of RTSDK: build in docker containers
+- [RTSDK-9060] - CMake changes for Container build of RTSDK: build in docker containers. See NOTE 1 in this release.
 - [RTSDK-9334] - Building RTSDK locally with "-Dzlib_USE_INSTALLED=ON -Dlibxml2_USE_INSTALLED=ON" flags [Case Number: 14187771]
 - [RTSDK-9409] - Fix to snprintf #define: From Visual Studio 2015 onwards, it is not necessary to define snprintf as _snprintf
+
+NOTE 1: We have made changes in CMake to pick up characteristics of container instead of underly OS with RTSDK-9060; however, that does not guarantee a valid build depending on combination of container versus the underlying operating system. An alternate option is to choose the appropriate pre-build libraries from our official archives/packages.
 
 --------------------------------------------
 RTSDK C++/C Release 2.2.3.L1 (Dec 12, 2024)
