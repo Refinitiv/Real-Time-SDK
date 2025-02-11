@@ -26,7 +26,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             WlServiceCache serviceCache = new WlServiceCache();
             serviceCache.ServiceAddedCallback = wlService => servicesAdded++;
-            serviceCache.ServiceUpdatedCallback = wlService => servicesUpdated++;
+            serviceCache.ServiceUpdatedCallback = (wlService, arg) => servicesUpdated++;
             serviceCache.ServiceRemovedCallback = (wlService, arg) => servicesDeleted++;
 
             List<Service> serviceList = new List<Service>();
@@ -102,7 +102,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             WlServiceCache serviceCache = new WlServiceCache();
             serviceCache.ServiceAddedCallback = wlService => servicesAdded++;
-            serviceCache.ServiceUpdatedCallback = wlService => servicesUpdated++;
+            serviceCache.ServiceUpdatedCallback = (wlService, arg) => servicesUpdated++;
             serviceCache.ServiceRemovedCallback = (wlService, arg) => servicesDeleted++;
 
             List<Service> serviceList = new List<Service>();
@@ -159,7 +159,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             WlServiceCache serviceCache = new WlServiceCache();
             serviceCache.ServiceAddedCallback = wlService => servicesAdded++;
-            serviceCache.ServiceUpdatedCallback = wlService => servicesUpdated++;
+            serviceCache.ServiceUpdatedCallback = (wlService, arg) => servicesUpdated++;
             serviceCache.ServiceRemovedCallback = (wlService, arg) => servicesDeleted++;
 
             List<Service> serviceList = new List<Service>();

@@ -160,9 +160,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
             ServiceDeleted(wlService, isChannelDown, out ReactorErrorInfo? errorInfo);
         }
 
-        public void ServiceUpdatedCallback(WlService wlService)
+        public void ServiceUpdatedCallback(WlService wlService, bool containsServiceStateUpdate)
         {
-            ServiceUpdated(wlService, wlService.RdmService!.HasState, out ReactorErrorInfo? errorInfo);
+            ServiceUpdated(wlService, containsServiceStateUpdate, out ReactorErrorInfo? errorInfo);
         }
 
         public void Clear()

@@ -22,7 +22,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         internal Action<WlService>? ServiceAddedCallback;
         internal Action<WlService, bool>? ServiceRemovedCallback;
-        internal Action<WlService>? ServiceUpdatedCallback;
+        internal Action<WlService, bool>? ServiceUpdatedCallback;
 
         internal Queue<Service> ServicePool = new Queue<Service>();
 
@@ -75,7 +75,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                                     }
                                 }
                                 service.ApplyUpdate(wlService!.RdmService!);
-                                ServiceUpdatedCallback!(wlService);
+                                ServiceUpdatedCallback!(wlService, service.HasState);
                             }
                             
                         }

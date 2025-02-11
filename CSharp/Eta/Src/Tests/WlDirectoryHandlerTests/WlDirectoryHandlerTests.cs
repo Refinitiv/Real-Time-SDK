@@ -36,7 +36,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
@@ -173,7 +173,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
@@ -300,7 +300,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
@@ -423,7 +423,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
@@ -539,7 +539,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
@@ -642,7 +642,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             var directoryRequest = new DirectoryRequest();
             directoryRequest.Filter = ServiceFilterFlags.INFO | ServiceFilterFlags.STATE;
@@ -744,7 +744,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
@@ -879,7 +879,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
@@ -1017,7 +1017,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.LoginHandler = new MockLoginHandler();
             consumer.ReactorChannel.Watchlist.ItemHandler = new MockItemHandler();
@@ -1164,7 +1164,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
@@ -1262,7 +1262,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback = (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback = s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback = s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback = (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
@@ -1352,7 +1352,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
@@ -1493,7 +1493,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceRemovedCallback += (s, val) => servicesDeleted++;
             consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceAddedCallback += s => servicesAdded++;
-            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += s => servicesUpdated++;
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.ServiceUpdatedCallback += (s, val) => servicesUpdated++;
 
             consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
 
