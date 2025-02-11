@@ -291,7 +291,7 @@ namespace LSEG.Ema.Access
                         tmpDirectoryConfig.ServiceMap.Add(tmpEmaService.Service.Info.ServiceName.ToString(), tmpEmaService);
                     }
                 }
-                else if (OldConfigImpl.DictionaryConfigMap.Count > 0)
+                else if (OldConfigImpl.DirectoryConfigMap.Count > 0)
                 {
                     if (string.IsNullOrEmpty(NiProviderConfig.Directory))
                     {
