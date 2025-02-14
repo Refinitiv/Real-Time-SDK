@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -562,17 +562,17 @@ public class ChannelSession
         }
 
         if (channel.protocolType() == Codec.JSON_PROTOCOL_TYPE) {
-        	
+
             if( jsonSession.convertToJson(msgBuf, error) != CodecReturnCodes.SUCCESS)
             {
-            	return TransportReturnCodes.FAILURE;
+                return TransportReturnCodes.FAILURE;
             }
-            
+
             tempBuf = jsonSession.getTransportJsonBuffer(error);
-            
+
             if(tempBuf == null)
             {
-            	return TransportReturnCodes.FAILURE;
+                return TransportReturnCodes.FAILURE;
             }
 
             if (shouldXmlTrace)
@@ -852,7 +852,7 @@ public class ChannelSession
         copts.encryptionOptions().SecurityProtocol(connectOptions.encryptionOptions().SecurityProtocol());
         if (connectOptions.encryptionOptions().SecurityProtocolVersions() != null)
         {
-        	copts.encryptionOptions().SecurityProtocolVersions(connectOptions.encryptionOptions().SecurityProtocolVersions());
+            copts.encryptionOptions().SecurityProtocolVersions(connectOptions.encryptionOptions().SecurityProtocolVersions());
         }
         copts.encryptionOptions().SecurityProvider(connectOptions.encryptionOptions().SecurityProvider());
         copts.encryptionOptions().KeyManagerAlgorithm(connectOptions.encryptionOptions().KeyManagerAlgorithm());

@@ -68,6 +68,8 @@ public class ProviderPerfConfig
     private static String              _keyfile;					 // Keyfile location for encrypted connections
     private static String              _keypasswd;					 // Keyfile password for encrypted connections
 
+    private static String              _securityProvider;
+
     static
     {
         CommandLine.programName("ProvPerf");
@@ -108,6 +110,7 @@ public class ProviderPerfConfig
         CommandLine.addOption("c", (String)null, "Provider connection type.  Either \"socket\" or \"encrypted\"");
         CommandLine.addOption("keyfile", (String)null, "jks encoded keyfile for Encrypted connections");
         CommandLine.addOption("keypasswd", (String)null, "password for keyfile");
+        CommandLine.addOption("securityProvider", "", "Specifies security provider, default is SunJSSE, also supports Conscrypt");
     }
 
     private ProviderPerfConfig()
@@ -153,6 +156,7 @@ public class ProviderPerfConfig
         	_connectionType = ConnectionTypes.ENCRYPTED;
         	_keyfile = CommandLine.value("keyfile");
         	_keypasswd = CommandLine.value("keypasswd");
+            _securityProvider = CommandLine.value("securityProvider");
         }
         
         // Perf Test configuration
@@ -630,6 +634,11 @@ public class ProviderPerfConfig
     public static String keypasswd()
     {
     	return _keypasswd;
+    }
+
+    public static String securityProvider()
+    {
+        return _securityProvider;
     }
     
     /**

@@ -169,6 +169,9 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
     	    _connectOpts.encryptionOptions().connectionType(NIProvPerfConfig.encryptedConnectionType());
     	    _connectOpts.encryptionOptions().KeystoreFile(NIProvPerfConfig.keyfile());
     	    _connectOpts.encryptionOptions().KeystorePasswd(NIProvPerfConfig.keypasswd());
+            String securityProvider = NIProvPerfConfig.securityProvider();
+            if(securityProvider != null && !securityProvider.isEmpty())
+                _connectOpts.encryptionOptions().SecurityProvider(securityProvider);
         }
     	_connectOpts.tcpOpts().tcpNoDelay(NIProvPerfConfig.tcpNoDelay());
 
@@ -273,6 +276,9 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
             _connectInfo.connectOptions().encryptionOptions().connectionType(NIProvPerfConfig.encryptedConnectionType());
             _connectInfo.connectOptions().encryptionOptions().KeystoreFile(NIProvPerfConfig.keyfile());
             _connectInfo.connectOptions().encryptionOptions().KeystorePasswd(NIProvPerfConfig.keypasswd());
+            String securityProvider = NIProvPerfConfig.securityProvider();
+            if(securityProvider != null && !securityProvider.isEmpty())
+                _connectInfo.connectOptions().encryptionOptions().SecurityProvider(securityProvider);
         }
         _connectInfo.connectOptions().tcpOpts().tcpNoDelay(NIProvPerfConfig.tcpNoDelay());
         

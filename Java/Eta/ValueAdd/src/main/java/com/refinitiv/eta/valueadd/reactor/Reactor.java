@@ -1476,8 +1476,7 @@ public class Reactor
 			{
 			case ConnectionTypes.ENCRYPTED:
 
-				if (reactorConnectInfo.connectOptions().encryptionOptions()
-						.connectionType() == ConnectionTypes.WEBSOCKET)
+				if (reactorConnectInfo.connectOptions().encryptionOptions().connectionType() == ConnectionTypes.WEBSOCKET)
 				{
 					/* Query endpoints for the websocket connection type. */
 					reactorChannel.restConnectOptions().transport(ReactorDiscoveryTransportProtocol.RD_TP_WEBSOCKET);

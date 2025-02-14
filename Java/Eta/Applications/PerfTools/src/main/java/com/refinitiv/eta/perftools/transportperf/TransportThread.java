@@ -582,8 +582,11 @@ public class TransportThread extends Thread
     private void setEncryptedConfiguration(ConnectOptions options)
     {
         setHTTPconfiguration(options); 
-        options.tunnelingInfo().KeystoreFile(TransportPerfConfig.keystoreFile());
-        options.tunnelingInfo().KeystorePasswd(TransportPerfConfig.kestorePassword());
+        options.encryptionOptions().KeystoreFile(TransportPerfConfig.keystoreFile());
+        options.encryptionOptions().KeystorePasswd(TransportPerfConfig.kestorePassword());
+        String securityProvider = TransportPerfConfig.securityProvider();
+        if(securityProvider != null && !securityProvider.isEmpty())
+            options.encryptionOptions().SecurityProvider(securityProvider);
     }
 
     private void setHTTPconfiguration(ConnectOptions options)

@@ -16,11 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringTokenizer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +29,6 @@ import com.refinitiv.eta.shared.CommandLine;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.transport.ConnectOptions;
 import com.refinitiv.eta.transport.ConnectionTypes;
-import com.refinitiv.eta.transport.EncryptionOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorConnectInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorConnectOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
@@ -450,6 +444,11 @@ public class wsbConsumerConfig
 	{
 		return CommandLine.value("keypasswd");
 	}
+
+	String securityProvider()
+	{
+		return CommandLine.value("securityProvider");
+	}
 	
 	String restProxyHost() {
 		return CommandLine.value("restProxyHost");
@@ -709,22 +708,21 @@ public class wsbConsumerConfig
 	{
 		String keyFile = keyStoreFile();
 		String keyPasswd = keystorePassword();
+		String securityProvider = securityProvider();
 
 		if (keyFile != null && !keyFile.isEmpty())
 		{
 			options.encryptionOptions().KeystoreFile(keyFile);
 		}
-		if (keyPasswd != null && !keyFile.isEmpty())
+		if (keyPasswd != null && !keyPasswd.isEmpty())
 		{
 			options.encryptionOptions().KeystorePasswd(keyPasswd);
 		}
-		
-		options.encryptionOptions().KeystoreType("JKS");
-		options.encryptionOptions().SecurityProtocol("TLS");
+		if (securityProvider != null && !securityProvider.isEmpty())
+		{
+			options.encryptionOptions().SecurityProvider(securityProvider);
+		}
 		options.encryptionOptions().SecurityProtocolVersions(securityProtocolVersions);
-		options.encryptionOptions().SecurityProvider("SunJSSE");
-		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
-		options.encryptionOptions().TrustManagerAlgorithm("PKIX");
 	}
 
 	void addCommandLineArgs()
@@ -740,7 +738,8 @@ public class wsbConsumerConfig
 		
 		CommandLine.addOption("keyfile", "", "Keystore file for encryption");
 		CommandLine.addOption("keypasswd", "", "Keystore password");
-		
+		CommandLine.addOption("securityProvider", "", "Specifies security provider, default is SunJSSE, also supports Conscrypt");
+
 		CommandLine.addOption("s", defaultServiceName,  "Default service name for requests. This will be used for dictionary requests as well as any items that do not have a default service specified in -mp, -mbo, or -mbp.");
 
 		CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");

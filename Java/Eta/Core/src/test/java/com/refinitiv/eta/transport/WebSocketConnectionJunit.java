@@ -9,6 +9,8 @@ package com.refinitiv.eta.transport;
 
 import com.refinitiv.eta.codec.Codec;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,12 +23,30 @@ import static com.refinitiv.eta.transport.SocketChannelJunitTest.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
+@RunWith(Parameterized.class)
 public class WebSocketConnectionJunit {
 
     private static final String DEFAULT_LISTEN_PORT_AS_STRING = "14002";
     private static final String JSON_WS_PROTOCOL = "tr_json2";
     private static final String RWF_WS_PROTOCOL = "rssl.rwf";
+    private final String serverSecurityProvider;
+    private final String clientSecurityProvider;
+    @Parameterized.Parameters
+    public static Object[][] data()
+    {
+        return new Object[][]{
+                {"SunJSSE", "SunJSSE"},
+                {"Conscrypt", "Conscrypt"},
+                {"SunJSSE", "Conscrypt"},
+                {"Conscrypt", "SunJSSE"}
+        };
+    }
 
+    public WebSocketConnectionJunit(String serverSecurityProvider, String clientSecurityProvider)
+    {
+        this.serverSecurityProvider = serverSecurityProvider;
+        this.clientSecurityProvider = clientSecurityProvider;
+    }
     public void executeWebSocketHandshake(String clientWsProtocol, String serverWsProtocol, boolean proxy, boolean encrypted, int expectedChannelState) {
         ExecutorService executor = Executors.newFixedThreadPool(4);
         final int compressionType = Ripc.CompressionTypes.LZ4;
@@ -200,23 +220,17 @@ public class WebSocketConnectionJunit {
             connectOptions.encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
             connectOptions.encryptionOptions().KeystoreFile(CryptoHelperTest.VALID_CERTIFICATE);
             connectOptions.encryptionOptions().KeystorePasswd(CryptoHelperTest.KEYSTORE_PASSWORD);
-            connectOptions.encryptionOptions().KeystoreType("JKS");
             connectOptions.encryptionOptions().TrustManagerAlgorithm("");
-            connectOptions.encryptionOptions().KeyManagerAlgorithm("SunX509");
-            connectOptions.encryptionOptions().SecurityProtocol("TLS");
     		connectOptions.encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
-            connectOptions.encryptionOptions().SecurityProvider("SunJSSE");
+            connectOptions.encryptionOptions().SecurityProvider(clientSecurityProvider);
             connectOptions.tunnelingInfo().tunnelingType("None");
 
             bindOptions.connectionType(ConnectionTypes.ENCRYPTED);
             bindOptions.encryptionOptions().keystoreFile(CryptoHelperTest.VALID_CERTIFICATE);
             bindOptions.encryptionOptions().keystorePasswd(CryptoHelperTest.KEYSTORE_PASSWORD);
-            bindOptions.encryptionOptions().keystoreType("JKS");
             bindOptions.encryptionOptions().trustManagerAlgorithm("");
-            bindOptions.encryptionOptions().keyManagerAlgorithm("SunX509");
-            bindOptions.encryptionOptions().securityProtocol("TLS");
     		bindOptions.encryptionOptions().securityProtocolVersions(new String[] {"1.3", "1.2"});
-            bindOptions.encryptionOptions().securityProvider("SunJSSE");
+            bindOptions.encryptionOptions().securityProvider(serverSecurityProvider);
         } else {
             /*Prepare client and server options for standard WebSocket connection*/
             connectOptions.connectionType(ConnectionTypes.WEBSOCKET);

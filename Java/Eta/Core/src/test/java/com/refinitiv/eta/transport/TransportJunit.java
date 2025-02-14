@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.
+// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.eta.transport;
@@ -19,22 +19,7 @@ import org.junit.Test;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.test.network.replay.NetworkReplay;
 import com.refinitiv.eta.test.network.replay.NetworkReplayFactory;
-import com.refinitiv.eta.transport.BindOptions;
-import com.refinitiv.eta.transport.BindOptionsImpl;
-import com.refinitiv.eta.transport.Channel;
-import com.refinitiv.eta.transport.ChannelInfo;
-import com.refinitiv.eta.transport.ChannelState;
-import com.refinitiv.eta.transport.ConnectOptions;
-import com.refinitiv.eta.transport.ConnectionTypes;
-import com.refinitiv.eta.transport.Error;
-import com.refinitiv.eta.transport.InitArgs;
-import com.refinitiv.eta.transport.Server;
-import com.refinitiv.eta.transport.RsslSocketChannel;
 import com.refinitiv.eta.transport.SocketProtocol.TrackingPool;
-import com.refinitiv.eta.transport.Transport;
-import com.refinitiv.eta.transport.TransportFactory;
-import com.refinitiv.eta.transport.TransportReturnCodes;
-import com.refinitiv.eta.transport.UnifiedNetworkInfoImpl;
 
 public class TransportJunit
 {

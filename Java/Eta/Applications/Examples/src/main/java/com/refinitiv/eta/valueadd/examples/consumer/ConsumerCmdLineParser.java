@@ -56,6 +56,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String serviceDiscoveryLocation = "";
 	private String keystoreFile;
 	private String keystorePasswd;
+	private String securityProvider;
 	private boolean cacheOption;
 	private int cacheInterval;
 	private int statisticInterval;
@@ -261,6 +262,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 				else if ("-keypasswd".equals(args[argsCount]))
 				{
 					keystorePasswd = argsCount < (args.length-1) ? args[++argsCount] : null;
+					++argsCount;
+				}
+				else if ("-securityProvider".equals(args[argsCount]))
+				{
+					securityProvider = argsCount < (args.length-1) ? args[++argsCount] : null;
 					++argsCount;
 				}
 				else if ("-proxy".equals(args[argsCount]))
@@ -622,6 +628,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return keystorePasswd;
 	}
 
+	String securityProvider()
+	{
+		return securityProvider;
+	}
+
 	boolean cacheOption()
 	{
 		return cacheOption;
@@ -771,6 +782,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -krbfile specifies KRB File location and name\n" +
 						   "\n -keyfile specifies keystore file location and name\n" +
 						   "\n -keypasswd specifies keystore password\n" +
+				           "\n -securityProvider Specifies security provider, default is SunJSSE, also supports Conscrypt\n" +
 						   "\n       Example Usage for proxy with http/encryption:  -proxy -ph hostname1.com -pp 8080 -plogin David.Smith -ppasswd hello1 -pdomain workplace.com\n" +
 						   "\n                                                     -krbfile C:\\Kerberos\\krb5.conf -keyfile C:\\Certificates\\cert1.jks -keypasswd keypass1 \n" +
 						   "\n -x provides an XML trace of messages\n" +

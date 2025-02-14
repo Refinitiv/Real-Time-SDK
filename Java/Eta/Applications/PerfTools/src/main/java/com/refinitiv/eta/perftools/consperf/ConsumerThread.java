@@ -432,6 +432,9 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         	connectOptions.encryptionOptions().KeystoreFile(_consPerfConfig.keyfile());
         	connectOptions.encryptionOptions().KeystorePasswd(_consPerfConfig.keypasswd());
         	connectOptions.encryptionOptions().SecurityProtocol(_consPerfConfig.securityProtocol());
+            String securityProvider = _consPerfConfig.securityProvider();
+            if(securityProvider != null && !securityProvider.isEmpty())
+                connectOptions.encryptionOptions().SecurityProvider(securityProvider);
         	connectOptions.encryptionOptions().SecurityProtocolVersions(_consPerfConfig.securityProtocolVersions());
         }
         

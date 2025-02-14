@@ -32,6 +32,7 @@ class ProviderCmdLineParser implements CommandLineParser
 	private boolean sendJsonConvError;
 	
 	private String securityProtocol = null;
+	private String securityProvider = null;
 	private String[] securityProtocolVersions = null;
 
 	@Override
@@ -104,6 +105,9 @@ class ProviderCmdLineParser implements CommandLineParser
 					++argsCount;
 				} else if ("-keypasswd".equals(args[argsCount])) {
 					keypasswd = args[++argsCount];
+					++argsCount;
+				} else if ("-securityProvider".equals(args[argsCount])) {
+					securityProvider = args[++argsCount];
 					++argsCount;
 				} else if ("-pl".equals(args[argsCount])) {
 					protocolList = args[++argsCount];
@@ -187,6 +191,7 @@ class ProviderCmdLineParser implements CommandLineParser
 						   "\n -c Provider connection type.  Either \"socket\" or \"encrypted\"" +
 						   "\n -keyfile jks encoded keyfile for Encrypted connections" +
 						   "\n -keypasswd password for keyfile" +
+				           "\n -securityProvider Specifies security provider, default is SunJSSE, also supports Conscrypt" +
 				           "\n -debugConn turn on debugging events related to Connection process" +
 						   "\n -debugEventQ turn on debugging events in Event Queue" +
 						   "\n -debugTunnelStream turn on debugging TunnelStream events" +
@@ -273,6 +278,11 @@ class ProviderCmdLineParser implements CommandLineParser
 	String securityProtocol()
 	{
 		return securityProtocol;
+	}
+
+	String securityProvider()
+	{
+		return securityProvider;
 	}
 	
 	String[] securityProtocolVersions()

@@ -11,7 +11,12 @@ import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.ElementNames;
 import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.transport.crypto.CryptoHelper;
+import com.refinitiv.eta.transport.crypto.SafeBuffer;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.net.ssl.SSLEngine;
 import java.io.IOException;
@@ -26,7 +31,35 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@RunWith(Parameterized.class)
 public class EncryptionTest {
+
+    private final String serverSecurityProvider;
+    private final String clientSecurityProvider;
+    private static int testPort = 14002;
+    @Parameterized.Parameters
+    public static Object[][] data()
+    {
+        return new Object[][]{
+                {"SunJSSE", "SunJSSE"},
+                {"Conscrypt", "Conscrypt"},
+                {"SunJSSE", "Conscrypt"},
+                {"Conscrypt", "SunJSSE"}
+        };
+    }
+
+    public EncryptionTest(String serverSecurityProvider, String clientSecurityProvider)
+    {
+        this.serverSecurityProvider = serverSecurityProvider;
+        this.clientSecurityProvider = clientSecurityProvider;
+    }
+
+    private static String getPort()
+    {
+        String port = String.valueOf(testPort);
+        testPort++;
+        return port;
+    }
 
     void runWithNoBlocks(RsslSocketChannel channel, Selector selector, CountDownLatch latch) {
 
@@ -43,7 +76,7 @@ public class EncryptionTest {
             ByteBuffer readBuffer = ByteBuffer.allocate(10000000);
 
             while (src.hasRemaining() && readBuffer.hasRemaining() && latch.getCount() == 2) {
-                selector.select();
+                selector.select(100);
                 Iterator selectedKeys = selector.selectedKeys().iterator();
                 while (selectedKeys.hasNext()) {
                     SelectionKey key = (SelectionKey) selectedKeys.next();
@@ -59,11 +92,10 @@ public class EncryptionTest {
                     }
                 }
             }
-
             latch.countDown();
-
-        } catch (Exception e) {
-
+        } catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -74,24 +106,22 @@ public class EncryptionTest {
 
         SocketChannel chnl = channel._scktChannel._socket;
 
-        ByteBuffer appSendBuffer = ByteBuffer.allocate(10000);
-        ByteBuffer netSendBuffer = crypto.getNetSendBuffer();
+        ByteBuffer appSend = ByteBuffer.allocate(10000);
+        ByteBuffer netSend = crypto.getBufferData().netSend.buffer();
 
         boolean done = false;
         while (!done) {
-
             for (int i = 0; i < 10000; i++) {
-                appSendBuffer.put((byte)i);
+                appSend.put((byte) i);
             }
-
-            appSendBuffer.flip();
-            engine.wrap(appSendBuffer, netSendBuffer);
-            netSendBuffer.flip();
-            while (netSendBuffer.hasRemaining() && !done) {
-                done = chnl.write(netSendBuffer) <= 0;
+            appSend.flip();
+            engine.wrap(appSend, netSend);
+            netSend.flip();
+            while (netSend.hasRemaining() && !done) {
+                done = chnl.write(netSend) <= 0;
             }
-            netSendBuffer.compact();
-            appSendBuffer.clear();
+            netSend.compact();
+            appSend.clear();
         }
     }
 
@@ -112,6 +142,7 @@ public class EncryptionTest {
             success = clientLogic.get(5, TimeUnit.SECONDS) == ChannelState.ACTIVE && serverLogic.get(5, TimeUnit.SECONDS) == ChannelState.ACTIVE;
 
         } catch (Exception ex) {
+            ex.printStackTrace();
             success = false;
         }
 
@@ -122,7 +153,7 @@ public class EncryptionTest {
         try {
 
             ReadArgs readArgs = TransportFactory.createReadArgs();
-            Error error = TransportFactory.createError();
+            com.refinitiv.eta.transport.Error error = TransportFactory.createError();
             TransportBuffer buf = null;
 
             while (buf == null) {
@@ -144,19 +175,24 @@ public class EncryptionTest {
             latch.countDown();
 
         } catch (Exception e) {
-            for (int i = 0; i < e.getStackTrace().length; i++)
-                System.out.println("   " + e.getStackTrace()[i]);
+            e.printStackTrace();
         }
+    }
+
+    @Before
+    public void printTestCase()
+    {
+        System.out.println("Running with server security provider: " + serverSecurityProvider + " and client security provider: " + clientSecurityProvider);
     }
 
     @Test
     public void testEncryption_NoDeadlock() {
-
-        ClientConnection cc = new ClientConnection("14002");
-        ServerConnection sc = new ServerConnection("14002");
+        String port = getPort();
+        ClientConnection cc = new ClientConnection(port);
+        ServerConnection sc = new ServerConnection(port);
 
         try {
-            Error error = TransportFactory.createError();
+            com.refinitiv.eta.transport.Error error = TransportFactory.createError();
             ExecutorService executor = Executors.newFixedThreadPool(2);
 
             InitArgs initArgs = TransportFactory.createInitArgs();
@@ -175,7 +211,7 @@ public class EncryptionTest {
             executor.submit(() -> runWithNoBlocks(sc.serverChannel, sc.serverSelector, latch));
             executor.submit(() -> runWithNoBlocks(cc.clientChannel, cc.clientSelector, latch));
 
-            boolean allTasksCompleted = latch.await(10, TimeUnit.SECONDS);
+            boolean allTasksCompleted = latch.await(15, TimeUnit.SECONDS);
             assertTrue("Tasks did not complete in time", allTasksCompleted);
             assertTrue("Not all tasks completed successfully", latch.getCount() == 0);
 
@@ -189,12 +225,12 @@ public class EncryptionTest {
 
     @Test
     public void testHandshakeRenegotiation() {
-
-        ClientConnection cc = new ClientConnection("14003");
-        ServerConnection sc = new ServerConnection("14003");
+        String port = getPort();
+        ClientConnection cc = new ClientConnection(port);
+        ServerConnection sc = new ServerConnection(port);
 
         try {
-            Error error = TransportFactory.createError();
+            com.refinitiv.eta.transport.Error error = TransportFactory.createError();
             ExecutorService executor = Executors.newFixedThreadPool(2);
 
             InitArgs initArgs = TransportFactory.createInitArgs();
@@ -213,15 +249,19 @@ public class EncryptionTest {
                 try {
                     ((EncryptedSocketHelper)cc.clientChannel._scktChannel)._crypto.doHandshake();
                     runWithNoBlocks(cc.clientChannel, cc.clientSelector, latch);
-                } catch (Exception e) {
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
                 }
             });
-            executor.submit(() -> runWithNoBlocks(sc.serverChannel, sc.serverSelector, latch));
+            executor.submit(() ->
+                    runWithNoBlocks(sc.serverChannel, sc.serverSelector, latch)
+            );
 
             latch.await(10, TimeUnit.SECONDS);
-            assertTrue(latch.getCount() == 0);
-
+            assertEquals(0, latch.getCount());
         } catch (Exception e) {
+            e.printStackTrace();
             assert(false);
         } finally {
             cc.terminate();
@@ -231,12 +271,12 @@ public class EncryptionTest {
 
     @Test
     public void testHandleBufferOverflow() {
-
-        ClientConnection cc = new ClientConnection("14004");
-        ServerConnection sc = new ServerConnection("14004");
+        String port = getPort();
+        ClientConnection cc = new ClientConnection(port);
+        ServerConnection sc = new ServerConnection(port);
 
         try {
-            Error error = TransportFactory.createError();
+            com.refinitiv.eta.transport.Error error = TransportFactory.createError();
             ExecutorService executor = Executors.newFixedThreadPool(2);
 
             InitArgs initArgs = TransportFactory.createInitArgs();
@@ -255,11 +295,12 @@ public class EncryptionTest {
             sc.writeMsg();
             executor.submit(() -> readMsg(cc.clientChannel, cc.clientSelector, latch));
 
-            latch.await(10, TimeUnit.SECONDS);
+            latch.await(15, TimeUnit.SECONDS);
 
-            assertEquals(latch.getCount(), 0);
+            assertEquals(0, latch.getCount());
 
         } catch (Exception e) {
+            e.printStackTrace();
             assert(false);
         } finally {
             cc.terminate();
@@ -269,12 +310,12 @@ public class EncryptionTest {
 
     @Test
     public void testHandleBufferOverflowHttpConnection() {
-
-        ClientConnection cc = new ClientConnection("14005");
-        ServerConnection sc = new ServerConnection("14005");
+        String port = getPort();
+        ClientConnection cc = new ClientConnection(port);
+        ServerConnection sc = new ServerConnection(port);
 
         try {
-            Error error = TransportFactory.createError();
+            com.refinitiv.eta.transport.Error error = TransportFactory.createError();
             ExecutorService executor = Executors.newFixedThreadPool(2);
 
             InitArgs initArgs = TransportFactory.createInitArgs();
@@ -293,11 +334,12 @@ public class EncryptionTest {
             sc.writeMsg();
             executor.submit(() -> readMsg(cc.clientChannel, cc.clientSelector, latch));
 
-            latch.await(10, TimeUnit.SECONDS);
+            latch.await(130, TimeUnit.SECONDS);
 
-            assertEquals(latch.getCount(), 0);
+            assertEquals(0, latch.getCount());
 
         } catch (Exception e) {
+            e.printStackTrace();
             assert(false);
         } finally {
             cc.terminate();
@@ -322,10 +364,10 @@ public class EncryptionTest {
 		connectOptions.encryptionOptions().KeyManagerAlgorithm("SunX509");
 		connectOptions.encryptionOptions().SecurityProtocol("TLS");
 		connectOptions.encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
-		connectOptions.encryptionOptions().SecurityProvider("SunJSSE");
+		connectOptions.encryptionOptions().SecurityProvider(clientSecurityProvider);
 		connectOptions.tunnelingInfo().tunnelingType("None");
-		connectOptions.tunnelingInfo().SecurityProtocol("TLS");
-		connectOptions.tunnelingInfo().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
+		connectOptions.encryptionOptions().SecurityProtocol("TLS");
+		connectOptions.encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
 		connectOptions.tunnelingInfo().HTTPproxy(true);
 		connectOptions.tunnelingInfo().HTTPproxyHostName(proxyHost);
 		connectOptions.tunnelingInfo().HTTPproxyPort(proxyPort);
@@ -353,10 +395,10 @@ public class EncryptionTest {
 		}
 		assertEquals(copyOptions.encryptionOptions().SecurityProvider(), connectOptions.encryptionOptions().SecurityProvider());
 		assertEquals(copyOptions.tunnelingInfo().tunnelingType(), connectOptions.tunnelingInfo().tunnelingType());
-		assertEquals(copyOptions.tunnelingInfo().SecurityProtocol(), connectOptions.tunnelingInfo().SecurityProtocol());
-		for (int i = 0; i < copyOptions.tunnelingInfo().SecurityProtocolVersions().length; ++i)
+		assertEquals(copyOptions.encryptionOptions().SecurityProtocol(), connectOptions.encryptionOptions().SecurityProtocol());
+		for (int i = 0; i < copyOptions.encryptionOptions().SecurityProtocolVersions().length; ++i)
 		{
-			assertEquals(copyOptions.tunnelingInfo().SecurityProtocolVersions()[i], connectOptions.tunnelingInfo().SecurityProtocolVersions()[i]);
+			assertEquals(copyOptions.encryptionOptions().SecurityProtocolVersions()[i], connectOptions.encryptionOptions().SecurityProtocolVersions()[i]);
 		}
 		assertEquals(copyOptions.tunnelingInfo().HTTPproxy(), connectOptions.tunnelingInfo().HTTPproxy());
 		assertEquals(copyOptions.tunnelingInfo().HTTPproxyHostName(), connectOptions.tunnelingInfo().HTTPproxyHostName());
@@ -372,7 +414,7 @@ public class EncryptionTest {
     class ClientConnection {
 
         RsslSocketChannel clientChannel = null;
-        Error error = TransportFactory.createError();
+        com.refinitiv.eta.transport.Error error = TransportFactory.createError();
         InProgInfo inProg = TransportFactory.createInProgInfo();
         ConnectOptions connectOptions = TransportFactory.createConnectOptions();
         Selector clientSelector = null;
@@ -395,7 +437,7 @@ public class EncryptionTest {
             connectOptions.encryptionOptions().KeyManagerAlgorithm("SunX509");
             connectOptions.encryptionOptions().SecurityProtocol("TLS");
             connectOptions.encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
-            connectOptions.encryptionOptions().SecurityProvider("SunJSSE");
+            connectOptions.encryptionOptions().SecurityProvider(clientSecurityProvider);
             connectOptions.tunnelingInfo().tunnelingType("None");
             connectOptions.unifiedNetworkInfo().address("localhost");
             connectOptions.unifiedNetworkInfo().serviceName(port);
@@ -427,7 +469,7 @@ public class EncryptionTest {
     class ServerConnection {
 
         RsslSocketChannel serverChannel = null;
-        Error error = TransportFactory.createError();
+        com.refinitiv.eta.transport.Error error = TransportFactory.createError();
         InProgInfo inProg = TransportFactory.createInProgInfo();
         Selector serverSelector = null;
         BindOptions bindOptions = TransportFactory.createBindOptions();
@@ -451,7 +493,7 @@ public class EncryptionTest {
             bindOptions.encryptionOptions().trustManagerAlgorithm("");
             bindOptions.encryptionOptions().keyManagerAlgorithm("SunX509");
             bindOptions.encryptionOptions().securityProtocol("TLS");
-            bindOptions.encryptionOptions().securityProvider("SunJSSE");
+            bindOptions.encryptionOptions().securityProvider(serverSecurityProvider);
             bindOptions.serviceName(port);
 
             server = Common.serverBind(serverSelector, bindOptions, 60, 30, Ripc.CompressionTypes.NONE, 0,

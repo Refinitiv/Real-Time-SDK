@@ -303,6 +303,9 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
             bindOptions.encryptionOptions().keystoreFile(providerCmdLineParser.keyfile());
             bindOptions.encryptionOptions().keystorePasswd(providerCmdLineParser.keypasswd());
             bindOptions.encryptionOptions().securityProtocol(providerCmdLineParser.securityProtocol());
+            String securityProvider = providerCmdLineParser.securityProvider();
+            if(securityProvider != null && !securityProvider.isEmpty())
+                bindOptions.encryptionOptions().securityProvider(securityProvider);
             bindOptions.encryptionOptions().securityProtocolVersions(providerCmdLineParser.securityProtocolVersions());
         }
         bindOptions.guaranteedOutputBuffers(1500);

@@ -656,9 +656,13 @@ public class Consumer implements ResponseCallback, HttpCallback
 
         String keyPasswd = CommandLine.value("keypasswd");
 
+        String securityProvider = CommandLine.value("securityProvider");
+
         options.encryptionOptions().KeystoreFile(keyFile);
         options.encryptionOptions().KeystorePasswd(keyPasswd);
-        
+        if(securityProvider != null && !securityProvider.isEmpty())
+            options.encryptionOptions().SecurityProvider(securityProvider);
+
         boolean spTLSv12 = false;
         boolean spTLSv13 = false;
         if (CommandLine.hasArg("spTLSv1.2"))
@@ -1424,6 +1428,7 @@ public class Consumer implements ResponseCallback, HttpCallback
         CommandLine.addOption("krbfile", "", "KRB File location and name");
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
         CommandLine.addOption("keypasswd", "", "Keystore password");
+		CommandLine.addOption("securityProvider", "", "Specifies security provider, default is SunJSSE, also supports Conscrypt");
         CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
         CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");
         CommandLine.addOption("aid", "", "Specifies the Application ID.");

@@ -80,7 +80,7 @@ public class ConsPerfConfig
 	private boolean _calcRWFJSONConversionLatency; /* If set, the application will caluclate time spent on rwf-to-json conversion for WebSocket RWF protocol */
 
 	private boolean _convertJSON; /* If set, the application will do rwf-to-json conversion for WebSocket JSON protocol */
-	
+	private String _securityProvider;
 	private String _securityProtocol;		/* Security Protocol to use for an encrypted connection. Defaults to TLS. */
 	private String[] _securityProtocolVersions; /* List of Security Protocol Versions to use for an encrypted connection. Defaults to 1.2 and 1.3 for TLS. */
 
@@ -127,7 +127,8 @@ public class ConsPerfConfig
         CommandLine.addOption("busyRead", false, "If set, the application will continually read rather than using notification.");
         CommandLine.addOption("pl", "", "List of supported WS sub-protocols in order of preference(',' | white space delineated)");
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
-        CommandLine.addOption("keypasswd", "", "Keystore password");        
+        CommandLine.addOption("keypasswd", "", "Keystore password");
+		CommandLine.addOption("securityProvider", "", "Specifies security provider, default is SunJSSE, also supports Conscrypt");
         CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'socket', 'websocket' or 'http'");
      	CommandLine.addOption("calcRWFJSONConversionLatency", false, "Enable calculation of time which spent on rwf-json conversion for WebSocket Transport + RWF");
      	CommandLine.addOption("addConversionOverhead", false, "Enable JSON to RWF conversion");
@@ -171,6 +172,7 @@ public class ConsPerfConfig
     	_interfaceName = CommandLine.value("if");
     	_username = CommandLine.value("uname");
     	_serviceName = CommandLine.value("serviceName");
+		_securityProvider = CommandLine.value("securityProvider");
     	_protocolList = CommandLine.value("pl");
     	_displayStats = !CommandLine.booleanValue("noDisplayStats");
     	_tcpNoDelay = !CommandLine.booleanValue("tcpDelay");
@@ -442,8 +444,9 @@ public class ConsPerfConfig
             ((_connectionType == ConnectionTypes.ENCRYPTED) ?  
             "  Encrypted Connection Type: " + ConnectionTypes.toString(_encryptedConnType) + "\n" + 
             "                    keyfile: " + _keyfile + "\n" + 
-            "          Security Protocol: " + _securityProtocol + "\n" + 
-            " Security Protocol Versions: " + Arrays.toString(_securityProtocolVersions) + "\n" : "") +
+            "          Security Protocol: " + _securityProtocol + "\n" +
+			"          Security Provider: " + _securityProvider + "\n" +
+			" Security Protocol Versions: " + Arrays.toString(_securityProtocolVersions) + "\n" : "") +
             "                   Hostname: " + _hostName + "\n" +
             "                       Port: " + _portNo + "\n" +
             "                    Service: " + _serviceName + "\n" +
@@ -979,6 +982,14 @@ public class ConsPerfConfig
 	 */
 	public String securityProtocol() {
 		return _securityProtocol;
+	}
+
+	/**
+	 * securityProvider
+	 * @return securityProvider
+	 */
+	public String securityProvider() {
+		return _securityProvider;
 	}
 	
 	/**

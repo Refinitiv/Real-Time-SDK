@@ -219,6 +219,9 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
             bindOptions.connectionType(ConnectionTypes.ENCRYPTED);
             bindOptions.encryptionOptions().keystoreFile(CommandLine.value("keyfile"));
             bindOptions.encryptionOptions().keystorePasswd(CommandLine.value("keypasswd"));
+            String securityProvider = CommandLine.value("securityProvider");
+            if(securityProvider != null && !securityProvider.isEmpty())
+                bindOptions.encryptionOptions().securityProvider(securityProvider);
             if (CommandLine.hasArg("spTLSv1.2") && CommandLine.hasArg("spTLSv1.3"))
             {
             	bindOptions.encryptionOptions().securityProtocol("TLS");
@@ -314,6 +317,7 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
         CommandLine.addOption("c", (String)null, "Provider connection type.  Either \"socket\" or \"encrypted\"");
         CommandLine.addOption("keyfile", (String)null, "jks encoded keyfile for Encrypted connections");
         CommandLine.addOption("keypasswd", (String)null, "password for keyfile");
+		CommandLine.addOption("securityProvider", "", "Specifies security provider, default is SunJSSE, also supports Conscrypt");
         CommandLine.addOption("pl", DEFAULT_WS_PROTOCOL, "commas (',') delineated list of supported sub-protocols for asserting WebSocket connection");
         CommandLine.addOption("jsonEnumExpand", false, "if specified, expand all enumerated values with a JSON protocol");
         CommandLine.addOption("httpHdr", false, "if specified, http header will be accessible on the provider side through callback function");

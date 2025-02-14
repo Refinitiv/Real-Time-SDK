@@ -1,12 +1,15 @@
 package com.refinitiv.eta.transport;
 
+import com.refinitiv.eta.transport.crypto.CryptoHelper;
+import com.refinitiv.eta.transport.crypto.CryptoHelperFactory;
+
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
 public class EncryptedSocketHelper extends SocketHelper
 {
-    CryptoHelper _crypto;
+    protected CryptoHelper _crypto;
     private boolean _completedHandshake = false;
 
     @Override
@@ -49,16 +52,31 @@ public class EncryptedSocketHelper extends SocketHelper
     @Override
     public void initialize(ConnectOptions options) throws IOException
     {
-        _crypto = new CryptoHelper(options);
+        _crypto = CryptoHelperFactory.createClient(options);
         super.initialize(options);
         _completedHandshake = false;
     }
+
+
+    private static EncryptionOptions convert(ServerEncryptionOptions serverOptions)
+    {
+        EncryptionOptionsImpl options = new EncryptionOptionsImpl();
+        options.KeyManagerAlgorithm(serverOptions.keyManagerAlgorithm());
+        options.TrustManagerAlgorithm(serverOptions.trustManagerAlgorithm());
+        options.KeystoreType(serverOptions.keystoreType());
+        options.KeystorePasswd(serverOptions.keystorePasswd());
+        options.KeystoreFile(serverOptions.keystoreFile());
+        options.SecurityProvider(serverOptions.securityProvider());
+        options.SecurityProtocol(serverOptions.securityProtocol());
+        options.SecurityProtocolVersions(serverOptions.securityProtocolVersions());
+        return options;
+    }
     
     @Override
-    public void initialize(BindOptions options, EncryptedContextHelper encryptedContext) throws IOException
+    public void initialize(BindOptions options) throws IOException
     {
-        _crypto = new CryptoHelper(options, encryptedContext.getContext());
-        super.initialize(options, encryptedContext);
+        _crypto = CryptoHelperFactory.createServer(convert(options.encryptionOptions()));
+        super.initialize(options);
         postProxyInit();
         _completedHandshake = false;
     }

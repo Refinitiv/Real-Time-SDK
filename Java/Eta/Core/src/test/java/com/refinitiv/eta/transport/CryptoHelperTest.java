@@ -9,31 +9,30 @@ package com.refinitiv.eta.transport;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
+import java.security.Security;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLParameters;
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
+import javax.net.ssl.*;
+
+import com.refinitiv.eta.transport.crypto.CryptoHelper;
+import com.refinitiv.eta.transport.crypto.CryptoHelperFactory;
+import org.conscrypt.Conscrypt;
 
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class CryptoHelperTest
 {
 	public static final String LOCALHOST = "localhost";
@@ -42,8 +41,15 @@ public class CryptoHelperTest
 	public static final String RESOURCE_PATH = "src/test/resources/com/refinitiv/eta/transport/CryptoHelperJunit/";
 	public static final String VALID_CERTIFICATE = RESOURCE_PATH + "localhost.jks";
 	public static final String INVALID_CERTIFICATE = RESOURCE_PATH + "invalid_certificate.jks";
+	public static final String TLSv12 = "TLSv1.2";
+	public static final String TLSv13 = "TLSv1.3";
+
+	public static String[] client_protocol_versions = {TLSv12, TLSv13};
 	private CryptoHelper cryptoHelper;
 	private SSLServerSocket serverSocket;
+
+	private String clientSecurityProvider;
+	private String engineClassName;
 
 	@After
 	public void tearDown() throws Exception
@@ -52,12 +58,27 @@ public class CryptoHelperTest
 			serverSocket.close();
 		}
 	}
-	
-	@Test
+
+	@Parameterized.Parameters
+	public static Object[][] data()
+	{
+		return new Object[][]{
+				{"SunJSSE", "sun.security.ssl.SSLEngineImpl"},
+				{"Conscrypt", "org.conscrypt.Java8EngineWrapper"}
+		};
+	}
+
+	public CryptoHelperTest(String clientSecurityProvider, String engineClassName)
+	{
+		this.clientSecurityProvider = clientSecurityProvider;
+		this.engineClassName = engineClassName;
+	}
+
+	@Test()
 	public void shouldDoHandshakeWhenCertificateCommonNameIsValid() throws IOException
 	{
 		startServer(VALID_CERTIFICATE);
-		createCryptoHelper(VALID_CERTIFICATE);
+		createClientCryptoHelper(VALID_CERTIFICATE);
 		cryptoHelper.doHandshake();
 		writeLine(cryptoHelper);
 	}
@@ -66,9 +87,17 @@ public class CryptoHelperTest
 	public void shouldFailHandshakeWhenCertificateCommonNameIsInvalid() throws IOException
 	{
 		startServer(INVALID_CERTIFICATE);
-		createCryptoHelper(INVALID_CERTIFICATE);
+		createClientCryptoHelper(INVALID_CERTIFICATE);
 		cryptoHelper.doHandshake();
 		writeLine(cryptoHelper);
+	}
+
+	@Test
+	public void shouldUseSecurityProvider() throws IOException, ExecutionException, InterruptedException
+	{
+		startServer(INVALID_CERTIFICATE);
+		createClientCryptoHelper(INVALID_CERTIFICATE);
+		assertEquals(engineClassName, cryptoHelper._engine.getClass().getName());
 	}
 
 	@Test
@@ -77,18 +106,18 @@ public class CryptoHelperTest
 		String[] protocols = {"TLSv1.2"};
 		CompletableFuture<String> protocolFuture = new CompletableFuture<>();
 		startServer(VALID_CERTIFICATE, protocols, socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
-		createCryptoHelper(VALID_CERTIFICATE);
+		createClientCryptoHelper(VALID_CERTIFICATE);
 		cryptoHelper.doHandshake();
 		writeLine(cryptoHelper);
 		assertEquals("TLSv1.2", protocolFuture.get());
 	}
-	
+
 	@Test
 	public void shouldUseTLS1_3Version() throws IOException, ExecutionException, InterruptedException
 	{
 		CompletableFuture<String> protocolFuture = new CompletableFuture<>();
-		startServer(VALID_CERTIFICATE, CryptoHelper.client_protocol_versions, socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
-		createCryptoHelper(VALID_CERTIFICATE);
+		startServer(VALID_CERTIFICATE, client_protocol_versions, socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
+		createClientCryptoHelper(VALID_CERTIFICATE);
 		cryptoHelper.doHandshake();
 		writeLine(cryptoHelper);
 		assertEquals("TLSv1.3", protocolFuture.get());
@@ -100,7 +129,7 @@ public class CryptoHelperTest
 		String[] protocols = {"TLSv1.1"};
 		CompletableFuture<String> protocolFuture = new CompletableFuture<>();
 		startServer(VALID_CERTIFICATE, protocols, socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
-		createCryptoHelper(VALID_CERTIFICATE);
+		createClientCryptoHelper(VALID_CERTIFICATE);
 		cryptoHelper.doHandshake();
 		writeLine(cryptoHelper);
 		assertEquals("TLSv1.2", protocolFuture.get());
@@ -132,6 +161,10 @@ public class CryptoHelperTest
 				if(socketCallback != null){
 					socketCallback.accept(socket);
 				}
+				if(socket.isClosed())
+				{
+					return;
+				}
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
 				String line;
 				while ((line = reader.readLine()) != null)
@@ -146,7 +179,7 @@ public class CryptoHelperTest
 		}).start();
 	}
 
-	private void createCryptoHelper(String keystoreFile) throws IOException {
+	private void createClientCryptoHelper(String keystoreFile) throws IOException {
 		ConnectOptionsImpl options = new ConnectOptionsImpl();
 		options.encryptionOptions().KeystoreFile(keystoreFile);
 		options.encryptionOptions().KeystorePasswd(KEYSTORE_PASSWORD);
@@ -155,16 +188,23 @@ public class CryptoHelperTest
 		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
 		options.encryptionOptions().SecurityProtocol("TLS");
 		options.encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
-		options.encryptionOptions().SecurityProvider("SunJSSE");
+		options.encryptionOptions().SecurityProvider(clientSecurityProvider);
 		options.unifiedNetworkInfo().address(LOCALHOST);
 		options.unifiedNetworkInfo().serviceName(Integer.toString(PORT));
-		
+
 		SocketChannel socketChannel = SocketChannel.open();
 		socketChannel.connect(new InetSocketAddress(LOCALHOST, PORT));
 		socketChannel.configureBlocking(false);
 
-		cryptoHelper = new CryptoHelper(options);
+		cryptoHelper = CryptoHelperFactory.createClient(options);
 		cryptoHelper.initializeEngine(socketChannel);
+	}
+
+	static {
+		if(Security.getProvider("Conscrypt") == null)
+		{
+			Security.addProvider(Conscrypt.newProvider());
+		}
 	}
 
 	public static SSLContext initServerSSLContext(String keystoreFile)
@@ -177,7 +217,7 @@ public class CryptoHelperTest
 
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 			keyManagerFactory.init(keyStore, KEYSTORE_PASSWORD.toCharArray());
-			
+
 			context.init(keyManagerFactory.getKeyManagers(), null, null);
 			return context;
 		} catch (Exception ex)

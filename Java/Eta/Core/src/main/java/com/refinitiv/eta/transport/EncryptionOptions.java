@@ -155,4 +155,37 @@ public interface EncryptionOptions
      */
     public String TrustManagerAlgorithm();
 
+    /**
+     * Java Default Key Management algorithm.
+     * Defaults to the property ssl.KeyManagerFactory.algorithm
+     * in the JDK security properties file (java.security).
+     * Sun JDK default = SunX509
+     *
+     * @return the DefaultKeyManagerAlgorithm
+     */
+    String DefaultKeyManagerAlgorithm();
+
+    /**
+     * Java Default Cryptography Package provider.
+     * Sun JDK default = SunJSSE
+     *
+     * @return the DefaultSecurityProvider
+     */
+    String DefaultSecurityProvider();
+
+    /**
+     * Java Default Trust Management algorithm.
+     * Defaults to the property ssl.TrustManagerFactory.algorithm in the JDK security properties file (java.security).
+     * Sun JDK default = PKIX
+     *
+     * @return the DefaultTrustManagerAlgorithm
+     */
+    String DefaultTrustManagerAlgorithm();
+
+    /**
+     * Default cryptographic protocol used.
+     *
+     * @return the DefaultSecurityProtocol
+     */
+    String DefaultSecurityProtocol();
 }

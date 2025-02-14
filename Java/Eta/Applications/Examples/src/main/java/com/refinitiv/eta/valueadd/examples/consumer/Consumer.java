@@ -2083,6 +2083,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 
 		String keyFile = consumerCmdLineParser.keyStoreFile();
 		String keyPasswd = consumerCmdLineParser.keystorePassword();
+		String securityProvider = consumerCmdLineParser.securityProvider();
 
 		if (keyFile != null && !keyFile.isEmpty() )
 		{
@@ -2092,28 +2093,23 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		{
 			options.encryptionOptions().KeystorePasswd(keyPasswd);
 		}
+		if (securityProvider != null && !securityProvider.isEmpty())
+		{
+			options.encryptionOptions().SecurityProvider(securityProvider);
+		}
 
-		options.encryptionOptions().KeystoreType("JKS");
 		options.encryptionOptions().SecurityProtocol(consumerCmdLineParser.securityProtocol());
 		if (consumerCmdLineParser.securityProtocolVersions() != null && 
 				consumerCmdLineParser.securityProtocolVersions().length() > 0)
 		{
 			options.encryptionOptions().SecurityProtocolVersions(consumerCmdLineParser.securityProtocolVersions().split(","));
 		}
-		options.encryptionOptions().SecurityProvider("SunJSSE");
-		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
-		options.encryptionOptions().TrustManagerAlgorithm("PKIX");
 	}
 
 
 	private void setHTTPConfiguration(ConnectOptions options)
 	{
 		options.tunnelingInfo().objectName("");
-		options.tunnelingInfo().KeystoreType("JKS");
-		options.tunnelingInfo().SecurityProtocol("TLS");
-		options.tunnelingInfo().SecurityProvider("SunJSSE");
-		options.tunnelingInfo().KeyManagerAlgorithm("SunX509");
-		options.tunnelingInfo().TrustManagerAlgorithm("PKIX");
 	}
 
 	/*

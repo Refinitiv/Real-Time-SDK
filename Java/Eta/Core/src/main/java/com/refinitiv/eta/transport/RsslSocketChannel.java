@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectableChannel;
-import java.util.Arrays;
 import java.util.Objects;
 
 import com.refinitiv.eta.codec.Codec;
@@ -3166,7 +3165,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         {
         	try
         	{
-        		_scktChannel.initialize(bindOptions, _server.context());
+        		_scktChannel.initialize(bindOptions);
         	}
             catch (IOException e)
             {
@@ -3187,7 +3186,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         {
             try
             {
-                _scktChannel.initialize(bindOptions, _server.context());
+                _scktChannel.initialize(bindOptions);
             }
             catch (IOException e)
             {

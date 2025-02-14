@@ -23,8 +23,6 @@ public interface ConnectOptions
      */
     public String componentVersion();
 
-
-
     /**
      * Type of connection to establish. Must be in the range of
      * {@link ConnectionTypes#SOCKET} - {@link ConnectionTypes#RELIABLE_MCAST}.
@@ -43,6 +41,7 @@ public interface ConnectOptions
      * @see ConnectionTypes
      */
     public int connectionType();
+
 
     /**
      * Connection parameters when sending and receiving on same network.

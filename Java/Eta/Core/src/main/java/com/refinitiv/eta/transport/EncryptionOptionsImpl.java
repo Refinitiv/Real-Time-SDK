@@ -2,7 +2,7 @@ package com.refinitiv.eta.transport;
 
 import java.util.Arrays;
 
-class EncryptionOptionsImpl implements EncryptionOptions {
+public class EncryptionOptionsImpl implements EncryptionOptions {
     private int _connectionType;
     private String _KeystoreType;
     private String _KeystoreFile;
@@ -22,7 +22,7 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     public static String _defaultKeyManagerAlgorithm = new String("SunX509");
     public static String _defaultTrustManagerAlgorithm = new String("PKIX");
 
-    EncryptionOptionsImpl()
+    public EncryptionOptionsImpl()
     {
         // for HTTP Tunneling, tunnelingType has to be set to "http" or "encrypted"
         _connectionType = ConnectionTypes.SOCKET;
@@ -221,7 +221,27 @@ class EncryptionOptionsImpl implements EncryptionOptions {
         return _TrustManagerAlgorithm;
     }
 
-	@Override
+    @Override
+    public String DefaultKeyManagerAlgorithm() {
+        return _defaultKeyManagerAlgorithm;
+    }
+
+    @Override
+    public String DefaultSecurityProvider() {
+        return _defaultSecurityProvider;
+    }
+
+    @Override
+    public String DefaultTrustManagerAlgorithm() {
+        return _defaultTrustManagerAlgorithm;
+    }
+
+    @Override
+    public String DefaultSecurityProtocol() {
+        return _defaultSecurityProtocol;
+    }
+
+    @Override
 	public void SecurityProtocolVersions(String[] SecurityProtocolVersions) {
 		_SecurityProtocolVersions = SecurityProtocolVersions;
 	}
@@ -230,5 +250,4 @@ class EncryptionOptionsImpl implements EncryptionOptions {
 	public String[] SecurityProtocolVersions() {
 		return _SecurityProtocolVersions;
 	}
-
 }

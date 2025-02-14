@@ -210,6 +210,9 @@ public class ProvPerf
         {
         	_bindOptions.encryptionOptions().keystoreFile(ProviderPerfConfig.keyfile());
         	_bindOptions.encryptionOptions().keystorePasswd(ProviderPerfConfig.keypasswd());
+            String securityProvider = ProviderPerfConfig.securityProvider();
+            if(securityProvider != null && !securityProvider.isEmpty())
+                _bindOptions.encryptionOptions().securityProvider(securityProvider);
         }
 
         _bindOptions.majorVersion(Codec.majorVersion());

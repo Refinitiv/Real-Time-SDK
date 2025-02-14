@@ -213,7 +213,7 @@ public class SocketHelper
         _completedProxy = false;
     }
 
-    public void initialize(BindOptions options, EncryptedContextHelper encryptedContext) throws IOException
+    public void initialize(BindOptions options) throws IOException
     {
     	// No proxy connections for servers 
     	_completedProxy = true;

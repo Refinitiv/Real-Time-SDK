@@ -52,6 +52,8 @@ public class NIProvPerfConfig
 	private static String _keyfile;                 /* Keyfile used for encrypted connection */
 	private static String _keypasswd;               /* Key password used for encrypted connection */
 
+	private static String _securityProvider;
+
 	static
     {
     	CommandLine.addOption("runTime", 360, "Time application runs before exiting");
@@ -95,6 +97,7 @@ public class NIProvPerfConfig
     	CommandLine.addOption("serviceId", 1, "ID of the provided service");
 		CommandLine.addOption("keyfile", "", "Keyfile used for encrypted connection");
 		CommandLine.addOption("keypasswd", "", "Key password used for encrypted connection");
+		CommandLine.addOption("securityProvider", "", "Specifies security provider, default is SunJSSE, also supports Conscrypt");
     }
 	
 	/* NIProvPerfConfig cannot be instantiated */
@@ -150,6 +153,7 @@ public class NIProvPerfConfig
         _useReactor = CommandLine.booleanValue("reactor");
         _keyfile = CommandLine.value("keyfile");
         _keypasswd = CommandLine.value("keypasswd");
+		_securityProvider = CommandLine.value("securityProvider");
         _encryptedConnectionType = CommandLine.value("encryptedConnectionType");
         
         try
@@ -732,5 +736,10 @@ public class NIProvPerfConfig
 	public static String keypasswd()
 	{
 		return _keypasswd;
+	}
+
+	public static String securityProvider()
+	{
+		return _securityProvider;
 	}
 }

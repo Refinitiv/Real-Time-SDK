@@ -5,12 +5,6 @@ import java.nio.ByteBuffer;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
-import com.refinitiv.eta.transport.DummyLock;
-import com.refinitiv.eta.transport.LibraryVersionInfoImpl;
-import com.refinitiv.eta.transport.Lock;
-import com.refinitiv.eta.transport.ReentrantLock;
-import com.refinitiv.eta.transport.SocketProtocol;
-
 /**
  * ETA transport is used by an OMM Interactive Provider to create listening
  * sockets and by OMM consumer and NIP applications to establish outbound

@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.file.Files;
@@ -2162,33 +2160,28 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 
 		String keyFile = watchlistConsumerConfig.keyStoreFile();
 		String keyPasswd = watchlistConsumerConfig.keystorePassword();
+		String securityProvider = watchlistConsumerConfig.securityProvider();
 
 		if (keyFile != null && !keyFile.isEmpty())
 		{
 			options.encryptionOptions().KeystoreFile(keyFile);
 		}
-		if (keyPasswd != null && !keyFile.isEmpty())
+		if (keyPasswd != null && !keyPasswd.isEmpty())
 		{
 			options.encryptionOptions().KeystorePasswd(keyPasswd);
 		}
-
-		options.encryptionOptions().KeystoreType("JKS");
+		if (securityProvider != null && !securityProvider.isEmpty())
+		{
+			options.encryptionOptions().SecurityProvider(securityProvider);
+		}
 		options.encryptionOptions().SecurityProtocol(watchlistConsumerConfig.securityProtocol());
 		options.encryptionOptions().SecurityProtocolVersions(watchlistConsumerConfig.securityProtocolVersions().split(","));
-		options.encryptionOptions().SecurityProvider("SunJSSE");
-		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
-		options.encryptionOptions().TrustManagerAlgorithm("PKIX");
 	}
 
 
 	private void setHTTPConfiguration(ConnectOptions options)
 	{
 		options.tunnelingInfo().objectName("");
-		options.tunnelingInfo().KeystoreType("JKS");
-		options.tunnelingInfo().SecurityProtocol("TLS");
-		options.tunnelingInfo().SecurityProvider("SunJSSE");
-		options.tunnelingInfo().KeyManagerAlgorithm("SunX509");
-		options.tunnelingInfo().TrustManagerAlgorithm("PKIX");
 	}
 
 	/*

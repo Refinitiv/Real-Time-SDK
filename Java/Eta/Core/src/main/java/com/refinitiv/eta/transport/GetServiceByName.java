@@ -3,7 +3,7 @@ package com.refinitiv.eta.transport;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-class GetServiceByName 
+public class GetServiceByName
 {
     static RandomAccessFile _raf;
     static String _servicesFile;
@@ -124,7 +124,7 @@ class GetServiceByName
         }
     }
 	
-    synchronized static int getServiceByName(String tcpipService)
+    public synchronized static int getServiceByName(String tcpipService)
     {
         if (_servicesFile != null)
         {

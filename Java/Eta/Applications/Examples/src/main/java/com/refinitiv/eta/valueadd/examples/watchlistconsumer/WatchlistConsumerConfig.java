@@ -683,7 +683,10 @@ public class WatchlistConsumerConfig
 	{
 		return CommandLine.value("keypasswd");
 	}
-
+	String securityProvider()
+	{
+		return CommandLine.value("securityProvider");
+	}
 	boolean cacheOption()
 	{
 		return cacheOption;
@@ -824,6 +827,7 @@ public class WatchlistConsumerConfig
 		CommandLine.addOption("krbfile", "", "KRB File location and name");
 		CommandLine.addOption("keyfile", "", "Keystore file location and name");
 		CommandLine.addOption("keypasswd", "", "Keystore password");
+		CommandLine.addOption("securityProvider", "", "Specifies security provider, default is SunJSSE, also supports Conscrypt");
 
 		CommandLine.addOption("tunnel", "", "(optional) enables consumer to open tunnel stream and send basic text messages");
 		CommandLine.addOption("tsServiceName", "", "(optional) specifies the service name for tunnel stream messages (if not specified, the service name specified in -c/-tcp is used");

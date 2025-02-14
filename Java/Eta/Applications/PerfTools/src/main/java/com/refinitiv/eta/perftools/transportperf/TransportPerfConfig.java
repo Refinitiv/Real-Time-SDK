@@ -78,7 +78,9 @@ public class TransportPerfConfig
     private static String       _proxyKRBConfigFile;        // proxy config file
     private static String       _keystoreFile;              // security keystore file
     private static String       _keystorePasswd;            // security keystore password
-    
+
+    private static String       _securityProvider;
+
     static
     {
         try
@@ -134,6 +136,7 @@ public class TransportPerfConfig
         CommandLine.addOption("krbfile", "C:\\Kerberos\\krb5.conf", "proxyKRBConfigFile");
         CommandLine.addOption("keyfile", "C:\\Certificates\\internet.jks", "keystoreFile");
         CommandLine.addOption("keypasswd", "", "keystore password");
+        CommandLine.addOption("securityProvider", "", "Specifies security provider, default is SunJSSE, also supports Conscrypt");
         CommandLine.addOption("pl",  "",
                 "WebSocket sub-protocol list for requesting a protocol or listing only supported protocols respectively\n" +
                 "for client and server 'appType'. White-space or comma delinated list in order of preference\n" +
@@ -323,7 +326,8 @@ public class TransportPerfConfig
             _proxyDomain = CommandLine.value("pdomain");
             _proxyKRBConfigFile = CommandLine.value("krbfile");
             _keystoreFile = CommandLine.value("keyfile");
-            _keystorePasswd = CommandLine.value("keypasswd");              
+            _keystorePasswd = CommandLine.value("keypasswd");
+            _securityProvider = CommandLine.value("securityProvider");
         }
         catch (NumberFormatException ile)
         {
@@ -962,8 +966,11 @@ public class TransportPerfConfig
     {
         return _keystorePasswd;
     }
-        
-        
+
+    public static String securityProvider()
+    {
+        return _securityProvider;
+    }
     /**
      *  Converts configuration parameters to a string.
      *
