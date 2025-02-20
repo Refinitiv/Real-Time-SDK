@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
+// *|           Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -139,8 +139,8 @@ int main( int argc, char* argv[] )
 						return 0;
 					}
 
+					clientJWKSet = 1;
 					clientJwk.set(clientJwkMem, readSize);
-
 					config.clientJWK(clientJwk);
 				}
 			}
@@ -220,7 +220,7 @@ int main( int argc, char* argv[] )
 
 		if ( (!userNameSet || !passwordSet || !clientIdSet) && (!clientIdSet || (!clientSecretSet && !clientJWKSet) ))
 		{
-			cout << "User name, password and client Id or client Id and client secret must be specified on the command line. Exiting..." << endl;
+			cout << "Username, password and clientId or clientId and clientSecret or clientId and jwkFile must be specified on the command line. Exiting..." << endl;
 			printHelp();
 			return -1;
 		}
