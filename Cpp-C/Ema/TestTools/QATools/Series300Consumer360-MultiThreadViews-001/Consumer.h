@@ -36,8 +36,13 @@ class AppClient : public refinitiv::ema::access::OmmConsumerClient
 public :
 
 	//APIQA
+	AppClient();
 	AppClient(bool);
+	bool _hasUpdateMsg;
+	bool _hasRefreshMsg;
 	//END APIQA
+
+
 	void decode( const refinitiv::ema::access::FieldList& );			// print content of passed in FieldList to screen
 
 	void decode( const refinitiv::ema::access::Map& );					// print content of passed in Map to screen
@@ -51,7 +56,7 @@ protected :
 	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
 	//APIQA
-	bool _debug;
+	bool _debug; 
 	//END APIQA
 };
 
