@@ -19,7 +19,6 @@ if (BUILD_RTSDK-BINARYPACK OR BUILD_INTERNAL_RTSDK)
 	target_link_libraries( WatchlistConsumer_shared 
 							librssl_shared 
                             librsslVA_shared 
-								RTSDK-BinaryPack::rsslVACache_shared 
                             ${SYSTEM_LIBRARIES}
 						)
 
@@ -32,7 +31,6 @@ if (BUILD_RTSDK-BINARYPACK OR BUILD_INTERNAL_RTSDK)
 	target_link_libraries( WatchlistConsumer 
 							librssl 
                             librsslVA  
-								RTSDK-BinaryPack::rsslVACache
                             ${SYSTEM_LIBRARIES} 
 						)
 
