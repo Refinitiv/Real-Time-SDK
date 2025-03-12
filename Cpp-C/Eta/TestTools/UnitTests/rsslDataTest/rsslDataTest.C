@@ -7365,7 +7365,8 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT_14);
 	ASSERT_EQ(testReal.value, 1234567890123);
 
-	testStrBuf.length = sprintf(testString, "");
+	testString[0] = '\0';
+	testStrBuf.length = 0;
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_BLANK_DATA);
 	ASSERT_TRUE(testReal.hint == 0);
