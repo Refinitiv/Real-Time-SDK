@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020 LSEG. All rights reserved.                   --
+ *|           Copyright (C) 2020, 2025 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -26,21 +26,19 @@ public:
 
 	EnumTableDefinition(jsonToRwfSimple* jonToRwfSimple, RsslUInt16 maxCount);
 
-	void decreaseRefCount(); /* This is used to decrease reference count to delete this object */
-
 	RsslRet addEnumDefinition(RsslEnumTypeTable* pEnumTypeTable, RsslBuffer* displayValue, RsslUInt32 hashSum, int* foundEnumValue);
 
 	RsslBool findEnumDefinition(RsslBuffer* displayValue, RsslUInt32 hashSum, int* foundEnumValue);
 
+	virtual ~EnumTableDefinition();
+
+	RsslInt32 _referenceCount;
+
 private:
 	RsslHashTable		_enumByDispalyValue;
-	RsslInt32			_referenceCount;
 	jsonToRwfSimple*	_pJsonToRwfSimple;
 	bool				_initializedHashTable;
 	RsslUInt16			_maxCount;
-
-	virtual ~EnumTableDefinition(); /* Call by this class only after the reference count is zero. */
-
 };
 
 
