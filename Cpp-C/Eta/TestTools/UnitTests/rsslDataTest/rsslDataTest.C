@@ -10722,7 +10722,8 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 			dateTimeStrBuf.length=  (RsslUInt) snprintf(dateTimeStr, 256, dateTimeFormat, iDateTime.date.month, iDateTime.date.day, iDateTime.date.year,
 														iDateTime.time.hour, iDateTime.time.minute, iDateTime.time.second,
 														iDateTime.time.millisecond, iDateTime.time.microsecond,  iDateTime.time.nanosecond);
-			dateTimeStr[dateTimeStrBuf.length] = '\0';
+			//Remove null terminator to test case that we are not relying on it
+			dateTimeStr[dateTimeStrBuf.length] = 'a';
 		    dateTimeStrBuf.data = &dateTimeStr[0];
 			snprintf(testNameWithIput, 256,"%s,%s data=\"%s\"\n", dateTestName[i], timeTestName[t], dateTimeStr);			
 			
@@ -10754,7 +10755,8 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 				dateTimeStrBuf.length=  (RsslUInt) snprintf(dateTimeStr, 256, dateTimeFormat, iDateTime.date.year, iDateTime.date.month, iDateTime.date.day, 
 														iDateTime.time.hour, iDateTime.time.minute, iDateTime.time.second,
 														iDateTime.time.millisecond, iDateTime.time.microsecond,  iDateTime.time.nanosecond);
-			dateTimeStr[dateTimeStrBuf.length] = '\0';
+			//Remove null terminator to test case that we are not relying on it
+			dateTimeStr[dateTimeStrBuf.length] = 'a';
 		    dateTimeStrBuf.data = &dateTimeStr[0];
 			snprintf(testNameWithIput, 256,"%s,%s data=\"%s\"\n", dateTestName[i], timeTestName[t], dateTimeStr);			
 
