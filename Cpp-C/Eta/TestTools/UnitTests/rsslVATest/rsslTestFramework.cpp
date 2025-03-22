@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -36,7 +36,7 @@ static RsslConnectionTypes rsslTestConnectionType;
 static RsslBool rsslTestInitialized = RSSL_FALSE;
 static RsslServer *pServer = NULL;
 
-static RsslBuffer applicationName = { 16, (char*)"rsslVATest" } ;
+static RsslBuffer applicationName = { 11, (char*)"rsslVATest" } ;
 static RsslBuffer applicationId = { 3, (char*)"256" };
 static RsslBuffer loginConfigPosition = {9, (char*)"localhost"};
 static const RsslBuffer cookiesData[3] = { {105, (char*)"lu=Rg3vHJZnehYLjVg7qi3bZjzg; Expires=Tue, 15 Jan 2013 21:47:38 GMT; Path=/; Domain=.example.com; HttpOnly"},

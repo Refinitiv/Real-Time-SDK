@@ -105,14 +105,14 @@ Users can use Transport API to write non-interactive applications that start up 
 The distribution contains several DLL files (libraries), intended to allow for ease of integration into both production and development environments.
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    LSEG.Eta.Core.dll             eta3.3.1.L1       The ETA - CSharp Edition library.  Includes
+    LSEG.Eta.Core.dll             eta3.3.1.1        The ETA - CSharp Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    LSEG.Eta.ValueAdd.dll         eta3.3.1.L1       The Value Add library for ETA CSharp Edition.
+    LSEG.Eta.ValueAdd.dll         eta3.3.1.1        The Value Add library for ETA CSharp Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    LSEG.Eta.Ansi.dll             eta3.3.1.L1       The ANSI decoders and encoders.
+    LSEG.Eta.Ansi.dll             eta3.3.1.1        The ANSI decoders and encoders.
     LSEG.Eta.AnsiPage.dll     
 
                   

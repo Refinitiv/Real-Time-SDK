@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -91,6 +91,8 @@ RSSL_API RsslRet rsslDecodeElementList(
 		{
 			/* if hassetdata and HasFieldList then set data is length specified */
 			position = _rsslDecodeBuffer15(&oElementList->encSetData, position);
+			if (position + sizeof(_levelInfo->_itemCount) > _endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 
 			/* get element list data */
 			position += rwfGet16(_levelInfo->_itemCount, position);
@@ -218,14 +220,17 @@ RSSL_API RsslRet rsslDecodeElementEntry( RsslDecodeIterator *iIter, RsslElementE
 		return RSSL_RET_INCOMPLETE_DATA;
 
 	position = _rsslDecodeBuffer15(&oElement->name, position);
+
+	if (position > _levelInfo->_endBufPtr)
+		return RSSL_RET_INCOMPLETE_DATA;
 	position += rwfGet8(oElement->dataType, position);
 
 	if (oElement->dataType != RSSL_DT_NO_DATA)
 	{
 		position += rwfGetBuffer16(&oElement->encData, position);
 
-    	if (position > _levelInfo->_endBufPtr)
-    		return RSSL_RET_INCOMPLETE_DATA;
+		if (position > _levelInfo->_endBufPtr)
+			return RSSL_RET_INCOMPLETE_DATA;
     
     	/* handle legacy conversion */
     	oElement->dataType = _rsslPrimitiveType(oElement->dataType);

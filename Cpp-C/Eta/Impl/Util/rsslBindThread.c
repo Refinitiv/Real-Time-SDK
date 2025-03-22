@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022,2024 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2022,2024-2025 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -541,7 +541,8 @@ RsslRet printLogicalIds(RsslUInt cpuCount, RsslUInt8* cpuIdAssign, RsslBuffer* p
 	{
 		if (cpuCount == 0)
 		{
-			pOutputResult->length = snprintf(pOutputResult->data, pOutputResult->length, "");
+			pOutputResult->data[0] = '\0';
+			pOutputResult->length = 0;
 			return RSSL_RET_SUCCESS;
 		}
 
@@ -910,13 +911,15 @@ RSSL_API RsslRet rsslGetLogicalCpuIdsbyPCT(const char* cpuString, RsslBuffer* pL
 	{
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 			"cpuString is not set.");
-		pLogicalIds->length = snprintf(pLogicalIds->data, pLogicalIds->length, "");
+		pLogicalIds->data[0] = '\0';
+		pLogicalIds->length = 0;
 		return RSSL_RET_FAILURE;
 	}
 
 	if (rsslGetLogicalCpuIdsbyPCTImpl(cpuString, pLogicalIds, pError) != RSSL_RET_SUCCESS)
 	{
-		pLogicalIds->length = snprintf(pLogicalIds->data, pLogicalIds->length, "");
+		pLogicalIds->data[0] = '\0';
+		pLogicalIds->length = 0;
 		return RSSL_RET_FAILURE;
 	}
 

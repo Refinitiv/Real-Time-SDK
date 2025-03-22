@@ -176,11 +176,11 @@ You can download RTSDK libraries and dependencies from NuGet. Choose the appropr
 
         <dependency>
                 <ItemGroup>
-                    <PackageReference Include="LSEG.Eta.Core" Version="3.3.1"/>
-                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.3.1"/>
-                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.3.1"/>
-                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.3.1"/>
-                    <PackageReference Include="LSEG.Ema.Core" Version="3.3.1"/>
+                    <PackageReference Include="LSEG.Eta.Core" Version="3.3.1.1"/>
+                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.3.1.1"/>
+                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.3.1.1"/>
+                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.3.1.1"/>
+                    <PackageReference Include="LSEG.Ema.Core" Version="3.3.1.1"/>
                 </ItemGroup/>
         </dependency>
 

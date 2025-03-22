@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license 
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2024, 2025 LSEG. All rights reserved.
 #]=============================================================================]
 
 
@@ -76,13 +76,13 @@ endmacro()
 
 
 if(NOT libxml2_url)
-	set(libxml2_url "https://download.gnome.org/sources/libxml2/2.13/libxml2-2.13.5.tar.xz")
+	set(libxml2_url "https://download.gnome.org/sources/libxml2/2.13/libxml2-2.13.6.tar.xz")
 endif()
 if(NOT libxml2_hash)
-	set(libxml2_hash "MD5=0b919be8edff97ade9c946e1a83bdecd")
+	set(libxml2_hash "MD5=85dffa2387ff756bdf8b3b247594914a")
 endif()
 if(NOT libxml2_version)
-	set(libxml2_version "2.13.5")
+	set(libxml2_version "2.13.6")
 endif()
 
 # If the option for using the system installed 

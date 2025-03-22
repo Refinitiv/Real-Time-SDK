@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -31,6 +31,7 @@ static void rsslUnitTests_DirectoryPacking();
 static void rsslUnitTests_LoginPacking();
 static void rsslUnitTests_WriteFailure(int fragMsg);
 static void rsslUnitTests_ProvideHttpHdr();
+static void rsslUnitTests_IncompleteLoginDecode(char*, size_t);
 
 static const RsslInt32 
 			LOGIN_STREAM_ID = 1,
@@ -177,6 +178,35 @@ TEST(RsslUnitTests_WebSocket_rssl_rwf, WriteFailureFragmentedTest)
 
 	rsslUnitTests_WriteFailure(1);
 	rsslTestUninitialize();
+}
+
+TEST(RsslUnitTests, IncompleteLoginDecode)
+{
+	// RsslRDMLoginRefresh message with one of its key attributes (an incomplete message)
+	unsigned char loginRefreshIncompleteAttrib1[] = {
+		0x00, 0x10, 0x82, 0x01, 0x00, 0x20, 0x00, 0xef, 0x00, 0x05, 0x00, 0x00,
+		0x00, 0x00, 0xbf, 0x3a, 0x00, 0x88, 0x88, 0x88, 0x88, 0x03, 0x00, 0x00,
+		0x00, 0x80, 0x00, 0xff, 0xc1, 0xc5, 0xe3
+	};
+	unsigned int loginRefreshIncompleteAttrib1_len = 31;
+
+	unsigned char loginRefreshIncompleteAttrib2[] = {
+		0x00, 0x30, 0x02, 0x01, 0x30, 0x30, 0x30, 0x30, 0xdf, 0xff, 0x30, 0x30,
+		0x30, 0x30, 0x30, 0x30, 0x30, 0x0c, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+		0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x14, 0x30, 0x30, 0x30, 0x30, 0x30,
+		0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+		0x30, 0x30, 0x30, 0x04, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x0c,
+		0x30, 0x30, 0x30, 0x30, 0x30, 0x05, 0x05, 0x0c, 0x30, 0x30, 0x30, 0x30,
+		0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+		0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+		0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+		0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+		0x30
+	};
+	unsigned int loginRefreshIncompleteAttrib2_len = 121;
+
+	rsslUnitTests_IncompleteLoginDecode((char*)loginRefreshIncompleteAttrib1, loginRefreshIncompleteAttrib1_len);
+	rsslUnitTests_IncompleteLoginDecode((char*)loginRefreshIncompleteAttrib2, loginRefreshIncompleteAttrib2_len);
 }
 
 #ifdef COMPILE_64BITS
@@ -764,4 +794,29 @@ static void rsslUnitTests_ProvideHttpHdr()
 	ret = rsslCloseChannel(pProviderChannel, &error);
 	EXPECT_EQ(ret, RSSL_RET_SUCCESS);
 	rsslTestFinish();
+}
+
+static void rsslUnitTests_IncompleteLoginDecode(char* data, size_t size)
+{
+	RsslErrorInfo errorInfo;
+	RsslDecodeIterator dIter;
+	RsslMsg msg = RSSL_INIT_MSG;
+	RsslRDMLoginMsg loginMsg;
+
+	char rsslBufData[1024] = { 0 };
+	RsslBuffer rsslBuf = { static_cast<rtrUInt32>(size), rsslBufData };
+	memcpy(rsslBufData, data, size);
+
+	char memoryBufChar[4 * 1024] = { 0 };
+	RsslBuffer memoryBuf = { 4 * 1024, memoryBufChar };
+
+	rsslClearDecodeIterator(&dIter);
+	rsslSetDecodeIteratorRWFVersion(&dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	rsslSetDecodeIteratorBuffer(&dIter, &rsslBuf);
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&dIter, &msg));
+
+	ASSERT_EQ(RSSL_DMT_LOGIN, msg.msgBase.domainType);
+
+	ASSERT_EQ(RSSL_RET_INCOMPLETE_DATA, rsslDecodeRDMLoginMsg(&dIter, &msg, &loginMsg, &memoryBuf, &errorInfo));
 }

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+// *|           Copyright (C) 2025 LSEG. All rights reserved.                 --
 ///*|-----------------------------------------------------------------------------
 
 #ifndef __ema_consumer_h_
@@ -36,8 +36,13 @@ class AppClient : public refinitiv::ema::access::OmmConsumerClient
 public :
 
 	//APIQA
+	AppClient();
 	AppClient(bool);
+	bool _hasUpdateMsg;
+	bool _hasRefreshMsg;
 	//END APIQA
+
+
 	void decode( const refinitiv::ema::access::FieldList& );			// print content of passed in FieldList to screen
 
 	void decode( const refinitiv::ema::access::Map& );					// print content of passed in Map to screen
@@ -51,7 +56,7 @@ protected :
 	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
 	//APIQA
-	bool _debug;
+	bool _debug; 
 	//END APIQA
 };
 

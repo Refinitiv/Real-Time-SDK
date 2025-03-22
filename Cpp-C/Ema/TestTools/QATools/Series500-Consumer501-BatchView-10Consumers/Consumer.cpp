@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2024 LSEG. All rights reserved.                   --
+// *|           Copyright (C) 2024, 2025 LSEG. All rights reserved.             --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -13,10 +13,10 @@ using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
 using namespace std;
 
-UInt32 enablePreferredHost = 1;
-EmaString preferredChannelName = "Channel_1";
-UInt32 preferredDetectionTimeInterval = 15;
-EmaString preferredDetectionTimeSchedule = "*/15 * * * * *"; // each 15 seconds
+UInt32 enablePH = 1;
+EmaString channelNamePreferred = "Channel_1";
+UInt32 detectionTimeInterval = 15;
+EmaString detectionTimeSchedule = "*/15 * * * * *"; // each 15 seconds
 
 void AppClient::onRefreshMsg(const RefreshMsg& refreshMsg, const OmmConsumerEvent&)
 {
@@ -49,13 +49,13 @@ void createProgramaticConfig(Map& configDb)
 
 	 elList.addAscii("ChannelSet", "Channel_1, Channel_2, Channel_3, Channel_4, Channel_5, Channel_6, Channel_7, Channel_8, Channel_9")
 		.addAscii("Logger", "Logger_1")
-		.addUInt("EnablePreferredHostOptions", enablePreferredHost)
-		.addAscii("PreferredChannelName", preferredChannelName);
+		.addUInt("EnablePreferredHostOptions", enablePH)
+		.addAscii("PreferredChannelName", channelNamePreferred);
 	
-	if (preferredDetectionTimeInterval > 0)
-		elList.addUInt("PHDetectionTimeInterval", preferredDetectionTimeInterval);
-	if (!preferredDetectionTimeSchedule.empty())
-		elList.addAscii("PHDetectionTimeSchedule", preferredDetectionTimeSchedule);
+	if (detectionTimeInterval > 0)
+		elList.addUInt("PHDetectionTimeInterval", detectionTimeInterval);
+	if (!detectionTimeSchedule.empty())
+		elList.addAscii("PHDetectionTimeSchedule", detectionTimeSchedule);
 		
 	elList.addAscii("Dictionary", "Dictionary_1")
 		.addUInt("XmlTraceToStdout", 0).complete();
@@ -231,30 +231,29 @@ int main(int argc, char* argv[])
 	{
 		if (strcmp(argv[i], "-enablePH") == 0)
 		{
-			i++;
-			enablePreferredHost = 1;
+			enablePH = 1;
 		}
 		else if (strcmp(argv[i], "-channelNamePreferred") == 0) 
 		{
 			i++;
-			preferredChannelName = argv[i];
+			channelNamePreferred = argv[i];
 		}
 		else if (strcmp(argv[i], "-detectionTimeInterval") == 0)
 		{
 			i++;
-			preferredDetectionTimeInterval = atoi(argv[i]);
+			detectionTimeInterval = atoi(argv[i]);
 		}
 		else if (strcmp(argv[i], "-detectionTimeSchedule") == 0)
 		{
-			preferredDetectionTimeSchedule.clear();
+			detectionTimeSchedule.clear();
 			i++;
 
 			if ( argv[i] == NULL || *argv[i] == '-') { continue; }
 
 			do {
-				preferredDetectionTimeSchedule += argv[i];
+				detectionTimeSchedule += argv[i];
 
-				if (argv[i+1] != NULL && *argv[i+1] != '-' ) preferredDetectionTimeSchedule += " ";
+				if (argv[i+1] != NULL && *argv[i+1] != '-' ) detectionTimeSchedule += " ";
 				else break;
 
 				i++;
@@ -264,6 +263,7 @@ int main(int argc, char* argv[])
 		else 
 		{
 			cout << "Unknown argument: " << argv[i] << endl;
+			exit(-1);
 		}
 
 		i++;
@@ -289,14 +289,14 @@ int main(int argc, char* argv[])
 				.complete();
 
 			viewArray.fixedWidth( 2 )
-				.addint( 22 )
+				.addInt( 22 )
 				.addInt( 25 )
 				.complete();
 
 			batchView
 				.addArray(ENAME_BATCH_ITEM_LIST, batchArray)
-				.addUint( ENAME_VIEW_TYPE, 1)
-				.assArray(ENAME_VIEW_DATA, viewArray)
+				.addUInt( ENAME_VIEW_TYPE, 1)
+				.addArray(ENAME_VIEW_DATA, viewArray)
 				.complete();
 
 			consumer.registerClient(ReqMsg().domainType( MMT_DIRECTORY ).serviceName("ELEKTRON_DD").payload(batchView), client);

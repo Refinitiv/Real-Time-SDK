@@ -7365,7 +7365,8 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT_14);
 	ASSERT_EQ(testReal.value, 1234567890123);
 
-	testStrBuf.length = sprintf(testString, "");
+	testString[0] = '\0';
+	testStrBuf.length = 0;
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_BLANK_DATA);
 	ASSERT_TRUE(testReal.hint == 0);
@@ -10721,7 +10722,8 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 			dateTimeStrBuf.length=  (RsslUInt) snprintf(dateTimeStr, 256, dateTimeFormat, iDateTime.date.month, iDateTime.date.day, iDateTime.date.year,
 														iDateTime.time.hour, iDateTime.time.minute, iDateTime.time.second,
 														iDateTime.time.millisecond, iDateTime.time.microsecond,  iDateTime.time.nanosecond);
-			dateTimeStr[dateTimeStrBuf.length] = '\0';
+			//Remove null terminator to test case that we are not relying on it
+			dateTimeStr[dateTimeStrBuf.length] = 'a';
 		    dateTimeStrBuf.data = &dateTimeStr[0];
 			snprintf(testNameWithIput, 256,"%s,%s data=\"%s\"\n", dateTestName[i], timeTestName[t], dateTimeStr);			
 			
@@ -10753,7 +10755,8 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 				dateTimeStrBuf.length=  (RsslUInt) snprintf(dateTimeStr, 256, dateTimeFormat, iDateTime.date.year, iDateTime.date.month, iDateTime.date.day, 
 														iDateTime.time.hour, iDateTime.time.minute, iDateTime.time.second,
 														iDateTime.time.millisecond, iDateTime.time.microsecond,  iDateTime.time.nanosecond);
-			dateTimeStr[dateTimeStrBuf.length] = '\0';
+			//Remove null terminator to test case that we are not relying on it
+			dateTimeStr[dateTimeStrBuf.length] = 'a';
 		    dateTimeStrBuf.data = &dateTimeStr[0];
 			snprintf(testNameWithIput, 256,"%s,%s data=\"%s\"\n", dateTestName[i], timeTestName[t], dateTimeStr);			
 

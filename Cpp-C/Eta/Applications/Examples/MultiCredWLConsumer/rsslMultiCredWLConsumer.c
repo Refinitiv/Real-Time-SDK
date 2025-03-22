@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2021-2024 LSEG. All rights reserved.
+ * Copyright (C) 2021-2025 LSEG. All rights reserved.
 */
 
 /*
@@ -124,7 +124,7 @@ RTR_C_INLINE RsslUInt32 dumpDateTime(char* buf, RsslUInt32 size)
 #endif
 
 	// yyyy-MM-dd HH:mm:ss.SSS
-	res = snprintf(buf, size, "<!-- %4ld-%02ld-%02ld %02ld:%02ld:%02ld.%03ld -->",
+	res = snprintf(buf, size, "<!-- %4d-%02d-%02d %02ld:%02ld:%02ld.%03ld -->",
 		(stamptime.tm_year + 1900),
 		(stamptime.tm_mon + 1),
 		stamptime.tm_mday,
@@ -1003,7 +1003,7 @@ RsslReactorCallbackRet channelOpenCallback(RsslReactor *pReactor, RsslReactorCha
 /* Callback for channel events. */
 RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pConnEvent)
 {
-	char timeBuf[64];
+	char timeBuf[248] = { 0 };
 
 	// Print out timestamp in yyyy-MM-dd HH:mm:ss.SSS format
 	dumpDateTime(timeBuf, sizeof(timeBuf));
@@ -1056,7 +1056,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				RsslChannel* pRsslChannel = pReactorChannel->pRsslChannel;
 				if (pRsslChannel)
 				{
-					printf("pRsslChannel.state=%d, socketId=%llu\n\n", pRsslChannel->state, pRsslChannel->socketId);
+					printf("pRsslChannel.state=%d, socketId="SOCKET_PRINT_TYPE"\n\n", pRsslChannel->state, pRsslChannel->socketId);
 				}
 				else
 				{
@@ -1133,7 +1133,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 					printf("   Direct Fallback.\n");
 					printf("   Time interval: %u\n", preferredHostConfig.directFallbackTimeInterval);
-					printf("   Remaining time: %lld\n", (preferredHostConfig.directFallbackTime - time(NULL)));
+					printf("   Remaining time: %lld\n", (long long int)(preferredHostConfig.directFallbackTime - time(NULL)));
 					printf("\n");
 				}
 
@@ -1144,7 +1144,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 					printf("   Ioctl call to update PreferredHostOptions.\n");
 					printf("   Time interval: %u\n", preferredHostConfig.ioctlCallTimeInterval);
-					printf("   Remaining time: %lld\n", (preferredHostConfig.ioctlCallTime - time(NULL)));
+					printf("   Remaining time: %lld\n", (long long int)(preferredHostConfig.ioctlCallTime - time(NULL)));
 					printf("\n");
 				}
 			}
@@ -1260,7 +1260,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				printf("\n");
 				printf("   Setting next Direct Fallback time.\n");
 				printf("   Time interval: %u\n", preferredHostConfig.directFallbackTimeInterval);
-				printf("   Remaining time: %lld\n", preferredHostConfig.directFallbackTime);
+				printf("   Remaining time: %lld\n", (long long int)preferredHostConfig.directFallbackTime);
 				printf("\n");
 			}
 			return RSSL_RC_CRET_SUCCESS;

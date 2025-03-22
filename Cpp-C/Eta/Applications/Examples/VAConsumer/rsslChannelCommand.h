@@ -594,7 +594,7 @@ RTR_C_INLINE RsslUInt32 dumpDateTime(char* buf, RsslUInt32 size)
 #endif
 
 	// yyyy-MM-dd HH:mm:ss.SSS
-	res = snprintf(buf, size, "<!-- %4ld-%02ld-%02ld %02ld:%02ld:%02ld.%03ld -->",
+	res = snprintf(buf, size, "<!-- %4d-%02d-%02d %02ld:%02ld:%02ld.%03ld -->",
 		(stamptime.tm_year + 1900),
 		(stamptime.tm_mon + 1),
 		stamptime.tm_mday,

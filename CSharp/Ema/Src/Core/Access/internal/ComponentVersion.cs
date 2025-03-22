@@ -40,7 +40,7 @@ namespace LSEG.Ema.Access
                     productVersion = $"{versionNumbers[0]}.{versionNumbers[1]}.{versionNumbers[2]}";
                 }
 
-                return $"emacsharp{productVersion}.L1.all.rrg";
+                return $"emacsharp{productVersion}.G2.all.rrg";
             }
             return DefaultEmaVersion;
         }

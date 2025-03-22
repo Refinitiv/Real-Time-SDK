@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|        Copyright (C) 2019 LSEG. All rights reserved.               --
+ *|        Copyright (C) 2019, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -79,6 +79,7 @@ RsslRet RTR_FASTCALL rsslDecodeBaseKey(RsslMsgKey * key, const char * data)
 
 	if (key->flags & RSSL_MKF_HAS_SERVICE_ID)
 		position += rwfGetOptByteU16(&key->serviceId, position);
+
 	if (key->flags & RSSL_MKF_HAS_NAME)
 	{
 		/* take name off wire */
@@ -102,7 +103,11 @@ RsslRet RTR_FASTCALL rsslDecodeBaseKey(RsslMsgKey * key, const char * data)
 		key->attribContainerType += RSSL_DT_CONTAINER_TYPE_MIN;
 		/* size is now an RB15 */
 		if (key->attribContainerType != RSSL_DT_NO_DATA)
+		{
 			position = _rsslDecodeBuffer15(&key->encAttrib, position);
+			if (key->encAttrib.length == 0)
+				key->attribContainerType = RSSL_DT_NO_DATA;
+		}
 		else
 		{
 			key->encAttrib.data = 0;
@@ -219,7 +224,6 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 
 		position += rwfGet8(msg->updateMsg.updateType, position);
 		
-
 		if (msg->updateMsg.flags & RSSL_UPMF_HAS_SEQ_NUM)
 			position += rwfGet32(msg->updateMsg.seqNum , position);
 		else
@@ -229,11 +233,15 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		{
 			position += rwfGetResBitU15(&msg->updateMsg.conflationCount , position);
 			position += rwfGet16(msg->updateMsg.conflationTime , position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 		}
 
 		if (msg->updateMsg.flags & RSSL_UPMF_HAS_PERM_DATA)
 		{
 			position = _rsslDecodeBuffer15(&msg->updateMsg.permData, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 		}
 		else
 		{
@@ -243,9 +251,13 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->updateMsg.flags & RSSL_UPMF_HAS_MSG_KEY)
 		{
 			position += rwfGetResBitU15(&keySize, position);
-			/* dont iterate position by this value anymore.  We want to add the keySize to position */
-			rsslDecodeBaseKey(&msg->msgBase.msgKey, position);
-			/* add keySize to position */
+			if ((position + keySize) > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+
+			/* make sure that the actual size matches expected  */
+			if (keySize != rsslDecodeBaseKey(&msg->msgBase.msgKey, position))
+				return RSSL_RET_INVALID_DATA;
+
 			position += keySize;
 		}
 		else
@@ -300,6 +312,8 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->genericMsg.flags & RSSL_GNMF_HAS_PERM_DATA)
 		{
 			position = _rsslDecodeBuffer15(&msg->genericMsg.permData, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 		}
 		else
 		{
@@ -309,9 +323,13 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->genericMsg.flags & RSSL_GNMF_HAS_MSG_KEY)
 		{
 			position += rwfGetResBitU15(&keySize, position);
-			/* dont iterate position by this value anymore.  We want to add the keySize to position */
-			rsslDecodeBaseKey(&msg->msgBase.msgKey, position);
-			/* add keySize to position */
+			if ((position + keySize) > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+
+			/* make sure that the actual size matches expected  */
+			if (keySize != rsslDecodeBaseKey(&msg->msgBase.msgKey, position))
+				return RSSL_RET_INVALID_DATA;
+
 			position += keySize;
 		}
 		else
@@ -320,7 +338,11 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		}
 	
 		if (msg->genericMsg.flags & RSSL_GNMF_HAS_EXTENDED_HEADER)
+		{
 			position += rwfGetBuffer8(&msg->genericMsg.extendedHeader, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+		}
 		else
 			rsslClearBuffer(&msg->genericMsg.extendedHeader);
 
@@ -345,9 +367,13 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->genericMsg.flags & RSSL_GNMF_HAS_REQ_MSG_KEY)
 		{
 			position += rwfGetResBitU15(&keySize, position);
-			/* dont iterate position by this value anymore.  We want to add the keySize to position */
-			rsslDecodeBaseKey(&msg->genericMsg.reqMsgKey, position);
-			/* add keySize to position */
+			if ((position + keySize) > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+
+			/* make sure that the actual size matches expected  */
+			if (keySize != rsslDecodeBaseKey(&msg->genericMsg.reqMsgKey, position))
+				return RSSL_RET_INVALID_DATA;
+
 			position += keySize;
 		}
 		else
@@ -362,18 +388,23 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		/* need to scale containerType */
 		msg->msgBase.containerType += RSSL_DT_CONTAINER_TYPE_MIN;
 
+
 		if (msg->refreshMsg.flags & RSSL_RFMF_HAS_SEQ_NUM)
 			position += rwfGet32(msg->refreshMsg.seqNum , position);
 		else
 			msg->refreshMsg.seqNum = 0;
 	
 		position = _rsslDecodeState(&msg->refreshMsg.state, position);
+		if (position >= dIter->_levelInfo->_endBufPtr)
+			return RSSL_RET_INCOMPLETE_DATA;
 
 		position += rwfGetBuffer8(&msg->refreshMsg.groupId, position);
 			
 		if (msg->refreshMsg.flags & RSSL_RFMF_HAS_PERM_DATA)
 		{
 			position = _rsslDecodeBuffer15(&msg->refreshMsg.permData, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 		}
 		else
 		{
@@ -383,6 +414,8 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->refreshMsg.flags & RSSL_RFMF_HAS_QOS)
 		{
 	        position = _rsslDecodeQos( &msg->refreshMsg.qos, position );
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 		}
 		else
 		{
@@ -396,9 +429,13 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->refreshMsg.flags & RSSL_RFMF_HAS_MSG_KEY)
 		{
 			position += rwfGetResBitU15(&keySize, position);
-			/* dont iterate position by this value anymore.  We want to add the keySize to position */
-    		rsslDecodeBaseKey(&msg->msgBase.msgKey, position);
-			/* add keySize to position */
+			if ((position + keySize) > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+
+			/* make sure that the actual size matches expected  */
+			if (keySize != rsslDecodeBaseKey(&msg->msgBase.msgKey, position))
+				return RSSL_RET_INVALID_DATA;
+
 			position += keySize;
 		}
 		else
@@ -410,6 +447,9 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 			position += rwfGetBuffer8(&msg->refreshMsg.extendedHeader, position);
 		else
 			rsslClearBuffer(&msg->refreshMsg.extendedHeader);
+
+		if (position > dIter->_levelInfo->_endBufPtr)
+			return RSSL_RET_INCOMPLETE_DATA;
 
 		if (msg->refreshMsg.flags & RSSL_RFMF_HAS_POST_USER_INFO)
 		{
@@ -453,9 +493,13 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->refreshMsg.flags & RSSL_RFMF_HAS_REQ_MSG_KEY)
 		{
 			position += rwfGetResBitU15(&keySize, position);
-			/* dont iterate position by this value anymore.  We want to add the keySize to position */
-			rsslDecodeBaseKey(&msg->refreshMsg.reqMsgKey, position);
-			/* add keySize to position */
+			if ((position + keySize) > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+
+			/* make sure that the actual size matches expected  */
+			if (keySize != rsslDecodeBaseKey(&msg->refreshMsg.reqMsgKey, position))
+				return RSSL_RET_INVALID_DATA;
+
 			position += keySize;
 		}
 		else
@@ -487,16 +531,25 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 			msg->postMsg.postId = 0;
 
 		if(msg->postMsg.flags & RSSL_PSMF_HAS_PERM_DATA)
+		{
 			position = _rsslDecodeBuffer15(&msg->postMsg.permData, position);
+		}
 		else 
 			rsslClearBuffer(&msg->postMsg.permData);	
 			
+		if (position > dIter->_levelInfo->_endBufPtr)
+			return RSSL_RET_INCOMPLETE_DATA;
+
 		if (msg->postMsg.flags & RSSL_PSMF_HAS_MSG_KEY)
 		{
 			position += rwfGetResBitU15(&keySize, position);
-			/* dont iterate position by this value anymore.  We want to add the keySize to position */
-			rsslDecodeBaseKey(&msg->msgBase.msgKey, position);
-			/* add keySize to position */
+			if ((position + keySize) > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+
+			/* make sure that the actual size matches expected  */
+			if (keySize != rsslDecodeBaseKey(&msg->msgBase.msgKey, position))
+				return RSSL_RET_INVALID_DATA;
+
 			position += keySize;
 		}
 		else
@@ -564,6 +617,8 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->requestMsg.flags & RSSL_RQMF_HAS_QOS)
 		{
 	        position = _rsslDecodeQos( &msg->requestMsg.qos, position );
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 		}
 		else
 		{
@@ -588,9 +643,13 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		}
 
 		position += rwfGetResBitU15(&keySize, position);
-		/* dont iterate position by this value anymore.  We want to add the keySize to position */
-		rsslDecodeBaseKey(&msg->msgBase.msgKey, position);
-		/* add keySize to position */
+		if ((position + keySize) > dIter->_levelInfo->_endBufPtr)
+			return RSSL_RET_INCOMPLETE_DATA;
+
+		/* make sure that the actual size matches expected  */
+		if (keySize != rsslDecodeBaseKey(&msg->msgBase.msgKey, position))
+			return RSSL_RET_INVALID_DATA;
+
 		position += keySize;
 
 		if (msg->requestMsg.flags & RSSL_RQMF_HAS_EXTENDED_HEADER)
@@ -608,11 +667,15 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->statusMsg.flags & RSSL_STMF_HAS_STATE)
 		{
 			position = _rsslDecodeState(&msg->statusMsg.state, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 		}
 		
 		if (msg->statusMsg.flags & RSSL_STMF_HAS_GROUP_ID)
 		{
 			position += rwfGetBuffer8(&msg->statusMsg.groupId, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 		}
 		else
 		{
@@ -622,6 +685,8 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->statusMsg.flags & RSSL_STMF_HAS_PERM_DATA)
 		{
 			position = _rsslDecodeBuffer15(&msg->statusMsg.permData, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 		}
 		else
 		{
@@ -631,7 +696,13 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->statusMsg.flags & RSSL_STMF_HAS_MSG_KEY)
 		{
 			position += rwfGetResBitU15(&keySize, position);
-    		rsslDecodeBaseKey(&msg->msgBase.msgKey, position);
+			if ((position + keySize) > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+
+			/* make sure that the actual size matches expected  */
+			if (keySize != rsslDecodeBaseKey(&msg->msgBase.msgKey, position))
+				return RSSL_RET_INVALID_DATA;
+
 			position += keySize;
 		}
 		else
@@ -640,7 +711,11 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		}
 
 		if (msg->statusMsg.flags & RSSL_STMF_HAS_EXTENDED_HEADER)
+		{
 			position += rwfGetBuffer8(&msg->statusMsg.extendedHeader, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+		}
 		else
 			rsslClearBuffer(&msg->statusMsg.extendedHeader);
 
@@ -668,9 +743,13 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		if (msg->statusMsg.flags & RSSL_STMF_HAS_REQ_MSG_KEY)
 		{
 			position += rwfGetResBitU15(&keySize, position);
-			/* dont iterate position by this value anymore.  We want to add the keySize to position */
-			rsslDecodeBaseKey(&msg->statusMsg.reqMsgKey, position);
-			/* add keySize to position */
+			if ((position + keySize) > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+
+			/* make sure that the actual size matches expected  */
+			if (keySize != rsslDecodeBaseKey(&msg->statusMsg.reqMsgKey, position))
+				return RSSL_RET_INVALID_DATA;
+
 			position += keySize;
 		}
 		else
@@ -687,7 +766,11 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 	
 
 		if (msg->closeMsg.flags & RSSL_CLMF_HAS_EXTENDED_HEADER)
+		{
 			position += rwfGetBuffer8(&msg->closeMsg.extendedHeader, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+		}
 		else
 			rsslClearBuffer(&msg->closeMsg.extendedHeader);
 		break;
@@ -711,6 +794,8 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
 		{
 			/*position += rsslDecodeSmallBuffer(&msg->ackMsg.text, position); */
 			position += rwfGetBuffer16(&msg->ackMsg.text, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
 		}
 		else
 		{
@@ -725,8 +810,14 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
         if (msg->ackMsg.flags & RSSL_AKMF_HAS_MSG_KEY)
         {
             position += rwfGetResBitU15(&keySize, position);
-            rsslDecodeBaseKey(&msg->msgBase.msgKey, position);
-            position += keySize;
+			if ((position + keySize) > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+
+			/* make sure that the actual size matches expected  */
+			if (keySize != rsslDecodeBaseKey(&msg->msgBase.msgKey, position))
+				return RSSL_RET_INVALID_DATA;
+
+			position += keySize;
         }
         else
         {
@@ -734,7 +825,11 @@ RSSL_API RsslRet rsslDecodeMsgHeader(const RsslDecodeIterator * dIter, RsslMsg *
         }
 
 		if (msg->ackMsg.flags & RSSL_AKMF_HAS_EXTENDED_HEADER)
+		{
 			position += rwfGetBuffer8(&msg->ackMsg.extendedHeader, position);
+			if (position > dIter->_levelInfo->_endBufPtr)
+				return RSSL_RET_INCOMPLETE_DATA;
+		}
 		else
 			rsslClearBuffer(&msg->ackMsg.extendedHeader);
 		break;

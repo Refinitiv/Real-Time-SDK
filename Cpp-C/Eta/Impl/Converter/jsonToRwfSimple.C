@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|        Copyright (C) 2019-2020,2024 LSEG. All rights reserved.            --
+ *|        Copyright (C) 2019-2020,2024-2025 LSEG. All rights reserved.       --
  *|-----------------------------------------------------------------------------
  */
 
@@ -30,6 +30,7 @@ jsonToRwfSimple::jsonToRwfSimple(int bufSize, unsigned int flags, int numTokens,
 	_batchReqTokPtr(0),
 	_batchCloseTokPtr(0),
 	_enumTableDefinition(0),
+	_enumTableDefinitionPtr(0),
 	_pDictionaryEntry(0),
 	jsonToRwfBase(bufSize, flags, numTokens, incSize)
 {
@@ -41,24 +42,20 @@ jsonToRwfSimple::jsonToRwfSimple(int bufSize, unsigned int flags, int numTokens,
 
 jsonToRwfSimple::~jsonToRwfSimple()
 {
-	if (_enumTableDefinition)
+	if (_enumTableDefinitionPtr)
 	{
-		EnumTableDefinition** pEnumTableDefinitionTemp = NULL;
-		EnumTableDefinition*  pEnumTableDef = NULL;
-
-		for (int i = RSSL_MIN_FID; i <= RSSL_MAX_FID; i++)
+		for (int i = 0; i < (RSSL_MAX_FID - RSSL_MIN_FID + 1); ++i)
 		{
-			pEnumTableDef = _enumTableDefinition[i];
-			if (pEnumTableDef)
+			if (_enumTableDefinitionPtr[i])
 			{
-				pEnumTableDef->decreaseRefCount();
+				--(_enumTableDefinitionPtr[i]->_referenceCount);
+				if (_enumTableDefinitionPtr[i]->_referenceCount == 0)
+					delete _enumTableDefinitionPtr[i];
 			}
 		}
 
-		pEnumTableDefinitionTemp = (EnumTableDefinition**)&_enumTableDefinition[RSSL_MIN_FID < 0 ? (RSSL_MIN_FID) : 0];
-
-		free(pEnumTableDefinitionTemp);
-		_enumTableDefinition = NULL;
+		free(_enumTableDefinitionPtr);
+		_enumTableDefinitionPtr = NULL;
 	}
 
 	if(_utf8Buf)
@@ -8521,6 +8518,7 @@ bool jsonToRwfSimple::processEnumeration(jsmntok_t ** const tokPtr, RsslBuffer *
 					fieldId = pEnumTypeTable->fidReferences[index];
 
 					_enumTableDefinition[fieldId] = pEnumTableDefinition;
+					++(pEnumTableDefinition->_referenceCount);
 				}
 
 				/* Checks whether found the enum value*/
@@ -9541,9 +9539,9 @@ RsslRet jsonToRwfSimple::initializeEnumTableDefinition()
 	// Checks to ensure that the Enum Table Definition hasn't been initialized.
 	if (_enumTableDefinition == 0 )
 	{
-		EnumTableDefinition** newEnumTableDef = (EnumTableDefinition**)calloc((RSSL_MAX_FID - RSSL_MIN_FID + 1), sizeof(EnumTableDefinition*));
+		_enumTableDefinitionPtr = (EnumTableDefinition**)calloc((RSSL_MAX_FID - RSSL_MIN_FID + 1), sizeof(EnumTableDefinition*));
 
-		if (newEnumTableDef == NULL)
+		if (_enumTableDefinitionPtr == NULL)
 		{
 			_error = true;
 
@@ -9552,7 +9550,7 @@ RsslRet jsonToRwfSimple::initializeEnumTableDefinition()
 			return RSSL_RET_FAILURE;
 		}
 
-		_enumTableDefinition = (EnumTableDefinition**)&newEnumTableDef[RSSL_MIN_FID < 0 ? -(RSSL_MIN_FID) : 0];
+		_enumTableDefinition = (EnumTableDefinition**)&_enumTableDefinitionPtr[RSSL_MIN_FID < 0 ? -(RSSL_MIN_FID) : 0];
 	}
 
 	return RSSL_RET_SUCCESS;
