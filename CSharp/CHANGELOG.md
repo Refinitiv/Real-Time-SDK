@@ -10,23 +10,36 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.2.3.L1 aka EMA/ETA 3.3.1.L1 aka 3.3.1.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.2.3.G2 aka EMA/ETA 3.3.1.G2 aka 3.3.1.1
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with support for Windows 11, customer issue fixes and other minor enhancements. Note that starting with this version, EMA configuration is validated/enforced using an embedded schema file.
+This is a maintenance release which incorporates a GitHub Pull request.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [Case Number: 13278230] - [RTSDK-8244] - Qualification on Windows 11
-- [GitHub #289] - [RTSDK-9142] - ETA C# RMTESToUTF8 does not work 
+- [GitHub Pull Request #300, GitHub #301] - [RTSDK-9563] - GitHub Pull Request to fix DirectoryConfigMap property should be used instead of DictionaryConfigMap 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 ---------------------------------------------
+RTSDK CSharp Release 2.2.3.G2 (Mar 21, 2025)
+---------------------------------------------
+
+EMA CSharp 3.3.1.G2/3.3.1.1 Issues Resolved
+-------------------------------------------
+- [RTSDK-9563] - GitHub Pull Request to fix DirectoryConfigMap property should be used instead of DictionaryConfigMap [GitHub Pull Request #300, GitHub #301]
+
+---------------------------------------------
+RTSDK 2.2.3.G1 Release: No changes for CSharp
+---------------------------------------------
+
+---------------------------------------------
 RTSDK CSharp Release 2.2.3.L1 (Dec 13, 2024)
 ---------------------------------------------
+
+This is a maintenance release with support for Windows 11, customer issue fixes and other minor enhancements. Note that starting with this version, EMA configuration is validated/enforced using an embedded schema file.
 
 EMA CSharp 3.3.1.L1 Issues Resolved
 -----------------------------------
