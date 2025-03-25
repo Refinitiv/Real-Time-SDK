@@ -246,7 +246,7 @@ void refinitiv::ema::access::ChannelInfoImpl::getChannelInformationImpl(const Rs
 	else
 	  ci.ipAddress("not available for OmmConsumer connections");
   }
-  return getChannelInformation(rsslReactorChannel, rsslChannel, ci);
+  return getChannelInformation(rsslReactorChannel, rsslChannel, ci, implType);
 }
 
 /* ci has been cleared and calling function has verified that channel arguments are non-null.
@@ -254,7 +254,8 @@ void refinitiv::ema::access::ChannelInfoImpl::getChannelInformationImpl(const Rs
  */
 void refinitiv::ema::access::ChannelInfoImpl::getChannelInformation(const RsslReactorChannel* rsslReactorChannel,
 												 const RsslChannel* rsslChannel,
-												 ChannelInformation& ci) {
+												 ChannelInformation& ci,
+												 OmmCommonImpl::ImplementationType implType) {
   // create channel info
   EmaString componentInfo;
   RsslErrorInfo rsslErrorInfo;
@@ -277,8 +278,10 @@ void refinitiv::ema::access::ChannelInfoImpl::getChannelInformation(const RsslRe
 		.sysRecvBufSize(rsslReactorChannelInfo.rsslChannelInfo.sysRecvBufSize)
 		.compressionType(rsslReactorChannelInfo.rsslChannelInfo.compressionType)
 		.compressionThreshold(rsslReactorChannelInfo.rsslChannelInfo.compressionThreshold)
-		.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol)
-		.preferredHostInfo(&rsslReactorChannelInfo.rsslPreferredHostInfo, rsslReactorChannel->userSpecPtr);
+		.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol);
+
+	if (implType != OmmCommonImpl::NiProviderEnum && implType != OmmCommonImpl::IProviderEnum)
+		ci.preferredHostInfo(&rsslReactorChannelInfo.rsslPreferredHostInfo, rsslReactorChannel->userSpecPtr);
   }
   else
 	componentInfo.append("unavailable");

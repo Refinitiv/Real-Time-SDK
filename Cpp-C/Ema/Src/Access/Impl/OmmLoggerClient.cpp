@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2021 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2021, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -433,12 +433,12 @@ void OmmLoggerClient::log( const EmaString& callbackClientName, Severity severit
 void OmmLoggerClient::addLogLine( const EmaString& callbackClientName, Severity severity, const char* text )
 {
 	if ( _pOutput ) {
-		_logLine.set("loggerMsg\n")
-			.append("    TimeStamp: ").append(timeString(_includeDateInLoggerOutput)).append("\n")
-			.append("    ClientName: ").append(callbackClientName).append("\n")
-			.append("    Severity: ").append(loggerSeverityString(severity)).append("\n")
-			.append("    Text:    ").append(text).append("\n")
-			.append("loggerMsgEnd\n\n");
+		_logLine.set("\nloggerMsg")
+			.append("\n\tTimeStamp: ").append(timeString(_includeDateInLoggerOutput))
+			.append("\n\tClientName: ").append(callbackClientName)
+			.append("\n\tSeverity: ").append(loggerSeverityString(severity))
+			.append("\n\tText:    ").append(text)
+			.append("\nloggerMsgEnd\n");
 
 		fprintf( _pOutput, "%s", _logLine.c_str() );
 		fflush( _pOutput );

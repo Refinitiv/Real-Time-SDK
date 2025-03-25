@@ -75,7 +75,7 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
 
     Library Name            Package Version
     ------------            ----------------
-    LSEG.Ema.Core.dll       3.3.1.1
+    LSEG.Ema.Core.dll       ema3.3.1.1
 
 # EMA CSharp Issues and Workarounds
 
