@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1602,12 +1602,12 @@ RSSL_API RsslRet rsslDateTimeStringToDateTime(RsslDateTime *oDateTime, const Rss
 	}
 
 	tmpBuf.data = iDateTimeString->data;
-	tmpBuf.length = (unsigned long)((unsigned long long)tmp - (unsigned long long)iDateTimeString->data);
+	tmpBuf.length = (RsslUInt32)(tmp - iDateTimeString->data);
 
 	if (RSSL_RET_SUCCESS != (ret = rsslDateStringToDate(&oDateTime->date, &tmpBuf))) return ret;
 
 	tmpBuf.data = tmp;
-	tmpBuf.length = (RsslUInt32) strlen(tmpBuf.data);
+	tmpBuf.length = (RsslUInt32)(end - tmp);
 
 	if (RSSL_RET_SUCCESS != (ret = rsslTimeStringToTime(&oDateTime->time, &tmpBuf))) return ret;
 

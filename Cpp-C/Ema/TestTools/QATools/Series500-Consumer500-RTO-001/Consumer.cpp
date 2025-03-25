@@ -1,19 +1,18 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright (C) 2025 LSEG. All rights reserved.                   --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
-#include <cstring>
-#include <stdlib.h>
-#include <stdio.h>
 
 using namespace refinitiv::ema::access;
 using namespace std;
 
+//APIQA
 bool connectWebSocket = false;
+//END APIQA
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
 {
@@ -30,6 +29,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 	cout << statusMsg << endl;		// defaults to statusMsg.toString()
 }
 
+//APIQA
 void printHelp()
 {
 	cout << endl << "Options:\n" << " -?\tShows this usage" << endl
@@ -53,11 +53,14 @@ void printHelp()
 		<< " -ppasswd Password on proxy server (optional)." << endl
 		<< " -pdomain Proxy Domain (optional)." << endl;
 }
+//END APIQA
 
 int main( int argc, char* argv[] )
 { 
 	try { 
 		AppClient client;
+		ChannelInformation channelInfo;
+//APIQA
 		OmmConsumerConfig config;
 		UInt8 userNameSet = 0;
 		UInt8 passwordSet = 0;
@@ -73,35 +76,35 @@ int main( int argc, char* argv[] )
 
 		EmaString itemName = "IBM.N";
 
-		for ( int i = 1; i < argc; i++ )
+		for (int i = 1; i < argc; i++)
 		{
-			if ( strcmp( argv[i], "-?" ) == 0 )
+			if (strcmp(argv[i], "-?") == 0)
 			{
 				printHelp();
 				return 0;
 			}
-			else if ( strcmp( argv[i], "-username" ) == 0 )
+			else if (strcmp(argv[i], "-username") == 0)
 			{
-				if ( i < (argc - 1) )
+				if (i < (argc - 1))
 				{
 					userNameSet = 1;
-					config.username( argv[++i] );
+					config.username(argv[++i]);
 				}
 			}
-			else if ( strcmp( argv[i], "-password" ) == 0 )
+			else if (strcmp(argv[i], "-password") == 0)
 			{
-				if ( i < (argc - 1) )
+				if (i < (argc - 1))
 				{
 					passwordSet = 1;
-					config.password( argv[++i] );
+					config.password(argv[++i]);
 				}
 			}
-			else if ( strcmp( argv[i], "-clientId" ) == 0 )
+			else if (strcmp(argv[i], "-clientId") == 0)
 			{
-				if ( i < (argc - 1) )
+				if (i < (argc - 1))
 				{
 					clientIdSet = 1;
-					config.clientId( argv[++i] );
+					config.clientId(argv[++i]);
 				}
 			}
 			else if (strcmp(argv[i], "-clientSecret") == 0)
@@ -139,8 +142,8 @@ int main( int argc, char* argv[] )
 						return 0;
 					}
 
-					clientJWKSet = 1;
 					clientJwk.set(clientJwkMem, readSize);
+
 					config.clientJWK(clientJwk);
 				}
 			}
@@ -152,19 +155,19 @@ int main( int argc, char* argv[] )
 
 					if (takeExclusiveSignOnControlStr.caseInsensitiveCompare("true"))
 					{
-						config.takeExclusiveSignOnControl( true );
+						config.takeExclusiveSignOnControl(true);
 					}
 					else if (takeExclusiveSignOnControlStr.caseInsensitiveCompare("false"))
 					{
-						config.takeExclusiveSignOnControl( false );
+						config.takeExclusiveSignOnControl(false);
 					}
 				}
 			}
 			else if (strcmp(argv[i], "-tokenURL") == 0)
 			{
-				if ( i < (argc - 1) )
+				if (i < (argc - 1))
 				{
-					config.tokenServiceUrlV1( argv[++i] );
+					config.tokenServiceUrlV1(argv[++i]);
 				}
 			}
 			else if (strcmp(argv[i], "-tokenURLV1") == 0)
@@ -183,9 +186,9 @@ int main( int argc, char* argv[] )
 			}
 			else if (strcmp(argv[i], "-serviceDiscoveryURL") == 0)
 			{
-				if ( i < (argc - 1) )
+				if (i < (argc - 1))
 				{
-					config.serviceDiscoveryUrl( argv[++i] );
+					config.serviceDiscoveryUrl(argv[++i]);
 				}
 			}
 			else if (strcmp(argv[i], "-itemName") == 0)
@@ -196,50 +199,55 @@ int main( int argc, char* argv[] )
 			{
 				connectWebSocket = true;
 			}
-			else if ( strcmp( argv[i], "-ph" ) == 0 )
+			else if (strcmp(argv[i], "-ph") == 0)
 			{
-				config.tunnelingProxyHostName( i < ( argc - 1 ) ? argv[++i] : NULL );
+				config.tunnelingProxyHostName(i < (argc - 1) ? argv[++i] : NULL);
 			}
-			else if ( strcmp( argv[i], "-pp" ) == 0 )
+			else if (strcmp(argv[i], "-pp") == 0)
 			{
-				config.tunnelingProxyPort( i < ( argc - 1 ) ? argv[++i] : NULL );
+				config.tunnelingProxyPort(i < (argc - 1) ? argv[++i] : NULL);
 			}
-			else if ( strcmp( argv[i], "-plogin" ) == 0 )
+			else if (strcmp(argv[i], "-plogin") == 0)
 			{
-				config.proxyUserName( i < (argc - 1 ) ? argv[++i] : NULL );
+				config.proxyUserName(i < (argc - 1) ? argv[++i] : NULL);
 			}
-			else if ( strcmp( argv[i], "-ppasswd" ) == 0 )
+			else if (strcmp(argv[i], "-ppasswd") == 0)
 			{
-				config.proxyPasswd( i < ( argc - 1 ) ? argv[++i] : NULL );
+				config.proxyPasswd(i < (argc - 1) ? argv[++i] : NULL);
 			}
-			else if ( strcmp( argv[i], "-pdomain" ) == 0)
+			else if (strcmp(argv[i], "-pdomain") == 0)
 			{
-				config.proxyDomain( i < (argc - 1 ) ? argv[++i] : NULL );
+				config.proxyDomain(i < (argc - 1) ? argv[++i] : NULL);
 			}
 		}
 
-		if ( (!userNameSet || !passwordSet || !clientIdSet) && (!clientIdSet || (!clientSecretSet && !clientJWKSet) ))
+		if ((!userNameSet || !passwordSet || !clientIdSet) && (!clientIdSet || (!clientSecretSet && !clientJWKSet)))
 		{
-			cout << "Username, password and clientId or clientId and clientSecret or clientId and jwkFile must be specified on the command line. Exiting..." << endl;
+			cout << "User name, password and client Id or client Id and client secret must be specified on the command line. Exiting..." << endl;
 			printHelp();
 			return -1;
 		}
 
-		// use the "Consumer_4" to select EncryptedProtocolType::RSSL_SOCKET predefined in EmaConfig.xml
-		EmaString consumerName = "Consumer_4";
+		EmaString consumerName = "Consumer_9";
 
 		if (connectWebSocket)
 		{
-			// use the "Consumer_5" to select EncryptedProtocolType::RSSL_WEBSOCKET predefined in EmaConfig.xml
-			consumerName.set( "Consumer_5" );
+			// use the "Consumer_9_2" to select EncryptedProtocolType::RSSL_WEBSOCKET predefined in EmaConfig.xml
+			consumerName.set("Consumer_9_2");
 		}
 
-		OmmConsumer consumer( config.consumerName( consumerName ) );
-		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( itemName ), client );
-		sleep( 900000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+		OmmConsumer consumer(config.consumerName(consumerName));
+		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name(itemName), client );
+//END APIQA
+		for (int i = 1; i < 60; i++)
+		{
+			consumer.getChannelInformation(channelInfo);
+			cout << channelInfo << endl;
+			channelInfo.clear();
+			sleep(1000);
+		}
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;
 	}
-
 	return 0;
 }

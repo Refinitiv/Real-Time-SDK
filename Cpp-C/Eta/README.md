@@ -10,7 +10,7 @@ ETA provides the necessary libraries and information to allow for OMM/RWF encodi
 
 This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK build via CMake when building from GitHub. The BinaryPack is also available for download as a separate RRG archive.
 
-Copyright (C) 2019-2024 LSEG. All rights reserved.
+Copyright (C) 2019-2025 LSEG. All rights reserved.
 
 # ETA C-Edition Documentation
 
@@ -140,11 +140,11 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib*              eta3.8.3.L1
-    librsslVA.lib             eta3.8.3.L1
-    librsslVACache.lib        eta3.8.3.L1
-    libansi.lib               eta3.8.3.L1
-    libdacs.lib               eta3.8.3.L1
+    librssl.lib*              eta3.8.3.G1
+    librsslVA.lib             eta3.8.3.G1
+    librsslVACache.lib        eta3.8.3.G1
+    libansi.lib               eta3.8.3.G1
+    libdacs.lib               eta3.8.3.G1
 
     *librssl.lib includes JsonConverter
 
@@ -152,18 +152,18 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.8.3.L1
-    librssl.lib               eta3.8.3.L1
-    librssl.pdb               eta3.8.3.L1
-    librsslVA.dll             eta3.8.3.L1
-    librsslVA.lib             eta3.8.3.L1
-    librsslVA.pdb             eta3.8.3.L1
-    librsslVACache.dll        eta3.8.3.L1
-    librsslVACache.lib        eta3.8.3.L1
-    librsslVACache.pdb        eta3.8.3.L1
-    librsslJsonConverter.dll  eta3.8.3.L1
-    librsslJsonConverter.lib  eta3.8.3.L1
-    librsslJsonConverter.pdb  eta3.8.3.L1
+    librssl.dll               eta3.8.3.G1
+    librssl.lib               eta3.8.3.G1
+    librssl.pdb               eta3.8.3.G1
+    librsslVA.dll             eta3.8.3.G1
+    librsslVA.lib             eta3.8.3.G1
+    librsslVA.pdb             eta3.8.3.G1
+    librsslVACache.dll        eta3.8.3.G1
+    librsslVACache.lib        eta3.8.3.G1
+    librsslVACache.pdb        eta3.8.3.G1
+    librsslJsonConverter.dll  eta3.8.3.G1
+    librsslJsonConverter.lib  eta3.8.3.G1
+    librsslJsonConverter.pdb  eta3.8.3.G1
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
@@ -181,22 +181,22 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.8.3.L1
-    librsslVA.a                        eta3.8.3.L1
-    librsslVACache.a                   eta3.8.3.L1
-    libansi.lib                        eta3.8.3.L1
-    libdacs.lib                        eta3.8.3.L1
+    librssl.a                          eta3.8.3.G1
+    librsslVA.a                        eta3.8.3.G1
+    librsslVACache.a                   eta3.8.3.G1
+    libansi.lib                        eta3.8.3.G1
+    libdacs.lib                        eta3.8.3.G1
 
 ##### Shared Library Manifest
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.8.3.0                 librssl.so.26                   eta3.8.3.L1
-    librsslVA.so.3.8.3.0               librsslVA.so.26                 eta3.8.3.L1
-    librsslJsonConverter.so.3.8.3.0    librsslJsonConverter.so.2       eta3.8.3.L1
+    librssl.so.3.8.3.2                 librssl.so.27                   eta3.8.3.G1
+    librsslVA.so.3.8.3.2               librsslVA.so.26                 eta3.8.3.G1
+    librsslJsonConverter.so.3.8.3.2    librsslJsonConverter.so.2       eta3.8.3.G1
 
-    librsslVACache.so.3.8.3.0          librsslVACache.so.4             eta3.8.3.L1
-    librsslRelMcast.so.3.8.3.0         librsslRelMcast.so.3            eta3.8.3.L1
+    librsslVACache.so.3.8.3.2          librsslVACache.so.4             eta3.8.3.G1
+    librsslRelMcast.so.3.8.3.2         librsslRelMcast.so.3            eta3.8.3.G1
 
 
 # ETA C-Edition Issues and Workarounds

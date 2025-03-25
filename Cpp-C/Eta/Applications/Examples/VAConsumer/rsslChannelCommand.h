@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019, 2024 LSEG. All rights reserved.
+ * Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_CHANNEL_COMMAND_H
@@ -26,7 +26,9 @@
 #include <sys/timeb.h>
 
 #ifdef WIN32
+#if _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -592,7 +594,7 @@ RTR_C_INLINE RsslUInt32 dumpDateTime(char* buf, RsslUInt32 size)
 #endif
 
 	// yyyy-MM-dd HH:mm:ss.SSS
-	res = snprintf(buf, size, "<!-- %4ld-%02ld-%02ld %02ld:%02ld:%02ld.%03ld -->",
+	res = snprintf(buf, size, "<!-- %4d-%02d-%02d %02ld:%02ld:%02ld.%03ld -->",
 		(stamptime.tm_year + 1900),
 		(stamptime.tm_mon + 1),
 		stamptime.tm_mday,

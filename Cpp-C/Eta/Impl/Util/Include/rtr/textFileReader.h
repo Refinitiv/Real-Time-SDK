@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -48,7 +48,7 @@ static int _textFileReaderReallocateStrings(TextFileReader *pReader, int length,
 			|| (pReader->usrString = (char*)realloc((void*)pReader->usrString, length)) == NULL
 			|| (pReader->usrString2 = (char*)realloc((void*)pReader->usrString2, length)) == NULL)
 	{
-#ifdef WIN32
+#if (defined WIN32) && (_MSC_VER < 1900)
 		_snprintf
 #else
 		snprintf

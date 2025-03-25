@@ -601,6 +601,10 @@ Series100IProvider170-ProvFunc-001
 	Alters Interactive Provider to parse IOControl parameters as an input argument to modify their values and get those values to display after modifying i.e.
     -maxOutputBuffers, 	-guranteedOutputBuffers, -compressionThreshold
 
+Module:	 Series200IProvider200
+--------------------------
+Series200Provider200-ProvFunc-001
+	Alters Interactive Provider to provide views for multi threaded consumer. Compatible with Series300Consumer360-MultiThreadViews-001.
 
 Module:	 Series200IProvider260
 ---------------------------

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020, 2024 LSEG. All rights reserved.         --
+ *|          Copyright (C) 2019-2020, 2024-2025 LSEG. All rights reserved.    --
  *|-----------------------------------------------------------------------------
  */
 
@@ -213,13 +213,13 @@ ChannelInformation& ChannelInformation::encryptionProtocol(UInt64 encryptionProt
 }
 
 ChannelInformation& ChannelInformation::preferredHostInfo(void* rsslPreferredHostInfo, const void* channel) {
-	_preferredHostInfo.enablePreferredHostOptions(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isPreferredHostEnabled);
+	_preferredHostInfo.enablePreferredHostOptions(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isPreferredHostEnabled != RSSL_FALSE);
 	_preferredHostInfo.preferredChannelName(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->connectionListIndex, channel);
 	_preferredHostInfo.phDetectionTimeInterval(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->detectionTimeInterval);
 	_preferredHostInfo.phDetectionTimeSchedule(EmaString(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->detectionTimeSchedule.data, ((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->detectionTimeSchedule.length));
 	_preferredHostInfo.preferredWSBChannelName(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->warmStandbyGroupListIndex, channel);
-	_preferredHostInfo.phFallBackWithInWSBGroup((bool)((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->fallBackWithInWSBGroup);
-	_preferredHostInfo.isChannelPreferred(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isChannelPreferred);
+	_preferredHostInfo.phFallBackWithInWSBGroup(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->fallBackWithInWSBGroup != RSSL_FALSE);
+	_preferredHostInfo.isChannelPreferred(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isChannelPreferred != RSSL_FALSE);
 	_preferredHostInfo.remainingDetectionTime(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->remainingDetectionTime);
 
   return *this;
@@ -246,7 +246,7 @@ void refinitiv::ema::access::ChannelInfoImpl::getChannelInformationImpl(const Rs
 	else
 	  ci.ipAddress("not available for OmmConsumer connections");
   }
-  return getChannelInformation(rsslReactorChannel, rsslChannel, ci);
+  return getChannelInformation(rsslReactorChannel, rsslChannel, ci, implType);
 }
 
 /* ci has been cleared and calling function has verified that channel arguments are non-null.
@@ -254,7 +254,8 @@ void refinitiv::ema::access::ChannelInfoImpl::getChannelInformationImpl(const Rs
  */
 void refinitiv::ema::access::ChannelInfoImpl::getChannelInformation(const RsslReactorChannel* rsslReactorChannel,
 												 const RsslChannel* rsslChannel,
-												 ChannelInformation& ci) {
+												 ChannelInformation& ci,
+												 OmmCommonImpl::ImplementationType implType) {
   // create channel info
   EmaString componentInfo;
   RsslErrorInfo rsslErrorInfo;
@@ -277,8 +278,10 @@ void refinitiv::ema::access::ChannelInfoImpl::getChannelInformation(const RsslRe
 		.sysRecvBufSize(rsslReactorChannelInfo.rsslChannelInfo.sysRecvBufSize)
 		.compressionType(rsslReactorChannelInfo.rsslChannelInfo.compressionType)
 		.compressionThreshold(rsslReactorChannelInfo.rsslChannelInfo.compressionThreshold)
-		.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol)
-		.preferredHostInfo(&rsslReactorChannelInfo.rsslPreferredHostInfo, rsslReactorChannel->userSpecPtr);
+		.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol);
+
+	if (implType != OmmCommonImpl::NiProviderEnum && implType != OmmCommonImpl::IProviderEnum)
+		ci.preferredHostInfo(&rsslReactorChannelInfo.rsslPreferredHostInfo, rsslReactorChannel->userSpecPtr);
   }
   else
 	componentInfo.append("unavailable");

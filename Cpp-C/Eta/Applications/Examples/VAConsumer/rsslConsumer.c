@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2024 LSEG. All rights reserved.
+ * Copyright (C) 2019-2025 LSEG. All rights reserved.
 */
 
 /*
@@ -1643,7 +1643,7 @@ static void parseConnectionListArg(ChannelCommand* pCommand, char* argStr, char*
 			/* Port */
 			pToken2 = strtok_r(NULL, ":", &pSaveToken2);
 			if (!pToken2 && !enableSessionMgnt) { printf("Error: Missing port. ind: %u\n", indHost); printUsageAndExit(appName); }
-			snprintf(pCommand->port[indHost], MAX_BUFFER_LENGTH, "%s", pToken2);
+			else snprintf(pCommand->port[indHost], MAX_BUFFER_LENGTH, "%s", pToken2);
 			if (indHost == 0)
 				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port[indHost];
 
@@ -1688,7 +1688,7 @@ RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactor
 {
 	RsslRet ret;
 	ChannelCommand *pCommand = pReactorChannel ? (ChannelCommand*)pReactorChannel->userSpecPtr: NULL;
-	char timeBuf[64];
+	char timeBuf[248] = { 0 };
 
 	// yyyy-MM-dd HH:mm:ss.SSS
 	dumpDateTime(timeBuf, sizeof(timeBuf));
@@ -1730,7 +1730,7 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 	RsslReactorOAuthCredentialRenewalOptions renewalOptions;
 	RsslReactorOAuthCredentialRenewal reactorOAuthCredentialRenewal;
 	RsslErrorInfo rsslError;
-	char timeBuf[64];
+	char timeBuf[248] = { 0 };
 
 	// yyyy-MM-dd HH:mm:ss.SSS
 	dumpDateTime(timeBuf, sizeof(timeBuf));
@@ -1760,7 +1760,7 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pConnEvent)
 {
 	ChannelCommand *pCommand = (ChannelCommand*)pReactorChannel->userSpecPtr;
-	char timeBuf[64];
+	char timeBuf[248] = { 0 };
 	time_t currTime;
 
 	currTime = time(NULL);
@@ -1823,7 +1823,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 						memcpy(hostName, pRsslChannel->hostname, len);
 					}
 
-					printf("pRsslChannel.state=%d, socketId=%llu. Host=%s:%u\n\n",
+					printf("pRsslChannel.state=%d, socketId="SOCKET_PRINT_TYPE". Host=%s:%u\n\n",
 						pRsslChannel->state, pRsslChannel->socketId, hostName, port);
 				}
 				else
@@ -1925,7 +1925,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 				printf("   Direct Fallback.\n");
 				printf("   Time interval: %u\n", preferredHostConfig.directFallbackTimeInterval);
-				printf("   Remaining time: %lld\n", (preferredHostConfig.directFallbackTime - time(NULL)));
+				printf("   Remaining time: %lld\n", (long long int)(preferredHostConfig.directFallbackTime - time(NULL)));
 				printf("\n");
 			}
 
@@ -1936,7 +1936,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 				printf("   Ioctl call to update PreferredHostOptions.\n");
 				printf("   Time interval: %u\n", preferredHostConfig.ioctlCallTimeInterval);
-				printf("   Remaining time: %lld\n", (preferredHostConfig.ioctlCallTime - time(NULL)));
+				printf("   Remaining time: %lld\n", (long long int)(preferredHostConfig.ioctlCallTime - time(NULL)));
 				printf("\n");
 			}
 

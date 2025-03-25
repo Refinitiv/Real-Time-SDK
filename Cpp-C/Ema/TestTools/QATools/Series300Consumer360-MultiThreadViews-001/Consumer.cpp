@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+// *|           Copyright (C) 2025 LSEG. All rights reserved.                 --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -21,9 +21,17 @@ using namespace std;
 //APIQA
 std::mutex mtx;
 
+AppClient::AppClient()
+{
+	_hasUpdateMsg = false;
+	_hasRefreshMsg = false;
+}
+
 AppClient::AppClient(bool debug)
 {
 	_debug = debug;
+	_hasUpdateMsg = false;
+	_hasRefreshMsg = false;
 }
 //END QA
 
@@ -48,6 +56,7 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 	if ( DataType::FieldListEnum == refreshMsg.getPayload().getDataType() )
 		decode( refreshMsg.getPayload().getFieldList() );
 
+	_hasRefreshMsg = true;
 }
 
 void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& )
@@ -69,6 +78,8 @@ void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent&
 
 	if ( DataType::FieldListEnum == updateMsg.getPayload().getDataType() )
 		decode( updateMsg.getPayload().getFieldList() );
+
+	_hasUpdateMsg = true;
 }
 
 void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& )
@@ -236,8 +247,13 @@ class ConsThread
 					mtx.unlock();
 				}
 
+				while(!(_appClient->_hasUpdateMsg && _appClient->_hasRefreshMsg))
+					this_thread::sleep_for(std::chrono::seconds(1));
+
 				_consumer->unregister(_itemHandle);
 				_itemHandle = 0;
+				_appClient->_hasUpdateMsg = false;
+				_appClient->_hasRefreshMsg = false;
 
 				if (_debug)
 				{

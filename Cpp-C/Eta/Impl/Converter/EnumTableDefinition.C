@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020 LSEG. All rights reserved.                   --
+ *|           Copyright (C) 2020, 2025 LSEG. All rights reserved.             --
  *|-----------------------------------------------------------------------------
  */
 
@@ -53,14 +53,6 @@ EnumTableDefinition::~EnumTableDefinition()
 		}
 
 		rsslHashTableCleanup(&_enumByDispalyValue);
-	}
-}
-
-void EnumTableDefinition::decreaseRefCount()
-{
-	if ( (_referenceCount > 0) && (--_referenceCount == 0) )
-	{
-		delete this;
 	}
 }
 
@@ -116,11 +108,9 @@ RsslRet EnumTableDefinition::addEnumDefinition(RsslEnumTypeTable* pEnumTypeTable
 					pEnumDefinition->enumValue = pEnumType->value;
 
 					rsslHashTableInsertLink(&_enumByDispalyValue, &pEnumDefinition->displayValueLink, &pEnumDefinition->enumDisplay, &hashSum);
-					++_referenceCount;
 
 					return RSSL_RET_SUCCESS;
 				}
-
 			}
 			else
 			{

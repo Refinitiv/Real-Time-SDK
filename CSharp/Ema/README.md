@@ -75,7 +75,7 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
 
     Library Name            Package Version
     ------------            ----------------
-    LSEG.Ema.Core.dll       ema3.3.1.L1
+    LSEG.Ema.Core.dll       ema3.3.1.1
 
 # EMA CSharp Issues and Workarounds
 
@@ -87,7 +87,7 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
     Product Name: Enterprise Message API - CSharp Edition
     Release Number: 3.3.1
     Load Number: 1
-    Load ID: emacsharp3.3.1.L1.all
+    Load ID: emacsharp3.3.1.L1.all 
         Supersedes: emacsharp3.3.0.L1.all 
     Release Status: RRG
     Release Type: RRG

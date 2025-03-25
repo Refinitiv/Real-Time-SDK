@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|        Copyright (C) 2019-2022,2024 LSEG. All rights reserved.            --
+ *|        Copyright (C) 2019-2022,2024,2025 LSEG. All rights reserved.       --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1555,7 +1555,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 				.append("Instance Name ").append(_ommBaseImpl.getInstanceName()).append(CR)
 				.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR);
 			
-			if (pEvent && pEvent->pError)
+			if (pEvent->pError)
 			{
 				temp.append( "RsslChannel " ).append( ptrToStringAsHex( pEvent->pError->rsslError.channel ) ).append( CR )
 				.append( "Error Id " ).append( pEvent->pError->rsslError.rsslErrorId ).append( CR )

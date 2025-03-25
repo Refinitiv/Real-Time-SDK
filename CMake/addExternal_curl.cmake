@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license 
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details. 
- *|             Copyright (C) 2024 LSEG. All rights reserved.
+ *|             Copyright (C) 2024, 2025 LSEG. All rights reserved.
 #]=============================================================================]
 
 
 include(rcdevExternalUtils)
 
 if(NOT curl_url)
-	set(curl_url "https://github.com/curl/curl/releases/download/curl-8_11_0/curl-8.11.0.tar.xz")
+	set(curl_url "https://github.com/curl/curl/releases/download/curl-8_12_1/curl-8.12.1.tar.xz")
 endif()
 if(NOT curl_hash)
-	set(curl_hash "MD5=49dd886ac84ed3de693464f78f1ee926")
+	set(curl_hash "MD5=7940975dd510399c4b27831165ab62e0")
 endif()
 if(NOT curl_version)
-	set(curl_version "8.11.0")
+	set(curl_version "8.12.1")
 endif()
 
 # If the option for using the system installed 
@@ -86,6 +86,7 @@ if((NOT curl_USE_INSTALLED) AND
 						"-DBUILD_LIBCURL_DOCS=OFF"
 						"-DBUILD_MISC_DOCS=OFF"
 						"-DENABLE_CURL_MANUAL=OFF"
+						"-DCURL_USE_LIBPSL=OFF"
 						)
 	endif()
 
@@ -252,13 +253,15 @@ if ((NOT CURL_FOUND) OR
 		set_property(TARGET CURL::libcurl APPEND PROPERTY IMPORTED_LOCATION "${CURL_LIBRARY}")
 	endif()
 
-	get_property(aliased_target TARGET CURL::libcurl PROPERTY ALIASED_TARGET)
-	if("${aliased_target}" STREQUAL "")
-		# is not an alias
-		rcdev_map_imported_ep_types(CURL::libcurl)
-	else()
-		# is an alias
-		rcdev_map_imported_ep_types(${aliased_target})
+	if(WIN32)
+		get_property(aliased_target TARGET CURL::libcurl PROPERTY ALIASED_TARGET)
+		if("${aliased_target}" STREQUAL "")
+			# is not an alias
+			rcdev_map_imported_ep_types(CURL::libcurl)
+		else()
+			# is an alias
+			rcdev_map_imported_ep_types(${aliased_target})
+		endif()
 	endif()
 
 	if( (DEFINED CURL_VERSION_STRING) AND

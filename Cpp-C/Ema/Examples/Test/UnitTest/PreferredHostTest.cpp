@@ -2,19 +2,23 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|        Copyright (C) 2024 LSEG. All rights reserved.	                  --
+ *|        Copyright (C) 2024, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 #include "TestUtilities.h"
 #include "Thread.h"
+#include "rtr/rsslReactor.h"
+#include "rtr/rsslTransport.h"
 
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
 using namespace std;
 
 static RsslUInt64 itemHandle = 0;
-static EmaString channelInfo;
+static EmaString consChannelInfo;
+static EmaString iprovChannelInfo;
+static EmaString niprovChannelInfo;
 
 static void sleep(int millisecs)
 {
@@ -110,6 +114,8 @@ public:
 			processInvalidItemRequest(reqMsg, event);
 			break;
 		}
+
+		iprovChannelInfo = event.getChannelInformation();
 	}
 };
 
@@ -120,7 +126,7 @@ public:
 
 	void onRefreshMsg(const RefreshMsg& refreshMsg, const OmmConsumerEvent& event)
 	{
-		channelInfo = event.getChannelInformation();
+		consChannelInfo = event.getChannelInformation();
 	}
 
 	void onUpdateMsg(const UpdateMsg& updateMsg, const OmmConsumerEvent& event)
@@ -128,13 +134,13 @@ public:
 		if (!updateCalled)
 		{
 			updateCalled = true;
-			channelInfo = event.getChannelInformation();
+			consChannelInfo = event.getChannelInformation();
 		}
 	}
 
 	void onStatusMsg(const StatusMsg& statusMsg, const OmmConsumerEvent& event)
 	{
-		channelInfo = event.getChannelInformation();
+		consChannelInfo = event.getChannelInformation();
 	}
 
 	bool updateCalled;
@@ -165,9 +171,9 @@ TEST_F(PreferredHostTest, PreferredHostTest_SwitchToPreferred_ChannelInfo)
 			count++;
 		}
 
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("14003"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph preferred host option: enabled"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph is channel preferred: non-preferred"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("14003"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph preferred host option: enabled"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph is channel preferred: non-preferred"));
 
 		OmmProviderTestClientPH providerCallback1;
 		OmmProvider provider1(OmmIProviderConfig(PreferredHostTest::emaConfigTest).providerName("Provider_1").port("14004"), providerCallback1);
@@ -182,17 +188,28 @@ TEST_F(PreferredHostTest, PreferredHostTest_SwitchToPreferred_ChannelInfo)
 		}
 
 		//Check that consumer switched on the preferred host
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("14004"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("14004"));
 
-		//check PH info
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph preferred host option: enabled"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph detection time schedule: */10 * * * * *"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph detection time interval: 10"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph channel name: Channel_13"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph wsb channel name:"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph fall back with in WSB group: disabled"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph is channel preferred: preferred"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph remaining detection time:"));
+		//check consumer PH info
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph preferred host option: enabled"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph detection time schedule: */10 * * * * *"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph detection time interval: 10"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph channel name: Channel_13"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph wsb channel name:"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph fall back with in WSB group: disabled"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph is channel preferred: preferred"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph remaining detection time:"));
+
+		//check provider PH info. Values would be default cause PH is not applicable to provider.
+		EXPECT_TRUE(EmaString::npos != iprovChannelInfo.find("ph preferred host option: disabled"));
+		EXPECT_TRUE(EmaString::npos != iprovChannelInfo.find("ph detection time schedule: "));
+		EXPECT_TRUE(EmaString::npos != iprovChannelInfo.find("ph detection time interval: 0"));
+		EXPECT_TRUE(EmaString::npos != iprovChannelInfo.find("ph channel name: "));
+		EXPECT_TRUE(EmaString::npos != iprovChannelInfo.find("ph wsb channel name: "));
+		EXPECT_TRUE(EmaString::npos != iprovChannelInfo.find("ph fall back with in WSB group: disabled"));
+		EXPECT_TRUE(EmaString::npos != iprovChannelInfo.find("ph is channel preferred: non-preferred"));
+		EXPECT_TRUE(EmaString::npos != iprovChannelInfo.find("ph remaining detection time: 0"));
+
 
 	}
 	catch (const OmmException& excp)
@@ -229,9 +246,9 @@ TEST_F(PreferredHostTest, PreferredHostTest_ModifiedPHWithIOCTL)
 			count++;
 		}
 
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("14004"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph preferred host option: enabled"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph is channel preferred: preferred"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("14004"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph preferred host option: enabled"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph is channel preferred: preferred"));
 
 		PreferredHostOptions phOptions;
 
@@ -251,16 +268,16 @@ TEST_F(PreferredHostTest, PreferredHostTest_ModifiedPHWithIOCTL)
 		}
 
 		//Check that consumer switched on the preferred host
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("14003"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("14003"));
 
 		//check PH info
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph preferred host option: enabled"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph detection time schedule: */5 * * * * *"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph detection time interval: 5"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph channel name: Channel_10"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph fall back with in WSB group: disabled"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph is channel preferred: preferred"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph remaining detection time:"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph preferred host option: enabled"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph detection time schedule: */5 * * * * *"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph detection time interval: 5"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph channel name: Channel_10"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph fall back with in WSB group: disabled"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph is channel preferred: preferred"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph remaining detection time:"));
 
 	}
 	catch (const OmmException& excp)
@@ -297,9 +314,9 @@ TEST_F(PreferredHostTest, PreferredHostTest_SetPHWithIOCtlAndPerformFallback)
 			count++;
 		}
 
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("14004"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph preferred host option: enabled"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph is channel preferred: preferred"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("14004"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph preferred host option: enabled"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph is channel preferred: preferred"));
 
 		PreferredHostOptions phOptions;
 
@@ -326,17 +343,315 @@ TEST_F(PreferredHostTest, PreferredHostTest_SetPHWithIOCtlAndPerformFallback)
 		}
 
 		//Check that consumer switched on the preferred host
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("14003"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("14003"));
 
 		//check PH info
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph preferred host option: enabled"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph detection time schedule: */50 * * * * *"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph detection time interval: 50"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph channel name: Channel_10"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph fall back with in WSB group: disabled"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph is channel preferred: preferred"));
-		EXPECT_TRUE(EmaString::npos != channelInfo.find("ph remaining detection time:"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph preferred host option: enabled"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph detection time schedule: */50 * * * * *"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph detection time interval: 50"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph channel name: Channel_10"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph fall back with in WSB group: disabled"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph is channel preferred: preferred"));
+		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("ph remaining detection time:"));
 
+	}
+	catch (const OmmException& excp)
+	{
+		EXPECT_TRUE(false) << "PreferredHostTest_FileConfig -- exception NOT expected : " << excp;
+	}
+}
+
+class ADHSimulator
+{
+public:
+	ADHSimulator(RsslCreateReactorOptions& reactorOpts, char* portNo)
+	{
+		if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
+		{
+			EXPECT_TRUE(false) << "Reactor creation failed: %s\n", rsslErrorInfo.rsslError.text;
+		}
+
+		sopts = RSSL_INIT_BIND_OPTS;
+		sopts.guaranteedOutputBuffers = 2000;
+		sopts.serviceName = portNo;
+		sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		sopts.minorVersion = RSSL_RWF_MINOR_VERSION;
+		sopts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+		sopts.connectionType = RSSL_CONN_TYPE_SOCKET;
+
+		if (!(rsslSrvr = rsslBind(&sopts, &rsslErrorInfo.rsslError)))
+		{
+			EXPECT_TRUE(false) << "rsslBind failed: %s\n", rsslErrorInfo.rsslError.text;
+		}
+	}
+
+	static RsslRet sendMessage(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslBuffer* msgBuf)
+	{
+		RsslErrorInfo rsslErrorInfo;
+		RsslRet	retval = 0;
+		RsslUInt32 outBytes = 0;
+		RsslUInt32 uncompOutBytes = 0;
+		RsslUInt8 writeFlags = RSSL_WRITE_NO_FLAGS;
+		RsslReactorSubmitOptions submitOpts;
+
+		rsslClearReactorSubmitOptions(&submitOpts);
+
+		/* send the request */
+		if ((retval = rsslReactorSubmit(pReactor, chnl, msgBuf, &submitOpts, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
+		{
+			while (retval == RSSL_RET_WRITE_CALL_AGAIN)
+				retval = rsslReactorSubmit(pReactor, chnl, msgBuf, &submitOpts, &rsslErrorInfo);
+
+			if (retval < RSSL_RET_SUCCESS)	/* Connection should be closed, return failure */
+			{
+				/* rsslWrite failed, release buffer */
+				EXPECT_TRUE(false) << "rsslReactorSubmit() failed with return code: " << retval <<" "<< rsslErrorInfo.rsslError.text<< "\n";
+				if (retval = rsslReactorReleaseBuffer(chnl, msgBuf, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+					EXPECT_TRUE(false) << "rsslReactorReleaseBuffer() failed with return code: "<< retval <<" "<< rsslErrorInfo.rsslError.text << "\n";
+
+				return RSSL_RET_FAILURE;
+			}
+		}
+
+		return RSSL_RET_SUCCESS;
+	}
+
+	/* Callbacks*/
+	static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslRDMLoginMsgEvent *pLoginMsgEvent)
+	{
+		/* Accept login */
+		RsslRDMLoginMsg *pLoginMsg = pLoginMsgEvent->pRDMLoginMsg;
+		RsslRDMLoginRequest *pLoginRequest = &pLoginMsg->request;
+		
+		if (pLoginMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST)
+		{
+			RsslErrorInfo rsslErrorInfo;
+			RsslBuffer* msgBuf = 0;
+			RsslUInt32 ipAddress = 0;
+			RsslRet ret;
+
+			/* get a buffer for the login response */
+			msgBuf = rsslReactorGetBuffer(pChannel, 4096, RSSL_FALSE, &rsslErrorInfo);
+
+			if (msgBuf != NULL)
+			{
+				RsslRDMLoginRefresh loginRefresh;
+				RsslEncodeIterator eIter;
+
+				rsslClearRDMLoginRefresh(&loginRefresh);
+
+				/* Set state information */
+				loginRefresh.state.streamState = RSSL_STREAM_OPEN;
+				loginRefresh.state.dataState = RSSL_DATA_OK;
+				loginRefresh.state.code = RSSL_SC_NONE;
+
+				/* Set stream ID */
+				loginRefresh.rdmMsgBase.streamId = pLoginRequest->rdmMsgBase.streamId;
+
+				/* Mark refresh as solicited since it is a response to a request. */
+				loginRefresh.flags = RDM_LG_RFF_SOLICITED;
+
+				/* Echo the userName, applicationId, applicationName, and position */
+				loginRefresh.flags |= RDM_LG_RFF_HAS_USERNAME;
+				loginRefresh.userName = pLoginRequest->userName;
+				if (pLoginRequest->flags & RDM_LG_RQF_HAS_USERNAME_TYPE)
+				{
+					loginRefresh.flags |= RDM_LG_RFF_HAS_USERNAME_TYPE;
+					loginRefresh.userNameType = pLoginRequest->userNameType;
+				}
+
+				loginRefresh.flags |= RDM_LG_RFF_HAS_APPLICATION_ID;
+				loginRefresh.applicationId = pLoginRequest->applicationId;
+
+				loginRefresh.flags |= RDM_LG_RFF_HAS_APPLICATION_NAME;
+				loginRefresh.applicationName = pLoginRequest->applicationName;
+
+				loginRefresh.flags |= RDM_LG_RFF_HAS_POSITION;
+				loginRefresh.position = pLoginRequest->position;
+
+				/* Leave all other parameters as default values. */
+
+				/* Encode the refresh. */
+				rsslClearEncodeIterator(&eIter);
+				rsslSetEncodeIteratorRWFVersion(&eIter, pChannel->majorVersion, pChannel->minorVersion);
+				if ((ret = rsslSetEncodeIteratorBuffer(&eIter, msgBuf)) < RSSL_RET_SUCCESS)
+				{
+					rsslReactorReleaseBuffer(pChannel, msgBuf, &rsslErrorInfo);
+					EXPECT_TRUE(false) << "rsslSetEncodeIteratorBuffer() failed with return code: " << ret << "\n";
+					return RSSL_RC_CRET_FAILURE;
+				}
+				if (rsslEncodeRDMLoginMsg(&eIter, (RsslRDMLoginMsg*)&loginRefresh, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+				{
+					rsslReactorReleaseBuffer(pChannel, msgBuf, &rsslErrorInfo);
+					EXPECT_TRUE(false) <<"rsslEncodeRDMLoginRefresh() failed: " << rsslErrorInfo.rsslError.text <<"("<< rsslErrorInfo.errorLocation <<")"<< "\n";
+					return RSSL_RC_CRET_FAILURE;
+				}
+
+				/* Send the refresh. */
+				if (sendMessage(pReactor, pChannel, msgBuf) != RSSL_RET_SUCCESS)
+					return RSSL_RC_CRET_FAILURE;
+			}
+			else
+			{
+				EXPECT_TRUE(false) << "rsslReactorGetBuffer(): Failed: "<< rsslErrorInfo.rsslError.text<<"\n";
+				return RSSL_RC_CRET_FAILURE;
+			}
+		}
+
+		return RSSL_RC_CRET_SUCCESS;
+	}
+
+	static RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslMsgEvent *pRsslMsgEvent) 
+	{
+		return RSSL_RC_CRET_SUCCESS;
+	}
+	static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pChannelEvent) 
+	{
+		return RSSL_RC_CRET_SUCCESS;
+	}
+
+	void start()
+	{
+		runFlag = true;
+		tr = std::thread(&ADHSimulator::run, this);
+	}
+
+	void run()
+	{
+		struct timeval time_interval;
+		fd_set	useRead, readFds;
+		fd_set	useWrite, writeFds;
+		fd_set	useExcept, exceptFds;
+
+		int selRet;
+		RsslReactorDispatchOptions dispatchOpts;
+		RsslReactorOMMProviderRole providerRole;
+
+		rsslClearOMMProviderRole(&providerRole);
+		providerRole.base.channelEventCallback = channelEventCallback;
+		providerRole.base.defaultMsgCallback = defaultMsgCallback;
+		providerRole.loginMsgCallback = loginMsgCallback;
+
+		rsslClearReactorDispatchOptions(&dispatchOpts);
+		dispatchOpts.maxMessages = 100;
+
+		FD_ZERO(&readFds);
+		FD_ZERO(&writeFds);
+		FD_ZERO(&exceptFds);
+		FD_SET(rsslSrvr->socketId, &readFds);
+		FD_SET(rsslSrvr->socketId, &writeFds);
+		FD_SET(rsslSrvr->socketId, &exceptFds);
+		FD_SET(pReactor->eventFd, &writeFds);
+
+		while (runFlag)
+		{
+			useRead = readFds;
+			useWrite = writeFds;
+			useExcept = exceptFds;
+			time_interval.tv_sec = 1;
+			time_interval.tv_usec = 0;
+
+			selRet = select(FD_SETSIZE, &useRead,
+				&useWrite, &useExcept, &time_interval);
+
+			if (selRet > 0)
+			{
+				RsslRet ret;
+
+				//Accept connection here
+				if (rsslSrvr && pReactor && FD_ISSET(rsslSrvr->socketId, &useRead))
+				{
+					RsslReactorAcceptOptions aopts;
+					rsslClearReactorAcceptOptions(&aopts);
+					aopts.rsslAcceptOptions.userSpecPtr = this;
+
+					if (ret = rsslReactorAccept(pReactor, rsslSrvr, &aopts, (RsslReactorChannelRole*)&providerRole, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+					{
+						EXPECT_TRUE(false) << "rsslReactorAccept failed: %s\n", rsslErrorInfo.rsslError.text;
+					}
+				}
+
+				while ((ret = rsslReactorDispatch(pReactor, &dispatchOpts, &rsslErrorInfo)) > RSSL_RET_SUCCESS);
+
+				if (ret < RSSL_RET_SUCCESS)
+				{
+					EXPECT_TRUE(false) << ("rsslReactorDispatch() failed: %s\n", rsslErrorInfo.rsslError.text);
+				}
+			}
+		}
+
+		FD_CLR(rsslSrvr->socketId, &readFds);
+		FD_CLR(rsslSrvr->socketId, &exceptFds);
+	}
+
+	~ADHSimulator()
+	{
+		runFlag = false;
+		tr.join();
+		
+		if (pReactor)
+			rsslDestroyReactor(pReactor, &rsslErrorInfo);
+
+		if (rsslSrvr)
+			rsslCloseServer(rsslSrvr, &rsslErrorInfo.rsslError);
+	}
+
+private:
+	ADHSimulator() {};
+	RsslReactor *pReactor;
+	RsslBindOptions sopts;
+	RsslServer *rsslSrvr;
+	std::thread tr;
+	RsslErrorInfo rsslErrorInfo;
+	std::atomic <bool> runFlag;
+};
+
+class OmmNIProviderTestClientPH : public refinitiv::ema::access::OmmProviderClient
+{
+	void OmmNIProviderTestClientPH::onRefreshMsg(const RefreshMsg& refreshMsg, const OmmProviderEvent& event)
+	{
+		niprovChannelInfo = event.getChannelInformation();
+	}
+
+	void OmmNIProviderTestClientPH::onStatusMsg(const StatusMsg& statusMsg, const OmmProviderEvent& event)
+	{
+		niprovChannelInfo = event.getChannelInformation();
+	}
+
+	void OmmNIProviderTestClientPH::onClose(const ReqMsg& reqMsg, const OmmProviderEvent& event)
+	{
+		niprovChannelInfo = event.getChannelInformation();
+	}
+
+	void OmmNIProviderTestClientPH::onReqMsg(const ReqMsg& reqMsg, const OmmProviderEvent& event)
+	{
+		niprovChannelInfo = event.getChannelInformation();
+	}
+};
+
+
+TEST_F(PreferredHostTest, PreferredHostTest_ChannelInfo_NIProv)
+{
+	try
+	{
+		RsslCreateReactorOptions reactorOpts;
+		rsslClearCreateReactorOptions(&reactorOpts);
+		ADHSimulator adh(reactorOpts, "14003");
+		adh.start();
+
+		niprovChannelInfo.clear();
+		OmmNIProviderTestClientPH niProviderCallback;
+		OmmProvider niProvider(OmmNiProviderConfig(PreferredHostTest::emaConfigTest).providerName("Provider_1").host("localhost:14003").username("user"), niProviderCallback);
+
+		//check niprovider PH info. Values would be default cause PH is not applicable to niprovider.
+		EXPECT_TRUE(EmaString::npos != niprovChannelInfo.find("ph preferred host option: disabled"));
+		EXPECT_TRUE(EmaString::npos != niprovChannelInfo.find("ph detection time schedule: "));
+		EXPECT_TRUE(EmaString::npos != niprovChannelInfo.find("ph detection time interval: 0"));
+		EXPECT_TRUE(EmaString::npos != niprovChannelInfo.find("ph channel name: "));
+		EXPECT_TRUE(EmaString::npos != niprovChannelInfo.find("ph wsb channel name: "));
+		EXPECT_TRUE(EmaString::npos != niprovChannelInfo.find("ph fall back with in WSB group: disabled"));
+		EXPECT_TRUE(EmaString::npos != niprovChannelInfo.find("ph is channel preferred: non-preferred"));
+		EXPECT_TRUE(EmaString::npos != niprovChannelInfo.find("ph remaining detection time: 0"));
 	}
 	catch (const OmmException& excp)
 	{

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
+ * Copyright (C) 2019, 2025 LSEG. All rights reserved.
 */
 
 #include "rtr/rsslRDMLoginMsg.h"
@@ -1199,6 +1199,8 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 				/* decode each element entry in list */
 				while ((ret = rsslDecodeElementEntry(pIter, &element)) != RSSL_RET_END_OF_CONTAINER)
 				{
+					if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return ret;
+
 					/* Authentication Error Code */
 					if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_CODE))
 					{

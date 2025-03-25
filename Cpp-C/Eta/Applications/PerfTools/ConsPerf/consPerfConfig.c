@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2022 LSEG. All rights reserved.
+ * Copyright (C) 2020-2022, 2025 LSEG. All rights reserved.
 */
 
 /* This provides handling for command-line configuration of ConsPerf. */
@@ -12,7 +12,9 @@
 #include <stdlib.h>
 
 #ifdef WIN32
+#if _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
 #endif
 
 static RsslInt32 defaultThreadCount = 1;
