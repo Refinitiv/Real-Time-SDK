@@ -7,7 +7,7 @@
  */
 
 #include "TestUtilities.h"
-#include "Thread.h"
+#include "thread.h"
 #include "rtr/rsslReactor.h"
 #include "rtr/rsslTransport.h"
 
@@ -608,22 +608,22 @@ private:
 
 class OmmNIProviderTestClientPH : public refinitiv::ema::access::OmmProviderClient
 {
-	void OmmNIProviderTestClientPH::onRefreshMsg(const RefreshMsg& refreshMsg, const OmmProviderEvent& event)
+	void onRefreshMsg(const RefreshMsg& refreshMsg, const OmmProviderEvent& event)
 	{
 		niprovChannelInfo = event.getChannelInformation();
 	}
 
-	void OmmNIProviderTestClientPH::onStatusMsg(const StatusMsg& statusMsg, const OmmProviderEvent& event)
+	void onStatusMsg(const StatusMsg& statusMsg, const OmmProviderEvent& event)
 	{
 		niprovChannelInfo = event.getChannelInformation();
 	}
 
-	void OmmNIProviderTestClientPH::onClose(const ReqMsg& reqMsg, const OmmProviderEvent& event)
+	void onClose(const ReqMsg& reqMsg, const OmmProviderEvent& event)
 	{
 		niprovChannelInfo = event.getChannelInformation();
 	}
 
-	void OmmNIProviderTestClientPH::onReqMsg(const ReqMsg& reqMsg, const OmmProviderEvent& event)
+	void onReqMsg(const ReqMsg& reqMsg, const OmmProviderEvent& event)
 	{
 		niprovChannelInfo = event.getChannelInformation();
 	}
@@ -636,7 +636,7 @@ TEST_F(PreferredHostTest, PreferredHostTest_ChannelInfo_NIProv)
 	{
 		RsslCreateReactorOptions reactorOpts;
 		rsslClearCreateReactorOptions(&reactorOpts);
-		ADHSimulator adh(reactorOpts, "14003");
+		ADHSimulator adh(reactorOpts, (char*)"14003");
 		adh.start();
 
 		niprovChannelInfo.clear();
