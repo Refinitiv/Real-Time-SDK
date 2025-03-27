@@ -7,7 +7,7 @@
  */
 
 #include "TestUtilities.h"
-#include "thread.h"
+#include <thread>
 #include "rtr/rsslReactor.h"
 #include "rtr/rsslTransport.h"
 
