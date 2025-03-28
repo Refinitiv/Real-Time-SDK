@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|         Copyright (C) 2020-2023 LSEG. All rights reserved.                --
+ *|         Copyright (C) 2020-2023, 2025 LSEG. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -2124,8 +2124,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 			RsslHttpHdrData *httpHdr = NULL;
 			RsslQueueLink  *pLink = 0;
 
-
-			/*Claen up the error struct*/
+			/*Clean up the error struct*/
 			_rsslErrorClean(error);
 
 			rsslInitQueue(&(httpMsg.headers));
@@ -2157,6 +2156,8 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 			httpMsg.statusCode = wsSess->statusCode;
 			httpMsg.protocolVersion = rwsHdr_HTTP.data;
 			httpMsg.httpMethod = RSSL_HTTP_UNKNOWN;
+
+			httpMsg.userSpecPtr = rsslSocketChannel->userSpecPtr;
 			
 			rsslSocketChannel->httpCallback(&httpMsg, error);
 
@@ -2918,63 +2919,6 @@ RsslInt32 rwsSendResponseHandshake(RsslSocketChannel *rsslSocketChannel, rwsSess
 		return (RIPC_CONN_ERROR);
 	}
 
-	/*Callback to provide HTTP header*/
-	if (rsslSocketChannel->httpCallback != NULL)
-	{
-		RsslHttpMessage httpMsg = { 0 };
-		RsslHttpHdrData *httpHdr = NULL;
-		RsslInt32 lnNum = 1;
-		RsslBuffer *pField = NULL;
-		rwsHttpHdr_t *respHdrs = 0;
-		headerLine_t *hdrLine = 0;
-
-		/*Claen up the error struct*/
-		_rsslErrorClean(error);
-
-		rsslInitQueue(&(httpMsg.headers));
-		rsslInitQueue(&(httpMsg.cookies));
-
-		respHdrs = &(wsSess->hsReceived);
-		hdrLine = respHdrs->lines;
-
-		httpHdr = (RsslHttpHdrData*)_rsslMalloc(sizeof(RsslHttpHdrData) * (respHdrs->total - 1)); // need to skeep headline "HTTP/1.1 101 Switching Protocols\r\n"
-		if (httpHdr == 0)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers\n", __FILE__, __LINE__);
-			rsslSocketChannel->httpCallback(NULL, error);
-			return(-1);
-		}
-
-		for (lnNum = 1; lnNum < respHdrs->total; lnNum++)
-		{
-			httpHdr[lnNum-1].name.data = hdrLine[lnNum].field.data;
-			httpHdr[lnNum-1].name.length = hdrLine[lnNum].field.length;
-			httpHdr[lnNum-1].value.data = hdrLine[lnNum].value.data;
-			httpHdr[lnNum-1].value.length = hdrLine[lnNum].value.length;
-			
-			pField = &(hdrLine[lnNum].field);
-			if (!_rwsMatchField(pField, &rwsField_COOKIE))
-				rsslQueueAddLinkToBack(&(httpMsg.headers), &(httpHdr[lnNum - 1].link));
-			else 
-				rsslQueueAddLinkToBack(&(httpMsg.cookies), &(httpHdr[lnNum - 1].link));
-		}
-
-		httpMsg.statusCode = wsSess->statusCode;
-		httpMsg.protocolVersion = rwsHdr_HTTP.data;
-		httpMsg.httpMethod = RSSL_HTTP_GET;
-
-		rsslSocketChannel->httpCallback(&httpMsg, error);
-
-		/*Realease allocated memory for headers*/
-		if (httpHdr)
-			_rsslFree(httpHdr);
-	}
-	else
-	{
-		_DEBUG_TRACE_WS_WRITE("HTTP header callback was not set <%s:%d>", __FUNCTION__, __LINE__);
-	}
-
 	_DEBUG_TRACE_WS_WRITE("Response sent, fd "SOCKET_PRINT_TYPE" cc %d err %d\n", 
 					rsslSocketChannel->stream, cc, errno)
 	
@@ -3155,6 +3099,68 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 	else 
 	{
 		wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
+
+		/* Callback to provide HTTP header */
+		if (rsslSocketChannel->httpCallback != NULL)
+		{
+			RsslHttpMessage httpMsg = { 0 };
+			RsslHttpHdrData *httpHdr = NULL;
+			RsslInt32 lnNum = 1;
+			RsslBuffer *pField = NULL;
+			rwsHttpHdr_t *respHdrs = 0;
+			headerLine_t *hdrLine = 0;
+
+			_rsslErrorClean(error);
+
+			rsslInitQueue(&(httpMsg.headers));
+			rsslInitQueue(&(httpMsg.cookies));
+
+			respHdrs = &(wsSess->hsReceived);
+			hdrLine = respHdrs->lines;
+
+			httpHdr = (RsslHttpHdrData*)_rsslMalloc(sizeof(RsslHttpHdrData) * (respHdrs->total - 1)); // need to skeep headline "HTTP/1.1 101 Switching Protocols\r\n"
+			if (httpHdr == 0)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers\n", __FILE__, __LINE__);
+				rsslSocketChannel->httpCallback(NULL, error);
+				return(-1);
+			}
+
+			for (lnNum = 1; lnNum < respHdrs->total; lnNum++)
+			{
+				httpHdr[lnNum - 1].name.data = hdrLine[lnNum].field.data;
+				httpHdr[lnNum - 1].name.length = hdrLine[lnNum].field.length;
+				httpHdr[lnNum - 1].value.data = hdrLine[lnNum].value.data;
+				httpHdr[lnNum - 1].value.length = hdrLine[lnNum].value.length;
+
+				pField = &(hdrLine[lnNum].field);
+				if (!_rwsMatchField(pField, &rwsField_COOKIE))
+					rsslQueueAddLinkToBack(&(httpMsg.headers), &(httpHdr[lnNum - 1].link));
+				else
+					rsslQueueAddLinkToBack(&(httpMsg.cookies), &(httpHdr[lnNum - 1].link));
+			}
+
+			httpMsg.statusCode = wsSess->statusCode;
+			httpMsg.protocolVersion = rwsHdr_HTTP.data;
+			httpMsg.httpMethod = RSSL_HTTP_GET;
+
+			/* the headline of "GET /Websocket HTTP/1.1" */
+			httpMsg.url.data = hdrLine[0].value.data;
+			httpMsg.url.length = hdrLine[0].value.length - rwsHdr_HTTP.length - 1;
+
+			httpMsg.userSpecPtr = rsslSocketChannel->userSpecPtr;
+
+			rsslSocketChannel->httpCallback(&httpMsg, error);
+
+			/* Release allocated memory for headers */
+			if (httpHdr)
+				_rsslFree(httpHdr);
+		}
+		else
+		{
+			_DEBUG_TRACE_WS_CONN("HTTP header callback was not set <%s:%d>", __FUNCTION__, __LINE__);
+		}
 
 		_DEBUG_TRACE_WS_CONN("HTTP WS Header fd "SOCKET_PRINT_TYPE" inBC %d inBL %d hdrL %d\n",
 									rsslSocketChannel->stream,

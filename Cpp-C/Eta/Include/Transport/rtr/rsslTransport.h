@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2023 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2023, 2025 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -574,6 +574,8 @@ typedef struct{
 	RsslQueue		cookies;            /*!<represents a list of available cookies represented by a key and value pair structure. */
 	RsslBuffer		dataBody;			/*!<represents the data body portion of message if any. */
 	char*			protocolVersion;	/*!<represents the protocol version. */
+	RsslBuffer		url;				/*!<represents URL of HTTP request; Example: "/Websocket?<parameters>" */
+	void*			userSpecPtr;		/*!<represents a user specified pointer, possibly a closure. */
 }RsslHttpMessage;
 
 typedef void RsslHttpCallback(RsslHttpMessage*, RsslError*);
