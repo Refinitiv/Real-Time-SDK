@@ -906,8 +906,8 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 1007 Invalid Message Size. Message size is: (%d). Max Message size is(%zu)\n",
-				__FILE__, __LINE__, ipcLen, rsslSocketChannel->inputBuffer->maxLength);
+				"<%s:%d> Error: 1007 Invalid Message Size. Message size is: (%d). Max Message size is(%u)\n",
+				__FILE__, __LINE__, ipcLen, rsslSocketChannel->maxMsgSize);
 
 			*readret = RSSL_RET_FAILURE;
 
