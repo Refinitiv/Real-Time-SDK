@@ -409,8 +409,17 @@ macro(rcdev_wrap_prebuilt_library TARGET_NAME )
                 (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND 
                  ((RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 8 ) OR (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 9 )) )
             rcdev_get_platform_suffix(_plat_suffix2 "gcc" "rhel")
+        elseif ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "AMAZON") AND
+                (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 2023 ))
+            rcdev_get_platform_suffix(_plat_suffix2 "rhel9" "compiler_rhel9")
+        elseif ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "AMAZON") AND
+                (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 2 ))
+            rcdev_get_platform_suffix(_plat_suffix2 "rhel8" "compiler_rhel8")
+        elseif ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "UBUNTU") AND
+                (RCDEV_HOST_SYSTEM_FLAVOR_REL GREATER_EQUAL 22 ))
+            rcdev_get_platform_suffix(_plat_suffix2 "rhel9" "compiler_rhel9")
         elseif ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "UBUNTU") OR (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "KYLIN"))
-            rcdev_get_platform_suffix(_plat_suffix2 "ubuntu" "compiler_rhel8")
+            rcdev_get_platform_suffix(_plat_suffix2 "rhel8" "compiler_rhel8")
         else()
             rcdev_get_platform_suffix(_plat_suffix2 "gcc" )
         endif()
