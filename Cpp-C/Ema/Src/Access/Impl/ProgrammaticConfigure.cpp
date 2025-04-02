@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1235,10 +1235,6 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.setReconnectMaxDelay( eentry.getInt() );
 												}
-												else if ( eentry.getName() == "PipePort" )
-												{
-													activeConfig.pipePort = eentry.getInt();
-												}
 												else if (eentry.getName() == "ReissueTokenAttemptLimit")
 												{
 													activeConfig.reissueTokenAttemptLimit = eentry.getInt();
@@ -1434,10 +1430,6 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig(const Map& map, const E
 									else if (eentry.getName() == "XmlTraceMaxFileSize")
 									{
 										activeConfig.xmlTraceMaxFileSize = eentry.getInt();
-									}
-									else if (eentry.getName() == "PipePort")
-									{
-										activeConfig.pipePort = eentry.getInt();
 									}
 									else if (eentry.getName() == "MaxEventsInPool")
 									{

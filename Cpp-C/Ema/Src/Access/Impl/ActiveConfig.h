@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2020-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2020-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -79,8 +79,6 @@
 #define DEFAULT_MAX_OUTSTANDING_POSTS				    100000
 #define DEFAULT_MSGKEYINUPDATES						    true
 #define DEFAULT_OBEY_OPEN_WINDOW					    1
-#define DEFAULT_PIPE_PORT							    9001
-#define DEFAULT_SERVER_PIPE_PORT					    9009
 #define DEFAULT_POST_ACK_TIMEOUT					    15000
 #define DEFAULT_PROXY_CONNECTION_TIMEOUT			    40
 #define DEFAULT_REACTOR_EVENTFD_PORT				    55000
@@ -555,7 +553,6 @@ public:
 	const EmaString& defaultServiceName() { return _defaultServiceName; }
 	EmaString configTrace();
 
-	Int64			pipePort;
 	UInt32			obeyOpenWindow;
 	UInt32			postAckTimeout;
 	UInt32			maxOutstandingPosts;
@@ -615,7 +612,6 @@ public:
 
 	virtual OmmIProviderConfig::AdminControl getDirectoryAdminControl() = 0;
 
-	Int64						pipePort;
 	AdminRefreshMsg*			pDirectoryRefreshMsg;
 
 	ServerConfig*				pServerConfig;

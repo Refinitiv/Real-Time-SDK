@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -357,7 +357,6 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	reconnectMinDelay(DEFAULT_RECONNECT_MIN_DELAY),
 	reconnectMaxDelay(DEFAULT_RECONNECT_MAX_DELAY),
 	msgKeyInUpdates(DEFAULT_MSGKEYINUPDATES),
-	pipePort(DEFAULT_PIPE_PORT),
 	pRsslRDMLoginReq( 0 ),
 	pRsslDirectoryRequestMsg( 0 ),
 	pRsslRdmFldRequestMsg( 0 ),
@@ -392,8 +391,7 @@ ActiveConfig::~ActiveConfig()
 EmaString ActiveConfig::configTrace()
 {
 	BaseConfig::configTrace();
-	traceStr.append("\n\t pipePort: ").append(pipePort)
-		.append("\n\t obeyOpenWindow: ").append(obeyOpenWindow)
+	traceStr.append("\n\t obeyOpenWindow: ").append(obeyOpenWindow)
 		.append("\n\t postAckTimeout: ").append(postAckTimeout)
 		.append("\n\t maxOutstandingPosts: ").append(maxOutstandingPosts)
 		.append("\n\t reconnectAttemptLimit: ").append(reconnectAttemptLimit)
@@ -469,7 +467,6 @@ void ActiveConfig::clearChannelSetForWSB()
 
 void ActiveConfig::clear()
 {
-	pipePort = DEFAULT_PIPE_PORT;
 	obeyOpenWindow = DEFAULT_OBEY_OPEN_WINDOW;
 	postAckTimeout = DEFAULT_POST_ACK_TIMEOUT;
 	maxOutstandingPosts = DEFAULT_MAX_OUTSTANDING_POSTS;
@@ -694,7 +691,6 @@ bool ActiveConfig::findWsbChannelConfig(EmaVector< WarmStandbyChannelConfig* >& 
 }
 
 ActiveServerConfig::ActiveServerConfig(const EmaString& defaultServiceName) :
-	pipePort(DEFAULT_SERVER_PIPE_PORT),
 	acceptMessageWithoutBeingLogin(DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN),
 	acceptMessageWithoutAcceptingRequests(DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS),
 	acceptDirMessageWithoutMinFilters(DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS),
@@ -723,7 +719,6 @@ ActiveServerConfig::~ActiveServerConfig()
 
 void ActiveServerConfig::clear()
 {
-	pipePort = DEFAULT_SERVER_PIPE_PORT;
 	acceptMessageWithoutBeingLogin = DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN;
 	acceptMessageWithoutAcceptingRequests = DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS;
 	acceptDirMessageWithoutMinFilters = DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS;
@@ -739,8 +734,7 @@ void ActiveServerConfig::clear()
 EmaString ActiveServerConfig::configTrace()
 {
 	BaseConfig::configTrace();
-	traceStr.append("\n\t pipePort: ").append(pipePort)
-		.append("\n\t acceptMessageWithoutBeingLogin: ").append(acceptMessageWithoutBeingLogin)
+	traceStr.append("\n\t acceptMessageWithoutBeingLogin: ").append(acceptMessageWithoutBeingLogin)
 		.append("\n\t acceptMessageWithoutAcceptingRequests: ").append(acceptMessageWithoutAcceptingRequests)
 		.append("\n\t acceptDirMessageWithoutMinFilters: ").append(acceptDirMessageWithoutMinFilters)
 		.append("\n\t acceptMessageWithoutQosInRange: ").append(acceptMessageWithoutQosInRange)

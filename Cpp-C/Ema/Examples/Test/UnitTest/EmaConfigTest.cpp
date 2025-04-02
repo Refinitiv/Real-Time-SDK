@@ -197,8 +197,6 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE( debugResult && uintValue == 400) << "extracting MaxDispatchCountApiThread from EmaConfig.xml";
 	debugResult = config.get<UInt64>( "ConsumerGroup|ConsumerList|Consumer.Consumer_2|MaxDispatchCountUserThread", uintValue );
 	EXPECT_TRUE( debugResult && uintValue == 5) << "extracting MaxDispatchCountUserThread from EmaConfig.xml";
-	debugResult = config.get<Int64>( "ConsumerGroup|ConsumerList|Consumer.Consumer_2|PipePort", intValue );
-	EXPECT_TRUE( debugResult && intValue == 7001) << "extracting PipePort from EmaConfig.xml";
 	debugResult = config.get<Int64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|ReconnectAttemptLimit", intValue);
 	EXPECT_TRUE(debugResult && intValue == 10) << "extracting ReconnectAttemptLimit from EmaConfig.xml";
 	debugResult = config.get<Int64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|ReconnectMinDelay", intValue);
@@ -1188,7 +1186,6 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			.addInt("ReconnectAttemptLimit", 10)
 			.addInt("ReconnectMinDelay", 4444)
 			.addInt("ReconnectMaxDelay", 7777)
-			.addInt("PipePort", 13650)
 			.addDouble("TokenReissueRatio", 0.55)
 			.addUInt("EnablePreferredHostOptions", 1)
 			.addAscii("PHDetectionTimeSchedule", "45 23 * * 6")
@@ -1314,7 +1311,6 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.restProxyHostName == "restProxySrv11") << "restProxyHostName == \"restProxySrv11\"";
 		EXPECT_TRUE(activeConfig.restProxyPort == "39919") << "restProxyPort == \"39919\"";
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
-		EXPECT_TRUE(activeConfig.pipePort == 13650) << "pipePort , 13650";
 		EXPECT_TRUE(activeConfig.tokenReissueRatio == 0.55) << "tokenReissueRatio , 0.55";
 		EXPECT_TRUE(activeConfig.reissueTokenAttemptLimit == -1) << "reissueTokenAttemptLimit , -1";
 		EXPECT_TRUE(activeConfig.reissueTokenAttemptInterval == 5000) << "reissueTokenAttemptInterval , 5000";
@@ -1781,7 +1777,6 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addInt("ReconnectAttemptLimit", 70)
 			.addInt("ReconnectMinDelay", 7000)
 			.addInt("ReconnectMaxDelay", 7000)
-			.addInt("PipePort", 9696)
 			.addDouble("TokenReissueRatio", 0.90)
 			.addInt("ReissueTokenAttemptLimit",20)
 			.addInt("ReissueTokenAttemptInterval", 15000)
@@ -1885,7 +1880,6 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.maxDispatchCountApiThread == 900) << "maxDispatchCountApiThread , 900";
 		EXPECT_TRUE( activeConfig.maxDispatchCountUserThread == 900) << "maxDispatchCountUserThread , 900";
 		EXPECT_TRUE( activeConfig.maxEventsInPool == 900) << "maxEventsInPool , 900";
-		EXPECT_TRUE( activeConfig.pipePort == 9696) << "pipePort , 9696";
 		EXPECT_TRUE( activeConfig.reconnectAttemptLimit == 70) << "reconnectAttemptLimit , 70";
 		EXPECT_TRUE( activeConfig.reconnectMinDelay == 7000) << "reconnectMinDelay , 7000";
 		EXPECT_TRUE( activeConfig.reconnectMaxDelay == 7000) << "reconnectMaxDelay , 7000";
@@ -2749,8 +2743,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 				.addUInt("XmlTraceRead", 1)
 				.addUInt("XmlTracePing", 1)
 				.addUInt("XmlTracePingOnly", 1)
-				.addUInt("XmlTraceHex", 1)
-				.addInt("PipePort", 13650).complete())
+				.addUInt("XmlTraceHex", 1).complete())
 				.addKeyAscii("Provider_2", MapEntry::AddEnum, ElementList()
 					.addAscii("Server", "Server_2")
 					.addAscii("Directory", "Directory_2")
@@ -3024,7 +3017,6 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
 			EXPECT_TRUE(activeConfig.xmlTracePingOnly == 1) << "xmlTracePingOnly , 1";
 			EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
-			EXPECT_TRUE(activeConfig.pipePort == 13650) << "pipePort , 13650";
 			EXPECT_TRUE(activeConfig.pServerConfig->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 			EXPECT_TRUE(activeConfig.pServerConfig->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 			EXPECT_TRUE(activeConfig.pServerConfig->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -3293,8 +3285,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 				.addUInt("XmlTraceRead", 1)
 				.addUInt("XmlTracePing", 1)
 				.addUInt("XmlTracePingOnly", 1)
-				.addUInt("XmlTraceHex", 1)
-				.addInt("PipePort", 13650).complete())
+				.addUInt("XmlTraceHex", 1).complete())
 				.addKeyAscii("Provider_2", MapEntry::AddEnum, ElementList()
 					.addAscii("Server", "Server_2")
 					.addAscii("Directory", "Directory_2")
@@ -3506,7 +3497,6 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 			EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
 			EXPECT_TRUE(activeConfig.xmlTracePingOnly == 1) << "xmlTracePingOnly , 1";
 			EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
-			EXPECT_TRUE(activeConfig.pipePort == 13650) << "pipePort , 13650";
 			EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 			EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 			EXPECT_TRUE(activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -3684,7 +3674,6 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 				.addUInt("XmlTracePing", 1)
 				.addUInt("XmlTracePingOnly", 1)
 				.addUInt("XmlTraceHex", 1)
-				.addInt("PipePort", 9696)
 				.addUInt("RefreshFirstRequired", 0)
 				.addUInt("EnforceAckIDValidation", 0)
 				.addUInt("AcceptDirMessageWithoutMinFilters", 1)
@@ -3851,7 +3840,6 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 900) << "maxDispatchCountApiThread , 900";
 			EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 900) << "maxDispatchCountUserThread , 900";
 			EXPECT_TRUE(activeConfig.maxEventsInPool == 1000) << "maxEventsInPool , 1000";
-			EXPECT_TRUE(activeConfig.pipePort == 9696) << "pipePort , 9696";
 			EXPECT_TRUE(activeConfig.xmlTraceFileName == "ConfigDbXMLTrace") << "xmlTraceFileName , \"ConfigDbXMLTrace\"";
 			EXPECT_TRUE(activeConfig.xmlTraceMaxFileSize == 70000000) << "xmlTraceMaxFileSize , 70000000";
 			EXPECT_TRUE(activeConfig.xmlTraceToFile == 0) << "xmlTraceToFile , 0";
@@ -4030,7 +4018,6 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 				.addInt("ReconnectAttemptLimit", 70)
 				.addInt("ReconnectMinDelay", 7000)
 				.addInt("ReconnectMaxDelay", 7000)
-				.addInt("PipePort", 9696)
 				.addUInt("MergeSourceDirectoryStreams", 0)
 				.addUInt("RefreshFirstRequired", 0)
 				.addUInt("RecoverUserSubmitSourceDirectory", 0)
@@ -4170,7 +4157,6 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 			EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 900) << "maxDispatchCountApiThread , 900";
 			EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 900) << "maxDispatchCountUserThread , 900";
 			EXPECT_TRUE(activeConfig.maxEventsInPool == 500) << "MaxEventsInPool , 500";
-			EXPECT_TRUE(activeConfig.pipePort == 9696) << "pipePort , 9696";
 			EXPECT_TRUE(activeConfig.reconnectAttemptLimit == 70) << "reconnectAttemptLimit , 70";
 			EXPECT_TRUE(activeConfig.reconnectMinDelay == 7000) << "reconnectMinDelay , 7000";
 			EXPECT_TRUE(activeConfig.reconnectMaxDelay == 7000) << "reconnectMaxDelay , 7000";
@@ -4549,7 +4535,7 @@ TEST_F(EmaConfigTest, testLoadConfigFromProgrammaticForIProvConsMix)
 			.addAscii("Server", "Server_1")
 			.addAscii("Logger", "Logger_1")
 			.addAscii("Directory", "Directory_1")
-			.addInt("PipePort", 13650).complete())
+			.complete())
 			.complete();
 
 		elementList.addMap("IProviderList", innerMap).complete();
@@ -4577,7 +4563,7 @@ TEST_F(EmaConfigTest, testLoadConfigFromProgrammaticForIProvConsMix)
 			.addAscii("Channel", "Channel_2")
 			.addAscii("Logger", "Logger_2")
 			.addAscii("Dictionary", "Dictionary_2")
-			.addInt("PipePort", 13650).complete())
+			.complete())
 			.complete();
 
 		elementList.addMap("ConsumerList", innerMap).complete();

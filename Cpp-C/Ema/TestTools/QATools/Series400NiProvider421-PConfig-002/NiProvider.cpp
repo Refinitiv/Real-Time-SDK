@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+// *|           Copyright (C) 2019,2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #include "NiProvider.h"
@@ -29,7 +29,6 @@ void createProgrammaticConfig( Map& configMap )
 		.addUInt( "MaxDispatchCountUserThread", 500 )
 		.addUInt( "MergeSourceDirectoryStreams", 1)
 		.addAscii( "Name", "Series400NiProvider421-PConfig-001")
-		.addInt( "PipePort", 9001 )
 		.addInt( "ReconnectAttemptLimit", 10)
 		.addInt( "ReconnectMaxDelay", 5000)
 		.addInt( "ReconnectMinDelay", 1000)

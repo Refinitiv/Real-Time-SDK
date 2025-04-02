@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+// *|           Copyright (C) 2019,2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #include "IProvider.h"
@@ -96,7 +96,6 @@ void createProgrammaticConfig( Map& configMap )
 		.addUInt("FieldDictionaryFragmentSize", 8192)
 		.addInt("DispatchTimeoutApiThread", 0)
 		.addUInt("LoginRequestTimeOut", 45000)
-		.addInt( "PipePort", 9009 )
 		.addInt("RequestTimeout", 15000)
 		.addAscii("XmlTraceFileName", "IProvXMLTrace")
 		.addInt("XmlTraceMaxFileSize", 50000000)

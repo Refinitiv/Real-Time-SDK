@@ -310,12 +310,6 @@
                             </xs:complexType>
                           </xs:element>
 
-                          <xs:element name="PipePort" minOccurs="0" maxOccurs="1">
-                            <xs:complexType>
-                              <xs:attribute name="value" type="xs:long" use="required" />
-                            </xs:complexType>
-                          </xs:element>
-
                           <xs:element name="PostAckTimeout" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:unsignedLong" use="required" />
@@ -632,12 +626,6 @@
                             </xs:complexType>
                           </xs:element>
 
-                          <xs:element name="PipePort" minOccurs="0" maxOccurs="1">
-                            <xs:complexType>
-                              <xs:attribute name="value" type="xs:long" use="required" />
-                            </xs:complexType>
-                          </xs:element>
-
                           <xs:element name="ReconnectAttemptLimit" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:int" use="required" />
@@ -876,12 +864,6 @@
                           </xs:element>
 
                           <xs:element name="OutputBufferSize" minOccurs="0" maxOccurs="1">
-                            <xs:complexType>
-                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
-                            </xs:complexType>
-                          </xs:element>
-
-                          <xs:element name="PipePort" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                             </xs:complexType>
