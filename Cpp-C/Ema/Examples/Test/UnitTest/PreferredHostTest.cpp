@@ -7,9 +7,10 @@
  */
 
 #include "TestUtilities.h"
-#include <thread>
 #include "rtr/rsslReactor.h"
 #include "rtr/rsslTransport.h"
+#include <thread>
+#include <atomic>
 
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
