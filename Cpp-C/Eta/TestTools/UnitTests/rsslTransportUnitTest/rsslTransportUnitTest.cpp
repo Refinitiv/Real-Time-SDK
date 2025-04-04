@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2023 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2023, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
  
@@ -7272,7 +7272,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeErrorOnRsslBindLUP)
 
 #endif
 
-class WebsocketConnectionTest : public ::testing::Test {
+class WebsocketServerConnectionTest : public ::testing::Test {
 protected:
 	RsslServer* pServer;
 	RsslChannel* pServerChannel;
@@ -7292,6 +7292,11 @@ protected:
 		// Start server
 		rsslClearBindOpts(&bindOpts);
 		bindOpts.serviceName = (char*)"20000";
+		bindOpts.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
+		bindOpts.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		bindOpts.minorVersion = RSSL_RWF_MINOR_VERSION;
+		bindOpts.wsOpts.protocols = (char*)"rssl.json.v2";
+		bindOpts.channelsBlocking = 1;
 		memset(&err, 0, sizeof(RsslError));
 
 		pServer = rsslBind(&bindOpts, &err);
@@ -7412,15 +7417,30 @@ protected:
 };
 
 // This tests the server side checks required by RFC6455 for initial websocket client handshake parsing.
-TEST_F(WebsocketConnectionTest, WebsocketServerHandshakeTest)
+TEST_F(WebsocketServerConnectionTest, WebsocketServerHandshakeTest)
 {
-	char				writeBuff[1000];
+	char				writeBuff[1024];
+	char				readBuff[1024];
 	RsslInt32			cc;
 	struct timeval		selectTime;
 	int					selRet;
 	int					numBytes;
 	RsslError			error;
 	RsslInProgInfo		inProgInfo;
+	const char			*serverOpenHandShake =
+		"HTTP/1.1 101 Switching Protocols\r\n"
+		"Upgrade: websocket\r\n"
+		"Connection: Upgrade\r\n"
+		"Sec-WebSocket-Protocol: tr_json2\r\n"
+		"Sec-WebSocket-Accept: gMwr65Y4mfQzKM+BbgkgXL43ZYA=\r\n";
+
+	const char			*serverBadRequest =
+		"HTTP/1.1 400 Bad Request\r\n"
+		"Content-Type: text/html; charset=UTF-8\r\n"
+		"Cache-Control: no-cache, private, no-store\r\n"
+		"Transfer-Encoding: chunked\r\n"
+		"Sec-WebSocket-Version: 13\r\n"
+		"Connection: close\r\n";
 
 	fd_set readfds;
 	fd_set useread;
@@ -7438,26 +7458,31 @@ TEST_F(WebsocketConnectionTest, WebsocketServerHandshakeTest)
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 13\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
 
 	// This should be a single packet
 	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
 
 	FD_ZERO(&readfds);
 	FD_ZERO(&useread);
 
-	FD_SET(pServer->socketId, &readfds);
+	FD_SET(pServerChannel->socketId, &readfds);
 	useread = readfds;
 	
 	selectTime.tv_sec = 0L;
 	selectTime.tv_usec = 200000;
 	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
 
-	ASSERT_NE(selRet, 1) << "Select failure";
+	ASSERT_GE(selRet, 1) << "Select failure";
 
 	rsslClearInProgInfo(&inProgInfo);
 
 	// Expect failure here.
 	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	// Channel would be in closed state
+	ASSERT_EQ (error.channel->state, RsslChannelState::RSSL_CH_STATE_CLOSED);
 
 	rsslCloseChannel(pServerChannel, &error);
 	pServerChannel = NULL;
@@ -7468,35 +7493,82 @@ TEST_F(WebsocketConnectionTest, WebsocketServerHandshakeTest)
 	// Connect up the client to the server
 	connectClient();
 
-	// Send a GET, but without the upgrade: websocket this should error out.
-	// Key is taken from a random run of a consumer connecting to a provider.
+	// Send a GET,  but without the host this should error out.
+	cc = snprintf(writeBuff, 1000, "PUT /WebSocket HTTP/1.1\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive, Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Key: wSam/MfhQlzaI4qDu/lwVw==\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 13\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServerChannel->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	// Channel would be in closed state
+	ASSERT_EQ(error.channel->state, RsslChannelState::RSSL_CH_STATE_CLOSED);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send a GET, but without the upgrade this should error out.
 	cc = snprintf(writeBuff, 1000, "GET /WebSocket HTTP/1.1\r\n");
-	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive, Upgrade\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Host: localhost:14002\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Key: wSam/MfhQlzaI4qDu/lwVw==\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 13\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
 
 	// This should be a single packet
 	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
 
 	FD_ZERO(&readfds);
 	FD_ZERO(&useread);
 
-	FD_SET(pServer->socketId, &readfds);
+	FD_SET(pServerChannel->socketId, &readfds);
 	useread = readfds;
 
 	selectTime.tv_sec = 0L;
 	selectTime.tv_usec = 200000;
 	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
 
-	ASSERT_NE(selRet, 1) << "Select failure";
+	ASSERT_GE(selRet, 1) << "Select failure";
 
 	rsslClearInProgInfo(&inProgInfo);
 
 	// Expect failure here.
 	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	// Channel would be in closed state
+	ASSERT_EQ(error.channel->state, RsslChannelState::RSSL_CH_STATE_CLOSED);
 
 	rsslCloseChannel(pServerChannel, &error);
 	pServerChannel = NULL;
@@ -7504,34 +7576,86 @@ TEST_F(WebsocketConnectionTest, WebsocketServerHandshakeTest)
 	sock_close(clientSocket);
 	clientSocket = RIPC_INVALID_SOCKET;
 
-	// Send a GET, but without the key: websocket this should error out.
+	// Connect up the client to the server
+	connectClient();
+
+	// Send a GET, but without the connection this should error out.
+	cc = snprintf(writeBuff, 1000, "GET /WebSocket HTTP/1.1\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Host: localhost:14002\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Key: wSam/MfhQlzaI4qDu/lwVw==\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 13\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServerChannel->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	// Channel would be in closed state
+	ASSERT_EQ(error.channel->state, RsslChannelState::RSSL_CH_STATE_CLOSED);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send a GET, but without the key this should error out.
 	// Key is taken from a random run of a consumer connecting to a provider.
 	cc = snprintf(writeBuff, 1000, "GET /WebSocket HTTP/1.1\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive, Upgrade\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Host: localhost:14002\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 13\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
 
 	// This should be a single packet
 	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
 
 	FD_ZERO(&readfds);
 	FD_ZERO(&useread);
 
-	FD_SET(pServer->socketId, &readfds);
+	FD_SET(pServerChannel->socketId, &readfds);
 	useread = readfds;
 
 	selectTime.tv_sec = 0L;
 	selectTime.tv_usec = 200000;
 	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
 
-	ASSERT_NE(selRet, 1) << "Select failure";
+	ASSERT_GE(selRet, 1) << "Select failure";
 
 	rsslClearInProgInfo(&inProgInfo);
 
 	// Expect failure here.
 	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	// Channel would be in closed state
+	ASSERT_EQ(error.channel->state, RsslChannelState::RSSL_CH_STATE_CLOSED);
 
 	rsslCloseChannel(pServerChannel, &error);
 	pServerChannel = NULL;
@@ -7539,42 +7663,622 @@ TEST_F(WebsocketConnectionTest, WebsocketServerHandshakeTest)
 	sock_close(clientSocket);
 	clientSocket = RIPC_INVALID_SOCKET;
 
+	// Connect up the client to the server
+	connectClient();
 
-	// Send a GET, but an incorrect websocket version: websocket this should error out.
-	// Key is taken from a random run of a consumer connecting to a provider.
+	// Send a GET, but without the version this should error out.
 	cc = snprintf(writeBuff, 1000, "GET /WebSocket HTTP/1.1\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive, Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Host: localhost:14002\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Key: yB0kpwchuxb9yF1Jbm3OTA==\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServerChannel->socketId, &readfds);
+
+	useread = readfds;
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	// Verify server response
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(clientSocket, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	numBytes = SOCK_RECV(clientSocket, readBuff, 1024, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_RECV failed";
+
+	ASSERT_TRUE(0 == strncmp(readBuff, serverBadRequest, strlen(serverBadRequest)));
+
+	// Channel would be in closed state
+	ASSERT_EQ(error.channel->state, RsslChannelState::RSSL_CH_STATE_CLOSED);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send a GET, but an incorrect websocket version this should error out.
+	cc = snprintf(writeBuff, 1000, "GET /WebSocket HTTP/1.1\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive, Upgrade\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Host: localhost:14002\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Key: wSam/MfhQlzaI4qDu/lwVw==\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 14\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
 	cc += snprintf(writeBuff + cc, 1000 - cc, "User-Agent: Mozilla/5.0\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
 
 	// This should be a single packet
 	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
 
 	FD_ZERO(&readfds);
 	FD_ZERO(&useread);
 
-	FD_SET(pServer->socketId, &readfds);
+	FD_SET(pServerChannel->socketId, &readfds);
 	useread = readfds;
 
 	selectTime.tv_sec = 0L;
 	selectTime.tv_usec = 200000;
 	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
 
-	ASSERT_NE(selRet, 1) << "Select failure";
+	ASSERT_GE(selRet, 1) << "Select failure";
 
 	rsslClearInProgInfo(&inProgInfo);
 
 	// Expect failure here.
 	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
 
+	// Verify server response
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(clientSocket, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	numBytes = SOCK_RECV(clientSocket, readBuff, 1024, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_RECV failed";
+
+	ASSERT_TRUE(0 == strncmp(readBuff, serverBadRequest, strlen(serverBadRequest)));
+
+	// Channel would be in closed state
+	ASSERT_EQ(error.channel->state, RsslChannelState::RSSL_CH_STATE_CLOSED);
+
 	rsslCloseChannel(pServerChannel, &error);
 	pServerChannel = NULL;
 
 	sock_close(clientSocket);
 	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send a GET,  without the origin, extensions, user-agent this pass, cause those fields are optional per RFC6455 
+	// RFC6455 exception: Sec-WebSocket-Protocol is an obligatory our WS implementation.
+	cc = snprintf(writeBuff, 1000, "GET /WebSocket HTTP/1.1\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: keep-alive, Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Host: localhost:14002\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Key: wSam/MfhQlzaI4qDu/lwVw==\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Version: 13\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServerChannel->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect pass here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_SUCCESS);
+
+	// Verify server response
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(clientSocket, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	numBytes = SOCK_RECV(clientSocket, readBuff, 1024, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_RECV failed";
+
+	ASSERT_TRUE(0==strncmp(readBuff, serverOpenHandShake, strlen(serverOpenHandShake)));
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+}
+
+
+class WebsocketClientConnectionTest : public ::testing::Test {
+protected:
+
+	RsslSocket server;
+	RsslSocket serverSocket;
+	RsslChannel *pClientChannel;
+
+	virtual void SetUp()
+	{
+		struct timeval		selectTime;
+		RsslError			error;
+		struct	sockaddr_in	baddr;
+		int					sockRet;
+		int					flag = 1;
+
+		rsslInitialize(RSSL_LOCK_GLOBAL, &error);
+
+		selectTime.tv_sec = 0L;
+		selectTime.tv_usec = 500000;
+
+		// Create a new socket, connect to the localhost server.
+		server = socket(AF_INET, SOCK_STREAM, 6);
+		ASSERT_NE(server, RIPC_INVALID_SOCKET) << "Invalid Socket";
+
+		ipcSessSetMode(server, 0, 1, &error, __LINE__);
+
+		sockRet = setsockopt(server, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, (int)sizeof(flag));
+		ASSERT_GE(sockRet, 0) << "setsockopt failure";
+
+		baddr.sin_family = AF_INET;
+		baddr.sin_addr.s_addr = host2net_u32(INADDR_ANY);
+		baddr.sin_port = host2net_u16((RsslUInt16)20000);
+
+		sockRet = bind(server, (struct sockaddr*)&baddr, (int)sizeof(baddr));
+		ASSERT_GE(sockRet, 0) << "bind failure";
+
+		sockRet = listen(server, 10);
+		ASSERT_GE(sockRet, 0) << "listen failure";
+	}
+
+	virtual void TearDown()
+	{
+		RsslError err;
+		if (pClientChannel != NULL)
+		{
+			rsslCloseChannel(pClientChannel, &err);
+		}
+
+		if (server != RIPC_INVALID_SOCKET)
+			sock_close(server);
+
+		if (serverSocket != RIPC_INVALID_SOCKET)
+			sock_close(serverSocket);
+
+		rsslUninitialize();
+		resetDeadlockTimer();
+	}
+
+	void connectClient()
+	{
+		RsslError			error;
+		RsslConnectOptions copts = RSSL_INIT_CONNECT_OPTS;
+		struct	sockaddr_in	toaddr;
+		struct timeval		selectTime;
+		int					selRet;
+		bool				writeReadyBoth = false;
+		RsslRet             ret;
+		RsslInProgInfo		inProg = RSSL_INIT_IN_PROG_INFO;
+#ifdef WIN32
+		int					toaddrLen;
+#else
+		socklen_t			toaddrLen;
+#endif // WIN32
+
+
+		fd_set readfds;
+		fd_set writefds;
+		fd_set useread;
+		fd_set usewrite;
+
+		copts.connectionInfo.unified.address = (char*)"localhost";
+		copts.connectionInfo.unified.serviceName = (char*)"20000";
+		copts.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
+		copts.wsOpts.protocols = (char*)"rssl.json.v2";
+		copts.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		copts.minorVersion = RSSL_RWF_MINOR_VERSION;
+		copts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+
+		pClientChannel = rsslConnect(&copts, &error);
+		ASSERT_NE(pClientChannel, (RsslChannel*)NULL) << "Client failed to connect " << error.text;
+
+		FD_ZERO(&readfds);
+		FD_ZERO(&useread);
+		FD_ZERO(&writefds);
+		FD_ZERO(&usewrite);
+
+		FD_SET(pClientChannel->socketId, &readfds);
+		FD_SET(pClientChannel->socketId, &writefds);
+
+		useread = readfds;
+		usewrite = writefds;
+		selRet = select(FD_SETSIZE, &useread, &usewrite, NULL, &selectTime);
+
+		ASSERT_GE(selRet, 0) << "Select failure";
+
+		FD_CLR(pClientChannel->socketId, &useread);
+		FD_CLR(pClientChannel->socketId, &usewrite);
+
+		rsslClearInProgInfo(&inProg);
+		ret = rsslInitChannel(pClientChannel, &inProg, &error);
+		ASSERT_GE(ret, RSSL_RET_SUCCESS) << "Client failed to init channel " << error.text;
+
+		// Localhost connection, so inaddr_loopback should be correct.
+		// Address and port needs to be in network byte order.
+		toaddr.sin_family = AF_INET;
+		toaddr.sin_addr.s_addr = host2net_u32(INADDR_ANY);
+		toaddr.sin_port = host2net_u16((RsslUInt16)20000);
+
+		selRet = 0;
+		FD_ZERO(&readfds);
+		FD_ZERO(&useread);
+		
+		FD_SET(server, &readfds);
+
+		do
+		{
+			useread = readfds;
+			selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+			ASSERT_GE(selRet, 0) << "Select failure";
+		} while (selRet == 0);
+
+		toaddrLen = sizeof(toaddr);
+
+		serverSocket = accept(server, (struct sockaddr*)&toaddr, &toaddrLen);
+		ASSERT_NE(serverSocket, RIPC_INVALID_SOCKET) << "Invalid Socket";
+
+		FD_ZERO(&writefds);
+		FD_ZERO(&usewrite);
+		FD_ZERO(&readfds);
+		FD_ZERO(&useread);
+
+		FD_SET(serverSocket, &writefds);
+		FD_SET(pClientChannel->socketId, &writefds);
+		do
+		{
+			selectTime.tv_sec = 0L;
+			selectTime.tv_usec = 500000;
+		
+			usewrite = writefds;
+			useread = readfds;
+			selRet = select(FD_SETSIZE, &useread, &usewrite, NULL, &selectTime);
+			ASSERT_GE(selRet, 0) << "Select failure";
+		
+			if (FD_ISSET(serverSocket, &usewrite) && FD_ISSET(pClientChannel->socketId, &usewrite))
+			{
+				writeReadyBoth = true;
+			}		
+		} while (writeReadyBoth == false);
+		
+		resetDeadlockTimer();
+	}
+};
+
+TEST_F(WebsocketClientConnectionTest, WebsocketClientHandshakeTest)
+{
+	char				writeBuff[1024];
+	RsslInt32			cc;
+	struct timeval		selectTime;
+	int					selRet;
+	int					numBytes;
+	RsslError			error;
+	RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
+
+	fd_set readfds;
+	fd_set useread;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send response with wrong status line 
+	cc = snprintf(writeBuff, 1000, "HTTP/1.1 111 Switching Protocols\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(serverSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pClientChannel->socketId, &readfds);
+
+	useread = readfds;
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProg);
+
+	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
+
+	ASSERT_TRUE(strstr(error.text, "Invalid HTTP response, status code 111") > 0 );
+
+	sock_close(serverSocket);
+	serverSocket = RIPC_INVALID_SOCKET;
+
+	rsslCloseChannel(pClientChannel, &error);
+	pClientChannel = NULL;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send response without status line
+	cc = snprintf(writeBuff, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(serverSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pClientChannel->socketId, &readfds);
+
+	useread = readfds;
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProg);
+
+	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
+
+	ASSERT_TRUE(strstr(error.text, "Bad HTTP status/request line") > 0);
+
+	rsslCloseChannel(pClientChannel, &error);
+	pClientChannel = NULL;
+
+	sock_close(serverSocket);
+	serverSocket = RIPC_INVALID_SOCKET;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send response without upgrade key
+	cc = snprintf(writeBuff, 1000, "HTTP/1.1 101 Switching Protocols\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(serverSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pClientChannel->socketId, &readfds);
+
+	useread = readfds;
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProg);
+
+	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
+
+	ASSERT_TRUE(strstr(error.text, "No Upgrade: key received.") > 0);
+
+	sock_close(serverSocket);
+	serverSocket = RIPC_INVALID_SOCKET;
+
+	rsslCloseChannel(pClientChannel, &error);
+	pClientChannel = NULL;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send response without connection key 
+	cc = snprintf(writeBuff, 1000, "HTTP/1.1 101 Switching Protocols\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(serverSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pClientChannel->socketId, &readfds);
+
+	useread = readfds;
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProg);
+
+	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
+
+	ASSERT_TRUE(strstr(error.text, "No Connection: key received.") > 0);
+
+	sock_close(serverSocket);
+	serverSocket = RIPC_INVALID_SOCKET;
+
+	rsslCloseChannel(pClientChannel, &error);
+	pClientChannel = NULL;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send response without Sec-WebSocket-Protocol key
+	cc = snprintf(writeBuff, 1000, "HTTP/1.1 101 Switching Protocols\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(serverSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pClientChannel->socketId, &readfds);
+
+	useread = readfds;
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProg);
+
+	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
+
+	ASSERT_TRUE(strstr(error.text, "Unsupported Websocket protocol type received") > 0);
+
+	sock_close(serverSocket);
+	serverSocket = RIPC_INVALID_SOCKET;
+
+	rsslCloseChannel(pClientChannel, &error);
+	pClientChannel = NULL;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send response without Sec-WebSocket-Accept
+	cc = snprintf(writeBuff, 1000, "HTTP/1.1 101 Switching Protocols\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(serverSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pClientChannel->socketId, &readfds);
+
+	useread = readfds;
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProg);
+
+	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
+
+	ASSERT_TRUE(strstr(error.text, "No Sec-Websocket-Accept: key received, key expected") > 0);
+
+	sock_close(serverSocket);
+	serverSocket = RIPC_INVALID_SOCKET;
+
+	rsslCloseChannel(pClientChannel, &error);
+	pClientChannel = NULL;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send response with wrong Sec-WebSocket-Accept
+	cc = snprintf(writeBuff, 1000, "HTTP/1.1 101 Switching Protocols\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Upgrade: websocket\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Connection: Upgrade\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Protocol: tr_json2\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n");
+	cc += snprintf(writeBuff + cc, 1000 - cc, "\n");
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(serverSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pClientChannel->socketId, &readfds);
+
+	useread = readfds;
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProg);
+
+	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
+
+	ASSERT_TRUE(strstr(error.text, "Key received 's3pPLMBiTxaQ9kYGzzhZRbK+xOo=' is not key expected") > 0);
+
+	sock_close(serverSocket);
+	serverSocket = RIPC_INVALID_SOCKET;
+
+	rsslCloseChannel(pClientChannel, &error);
+	pClientChannel = NULL;
 }
 
 rsslServerCountersInfo* rsslGetServerCountersInfo(RsslServer* pServer)
@@ -7583,7 +8287,6 @@ rsslServerCountersInfo* rsslGetServerCountersInfo(RsslServer* pServer)
 	rsslServerCountersInfo* serverCountersInfo = &srvrImpl->serverCountersInfo;
 	return serverCountersInfo;
 }
-
 
 int main(int argc, char* argv[])
 {

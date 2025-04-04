@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|         Copyright (C) 2020-2023, 2025 LSEG. All rights reserved.          --
+ *|         Copyright (C) 2020-2023, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -2542,6 +2542,27 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 		return (RIPC_CONN_IN_PROGRESS);
 	}
 
+	if (!wsSess->upgrade)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> No Upgrade: key received. ",
+			__FUNCTION__, __LINE__);
+
+		return(RIPC_CONN_ERROR);
+	}
+
+	if (!wsSess->connUpgrade)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> No Connection: key received. ",
+			__FUNCTION__, __LINE__);
+
+		return(RIPC_CONN_ERROR);
+	}
+
+	/* RFC6455 Exception: Sec-WebSocket-Protocol is an obligatory field our WS implementation.
 	/* If subProtocol is RSSL_RWF then move to regular
 	 * client connecting state */
 	if (wsSess->protocol == RWS_SP_NONE)
@@ -3177,10 +3198,37 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 			rsslSocketChannel->inputBufCursor = 0;
 		}
 		
-		// Validate upgrade request
-		if (!wsSess->upgrade && !wsSess->connUpgrade)
+		// Validate Host request
+		if (wsSess->host == NULL)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Invalid Websocket request. Missing Host field.",
+				__FILE__, __LINE__);
 			return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_NO_RESRC, error));
+		}
 
+		// Validate upgrade request
+		if (!wsSess->upgrade)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Invalid Websocket request. Missing Upgrade field.",
+				__FILE__, __LINE__);
+			return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_NO_RESRC, error));
+		}
+
+		// Validate connection request
+		if (!wsSess->connUpgrade)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Invalid Websocket request. Missing Connection field.",
+				__FILE__, __LINE__);
+			return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_NO_RESRC, error));
+		}
+
+		// Validate Sec-WebSocket-Key request
 		if (wsSess->keyRecv.data == NULL || wsSess->keyRecv.length == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
@@ -3193,8 +3241,9 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 		if(rsslSocketChannel->mountNak == 1)
 			return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_NO_RESRC, error));
 
+		//Sec-WebSocker-Version == 13 per RFC6455
 		wsSess->version = wsSess->server->version;
-		if (wsSess->versionRecv < wsSess->version)
+		if (wsSess->versionRecv != wsSess->version)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text,MAX_RSSL_ERROR_TEXT,
@@ -3205,6 +3254,7 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 		}
 
 		/* Check for unknown protocol. */
+		/* RFC6455 exception: Sec-WebSocket-Protocol is an obligatory field our WS implementation.*/
 		if (wsSess->protocol == RWS_SP_NONE)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
@@ -3246,6 +3296,8 @@ RsslInt32 rwsRejectSession(RsslSocketChannel *rsslSocketChannel, RsslRejectCodeT
 			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Content-Type: text/html; charset=UTF-8\r\n");
 			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Cache-Control: no-cache, private, no-store\r\n");
 			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Transfer-Encoding: chunked\r\n");
+			if (code == RSSL_WS_REJECT_UNSUPPORTED_VERSION)
+				cc += snprintf(resp + cc, RWS_MAX_HTTP_HEADER_SIZE, "Sec-WebSocket-Version: %d\r\n", RWS_PROTOCOL_VERSION);
 			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Connection: close\r\n");
 			break;
 		case RSSL_WS_REJECT_AUTH_FAIL:
