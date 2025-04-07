@@ -1,17 +1,17 @@
 !
 ! This document may not be reproduced, disclosed or used in
 ! whole or part without the express written permission of
-! Refinitiv. Refinitiv may update or remove this document
+! LSEG. LSEG may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.65_RealTimeDistributionSystem_24.91		11/17/2024
-!	* Modified 11/17/2024 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.65.
+!   Version	 4.20.66_RealTimeDistributionSystem_25.21		03/17/2025
+!	* Modified 03/17/2025 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.66.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.65_RealTimeDistributionSystem
+!   Version: 4.20.66_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -24,14 +24,14 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright Refinitiv 2024
+! (C) Copyright 2025 LSEG. All rights reserved.
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.65
-!tag Build     5
-!tag Date      14-Oct-2024
+!tag Version   4.20.66
+!tag Build     1
+!tag Date      11-Dec-2024
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -457,7 +457,7 @@ NEW_HIGHS  "NUM NEW HIGHS"        108  NULL        INTEGER            15  REAL64
 !
 PUTCALLIND "PUT/CALL FLAG"        109  NULL        ENUMERATED    2 ( 4 )  ENUM             1
 !
-! Indicates whether option is a put or a call.
+! Indicates whether instrument is a put or a call.
 !
 YCHIGH_IND "YR/CONTR HI IND"      110  NULL        ENUMERATED    2 ( 1 )  ENUM             1
 YCLOW_IND  "YR/CONTR LO IND"      111  NULL        ENUMERATED    2 ( 1 )  ENUM             1
@@ -4158,8 +4158,8 @@ IMP_VOLT   "IMPLIED VOLTLTY"     1642  NULL        PRICE              17  REAL64
 !
 PUT_CALL   "PUT/CALL"            1643  NULL        ENUMERATED    2 ( 4 )  ENUM             1
 !
-! Indicates whether option is a put or a call and the exercise style of the option 
-! (e.g. American Call - "C-AM", European Put - "P-EU")
+! Indicates exercise style of the instrument (e.g., European, American, Bermudan, 
+! Asian etc.)
 !
 TRANVOL_1  "TRANSACTL VOL 1"     1644  TRANVOL_2   INTEGER            15  REAL64           7
 TRANVOL_2  "TRANSACTL VOL 2"     1645  TRANVOL_3   INTEGER            15  REAL64           7
@@ -32273,10 +32273,23 @@ CNTR_VALUE "CONTRACT VALUE"     11167  NULL        PRICE              17  REAL64
 !
 ! Contract Value.
 !
-PRERL2177  "PRED REAL 2177"     11168  NULL        PRICE              17  REAL64           7
-PRERL2178  "PRED REAL 2178"     11169  NULL        PRICE              17  REAL64           7
-PRERL2179  "PRED REAL 2179"     11170  NULL        PRICE              17  REAL64           7
-PRERL2180  "PRED REAL 2180"     11171  NULL        PRICE              17  REAL64           7
+MIOASK_VOL "MID PO ASK VOL"     11168  NULL        PRICE              17  REAL64           7
+!
+! Total size of the Mid-Point Orders on the Ask side of the book.
+!
+MIOBID_VOL "MID PO BID VOL"     11169  NULL        PRICE              17  REAL64           7
+!
+! Total size of the Mid-Point Orders on the Bid side of the book.
+!
+MID_OR_PRC "MID PO OR PRC"      11170  NULL        PRICE              17  REAL64           7
+!
+! Estimated Mid-Point Order price as provided by the exchange.
+!
+DIF_VL_RTO "DIFF VOLT RATIO"    11171  NULL        PRICE              17  REAL64           7
+!
+! Implied versus Historical Volatility ratio. The volatility ratio between two 
+! different types implied and historical volatility.
+!
 PRERL2181  "PRED REAL 2181"     11172  NULL        PRICE              17  REAL64           7
 PRERL2182  "PRED REAL 2182"     11173  NULL        PRICE              17  REAL64           7
 PRERL2183  "PRED REAL 2183"     11174  NULL        PRICE              17  REAL64           7
@@ -39243,7 +39256,7 @@ ODD_BID_NS "ODD BID TIME NS"    14706  NULL        INTEGER            15  TIME  
 !
 ADJ_CLS_NS "ADJUSTED CLS TM NS" 14707  NULL        INTEGER            15  TIME             8
 !
-! Time time when ADJUST_CLS field was last updated.
+! Time when ADJUST_CLS field was last updated.
 !
 ALT_CLS_NS "ALT CLS TM NS"      14708  NULL        INTEGER            15  TIME             8
 !
