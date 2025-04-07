@@ -332,7 +332,7 @@ TEST_F(PreferredHostTest, PreferredHostTest_SetPHWithIOCtlAndPerformFallback)
 
 		consumer.fallbackPreferredHost();
 
-		/*Wait while consumer fall back to new preferred host. 
+		/*Wait while consumer fall back to new preferred host.
 		Fall back would happen before the time set in schedule because fallbackPreferredHost called  */
 
 		count = 0;
@@ -365,6 +365,10 @@ TEST_F(PreferredHostTest, PreferredHostTest_SetPHWithIOCtlAndPerformFallback)
 class ADHSimulator
 {
 public:
+
+	fd_set	readFds;
+	fd_set	writeFds;
+	fd_set	exceptFds;
 	ADHSimulator(RsslCreateReactorOptions& reactorOpts, char* portNo)
 	{
 		if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
@@ -384,9 +388,18 @@ public:
 		{
 			EXPECT_TRUE(false) << "rsslBind failed: %s\n", rsslErrorInfo.rsslError.text;
 		}
+
+		FD_ZERO(&readFds);
+		FD_ZERO(&writeFds);
+		FD_ZERO(&exceptFds);
+		FD_SET(rsslSrvr->socketId, &readFds);
+		FD_SET(rsslSrvr->socketId, &writeFds);
+		FD_SET(rsslSrvr->socketId, &exceptFds);
+		FD_SET(pReactor->eventFd, &readFds);
+		FD_SET(pReactor->eventFd, &writeFds);
 	}
 
-	static RsslRet sendMessage(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslBuffer* msgBuf)
+	static RsslRet sendMessage(RsslReactor* pReactor, RsslReactorChannel* chnl, RsslBuffer* msgBuf)
 	{
 		RsslErrorInfo rsslErrorInfo;
 		RsslRet	retval = 0;
@@ -406,9 +419,9 @@ public:
 			if (retval < RSSL_RET_SUCCESS)	/* Connection should be closed, return failure */
 			{
 				/* rsslWrite failed, release buffer */
-				EXPECT_TRUE(false) << "rsslReactorSubmit() failed with return code: " << retval <<" "<< rsslErrorInfo.rsslError.text<< "\n";
+				EXPECT_TRUE(false) << "rsslReactorSubmit() failed with return code: " << retval << " " << rsslErrorInfo.rsslError.text << "\n";
 				if (retval = rsslReactorReleaseBuffer(chnl, msgBuf, &rsslErrorInfo) != RSSL_RET_SUCCESS)
-					EXPECT_TRUE(false) << "rsslReactorReleaseBuffer() failed with return code: "<< retval <<" "<< rsslErrorInfo.rsslError.text << "\n";
+					EXPECT_TRUE(false) << "rsslReactorReleaseBuffer() failed with return code: " << retval << " " << rsslErrorInfo.rsslError.text << "\n";
 
 				return RSSL_RET_FAILURE;
 			}
@@ -418,12 +431,12 @@ public:
 	}
 
 	/* Callbacks*/
-	static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslRDMLoginMsgEvent *pLoginMsgEvent)
+	static RsslReactorCallbackRet loginMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pChannel, RsslRDMLoginMsgEvent* pLoginMsgEvent)
 	{
 		/* Accept login */
-		RsslRDMLoginMsg *pLoginMsg = pLoginMsgEvent->pRDMLoginMsg;
-		RsslRDMLoginRequest *pLoginRequest = &pLoginMsg->request;
-		
+		RsslRDMLoginMsg* pLoginMsg = pLoginMsgEvent->pRDMLoginMsg;
+		RsslRDMLoginRequest* pLoginRequest = &pLoginMsg->request;
+
 		if (pLoginMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST)
 		{
 			RsslErrorInfo rsslErrorInfo;
@@ -484,7 +497,7 @@ public:
 				if (rsslEncodeRDMLoginMsg(&eIter, (RsslRDMLoginMsg*)&loginRefresh, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 				{
 					rsslReactorReleaseBuffer(pChannel, msgBuf, &rsslErrorInfo);
-					EXPECT_TRUE(false) <<"rsslEncodeRDMLoginRefresh() failed: " << rsslErrorInfo.rsslError.text <<"("<< rsslErrorInfo.errorLocation <<")"<< "\n";
+					EXPECT_TRUE(false) << "rsslEncodeRDMLoginRefresh() failed: " << rsslErrorInfo.rsslError.text << "(" << rsslErrorInfo.errorLocation << ")" << "\n";
 					return RSSL_RC_CRET_FAILURE;
 				}
 
@@ -494,7 +507,7 @@ public:
 			}
 			else
 			{
-				EXPECT_TRUE(false) << "rsslReactorGetBuffer(): Failed: "<< rsslErrorInfo.rsslError.text<<"\n";
+				EXPECT_TRUE(false) << "rsslReactorGetBuffer(): Failed: " << rsslErrorInfo.rsslError.text << "\n";
 				return RSSL_RC_CRET_FAILURE;
 			}
 		}
@@ -502,12 +515,35 @@ public:
 		return RSSL_RC_CRET_SUCCESS;
 	}
 
-	static RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslMsgEvent *pRsslMsgEvent) 
+	static RsslReactorCallbackRet defaultMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslMsgEvent* pRsslMsgEvent)
 	{
 		return RSSL_RC_CRET_SUCCESS;
 	}
-	static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pChannelEvent) 
+	static RsslReactorCallbackRet channelEventCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslReactorChannelEvent* pChannelEvent)
 	{
+		ADHSimulator* pAdhSim = static_cast<ADHSimulator*>(pReactorChannel->userSpecPtr);
+
+		switch (pChannelEvent->channelEventType)
+		{
+		case RSSL_RC_CET_CHANNEL_UP:
+			FD_SET(pReactorChannel->socketId, &pAdhSim->readFds);
+			FD_SET(pReactorChannel->socketId, &pAdhSim->exceptFds);
+			break;
+		case RSSL_RC_CET_CHANNEL_DOWN:
+			FD_CLR(pReactorChannel->socketId, &pAdhSim->readFds);
+			FD_CLR(pReactorChannel->socketId, &pAdhSim->exceptFds);
+			break;
+		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
+			FD_CLR(pReactorChannel->socketId, &pAdhSim->readFds);
+			FD_CLR(pReactorChannel->socketId, &pAdhSim->exceptFds);
+			break;
+		case RSSL_RC_CET_FD_CHANGE:
+			FD_CLR(pReactorChannel->oldSocketId, &pAdhSim->readFds);
+			FD_CLR(pReactorChannel->oldSocketId, &pAdhSim->exceptFds);
+			FD_SET(pReactorChannel->socketId, &pAdhSim->readFds);
+			FD_SET(pReactorChannel->socketId, &pAdhSim->exceptFds);
+			break;
+		}
 		return RSSL_RC_CRET_SUCCESS;
 	}
 
@@ -520,9 +556,9 @@ public:
 	void run()
 	{
 		struct timeval time_interval;
-		fd_set	useRead, readFds;
-		fd_set	useWrite, writeFds;
-		fd_set	useExcept, exceptFds;
+		fd_set	useRead;
+		fd_set	useWrite;
+		fd_set	useExcept;
 
 		int selRet;
 		RsslReactorDispatchOptions dispatchOpts;
@@ -536,13 +572,9 @@ public:
 		rsslClearReactorDispatchOptions(&dispatchOpts);
 		dispatchOpts.maxMessages = 100;
 
-		FD_ZERO(&readFds);
-		FD_ZERO(&writeFds);
-		FD_ZERO(&exceptFds);
-		FD_SET(rsslSrvr->socketId, &readFds);
-		FD_SET(rsslSrvr->socketId, &writeFds);
-		FD_SET(rsslSrvr->socketId, &exceptFds);
-		FD_SET(pReactor->eventFd, &writeFds);
+		FD_ZERO(&useRead);
+		FD_ZERO(&useWrite);
+		FD_ZERO(&useExcept);
 
 		while (runFlag)
 		{
@@ -589,7 +621,7 @@ public:
 	{
 		runFlag = false;
 		tr.join();
-		
+
 		if (pReactor)
 			rsslDestroyReactor(pReactor, &rsslErrorInfo);
 
@@ -599,9 +631,9 @@ public:
 
 private:
 	ADHSimulator() {};
-	RsslReactor *pReactor;
+	RsslReactor* pReactor;
 	RsslBindOptions sopts;
-	RsslServer *rsslSrvr;
+	RsslServer* rsslSrvr;
 	std::thread tr;
 	RsslErrorInfo rsslErrorInfo;
 	std::atomic <bool> runFlag;
