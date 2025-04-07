@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|          Copyright (C) 2019-2020 LSEG. All rights reserved.     
+// *|          Copyright (C) 2019-2020,2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -106,12 +106,16 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 		
 		// this should work for consumers and interactive providers
 		if (_channel != null) {
-			
-			ChannelInfo channelInfo = null;
-			
-			channelInfo = (ChannelInfo)_channel.userSpecObj();
-			
-			populateChannelInfomation(_channelInfo, _channel, channelInfo);
+
+			if (_ommProvider != null && _ommProvider.providerRole() == ProviderRole.INTERACTIVE) {
+				_channelInfo.set(_channel);
+			}
+			else { //Consumer & NiProvider
+				ChannelInfo channelInfo = (ChannelInfo)_channel.userSpecObj();
+
+				populateChannelInfomation(_channelInfo, _channel, channelInfo);
+			}
+
 			return _channelInfo;
 		}
 
