@@ -8047,7 +8047,7 @@ TEST_F(WebsocketClientConnectionTest, WebsocketClientHandshakeTest)
 
 	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
 
-	ASSERT_TRUE(strstr(error.text, "Invalid HTTP response, status code 111") > 0 );
+	ASSERT_TRUE(strstr(error.text, "Invalid HTTP response, status code 111") != NULL);
 
 	sock_close(serverSocket);
 	serverSocket = RIPC_INVALID_SOCKET;
@@ -8084,7 +8084,7 @@ TEST_F(WebsocketClientConnectionTest, WebsocketClientHandshakeTest)
 
 	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
 
-	ASSERT_TRUE(strstr(error.text, "Bad HTTP status/request line") > 0);
+	ASSERT_TRUE(strstr(error.text, "Bad HTTP status/request line") != NULL);
 
 	rsslCloseChannel(pClientChannel, &error);
 	pClientChannel = NULL;
@@ -8121,7 +8121,7 @@ TEST_F(WebsocketClientConnectionTest, WebsocketClientHandshakeTest)
 
 	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
 
-	ASSERT_TRUE(strstr(error.text, "No Upgrade: key received.") > 0);
+	ASSERT_TRUE(strstr(error.text, "No Upgrade: key received.") != NULL);
 
 	sock_close(serverSocket);
 	serverSocket = RIPC_INVALID_SOCKET;
@@ -8158,7 +8158,7 @@ TEST_F(WebsocketClientConnectionTest, WebsocketClientHandshakeTest)
 
 	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
 
-	ASSERT_TRUE(strstr(error.text, "No Connection: key received.") > 0);
+	ASSERT_TRUE(strstr(error.text, "No Connection: key received.") != NULL);
 
 	sock_close(serverSocket);
 	serverSocket = RIPC_INVALID_SOCKET;
@@ -8195,7 +8195,7 @@ TEST_F(WebsocketClientConnectionTest, WebsocketClientHandshakeTest)
 
 	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
 
-	ASSERT_TRUE(strstr(error.text, "Unsupported Websocket protocol type received") > 0);
+	ASSERT_TRUE(strstr(error.text, "Unsupported Websocket protocol type received") != NULL);
 
 	sock_close(serverSocket);
 	serverSocket = RIPC_INVALID_SOCKET;
@@ -8233,7 +8233,7 @@ TEST_F(WebsocketClientConnectionTest, WebsocketClientHandshakeTest)
 
 	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
 
-	ASSERT_TRUE(strstr(error.text, "No Sec-Websocket-Accept: key received, key expected") > 0);
+	ASSERT_TRUE(strstr(error.text, "No Sec-Websocket-Accept: key received, key expected") != NULL);
 
 	sock_close(serverSocket);
 	serverSocket = RIPC_INVALID_SOCKET;
@@ -8272,7 +8272,7 @@ TEST_F(WebsocketClientConnectionTest, WebsocketClientHandshakeTest)
 
 	ASSERT_EQ(rsslInitChannel(pClientChannel, &inProg, &error), RSSL_RET_FAILURE);
 
-	ASSERT_TRUE(strstr(error.text, "Key received 's3pPLMBiTxaQ9kYGzzhZRbK+xOo=' is not key expected") > 0);
+	ASSERT_TRUE(strstr(error.text, "Key received 's3pPLMBiTxaQ9kYGzzhZRbK+xOo=' is not key expected") != NULL);
 
 	sock_close(serverSocket);
 	serverSocket = RIPC_INVALID_SOCKET;
