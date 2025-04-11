@@ -1,8 +1,8 @@
 /*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
- *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.    --
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.    --
  *|-----------------------------------------------------------------------------
  */
 
@@ -54,7 +54,6 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String serviceDiscoveryLocation = "";
 	private String keystoreFile;
 	private String keystorePasswd;
-	private String securityProvider;
 	private boolean cacheOption;
 	private int cacheInterval;
 	private int statisticInterval;
@@ -81,6 +80,13 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private int preferredHostIndex;
 	private int detectionTimeInterval;
 	private String detectionTimeSchedule = "";
+
+	// Reconnection options
+	private int reconnectAttemptLimit = -1;
+	// Default reconnection minimum delay is 500 milliseconds
+	private int reconnectMinDelay = 500;
+	// Default reconnection maximum delay is 6000 milliseconds
+	private int reconnectMaxDelay = 6000;
 
 	// IOCtl options
 	private int fallBackInterval;
@@ -250,11 +256,6 @@ class ConsumerCmdLineParser implements CommandLineParser
 				else if ("-keypasswd".equals(args[argsCount]))
 				{
 					keystorePasswd = argsCount < (args.length-1) ? args[++argsCount] : null;
-					++argsCount;
-				}
-				else if ("-securityProvider".equals(args[argsCount]))
-				{
-					securityProvider = argsCount < (args.length-1) ? args[++argsCount] : null;
 					++argsCount;
 				}
 				else if ("-proxy".equals(args[argsCount]))
@@ -434,6 +435,22 @@ class ConsumerCmdLineParser implements CommandLineParser
 				{
 					detectionTimeSchedule = args[++argsCount];
 					ioctlDetectionTimeSchedule = detectionTimeSchedule;
+					++argsCount;
+				}
+				// Reconnection options
+				else if ("-reconnectAttemptLimit".equals(args[argsCount]))
+				{
+					reconnectAttemptLimit = Integer.parseInt(args[++argsCount]);
+					++argsCount;
+				}
+				else if ("-reconnectMinDelay".equals(args[argsCount]))
+				{
+					reconnectMinDelay = Integer.parseInt(args[++argsCount]);
+					++argsCount;
+				}
+				else if ("-reconnectMaxDelay".equals(args[argsCount]))
+				{
+					reconnectMaxDelay = Integer.parseInt(args[++argsCount]);
 					++argsCount;
 				}
 				// IOCtl options
@@ -677,11 +694,6 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return keystorePasswd;
 	}
 
-	String securityProvider()
-	{
-		return securityProvider;
-	}
-
 	boolean cacheOption()
 	{
 		return cacheOption;
@@ -796,6 +808,21 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return detectionTimeSchedule;
 	}
 
+	int reconnectAttemptLimit()
+	{
+		return reconnectAttemptLimit;
+	}
+
+	int reconnectMinDelay()
+	{
+		return reconnectMinDelay;
+	}
+
+	int reconnectMaxDelay()
+	{
+		return reconnectMaxDelay;
+	}
+
 	int fallBackInterval()
 	{
 		return fallBackInterval;
@@ -880,7 +907,6 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -krbfile specifies KRB File location and name\n" +
 						   "\n -keyfile specifies keystore file location and name\n" +
 						   "\n -keypasswd specifies keystore password\n" +
-				           "\n -securityProvider Specifies security provider, default is SunJSSE, also supports Conscrypt\n" +
 						   "\n       Example Usage for proxy with http/encryption:  -proxy -ph hostname1.com -pp 8080 -plogin David.Smith -ppasswd hello1 -pdomain workplace.com\n" +
 						   "\n                                                     -krbfile C:\\Kerberos\\krb5.conf -keyfile C:\\Certificates\\cert1.jks -keypasswd keypass1 \n" +
 						   "\n -x provides an XML trace of messages\n" +
@@ -906,7 +932,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 							"\n -ioctlEnablePH <true/false> enables Preferred host feature. Default is a value of enablePH" +
 							"\n -ioctlConnectListIndex <index> specifies the preferred host as the index in the connection list. Default is a value of preferredHostIndex" +
 							"\n -ioctlDetectionTimeInterval <time interval> specifies time interval (in seconds) to switch over to a preferred host. 0 indicates that the detection time interval is disabled. Default is a value of detectionTimeInterval" +
-							"\n -ioctlDetectionTimeSchedule <Cron time> specifies Cron time format to switch over to a preferred host. Default is a value of detectionTimeSchedule\n");
+							"\n -ioctlDetectionTimeSchedule <Cron time> specifies Cron time format to switch over to a preferred host. Default is a value of detectionTimeSchedule\n" +
+							"\n Reconnection options (optional):" +
+							"\n -reconnectAttemptLimit specifies the maximum number of reconnection attempts. Default is -1" +
+							"\n -reconnectMinDelay specifies minimum delay (in milliseconds) between reconnection attempts. Default is 500" +
+							"\n -reconnectMaxDelay specifies maximum delay (in milliseconds) between reconnection attempts. Default is 6000\n");
 	}
 }
 

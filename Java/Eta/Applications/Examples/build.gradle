@@ -131,6 +131,15 @@ task runWatchlistConsumer(type: JavaExec) {
 	classpath = sourceSets.main.runtimeClasspath
 }
 
+task runWSBConsumer(type: JavaExec) {
+	dependsOn 'copyDictionary'
+    group 'Run ETA Application Examples'
+    description 'Run ETA WarmStandby Watchlist Consumer Application Example'
+
+	mainClass.set('com.refinitiv.eta.valueadd.examples.wsbconsumer.wsbConsumer')
+	classpath = sourceSets.main.runtimeClasspath
+}
+
 task runGenericProv(type: JavaExec) {
 	dependsOn 'copyDictionary'
     group 'Run ETA Application Examples'

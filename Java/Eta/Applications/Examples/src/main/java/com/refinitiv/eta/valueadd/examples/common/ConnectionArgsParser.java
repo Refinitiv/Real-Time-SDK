@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -19,7 +19,7 @@ import com.refinitiv.eta.transport.ConnectionTypes;
 public class ConnectionArgsParser
 {
 	final int ERROR_RETURN_CODE = -1;
-	List<ConnectionArg> connectionList = new ArrayList<ConnectionArg>();
+	List<ConnectionArg> connectionList = new ArrayList<>();
 	
 	/**
 	 * Returns true if argOffset is start of connection arguments.
@@ -31,15 +31,10 @@ public class ConnectionArgsParser
 	 */
 	public boolean isStart(String[] args, int argOffset)
 	{
-		if ("-c".equals(args[argOffset]) ||
-			"-tcp".equals(args[argOffset]) ||
-			"-segmentedMulticast".equals(args[argOffset]))
-		{
-			return true;
-		}
-		
-		return false;
-	}
+        return "-c".equals(args[argOffset]) ||
+                "-tcp".equals(args[argOffset]) ||
+                "-segmentedMulticast".equals(args[argOffset]);
+    }
 	
 	/**
 	 * Parses connection arguments.
@@ -51,7 +46,7 @@ public class ConnectionArgsParser
 	 */
 	public int parse(String[] args, int argOffset)
 	{
-		int offset = 0;
+		int offset;
 		
 		if ("-c".equals(args[argOffset]) ||
 			"-tcp".equals(args[argOffset]))
@@ -74,35 +69,46 @@ public class ConnectionArgsParser
 	private int parseSocketConnectionArgs(String[] args, int argOffset)
 	{
 		int retCode = ERROR_RETURN_CODE;
-		ConnectionArg connectionArg = null;
-		
+		ConnectionArg connectionArg = new ConnectionArg();
+
 		if ((args.length-1) >= argOffset+3)
 		{
 			if (args[argOffset+1].contains(":") && !args[argOffset+2].contains(":"))
 			{
-				String[] tokens = args[argOffset+1].split(":");
-				connectionArg = new ConnectionArg();
-				connectionArg.connectionType = ConnectionTypes.SOCKET;
+				String service = null;
 				if (!args[argOffset+2].startsWith("-"))
 				{
-					connectionArg.service = args[argOffset+2];
+					service = args[argOffset+2];
 					retCode = argOffset + 3;
 				}
 				else
 				{
 					retCode = argOffset + 2;
 				}
-				if (tokens.length == 2)
-				{
-					connectionArg.hostname = tokens[0];
-					connectionArg.port = tokens[1];
-					connectionList.add(connectionArg);
+
+				String[] sockets = args[argOffset+1].split(",");
+				// Create arrays here
+				List<String> hostnames = new ArrayList<>();
+				List<String> ports = new ArrayList<>();
+				for(String socket : sockets) {
+					String[] tokens = socket.split(":");
+
+					if (tokens.length == 2)
+					{
+						hostnames.add(tokens[0]);
+						ports.add(tokens[1]);
+					}
+					else {
+						hostnames.add("");
+						ports.add("");
+					}
 				}
-				else {
-					connectionArg.hostname = "";
-					connectionArg.port = "";
-					connectionList.add(connectionArg);
-				}
+				connectionArg.connectionType(ConnectionTypes.SOCKET);
+				connectionArg.service(service);
+				connectionArg.consumerHostnames(hostnames);
+				connectionArg.consumerPorts(ports);
+
+				connectionList.add(connectionArg);
 			}
 			else
 			{
@@ -119,7 +125,7 @@ public class ConnectionArgsParser
 		if (itemArgsParser.isStart(args, retCode))
 		{
 			retCode = itemArgsParser.parse(args, retCode);
-			connectionArg.itemList = itemArgsParser.itemList();
+			connectionArg.itemList(itemArgsParser.itemList());
 		}
         else if (!args[retCode].equals("-tsServiceName") && !args[retCode].equals("-tunnel") && !args[retCode].equals("-tsAuth") && !args[retCode].equals("-tsDomain"))
         {
@@ -131,22 +137,22 @@ public class ConnectionArgsParser
 		{
             if (args[argsCount].equals("-tsServiceName"))
             {
-                connectionArg.tsService = args[argsCount + 1];
+				connectionArg.tsService(args[argsCount + 1]);
                 retCode += 2;
             }
             if (args[argsCount].equals("-tunnel"))
             {
-                connectionArg.tunnel = true;
-                retCode += 1;           
+				connectionArg.tunnel(true);
+                retCode += 1;
             }
             if (args[argsCount].equals("-tsAuth"))
             {
-                connectionArg.tunnelAuth = true;
+				connectionArg.tunnelAuth(true);
                 retCode += 1;           
             }
             if (args[argsCount].equals("-tsDomain"))
             {
-                connectionArg.tunnelDomain = Integer.valueOf(args[argsCount + 1]);
+				connectionArg.tunnelDomain(Integer.parseInt(args[argsCount + 1]));
                 retCode += 2;           
             }
             if (argsCount < retCode)
@@ -158,12 +164,12 @@ public class ConnectionArgsParser
                 argsCount++;
             }
 		}
-		
-		if (connectionArg.tsService == null)
+
+		if (connectionArg.tsService() == null)
 		{
-		    connectionArg.tsService = connectionArg.service;
+			connectionArg.tsService(connectionArg.service());
 		}
-		
+
 		return retCode;
 	}
 
@@ -171,7 +177,7 @@ public class ConnectionArgsParser
 	private int parseMulticastConnectionArgs(String[] args, int argOffset)
 	{
 		int retCode = ERROR_RETURN_CODE;
-		ConnectionArg connectionArg = null;
+		ConnectionArg connectionArg;
 		
 		if (args[argOffset+1].contains(":") && args[argOffset+2].contains(":") &&
 			!args[argOffset+3].contains(":") && !args[argOffset+4].contains(":"))

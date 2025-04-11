@@ -1,0 +1,41 @@
+{
+	"PreferredHost" : {
+		"enablePH" : false,
+		"detectionTimeInterval" : 10,
+		"detectionTimeSchedule" : "* * ? * *",
+		"warmstandbyGroupListIndex" : 1,
+		"fallbackWithinWSBGroup" : false
+	},
+	"WSBGroups" : [
+		{
+			"WSBMode" : "login",
+			"WSBActive" : 
+			{
+				"Host" : "localhost",
+				"Port" : "14002"
+			},
+			"WSBStandby" : [
+				{
+					"Host" : "localhost",
+					"Port" : "14000"
+				}
+			]
+		}
+	],
+	"ConnectionList" : [
+		{
+			"Host" : "",
+			"Port" : "",
+			"SessionMgnt" : true,
+			"ConnType": 1,
+			"EncryptedConnType" : 0
+		},
+		{
+			"Host" : "",
+			"Port" : "",
+			"SessionMgnt" : true,
+			"ConnType": 1,
+			"EncryptedConnType" : 0
+		}
+	]
+}

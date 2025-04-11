@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -66,15 +66,15 @@ class ChannelInfo
     Service serviceInfo = DirectoryMsgFactory.createService();
     ReactorChannel reactorChannel;
 
-    List<String> mpItemList = new ArrayList<String>();
-    List<String> mppsItemList = new ArrayList<String>();
-    List<String> mboItemList = new ArrayList<String>();
-    List<String> mbopsItemList = new ArrayList<String>();
-    List<String> mbpItemList = new ArrayList<String>();
-    List<String> mbppsItemList = new ArrayList<String>();
-    List<String> ycItemList = new ArrayList<String>();
-    List<String> ycpsItemList = new ArrayList<String>();
-    List<String> slItemList = new ArrayList<String>();
+    List<String> mpItemList = new ArrayList<>();
+    List<String> mppsItemList = new ArrayList<>();
+    List<String> mboItemList = new ArrayList<>();
+    List<String> mbopsItemList = new ArrayList<>();
+    List<String> mbpItemList = new ArrayList<>();
+    List<String> mbppsItemList = new ArrayList<>();
+    List<String> ycItemList = new ArrayList<>();
+    List<String> ycpsItemList = new ArrayList<>();
+    List<String> slItemList = new ArrayList<>();
 
     // streams items are non-recoverable, it is not sent again after
     // recovery
@@ -97,6 +97,8 @@ class ChannelInfo
 
     long loginReissueTime; // represented by epoch time in milliseconds
     boolean canSendLoginReissue;
+
+    boolean isChannelClosed;
 
     {
         connectOptions.connectionList().add(connectInfo);
