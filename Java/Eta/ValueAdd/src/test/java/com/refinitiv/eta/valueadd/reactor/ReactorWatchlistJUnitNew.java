@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.eta.valueadd.reactor;
@@ -19082,8 +19082,8 @@ public class ReactorWatchlistJUnitNew
 		dIter.clear();
 		int numOfFields = 0;
 		int ret;
-		int majorVersion =  provider.channel().majorVersion();
-		int minorVersion =  provider.channel().minorVersion();
+		int majorVersion =  provider.reactorChannel().majorVersion();
+		int minorVersion =  provider.reactorChannel().minorVersion();
 		
 		dIter.setBufferAndRWFVersion(requestMsg.encodedDataBody(), majorVersion, minorVersion);
 				

@@ -129,6 +129,7 @@ eclipse.classpath.file.whenMerged {
 
 dependencies {
     api group: 'org.json', name: 'json', version: '20240303'
+    api group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
     api group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.16'
     api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
     api group: 'org.slf4j', name: 'slf4j-jdk14', version: '2.0.16'

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022,2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -28,10 +28,13 @@ public class ReactorConnectOptions
      * Reactor always uses this list if specified and then moves next to the reactorConnectionList option. 
      */
     List<ReactorWarmStandbyGroup> _reactorWarmStandyGroupList;
+    ReactorPreferredHostOptions _reactorPreferredHostOptions;
 
     ReactorConnectOptions()
     {
    		_reactorWarmStandyGroupList = new LinkedList<ReactorWarmStandbyGroup>();
+   		
+   		_reactorPreferredHostOptions = ReactorFactory.createReactorPreferredHostOptions();
   	
         _connectionList = new ArrayList<ReactorConnectInfo>(10);
     }
@@ -199,7 +202,16 @@ public class ReactorConnectOptions
         destOpts._reconnectAttemptLimit = _reconnectAttemptLimit;
         destOpts._reconnectMinDelay = _reconnectMinDelay;
         destOpts._reconnectMaxDelay = _reconnectMaxDelay;
-
+        
+        if (destOpts.reactorPreferredHostOptions() == null)
+        	destOpts._reactorPreferredHostOptions = ReactorFactory.createReactorPreferredHostOptions();
+        destOpts.reactorPreferredHostOptions().connectionListIndex(_reactorPreferredHostOptions.connectionListIndex());
+        destOpts.reactorPreferredHostOptions().detectionTimeInterval(_reactorPreferredHostOptions.detectionTimeInterval());
+        destOpts.reactorPreferredHostOptions().detectionTimeSchedule(_reactorPreferredHostOptions.detectionTimeSchedule());
+        destOpts.reactorPreferredHostOptions().fallBackWithInWSBGroup(_reactorPreferredHostOptions.fallBackWithInWSBGroup());
+        destOpts.reactorPreferredHostOptions().isPreferredHostEnabled(_reactorPreferredHostOptions.isPreferredHostEnabled());
+        destOpts.reactorPreferredHostOptions().warmStandbyGroupListIndex(_reactorPreferredHostOptions.warmStandbyGroupListIndex());
+        
         return ReactorReturnCodes.SUCCESS;
     }
     
@@ -212,6 +224,11 @@ public class ReactorConnectOptions
     public List<ReactorWarmStandbyGroup> reactorWarmStandbyGroupList()
     {
     	return _reactorWarmStandyGroupList;
+    }
+    
+    public ReactorPreferredHostOptions reactorPreferredHostOptions()
+    {
+    	return this._reactorPreferredHostOptions;
     }
     
 }

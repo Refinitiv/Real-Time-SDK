@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -175,7 +175,7 @@ class WlServiceCache
 						wsbHandler.currentWarmStandbyGroupImpl(), true, errorInfo);
 					
 					// Submit requests now only for the first connection... every one after this will be handled by the watchlist.
-					if(wsbHandler.currentWarmStandbyGroupIndex() == 0)
+					if(!wsbHandler.watchlistSentFirstRequests())
 					{
 						if (_watchlist.reactor().submitWSBRequestQueue(_watchlist.reactorChannel().warmStandByHandlerImpl,
 								_watchlist.reactorChannel().warmStandByHandlerImpl.currentWarmStandbyGroupImpl(),
@@ -196,6 +196,7 @@ class WlServiceCache
 								ReactorChannelEventTypes.CHANNEL_DOWN, _watchlist.reactorChannel(), errorInfo);
 							}
 						}
+						wsbHandler.watchlistSentFirstRequests(true);
 					}
 
 
@@ -266,6 +267,37 @@ class WlServiceCache
 		    		_watchlist._reactorChannel.reactor().sendWarmStandbyEvent(channel, reactorWarmStandbyEvent, errorInfo);
         		}
         	}
+        }
+        else if (_watchlist._reactorChannel.warmStandByHandlerImpl != null)
+        {
+        	// If we are not on WSB group, we must be on ConnectionList.
+        	// 	Submit any items that were on the wsbHandler's submitMsgQueue.
+        	if(_watchlist._reactorChannel.sendReqFromQueue)
+    			return ret;
+        	
+        	ReactorWarmStandbyHandler wsbHandler = _watchlist._reactorChannel.warmStandByHandlerImpl;
+        	for (int i = 0; i < _watchlist._reactorChannel.warmStandByHandlerImpl.submitMsgQueue().size(); ++i)
+    		{
+        		if (wsbHandler.submitMsgQueue().get(i).submitTime > _watchlist._reactorChannel.lastSubmitOptionsTime)
+    			{
+        			if (_watchlist.submitMsg(wsbHandler.submitMsgQueue().get(i).msg,
+    						wsbHandler.submitMsgQueue().get(i).submitOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
+    				{
+    					ret = ReactorReturnCodes.FAILURE;
+    				}
+    			}
+    		}
+
+			ReactorWLSubmitMsgOptions submitOpts = null;
+			while (wsbHandler.submitMsgQueue().size() != 0)
+			{
+				submitOpts = wsbHandler.submitMsgQueue().remove(0);
+				submitOpts.clear();
+				wsbHandler.freeSubmitMsgQueue().add(submitOpts);
+			}
+
+    		_watchlist._reactorChannel.lastSubmitOptionsTime = System.nanoTime();
+        	_watchlist._reactorChannel.sendReqFromQueue = true;
         }
         
         return ret;        

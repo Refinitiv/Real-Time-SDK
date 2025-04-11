@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -53,8 +53,19 @@ enum WorkerEventTypes
     // sent from Reactor to itself for dispatching to the application
 	TOKEN_CREDENTIAL_RENEWAL,
 	// sent from Worker to Reactor
-	WARM_STANDBY;
-    
+	WARM_STANDBY,
+	// sent from Reactor to Worker
+	PREFERRED_HOST_TIMER,
+	// sent from Reactor to Worker, then Worker to Reactor when ready
+	PREFERRED_HOST_START_FALLBACK,
+	// sent from Reactor to Worker
+	PREFERRED_HOST_IOCTL,
+	// Sent from Worker to Reactor
+	PREFERRED_HOST_SWITCH_CHANNEL,
+	// Sent from Reactor to Worker
+	PREFERRED_HOST_CHANNEL_CLOSE,
+	// Sent from Reactor to Worker
+	PREFERRED_HOST_CHANNEL_DOWN;
     
     /* Returns a String representation of the specified WorkerEventTypes type. */
     static String toString(WorkerEventTypes type)
@@ -98,7 +109,13 @@ enum WorkerEventTypes
             case WATCHLIST_TIMEOUT:
                 return "ReactorChannelEventTypes.WATCHLIST_TIMEOUT";
             case TOKEN_MGNT:
-                return "ReactorChannelEventTypes.TOKEN_MGNT";                
+                return "ReactorChannelEventTypes.TOKEN_MGNT";     
+            case TOKEN_CREDENTIAL_RENEWAL:
+                return "ReactorChannelEventTypes.TOKEN_CREDENTIAL_RENEWAL";  
+            case WARM_STANDBY:
+                return "ReactorChannelEventTypes.WARM_STANDBY";  
+            case PREFERRED_HOST_TIMER:
+                return "ReactorChannelEventTypes.PREFERRED_HOST_TIMER";  
             default:
                 return "ReactorChannelEventTypes " + type + " - undefined.";
         }

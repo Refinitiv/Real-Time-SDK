@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.eta.valueadd.reactor;
@@ -24,7 +24,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
+import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.DataDictionary;
 import com.refinitiv.eta.codec.DataStates;
 import com.refinitiv.eta.codec.MsgClasses;
@@ -70,6 +72,14 @@ public class TestReactor {
     private static boolean _enableReactorXmlTracing = false;
     
     private boolean initJsonConverter = false;
+    
+    /** Controls if we need to overwrite the reactorChannel in the component, switching between WSB and ConnectionList **/
+    boolean switchingReactorChannel = false;
+    
+    /** Control whether or not this is a preferred host test, in which case we need to avoid some asserts that could occur due to timing conditions, but shouldn't reflect an error in the test case. */
+    boolean isPreferredHostTest = false;
+    
+    final String DEFAULT_SERVICE = "DEFAULT_SERVICE";
 
 	/** Creates a TestReactor. */
 	public TestReactor()
@@ -98,6 +108,47 @@ public class TestReactor {
 		_eventQueue = new LinkedList<TestReactorEvent>();
 		_componentList = new LinkedList<TestReactorComponent>();
 		_errorInfo = ReactorFactory.createReactorErrorInfo();
+        if (_enableReactorXmlTracing)
+            reactorOptions.enableXmlTracing();
+		_reactor = ReactorFactory.createReactor(reactorOptions, _errorInfo);
+		
+		try {
+			_selector = Selector.open();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("Caught I/O exception");
+		}
+	}
+	
+	/** Creates a TestReactor. */
+	public TestReactor(boolean isPreferredHostTest)
+	{
+
+		ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+		_eventQueue = new LinkedList<TestReactorEvent>();
+		_componentList = new LinkedList<TestReactorComponent>();
+		_errorInfo = ReactorFactory.createReactorErrorInfo();
+		this.isPreferredHostTest = isPreferredHostTest;
+        if (_enableReactorXmlTracing)
+            reactorOptions.enableXmlTracing();
+		_reactor = ReactorFactory.createReactor(reactorOptions, _errorInfo);
+		
+		try {
+			_selector = Selector.open();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("Caught I/O exception");
+		}
+	}
+
+	/** Creates a TestReactor. */
+	public TestReactor(ReactorOptions reactorOptions, boolean isPreferredHostTest)
+	{
+		
+		_eventQueue = new LinkedList<TestReactorEvent>();
+		_componentList = new LinkedList<TestReactorComponent>();
+		_errorInfo = ReactorFactory.createReactorErrorInfo();
+		this.isPreferredHostTest = isPreferredHostTest;
         if (_enableReactorXmlTracing)
             reactorOptions.enableXmlTracing();
 		_reactor = ReactorFactory.createReactor(reactorOptions, _errorInfo);
@@ -184,6 +235,7 @@ public class TestReactor {
 
         /* Ensure no events were missed from previous calls to dispatch.
            But don't check event queue size when expectedEventCount is set to -1 */
+        
         if(expectedEventCount != -1 )
         	assertEquals(0, _eventQueue.size());
 
@@ -290,8 +342,12 @@ public class TestReactor {
         } while(currentTimeUsec < stopTimeUsec);
         
         /* Don't check event queue size when expectedEventCount is set to -1 */
+        System.out.println(expectedEventCount + " eventQueue: " + _eventQueue.size());
         if(expectedEventCount != -1 )
         	assertEquals(expectedEventCount, _eventQueue.size());
+        
+        // Reset switching reactor channel to false now that this dispatch is complete
+        switchingReactorChannel = false;
     }
 	
 	/** Waits for notification on the component's Reactor, and calls dispatch when triggered. It will
@@ -601,6 +657,11 @@ public class TestReactor {
 			component.reactorChannelIsUp(false);
 			break;
 		case ReactorChannelEventTypes.FD_CHANGE:
+			if (isPreferredHostTest)
+			{
+				if (component.reactorChannel() == null)
+					break;
+			}
 			assertNotNull(component.reactorChannel());
 			if(component.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
 			{
@@ -610,7 +671,8 @@ public class TestReactor {
 					
 					if(fdChangeChannel != null && !component.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(fdChangeChannel))
 					{
-						fdChangeChannel.keyFor(_selector).cancel();
+						if (fdChangeChannel.keyFor(_selector) != null)
+							fdChangeChannel.keyFor(_selector).cancel();
 					}
 				}
 			}
@@ -624,13 +686,16 @@ public class TestReactor {
 		case ReactorChannelEventTypes.CHANNEL_READY:
 		case ReactorChannelEventTypes.WARNING:
 			break;
+		case ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE:
+			System.out.println("Preferred Host Complete callback received.");
+			break;
 		default:
 			fail("Unhandled ReactorChannelEventType.");
 				
 		}
 		
-		if (component.reactorChannel() != null)
-            assertEquals(component.reactorChannel(), event.reactorChannel());
+		if (component.reactorChannel() != null && !switchingReactorChannel)
+            assertEquals("Active event reactorChannel is unexpectedly different than the one on the component.", component.reactorChannel(), event.reactorChannel());
         else
             component.reactorChannel(event.reactorChannel());
 		
@@ -791,6 +856,105 @@ public class TestReactor {
 
     }
 	
+	/** Associates a component with this reactor and opens a connection. This is meant to check for errors
+	 * during the connection. */
+	int connectFailureTest(ConsumerProviderSessionOptions opts, TestReactorComponent component, int port)
+	{
+        ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
+        ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+        int ret;
+
+        connectOpts.clear();
+        connectOpts.connectionList().add(connectInfo);
+        connectOpts.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
+        connectOpts.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
+        connectOpts.connectionList().get(0).connectOptions().connectionType(opts.connectionType());
+        connectOpts.connectionList().get(0).connectOptions().userSpecObject(component);
+        connectOpts.connectionList().get(0).connectOptions().compressionType(opts.compressionType());
+        connectOpts.connectionList().get(0).connectOptions().numInputBuffers(20);
+        
+        connectOpts.reconnectAttemptLimit(opts.reconnectAttemptLimit());
+        connectOpts.reconnectMinDelay(opts.reconnectMinDelay());
+        connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
+        connectOpts.connectionList().get(0).connectOptions().pingTimeout(opts.pingTimeout());
+        connectOpts.connectionList().get(0).initTimeout(opts.consumerChannelInitTimeout());
+        if (opts.getProtocolList() != null)
+			connectOpts.connectionList().get(0).connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+        
+        if (opts.connectionType() != ConnectionTypes.RELIABLE_MCAST)
+        {
+            connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("localhost");
+            connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(port));
+        }
+        else
+        {
+        	
+            connectOpts.connectionList().get(0).connectOptions().segmentedNetworkInfo().recvAddress("235.1.1.1");
+            connectOpts.connectionList().get(0).connectOptions().segmentedNetworkInfo().recvServiceName("15011");
+            connectOpts.connectionList().get(0).connectOptions().segmentedNetworkInfo().sendAddress("235.1.1.1");
+            connectOpts.connectionList().get(0).connectOptions().segmentedNetworkInfo().sendServiceName("15011");
+            
+            // NOTE This used to increment. If problems come up with connecting via multicast, should look into why.
+            connectOpts.connectionList().get(0).connectOptions().segmentedNetworkInfo().unicastServiceName("12345");
+            connectOpts.connectionList().get(0).connectOptions().segmentedNetworkInfo().interfaceName("localhost");
+            connectOpts.connectionList().get(0).connectOptions().sysSendBufSize(64);
+            connectOpts.connectionList().get(0).connectOptions().sysRecvBufSize(64);
+        }
+        
+        connectOpts._reactorPreferredHostOptions = opts.preferredHostOptions();
+        
+        ret = _reactor.connect(connectOpts, component.reactorRole(), _errorInfo);
+
+        /* Clear ReactorConnectOptions after connecting -- this tests whether the Reactor is properly saving the options. */
+        connectOpts.clear();
+
+        return ret;
+    }
+	
+	/** Associates a component with this reactor and opens a connection list. */
+	void connectList(ConsumerProviderSessionOptions opts, TestReactorComponent component, int[] ports)
+	{
+        ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
+        ReactorConnectInfo connectInfo;
+        int ret;
+
+        connectOpts.clear();
+        for (int i = 0; i < ports.length; ++i)
+        {
+        	connectInfo = ReactorFactory.createReactorConnectInfo();
+            connectOpts.connectionList().add(connectInfo);
+            connectOpts.connectionList().get(i).connectOptions().majorVersion(Codec.majorVersion());
+            connectOpts.connectionList().get(i).connectOptions().minorVersion(Codec.minorVersion());
+            connectOpts.connectionList().get(i).connectOptions().connectionType(opts.connectionType());
+            connectOpts.connectionList().get(i).connectOptions().userSpecObject(component);
+            connectOpts.connectionList().get(i).connectOptions().compressionType(opts.compressionType());
+            connectOpts.connectionList().get(i).connectOptions().numInputBuffers(20);
+            
+            connectOpts.reconnectAttemptLimit(opts.reconnectAttemptLimit());
+            connectOpts.reconnectMinDelay(opts.reconnectMinDelay());
+            connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
+            connectOpts.connectionList().get(i).connectOptions().pingTimeout(opts.pingTimeout());
+            connectOpts.connectionList().get(i).initTimeout(opts.consumerChannelInitTimeout());
+            if (opts.getProtocolList() != null)
+    			connectOpts.connectionList().get(i).connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+            
+            connectOpts.connectionList().get(i).connectOptions().unifiedNetworkInfo().address("localhost");
+            connectOpts.connectionList().get(i).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(ports[i]));
+        
+        }
+        
+        connectOpts._reactorPreferredHostOptions = opts.preferredHostOptions();
+        
+
+        ret = _reactor.connect(connectOpts, component.reactorRole(), _errorInfo);
+        assertEquals("Connect failed: " + ret + "(" + _errorInfo.location() + " -- "+ _errorInfo.error().text() + ")",
+        		ReactorReturnCodes.SUCCESS, ret);
+
+        /* Clear ReactorConnectOptions after connecting -- this tests whether the Reactor is properly saving the options. */
+        connectOpts.clear();
+
+    }
+	
 	/** Associates a component with this reactor and opens a connection. */
 	void connectWsb(ConsumerProviderSessionOptions opts, TestReactorComponent component, List<Provider> wsbGroup1, List<Provider> wsbGroup2, Provider channelList)
 	{
@@ -887,7 +1051,7 @@ public class TestReactor {
 	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
 	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(0).serverPort()));
 	        
-	        for(int i = 1; i < wsbGroup1.size(); i++)
+	        for(int i = 1; i < wsbGroup2.size(); i++)
 	        {
 	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
 	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
@@ -919,6 +1083,543 @@ public class TestReactor {
         /* Clear ReactorConnectOptions after connecting -- this tests whether the Reactor is properly saving the options. */
         connectOpts.clear();
 
+    }
+	
+	/** Associates a component with this reactor and opens a connection. */
+	void connectWsb(ReactorConnectOptions connectOpts, ConsumerProviderSessionOptions opts, TestReactorComponent component, List<Provider> wsbGroup1, List<Provider> wsbGroup2, List<Provider> wsbGroup3, List<Provider> channelList)
+	{
+        ReactorWarmStandbyGroup wsbGroup;
+        ReactorWarmStandbyServerInfo wsbServerInfo;
+        ReactorConnectInfo connectInfo;
+        int ret;
+        
+        Buffer serviceName = CodecFactory.createBuffer();
+		serviceName.data(DEFAULT_SERVICE);
+
+        connectOpts.reconnectAttemptLimit(opts.reconnectAttemptLimit());
+        connectOpts.reconnectMinDelay(opts.reconnectMinDelay());
+        connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
+        
+
+        if (channelList != null)
+	        for (int i = 0; i < channelList.size(); ++i)
+	        {
+	        	connectInfo = ReactorFactory.createReactorConnectInfo();
+	            connectOpts.connectionList().add(connectInfo);
+	            connectOpts.connectionList().get(i).connectOptions().majorVersion(Codec.majorVersion());
+	            connectOpts.connectionList().get(i).connectOptions().minorVersion(Codec.minorVersion());
+	            connectOpts.connectionList().get(i).connectOptions().connectionType(opts.connectionType());
+	            connectOpts.connectionList().get(i).connectOptions().userSpecObject(component);
+	            connectOpts.connectionList().get(i).connectOptions().compressionType(opts.compressionType());
+	            connectOpts.connectionList().get(i).connectOptions().numInputBuffers(20);
+	            
+	            connectOpts.reconnectAttemptLimit(opts.reconnectAttemptLimit());
+	            connectOpts.reconnectMinDelay(opts.reconnectMinDelay());
+	            connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
+	            connectOpts.connectionList().get(i).connectOptions().pingTimeout(opts.pingTimeout());
+	            connectOpts.connectionList().get(i).initTimeout(opts.consumerChannelInitTimeout());
+	            if (opts.getProtocolList() != null)
+	    			connectOpts.connectionList().get(i).connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	            
+	            connectOpts.connectionList().get(i).connectOptions().unifiedNetworkInfo().address("localhost");
+	            connectOpts.connectionList().get(i).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(channelList.get(i).serverPort()));
+	           
+	        }
+        
+        if(wsbGroup1 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup1.get(0).serverPort()));
+	        wsbGroup.startingActiveServer().perServiceBasedOptions().serviceNameList().add(serviceName);
+	        
+	        for(int i = 1; i < wsbGroup1.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup1.get(i).serverPort()));
+		        wsbServerInfo.perServiceBasedOptions().serviceNameList().add(serviceName);
+		        
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+        if(wsbGroup2 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(0).serverPort()));
+	        wsbGroup.startingActiveServer().perServiceBasedOptions().serviceNameList().add(serviceName);
+	        
+	        for(int i = 1; i < wsbGroup2.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(i).serverPort()));
+		        wsbServerInfo.perServiceBasedOptions().serviceNameList().add(serviceName);
+		        
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+        if(wsbGroup3 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup3.get(0).serverPort()));
+	        wsbGroup.startingActiveServer().perServiceBasedOptions().serviceNameList().add(serviceName);
+	        
+	        for(int i = 1; i < wsbGroup3.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup3.get(i).serverPort()));
+		        wsbServerInfo.perServiceBasedOptions().serviceNameList().add(serviceName);
+		        
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+
+        
+        ret = _reactor.connect(connectOpts, component.reactorRole(), _errorInfo);
+        assertEquals("Connect failed: " + ret + "(" + _errorInfo.location() + " -- "+ _errorInfo.error().text() + ")",
+        		ReactorReturnCodes.SUCCESS, ret);
+
+        /* Clear ReactorConnectOptions after connecting -- this tests whether the Reactor is properly saving the options. */
+        connectOpts.clear();
+
+    }
+	
+	/** Associates a component with this reactor and doesn't open a connection. */
+	void connectWsbNoStart(ReactorConnectOptions connectOpts, ConsumerProviderSessionOptions opts, TestReactorComponent component, List<Provider> wsbGroup1, List<Provider> wsbGroup2, List<Provider> wsbGroup3, List<Provider> channelList)
+	{
+        ReactorWarmStandbyGroup wsbGroup;
+        ReactorWarmStandbyServerInfo wsbServerInfo;
+        ReactorConnectInfo connectInfo;
+
+        connectOpts.reconnectAttemptLimit(opts.reconnectAttemptLimit());
+        connectOpts.reconnectMinDelay(opts.reconnectMinDelay());
+        connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
+        
+
+        if (channelList != null)
+	        for (int i = 0; i < channelList.size(); ++i)
+	        {
+	        	connectInfo = ReactorFactory.createReactorConnectInfo();
+	            connectOpts.connectionList().add(connectInfo);
+	            connectOpts.connectionList().get(i).connectOptions().majorVersion(Codec.majorVersion());
+	            connectOpts.connectionList().get(i).connectOptions().minorVersion(Codec.minorVersion());
+	            connectOpts.connectionList().get(i).connectOptions().connectionType(opts.connectionType());
+	            connectOpts.connectionList().get(i).connectOptions().userSpecObject(component);
+	            connectOpts.connectionList().get(i).connectOptions().compressionType(opts.compressionType());
+	            connectOpts.connectionList().get(i).connectOptions().numInputBuffers(20);
+	            
+	            connectOpts.reconnectAttemptLimit(opts.reconnectAttemptLimit());
+	            connectOpts.reconnectMinDelay(opts.reconnectMinDelay());
+	            connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
+	            connectOpts.connectionList().get(i).connectOptions().pingTimeout(opts.pingTimeout());
+	            connectOpts.connectionList().get(i).initTimeout(opts.consumerChannelInitTimeout());
+	            if (opts.getProtocolList() != null)
+	    			connectOpts.connectionList().get(i).connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	            
+	            connectOpts.connectionList().get(i).connectOptions().unifiedNetworkInfo().address("localhost");
+	            connectOpts.connectionList().get(i).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(channelList.get(i).serverPort()));
+	           
+	        }
+        
+        if(wsbGroup1 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup1.get(0).serverPort()));
+
+	        for(int i = 1; i < wsbGroup1.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup1.get(i).serverPort()));
+
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+        if(wsbGroup2 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(0).serverPort()));
+
+	        for(int i = 1; i < wsbGroup2.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(i).serverPort()));
+
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+        if(wsbGroup3 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup3.get(0).serverPort()));
+
+	        for(int i = 1; i < wsbGroup3.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup3.get(i).serverPort()));
+
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+    }
+	
+	void lateStartConnect(ReactorConnectOptions connectOpts, TestReactorComponent component)
+	{
+        int ret = _reactor.connect(connectOpts, component.reactorRole(), _errorInfo);
+        assertEquals("Connect failed: " + ret + "(" + _errorInfo.location() + " -- "+ _errorInfo.error().text() + ")",
+        		ReactorReturnCodes.SUCCESS, ret);
+
+        /* Clear ReactorConnectOptions after connecting -- this tests whether the Reactor is properly saving the options. */
+        connectOpts.clear();
+
+	}
+	
+	/** Associates a component with this reactor and opens a connection. This is meant to test failure scenarios */
+	int connectWsbFailureTest(ReactorConnectOptions connectOpts, ConsumerProviderSessionOptions opts, TestReactorComponent component, List<Provider> wsbGroup1, List<Provider> wsbGroup2, List<Provider> wsbGroup3, Provider channelList)
+	{
+        ReactorWarmStandbyGroup wsbGroup;
+        ReactorWarmStandbyServerInfo wsbServerInfo;
+        int ret;
+        
+        connectOpts.reconnectAttemptLimit(opts.reconnectAttemptLimit());
+        connectOpts.reconnectMinDelay(opts.reconnectMinDelay());
+        connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
+        
+
+        if(channelList != null)
+        {
+	        ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+	        connectOpts.clear();
+	        connectOpts.connectionList().add(connectInfo);
+	        connectOpts.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
+	        connectOpts.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
+	        connectOpts.connectionList().get(0).connectOptions().connectionType(opts.connectionType());
+	        connectOpts.connectionList().get(0).connectOptions().userSpecObject(component);
+	        connectOpts.connectionList().get(0).connectOptions().compressionType(opts.compressionType());
+	        connectOpts.connectionList().get(0).connectOptions().numInputBuffers(20);
+	        connectOpts.connectionList().get(0).initTimeout(opts.consumerChannelInitTimeout());
+
+	        connectOpts.connectionList().get(0).connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				connectOpts.connectionList().get(0).connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("localhost");
+	        connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(channelList.serverPort()));
+        }
+        
+        if(wsbGroup1 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup1.get(0).serverPort()));
+	        
+	        for(int i = 1; i < wsbGroup1.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup1.get(i).serverPort()));
+		        
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+        if(wsbGroup2 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(0).serverPort()));
+	        
+	        for(int i = 1; i < wsbGroup2.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(i).serverPort()));
+		        
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+        if(wsbGroup3 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup3.get(0).serverPort()));
+	        
+	        for(int i = 1; i < wsbGroup3.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup3.get(i).serverPort()));
+		        
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+
+        
+        ret = _reactor.connect(connectOpts, component.reactorRole(), _errorInfo);
+
+        /* Clear ReactorConnectOptions after connecting -- this tests whether the Reactor is properly saving the options. */
+        connectOpts.clear();
+
+        return ret;
     }
 	
     /** Associates a component with this reactor and accepts a connection. */

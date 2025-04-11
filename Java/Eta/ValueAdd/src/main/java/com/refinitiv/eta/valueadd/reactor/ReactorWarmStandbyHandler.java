@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022,2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -11,6 +11,8 @@ package com.refinitiv.eta.valueadd.reactor;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
@@ -44,6 +46,7 @@ class ReactorWarmStandbyHandler
 													  // The connection options here have a fully deep copied ReactorWarmStandbyGroupImpl set,
 													  // which is what the reactor and watchlist will operate on for each group.
 	private int currentWarmStandbyGroupIndex; // Represents the current Warm Standby Group in the queue.
+	private int previousWarmStandbyGroupIndex; // Represents the Warm Standby Group in the queue that was held when we tried to connect to the preferred Warm Standby Group
 	private int warmStandbyHandlerState; // The state is defined in ReactorWarmStandbyHandlerState 
 	private Reactor reactor; // The reactor component for this handler. 
 	private LoginRefresh rdmLoginRefresh = (LoginRefresh)LoginMsgFactory.createMsg(); // Keeps login response of the first active server. 
@@ -52,7 +55,9 @@ class ReactorWarmStandbyHandler
 	private ReactorChannel readMsgChannel; // keeps track which channel reads the current processing message. 
 	private boolean	queuedRecoveryMessage; // This is used to indicate for queuing recovery message when moving to another warm standby group. 
 	private boolean	enableSessionMgnt; // This is used to indicate whether this warm standby channel enables session management. 
-
+	private boolean watchlistSentFirstRequests; // Used to tell if we've already sent our requests to our first connection, as they are handled by the watchlist afterwards
+	private Lock warmStandByHandlerLock = new ReentrantLock();
+	
 	// For applying ioctl 
 	private int	ioCtlCodes; // Flag set of ioctl codes for all channels. Defined in RsslReactorWSIoctlCodes 
 	private int maxNumBuffers;
@@ -97,6 +102,7 @@ class ReactorWarmStandbyHandler
 		connectionOptions = null;
 		
 		currentWarmStandbyGroupIndex = -1;
+		previousWarmStandbyGroupIndex = -1;
 		reactor(null);
 		rdmLoginState().clear();
 		if (readMsgChannel() != null)
@@ -201,6 +207,14 @@ class ReactorWarmStandbyHandler
 			return null;
 	}
 	
+	ReactorWarmStandbyGroupImpl previousWarmStandbyGroupImpl()
+	{
+		if(previousWarmStandbyGroupIndex != -1)
+			return (ReactorWarmStandbyGroupImpl)connectionOptions._reactorWarmStandyGroupList.get(previousWarmStandbyGroupIndex);
+		else
+			return null;
+	}
+	
 	List<ReactorWarmStandbyGroup> warmStandbyGroupList()
 	{
 		return connectionOptions._reactorWarmStandyGroupList;
@@ -211,9 +225,19 @@ class ReactorWarmStandbyHandler
 		return currentWarmStandbyGroupIndex;
 	}
 	
+	int previousWarmStandbyGroupIndex()
+	{
+		return previousWarmStandbyGroupIndex;
+	}
+	
 	void currentWarmStandbyGroupIndex(int currentWarmStandbyGroupIndex)
 	{
 		this.currentWarmStandbyGroupIndex = currentWarmStandbyGroupIndex;
+	}
+	
+	void previousWarmStandbyGroupIndex(int previousWarmStandbyGroupIndex)
+	{
+		this.previousWarmStandbyGroupIndex = previousWarmStandbyGroupIndex;
 	}
 	
 	void incrementWarmStandbyGroupIndex()
@@ -455,6 +479,21 @@ class ReactorWarmStandbyHandler
 	void hasConnectionList(boolean hasConnectionList) 
 	{
 		this.hasConnectionList = hasConnectionList;
+	}
+
+	boolean watchlistSentFirstRequests() 
+	{
+		return watchlistSentFirstRequests;
+	}
+	
+	void watchlistSentFirstRequests(boolean watchlistSentFirstRequests) 
+	{
+		this.watchlistSentFirstRequests = watchlistSentFirstRequests;
+	}
+	
+	Lock warmStandByHandlerLock()
+	{
+		return warmStandByHandlerLock;
 	}
 	
 }

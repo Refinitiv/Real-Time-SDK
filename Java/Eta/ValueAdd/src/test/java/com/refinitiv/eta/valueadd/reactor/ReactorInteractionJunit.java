@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.eta.valueadd.reactor;
@@ -443,7 +443,7 @@ public class ReactorInteractionJunit
         
         /* Obtain reference to ReactorChannel ConsumerRole and verify that
          * user ConsumerRole and ReactorChannel ConsumerRole are not the same. */
-        ConsumerRole reactorChnlConsumerRole = (ConsumerRole)consumer.channel().role();
+        ConsumerRole reactorChnlConsumerRole = (ConsumerRole)consumer.reactorChannel().role();
         assertFalse(consumerRole == reactorChnlConsumerRole);
 
         /* Verify that user ConsumerRole messages and ReactorChannel
@@ -468,7 +468,7 @@ public class ReactorInteractionJunit
        
         /* Obtain reference to ReactorChannel ProviderRole and verify that
          * user ProviderRole and ReactorChannel ProviderRole are not the same. */
-        ProviderRole reactorChnlProviderRole = (ProviderRole)provider.channel().role();
+        ProviderRole reactorChnlProviderRole = (ProviderRole)provider.reactorChannel().role();
         assertFalse(providerRole == reactorChnlProviderRole);
 
         /* Verify that other user ProviderRole and ReactorChannel ProviderRole attributes are equal. */
