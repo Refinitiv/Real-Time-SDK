@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019-2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -911,7 +911,9 @@ class ChannelDictionary<T>
 		Msg msg = event.msg();
 		ReactorChannel rsslChannel = event.reactorChannel();
 		ChannelInfo channelInfo = (ChannelInfo)rsslChannel.userSpecObj();
-		
+		if (channelInfo.getParentChannel() != null)
+			channelInfo = channelInfo.getParentChannel();
+
 		if (msg == null)
 		{
 			com.refinitiv.eta.transport.Error error = event.errorInfo().error();

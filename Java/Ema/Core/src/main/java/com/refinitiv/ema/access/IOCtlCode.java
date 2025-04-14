@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.         		--
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -67,4 +67,9 @@ public final class IOCtlCode
 	 * When compression is on, this value is the smallest size packet that will be compressed.
 	 */
 	public static final int COMPRESSION_THRESHOLD = 9;
+
+	/**
+	 * Used to dynamically change the preferred host options.
+	 */
+	public static final int FALLBACK_PREFERRED_HOST_OPTIONS = 201;
 }

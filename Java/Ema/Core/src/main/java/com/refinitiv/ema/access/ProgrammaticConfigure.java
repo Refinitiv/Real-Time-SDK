@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019-2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -36,15 +36,17 @@ class ProgrammaticConfigure
 	*/
 	class InstanceEntryFlag
 	{
-		final static int CHANNEL_FLAG =			0x001;
-		final static int LOGGER_FLAG =			0x002;
-		final static int DICTIONARY_FLAG =		0x004;
-		final static int CHANNELSET_FLAG =		0x008;
-		final static int DIRECTORY_FLAG =		0x010;
-		final static int SERVER_FLAG =			0x020;
-		final static int WARM_STANDBY_CHANNELSET_FLAG = 0x040;
-		final static int SESSION_CHANNEL_FLAG = 0x080;
-		final static int ITEM_RECOVERY_CHANNEL_DOWN_FLAG = 0x100;
+		final static int CHANNEL_FLAG =						0x001;
+		final static int LOGGER_FLAG =						0x002;
+		final static int DICTIONARY_FLAG =					0x004;
+		final static int CHANNELSET_FLAG =					0x008;
+		final static int DIRECTORY_FLAG =					0x010;
+		final static int SERVER_FLAG =						0x020;
+		final static int WARM_STANDBY_CHANNELSET_FLAG = 	0x040;
+		final static int SESSION_CHANNEL_FLAG = 			0x080;
+		final static int ITEM_RECOVERY_CHANNEL_DOWN_FLAG = 	0x100;
+		final static int PH_WSB_CHANNEL_NAME_FLAG = 		0x200;
+		final static int PH_CHANNEL_NAME_FLAG = 			0x400;
 	}
 	
 	/** @class ChannelEntryFlag
@@ -157,9 +159,10 @@ class ProgrammaticConfigure
 	private String	_directoryName;
 	private String	_channelSet;
 	private String  _warmStandbyChannelSetName;
+	private String  _phWSBChannelName;
+	private String  _phChannelName;
 	private String  _sessionChannelSetName;
-	private boolean _sessionEnhancedItemRecovery;
-	
+	private boolean 	_sessionEnhancedItemRecovery;
 	private	boolean		_overrideConsName;
 	private	boolean		_overrideNiProvName;
 	private	boolean		_overrideIProvName;
@@ -215,7 +218,9 @@ class ProgrammaticConfigure
 		_directoryName = null;
 		_channelSet = null;
 		_warmStandbyChannelSetName = null;
-		
+		_phWSBChannelName = null;
+		_phChannelName = null;
+
 		_overrideConsName = false;
 		_overrideNiProvName = false;
 		_overrideIProvName = false;
@@ -373,11 +378,18 @@ class ProgrammaticConfigure
 			{
 				return _warmStandbyChannelSetName;
 			}
+			else if ( (InstanceEntryFlag.PH_WSB_CHANNEL_NAME_FLAG & flag) != 0 )
+			{
+				return _phWSBChannelName;
+			}
+			else if ( (InstanceEntryFlag.PH_CHANNEL_NAME_FLAG & flag) != 0 )
+			{
+				return _phChannelName;
+			}
 			else if ( (InstanceEntryFlag.SESSION_CHANNEL_FLAG & flag) != 0 )
 			{
 				return _sessionChannelSetName;
 			}
-			
 		}
 		
 		return null;
@@ -506,6 +518,15 @@ class ProgrammaticConfigure
 														_warmStandbyChannelSetName  = instanceEntry.ascii().ascii();
 														_nameflags |= InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG;
 													}
+													else if ( instanceEntry.name().equals("PreferredWSBChannelName") )
+													{
+														_phWSBChannelName  = instanceEntry.ascii().ascii();
+														_nameflags |= InstanceEntryFlag.PH_WSB_CHANNEL_NAME_FLAG;
+													}
+													else if ( instanceEntry.name().equals("PreferredChannelName") ) {
+														_phChannelName = instanceEntry.ascii().ascii();
+														_nameflags |= InstanceEntryFlag.PH_CHANNEL_NAME_FLAG;
+													}
 													else if ( instanceEntry.name().equals("SessionChannelSet") )
 													{
 														_sessionChannelSetName  = instanceEntry.ascii().ascii();
@@ -631,10 +652,15 @@ class ProgrammaticConfigure
 			retrieveChannel(map, channelName, activeConfig, channelConfigSet, hostFnCalled, fileCfg);
 	}
 	
-	void retrieveWSBChannelConfig(String wsbChannelName, ActiveConfig activeConfig, WarmStandbyChannelConfig fileCfg)
+	WarmStandbyChannelConfig retrieveWSBChannelConfig(String wsbChannelName, ActiveConfig activeConfig, WarmStandbyChannelConfig fileCfg)
 	{
-		for (Map map : _configList)
-			retrieveWSBChannel(map, wsbChannelName, activeConfig, fileCfg);
+		for (Map map : _configList) {
+			WarmStandbyChannelConfig wsbConfig = retrieveWSBChannel(map, wsbChannelName, activeConfig, fileCfg);
+			if (wsbConfig != fileCfg)
+				return wsbConfig;
+		}
+
+		return fileCfg;
 	}
 	
 	void retrieveSessionChannelConfig(String connectionName, ActiveConfig activeConfig, SessionChannelConfig fileCfg)
@@ -1028,28 +1054,49 @@ class ProgrammaticConfigure
 											if (eentry.intValue() >= 0) {
 												activeConfig.defaultConverterServiceId = Math.min(convertToInt(eentry.intValue()), 0xFFFF);
 											}
-										} else if (eentry.name().equals("JsonExpandedEnumFields")) {
+										} else if (eentry.name().equals("JsonExpandedEnumFields"))
+										{
 											activeConfig.jsonExpandedEnumFields = eentry.intValue() > 0 ? true : false;
-										} else if (eentry.name().equals("CatchUnknownJsonFids")) {
+										} else if (eentry.name().equals("CatchUnknownJsonFids"))
+										{
 											activeConfig.catchUnknownJsonFids = eentry.intValue() > 0 ? true : false;
-										} else if (eentry.name().equals("CatchUnknownJsonKeys")) {
+										} else if (eentry.name().equals("CatchUnknownJsonKeys"))
+										{
 											activeConfig.catchUnknownJsonKeys = eentry.intValue() > 0 ? true : false ;
-										} else if (eentry.name().equals("CloseChannelFromConverterFailure")) {
+										} else if (eentry.name().equals("CloseChannelFromConverterFailure"))
+										{
 											activeConfig.closeChannelFromFailure = eentry.intValue() > 0 ? true : false;
 										}
 										break;
 									case DataTypes.UINT:
 										if (eentry.name().equals("SendJsonConvError")) {
 											activeConfig.sendJsonConvError = eentry.uintValue() > 0 ? true : false;
+										} else if (eentry.name().equals("EnablePreferredHostOptions"))
+										{
+											((ActiveConfig)activeConfig).enablePreferredHostOptions = eentry.uintValue() > 0 ? true : false;
+										} else if (eentry.name().equals("PHFallBackWithInWSBGroup"))
+										{
+											((ActiveConfig)activeConfig).fallBackWithInWSBGroup = eentry.uintValue() > 0 ? true : false;
+										} else if (eentry.name().equals("PHDetectionTimeInterval"))
+										{
+											if (eentry.uintValue() >= 0)
+												((ActiveConfig)activeConfig).detectionTimeInterval = convertToInt(eentry.uintValue());
 										}
 										break;
-										case DataTypes.ASCII:
-											if (eentry.name().equals("XmlTraceFileName"))
-											{
-												activeConfig.xmlTraceFileName = eentry.ascii().ascii();
-											}
-
-											break;
+									case DataTypes.ASCII:
+										if (eentry.name().equals("XmlTraceFileName"))
+										{
+											activeConfig.xmlTraceFileName = eentry.ascii().ascii();
+										} else if (eentry.name().equals("PHDetectionTimeSchedule"))
+										{
+											((ActiveConfig)activeConfig).detectionTimeSchedule = eentry.ascii().ascii();
+										} else if (eentry.name().equals("PreferredChannelName"))
+										{
+											String channelName = eentry.ascii().ascii();
+											String channelSet = activeEntryNames(instanceName, InstanceEntryFlag.CHANNELSET_FLAG);
+											((ActiveConfig)activeConfig).connectionListIndex = getConnectionListIndex(channelSet, channelName);
+										}
+										break;
 									default:
 										break;
 									}
@@ -1138,13 +1185,17 @@ class ProgrammaticConfigure
 											if (eentry.intValue() >= 0) {
 												activeConfig.defaultConverterServiceId = Math.min(convertToInt(eentry.intValue()), 0xFFFF);
 											}
-										} else if (eentry.name().equals("JsonExpandedEnumFields")) {
+										} else if (eentry.name().equals("JsonExpandedEnumFields"))
+										{
 											activeConfig.jsonExpandedEnumFields = eentry.intValue() > 0 ? true : false;
-										} else if (eentry.name().equals("CatchUnknownJsonFids")) {
+										} else if (eentry.name().equals("CatchUnknownJsonFids"))
+										{
 											activeConfig.catchUnknownJsonFids = eentry.intValue() > 0 ? true : false;
-										} else if (eentry.name().equals("CatchUnknownJsonKeys")) {
+										} else if (eentry.name().equals("CatchUnknownJsonKeys"))
+										{
 											activeConfig.catchUnknownJsonKeys = eentry.intValue() > 0 ? true : false ;
-										} else if (eentry.name().equals("CloseChannelFromConverterFailure")) {
+										} else if (eentry.name().equals("CloseChannelFromConverterFailure"))
+										{
 											activeConfig.closeChannelFromFailure = eentry.intValue() > 0 ? true : false;
 										}
 										break;
@@ -1153,13 +1204,12 @@ class ProgrammaticConfigure
 											activeConfig.sendJsonConvError = eentry.uintValue() > 0 ? true : false;
 										}
 										break;
-										case DataTypes.ASCII:
-											if (eentry.name().equals("XmlTraceFileName"))
-											{
-												activeConfig.xmlTraceFileName = eentry.ascii().ascii();
-											}
-
-											break;
+									case DataTypes.ASCII:
+										if (eentry.name().equals("XmlTraceFileName"))
+										{
+											activeConfig.xmlTraceFileName = eentry.ascii().ascii();
+										}
+										break;
 									default:
 										break;
 									}
@@ -1469,7 +1519,7 @@ class ProgrammaticConfigure
 		}
 	}
 	
-	void retrieveWSBChannel(Map map, String wsbChannelName, ActiveConfig activeConfig, WarmStandbyChannelConfig fileCfg)
+	WarmStandbyChannelConfig retrieveWSBChannel(Map map, String wsbChannelName, ActiveConfig activeConfig, WarmStandbyChannelConfig fileCfg)
 	{
 		for (MapEntry mapEntry : map)
 		{
@@ -1487,13 +1537,14 @@ class ProgrammaticConfigure
 								mapListEntry.key().ascii().ascii().equals(wsbChannelName) &&
 								mapListEntry.loadType() == DataTypes.ELEMENT_LIST )
 							{
-								retrieveWSBChannelInfo( mapListEntry, wsbChannelName, activeConfig, fileCfg);
+								return retrieveWSBChannelInfo(mapListEntry, wsbChannelName, activeConfig, fileCfg);
 							}
 						}
 					}
 				}
 			}
 		}
+		return fileCfg;
 	}
 	
 	void retrieveSessionChannel(Map map, String sessionChannelName, ActiveConfig activeConfig, SessionChannelConfig fileCfg)
@@ -2623,8 +2674,8 @@ class ProgrammaticConfigure
 		}
 	}
 	
-	void retrieveWSBChannelInfo(MapEntry mapEntry, String wsbChannelName, ActiveConfig activeConfig,
-			WarmStandbyChannelConfig fileCfg)
+	WarmStandbyChannelConfig retrieveWSBChannelInfo(MapEntry mapEntry, String wsbChannelName, ActiveConfig activeConfig,
+													WarmStandbyChannelConfig fileCfg)
 	{
 		String startingActiveServer = "";
 		String standbyServerSet = "";
@@ -2767,7 +2818,7 @@ class ProgrammaticConfigure
 			wsbChannelConfig.warmStandbyMode = fileCfg.warmStandbyMode;
 		}
 		
-		activeConfig.configWarmStandbySet.add(wsbChannelConfig);
+		return wsbChannelConfig;
 	}
 	
 	void retrieveSessionChannelInfo(MapEntry mapEntry, String sessionChannelName, ActiveConfig activeConfig,
@@ -3008,9 +3059,9 @@ class ProgrammaticConfigure
 		}
 		
 		}
-		
-		boolean getActiveWSBChannelSetName(String instanceName, String wsbChannelName)
-		{
+
+	boolean getActiveWSBChannelSetName(String instanceName, String wsbChannelName)
+	{
 		if(!_dependencyNamesLoaded)
 		{
 			_configList.forEach(map -> retrieveDependencyNames(map, instanceName));
@@ -3899,5 +3950,29 @@ class ProgrammaticConfigure
 		return mapEntry -> mapEntry.key().dataType() == DataTypes.ASCII &&
 				mapEntry.key().ascii().ascii().equalsIgnoreCase(name) &&
 				mapEntry.loadType() == DataTypes.ELEMENT_LIST;
+	}
+
+	private int getConnectionListIndex(String channelSet, String channelName) {
+		if(channelName == null || channelName.isEmpty()) {
+			return 0;
+		}
+
+		if(channelSet != null) {
+			String[] pieces = channelSet.split(",");
+			for (int i = 0; i < pieces.length; i++)
+			{
+				if(pieces[i].trim().equalsIgnoreCase(channelName)) {
+					return i;
+				}
+			}
+		}
+
+		StringBuilder text = new StringBuilder("PreferredChannelName: ");
+		text.append(channelName);
+		text.append(" is not present in ChannelSet: ");
+		text.append(channelSet);
+
+		OmmInvalidUsageExceptionImpl ommIUExcept = new OmmInvalidUsageExceptionImpl();
+		throw ommIUExcept.message(text.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 	}
 }

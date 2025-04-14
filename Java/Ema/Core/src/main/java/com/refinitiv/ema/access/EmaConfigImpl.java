@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019-2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -110,7 +110,7 @@ abstract class  EmaConfigBaseImpl
 
 abstract class EmaConfigImpl extends EmaConfigBaseImpl
 {
-	private LoginRequest						_rsslLoginReq = (LoginRequest) LoginMsgFactory.createMsg();
+	private final LoginRequest					_rsslLoginReq = (LoginRequest) LoginMsgFactory.createMsg();
 	private DirectoryRequest					_rsslDirectoryReq; 
 	private DictionaryRequest					_rsslFidDictReq;
 	private DictionaryRequest					_rsslEnumDictReq;
@@ -126,29 +126,29 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	private String								_enumDictReqServiceName;
 	private boolean 							_fidDictReqServiceIdSet;
 	private boolean 							_enumDictReqServiceIdSet;
-    protected List<Integer> channelOrChannelSet = new ArrayList<Integer>();
+    protected List<Integer> channelOrChannelSet = new ArrayList<>();
     
-    private static String 						_defaultAppName = "ema";
+    private final static String 				DEFAULT_APP_NAME = "ema";
     private HttpChannelConfig 				    _tunnelingChannelCfg;
 	private EncryptionConfig _encyptionCfg;
     
-    private Buffer								_clientId = CodecFactory.createBuffer();
-    private Buffer								_tokenServiceUrlV1 = CodecFactory.createBuffer();
-    private Buffer								_tokenServiceUrlV2 = CodecFactory.createBuffer();
-    private Buffer								_serviceDiscoveryUrl = CodecFactory.createBuffer();
+    private final Buffer						_clientId = CodecFactory.createBuffer();
+    private final Buffer						_tokenServiceUrlV1 = CodecFactory.createBuffer();
+    private final Buffer						_tokenServiceUrlV2 = CodecFactory.createBuffer();
+    private final Buffer						_serviceDiscoveryUrl = CodecFactory.createBuffer();
     private boolean								_takeExclusiveSignOnControl = true;
-    private Buffer								_clientSecret = CodecFactory.createBuffer();
-    private Buffer								_tokenScope = CodecFactory.createBuffer();
-    private Buffer 								_clientJwk = CodecFactory.createBuffer();
-    private Buffer								_audience = CodecFactory.createBuffer();
+    private final Buffer						_clientSecret = CodecFactory.createBuffer();
+    private final Buffer						_tokenScope = CodecFactory.createBuffer();
+    private final Buffer 						_clientJwk = CodecFactory.createBuffer();
+    private final Buffer						_audience = CodecFactory.createBuffer();
     
-    private Buffer								_restProxyHostName = CodecFactory.createBuffer();
-    private Buffer								_restProxyPort = CodecFactory.createBuffer();
-    private Buffer								_restProxyUserName = CodecFactory.createBuffer();
-    private Buffer								_restProxyPasswd = CodecFactory.createBuffer();
-    private Buffer								_restProxyDomain = CodecFactory.createBuffer();
-    private Buffer								_restProxyLocalHostName = CodecFactory.createBuffer();
-    private Buffer								_restProxyKrb5ConfigFile = CodecFactory.createBuffer();
+    private final Buffer						_restProxyHostName = CodecFactory.createBuffer();
+    private final Buffer						_restProxyPort = CodecFactory.createBuffer();
+    private final Buffer						_restProxyUserName = CodecFactory.createBuffer();
+    private final Buffer						_restProxyPasswd = CodecFactory.createBuffer();
+    private final Buffer						_restProxyDomain = CodecFactory.createBuffer();
+    private final Buffer						_restProxyLocalHostName = CodecFactory.createBuffer();
+    private final Buffer						_restProxyKrb5ConfigFile = CodecFactory.createBuffer();
 
 	EmaConfigImpl()
 	{
@@ -191,7 +191,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		_rsslLoginReq.rdmMsgType(LoginMsgType.REQUEST);
 		_rsslLoginReq.initDefaultRequest(1);
 		
-		_rsslLoginReq.attrib().applicationName().data(_defaultAppName);
+		_rsslLoginReq.attrib().applicationName().data(DEFAULT_APP_NAME);
 
 		if ( _rsslDirectoryReq != null)
 			_rsslDirectoryReq.clear();
@@ -222,7 +222,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	
 	protected void usernameInt(String username)
 	{
-		if(username == null || username.length() == 0)
+		if(username == null || username.isEmpty())
 		{
 			configStrBuilder().append("EmaConfigImpl:UserName input String cannot be blank.");
 			throw ( ommIUExcept().message( _configStrBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT));
@@ -321,7 +321,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		{
 			_portSetViaFunctionCall = defaultService;
 
-			if (host.length() > 0)
+			if (!host.isEmpty())
 				_hostnameSetViaFunctionCall = host;
 			else
 				_hostnameSetViaFunctionCall = ActiveConfig.DEFAULT_HOST_NAME;
@@ -331,7 +331,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 			_hostnameSetViaFunctionCall = ActiveConfig.DEFAULT_HOST_NAME;
 
 			if (host.length() > 1)
-				_portSetViaFunctionCall = host.substring(1, host.length());
+				_portSetViaFunctionCall = host.substring(1);
 			else
 				_portSetViaFunctionCall =defaultService;
 		}
@@ -339,7 +339,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		{
 			_hostnameSetViaFunctionCall = host.substring(0, index);
 			if (host.length() > (index + 1))
-				_portSetViaFunctionCall = host.substring(index + 1, host.length());
+				_portSetViaFunctionCall = host.substring(index + 1);
 			else
 				_portSetViaFunctionCall = defaultService;
 		}
@@ -426,6 +426,10 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	abstract String warmStandbyChannelSet(String instanceName);
 	
 	abstract String sessionChannel(String instanceName);
+
+	abstract String preferredWarmStandbyChannelName(String instanceName);
+
+	abstract String preferredChannelName(String instanceName);
 
 	int setLoginRequest(RequestMsg rsslRequestMsg)
 	{
@@ -848,16 +852,6 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		return _enumDictReqServiceName;
 	}
 	
-	String userSpecifiedHostname() 
-	{
-		return _hostnameSetViaFunctionCall;
-	}
-	
-	String userSpecifiedPort()
-	{
-		return _portSetViaFunctionCall;
-	}
-	
 	boolean validateDictRequest()
 	{
 		if (_rsslFidDictReq != null && _rsslEnumDictReq != null)
@@ -1130,7 +1124,7 @@ abstract class EmaConfigServerImpl extends EmaConfigBaseImpl
 	
 	String serverName(String instanceName)
 	{
-		String serverName = null;
+		String serverName;
 
 		if ( _programmaticConfigure != null )
 		{

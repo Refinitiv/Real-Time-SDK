@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
+// *|           Copyright (C) 2019-2025 LSEG. All rights reserved.              --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -359,6 +359,8 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			return;
 		}
 
+		if (chnlInfo.getParentChannel() != null)
+			chnlInfo = chnlInfo.getParentChannel();
 
         for (Service oneService : serviceList)
         {
@@ -555,13 +557,17 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	int processCallback(RDMDirectoryMsgEvent event, ReactorChannel rsslReactorChannel, SingleItem<T> item)
 	{
 		Msg rsslMsg = event.msg();
+		ChannelInfo channelInfo = (ChannelInfo)rsslReactorChannel.userSpecObj();
+		if (channelInfo.getParentChannel() != null)
+			channelInfo = channelInfo.getParentChannel();
+
 		switch (event.rdmDirectoryMsg().rdmMsgType())
 		{
 			case REFRESH:
 				{
-					_refreshMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
-					((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
-	
+					_refreshMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(),
+							channelInfo.rsslDictionary());
+
 					_eventImpl._item = item;
 					
 					notifyOnAllMsg(_refreshMsg);
@@ -584,8 +590,8 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 					if (_updateMsg == null)
 						_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
 					
-					_updateMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
-							((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
+					_updateMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(),
+							channelInfo.rsslDictionary());
 	
 					_eventImpl._item = item;
 					

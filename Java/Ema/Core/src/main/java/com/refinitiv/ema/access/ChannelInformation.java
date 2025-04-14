@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2019-2021,2023-2024 LSEG. All rights reserved.     --
+// *|          Copyright (C) 2019-2024 LSEG. All rights reserved.          	--
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -315,6 +315,14 @@ public interface ChannelInformation
 	 * @return the security protocol used in the connection.
 	 */
 	public String securityProtocol();
+
+	/**
+	 * Gets the preferred host information
+	 * see @{@link PreferredHostInfo}
+	 *
+	 * @return the preferred host information.
+	 */
+	public PreferredHostInfo preferredHostInfo();
 	
 	/** Sets host name
 	 *
@@ -452,4 +460,12 @@ public interface ChannelInformation
 	 * 
 	 */
 	public void securityProtocol(String securityProtocol);
+
+	/** Specifies the preferred host information
+	 * see @{@link PreferredHostInfo}
+	 *
+	 * @param preferredHostInfo specifies preferred host information
+	 *
+	 */
+	public void preferredHostInfo(PreferredHostInfo preferredHostInfo);
 }

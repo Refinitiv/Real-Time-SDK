@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.         		--
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -86,8 +86,14 @@ public class JUnitTestConnect
 	public static final int ConsumerMaxOutstandingPosts  = ConfigManager.MaxOutstandingPosts ; 
 	public static final int ConsumerObeyOpenWindow  = ConfigManager.ObeyOpenWindow; 
 	public static final int ConsumerPostAckTimeout  = ConfigManager.PostAckTimeout ; 
-	public static final int ConsumerMsgKeyInUpdates  = ConfigManager.MsgKeyInUpdates; 
-	
+	public static final int ConsumerMsgKeyInUpdates  = ConfigManager.MsgKeyInUpdates;
+	public static final int ConsumerEnablePreferredHostOptions  = ConfigManager.EnablePreferredHostOptions;
+	public static final int ConsumerDetectionTimeSchedule  = ConfigManager.PreferredDetectionTimeSchedule;
+	public static final int ConsumerDetectionTimeInterval  = ConfigManager.PreferredDetectionTimeInterval;
+	public static final int ConsumerCSChannelName  = ConfigManager.PreferredChannelName;
+	public static final int ConsumerWSBChannelName  = ConfigManager.PreferredWSBChannelName;
+	public static final int ConsumerFallBackWithInWSBGroup  = ConfigManager.PreferredFallBackWithInWSBGroup;
+
 	// Dictionary Parameters:
 	public static final int DictionaryName  = ConfigManager.DictionaryName;
 	public static final int DictionaryType  = ConfigManager.DictionaryType;
@@ -1042,6 +1048,10 @@ public class JUnitTestConnect
 				return activeConfig.msgKeyInUpdates;
 			else if (configParam == SendJsonConvError)
 				return activeConfig.sendJsonConvError;
+			else if (configParam == ConsumerEnablePreferredHostOptions)
+				return activeConfig.enablePreferredHostOptions;
+			else if (configParam == ConsumerFallBackWithInWSBGroup)
+				return activeConfig.fallBackWithInWSBGroup;
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
@@ -1116,6 +1126,12 @@ public class JUnitTestConnect
 				return activeConfig.reissueTokenAttemptInterval;
 			else if (configParam == XmlTraceMaxFileSize)
 				return (int) activeConfig.xmlTraceMaxFileSize;
+			else if (configParam == ConsumerDetectionTimeInterval)
+				return activeConfig.detectionTimeInterval;
+			else if (configParam == ConsumerCSChannelName)
+				return activeConfig.connectionListIndex;
+			else if (configParam == ConsumerWSBChannelName)
+				return activeConfig.warmStandbyGroupListIndex;
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
@@ -1327,6 +1343,8 @@ public class JUnitTestConnect
 					return activeConfig.restProxyPort;
 				case XmlTraceFileName:
 					return activeConfig.xmlTraceFileName;
+				case ConsumerDetectionTimeSchedule:
+					return activeConfig.detectionTimeSchedule;
 				default:
 					break;			
 			}

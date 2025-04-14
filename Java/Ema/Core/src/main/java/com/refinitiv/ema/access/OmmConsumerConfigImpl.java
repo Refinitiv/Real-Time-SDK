@@ -224,7 +224,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 			if ( _configSessionName.equals(ActiveConfig.DEFAULT_CONS_NAME) )
 			{
 				boolean bFoundChild = xmlConfig().isConsumerChildAvailable();
-				if( bFoundChild == false )
+				if( !bFoundChild )
 					return;
 			}
 
@@ -237,7 +237,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
  		else //if ( name != null ) 
 		{
  			boolean bSetAttributeValue = xmlConfig().setDefaultConsumer(name);
-			if ( bSetAttributeValue == false )
+			if ( !bSetAttributeValue )
 			{
 				xmlConfig().appendAttributeValue(ConfigManager.CONSUMER_GROUP, "DefaultConsumer", ConfigManager.DefaultConsumer,_configSessionName);
 				xmlConfig().verifyAndGetDefaultConsumer();
@@ -271,7 +271,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		if (_configSessionName != null && !_configSessionName.isEmpty())
 			return _configSessionName;
 		
-		String defaultConsumerName = null;
+		String defaultConsumerName;
 
 		if ( _programmaticConfigure != null  && (defaultConsumerName = _programmaticConfigure.defaultConsumer()) != null)
 			return defaultConsumerName;
@@ -305,7 +305,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	@Override
 	String channelName(String instanceName)
 	{
-		String channelName = null;
+		String channelName;
 
 		if ( _programmaticConfigure != null )
 		{
@@ -320,25 +320,56 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		channelName = (String) xmlConfig().getMutualExclusiveAttribute(ConfigManager.CONSUMER_LIST, ConfigManager.ConsumerName, instanceName, channelOrChannelSet);
 		return channelName;
 	}
-	
-	String warmStandbyChannelSet(String channelSet)
+
+	@Override
+	String warmStandbyChannelSet(String instanceName)
 	{
-		String warmStandbyChannelSet = null;
+		String warmStandbyChannelSet;
 
 		if ( _programmaticConfigure != null )
 		{
-			warmStandbyChannelSet = _programmaticConfigure.activeEntryNames(channelSet, InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG);
+			warmStandbyChannelSet = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG);
 			if (warmStandbyChannelSet != null)
 				return warmStandbyChannelSet;
 		}
 	
-		warmStandbyChannelSet = (String) xmlConfig().getConsumerAttributeValue(channelSet, ConfigManager.ConsumerWarmStandbyChannelSet);
+		warmStandbyChannelSet = (String) xmlConfig().getConsumerAttributeValue(instanceName, ConfigManager.ConsumerWarmStandbyChannelSet);
 		return warmStandbyChannelSet;
 	}
-	
+
+	@Override
+	String preferredWarmStandbyChannelName(String instanceName) {
+		String phWarmStandbyChannelName;
+
+		if ( _programmaticConfigure != null )
+		{
+			phWarmStandbyChannelName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.PH_WSB_CHANNEL_NAME_FLAG);
+			if (phWarmStandbyChannelName != null)
+				return phWarmStandbyChannelName;
+		}
+
+		phWarmStandbyChannelName = (String) xmlConfig().getConsumerAttributeValue(instanceName, ConfigManager.PreferredWSBChannelName);
+		return phWarmStandbyChannelName;
+	}
+
+	@Override
+	String preferredChannelName(String instanceName) {
+		String phChannelName;
+
+		if ( _programmaticConfigure != null )
+		{
+			phChannelName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.PH_CHANNEL_NAME_FLAG);
+			if (phChannelName != null)
+				return phChannelName;
+		}
+
+		phChannelName = (String) xmlConfig().getConsumerAttributeValue(instanceName, ConfigManager.PreferredChannelName);
+		return phChannelName;
+	}
+
 	String sessionChannel(String instanceName)
 	{
-		String sessionChannel = null;
+		String sessionChannel;
 
 		if ( _programmaticConfigure != null )
 		{
@@ -353,7 +384,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	
 	String dictionaryName(String instanceName)
 	{
-		String dictionaryName = null;
+		String dictionaryName;
 
 		if ( _programmaticConfigure != null )
 		{
@@ -563,7 +594,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		
 		if(_serviceListMap == null)
 		{
-			_serviceListMap = new HashMap<String, ServiceListImpl>();
+			_serviceListMap = new HashMap<>();
 		}
 		
 		if(_serviceListMap.containsKey(serviceList.name()))

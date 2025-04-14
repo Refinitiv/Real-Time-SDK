@@ -1,12 +1,17 @@
+///*|-----------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.         		--
+///*|-----------------------------------------------------------------------------
+
 package com.refinitiv.ema.access;
 
 import junit.framework.TestCase;
 
 import com.refinitiv.ema.rdm.DataDictionary;
-import com.refinitiv.ema.rdm.EmaRdm;
 import com.refinitiv.ema.unittest.TestDictionaries;
 import com.refinitiv.ema.unittest.TestUtilities;
-import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.codec.Qos;
 import com.refinitiv.eta.codec.QosRates;
 import com.refinitiv.eta.codec.QosTimeliness;
@@ -208,14 +213,48 @@ public class EmaFileConfigJunitTests extends TestCase
 		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_8");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
-		
-		// Checks values of Consumer_9
-		System.out.println("\nRetrieving Consumer_9 configuration values "); 
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, "Consumer_8", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerEnablePreferredHostOptions);
+		TestUtilities.checkResult("EnablePreferredHostOptions value == 1", boolValue);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, "Consumer_8", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerFallBackWithInWSBGroup);
+		TestUtilities.checkResult("PHFallBackWithInWSBGroup value == 1", boolValue);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, "Consumer_8", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDetectionTimeInterval);
+		TestUtilities.checkResult("PHDetectionTimeInterval value == 10", intLongValue == 10);
+		stringValue = JUnitTestConnect.configGetStringValue(testConfig, "Consumer_8", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDetectionTimeSchedule);
+		TestUtilities.checkResult("PHDetectionTimeSchedule == * * ? * *", stringValue.equals("* * ? * *"));
+		stringValue = JUnitTestConnect.configGetStringValue(testConfig, "Consumer_8", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerCSChannelName);
+		TestUtilities.checkResult("PreferredChannelName value is null", stringValue == null);
+		stringValue = JUnitTestConnect.configGetStringValue(testConfig, "Consumer_8", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerWSBChannelName);
+		TestUtilities.checkResult("PreferredWSBChannelName value == WarmStandbyChannel_2", stringValue.equals("WarmStandbyChannel_2"));
 
-		ConsChannelVal = JUnitTestConnect.configGetChannelName(testConfig, "Consumer_9");
-		String SessionChannel = JUnitTestConnect.configGetSessionChannel(testConfig, "Consumer_9");
-	    TestUtilities.checkResult("SessionChannel value == Connection_1, Connection_2", SessionChannel.contentEquals("Connection_1, Connection_2") );
+		// Checks values of Consumer_9
+		System.out.println("\nRetrieving Consumer_9 configuration values ");
+
+		ConsChannelVal =  JUnitTestConnect.configGetChannelName(testConfig, "Consumer_9");
+		TestUtilities.checkResult("ChannelSet value != null", ConsChannelVal != null);
+		TestUtilities.checkResult("ChannelSet value == Channel_4, Channel_10", ConsChannelVal.contentEquals("Channel_4, Channel_10") );
 		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_9");
+		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
+		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, "Consumer_9", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerEnablePreferredHostOptions);
+		TestUtilities.checkResult("EnablePreferredHostOptions value == 1", boolValue);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, "Consumer_9", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerFallBackWithInWSBGroup);
+		TestUtilities.checkResult("PHFallBackWithInWSBGroup value == 0", !boolValue);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, "Consumer_9", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDetectionTimeInterval);
+		TestUtilities.checkResult("PHDetectionTimeInterval value == 10", intLongValue == 10);
+		stringValue = JUnitTestConnect.configGetStringValue(testConfig, "Consumer_9", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDetectionTimeSchedule);
+		TestUtilities.checkResult("PHDetectionTimeSchedule == * * ? * *", stringValue.equals("* * ? * *"));
+		stringValue = JUnitTestConnect.configGetStringValue(testConfig, "Consumer_9", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerCSChannelName);
+		TestUtilities.checkResult("PreferredChannelName value == Channel_10", stringValue.equals("Channel_10"));
+		stringValue = JUnitTestConnect.configGetStringValue(testConfig, "Consumer_9", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerWSBChannelName);
+		TestUtilities.checkResult("PreferredWSBChannelName value is null", stringValue == null);
+
+		// Checks values of Consumer_10
+		System.out.println("\nRetrieving Consumer_10 configuration values "); 
+
+		ConsChannelVal = JUnitTestConnect.configGetChannelName(testConfig, "Consumer_10");
+		String SessionChannel = JUnitTestConnect.configGetSessionChannel(testConfig, "Consumer_10");
+	    TestUtilities.checkResult("SessionChannel value == Connection_1, Connection_2", SessionChannel.contentEquals("Connection_1, Connection_2") );
+		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_10");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
 
@@ -951,7 +990,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		// Test Individual Channel attributes and Common attributes.
 		String tempTestName = "testLoadFromFileCfgSessionChannelSet";
 		
-		consumerName = "Consumer_9";
+		consumerName = "Consumer_10";
 		OmmConsumer sessionChannelConsumer = null;
 		testConfig.consumerName(consumerName);
 		try 
@@ -1024,7 +1063,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		// Test Individual Channel attributes and Common attributes.
 		String tempTestName = "testLoadFromProgrammaticCfgSessionChannelSet";
 		
-		consumerName = "Consumer_9";
+		consumerName = "Consumer_10";
 		OmmConsumer sessionChannelConsumer = null;
 		testConfig.consumerName(consumerName);
 		try 
@@ -1035,13 +1074,13 @@ public class EmaFileConfigJunitTests extends TestCase
 			ElementList innerElementList = EmaFactory.createElementList();
 			
 			// Setting up programmatic configuration
-			elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_9"));
+			elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_10"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("SessionChannelSet", "Connection_1, Connection_2"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 10));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 4444));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMaxDelay", 7777));
 			
-			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_9", MapEntry.MapAction.ADD, innerElementList));
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_10", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
 			elementList.add(EmaFactory.createElementEntry().map( "ConsumerList", innerMap ));
@@ -1173,7 +1212,7 @@ public class EmaFileConfigJunitTests extends TestCase
 	
 	public void testLoadChannelSetBwteenFileProgrammatic()
 	{
-		TestUtilities.printTestHead("testLoadChannelSetBwteenFileProgrammatic","Test reading Channel and ChannelSet when both parameters are configured programmatcally and from file");
+		TestUtilities.printTestHead("testLoadChannelSetBetweenFileProgrammatic","Test reading Channel and ChannelSet when both parameters are configured programmatcally and from file");
 
 		//testcase 1: test setting channel, then channelset. ChannelSet takes priority.
 		//testcase 2: test setting channelset, then channel. Channel takes priority.
@@ -1377,7 +1416,15 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnableRtt", 1 ));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("RestProxyHostName", "restProxyNonLocalHost"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("RestProxyPort", "9083"));
-			
+
+			innerElementList.add(EmaFactory.createElementEntry().ascii( "ChannelSet", "Channel_1, Channel_2" ));
+			innerElementList.add(EmaFactory.createElementEntry().ascii( "PreferredChannelName", "Channel_2" ));
+			innerElementList.add(EmaFactory.createElementEntry().ascii( "PreferredWSBChannelName", "WarmStandbyChannel_2" ));
+			innerElementList.add(EmaFactory.createElementEntry().ascii( "PHDetectionTimeSchedule", "* * ? * *" ));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnablePreferredHostOptions", 1 ));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue( "PHDetectionTimeInterval", 15 ));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue( "PHFallBackWithInWSBGroup", 0 ));
+
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -1386,7 +1433,7 @@ public class EmaFileConfigJunitTests extends TestCase
 
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_2", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
-			
+
 			elementList.add(EmaFactory.createElementEntry().map( "ConsumerList", innerMap ));
 			innerMap.clear();
 
@@ -1441,8 +1488,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			OmmConsumerConfig testConfig = EmaFactory.createOmmConsumerConfig().config(outermostMap);
 			OmmConsumer cons = JUnitTestConnect.createOmmConsumer(testConfig);
 			
-			// Check default consumer name (Conusmer_2) and associated values
-			System.out.println("Retrieving DefaultConsumer configuration values: (DefaultConsumer value=Consumer_2) "); 
+			// Check default consumer name (Conusmer_1) and associated values
+			System.out.println("Retrieving DefaultConsumer configuration values: (DefaultConsumer value=Consumer_1) ");
 		
 			String defaultConsName = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDefaultConsumerName, -1);
 			TestUtilities.checkResult("DefaultConsumer value != null", defaultConsName != null);
@@ -1523,7 +1570,26 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("RestProxyHostName == restProxyNonLocalHost", strValue.equals("restProxyNonLocalHost"));
 			strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.RestProxyPort, -1);
 			TestUtilities.checkResult("RestProxyPort == 9083", strValue.equals("9083"));
-			
+
+			ConsChannelVal = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelName, 0);
+			TestUtilities.checkResult("First ChannelSet value != null", ConsChannelVal != null);
+			TestUtilities.checkResult("First ChannelSet value == Channel_1", ConsChannelVal.contentEquals("Channel_1") );
+			ConsChannelVal = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelName, 1);
+			TestUtilities.checkResult("Second ChannelSet value != null", ConsChannelVal != null);
+			TestUtilities.checkResult("Second ChannelSet value == Channel_2", ConsChannelVal.contentEquals("Channel_2") );
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerEnablePreferredHostOptions, -1);
+			TestUtilities.checkResult("EnablePreferredHostOptions value == 1", boolValue);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerFallBackWithInWSBGroup, -1);
+			TestUtilities.checkResult("fallBackWithInWSBGroup value == 0", !boolValue);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDetectionTimeInterval, -1);
+			TestUtilities.checkResult("DetectionTimeInterval value == 15", intLongValue == 15);
+			stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDetectionTimeSchedule, -1);
+			TestUtilities.checkResult("DetectionTimeSchedule == * * ? * *", stringValue.equals("* * ? * *"));
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerCSChannelName, -1);
+			TestUtilities.checkResult("ConnectionListIndex value == 1", intLongValue == 1);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerWSBChannelName, -1);
+			TestUtilities.checkResult("WarmStandbyGroupListIndex value == 0", intLongValue == 0);
+
 			// Check values of Consumer_1
 			System.out.println("\nRetrieving Consumer_1 configuration values "); 
 
@@ -1533,7 +1599,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			ConsDictionary = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryName, -1);
 			TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 			TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
-			
+
 			// Check Channel configuration:
 			// Check Channel_1 configuration.
 			ConsChannelVal = "Channel_1";
@@ -3337,9 +3403,9 @@ public class EmaFileConfigJunitTests extends TestCase
 		}
 	}
 
-public void testLoadChannelSetBwteenFileProgrammaticForNiProv()
+public void testLoadChannelSetBetweenFileProgrammaticForNiProv()
 {
-	TestUtilities.printTestHead("testLoadChannelSetBwteenFileProgrammaticForNiProv","Test loading NiProvider Channel and ChannelSet between "
+	TestUtilities.printTestHead("testLoadChannelSetBetweenFileProgrammaticForNiProv","Test loading NiProvider Channel and ChannelSet between "
 			+ "config file and programmatically config");
 	
 	//testcase 1: test setting channel, then channelset. ChannelSet takes priority.
@@ -6022,6 +6088,13 @@ public void testLoadConfigFromProgrammaticForWarmStandby()
 		innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 0));
 		innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 0));
 
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "PreferredWSBChannelName", "WarmStandbyChannel_2" ));
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "PHDetectionTimeSchedule", "* * ? * *" ));
+		innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnablePreferredHostOptions", 1 ));
+		innerElementList.add(EmaFactory.createElementEntry().uintValue( "PHDetectionTimeInterval", 15 ));
+		innerElementList.add(EmaFactory.createElementEntry().uintValue( "PHFallBackWithInWSBGroup", 0 ));
+
+
 		innerMap.add(EmaFactory.createMapEntry().keyAscii("Consumer_8", MapEntry.MapAction.ADD, innerElementList));
 
 		elementList.add(EmaFactory.createElementEntry().map("ConsumerList", innerMap));
@@ -6113,6 +6186,19 @@ public void testLoadConfigFromProgrammaticForWarmStandby()
 		String WarmStandbyChannelSet  = JUnitTestConnect.configGetWarmStandbyChannelSet(testConfig, "Consumer_8");
 		TestUtilities.checkResult("WarmStandbyChannelSet value == WarmStandbyChannel_1, WarmStandbyChannel_2", WarmStandbyChannelSet.contentEquals("WarmStandbyChannel_1, WarmStandbyChannel_2") );
 
+		boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerEnablePreferredHostOptions, -1);
+		TestUtilities.checkResult("EnablePreferredHostOptions value == 1", boolValue);
+		boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerFallBackWithInWSBGroup, -1);
+		TestUtilities.checkResult("fallBackWithInWSBGroup value == 0", !boolValue);
+		int intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDetectionTimeInterval, -1);
+		TestUtilities.checkResult("DetectionTimeInterval value == 15", intLongValue == 15);
+		String stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDetectionTimeSchedule, -1);
+		TestUtilities.checkResult("DetectionTimeSchedule == * * ? * *", stringValue.equals("* * ? * *"));
+		intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerCSChannelName, -1);
+		TestUtilities.checkResult("ConnectionListIndex value == 0", intLongValue == 0);
+		intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerWSBChannelName, -1);
+		TestUtilities.checkResult("WarmStandbyGroupListIndex value == 1", intLongValue == 1);
+
 		// Check all values from WarmStandbyChannel_1
 		String WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StartingActiveServer, 0);
 		TestUtilities.checkResult("StartingActiveServer value != null", WSBGroupAttrib != null);
@@ -6195,6 +6281,232 @@ public void testLoadConfigFromProgrammaticForWarmStandby()
 		TestUtilities.checkResult("Receiving exception, test failed.", false );
 	}
 }
+
+	public void testMergeCfgBetweenFileAndProgrammaticConfigForWarmStandby()
+	{
+		TestUtilities.printTestHead("testMergeCfgBetweenFileAndProgrammaticConfigForWarmStandby","Test merge Cons with Warm Standby configuration parameters between config file and programmatically config");
+
+		//two testcases:
+		//test case 1: NOT loading EmaConfig file from working dir.
+		//test case 2: loading EmaConfigTest file
+		for (int testCase = 0; testCase < 2; testCase++) {
+			Map outermostMapCons = EmaFactory.createMap();
+			Map innerMap = EmaFactory.createMap();
+			ElementList elementList = EmaFactory.createElementList();
+			ElementList innerElementList = EmaFactory.createElementList();
+			try {
+				elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_8"));
+
+				innerElementList.add(EmaFactory.createElementEntry().ascii("WarmStandbyChannelSet", "WarmStandbyChannel_2, WarmStandbyChannel_1"));
+				innerElementList.add(EmaFactory.createElementEntry().uintValue("XmlTraceToStdout", 0));
+				innerElementList.add(EmaFactory.createElementEntry().uintValue("XmlTraceToFile", 0));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 0));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 0));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 0));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 0));
+
+				innerElementList.add(EmaFactory.createElementEntry().ascii("PreferredWSBChannelName", "WarmStandbyChannel_1"));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("PHDetectionTimeSchedule", "0/5 * ? * *"));
+				innerElementList.add(EmaFactory.createElementEntry().uintValue("EnablePreferredHostOptions", 1));
+				innerElementList.add(EmaFactory.createElementEntry().uintValue("PHDetectionTimeInterval", 15));
+				innerElementList.add(EmaFactory.createElementEntry().uintValue("PHFallBackWithInWSBGroup", 0));
+
+
+				innerMap.add(EmaFactory.createMapEntry().keyAscii("Consumer_8", MapEntry.MapAction.ADD, innerElementList));
+
+				elementList.add(EmaFactory.createElementEntry().map("ConsumerList", innerMap));
+
+				innerMap.clear();
+
+				outermostMapCons.add(EmaFactory.createMapEntry().keyAscii("ConsumerGroup", MapEntry.MapAction.ADD, elementList));
+				elementList.clear();
+				innerElementList.clear();
+
+				innerElementList.add(EmaFactory.createElementEntry().enumValue("ChannelType", 0));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14012"));
+				innerMap.add(EmaFactory.createMapEntry().keyAscii("Channel_11", MapEntry.MapAction.ADD, innerElementList));
+				innerElementList.clear();
+
+				innerElementList.add(EmaFactory.createElementEntry().enumValue("ChannelType", 0));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14013"));
+				innerMap.add(EmaFactory.createMapEntry().keyAscii("Channel_12", MapEntry.MapAction.ADD, innerElementList));
+				innerElementList.clear();
+
+				innerElementList.add(EmaFactory.createElementEntry().enumValue("ChannelType", 0));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14014"));
+				innerMap.add(EmaFactory.createMapEntry().keyAscii("Channel_13", MapEntry.MapAction.ADD, innerElementList));
+				innerElementList.clear();
+
+				elementList.add(EmaFactory.createElementEntry().map("ChannelList", innerMap));
+				innerMap.clear();
+
+				outermostMapCons.add(EmaFactory.createMapEntry().keyAscii("ChannelGroup", MapEntry.MapAction.ADD, elementList));
+				elementList.clear();
+
+				innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_11"));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("PerServiceNameSet", "Service_A, Service_B"));
+				innerMap.add(EmaFactory.createMapEntry().keyAscii("Server_Info_10", MapEntry.MapAction.ADD, innerElementList));
+				innerElementList.clear();
+
+				innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_12"));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("PerServiceNameSet", "Service_C, Service_D"));
+				innerMap.add(EmaFactory.createMapEntry().keyAscii("Server_Info_11", MapEntry.MapAction.ADD, innerElementList));
+				innerElementList.clear();
+
+				innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_13"));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("PerServiceNameSet", "Service_E, Service_F"));
+				innerMap.add(EmaFactory.createMapEntry().keyAscii("Server_Info_12", MapEntry.MapAction.ADD, innerElementList));
+				innerElementList.clear();
+
+				elementList.add(EmaFactory.createElementEntry().map("WarmStandbyServerInfoList", innerMap));
+				innerMap.clear();
+
+				outermostMapCons.add(EmaFactory.createMapEntry().keyAscii("WarmStandbyServerInfoGroup", MapEntry.MapAction.ADD, elementList));
+				elementList.clear();
+
+				innerElementList.add(EmaFactory.createElementEntry().ascii("StartingActiveServer", "Server_Info_10"));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("StandbyServerSet", "Server_Info_11, Server_Info_12"));
+				innerElementList.add(EmaFactory.createElementEntry().enumValue("WarmStandbyMode", 1)); /* 2 for service based while 1 for login based warm standby */
+				innerMap.add(EmaFactory.createMapEntry().keyAscii("WarmStandbyChannel_1", MapEntry.MapAction.ADD, innerElementList));
+				innerElementList.clear();
+
+				innerElementList.add(EmaFactory.createElementEntry().ascii("StartingActiveServer", "Server_Info_11"));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("StandbyServerSet", "Server_Info_10, Server_Info_12"));
+				innerElementList.add(EmaFactory.createElementEntry().enumValue("WarmStandbyMode", 2)); /* 2 for service based while 1 for login based warm standby */
+				innerMap.add(EmaFactory.createMapEntry().keyAscii("WarmStandbyChannel_2", MapEntry.MapAction.ADD, innerElementList));
+				innerElementList.clear();
+
+				elementList.add(EmaFactory.createElementEntry().map("WarmStandbyList", innerMap));
+				innerMap.clear();
+
+				outermostMapCons.add(EmaFactory.createMapEntry().keyAscii("WarmStandbyGroup", MapEntry.MapAction.ADD, elementList));
+				elementList.clear();
+
+				innerElementList.add(EmaFactory.createElementEntry().enumValue("DictionaryType", 0));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("RdmFieldDictionaryFileName", "./RDMFieldDictionary"));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("EnumTypeDefFileName", "./enumtype.def"));
+				innerMap.add(EmaFactory.createMapEntry().keyAscii("Dictionary_2", MapEntry.MapAction.ADD, innerElementList));
+
+				elementList.add(EmaFactory.createElementEntry().map("DictionaryList", innerMap));
+
+				outermostMapCons.add(EmaFactory.createMapEntry().keyAscii("DictionaryGroup", MapEntry.MapAction.ADD, elementList));
+
+				OmmConsumerConfig testConfig = null;
+				if (testCase == 0) {
+					testConfig = EmaFactory.createOmmConsumerConfig();
+				} else if (testCase == 1) {
+					String localConfigPath = "./src/test/resources/com/refinitiv/ema/unittest/EmaFileConfigTests/EmaConfigTest.xml";
+					System.out.println("Using Ema Config: " + localConfigPath);
+					testConfig = EmaFactory.createOmmConsumerConfig(localConfigPath);
+				}
+
+				OmmConsumer cons = JUnitTestConnect.createOmmConsumer(testConfig.config(outermostMapCons));
+
+				String defaultConsName = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDefaultConsumerName, -1);
+				TestUtilities.checkResult("DefaultConsumer value != null", defaultConsName != null);
+				TestUtilities.checkResult("DefaultConsumer value == Consumer_8", defaultConsName.contentEquals("Consumer_8"));
+				String WarmStandbyChannelSet = JUnitTestConnect.configGetWarmStandbyChannelSet(testConfig, "Consumer_8");
+				TestUtilities.checkResult("WarmStandbyChannelSet value == WarmStandbyChannel_2, WarmStandbyChannel_1", WarmStandbyChannelSet.contentEquals("WarmStandbyChannel_2, WarmStandbyChannel_1"));
+
+				boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerEnablePreferredHostOptions, -1);
+				TestUtilities.checkResult("EnablePreferredHostOptions value == 1", boolValue);
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerFallBackWithInWSBGroup, -1);
+				TestUtilities.checkResult("fallBackWithInWSBGroup value == 0", !boolValue);
+				int intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDetectionTimeInterval, -1);
+				TestUtilities.checkResult("DetectionTimeInterval value == 15", intLongValue == 15);
+				String stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDetectionTimeSchedule, -1);
+				TestUtilities.checkResult("DetectionTimeSchedule == 0/5 * ? * *", stringValue.equals("0/5 * ? * *"));
+				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerCSChannelName, -1);
+				TestUtilities.checkResult("ConnectionListIndex value == 0", intLongValue == 0);
+				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerWSBChannelName, -1);
+				TestUtilities.checkResult("WarmStandbyGroupListIndex value == 1", intLongValue == 1);
+
+				// Check all values from WarmStandbyChannel_2
+				String WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StartingActiveServer, 0);
+				TestUtilities.checkResult("StartingActiveServer value != null", WSBGroupAttrib != null);
+				TestUtilities.checkResult("StartingActiveServer value == Server_Info_11", WSBGroupAttrib.contentEquals("Server_Info_11"));
+				WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StandbyServerSet, 0, 0);
+				TestUtilities.checkResult("StandbyServerSet value != null", WSBGroupAttrib != null);
+				TestUtilities.checkResult("StandbyServerSet value == Server_Info_10", WSBGroupAttrib.contentEquals("Server_Info_10"));
+				WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StandbyServerSet, 0, 1);
+				TestUtilities.checkResult("StandbyServerSet value != null", WSBGroupAttrib != null);
+				TestUtilities.checkResult("StandbyServerSet value == Server_Info_12", WSBGroupAttrib.contentEquals("Server_Info_12"));
+				WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.WarmStandbyMode, 0);
+				TestUtilities.checkResult("WarmStandbyMode value != null", WSBGroupAttrib != null);
+				TestUtilities.checkResult("WarmStandbyMode value == WarmStandbyMode::SERVICE_BASED", WSBGroupAttrib.contentEquals("WarmStandbyMode::SERVICE_BASED"));
+
+				// Check all values from WarmStandbyChannel_1
+				WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StartingActiveServer, 1);
+				TestUtilities.checkResult("StartingActiveServer value != null", WSBGroupAttrib != null);
+				TestUtilities.checkResult("StartingActiveServer value == Server_Info_10", WSBGroupAttrib.contentEquals("Server_Info_10"));
+				WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StandbyServerSet, 1, 0);
+				TestUtilities.checkResult("StandbyServerSet value != null", WSBGroupAttrib != null);
+				TestUtilities.checkResult("StandbyServerSet value == Server_Info_11", WSBGroupAttrib.contentEquals("Server_Info_11"));
+				WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StandbyServerSet, 1, 1);
+				TestUtilities.checkResult("StandbyServerSet value != null", WSBGroupAttrib != null);
+				TestUtilities.checkResult("StandbyServerSet value == Server_Info_12", WSBGroupAttrib.contentEquals("Server_Info_12"));
+				WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.WarmStandbyMode, 1);
+				TestUtilities.checkResult("WarmStandbyMode value != null", WSBGroupAttrib != null);
+				TestUtilities.checkResult("WarmStandbyMode value == WarmStandbyMode::LOGIN_BASED", WSBGroupAttrib.contentEquals("WarmStandbyMode::LOGIN_BASED"));
+
+				// Checks all values from Server_Info_10 of WarmStandbyChannel_1's starting active server
+				String WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStartingServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 1);
+				TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("Channel value == Channel_11", WSBServerAttrib.contentEquals("Channel_11"));
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStartingServerInfo, JUnitTestConnect.PerServiceNameSet, 1);
+				TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("PerServiceNameSet value == Service_A, Service_B", WSBServerAttrib.contentEquals("Service_A, Service_B"));
+
+				// Checks all values from Server_Info_11 of WarmStandbyChannel_1's first Standby Server
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 1, 0);
+				TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("Channel value == Channel_12", WSBServerAttrib.contentEquals("Channel_12"));
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet, 1, 0);
+				TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("PerServiceNameSet value == Service_C, Service_D", WSBServerAttrib.contentEquals("Service_C, Service_D"));
+
+				// Checks all values from Server_Info_12 of WarmStandbyChannel_1's second Standby Server
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 1, 1);
+				TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("Channel value == Channel_13", WSBServerAttrib.contentEquals("Channel_13"));
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet, 1, 1);
+				TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("PerServiceNameSet value == Service_E, Service_F", WSBServerAttrib.contentEquals("Service_E, Service_F"));
+
+				// Checks all values from Server_Info_11 of WarmStandbyChannel_2's Starting Active Server
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStartingServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 0);
+				TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("Channel value == Channel_12", WSBServerAttrib.contentEquals("Channel_12"));
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStartingServerInfo, JUnitTestConnect.PerServiceNameSet, 0);
+				TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("PerServiceNameSet value == Service_C, Service_D", WSBServerAttrib.contentEquals("Service_C, Service_D"));
+
+				// Checks all values from Server_Info_10 of WarmStandbyChannel_2's first standby server
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 0, 0);
+				TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("Channel value == Channel_11", WSBServerAttrib.contentEquals("Channel_11"));
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet, 0, 0);
+				TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("PerServiceNameSet value == Service_A, Service_B", WSBServerAttrib.contentEquals("Service_A, Service_B"));
+
+				// Checks all values from Server_Info_12 of WarmStandbyChannel_2's second Standby Server
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 0, 1);
+				TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("Channel value == Channel_13", WSBServerAttrib.contentEquals("Channel_13"));
+				WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet, 0, 1);
+				TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+				TestUtilities.checkResult("PerServiceNameSet value == Service_E, Service_F", WSBServerAttrib.contentEquals("Service_E, Service_F"));
+			} catch (OmmException excp) {
+				System.out.println(excp.getMessage());
+				TestUtilities.checkResult("Receiving exception, test failed.", false);
+			}
+		}
+	}
 
 @Test
 public void testDataDictionarySpecifiedDirectlyToOmmConsumerConfig()

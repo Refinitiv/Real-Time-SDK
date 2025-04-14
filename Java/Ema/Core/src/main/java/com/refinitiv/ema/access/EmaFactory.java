@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|          Copyright (C) 2019-2022,2024 LSEG. All rights reserved.     
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|          Copyright (C) 2019-2022,2024 LSEG. All rights reserved.          --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -806,10 +806,10 @@ public class EmaFactory
 	
 	/**
 	 * Creates a {@link com.refinitiv.ema.access.ServiceEndpointDiscovery} using the default URLs.
-	 * 
+	 *
 	 * <p>The token service URL defaults to https://api.refinitiv.com/auth/oauth2/v1/token<br>
 	 * The RDP service discovery URL defaults to https://api.refinitiv.com/streaming/pricing/v1/</p>
-	 * 
+	 *
 	 * @return {@link com.refinitiv.ema.access.ServiceEndpointDiscovery}
 	 */
 	public static ServiceEndpointDiscovery createServiceEndpointDiscovery()
@@ -992,7 +992,24 @@ public class EmaFactory
 	public static PackedMsg createPackedMsg(OmmProvider provider) {
 		return new PackedMsgImpl(provider);
 	}
-	
+
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.PreferredHostInfo}.
+	 * @return {@link com.refinitiv.ema.access.PreferredHostInfo}
+	 */
+	public static PreferredHostInfo createPreferredHostInfo()
+	{
+		return new PreferredHostInfo();
+	}
+
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.PreferredHostOptions}.
+	 * @return {@link com.refinitiv.ema.access.PreferredHostOptions}
+	 */
+	public static PreferredHostOptions createPreferredHostOptions() {
+		return new PreferredHostOptions();
+	}
+
 	/**
 	 * Create an instance of {@link ServiceList}
 	 * @param name specifies a virtual service list name

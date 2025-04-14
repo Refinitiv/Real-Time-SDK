@@ -1,13 +1,14 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.     
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.         		--
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
 import java.util.List;
+
 
 /**
  * OmmConsumer class encapsulates functionality of an Omm consuming type application.
@@ -295,8 +296,17 @@ public interface OmmConsumer
 	 * @throws OmmInvalidUsageException if failed to modify I/O option to
 	 */
 	public void modifyIOCtl(int code, int value);
-	
-	
+
+	/**
+	 * Allows modifying some I/O values programmatically for a channel to override the default values.
+	 * <p> This method is ObjectLevelSafe.</p>
+	 *
+	 * @param code provides Code of I/O option defined in {@link IOCtlCode} to modify.
+	 * @param value provides Value to modify I/O option to
+	 * @throws OmmInvalidUsageException if failed to modify I/O option to
+	 */
+	public void modifyIOCtl(int code, Object value);
+
 	/** Provide updated OAuth2 credentials when the callback OmmOAuth2ConsumerClient::onCredentialRenewal is called.
 	 *  This method allows the application to use a secure credential storage when using RDP functionality such as 
 	 *  the RDP token service or RDP service discovery.
@@ -307,7 +317,14 @@ public interface OmmConsumer
 	 *	@throws OmmInvalidUsageException if the credential update fails or if this method is called outside of an onCredentialRenewal callback.
 	 */
 	public void renewOAuthCredentials(OAuth2CredentialRenewal credentials);
-	
+
+	/**
+	 * Triggers an immediate attempt to switch the current connection to the preferred host.
+	 *
+	 *	@throws OmmInvalidUsageException if the reactor failed to switch to preferred host.
+	 */
+	public void fallbackPreferredHost();
+
 	/**
 	 * Returns a list of channel information for session channels associated with the OmmConsumer object.
 	 * 

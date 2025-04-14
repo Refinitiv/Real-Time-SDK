@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.     
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.				--
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -92,6 +92,13 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT		= 3;
 	final static boolean DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG = true;
 	final static int DEFAULT_WSB_MODE							= ReactorWarmStandbyMode.LOGIN_BASED;
+	final static boolean DEFAULT_ENABLE_PREFERRED_HOST_OPTIONS = false;
+	final static boolean DEFAULT_FALLBACK_WITHIN_WSB_GROUP = false;
+	final static String DEFAULT_DETECTION_TIME_SCHEDULE = "";
+	final static int DEFAULT_DETECTION_TIME_INTERVAL = 0;
+	final static int DEFAULT_CONNECTION_LIST_INDEX = 0;
+	final static int DEFAULT_WSB_GROUP_LIST_INDEX = 0;
+
 	final static boolean DEFAULT_SESSION_ENHANCED_ITEM_RECOVERY = true;
 	
 	final static int SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL   = 0x01;  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
@@ -130,6 +137,12 @@ abstract class ActiveConfig extends BaseConfig
 	String					wsProtocols;
 	int 					wsMaxMsgSize;
 	int						maxFragmentSize;
+	boolean					enablePreferredHostOptions;
+	boolean					fallBackWithInWSBGroup;
+	String 					detectionTimeSchedule;
+	int 					detectionTimeInterval;
+	int						connectionListIndex;
+	int						warmStandbyGroupListIndex;
 	List<ChannelConfig>		configChannelSetForWSB;
 	List<WarmStandbyChannelConfig> configWarmStandbySet;
 	List<SessionChannelConfig> configSessionChannelSet;
@@ -148,10 +161,10 @@ abstract class ActiveConfig extends BaseConfig
 		 directoryRequestTimeOut = DEFAULT_DIRECTORY_REQUEST_TIMEOUT;
 		 dictionaryRequestTimeOut = DEFAULT_DICTIONARY_REQUEST_TIMEOUT;
 		 userDispatch = DEFAULT_USER_DISPATCH;
-		 reconnectAttemptLimit = ActiveConfig.DEFAULT_RECONNECT_ATTEMPT_LIMIT;
-		 reconnectMinDelay = ActiveConfig.DEFAULT_RECONNECT_MIN_DELAY;
-		 reconnectMaxDelay = ActiveConfig.DEFAULT_RECONNECT_MAX_DELAY;
-		 msgKeyInUpdates = ActiveConfig.DEFAULT_MSGKEYINUPDATES ;
+		 reconnectAttemptLimit = DEFAULT_RECONNECT_ATTEMPT_LIMIT;
+		 reconnectMinDelay = DEFAULT_RECONNECT_MIN_DELAY;
+		 reconnectMaxDelay = DEFAULT_RECONNECT_MAX_DELAY;
+		 msgKeyInUpdates = DEFAULT_MSGKEYINUPDATES ;
 		 ActiveConfig.defaultServiceName = defaultServiceName;
 		 reissueTokenAttemptLimit = DEFAULT_REISSUE_TOKEN_ATTEMPT_LIMIT;
 		 reissueTokenAttemptInterval = DEFAULT_REISSUE_TOKEN_ATTEMPT_INTERVAL;
@@ -160,6 +173,12 @@ abstract class ActiveConfig extends BaseConfig
 		 wsProtocols = DEFAULT_WS_PROTOCOLS;
 		 wsMaxMsgSize = DEFAULT_WS_MAX_MSG_SIZE;
 		 maxFragmentSize = DEFAULT_MAX_FRAGMENT_SIZE;
+		 enablePreferredHostOptions = DEFAULT_ENABLE_PREFERRED_HOST_OPTIONS;
+		 fallBackWithInWSBGroup = DEFAULT_FALLBACK_WITHIN_WSB_GROUP;
+		 detectionTimeSchedule = DEFAULT_DETECTION_TIME_SCHEDULE;
+		 detectionTimeInterval = DEFAULT_DETECTION_TIME_INTERVAL;
+		 connectionListIndex = DEFAULT_CONNECTION_LIST_INDEX;
+		 warmStandbyGroupListIndex = DEFAULT_WSB_GROUP_LIST_INDEX;
 		 channelConfigSet = new ArrayList<>();
 		 configChannelSetForWSB = new ArrayList<>();
 		 configWarmStandbySet = new ArrayList<>();
@@ -178,10 +197,10 @@ abstract class ActiveConfig extends BaseConfig
 		directoryRequestTimeOut = DEFAULT_DIRECTORY_REQUEST_TIMEOUT;
 		dictionaryRequestTimeOut = DEFAULT_DICTIONARY_REQUEST_TIMEOUT;
 		userDispatch = DEFAULT_USER_DISPATCH;
-		reconnectAttemptLimit = ActiveConfig.DEFAULT_RECONNECT_ATTEMPT_LIMIT;
-		reconnectMinDelay = ActiveConfig.DEFAULT_RECONNECT_MIN_DELAY;
-		reconnectMaxDelay = ActiveConfig.DEFAULT_RECONNECT_MAX_DELAY;
-		msgKeyInUpdates = ActiveConfig.DEFAULT_MSGKEYINUPDATES;
+		reconnectAttemptLimit = DEFAULT_RECONNECT_ATTEMPT_LIMIT;
+		reconnectMinDelay = DEFAULT_RECONNECT_MIN_DELAY;
+		reconnectMaxDelay = DEFAULT_RECONNECT_MAX_DELAY;
+		msgKeyInUpdates = DEFAULT_MSGKEYINUPDATES;
 		reissueTokenAttemptLimit = DEFAULT_REISSUE_TOKEN_ATTEMPT_LIMIT;
 		reissueTokenAttemptInterval = DEFAULT_REISSUE_TOKEN_ATTEMPT_INTERVAL;
 		restRequestTimeout = DEFAULT_REST_REQUEST_TIMEOUT;
@@ -189,6 +208,12 @@ abstract class ActiveConfig extends BaseConfig
 		wsProtocols = DEFAULT_WS_PROTOCOLS;
 		wsMaxMsgSize = DEFAULT_WS_MAX_MSG_SIZE;
 		maxFragmentSize = DEFAULT_MAX_FRAGMENT_SIZE;
+		enablePreferredHostOptions = DEFAULT_ENABLE_PREFERRED_HOST_OPTIONS;
+		fallBackWithInWSBGroup = DEFAULT_FALLBACK_WITHIN_WSB_GROUP;
+		detectionTimeSchedule = DEFAULT_DETECTION_TIME_SCHEDULE;
+		detectionTimeInterval = DEFAULT_DETECTION_TIME_INTERVAL;
+		connectionListIndex = DEFAULT_CONNECTION_LIST_INDEX;
+		warmStandbyGroupListIndex = DEFAULT_WSB_GROUP_LIST_INDEX;
 		sessionEnhancedItemRecovery = DEFAULT_SESSION_ENHANCED_ITEM_RECOVERY;
 		dictionaryConfig.clear();
 
@@ -222,6 +247,12 @@ abstract class ActiveConfig extends BaseConfig
 		.append("\n\t wsProtocols: ").append(wsProtocols)
 		.append("\n\t wsMaxMsgSize: ").append(wsMaxMsgSize)
 		.append("\n\t maxFragmentSize: ").append(maxFragmentSize)
+		.append("\n\t enablePreferredHostOptions: ").append(enablePreferredHostOptions)
+		.append("\n\t fallBackWithInWSBGroup: ").append(fallBackWithInWSBGroup)
+		.append("\n\t detectionTimeSchedule: ").append(detectionTimeSchedule)
+		.append("\n\t detectionTimeInterval: ").append(detectionTimeInterval)
+		.append("\n\t connectionListIndex: ").append(connectionListIndex)
+		.append("\n\t warmStandbyGroupListIndex: ").append(warmStandbyGroupListIndex)
 		.append("\n\t serviceDiscoveryRetryCount: ")
 		.append("\n\t restProxyHostName: ").append(restProxyHostName)
 		.append("\n\t restProxyPort: ").append(restProxyPort)
@@ -267,7 +298,15 @@ abstract class ActiveConfig extends BaseConfig
 		else
 			restRequestTimeout = 0;
 	}
-	
+
+	void detectionTimeInterval(long value)
+	{
+		if (value >= 0)
+			detectionTimeInterval = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+		else
+			detectionTimeInterval = DEFAULT_DETECTION_TIME_INTERVAL;
+	}
+
 	static boolean findWsbChannelConfig(List<WarmStandbyChannelConfig> cfgWsbChannelSet, String wsbChannelName, int pos)
 	{
 		return cfgWsbChannelSet.stream()

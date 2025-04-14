@@ -1,8 +1,8 @@
 ///*|-----------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.         		--
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -169,10 +169,13 @@ public interface OmmState extends Data
 		public final static int DACS_USER_ACCESS_TO_APP_DENIED	= 32;
 		
 	    /** Content is intended to fill a recognized gap */
-	    public static final int GAP_FILL = 34;
+	    public static final int GAP_FILL 						= 34;
 	    
 	    /** Application Authorization Failed */
-	    public static final int APP_AUTHORIZATION_FAILED = 35;
+	    public static final int APP_AUTHORIZATION_FAILED 		= 35;
+
+		/** Preferred host switchover completed */
+		public static final int PREFERRED_HOST_COMPLETE 		= 201;
 
 	    /** @deprecated Not Used */
 	    @Deprecated

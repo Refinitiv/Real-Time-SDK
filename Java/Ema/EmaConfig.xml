@@ -75,7 +75,24 @@
             <WarmStandbyChannelSet value="WarmStandbyChannel_1"/>
             <Dictionary value="Dictionary_2"/>
             <XmlTraceToStdout value="0"/>
-        </Consumer>
+        </Consumer>    
+		<!-- Consumer for fallback to preferred host feature -->
+		<Consumer>
+			<Name value="Consumer_9"/>
+			<!-- WarmStandbyChannelSet or ChannelSet may be specified for different test scenarios -->
+			<ChannelSet value="Channel_7, Channel_1"/>
+			<!-- WarmStandbyChannelSet value="WarmStandbyChannel_2, WarmStandbyChannel_1"/ -->
+			<Dictionary value="Dictionary_2"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeSchedule value="* * ? * *"/>
+			<PHDetectionTimeInterval value="15"/>
+			<!-- PreferredChannelName or PreferredWSBChannelName may be specified for different test scenarios -->
+			<PreferredChannelName value="Channel_1"/>
+			<!-- PreferredWSBChannelName value="WarmStandbyChannel_1"/ -->
+			<!-- Use PHFallBackWithInWSBGroup in case of WSB scenario -->
+			<!-- PHFallBackWithInWSBGroup value="0"/ -->
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
 		<Consumer>
 			<Name value="Consumer_10"/>
 			<SessionChannelSet value="Connection_1, Connection_2"/>
@@ -276,6 +293,8 @@
 			<!-- possible values: None, ZLib, LZ4		        -->
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
+			<!-- InitializationTimeout is optional: defaulted to 5000	-->
+			<InitializationTimeout value="30000"/>
 			<!-- ConnectionPingTimeout is optional: defaulted to 30000	-->
 			<ConnectionPingTimeout value="30000"/>
 			<!-- TcpNodelay is optional: defaulted to 1 -->
@@ -341,6 +360,7 @@
 			<Name value="Channel_7"/>
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 			<GuaranteedOutputBuffers value="5000"/>
+			<InitializationTimeout value="30000"/>
 			<ConnectionPingTimeout value="30000"/>
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
@@ -570,8 +590,15 @@
             <StandbyServerSet value="Server_Info_2"/>
             <WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
         </WarmStandbyChannel>
+        <WarmStandbyChannel>
+            <Name value="WarmStandbyChannel_2"/>
+            <StartingActiveServer value="Server_Info_2"/>
+            <StandbyServerSet value="Server_Info_1"/>
+            <WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+        </WarmStandbyChannel>
     </WarmStandbyList>
 </WarmStandbyGroup>
+
 
 <!-- source directory refresh configuration used by provider -->
 <DirectoryGroup>
