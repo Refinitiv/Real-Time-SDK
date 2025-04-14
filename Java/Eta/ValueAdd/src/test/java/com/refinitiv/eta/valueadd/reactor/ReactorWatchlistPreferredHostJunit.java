@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2025 LSEG. All rights reserved.     
+ *|           Copyright (C) 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -932,15 +932,21 @@ public class ReactorWatchlistPreferredHostJunit {
     		
     		// Call fallback method
     		consumer.reactorChannel().fallbackPreferredHost(null);
-    		
+
+			consumer.testReactor().dispatch(2);
+
+			/* Consumer receives PREFERRED HOST STARTING FALLBACK. */
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
+
     		/* Consumer receives PREFERRED HOST COMPLETE. */
-    		consumer.testReactor().dispatch(1);
     		event = consumer.testReactor().pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
     		assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, channelEvent.eventType());
-    		
-    		
+
 		}
 		finally
 		{
@@ -1803,9 +1809,15 @@ public class ReactorWatchlistPreferredHostJunit {
 			
 			provider3.testReactor().accept(opts, provider3);
 			
-    		consumer.testReactor().dispatch(5);
+    		consumer.testReactor().dispatch(6);
 
-    		/* Login Status Suspect Open */
+			/* Consumer receives PREFERRED_HOST_START_FALLBACK Channel event */
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
+
+			/* Login Status Suspect Open */
     		event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
 			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
@@ -2205,9 +2217,15 @@ public class ReactorWatchlistPreferredHostJunit {
 			
 			provider3.testReactor().accept(opts, provider3);
 			
-    		consumer.testReactor().dispatch(5);
+    		consumer.testReactor().dispatch(6);
 
-    		/* Login Status Suspect Open */
+			/* Consumer receives PREFERRED_HOST_START_FALLBACK Channel event */
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
+
+			/* Login Status Suspect Open */
     		event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
 			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
@@ -2606,7 +2624,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			
 			provider2.testReactor().accept(opts, provider2);
 			
-    		consumer.testReactor().dispatch(5);
+    		consumer.testReactor().dispatch(6);
+
+			/* Consumer gets Preferred Host Starting Fallback */
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
     		
     		/* Login Status Suspect Open */
     		event = consumer.testReactor().pollEvent();
@@ -3000,9 +3024,15 @@ public class ReactorWatchlistPreferredHostJunit {
 			
 			provider2.testReactor().accept(opts, provider2);
 			
-    		consumer.testReactor().dispatch(5);
-    		
-    		/* Login Status Suspect Open */
+    		consumer.testReactor().dispatch(6);
+
+			/* Consumer receives PREFERRED_HOST_START_FALLBACK Channel event */
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
+
+			/* Login Status Suspect Open */
     		event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
 			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
@@ -4856,8 +4886,14 @@ public class ReactorWatchlistPreferredHostJunit {
     		// Consumer calls fallback function
     		consumer.reactorChannel().fallbackPreferredHost(null);
     		
-    		consumer.testReactor().dispatch(1);
-    		
+    		consumer.testReactor().dispatch(2);
+
+			/* Consumer receives PREFERRED HOST STARTING FALLBACK. */
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
+
     		/* Consumer receives PREFERRED HOST COMPLETE. */
 			event = consumer.testReactor().pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
@@ -6823,7 +6859,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
 			connectOpts.reactorPreferredHostOptions().warmStandbyGroupListIndex(2);
 			connectOpts.reactorPreferredHostOptions().isPreferredHostEnabled(true);
-			connectOpts.reactorPreferredHostOptions().detectionTimeInterval(5);
+			connectOpts.reactorPreferredHostOptions().detectionTimeInterval(20); // Not to trigger PREFERRED_HOST_STARTING_FALLBACK event
 			
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, null);
 			
@@ -11908,7 +11944,7 @@ public class ReactorWatchlistPreferredHostJunit {
             consumerReactor.dispatch(-1);
             
             //FD_CHANGE or MSG event could be first
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 9; i++)
             {
             	event = consumerReactor.pollEvent();
             	if (event == null)
@@ -14061,7 +14097,12 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 			
-			consumer.testReactor().dispatch(4);
+			consumer.testReactor().dispatch(5);
+
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
 			
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -14637,7 +14678,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 			
-			consumer.testReactor().dispatch(4);
+			consumer.testReactor().dispatch(5);
+
+			/* Consumer gets Preferred Host Starting Fallback */
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
 			
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -15509,9 +15556,14 @@ public class ReactorWatchlistPreferredHostJunit {
 			// Consumer calls fallback method, should switch to Provider 3 as active instead of moving to WSB PH Group 1
 			consumer.reactorChannel().fallbackPreferredHost(null);
 			
-	        consumer.testReactor().dispatch(1);
-	        
-	        event = consumer.testReactor().pollEvent();
+	        consumer.testReactor().dispatch(2);
+
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
+
+			event = consumer.testReactor().pollEvent();
 	        assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, channelEvent.eventType());
@@ -16223,9 +16275,14 @@ public class ReactorWatchlistPreferredHostJunit {
 			// Consumer calls fallback method, should switch to Provider 3 as active instead of moving to WSB PH Group 1
 			consumer.reactorChannel().fallbackPreferredHost(null);
 			
-	        consumer.testReactor().dispatch(1);
-	        
-	        event = consumer.testReactor().pollEvent();
+	        consumer.testReactor().dispatch(2);
+
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
+
+			event = consumer.testReactor().pollEvent();
 	        assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, channelEvent.eventType());

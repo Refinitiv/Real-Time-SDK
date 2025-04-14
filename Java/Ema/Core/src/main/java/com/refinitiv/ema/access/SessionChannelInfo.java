@@ -57,7 +57,9 @@ class SessionChannelInfo<T>
 	
 	/* Key is the requested service name */
 	private Map<String, HashSet<SingleItem<T>>> _wsbStaleServiceBasedItems;  /* This is used to keep a list of stall items for WSB service based channel to be recovered */
-	
+
+	private boolean _phOperationInProgress;
+
 	SessionChannelInfo(SessionChannelConfig sessionChannelConfig, ConsumerSession<T> consumerSession)
 	{
 		_sessionChannelConfig = sessionChannelConfig;
@@ -453,4 +455,8 @@ class SessionChannelInfo<T>
 		
 		return _sessionChannelConfig.getWSBModeByChannelName(configName);
 	}
+
+	boolean phOperationInProgress() { return _phOperationInProgress; }
+
+	void phOperationInProgress(boolean value) { _phOperationInProgress = value; }
 }

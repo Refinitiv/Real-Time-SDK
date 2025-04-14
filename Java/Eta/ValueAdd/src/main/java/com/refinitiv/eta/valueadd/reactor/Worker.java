@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -319,9 +319,9 @@ class Worker implements Runnable
                         		}
 
                         		// Send preferred host switchover complete event
-                    			_reactor.sendAndHandleChannelEventCallback("ReactorChannel.processWorkerEvent", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, event.reactorChannel(), event.reactorChannel().getEDPErrorInfo());
-                        		
-                    			// Break out of this loop, we are not going to fallback in other ways when fallBackWithInWSBGroup is true
+								sendWorkerEvent(event.reactorChannel(), WorkerEventTypes.PREFERRED_HOST_COMPLETE, ReactorReturnCodes.SUCCESS, "Worker.run", null);
+
+								// Break out of this loop, we are not going to fallback in other ways when fallBackWithInWSBGroup is true
                     			if (switchingToActive)
                     				break;
                         	}
@@ -1347,8 +1347,8 @@ class Worker implements Runnable
     
     private void sendPreferredHostCompleteEvent(ReactorChannel reactorChannel)
     {
-    	reactorChannel.reactor().sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, reactorChannel, reactorChannel.getEDPErrorInfo());
-    }
+		sendWorkerEvent(reactorChannel, WorkerEventTypes.PREFERRED_HOST_COMPLETE, ReactorReturnCodes.SUCCESS, "Worker.sendPreferredHostCompleteEvent", null);
+	}
 
     private void processWorkerEvent()
     {

@@ -17,20 +17,9 @@ import com.refinitiv.ema.access.OmmBaseImpl.OmmImplState;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.ema.access.OmmState.DataState;
 import com.refinitiv.ema.access.OmmState.StreamState;
-import com.refinitiv.eta.codec.Buffer;
-import com.refinitiv.eta.codec.CloseMsg;
-import com.refinitiv.eta.codec.Codec;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.eta.codec.CopyMsgFlags;
-import com.refinitiv.eta.codec.DecodeIterator;
-import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.codec.Msg;
-import com.refinitiv.eta.codec.MsgClasses;
-import com.refinitiv.eta.codec.MsgKey;
 import com.refinitiv.eta.codec.RefreshMsg;
-import com.refinitiv.eta.codec.State;
-import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.Login;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginAttrib;
@@ -63,6 +52,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 	private final ReentrantLock 	_loginItemLock = new java.util.concurrent.locks.ReentrantLock();
 	private boolean					_notifyChannelDownReconnecting;
 	private State	_rsslState;
+	private int _currentRsslDataState;
 	private final DecodeIterator	_decIter = CodecFactory.createDecodeIterator();
 	private final EncodeIterator 	_encIter = CodecFactory.createEncodeIterator();
 	private final Buffer			_tempBuffer = CodecFactory.createBuffer();
@@ -80,6 +70,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		 _ommBaseImpl = baseImpl;
 		 _loginChannelList = new ArrayList<>();
 		 _notifyChannelDownReconnecting = false;
+
+		 _currentRsslDataState = DataStates.SUSPECT;
 	}
 
 	void initialize()
@@ -205,7 +197,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				((LoginRefresh)loginMsg).copy(loginRefresh);
 
 				com.refinitiv.eta.codec.State state = ((LoginRefresh)loginMsg).state();
-	
+
+				_currentRsslDataState = state.dataState();
+
 				boolean closeChannel = false;
 	
 				if (state.streamState() != com.refinitiv.eta.codec.StreamStates.OPEN)
@@ -344,7 +338,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				if (((LoginStatus)loginMsg).checkHasState())
 		    	{
 					com.refinitiv.eta.codec.State state =((LoginStatus)loginMsg).state();
-	
+
+					_currentRsslDataState = state.dataState();
+
 					if (state.streamState() != com.refinitiv.eta.codec.StreamStates.OPEN)
 					{
 						StringBuilder temp = _baseImpl.strBuilder();
@@ -1085,6 +1081,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			state.code(OmmState.StatusCode.NONE);
 			state.text().data("channel up");
 
+			// save current data state
+			_currentRsslDataState = state.dataState();
+
 			prepareAndSendStatusMsg(event, state);
 
 			_notifyChannelDownReconnecting = false;
@@ -1100,6 +1099,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			state.code(OmmState.StatusCode.NONE);
 			state.text().data("channel down");
 
+			// save current data state
+			_currentRsslDataState = state.dataState();
+
 			prepareAndSendStatusMsg(event, state);
 
 			_notifyChannelDownReconnecting = true;
@@ -1112,6 +1114,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			state.code(OmmState.StatusCode.NONE);
 			state.text().data("channel closed");
 
+			_currentRsslDataState = state.dataState();
+
 			prepareAndSendStatusMsg(event, state);
 
 			break;
@@ -1120,6 +1124,17 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			state.dataState(DataState.OK);
 			state.code(OmmState.StatusCode.PREFERRED_HOST_COMPLETE);
 			state.text().data("preferred host complete");
+
+			_currentRsslDataState = state.dataState();
+
+			prepareAndSendStatusMsg(event, state);
+
+			break;
+		case ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK:
+			state.streamState(StreamState.OPEN);
+			state.dataState(_currentRsslDataState);
+			state.code(OmmState.StatusCode.PREFERRED_HOST_START_FALLBACK);
+			state.text().data("preferred host starting fallback");
 
 			prepareAndSendStatusMsg(event, state);
 

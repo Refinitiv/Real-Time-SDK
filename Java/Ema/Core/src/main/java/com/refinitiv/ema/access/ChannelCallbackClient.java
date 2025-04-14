@@ -259,7 +259,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 				}
 				
-				if(sessionChannelInfo != null)
+				if (sessionChannelInfo != null)
 				{
 					sessionChannelInfo.reactorChannel(event.reactorChannel());
 					chnlInfo.rsslReactorChannel(event.reactorChannel());
@@ -761,7 +761,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 				}
 
-				if(sessionChannelInfo != null)
+        	   if(sessionChannelInfo != null)
         	   {
         		   sessionChannelInfo.state(OmmImplState.RSSLCHANNEL_DOWN);
         		   
@@ -825,7 +825,40 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 
 				_baseImpl.processChannelEvent(event);
 
-				_baseImpl.loginCallbackClient().processChannelEvent(event);
+				if (sessionChannelInfo != null)
+				{
+					sessionChannelInfo.phOperationInProgress(false);
+					sessionChannelInfo.consumerSession().processChannelEvent(sessionChannelInfo, event);
+				}
+				else
+				{
+					_baseImpl.loginCallbackClient().processChannelEvent(event);
+				}
+
+				return ReactorCallbackReturnCodes.SUCCESS;
+			}
+			case ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK:
+			{
+				if (_baseImpl.loggerClient().isInfoEnabled())
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Received PreferredHostStartFallback event on channel ");
+					temp.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+							.append("Instance Name ").append(_baseImpl.instanceName());
+					_baseImpl.loggerClient().info(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.INFO));
+				}
+
+				_baseImpl.processChannelEvent(event);
+
+				if (sessionChannelInfo != null)
+				{
+					sessionChannelInfo.phOperationInProgress(true);
+					sessionChannelInfo.consumerSession().processChannelEvent(sessionChannelInfo, event);
+				}
+				else
+				{
+					_baseImpl.loginCallbackClient().processChannelEvent(event);
+				}
 
 				return ReactorCallbackReturnCodes.SUCCESS;
 			}

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -42,6 +42,10 @@ public class ReactorChannelEventTypes
     /** The current attempt to switch the active channel to the preferred host or preferred group channel has been completed,
      * regardless of whether the actual switchover was successful or unsuccessful. */
     public static final int PREFERRED_HOST_COMPLETE = 8;
+    /** The current attempt to switch the active channel to the preferred host or preferred group channel has begun,
+     * the actual switchover can be successful or unsuccessful. */
+    public static final int PREFERRED_HOST_STARTING_FALLBACK = 9;
+
 
     /**
      * Returns a String representation of the specified ReactorChannelEventTypes

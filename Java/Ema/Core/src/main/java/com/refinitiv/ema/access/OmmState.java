@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.         		--
+// *|           Copyright (C) 2019-2025 LSEG. All rights reserved.         		--
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -177,7 +177,10 @@ public interface OmmState extends Data
 		/** Preferred host switchover completed */
 		public static final int PREFERRED_HOST_COMPLETE 		= 201;
 
-	    /** @deprecated Not Used */
+		/** Preferred host switchover started */
+		public static final int PREFERRED_HOST_START_FALLBACK = 202;
+
+		/** @deprecated Not Used */
 	    @Deprecated
 		public final static int INVALID_FORMED_MSG				= 256;
 	    /** @deprecated Not Used */

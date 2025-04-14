@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -6395,7 +6395,7 @@ public class Reactor
 						}
 						
 						// Send preferred host switchover complete event
-						sendAndHandleChannelEventCallback("ReactorChannel.processWorkerEvent", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, reactorChannel, reactorChannel.getEDPErrorInfo());
+						sendAndHandleChannelEventCallback("Reactor.processWorkerEvent", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, reactorChannel, reactorChannel.getEDPErrorInfo());
 						
 						break;
 					default:
@@ -6448,13 +6448,13 @@ public class Reactor
             if (reactorChannel.warmStandByHandlerImpl != null)
             {
                 // Send preferred host switchover complete event
-    			sendAndHandleChannelEventCallback("ReactorChannel.processWorkerEvent", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, reactorChannel.warmStandByHandlerImpl.startingReactorChannel(), reactorChannel.getEDPErrorInfo());
+    			sendAndHandleChannelEventCallback("Reactor.processWorkerEvent", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, reactorChannel.warmStandByHandlerImpl.startingReactorChannel(), reactorChannel.getEDPErrorInfo());
     			
             }
             else
             {
         		// Send preferred host switchover complete event
-    			sendAndHandleChannelEventCallback("ReactorChannel.processWorkerEvent", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, reactorChannel, reactorChannel.getEDPErrorInfo());
+    			sendAndHandleChannelEventCallback("Reactor.processWorkerEvent", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, reactorChannel, reactorChannel.getEDPErrorInfo());
     			
             }
 
@@ -6479,6 +6479,12 @@ public class Reactor
                 }
             }
             break;
+		case PREFERRED_HOST_START_FALLBACK:
+			sendAndHandleChannelEventCallback("Reactor.processWorkerEvent", ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, reactorChannel, reactorChannel.getEDPErrorInfo());
+			break;
+		case PREFERRED_HOST_COMPLETE:
+			sendAndHandleChannelEventCallback("Reactor.processWorkerEvent", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, reactorChannel, reactorChannel.getEDPErrorInfo());
+			break;
         default:
 			event.returnToPool();
 			return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, "Reactor.processWorkerEvent",

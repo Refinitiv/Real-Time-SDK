@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1434,7 +1434,7 @@ public class ReactorChannel extends VaNode
      * Changes some aspects of the ReactorChannel.
      *
      * @param code code indicating the option to change
-     * @param object value to change the option to
+     * @param value object to change the option to
      * @param errorInfo error structure to be populated in the event of failure
      *
      * @return {@link ReactorReturnCodes} indicating success or failure
@@ -2408,7 +2408,21 @@ public class ReactorChannel extends VaNode
     ReactorAuthTokenEventCallback reactorAuthTokenEventCallback() {
         return _currentConnectInfo.reactorAuthTokenEventCallback();
     }
-    
+
+    private void sendEventToReactorQueue(ReactorChannel reactorChannel, WorkerEventTypes eventType, int reactorReturnCode, String location, String text)
+    {
+        WorkerEvent event = ReactorFactory.createWorkerEvent();
+        event.reactorChannel(reactorChannel);
+        event.eventType(eventType);
+        event.errorInfo().code(reactorReturnCode);
+        event.errorInfo().error().errorId(reactorReturnCode);
+        if (location != null)
+            event.errorInfo().location(location);
+        if (text != null)
+            event.errorInfo().error().text(text);
+        _reactor._workerQueue.remote().write(event);
+    }
+
     int switchHostToPreferredHost()
     {
     	// If we are already switching to preferred host, exit out of this and return success
@@ -2437,7 +2451,10 @@ public class ReactorChannel extends VaNode
     		return ReactorReturnCodes.FAILURE;
     	}
 
-    	if (warmStandByHandlerImpl != null)
+        // Send PREFERRED_HOST_START_FALLBACK event to Reactor event queue
+        sendEventToReactorQueue(this, WorkerEventTypes.PREFERRED_HOST_START_FALLBACK, ReactorReturnCodes.SUCCESS, "ReactorChannel.switchToPreferredHost", null);
+
+        if (warmStandByHandlerImpl != null)
     	{
     		// Warm standby is enabled
         	// If we are currently on the preferred warmstandby group and we are not currently switching (active reactor channel is not null)
@@ -2454,9 +2471,9 @@ public class ReactorChannel extends VaNode
                                 this.hashCode()
                         );
                     }
-                    // Send PREFERRED_HOST_COMPLETE callback
-                    _reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, this, _errorInfoEDP);
-            		return ReactorReturnCodes.SUCCESS;
+                    // Send PREFERRED_HOST_COMPLETE event to Reactor event queue
+                    sendEventToReactorQueue(this, WorkerEventTypes.PREFERRED_HOST_COMPLETE, ReactorReturnCodes.SUCCESS, "ReactorChannel.switchToPreferredHost", null);
+                    return ReactorReturnCodes.SUCCESS;
     			}
     			// Handle fallBackWithInWSBGroup
     			for (ConnectOptionsInfo standbyOptions : warmStandByHandlerImpl.currentWarmStandbyGroupImpl().standbyConnectOptionsInfoList)
@@ -2509,11 +2526,11 @@ public class ReactorChannel extends VaNode
         					}
         				}
         			}
-        			
-        			// Send preferred host switchover complete event
-        			_reactor.sendAndHandleChannelEventCallback("ReactorChannel.processWorkerEvent", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, this, _errorInfoEDP);
-        			
-					// We need to skip additional fallback processing because we will not fall back to other groups when fallBackWithInWSBGroup is true
+
+                    // Send preferred host switchover complete event to Reactor event queue
+                    sendEventToReactorQueue(this, WorkerEventTypes.PREFERRED_HOST_COMPLETE, ReactorReturnCodes.SUCCESS, "ReactorChannel.switchToPreferredHost", null);
+
+                    // We need to skip additional fallback processing because we will not fall back to other groups when fallBackWithInWSBGroup is true
 					return ReactorReturnCodes.SUCCESS;
     			}
     		}
@@ -2562,9 +2579,9 @@ public class ReactorChannel extends VaNode
                             this.hashCode()
                     );
                 }
-                // Send PREFERRED_HOST_COMPLETE callback
-                _reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, this, _errorInfoEDP);
-        		return ReactorReturnCodes.SUCCESS;
+                // Send PREFERRED_HOST_COMPLETE event to Reactor event queue
+                sendEventToReactorQueue(this, WorkerEventTypes.PREFERRED_HOST_COMPLETE, ReactorReturnCodes.SUCCESS, "ReactorChannel.switchToPreferredHost", null);
+                return ReactorReturnCodes.SUCCESS;
         	}
 
         	// We will connect to the preferred host, and when channel is up, disconnect from current connection if still connected
