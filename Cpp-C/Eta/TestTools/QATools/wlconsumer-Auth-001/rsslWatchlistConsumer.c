@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2021-2024 LSEG. All rights reserved.
+ * Copyright (C) 2021-2025 LSEG. All rights reserved.
 */
 
 /*
@@ -50,14 +50,13 @@
 static RsslReactorChannel *pConsumerChannel = NULL;
 static RsslBool itemsRequested = RSSL_FALSE;
 static RsslBool isConsumerChannelUp = RSSL_FALSE;
+static RsslBool loginChannelClosed = RSSL_FALSE;
 
 static PostServiceInfo serviceInfo;
 
 static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
 RsslBool runTimeExpired = RSSL_FALSE;
-RsslSocket socketIdList[2] = { 0, 0 };
-RsslUInt32 socketIdListCount = 0;
 
 /* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
@@ -533,32 +532,6 @@ int main(int argc, char **argv)
 	{
 		struct timeval 				selectTime;
 		RsslReactorDispatchOptions	dispatchOpts;
-		RsslUInt32					index;
-
-		FD_ZERO(&readFds);
-		FD_ZERO(&exceptFds);
-		FD_SET(pReactor->eventFd, &readFds);
-		FD_SET(pReactor->eventFd, &exceptFds);
-
-		if (pConsumerChannel)
-		{
-			if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
-			{
-				if (pConsumerChannel->pRsslChannel && pConsumerChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
-				{
-					FD_SET(pConsumerChannel->socketId, &readFds);
-					FD_SET(pConsumerChannel->socketId, &exceptFds);
-				}
-			}
-			else if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
-			{
-				for (index = 0; index < socketIdListCount; index++)
-				{
-					FD_SET(socketIdList[index], &readFds);
-					FD_SET(socketIdList[index], &exceptFds);
-				}
-			}
-		}
 
 		selectTime.tv_sec = 1; selectTime.tv_usec = 0;
 		ret = select(FD_SETSIZE, &readFds, NULL, &exceptFds, &selectTime);
@@ -599,7 +572,7 @@ int main(int argc, char **argv)
 			printf("time() failed.\n");
 		}
 
-		if (pConsumerChannel && !runTimeExpired)
+		if (pConsumerChannel && !runTimeExpired && !loginChannelClosed)
 		{
 			if (watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
 				handleSimpleTunnelMsgHandler(pReactor, pConsumerChannel, &simpleTunnelMsgHandler);
@@ -622,17 +595,22 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if (currentTime >= stopTime)
+		if (currentTime >= stopTime || loginChannelClosed)
 		{
 			if (!runTimeExpired)
 			{
 				runTimeExpired = RSSL_TRUE;
-				printf("Run time expired.\n");
+
+				if (!loginChannelClosed)
+					printf("Run time expired.\n");
+
 				if (simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
 					printf("Waiting for tunnel stream to close...\n\n");
 
 				/* Close tunnel streams if any are open. */
 				simpleTunnelMsgHandlerCloseStreams(&simpleTunnelMsgHandler);
+				if (loginChannelClosed && currentTime < stopTime)
+					stopTime = currentTime;
 			}
 
 			/* Wait for tunnel streams to close before closing channel. */
@@ -695,7 +673,7 @@ int main(int argc, char **argv)
 	rsslUninitialize();
 
 	itemDecoderCleanup();
-	
+
 	exit(0);
 }
 
@@ -1065,6 +1043,12 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReacto
 				canSendLoginReissue = watchlistConsumerConfig.enableSessionMgnt ? RSSL_FALSE : RSSL_TRUE;
 			}
 
+			if (pLoginRefresh->state.streamState != RSSL_STREAM_OPEN)
+			{
+				printf("  Login attempt failed.\n");
+				loginChannelClosed = RSSL_TRUE;
+			}
+
 			break;
 		}
 
@@ -1075,7 +1059,14 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReacto
 			printStreamInfo(NULL, RSSL_DMT_LOGIN, pLoginMsg->rdmMsgBase.streamId, "RDM_LG_MT_STATUS");
 
 			if (pLoginStatus->flags & RDM_LG_STF_HAS_STATE)
+			{
 				printRsslState(&pLoginStatus->state);
+				if (pLoginStatus->state.streamState != RSSL_STREAM_OPEN)
+				{
+					printf("  Login attempt failed or Login stream was closed.\n");
+					loginChannelClosed = RSSL_TRUE;
+				}
+			}
 
 			if (pLoginStatus->flags & RDM_LG_STF_HAS_USERNAME)
 				printf("  UserName: %.*s\n", pLoginStatus->userName.length, pLoginStatus->userName.data);
@@ -1513,8 +1504,8 @@ static void clearConnection(RsslReactorChannel *pReactorChannel)
 
 		for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 		{
-			FD_CLR(socketIdList[index], &readFds);
-			FD_CLR(socketIdList[index], &exceptFds);
+			FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+			FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 		}
 	}
 }
@@ -1554,10 +1545,9 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
-					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 				}
-
-				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
 			}
 			printf("Channel "SOCKET_PRINT_TYPE" is up!\n\n", pReactorChannel->socketId);
 
@@ -1609,12 +1599,17 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			{
 				RsslUInt32 index;
 
-				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->oldSocketIdCount; index++)
 				{
-					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->oldSocketIdList[index], &readFds);
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->oldSocketIdList[index], &exceptFds);
 				}
 
-				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+				}
 			}
 
 			return RSSL_RC_CRET_SUCCESS;
@@ -1633,6 +1628,23 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
+
+			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
+			{
+				FD_CLR(pReactorChannel->socketId, &readFds);
+				FD_CLR(pReactorChannel->socketId, &exceptFds);
+			}
+
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			{
+				RsslUInt32 index;
+
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+				}
+			}
 
 			pConsumerChannel = NULL;
 			rsslReactorCloseChannel(pReactor, pReactorChannel, &rsslErrorInfo);
@@ -1664,7 +1676,23 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 
-			socketIdListCount = 0;
+			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
+			{
+				FD_CLR(pReactorChannel->socketId, &readFds);
+				FD_CLR(pReactorChannel->socketId, &exceptFds);
+			}
+
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			{
+				RsslUInt32 index;
+
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+				}
+			}
+
 			isConsumerChannelUp = RSSL_FALSE;
 			return RSSL_RC_CRET_SUCCESS;
 		}
@@ -1681,7 +1709,6 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			exit(-1);
 		}
 	}
-
 
 	return RSSL_RC_CRET_SUCCESS;
 }
