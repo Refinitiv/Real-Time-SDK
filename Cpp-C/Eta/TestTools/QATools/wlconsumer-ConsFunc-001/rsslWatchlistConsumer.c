@@ -557,9 +557,10 @@ int main(int argc, char **argv)
 	{
 		struct timeval 				selectTime;
 		RsslReactorDispatchOptions	dispatchOpts;
+		fd_set useReadFds = readFds, useExceptFds = exceptFds;
 
 		selectTime.tv_sec = 1; selectTime.tv_usec = 0;
-		ret = select(FD_SETSIZE, &readFds, NULL, &exceptFds, &selectTime);
+		ret = select(FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime);
 
 		if (ret < 0)
 		{
