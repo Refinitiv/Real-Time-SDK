@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1257,7 +1257,13 @@ public:
 
 	void getChannelName( const EmaString&, EmaString& ) const;
 
+	bool getConsumerRoutingSessionChannelSetName(const EmaString&, EmaString&) const;
+
 	void getWarmStandbyChannelName( const EmaString&, EmaString&, bool& foundProgrammaticCfg ) const;
+
+
+	// Gets the routing session name
+	void getRoutingChannelName(const EmaString&, EmaString&) const;
 
 	void getServerName(const EmaString&, EmaString&) const;
 
@@ -1300,6 +1306,8 @@ public:
 	void restProxyUserName(const EmaString&);
 	void restProxyPasswd(const EmaString&);
 	void restProxyDomain(const EmaString&);
+
+	void addServiceList(const ServiceList&);
 
 
 	RsslRDMLoginRequest* getLoginReq();
@@ -1410,6 +1418,11 @@ public:
 		return _LoginRequestMsgs;
 	}
 
+	EmaVector < ServiceList* > getServiceListVector()
+	{
+		return _serviceLists;
+	}
+
 	LoginRdmReqMsgImpl& getLoginRdmReqMsg();
 
 
@@ -1495,6 +1508,8 @@ protected:
 	EmaVector < OmmOAuth2CredentialImpl* > _oAuth2Credentials;
 
 	EmaVector < LoginRdmReqMsgImpl* > _LoginRequestMsgs;
+
+	EmaVector <ServiceList* > _serviceLists;
 
 };
 

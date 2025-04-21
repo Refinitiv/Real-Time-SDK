@@ -22,6 +22,9 @@
 #include "OmmInvalidUsageException.h"
 #include "OmmJsonConverterException.h"
 #include "OmmNiProviderImpl.h"
+#include "ConsumerRoutingSession.h"
+#include "ConsumerRoutingChannel.h"
+
 #include "PreferredHostOptions.h"
 #ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
@@ -79,6 +82,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_pItemCallbackClient(0),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount( 0 ),
 	_atExit( false ),
@@ -95,7 +100,10 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_adminClosure = 0;
 	_OAuthReactorConfig = NULL;
@@ -127,6 +135,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_pItemCallbackClient(0),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount(0),
 	_atExit(false),
@@ -143,7 +153,10 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -175,6 +188,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_pItemCallbackClient(0),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount(0),
 	_atExit(false),
@@ -191,7 +206,10 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -223,6 +241,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_pItemCallbackClient(0),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount(0),
 	_atExit(false),
@@ -239,7 +259,10 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -271,6 +294,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_pItemCallbackClient(0),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount(0),
 	_atExit(false),
@@ -287,7 +312,10 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -320,6 +348,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_pItemCallbackClient( 0 ),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient( 0 ),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount( 0 ),
 	_atExit( false ),
@@ -336,7 +366,10 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
@@ -378,6 +411,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_pItemCallbackClient(0),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount(0),
 	_atExit(false),
@@ -394,7 +429,10 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -436,6 +474,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_pItemCallbackClient(0),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount(0),
 	_atExit(false),
@@ -452,7 +492,10 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -494,6 +537,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_pItemCallbackClient(0),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount(0),
 	_atExit(false),
@@ -510,7 +555,10 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -552,6 +600,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_pItemCallbackClient( 0 ),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient( 0 ),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount( 0 ),
 	_atExit( false ),
@@ -568,7 +618,11 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_LoginReactorConfig(NULL),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_adminClosure = 0;
 	_OAuthReactorConfig = NULL;
@@ -609,6 +663,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_pItemCallbackClient(0),
 	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
+	_pConsumerRoutingSession(0),
+	_pReactorChannel(0),
 	_pipe(),
 	_pipeWriteCount(0),
 	_atExit(false),
@@ -625,7 +681,11 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout( 0 )
+	_multiCredentialLoginsSet(false),
+	_negotiatedPingTimeout( 0 ),
+	_LoginReactorConfig(NULL),
+	_tmpLoginMsg(),
+	_tmpChnl(NULL)
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
@@ -1048,6 +1108,11 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.enableRtt = tmp > 0 ? true : false;
 	}
 
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "SessionEnhancedItemRecovery", tmp))
+	{
+		_activeConfig.consumerRoutingSessionEnhancedItemRecovery = tmp > 0 ? true : false;
+	}
+
 	pConfigImpl->get<EmaString>(instanceNodeName + "RestLogFileName", _activeConfig.restLogFileName);
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "RestEnableLog", tmp))
@@ -1117,7 +1182,8 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	if ( ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure() )
 	{
-		ppc->retrieveLoggerConfig( _activeConfig.loggerConfig.loggerName , _activeConfig );
+		ppc->retrieveCommonConfig(_activeConfig.configuredName, _activeConfig);
+		ppc->retrieveLoggerConfig( _activeConfig.loggerConfig.loggerName , _activeConfig.loggerConfig );
 	}
 
 	EmaString channelOrChannelSet;
@@ -1126,7 +1192,47 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	EmaString warmStandbyChannelSet;
 	EmaString warmStandbyChannelName;
 	bool foundWSBProgrammaticConfig;
+	EmaString sessionChannelSet;
+	EmaString sessionChannelName;
 
+	if (pConfigImpl->getConsumerRoutingSessionChannelSetName(_activeConfig.configuredName, sessionChannelSet) == true)
+	{
+		if (sessionChannelSet.trimWhitespace().length() > 0)
+		{
+			char* pToken = NULL;
+			char* pNextToken = NULL;
+			EmaVector<EmaString*> sessionChannelNameList;
+			pToken = strtok(const_cast<char*>(sessionChannelSet.c_str()), ",");
+
+			while (pToken != NULL)
+			{
+				sessionChannelName = pToken;
+				sessionChannelNameList.push_back(new EmaString(sessionChannelName.trimWhitespace()));
+				pNextToken = strtok(NULL, ",");
+
+				pToken = pNextToken;
+			}
+
+			EmaString* pSessionChannelName;
+			for (UInt32 index = 0; index < sessionChannelNameList.size(); index++)
+			{
+				pSessionChannelName = sessionChannelNameList[index];
+				ConsumerRoutingSessionChannelConfig* newConsumerRoutingSessionChannelConfig = readConsumerRoutingSessionChannelConfig(pConfigImpl, (pSessionChannelName->trimWhitespace()));
+				_activeConfig.consumerRoutingSessionSet.push_back(newConsumerRoutingSessionChannelConfig);
+
+				delete pSessionChannelName;
+			}
+		}
+		else
+		{
+			EmaString errorMsg("SessionChannelSet list cannot be blank.");
+			throwIceException(errorMsg);
+		}
+	}
+	
+	if(_activeConfig.consumerRoutingSessionSet.size() == 0)
+	{
+		// No request routing channel session, so just do the normal loading
 	pConfigImpl->getWarmStandbyChannelName(_activeConfig.configuredName, warmStandbyChannelSet, foundWSBProgrammaticConfig);
 
 	pConfigImpl->getChannelName( _activeConfig.configuredName, channelOrChannelSet);
@@ -1147,8 +1253,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 			}
 
 			pToken = pNextToken;
-		}
-		while ( pToken != NULL );
+			} while (pToken != NULL);
 	}
 	else if(warmStandbyChannelSet.trimWhitespace().length() == 0) /* Create a default channel where there is no both Channel and warm standby channel */
 	{
@@ -1157,7 +1262,6 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	if ( ProgrammaticConfigure* ppc  = pConfigImpl->getProgrammaticConfigure() )
 	{
-		ppc->retrieveCommonConfig( _activeConfig.configuredName, _activeConfig );
 		bool isProgmaticCfgChannelName = ppc->getActiveChannelName( _activeConfig.configuredName, channelName.trimWhitespace() );
 		bool isProgramatiCfgChannelset = ppc->getActiveChannelSet( _activeConfig.configuredName, channelOrChannelSet.trimWhitespace() );
 		unsigned int posInProgCfg  = 0;
@@ -1219,7 +1323,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 				if (pConfigImpl->getUserSpecifiedObjectName().length() > 0)
 					chanConfigByFuncCall |= TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
 
-				ppc->retrieveChannelConfig(channelName.trimWhitespace(), _activeConfig, chanConfigByFuncCall, fileChannelConfig );
+					ppc->retrieveChannelConfig(channelName.trimWhitespace(), _activeConfig, chanConfigByFuncCall, fileChannelConfig, NULL);
 				if ( !( ActiveConfig::findChannelConfig( _activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg ) ) )
 					_activeConfig.configChannelSet.push_back( fileChannelConfig );
 				else
@@ -1285,7 +1389,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		for (UInt32 index = 0; index < warmStandbyNameList.size(); index++)
 		{
 			wsbChannelName = warmStandbyNameList[index];
-			WarmStandbyChannelConfig* newWSBChannelConfig = readWSBChannelConfig(pConfigImpl, *wsbChannelName, (pNextToken == NULL ? true : false));
+				WarmStandbyChannelConfig* newWSBChannelConfig = readWSBChannelConfig(pConfigImpl, *wsbChannelName, (pNextToken == NULL ? true : false), NULL);
 			_activeConfig.configWarmStandbySet.push_back(newWSBChannelConfig);
 
 			delete wsbChannelName;
@@ -1293,7 +1397,6 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	}
 	else if (ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure())
 	{
-		ppc->retrieveCommonConfig(_activeConfig.configuredName, _activeConfig);
 		bool isProgramatiCfgChannelset = ppc->getActiveWSBChannelSetName(_activeConfig.configuredName, warmStandbyChannelSet.trimWhitespace());
 		unsigned int posInProgCfg = 0;
 
@@ -1318,7 +1421,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 			for (UInt32 index = 0; index < warmStandbyNameList.size(); index++)
 			{
 				wsbChannelName = warmStandbyNameList[index];
-				WarmStandbyChannelConfig* fileWsbChannelConfig = readWSBChannelConfig(pConfigImpl, *wsbChannelName, (pNextToken == NULL ? true : false));
+					WarmStandbyChannelConfig* fileWsbChannelConfig = readWSBChannelConfig(pConfigImpl, *wsbChannelName, (pNextToken == NULL ? true : false), NULL);
 
 				ppc->retrieveWSBChannelConfig(*wsbChannelName, _activeConfig, fileWsbChannelConfig);
 
@@ -1373,6 +1476,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 			}
 			static_cast<SocketChannelConfig*>(chanConfig)->encryptedConnectionType = pConfigImpl->getUserSpecifiedEncryptedProtocolType();
 		}
+	}
 	}
 
 	OmmOAuth2CredentialImpl* pOAuth2Impl;
@@ -1492,7 +1596,9 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	_LoginRequestMsgs.push_back(pLoginImpl);
 
 	pLoginImpl = NULL;
-
+	if (pConfigImpl->getLoginCredentialVector().size() > 0)
+	{
+		_multiCredentialLoginsSet = true;
 	for (i = 0; i < pConfigImpl->getLoginCredentialVector().size(); i++)
 	{
 		pLoginImpl = new LoginRdmReqMsgImpl(*pConfigImpl->getLoginCredentialVector()[i]);
@@ -1500,6 +1606,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		pLoginImpl->arrayIndex(i + 1);
 		_LoginRequestMsgs.push_back(pLoginImpl);
 		pLoginImpl = NULL;
+	}
 	}
 
 	_LoginReactorConfig = (RsslReactorLoginRequestMsgCredential**)malloc(sizeof(RsslReactorLoginRequestMsgCredential*) * _LoginRequestMsgs.size());
@@ -1529,19 +1636,84 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		// Need to set this no matter what for EMA's bookkeeping. 
 		pLoginMsgCredential->pLoginRenewalEventCallback = OmmBaseImpl::loginCredentialCallback;
 
+		if (!_LoginRequestMsgs[i]->get()->userName.length)
+		{
+			RsslBuffer tempBuffer;
+			tempBuffer.data = _LoginRequestMsgs[i]->get()->defaultUsername;
+			tempBuffer.length = 256;
+
+			if (RSSL_RET_SUCCESS != rsslGetUserName(&tempBuffer))
+			{
+				free((void*)pLoginMsgCredential);
+				handleIue("Failed to obtain name of the process owner", OmmInvalidUsageException::FailureEnum);
+				return;
+			}
+
+			_LoginRequestMsgs[i]->username(EmaString(tempBuffer.data, tempBuffer.length));
+		}
+
 		_LoginReactorConfig[i] = pLoginMsgCredential;
 	}
 
-	if (_activeConfig.configWarmStandbySet.size() != 0)
+	// Set the _activeConfig pRsslRDMLoginReq so we can get it later when initializing the loginCallbackClient.
+	// For request routing, we can ignore this because it's skipped on login callback client creation.
+	if (_activeConfig.consumerRoutingSessionSet.size() == 0)
+	{
+		// If there's only one login request(either default or it's the only one selected), use that for all requests.
+		if (_LoginRequestMsgs.size() == 1)
+		{
+			_activeConfig.pRsslRDMLoginReq = _LoginRequestMsgs[0];
+		}
+		else if (_activeConfig.configWarmStandbySet.size() != 0)
 	{
 		if(_activeConfig.configWarmStandbySet[0]->startingActiveServer != NULL)
+			{
+				if (_activeConfig.enablePreferredHostOptions == true)
+				{
+					for (UInt32 i = 0; i < _activeConfig.configWarmStandbySet.size(); ++i)
+					{
+						_activeConfig.pRsslRDMLoginReq = _LoginRequestMsgs[getLoginArrayIndex(_activeConfig.configWarmStandbySet[i]->startingActiveServer->name)];
+					}
+				}
+				else
+				{
 			_activeConfig.pRsslRDMLoginReq = _LoginRequestMsgs[getLoginArrayIndex(_activeConfig.configWarmStandbySet[0]->startingActiveServer->name)];
+				}
+			}
+		}
 		else
-			_activeConfig.pRsslRDMLoginReq = _LoginRequestMsgs[0];
+		{
+			if (_activeConfig.enablePreferredHostOptions == true)
+			{
+				_activeConfig.pRsslRDMLoginReq = _LoginRequestMsgs[getLoginArrayIndex(_activeConfig.preferredChannelName)];
 	}
 	else
 	{
 		_activeConfig.pRsslRDMLoginReq = _LoginRequestMsgs[getLoginArrayIndex(_activeConfig.configChannelSet[0]->name)];
+	}
+		}
+	}
+
+	// Copy over the service list information from the incoming config
+	if (pConfigImpl->getServiceListVector().size() != 0)
+	{
+		ServiceList* pNewList;
+		for (UInt32 i = 0; i < pConfigImpl->getServiceListVector().size(); ++i)
+		{
+			try
+			{
+				pNewList = new ServiceList(*(pConfigImpl->getServiceListVector()[i]));
+			}
+			catch (std::bad_alloc&)
+			{
+				throwMeeException("Failed to allocate memory for ServiceList structure in OmmBaseImpl::readConfig");
+				return;
+			}
+
+			_activeConfig.serviceListSet.push_back(pNewList);
+
+			_activeConfig.serviceListByName.insert(&pNewList->name(), pNewList);
+		}
 	}
 
 	catchUnhandledException( _activeConfig.catchUnhandledException );
@@ -1570,7 +1742,7 @@ void OmmBaseImpl::useDefaultConfigValues( const EmaString& channelName, const Em
 	}
 }
 
-WarmStandbyServerInfoConfig* OmmBaseImpl::readWarmStandbyServerInfoConfig(EmaConfigImpl* pConfigImpl, const EmaString& wsbServerInfoName)
+WarmStandbyServerInfoConfig* OmmBaseImpl::readWarmStandbyServerInfoConfig(EmaConfigImpl* pConfigImpl, const EmaString& wsbServerInfoName, ConsumerRoutingSessionChannelConfig* pConsumerRoutingSession)
 {
 	WarmStandbyServerInfoConfig* wsbServerInfoConfig = NULL;
 	EmaString wsbServerInfoNodeName("WarmStandbyServerInfoGroup|WarmStandbyServerInfoList|WarmStandbyServerInfo.");
@@ -1584,7 +1756,14 @@ WarmStandbyServerInfoConfig* OmmBaseImpl::readWarmStandbyServerInfoConfig(EmaCon
 	{
 		/* Don't reuse the existing config with the same name as a channel name can be used by multiple server info. */
 		wsbServerInfoConfig->channelConfig = readChannelConfig(pConfigImpl, channelName, true);
+		if (pConsumerRoutingSession == NULL)
+		{
 		_activeConfig.configChannelSetForWSB.push_back(wsbServerInfoConfig->channelConfig);
+	}
+		else
+		{
+			pConsumerRoutingSession->configChannelSetForWSB.push_back(wsbServerInfoConfig->channelConfig);
+		}
 	}
 
 	if (pConfigImpl->get<EmaString>(wsbServerInfoNodeName + "PerServiceNameSet", PerServiceNameSet))
@@ -1668,7 +1847,7 @@ void OmmBaseImpl::readChannelConfigForWSBChannel(EmaConfigImpl* pConfigImpl, con
 	}
 }
 
-WarmStandbyChannelConfig* OmmBaseImpl::readWSBChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString& wsbChannelName, bool readLastChannel)
+WarmStandbyChannelConfig* OmmBaseImpl::readWSBChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString& wsbChannelName, bool readLastChannel, ConsumerRoutingSessionChannelConfig* pConsumerRoutingSessionConfig)
 {
 	WarmStandbyChannelConfig* newWSBChannelConfig = NULL;
 	EmaString wsbChannelNodeName("WarmStandbyGroup|WarmStandbyList|WarmStandbyChannel.");
@@ -1684,7 +1863,7 @@ WarmStandbyChannelConfig* OmmBaseImpl::readWSBChannelConfig(EmaConfigImpl* pConf
 
 		if (pConfigImpl->get<EmaString>(wsbChannelNodeName + "StartingActiveServer", startingActiveServerName))
 		{
-			newWSBChannelConfig->startingActiveServer = readWarmStandbyServerInfoConfig(pConfigImpl, startingActiveServerName);
+			newWSBChannelConfig->startingActiveServer = readWarmStandbyServerInfoConfig(pConfigImpl, startingActiveServerName, pConsumerRoutingSessionConfig);
 		}
 
 		if (pConfigImpl->get<EmaString>(wsbChannelNodeName + "StandbyServerSet", standbyServerSet))
@@ -1709,7 +1888,7 @@ WarmStandbyChannelConfig* OmmBaseImpl::readWSBChannelConfig(EmaConfigImpl* pConf
 
 			for (UInt32 index = 0; index < standbyServerInfoList.size(); index++)
 			{
-				warmStandbyServerInfoConfig = readWarmStandbyServerInfoConfig(pConfigImpl, *standbyServerInfoList[index]);
+				warmStandbyServerInfoConfig = readWarmStandbyServerInfoConfig(pConfigImpl, *standbyServerInfoList[index], pConsumerRoutingSessionConfig);
 			    newWSBChannelConfig->standbyServerSet.push_back(warmStandbyServerInfoConfig);
 
 				delete standbyServerInfoList[index];
@@ -1736,9 +1915,370 @@ WarmStandbyChannelConfig* OmmBaseImpl::readWSBChannelConfig(EmaConfigImpl* pConf
 	return newWSBChannelConfig;
 }
 
+ConsumerRoutingSessionChannelConfig* OmmBaseImpl::readConsumerRoutingSessionChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString& routingChannelName)
+{
+	ConsumerRoutingSessionChannelConfig* newChannelSessionConfig = NULL;
+	EmaString channelNodeName("SessionChannelGroup|SessionChannelList|SessionChannelInfo.");
+	channelNodeName.append(routingChannelName).append("|");
+	EmaString tmpString;
+	UInt64 tempUInt = 0;
+	Int64 tempInt = 0;
+	ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure();
+	bool foundFileConfig = true;
+	bool foundProgrammaticConfig = false;
+
+	
+	if (!pConfigImpl->get<EmaString>(channelNodeName + "Name", tmpString))
+	{
+		foundFileConfig = false;
+	}
+	
+	if (ppc)
+	{
+		foundProgrammaticConfig = ppc->validateConsumerRoutingSessionChannelName(routingChannelName);
+	}
+
+	if (foundFileConfig == false && foundProgrammaticConfig == false)
+	{
+		EmaString errorMsg("Session Channel ");
+		errorMsg.append(routingChannelName).append(" was not found.");
+		throwIceException(errorMsg);
+		return NULL;
+	}
+
+	try
+	{
+		newChannelSessionConfig = new ConsumerRoutingSessionChannelConfig(routingChannelName, _activeConfig);
+	}
+	catch (std::bad_alloc&)
+	{
+		const char* temp("Failed to allocate memory for ConsumerRoutingSessionChannelConfig.");
+		throwMeeException(temp);
+		return NULL;
+	}
+
+	if (foundFileConfig)
+	{
+		if (pConfigImpl->get<Int64>(channelNodeName + "ReconnectAttemptLimit", tempInt))
+		{
+			if (tempInt >= 0)
+			{
+				newChannelSessionConfig->reconnectAttemptLimit = tempInt > RWF_MAX_U31 ? RWF_MAX_U31 : (Int32)tempInt;
+			}
+		}
+
+		if (pConfigImpl->get<Int64>(channelNodeName + "ReconnectMinDelay", tempInt))
+		{
+			if (tempInt >= 0)
+			{
+				newChannelSessionConfig->reconnectMinDelay = tempInt > RWF_MAX_U31 ? RWF_MAX_U31 : (Int32)tempInt;
+			}
+		}
+
+		if (pConfigImpl->get<Int64>(channelNodeName + "ReconnectMaxDelay", tempInt))
+		{
+			if (tempInt >= 0)
+			{
+				newChannelSessionConfig->reconnectMaxDelay = tempInt > RWF_MAX_U31 ? RWF_MAX_U31 : (Int32)tempInt;
+			}
+		}
+
+		pConfigImpl->get<EmaString>(channelNodeName + "XmlTraceFileName", newChannelSessionConfig->xmlTraceFileName);
+
+		if (pConfigImpl->get<Int64>(channelNodeName + "XmlTraceMaxFileSize", tempInt) && tempInt > 0)
+		{
+			newChannelSessionConfig->xmlTraceMaxFileSize = tempInt;
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceToFile", tempUInt))
+		{
+			newChannelSessionConfig->xmlTraceToFile = tempUInt > 0 ? true : false;
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceToStdout", tempUInt))
+		{
+			newChannelSessionConfig->xmlTraceToStdout = tempUInt > 0 ? true : false;
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceToMultipleFiles", tempUInt))
+		{
+			newChannelSessionConfig->xmlTraceToMultipleFiles = tempUInt > 0 ? true : false;
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceWrite", tempUInt))
+		{
+			newChannelSessionConfig->xmlTraceWrite = tempUInt > 0 ? true : false;
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceRead", tempUInt))
+		{
+			newChannelSessionConfig->xmlTraceRead = tempUInt > 0 ? true : false;
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTracePing", tempUInt))
+		{
+			newChannelSessionConfig->xmlTracePing = tempUInt > 0 ? true : false;
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTracePingOnly", tempUInt))
+		{
+			newChannelSessionConfig->xmlTracePingOnly = tempUInt > 0 ? true : false;
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceHex", tempUInt))
+		{
+			newChannelSessionConfig->xmlTraceHex = tempUInt > 0 ? true : false;
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceDump", tempUInt))
+		{
+			newChannelSessionConfig->xmlTraceDump = tempUInt > 0 ? true : false;
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "EnablePreferredHostOptions", tempUInt))
+		{
+			newChannelSessionConfig->enablePreferredHostOptions = tempUInt > 0 ? true : false;
+		}
+
+		if (newChannelSessionConfig->enablePreferredHostOptions == true)
+		{
+			if (pConfigImpl->get<UInt64>(channelNodeName + "PHDetectionTimeInterval", tempUInt))
+			{
+				newChannelSessionConfig->phDetectionTimeInterval = tempUInt > RWF_MAX_32 ? RWF_MAX_32 : (UInt32)tempUInt;
+			}
+
+			if (pConfigImpl->get<UInt64>(channelNodeName + "PHFallBackWithInWSBGroup", tempUInt))
+			{
+				newChannelSessionConfig->phFallBackWithInWSBGroup = tempUInt > 0 ? true : false;
+			}
+
+
+			if (pConfigImpl->get<EmaString>(channelNodeName + "PHDetectionTimeSchedule", tmpString))
+			{
+				newChannelSessionConfig->phDetectionTimeSchedule = tmpString;
+			}
+
+			pConfigImpl->get<EmaString>(channelNodeName + "PreferredChannelName", newChannelSessionConfig->preferredChannelName);
+
+			pConfigImpl->get<EmaString>(channelNodeName + "PreferredWSBChannelName", newChannelSessionConfig->preferredWSBChannelName);
+		}
+
+
+	}
+
+	EmaString channelSet;
+	EmaString channelName;
+	EmaString wsbChannelName;
+	EmaString loggerName;
+	EmaString warmStandbyChannelSet;
+	EmaString warmStandbyChannelName;
+	bool foundWsbConfig = false;
+	bool foundChannelSet = false;
+	bool foundLogger = false;
+	int chanConfigByFuncCall = 0;
+	unsigned int posInProgCfg;
+
+	const UInt32 maxUInt32(0xFFFFFFFF);
+	const Int32 maxInt32(0x7FFFFFFF);
+
+	if (pConfigImpl->get<EmaString>(channelNodeName + "ChannelSet", channelSet))
+	{
+		foundChannelSet = true;
+	}
+
+	if (pConfigImpl->get<EmaString>(channelNodeName + "WarmStandbyChannelSet", warmStandbyChannelSet))
+	{
+		foundWsbConfig = true;
+	}
+
+	if (foundProgrammaticConfig)
+	{
+		// The following two calls will overwrite their respective set strings
+		if (ppc->getConsumerRoutingSessionChannelSetName(routingChannelName, channelSet))
+		{
+			foundChannelSet = true;
+		}
+
+		if (ppc->getConsumerRoutingSessionWSBChannelSetName(routingChannelName, warmStandbyChannelSet))
+		{
+			foundWsbConfig = true;
+		}
+
+		ppc->retrieveConsumerRoutingSessionConfig(routingChannelName, *newChannelSessionConfig, foundLogger);
+
+		if (pConfigImpl->getUserSpecifiedHostname().length() > 0)
+			chanConfigByFuncCall = SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
+		if (pConfigImpl->getUserSpecifiedPort().userSet == true && pConfigImpl->getUserSpecifiedPort().userSpecifiedValue.length() > 0)
+			chanConfigByFuncCall |= SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL;
+		if (pConfigImpl->getUserSpecifiedProxyHostname().length() > 0)
+			chanConfigByFuncCall |= PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
+		if (pConfigImpl->getUserSpecifiedProxyPort().length() > 0)
+			chanConfigByFuncCall |= PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
+		if (pConfigImpl->getUserSpecifiedObjectName().length() > 0)
+			chanConfigByFuncCall |= TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
+		if (pConfigImpl->getUserSpecifiedProxyUserName().length() > 0)
+			chanConfigByFuncCall |= PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL;
+		if (pConfigImpl->getUserSpecifiedProxyPasswd().length() > 0)
+			chanConfigByFuncCall |= PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL;
+		if (pConfigImpl->getUserSpecifiedProxyDomain().length() > 0)
+			chanConfigByFuncCall |= PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL;
+	}
+
+	if (foundChannelSet)
+	{
+		char* pToken = NULL;
+		char* pNextToken = NULL;
+		EmaVector<EmaString*> channelNameList;
+		
+		pToken = strtok(const_cast<char*>(channelSet.c_str()), ",");
+		if (pToken)
+		{
+			while (pToken != NULL)
+			{
+				channelName = pToken;
+				channelNameList.push_back(new EmaString(channelName.trimWhitespace()));
+				pNextToken = strtok(NULL, ",");
+
+				pToken = pNextToken;
+			}
+
+			EmaString* pChannelName;
+
+			for (UInt32 index = 0; index < channelNameList.size(); index++)
+			{
+				pChannelName = channelNameList[index];
+				ChannelConfig* newFileChannelConfig = readChannelConfig(pConfigImpl, (pChannelName->trimWhitespace()), (index == (channelNameList.size()-1) ? true : false));
+				// This will be set to the routing channel object that owns this object, otherwise NULL.
+				newFileChannelConfig->pRoutingChannelConfig = newChannelSessionConfig;
+
+				if (foundProgrammaticConfig)
+				{
+					ppc->retrieveChannelConfig(pChannelName->trimWhitespace(), _activeConfig, chanConfigByFuncCall, newFileChannelConfig, newChannelSessionConfig);
+				}
+
+				// ReadChannelConfig does not add the channel to the list, and retrieveChannelConfig will create a new ChannelConfig object and copy everything from the file configuration.
+				// So if the channel has not been added to the list, add it here(no programmatic case), otherwise delete the newFileChannelConfig allocated above.
+				if (!(ActiveConfig::findChannelConfig(newChannelSessionConfig->configChannelSet, pChannelName->trimWhitespace(), posInProgCfg)))
+					newChannelSessionConfig->configChannelSet.push_back(newFileChannelConfig);
+				else
+				{
+					delete newFileChannelConfig;
+				}
+
+				delete pChannelName;
+			}
+		}
+	}
+	else if (foundWsbConfig == false) /* Create a default channel where there is no both Channel and warm standby channel */
+	{
+		try
+		{
+			SocketChannelConfig* newChannelConfig = new SocketChannelConfig(DEFAULT_HOST_NAME, getActiveConfig().defaultServiceName(), RSSL_CONN_TYPE_SOCKET);
+			if (pConfigImpl->getUserSpecifiedHostname().length())
+				newChannelConfig->hostName = pConfigImpl->getUserSpecifiedHostname();
+
+			if (pConfigImpl->getUserSpecifiedPort().userSpecifiedValue.length())
+				newChannelConfig->serviceName = pConfigImpl->getUserSpecifiedPort().userSpecifiedValue;
+
+			// This will be set to the routing channel object that owns this object, otherwise NULL.
+			newChannelConfig->pRoutingChannelConfig = newChannelSessionConfig;
+			newChannelConfig->name.set(channelName);
+			newChannelSessionConfig->configChannelSet.push_back(newChannelConfig);
+		}
+		catch (std::bad_alloc&)
+		{
+			const char* temp("Failed to allocate memory for SocketChannelConfig.");
+			throwMeeException(temp);
+			return NULL;
+		}
+	}
+
+	if (foundWsbConfig)
+	{
+		char* pToken = NULL;
+		char* pNextToken = NULL;
+		EmaVector<EmaString*> warmStandbyNameList;
+		pToken = strtok(const_cast<char*>(warmStandbyChannelSet.c_str()), ",");
+
+		while (pToken != NULL)
+		{
+			warmStandbyChannelName = pToken;
+			warmStandbyNameList.push_back(new EmaString(warmStandbyChannelName.trimWhitespace()));
+			pNextToken = strtok(NULL, ",");
+
+			pToken = pNextToken;
+		}
+
+		EmaString* pWsbChannelName;
+
+		for (UInt32 index = 0; index < warmStandbyNameList.size(); index++)
+		{
+			pWsbChannelName = warmStandbyNameList[index];
+			WarmStandbyChannelConfig* newWSBChannelConfig = readWSBChannelConfig(pConfigImpl, (pWsbChannelName->trimWhitespace()), (pNextToken == NULL ? true : false), newChannelSessionConfig);
+			// This will be set to the routing channel object that owns this object, otherwise NULL.
+			newWSBChannelConfig->pRoutingChannelConfig = newChannelSessionConfig;
+			if (foundProgrammaticConfig)
+			{
+				ppc->retrieveWSBChannelConfig(*pWsbChannelName, _activeConfig, newWSBChannelConfig, newChannelSessionConfig);
+			}
+
+			if (!(ActiveConfig::findWsbChannelConfig(newChannelSessionConfig->configWarmStandbySet, pWsbChannelName->trimWhitespace().c_str(), posInProgCfg)))
+				newChannelSessionConfig->configWarmStandbySet.push_back(newWSBChannelConfig);
+			else
+			{
+				delete newWSBChannelConfig;
+			}
+
+			delete pWsbChannelName;
+		}
+	}
+
+	if (pConfigImpl->getUserSpecifiedChannelType() != RSSL_CONN_TYPE_INIT)
+	{
+		if (foundWsbConfig)
+		{
+			EmaString temp("Specifying connection type with API call is not applicable for WarmStandby channels.");
+			throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
+		}
+
+		int size = newChannelSessionConfig->configChannelSet.size();
+
+		for (int i = 0; i < size; i++)
+		{
+			newChannelSessionConfig->configChannelSet[i]->connectionType = pConfigImpl->getUserSpecifiedChannelType();
+		}
+	}
+
+	if (pConfigImpl->getUserSpecifiedEncryptedProtocolType() != RSSL_CONN_TYPE_INIT)
+	{
+		if (foundWsbConfig)
+		{
+			EmaString temp("Specifying encrypted connection type with API call is not applicable for WarmStandby channels.");
+			throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
+		}
+
+		ChannelConfig* chanConfig = NULL;
+		int size = newChannelSessionConfig->configChannelSet.size();
+
+		for (int i = 0; i < size; i++)
+		{
+			chanConfig = (newChannelSessionConfig->configChannelSet[i]);
+
+			if (chanConfig->connectionType != RSSL_CONN_TYPE_ENCRYPTED)
+			{
+				EmaString temp("Encrypted protocol type can not be set for non-encrypted channel type.");
+				throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
+			}
+			static_cast<SocketChannelConfig*>(chanConfig)->encryptedConnectionType = pConfigImpl->getUserSpecifiedEncryptedProtocolType();
+		}
+	}
+
+	return newChannelSessionConfig;
+}
+
 ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString&  channelName, bool readLastChannel)
 {
-	ChannelConfig* newChannelConfig = NULL;
+	ChannelConfig* newChannelSessionConfig = NULL;
 	SocketChannelConfig* socketChannelCfg = NULL;
 	UInt32 maxUInt32( 0xFFFFFFFF );
 	EmaString channelNodeName( "ChannelGroup|ChannelList|Channel." );
@@ -1775,7 +2315,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			*/
 			socketChannelCfg = new SocketChannelConfig("","", channelType);
 			socketChannelCfg->initializationTimeout = DEFAULT_INITIALIZATION_TIMEOUT_ENCRYPTED_CON;
-			newChannelConfig = socketChannelCfg;
+			newChannelSessionConfig = socketChannelCfg;
 		}
 		catch ( std::bad_alloc& )
 		{
@@ -1828,7 +2368,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			try
 			{
 				socketChannelCfg = new SocketChannelConfig(DEFAULT_HOST_NAME, getActiveConfig().defaultServiceName(), channelType);
-				newChannelConfig = socketChannelCfg;
+				newChannelSessionConfig = socketChannelCfg;
 			}
 			catch (std::bad_alloc&)
 			{
@@ -1925,26 +2465,26 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		try
 		{
 			relMcastChannelCfg = new ReliableMcastChannelConfig();
-			newChannelConfig = relMcastChannelCfg;
+			newChannelSessionConfig = relMcastChannelCfg;
 		}
 		catch ( std::bad_alloc& )
 		{
 			const char* temp( "Failed to allocate memory for ReliableMcastChannelConfig. (std::bad_alloc)" );
 			throwMeeException( temp );
-			return 0;
+			return NULL;
 		}
 
-		if ( !newChannelConfig )
+		if ( !newChannelSessionConfig )
 		{
 			const char* temp = "Failed to allocate memory for ReliableMcastChannelConfig. (null ptr)";
 			throwMeeException( temp );
-			return 0;
+			return NULL;
 		}
 		EmaString errorMsg;
 		if ( !readReliableMcastConfig( pConfigImpl, channelNodeName, relMcastChannelCfg, errorMsg ) )
 		{
 			throwIceException( errorMsg );
-			return 0;
+			return NULL;
 		}
 		break;
 	}
@@ -1953,13 +2493,13 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		EmaString temp( "Not supported channel type. Type = " );
 		temp.append( ( UInt32 )channelType );
 		throwIueException(temp, OmmInvalidUsageException::UnSupportedChannelTypeEnum );
-		return 0;
+		return NULL;
 	}
 	}
 
-	newChannelConfig->name = channelName;
+	newChannelSessionConfig->name = channelName;
 
-	pConfigImpl->get<EmaString>( channelNodeName + "InterfaceName", newChannelConfig->interfaceName );
+	pConfigImpl->get<EmaString>( channelNodeName + "InterfaceName", newChannelSessionConfig->interfaceName );
 
 	tempUInt = 0;
 	if ( channelType != RSSL_CONN_TYPE_RELIABLE_MCAST )
@@ -1968,48 +2508,48 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		tempUInt = 0;
 		if ( pConfigImpl->get<UInt64>( channelNodeName + "CompressionThreshold", tempUInt ) )
 		{
-			newChannelConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
-			newChannelConfig->compressionThresholdSet = true;
+			newChannelSessionConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
+			newChannelSessionConfig->compressionThresholdSet = true;
 			setCompressionThresholdFromConfigFile = true;
 		}
 
-		pConfigImpl->get<RsslCompTypes>( channelNodeName + "CompressionType", newChannelConfig->compressionType );
-		if ( newChannelConfig->compressionType == RSSL_COMP_LZ4 &&
+		pConfigImpl->get<RsslCompTypes>( channelNodeName + "CompressionType", newChannelSessionConfig->compressionType );
+		if ( newChannelSessionConfig->compressionType == RSSL_COMP_LZ4 &&
 			 !setCompressionThresholdFromConfigFile )
-		  newChannelConfig->compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD_LZ4;
+		  newChannelSessionConfig->compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD_LZ4;
 	}
 
 	tempUInt = 0;
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "GuaranteedOutputBuffers", tempUInt ) )
-		newChannelConfig->setGuaranteedOutputBuffers( tempUInt );
+		newChannelSessionConfig->setGuaranteedOutputBuffers( tempUInt );
 
 	tempUInt = 0;
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "NumInputBuffers", tempUInt ) )
-		newChannelConfig->setNumInputBuffers( tempUInt );
+		newChannelSessionConfig->setNumInputBuffers( tempUInt );
 
 	tempUInt = 0;
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "ConnectionPingTimeout", tempUInt ) )
-		newChannelConfig->connectionPingTimeout = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
+		newChannelSessionConfig->connectionPingTimeout = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
 
 	tempUInt = 0;
 	if (pConfigImpl->get<UInt64>(channelNodeName + "InitializationTimeout", tempUInt))
-		newChannelConfig->initializationTimeout = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+		newChannelSessionConfig->initializationTimeout = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
 
 	tempUInt = 0;
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "SysRecvBufSize", tempUInt ) )
-		newChannelConfig->sysRecvBufSize = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
+		newChannelSessionConfig->sysRecvBufSize = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
 
 	tempUInt = 0;
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "SysSendBufSize", tempUInt ) )
-		newChannelConfig->sysSendBufSize = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
+		newChannelSessionConfig->sysSendBufSize = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
 
 	tempUInt = 0;
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "HighWaterMark", tempUInt ) )
-		newChannelConfig->highWaterMark = tempUInt > maxUInt32 ? maxUInt32 : (UInt32) tempUInt;
+		newChannelSessionConfig->highWaterMark = tempUInt > maxUInt32 ? maxUInt32 : (UInt32) tempUInt;
 
 	tempUInt = 0;
 	if (pConfigImpl->get<UInt64>(channelNodeName + "DirectWrite", tempUInt))
-		newChannelConfig->directWrite = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+		newChannelSessionConfig->directWrite = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
 
 	/* @deprecated DEPRECATED:
 	 *ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace is per consumer/niprov/iprov instance based now. 
@@ -2132,7 +2672,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		}
 	}
 
-	return newChannelConfig;
+	return newChannelSessionConfig;
 }
 
 bool OmmBaseImpl::readReliableMcastConfig( EmaConfigImpl* pConfigImpl, const EmaString& channNodeName, ReliableMcastChannelConfig* relMcastChannelCfg, EmaString& errorText )
@@ -2443,6 +2983,15 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		_pipeReadEventFdsIdx = addFd( _pipe.readFD() );
 		addFd( _pRsslReactor->eventFd );
 #endif
+		if (!_atExit && getImplType() == OmmCommonImpl::ConsumerEnum)
+		{
+			if (_activeConfig.consumerRoutingSessionSet.size() > 0)
+			{
+				_pConsumerRoutingSession = new ConsumerRoutingSession(*this);
+				_pConsumerRoutingSession->enhancedItemRecovery = _activeConfig.consumerRoutingSessionEnhancedItemRecovery;
+
+			}
+		}
 
 		_pLoginCallbackClient = LoginCallbackClient::create( *this );
 		_pLoginCallbackClient->initialize();
@@ -2520,24 +3069,75 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		{
 			if (_eventTimedOut)
 			{
-				Channel *pChannel = _pLoginCallbackClient->getActiveChannel();
+				bool loginFailed = false;
 				ChannelConfig* pChannelcfg = NULL;
-				if (pChannel != NULL && pChannel->getReactorChannelType() == Channel::NORMAL)
+				ConsumerRoutingSessionChannel* pSessionChannel = NULL;
+
+
+				if (_pConsumerRoutingSession != NULL)
 				{
-					pChannelcfg = _activeConfig.findChannelConfig(pChannel);
-					if (!pChannelcfg && _activeConfig.configChannelSet.size() > 0)
-						pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size() - 1];
+					int loginOkCount = 0;
+					for (UInt32 i = 0; i < _pConsumerRoutingSession->routingChannelList.size(); ++i)
+					{
+						// if at least one session channel has received a login a this point, set the OmmBaseImpl state to LoginStreamOpenOkEnum
+						if (_pConsumerRoutingSession->routingChannelList[i]->channelState >= LoginStreamOpenOkEnum)
+						{
+							setState(LoginStreamOpenOkEnum);
+							pSessionChannel = _pConsumerRoutingSession->routingChannelList[i];
+						}
+						else
+						{
+							// Timeout has triggered, so close the underlying channels that have not managed to get a login
+							closeChannel(_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel);
+						}
+					}
+
+					// If there aren't any channels that have gotten a login stream of open/OK yet, we're in a terminal state.
+					if (_state != LoginStreamOpenOkEnum)
+						loginFailed = true;
+					else
+					{
+						// Otherwise, dispatch the current aggregated login refresh, since we haven't sent it yet to the user.
+						RsslRefreshMsg rsslRefreshMsg;
+						char tempBuffer[1000];
+						RsslBuffer temp;
+						temp.data = tempBuffer;
+						temp.length = 1000;
+
+						_pConsumerRoutingSession->aggregatedLoginInfo.loginRefreshMsg.populate(rsslRefreshMsg, temp, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+
+
+						_pLoginCallbackClient->processRefreshMsg((RsslMsg*)&rsslRefreshMsg, pSessionChannel->pReactorChannel, NULL);
+						_pConsumerRoutingSession->sentInitialLoginRefresh = true;
+					}
+				}
+				else
+				{
+					if (_pReactorChannel != NULL)
+					{
+						Channel* pChannel = static_cast<Channel*>(_pReactorChannel->userSpecPtr);
+						if (pChannel != NULL && pChannel->getReactorChannelType() == Channel::NORMAL)
+						{
+							pChannelcfg = _activeConfig.findChannelConfig(pChannel);
+							if (!pChannelcfg && _activeConfig.configChannelSet.size() > 0)
+								pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size() - 1];
+						}
+					}
+					loginFailed = true;
 				}
 
-				EmaString failureMsg( "login failed (timed out after waiting " );
-				failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " milliseconds)" );
-				if (pChannelcfg != NULL && pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
+				if (loginFailed == true)
 				{
-					SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
-					failureMsg.append(" for ").append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
-				}
+					EmaString failureMsg("login(s) failed (timed out after waiting ");
+					failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " milliseconds)" );
+					if (pChannelcfg != NULL && pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
+					{
+						SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
+						failureMsg.append(" for ").append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
+					}
 
-				throwIueException( failureMsg, OmmInvalidUsageException::LoginRequestTimeOutEnum );
+					throwIueException( failureMsg, OmmInvalidUsageException::LoginRequestTimeOutEnum );
+				}
 			}
 			else if ( _state == RsslChannelUpStreamNotOpenEnum )
 			{
@@ -2553,6 +3153,26 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		else
 		{
 			throwIueException( "Application or user initiated exit while waiting for login response.", OmmInvalidUsageException::InvalidOperationEnum );
+		}
+
+		// If this is a request routing config, check to see if all of the underlying channels have loaded their directories, if so continue.
+		bool directoryLoaded = false;
+		if (_pConsumerRoutingSession != NULL)
+		{
+			UInt32 loadedCount = 0;
+			for (UInt32 i = 0; i < _pConsumerRoutingSession->routingChannelList.size(); ++i)
+			{
+				// We have closed any channels that have timed out previously, so just iterate through here to see if the directories have been opened.
+				if (_pConsumerRoutingSession->routingChannelList[i]->channelState >= DirectoryStreamOpenOkEnum)
+				{
+					loadedCount++;
+				}
+			}
+
+			if (loadedCount == _pConsumerRoutingSession->activeChannelCount)
+			{
+				setState(DirectoryStreamOpenOkEnum);
+			}
 		}
 
 		loadDirectory();
@@ -2645,10 +3265,11 @@ void OmmBaseImpl::initializeForTest(EmaConfigImpl* configImpl)
 
 		_userLock.unlock();
 	}
-	catch (const OmmException& ommException)
+	catch (const OmmException&)
 	{
-		_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, ommException.getText());
+		// Throw the exception for the test to catch.
 		_userLock.unlock();
+		throw;
 	}
 }
 
@@ -2688,6 +3309,12 @@ bool OmmBaseImpl::isInitialized()
 {
 	return _isInitialized;
 }
+
+bool OmmBaseImpl::hasMultiCredentialLogins()
+{
+	return _multiCredentialLoginsSet;
+}
+
 
 
 void OmmBaseImpl::pipeWrite()
@@ -2760,8 +3387,23 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 	if ( _pRsslReactor )
 	{
 		if ( _pLoginCallbackClient && !caughtExcep )
-			rsslReactorDispatchLoop( 10000, _pLoginCallbackClient->sendLoginClose(), _bEventReceived );
-
+		{
+			if (_pConsumerRoutingSession != NULL)
+			{
+				for (UInt32 i = 0; i < _pConsumerRoutingSession->routingChannelList.size(); ++i)
+				{
+					if (_pConsumerRoutingSession->routingChannelList[i] != NULL && _pConsumerRoutingSession->routingChannelList[i]->pReactorChannel != NULL)
+					{
+						LoginCallbackClient::sendLoginClose(_pRsslReactor, _pConsumerRoutingSession->routingChannelList[i]->pReactorChannel);
+					}
+				}
+			}
+			else
+			{
+				if(_pReactorChannel != NULL)
+					LoginCallbackClient::sendLoginClose(_pRsslReactor, _pReactorChannel);
+			}
+		}
 		if ( _pChannelCallbackClient )
 			_pChannelCallbackClient->closeChannels();
 
@@ -2785,15 +3427,21 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 		_pRsslReactor = 0;
 	}
 
-	ItemCallbackClient::destroy( _pItemCallbackClient );
-
 	DictionaryCallbackClient::destroy( _pDictionaryCallbackClient );
 
 	DirectoryCallbackClient::destroy( _pDirectoryCallbackClient );
 
 	LoginCallbackClient::destroy( _pLoginCallbackClient );
 
+	ItemCallbackClient::destroy(_pItemCallbackClient);
+
 	ChannelCallbackClient::destroy( _pChannelCallbackClient );
+
+	if (_pConsumerRoutingSession != NULL)
+	{
+		delete _pConsumerRoutingSession;
+		_pConsumerRoutingSession = NULL;
+	}
 
 	if ( RSSL_RET_SUCCESS != rsslUninitialize() )
 	{
@@ -2844,19 +3492,11 @@ bool OmmBaseImpl::isAtExit()
 	return _atExit;
 }
 
-/* Add these common FDs after clearing all sockets */
-void OmmBaseImpl::addCommonSocket()
+EmaVector < LoginRdmReqMsgImpl* >& OmmBaseImpl::getLoginRequestList()
 {
-#ifdef USING_SELECT
-	FD_SET(_pipe.readFD(), &_readFds);
-	FD_SET(_pipe.readFD(), &_exceptFds);
-	FD_SET(_pRsslReactor->eventFd, &_readFds);
-	FD_SET(_pRsslReactor->eventFd, &_exceptFds);
-#else
-	_pipeReadEventFdsIdx = addFd(_pipe.readFD());
-	addFd(_pRsslReactor->eventFd);
-#endif
+	return _LoginRequestMsgs;
 }
+
 
 Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& bMsgDispRcvd )
 {
@@ -2998,6 +3638,7 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 			{
 				_userLock.lock();
 				reactorRetCode = _pRsslReactor ? rsslReactorDispatch( _pRsslReactor, &dispatchOpts, &_reactorDispatchErrorInfo ) : RSSL_RET_SUCCESS;
+				
 				_userLock.unlock();
 				++loopCount;
 			}
@@ -3134,6 +3775,11 @@ void OmmBaseImpl::setState( ImplState state )
 	_state = state;
 }
 
+OmmBaseImpl::ImplState OmmBaseImpl::getState()
+{
+	return _state;
+}
+
 void OmmBaseImpl::closeChannel( RsslReactorChannel* pRsslReactorChannel )
 {
 	if ( !pRsslReactorChannel ) return;
@@ -3141,9 +3787,39 @@ void OmmBaseImpl::closeChannel( RsslReactorChannel* pRsslReactorChannel )
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo( &rsslErrorInfo );
 
+	// Clean out any set FD's in the notifiers
+	if (pRsslReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+	{
+		if (pRsslReactorChannel->pWarmStandbyChInfo != NULL)
+		{
+			for (UInt32 i = 0; i < pRsslReactorChannel->pWarmStandbyChInfo->oldSocketIdCount; ++i)
+			{
+				removeSocket(pRsslReactorChannel->pWarmStandbyChInfo->oldSocketIdList[i]);
+			}
+		}
+		else
+		{
+			if (pRsslReactorChannel->socketId != REACTOR_INVALID_SOCKET)
+				removeSocket(pRsslReactorChannel->socketId);
+		}
+	}
+	else
+	{
 	if ( pRsslReactorChannel->socketId != REACTOR_INVALID_SOCKET )
 		removeSocket( pRsslReactorChannel->socketId );
+	}
 
+	Channel* pChannel = (Channel*)pRsslReactorChannel->userSpecPtr;
+
+	// If this is a consumer routing session, call close channel on the session and(probably) continue.
+	if (pChannel->getConsumerRoutingChannel() != NULL)
+	{
+		_pConsumerRoutingSession->closeChannel(pRsslReactorChannel);
+		_pLoginCallbackClient->aggregateLoginsAfterClose();
+		return;
+	}
+	else
+	{
 	if ( rsslReactorCloseChannel( _pRsslReactor, pRsslReactorChannel, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
@@ -3162,8 +3838,9 @@ void OmmBaseImpl::closeChannel( RsslReactorChannel* pRsslReactorChannel )
 			_userLock.unlock();
 		}
 	}
+	}
 
-	_pChannelCallbackClient->removeChannel( pRsslReactorChannel );
+	_pChannelCallbackClient->removeChannel(pChannel);
 }
 
 void OmmBaseImpl::handleIue( const EmaString& text, Int32 errorCode )
@@ -3279,6 +3956,27 @@ OmmLoggerClient& OmmBaseImpl::getOmmLoggerClient()
 {
 	return *_pLoggerClient;
 }
+
+ConsumerRoutingSession* OmmBaseImpl::getConsumerRoutingSession()
+{
+	return _pConsumerRoutingSession;
+}
+
+void OmmBaseImpl::setRsslReactorChannel(RsslReactorChannel* pChannel)
+{
+	_pReactorChannel = pChannel;
+}
+
+RsslReactorChannel* OmmBaseImpl::getRsslReactorChannel()
+{
+	return _pReactorChannel;
+}
+
+RsslReactor* OmmBaseImpl::getRsslReactor()
+{
+	return _pRsslReactor;
+}
+
 
 void OmmBaseImpl::reissue( const ReqMsg& reqMsg, UInt64 handle )
 {
@@ -3488,7 +4186,7 @@ RsslReactorCallbackRet OmmBaseImpl::channelOpenCallback( RsslReactor* pRsslReact
 RsslReactorCallbackRet OmmBaseImpl::oAuthCredentialCallback(RsslReactor* pRsslReactor, RsslReactorOAuthCredentialEvent* oAuthEvent)
 {
 	OmmBaseImpl* pBaseImpl = static_cast<OmmBaseImpl*>(pRsslReactor->userSpecPtr);
-	OmmConsumerEvent event;
+	OmmConsumerEvent event(*pBaseImpl);
 	OmmOAuth2CredentialImpl* oAuthCredentialImpl = (OmmOAuth2CredentialImpl*)oAuthEvent->userSpecPtr;
 
 	pBaseImpl->setInOAuthCallback(true);
@@ -3561,7 +4259,7 @@ RsslReactorCallbackRet OmmBaseImpl::oAuthCredentialCallback(RsslReactor* pRsslRe
 RsslReactorCallbackRet OmmBaseImpl::loginCredentialCallback(RsslReactor* pRsslReactor, RsslReactorChannel* pReactorChannel, RsslReactorLoginRenewalEvent* pEvent)
 {
 	OmmBaseImpl* pBaseImpl = static_cast<OmmBaseImpl*>(pRsslReactor->userSpecPtr);
-	OmmConsumerEvent event;
+	OmmConsumerEvent event(*pBaseImpl);
 	LoginRdmReqMsgImpl* pLoginCredentialImpl = (LoginRdmReqMsgImpl*)pEvent->userSpecPtr;
 
 	pBaseImpl->setInLoginCredentialCallback(true);
@@ -3587,8 +4285,17 @@ RsslReactorCallbackRet OmmBaseImpl::loginCredentialCallback(RsslReactor* pRsslRe
 	}
 
 	pBaseImpl->setInLoginCredentialCallback(false);
+	if (pBaseImpl->_pConsumerRoutingSession == NULL)
+	{
 	pBaseImpl->_activeConfig.pRsslRDMLoginReq = pLoginCredentialImpl;
 	pBaseImpl->getLoginCallbackClient().setLoginRequest(pLoginCredentialImpl);
+	}
+	else
+	{
+		ConsumerRoutingSessionChannel* pSessionChannel = ((Channel*)pReactorChannel->userSpecPtr)->getConsumerRoutingChannel();
+
+		pSessionChannel->loginInfo.pLoginRequestMsg = pLoginCredentialImpl;
+	}
 	return RSSL_RC_CRET_SUCCESS;
 }
 
@@ -3744,10 +4451,14 @@ void OmmBaseImpl::modifyReactorChannelIOCtl(Int32 code, void* value)
 		return;
 	}
 
+	RsslErrorInfo rsslErrorInfo;
+	RsslPreferredHostOptions rsslPreferredHost;
+
 	_userLock.lock();
 
-	Channel* pChannel;
-	if ((pChannel = getLoginCallbackClient().getActiveChannel()) == NULL || (pChannel->getRsslChannel() == NULL))
+	if (_pConsumerRoutingSession == NULL)
+	{
+		if (_pReactorChannel == NULL)
 	{
 		_userLock.unlock();
 		EmaString temp("No active channel to modify I/O option.");
@@ -3755,8 +4466,6 @@ void OmmBaseImpl::modifyReactorChannelIOCtl(Int32 code, void* value)
 		return;
 	}
 
-	RsslErrorInfo rsslErrorInfo;
-	RsslPreferredHostOptions rsslPreferredHost;
 	void *valueIOCtl = NULL;
 
 	clearRsslErrorInfo(&rsslErrorInfo);
@@ -3818,9 +4527,11 @@ void OmmBaseImpl::modifyReactorChannelIOCtl(Int32 code, void* value)
 		valueIOCtl = &rsslPreferredHost;
 	}
 	else
+	{
 		valueIOCtl = value;
+	}
 
-	RsslRet ret = rsslReactorChannelIoctl(pChannel->getRsslChannel(), (RsslReactorChannelIoctlCodes)code, valueIOCtl, &rsslErrorInfo);
+	RsslRet ret = rsslReactorChannelIoctl(_pReactorChannel, (RsslReactorChannelIoctlCodes)code, valueIOCtl, &rsslErrorInfo);
 
 	if (ret != RSSL_RET_SUCCESS)
 	{
@@ -3832,6 +4543,119 @@ void OmmBaseImpl::modifyReactorChannelIOCtl(Int32 code, void* value)
 			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 		handleIue(temp, ret);
 		return;
+		}
+	}
+	else
+	{
+		// Apply the change to all channels.
+		if (code == RsslReactorChannelIoctlCodes::RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE)
+		{
+			for (UInt32 i = 0; i < _pConsumerRoutingSession->routingChannelList.size(); i++)
+			{
+				if (_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel != NULL)
+				{
+					RsslRet ret = rsslReactorChannelIoctl(_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel, (RsslReactorChannelIoctlCodes)code, value, &rsslErrorInfo);
+
+					if (ret != RSSL_RET_SUCCESS)
+					{
+						_userLock.unlock();
+						EmaString temp("Failed to modify I/O option for code = ");
+						temp.append(code).append(".").append(CR)
+							.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+							.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+							.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+						handleIue(temp, ret);
+						return;
+					}
+				}
+			}
+		}
+		else
+		{
+			PreferredHostOptions* prefHost = (PreferredHostOptions*)value;
+			for (UInt32 i = 0; i < _pConsumerRoutingSession->routingChannelList.size(); ++i)
+			{
+				if (_pConsumerRoutingSession->routingChannelList[i]->name == prefHost->getSessionChannelName())
+				{
+					rsslClearRsslPreferredHostOptions(&rsslPreferredHost);
+
+					rsslPreferredHost.enablePreferredHostOptions = prefHost->getEnablePreferredHostOptions();
+					rsslPreferredHost.detectionTimeSchedule.data = const_cast<char*>(prefHost->getPHDetectionTimeSchedule().c_str());
+					rsslPreferredHost.detectionTimeSchedule.length = prefHost->getPHDetectionTimeSchedule().length();
+					rsslPreferredHost.detectionTimeInterval = prefHost->getPHDetectionTimeInterval();
+					rsslPreferredHost.fallBackWithInWSBGroup = prefHost->getPHFallBackWithInWSBGroup();
+
+					if (!prefHost->getPreferredChannelName().empty())
+					{
+						for (unsigned j = 0; j < _pConsumerRoutingSession->routingChannelList[i]->routingChannelConfig.configChannelSet.size(); j++)
+						{
+							if (_pConsumerRoutingSession->routingChannelList[i]->routingChannelConfig.configChannelSet[j]->name == prefHost->getPreferredChannelName())
+							{
+								rsslPreferredHost.connectionListIndex = j;
+								break;
+							}
+							if (j == _activeConfig.configChannelSet.size() - 1)
+							{
+								_userLock.unlock();
+								EmaString temp("Preferred host channel name: ");
+								temp.append(prefHost->getPreferredChannelName());
+								temp.append(" is not present in configuration.");
+								handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+								return;
+							}
+						}
+					}
+
+					if (!prefHost->getPreferredWSBChannelName().empty())
+					{
+						for (unsigned j = 0; j < _activeConfig.configWarmStandbySet.size(); j++)
+						{
+							if (_pConsumerRoutingSession->routingChannelList[i]->routingChannelConfig.configWarmStandbySet[j]->name == prefHost->getPreferredWSBChannelName())
+							{
+								rsslPreferredHost.warmStandbyGroupListIndex = j;
+								break;
+							}
+							if (j == _activeConfig.configWarmStandbySet.size() - 1)
+							{
+								_userLock.unlock();
+								EmaString temp("Preferred host WSB channel name: ");
+								temp.append(prefHost->getPreferredWSBChannelName());
+								temp.append(" is not present in configuration.");
+								handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+								return;
+							}
+						}
+					}
+
+					if (_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel != NULL)
+					{
+						RsslRet ret = rsslReactorChannelIoctl(_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel, (RsslReactorChannelIoctlCodes)code, value, &rsslErrorInfo);
+
+						if (ret != RSSL_RET_SUCCESS)
+						{
+							_userLock.unlock();
+							EmaString temp("Failed to modify I/O option for code = ");
+							temp.append(code).append(".").append(CR)
+								.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+								.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+								.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+							handleIue(temp, ret);
+							return;
+						}
+					}
+
+					return;
+				}
+			}
+
+			// We did not find a channel, so thrown an error.
+			_userLock.unlock();
+			EmaString temp("Session Channel name: ");
+			temp.append(prefHost->getSessionChannelName());
+			temp.append(" is not present in configuration.");
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+			return;
+		}
 	}
 
 	_userLock.unlock();

@@ -11,6 +11,7 @@
 
 #include "ItemCallbackClient.h"
 #include "OmmBaseImplMap.h"
+#include "EmaVector.h"
 
 namespace refinitiv {
 namespace ema {

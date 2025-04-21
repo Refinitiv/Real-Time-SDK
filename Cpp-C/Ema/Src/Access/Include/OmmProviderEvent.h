@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019,2025 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -37,6 +37,7 @@ class Item;
 class OmmProvider;
 class LoginHandler;
 class EmaString;
+class OmmCommonImpl;
 
 class EMA_ACCESS_API OmmProviderEvent
 {
@@ -94,8 +95,9 @@ private :
 	OmmProvider*	_provider;
 	ChannelInformation	_channelInfo;
 	ChannelStatistics	_channelStats;
+	OmmCommonImpl& _ommCommonImpl;
 
-	OmmProviderEvent();
+	OmmProviderEvent(OmmCommonImpl&);
 	virtual ~OmmProviderEvent();
 	OmmProviderEvent( const OmmProviderEvent& );
 	OmmProviderEvent& operator=( const OmmProviderEvent& );

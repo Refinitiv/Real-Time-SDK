@@ -376,6 +376,8 @@ public:
 			EXPECT_TRUE(false) << "Reactor creation failed: %s\n", rsslErrorInfo.rsslError.text;
 		}
 
+		rsslClearBindOpts(&sopts);
+
 		sopts = RSSL_INIT_BIND_OPTS;
 		sopts.guaranteedOutputBuffers = 2000;
 		sopts.serviceName = portNo;
@@ -420,7 +422,7 @@ public:
 			{
 				/* rsslWrite failed, release buffer */
 				EXPECT_TRUE(false) << "rsslReactorSubmit() failed with return code: " << retval << " " << rsslErrorInfo.rsslError.text << "\n";
-				if (retval = rsslReactorReleaseBuffer(chnl, msgBuf, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+				if ((retval = rsslReactorReleaseBuffer(chnl, msgBuf, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
 					EXPECT_TRUE(false) << "rsslReactorReleaseBuffer() failed with return code: " << retval << " " << rsslErrorInfo.rsslError.text << "\n";
 
 				return RSSL_RET_FAILURE;
@@ -598,7 +600,7 @@ public:
 					rsslClearReactorAcceptOptions(&aopts);
 					aopts.rsslAcceptOptions.userSpecPtr = this;
 
-					if (ret = rsslReactorAccept(pReactor, rsslSrvr, &aopts, (RsslReactorChannelRole*)&providerRole, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+					if ((ret = rsslReactorAccept(pReactor, rsslSrvr, &aopts, (RsslReactorChannelRole*)&providerRole, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
 					{
 						EXPECT_TRUE(false) << "rsslReactorAccept failed: %s\n", rsslErrorInfo.rsslError.text;
 					}

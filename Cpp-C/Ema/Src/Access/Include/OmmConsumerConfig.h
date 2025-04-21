@@ -31,6 +31,7 @@
 #include "Access/Include/OmmLoginCredentialConsumerClient.h"
 #include "DataDictionary.h"
 #include "Access/Include/EmaConfig.h"
+#include "Access/Include/ServiceList.h"
 
 namespace refinitiv {
 
@@ -119,7 +120,7 @@ public :
 		@param[in] applicationName specifies respective login request attribute
 		@return reference to this object
 	 */
-	OmmConsumerConfig& applicationName( const EmaString& applicationName );
+	OmmConsumerConfig& applicationName(const EmaString& applicationName);
 
 	/** Specifies the authorization application identifier. Must be unique for each application.
 	    Range 257 to 65535 is available for site-specific use. Range 1 to 256 is reserved.
@@ -455,6 +456,13 @@ public :
 		@return reference to this object
 	*/
 	OmmConsumerConfig& restProxyDomain(const EmaString& restProxyDomain);
+
+	/** Specifies a new ServiceList to be added to this configuration. The ServiceList is a list of concrete service names that are can be subscribed to using the name of the service list.
+
+		@param[in] serviceList ServiceList object that contains the concrete service names.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& addServiceList(const ServiceList& serviceList);
 	//@}
 
 private :

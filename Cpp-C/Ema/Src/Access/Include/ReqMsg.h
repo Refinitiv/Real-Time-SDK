@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|        Copyright (C) 2019, 2024 LSEG. All rights reserved.                --
+ *|        Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.                --
  *|-----------------------------------------------------------------------------
  */
 
@@ -267,15 +267,24 @@ public :
 	ReqMsg& nameType( UInt8 nameType = rdm::INSTRUMENT_NAME_RIC );
 
 	/** Specifies ServiceName.
-		\remark One service identification must be set, either id or name.
+		\remark One service identification must be set, either id, the name of a service list or a service name.
 		@throw OmmInvalidUsageException if service id is already set
 		@param[in] serviceName specifies service name
 		@return reference to this object
 	*/
 	ReqMsg& serviceName( const EmaString& serviceName );
 
+
+	/** Specifies ServiceListName.
+		\remark One service identification must be set, either id, the name of a service list or a service name.
+		@throw OmmInvalidUsageException if service id is already set
+		@param[in] serviceListName specifies service list name configured in the configuration
+		@return reference to this object
+	*/
+	ReqMsg& serviceListName(const EmaString& serviceName);
+
 	/** Specifies ServiceId.
-		\remark One service identification must be set, either id or name.
+		\remark One service identification must be set, either id, the name of a service list or a service name.
 		@throw OmmInvalidUsageException if service name is already set
 		@param[in] serviceId specifies service id
 		@return reference to this object

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -92,6 +92,14 @@ public :
 	*/
 	Int64 getPositionOf( const T& value ) const;
 
+	/** returns position of the first encountered element on the vector
+	that matches passed in value, doing a binary search.  This assumes that the vector has been sorted using sort().
+	\param value - value of the element to be found
+	\param compare - comparator function. This will take in two T references, and will return -1 if the first argument is less, 0 if the arguments are equal, and 1 if the first argument is greater.
+	\return -1 if no matching element was found and position otherwise
+	*/
+	Int64 search(const T& value, int comparator(T&, T&)) const;
+
 	/** comparison operator for the entire list
 	*/
 	bool operator==( const EmaVector< T >& other ) const;
@@ -122,6 +130,12 @@ public :
 	*/
 	bool removeValue( const T& value );
 	//@}
+
+	/** Performs a sorted add for a new entry to the vector
+	\remark will automatically resize if needed
+	\param compare - comparator function. This will take in two T references, and will return -1 if the first argument is less, 0 if the arguments are equal, and 1 if the first argument is greater.
+	*/
+	void insert_sorted(const T& entry, int compare(T&, T&));
 
 private :
 
@@ -280,6 +294,81 @@ void EmaVector< T >::push_back( const T& entry )
 	}
 }
 
+// Insert with a linear sort.  
+template < class T >
+void EmaVector< T >::insert_sorted(const T& entry, int compare(T&, T&))
+{
+	if (_size < _capacity)
+	{
+		bool insertPointFound = false;
+		UInt32 i = 0;
+		UInt32 insertPoint = 0;
+			
+		while (insertPoint != _size && insertPointFound == false)
+		{
+			if (compare((T&)_list[i], (T&)entry) != -1)
+			{
+				insertPointFound = true;
+			}
+			insertPoint++;
+		}
+
+		// Shift everything up an index.
+		if (insertPoint != _size)
+		{
+			for (i = (_size - 1); i >= insertPoint; --i)
+			{
+				_list[i + 1] = _list[i];
+			}
+		}
+		
+		_list[insertPoint] = entry;
+	
+		++_size;
+	}
+	else
+	{
+		UInt32 oldIter = 0;
+		UInt32 newIter = 0;
+		UInt32 i = 0;
+		bool found = false;
+		if (_capacity == 0)
+		{
+			_capacity = 5;
+		}
+		else
+		{
+			_capacity = 2 * _capacity;
+		}
+
+		T* tempList;
+
+		tempList = new T[(unsigned int)(_capacity)];
+
+		for (oldIter = 0; oldIter < _size; oldIter++)
+		{
+			if (found == false && compare(_list[oldIter], (T&)entry) != -1)
+			{
+				tempList[newIter] = entry;
+				found = true;
+				newIter++;
+			}
+			tempList[newIter] = _list[oldIter];
+			newIter++;
+		}
+	
+
+		if (_list) delete[] _list;
+
+		_list = tempList;
+
+		if(found == false)
+			_list[_size] = entry;
+
+		++_size;
+	}
+}
+
 template <class T >
 UInt32 EmaVector< T >::size() const
 {
@@ -331,6 +420,39 @@ Int64 EmaVector< T >::getPositionOf( const T& value ) const
 	}
 
 	return position;
+}
+
+// Performs a binary search for value 
+template < class T >
+Int64 EmaVector< T >::search(const T& value, int comparator(T&, T&)) const
+{
+	int low = 0;
+	int high = _size - 1;
+	int middle;
+
+	while (low <= high)
+	{
+		middle = (low + high) / 2;
+		int compare = comparator((T&)value, (T&)_list[middle]);
+		if (compare == -1)
+		{
+			// input value is lower than middle
+			high = middle - 1;
+		}
+		else if (compare == 1)
+		{
+			// input value is higher than middle
+			low = middle + 1;
+		}
+		else
+		{
+			// we found it, return the middle value.
+			return middle;
+		}
+	}
+
+	return -1;
+
 }
 
 template < class T >

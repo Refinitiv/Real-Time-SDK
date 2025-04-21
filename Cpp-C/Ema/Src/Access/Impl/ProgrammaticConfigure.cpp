@@ -17,6 +17,7 @@
 #include "OmmQosDecoder.h"
 #include "OmmArray.h"
 #include "Series.h"
+#include "ConsumerRoutingChannel.h"
 
 #include <ctype.h>
 
@@ -294,6 +295,11 @@ void ProgrammaticConfigure::retrieveDependencyNames( const Map& map, const EmaSt
 													_warmStandbyChannelSetName = instanceEntry.getAscii();
 													_nameflags |= WarmStandbyChannelSetFlagEnum;
 												}
+												else if (instanceEntry.getName() == "SessionChannelSet")
+												{
+													_sessionChannelSetName = instanceEntry.getAscii();
+													_nameflags |= SessionChannelSetFlagEnum;
+												}
 												break;
 											}
 										}
@@ -340,6 +346,110 @@ bool ProgrammaticConfigure::getActiveChannelName( const EmaString& instanceName,
 		return false;
 }
 
+bool ProgrammaticConfigure::getActiveConsumerRoutingSessionChannelSetName( const EmaString& instanceName, EmaString& channelName )
+{
+	if ( !_dependencyNamesLoaded )
+	{
+		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
+			retrieveDependencyNames( *_configList[i], instanceName );
+
+		_dependencyNamesLoaded = true;
+	}
+
+	if ( _nameflags & SessionChannelSetFlagEnum )
+	{
+		channelName = _sessionChannelSetName;
+		return true;
+	}
+	else
+		return false;
+}
+
+bool ProgrammaticConfigure::getConsumerRoutingSessionChannelSetName( const EmaString& instanceName, EmaString& channelSetName )
+{
+	EmaString foundChannelSetString;
+	bool	foundChannelSet = false;
+	for (UInt32 i = 0; i < _configList.size(); i++)
+	{
+		unsigned int position = 0;
+		unsigned int channelPos = 0, channelSetPos = 0;
+
+		_configList[i]->reset();
+		while (_configList[i]->forth())
+		{
+			const MapEntry& mapEntry = _configList[i]->getEntry();
+
+			if (mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "SessionChannelGroup")
+			{
+				if (mapEntry.getLoadType() == DataType::ElementListEnum)
+				{
+					const ElementList& elementList = mapEntry.getElementList();
+
+					while (elementList.forth())
+					{
+						const ElementEntry& elementEntry = elementList.getEntry();
+
+						if (elementEntry.getLoadType() == DataType::MapEnum)
+						{
+							if (elementEntry.getName() == "SessionChannelList" && (elementEntry.getLoad().getDataType() == DataType::MapEnum))
+							{
+								const Map& map = elementEntry.getMap();
+
+								while (map.forth())
+								{
+									const MapEntry& mapEntry = map.getEntry();
+
+									if ((mapEntry.getKey().getDataType() == DataType::AsciiEnum) && (mapEntry.getKey().getAscii() == instanceName))
+									{
+										if (mapEntry.getLoadType() == DataType::ElementListEnum)
+										{
+											const ElementList& elementList = mapEntry.getElementList();
+											position = 0;
+											while (elementList.forth())
+											{
+												const ElementEntry& instanceEntry = elementList.getEntry();
+												position++;
+												switch (instanceEntry.getLoadType())
+												{
+												case DataType::AsciiEnum:
+													if (instanceEntry.getName() == "ChannelSet")
+													{
+														foundChannelSetString = instanceEntry.getAscii();
+													}
+													break;
+												}
+											}
+											if ((_nameflags & ChannelFlagEnum) && (_nameflags & ChannelSetFlagEnum))
+											{
+												if (channelSetPos > channelPos)
+												{
+													_nameflags &= ~ChannelFlagEnum;
+													_channelName.clear();
+												}
+												else
+												{
+													_nameflags &= ~ChannelSetFlagEnum;
+													_channelSet.clear();
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if (foundChannelSetString)
+	{
+		channelSetName = foundChannelSetString;
+		return true;
+	}
+	return false;
+}
+
 bool ProgrammaticConfigure::getActiveWSBChannelSetName(const EmaString& instanceName, EmaString& wsbChannelName)
 {
 	if (!_dependencyNamesLoaded)
@@ -357,6 +467,91 @@ bool ProgrammaticConfigure::getActiveWSBChannelSetName(const EmaString& instance
 	}
 	else
 		return false;
+}
+
+bool ProgrammaticConfigure::getConsumerRoutingSessionWSBChannelSetName(const EmaString& instanceName, EmaString& channelSetName)
+{
+	EmaString foundChannelSetString;
+	bool	foundChannelSet = false;
+	for (UInt32 i = 0; i < _configList.size(); i++)
+	{
+		unsigned int position = 0;
+		unsigned int channelPos = 0, channelSetPos = 0;
+
+		_configList[i]->reset();
+		while (_configList[i]->forth())
+		{
+			const MapEntry& mapEntry = _configList[i]->getEntry();
+
+			if (mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "SessionChannelGroup")
+			{
+				if (mapEntry.getLoadType() == DataType::ElementListEnum)
+				{
+					const ElementList& elementList = mapEntry.getElementList();
+
+					while (elementList.forth())
+					{
+						const ElementEntry& elementEntry = elementList.getEntry();
+
+						if (elementEntry.getLoadType() == DataType::MapEnum)
+						{
+							if (elementEntry.getName() == "SessionChannelList" && (elementEntry.getLoad().getDataType() == DataType::MapEnum))
+							{
+								const Map& map = elementEntry.getMap();
+
+								while (map.forth())
+								{
+									const MapEntry& mapEntry = map.getEntry();
+
+									if ((mapEntry.getKey().getDataType() == DataType::AsciiEnum) && (mapEntry.getKey().getAscii() == instanceName))
+									{
+										if (mapEntry.getLoadType() == DataType::ElementListEnum)
+										{
+											const ElementList& elementList = mapEntry.getElementList();
+											position = 0;
+											while (elementList.forth())
+											{
+												const ElementEntry& instanceEntry = elementList.getEntry();
+												position++;
+												switch (instanceEntry.getLoadType())
+												{
+												case DataType::AsciiEnum:
+													if (instanceEntry.getName() == "WarmStandbyChannelSet")
+													{
+														foundChannelSetString = instanceEntry.getAscii();
+													}
+													break;
+												}
+											}
+											if ((_nameflags & ChannelFlagEnum) && (_nameflags & ChannelSetFlagEnum))
+											{
+												if (channelSetPos > channelPos)
+												{
+													_nameflags &= ~ChannelFlagEnum;
+													_channelName.clear();
+												}
+												else
+												{
+													_nameflags &= ~ChannelSetFlagEnum;
+													_channelSet.clear();
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if (foundChannelSetString)
+	{
+		channelSetName = foundChannelSetString;
+		return true;
+	}
+	return false;
 }
 
 bool ProgrammaticConfigure::getActiveServerName(const EmaString& instanceName, EmaString& serverName)
@@ -588,6 +783,43 @@ bool ProgrammaticConfigure::validateConsumerName( const Map& map, const EmaStrin
 	return false;
 }
 
+bool ProgrammaticConfigure::validateConsumerRoutingSessionChannelName(const EmaString& sessionName)
+{
+	for (UInt32 i = 0; i < _configList.size(); i++)
+	{
+		_configList[i]->reset();
+		while (_configList[i]->forth())
+		{
+			const MapEntry& mapEntry = _configList[i]->getEntry();
+
+			if ((mapEntry.getKey().getDataType() == DataType::AsciiEnum) && (mapEntry.getKey().getAscii() == "SessionChannelGroup")
+				&& (mapEntry.getLoad().getDataType() == DataType::ElementListEnum))
+			{
+				const ElementList& elementList = mapEntry.getElementList();
+
+				while (elementList.forth())
+				{
+					const ElementEntry& elementEntry = elementList.getEntry();
+
+					if ((elementEntry.getName() == "SessionChannelList") && (elementEntry.getLoad().getDataType() == DataType::MapEnum))
+					{
+						const Map& consumerMap = elementEntry.getMap();
+
+						while (consumerMap.forth())
+						{
+							const MapEntry& consumerMapEntry = consumerMap.getEntry();
+
+							if ((consumerMapEntry.getKey().getDataType() == DataType::AsciiEnum) && (consumerMapEntry.getKey().getAscii() == sessionName))
+								return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
 bool ProgrammaticConfigure::validateNiProviderName( const Map& map, const EmaString& niProviderName )
 {
 	map.reset();
@@ -670,6 +902,155 @@ void  ProgrammaticConfigure::retrieveCommonConfig(const EmaString& instanceName,
 		retrieveInstanceCommonConfig(*_configList[i], instanceName, _emaConfigErrList, activeConfig);
 }
 
+void ProgrammaticConfigure::retrieveConsumerRoutingSessionConfig(const EmaString& instanceName, ConsumerRoutingSessionChannelConfig& config, bool& foundLogger)
+{
+	unsigned int position = 0;
+	unsigned int channelPos = 0, channelSetPos = 0;
+
+	for (UInt32 i = 0; i < _configList.size(); i++)
+	{
+		const Map& map = *_configList[i];
+
+		map.reset();
+		while (map.forth())
+		{
+			const MapEntry& mapEntry = _configList[i]->getEntry();
+
+			if (mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "SessionChannelGroup")
+			{
+				if (mapEntry.getLoadType() == DataType::ElementListEnum)
+				{
+					const ElementList& elementList = mapEntry.getElementList();
+
+					while (elementList.forth())
+					{
+						const ElementEntry& elementEntry = elementList.getEntry();
+
+						if (elementEntry.getLoadType() == DataType::MapEnum)
+						{
+							if (elementEntry.getName() == "SessionChannelList" && (elementEntry.getLoad().getDataType() == DataType::MapEnum))
+							{
+								const Map& map = elementEntry.getMap();
+
+								while (map.forth())
+								{
+									const MapEntry& mapEntry = map.getEntry();
+
+									if ((mapEntry.getKey().getDataType() == DataType::AsciiEnum) && (mapEntry.getKey().getAscii() == instanceName))
+									{
+										if (mapEntry.getLoadType() == DataType::ElementListEnum)
+										{
+											const ElementList& elementList = mapEntry.getElementList();
+											position = 0;
+											while (elementList.forth())
+											{
+												const ElementEntry& instanceEntry = elementList.getEntry();
+												position++;
+												switch (instanceEntry.getLoadType())
+												{
+												case DataType::AsciiEnum:
+													if (instanceEntry.getName() == "XmlTraceFileName")
+													{
+														config.xmlTraceFileName = instanceEntry.getAscii();
+													}
+													else if (instanceEntry.getName() == "PHDetectionTimeSchedule")
+													{
+														config.phDetectionTimeSchedule = instanceEntry.getAscii();
+													}
+													else if (instanceEntry.getName() == "PreferredChannelName")
+													{
+														config.preferredChannelName = instanceEntry.getAscii();
+													}
+													else if (instanceEntry.getName() == "PreferredWSBChannelName")
+													{
+														config.preferredWSBChannelName = instanceEntry.getAscii();
+													}
+													break;
+												case DataType::IntEnum:
+													if (instanceEntry.getName() == "ReconnectAttemptLimit")
+													{
+														config.reconnectAttemptLimit = (Int32)instanceEntry.getInt();
+													}
+													else if (instanceEntry.getName() == "ReconnectMaxDelay")
+													{
+														config.reconnectMaxDelay = (Int32)instanceEntry.getInt();
+													}
+													else if (instanceEntry.getName() == "ReconnectMinDelay")
+													{
+														config.reconnectMinDelay = (Int32)instanceEntry.getInt();
+													}
+													else if (instanceEntry.getName() == "XmlTraceMaxFileSize")
+													{
+														config.xmlTraceMaxFileSize = instanceEntry.getInt();
+													}
+													break;
+												case DataType::UIntEnum:
+													if (instanceEntry.getName() == "XmlTraceDump")
+													{
+														config.xmlTraceDump = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceHex")
+													{
+														config.xmlTraceHex = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTracePing")
+													{
+														config.xmlTracePing = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTracePingOnly")
+													{
+														config.xmlTracePingOnly = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceToFile")
+													{
+														config.xmlTraceToFile = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceToMultipleFiles")
+													{
+														config.xmlTraceToMultipleFiles = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceToStdout")
+													{
+														config.xmlTraceToStdout = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceRead")
+													{
+														config.xmlTraceRead = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceWrite")
+													{
+														config.xmlTraceWrite = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "EnablePreferredHostOptions")
+													{
+														config.enablePreferredHostOptions = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "PHDetectionTimeInterval")
+													{
+														config.phDetectionTimeInterval = (UInt32)instanceEntry.getUInt();
+													}
+													else if (instanceEntry.getName() == "PHFallBackWithInWSBGroup")
+													{
+														config.phFallBackWithInWSBGroup = instanceEntry.getUInt() ? true : false;
+													}
+													break;
+												default:
+													break;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+		}
+	}
+}
+
 void  ProgrammaticConfigure::retrieveCustomConfig( const EmaString& instanceName, BaseConfig& activeConfig )
 {
 	for ( UInt32 i = 0; i < _configList.size(); i++ )
@@ -734,25 +1115,25 @@ int  ProgrammaticConfigure::retrieveChannelTypeConfig(const EmaString& channelNa
 	return -1;
 }
 
-void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  ActiveConfig& activeConfig, int hostFnCalled, ChannelConfig* fileCfg)
+void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  ActiveConfig& activeConfig, int hostFnCalled, ChannelConfig* fileCfg, ConsumerRoutingSessionChannelConfig* sessionConfig)
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		retrieveChannel( *_configList[i], channelName, _emaConfigErrList, activeConfig, hostFnCalled, fileCfg);
+		retrieveChannel( *_configList[i], channelName, _emaConfigErrList, activeConfig, hostFnCalled, fileCfg, sessionConfig);
 }
 
-void ProgrammaticConfigure::retrieveWSBChannelConfig(const EmaString& wsbChannelName, ActiveConfig& activeConfig, WarmStandbyChannelConfig* fileCfg)
+void ProgrammaticConfigure::retrieveWSBChannelConfig(const EmaString& wsbChannelName, ActiveConfig& activeConfig, WarmStandbyChannelConfig* fileCfg, ConsumerRoutingSessionChannelConfig* sessionConfig)
 {
 	WarmStandbyChannelConfig* currentWarmStandbyChannelConfig = NULL;
 
 	for (UInt32 i = 0; i < _configList.size(); i++)
-		retrieveWSBChannel(*_configList[i], wsbChannelName, _emaConfigErrList, activeConfig, fileCfg);
+		retrieveWSBChannel(*_configList[i], wsbChannelName, _emaConfigErrList, activeConfig, fileCfg, sessionConfig);
 }
 
 void ProgrammaticConfigure::retrieveWSBServerInfoConfig(const EmaString& wsbServerInfoName, ActiveConfig& activeConfig, WarmStandbyServerInfoConfig* currentCfg,
-	WarmStandbyServerInfoConfig* fileCfg)
+	WarmStandbyServerInfoConfig* fileCfg, ConsumerRoutingSessionChannelConfig* sessionConfig)
 {
 	for (UInt32 i = 0; i < _configList.size(); i++)
-		retrieveWSBServer(*_configList[i], wsbServerInfoName, _emaConfigErrList, activeConfig, currentCfg, fileCfg);
+		retrieveWSBServer(*_configList[i], wsbServerInfoName, _emaConfigErrList, activeConfig, currentCfg, fileCfg, sessionConfig);
 }
 
 void  ProgrammaticConfigure::retrieveServerConfig(const EmaString& serverName, ActiveServerConfig& activeServerConfig, int portFnCalled, ServerConfig* fileCfg)
@@ -761,10 +1142,10 @@ void  ProgrammaticConfigure::retrieveServerConfig(const EmaString& serverName, A
 		retrieveServer(*_configList[i], serverName, _emaConfigErrList, activeServerConfig, portFnCalled, fileCfg);
 }
 
-void  ProgrammaticConfigure::retrieveLoggerConfig( const EmaString& loggerName, BaseConfig& activeConfig )
+void  ProgrammaticConfigure::retrieveLoggerConfig( const EmaString& loggerName, LoggerConfig& loggerConfig )
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		retrieveLogger( *_configList[i], loggerName, _emaConfigErrList, activeConfig );
+		retrieveLogger( *_configList[i], loggerName, _emaConfigErrList, loggerConfig);
 }
 
 void  ProgrammaticConfigure::retrieveDictionaryConfig( const EmaString& dictionaryName, ActiveConfig& activeConfig )
@@ -1082,6 +1463,18 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.restProxyPort = eentry.getAscii();
 												}
+												else if (eentry.getName() == "PHDetectionTimeSchedule")
+												{
+													activeConfig.setDetectionTimeSchedule(eentry.getAscii());
+												}
+												else if (eentry.getName() == "PreferredChannelName")
+												{
+													activeConfig.setChannelName(eentry.getAscii());
+												}
+												else if (eentry.getName() == "PreferredWSBChannelName")
+												{
+													activeConfig.setWSBChannelName(eentry.getAscii());
+												}
 												break;
 
 											case DataType::UIntEnum:
@@ -1189,6 +1582,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.enableRtt = eentry.getUInt() ? true : false;
 												}
+												else if (eentry.getName() == "SessionEnhancedItemRecovery")
+												{
+													activeConfig.consumerRoutingSessionEnhancedItemRecovery = eentry.getUInt() ? true : false;
+												}
 												else if (eentry.getName() == "SendJsonConvError")
 												{
 													activeConfig.sendJsonConvError = eentry.getUInt() ? true : false;
@@ -1208,6 +1605,18 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												else if (eentry.getName() == "ShouldInitializeCPUIDlib")
 												{
 													activeConfig.shouldInitializeCPUIDlib = eentry.getUInt() ? true : false;
+												}
+												else if (eentry.getName() == "EnablePreferredHostOptions")
+												{
+													activeConfig.setEnablePreferredHostOptions(eentry.getUInt());
+												}
+												else if (eentry.getName() == "PHDetectionTimeInterval")
+												{
+													activeConfig.setDetectionTimeInterval(eentry.getUInt());
+												}
+												else if (eentry.getName() == "PHFallBackWithInWSBGroup")
+												{
+													activeConfig.setFallBackWithInWSBGroup(eentry.getUInt());
 												}
 
 												break;
@@ -1492,21 +1901,6 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 
 											switch ( eentry.getLoadType() )
 											{
-											case DataType::AsciiEnum:
-												if (eentry.getName() == "PHDetectionTimeSchedule")
-												{
-													static_cast<ActiveConfig&>(activeConfig).setDetectionTimeSchedule( eentry.getAscii() );
-												}
-												else if (eentry.getName() == "PreferredChannelName")
-												{
-													static_cast<ActiveConfig&>(activeConfig).setChannelName(eentry.getAscii());
-												}
-												else if (eentry.getName() == "PreferredWSBChannelName")
-												{
-													static_cast<ActiveConfig&>(activeConfig).setWSBChannelName(eentry.getAscii());
-												}
-												break;
-
 											case DataType::UIntEnum:
 												if ( eentry.getName() == "ObeyOpenWindow" )
 												{
@@ -1527,18 +1921,6 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 												else if ( eentry.getName() == "DictionaryRequestTimeOut" )
 												{
 													static_cast<ActiveConfig&>(activeConfig).setDictionaryRequestTimeOut( eentry.getUInt() );
-												}
-												else if (eentry.getName() == "EnablePreferredHostOptions")
-												{
-													static_cast<ActiveConfig&>(activeConfig).setEnablePreferredHostOptions(eentry.getUInt());
-												}
-												else if (eentry.getName() == "PHDetectionTimeInterval")
-												{
-													static_cast<ActiveConfig&>(activeConfig).setDetectionTimeInterval(eentry.getUInt());
-												}
-												else if (eentry.getName() == "PHFallBackWithInWSBGroup")
-												{
-													static_cast<ActiveConfig&>(activeConfig).setFallBackWithInWSBGroup(eentry.getUInt());
 												}
 												break;
 
@@ -1703,7 +2085,7 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 }
 
 void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-    ActiveConfig& activeConfig, int hostFnCalled, ChannelConfig* fileCfg)
+    ActiveConfig& activeConfig, int hostFnCalled, ChannelConfig* fileCfg, ConsumerRoutingSessionChannelConfig* sessionConfig)
 {
 	map.reset();
 	while ( map.forth() )
@@ -1733,7 +2115,7 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == channelName ) )
 								{
 									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-										retrieveChannelInfo( mapEntry, channelName, emaConfigErrList, activeConfig, hostFnCalled, fileCfg);
+										retrieveChannelInfo( mapEntry, channelName, emaConfigErrList, activeConfig, hostFnCalled, fileCfg, sessionConfig);
 								}
 							}
 						}
@@ -1745,7 +2127,7 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 }
 
 void ProgrammaticConfigure::retrieveWSBChannel(const Map& map, const EmaString& wsbChannelName, EmaConfigErrorList& emaConfigErrList,
-	ActiveConfig& activeConfig, WarmStandbyChannelConfig* fileCfg )
+	ActiveConfig& activeConfig, WarmStandbyChannelConfig* fileCfg, ConsumerRoutingSessionChannelConfig* sessionConfig)
 {
 	map.reset();
 	while (map.forth())
@@ -1776,7 +2158,7 @@ void ProgrammaticConfigure::retrieveWSBChannel(const Map& map, const EmaString& 
 								{
 									if (mapEntry.getLoadType() == DataType::ElementListEnum)
 									{
-										retrieveWSBChannelInfo(mapEntry, wsbChannelName, emaConfigErrList, activeConfig, fileCfg);
+										retrieveWSBChannelInfo(mapEntry, wsbChannelName, emaConfigErrList, activeConfig, fileCfg, sessionConfig);
 
 										break;
 									}
@@ -1791,7 +2173,7 @@ void ProgrammaticConfigure::retrieveWSBChannel(const Map& map, const EmaString& 
 }
 
 void ProgrammaticConfigure::retrieveWSBServer(const Map& map, const EmaString& wsbServerInfoName, EmaConfigErrorList& emaConfigErrList,
-	ActiveConfig& activeConfig, WarmStandbyServerInfoConfig* currentConfig, WarmStandbyServerInfoConfig* fileCfg)
+	ActiveConfig& activeConfig, WarmStandbyServerInfoConfig* currentConfig, WarmStandbyServerInfoConfig* fileCfg, ConsumerRoutingSessionChannelConfig* sessionConfig)
 {
 	map.reset();
 	while (map.forth())
@@ -1821,7 +2203,7 @@ void ProgrammaticConfigure::retrieveWSBServer(const Map& map, const EmaString& w
 								if ((mapEntry.getKey().getDataType() == DataType::AsciiEnum) && (mapEntry.getKey().getAscii() == wsbServerInfoName))
 								{
 									if (mapEntry.getLoadType() == DataType::ElementListEnum)
-										retrieveWSBServerInfo(mapEntry, wsbServerInfoName, emaConfigErrList, activeConfig, currentConfig, fileCfg);
+										retrieveWSBServerInfo(mapEntry, wsbServerInfoName, emaConfigErrList, activeConfig, currentConfig, fileCfg, sessionConfig);
 								}
 							}
 						}
@@ -1871,7 +2253,7 @@ void ProgrammaticConfigure::retrieveServer(const Map& map, const EmaString& serv
 }
 
 void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-    ActiveConfig& activeConfig, int setByFnCalled, ChannelConfig* fileCfg)
+    ActiveConfig& activeConfig, int setByFnCalled, ChannelConfig* fileCfg, ConsumerRoutingSessionChannelConfig* sessionConfig)
 {
 	const ElementList& elementListChannel = mapEntry.getElementList();
 
@@ -2041,7 +2423,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 					break;
 				default:
 					EmaString text("Invalid Encrypted Channel Type [");
-					text.append(channelType);
+					text.append(encryptedProtocolType);
 					text.append("] ");
 					EmaConfigError* mce(new EmaConfigError(text, OmmLoggerClient::ErrorEnum));
 					emaConfigErrList.add(mce);
@@ -2210,6 +2592,16 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 		unsigned int positionFound = 0;
 		ChannelConfig* pCurrentChannelConfig = 0;
+		EmaVector< ChannelConfig* >* activeConfigChannelSet;
+
+		if (sessionConfig == NULL)
+		{
+			activeConfigChannelSet = &activeConfig.configChannelSet;
+		}
+		else
+		{
+			activeConfigChannelSet = &sessionConfig->configChannelSet;
+		}
 
 		try
 		{
@@ -2219,8 +2611,10 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				pCurrentChannelConfig = reliableMcastChannelCfg;
 				EmaString errorMsg;
 
+				pCurrentChannelConfig->pRoutingChannelConfig = sessionConfig;
+
 				if ( setReliableMcastChannelInfo( reliableMcastChannelCfg, mcastFlags, tempRelMcastCfg, errorMsg, fileCfg ) )
-					activeConfig.configChannelSet.push_back( pCurrentChannelConfig );
+					activeConfigChannelSet->push_back( pCurrentChannelConfig );
 				else
 				{
 					throwIceException( errorMsg );
@@ -2245,7 +2639,9 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				}
 
 				pCurrentChannelConfig = socketChannelConfig;
-				activeConfig.configChannelSet.push_back(pCurrentChannelConfig);
+				// This will be set to the routing channel object that owns this object, otherwise NULL.
+				pCurrentChannelConfig->pRoutingChannelConfig = sessionConfig;
+				activeConfigChannelSet->push_back(pCurrentChannelConfig);
 
 				SocketChannelConfig* fileCfgSocket = NULL;
 				if (fileCfg && ((fileCfg->connectionType == RSSL_CONN_TYPE_SOCKET) || (fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED) || (fileCfg->connectionType == RSSL_CONN_TYPE_HTTP) || (fileCfg->connectionType == RSSL_CONN_TYPE_WEBSOCKET)))
@@ -2433,7 +2829,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 }
 
 void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, const EmaString& serverInfoName, EmaConfigErrorList& emaConfigErrList,
-	ActiveConfig& activeConfig, WarmStandbyServerInfoConfig* currentCfg, WarmStandbyServerInfoConfig* fileConfig)
+	ActiveConfig& activeConfig, WarmStandbyServerInfoConfig* currentCfg, WarmStandbyServerInfoConfig* fileConfig, ConsumerRoutingSessionChannelConfig* sessionConfig)
 {
 	const ElementList& elementListServerInfo = mapEntry.getElementList();
 
@@ -2479,21 +2875,54 @@ void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, cons
 		if (!queryName.empty())
 		{
 			/* Find the channel name from the file config to merge */
+			if (sessionConfig == NULL)
+			{
 			if (activeConfig.findChannelConfig(activeConfig.configChannelSetForWSB, queryName, pos))
 			{
 				fileChannelConfig = activeConfig.configChannelSetForWSB[pos];
 			}
+			}
+			else
+			{
+				if (activeConfig.findChannelConfig(sessionConfig->configChannelSetForWSB, queryName, pos))
+				{
+					fileChannelConfig = sessionConfig->configChannelSetForWSB[pos];
+				}
+			}
 
-			UInt32 orgSize = activeConfig.configChannelSet.size();
+			UInt32 orgSize = 0;
+
+			if (sessionConfig == NULL)
+			{
+				orgSize = activeConfig.configChannelSet.size();
+			}
+			else
+			{
+				orgSize = sessionConfig->configChannelSet.size();
+			}
 
 			/* Get channel config from programmatic configuration instead */
-			retrieveChannelConfig(queryName, activeConfig, false, fileChannelConfig);
+			// This call will automatically create a new ChannelConfig and will add it to the end of either activeConfig.configChannelSet or sessionConfig->configChannelSet.
+			// So after this succeeds(failure will thrown an exception), just remove it from the configChannelSet above.
+			retrieveChannelConfig(queryName, activeConfig, false, fileChannelConfig, sessionConfig);
 
+			if (sessionConfig == NULL)
+			{
 			currentCfg->channelConfig = activeConfig.configChannelSet[orgSize];
-
 			activeConfig.configChannelSetForWSB.push_back(currentCfg->channelConfig);
 
 			activeConfig.configChannelSet.removePosition(orgSize);
+		}
+			else
+			{
+				currentCfg->channelConfig = sessionConfig->configChannelSet[orgSize];
+				sessionConfig->configChannelSetForWSB.push_back(currentCfg->channelConfig);
+
+				// This will be set to the routing channel object that owns this object, otherwise NULL.
+				currentCfg->channelConfig->pRoutingChannelConfig = sessionConfig;
+
+				sessionConfig->configChannelSet.removePosition(orgSize);
+			}
 		}
 
 		if (flags & WSBPerServiceNameSet)
@@ -2531,7 +2960,8 @@ void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, cons
 			if (fileConfig->channelConfig)
 			{
 				EmaString queryName = fileConfig->channelConfig->name;
-
+				if (sessionConfig == NULL)
+				{
 				if (activeConfig.findChannelConfig(activeConfig.configChannelSet, queryName, pos))
 				{
 					currentCfg->channelConfig = activeConfig.configChannelSet[pos];
@@ -2544,6 +2974,24 @@ void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, cons
 					if (activeConfig.findChannelConfig(activeConfig.configChannelSet, queryName, pos))
 					{
 						currentCfg->channelConfig = activeConfig.configChannelSet[pos];
+					}
+				}
+			}
+				else
+				{
+					if (activeConfig.findChannelConfig(sessionConfig->configChannelSet, queryName, pos))
+					{
+						currentCfg->channelConfig = sessionConfig->configChannelSet[pos];
+					}
+					else
+					{
+						/* Get channel config from programmatic configuration instead */
+						retrieveChannelConfig(queryName, activeConfig, false, NULL, sessionConfig);
+
+						if (activeConfig.findChannelConfig(sessionConfig->configChannelSet, queryName, pos))
+						{
+							currentCfg->channelConfig = sessionConfig->configChannelSet[pos];
+						}
 					}
 				}
 			}
@@ -2560,7 +3008,7 @@ void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, cons
 }
 
 void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, const EmaString& wsbChannelName, EmaConfigErrorList& emaConfigErrList,
-	ActiveConfig& activeConfig, WarmStandbyChannelConfig* fileConfig)
+	ActiveConfig& activeConfig, WarmStandbyChannelConfig* fileConfig, ConsumerRoutingSessionChannelConfig* sessionConfig)
 {
 	const ElementList& elementListWSBChannel = mapEntry.getElementList();
 
@@ -2627,6 +3075,8 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 	}
 
 	wsbChannelConfig = new WarmStandbyChannelConfig(wsbChannelName);
+	// This will be set to the routing channel object that owns this object, otherwise NULL.
+	wsbChannelConfig->pRoutingChannelConfig = sessionConfig;
 
 	if (flags != 0)
 	{
@@ -2635,14 +3085,14 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 			wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(startingActiveServer);
 			wsbChannelConfig->startingActiveServer = wsbCurrentServerInfoConfig;
 
-			retrieveWSBServerInfoConfig(startingActiveServer, activeConfig, wsbCurrentServerInfoConfig, NULL);
+			retrieveWSBServerInfoConfig(startingActiveServer, activeConfig, wsbCurrentServerInfoConfig, NULL, sessionConfig);
 		}
 		else if(fileConfig)
 		{
 			wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileConfig->startingActiveServer->name);
 			wsbChannelConfig->startingActiveServer = wsbCurrentServerInfoConfig;
 
-			retrieveWSBServerInfoConfig(fileConfig->startingActiveServer->name, activeConfig, wsbCurrentServerInfoConfig, fileConfig->startingActiveServer);
+			retrieveWSBServerInfoConfig(fileConfig->startingActiveServer->name, activeConfig, wsbCurrentServerInfoConfig, fileConfig->startingActiveServer, sessionConfig);
 		}
 
 		if (flags & WSBStandbyServerSetEnum)
@@ -2672,7 +3122,7 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 			{
 				pEmaString = standbyServerList[index];
 				wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(*pEmaString);
-				retrieveWSBServerInfoConfig(*pEmaString, activeConfig, wsbCurrentServerInfoConfig, NULL);
+				retrieveWSBServerInfoConfig(*pEmaString, activeConfig, wsbCurrentServerInfoConfig, NULL, sessionConfig);
 
 				wsbChannelConfig->standbyServerSet.push_back(wsbCurrentServerInfoConfig);
 
@@ -2687,7 +3137,7 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 				fileWsbServerInfoConfig = fileConfig->standbyServerSet[index];
 				wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileWsbServerInfoConfig->name);
 
-				retrieveWSBServerInfoConfig(fileWsbServerInfoConfig->name, activeConfig, wsbCurrentServerInfoConfig, fileWsbServerInfoConfig);
+				retrieveWSBServerInfoConfig(fileWsbServerInfoConfig->name, activeConfig, wsbCurrentServerInfoConfig, fileWsbServerInfoConfig, sessionConfig);
 
 				wsbChannelConfig->standbyServerSet.push_back(wsbCurrentServerInfoConfig);
 			}
@@ -2718,14 +3168,14 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 			wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileConfig->startingActiveServer->name);
 			wsbChannelConfig->startingActiveServer = wsbCurrentServerInfoConfig;
 
-			retrieveWSBServerInfoConfig(startingActiveServer, activeConfig, wsbCurrentServerInfoConfig, fileConfig->startingActiveServer);
+			retrieveWSBServerInfoConfig(startingActiveServer, activeConfig, wsbCurrentServerInfoConfig, fileConfig->startingActiveServer, sessionConfig);
 
 			for (index = 0; index < fileConfig->standbyServerSet.size(); index++)
 			{
 				fileWsbServerInfoConfig = fileConfig->standbyServerSet[index];
 				wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileWsbServerInfoConfig->name);
 
-				retrieveWSBServerInfoConfig(fileWsbServerInfoConfig->name, activeConfig, wsbCurrentServerInfoConfig, fileWsbServerInfoConfig);
+				retrieveWSBServerInfoConfig(fileWsbServerInfoConfig->name, activeConfig, wsbCurrentServerInfoConfig, fileWsbServerInfoConfig, sessionConfig);
 
 				wsbChannelConfig->standbyServerSet.push_back(wsbCurrentServerInfoConfig);
 			}
@@ -2735,7 +3185,14 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 		}
 	}
 
+	if (sessionConfig == NULL)
+	{
 	activeConfig.configWarmStandbySet.push_back(wsbChannelConfig);
+}
+	else
+	{
+		sessionConfig->configWarmStandbySet.push_back(wsbChannelConfig);
+	}
 }
 
 void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const EmaString& serverName, EmaConfigErrorList& emaConfigErrList,
@@ -3219,7 +3676,7 @@ bool ProgrammaticConfigure::setReliableMcastChannelInfo( ReliableMcastChannelCon
 }
 
 void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& loggerName, EmaConfigErrorList& emaConfigErrList,
-	BaseConfig& activeConfig )
+	LoggerConfig& loggerConfig )
 {
 	map.reset();
 	while ( map.forth() )
@@ -3262,19 +3719,19 @@ void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& log
 												if ( entry.getName() == "NumberOfLogFiles" )
 												{
 													UInt64 tmp = entry.getUInt();
-													activeConfig.loggerConfig.maxFileNumber = tmp <= MAX_UNSIGNED_INT32 ? (UInt32)tmp : MAX_UNSIGNED_INT32;
+													loggerConfig.maxFileNumber = tmp <= MAX_UNSIGNED_INT32 ? (UInt32)tmp : MAX_UNSIGNED_INT32;
 												}
 												else if ( entry.getName() == "MaxLogFileSize" )
 												{
 													UInt64 tmp = entry.getUInt();
-													activeConfig.loggerConfig.maxFileSize = tmp <= MAX_UNSIGNED_INT32 ? (UInt32)tmp : MAX_UNSIGNED_INT32;
+													loggerConfig.maxFileSize = tmp <= MAX_UNSIGNED_INT32 ? (UInt32)tmp : MAX_UNSIGNED_INT32;
 												}
 												break;
 
 											case DataType::AsciiEnum:
 												if ( entry.getName() == "FileName" )
 												{
-													activeConfig.loggerConfig.loggerFileName = entry.getAscii();
+													loggerConfig.loggerFileName = entry.getAscii();
 												}
 												break;
 
@@ -3295,7 +3752,7 @@ void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& log
 													}
 													else
 													{
-														activeConfig.loggerConfig.loggerType = ( OmmLoggerClient::LoggerType )loggerType;
+														loggerConfig.loggerType = ( OmmLoggerClient::LoggerType )loggerType;
 													}
 												}
 												else if ( entry.getName() == "LoggerSeverity" )
@@ -3314,7 +3771,7 @@ void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& log
 													}
 													else
 													{
-														activeConfig.loggerConfig.minLoggerSeverity = ( OmmLoggerClient::Severity )severityType;
+														loggerConfig.minLoggerSeverity = ( OmmLoggerClient::Severity )severityType;
 													}
 												}
 												break;

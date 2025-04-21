@@ -194,6 +194,16 @@ Module:  Series300Consumer310
 Series300Consumer310-Rmtes-001
    Alters consumer to use new function rmtesBuffer.getAsEmaBuffer() and encode it as a FieldEntry of FieldList.
 
+Module:  Series300Consumer320
+-----------------------------
+Series300Consumer320-RequestRouting-001
+    Alters consumer 320 to include printSessionInfo for testing with RequestRouting feature.
+
+Module:  Series300Consumer330
+-----------------------------
+Series300Consumer330-RequestRouting-001
+   Alters consumer 300 to include printSessionInfo for testing with RequestRouting feature.
+
 Module:  Series300Consumer331
 ---------------------------
 Series300Consumer331-GenM-001
@@ -266,6 +276,9 @@ Series300Consumer331-ConsFunc-002
 Series300Consumer331-ConsFunc-003
     Alters consumer to request directory with interestAfterRefresh(false) 
 
+Series300Consumer331-RequestRouting-001
+   Alters consumer 331 to include printSessionInfo for testing with RequestRouting feature.
+
 Module:  Series300Consumer332
 ---------------------------
 
@@ -290,6 +303,9 @@ Series300Consumer332-Dict-007
 Series300Consumer332-Dict-008
     Alters consumer to call new interface DataDictionary.entry(int id, DictionaryEntry entryDst)
 
+Series300Consumer332-RequestRouting-001
+   Alters consumer 332 to include printSessionInfo for testing with RequestRouting feature.
+
 Module:  Series300Consumer333
 -----------------------------
 
@@ -303,10 +319,19 @@ Series300Consumer333-GenM-003
 
 Module:  Series300Consumer340
 -----------------------------
-
 Series300Consumer340-ConsFunc-001
    Alters consumer to clone and decode these messages: RefreshMsg, AckMsg, UpdateMsg and StatusMsg 
 
+Series300Consumer340-RequestRouting-001
+   Alters consumer 340 to include printSessionInfo for testing with RequestRouting feature.
+
+Module:  Series300Consumer341
+-----------------------------
+Series300Consumer341-RequestRouting-001
+   Alters consumer 341 to include printSessionInfo for testing with RequestRouting feature.
+
+Module:  Series300Consumer350
+-----------------------------
 Series300Consumer360-MultiThreadViews-001
    Alters consumer to request multiple view from the plenty different threads
 
@@ -519,6 +544,82 @@ Module:  Series400Consumer490
     -loadChannelDictTwoConsConcur: load channel dictionary to object then use this object to run 2 consumers concurrently
     -shouldCopyIntoAPI: enable deep copy dictionary object into API
 
+Module:  Series500Consumer510
+-----------------------------
+Series500Consumer510-ConsFunc-001
+	Alters to add options for testing qos on ReqMsg and prin event.ChannelInformation instead of SessionInformation.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.INEXACT_DELAYED, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JUST_IN_TIME_CONFLATED).
+
+Series500Consumer510-ConsFunc-002
+	Alters to add options for testing with identifying a concrete service name and qos on ReqMsg and prin event.ChannelInformation instead of SessionInformation.
+	-i itemName.\n"        
+	-s Identifying service name.
+	-user userName.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.INEXACT_DELAYED, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JUST_IN_TIME_CONFLATED).
+
+Series500Consumer510-ConsFunc-003
+	Alters to add options for testing with requesting view1(2,22,25) and view2(2,30,31) on LSEG.L with qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.INEXACT_DELAYED, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JUST_IN_TIME_CONFLATED).
+
+Series500Consumer510-ConsFunc-004
+	Alters to add options for testing with identifying a concrete service name & requesting view1(2,22,25) and view2(2,30,31) on LSEG.L with qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-s Identifying service name.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.INEXACT_DELAYED, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JUST_IN_TIME_CONFLATED).
+
+Series500Consumer510-ConsFunc-005
+	Alters to add options for testing requesting same item but 2 streams, one is normal and one is private, qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-itemName to identify itemName.
+	-domain follow by domainType mp=MARKET_PRICE, mbp=MARKET_BY_PRICE, mbo=MARKET_BY_ORDER.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.BEST_DELAYED_TIMELINESS, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JIT_CONFLATED).
+
+Series500Consumer510-ConsFunc-006
+	Alters to add options for testing requesting batch with view for TRI.N IBM.N LSEG.L, qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.BEST_DELAYED_TIMELINESS, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JIT_CONFLATED).
+
+Series500Consumer510-ConsFunc-007
+	Alters to add options to identify serviceName1 and serviceName2 in serviceList SVG1, qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-s1 serviceName1.
+	-s2 serviceName2.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.BEST_DELAYED_TIMELINESS, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JIT_CONFLATED).
+
+Series500Consumer510-ConsFunc-008
+	Alters to add options for testing with identifying service id and qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-sid service Id.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.INEXACT_DELAYED, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JUST_IN_TIME_CONFLATED).
+
+Series500Consumer510-ConsFunc-009
+	Alters to add options to identify concrete serviceName1 and serviceName2 to request TRI.N on serviceName1 and IBM.N on serviceName2, qos on ReqMsg and print event.ChannelInformation instead of SessionInformation.
+	-s1 serviceName1.
+	-s2 serviceName2.
+	-test0 Testing default, no qos in ReqMsg.
+	-test11 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).
+	-test12 Testing ReqMsg.qos(Timeliness.BEST_DELAYED_TIMELINESS, Rate.TICK_BY_TICK).
+	-test21 Testing ReqMsg.qos(Timeliness.REALTIME, Rate.JIT_CONFLATED).	
+	
 Module:  Series100Provider100 
 -------------------------------
 
@@ -646,6 +747,9 @@ Series300Provider320-ProvFunc-005
 Series300Provider320-ProvFunc-006
     Alters Interactive Provider to send a dictionary in fragments starting at size 9600 
     bytes and incrementing subsequent fragments by 10000 bytes.
+
+Series300Provider320-ProvFunc-007
+    Alters Interactive Provider 320 to accept -p for portNumber via commandline arguments.
 
 Module:  Series300Provider340
 ----------------------------------

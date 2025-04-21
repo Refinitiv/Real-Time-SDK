@@ -25,6 +25,7 @@ class MarketItemHandler
 {
 public:
 
+	// Callback for IProvider only
 	static RsslReactorCallbackRet itemCallback(RsslReactor*, RsslReactorChannel*, RsslMsgEvent*);
 
 	static MarketItemHandler* create(OmmServerBaseImpl*);

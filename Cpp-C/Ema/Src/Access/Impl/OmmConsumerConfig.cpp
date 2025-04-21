@@ -368,3 +368,10 @@ OmmConsumerConfig& OmmConsumerConfig::restProxyDomain(const EmaString& restProxy
 	_pImpl->restProxyDomain(restProxyDomain);
 	return *this;
 }
+
+
+OmmConsumerConfig& OmmConsumerConfig::addServiceList(const ServiceList& serviceList)
+{
+	_pImpl->addServiceList(serviceList);
+	return *this;
+}

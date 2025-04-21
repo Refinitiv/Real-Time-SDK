@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2024 LSEG. All rights reserved.
+ * Copyright (C) 2019-2025 LSEG. All rights reserved.
 */
 
 /*
@@ -2032,6 +2032,13 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			/* We have received a warning event for this channel. Print the information and continue. */
 			printf("%s Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", timeBuf, pReactorChannel->socketId);
 			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK:
+		{
+			/* The preferred host operation has started. */
+			/* The event means - that a timer or function triggered the preferred host operation. */
+			printf("%s Received PREFERRED_HOST_STARTING_FALLBACK for Channel fd="SOCKET_PRINT_TYPE".\n", timeBuf, pReactorChannel->socketId);
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:

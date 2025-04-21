@@ -9,6 +9,7 @@
 #include "ActiveConfig.h"
 #include "EmaConfigImpl.h"
 #include "ChannelCallbackClient.h"
+#include "ConsumerRoutingChannel.h"
 
 using namespace refinitiv::ema::access;
 
@@ -346,6 +347,23 @@ void BaseConfig::setMaxEventsInPool(Int64 value)
 		maxEventsInPool = (Int32)value;
 }
 
+size_t ActiveConfig::EmaStringPtrHasher::operator()(const EmaStringPtr& value) const
+{
+	size_t result = 0;
+	size_t magic = 8388593;
+
+	const char* s = value->c_str();
+	UInt32 n = value->length();
+	while (n--)
+		result = ((result % magic) << 8) + (size_t)*s++;
+	return result;
+}
+
+bool ActiveConfig::EmaStringPtrEqual_To::operator()(const EmaStringPtr& x, const EmaStringPtr& y) const
+{
+	return *x == *y;
+}
+
 ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	obeyOpenWindow( DEFAULT_OBEY_OPEN_WINDOW ),
 	postAckTimeout( DEFAULT_POST_ACK_TIMEOUT ),
@@ -372,6 +390,9 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	restProxyUserName(),
 	restProxyPasswd(),
 	restProxyDomain(),
+	consumerRoutingSessionEnhancedItemRecovery(true),
+	serviceListByName(),
+	serviceListSet(),
 	enablePreferredHostOptions(DEFAULT_ENABLE_PREFERRED_HOST),
 	phDetectionTimeSchedule(DEFAULT_DETECTION_TIME_SCHEDULE),
 	phDetectionTimeInterval(DEFAULT_DETECTION_TIME_INTERVAL),
@@ -386,6 +407,8 @@ ActiveConfig::~ActiveConfig()
 	clearChannelSet();
 	clearWSBChannelSet();
 	clearChannelSetForWSB();
+	clearConsumerRoutingSessionSet();
+	clearServiceListSet();
 }
 
 EmaString ActiveConfig::configTrace()
@@ -463,6 +486,39 @@ void ActiveConfig::clearChannelSetForWSB()
 	}
 
 	configChannelSetForWSB.clear();
+}
+
+void ActiveConfig::clearConsumerRoutingSessionSet()
+{
+	if (consumerRoutingSessionSet.size() == 0)
+		return;
+	for (unsigned int i = 0; i < consumerRoutingSessionSet.size(); ++i)
+	{
+		if (consumerRoutingSessionSet[i] != NULL)
+		{
+			delete consumerRoutingSessionSet[i];
+			consumerRoutingSessionSet[i] = NULL;
+		}
+	}
+
+	consumerRoutingSessionSet.clear();
+}
+
+void ActiveConfig::clearServiceListSet()
+{
+	if (serviceListSet.size() == 0)
+		return;
+	for (unsigned int i = 0; i < serviceListSet.size(); ++i)
+	{
+		if (serviceListSet[i] != NULL)
+		{
+			delete serviceListSet[i];
+			serviceListSet[i] = NULL;
+		}
+	}
+
+	serviceListSet.clear();
+	serviceListByName.clear();
 }
 
 void ActiveConfig::clear()
@@ -811,7 +867,8 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
 	sysRecvBufSize( DEFAULT_SYS_RECEIVE_BUFFER_SIZE ),
 	highWaterMark( DEFAULT_HIGH_WATER_MARK ),
 	pChannel( 0 ),
-	compressionThresholdSet(false)
+	compressionThresholdSet(false),
+	pRoutingChannelConfig(0)
 {
 }
 
@@ -831,6 +888,7 @@ void ChannelConfig::clear()
 	highWaterMark = DEFAULT_HIGH_WATER_MARK;
 	pChannel = 0;
 	compressionThresholdSet = false;
+	pRoutingChannelConfig = 0;
 }
 
 ChannelConfig::~ChannelConfig()
@@ -1279,4 +1337,5 @@ void WarmStandbyChannelConfig::clear()
 	standbyServerSet.clear();
 	downloadConnectionConfig = DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG;
 	warmStandbyMode = (WarmStandbyMode)RSSL_RWSB_MODE_LOGIN_BASED;
+	pRoutingChannelConfig = NULL;
 }

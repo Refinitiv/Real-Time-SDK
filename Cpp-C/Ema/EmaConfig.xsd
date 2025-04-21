@@ -406,6 +406,19 @@
                             </xs:complexType>
                           </xs:element>
 
+						  <xs:element name="SessionChannelSet" minOccurs="0" maxOccurs="1">
+                            <!-- a comma-separated list of Session Channel names -->
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+						  
+						  <xs:element name="SessionEnhancedItemRecovery" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
                           <xs:element name="ShouldInitializeCPUIDlib" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:unsignedLong" use="required" />
@@ -2118,6 +2131,116 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element> <!-- end DictionaryGroup -->
+		
+		<!-- 3.11 Session Channel Group -->
+        <xs:element name="SessionChannelGroup" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+
+              <xs:element name="SessionChannelList" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:element name="SessionChannelInfo" minOccurs="1" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:all>
+						
+						  <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+						  
+						  <xs:element name="ChannelSet" minOccurs="0" maxOccurs="1">
+                            <!-- a comma-separated list of Channel names -->
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+						  
+						  <xs:element name="WarmStandbyChannelSet" minOccurs="0" maxOccurs="1">
+                            <!-- a comma-separated list of Warm Standby Channel names -->
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+						  
+						  <xs:element name="ReconnectAttemptLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:long" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectMaxDelay" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:long" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectMinDelay" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:long" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+						  
+						  <xs:element ref="XmlTraceDump" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceFileName" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceHex" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceMaxFileSize" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTracePing" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTracePingOnly" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceRead" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceToFile" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceToMultipleFiles" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceToStdout" minOccurs="0" maxOccurs="1" />
+                          <xs:element ref="XmlTraceWrite" minOccurs="0" maxOccurs="1" />
+						  <xs:element name="EnablePreferredHostOptions" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PHDetectionTimeSchedule" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PHDetectionTimeInterval" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PreferredChannelName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PreferredWSBChannelName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PHFallBackWithInWSBGroup" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+						
+						</xs:all>
+                      </xs:complexType>
+                    </xs:element> <!-- end WarmStandbyChannel -->
+
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element> <!-- end WarmStandbyList -->
+
+            </xs:all>
+          </xs:complexType>
+        </xs:element> <!-- end WarmStandbyGroup -->
 
       </xs:all>
     </xs:complexType>

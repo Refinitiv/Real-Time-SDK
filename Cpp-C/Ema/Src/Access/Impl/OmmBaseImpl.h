@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|        Copyright (C) 2019-2022,2024 LSEG. All rights reserved.            --
+ *|        Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -56,21 +56,28 @@ class TimeOut;
 class TunnelStreamRequest;
 class EmaConfigImpl;
 class OmmProvider;
+class ConsumerRoutingSessionChannelConfig;
+class ConsumerRoutingSession;
 
 class OmmBaseImpl : public OmmCommonImpl, public Thread, public TimeOutClient
 {
 public :
-
+	// This is used for both consumers and NIProviders
 	static RsslReactorCallbackRet channelCallback( RsslReactor*, RsslReactorChannel*, RsslReactorChannelEvent* );
 
+	// This is used for both consumers and NIProviders
 	static RsslReactorCallbackRet loginCallback( RsslReactor*, RsslReactorChannel*, RsslRDMLoginMsgEvent* );
 
+	// This is used for both consumers only
 	static RsslReactorCallbackRet directoryCallback( RsslReactor*, RsslReactorChannel*, RsslRDMDirectoryMsgEvent* );
 
+	// This is used for both consumers only
 	static RsslReactorCallbackRet dictionaryCallback( RsslReactor*, RsslReactorChannel*, RsslRDMDictionaryMsgEvent* );
 
+	// This is used for both consumers and NIProviders
 	static RsslReactorCallbackRet itemCallback( RsslReactor*, RsslReactorChannel*, RsslMsgEvent* );
 
+	// This is used for both consumers only
 	static RsslReactorCallbackRet channelOpenCallback( RsslReactor*, RsslReactorChannel*, RsslReactorChannelEvent* );
 
 	static RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent);
@@ -125,6 +132,8 @@ public :
 	};
 
 	void setState( ImplState state );
+
+	OmmBaseImpl::ImplState getState();
 
 	void msgDispatched( bool value = true );
 
@@ -198,7 +207,7 @@ public :
 
 	bool isAtExit();
 
-	void addCommonSocket();
+	EmaVector < LoginRdmReqMsgImpl* >& getLoginRequestList();
 
 	void modifyReactorIOCtl(Int32 code, Int32 value);
 
@@ -212,11 +221,24 @@ public :
 
 	void saveNegotiatedPingTimeout(UInt32 timeoutMs);
 
+	ConsumerRoutingSession* getConsumerRoutingSession();
+
+	void setRsslReactorChannel(RsslReactorChannel* pChannel);
+
+	RsslReactorChannel* getRsslReactorChannel();
+
+	RsslReactor* getRsslReactor();
+
+	bool isInitialized();
+
 protected:
 
 	friend class OmmBaseImplMap<OmmBaseImpl>;
 	friend class LoginItem;
 	friend class NiProviderLoginItem;
+	friend class ConsumerRoutingSession;
+	friend class ConsumerRoutingSessionChannel;
+	friend class OmmConsumerImpl;
 
 	OmmBaseImpl( ActiveConfig& );
 	OmmBaseImpl(ActiveConfig&, OmmConsumerClient&, void* = 0);
@@ -242,9 +264,11 @@ protected:
 
 	ChannelConfig* readChannelConfig( EmaConfigImpl*, const EmaString& , bool);
 
-	WarmStandbyChannelConfig* readWSBChannelConfig(EmaConfigImpl*, const EmaString&, bool);
+	ConsumerRoutingSessionChannelConfig* readConsumerRoutingSessionChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString& channelName);
 
-	WarmStandbyServerInfoConfig* readWarmStandbyServerInfoConfig(EmaConfigImpl*, const EmaString&);
+	WarmStandbyChannelConfig* readWSBChannelConfig(EmaConfigImpl*, const EmaString&, bool, ConsumerRoutingSessionChannelConfig*);
+
+	WarmStandbyServerInfoConfig* readWarmStandbyServerInfoConfig(EmaConfigImpl*, const EmaString&, ConsumerRoutingSessionChannelConfig*);
 
 	void readChannelConfigForWSBChannel(EmaConfigImpl*, const EmaString&);
 
@@ -266,7 +290,7 @@ protected:
 
 	bool isPipeWritten();
 
-	bool isInitialized();
+	bool hasMultiCredentialLogins();
 
 	// return values:
 	// -2 -> error
@@ -307,6 +331,7 @@ protected:
 	OmmConsumerClient&			_consAdminClient;
 	OmmProviderClient&			_provAdminClient;
 	OmmOAuth2ConsumerClient&	_consOAuthClient;
+	ConsumerRoutingSession*		_pConsumerRoutingSession;
 	void*						_adminClosure;
 	OmmLoggerClient*			_pLoggerClient;
 	Pipe						_pipe;
@@ -326,6 +351,9 @@ protected:
 	bool					_isInitialized;
 	bool					_inOAuthCallback;
 	bool					_inLoginCredentialCallback;
+	bool					_multiCredentialLoginsSet;			// This is TRUE when multiple credentials are set
+
+	RsslReactorChannel* _pReactorChannel;					// Reactor Channel associated with this BaseImpl.  If there is a ConsumerRoutingSession defined, then that will contain the ReactorChannels, and this will be NULL.
 
 	EmaVector < OmmOAuth2CredentialImpl* > _oAuth2Credentials;
 
@@ -338,6 +366,8 @@ protected:
 	EmaString				_cpuApiThreadBind;
 
 	UInt32					_negotiatedPingTimeout;  // This is the value of the negotiated ping timeout (in milliseconds). When processing multiple channels, it keeps the minimum timeout value.
+
+
 
 private:
 

@@ -18,6 +18,7 @@
 #include "DataDictionary.h"
 
 #include "LoginRdmReqMsgImpl.h"
+#include "HashTable.h"
 
 #include "rtr/rsslTransport.h"
 #include "rtr/rwfNet.h"
@@ -162,6 +163,7 @@ namespace access {
 
 class Channel;
 class WarmStandbyChannelConfig;
+class ConsumerRoutingSessionChannelConfig;
 
 class ChannelConfig
 {
@@ -199,6 +201,7 @@ public :
 	UInt32					sysSendBufSize;
 	UInt32					highWaterMark;
 	Channel*				pChannel;
+	ConsumerRoutingSessionChannelConfig* pRoutingChannelConfig;
 
 private :
 
@@ -517,9 +520,23 @@ public:
 	UInt32					jsonTokenIncrementSize;
 };
 
+typedef const EmaString* EmaStringPtr;
+
 class ActiveConfig : public BaseConfig
 {
 public:
+
+	class EmaStringPtrHasher
+	{
+	public:
+		size_t operator()(const EmaStringPtr&) const;
+	};
+
+	class EmaStringPtrEqual_To
+	{
+	public:
+		bool operator()(const EmaStringPtr&, const EmaStringPtr&) const;
+	};
 
 	ActiveConfig( const EmaString& );
 
@@ -550,6 +567,8 @@ public:
 	void clearChannelSet();
 	void clearWSBChannelSet();
 	void clearChannelSetForWSB();
+	void clearConsumerRoutingSessionSet();
+	void clearServiceListSet();
 	const EmaString& defaultServiceName() { return _defaultServiceName; }
 	EmaString configTrace();
 
@@ -573,6 +592,12 @@ public:
 	EmaVector< WarmStandbyChannelConfig* >  configWarmStandbySet;
 	EmaVector< ChannelConfig* >		configChannelSetForWSB;
 
+	HashTable<EmaStringPtr, ServiceList*, EmaStringPtrHasher, EmaStringPtrEqual_To> serviceListByName;
+
+	EmaVector<ServiceList*> serviceListSet;			// List of copied over service lists, used for deletion.
+
+	EmaVector< ConsumerRoutingSessionChannelConfig* >		consumerRoutingSessionSet;
+
 	LoginRdmReqMsgImpl*		pRsslRDMLoginReq;
 	RsslRequestMsg*			pRsslDirectoryRequestMsg;
 	AdminReqMsg*			pRsslRdmFldRequestMsg;
@@ -584,6 +609,7 @@ public:
 	EmaString				restProxyUserName;
 	EmaString				restProxyPasswd;
 	EmaString				restProxyDomain;
+	bool					consumerRoutingSessionEnhancedItemRecovery;
 
 	// Preferred host
 	bool            enablePreferredHostOptions;
@@ -686,6 +712,7 @@ public:
 
 	enum WarmStandbyMode
 	{
+		None = 0,										// Enum used in Request Routing.
 		LoginBasedEnum = RSSL_RWSB_MODE_LOGIN_BASED,
 		ServiceBasedEnum = RSSL_RWSB_MODE_SERVICE_BASED
 	};
@@ -700,6 +727,7 @@ public:
 	EmaVector<WarmStandbyServerInfoConfig*>		standbyServerSet;
 	bool									downloadConnectionConfig;
 	WarmStandbyMode							warmStandbyMode;
+	ConsumerRoutingSessionChannelConfig*		pRoutingChannelConfig;
 private:
 	WarmStandbyChannelConfig();
 };

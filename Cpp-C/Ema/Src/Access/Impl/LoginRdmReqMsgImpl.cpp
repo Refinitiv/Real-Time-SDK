@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022 LSEG. All rights reserved.                   --
+ *|           Copyright (C) 2022, 2025 LSEG. All rights reserved.                   --
  *|-----------------------------------------------------------------------------
  */
 
@@ -30,7 +30,8 @@ LoginRdmReqMsgImpl::LoginRdmReqMsgImpl() :
 	_defaultApplicationName("ema"),
 	_instanceId(),
 	_channelList(),
-	_client(defaultLoginConsClient)
+	_client(defaultLoginConsClient),
+	_toStringSet(false)
 {
 	EmaString _defalutPosition;
 	emaGetPosition(_defalutPosition);
@@ -63,7 +64,8 @@ LoginRdmReqMsgImpl::LoginRdmReqMsgImpl(OmmLoginCredentialConsumerClient& client)
 	_defaultApplicationName("ema"),
 	_instanceId(),
 	_channelList(),
-	_client(client)
+	_client(client),
+	_toStringSet(false)
 {
 	_hasLoginClient = true;
 	_closure = NULL;
@@ -97,7 +99,8 @@ LoginRdmReqMsgImpl::LoginRdmReqMsgImpl(OmmLoginCredentialConsumerClient& client,
 	_defaultApplicationName("ema"),
 	_instanceId(),
 	_channelList(),
-	_client(client)
+	_client(client),
+	_toStringSet(false)
 {
 	_hasLoginClient = true;
 	_closure = closure;
@@ -133,7 +136,8 @@ LoginRdmReqMsgImpl::LoginRdmReqMsgImpl(const LoginRdmReqMsgImpl& reqMsg) :
 	_channelList(reqMsg._channelList),
 	_arrayIndex(reqMsg._arrayIndex),
 	_client(reqMsg._client),
-	_closure(reqMsg._closure)
+	_closure(reqMsg._closure),
+	_toStringSet(false)
 {
 	_hasLoginClient = reqMsg._hasLoginClient;
 	rsslClearRDMLoginRequest(&_rsslRdmLoginRequest);
@@ -204,6 +208,9 @@ LoginRdmReqMsgImpl& LoginRdmReqMsgImpl::clear()
 	_applicationId.clear();
 	_applicationName.clear();
 	_instanceId.clear();
+	_toString.clear();
+
+	_toStringSet = false;
 
 	EmaString _defalutPosition;
 	emaGetPosition(_defalutPosition);
@@ -228,6 +235,7 @@ LoginRdmReqMsgImpl& LoginRdmReqMsgImpl::clear()
 
 LoginRdmReqMsgImpl& LoginRdmReqMsgImpl::set(EmaConfigImpl* emaConfigImpl, RsslRequestMsg* pRsslRequestMsg )
 {
+	clear();
 	_rsslRdmLoginRequest.rdmMsgBase.domainType = RSSL_DMT_LOGIN;
 	_rsslRdmLoginRequest.rdmMsgBase.rdmMsgType = RDM_LG_MT_REQUEST;
 	_rsslRdmLoginRequest.flags = RDM_LG_RQF_NONE;
@@ -540,6 +548,77 @@ LoginRdmReqMsgImpl& LoginRdmReqMsgImpl::set(EmaConfigImpl* emaConfigImpl, RsslRe
 	return *this;
 }
 
+LoginRdmReqMsgImpl& LoginRdmReqMsgImpl::overlay(RsslRDMLoginRequest* pRequest)
+{
+
+	if (pRequest->userName.length != 0 && !rsslBufferIsEqual(&_rsslRdmLoginRequest.userName, &pRequest->userName))
+	{
+		username(EmaString(pRequest->userName.data, pRequest->userName.length));
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_ID)
+	{
+		if (!(_rsslRdmLoginRequest.flags & RDM_LG_RQF_HAS_APPLICATION_ID) || !rsslBufferIsEqual(&_rsslRdmLoginRequest.applicationId, &pRequest->applicationId))
+		{
+			applicationId(EmaString(pRequest->applicationId.data, pRequest->applicationId.length));
+		}
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_PASSWORD)
+	{
+		if (!(_rsslRdmLoginRequest.flags & RDM_LG_RQF_HAS_PASSWORD) || !rsslBufferIsEqual(&_rsslRdmLoginRequest.password, &pRequest->password))
+		{
+			password(EmaString(pRequest->password.data, pRequest->password.length));
+		}
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_NAME)
+	{
+		if (!(_rsslRdmLoginRequest.flags & RDM_LG_RQF_HAS_APPLICATION_NAME) || !rsslBufferIsEqual(&_rsslRdmLoginRequest.applicationName, &pRequest->applicationName))
+		{
+			applicationName(EmaString(pRequest->applicationName.data, pRequest->applicationName.length));
+		}
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_INSTANCE_ID)
+	{
+		if (!(_rsslRdmLoginRequest.flags & RDM_LG_RQF_HAS_INSTANCE_ID) || !rsslBufferIsEqual(&_rsslRdmLoginRequest.instanceId, &pRequest->instanceId))
+		{
+			instanceId(EmaString(pRequest->instanceId.data, pRequest->instanceId.length));
+		}
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN)
+	{
+		if (!(_rsslRdmLoginRequest.flags & RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN) || !rsslBufferIsEqual(&_rsslRdmLoginRequest.applicationAuthorizationToken, &pRequest->applicationAuthorizationToken))
+		{
+			applicationAuthorizationToken(EmaString(pRequest->applicationAuthorizationToken.data, pRequest->applicationAuthorizationToken.length));
+		}
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED)
+	{
+		if (!(_rsslRdmLoginRequest.flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED) || !rsslBufferIsEqual(&_rsslRdmLoginRequest.authenticationExtended, &pRequest->authenticationExtended))
+		{
+			authenticationExtended(EmaBuffer(pRequest->authenticationExtended.data, pRequest->authenticationExtended.length));
+		}
+	}
+
+	/* Set the pause all flag.  Unset this after submitting it to the reactor */
+	if (pRequest->flags & RDM_LG_RQF_PAUSE_ALL)
+	{
+		_rsslRdmLoginRequest.flags |= RDM_LG_RQF_PAUSE_ALL;
+	}
+
+
+	if (pRequest->flags & RDM_LG_RQF_NO_REFRESH)
+	{
+		_rsslRdmLoginRequest.flags |= RDM_LG_RQF_NO_REFRESH;
+	}
+
+	return *this;
+}
+
 RsslRDMLoginRequest* LoginRdmReqMsgImpl::get()
 {
 	return &_rsslRdmLoginRequest;
@@ -680,4 +759,26 @@ UInt8 LoginRdmReqMsgImpl::getArrayIndex()
 OmmLoginCredentialConsumerClient& LoginRdmReqMsgImpl::getClient()
 {
 	return _client;
+}
+
+const EmaString& LoginRdmReqMsgImpl::toString()
+{
+	if (!_toStringSet)
+	{
+		_toStringSet = true;
+		_toString.set("username ").append(_rsslRdmLoginRequest.userName.length != 0 ? _username : "<not set>").append(CR)
+			.append("usernameType ").append(_rsslRdmLoginRequest.userNameType).append(CR)
+			.append("position ").append((_rsslRdmLoginRequest.flags & RDM_LG_RQF_HAS_POSITION) != 0 ? _position : "<not set>").append(CR)
+			.append("appId ").append((_rsslRdmLoginRequest.flags & RDM_LG_RQF_HAS_APPLICATION_ID) ? _applicationId : "<not set>").append(CR)
+			.append("applicationName ").append((_rsslRdmLoginRequest.flags & RDM_LG_RQF_HAS_APPLICATION_NAME) ? _applicationName : "<not set>").append(CR)
+			.append("instanceId ").append((_rsslRdmLoginRequest.flags & RDM_LG_RQF_HAS_INSTANCE_ID) ? _instanceId : "<not set>").append(CR)
+			.append("singleOpen ").append(_rsslRdmLoginRequest.singleOpen).append(CR)
+			.append("allowSuspect ").append(_rsslRdmLoginRequest.allowSuspectData).append(CR)
+			.append("permissionExpressions ").append(_rsslRdmLoginRequest.providePermissionExpressions).append(CR)
+			.append("permissionProfile ").append(_rsslRdmLoginRequest.providePermissionProfile).append(CR)
+			.append("supportRtt ").append((_rsslRdmLoginRequest.flags & RDM_LG_RQF_RTT_SUPPORT) != 0 ? "1" : "0").append(CR)
+			.append("role ").append(_rsslRdmLoginRequest.role);
+	}
+
+	return _toString;
 }

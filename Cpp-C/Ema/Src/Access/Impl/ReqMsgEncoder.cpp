@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -489,7 +489,7 @@ void ReqMsgEncoder::checkBatchView( RsslBuffer* pRsslBuffer )
 	}
 }
 
-UInt32 ReqMsgEncoder::getBatchItemListSize() const
+UInt32 ReqMsgEncoder::getBatchItemList(EmaVector<EmaString>* nameVector) const
 {
 	if ( !( _rsslRequestMsg.flags & RSSL_RQMF_HAS_BATCH ) ) return 0;
 
@@ -556,6 +556,10 @@ UInt32 ReqMsgEncoder::getBatchItemListSize() const
 						{
 							RsslBuffer rsslBuffer;
 							while ( rsslDecodeArrayEntry( &decodeIter, &rsslBuffer ) != RSSL_RET_END_OF_CONTAINER )
+							{
+								if (nameVector != NULL)
+									nameVector->push_back(EmaString(rsslBuffer.data, rsslBuffer.length));
+
 								batchListSize++;
 						}
 					}
@@ -564,7 +568,7 @@ UInt32 ReqMsgEncoder::getBatchItemListSize() const
 				}
 			}
 			break;
-
+			}
 		case RSSL_RET_INCOMPLETE_DATA :
 		case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		default :
@@ -579,6 +583,189 @@ UInt32 ReqMsgEncoder::getBatchItemListSize() const
 
 	return 0;
 }
+
+
+bool ReqMsgEncoder::getViewPayload(EmaBuffer& payloadBuffer) const
+{
+	if (!(_rsslRequestMsg.flags & RSSL_RQMF_HAS_VIEW)) return 0;
+
+	payloadBuffer.clear();
+
+	RsslElementList	rsslElementList;
+	RsslElementEntry rsslElementEntry;
+	RsslDecodeIterator decodeIter;
+	RsslEncodeIterator encodeIter;
+	RsslElementList encElementList;
+
+	bool foundViewType = false;
+	bool foundViewData = false;
+
+	rsslClearEncodeIterator(&encodeIter);
+	rsslClearElementList(&encElementList);
+
+	rsslClearDecodeIterator(&decodeIter);
+	rsslClearElementEntry(&rsslElementEntry);
+	rsslClearElementList(&rsslElementList);
+
+	RsslBuffer tempRsslBuffer = _rsslRequestMsg.msgBase.encDataBody;
+
+	char* tmpBuffer = (char*)malloc(tempRsslBuffer.length + 8);
+
+	RsslBuffer tempEncBuffer;
+	tempEncBuffer.data = tmpBuffer;
+	// Add in a small buffer to make sure that the encoding can be handled.
+	tempEncBuffer.length = tempRsslBuffer.length + 8;
+
+	RsslRet retCode = rsslSetDecodeIteratorBuffer(&decodeIter, &tempRsslBuffer);
+	if (RSSL_RET_SUCCESS != retCode)
+	{
+		free(tmpBuffer);
+		EmaString temp("ReqMsgEncoder::getViewPayload(): Failed to set iterator buffer in ReqMsg::payload(). Internal error ");
+		temp.append(rsslRetCodeToString(retCode));
+		throwIueException(temp, retCode);
+		return false;
+	}
+
+	retCode = rsslSetDecodeIteratorRWFVersion(&decodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	if (RSSL_RET_SUCCESS != retCode)
+	{
+		free(tmpBuffer);
+		EmaString temp("ReqMsgEncoder::getViewPayload(): Failed to set iterator version in ReqMsg::payload(). Internal error ");
+		temp.append(rsslRetCodeToString(retCode));
+		throwIueException(temp, retCode);
+		return false;
+	}
+
+	retCode = rsslSetEncodeIteratorBuffer(&encodeIter, &tempEncBuffer);
+	if (RSSL_RET_SUCCESS != retCode)
+	{
+		free(tmpBuffer);
+		EmaString temp("ReqMsgEncoder::getViewPayload(): Failed to set iterator buffer in ReqMsg::payload(). Internal error ");
+		temp.append(rsslRetCodeToString(retCode));
+		throwIueException(temp, retCode);
+		return false;
+	}
+
+	retCode = rsslSetEncodeIteratorRWFVersion(&encodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	if (RSSL_RET_SUCCESS != retCode)
+	{
+		free(tmpBuffer);
+		EmaString temp("ReqMsgEncoder::getViewPayload(): Failed to set iterator version in ReqMsg::payload(). Internal error ");
+		temp.append(rsslRetCodeToString(retCode));
+		throwIueException(temp, retCode);
+		return false;
+	}
+
+	retCode = rsslDecodeElementList(&decodeIter, &rsslElementList, 0);
+
+	if (retCode != RSSL_RET_SUCCESS)
+	{
+		free(tmpBuffer);
+		EmaString temp("ReqMsgEncoder::getViewPayload(): Failed to decode ElementList in ReqMsg::payload(). Internal error ");
+		temp.append(rsslRetCodeToString(retCode));
+		throwIueException(temp, retCode);
+		return false;
+	}
+
+	encElementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
+
+	retCode = rsslEncodeElementListInit(&encodeIter, &encElementList, NULL, 0);
+
+	if (retCode != RSSL_RET_SUCCESS)
+	{
+		free(tmpBuffer);
+		EmaString temp("ReqMsgEncoder::getViewPayload(): Failed to encode ElementList in ReqMsg::payload(). Internal error ");
+		temp.append(rsslRetCodeToString(retCode));
+		throwIueException(temp, retCode);
+		return false;
+	}
+
+	while (true)
+	{
+		retCode = rsslDecodeElementEntry(&decodeIter, &rsslElementEntry);
+
+		switch (retCode)
+		{
+			case RSSL_RET_END_OF_CONTAINER:
+			{
+				if (foundViewType && foundViewData)
+				{
+					retCode = rsslEncodeElementListComplete(&encodeIter, RSSL_TRUE);
+
+					if (retCode != RSSL_RET_SUCCESS)
+					{
+						free(tmpBuffer);
+						EmaString temp("ReqMsgEncoder::getViewPayload(): Failed to encode ElementEntry in ReqMsg::payload(). Internal error ");
+						temp.append(rsslRetCodeToString(retCode));
+						throwIueException(temp, retCode);
+						return false;
+					}
+
+					tempEncBuffer.length = rsslGetEncodedBufferLength(&encodeIter);
+
+					payloadBuffer.setFrom(tempEncBuffer.data, tempEncBuffer.length);
+
+					free(tmpBuffer);
+					return true;
+				}
+
+				free(tmpBuffer);
+				return false;
+			}
+
+			case RSSL_RET_SUCCESS:
+			{
+				UInt32 batchListSize = 0;
+
+				if (rsslBufferIsEqual(&rsslElementEntry.name, &RSSL_ENAME_VIEW_TYPE) && rsslElementEntry.dataType == RSSL_DT_UINT)
+				{
+					// There's a view type, so just re-encode the element entry as-is into the new list.
+					retCode = rsslEncodeElementEntry(&encodeIter, &rsslElementEntry, NULL);
+					foundViewType = true;
+					if (retCode != RSSL_RET_SUCCESS)
+					{
+						free(tmpBuffer);
+						EmaString temp("ReqMsgEncoder::getViewPayload(): Failed to encode ElementEntry in ReqMsg::payload(). Internal error ");
+						temp.append(rsslRetCodeToString(retCode));
+						throwIueException(temp, retCode);
+						return false;
+					}
+				}
+
+				if (rsslBufferIsEqual(&rsslElementEntry.name, &RSSL_ENAME_VIEW_DATA) && rsslElementEntry.dataType == RSSL_DT_ARRAY)
+				{
+					// There's a view data array, so just re-encode the element entry as-is into the new list.
+					retCode = rsslEncodeElementEntry(&encodeIter, &rsslElementEntry, NULL);
+					foundViewData = true;
+					if (retCode != RSSL_RET_SUCCESS)
+					{
+						free(tmpBuffer);
+						EmaString temp("ReqMsgEncoder::getViewPayload(): Failed to encode ElementEntry in ReqMsg::payload(). Internal error ");
+						temp.append(rsslRetCodeToString(retCode));
+						throwIueException(temp, retCode);
+						return false;
+					}
+				}
+				break;
+			}
+
+			case RSSL_RET_INCOMPLETE_DATA:
+			case RSSL_RET_UNSUPPORTED_DATA_TYPE:
+			default:
+			{
+				free(tmpBuffer);
+				EmaString temp("ReqMsgEncoder::getViewPayload(): Failed to decode ElementEntry. Internal error ");
+				temp.append(rsslRetCodeToString(retCode));
+				throwIueException(temp, retCode);
+				return false;
+			}
+		}
+	}
+	
+	free(tmpBuffer);
+	return false;
+}
+
 
 bool ReqMsgEncoder::isDomainTypeSet() const
 {

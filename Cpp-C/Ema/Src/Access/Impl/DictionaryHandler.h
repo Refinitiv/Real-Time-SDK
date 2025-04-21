@@ -62,6 +62,7 @@ public:
 
 	static const int INITIAL_DICTIONARY_STATUS_MSG_SIZE;
 
+	// Callback for IProvider only
 	static RsslReactorCallbackRet dictionaryCallback(RsslReactor*, RsslReactorChannel*, RsslRDMDictionaryMsgEvent*);
 
 	static DictionaryHandler* create( OmmServerBaseImpl*);

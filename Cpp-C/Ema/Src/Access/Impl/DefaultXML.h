@@ -56,6 +56,7 @@ refinitiv::ema::access::EmaString AsciiValues[] = {
 	"Server",
 	"ServerCert",
 	"ServerPrivateKey",
+	"SessionChannelSet",
 	"StandbyServerSet",
 	"StartingActiveServer",
 	"StatusText",
@@ -160,6 +161,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"ServiceDiscoveryRetryCount",
 	"ServiceId",
 	"ServiceState",
+	"SessionEnhancedItemRecovery",
 	"ShouldInitializeCPUIDlib",
 	"SupportsOutOfBandSnapshots",
 	"SupportsQoSRange",
@@ -212,6 +214,7 @@ refinitiv::ema::access::EmaString NodesThatRequireName[] = {
 	"NiProvider",
 	"Server",
 	"Service",
+	"SessionChannel",
 };
 
 #endif //__refinitiv_ema_access_DefaultXML_h

@@ -74,7 +74,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_pClosure(closure),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout(0)
+	_negotiatedPingTimeout(0),
+	ommProviderEvent(*this)
 {
 #ifdef USING_SELECT
 	FD_ZERO(&_readFds);
@@ -115,7 +116,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_pClosure(closure),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout(0)
+	_negotiatedPingTimeout(0),
+	ommProviderEvent(*this)
 {
 #ifdef USING_SELECT
 	FD_ZERO(&_readFds);
@@ -325,7 +327,7 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 
 	if (ProgrammaticConfigure* ppc = pConfigServerImpl->getProgrammaticConfigure())
 	{
-		ppc->retrieveLoggerConfig(_activeServerConfig.loggerConfig.loggerName, _activeServerConfig);
+		ppc->retrieveLoggerConfig(_activeServerConfig.loggerConfig.loggerName, _activeServerConfig.loggerConfig);
 	}
 
 	EmaString serverName;

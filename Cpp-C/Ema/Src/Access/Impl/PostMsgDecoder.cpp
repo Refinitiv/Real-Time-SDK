@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|        Copyright (C) 2019,2024 LSEG. All rights reserved. 
+ *|        Copyright (C) 2019,2024-2025 LSEG. All rights reserved. 
  *|-----------------------------------------------------------------------------
  */
 
@@ -267,6 +267,14 @@ void PostMsgDecoder::setServiceName( const char* serviceName, UInt32 length, boo
 	_serviceNameSet = length ? true : false;
 
 	_serviceName.setInt( serviceName, length, nullTerm );
+}
+
+void PostMsgDecoder::setServiceId(UInt16 serviceId)
+{
+	_pRsslMsg->postMsg.flags |= RSSL_PSMF_HAS_MSG_KEY;
+	_pRsslMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+
+	_pRsslMsg->msgBase.msgKey.serviceId = serviceId;
 }
 
 UInt32 PostMsgDecoder::getPublisherIdUserId() const

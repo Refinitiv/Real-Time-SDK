@@ -8,6 +8,7 @@
 
 #include "PreferredHostInfo.h"
 #include "ChannelCallbackClient.h"
+#include "ConsumerRoutingChannel.h"
 
 using namespace refinitiv::ema::access;
 
@@ -71,31 +72,58 @@ PreferredHostInfo& PreferredHostInfo::phDetectionTimeInterval(UInt32 phDetection
 	return *this;
 }
 
-PreferredHostInfo& PreferredHostInfo::preferredChannelName(UInt32 channellIndex, const void* pChannel) {
+PreferredHostInfo& PreferredHostInfo::preferredChannelName(UInt32 channelIndex, const void* pChannel) {
 
 	if (!pChannel) {
 		_preferredChannelName.append("Channel data is not set for channel set preferred host.");
 		return *this;
 	}
-	const ActiveConfig& activeConfig = ((Channel*)pChannel)->getActiveConfig();
 
-	if (!activeConfig.configChannelSet.empty())
-		_preferredChannelName = activeConfig.configChannelSet[channellIndex]->name;
+	OmmBaseImpl* pBaseImpl = ((Channel*)pChannel)->getBaseImpl();
+	if (pBaseImpl->getConsumerRoutingSession() == NULL)
+	{
+		const ActiveConfig& activeConfig = pBaseImpl->getActiveConfig();
+
+		if (!activeConfig.configChannelSet.empty())
+			_preferredChannelName = activeConfig.configChannelSet[channelIndex]->name;
+	}
+	else
+	{
+		ConsumerRoutingSessionChannel* pSessionChannel = ((Channel*)pChannel)->getConsumerRoutingChannel();
+
+		if (!pSessionChannel->routingChannelConfig.configChannelSet.empty())
+		{
+			_preferredChannelName = pSessionChannel->routingChannelConfig.configChannelSet[channelIndex]->name;
+		}
+	}
 
 	return *this;
 }
 
-PreferredHostInfo& PreferredHostInfo::preferredWSBChannelName(UInt32 wsbChannellIndex, const void* pChannel) {
+PreferredHostInfo& PreferredHostInfo::preferredWSBChannelName(UInt32 wsbChannelIndex, const void* pChannel) {
 
 	if (!pChannel) {
 		_preferredWSBChannelName.append("Channel data is not set for warm standby channels preferred host.");
 		return *this;
 	}
 
-	const ActiveConfig& activeConfig = ((Channel*)pChannel)->getActiveConfig();
+	OmmBaseImpl* pBaseImpl = ((Channel*)pChannel)->getBaseImpl();
+	if (pBaseImpl->getConsumerRoutingSession() == NULL)
+	{
+		const ActiveConfig& activeConfig = pBaseImpl->getActiveConfig();
 
 	if (!activeConfig.configWarmStandbySet.empty())
-		_preferredWSBChannelName = activeConfig.configWarmStandbySet[wsbChannellIndex]->name;
+			_preferredWSBChannelName = activeConfig.configWarmStandbySet[wsbChannelIndex]->name;
+	}
+	else
+	{
+		ConsumerRoutingSessionChannel* pSessionChannel = ((Channel*)pChannel)->getConsumerRoutingChannel();
+
+		if (!pSessionChannel->routingChannelConfig.configWarmStandbySet.empty())
+		{
+			_preferredWSBChannelName = pSessionChannel->routingChannelConfig.configWarmStandbySet[wsbChannelIndex]->name;
+		}
+	}
 
 	return *this;
 }

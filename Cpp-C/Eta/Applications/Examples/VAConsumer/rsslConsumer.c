@@ -2016,6 +2016,13 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 			return RSSL_RC_CRET_SUCCESS;
 		}
+		case RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK:
+		{
+			/* The preferred host operation has started. */
+			/* The event means - that a timer or function triggered preferred host operation has started. */
+			printf("%s Received PREFERRED_HOST_STARTING_FALLBACK for Channel fd="SOCKET_PRINT_TYPE".\n", timeBuf, pReactorChannel->socketId);
+			return RSSL_RC_CRET_SUCCESS;
+		}
 		case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:
 		{
 			/* The preferred host operation is complete and the connections are up. */

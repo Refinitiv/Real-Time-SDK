@@ -957,7 +957,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 	dumpDateTime(timeBuf, sizeof(timeBuf));
 
 	switch(pConnEvent->channelEventType)
-	{
+	{	
 		case RSSL_RC_CET_CHANNEL_UP:
 		{
 			/* Save the channel on our info structure. */
@@ -1235,6 +1235,13 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			/* We have received a warning event for this channel. Print the information and continue. */
 			printf("%s Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", timeBuf, pReactorChannel->socketId);
 			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK:
+		{
+			/* The preferred host operation has started. */
+			/* The event means - that a timer or function triggered preferred host operation has started. */
+			printf("%s Received PREFERRED_HOST_STARTING_FALLBACK for Channel fd="SOCKET_PRINT_TYPE".\n", timeBuf, pReactorChannel->socketId);
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:

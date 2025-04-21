@@ -433,12 +433,12 @@ void OmmLoggerClient::log( const EmaString& callbackClientName, Severity severit
 void OmmLoggerClient::addLogLine( const EmaString& callbackClientName, Severity severity, const char* text )
 {
 	if ( _pOutput ) {
-		_logLine.set("\nloggerMsg")
-			.append("\n\tTimeStamp: ").append(timeString(_includeDateInLoggerOutput))
-			.append("\n\tClientName: ").append(callbackClientName)
-			.append("\n\tSeverity: ").append(loggerSeverityString(severity))
-			.append("\n\tText:    ").append(text)
-			.append("\nloggerMsgEnd\n");
+		_logLine.set("loggerMsg\n")
+			.append("    TimeStamp: ").append(timeString(_includeDateInLoggerOutput)).append("\n")
+			.append("    ClientName: ").append(callbackClientName).append("\n")
+			.append("    Severity: ").append(loggerSeverityString(severity)).append("\n")
+			.append("    Text:    ").append(text).append("\n")
+			.append("loggerMsgEnd\n\n");
 
 		fprintf( _pOutput, "%s", _logLine.c_str() );
 		fflush( _pOutput );

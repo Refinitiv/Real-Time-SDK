@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2021,2024 LSEG. All rights reserved.
+ *|          Copyright (C) 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1650,6 +1650,7 @@ void preferredHost_WSBService_FallbackWithinWSBGroup(PreferredHostTestParameters
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
 	// Dispatch to make sure all the events and the user gets a preferred host complete
 	wtfDispatch(WTF_TC_CONSUMER, 400);
+
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
@@ -1901,6 +1902,7 @@ void preferredHost_WSBService_FallbackWithinWSBGroup(PreferredHostTestParameters
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
 	// Dispatch to make sure all the events and the user gets a preferred host complete
 	wtfDispatch(WTF_TC_CONSUMER, 400);
+
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
@@ -2318,6 +2320,12 @@ void preferredHost_ChannelList_FallbackFunctionCall(PreferredHostTestParameters 
 
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
 	
+	/* Consumer should the STARTING_FALLBACK event. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+	
 	// Accept the incomming connection
 	wtfAccept(2);
 
@@ -2661,6 +2669,7 @@ void preferredHost_ChannelList_FallbackTimer(PreferredHostTestParameters paramet
 		wtfDispatch(WTF_TC_CONSUMER, 400);
 		ASSERT_TRUE(pEvent = wtfGetEvent());
 	}
+
 	// Get PREFERRED_HOST_COMPLETE
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
@@ -2844,6 +2853,12 @@ void preferredHost_ChannelList_FallbackTimer(PreferredHostTestParameters paramet
 	ASSERT_TRUE(pRefreshMsg->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
 	ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->msgBase.encDataBody, &mpDataBody));
+
+	/* Consumer should the STARTING_FALLBACK event. */
+	wtfDispatch(WTF_TC_CONSUMER, 3000);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
 
 	/* Consumer should receive no more messages. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
@@ -3689,18 +3704,21 @@ void preferredHost_WSBLogin_FallbackFunctionCall(PreferredHostTestParameters par
 			/* Get the channel events in order, step by step. */
 			switch (iChnlEvnt) {
 			case 0:
-				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
 				break;
 			case 1:
-				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 				break;
 			case 2:
-				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 				break;
 			case 3:
-				ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
+				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
 				break;
 			case 4:
+				ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
+				break;
+			case 5:
 				ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
 				break;
 			default:
@@ -3815,7 +3833,7 @@ void preferredHost_WSBLogin_FallbackFunctionCall(PreferredHostTestParameters par
 	/* Provider should now accept for the secondary server. */
 	wtfAcceptWithTime(1000, 3);
 
-	wtfDispatch(WTF_TC_CONSUMER, 100);
+ 	wtfDispatch(WTF_TC_CONSUMER, 100);
 
 	/* Consumer channel FD change. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -4623,16 +4641,19 @@ void preferredHost_WSBLogin_FallbackFunctionCallFromChannelList(PreferredHostTes
 			/* Get the channel events in order, step by step. */
 			switch (iChnlEvnt) {
 			case 0:
+				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+				break;
+			case 1:
 				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 				ASSERT_TRUE(pEvent->channelEvent.port == 14013) << " actual port: " << pEvent->channelEvent.port;
 				break;
-			case 1:
+			case 2:
 				ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
 				break;
-			case 2:
+			case 3:
 				ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
 				break;
-			case 3:
+			case 4:
 				ASSERT_TRUE((pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY || pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE));
 				break;
 			default:
@@ -6894,7 +6915,17 @@ void preferredHost_WSBLogin_FallbackTimer(PreferredHostTestParameters parameters
 		wtfDispatch(WTF_TC_CONSUMER, 500);
 	}
 	// Get PREFERRED_HOST_COMPLETE
+
 	ASSERT_TRUE(pEvent != NULL);
+	/* Consumer should the STARTING_FALLBACK and HOST_COMPLETE event. */
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 500);
+	}
+
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
 
@@ -7001,6 +7032,12 @@ void preferredHost_WSBLogin_FallbackTimer(PreferredHostTestParameters parameters
 	ASSERT_TRUE(pRefreshMsg->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
 	ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->msgBase.encDataBody, &mpDataBody));
+
+	/* Consumer should the STARTING_FALLBACK event. */
+	wtfDispatch(WTF_TC_CONSUMER, 3500);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
 
 	/* Consumer should receive no more message from the standby server. */
 	ASSERT_FALSE(pEvent = wtfGetEvent());
@@ -7756,6 +7793,12 @@ void preferredHost_WSBService_InvalidWSBGroupFallbackFunctionCall(PreferredHostT
 
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
 
+	/* Consumer should the STARTING_FALLBACK event. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+
 	// Get PREFERRED_HOST_COMPLETE
 	pEvent = wtfGetEvent();
 	if (pEvent == NULL)
@@ -7870,8 +7913,9 @@ void preferredHost_WSBLogin_FallbackWithinWSBGroup(PreferredHostTestParameters p
 
 	consumerChannel = wtfGetChannel(WTF_TC_CONSUMER);
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
+
 	// Dispatch to make sure all the events and the user gets a preferred host complete
-	wtfDispatch(WTF_TC_CONSUMER, 400);
+	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
@@ -7904,8 +7948,10 @@ void preferredHost_WSBLogin_FallbackWithinWSBGroup(PreferredHostTestParameters p
 
 	consumerChannel = wtfGetChannel(WTF_TC_CONSUMER);
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
+
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+
 	// Dispatch to make sure all the events and the user gets a preferred host complete
-	wtfDispatch(WTF_TC_CONSUMER, 400);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
@@ -7915,8 +7961,10 @@ void preferredHost_WSBLogin_FallbackWithinWSBGroup(PreferredHostTestParameters p
 
 	consumerChannel = wtfGetChannel(WTF_TC_CONSUMER);
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
-	// Dispatch to make sure all the events and the user gets a preferred host complete
+
 	wtfDispatch(WTF_TC_CONSUMER, 400);
+
+	// Dispatch to make sure all the events and the user gets a preferred host complete
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
@@ -8144,12 +8192,13 @@ void preferredHost_WSBLogin_FallbackWithinWSBGroup(PreferredHostTestParameters p
 	consumerChannel = wtfGetChannel(WTF_TC_CONSUMER);
 
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
-	// Dispatch to make sure all the events and the user gets a preferred host complete
+	
 	wtfDispatch(WTF_TC_CONSUMER, 400);
+
+	// Dispatch to make sure all the events and the user gets a preferred host complete
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
-
 
 	wtfDispatch(WTF_TC_PROVIDER, 400, 0);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -8157,12 +8206,10 @@ void preferredHost_WSBLogin_FallbackWithinWSBGroup(PreferredHostTestParameters p
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_CONSUMER_CONNECTION_STATUS);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.flags == RDM_LG_CCSF_HAS_WARM_STANDBY_INFO);
-	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.warmStandbyInfo.warmStandbyMode == RDM_LOGIN_SERVER_TYPE_ACTIVE);
-	ASSERT_TRUE(pEvent->rdmMsg.serverIndex == 0);
-	pWtfTestServer = getWtfTestServer(pEvent->rdmMsg.serverIndex);
-	pWtfTestServer->warmStandbyMode = WTF_WSBM_LOGIN_BASED_SERVER_TYPE_ACTIVE;
-	pWtfTestServer = getWtfTestServer(pEvent->rdmMsg.serverIndex);
-	pWtfTestServer->warmStandbyMode = WTF_WSBM_SERVICE_BASED_ACTIVE;
+	if(pEvent->rdmMsg.serverIndex == 0)
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.warmStandbyInfo.warmStandbyMode == RDM_LOGIN_SERVER_TYPE_ACTIVE);
+	else
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.warmStandbyInfo.warmStandbyMode == RDM_LOGIN_SERVER_TYPE_STANDBY);
 
 	// There's a chance that the dispatch won't read both messages across the two connections, so dispatch again if pEvent is null.
 	if ((pEvent = wtfGetEvent()) == NULL)
@@ -8176,12 +8223,10 @@ void preferredHost_WSBLogin_FallbackWithinWSBGroup(PreferredHostTestParameters p
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_CONSUMER_CONNECTION_STATUS);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.flags == RDM_LG_CCSF_HAS_WARM_STANDBY_INFO);
-	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.warmStandbyInfo.warmStandbyMode == RDM_LOGIN_SERVER_TYPE_STANDBY);
-	ASSERT_TRUE(pEvent->rdmMsg.serverIndex == 1);
-	pWtfTestServer = getWtfTestServer(pEvent->rdmMsg.serverIndex);
-	pWtfTestServer->warmStandbyMode = WTF_WSBM_LOGIN_BASED_SERVER_TYPE_STANDBY;
-	pWtfTestServer = getWtfTestServer(pEvent->rdmMsg.serverIndex);
-	pWtfTestServer->warmStandbyMode = WTF_WSBM_SERVICE_BASED_STANDBY;
+	if (pEvent->rdmMsg.serverIndex == 0)
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.warmStandbyInfo.warmStandbyMode == RDM_LOGIN_SERVER_TYPE_ACTIVE);
+	else
+		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->loginMsg.consumerConnectionStatus.warmStandbyInfo.warmStandbyMode == RDM_LOGIN_SERVER_TYPE_STANDBY);
 
 	/* Provider should receive no more message. */
 	wtfDispatch(WTF_TC_PROVIDER, 100);
@@ -8669,7 +8714,6 @@ void preferredHost_WSBService_FallbackFunctionCall(PreferredHostTestParameters p
 	submitOpts.pRDMMsg = (RsslRDMMsg*)&directoryRefresh;
 	wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 1);
 
-
 	wtfDispatch(WTF_TC_CONSUMER, 1000);
 
 	/* Consumer should receive no more messages. */
@@ -8818,6 +8862,11 @@ void preferredHost_WSBService_FallbackFunctionCall(PreferredHostTestParameters p
 
 	/* Consumer receives a update message from the active service. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	/* Consumer should the STARTING_FALLBACK event. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
 
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	if (pEvent->base.type == WTF_DE_RSSL_MSG)
@@ -9708,6 +9757,12 @@ void preferredHost_WSBService_FallbackFunctionCallFromChannelList(PreferredHostT
 
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
 
+	/* Consumer should the STARTING_FALLBACK event. */
+	wtfDispatch(WTF_TC_CONSUMER, 400);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+
 	// Accept the incomming connection
 	wtfAccept(0);
 
@@ -9736,6 +9791,8 @@ void preferredHost_WSBService_FallbackFunctionCallFromChannelList(PreferredHostT
 		wtfDispatch(WTF_TC_CONSUMER, 200);
 	}
 	ASSERT_TRUE(pEvent != NULL);
+
+
 
 	/* Consumer may receive a update message from the active service. */
 	if (pEvent->base.type == WTF_DE_RSSL_MSG)
@@ -11959,6 +12016,31 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 	/* Consumer receives login response. */
 	wtfDispatch(WTF_TC_CONSUMER, 200);
 
+	/* Consumer should the STARTING_FALLBACK event. */
+	RsslUInt timeoutMs = 0;
+
+	pEvent = wtfGetEvent();
+	while (pEvent == NULL && timeoutMs < 2000)
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 500);
+		timeoutMs += 500;
+
+		pEvent = wtfGetEvent();
+	}
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 500);
+	}
+
+	// Get PREFERRED_HOST_COMPLETE
+	ASSERT_TRUE(pEvent != NULL);
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
+
 	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_PROVIDER, 200, 1, 1);
@@ -12010,16 +12092,8 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 	submitOpts.pRDMMsg = (RsslRDMMsg*)&directoryRefresh;
 	wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE, 1);
 
-
-	while (!(pEvent = wtfGetEvent()))
-	{
-		wtfDispatch(WTF_TC_CONSUMER, 500);
-	}
-
-	// Get PREFERRED_HOST_COMPLETE
-	ASSERT_TRUE(pEvent != NULL);
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
+	wtfDispatch(WTF_TC_CONSUMER, 500);
+	ASSERT_FALSE(pEvent = wtfGetEvent());
 
 	wtfDispatch(WTF_TC_PROVIDER, 400, 1);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -12162,6 +12236,12 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 
 	/* Consumer receives a update message from the active service. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	/* Consumer should the STARTING_FALLBACK event. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	if (pEvent->base.type == WTF_DE_RSSL_MSG)
 	{
@@ -12914,6 +12994,12 @@ void preferredHost_WSBLogin_InvalidWSBGroupFallbackFunctionCall(PreferredHostTes
 		wtfDispatch(WTF_TC_CONSUMER, 10000);
 		ASSERT_TRUE(pEvent = wtfGetEvent());
 	}
+
+	/* Consumer should the STARTING_FALLBACK event. */
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+	
+	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
 
@@ -15336,6 +15422,12 @@ void preferredHost_ChannelList_IOCTL(PreferredHostTestParameters parameters)
 	/* Consumer receives a update message from the active service. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
+
+	/* Consumer should the STARTING_FALLBACK event. */
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
 	if (pEvent->base.type == WTF_DE_RSSL_MSG)
 	{
 		RsslMsg* pMsg = (RsslMsg*)wtfGetRsslMsg(pEvent);
@@ -15350,13 +15442,14 @@ void preferredHost_ChannelList_IOCTL(PreferredHostTestParameters parameters)
 			ASSERT_TRUE(pUpdateMsg->msgBase.msgKey.serviceId == service1Id);
 			ASSERT_TRUE(rsslBufferIsEqual(&pUpdateMsg->msgBase.encDataBody, &mpDataBody));
 
+			
+		}
+
 			// Get the next event
 			ASSERT_TRUE(pEvent = wtfGetEvent());
 		}
-	}
 
 	/* Consumer receives Open/Suspect login status. */
-	ASSERT_TRUE(pEvent != NULL);
 	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
 	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
 	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
@@ -17018,6 +17111,13 @@ void preferredHost_WSB_IOCTL(PreferredHostTestParameters parameters)
 
 	ASSERT_TRUE(rsslReactorChannelIoctl(consumerChannel, RSSL_REACTOR_CHANNEL_IOCTL_PREFERRED_HOST_OPTIONS, (void*)&preferredHostOptions, &errorInfo) == RSSL_RET_SUCCESS);
 
+
+	/* Consumer should the STARTING_FALLBACK event. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_FALSE(pEvent = wtfGetEvent());
 
@@ -18303,6 +18403,12 @@ void preferredHost_ChannelList_InvalidServerFallbackFunctionCall(PreferredHostTe
 
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
 
+	/* Consumer should the STARTING_FALLBACK event. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+
 	/* The provider sends an update message with payload on the old consumer. */
 	rsslClearUpdateMsg(&updateMsg);
 	updateMsg.flags = RSSL_UPMF_HAS_MSG_KEY;
@@ -18322,15 +18428,17 @@ void preferredHost_ChannelList_InvalidServerFallbackFunctionCall(PreferredHostTe
 	// Events are expected to be queued here for the initialization of the provider 2 channel.
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_FALSE, 0);
 
-	/* Consumer receives a update message from the active service. */
-	wtfDispatch(WTF_TC_CONSUMER, 100);
-
 	/* Expects 2 events: a update message event and PREFERRED_HOST_COMPLETE channel event */
 	RsslInt32 k = 0;
 	RsslBool updMsgEvent = RSSL_FALSE;
 	RsslBool prefHostEvent = RSSL_FALSE;
 
-	pEvent = wtfGetEvent();
+	if ((pEvent = wtfGetEvent()) == NULL)
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 100);
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+	}
+
 	do {
 		ASSERT_TRUE(pEvent != NULL);
 		WtfEventType eventType = pEvent->base.type;

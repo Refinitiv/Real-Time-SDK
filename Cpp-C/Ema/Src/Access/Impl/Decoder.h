@@ -49,6 +49,8 @@ public :
 
 	virtual void setServiceName( const char* , UInt32 , bool nullTerm = true ) {}
 
+	virtual void setServiceId(UInt16) {}
+
 	virtual const Data* getSummaryData() const { return 0; }
 
 	virtual const RsslBuffer& getRsslBuffer() const = 0;

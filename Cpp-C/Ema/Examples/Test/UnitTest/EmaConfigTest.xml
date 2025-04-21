@@ -73,6 +73,60 @@
 			<PHFallBackWithInWSBGroup value="1"/>
 		</Consumer>
 		<Consumer>
+			<Name value="Consumer_2_RequestRouting"/>
+			<Channel value="Channel_2"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<RestLogFileName value="Rest1.log"/>
+			<RestEnableLog value="0"/>
+			<ItemCountHint value="500000"/>
+			<ServiceCountHint value="655"/>
+			<ObeyOpenWindow value="0"/>
+			<PostAckTimeout value="7000"/>
+			<RequestTimeout value="8000"/>
+			<MaxOutstandingPosts value="90000"/>
+			<DispatchTimeoutApiThread value="90"/>
+			<CatchUnhandledException value="0"/>
+			<MaxDispatchCountApiThread value="400"/>
+			<MaxDispatchCountUserThread value="5"/>
+			<MaxEventsInPool value="200"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="123" />
+			<ReconnectMaxDelay value="456" />
+			<XmlTraceFileName value="EmaMyTrace2"/>
+			<XmlTraceMaxFileSize value="66666666" />
+			<XmlTraceToFile value="1" />
+			<XmlTraceToStdout value="0" />
+			<XmlTraceToMultipleFiles value="1" />
+			<XmlTraceWrite value="1"/>
+			<XmlTraceRead value="1"/>
+			<XmlTracePing value="1"/>
+			<XmlTracePingOnly value="1"/>
+			<XmlTraceHex value="1"/>
+			<XmlTraceDump value="1"/>
+			<MsgKeyInUpdates value="1"/>
+			<TokenReissueRatio value="0.70"/>
+			<ReissueTokenAttemptLimit value="5"/>
+			<ReissueTokenAttemptInterval value="6000"/>
+			<CatchUnknownJsonFids value="0"/>
+			<CatchUnknownJsonKeys value="1"/>
+			<CloseChannelFromConverterFailure value="0"/>
+			<DefaultServiceID value="1"/>
+			<JsonExpandedEnumFields value="1"/>
+			<OutputBufferSize value="99999"/>
+			<JsonTokenIncrementSize value="999992"/>
+			<SendJsonConvError value="1"/>
+			<ShouldInitializeCPUIDlib value="0"/>
+			<RestProxyHostName value="restproxylocalhost"/>
+			<RestProxyPort value="9028"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeSchedule value="*/5 1,2,3 * * *"/>
+			<PHDetectionTimeInterval value="123"/>
+			<PreferredChannelName value="Channel_2"/>
+			<PreferredWSBChannelName value="Channel_3"/>
+			<PHFallBackWithInWSBGroup value="1"/>
+		</Consumer>
+		<Consumer>
 			<Name value="Consumer_3"/>
 
 			<!-- channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
@@ -878,4 +932,53 @@
 		</Dictionary>
 	</DictionaryList>
 </DictionaryGroup>
+
+<SessionChannelGroup>
+	<SessionChannelList>
+		<SessionChannelInfo>
+			<Name value="xmlTestSessionChannel"/>
+			<ChannelSet value="Channel_1, Channel_2"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
+			<ReconnectAttemptLimit value="200"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="400" />
+			<XmlTraceFileName value="SessionChannelTrace_1"/>
+			<XmlTraceMaxFileSize value="500" />
+			<XmlTraceToFile value="1" />
+			<XmlTraceToStdout value="0" />
+			<XmlTraceToMultipleFiles value="1" />
+			<XmlTraceWrite value="0"/>
+			<XmlTraceRead value="0"/>
+			<XmlTracePing value="0"/>
+			<XmlTracePingOnly value="0"/>
+			<XmlTraceHex value="0"/>
+			<XmlTraceDump value="0"/>
+		</SessionChannelInfo>
+		<SessionChannelInfo>
+			<Name value="xmlTestSessionChannel_2"/>
+			<ChannelSet value="Channel_1, Channel_2"/>
+			<ReconnectAttemptLimit value="200"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="400" />
+			<XmlTraceFileName value="SessionChannelTrace_2"/>
+			<XmlTraceMaxFileSize value="500" />
+			<XmlTraceToFile value="1" />
+			<XmlTraceToStdout value="0" />
+			<XmlTraceToMultipleFiles value="1" />
+			<XmlTraceWrite value="0"/>
+			<XmlTraceRead value="0"/>
+			<XmlTracePing value="0"/>
+			<XmlTracePingOnly value="0"/>
+			<XmlTraceHex value="0"/>
+			<XmlTraceDump value="0"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeSchedule value="1 2 3 4 5"/>
+			<PHDetectionTimeInterval value="10"/>
+			<PreferredChannelName value="Channel_2"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_2"/>
+			<PHFallBackWithInWSBGroup value="1"/>
+			
+		</SessionChannelInfo>
+	</SessionChannelList>
+</SessionChannelGroup>
 </EmaConfig>

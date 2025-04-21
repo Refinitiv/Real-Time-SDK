@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -20,6 +20,7 @@
 #include "OmmIProviderImpl.h"
 #include "EmaRdm.h"
 #include "OmmInvalidUsageException.h"
+#include "ConsumerRoutingChannel.h"
 
 #include <new>
 
@@ -701,7 +702,8 @@ DictionaryCallbackClient::DictionaryCallbackClient( OmmBaseImpl& ommConsImpl ) :
 	_channelDictionary( 0 ),
 	_ommBaseImpl( ommConsImpl ),
 	_refreshMsg(),
-	_statusMsg()
+	_statusMsg(),
+	sentRequest(false)
 {
 	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
@@ -840,10 +842,12 @@ void DictionaryCallbackClient::loadDictionaryFromFile()
 	}
 }
 
-bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
+bool DictionaryCallbackClient::downloadDictionary( Directory& directory )
 {
 	if ( _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg && _ommBaseImpl.getActiveConfig().pRsslEnumDefRequestMsg )
 	{
+		if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+		{
 		if ( _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.serviceId == directory.getId() )
 		{
 			downloadDictionaryFromService( directory );
@@ -851,6 +855,32 @@ bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
 		else if ( _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->getServiceName() == directory.getName() )
 		{
 			downloadDictionaryFromService( directory );
+		}
+		}
+		else
+		{
+			if (sentRequest == false)
+			{
+				// Validate against the aggregated directory value, not the the one in this directory object.
+				ConsumerRoutingService** pDirectoryPtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(_ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.serviceId);
+
+				if (pDirectoryPtr != NULL)
+				{
+					ConsumerRoutingService* pDirectory = *pDirectoryPtr;
+					if (pDirectory->routingChannelList.getPositionOf(directory.getChannel()->getConsumerRoutingChannel()) != -1)
+					{
+						downloadDictionaryFromService(directory);
+					}
+				}
+				else if (_ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->getServiceName() == directory.getName())
+				{
+					downloadDictionaryFromService(directory);
+				}
+			}
+			else
+			{
+				directory.getChannel()->setDictionary(getDefaultDictionary());
+			}
 		}
 
 		return true;
@@ -862,6 +892,12 @@ bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
 	}
 	else if ( _ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::ChannelDictionaryEnum )
 	{
+		if (_ommBaseImpl.getConsumerRoutingSession() != NULL && sentRequest == true)
+		{
+			directory.getChannel()->setDictionary(getDefaultDictionary());
+			return true;
+		}
+
 		if ( directory.getChannel()->getDictionary() )
 			return true;
 	}
@@ -890,34 +926,46 @@ bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
 		pDictionary = ChannelDictionary::create(_ommBaseImpl);
 	}
 
+	RsslReactorChannel* pReactorChannel = NULL;
+
+	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	{
+		pReactorChannel = _ommBaseImpl.getRsslReactorChannel();
+	}
+	else
+	{
+		pReactorChannel = ((Directory&)directory).getChannel()->getConsumerRoutingChannel()->pReactorChannel;
+	}
+
 	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 	submitMsgOpts.pRsslMsg = ( RsslMsg* )&requestMsg;
 	RsslBuffer serviceName;
 	serviceName.data = ( char* )directory.getName().c_str();
 	serviceName.length = directory.getName().length();
 	submitMsgOpts.pServiceName = &serviceName;
-	submitMsgOpts.majorVersion = directory.getChannel()->getRsslChannel()->majorVersion;
-	submitMsgOpts.minorVersion = directory.getChannel()->getRsslChannel()->minorVersion;
+	submitMsgOpts.majorVersion = pReactorChannel->majorVersion;
+	submitMsgOpts.minorVersion = pReactorChannel->minorVersion;
 	submitMsgOpts.requestMsgOptions.pUserSpec = ( void* )pDictionary;
 
-	const EmaVector< EmaString > dictionariesUsed = directory.getInfo().getDictionariesUsed().getDictionaryList();
-	const EmaVector< EmaString > dictionariesProvided = directory.getInfo().getDictionariesProvided().getDictionaryList();
+	EmaVector< DirectoryDictionaryInfo* >& dictionariesUsed = (EmaVector< DirectoryDictionaryInfo* >&)directory.getDictionariesUsed().getDictionaryList();
+	EmaVector< DirectoryDictionaryInfo* >& dictionariesProvided = (EmaVector< DirectoryDictionaryInfo* >&)directory.getDictionariesProvided().getDictionaryList();
 
 	Int32 streamId = 3;
 
 	for ( UInt32 idx = 0; idx < dictionariesUsed.size(); ++idx )
 	{
-		const EmaString& dictionaryUsage_Name = dictionariesUsed[idx];
+		EmaString& dictionaryUsage_Name = dictionariesUsed[idx]->name;
+		
 		// download the dictionary if it is included to dictionariesProvided list
-		if (dictionariesProvided.getPositionOf(dictionaryUsage_Name) < 0)
+		if (directory.getDictionariesProvided().hasDictionary(dictionaryUsage_Name) == false)
 			continue;
 
-		requestMsg.msgBase.msgKey.name.data = ( char* )dictionariesUsed[idx].c_str();
-		requestMsg.msgBase.msgKey.name.length = dictionariesUsed[idx].length();
+		requestMsg.msgBase.msgKey.name.data = ( char* )dictionariesUsed[idx]->name.c_str();
+		requestMsg.msgBase.msgKey.name.length = dictionariesUsed[idx]->name.length();
 		requestMsg.msgBase.streamId = streamId++;
 
-		if ( ( ret = rsslReactorSubmitMsg( directory.getChannel()->getRsslReactor(),
-		                                   directory.getChannel()->getRsslChannel(),
+		if ( ( ret = rsslReactorSubmitMsg( _ommBaseImpl.getRsslReactor(),
+											pReactorChannel,
 		                                   &submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 		{
 			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -941,7 +989,7 @@ bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
 			if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString temp( "Requested Dictionary " );
-				temp.append( dictionariesUsed[idx] ).append( CR )
+				temp.append( dictionariesUsed[idx]->name ).append( CR )
 				.append( "from Service " ).append( directory.getName() ).append( CR )
 				.append( "on Channel " ).append( CR )
 				.append( directory.getChannel()->toString() );
@@ -954,6 +1002,8 @@ bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
 
 	if ( _ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::ChannelDictionaryEnum )
 		directory.getChannel()->setDictionary( pDictionary );
+
+	sentRequest = true;
 
 	return true;
 }
@@ -998,22 +1048,33 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 		pDictionary = ChannelDictionary::create(_ommBaseImpl);
 	}
 
+	RsslReactorChannel* pReactorChannel = NULL;
+
+	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	{
+		pReactorChannel = _ommBaseImpl.getRsslReactorChannel();
+	}
+	else
+	{
+		pReactorChannel = ((Directory&)directory).getChannel()->getConsumerRoutingChannel()->pReactorChannel;
+	}
+
 	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 	submitMsgOpts.pRsslMsg = ( RsslMsg* )&requestMsg;
 	RsslBuffer serviceName;
 	serviceName.data = ( char* )directory.getName().c_str();
 	serviceName.length = directory.getName().length();
 	submitMsgOpts.pServiceName = &serviceName;
-	submitMsgOpts.majorVersion = directory.getChannel()->getRsslChannel()->majorVersion;
-	submitMsgOpts.minorVersion = directory.getChannel()->getRsslChannel()->minorVersion;
+	submitMsgOpts.majorVersion = pReactorChannel->majorVersion;
+	submitMsgOpts.minorVersion = pReactorChannel->minorVersion;
 	submitMsgOpts.requestMsgOptions.pUserSpec = ( void* )pDictionary;
 
 	requestMsg.msgBase.msgKey.name = _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.name;
 
 	requestMsg.msgBase.streamId = 3;
 
-	if ( ( ret = rsslReactorSubmitMsg( directory.getChannel()->getRsslReactor(),
-	                                   directory.getChannel()->getRsslChannel(),
+	if ( ( ret = rsslReactorSubmitMsg(_ommBaseImpl.getRsslReactor(),
+										pReactorChannel,
 	                                   &submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -1062,8 +1123,8 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 
 	requestMsg.msgBase.streamId = 4;
 
-	if ( ( ret = rsslReactorSubmitMsg( directory.getChannel()->getRsslReactor(),
-	                                   directory.getChannel()->getRsslChannel(),
+	if ( ( ret = rsslReactorSubmitMsg(_ommBaseImpl.getRsslReactor(),
+										_ommBaseImpl.getRsslReactorChannel(),
 	                                   &submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -1099,9 +1160,12 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 	if ( _ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::ChannelDictionaryEnum )
 		directory.getChannel()->setDictionary( pDictionary );
 
+	sentRequest = true;
+
 	return true;
 }
 
+// This is only used to process Consumer dictionary messages
 RsslReactorCallbackRet DictionaryCallbackClient::processCallback( RsslReactor* pRsslReactor,
     RsslReactorChannel* pRsslReactorChannel,
     RsslRDMDictionaryMsgEvent* pEvent )
@@ -1152,6 +1216,9 @@ RsslReactorCallbackRet DictionaryCallbackClient::processCallback( RsslReactor* p
 	rsslClearBuffer(&rsslMsgBuffer);
 	RsslEncIterator eIter;
 	rsslClearEncodeIterator(&eIter);
+
+	// Set pRsslReactorChannel on the item's channel for any remaining fanout.
+	pItem->setEventChannel((void*)pRsslReactorChannel);
 
 	switch ( pEvent->pRDMDictionaryMsg->rdmMsgBase.rdmMsgType )
 	{
@@ -1431,16 +1498,18 @@ RsslReactorCallbackRet DictionaryCallbackClient::processRefreshMsg( RsslBuffer* 
 
 	StaticDecoder::setRsslData(&_refreshMsg, (RsslMsg*)&rsslRefreshMsg, majorVersion, minorVersion, 0);
 
-	if ( dictionaryItem->getDirectory() && _refreshMsg.hasServiceId() )
+	if (dictionaryItem->getDirectory() && _refreshMsg.hasServiceId())
 	{
-		if ( _refreshMsg.getServiceId() == dictionaryItem->getDirectory()->getId() )
+		if (_refreshMsg.getServiceId() == dictionaryItem->getDirectory()->getId())
 		{
 			_refreshMsg.getDecoder().setServiceName(dictionaryItem->getDirectory()->getName().c_str(), dictionaryItem->getDirectory()->getName().length());
 		}
 	}
 
+
 	_ommBaseImpl.msgDispatched();
 
+	// Event _channel is set prior to this call.
 	dictionaryItem->onAllMsg( _refreshMsg );
 	dictionaryItem->onRefreshMsg( _refreshMsg );
 
@@ -1471,6 +1540,7 @@ RsslReactorCallbackRet DictionaryCallbackClient::processStatusMsg( RsslBuffer* m
 
 	_ommBaseImpl.msgDispatched();
 
+	// Event _channel is set prior to this call.
 	dictionaryItem->onAllMsg( _statusMsg );
 	dictionaryItem->onStatusMsg( _statusMsg );
 

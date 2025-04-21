@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2024 LSEG. All rights reserved.
+ * Copyright (C) 2019-2025 LSEG. All rights reserved.
 */
 
 #include "rtr/rsslReactorImpl.h"
@@ -818,10 +818,19 @@ RsslRet _reactorWorkerProcessReconnect(RsslReactorChannelImpl* pReactorChannel, 
 		}
 		else
 		{
-			pReactorChannel->connectionListIter++;
-			if (pReactorChannel->connectionListIter >= pReactorChannel->connectionListCount)
+			// _reactorHandlesWarmStandby checks for the MOVE_TO_CHANNEL_LIST state.
+			if (pReactorChannel->pWarmStandByHandlerImpl != NULL && ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_MOVED_TO_CHANNEL_LIST) == 0))
 			{
 				pReactorChannel->connectionListIter = 0;
+				pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState |= RSSL_RWSB_STATE_MOVED_TO_CHANNEL_LIST;
+			}
+			else
+			{
+				pReactorChannel->connectionListIter++;
+				if (pReactorChannel->connectionListIter >= pReactorChannel->connectionListCount)
+				{
+					pReactorChannel->connectionListIter = 0;
+				}
 			}
 		}
 
@@ -2327,7 +2336,22 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 											break;
 										case RSSL_RCIMPL_CET_PREFERRED_HOST_START_FALLBACK:
 										{
+											RsslReactorChannelEventImpl* pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
+
 											// Preferred host. Initiate the fallback procedure. 
+											// 
+											
+											/* Send the STARTING_FALLBACK event to the main reactor.  The worker thread does not need to wait for a response. */
+											rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_SUCCESS, RSSL_RET_SUCCESS, __FILE__, __LINE__,
+												"Preferred Host operation started.");
+
+											rsslClearReactorChannelEventImpl((RsslReactorChannelEventImpl*)pEvent);
+											pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK;
+											pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+											pEvent->channelEvent.pError = &pReactorChannel->channelWorkerCerr;
+											if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+												return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+
 											// This is like the DOWN_RECONNECTING case in that we move the channel to the worker's reconnection queue, but do not change the channel setup state or close out any of the current info.
 											// For WSB, this should only happen to the starting reactor channel, and if we're here, we're falling back to a WSB group, so the only check we need to make is if there is a WSB handler
 											if (pReactorChannel->pWarmStandByHandlerImpl != NULL && pReactorChannel->workerParentList != &pReactorWorker->activeChannels)

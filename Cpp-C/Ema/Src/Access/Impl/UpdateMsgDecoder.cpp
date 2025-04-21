@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|        Copyright (C) 2019 LSEG. All rights reserved.              --
+ *|        Copyright (C) 2019, 2025 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -374,6 +374,15 @@ void UpdateMsgDecoder::setServiceName( const char* serviceName, UInt32 length, b
 
 	_serviceName.setInt( serviceName, length, nullTerm );
 }
+
+void UpdateMsgDecoder::setServiceId(UInt16 serviceId)
+{
+	_pRsslMsg->updateMsg.flags |= RSSL_UPMF_HAS_MSG_KEY;
+	_pRsslMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+
+	_pRsslMsg->msgBase.msgKey.serviceId = serviceId;
+}
+
 
 const EmaBuffer& UpdateMsgDecoder::getHexBuffer() const
 {

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020, 2024 LSEG. All rights reserved.         --
+ *|          Copyright (C) 2019-2020, 2024-2025 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -236,6 +236,17 @@ public:
   */
   UInt64 getEncryptionProtocol() const { return _encryptionProtocol; }
 
+
+	/** Gets configured name of the connection
+	@return The name of the connection, as defined by the configuration.
+	*/	
+	EmaString getName() const { return _name; }
+
+	/** Gets session name of the connection
+	@return The name of the session that contains this connection
+	*/
+	EmaString getSessionName() const { return _sessionName; }
+
   /** Gets the preferred host information
 	@return Preferred host information for current channel 
   */
@@ -256,6 +267,19 @@ public:
 
   ///@name Operations
   //@{
+
+	/** Specifies name
+		@param[in] name specifies name as a string
+		@return reference to this object
+	*/
+	ChannelInformation& name(const EmaString& name);
+
+	/** Specifies session name
+		@param[in] sessionName specifies name as a string
+		@return reference to this object
+	*/
+	ChannelInformation& sessionName(const EmaString& sessionName);
+
   /** Specifies hostname
 	  @param[in] hostname specifies hostname as a string
 	  @return reference to this object
@@ -371,10 +395,11 @@ public:
   ChannelInformation& encryptionProtocol(UInt64 encryptionProtocol);
   //@}
 
-
 private:
   ChannelState _channelState;
   ConnectionType _connectionType;
+  EmaString _name;
+  EmaString _sessionName;
   EmaString _hostname;
   EmaString _ipAddress;
   UInt16 _port;

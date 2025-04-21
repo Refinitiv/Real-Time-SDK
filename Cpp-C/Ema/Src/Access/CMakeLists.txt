@@ -57,6 +57,10 @@ else()
             Impl/ChannelStatistics.cpp Impl/ChannelStatsImpl.h
             Impl/ClientSession.cpp Impl/ClientSession.h
             Impl/ComplexType.cpp Impl/ConfigErrorHandling.h
+			Impl/ConsumerRoutingChannel.cpp Impl/ConsumerRoutingChannel.h
+			Impl/ConsumerRoutingService.cpp Impl/ConsumerRoutingService.h
+			Impl/ConsumerRoutingSession.cpp Impl/ConsumerRoutingSession.h
+			Impl/ConsumerRoutingWatchlist.cpp Impl/ConsumerRoutingWatchlist.h
 	    Impl/ConsumerSessionInfo.cpp
             # Impl/D....
             Impl/Data.cpp Impl/DataType.cpp
@@ -230,6 +234,7 @@ else()
             Impl/ServiceEndpointDiscoveryOption.cpp
             Impl/ServiceEndpointDiscoveryResp.cpp    
             Impl/ServerChannelHandler.cpp Impl/ServerChannelHandler.h
+			Impl/ServiceList.cpp
             Impl/StaticDecoder.cpp Impl/StaticDecoder.h
             Impl/StatusMsg.cpp Impl/StatusMsgDecoder.cpp Impl/StatusMsgDecoder.h
             Impl/StatusMsgEncoder.cpp Impl/StatusMsgEncoder.h
@@ -350,6 +355,7 @@ else()
             Include/ServiceEndpointDiscoveryInfo.h
             Include/ServiceEndpointDiscoveryOption.h
             Include/ServiceEndpointDiscoveryResp.h
+			Include/ServiceList.h
             Include/SessionInfo.h
             Include/StatusMsg.h
             Include/SummaryData.h
