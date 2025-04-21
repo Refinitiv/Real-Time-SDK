@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.8.3.G1
+    libema.lib                ema3.9.0.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.8.3.G1
-    libema.dll                ema3.8.3.G1
+    libema.lib                ema3.9.0.L1
+    libema.dll                ema3.9.0.L1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.8.3.G1
+    libema.a                    ema3.9.0.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.8.3.G1          libema.so.22          ema3.8.3.G1
+    libema.so.3.9.0.L1          libema.so.23          ema3.9.0.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -148,27 +148,24 @@ This will create all necessary soft links for example makefiles to link. It is s
 
 - The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
 
-- The ServerSharedSocket feature which permits multiple provider applications to reuse a port for load balancing is available only with certain patch levels on Linux 6. So, applications that intend to use this feature on Linux 6 must rebuild the RTSDK library (librssl) natively on a Linux 6 platform with the appropriate patch level that supports this feature. 
-
-
 # Reference Information
 
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.8.3
+    Release Number: 3.9.0
     Load Number: 1
-    Windows Load ID: ema3.8.3.L1.win
-        Supersedes: ema3.8.2.L1.win
-    Linux Load ID: ema3.8.3.L1.linux
-        Supersedes: ema3.8.2.L1.linux
+    Windows Load ID: ema3.9.0.L1.win
+        Supersedes: ema3.8.3.L1.win
+    Linux Load ID: ema3.9.0.L1.linux
+        Supersedes: ema3.8.3.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.65_RealTimeDistributionSystem_24.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.66_RealTimeDistributionSystem_25.21 for RWF and Marketfeed Record Templates
 
 # Security
 

@@ -6,7 +6,7 @@ ETA CSharp contains open source components. The transport, decoder, encoder, val
 
 ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary transport implementations to connect to LSEG Real-Time Distribution System, LSEG Real-Time, and Data Feed Direct products.
 
-Copyright (C) 2022-2024 LSEG. All rights reserved.
+Copyright (C) 2022-2025 LSEG. All rights reserved.
 
 # ETA CSharp Documentation
 
@@ -135,7 +135,7 @@ The distribution contains several DLL files (libraries), intended to allow for e
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.65_RealTimeDistributionSystem_24.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.66_RealTimeDistributionSystem_25.21 for RWF and Marketfeed Record Templates
 
 # Security
 

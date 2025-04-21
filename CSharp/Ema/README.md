@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2023-2024 LSEG. All rights reserved.
+Copyright (C) 2023-2025 LSEG. All rights reserved.
   
 # EMA C# Documentation
 
@@ -95,7 +95,7 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.65_RealTimeDistributionSystem_24.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.66_RealTimeDistributionSystem_25.21 for RWF and Marketfeed Record Templates
 
 # Security
 

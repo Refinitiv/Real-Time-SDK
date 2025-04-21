@@ -7,18 +7,62 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.2.3.G1 aka EMA/ETA 3.8.3.G1 aka 3.8.3.2
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.3.0.L1 aka EMA/ETA 3.9.0.Ll aka 3.9.0.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release of C/C++ with support for Galaxy Kylin 10, and fixes for issues including a fix for rsslNumericStringToReal introduced in 2.2.3.L1.
+This release introduces support for the Request Routing feature (improved resiliency) and serves as a maintenance release with customer fixes. This release adds support for Amazon Linux versions and removes support for Linux 7 (Oracle Linux 7 library will not be shipped).
 
 Customer Issues Resolved
 ------------------------
-- [Case Number: 14187771] - [RTSDK-9334] - Building RTSDK locally with "-Dzlib_USE_INSTALLED=ON -Dlibxml2_USE_INSTALLED=ON" flags [Case Number: 14187771]
+- [GitHub #212] - [RTSDK-6790] - Expand the definition of InterfaceName to include name of interface such as 'eth1' (in addition to hostname and IP)
+- [Case Number: 14014166] - [RTSDK-9187] - OMMConsumer creation failure after high reconnection retry count
+- [Case Number: 14224685] - [RTSDK-9375] - EMA Consumer 501 has incorrect preferred host configuration
+- [Case Number: 14518490] - [RTSDK-9549] - IProv170 crashes when getChannelInformation in onReqMsg function
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.3.0.L1 (Apr 22, 2025)
+--------------------------------------------
+
+EMA C++ 3.9.0.L1 Issues Resolved
+--------------------------------
+- [RTSDK-1143] - Improve EMA exception and error handling documentation
+- [RTSDK-8446] - EMAC++ Request Routing Feature: Add new configuration values for XML and programmatic config
+- [RTSDK-8447] - EMAC++ Request Routing: feature implementation
+- [RTSDK-8533] - Fix to EMA ChannelCallbackClient to address issue found by Coverity scan
+- [RTSDK-9187] - OMMConsumer creation failure after high reconnection retry count [Case Number: 14014166]
+- [RTSDK-9292] - EMA C++: Create a IProv QA tool Compatible with Series300Consumer360-MultiThreadViews-001
+- [RTSDK-9375] - EMA Consumer 501 has incorrect preferred host configuration [Case Number: 14224685]
+- [RTSDK-9434] - EMA C++: Create Cons500-RTO-001 QATool
+- [RTSDK-9498] - Minor fix to EMA Cons113 example for input paramter: -clientSecret
+- [RTSDK-9549] - IProv170 crashes when getChannelInformation in onReqMsg function [Case Number: 14518490]
+- [RTSDK-9593] - Extend EMA OmmConsumerConfig to set application name
+- [RTSDK-9619] - Remove unused "PipePort" from EMA C++
+
+ETA C 3.9.0.L1 Issues Resolved
+--------------------------------
+- [RTSDK-6049] - Memory leak fix in RWF/JSON Converter detected by running VAConsumer
+- [RTSDK-7362] - rsslDateTimeStringToDateTime in dtime.c is incorrectly using strlen
+- [RTSDK-8895] - Additional error checking with websocket connections
+- [RTSDK-9096] - Fixes for build warnings on Ubuntu: affects rsslBindThread.c and test/example code
+- [RTSDK-9365] - Support ability to log URL of connecting websocket application
+- [RTSDK-9398] - Fix to rsslDecodeRDMLoginMsg with incomplete data scenario
+- [RTSDK-9612] - Fix to example code: 'select: Bad file descriptor' happens upon switch from regular Login channel to OAuth2_V1 channel
+- [RTSDK-9665] - The flag, -finline-limit=700, was added to C compiler options to increase size of functions inlined, for better performance 
+- [RTSDK-9683] - Cutover from WarmStandby group to Channel list shouldn't change ReactorChannel pointer
+- [RTSDK-9685] - Cutover from WarmStandby group to Channel list moves to incorrect channel list index if preference is not set 
+
+Both ETA C and EMA C++ 3.9.0.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-6781] - Amazon Linux 2023 and Amazon Linux 2: Add Support for builds
+- [RTSDK-6790] - Expand the definition of InterfaceName to include name of interface such as 'eth1' (in addition to hostname and IP) [GitHub #212]
+- [RTSDK-9500] - Fix to error text upon receiving invalid message size
+- [RTSDK-9179] - Remove Linux 7 from pre-built libraries in shipped packages (CMake support remains)
+- [RTSDK-9332] - Update to C/C++ versions dependencies: libxml2 is updated to 2.13.6 and curl is updated to 8.12.1
+- [RTSDK-9623] - Update to C/C++ version dependency: JWT (l8w8jwt) is updated to 2.5.0
 
 --------------------------------------------
 RTSDK C++/C Release 2.2.3.G1 (Jan 31, 2025)
