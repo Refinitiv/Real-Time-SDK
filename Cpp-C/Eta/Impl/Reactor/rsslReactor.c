@@ -6408,10 +6408,10 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 					}
 
 					// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
-					if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+					if (pChannel->pWarmStandByHandlerImpl != NULL)
 					{
-						pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+						pCallbackChannel = &pChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pChannel);
 					}
 
 					loginRenewalEvent.pReactorChannel = pCallbackChannel;
