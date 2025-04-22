@@ -68,7 +68,6 @@ void DirectoryHandler::initialize(EmaConfigServerImpl* configImpl)
 	}
 }
 
-// Callback for IProvider
 RsslReactorCallbackRet DirectoryHandler::directoryCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslRDMDirectoryMsgEvent* pRDMDirectoryMsgEvent)
 {
 	OmmServerBaseImpl* ommServerBaseImpl = (OmmServerBaseImpl*)pReactor->userSpecPtr;
