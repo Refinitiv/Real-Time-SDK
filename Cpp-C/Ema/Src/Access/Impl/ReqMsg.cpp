@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|        Copyright (C) 2019, 2024 LSEG. All rights reserved.                --
+ *|        Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.                --
  *|-----------------------------------------------------------------------------
  */
 
@@ -409,6 +409,15 @@ ReqMsg& ReqMsg::serviceName( const EmaString& serviceName )
 		_pEncoder = g_pool.getReqMsgEncoderItem();
 
 	_pEncoder->serviceName( serviceName );
+	return *this;
+}
+
+ReqMsg& ReqMsg::serviceListName(const EmaString& serviceListName)
+{
+	if (!_pEncoder)
+		_pEncoder = g_pool.getReqMsgEncoderItem();
+
+	_pEncoder->serviceListName(serviceListName);
 	return *this;
 }
 

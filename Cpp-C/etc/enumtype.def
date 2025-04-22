@@ -1,18 +1,18 @@
 !
 ! This document contains information proprietary to
-! Refinitiv and designed to display Integrated
-! Data Network (IDN) data within Refinitiv products.
+! LSEG and designed to display 
+! Real-Time (RT) data within LSEG products.
 ! This document may not be reproduced, disclosed or
 ! used in whole or part without the express written
-! permission of Refinitiv. Refinitiv may update or
+! permission of LSEG. LSEG may update or
 ! remove this document at any time without notice.
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.65
-!tag Build_RDMD  4.20.65
-!tag DT_Version  24.91
-!tag Date        18-Nov-2024
+!tag RT_Version  4.20.66
+!tag Build_RDMD  4.20.66
+!tag DT_Version  25.21
+!tag Date        17-Mar-2025
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -54,7 +54,7 @@ RDN_EXCHID     4
      23        "CBT"   Chicago Board of Trade
      24        "ITS"   NYSE Alerts
      25        "WPG"   Winnipeg Commodity Exchange
-     26        "MGE"   Minneapolis Grain Exchange
+     26        "MGE"   MIAX Futures Exchange
      27        "PBT"   Philadelphia Board of Trade
      28        "CMX"   CEI:Commodities Exchange Centre
      29        "CSC"   CEI:Coffee, Sugar and Cocoa
@@ -480,7 +480,7 @@ SETT_CCY   13620
     516        "NAD"   Namibia dollar
     524        "NPR"   Nepalese rupee
     528        "NLG"   Netherlands guilder
-    532        "ANG"   Netherlands Antillean guilder
+    532        "XCG"   Caribbean guilder
     533        "AWG"   Aruban florin
     548        "VUV"   Vanuatu vatu
     554        "NZD"   New Zealand dollar
@@ -7149,7 +7149,7 @@ CLS_A_EXID 13625
      23        "CBT"   Chicago Board of Trade
      24        "ITS"   NYSE Alerts
      25        "WPG"   Winnipeg Commodity Exchange
-     26        "MGE"   Minneapolis Grain Exchange
+     26        "MGE"   MIAX Futures Exchange
      27        "PBT"   Philadelphia Board of Trade
      28        "CMX"   CEI:Commodities Exchange Centre
      29        "CSC"   CEI:Coffee, Sugar and Cocoa
@@ -7805,7 +7805,7 @@ CLS_A_EXID 13625
     679        "QMH"   SWX Quotematch
     680        "KXR"   KOREA STOCK EXCHANGE - KOREA BONDS KRX
     681        "ABM"   Norwegian Alternative Bond Market
-    682        "DMX"   Dubai Mercantile Exchange
+    682        "DMX"   Gulf Mercantile Exchange
     683        "BLP"   Belgium Power Exchange
     684        "JNX"   SBI JAPANNEXT PTS Level 2
     685        "AXE"   NEWCO ELECTRONICS COMMUNICATIONS NETWORK (ECN) 
@@ -8901,6 +8901,17 @@ CLS_A_EXID 13625
    1775        "PFY"   Profercy
    1776        "FMX"   FMX Futures Exchange
    1777        "CTL"   Container Trades Statistics Limited
+   1778        "BHC"   Baker Hughes company
+   1779        "JAX"   Japan Alternative Market Real Time Data
+   1780        "EMR"   Euronext Access Dublin
+   1781        "KNT"   NEXTRADE
+   1782        "GTC"   Global OTC
+   1783        "GAG"   Green ALL Group
+   1784        "DAR"   Digital Asset Research
+   1785        "EMZ"   Electricity Market Information
+   1786        "EMS"   Energy Market Services Tradepoint
+   1787        "BBE"   BBCE - Balcao Brasileiro De Comercializacao De Energia
+   1788        "SBR"   SIGMA BROKING
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12696,6 +12707,7 @@ ORD_ENT_ST  6518
       6          "M"   Order Entry Inhibited, Cancellations and Modifications are Allowed
       7          "A"   Order entry enabled, no cancellations and modifications are allowed
       8          "P"   Order entry only permitted for specific market participants (as defined by venue)
+      9          "R"   Order Entry Enabled with restrictions
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12899,8 +12911,8 @@ OFFBK_H_RN 14142
      41         "TH"   Trading Halt
      42         "RH"   Regulatory Halt
      43         "S "   Halted by Market Surveillance
-     44         "KO"   Knock-out (Warrants)
-     45         "KP"   Knock-in pending (Warrants)
+     44         "KO"   Knock-out
+     45         "KP"   Knock-in pending
      46         "C1"   Circuit Breaker L1
      47         "C2"   Circuit Breaker L2
      48         "C3"   Circuit Breaker L3
@@ -13263,14 +13275,14 @@ LIMIT_INDQ  8937
      23        "BNX"   National Best Bid Limit State Entered and National Best Offer Limit State Exited (CTS - "I")
      24        "BXN"   National Best Bid Limit State Exited and National Best Offer Limit State Entered (CTS - "J")
      25        "BOE"   National Best Bid and National Best Offer are Executable (CQS - "A" - NBBO LULD)
-     26        "BNE"   National Best Bid below Lower Limit Price Band - National Best Bid is Non-Executable (CQS - "B" - NBBO LULD "
-     27        "ONE"   National Best Offer above Upper Limit Price Band - National Best Offer is Non-Executable (CQS - "C" - NBBO LU
-     28        "BON"   National Best Bid below Lower Limit Price Band and National Best Offer above Upper Limit Price Band - Nationa
+     26        "BNE"   National Best Bid below Lower Limit Price Band - National Best Bid is Non-Executable (CQS - "B" - NBBO LULD)
+     27        "ONE"   National Best Offer above Upper Limit Price Band - National Best Offer is Non-Executable (CQS - "C" - NBBO LULD)
+     28        "BON"   National Best Bid below Lower Limit Price Band and National Best Offer above Upper Limit Price Band - National Best Bid and National Best Offer are Non-Executable (CQS - "D" - NBBO LULD)
      29        "BLS"   National Best Bid equals Upper Limit Price Band - National Best Bid is in Limit State (CQS - "E" - NBBO LULD)
-     30        "OLS"   National Best Offer equals Lower Limit Price Band - National Best Offer is in Limit State (CQS - "F" - NBBO L
-     31        "BOL"   National Best Bid equals Upper Limit Price Band - National Best Bid is in Limit State and National Best Offer
-     32        "BNO"   National Best Bid below Lower Limit Price Band - National Best Bid is Non-Executable and National Best Offer
-     33        "UNB"   National Best Bid equals Upper Limit Price Band - National Best Bid is in Limit State and National Best Offer
+     30        "OLS"   National Best Offer equals Lower Limit Price Band - National Best Offer is in Limit State (CQS - "F" - NBBO LULD)
+     31        "BOL"   National Best Bid equals Upper Limit Price Band - National Best Bid is in Limit State and National Best Offer above Upper Limit Price Band - National Best Offer is Non-Executable (CQS - "G" - NBBO LULD)
+     32        "BNO"   National Best Bid below Lower Limit Price Band - National Best Bid is Non-Executable and National Best Offer equals Lower Limit Price Band - National Best Offer is in Limit State (CQS - "H" - NBBO LULD)
+     33        "UNB"   National Best Bid equals Upper Limit Price Band - National Best Bid is in Limit State and National Best Offer equals Lower Limit Price Band (Crossed - NOT in Limit State) (CQS - "I" - NBBO LULD)
      34        "OPN"   Opening Update
      35        "INT"   Intra-Day Update
      36        "RES"   Restated Value
@@ -19213,6 +19225,10 @@ MET_TYP25  13632
     274   "CLINTGRD"   Client Interest Grade
     275   "DLRMKGRD"   Dealer Market Grade
     276   "MARG_RTO"   Margin Ratio
+    277   "TOTCARCS"   TotalCarbonCost
+    278   "TOTCAREM"   TotalCarbonEmissions
+    279   "OLD     "   number of "Old" crop year positions
+    280   "OTHER   "   number of "Other" crop year positions
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19791,6 +19807,7 @@ CNTR_SZ_UT 13611
     447      "kUSDm"   Thousands of US dollars/month
     448      "CB/mw"   kg CO2 equivalent/mwh
     449      "MAD/P"   Moroccan Dirham Per Point
+    450      "C/dmt"   kg CO2 equivalent/dmt
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20003,6 +20020,10 @@ TRDSHM_EL2 13569
      16   "Vff-N   "   Classified by NMFA as not mutual fund
      17   "NCR-Y   "   Only allows for investment in Govt bonds/bills
      18   "NCR-N   "   Does not only allow for investment in Govt bonds/bills
+     19   "CPSP    "   Eligible for both Closing Price and Single Price trading
+     20   "CP      "   Eligible for Closing Price trading only
+     21   "SP      "   Eligible for Single Price trading only
+     22   "NAPM    "   Ineligible for Closing Price and Single Price trading
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23582,6 +23603,7 @@ TNOV_UN3TP 13623
 !
 ORD_SZ_QL  13626
 ORD_SZ_Q2  13627
+ORD_SZ_Q3  13637
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -23590,6 +23612,7 @@ ORD_SZ_Q2  13627
       2   "AUC     "   Auctions
       3   "OFFBK   "   Offbook
       4   "CAL SPR "   Calendar Spread
+      5   "FP      "   Fixed Price Trading
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23656,19 +23679,6 @@ DIVYLD_PRD 13636
       1   "FYR     "   Full Year
       2   "PYR     "   Partial Year
       3   "LPM     "   Latest Payment
-!
-! ACRONYM    FID
-! -------    ---
-!
-ORD_SZ_Q3  13637
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0   "        "   Undefined
-      1   "T       "   Continuous Trading
-      2   "AUC     "   Auctions
-      3   "OFFBK   "   Offbook
-      4   "CAL SPR "   Calendar Spread
 !
 ! ACRONYM    FID
 ! -------    ---

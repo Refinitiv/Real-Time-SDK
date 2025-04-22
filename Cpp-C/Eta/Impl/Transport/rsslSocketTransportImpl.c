@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2023 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2023, 2025 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -906,8 +906,8 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 1007 Invalid Message Size. Message size is: (%d). Max Message size is(%zu)\n",
-				__FILE__, __LINE__, ipcLen, rsslSocketChannel->inputBuffer->maxLength);
+				"<%s:%d> Error: 1007 Invalid Message Size. Message size is: (%d). Max Message size is(%u)\n",
+				__FILE__, __LINE__, ipcLen, rsslSocketChannel->maxMsgSize);
 
 			*readret = RSSL_RET_FAILURE;
 
@@ -4817,7 +4817,6 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 		{
 			/* Process the WS client handshake  */
 			return (rwsValidateWebSocketRequest(rsslSocketChannel, hdrStart, cc, error));
-
 		}
 		else if ((hdrStart[0] == 'P') && (hdrStart[1] == 'O') && 
 		(hdrStart[2] == 'S') && (hdrStart[3] == 'T'))
@@ -8563,6 +8562,9 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 
 	rsslChnlImpl->Channel.userSpecPtr = opts->userSpecPtr;
 
+	/* Add userSpecPtr to the socket channel */
+	rsslSocketChannel->userSpecPtr = rsslChnlImpl->Channel.userSpecPtr;
+
 	if (opts->blocking)
 	{
 		IPC_MUTEX_LOCK(rsslSocketChannel);
@@ -8936,7 +8938,7 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 		/*Add callback to the socket channel*/
 		rsslSocketChannel->httpCallback = rsslServerSocketChannel->httpCallback;
 
-		/*Add coockes ptr to the socket channel*/
+		/*Add cookies ptr to the socket channel*/
 		rsslSocketChannel->cookies = rsslServerSocketChannel->cookies;
 		rsslSocketChannel->isCookiesShallowCopy = RSSL_TRUE;
 
@@ -8953,6 +8955,9 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 		{
 			rsslChnlImpl->Channel.userSpecPtr = opts->userSpecPtr;
 		}
+
+		/* Add userSpecPtr to the socket channel */
+		rsslSocketChannel->userSpecPtr = rsslChnlImpl->Channel.userSpecPtr;
 
 		/* map ping stuff */
 		rsslChnlImpl->rsslFlags = rsslSocketChannel->rsslFlags;

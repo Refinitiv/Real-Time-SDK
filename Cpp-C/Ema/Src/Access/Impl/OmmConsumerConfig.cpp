@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -63,6 +63,12 @@ OmmConsumerConfig& OmmConsumerConfig::password(const EmaString& password)
 OmmConsumerConfig& OmmConsumerConfig::position(const EmaString& position)
 {
 	_pImpl->position(position);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::applicationName(const EmaString& applicationName)
+{
+	_pImpl->applicationName(applicationName);
 	return *this;
 }
 
@@ -360,5 +366,12 @@ OmmConsumerConfig& OmmConsumerConfig::restProxyPasswd(const EmaString& restProxy
 OmmConsumerConfig& OmmConsumerConfig::restProxyDomain(const EmaString& restProxyDomain)
 {
 	_pImpl->restProxyDomain(restProxyDomain);
+	return *this;
+}
+
+
+OmmConsumerConfig& OmmConsumerConfig::addServiceList(const ServiceList& serviceList)
+{
+	_pImpl->addServiceList(serviceList);
 	return *this;
 }

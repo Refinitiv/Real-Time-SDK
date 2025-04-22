@@ -27,6 +27,7 @@ class DirectoryHandler
 {
 public:
 
+	// Callback for IProvider only
 	static RsslReactorCallbackRet directoryCallback(RsslReactor*, RsslReactorChannel*, RsslRDMDirectoryMsgEvent*);
 
 	static DirectoryHandler* create(OmmServerBaseImpl*);

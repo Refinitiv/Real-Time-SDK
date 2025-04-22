@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -21,10 +21,13 @@ MsgEncoder::MsgEncoder() :
  _extendedHeader(),
  _nameSet( false ),
  _serviceNameSet( false ),
+ _serviceListNameSet( false ),
  _extendedHeaderSet( false ),
+ _serviceListName(),
 #else
  _pName( 0 ),
  _pServiceName( 0 ),
+ _pServiceListName( 0 ),
  _pAttrib( 0 ),
  _pPayload( 0 ),
  _pExtendedHeader( 0 ),
@@ -46,9 +49,11 @@ void MsgEncoder::clear()
 	_nameSet = false;
 	_serviceNameSet = false;
 	_extendedHeaderSet = false;
+	_serviceListNameSet = false;
 #else
 	_pName = 0;
 	_pServiceName = 0;
+	_pServiceListName = 0;
 	_pAttrib = 0;
 	_pPayload = 0;
 	_pExtendedHeader = 0;
@@ -65,9 +70,11 @@ void MsgEncoder::release()
 	_nameSet = false;
 	_serviceNameSet = false;
 	_extendedHeaderSet = false;
+	_serviceListNameSet = false;
 #else
 	_pName = 0;
 	_pServiceName = 0;
+	_pServiceListName = 0;
 	_pAttrib = 0;
 	_pPayload = 0;
 	_pExtendedHeader = 0;
@@ -83,9 +90,9 @@ bool MsgEncoder::ownsIterator() const
 
 void MsgEncoder::serviceName( const EmaString& serviceName )
 {
-	if ( hasServiceId() )
+	if (hasServiceId() || hasServiceListName())
 	{
-		EmaString text( "Attempt to set serviceName while service id is already set." );
+		EmaString text( "Attempt to set serviceName while service id or service list name is already set." );
 		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
@@ -98,6 +105,23 @@ void MsgEncoder::serviceName( const EmaString& serviceName )
 #endif
 }
 
+void MsgEncoder::serviceListName(const EmaString& serviceListName)
+{
+	if (hasServiceId() || hasServiceName())
+	{
+		EmaString text("Attempt to set serviceName while service id or service name is already set.");
+		throwIueException(text, OmmInvalidUsageException::InvalidOperationEnum);
+		return;
+	}
+
+#ifdef __EMA_COPY_ON_SET__
+	_serviceListNameSet = serviceListName.length() ? true : false;
+	_serviceListName = serviceListName;
+#else
+	_pServiceListName = &serviceListName;
+#endif
+}
+
 const EmaString& MsgEncoder::getServiceName() const
 {
 #ifdef __EMA_COPY_ON_SET__
@@ -107,12 +131,31 @@ const EmaString& MsgEncoder::getServiceName() const
 #endif
 }
 
+const EmaString& MsgEncoder::getServiceListName() const
+{
+#ifdef __EMA_COPY_ON_SET__
+	return _serviceListName;
+#else
+	return *_pServiceListName;
+#endif
+}
+
 bool MsgEncoder::hasServiceName() const
 {
 #ifdef __EMA_COPY_ON_SET__
 	return _serviceNameSet;
 #else
 	return _pServiceName && !_pServiceName->empty() ? true : false;
+#endif
+}
+
+
+bool MsgEncoder::hasServiceListName() const
+{
+#ifdef __EMA_COPY_ON_SET__
+	return _serviceListNameSet;
+#else
+	return _pServiceListName && !_pServiceListName->empty() ? true : false;
 #endif
 }
 

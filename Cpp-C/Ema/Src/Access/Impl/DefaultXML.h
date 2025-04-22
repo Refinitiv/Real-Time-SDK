@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -56,6 +56,7 @@ refinitiv::ema::access::EmaString AsciiValues[] = {
 	"Server",
 	"ServerCert",
 	"ServerPrivateKey",
+	"SessionChannelSet",
 	"StandbyServerSet",
 	"StartingActiveServer",
 	"StatusText",
@@ -89,7 +90,6 @@ refinitiv::ema::access::EmaString EnumeratedValues[] = {
 refinitiv::ema::access::EmaString Int64Values[] = {
 	"DictionaryID",
 	"DispatchTimeoutApiThread",
-	"PipePort",
 	"ReconnectAttemptLimit",
 	"ReconnectMaxDelay",
 	"ReconnectMinDelay",
@@ -161,6 +161,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"ServiceDiscoveryRetryCount",
 	"ServiceId",
 	"ServiceState",
+	"SessionEnhancedItemRecovery",
 	"ShouldInitializeCPUIDlib",
 	"SupportsOutOfBandSnapshots",
 	"SupportsQoSRange",
@@ -213,6 +214,7 @@ refinitiv::ema::access::EmaString NodesThatRequireName[] = {
 	"NiProvider",
 	"Server",
 	"Service",
+	"SessionChannel",
 };
 
 #endif //__refinitiv_ema_access_DefaultXML_h

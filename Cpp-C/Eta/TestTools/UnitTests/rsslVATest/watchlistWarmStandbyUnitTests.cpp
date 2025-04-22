@@ -623,8 +623,12 @@ void warmStandbyTest_LoginBased_SwitchingStandbyServerToActive(WatchlistWarmStan
 	pWtfTestServer = getWtfTestServer(pEvent->rdmMsg.serverIndex);
 	pWtfTestServer->warmStandbyMode = WTF_WSBM_LOGIN_BASED_SERVER_TYPE_STANDBY;
 
-	wtfDispatch(WTF_TC_PROVIDER, 200, 0, 1);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	if ((pEvent = wtfGetEvent()) == NULL)
+	{
+		wtfDispatch(WTF_TC_PROVIDER, 200, 0, 1);
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+	}
+
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REQUEST);
@@ -4869,8 +4873,11 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseActiveThenSt
 		ASSERT_TRUE(pEvent->rdmMsg.serverIndex == 3);
 	}
 
-	wtfDispatch(WTF_TC_PROVIDER, 200, 3, 1);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	if ((pEvent = wtfGetEvent()) == NULL)
+	{
+		wtfDispatch(WTF_TC_PROVIDER, 200, 3, 1);
+			ASSERT_TRUE(pEvent = wtfGetEvent());
+	}
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REQUEST);
@@ -5651,8 +5658,12 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseStandbyThenA
 		ASSERT_TRUE(pEvent->rdmMsg.serverIndex == 3);
 	}
 
-	wtfDispatch(WTF_TC_PROVIDER, 200, 3, 1);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	if ((pEvent = wtfGetEvent()) == NULL)
+	{
+		wtfDispatch(WTF_TC_PROVIDER, 200, 3, 1);
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+	}
+
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REQUEST);

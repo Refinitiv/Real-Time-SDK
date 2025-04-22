@@ -2,12 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.        --
+ *|           Copyright (C) 2019-2022, 2024-2025 LSEG. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
 #ifndef __refinitiv_ema_access_OmmConsumer_h
 #define __refinitiv_ema_access_OmmConsumer_h
+
+#include "Access/Include/EmaVector.h"
 
 /**
 	@class refinitiv::ema::access::OmmConsumer OmmConsumer.h "Access/Include/OmmConsumer.h"
@@ -324,15 +326,23 @@ public :
 	void unregister( UInt64 handle );
 
 	/** Provides channel information about the active channel.
-		@param[in] caller provider ChannelInformation&; parameter will be cleared and then
+		@param[in] caller provided ChannelInformation&; parameter will be cleared and then
 				   current channel information will be provided
 		@return void
 		\remark This method is \ref ObjectLevelSafe
 	*/
 	void getChannelInformation(ChannelInformation&);
 
+	/** Provides channel information about the active channels in the session.
+		@param[in] caller provided EmaVector of ChannelInformation objects; The vector will be cleared and then
+				   current channel information for all channels in the session will be provided
+		@return void
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void getSessionInformation(EmaVector<ChannelInformation>&);
+
 		/** Provides channel statistics about the active channel.
-		@param[in] caller provider ChannelStatistics&; parameter will be cleared and then
+		@param[in] caller provided ChannelStatistics&; parameter will be cleared and then
 				   current channel statistics will be provided
 		@throw OmmInvalidUsageException if it cannot get the channel statistics
 		@return void

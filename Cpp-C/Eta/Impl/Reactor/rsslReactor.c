@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2024 LSEG. All rights reserved.
+ * Copyright (C) 2019-2025 LSEG. All rights reserved.
 */
 
 #include "rtr/rsslReactorImpl.h"
@@ -52,6 +52,8 @@ static RsslReactorChannelImpl* _reactorTakeChannel(RsslReactorImpl *pReactorImpl
 
 /* Reads from the given channel and handles the message or return code. */
 static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslErrorInfo *pError);
+
+static void _reactorSetupMainWSBReactorChannel(RsslReactorChannel* pCallbackChannel, RsslReactorChannelImpl* pReactorChannel);
 
 /* Reads and handles an event from the given queue. */
 static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, RsslReactorEventQueue *pQueue, RsslErrorInfo *pError);
@@ -175,7 +177,20 @@ static RsslRet _reactorWSWriteWatchlistMsg(RsslReactorImpl *pReactorImpl, RsslRe
 
 static void _reactorWSDirectoryUpdateFromChannelDown(RsslReactorWarmStandbyGroupImpl* pWarmStandbyGroupImpl, RsslReactorChannelImpl* pReactorChannelImpl, WlServiceCache* pServiceCache);
 
-static void _reactorWSSendWarningMessage(RsslReactorChannelImpl* pReactorChannelImpl, RsslErrorInfo* pError);
+static void _reactorWSBSendWarningMessage(RsslReactorChannelImpl* pReactorChannelImpl, RsslErrorInfo* pError);
+
+// This sets up the main rsslReactorChannel to give back to the application in a WSB scenario.
+// Prerequsite: both pMainChannel and pReactorChannel are not null
+RTR_C_ALWAYS_INLINE void _reactorSetupMainWSBReactorChannel(RsslReactorChannel* pMainChannel, RsslReactorChannelImpl* pReactorChannel)
+{
+	pMainChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
+	pMainChannel->socketId = pReactorChannel->reactorChannel.socketId;
+	pMainChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
+	pMainChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
+	pMainChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
+	pMainChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
+	pMainChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+}
 
 /* current created reactor index */
 static rtr_atomic_val currentIndReactor = 0;
@@ -2562,6 +2577,12 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 		goto reactorConnectFail;
 	}
 
+	if (hasConnectionListCount && pOpts->reactorConnectionList == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Connection count specified but reactorConnectionList is NULL.");
+		goto reactorConnectFail;
+	}
+
 	if ((ret = _validateRole(pRole, pError)) != RSSL_RET_SUCCESS)
 		goto reactorConnectFail;
 
@@ -2919,15 +2940,10 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 					RsslReactorEventImpl rsslEvent;
 					RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
 
-					if (_reactorHandlesWarmStandby(pReactorChannel))
+					if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
 					{
 						pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-						pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-						pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-						pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-						pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-						pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-						pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 						/* Set to true to indicate that the RsslConsumerWatchlistOptions.channelOpenCallback is called back to application */
 						pReactorChannel->pWarmStandByHandlerImpl->isChannelOpenCallbackCalled = RSSL_TRUE;
@@ -3313,6 +3329,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 				}
 			}
 
+
 			channelsWithData = channelsToCheck = rsslQueueGetElementCount(&pReactorImpl->activeChannels);
 
 			while(maxMsgs > 0 && channelsWithData > 0)
@@ -3346,7 +3363,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 					}
 					else if (pReactorChannel->reactorParentQueue != &pReactorImpl->activeChannels)
 					{
-						/* Channel is no longer active */
+						/* Channel is no longer active, so decrement the channelsWithData counter only one time. */
 						--channelsWithData;
 					}
 					else if (pReactorChannel->readRet <= RSSL_RET_SUCCESS)
@@ -3355,8 +3372,11 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 						if (isFdReadable)
 							rsslNotifierEventClearNotifiedFlags(pReactorChannel->pNotifierEvent);
 					}
+
 					if (channelsToCheck > 0) --channelsToCheck;
 					if (maxMsgs > 0) --maxMsgs;
+
+
 				}
 				/* If not triggered to read, check if this channel has passed its ping timeout without sending either a ping or some data. */
 				else 
@@ -3371,8 +3391,15 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 							return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 						}
 					}
+
+					/* channelsWithData should be decremented only on the initial round robin iteration through the activeChannels queue.
+					*  After that, this could be hit if there is nothing else to read, so it should not be decremented, as it would already have been decremented in
+					*  either error case:
+					*  -reactor channel failure, in which case it's removed from the activeChannel queue
+					*  -rsslReadEx returning either 0(indicating that there's nothing more to read) or a non-terminal failure code like WOULD_BLOCK or PING.
+					*/
+					if (channelsToCheck > 0) --channelsWithData;
 					if (channelsToCheck > 0) --channelsToCheck;
-					--channelsWithData;
 				}
 			}
 
@@ -4447,13 +4474,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 						}
 
 						pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-						pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-						pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-						pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-						pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-						pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-						pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-						pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 						pEvent->channelEvent.pReactorChannel = pCallbackChannel;
 
@@ -4475,13 +4496,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 						channelEventTypeTemp = pEvent->channelEvent.channelEventType;
 
 						pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-						pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-						pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-						pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-						pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-						pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-						pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-						pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 						if (pReactorChannel->reactorChannel.pRsslChannel && pReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE &&
 							channelEventTypeTemp == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING)
@@ -4551,6 +4566,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 						ret = _reactorQueuedWSBGroupRecoveryMsg(pWarmStandByHandlerImpl, &errorInfo);
 
 						pWarmStandByHandlerImpl->pStartingReactorChannel->reactorChannel.reactorChannelType = RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY;
+						pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel.reactorChannelType = RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY;
 						pReactorChannel->reconnectAttemptCount = 0;
 						rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 
@@ -4579,6 +4595,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 						pWarmStandByHandlerImpl->nextWSBGroupShouldBeFallback = RSSL_TRUE;
 						pWarmStandByHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_MOVE_TO_CHANNEL_LIST;
 						pWarmStandByHandlerImpl->pStartingReactorChannel->reactorChannel.reactorChannelType = RSSL_REACTOR_CHANNEL_TYPE_NORMAL;
+						pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel.reactorChannelType = RSSL_REACTOR_CHANNEL_TYPE_NORMAL;
 						pReactorChannel->reconnectAttemptCount = 0;
 						rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 					}
@@ -4590,13 +4607,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 				if (isWarmStandbyChannelClosed(pReactorChannel->pWarmStandByHandlerImpl, pReactorChannel))
 				{
 					pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-					pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-					pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-					pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-					pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-					pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-					pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-					pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+					_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 					_reactorHandlesWSBSocketList(pReactorChannel->pWarmStandByHandlerImpl, pCallbackChannel, NULL);
 
@@ -4619,13 +4630,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 					channelEventTypeTemp = pEvent->channelEvent.channelEventType;
 
 					pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-					pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-					pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-					pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-					pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-					pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-					pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-					pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+					_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 					if (pReactorChannel->reactorChannel.pRsslChannel && pReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE &&
 						channelEventTypeTemp == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING)
@@ -4700,6 +4705,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 					}
 
 					pWarmStandByHandlerImpl->pStartingReactorChannel->reactorChannel.reactorChannelType = RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY;
+					pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel.reactorChannelType = RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY;
 					pReactorChannel->reconnectAttemptCount = 0;
 					rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 
@@ -4713,16 +4719,8 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 				}
 
 				/* Reactor is shuting down for warm standby channel case. */
-				
-
 				pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-				pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-				pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-				pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-				pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-				pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-				pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-				pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+				_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 				pEvent->channelEvent.pReactorChannel = pCallbackChannel;
 
@@ -5251,26 +5249,24 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								RsslReactorEventImpl rsslEvent;
 								RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
 
-								if (_reactorHandlesWarmStandby(pReactorChannel))
+								if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
 								{
-									if (pReactorChannel->pWarmStandByHandlerImpl->isChannelOpenCallbackCalled == RSSL_FALSE)
+									if ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_MOVE_TO_CHANNEL_LIST) == 0)
 									{
-										/* Set to true to indicate that the RsslConsumerWatchlistOptions.channelOpenCallback is called back to application */
-										pReactorChannel->pWarmStandByHandlerImpl->isChannelOpenCallbackCalled = RSSL_TRUE;
-									}
-									else
-									{
-										/* The RsslConsumerWatchlistOptions.channelOpenCallback must be called only once per WSB channel */
-										break;
+										if (pReactorChannel->pWarmStandByHandlerImpl->isChannelOpenCallbackCalled == RSSL_FALSE)
+										{
+											/* Set to true to indicate that the RsslConsumerWatchlistOptions.channelOpenCallback is called back to application */
+											pReactorChannel->pWarmStandByHandlerImpl->isChannelOpenCallbackCalled = RSSL_TRUE;
+										}
+										else
+										{
+											/* The RsslConsumerWatchlistOptions.channelOpenCallback must be called only once per WSB channel */
+											break;
+										}
 									}
 
 									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-									pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-									pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-									pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-									pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-									pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-									pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 								}
 
 								rsslClearReactorChannelEventImpl(&rsslEvent.channelEventImpl);
@@ -5334,18 +5330,12 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							{
 								RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
 
-								if (_reactorHandlesWarmStandby(pReactorChannel))
+								if (_reactorHandlesWarmStandby(pReactorChannel) == RSSL_TRUE)
 								{
 									if (pReactorChannel->pWarmStandByHandlerImpl->mainChannelState < RSSL_RWSB_STATE_CHANNEL_UP)
 									{
 										pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-										pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-										pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-										pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-										pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-										pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-										pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-										pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+										_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 										_reactorHandlesWSBSocketList(pReactorChannel->pWarmStandByHandlerImpl, pCallbackChannel, NULL);
 
@@ -5363,13 +5353,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 									else
 									{
 										pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-										pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-										pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-										pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-										pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-										pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-										pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-										pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+										_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 										_reactorHandlesWSBSocketList(pReactorChannel->pWarmStandByHandlerImpl, pCallbackChannel, NULL);
 
@@ -5385,7 +5369,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 										pConnEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 
 										/* Apply IOCTL codes if any */
-										if(pReactorChannel->pWarmStandByHandlerImpl->ioCtlCodes != 0)
+										if (pReactorChannel->pWarmStandByHandlerImpl->ioCtlCodes != 0)
 										{
 											if ((pReactorChannel->pWarmStandByHandlerImpl->ioCtlCodes & RSSL_REACTOR_WS_TRACE) != 0)
 											{
@@ -5476,10 +5460,21 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								}
 								else
 								{
+									// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+									if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+									{
+										pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+										_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+									}
+
+									pConnEvent->channelEvent.pReactorChannel = pCallbackChannel;
+									
 									/* Notify application */
 									_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 									cret = (*pReactorChannel->channelRole.base.channelEventCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &pConnEvent->channelEvent);
 									_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+									pConnEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 								}
 							}
 
@@ -5546,19 +5541,12 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							{
 								RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
 
-								if (_reactorHandlesWarmStandby(pReactorChannel))
+								if (_reactorHandlesWarmStandby(pReactorChannel) == RSSL_TRUE)
 								{
 									if (pReactorChannel->pWarmStandByHandlerImpl->mainChannelState == RSSL_RWSB_STATE_CHANNEL_UP)
 									{
 										pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-
-										pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-										pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-										pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-										pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-										pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-										pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-										pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+										_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 										pConnEvent->channelEvent.pReactorChannel = pCallbackChannel;
 
@@ -5570,12 +5558,24 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 										pReactorChannel->pWarmStandByHandlerImpl->mainChannelState = RSSL_RWSB_STATE_CHANNEL_READY;
 									}
+
 								}
 								else
 								{
+									// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+									if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+									{
+										pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+										_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+									}
+
+									pConnEvent->channelEvent.pReactorChannel = pCallbackChannel;
+
 									_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 									cret = (*pReactorChannel->channelRole.base.channelEventCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &pConnEvent->channelEvent);
 									_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+									pConnEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 								}
 							}
 
@@ -5690,9 +5690,21 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 								pEvent->channelEvent.pError = pError;
 
+								// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+								if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+								{
+									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+								}
+
+								pEvent->channelEvent.pReactorChannel = pCallbackChannel;
+
 								_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 								cret = (*pReactorChannel->channelRole.base.channelEventCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &pEvent->channelEvent);
 								_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+								pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+
 
 							}
 
@@ -5803,6 +5815,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 									}
 
 									pReactorChannel->pWarmStandByHandlerImpl->pStartingReactorChannel->reactorChannel.reactorChannelType = RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY;
+									pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel.reactorChannelType = RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY;
 									pReactorChannel->reconnectAttemptCount = 0;
 									rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 
@@ -5855,8 +5868,18 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								authTokenEvent.pReactorChannel = &pReactorChannel->reactorChannel;
 								authTokenEvent.pError = NULL;
 								authTokenEvent.statusCode = pReactorChannel->pCurrentTokenSession->pSessionImpl->httpStatusCode;
+
+								if (pReactorChannel->reactorChannel.pWarmStandbyChInfo != NULL)
+								{
+									// This is WSB channel that has transitioned to the channel list, so setup the main reactor channel and notify the app.
+									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+								}
+
+								authTokenEvent.pReactorChannel = pCallbackChannel;
+
 								_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-								cret = (*pReactorChannel->currentConnectionOpts->base.pAuthTokenEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &authTokenEvent);
+								cret = (*pReactorChannel->currentConnectionOpts->base.pAuthTokenEventCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &authTokenEvent);
 								_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 
 								if (cret != RSSL_RC_CRET_SUCCESS)
@@ -5886,22 +5909,19 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							break;
 						}
 						case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:
+						case RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK:
 						{
+							// Both preferred host complete and starting_fallback events have the same handling here.
 							RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
 
-							if (_reactorHandlesWarmStandby(pReactorChannel))
+							if (_reactorHandlesWarmStandby(pReactorChannel) == RSSL_TRUE)
 							{
 								if (pReactorChannel->pWarmStandByHandlerImpl->mainChannelState >= RSSL_RWSB_STATE_CHANNEL_UP)
 								{
 									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
 
 									pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-									pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-									pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-									pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-									pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-									pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-									pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 									pConnEvent->channelEvent.pReactorChannel = pCallbackChannel;
 
@@ -5911,12 +5931,24 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 									pConnEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 								}
+
 							}
 							else
 							{
+								// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+								if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+								{
+									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+								}
+
+								pConnEvent->channelEvent.pReactorChannel = pCallbackChannel;
+
 								_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 								cret = (*pReactorChannel->channelRole.base.channelEventCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &pConnEvent->channelEvent);
 								_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+								pConnEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 							}
 							break;
 						}
@@ -5977,6 +6009,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						case RSSL_RC_CET_CHANNEL_READY:
 						case RSSL_RC_CET_CHANNEL_DOWN:
 						case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:
+						case RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK:
 						case RSSL_RCIMPL_CET_PREFERRED_HOST_RECONNECT_COMPLETE:
 							break;
 						case RSSL_RCIMPL_CET_DISPATCH_WL:
@@ -6047,10 +6080,10 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 			{
 				RsslReactorTokenMgntEvent *pReactorTokenMgntEvent = (RsslReactorTokenMgntEvent*)pEvent;
 				RsslReactorTokenSessionImpl *pTokenSession = pReactorTokenMgntEvent->pTokenSessionImpl;
-				RsslReactorChannelImpl *pReactorChannel = NULL;
+				RsslReactorChannelImpl *pReactorChannel = (RsslReactorChannelImpl*)pReactorTokenMgntEvent->pReactorChannel;
 				RsslQueueLink *pLink = NULL;
+				RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
 
-				pReactorChannel = (RsslReactorChannelImpl*)pReactorTokenMgntEvent->pReactorChannel;
 
 				/* The channel is being closed by the user. The channel can be NULL when submitting OAuth credential renewal without the token session */
 				if (pReactorChannel && (pReactorChannel->reactorParentQueue == &pReactorImpl->closingChannels))
@@ -6119,12 +6152,22 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							if (pReactorTokenMgntEvent->pAuthTokenEventCallback)
 							{
 								pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorAuthTokenInfo = &pTokenSession->tokenInformation;
-								pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorChannel = &pReactorChannel->reactorChannel;
 								pReactorTokenMgntEvent->reactorAuthTokenEvent.pError = NULL;
 								pReactorTokenMgntEvent->reactorAuthTokenEvent.statusCode = pTokenSession->httpStatusCode;
+
+								// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+								if (pReactorChannel->reactorChannel.pWarmStandbyChInfo != NULL)
+								{
+									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+								}								
+								pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorChannel = pCallbackChannel;
+
 								_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-								cret = (*pReactorTokenMgntEvent->pAuthTokenEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &pReactorTokenMgntEvent->reactorAuthTokenEvent);
+								cret = (*pReactorTokenMgntEvent->pAuthTokenEventCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &pReactorTokenMgntEvent->reactorAuthTokenEvent);
 								_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+								pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 
 								if (cret != RSSL_RC_CRET_SUCCESS)
 								{
@@ -6150,12 +6193,21 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						{
 							RsslReactorOAuthCredentialRenewalImpl *pReactorOAuthCredentialRenewalImpl = (RsslReactorOAuthCredentialRenewalImpl*)pReactorTokenMgntEvent->pOAuthCredentialRenewal;
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorAuthTokenInfo = NULL;
-							pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorChannel = pReactorChannel ? &pReactorChannel->reactorChannel : NULL;
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.pError = &pReactorTokenMgntEvent->pReactorErrorInfoImpl->rsslErrorInfo;
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.statusCode = pReactorChannel ? pTokenSession->httpStatusCode : pReactorOAuthCredentialRenewalImpl->httpStatusCode;
+							
+							// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+							if (pReactorChannel->reactorChannel.pWarmStandbyChInfo != NULL)
+							{
+								pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+								_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+							}
+							pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorChannel = pCallbackChannel;
 							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-							cret = (*pReactorTokenMgntEvent->pAuthTokenEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &pReactorTokenMgntEvent->reactorAuthTokenEvent);
+							cret = (*pReactorTokenMgntEvent->pAuthTokenEventCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &pReactorTokenMgntEvent->reactorAuthTokenEvent);
 							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+							pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 
 							/* Decrease the reference count of RsslReactorErrorInfoImpl before putting it back to the pool. */
 							if (--pReactorTokenMgntEvent->pReactorErrorInfoImpl->referenceCount == 0)
@@ -6188,18 +6240,12 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						if (pRsslChannel && pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
 						{
 							RsslReactorEventImpl rsslEvent;
-							RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
 
-							if (_reactorHandlesWarmStandby(pReactorChannel))
+							// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+							if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
 							{
 								pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-								pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-								pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-								pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-								pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-								pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-								pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-								pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+								_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 							}
 
 							rsslClearReactorChannelEventImpl(&rsslEvent.channelEventImpl);
@@ -6253,12 +6299,22 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						{
 							RsslReactorOAuthCredentialRenewalImpl *pReactorOAuthCredentialRenewalImpl = (RsslReactorOAuthCredentialRenewalImpl*)pReactorTokenMgntEvent->pOAuthCredentialRenewal;
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorAuthTokenInfo = &pReactorOAuthCredentialRenewalImpl->tokenInformation;
-							pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.pError = NULL;
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.statusCode = pReactorOAuthCredentialRenewalImpl->httpStatusCode;
+
+							// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+							if (pReactorChannel->reactorChannel.pWarmStandbyChInfo != NULL)
+							{
+								pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+								_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+							}
+							pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorChannel = pCallbackChannel;
+
 							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-							cret = (*pReactorTokenMgntEvent->pAuthTokenEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &pReactorTokenMgntEvent->reactorAuthTokenEvent);
+							cret = (*pReactorTokenMgntEvent->pAuthTokenEventCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &pReactorTokenMgntEvent->reactorAuthTokenEvent);
 							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+							pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 
 							/* Send a request to free memory for RsslReactorOAuthCredentialRenewalImpl without a token session by the worker */
 							if (pTokenSession == 0)
@@ -6334,6 +6390,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 			{
 				RsslReactorLoginCredentialRenewalEvent* pReactorLoginRenewalEvent = (RsslReactorLoginCredentialRenewalEvent*)pEvent;
 				RsslReactorChannelImpl* pChannel = (RsslReactorChannelImpl*)pEvent->loginRenewalEvent.pReactorChannel;
+				RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pChannel;
 
 				if (pReactorLoginRenewalEvent->pRequest->pLoginRenewalEventCallback)
 				{
@@ -6341,7 +6398,6 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 					rsslClearReactorLoginRenewalEvent(&loginRenewalEvent);
 
 					/* Setting the current OAuth credential */
-					loginRenewalEvent.pReactorChannel = (RsslReactorChannel*)pChannel;
 					loginRenewalEvent.userSpecPtr = pEvent->loginRenewalEvent.pRequest->userSpecPtr;
 					loginRenewalEvent.pLoginMsg = (RsslRDMLoginRequest*)rsslCreateRDMMsgCopy((RsslRDMMsg*)pEvent->loginRenewalEvent.pRequest->loginRequestMsg, 256, &ret);
 
@@ -6350,10 +6406,19 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy login message for callback.", cret);
 						return RSSL_RET_FAILURE;
 					}
+
+					// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+					if (pChannel->pWarmStandByHandlerImpl != NULL)
+					{
+						pCallbackChannel = &pChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pChannel);
+					}
+
+					loginRenewalEvent.pReactorChannel = pCallbackChannel;
 					
 					_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 					pChannel->inLoginCredentialCallback = RSSL_TRUE;
-					cret = (*pReactorLoginRenewalEvent->pRequest->pLoginRenewalEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pChannel, &loginRenewalEvent);
+					cret = (*pReactorLoginRenewalEvent->pRequest->pLoginRenewalEventCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &loginRenewalEvent);
 					pChannel->inLoginCredentialCallback = RSSL_FALSE;
 					_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 
@@ -6715,15 +6780,17 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 											return RSSL_RET_FAILURE;
 										}
 
+										_reactorSetupMainWSBReactorChannel(&pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel, pStandByReactorChannel);
+
 										loginEvent.pLoginMsg = pTmpLoginMsg;
-										loginEvent.pReactorChannel = (RsslReactorChannel*)pStandByReactorChannel;
+										loginEvent.pReactorChannel = &pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
 										loginEvent.userSpecPtr = pStandByReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pStandByReactorChannel->currentConnectionOpts->base.loginReqIndex]->userSpecPtr;
 
 										/* Just need to update the temporarily stored credentials, but we don't need send an event to the worker thread */
 										pStandByReactorChannel->doNotNotifyWorkerOnCredentialChange = RSSL_TRUE;
 										pStandByReactorChannel->inLoginCredentialCallback = RSSL_TRUE;
 										_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-										cret = (*pStandByReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pStandByReactorChannel->currentConnectionOpts->base.loginReqIndex]->pLoginRenewalEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pStandByReactorChannel, &loginEvent);
+										cret = (*pStandByReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pStandByReactorChannel->currentConnectionOpts->base.loginReqIndex]->pLoginRenewalEventCallback)((RsslReactor*)pReactorImpl, &pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel, &loginEvent);
 										_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 										pStandByReactorChannel->inLoginCredentialCallback = RSSL_FALSE;
 										pStandByReactorChannel->doNotNotifyWorkerOnCredentialChange = RSSL_FALSE;
@@ -6750,6 +6817,8 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 										reactorOAuthCredentialRenewal.userName = pStandByReactorChannel->pCurrentTokenSession->pSessionImpl->pOAuthCredential->userName;
 										reactorOAuthCredentialRenewal.clientId = pStandByReactorChannel->pCurrentTokenSession->pSessionImpl->pOAuthCredential->clientId;
 										reactorOAuthCredentialRenewal.tokenScope = pStandByReactorChannel->pCurrentTokenSession->pSessionImpl->pOAuthCredential->tokenScope;
+
+										_reactorSetupMainWSBReactorChannel(&pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel, pStandByReactorChannel);
 
 										reactorCredentialRenewalEvent.pReactorChannel = &pWarmStandByHandlerImpl->pStartingReactorChannel->reactorChannel;
 										reactorCredentialRenewalEvent.pReactorOAuthCredentialRenewal = &reactorOAuthCredentialRenewal;
@@ -6791,7 +6860,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 									_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
 
-									_reactorWSSendWarningMessage(pStandByReactorChannel, pError);
+									_reactorWSBSendWarningMessage(pStandByReactorChannel, pError);
 
 									if (_processingReactorChannelShutdown(pReactorImpl, pStandByReactorChannel, pError) != RSSL_RET_SUCCESS)
 										return RSSL_RET_FAILURE;
@@ -6824,7 +6893,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 											_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
 
-											_reactorWSSendWarningMessage(pStandByReactorChannel, pError);
+											_reactorWSBSendWarningMessage(pStandByReactorChannel, pError);
 
 											if (_processingReactorChannelShutdown(pReactorImpl, pStandByReactorChannel, pError) != RSSL_RET_SUCCESS)
 												return RSSL_RET_FAILURE;
@@ -6845,7 +6914,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 												_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
 
-												_reactorWSSendWarningMessage(pStandByReactorChannel, pError);
+												_reactorWSBSendWarningMessage(pStandByReactorChannel, pError);
 
 												if (_processingReactorChannelShutdown(pReactorImpl, pStandByReactorChannel, pError) != RSSL_RET_SUCCESS)
 													return RSSL_RET_FAILURE;
@@ -6866,7 +6935,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 											_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
 
-											_reactorWSSendWarningMessage(pStandByReactorChannel, pError);
+											_reactorWSBSendWarningMessage(pStandByReactorChannel, pError);
 
 											if (_processingReactorChannelShutdown(pReactorImpl, pStandByReactorChannel, pError) != RSSL_RET_SUCCESS)
 												return RSSL_RET_FAILURE;
@@ -6878,7 +6947,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 									{
 										++pReactorImpl->channelCount;
 
-										_reactorWSSendWarningMessage(pStandByReactorChannel, pError);
+										_reactorWSBSendWarningMessage(pStandByReactorChannel, pError);
 
 										if (_processingReactorChannelShutdown(pReactorImpl, pStandByReactorChannel, pError) != RSSL_RET_SUCCESS)
 											return RSSL_RET_FAILURE;
@@ -6925,7 +6994,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 											_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
 
-											_reactorWSSendWarningMessage(pStandByReactorChannel, pError);
+											_reactorWSBSendWarningMessage(pStandByReactorChannel, pError);
 
 											if (_processingReactorChannelShutdown(pReactorImpl, pStandByReactorChannel, pError) != RSSL_RET_SUCCESS)
 											{
@@ -6950,7 +7019,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 											_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
 
-											_reactorWSSendWarningMessage(pStandByReactorChannel, pError);
+											_reactorWSBSendWarningMessage(pStandByReactorChannel, pError);
 
 											if (_processingReactorChannelShutdown(pReactorImpl, pStandByReactorChannel, pError) != RSSL_RET_SUCCESS)
 											{
@@ -7271,13 +7340,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						}
 
 						pCallbackChannel = &pReactorChannelImpl->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-						pCallbackChannel->pRsslChannel = pReactorChannelImpl->reactorChannel.pRsslChannel;
-						pCallbackChannel->socketId = pReactorChannelImpl->reactorChannel.socketId;
-						pCallbackChannel->oldSocketId = pReactorChannelImpl->reactorChannel.oldSocketId;
-						pCallbackChannel->majorVersion = pReactorChannelImpl->reactorChannel.majorVersion;
-						pCallbackChannel->minorVersion = pReactorChannelImpl->reactorChannel.minorVersion;
-						pCallbackChannel->protocolType = pReactorChannelImpl->reactorChannel.protocolType;
-						pCallbackChannel->userSpecPtr = pReactorChannelImpl->reactorChannel.userSpecPtr;
+						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannelImpl);
 
 						_reactorHandlesWSBSocketList(pReactorChannelImpl->pWarmStandByHandlerImpl, pCallbackChannel, &pReactorChannelImpl->reactorChannel.socketId);
 
@@ -7337,13 +7400,8 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						rsslClearReactorChannelEvent(&channelEvent);
 
 						pCallbackChannel = &pReactorChannelImpl->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-						pCallbackChannel->pRsslChannel = pReactorChannelImpl->reactorChannel.pRsslChannel;
-						pCallbackChannel->socketId = pReactorChannelImpl->reactorChannel.socketId;
-						pCallbackChannel->oldSocketId = pReactorChannelImpl->reactorChannel.oldSocketId;
-						pCallbackChannel->majorVersion = pReactorChannelImpl->reactorChannel.majorVersion;
-						pCallbackChannel->minorVersion = pReactorChannelImpl->reactorChannel.minorVersion;
-						pCallbackChannel->protocolType = pReactorChannelImpl->reactorChannel.protocolType;
-						pCallbackChannel->userSpecPtr = pReactorChannelImpl->reactorChannel.userSpecPtr;
+						_reactorSetupMainWSBReactorChannel(&pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel, pReactorChannelImpl);
+
 
 						_reactorHandlesWSBSocketList(pReactorChannelImpl->pWarmStandByHandlerImpl, pCallbackChannel, &pReactorChannelImpl->reactorChannel.socketId);
 						pReactorChannelImpl->removedSocketFromlist = RSSL_TRUE;
@@ -7714,16 +7772,11 @@ static void _reactorCallDefaultCallback(RsslReactorImpl *pReactorImpl, RsslReact
 		msgEvent.pFTGroupId = pOpts->pFTGroupId;
 		msgEvent.pSeqNum = pOpts->pSeqNum;
 
-		if (_reactorHandlesWarmStandby(pReactorChannel))
+		// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+		if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
 		{
 			pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-			pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-			pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-			pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-			pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-			pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-			pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-			pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+			_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 		}
 
 		_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
@@ -7808,6 +7861,7 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 	RsslStreamInfo			*pStreamInfo = pOpts->pStreamInfo;
 	RsslReactorCallbackRet	*pCret = pOpts->pCret;
 	RsslDecodeIterator		dIter;
+	RsslReactorChannel*		pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
 
 	/* check for RsslTunnelStream message */
 	if (pReactorChannel->pTunnelManager && pMsg)
@@ -7901,8 +7955,15 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 								}
 								loginEvent.flags |= RSSL_RDM_LG_LME_RTT_RESPONSE_SENT;
 
+								// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+								if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+								{
+									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+								}
+
 								_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-								*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
+								*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &loginEvent);
 								_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 							}
 							else if (_reactorHandlesWarmStandby(pReactorChannel))
@@ -8359,14 +8420,8 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						
 								if (sendLoginCallback)
 								{
-									RsslReactorChannel*  pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-									pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-									pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-									pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-									pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-									pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-									pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-									pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 									_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 									*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pCallbackChannel, &loginEvent);
@@ -8376,12 +8431,18 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 								{
 									*pCret = RSSL_RC_CRET_SUCCESS;
 								}
-
 							} /* End of supporting the warmstandby feature. */
 							else
 							{
+								// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+								if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+								{
+									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+								}
+
 								_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-								*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
+								*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &loginEvent);
 								_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 							}
 						}
@@ -8393,9 +8454,16 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						}
 						else
 						{
+							// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+							if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+							{
+								pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+								_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+							}
+
 							loginEvent.baseMsgEvent.pErrorInfo = pError;
 							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-							*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
+							*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &loginEvent);
 							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 						}
 					} 
@@ -8526,24 +8594,18 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						{
 							directoryEvent.pRDMDirectoryMsg = pDirectoryResponse;
 
-							if (_reactorHandlesWarmStandby(pReactorChannel))
+							if (_reactorHandlesWarmStandby(pReactorChannel) == RSSL_TRUE)
 							{
-								RsslReactorWarmStandByHandlerImpl *pReactorWarmStandByHandlerImpl = pReactorChannel->pWarmStandByHandlerImpl;
-								RsslReactorWarmStandbyGroupImpl *pReactorWarmStandByGroupImpl = &pReactorWarmStandByHandlerImpl->warmStandbyGroupList[pReactorWarmStandByHandlerImpl->currentWSyGroupIndex];
-								RsslQueueLink *pLink;
-								RsslReactorWarmStandbyServiceImpl *pWarmStandbyServiceImpl = NULL;
+								RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl = pReactorChannel->pWarmStandByHandlerImpl;
+								RsslReactorWarmStandbyGroupImpl* pReactorWarmStandByGroupImpl = &pReactorWarmStandByHandlerImpl->warmStandbyGroupList[pReactorWarmStandByHandlerImpl->currentWSyGroupIndex];
+								RsslQueueLink* pLink;
+								RsslReactorWarmStandbyServiceImpl* pWarmStandbyServiceImpl = NULL;
 								RsslBool isAllChannelClosed = isWarmStandbyChannelClosed(pReactorWarmStandByHandlerImpl, NULL);
-								
+
 								if ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_RECEIVED_SECONDARY_DIRECTORY_RESP) == 0 && !isAllChannelClosed)
 								{
-									RsslReactorChannel* pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-									pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-									pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-									pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-									pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-									pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-									pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-									pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 									_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 									*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pCallbackChannel, &directoryEvent);
@@ -8562,7 +8624,7 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 								else
 								{
 									/* Handles source dirctory update for the delete action generated by watchlist when the channel down. */
-									if(!pReactorChannel->isLoggedOutFromWSB && isRsslChannelActive(pReactorChannel) == RSSL_FALSE)
+									if (!pReactorChannel->isLoggedOutFromWSB && isRsslChannelActive(pReactorChannel) == RSSL_FALSE)
 									{
 										RsslWatchlistImpl* pWatchlistImpl = (RsslWatchlistImpl*)pReactorChannel->pWatchlist;
 										_reactorWSDirectoryUpdateFromChannelDown(pReactorWarmStandByGroupImpl, pReactorChannel, pWatchlistImpl->base.pServiceCache);
@@ -8600,7 +8662,6 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 										}
 										else
 										{
-											RsslReactorChannel* pCallbackChannel;
 											directoryUpdate.serviceCount = pReactorWarmStandByGroupImpl->_updateServiceList.count;
 											index = 0;
 
@@ -8639,13 +8700,7 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 											directoryEvent.pRDMDirectoryMsg = (RsslRDMDirectoryMsg*)&directoryUpdate;
 
 											pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-											pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-											pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-											pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-											pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-											pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-											pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-											pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+											_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 											_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 											*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pCallbackChannel, &directoryEvent);
@@ -8667,8 +8722,15 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 							}
 							else
 							{
+								// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+								if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+								{
+									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+								}
+
 								_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-								*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &directoryEvent);
+								*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &directoryEvent);
 								_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 							}
 						}
@@ -8680,6 +8742,13 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						}
 						else
 						{
+							// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+							if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+							{
+								pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+								_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+							}
+
 							directoryEvent.baseMsgEvent.pErrorInfo = pError;
 							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 							*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &directoryEvent);
@@ -8988,18 +9057,11 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 
 						if (callbackToClient)
 						{
-							RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
-
-							if (_reactorHandlesWarmStandby(pReactorChannel))
+							// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+							if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
 							{
 								pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-								pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-								pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-								pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-								pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-								pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-								pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-								pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+								_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 							}
 
 							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
@@ -9460,9 +9522,19 @@ static RsslRet _processRsslRwfMessage(RsslReactorImpl *pReactorImpl, RsslReactor
 		msgEvent.pRsslMsgBuffer = pMsgBuf;
 		msgEvent.pRsslMsg = NULL;
 		msgEvent.pErrorInfo = pError;
+		RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
+
+		if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+		{
+			pCallbackChannel = (RsslReactorChannel*)&pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl;
+			_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+		}
 
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "rsslDecodeMsg() failed: %d", ret);
-		cret = (*pReactorChannel->channelRole.base.defaultMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &msgEvent);
+
+		_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+		cret = (*pReactorChannel->channelRole.base.defaultMsgCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &msgEvent);
+		_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 	}
 
 	switch(cret)
@@ -9642,6 +9714,7 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 				{
 					RsslReactorCallbackRet cret = RSSL_RC_CRET_SUCCESS;
 					RsslReactorJsonConversionEvent jsonConversionEvent;
+					RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
 
 					rsslClearReactorJsonConversionEvent(&jsonConversionEvent);
 
@@ -9654,8 +9727,14 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 					jsonConversionEvent.pError = pReactorImpl->pJsonErrorInfo;
 					jsonConversionEvent.pUserSpec = pReactorImpl->userSpecPtr;
 
+					if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
+					{
+						pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+					}
+
 					_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-					cret = (*pReactorImpl->pJsonConversionEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &jsonConversionEvent);
+					cret = (*pReactorImpl->pJsonConversionEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pCallbackChannel, &jsonConversionEvent);
 					_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 
 					if (cret != RSSL_RC_CRET_SUCCESS)
@@ -9737,18 +9816,24 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 						return RSSL_RET_FAILURE;
 					}
 
-					if (_reactorHandlesWarmStandby(pReactorChannel))
+					if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
 					{
 						pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-						pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-						pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-						pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-						pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-						pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-						pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-						pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
-						_reactorHandlesWSBSocketList(pReactorChannel->pWarmStandByHandlerImpl, pCallbackChannel, NULL);
+						if ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_MOVE_TO_CHANNEL_LIST) == 0)
+						{
+							_reactorHandlesWSBSocketList(pReactorChannel->pWarmStandByHandlerImpl, pCallbackChannel, NULL);
+						}
+						else
+						{
+							// This is a normal channel that has been transitioned to the channel list.
+							pCallbackChannel->socketId = pChannel->socketId;
+							pCallbackChannel->oldSocketId = pChannel->oldSocketId;
+							/* Copy changed sockets to reactor channel */
+							pReactorChannel->reactorChannel.socketId = pChannel->socketId;
+							pReactorChannel->reactorChannel.oldSocketId = pChannel->oldSocketId;
+						}
 					}
 					else
 					{
@@ -9795,16 +9880,11 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 								return ret;
 					}
 
-					if (_reactorHandlesWarmStandby(pReactorChannel))
+					// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
+					if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
 					{
 						pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-						pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-						pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-						pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-						pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-						pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-						pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-						pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 					}
 
 					rsslClearReactorChannelEventImpl(&rsslEvent.channelEventImpl);
@@ -15097,6 +15177,7 @@ static RsslRet _reactorWSNotifyStatusMsg(RsslReactorChannelImpl *pReactorChannel
 	RsslQueueLink *pLink;
 	RsslReactorWSRecoveryMsgInfo* pWSRecoveryMsgInfo = NULL;
 	RsslReactorWarmStandByHandlerImpl *pWarmStandByHandlerImpl = pReactorChannel->pWarmStandByHandlerImpl;
+	RsslReactorChannel* pCallbackChannel = &pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
 
 	if (pReactorChannel->pWSRecoveryMsgList == NULL)
 		return ret;
@@ -15121,8 +15202,10 @@ static RsslRet _reactorWSNotifyStatusMsg(RsslReactorChannelImpl *pReactorChannel
 		msgEvent.pRsslMsg = (RsslMsg*)&statusMsg;
 		msgEvent.pStreamInfo = (RsslStreamInfo*)&streamInfo;
 
+		_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+
 		_reactorSetInCallback(pReactorChannel->pParentReactor, RSSL_TRUE);
-		(*pReactorChannel->channelRole.base.defaultMsgCallback)((RsslReactor*)pReactorChannel->pParentReactor, (RsslReactorChannel*)pReactorChannel, &msgEvent);
+		(*pReactorChannel->channelRole.base.defaultMsgCallback)((RsslReactor*)pReactorChannel->pParentReactor, pCallbackChannel, &msgEvent);
 		_reactorSetInCallback(pReactorChannel->pParentReactor, RSSL_FALSE);
 
 		/* Send close status for all channels that still subscribes to this item. */
@@ -15330,21 +15413,15 @@ static void _reactorWSDirectoryUpdateFromChannelDown(RsslReactorWarmStandbyGroup
 	}
 }
 
-static void _reactorWSSendWarningMessage(RsslReactorChannelImpl* pReactorChannel, RsslErrorInfo* pError)
+static void _reactorWSBSendWarningMessage(RsslReactorChannelImpl* pReactorChannel, RsslErrorInfo* pError)
 {
 	RsslReactorEventImpl rsslEvent;
 	RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
 	RsslReactorImpl* pReactorImpl = pReactorChannel->pParentReactor;
-	if (_reactorHandlesWarmStandby(pReactorChannel))
+	if (pReactorChannel->pWarmStandByHandlerImpl != NULL)
 	{
 		pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-		pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-		pCallbackChannel->socketId = pReactorChannel->reactorChannel.socketId;
-		pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;
-		pCallbackChannel->majorVersion = pReactorChannel->reactorChannel.majorVersion;
-		pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
-		pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
-		pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+		_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
 
 		rsslClearReactorChannelEventImpl(&rsslEvent.channelEventImpl);
 		rsslEvent.channelEventImpl.channelEvent.channelEventType = RSSL_RC_CET_WARNING;
@@ -16297,7 +16374,7 @@ RSSL_VA_API RsslRet rsslReactorFallbackToPreferredHost(RsslReactorChannel* pReac
 
 	rsslClearReactorChannelEventImpl(pEvent);
 	pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_PREFERRED_HOST_START_FALLBACK;
-	if (_reactorHandlesWarmStandby(pReactorChannelImpl))
+	if (pReactorChannelImpl->pWarmStandByHandlerImpl != NULL)
 	{
 		pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl->pWarmStandByHandlerImpl->pStartingReactorChannel;
 	}

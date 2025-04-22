@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2021-2024 LSEG. All rights reserved.
+ * Copyright (C) 2021-2025 LSEG. All rights reserved.
 */
 
 /*
@@ -53,8 +53,8 @@ static RsslBool isConsumerChannelUp = RSSL_FALSE;
 static RsslBool loginChannelClosed = RSSL_FALSE;
 
 RsslBool runTimeExpired = RSSL_FALSE;
-RsslSocket socketIdList[2] = { 0, 0 };
-RsslUInt32 socketIdListCount = 0;
+
+fd_set readFds, exceptFds;
 
 RsslUInt foundServiceId = 0;
 RsslBool isServiceFound = RSSL_FALSE;
@@ -105,7 +105,7 @@ RTR_C_INLINE RsslUInt32 dumpDateTime(char* buf, RsslUInt32 size)
 #endif
 
 	// yyyy-MM-dd HH:mm:ss.SSS
-	res = snprintf(buf, size, "<!-- %4ld-%02ld-%02ld %02ld:%02ld:%02ld.%03ld -->",
+	res = snprintf(buf, size, "<!-- %4d-%02d-%02d %02ld:%02ld:%02ld.%03ld -->",
 		(stamptime.tm_year + 1900),
 		(stamptime.tm_mon + 1),
 		stamptime.tm_mday,
@@ -244,6 +244,14 @@ int main(int argc, char **argv)
 		exit(-1);
 	}
 
+	FD_ZERO(&readFds);
+	FD_ZERO(&exceptFds);
+
+	/* Set the reactor's event file descriptor on our descriptor set. This, along with the file descriptors
+	 * of RsslReactorChannels, will notify us when we should call rsslReactorDispatch(). */
+	FD_SET(pReactor->eventFd, &readFds);
+	FD_SET(pReactor->eventFd, &exceptFds);
+
 	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 
 	watchlistConsumerConfig.connectionOpts.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
@@ -286,38 +294,11 @@ int main(int argc, char **argv)
 	do
 	{
 		struct timeval 				selectTime;
-		fd_set						readFds;
-		fd_set						exceptFds;
 		RsslReactorDispatchOptions	dispatchOpts;
-		RsslUInt32					index;
-
-		FD_ZERO(&readFds);
-		FD_ZERO(&exceptFds);
-		FD_SET(pReactor->eventFd, &readFds);
-		FD_SET(pReactor->eventFd, &exceptFds);
-
-		if (pConsumerChannel)
-		{
-			if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
-			{
-				if (pConsumerChannel->pRsslChannel && pConsumerChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
-				{
-					FD_SET(pConsumerChannel->socketId, &readFds);
-					FD_SET(pConsumerChannel->socketId, &exceptFds);
-				}
-			}
-			else if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
-			{
-				for (index = 0; index < socketIdListCount; index++)
-				{
-					FD_SET(socketIdList[index], &readFds);
-					FD_SET(socketIdList[index], &exceptFds);
-				}
-			}
-		}
+		fd_set useReadFds = readFds, useExceptFds = exceptFds;
 
 		selectTime.tv_sec = 1; selectTime.tv_usec = 0;
-		ret = select(FD_SETSIZE, &readFds, NULL, &exceptFds, &selectTime);
+		ret = select(FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime);
 
 		if (ret < 0)
 		{
@@ -400,7 +381,7 @@ int main(int argc, char **argv)
 
 	itemDecoderCleanup();
 	clearAllocatedMemory();
-	
+
 	exit(0);
 }
 
@@ -981,7 +962,7 @@ RsslReactorCallbackRet channelOpenCallback(RsslReactor *pReactor, RsslReactorCha
 /* Callback for channel events. */
 RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pConnEvent)
 {
-	char timeBuf[64];
+	char timeBuf[248] = { 0 };
 
 	// Print out timestamp in yyyy-MM-dd HH:mm:ss.SSS format
 	dumpDateTime(timeBuf, sizeof(timeBuf));
@@ -992,16 +973,22 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* Save the channel on our info structure. */
 			pConsumerChannel = pReactorChannel;
-			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				/* Set file descriptor. */
+				FD_SET(pReactorChannel->socketId, &readFds);
+				FD_SET(pReactorChannel->socketId, &exceptFds);
+			}
+			else if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
 			{
 				RsslUInt32 index;
 
+				/* Set WSB file descriptors. */
 				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
-					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 				}
-
-				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
 			}
 
 			printf("%s Channel "SOCKET_PRINT_TYPE" is up!\n\n", timeBuf, pReactorChannel->socketId);
@@ -1031,7 +1018,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				RsslChannel* pRsslChannel = pReactorChannel->pRsslChannel;
 				if (pRsslChannel)
 				{
-					printf("pRsslChannel.state=%d, socketId=%llu\n\n", pRsslChannel->state, pRsslChannel->socketId);
+					printf("pRsslChannel.state=%d, socketId="SOCKET_PRINT_TYPE"\n\n", pRsslChannel->state, pRsslChannel->socketId);
 				}
 				else
 				{
@@ -1108,7 +1095,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 					printf("   Direct Fallback.\n");
 					printf("   Time interval: %u\n", preferredHostConfig.directFallbackTimeInterval);
-					printf("   Remaining time: %lld\n", (preferredHostConfig.directFallbackTime - time(NULL)));
+					printf("   Remaining time: %lld\n", (long long int)(preferredHostConfig.directFallbackTime - time(NULL)));
 					printf("\n");
 				}
 
@@ -1119,7 +1106,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 					printf("   Ioctl call to update PreferredHostOptions.\n");
 					printf("   Time interval: %u\n", preferredHostConfig.ioctlCallTimeInterval);
-					printf("   Remaining time: %lld\n", (preferredHostConfig.ioctlCallTime - time(NULL)));
+					printf("   Remaining time: %lld\n", (long long int)(preferredHostConfig.ioctlCallTime - time(NULL)));
 					printf("\n");
 				}
 			}
@@ -1146,15 +1133,28 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			return RSSL_RC_CRET_SUCCESS;
 		case RSSL_RC_CET_FD_CHANGE:
 		{
-			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				FD_CLR(pReactorChannel->oldSocketId, &readFds);
+				FD_CLR(pReactorChannel->oldSocketId, &exceptFds);
+				FD_SET(pReactorChannel->socketId, &readFds);
+				FD_SET(pReactorChannel->socketId, &exceptFds);
+			}
+			else if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
 			{
 				RsslUInt32 index;
-				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->oldSocketIdCount; index++)
 				{
-					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->oldSocketIdList[index], &readFds);
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->oldSocketIdList[index], &exceptFds);
 				}
 
-				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+				}
 			}
 
 			return RSSL_RC_CRET_SUCCESS;
@@ -1170,6 +1170,23 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
+
+			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
+			{
+				FD_CLR(pReactorChannel->socketId, &readFds);
+				FD_CLR(pReactorChannel->socketId, &exceptFds);
+			}
+
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			{
+				RsslUInt32 index;
+
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+				}
+			}
 
 			pConsumerChannel = NULL;
 			rsslReactorCloseChannel(pReactor, pReactorChannel, &rsslErrorInfo);
@@ -1204,7 +1221,23 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 
-			socketIdListCount = 0;
+			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
+			{
+				FD_CLR(pReactorChannel->socketId, &readFds);
+				FD_CLR(pReactorChannel->socketId, &exceptFds);
+			}
+
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			{
+				RsslUInt32 index;
+
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+				}
+			}
+
 			isConsumerChannelUp = RSSL_FALSE;
 			return RSSL_RC_CRET_SUCCESS;
 		}
@@ -1213,6 +1246,13 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			/* We have received a warning event for this channel. Print the information and continue. */
 			printf("%s Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", timeBuf, pReactorChannel->socketId);
 			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK:
+		{
+			/* The preferred host operation has started. */
+			/* The event means - that a timer or function triggered preferred the host operation has started. */
+			printf("%s Received PREFERRED_HOST_STARTING_FALLBACK for Channel fd="SOCKET_PRINT_TYPE".\n", timeBuf, pReactorChannel->socketId);
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:
@@ -1231,7 +1271,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				printf("\n");
 				printf("   Setting next Direct Fallback time.\n");
 				printf("   Time interval: %u\n", preferredHostConfig.directFallbackTimeInterval);
-				printf("   Remaining time: %lld\n", preferredHostConfig.directFallbackTime);
+				printf("   Remaining time: %lld\n", (long long int)preferredHostConfig.directFallbackTime);
 				printf("\n");
 			}
 			return RSSL_RC_CRET_SUCCESS;
@@ -1243,7 +1283,6 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			exit(-1);
 		}
 	}
-
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -1345,9 +1384,8 @@ RsslReactorCallbackRet loginMsgEventCallback(RsslReactor* pReactor, RsslReactorC
  * Preferred Host.
  * Check and Initiate Ioctl and direct fallback call.
  */
-static RsslBool handlePreferredHostRuntime(RsslErrorInfo* pErrorInfo)
+static RsslRet handlePreferredHostRuntime(RsslErrorInfo* pErrorInfo)
 {
-	RsslBool prefHostIoctlInitiated = RSSL_FALSE;
 	RsslRet ret;
 	time_t currentTime = 0;
 

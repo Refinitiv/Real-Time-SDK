@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019,2024-2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -48,7 +48,6 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_MAX_OUTSTANDING_POSTS				= 100000;
 	final static boolean DEFAULT_MSGKEYINUPDATES				= true;
 	final static int DEFAULT_OBEY_OPEN_WINDOW					= 1;
-	final static int DEFAULT_PIPE_PORT							= 9001;
 	final static int DEFAULT_POST_ACK_TIMEOUT					= 15000;
 	final static int DEFAULT_REACTOR_EVENTFD_PORT				= 55000;
 	final static int DEFAULT_RECONNECT_ATTEMPT_LIMIT			= -1;

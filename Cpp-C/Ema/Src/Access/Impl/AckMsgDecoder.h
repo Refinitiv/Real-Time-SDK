@@ -93,6 +93,8 @@ public :
 
 	void setServiceName( const char*, UInt32 , bool nullTerm = true );
 
+	void setServiceId(UInt16);
+
 	const RsslBuffer& getRsslBuffer() const;
 
 	OmmError::ErrorCode getErrorCode() const;

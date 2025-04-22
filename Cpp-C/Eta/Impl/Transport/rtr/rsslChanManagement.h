@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -21,8 +21,10 @@
 
 #ifndef WIN32
 #include <netdb.h>
+#include <ifaddrs.h>
 #else
 #include <WS2tcpip.h>
+#include <iphlpapi.h>
 #endif
 
 #ifdef __cplusplus
@@ -592,6 +594,107 @@ RTR_C_INLINE RsslInt32 rsslGetHostByName(char *hostName, RsslUInt32 *address)
 	return(-1);
 }
 
+RTR_C_INLINE RsslInt32 rsslGetHostByIf(char *hostName, RsslUInt32 *address)
+{
+#if defined (x86_Linux_6X)
+	struct ifaddrs* ifaddr, * ifa;
+
+	if (getifaddrs(&ifaddr) == -1) {
+		return(-1);
+	}
+
+	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+		if (ifa->ifa_addr == NULL)
+			continue;
+
+		if (ifa->ifa_addr->sa_family == AF_INET && (strcmp(ifa->ifa_name, hostName) == 0)) {
+			*address = ((struct sockaddr_in*)ifa->ifa_addr)->sin_addr.s_addr;
+			freeifaddrs(ifaddr);
+			return(0);
+		}
+	}
+
+	freeifaddrs(ifaddr);
+	return(-1);
+#elif defined (WIN32)
+	PIP_ADAPTER_ADDRESSES pAddresses = NULL;
+	// Allocate a 15 KB buffer to start with.
+	ULONG outBufLen = 15000;
+
+	ULONG Iterations = 0;
+	const ULONG MAX_TRIES = 3;
+	DWORD dwRetVal = 0;
+
+	wchar_t* wHostName = NULL;
+	int numWideChar = MultiByteToWideChar(CP_ACP, 0, hostName, -1, NULL, 0);
+	if (numWideChar <= 0) {
+		return(-1);
+	}
+	wHostName = (wchar_t*)_rsslMalloc(numWideChar * sizeof(wchar_t));
+	if (wHostName == NULL) {
+		return(-1);
+	}
+	numWideChar = MultiByteToWideChar(CP_ACP, 0, hostName, -1, wHostName, numWideChar);
+	if (numWideChar <= 0) {
+		_rsslFree(wHostName);
+		return(-1);
+	}
+
+	do {
+		pAddresses = (IP_ADAPTER_ADDRESSES *)_rsslMalloc(outBufLen);
+		if (pAddresses == NULL) {
+			_rsslFree(wHostName);
+			return(-1);
+		}
+
+		dwRetVal = GetAdaptersAddresses(
+				AF_INET,
+				GAA_FLAG_INCLUDE_GATEWAYS | GAA_FLAG_INCLUDE_PREFIX,
+				NULL,
+				pAddresses, &outBufLen);
+
+		if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
+			_rsslFree(pAddresses);
+			pAddresses = NULL;
+		}
+		else {
+			break;
+		}
+
+		Iterations++;
+
+	} while ((dwRetVal == ERROR_BUFFER_OVERFLOW) && (Iterations < MAX_TRIES));
+
+	if (dwRetVal != ERROR_SUCCESS) {
+		if (pAddresses)
+			_rsslFree(pAddresses);
+		_rsslFree(wHostName);
+		return(-1);
+	}
+	else
+	{
+		for (PIP_ADAPTER_ADDRESSES pItem = pAddresses; pItem != NULL; pItem = pItem->Next)
+		{
+			if (pItem->Ipv4Enabled == 1)
+			{
+				if (wcscmp(pItem->FriendlyName, wHostName) == 0)
+				{
+					*address = ((struct sockaddr_in*)pItem->FirstUnicastAddress->Address.lpSockaddr)->sin_addr.S_un.S_addr;
+					_rsslFree(pAddresses);
+					_rsslFree(wHostName);
+					return(0);
+				}
+			}
+		}
+
+		_rsslFree(pAddresses);
+		_rsslFree(wHostName);
+		return(-1);
+	}
+#else
+	return(-1);
+#endif
+}
 
 /* 0 returned if failure */
 RTR_C_INLINE RsslUInt16 rsslGetServByName(char *serv_name)

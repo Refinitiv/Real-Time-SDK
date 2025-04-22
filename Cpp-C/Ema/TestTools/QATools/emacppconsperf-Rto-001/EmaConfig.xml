@@ -247,8 +247,6 @@
 
 			<MaxDispatchCountUserThread value="500" />
 
-			<PipePort value="9009" />
-
 			<RefreshFirstRequired value="1" />
 
 		</IProvider>
@@ -276,8 +274,6 @@
 			<MaxDispatchCountApiThread value="500" />
 
 			<MaxDispatchCountUserThread value="500" />
-
-			<PipePort value="9009" />
 
 			<RefreshFirstRequired value="1" />
 
@@ -308,8 +304,6 @@
 			<MaxDispatchCountApiThread value="500" />
 
 			<MaxDispatchCountUserThread value="500" />
-
-			<PipePort value="9009" />
 
 			<RefreshFirstRequired value="1" />
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.                 --
  *|-----------------------------------------------------------------------------
  */
 
@@ -50,11 +50,13 @@ class ProviderItem;
 class ItemWatchList;
 class ClientSession;
 class TimeOut;
-class ClosedStatusInfo;
+class ItemStatusInfo;
+class ConsumerRoutingSessionChannel;
 
 class ItemList
 {
 public :
+	ItemList(OmmCommonImpl&);
 
 	static ItemList* create( OmmCommonImpl& );
 
@@ -64,6 +66,11 @@ public :
 
 	void removeItem( Item* );
 
+	EmaList<Item*>& getList();
+
+	ItemList();
+	virtual ~ItemList();
+
 private :
 
 	static const EmaString		_clientName;
@@ -71,9 +78,8 @@ private :
 	EmaList< Item* >			_list;
 	OmmCommonImpl&				_ommCommonImpl;
 
-	ItemList( OmmCommonImpl& );
-	ItemList();
-	virtual ~ItemList();
+	
+
 	ItemList( const ItemList& );
 	ItemList& operator=( const ItemList& );
 };
@@ -108,7 +114,11 @@ public :
 		return _domainType;
 	}
 
-	ClosedStatusInfo*	getClosedStatusInfo();
+	ItemStatusInfo*	getClosedStatusInfo();
+
+	ItemList* getItemList();
+
+	void setItemList(ItemList*);
 
 	virtual const Directory* getDirectory() = 0;
 
@@ -136,7 +146,9 @@ protected :
 
 	UInt8				_domainType;
 	Int32				_streamId;
-	ClosedStatusInfo*	_closedStatusInfo;
+	ItemStatusInfo*	_closedInfo;
+
+	ItemList* _currentItemList;
 
 	Item();
 	virtual ~Item();
@@ -147,17 +159,17 @@ private :
 	Item& operator=( const Item& );
 };
 
-class ClosedStatusInfo
+class ItemStatusInfo
 {
 public :
 
-	ClosedStatusInfo( Item* , const ReqMsgEncoder& , const EmaString& );
+	ItemStatusInfo( Item* , const ReqMsgEncoder& , const EmaString& );
 
-	ClosedStatusInfo( Item* , const TunnelStreamRequest& , const EmaString& );
+	ItemStatusInfo( Item* , const TunnelStreamRequest& , const EmaString& );
 
-	ClosedStatusInfo( ProviderItem*, const EmaString& );
+	ItemStatusInfo( ProviderItem*, const EmaString& );
 
-	virtual ~ClosedStatusInfo();
+	virtual ~ItemStatusInfo();
 
 	UInt16 getDomainType() const { return _domainType; }
 
@@ -173,7 +185,7 @@ public :
 
 	Int32 getStreamId() const { return _streamId; }
 
-	const RsslState& getRsslState() const { return _rsslState; }
+	RsslState& getRsslState() { return _rsslState; }
 
 private :
 
@@ -201,6 +213,14 @@ public :
 	OmmBaseImpl& getImpl();
 
 	Int32 getNextStreamId(int numOfItem = 0);
+
+	void setEventChannel(void* channel);
+
+	// Sets the Consumer Routing Session.
+	// This is the channel currently associated with this item.
+	ConsumerRoutingSessionChannel* sessionChannel;				// Associated session channel for this 
+
+	EmaString					itemName;
 
 protected :
 
@@ -230,8 +250,6 @@ public :
 	virtual bool submit( RsslRequestMsg* ) = 0;
 	virtual bool submit( RsslCloseMsg*) = 0;
 
-	const Directory* getDirectory();
-
 	virtual void scheduleItemClosedStatus( const ReqMsgEncoder&, const EmaString& ) = 0;
 
 	virtual bool processInitialResp( RsslRefreshMsg* rsslRefreshMsg, bool checkPrivateStream );
@@ -241,6 +259,8 @@ public :
 	const RsslMsgKey& getRsslMsgKey();
 
 	bool isPrivateStream();
+
+	Directory* getDirectory();
 
 	void setProvider(OmmProvider* );
 
@@ -252,6 +272,9 @@ public :
 
 	void cancelReqTimerEvent();
 
+	const EmaString& getServiceName();
+	UInt64	getServiceId();
+
 protected :
 
 	ProviderItem(OmmCommonImpl&, OmmProviderClient&, ItemWatchList*, void*);
@@ -260,7 +283,8 @@ protected :
 
 	virtual void scheduleItemClosedRecoverableStatus(const EmaString&) = 0;
 
-	Directory*				_pDirectory;
+	EmaString				_serviceName;
+	UInt64					_serviceId;
 	ItemWatchList*			_pItemWatchList;
 	OmmProviderClient&		_client;
 	OmmProviderEvent		_event;
@@ -290,16 +314,46 @@ public :
 	static SingleItem* create( OmmBaseImpl& , OmmConsumerClient&, void* , Item* );
 
 	const Directory* getDirectory();
+	void setDirectory(Directory*);
 
 	bool open( const ReqMsg& );
 	bool modify( const ReqMsg& );
+	bool reSubmit(bool);			// Re-routes and submits the request to a request routing channel.  
+									// If bool reroute is set to true, this will attempt to re-route the request before sending it.  Otherwise, it will just send the request on the current session channel, if it exists.
+									// Returns true if operation is able to match the request, returns false if it is not. In the case of false, the a status message of CLOSED/SUSPECT will be generated and fanned out to the user.
 	bool submit( const PostMsg& );
 	bool submit( const GenericMsg& );
 	bool close();
+
+	bool sendClose();					// Sends a close message, but does not destroy this object.
 	void remove();
+
+	EmaString& getServiceName();
+	void setServiceName(EmaString&);
+
+	UInt32 getServiceId();
+	void setServiceId(UInt32);
+
+	bool hasServiceId();
+
+	EmaString& getServiceListName();
+
+	UInt32						serviceListIter;							// This is the current index for the service list.  It will be reset
+
+
+
+	// Copies the request message to this item.  Used for non-batch requests only, will filter out 
+	// the batch flag if specified, and will drop any batch payload if present.
+	void setReqMsg(const ReqMsg&, EmaString*);
+
+	RsslRequestMsg* getReqMsg();
+
+
 
 	ItemType getType() const;
 	void scheduleItemClosedStatus(const ReqMsgEncoder&, const EmaString&);
+
+	void scheduleItemSuspectStatus(const ReqMsgEncoder&, const EmaString&);
 
 protected :
 
@@ -308,6 +362,7 @@ protected :
 	virtual ~SingleItem();
 
 private :
+	friend class TunnelItem;
 
 	bool submit( RsslGenericMsg* );
 	bool submit( RsslRequestMsg* );
@@ -318,6 +373,19 @@ private :
 
 	const Directory*			_pDirectory;
 
+	RsslRequestMsg				_requestMsg;
+	EmaBuffer					_msgKeyAttrib;
+	EmaBuffer					_payload;
+
+	EmaString					_serviceName;
+	EmaString					_serviceListName;
+	UInt32						_serviceId;
+	bool						_hasServiceId;
+
+
+	EmaVector<ConsumerRoutingSessionChannel*> _deniedChannelList;			// This is an EmaVector of consumer routing channels that have been denied for thie current directory.
+																			// This is used for request routing, and this is reset upon connection.
+	
 	SingleItem();
 	SingleItem( const SingleItem& );
 	SingleItem& operator=( const SingleItem& );
@@ -420,9 +488,10 @@ public :
 
 	bool addBatchItems( UInt32 batchSize );
 
-	const EmaVector<SingleItem*>& getSingleItemList();
+	const EmaVector<SingleItem*>& getSingleItemList();			// This vector is treated as a 1 indexed vector.  Index 0 is set to NULL on creation of the BatchItem.
 
-	SingleItem* getSingleItem( Int32 );
+	SingleItem* getSingleItem( Int32 );							// For request routing, this will only be used on the initial connection.  If the request is recovered to a different service or connection,
+																// the singleItem will be used for the request.
 
 	void decreaseItemCount();
 
@@ -434,7 +503,7 @@ private :
 
 	static const EmaString		_clientName;
 
-	EmaVector<SingleItem*>		_singleItemList;
+	EmaVector<SingleItem*>		_singleItemList;				// This vector is treated as a 1 indexed vector.  Index 0 is set to NULL on creation of the BatchItem.
 	UInt32						_itemCount;
 
 	BatchItem( OmmBaseImpl& , OmmConsumerClient& , void* );
@@ -444,15 +513,13 @@ private :
 	BatchItem& operator=( const BatchItem& );
 };
 
-class TunnelItem : public ConsumerItem
+class TunnelItem : public SingleItem
 {
 public :
 
 	static TunnelItem* create( OmmBaseImpl& , OmmConsumerClient& , void* );
 
 	ItemType getType() const;
-
-	const Directory* getDirectory();
 
 	bool open( const TunnelStreamRequest& );
 	bool open( const ReqMsg& );
@@ -461,6 +528,8 @@ public :
 	bool submit( const GenericMsg& );
 	bool close();
 	void remove();
+
+	void setUpReqMsg(const TunnelStreamRequest&);				// This will setup the underlying request message from the tunnel stream request for request routing pattern matching
 
 	void rsslTunnelStream( RsslTunnelStream* );
 
@@ -487,7 +556,6 @@ private :
 	static const EmaString		_clientName;
 	Int32                       nextSubItemStreamId;		// todo ... use underscore
 	EmaList< StreamId* >        returnedSubItemStreamIds;
-	const Directory*			_pDirectory;
 	RsslTunnelStream*			_pRsslTunnelStream;
 	EmaVector< Item* >			_subItems;
     static const Int32          _startingSubItemStreamId = 5;
@@ -529,7 +597,7 @@ class ItemCallbackClient
 {
 public :
 
-	static void sendItemClosedStatus( void* );
+	static void sendItemStatus( void* );
 
 	static ItemCallbackClient* create( OmmBaseImpl& );
 

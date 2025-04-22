@@ -309,6 +309,14 @@ void AckMsgDecoder::setServiceName( const char* serviceName, UInt32 length, bool
 	_serviceName.setInt( serviceName, length, nullTerm );
 }
 
+void AckMsgDecoder::setServiceId(UInt16 serviceId)
+{
+	_pRsslMsg->ackMsg.flags |= RSSL_AKMF_HAS_MSG_KEY;
+	_pRsslMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+
+	_pRsslMsg->msgBase.msgKey.serviceId = serviceId;
+}
+
 const EmaString& AckMsgDecoder::getText() const
 {
 	if ( !hasText() )

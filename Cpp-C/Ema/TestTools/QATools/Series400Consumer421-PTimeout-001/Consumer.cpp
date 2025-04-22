@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+// *|           Copyright (C) 2019,2025 LSEG. All rights reserved. 
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -108,7 +108,6 @@ void createProgramaticConfig( Map& configMap )
 		.addUInt( "HandleException", 0 )
 		.addUInt( "MaxDispatchCountApiThread", 500 )
 		.addUInt( "MaxDispatchCountUserThread", 500 )
-		.addInt( "PipePort", 4001 )
 		.addInt("ReconnectAttemptLimit", 10)
 		.addInt("ReconnectMinDelay", 2000)
 		.addInt("ReconnectMaxDelay", 6000)

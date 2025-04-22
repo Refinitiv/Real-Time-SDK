@@ -163,7 +163,7 @@ public :
 
 	DictionaryItem* getDictionaryItem( const ReqMsg&, OmmConsumerClient&, void* );
 
-	bool downloadDictionary( const Directory& );
+	bool downloadDictionary( Directory& );
 
 	bool isDictionaryReady() const;
 
@@ -178,6 +178,8 @@ public :
 	static const EmaString	_rwfEnumName;
 
 	void loadDictionaryFromFile();
+
+	bool sentRequest;
 private :
 
 	int allocateAndSetEncodeIteratorBuffer(RsslBuffer*, UInt32, UInt8, UInt8, RsslEncodeIterator*, const char *);

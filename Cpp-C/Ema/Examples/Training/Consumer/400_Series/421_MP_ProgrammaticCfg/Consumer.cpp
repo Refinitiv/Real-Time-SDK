@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.              --
+// *|           Copyright (C) 2019-2025 LSEG. All rights reserved.              --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -108,21 +108,20 @@ void createProgramaticConfig( Map& configMap )
 		.addUInt( "HandleException", 0 )
 		.addUInt( "MaxDispatchCountApiThread", 500 )
 		.addUInt( "MaxDispatchCountUserThread", 500 )
-		.addInt( "PipePort", 4001 )
-		.addInt("ReconnectAttemptLimit", 10)
-		.addInt("ReconnectMinDelay", 2000)
-		.addInt("ReconnectMaxDelay", 6000)
-		.addAscii("XmlTraceFileName", "MyXMLTrace")
-		.addInt("XmlTraceMaxFileSize", 50000000)
-		.addUInt("XmlTraceToFile", 1)
-		.addUInt("XmlTraceToStdout", 0)
-		.addUInt("XmlTraceToMultipleFiles", 1)
-		.addUInt("XmlTraceWrite", 1)
-		.addUInt("XmlTraceRead", 1)
-		.addUInt("XmlTracePing", 1)
-		.addUInt("XmlTraceHex", 1)
-		.addUInt("XmlTracePingOnly", 0)
-		.addUInt("MsgKeyInUpdates", 1).complete() ).complete();
+		.addInt( "ReconnectAttemptLimit", 10 )
+		.addInt( "ReconnectMinDelay", 2000 )
+		.addInt( "ReconnectMaxDelay", 6000 )
+		.addAscii( "XmlTraceFileName", "MyXMLTrace" )
+		.addInt( "XmlTraceMaxFileSize", 50000000 )
+		.addUInt( "XmlTraceToFile", 1 )
+		.addUInt( "XmlTraceToStdout", 0 )
+		.addUInt( "XmlTraceToMultipleFiles", 1 )
+		.addUInt( "XmlTraceWrite", 1 )
+		.addUInt( "XmlTraceRead", 1 )
+		.addUInt( "XmlTracePing", 1 )
+		.addUInt( "XmlTraceHex", 1 )
+		.addUInt( "XmlTracePingOnly", 0 )
+		.addUInt( "MsgKeyInUpdates", 1 ).complete() ).complete();
 
 	elementList.addMap( "ConsumerList", innerMap );
 
@@ -187,9 +186,9 @@ int main()
 		AppClient client;
 		Map configMap;
 		createProgramaticConfig( configMap );
-		OmmConsumer consumer( OmmConsumerConfig().config( configMap ) );		// use programmatic configuration parameters
+		OmmConsumer consumer( OmmConsumerConfig().config( configMap ) ); // use programmatic configuration parameters
 		consumer.registerClient( ReqMsg().name( "IBM.N" ).serviceName( "DIRECT_FEED" ), client );
-		sleep( 60000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+		sleep( 60000 );		// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;
 	}

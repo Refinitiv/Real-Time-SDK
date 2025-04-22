@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -26,6 +26,7 @@
 #include "Access/Include/Common.h"
 #include "Access/Include/ChannelInformation.h"
 #include "Access/Include/ChannelStatistics.h"
+#include "Access/Include/EmaVector.h"
 
 namespace refinitiv {
 
@@ -34,8 +35,9 @@ namespace ema {
 namespace access {
 
 class Item;
+class OmmBaseImpl;
 
-class EMA_ACCESS_API OmmConsumerEvent
+class OmmConsumerEvent
 {
 public :
 
@@ -47,13 +49,13 @@ public :
 		stream sub-stream call backs this is the handle of the sub-stream itself.
 		@return item identifier or handle
 	*/
-	UInt64 getHandle() const;
+	EMA_ACCESS_API UInt64 getHandle() const;
 
 	/** Returns an identifier (a.k.a., closure) associated with an open stream by consumer application
 		Application associates the closure with an open item stream on OmmConsumer::registerClient( ... , ... , void* closure, ... )
 		@return closure value
 	*/
-	void* getClosure() const;
+	EMA_ACCESS_API void* getClosure() const;
 
 	/** Returns current item's parent item identifier (a.k.a. parent item handle).
 		Application specifies parent item identifier on OmmConsumer::registerClient( ... , ... , ... , UInt64 parentHandle ).
@@ -62,18 +64,23 @@ public :
 	    batch request.
 		@return parent item identifier or parent handle
 	*/
-	UInt64 getParentHandle() const;
+	EMA_ACCESS_API UInt64 getParentHandle() const;
 
 	/** Returns the Channel Information for this event
 		@return the channel information for this event
 	*/
-	const ChannelInformation& getChannelInformation() const;
+	const EMA_ACCESS_API ChannelInformation& getChannelInformation() const;
+
+	/** Returns an EmaVector containing the Session Information for this event.  If Request Routing is turned off, this will return an empty vector.
+	@return the channel information for this event
+	*/
+	const EMA_ACCESS_API void getSessionInformation(EmaVector<ChannelInformation>&) const;
 
 	/** Returns the Channel Statistics for this event
 		@throw OmmInvalidUsageException if it cannot get the channel statistics
 		@return the channel Statistics for this event
 	*/
-	const ChannelStatistics& getChannelStatistics() const;
+	const EMA_ACCESS_API ChannelStatistics& getChannelStatistics() const;
 	//@}
 
 private :
@@ -89,8 +96,9 @@ private :
 	void*           _channel;
 	ChannelInformation _channelInfo;
 	ChannelStatistics _channelStats;
+	OmmBaseImpl& _ommBaseImpl;
 
-	OmmConsumerEvent();
+	OmmConsumerEvent(OmmBaseImpl&);
 	virtual ~OmmConsumerEvent();
 	OmmConsumerEvent( const OmmConsumerEvent& );
 	OmmConsumerEvent& operator=( const OmmConsumerEvent& );

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2024 LSEG. All rights reserved.	                  --
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.	                  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -77,6 +77,11 @@ public:
 	*/
 	bool getPHFallBackWithInWSBGroup() const { return _phFallBackWithInWSBGroup; };
 
+	/** Returns the name of the session channel that this structure's options will apply to.
+		@return name of the session channel
+	*/
+	const EmaString& getSessionChannelName() const { return _sessionChannelName; };
+
 	///@name Operations
 	//@{
 
@@ -115,6 +120,13 @@ public:
 		@return reference to this object
 	*/
 	PreferredHostOptions& phFallBackWithInWSBGroup(bool phFallBackWithInWSBGroup);
+
+	/** Specifies the name of the session channel that this structure's options will apply to.
+		This is required to be set to a valid configured session channel name if session channels are used in the configuration
+		@param[in] sessionChannelName specifies the name of the session channel
+		@return reference to this object
+	*/
+	PreferredHostOptions& sessionChannelName(const EmaString& sessionChannelName);
 	//@}
 
 	/** Clears the PreferredHostOptions
@@ -130,6 +142,7 @@ private:
 	UInt32 _phDetectionTimeInterval;
 	EmaString _preferredChannelName;
 	EmaString _preferredWSBChannelName;
+	EmaString _sessionChannelName;
 	bool _phFallBackWithInWSBGroup;
 };
 

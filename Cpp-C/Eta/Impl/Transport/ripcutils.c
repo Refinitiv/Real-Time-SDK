@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019, 2023 LSEG. All rights reserved.              --
+ *|          Copyright (C) 2019, 2023, 2025 LSEG. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1215,11 +1215,11 @@ RsslInt32 ipcSrvrBind(rsslServerImpl *srvr, RsslError *error)
 		return -1;
 	}
 
-	if (rsslGetHostByName(rsslServerSocketChannel->interfaceName, &addr) < 0)
+	if ((rsslGetHostByName(rsslServerSocketChannel->interfaceName, &addr) < 0) && (rsslGetHostByIf(rsslServerSocketChannel->interfaceName, &addr) < 0))
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1004 rsslGetHostByName() failed. Interface name is incorrect (%d)\n",
+			"<%s:%d> Error: 1004 rsslGetHostByName() and rsslGetHostByIf() failed. Interface name is incorrect (%d)\n",
 			__FILE__, __LINE__, errno);
 
 		sock_close(sock_fd);
@@ -1492,11 +1492,11 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 		printf("<%s:%d> ipcConnectSocket() hostname() returns localHostName = %s\n", __FILE__, __LINE__, localHostName);
 #endif
 
-	if (rsslGetHostByName(pRsslSocketChannel->interfaceName, &localAddr) < 0)
+	if ((rsslGetHostByName(pRsslSocketChannel->interfaceName, &localAddr) < 0) && (rsslGetHostByIf(pRsslSocketChannel->interfaceName, &localAddr) < 0))
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1004 rsslGetHostByName() failed. Interface name (%s) is incorrect. System errno: (%d)\n",
+			"<%s:%d> Error: 1004 rsslGetHostByName() and rsslGetHostByIf() failed. Interface name (%s) is incorrect. System errno: (%d)\n",
 			__FILE__, __LINE__, pRsslSocketChannel->interfaceName, errno);
 
 		return(RIPC_INVALID_SOCKET);

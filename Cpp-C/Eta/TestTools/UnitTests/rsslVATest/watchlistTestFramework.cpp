@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|         Copyright (C) 2019-2020,2024 LSEG. All rights reserved.           --
+ *|         Copyright (C) 2019-2020,2024-2025 LSEG. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -233,6 +233,27 @@ static RsslReactorCallbackRet msgCallback(RsslReactor* pReactor,
 	WtfRsslMsgEvent *pRsslMsgEvent;
 	EXPECT_TRUE(wtf.eventCount < DISPATCH_EVENT_MAX);
 
+	switch (component)
+	{
+		case WTF_TC_PROVIDER:
+		{
+			RsslUInt64 serverIndex = (RsslUInt64)pReactorChannel->userSpecPtr;
+			if (wtf.pProvReactorChannelList[serverIndex] != pReactorChannel)
+			{
+				EXPECT_TRUE(wtf.pProvReactorChannelList[serverIndex] == pReactorChannel) << "Mismatched Provider channel in msgCallback.";
+			}
+			break;
+		}
+		case WTF_TC_CONSUMER:
+		{
+			if (wtf.pConsReactorChannel != pReactorChannel)
+			{
+				EXPECT_TRUE(wtf.pConsReactorChannel == pReactorChannel) << "Mismatched Consumer channel in msgCallback.";
+			}
+			break;
+		}
+	}
+
 	/* Buffer is not modified by the watchlist, and so should not be forwarded. */
 	if (component == WTF_TC_CONSUMER)
 	  EXPECT_EQ(NULL, pEvent->pRsslMsgBuffer);
@@ -269,11 +290,11 @@ static RsslReactorCallbackRet msgCallback(RsslReactor* pReactor,
 }
 
 /* Channel Event Callback. */
-static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, 
-		RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pEvent)
+static RsslReactorCallbackRet channelEventCallback(RsslReactor* pReactor,
+	RsslReactorChannel* pReactorChannel, RsslReactorChannelEvent* pEvent)
 {
 	WtfComponent component = *(WtfComponent*)&pReactor->userSpecPtr;
-	WtfChannelEvent *pChannelEvent;
+	WtfChannelEvent* pChannelEvent;
 
 	EXPECT_TRUE(wtf.eventCount < DISPATCH_EVENT_MAX);
 
@@ -281,7 +302,7 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor,
 	pChannelEvent = &wtf.eventList[wtf.eventCount].channelEvent;
 	wtfClearChannelEvent(pChannelEvent, component);
 	pChannelEvent->channelEventType = pEvent->channelEventType;
-		
+
 	++wtf.eventCount;
 
 	if (wtf.state == WTF_ST_CLEANUP)
@@ -302,11 +323,46 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor,
 			EXPECT_EQ(pEvent->channelEventType, RSSL_RC_CET_CHANNEL_DOWN);
 		}
 
-	  return RSSL_RC_CRET_SUCCESS;
+		return RSSL_RC_CRET_SUCCESS;
 	}
 
 	if (pEvent->pError)
 		pChannelEvent->rsslErrorId = pEvent->pError->rsslError.rsslErrorId;
+
+	switch (component)
+	{
+		case WTF_TC_PROVIDER:
+		{
+			RsslUInt64 serverIndex = (RsslUInt64)pReactorChannel->userSpecPtr;
+			if (wtf.pProvReactorChannelList[serverIndex] == NULL)
+			{
+				wtf.pProvReactorChannelList[serverIndex] = pReactorChannel;
+			}
+			else
+			{
+				if (wtf.pProvReactorChannelList[serverIndex] != pReactorChannel)
+				{
+					EXPECT_TRUE(wtf.pProvReactorChannelList[serverIndex] == pReactorChannel) << "Mismatched Provider channel in channelEventCallback.";
+				}
+			}
+			break;
+		}
+		case WTF_TC_CONSUMER:
+		{
+			if (wtf.pConsReactorChannel == NULL)
+			{
+				wtf.pConsReactorChannel = pReactorChannel;
+			}
+			else
+			{
+				if (wtf.pConsReactorChannel != pReactorChannel)
+				{
+					EXPECT_TRUE(wtf.pConsReactorChannel == pReactorChannel) << "Mismatched Consumer channel in channelEventCallback.";
+				}
+			}
+			break;
+		}
+	}
 
 	switch(pEvent->channelEventType)
 	{
@@ -315,7 +371,6 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor,
 			switch(component)
 			{
 				case WTF_TC_CONSUMER:
-				  wtf.pConsReactorChannel = pReactorChannel;
 				  break;
 				case WTF_TC_PROVIDER:
 				  EXPECT_TRUE(0) << "unexpected event type: provider received channel open"
@@ -330,14 +385,10 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor,
 			{
 				case WTF_TC_PROVIDER:
 				{
-					RsslUInt64 serverIndex = (RsslUInt64)pReactorChannel->userSpecPtr;
-					wtf.pProvReactorChannelList[serverIndex] = pReactorChannel;
 					break;
 				}
 				case WTF_TC_CONSUMER:
 				  wtf.consReactorChannelUp = RSSL_TRUE;
-
-				  wtf.pConsReactorChannel = pReactorChannel;
 
 				  if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
 				  {
@@ -405,6 +456,7 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor,
 			}
 			break;
 		case RSSL_RC_CET_PREFERRED_HOST_COMPLETE:
+		case RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK:
 			break;
 		default:
 		  EXPECT_TRUE(0) << "unhandled channel event" << std::endl;
@@ -421,6 +473,27 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor* pReactor,
 	WtfComponent component = *(WtfComponent*)&pReactor->userSpecPtr;
 	WtfRdmMsgEvent *pRdmMsgEvent;
 	EXPECT_TRUE(wtf.eventCount < DISPATCH_EVENT_MAX);
+
+	switch (component)
+	{
+		case WTF_TC_PROVIDER:
+		{
+			RsslUInt64 serverIndex = (RsslUInt64)pReactorChannel->userSpecPtr;
+			if (wtf.pProvReactorChannelList[serverIndex] != pReactorChannel)
+			{
+				EXPECT_TRUE(wtf.pProvReactorChannelList[serverIndex] == pReactorChannel) << "Mismatched channel.";
+			}
+			break;
+		}
+		case WTF_TC_CONSUMER:
+		{
+			if (wtf.pConsReactorChannel != pReactorChannel)
+			{
+				EXPECT_TRUE(wtf.pConsReactorChannel == pReactorChannel) << "Mismatched channel.";
+			}
+			break;
+		}
+	}
 
 	/* When provided as RDM messages, buffer & msg are not modified, and so should not be 
 	 * forwarded. */
@@ -464,6 +537,27 @@ static RsslReactorCallbackRet directoryMsgCallback(RsslReactor* pReactor,
 	WtfRdmMsgEvent *pRdmMsgEvent;
 	EXPECT_TRUE(wtf.eventCount < DISPATCH_EVENT_MAX);
 
+	switch (component)
+	{
+		case WTF_TC_PROVIDER:
+		{
+			RsslUInt64 serverIndex = (RsslUInt64)pReactorChannel->userSpecPtr;
+			if (wtf.pProvReactorChannelList[serverIndex] != pReactorChannel)
+			{
+				EXPECT_TRUE(wtf.pProvReactorChannelList[serverIndex] == pReactorChannel) << "Mismatched Provider channel in directoryCallback.";
+			}
+			break;
+		}
+		case WTF_TC_CONSUMER:
+		{
+			if (wtf.pConsReactorChannel != pReactorChannel)
+			{
+				EXPECT_TRUE(wtf.pConsReactorChannel == pReactorChannel) << "Mismatched Consumer channel in directoryCallback.";
+			}
+			break;
+		}
+	}
+
 	/* When provided as RDM messages, buffer & msg are not modified, and so should not be 
 	 * forwarded. */
 	if (component == WTF_TC_CONSUMER)
@@ -504,6 +598,27 @@ static RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor* pReactor,
 	WtfComponent component = *(WtfComponent*)&pReactor->userSpecPtr;
 	WtfRdmMsgEvent *pRdmMsgEvent;
 	EXPECT_TRUE(wtf.eventCount < DISPATCH_EVENT_MAX);
+
+	switch (component)
+	{
+		case WTF_TC_PROVIDER:
+		{
+			RsslUInt64 serverIndex = (RsslUInt64)pReactorChannel->userSpecPtr;
+			if (wtf.pProvReactorChannelList[serverIndex] != pReactorChannel)
+			{
+				EXPECT_TRUE(wtf.pProvReactorChannelList[serverIndex] == pReactorChannel) << "Mismatched Provider channel in dictionaryCallback.";
+			}
+			break;
+		}
+		case WTF_TC_CONSUMER:
+		{
+			if (wtf.pConsReactorChannel != pReactorChannel)
+			{
+				EXPECT_TRUE(wtf.pConsReactorChannel == pReactorChannel) << "Mismatched Consumer channel in dictionaryCallback.";
+			}
+			break;
+		}
+	}
 
 	/* When provided as RDM messages, buffer & msg are not modified, and so should not be 
 	 * forwarded. */
@@ -2261,8 +2376,12 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 		wtf.pServerList[pEvent->rdmMsg.serverIndex].warmStandbyMode = WTF_WSBM_LOGIN_BASED_SERVER_TYPE_STANDBY;
 	}
 
-	wtfDispatch(WTF_TC_PROVIDER, 200, 1, 1);
-	ASSERT_TRUE(pEvent = wtfGetEvent());
+	if ((pEvent = wtfGetEvent()) == NULL)
+	{
+		wtfDispatch(WTF_TC_PROVIDER, 200, 1, 1);
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+	}
+
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REQUEST);

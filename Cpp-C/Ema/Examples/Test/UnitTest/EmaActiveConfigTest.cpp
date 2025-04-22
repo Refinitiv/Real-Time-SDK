@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2020-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2020-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -654,7 +654,6 @@ void EmaActiveConfigTest::ActiveConfigTestDefaultValues(ActiveConfig & activeCon
 	EXPECT_EQ(activeConfig.reconnectAttemptLimit, DEFAULT_RECONNECT_ATTEMPT_LIMIT);
 	EXPECT_EQ(activeConfig.reconnectMinDelay, DEFAULT_RECONNECT_MIN_DELAY);
 	EXPECT_EQ(activeConfig.reconnectMaxDelay, DEFAULT_RECONNECT_MAX_DELAY);
-	EXPECT_EQ(activeConfig.pipePort, DEFAULT_PIPE_PORT);
 	EXPECT_TRUE(activeConfig.pRsslRDMLoginReq == NULL);
 	EXPECT_TRUE(activeConfig.pRsslDirectoryRequestMsg == NULL);
 	EXPECT_TRUE(activeConfig.pRsslRdmFldRequestMsg == NULL);
@@ -777,7 +776,6 @@ TEST_F(EmaActiveConfigTest, ActiveConfigTest)
 	activeConfig.reconnectAttemptLimit = 57;
 	activeConfig.reconnectMinDelay = 57;
 	activeConfig.reconnectMaxDelay = 57;
-	activeConfig.pipePort = 57;
 	activeConfig.pRsslRDMLoginReq = NULL;
 	activeConfig.pRsslDirectoryRequestMsg = NULL;
 	activeConfig.pRsslRdmFldRequestMsg = NULL;
@@ -811,7 +809,6 @@ TEST_F(EmaActiveConfigTest, ActiveConfigTest)
 void EmaActiveConfigTest::ActiveServerConfigTestDefaultValues(OmmIProviderActiveConfig& activeServerConfig)
 {
 	// Tests default values
-	EXPECT_EQ(activeServerConfig.pipePort, DEFAULT_SERVER_PIPE_PORT);
 	EXPECT_EQ(activeServerConfig.acceptMessageWithoutBeingLogin, DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN);
 	EXPECT_EQ(activeServerConfig.acceptMessageWithoutAcceptingRequests, DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS);
 	EXPECT_EQ(activeServerConfig.acceptDirMessageWithoutMinFilters, DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS);
@@ -831,7 +828,6 @@ TEST_F(EmaActiveConfigTest, ActiveServerConfigTest)
 	ActiveServerConfigTestDefaultValues(activeServerConfig);
 
 	// Make some changes...
-	activeServerConfig.pipePort = 3456;
 	activeServerConfig.acceptMessageWithoutBeingLogin = !DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN;
 	activeServerConfig.acceptMessageWithoutAcceptingRequests = !DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS;
 	activeServerConfig.acceptDirMessageWithoutMinFilters = !DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS;

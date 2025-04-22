@@ -23,12 +23,13 @@ namespace ema {
 namespace access {
 
 class OmmBaseImpl;
-class Login;
+class LoginRdmRefreshMsgImpl;
 class Directory;
 class Dictionary;
 class StreamId;
 class ActiveConfig;
 class ChannelConfig;
+class ConsumerRoutingSessionChannel;
 
 class Channel : public ListLinks< Channel >
 {
@@ -48,31 +49,18 @@ public :
 		ChannelReadyEnum
 	};
 
-	static Channel* create( OmmBaseImpl&, const EmaString&, RsslReactor*, ReactorChannelType reactorChannelType = NORMAL);
+	static Channel* create( OmmBaseImpl&, const EmaString&, RsslReactor*, ReactorChannelType reactorChannelType = NORMAL, RsslReactorWarmStandbyMode warmStandbyType = RSSL_RWSB_MODE_NONE);
 	static void destroy( Channel*& );
 
 	const EmaString& getName() const;
 
 	RsslReactor* getRsslReactor() const;
 
-	RsslReactorChannel* getRsslChannel() const;
-	Channel& setRsslChannel( RsslReactorChannel* );
-
-	Channel& clearRsslSocket();
-	EmaVector< RsslSocket >& getRsslSocket() const;
-	Channel& addRsslSocket( RsslSocket );
-
 	ChannelState getChannelState() const;
 	Channel& setChannelState( ChannelState );
 
-	Login* getLogin() const;
-	Channel& setLogin( Login* );
-
 	Dictionary* getDictionary() const;
 	Channel& setDictionary( Dictionary* );
-
-	Channel& addDirectory( Directory* );
-	Channel& removeDirectory( Directory* );
 
 	const EmaString& toString() const;
 
@@ -80,39 +68,49 @@ public :
 
 	ReactorChannelType getReactorChannelType() const;
 
+	RsslReactorWarmStandbyMode getWarmStandbyMode() const;
+
 	void setParentChannel(Channel* channel);
 
 	Channel* getParentChannel() const;
+
+	bool hasCalledRenewal;
+
+	// Pointer to the ChannelConfig, which is contained in the ActiveConfig.
+	ChannelConfig* pChannelConfig;
 
 	void setAddedToDeleteList(bool);
 
 	bool getAddedToDeleteList() const;
 
-	const ActiveConfig& getActiveConfig() const;
+	Channel& setConsumerRoutingChannel(ConsumerRoutingSessionChannel*);			// Sets the Consumer Routing Session Channel associated with this Channel.
+	ConsumerRoutingSessionChannel* getConsumerRoutingChannel();					// Gets the Consumer Routing Session Channel associated with this Channel.
+
+	Channel& setChannelConfig(ChannelConfig*);
+	ChannelConfig* getChannelConfig();
+
+	OmmBaseImpl* getBaseImpl();
 
 private :
 
+	OmmBaseImpl&			_ommBaseImpl;
 	EmaString				_name;
 	mutable EmaString		_toString;
 	RsslReactor*			_pRsslReactor;
-	RsslReactorChannel*		_pRsslChannel;
 	ChannelState			_state;
-	Login*					_pLogin;
 	Dictionary*				_pDictionary;
-	EmaVector< Directory* >	_directoryList;
 	mutable bool			_toStringSet;
-	EmaVector< RsslSocket >* _pRsslSocketList;
 	ReactorChannelType		_reactorChannelType;
+	RsslReactorWarmStandbyMode		_warmStandbyMode;
 	Channel*				_pParentChannel;
+	ChannelConfig*			_pChannelConfig;
+	ConsumerRoutingSessionChannel* _pRoutingChannel;
 
 	bool					_inOAuthCallback;
 
 	bool					_addedToDeleteList;
 
-	const ActiveConfig&		_activeConfig;
-
-		
-	Channel( const EmaString&, RsslReactor*, ActiveConfig&, ReactorChannelType reactorChannelType = NORMAL);
+	Channel(OmmBaseImpl&, const EmaString&, RsslReactor*, ReactorChannelType reactorChannelType = NORMAL, RsslReactorWarmStandbyMode warmStandbyType = RSSL_RWSB_MODE_NONE);
 	virtual ~Channel();
 
 	Channel();
@@ -133,11 +131,7 @@ public :
 
 	Channel* getChannel( const EmaString& ) const;
 
-	Channel* getChannel( const RsslReactorChannel* ) const;
-
 	UInt32 size() const;
-
-	RsslReactorChannel* operator[]( UInt32 );
 
 	Channel* front() const;
 
@@ -166,7 +160,7 @@ public :
 
 	Channel* channelConfigToReactorConnectInfo( ChannelConfig* , RsslReactorConnectInfo*, EmaString&);
 
-	void removeChannel( RsslReactorChannel* );
+	void removeChannel( Channel* );
 
 	void closeChannels();
 
@@ -183,8 +177,6 @@ private :
 	RsslReactor*					_pRsslReactor;
 
 	bool							_bInitialChannelReadyEventReceived;
-
-	RsslReactorChannel*				_pReconnectingReactorChannel; // This is used to close later when the login timeout occurs.
 
 	void channelParametersToString(ActiveConfig&, ChannelConfig*, EmaString& );
 

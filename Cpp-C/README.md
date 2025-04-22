@@ -23,10 +23,10 @@ External modules used by this version of RTSDK C/C++:
      openSSL               3.1.X  ** 
      ccron                 2.0.0
      cJSON                 1.7.18
-     curl                  8.11.0
+     curl                  8.12.1
      googletest            1.8.1 (for older than Linux7) and 1.12.1 
-     l8w8jwt               2.4.0
-     libxml2               2.13.5
+     l8w8jwt               2.5.0
+     libxml2               2.13.6
      lz4                   1.9.4 (for older than Linux7) and 1.10.0
      zlib                  1.3.1
 \* Tested on supported Linux and Windows platforms; \*\* Tested on supported Windows platform 
@@ -34,7 +34,7 @@ External modules used by this version of RTSDK C/C++:
 NOTES: 
 - curl and openSSL are dynamically loaded at runtime.  
 - Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build openSSL, and we recommend that all installed versions of openSSL are patched to the latest version available.  
-- Default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (Oracle Linux 7, RedHat 8, RedHat 9). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
+- Default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (RedHat 8, RedHat 9). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
 - openSSL 1.1.1 and higher are required for TLS 1.3
 - Cipher suite is configurable with TLS 1.2 and it is recommended that customers use best available ciphers. With TLS 1.3, cipher suite is not yet configurable; however, default ciphers are best available.
 - Check installation guide for details regarding including external dependencies for build 
@@ -70,12 +70,12 @@ Linux system libraries used by RTSDK C/C++:
 - HP Intel PC or AMD Opteron (64-bit)
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
-- Oracle Linux Server 7.X, 64-bit
-- Red Hat Enterprise Server 7.X, 64-bit
 - Red Hat Enterprise Server 8.X, 64-bit
 - Red Hat Enterprise Server 9.X, 64-bit
 - Ubuntu 20.04, 64-bit
 - Galaxy Kylin 10, 64-bit (TCP qualification only; multicast transport not tested)
+- Amazon Linux 2, 64-bit
+- Amazon Linux 2023, 64-bit
 
 - TCP/IP networking support installed if using TCP Socket connection types
 - UDP Multicast networking support if using Reliable Multicast connection type
@@ -113,16 +113,17 @@ Notes:
 
 Platforms & Compilers:
 
-     GCC compiler suite version 4.8.2 or higher for Oracle Linux 7.X, 64-bit, Native build
      GCC compiler suite version 7.3.0 or higher for Galaxy Kylin 10, 64-bit, qualification with RH8 library build
+     GCC compiler suite version 7.3.1 or higher for Amazon Linux 2, 64-bit, qualification with RH8 library build
      GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
      Clang compiler version 9.0.1 for Linux 8 64-bit, qualification with RH8 library build 
      GCC compiler suite version 9.3.0 or higher for Ubuntu 20.04, 64-bit, qualification with RH8 library build
      GCC compiler suite version 11.4.1 or higher for Red Hat Enterprise Server 9.X, 64-bit, Native build
+     GCC compiler suite version 11.4.1 or higher for Amazon Linux 2023, 64-bit, qualification with RH9 library build
 
 * Eta VACache library built 
 
-NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 9, Red Hat 8 and Oracle Linux 7 are available in release packages available on LSEG Developer Portal. 
+NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 9 and Red Hat 8 are available in release packages available on LSEG Developer Portal. 
 
 NOTE: We do not support container builds with RTSDK C/C++ where RTSDK C/C++ is being built natively using a container. This is because depending on container install, specifically the librarires or toolsets available in that container vs. underlying OS, the build may vary. There are too many combinations for us to state with confidence that build will succeed or is valid with any combination of container and underlying OS. This is because the RTSDK C/C++ build depends on certain system libraries. The open question for any given combination: what is being installing in container vs. using underlying OS libs? Therefore, our stance is that we do not recommend building RTSDK C/C++ editions in a container. We have made changes in CMake to pick up characteristics of container instead of underly OS with RTSDK-9060; however, that does not guarantee a valid build depending on combination of container versus the underlying operating system. An alternate option is to choose the appropriate pre-build libraries from our official archives/packages.
 
@@ -136,17 +137,15 @@ This release has been tested with the following on supported platform/OS combina
 
      OS                                           GCC Version     Use-Prebuilt Library     Use-Natively Build Library
      --------------------------------             ------------    --------------------     ----------------------------          
-     Oracle Linux Server 7.7 64-bit               GCC 4.8.5       OL7_64_GCC482            OL7_64_GCC485
-     Red Hat Enterprise Linux Server 7.7 64-bit   GCC 4.8.5       OL7_64_GCC482            RHEL7_64_GCC485
      Galaxy Kylin 10 64-bit                       GCC 7.3.0       RHEL8_64_GCC831          KYL10_64_GCC730
-     Oracle Linux Server 7.7 64-bit               GCC 7.4.0       n/a                      OL7_64_GCC740
-     Red Hat Enterprise Linux Server 7.7 64-bit   GCC 7.4.0       n/a                      RHEL7_64_GCC740
+     Amazon Linux 2 64-bit                        GCC 7.3.1       RHEL8_64_GCC831          AMA2_64_GCC731 
      Red Hat Enterprise Linux Server 8.X 64-bit   GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
      Galaxy Kylin 10 64-bit                       GCC 8.4.0       RHEL8_64_GCC831          KYL10_64_GCC840
      Red Hat Enterprise Linux Server 8.X 64-bit   GCC 9.2.1       RHEL8_64_GCC831          RHEL8_64_GCC921
      Ubuntu 20.04 64-bit                          GCC 9.4.0       RHEL8_64_GCC831          UBU20_64_GCC940
-     Ubuntu 22.04 64-bit                          GCC 11.4.1      RHEL9_64_GCC1141         UBU22_64_GCC1140
+     Ubuntu 22.04 64-bit                          GCC 11.4.0      RHEL9_64_GCC1141         UBU22_64_GCC1140
      Red Hat Enterprise Linux Server 9.2 64-bit   GCC 11.4.1      RHEL9_64_GCC1141         RHEL9_64_GCC1141
+     Amazon Linux 2023 64-bit                     GCC 11.4.1      RHEL9_64_GCC1141         AMA2023_64_GCC1141
      Red Hat Enterprise Linux Server 9.2 64-bit   GCC 12.2.1      RHEL9_64_GCC1141         RHEL9_64_GCC1221
 
      n/a = This is not a tested combination
@@ -186,8 +185,8 @@ NOTE: Connectivity to Data Feed Direct (LDFD) is supported for Level 1 and Level
 
 This release has been tested with the following:
 
-- ADS 3.8.1
-- ADH 3.8.1
+- ADS 3.8.2
+- ADH 3.8.2
 - DACS 7.12
 
 # Documentation
@@ -219,19 +218,17 @@ Refer to RTSDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/D
 
 **For Linux**:
 
-Note: For Linux builds with RedHat based distributions(RHEL, Oracle Linux), the CMake scripts require lsb_release to be installed.  For Red Hat Enterprise Linux and CentOS, this can be installed with the following command (this will require root access to the machine):
-
-     yum install redhat-lsb-core
-
 At the same directory level as the resulting RTSDK directory, issue the following command to build the optimized Makefile files:
 
      cmake -HsourceDir -BbuildDir
      # sourceDir is is the directory in which the top-level CMake entry point (CMakeLists.txt) resides. By default, when you build using the Solution and vcxproj files, output is sent to directory specified in sourceDir. 
      # buildDir is the directory where all build output is placed. This directory is automatically created.
+     # Note: CMake supports Linux 7 build although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack prior to Real-Time-SDK-2.2.3.L1 to build the deprecated Linux 7 library at your own risk. Changes to BinaryPacks will not be available for deprecated compilers.
 
 Issue the following command to build debug Makefile files:
 
      cmake -HRTSDK -BbuildDir –DCMAKE_BUILD_TYPE=Debug
+     # To build the optimized version replace build type with –DCMAKE_BUILD_TYPE=Optimized and to build optimized debug version, replace with –DCMAKE_BUILD_TYPE=OptimizedDebug.
 
 The cmake command builds all needed Makefile files (and related dependencies) in the buildDir directory. Go to the buildDir directory and type "make" or "gmake" to create the RTSDK libraries. Note that the libraries and sample application executables are sent to the RTSDK directory under sourceDir.
 
@@ -252,6 +249,11 @@ At the same directory level as the resulting RTSDK directory, issue the followin
      # Note: CMake supports VS 2013 build although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack prior to Real-Time-SDK-2.0.3.L1 to build these deprecated Visual Studio versions at your own risk. Changes to BinaryPacks will not be available for deprecated compilers.
 
 The cmake command builds all needed Solution and vcxproj files (and other related files) in the buildDir directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the libraries and sample application executables are sent to an RTSDK directory under sourceDir.
+
+Alternatively, to build using CMake command line instead of Visual Studio, use this command line: 
+
+     cmake --build . --config Debug_MDd.  
+     # In the command above, options for config are Debug_MDd or Release_MD.
 
 Note that your installation of Visual Studio needs to be updated to add Microsoft Foundation Classes per Microsoft when encountering this build error: fatal error RC105: cannot open include file 'afxres.h'.
 

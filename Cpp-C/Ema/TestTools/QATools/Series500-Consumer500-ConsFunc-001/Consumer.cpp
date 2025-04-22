@@ -31,7 +31,8 @@ int main( int argc, char* argv[] )
 		AppClient client;
 		ChannelInformation channelInfo;
 		OmmConsumer consumer( OmmConsumerConfig().username( "user" ).consumerName("Consumer_9"), client);
-		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client );
+		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "TRI.N" ), client );
+		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED1" ).name( "IBM.N" ), client );
 
 		for (int i = 1; i < 60; i++)
 		{

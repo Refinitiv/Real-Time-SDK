@@ -26,6 +26,7 @@ class ServerChannelHandler
 {
 public:
 
+	// Callback for IProvider only
 	static RsslReactorCallbackRet channelEventCallback(RsslReactor*, RsslReactorChannel*, RsslReactorChannelEvent*);
 
 	static ServerChannelHandler* create(OmmServerBaseImpl*);

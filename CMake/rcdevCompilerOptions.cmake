@@ -105,11 +105,11 @@ if( UNIX )
     endif()
 
 	if ( ${CMAKE_BUILD_TYPE} STREQUAL "Optimized" )
-		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
+		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -DNDEBUG -O3 -finline-limit=700 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
 		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -ggdb3 ${CMAKE_FLAGS_CLANG}"  CACHE STRING "" FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "OptimizedDebug" )
-		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -ggdb3 -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
+		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -ggdb3 -DNDEBUG -O3 -finline-limit=700 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
 	endif()
 
 	if (RCDEV_C_EXTRA_FLAGS)
@@ -157,6 +157,8 @@ else()
 	
 	#Release flags for non-static projects 
 	set(RCDEV_FLAGS_NONSTATIC_RELEASE "/GL")
+
+	set ( RCDEV_C_EXTRA_FLAGS "-D_DEBUG_WS_CONN" )
 
 	#CMake 3.15 CMP0091 rule for selecting MSVC runtime
 	set(CMAKE_MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug_Mdd>:MultiThreadedDebugDLL>$<$<CONFIG:Release_MD>:MultiThreadedDLL>" CACHE STRING "" FORCE)

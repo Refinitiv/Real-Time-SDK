@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2020-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2020-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -18,6 +18,7 @@
 #include "DataDictionary.h"
 
 #include "LoginRdmReqMsgImpl.h"
+#include "HashTable.h"
 
 #include "rtr/rsslTransport.h"
 #include "rtr/rwfNet.h"
@@ -79,8 +80,6 @@
 #define DEFAULT_MAX_OUTSTANDING_POSTS				    100000
 #define DEFAULT_MSGKEYINUPDATES						    true
 #define DEFAULT_OBEY_OPEN_WINDOW					    1
-#define DEFAULT_PIPE_PORT							    9001
-#define DEFAULT_SERVER_PIPE_PORT					    9009
 #define DEFAULT_POST_ACK_TIMEOUT					    15000
 #define DEFAULT_PROXY_CONNECTION_TIMEOUT			    40
 #define DEFAULT_REACTOR_EVENTFD_PORT				    55000
@@ -164,6 +163,7 @@ namespace access {
 
 class Channel;
 class WarmStandbyChannelConfig;
+class ConsumerRoutingSessionChannelConfig;
 
 class ChannelConfig
 {
@@ -201,6 +201,7 @@ public :
 	UInt32					sysSendBufSize;
 	UInt32					highWaterMark;
 	Channel*				pChannel;
+	ConsumerRoutingSessionChannelConfig* pRoutingChannelConfig;
 
 private :
 
@@ -519,9 +520,23 @@ public:
 	UInt32					jsonTokenIncrementSize;
 };
 
+typedef const EmaString* EmaStringPtr;
+
 class ActiveConfig : public BaseConfig
 {
 public:
+
+	class EmaStringPtrHasher
+	{
+	public:
+		size_t operator()(const EmaStringPtr&) const;
+	};
+
+	class EmaStringPtrEqual_To
+	{
+	public:
+		bool operator()(const EmaStringPtr&, const EmaStringPtr&) const;
+	};
 
 	ActiveConfig( const EmaString& );
 
@@ -552,10 +567,11 @@ public:
 	void clearChannelSet();
 	void clearWSBChannelSet();
 	void clearChannelSetForWSB();
+	void clearConsumerRoutingSessionSet();
+	void clearServiceListSet();
 	const EmaString& defaultServiceName() { return _defaultServiceName; }
 	EmaString configTrace();
 
-	Int64			pipePort;
 	UInt32			obeyOpenWindow;
 	UInt32			postAckTimeout;
 	UInt32			maxOutstandingPosts;
@@ -576,6 +592,12 @@ public:
 	EmaVector< WarmStandbyChannelConfig* >  configWarmStandbySet;
 	EmaVector< ChannelConfig* >		configChannelSetForWSB;
 
+	HashTable<EmaStringPtr, ServiceList*, EmaStringPtrHasher, EmaStringPtrEqual_To> serviceListByName;
+
+	EmaVector<ServiceList*> serviceListSet;			// List of copied over service lists, used for deletion.
+
+	EmaVector< ConsumerRoutingSessionChannelConfig* >		consumerRoutingSessionSet;
+
 	LoginRdmReqMsgImpl*		pRsslRDMLoginReq;
 	RsslRequestMsg*			pRsslDirectoryRequestMsg;
 	AdminReqMsg*			pRsslRdmFldRequestMsg;
@@ -587,6 +609,7 @@ public:
 	EmaString				restProxyUserName;
 	EmaString				restProxyPasswd;
 	EmaString				restProxyDomain;
+	bool					consumerRoutingSessionEnhancedItemRecovery;
 
 	// Preferred host
 	bool            enablePreferredHostOptions;
@@ -615,7 +638,6 @@ public:
 
 	virtual OmmIProviderConfig::AdminControl getDirectoryAdminControl() = 0;
 
-	Int64						pipePort;
 	AdminRefreshMsg*			pDirectoryRefreshMsg;
 
 	ServerConfig*				pServerConfig;
@@ -690,6 +712,7 @@ public:
 
 	enum WarmStandbyMode
 	{
+		None = 0,										// Enum used in Request Routing.
 		LoginBasedEnum = RSSL_RWSB_MODE_LOGIN_BASED,
 		ServiceBasedEnum = RSSL_RWSB_MODE_SERVICE_BASED
 	};
@@ -704,6 +727,7 @@ public:
 	EmaVector<WarmStandbyServerInfoConfig*>		standbyServerSet;
 	bool									downloadConnectionConfig;
 	WarmStandbyMode							warmStandbyMode;
+	ConsumerRoutingSessionChannelConfig*		pRoutingChannelConfig;
 private:
 	WarmStandbyChannelConfig();
 };

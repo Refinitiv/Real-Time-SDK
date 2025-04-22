@@ -27,6 +27,7 @@ class LoginHandler
 {
 public:
 
+	// Callback for IProvider only
 	static RsslReactorCallbackRet loginCallback(RsslReactor*, RsslReactorChannel*, RsslRDMLoginMsgEvent*);
 
 	static LoginHandler* create(OmmServerBaseImpl*);

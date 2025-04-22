@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -69,7 +69,14 @@ public :
 
 	RsslRequestMsg* getRsslRequestMsg() const;
 
-	UInt32 getBatchItemListSize() const;
+	// Fills the EmaVector with the batch item names, if found.
+	// Returns the number of items in the batch request
+	UInt32 getBatchItemList(EmaVector<EmaString>*) const;
+
+	//Fills the EmaBuffer with the View elements.
+	// This will only get the view out of the payload, not any batch item names.
+	bool getViewPayload(EmaBuffer&) const;
+
 
 	bool getPrivateStream() const;
 

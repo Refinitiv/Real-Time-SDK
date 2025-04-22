@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.        --
  *|-----------------------------------------------------------------------------
  */
 
@@ -655,6 +655,15 @@ static void HttpCallbackFunction(RsslHttpMessage* httpMess, RsslError* error)
 		printf("Http header error %s \n", error->text);
 	}
 
+	if (httpMess->url.data && httpMess->url.length)
+	{
+		printf("HTTP URL: %.*s\n", httpMess->url.length, httpMess->url.data);
+	}
+	else
+	{
+		printf("Failed to get http URL. \n");
+	}
+
 	if (httpHeaders->count)
 	{
 		RsslInt32 n = 0;
@@ -749,8 +758,8 @@ static void createNewClientSession(RsslServer *srvr)
 	RsslRet ret;
 	RsslChannel *sckt;
 	RsslError	error;
-	RsslBool	clientSessionFound = RSSL_FALSE;
 	RsslAcceptOptions acceptOpts = RSSL_INIT_ACCEPT_OPTS;
+	RsslClientSessionInfo* clientSessionPtr = 0;
 
 	clientSessionCount++;
 
@@ -762,6 +771,19 @@ static void createNewClientSession(RsslServer *srvr)
 	{
 		acceptOpts.nakMount = RSSL_TRUE;
 	}
+
+	/* find an available client session */
+	for (i = 0; i < CLIENT_SESSIONS_LIMIT; i++)
+	{
+		if (clientSessions[i].clientChannel == NULL)
+		{
+			clientSessionPtr = &clientSessions[i];
+			/* Set the Json session to the user spec ptr.  This will be initialized if the channel negotiates to use the JSON protocol. */
+			acceptOpts.userSpecPtr = &(clientSessions[i].jsonSession);
+			break;
+		}
+	}
+
 	if ((sckt = rsslAccept(srvr, &acceptOpts, &error)) == 0)
 	{
 		printf("rsslAccept: failed <%s>\n",error.text);
@@ -780,21 +802,9 @@ static void createNewClientSession(RsslServer *srvr)
 			traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_DUMP;
 			rsslIoctl(sckt, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &error);
 		}
-		/* find an available client session */
-		for (i = 0; i < CLIENT_SESSIONS_LIMIT; i++)
-		{
-			if (clientSessions[i].clientChannel == NULL)
-			{
-				clientSessions[i].clientChannel = sckt;
-				clientSessionFound = RSSL_TRUE;
-				/* Set the Json session to the user spec ptr.  This will be initialized if the channel negotiates to use the JSON protocol. */
-				sckt->userSpecPtr = &(clientSessions[i].jsonSession);
-				break;
-			}
-		}
 
 		/* close channel if no more client sessions */
-		if (clientSessionFound == RSSL_FALSE &&
+		if (clientSessionPtr == 0 &&
 			clientSessionCount > CLIENT_SESSIONS_LIMIT)
 		{
 			clientSessionCount--;
@@ -805,6 +815,7 @@ static void createNewClientSession(RsslServer *srvr)
 		}
 		else
 		{
+			clientSessionPtr->clientChannel = sckt;
 			printf("\nServer fd="SOCKET_PRINT_TYPE": New client on Channel fd="SOCKET_PRINT_TYPE"\n",
 				srvr->socketId,sckt->socketId);
 			FD_SET(sckt->socketId,&readfds);

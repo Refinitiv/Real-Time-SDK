@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -33,6 +33,7 @@
 #include "OmmOAuth2CredentialImpl.h"
 #include "OmmException.h"
 #include "OmmInvalidUsageException.h"
+#include "ServiceList.h"
 
 using namespace refinitiv::ema::access;
 
@@ -915,7 +916,8 @@ EmaConfigImpl::EmaConfigImpl(const EmaString& configPath) :
 	_tokenServiceUrlV2(),
 	_sslCAStoreSetViaFunctionCall(),
 	_channelTypeViaFunctionCall( RSSL_CONN_TYPE_INIT ),
-	_encryptedProtocolTypeViaFunctionCall( RSSL_CONN_TYPE_INIT )
+	_encryptedProtocolTypeViaFunctionCall( RSSL_CONN_TYPE_INIT ),
+	_serviceLists()
 {
 }
 
@@ -958,6 +960,14 @@ EmaConfigImpl::~EmaConfigImpl()
 	}
 
 	_LoginRequestMsgs.clear();
+
+	for (UInt32 i = 0; i < _serviceLists.size(); ++i)
+	{
+		delete _serviceLists[i];
+		_serviceLists[i] = NULL;
+	}
+
+	_serviceLists.clear();
 }
 
 void EmaConfigImpl::clear()
@@ -1205,6 +1215,19 @@ void EmaConfigImpl::getChannelName( const EmaString& instanceName, EmaString& re
 
 		get<EmaString>( nodeName, retVal );
 	}
+}
+
+
+bool EmaConfigImpl::getConsumerRoutingSessionChannelSetName(const EmaString& instanceName, EmaString& retVal) const
+{
+	if (_pProgrammaticConfigure && _pProgrammaticConfigure->getActiveConsumerRoutingSessionChannelSetName(instanceName, retVal))
+		return true;
+
+	EmaString nodeName(_instanceNodeName);
+	nodeName.append(instanceName);
+	nodeName.append("|SessionChannelSet");
+
+	return get<EmaString>(nodeName, retVal);
 }
 
 void EmaConfigImpl::getWarmStandbyChannelName(const EmaString& instanceName, EmaString& retVal, bool& foundProgrammaticCfg) const
@@ -1528,6 +1551,33 @@ void EmaConfigImpl::restProxyDomain(const EmaString& restProxyDomain)
 		_restProxyDomainSetViaFunctionCall = restProxyDomain;
 	else
 		_restProxyDomainSetViaFunctionCall = "";
+}
+
+void EmaConfigImpl::addServiceList(const ServiceList& serviceList)
+{
+	if (serviceList.name().length() == 0)
+	{
+		EmaString errorMsg("The ServiceList's name must be non-empty string.");
+		throwIceException(errorMsg);
+		return;
+	}
+
+	EmaString& name = (EmaString&)serviceList.name();
+
+	for (UInt32 i = 0; i < _serviceLists.size(); i++)
+	{
+		if (_serviceLists[i]->name() == name)
+		{
+			EmaString errorMsg("A ServiceList with the name of ");
+			errorMsg.append(name).append(" has already been added to this OmmConsumerConfig.");
+			throwIceException(errorMsg);
+			return;
+		}
+	}
+
+	ServiceList* pNewServiceList = new ServiceList(serviceList);
+
+	_serviceLists.push_back(pNewServiceList);
 }
 
 

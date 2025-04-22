@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2024 LSEG. All rights reserved.	                  --
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.	                  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -15,7 +15,8 @@ PreferredHostOptions::PreferredHostOptions() : _enablePreferredHostOptions(false
 	 _phDetectionTimeInterval(0),
 	 _preferredChannelName(""),
 	 _preferredWSBChannelName(""),
-	 _phFallBackWithInWSBGroup(0)
+	 _phFallBackWithInWSBGroup(0),
+	_sessionChannelName("")
 {}
 
 PreferredHostOptions& PreferredHostOptions::enablePreferredHostOptions( bool enablePreferredHostOptions)
@@ -54,6 +55,12 @@ PreferredHostOptions& PreferredHostOptions::phFallBackWithInWSBGroup(bool phFall
 	return *this;
 }
 
+PreferredHostOptions& PreferredHostOptions::sessionChannelName(const EmaString& sessionChannelName)
+{
+	_sessionChannelName = sessionChannelName;
+	return *this;
+}
+
 PreferredHostOptions& PreferredHostOptions::clear()
 {
 	_enablePreferredHostOptions = false;
@@ -62,6 +69,7 @@ PreferredHostOptions& PreferredHostOptions::clear()
 	_preferredChannelName.clear();
 	_preferredWSBChannelName.clear();
 	_phFallBackWithInWSBGroup = 0;
+	_sessionChannelName.clear();
 
 	return *this;
 }

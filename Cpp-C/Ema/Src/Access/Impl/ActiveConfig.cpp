@@ -2,13 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
 #include "ActiveConfig.h"
 #include "EmaConfigImpl.h"
 #include "ChannelCallbackClient.h"
+#include "ConsumerRoutingChannel.h"
 
 using namespace refinitiv::ema::access;
 
@@ -346,6 +347,23 @@ void BaseConfig::setMaxEventsInPool(Int64 value)
 		maxEventsInPool = (Int32)value;
 }
 
+size_t ActiveConfig::EmaStringPtrHasher::operator()(const EmaStringPtr& value) const
+{
+	size_t result = 0;
+	size_t magic = 8388593;
+
+	const char* s = value->c_str();
+	UInt32 n = value->length();
+	while (n--)
+		result = ((result % magic) << 8) + (size_t)*s++;
+	return result;
+}
+
+bool ActiveConfig::EmaStringPtrEqual_To::operator()(const EmaStringPtr& x, const EmaStringPtr& y) const
+{
+	return *x == *y;
+}
+
 ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	obeyOpenWindow( DEFAULT_OBEY_OPEN_WINDOW ),
 	postAckTimeout( DEFAULT_POST_ACK_TIMEOUT ),
@@ -357,7 +375,6 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	reconnectMinDelay(DEFAULT_RECONNECT_MIN_DELAY),
 	reconnectMaxDelay(DEFAULT_RECONNECT_MAX_DELAY),
 	msgKeyInUpdates(DEFAULT_MSGKEYINUPDATES),
-	pipePort(DEFAULT_PIPE_PORT),
 	pRsslRDMLoginReq( 0 ),
 	pRsslDirectoryRequestMsg( 0 ),
 	pRsslRdmFldRequestMsg( 0 ),
@@ -373,6 +390,9 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	restProxyUserName(),
 	restProxyPasswd(),
 	restProxyDomain(),
+	consumerRoutingSessionEnhancedItemRecovery(true),
+	serviceListByName(),
+	serviceListSet(),
 	enablePreferredHostOptions(DEFAULT_ENABLE_PREFERRED_HOST),
 	phDetectionTimeSchedule(DEFAULT_DETECTION_TIME_SCHEDULE),
 	phDetectionTimeInterval(DEFAULT_DETECTION_TIME_INTERVAL),
@@ -387,13 +407,14 @@ ActiveConfig::~ActiveConfig()
 	clearChannelSet();
 	clearWSBChannelSet();
 	clearChannelSetForWSB();
+	clearConsumerRoutingSessionSet();
+	clearServiceListSet();
 }
 
 EmaString ActiveConfig::configTrace()
 {
 	BaseConfig::configTrace();
-	traceStr.append("\n\t pipePort: ").append(pipePort)
-		.append("\n\t obeyOpenWindow: ").append(obeyOpenWindow)
+	traceStr.append("\n\t obeyOpenWindow: ").append(obeyOpenWindow)
 		.append("\n\t postAckTimeout: ").append(postAckTimeout)
 		.append("\n\t maxOutstandingPosts: ").append(maxOutstandingPosts)
 		.append("\n\t reconnectAttemptLimit: ").append(reconnectAttemptLimit)
@@ -467,9 +488,41 @@ void ActiveConfig::clearChannelSetForWSB()
 	configChannelSetForWSB.clear();
 }
 
+void ActiveConfig::clearConsumerRoutingSessionSet()
+{
+	if (consumerRoutingSessionSet.size() == 0)
+		return;
+	for (unsigned int i = 0; i < consumerRoutingSessionSet.size(); ++i)
+	{
+		if (consumerRoutingSessionSet[i] != NULL)
+		{
+			delete consumerRoutingSessionSet[i];
+			consumerRoutingSessionSet[i] = NULL;
+		}
+	}
+
+	consumerRoutingSessionSet.clear();
+}
+
+void ActiveConfig::clearServiceListSet()
+{
+	if (serviceListSet.size() == 0)
+		return;
+	for (unsigned int i = 0; i < serviceListSet.size(); ++i)
+	{
+		if (serviceListSet[i] != NULL)
+		{
+			delete serviceListSet[i];
+			serviceListSet[i] = NULL;
+		}
+	}
+
+	serviceListSet.clear();
+	serviceListByName.clear();
+}
+
 void ActiveConfig::clear()
 {
-	pipePort = DEFAULT_PIPE_PORT;
 	obeyOpenWindow = DEFAULT_OBEY_OPEN_WINDOW;
 	postAckTimeout = DEFAULT_POST_ACK_TIMEOUT;
 	maxOutstandingPosts = DEFAULT_MAX_OUTSTANDING_POSTS;
@@ -694,7 +747,6 @@ bool ActiveConfig::findWsbChannelConfig(EmaVector< WarmStandbyChannelConfig* >& 
 }
 
 ActiveServerConfig::ActiveServerConfig(const EmaString& defaultServiceName) :
-	pipePort(DEFAULT_SERVER_PIPE_PORT),
 	acceptMessageWithoutBeingLogin(DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN),
 	acceptMessageWithoutAcceptingRequests(DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS),
 	acceptDirMessageWithoutMinFilters(DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS),
@@ -723,7 +775,6 @@ ActiveServerConfig::~ActiveServerConfig()
 
 void ActiveServerConfig::clear()
 {
-	pipePort = DEFAULT_SERVER_PIPE_PORT;
 	acceptMessageWithoutBeingLogin = DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN;
 	acceptMessageWithoutAcceptingRequests = DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS;
 	acceptDirMessageWithoutMinFilters = DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS;
@@ -739,8 +790,7 @@ void ActiveServerConfig::clear()
 EmaString ActiveServerConfig::configTrace()
 {
 	BaseConfig::configTrace();
-	traceStr.append("\n\t pipePort: ").append(pipePort)
-		.append("\n\t acceptMessageWithoutBeingLogin: ").append(acceptMessageWithoutBeingLogin)
+	traceStr.append("\n\t acceptMessageWithoutBeingLogin: ").append(acceptMessageWithoutBeingLogin)
 		.append("\n\t acceptMessageWithoutAcceptingRequests: ").append(acceptMessageWithoutAcceptingRequests)
 		.append("\n\t acceptDirMessageWithoutMinFilters: ").append(acceptDirMessageWithoutMinFilters)
 		.append("\n\t acceptMessageWithoutQosInRange: ").append(acceptMessageWithoutQosInRange)
@@ -817,7 +867,8 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
 	sysRecvBufSize( DEFAULT_SYS_RECEIVE_BUFFER_SIZE ),
 	highWaterMark( DEFAULT_HIGH_WATER_MARK ),
 	pChannel( 0 ),
-	compressionThresholdSet(false)
+	compressionThresholdSet(false),
+	pRoutingChannelConfig(0)
 {
 }
 
@@ -837,6 +888,7 @@ void ChannelConfig::clear()
 	highWaterMark = DEFAULT_HIGH_WATER_MARK;
 	pChannel = 0;
 	compressionThresholdSet = false;
+	pRoutingChannelConfig = 0;
 }
 
 ChannelConfig::~ChannelConfig()
@@ -1285,4 +1337,5 @@ void WarmStandbyChannelConfig::clear()
 	standbyServerSet.clear();
 	downloadConnectionConfig = DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG;
 	warmStandbyMode = (WarmStandbyMode)RSSL_RWSB_MODE_LOGIN_BASED;
+	pRoutingChannelConfig = NULL;
 }

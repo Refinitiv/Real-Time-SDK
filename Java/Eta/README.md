@@ -10,7 +10,7 @@ ETA provides the necessary libraries and information to allow for OMM/RWF encodi
 
 This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK Gradle build.
 
-Copyright (C) 2019-2024 LSEG. All rights reserved.
+Copyright (C) 2019-2025 LSEG. All rights reserved.
 
 # ETA Java Documentation
 
@@ -191,7 +191,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.65_RealTimeDistributionSystem_24.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.66_RealTimeDistributionSystem_25.21 for RWF and Marketfeed Record Templates
 
 # Security
 

@@ -71,6 +71,7 @@ void MarketItemHandler::initialize()
 	}
 }
 
+// Callback for IProvider
 RsslReactorCallbackRet MarketItemHandler::itemCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslMsgEvent* pMsgEvent)
 {
 	OmmServerBaseImpl* ommServerBaseImpl = (OmmServerBaseImpl*)pReactor->userSpecPtr;

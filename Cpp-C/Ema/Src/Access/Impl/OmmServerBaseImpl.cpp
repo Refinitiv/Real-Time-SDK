@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
 */
 
@@ -74,7 +74,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_pClosure(closure),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout(0)
+	_negotiatedPingTimeout(0),
+	ommProviderEvent(*this)
 {
 #ifdef USING_SELECT
 	FD_ZERO(&_readFds);
@@ -115,7 +116,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_pClosure(closure),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false),
-	_negotiatedPingTimeout(0)
+	_negotiatedPingTimeout(0),
+	ommProviderEvent(*this)
 {
 #ifdef USING_SELECT
 	FD_ZERO(&_readFds);
@@ -281,8 +283,6 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 		_activeServerConfig.jsonTokenIncrementSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
 	}
 
-	pConfigServerImpl->get<Int64>(instanceNodeName + "PipePort", _activeServerConfig.pipePort);
-
 	pConfigServerImpl->getLoggerName(_activeServerConfig.configuredName, _activeServerConfig.loggerConfig.loggerName);
 
 	_activeServerConfig.loggerConfig.minLoggerSeverity = OmmLoggerClient::SuccessEnum;
@@ -327,7 +327,7 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 
 	if (ProgrammaticConfigure* ppc = pConfigServerImpl->getProgrammaticConfigure())
 	{
-		ppc->retrieveLoggerConfig(_activeServerConfig.loggerConfig.loggerName, _activeServerConfig);
+		ppc->retrieveLoggerConfig(_activeServerConfig.loggerConfig.loggerName, _activeServerConfig.loggerConfig);
 	}
 
 	EmaString serverName;

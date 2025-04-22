@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2022 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -529,7 +529,7 @@ typedef struct
 #endif
 
 	RsslUInt32		maxCommonMsgSize; /* The maximum message size is accounted for JSON message over websocket which can be more than RIPC max message size(65535). */
-
+	void			*userSpecPtr; /* A user specified pointer, possibly a closure. */
 } RsslSocketChannel;
 
 
@@ -678,6 +678,8 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 #endif
 
 	rsslSocketChannel->maxCommonMsgSize = 0;
+
+	rsslSocketChannel->userSpecPtr = 0;
 }
 
 
