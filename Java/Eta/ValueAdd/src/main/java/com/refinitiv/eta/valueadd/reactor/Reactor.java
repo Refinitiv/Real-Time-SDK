@@ -8,7 +8,6 @@
 
 package com.refinitiv.eta.valueadd.reactor;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
@@ -18,7 +17,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -265,8 +263,6 @@ public class Reactor
 	static String JSON_PONG_MESSAGE = "{\"Type\":\"Pong\"}";
 
 	ReactorDebugger debugger;
-	
-	private boolean preferredHostTimersStarted = false;
 
 	/**
 	 * The specified ReactorOptions are copied so that it can be re-used by the
@@ -772,8 +768,7 @@ public class Reactor
 
 			reactorChannel.reactorConnectOptions(reactorConnectOptions);
 			
-			if (reactorChannel != null && !reactorChannel._preferredHostOptions.isPreferredHostEnabled() &&
-					reactorConnectOptions._reactorPreferredHostOptions.isPreferredHostEnabled())
+			if (reactorChannel != null && reactorConnectOptions._reactorPreferredHostOptions.isPreferredHostEnabled())
 			{
 				reactorChannel._preferredHostOptions = reactorConnectOptions._reactorPreferredHostOptions;
 				
@@ -6828,9 +6823,8 @@ public class Reactor
 			reactorChannel.resetReconnectTimers();
 		
 		if (reactorChannel._preferredHostOptions.isPreferredHostEnabled() &&
-				!preferredHostTimersStarted)
+				!reactorChannel._preferredHostTimersStartedByChannelUp)
 		{
-			preferredHostTimersStarted = true;
 			// Setup worker event based on if preferred host is configured by interval or schedule (schedule takes priority)
 			if (reactorChannel._preferredHostOptions.detectionTimeSchedule() != null &&
 				!reactorChannel._preferredHostOptions.detectionTimeSchedule().isEmpty())
@@ -6857,6 +6851,8 @@ public class Reactor
 							"sendWorkerEvent() failed");
 					return;
 				}
+				
+				reactorChannel._preferredHostTimersStartedByChannelUp = true;
 			}
 			else if (reactorChannel._preferredHostOptions.detectionTimeInterval() > 0)
 			{
@@ -6874,6 +6870,8 @@ public class Reactor
 							"sendWorkerEvent() failed");
 					return;
 				}
+				
+				reactorChannel._preferredHostTimersStartedByChannelUp = true;
 			}
 		}
 

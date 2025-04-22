@@ -148,6 +148,14 @@ class Worker implements Runnable
                     WorkerEvent event = (WorkerEvent)_timerEventQueue.next();
                     if (System.nanoTime() >= event.timeout())
                     {
+                    	/* This PH timer event is already canceled when a timer is installed */
+                    	if(event._isCanceled)
+                    	{
+                    		_timerEventQueue.remove(event);
+                            event.returnToPool();
+                    		continue;
+                    	}
+                    	
                         if (event.eventType() == WorkerEventTypes.TOKEN_MGNT)
                         {
                         	ReactorTokenSession tokenSession = event._tokenSession;
@@ -220,7 +228,6 @@ class Worker implements Runnable
                    		 		event.timeout(System.nanoTime() + (event.reactorChannel()._preferredHostOptions.detectionTimeInterval() * 1000000000));
                    		 	 }
                         }
-                        
                         else if (event.eventType() == WorkerEventTypes.PREFERRED_HOST_START_FALLBACK)
                         {
                         	// First check if fallBackWithInWSBGroup is true, and handle it if possible
@@ -272,7 +279,7 @@ class Worker implements Runnable
                     							switchingToActive = true;
                     							_timerEventQueue.remove(event);
                                         		event.returnToPool();
-                                        		break;
+                                        		continue;
                         					}
     									}
     									else
@@ -280,7 +287,7 @@ class Worker implements Runnable
     										// We are currently on the preferred server, break out and abandon this call 
     										_timerEventQueue.remove(event);
                                     		event.returnToPool();
-            								break;
+                                    		continue;
     									}
     								
         							}
@@ -289,7 +296,7 @@ class Worker implements Runnable
         								// No active channel exists, break out and abandon this call
                                 		_timerEventQueue.remove(event);
                                 		event.returnToPool();
-        								break;
+                                		continue;
         							}
                         		}
                         		else if (event.reactorChannel().warmStandByHandlerImpl.currentWarmStandbyGroupImpl().warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
@@ -323,7 +330,7 @@ class Worker implements Runnable
 
 								// Break out of this loop, we are not going to fallback in other ways when fallBackWithInWSBGroup is true
                     			if (switchingToActive)
-                    				break;
+                    				continue;
                         	}
                         	if ((event.reactorChannel().switchingToPreferredHost() || event.reactorChannel().switchingToPreferredWSBGroup()) && event.reactorChannel().preferredHostChannel() == null)
                         	{
@@ -343,7 +350,7 @@ class Worker implements Runnable
                                         	event.reactorChannel().tokenSession().authTokenInfo().accessToken(null);
                                         	event.reactorChannel().tokenSession().resetSessionMgntState();
                                         	event.reactorChannel().reconnectTokenSession(_error);
-                                        	break;	// Retry later, checking whether the new auth token is ready
+                                        	continue;	// Retry later, checking whether the new auth token is ready
                         			}
                                     if (event.reactorChannel().state() == State.EDP_RT ||
                                     		event.reactorChannel().state() == State.EDP_RT_DONE ||
@@ -374,7 +381,7 @@ class Worker implements Runnable
                                     	}
                                     	else
                                     	{
-                                    		break;	// Retry later, checking whether the new auth token is ready
+                                    		continue;	// Retry later, checking whether the new auth token is ready
                                     	}
                                     }
                         		}
@@ -434,7 +441,7 @@ class Worker implements Runnable
                     						}
                                     		_timerEventQueue.remove(event);
                                     		event.returnToPool();
-                    						break;
+                                    		continue;
                                 		}
                         			}
                         			else
@@ -450,7 +457,7 @@ class Worker implements Runnable
                     						}
                                     		_timerEventQueue.remove(event);
                                     		event.returnToPool();
-                    						break;
+                                    		continue;
                                 		}
                         			}
                             		
@@ -467,7 +474,7 @@ class Worker implements Runnable
             						sendPreferredHostCompleteEvent(event.reactorChannel());
                             		_timerEventQueue.remove(event);
                             		event.returnToPool();
-            						break;
+                            		continue;
                         		}
 
                         		if (event.reactorChannel().warmStandByHandlerImpl != null)
@@ -547,7 +554,7 @@ class Worker implements Runnable
 	                                    		
 	                                    		_timerEventQueue.remove(event);
 	                                    		event.returnToPool();
-	                                    		break;
+	                                    		continue;
 	                                        }
 	                                    	else if (ret == TransportReturnCodes.FAILURE || System.currentTimeMillis() > event.reactorChannel().initializationEndTimeMs())
 	                                    	{
@@ -560,7 +567,7 @@ class Worker implements Runnable
 	                                    		sendPreferredHostCompleteEvent(event.reactorChannel());
 	                                    		_timerEventQueue.remove(event);
 	                                    		event.returnToPool();
-	                                    		break;
+	                                    		continue;
 	                                    	}
                         				}
                         				catch (Exception e)
@@ -576,7 +583,7 @@ class Worker implements Runnable
                         						sendPreferredHostCompleteEvent(event.reactorChannel());
                                         		_timerEventQueue.remove(event);
                                         		event.returnToPool();
-                        						break;
+                                        		continue;
                         					}
                         				}
                         			}
@@ -591,7 +598,7 @@ class Worker implements Runnable
                                                 ReactorReturnCodes.SUCCESS, "Worker.run", null);
                                 		_timerEventQueue.remove(event);
                                 		event.returnToPool();
-                                		break;
+                                		continue;
                                     }
                                 	else if (ret == TransportReturnCodes.FAILURE || System.currentTimeMillis() > event.reactorChannel().initializationEndTimeMs())
                                 	{
@@ -604,7 +611,7 @@ class Worker implements Runnable
                                 		sendPreferredHostCompleteEvent(event.reactorChannel());
                                 		_timerEventQueue.remove(event);
                                 		event.returnToPool();
-                                		break;
+                                		continue;
                                 	}
                         		}
                         	}
@@ -615,7 +622,7 @@ class Worker implements Runnable
                         	if (event.reactorChannel().switchingToPreferredHost() || event.reactorChannel().switchingToPreferredWSBGroup())
                         	{
                         		// This event is not ready to be acted on, keep this in the event queue
-                        		break;
+                        		continue;
                         	}
                         	
                         	if (event.reactorChannel()._preferredHostOptionsIoctl == null)
@@ -627,7 +634,7 @@ class Worker implements Runnable
                         		
                                 _timerEventQueue.remove(event);
                                 event.returnToPool();
-                                break;
+                                continue;
                         	}
                         	
                         	// Lock to ensure changes are made before/after using the options elsewhere
@@ -705,7 +712,6 @@ class Worker implements Runnable
                             _timerEventQueue.remove(event);
                             event.reactorChannel()._preferredHostLock.unlock();
                             event.returnToPool();
-                        	break;
                         }
                         else
                         {
@@ -1439,19 +1445,10 @@ class Worker implements Runnable
             case PREFERRED_HOST_TIMER:
             	if (event.reactorChannel()._preferredHostOptions.isPreferredHostEnabled())
             	{
-            		// If timer event already exists, then we are calling ioctl to change it. Remove old event.
-        			WorkerEvent iterEvent;
-        			_timerEventQueue.rewind();
-        			while (_timerEventQueue.hasNext())
-        			{
-           			 	iterEvent = (WorkerEvent) _timerEventQueue.next();
-           			 	if (iterEvent.eventType() == WorkerEventTypes.PREFERRED_HOST_TIMER)
-           			 	{
-           			 		_timerEventQueue.remove(iterEvent);
-           			 		break;
-           			 	}
-        			}
-            		
+            		// If timer event already exists, then we are calling ioctl to change it. Cancel the old PH timer event.
+            		if(event.reactorChannel()._currentPHTimerEvent != null)
+            			event.reactorChannel()._currentPHTimerEvent._isCanceled = true;
+ 
             		 if (event.reactorChannel()._preferredHostOptions.detectionTimeSchedule() != null &&
             				 !event.reactorChannel()._preferredHostOptions.detectionTimeSchedule().isEmpty())
             		 {
@@ -1459,12 +1456,14 @@ class Worker implements Runnable
 						event.reactorChannel()._cronNextTime = event.reactorChannel()._cronExpression.getNextValidTimeAfter(event.reactorChannel()._cronCurrentTime);
            		 		event.reactorChannel()._nextReconnectTimeMs = event.reactorChannel()._cronNextTime.getTime();
            		 		event.timeout(System.nanoTime() + (event.reactorChannel()._cronNextTime.getTime() - event.reactorChannel()._cronCurrentTime.getTime()) * 1000000);
+           		 		event.reactorChannel()._currentPHTimerEvent = event; // Update with the current PH timer event
 						_timerEventQueue.add(event); 
             		 }
             		else if (event.reactorChannel()._preferredHostOptions.detectionTimeInterval() > 0)
          		 	{
          		 		event.reactorChannel()._nextReconnectTimeMs = System.currentTimeMillis() + event.reactorChannel()._preferredHostOptions.detectionTimeInterval() * 1000;
          		 		event.timeout(System.nanoTime() + (event.reactorChannel()._preferredHostOptions.detectionTimeInterval() * 1000000000));
+         		 		event.reactorChannel()._currentPHTimerEvent = event; // Update with the current PH timer event
          		 		_timerEventQueue.add(event); 
          		 		return;
          		 	}

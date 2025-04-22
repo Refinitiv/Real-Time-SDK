@@ -158,6 +158,8 @@ public class ReactorChannel extends VaNode
 	ConnectOptionsInfo _phTempConnectOptionsInfo; // Used to store temporary information for our new connection switching to PH, moved over when our connection succeeds
 	Object _phTempUserSpecObj; // Used to store temporary information for our new connection switching to PH, moved over when our connection succeeds
 	ReactorConnectOptions _phTempReactorConnectOptions; // Used to store temporary information for our new connection switching to PH, moved over when our connection succeeds
+	boolean _preferredHostTimersStartedByChannelUp = false; // This is used to indicate whether the PH timer is started by the ChannelUp event.
+	WorkerEvent _currentPHTimerEvent = null; // Keep the current PH timer event in order to cancel it with a schedule
 	
 	// Original Login Request Information
 	Buffer userName;
@@ -439,6 +441,10 @@ public class ReactorChannel extends VaNode
         }
         
         _wsbDirectoryUpdate.clear();
+        
+        _preferredHostTimersStartedByChannelUp = false;
+        _currentPHTimerEvent = null;
+        _preferredHostOptions.clear();
     }
 
     @Override
@@ -457,6 +463,7 @@ public class ReactorChannel extends VaNode
          _loginRequestForEDP = null;
          _restConnectOptions = null;
          _role = null;
+         _currentPHTimerEvent = null;
          
     	super.returnToPool();
     }
