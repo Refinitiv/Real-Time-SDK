@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1315,12 +1315,6 @@ class WlLoginHandler implements WlHandler
 	/* Handles channel up event. */
 	void channelUp(ReactorErrorInfo errorInfo) 
 	{
-		// notify login stream that channel is up
-		if (_stream != null) 
-		{
-			_stream.channelUp();
-		}
-
 		sendLoginRequest(false, errorInfo);
 	}
 

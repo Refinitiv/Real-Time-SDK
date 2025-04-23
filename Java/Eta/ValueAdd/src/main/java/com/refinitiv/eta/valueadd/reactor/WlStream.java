@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -64,8 +64,7 @@ class WlStream extends VaNode
     int _streamId;
     int _domainType;
     boolean _requestPending;
-    boolean _channelUp;
-    
+
     // item aggregation key associated with the stream
     WlItemAggregationKey _itemAggregationKey;
     
@@ -273,18 +272,11 @@ class WlStream extends VaNode
         _itemAggregationKey = itemAggregationKey;
     }
     
-    /* Handles channel up event. */
-    void channelUp()
-    {
-        _channelUp = true;  
-    }
-    
     /* Handles channel down event. */
     void channelDown()
     {
         _refreshState = RefreshStates.REFRESH_NOT_REQUIRED;
         _requestPending = false;
-        _channelUp = false;
     }
     
     /* Response received for this stream. */
@@ -945,17 +937,8 @@ class WlStream extends VaNode
     /* Is the channel up? */
     boolean isChannelUp()
     {
-        if (_reactorChannel.state() == ReactorChannel.State.UP ||
-            _reactorChannel.state() == ReactorChannel.State.READY)
-        {
-            _channelUp = true;
-        }
-        else
-        {
-            _channelUp = false;
-        }
-        
-        return _channelUp;
+        return (_reactorChannel.state() == ReactorChannel.State.UP ||
+                _reactorChannel.state() == ReactorChannel.State.READY);
     }
     
     int startRequestTimer(ReactorErrorInfo errorInfo)
@@ -1017,7 +1000,6 @@ class WlStream extends VaNode
         _domainType = 0;
         _state.clear();
         _refreshState = RefreshStates.REFRESH_NOT_REQUIRED;
-        _channelUp = false;
         _requestPending = false;
         _handler  = null;
         _ackMsg.clear();

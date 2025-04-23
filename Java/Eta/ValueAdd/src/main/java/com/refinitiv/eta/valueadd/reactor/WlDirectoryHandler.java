@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022, 2024-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -1344,10 +1344,6 @@ class WlDirectoryHandler implements WlHandler
     /* Handles channel up event. */
     void channelUp(ReactorErrorInfo errorInfo)
     {
-        if (_stream != null)
-        {
-            _stream.channelUp();
-        }
     }
 
     /* Handles channel down event. */

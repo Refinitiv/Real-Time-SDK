@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.eta.valueadd.reactor;
@@ -8588,8 +8588,8 @@ public class ReactorWatchlistJUnitNew
        // check that login handler is awaiting resume all
        assertTrue(consumerReactor._componentList.get(0).reactorChannel().watchlist().loginHandler()._awaitingResumeAll);
        // all items should be paused
-       int pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).numPausedRequestsCount();
-       int itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).userRequestList().size();
+       int pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().numPausedRequestsCount();
+       int itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().userRequestList().size();
        assertEquals(1, pausedCount);
        assertEquals(1, itemCount);
       
@@ -8611,8 +8611,8 @@ public class ReactorWatchlistJUnitNew
        // check that login handler is not awaiting resume all
        assertFalse(consumerReactor._componentList.get(0).reactorChannel().watchlist().loginHandler()._awaitingResumeAll);
        // all items should be resumed
-       pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).numPausedRequestsCount();
-       itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).userRequestList().size();
+       pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().numPausedRequestsCount();
+       itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().userRequestList().size();
  
        assertEquals(0, pausedCount);
        assertEquals(1, itemCount);
@@ -8769,8 +8769,8 @@ public class ReactorWatchlistJUnitNew
 		// check that login handler is not awaiting resume all
 		assertFalse(consumerReactor._componentList.get(0).reactorChannel().watchlist().loginHandler()._awaitingResumeAll);
 		// all items should be resumed
-		int pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).numPausedRequestsCount();
-		int itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).userRequestList().size();
+		int pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().numPausedRequestsCount();
+		int itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().userRequestList().size();
 
 		assertEquals(0, pausedCount);
 		assertEquals(1, itemCount);
@@ -8947,8 +8947,8 @@ public class ReactorWatchlistJUnitNew
        // check that login handler is awaiting resume all
        assertTrue(consumerReactor._componentList.get(0).reactorChannel().watchlist().loginHandler()._awaitingResumeAll);
        // all items should be paused
-       int pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).numPausedRequestsCount();
-       int itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).userRequestList().size();
+       int pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().numPausedRequestsCount();
+       int itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().userRequestList().size();
        assertEquals(1, pausedCount);
        assertEquals(1, itemCount);
       
@@ -8972,8 +8972,8 @@ public class ReactorWatchlistJUnitNew
        // check that login handler is still awaiting resume all since token change doesn't result in resume
        assertTrue(consumerReactor._componentList.get(0).reactorChannel().watchlist().loginHandler()._awaitingResumeAll);
        // all items should still be paused
-       pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).numPausedRequestsCount();
-       itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).userRequestList().size();
+       pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().numPausedRequestsCount();
+       itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().userRequestList().size();
        assertEquals(1, pausedCount);
        assertEquals(1, itemCount);
 
@@ -8995,8 +8995,8 @@ public class ReactorWatchlistJUnitNew
        // check that login handler is not awaiting resume all
        assertFalse(consumerReactor._componentList.get(0).reactorChannel().watchlist().loginHandler()._awaitingResumeAll);
        // all items should be resumed
-       pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).numPausedRequestsCount();
-       itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.get(0).userRequestList().size();
+       pausedCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().numPausedRequestsCount();
+       itemCount = consumerReactor._componentList.get(0).reactorChannel().watchlist().itemHandler()._streamList.iterator().next().userRequestList().size();
  
        assertEquals(0, pausedCount);
        assertEquals(1, itemCount);

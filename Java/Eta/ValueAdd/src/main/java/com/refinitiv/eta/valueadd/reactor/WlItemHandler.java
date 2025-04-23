@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022,2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -93,7 +93,7 @@ class WlItemHandler implements WlHandler
     ReactorSubmitOptions _submitOptions = ReactorFactory.createReactorSubmitOptions();
     
     // list of streams
-    LinkedList<WlStream> _streamList = new LinkedList<WlStream>();
+    LinkedHashSet<WlStream> _streamList = new LinkedHashSet<WlStream>();
     
     // table that maps item aggregation key to streams
     HashMap<WlItemAggregationKey,WlStream> _itemAggregationKeytoWlStreamTable;
@@ -1897,7 +1897,7 @@ class WlItemHandler implements WlHandler
     	
     	_pendingSendMsgList.remove(wlStream);
     	_streamList.remove(wlStream);
-    	
+
     	if (wlStream.wlService() != null)
             removeWlStreamFromService(wlStream);
         
@@ -2602,10 +2602,7 @@ class WlItemHandler implements WlHandler
     /* Handles channel up event. */
     void channelUp(ReactorErrorInfo errorInfo)
     {
-   	   for (WlStream wlStream = _streamList.poll(); wlStream != null; wlStream = _streamList.poll())
-   	   {    	   
-   		   wlStream.channelUp();
-   	   }
+		_streamList.clear();
     }
     
     /* Handles service added event. */
@@ -3144,10 +3141,14 @@ class WlItemHandler implements WlHandler
     
     void fanoutToAllStreams(Msg msg)
     {
-  	   for (WlStream wlStream = _streamList.poll(); wlStream != null; wlStream = _streamList.poll())
-  	   {    	   
-           readMsg(wlStream, null, msg, false, _errorInfo);
-  	   }  
+		Iterator<WlStream> streamListIterator = _streamList.iterator();
+		while (streamListIterator.hasNext())
+		{
+			WlStream wlStream = streamListIterator.next();
+			streamListIterator.remove();
+
+			readMsg(wlStream, null, msg, false, _errorInfo);
+		}
     }    
     
     @Override
