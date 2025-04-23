@@ -1468,6 +1468,13 @@ class Worker implements Runnable
          		 		return;
          		 	}
             	}
+            	else
+            	{
+            		/* Cancels the existing one if any from calling ioctl */
+            		if(event.reactorChannel()._currentPHTimerEvent != null)
+            			event.reactorChannel()._currentPHTimerEvent._isCanceled = true;
+            	}
+            	
             	return;
             case PREFERRED_HOST_START_FALLBACK:
    		 		_timerEventQueue.add(event); 
