@@ -41,6 +41,7 @@ public abstract class BaseProviderPerfConfig {
 
     protected String keyFile;
     protected String keyPassw;
+    protected String securityProvider;
 
     {
         CommandLine.programName("emajProvPerf");
@@ -64,6 +65,8 @@ public abstract class BaseProviderPerfConfig {
 
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
         CommandLine.addOption("keypasswd", "", "Keystore password");
+        CommandLine.addOption("securityProvider", "SunJSSE", "Specifies the security provider used for encrypted connection");
+
     }
 
     /**
@@ -94,6 +97,7 @@ public abstract class BaseProviderPerfConfig {
         displayStats = !CommandLine.booleanValue("noDisplayStats");
         keyFile = CommandLine.value("keyfile");
         keyPassw = CommandLine.value("keypasswd");
+        securityProvider = CommandLine.value("securityProvider");
 
         // Perf Test configuration
         msgFilename = CommandLine.value("msgFile");
@@ -481,6 +485,8 @@ public abstract class BaseProviderPerfConfig {
     public void keyPassw(String keyPassw) {
         this.keyPassw = keyPassw;
     }
+
+    public String securityProvider() { return securityProvider; }
     /**
      * Converts configuration parameters to a string with effective bindOptions values.
      *

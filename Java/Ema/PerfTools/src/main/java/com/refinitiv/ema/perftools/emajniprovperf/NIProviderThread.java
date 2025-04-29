@@ -37,7 +37,8 @@ public class NIProviderThread extends ProviderThread {
         final OmmNiProviderConfig providerConfig = EmaFactory.createOmmNiProviderConfig()
                 .providerName(providerConfigName)
                 .tunnelingKeyStoreFile(this.config.keyFile())
-                .tunnelingKeyStorePasswd(this.config.keyPassw());
+                .tunnelingKeyStorePasswd(this.config.keyPassw())
+                .tunnelingSecurityProvider(this.config.securityProvider());
         if (this.baseConfig.useUserDispatch()) {
             providerConfig.operationModel(OmmIProviderConfig.OperationModel.USER_DISPATCH);
         }

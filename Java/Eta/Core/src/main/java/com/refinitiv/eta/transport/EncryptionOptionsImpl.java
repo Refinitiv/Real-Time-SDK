@@ -154,8 +154,6 @@ public class EncryptionOptionsImpl implements EncryptionOptions {
     @Override
     public void KeystorePasswd(String KeystorePasswd)
     {
-        assert (KeystorePasswd != null) : "KeystorePasswd must be non-null";
-
         _KeystorePasswd = KeystorePasswd;
     }
 

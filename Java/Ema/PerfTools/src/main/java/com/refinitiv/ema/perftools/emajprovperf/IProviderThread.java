@@ -85,7 +85,8 @@ public class IProviderThread extends ProviderThread {
         final OmmIProviderConfig providerConfig = EmaFactory.createOmmIProviderConfig()
                 .providerName(providerConfigName)
                 .keystoreFile(this.config.keyFile())
-                .keystorePasswd(this.config.keyPassw());
+                .keystorePasswd(this.config.keyPassw())
+                .securityProvider(this.config.securityProvider());
         if (this.config.useUserDispatch()) {
             providerConfig.operationModel(OmmIProviderConfig.OperationModel.USER_DISPATCH);
         }

@@ -18,7 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
 class DefaultTrustManagerFactoryFactory implements TrustManagerFactoryFactory {
-    public TrustManagerFactory Create(EncryptionOptions options, KeyStore keyStore) throws IOException {
+    public TrustManagerFactory create(EncryptionOptions options, KeyStore keyStore) throws IOException {
         String securityProvider = options.SecurityProvider() == null || options.SecurityProvider().equals("")
                 ? options.DefaultSecurityProvider()
                 : options.SecurityProvider();

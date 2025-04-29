@@ -28,10 +28,11 @@ class SSLContextFactory {
         _keyManagerFactoryCreator = keyManagerFactoryCreator;
         _trustManagerFactoryFactory = trustManagerFactoryFactory;
     }
+
     public SSLContext create(EncryptionOptions options) throws IOException {
         KeyStore keyStore = _keyStoreFactory.create(options);
         KeyManagerFactory keyManagerFactory = _keyManagerFactoryCreator.create(options, keyStore);
-        TrustManagerFactory trustManagerFactory = _trustManagerFactoryFactory.Create(options, keyStore);
+        TrustManagerFactory trustManagerFactory = _trustManagerFactoryFactory.create(options, keyStore);
 
         String securityProtocol = options.SecurityProtocol() == null || options.SecurityProtocol().equals("")
                 ? options.DefaultSecurityProtocol()

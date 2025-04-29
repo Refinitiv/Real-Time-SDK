@@ -27,12 +27,12 @@ public class CryptoHelperFactory
         DefaultKeyStoreFactory defaultKeyStoreManager = new DefaultKeyStoreFactory();
         Function<SSLContextFactory, SSLEngineFactory> createSSLEngineManager =
                 context -> new ClientSSLEngineFactory(hostName, hostPort, options.encryptionOptions(), context);
-        if(isConscrypt(options.encryptionOptions()))
+        if (isConscrypt(options.encryptionOptions()))
         {
             EnsureConscrypt();
             return create(
-                    new ConscryptClientKeyStoreFactory(defaultKeyStoreManager),
-                    new ConscryptTrustManagerFactoryFactory(),
+                    defaultKeyStoreManager,
+                    new DefaultTrustManagerFactoryFactory(),
                     ClientHandshakeFactory.create(options.encryptionOptions(), new DefaultCryptoHandshakeFactory()),
                     new ConscryptKeyManagerFactoryCreator(),
                     createSSLEngineManager);
@@ -48,7 +48,7 @@ public class CryptoHelperFactory
     }
     private static void EnsureConscrypt()
     {
-        if(Security.getProvider("Conscrypt") == null)
+        if (Security.getProvider("Conscrypt") == null)
         {
             Security.addProvider(Conscrypt.newProvider());
         }
@@ -62,8 +62,8 @@ public class CryptoHelperFactory
         {
             EnsureConscrypt();
             return create(
-                    new ConscryptServerKeyStoreFactory(defaultKeyStoreManager),
-                    new ConscryptTrustManagerFactoryFactory(),
+                    defaultKeyStoreManager,
+                    new DefaultTrustManagerFactoryFactory(),
                     new DefaultCryptoHandshakeFactory(),
                     new ConscryptKeyManagerFactoryCreator(),
                     createSSLEngineManager);

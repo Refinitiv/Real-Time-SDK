@@ -29,6 +29,7 @@ class ServerConfig
 	String 				keystorePasswd;
 	String				keystoreType;
 	String 				securityProtocol;
+	String[] 			securityProtocolVersions;
 	String 				securityProvider;
 	String 				keyManagerAlgorithm;
 	String 				trustManagerAlgorithm;
@@ -63,6 +64,7 @@ class ServerConfig
 		keystorePasswd = null;
 		keystoreType = null;
 		securityProtocol = null;
+		securityProtocolVersions = null;
 		securityProvider = null;
 		keyManagerAlgorithm = null;
 		trustManagerAlgorithm = null;

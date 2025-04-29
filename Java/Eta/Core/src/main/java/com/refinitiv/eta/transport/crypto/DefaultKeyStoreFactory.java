@@ -18,6 +18,9 @@ class DefaultKeyStoreFactory implements KeyStoreFactory {
     @Override
     public KeyStore create(EncryptionOptions options) throws IOException {
         try {
+            if (options.KeystorePasswd() == null || options.KeystoreFile() == null)
+                return null;
+
             char[] password = options.KeystorePasswd().toCharArray();
             KeyStore keyStore = KeyStore.getInstance(options.KeystoreType());
             try (FileInputStream fis = new FileInputStream(options.KeystoreFile())) {
@@ -25,7 +28,7 @@ class DefaultKeyStoreFactory implements KeyStoreFactory {
             }
             return keyStore;
         } catch (Exception e) {
-            throw new IOException("Error loading or repacking KeyStore for Conscrypt: " + e.getMessage(), e);
+            throw new IOException("Error loading KeyStore: " + e.toString(), e);
         }
     }
 }

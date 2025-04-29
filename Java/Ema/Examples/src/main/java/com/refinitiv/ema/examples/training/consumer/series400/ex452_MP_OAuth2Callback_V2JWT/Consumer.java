@@ -132,6 +132,8 @@ public class Consumer
 	    		+ "\tand Kerberos authentications (optional).\n"
 	    		+ "  -spTLSv1.2 Enable TLS 1.2 security protocol. Default enables both TLS 1.2 and TLS 1.3 (optional). \n"
 	    		+ "  -spTLSv1.3 Enable TLS 1.3 security protocol. Default enables both TLS 1.2 and TLS 1.3 (optional). \n"
+				+ "  -securityProvider Specify security provider for encrypted connection that is going to be used \n"
+				+ "\t(SunJSSE and Conscrypt options are currently supported).\n"
 	    		+ "\n");
 	}
 	
@@ -266,6 +268,11 @@ public class Consumer
     				tls13 = true;
     				++argsCount;
     			}
+				else if ("-securityProvider".equals(args[argsCount]))
+				{
+					config.tunnelingSecurityProvider(argsCount < (args.length-1) ? args[++argsCount] : null);
+					++argsCount;
+				}
     			else // unrecognized command line argument
     			{
     				System.out.println("Unknown argument: " + args[argsCount]);

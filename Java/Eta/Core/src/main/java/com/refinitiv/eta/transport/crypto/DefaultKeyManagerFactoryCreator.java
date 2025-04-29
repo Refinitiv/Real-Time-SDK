@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.security.*;
 
 class DefaultKeyManagerFactoryCreator implements KeyManagerFactoryCreator {
+
     public KeyManagerFactory create(EncryptionOptions options, KeyStore keyStore) throws IOException {
         String keyManagerAlgorithm = options.KeyManagerAlgorithm() == null || options.KeyManagerAlgorithm().equals("")
                 ? options.DefaultKeyManagerAlgorithm()
@@ -26,7 +27,7 @@ class DefaultKeyManagerFactoryCreator implements KeyManagerFactoryCreator {
 
         try {
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyManagerAlgorithm, securityProvider);
-            keyManagerFactory.init(keyStore, options.KeystorePasswd().toCharArray());
+            keyManagerFactory.init(keyStore, options.KeystorePasswd() != null ? options.KeystorePasswd().toCharArray() : null);
             return keyManagerFactory;
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             throw new IOException("Error when initializing SSLContext:  " + e.getMessage());

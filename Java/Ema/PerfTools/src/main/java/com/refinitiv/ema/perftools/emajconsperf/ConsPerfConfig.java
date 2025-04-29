@@ -87,7 +87,8 @@ public class ConsPerfConfig
 
 	private String _securityProtocol;		/* Security Protocol to use for an encrypted connection. Defaults to TLS. */
 	private String[] _securityProtocolVersions; /* List of Security Protocol Versions to use for an encrypted connection. Defaults to 1.2 and 1.3 for TLS. */
-	
+	private String _securityProvider; /* Security provider used for encrypted connection. Default is SunJSSE. */
+
     {
         CommandLine.programName("emajConsPerf");
         CommandLine.addOption("steadyStateTime", 300, "Time consumer will run the steady-state portion of the test. Also used as a timeout during the startup-state portion");
@@ -119,8 +120,9 @@ public class ConsPerfConfig
         CommandLine.addOption("keypasswd", "", "Keystore password");
         CommandLine.addOption("consumerName", "", "Name of the Consumer component in config file EmaConfig.xml that will be usd to configure connection.");
         CommandLine.addOption("websocket", "", "Using websocket connection with specified sub-protocol: \"rssl.json.v2\" or \"rssl.rwf\"");
-	CommandLine.addOption("spTLSv1.2", "", "Specifies for an encrypted connection to be able to use TLS 1.2, default is 1.2 and 1.3 enabled");
-	CommandLine.addOption("spTLSv1.3", "", "Specifies for an encrypted connection to be able to use TLS 1.3, default is 1.2 and 1.3 enabled");
+		CommandLine.addOption("spTLSv1.2", "", "Specifies for an encrypted connection to be able to use TLS 1.2, default is 1.2 and 1.3 enabled");
+		CommandLine.addOption("spTLSv1.3", "", "Specifies for an encrypted connection to be able to use TLS 1.3, default is 1.2 and 1.3 enabled");
+		CommandLine.addOption("securityProvider", "SunJSSE", "Specifies the security provider used for encrypted connection");
     }
 	
     /**
@@ -164,7 +166,8 @@ public class ConsPerfConfig
         _downcastDecoding = CommandLine.booleanValue("downcastDecoding");
         _keyfile = CommandLine.value("keyfile");
         _keypasswd = CommandLine.value("keypasswd");
-        
+		_securityProvider = CommandLine.value("securityProvider");
+
         String wsSubProtocolStr = CommandLine.value("websocket");
         _webSocketSubProtocol = 0;
         if(!wsSubProtocolStr.isEmpty())
@@ -391,7 +394,8 @@ public class ConsPerfConfig
 				"    OperationModel Usage: " + useOperationModelUsageString + "\n" +
 				"      Websocket protocol: " + WebSocketSubProtocol.convertToString(_webSocketSubProtocol) + "\n" +
 				"       Security Protocol: " + _securityProtocol + "\n" +
-				" Security Proto Versions: " + Arrays.toString(_securityProtocolVersions) + "\n";
+				" Security Proto Versions: " + Arrays.toString(_securityProtocolVersions) + "\n" +
+				"       Security Provider: " + _securityProvider + "\n";
 	}
 
 	/* APPLICATION configuration */
@@ -731,6 +735,14 @@ public class ConsPerfConfig
     public String securityProtocol() {
     	return _securityProtocol;
     }
+
+	/**
+	 * The security provider specified by the user for an encrypted connection.
+	 * @return the security provider
+	 */
+	public String securityProvider() {
+		return _securityProvider;
+	}
 
     /**
      * The list of security protocol versions specified by users for the security protocol specified for an encrypted connection.

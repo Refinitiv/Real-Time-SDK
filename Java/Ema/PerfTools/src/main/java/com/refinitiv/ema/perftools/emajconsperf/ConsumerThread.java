@@ -214,8 +214,10 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 			_ommConfig.tunnelingKeyStorePasswd(_consPerfConfig.keypasswd());
 
 			// Set security protocol versions of TLS based on configured values, with default having TLS 1.2 and 1.3 enabled
-	        	_ommConfig.tunnelingSecurityProtocol(_consPerfConfig.securityProtocol());
-	        	_ommConfig.tunnelingSecurityProtocolVersions(_consPerfConfig.securityProtocolVersions());
+	        _ommConfig.tunnelingSecurityProtocol(_consPerfConfig.securityProtocol());
+	        _ommConfig.tunnelingSecurityProtocolVersions(_consPerfConfig.securityProtocolVersions());
+
+			_ommConfig.tunnelingSecurityProvider(_consPerfConfig.securityProvider());
 				
 			_consumer = EmaFactory.createOmmConsumer(_ommConfig);
 		}

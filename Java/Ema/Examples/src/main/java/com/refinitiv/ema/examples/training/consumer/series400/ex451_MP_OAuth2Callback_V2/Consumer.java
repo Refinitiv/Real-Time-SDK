@@ -122,10 +122,12 @@ public class Consumer
 	    		+ "  -plogin User name on proxy server (optional).\n"
 	    		+ "  -ppasswd Password on proxy server (optional).\n" 
 	    		+ "  -pdomain Proxy Domain (optional).\n"
-	    		+ "  -krbfile KRB File location and name. Needed for Negotiate/Kerberos \r\n" 
-	    		+ "  -spTLSv1.2 Enable TLS 1.2 security protocol. Default enables both TLS 1.2 and TLS 1.3 (optional). \n"
-	    		+ "  -spTLSv1.3 Enable TLS 1.3 security protocol. Default enables both TLS 1.2 and TLS 1.3 (optional). \n"
+	    		+ "  -krbfile KRB File location and name. Needed for Negotiate/Kerberos \r\n"
 	    		+ "\tand Kerberos authentications (optional).\n"
+				+ "  -spTLSv1.2 Enable TLS 1.2 security protocol. Default enables both TLS 1.2 and TLS 1.3 (optional). \n"
+				+ "  -spTLSv1.3 Enable TLS 1.3 security protocol. Default enables both TLS 1.2 and TLS 1.3 (optional). \n"
+				+ "  -securityProvider Specify security provider for encrypted connection that is going to be used \n"
+				+ "\t(SunJSSE and Conscrypt options are currently supported).\n"
 	    		+ "\n");
 	}
 	
@@ -164,6 +166,11 @@ public class Consumer
     				config.tunnelingKeyStorePasswd(argsCount < (args.length-1) ? args[++argsCount] : null);
     				++argsCount;				
     			}
+				else if ("-securityProvider".equals(args[argsCount]))
+				{
+					config.tunnelingSecurityProvider(argsCount < (args.length-1) ? args[++argsCount] : null);
+					++argsCount;
+				}
     			else if ("-itemName".equals(args[argsCount]))
     			{
     				itemName = argsCount < (args.length-1) ? args[++argsCount] : null;

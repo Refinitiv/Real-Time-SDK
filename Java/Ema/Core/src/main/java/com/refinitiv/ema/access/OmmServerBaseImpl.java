@@ -351,6 +351,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				_bindOptions.encryptionOptions().keystoreType(_activeServerConfig.serverConfig.keystoreType);
 			if(_activeServerConfig.serverConfig.securityProtocol != null)
 				_bindOptions.encryptionOptions().securityProtocol(_activeServerConfig.serverConfig.securityProtocol);
+			if(_activeServerConfig.serverConfig.securityProtocolVersions != null)
+				_bindOptions.encryptionOptions().securityProtocolVersions(_activeServerConfig.serverConfig.securityProtocolVersions);
 			if(_activeServerConfig.serverConfig.securityProvider != null)
 				_bindOptions.encryptionOptions().securityProvider(_activeServerConfig.serverConfig.securityProvider);
 			if(_activeServerConfig.serverConfig.trustManagerAlgorithm != null)
@@ -756,6 +758,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		_activeServerConfig.serverConfig.keystorePasswd = ((OmmIProviderConfigImpl)config).keystorePasswd();
 		_activeServerConfig.serverConfig.keystoreType = ((OmmIProviderConfigImpl)config).keystoreType();
 		_activeServerConfig.serverConfig.securityProtocol = ((OmmIProviderConfigImpl)config).securityProtocol();
+		_activeServerConfig.serverConfig.securityProtocolVersions = ((OmmIProviderConfigImpl)config).securityProtocolVersions();
 		_activeServerConfig.serverConfig.securityProvider = ((OmmIProviderConfigImpl)config).securityProvider();
 		_activeServerConfig.serverConfig.keyManagerAlgorithm = ((OmmIProviderConfigImpl)config).keyManagerAlgorithm();
 		_activeServerConfig.serverConfig.trustManagerAlgorithm = ((OmmIProviderConfigImpl)config).trustManagerAlgorithm();

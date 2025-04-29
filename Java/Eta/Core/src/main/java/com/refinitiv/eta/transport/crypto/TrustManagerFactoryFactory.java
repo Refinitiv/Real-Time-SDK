@@ -15,5 +15,5 @@ import java.io.IOException;
 import java.security.KeyStore;
 
 interface TrustManagerFactoryFactory {
-    TrustManagerFactory Create(EncryptionOptions options, KeyStore keyStore) throws IOException;
+    TrustManagerFactory create(EncryptionOptions options, KeyStore keyStore) throws IOException;
 }

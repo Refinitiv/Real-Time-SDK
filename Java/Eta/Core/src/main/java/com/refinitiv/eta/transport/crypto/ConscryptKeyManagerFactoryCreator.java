@@ -25,7 +25,7 @@ class ConscryptKeyManagerFactoryCreator implements KeyManagerFactoryCreator {
 
         try {
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyManagerAlgorithm);
-            keyManagerFactory.init(keyStore, options.KeystorePasswd().toCharArray());
+            keyManagerFactory.init(keyStore, options.KeystorePasswd() != null ? options.KeystorePasswd().toCharArray() : null);
             return keyManagerFactory;
         } catch (NoSuchAlgorithmException e) {
             throw new IOException("Error when initializing SSLContext:  " + e.getMessage());

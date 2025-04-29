@@ -224,124 +224,45 @@ public class ProviderThread extends Thread
             _writeArgs.clear();
             _writeArgs.priority(WritePriorities.HIGH);
             _writeArgs.flags(ProviderPerfConfig.directWrite() ? WriteFlags.DIRECT_SOCKET_WRITE : 0);
-            
-            if(channel.protocolType() == Codec.JSON_PROTOCOL_TYPE)
-            {
-            	TransportBuffer msgBuffer = null;
-            	
-            	do 
-            	{
-            		if(Objects.nonNull(session.tempWriteBuffer()))
-            		{
-            			msgBuffer = _jsonConverterSession.convertToJsonMsg(channel, session.tempWriteBuffer(), error);
-            		}
-            		else
-            		{
-            			msgBuffer = _jsonConverterSession.convertToJsonMsg(channel, session.writingBuffer(), error);
-            		}
-            		
-            		if (msgBuffer == null)
-            		{
-            			if(error.errorId() == TransportReturnCodes.NO_BUFFERS)
-            			{
-            				if ((ret = channel.flush(error)) < TransportReturnCodes.SUCCESS)
-            				{
-            					System.out.println("rsslFlush() failed with return code " + ret + "<" + error.text() + ">");
-            					return ret;
-            				}
-            			}
-            			else
-            			{
-            				System.out.println("convertToJsonMsg(): Failed to convert RWF > JSON with error text: " + error.text());
-            				channel.releaseBuffer(session.writingBuffer(), error);
-            				return TransportReturnCodes.FAILURE;
-            			}
-            			
-            		}
-            	} while(error.errorId() == TransportReturnCodes.NO_BUFFERS);
-            	
-            	if(Objects.nonNull(msgBuffer))
-            	{
-            		if(ProviderPerfConfig.totalBuffersPerPack() == 1) /* Not packing. */
-            		{
-            			/* Release the original RWF buffer and point the writing buffer to the JSON buffer */
-            			channel.releaseBuffer(session.writingBuffer(), error);
-            			session.writingBuffer(msgBuffer);
-            		}
-            		else
-            		{
-            			/* Ensure there is enough space to copy data */
-            			if(session.remaingPackedBufferLength() >= msgBuffer.length())
-            			{
-            				session.writingBuffer().data().put(msgBuffer.data().array(), msgBuffer.dataStartPosition(), msgBuffer.data().position() - msgBuffer.dataStartPosition());            				
-            				channel.releaseBuffer(msgBuffer, error);
-            			}
-            			else
-            			{
-            				System.out.println("writeCurrentBuffer: The remaining packed buffer length " + session.remaingPackedBufferLength() +
-            						" is not enough to copy data length " + msgBuffer.length());
-            				channel.releaseBuffer(session.writingBuffer(), error);
-            				return TransportReturnCodes.FAILURE;
-            			}
-            		}
-            	}
-            	
-            }
-            
+
             ret = channel.write(session.writingBuffer(), _writeArgs, error);
-            
+
             // call flush and write again
-            while(ret == TransportReturnCodes.WRITE_CALL_AGAIN)
+            while (ret == TransportReturnCodes.WRITE_CALL_AGAIN)
             {
                 ret = channel.flush(error);
-                if(ret < TransportReturnCodes.SUCCESS)
+                if (ret < TransportReturnCodes.SUCCESS)
                 {
                     return ret;
                 }
                 ret = channel.write(session.writingBuffer(), _writeArgs, error);
             }
-            
-            if(ret >= TransportReturnCodes.SUCCESS)
+
+            if (ret >= TransportReturnCodes.SUCCESS)
             {
                 session.writingBuffer(null);
                 bufferSentCount().increment();
                 return ret;
             }
-            
-            switch(ret)
-            {
-                case TransportReturnCodes.WRITE_FLUSH_FAILED:
-                    // If FLUSH_FAILED is received, check the channel state.
-                    // if it is still active, it's okay, just need to flush.
-                    if(channel.state() == ChannelState.ACTIVE)
-                    {
-                        session.writingBuffer(null);
-                        bufferSentCount().increment();
-                        return TransportReturnCodes.SUCCESS;
-                    }
-                    // Otherwise treat as error, fall through to default.
-                default:
-                    error.text("Channel.write() failed with return code: " + ret);
-                    error.errorId(ret);
-                    return TransportReturnCodes.FAILURE;   
+            else if (ret == TransportReturnCodes.WRITE_FLUSH_FAILED && channel.state() == ChannelState.ACTIVE) {
+                // If FLUSH_FAILED is received, check the channel state.
+                // if it is still active, it's okay, just need to flush.
+                session.writingBuffer(null);
+                bufferSentCount().increment();
+                return TransportReturnCodes.SUCCESS;
+            }
+            else { // Otherwise treat as error, fall through to default.
+                error.text("Channel.write() failed with return code: " + ret);
+                error.errorId(ret);
+                return TransportReturnCodes.FAILURE;
             }
         }
         else // use ETA VA Reactor for sending and receiving
         {
             int retval = ReactorReturnCodes.SUCCESS;
             ReactorChannel reactorChannel = session.clientChannelInfo().reactorChannel;
-            
-            if(reactorChannel.channel().protocolType() == Codec.JSON_PROTOCOL_TYPE && packedBufferCount > 0)
-            {
-            	if (reactorChannel.packBuffer(session.writingBuffer(), _errorInfo) < ReactorReturnCodes.SUCCESS)
-                {
-                    error.errorId(_errorInfo.error().errorId());
-                    error.text(_errorInfo.error().text());
-                    return ReactorReturnCodes.FAILURE;
-                }
-            }
-            		
-            if(Objects.isNull(session.clientChannelInfo().tunnelStream))
+
+            if (Objects.isNull(session.clientChannelInfo().tunnelStream))
             {
             	retval = reactorChannel.submit(session.writingBuffer(), _submitOptions, _errorInfo);
             }
@@ -355,7 +276,7 @@ public class ProviderThread extends Thread
                 //call flush and write again until there is data in the queue
                 while (retval == ReactorReturnCodes.WRITE_CALL_AGAIN)
                 {
-                	if(Objects.isNull(session.clientChannelInfo().tunnelStream))
+                	if (Objects.isNull(session.clientChannelInfo().tunnelStream))
                 	{
                 		retval = reactorChannel.submit(session.writingBuffer(), _submitOptions, _errorInfo);
                 	}
@@ -374,11 +295,182 @@ public class ProviderThread extends Thread
                 }
                 error.text("ReactorChannel.submit() failed with return code: " + retval + " <" + _errorInfo.error().text() + ">");
                 error.errorId(retval);
-                return TransportReturnCodes.FAILURE;   
+                return TransportReturnCodes.FAILURE;
             }
-            
-            if(retval >= ReactorReturnCodes.SUCCESS)
+            else { // if (retval >= ReactorReturnCodes.SUCCESS)
+                session.writingBuffer(null);
+                bufferSentCount().increment();
+            }
+
+            return retval;
+        }
+    }
+
+    @SuppressWarnings("fallthrough")
+    private int encodeAndWriteCurrentBuffer(ProviderSession session, Error error)
+    {
+        int packedBufferCount = session.packedBufferCount();
+
+        // Reset the session write buffer packed count,
+        // so that packing can continue in the next buffer
+        session.packedBufferCount(0);
+
+        if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use ETA Channel for sending and receiving
+        {
+            Channel channel = session.clientChannelInfo().channel;
+            int ret = TransportReturnCodes.SUCCESS;
+
+            _writeArgs.clear();
+            _writeArgs.priority(WritePriorities.HIGH);
+            _writeArgs.flags(ProviderPerfConfig.directWrite() ? WriteFlags.DIRECT_SOCKET_WRITE : 0);
+
+            if (channel.protocolType() == Codec.JSON_PROTOCOL_TYPE)
             {
+            	TransportBuffer msgBuffer = null;
+
+            	do
+            	{
+            		if (Objects.nonNull(session.tempWriteBuffer()))
+            		{
+            			msgBuffer = _jsonConverterSession.convertToJsonMsg(channel, session.tempWriteBuffer(), error);
+            		}
+            		else
+            		{
+            			msgBuffer = _jsonConverterSession.convertToJsonMsg(channel, session.writingBuffer(), error);
+            		}
+
+            		if (msgBuffer == null)
+            		{
+            			if(error.errorId() == TransportReturnCodes.NO_BUFFERS)
+            			{
+            				if ((ret = channel.flush(error)) < TransportReturnCodes.SUCCESS)
+            				{
+            					System.out.println("rsslFlush() failed with return code " + ret + "<" + error.text() + ">");
+            					return ret;
+            				}
+            			}
+            			else
+            			{
+            				System.out.println("convertToJsonMsg(): Failed to convert RWF > JSON with error text: " + error.text());
+            				channel.releaseBuffer(session.writingBuffer(), error);
+            				return TransportReturnCodes.FAILURE;
+            			}
+
+            		}
+            	} while(error.errorId() == TransportReturnCodes.NO_BUFFERS);
+
+            	if(Objects.nonNull(msgBuffer))
+            	{
+            		if(ProviderPerfConfig.totalBuffersPerPack() == 1) // Not packing.
+            		{
+            			// Release the original RWF buffer and point the writing buffer to the JSON buffer
+            			channel.releaseBuffer(session.writingBuffer(), error);
+            			session.writingBuffer(msgBuffer);
+            		}
+            		else
+            		{
+            			// Ensure there is enough space to copy data
+            			if (session.remaingPackedBufferLength() >= msgBuffer.length())
+            			{
+            				session.writingBuffer().data().put(msgBuffer.data().array(), msgBuffer.dataStartPosition(), msgBuffer.data().position() - msgBuffer.dataStartPosition());
+            				channel.releaseBuffer(msgBuffer, error);
+            			}
+            			else
+            			{
+            				System.out.println("writeCurrentBuffer: The remaining packed buffer length " + session.remaingPackedBufferLength() +
+            						" is not enough to copy data length " + msgBuffer.length());
+            				channel.releaseBuffer(session.writingBuffer(), error);
+            				return TransportReturnCodes.FAILURE;
+            			}
+            		}
+            	}
+
+            }
+
+
+            ret = channel.write(session.writingBuffer(), _writeArgs, error);
+
+            // call flush and write again
+            while (ret == TransportReturnCodes.WRITE_CALL_AGAIN)
+            {
+                ret = channel.flush(error);
+                if(ret < TransportReturnCodes.SUCCESS)
+                {
+                    return ret;
+                }
+                ret = channel.write(session.writingBuffer(), _writeArgs, error);
+            }
+
+            if (ret >= TransportReturnCodes.SUCCESS)
+            {
+                session.writingBuffer(null);
+                bufferSentCount().increment();
+                return ret;
+            }
+            else if (ret == TransportReturnCodes.WRITE_FLUSH_FAILED && channel.state() == ChannelState.ACTIVE) {
+                // If FLUSH_FAILED is received, check the channel state.
+                // if it is still active, it's okay, just need to flush.
+                session.writingBuffer(null);
+                bufferSentCount().increment();
+                return TransportReturnCodes.SUCCESS;
+            }
+            else { // Otherwise treat as error, fall through to default.
+                error.text("Channel.write() failed with return code: " + ret);
+                error.errorId(ret);
+                return TransportReturnCodes.FAILURE;
+            }
+        }
+        else // use ETA VA Reactor for sending and receiving
+        {
+            int retval = ReactorReturnCodes.SUCCESS;
+            ReactorChannel reactorChannel = session.clientChannelInfo().reactorChannel;
+
+            if (reactorChannel.channel().protocolType() == Codec.JSON_PROTOCOL_TYPE && packedBufferCount > 0)
+            {
+                if (reactorChannel.packBuffer(session.writingBuffer(), _errorInfo) < ReactorReturnCodes.SUCCESS)
+                {
+                    error.errorId(_errorInfo.error().errorId());
+                    error.text(_errorInfo.error().text());
+                    return ReactorReturnCodes.FAILURE;
+                }
+            }
+
+            if (Objects.isNull(session.clientChannelInfo().tunnelStream))
+            {
+                retval = reactorChannel.submit(session.writingBuffer(), _submitOptions, _errorInfo);
+            }
+            else
+            {
+                retval = session.clientChannelInfo().tunnelStream.submit(session.writingBuffer(), _tunnelStreamSubmitOptions, _errorInfo);
+            }
+
+            if (retval == ReactorReturnCodes.WRITE_CALL_AGAIN)
+            {
+                //call flush and write again until there is data in the queue
+                while (retval == ReactorReturnCodes.WRITE_CALL_AGAIN)
+                {
+                    if(Objects.isNull(session.clientChannelInfo().tunnelStream))
+                    {
+                        retval = reactorChannel.submit(session.writingBuffer(), _submitOptions, _errorInfo);
+                    }
+                    else
+                    {
+                        retval = session.clientChannelInfo().tunnelStream.submit(session.writingBuffer(), _tunnelStreamSubmitOptions, _errorInfo);
+                    }
+                }
+            }
+            else if (retval < ReactorReturnCodes.SUCCESS)
+            {
+                // write failed, release buffer and shut down
+                if (reactorChannel.state() != ReactorChannel.State.CLOSED)
+                {
+                    reactorChannel.releaseBuffer(session.writingBuffer(), _errorInfo);
+                }
+                error.text("ReactorChannel.submit() failed with return code: " + retval + " <" + _errorInfo.error().text() + ">");
+                error.errorId(retval);
+                return TransportReturnCodes.FAILURE;
+            }
+            else { // if (retval >= ReactorReturnCodes.SUCCESS)
                 session.writingBuffer(null);
                 bufferSentCount().increment();
             }
@@ -401,23 +493,23 @@ public class ProviderThread extends Thread
      */
     public int getItemMsgBuffer(ProviderSession session, int length, Error error)
     {
-        if(ProviderPerfConfig.totalBuffersPerPack() == 1 || Objects.nonNull(session.clientChannelInfo().tunnelStream))  // Not packing or tunnel stream
+        if (ProviderPerfConfig.totalBuffersPerPack() == 1 || Objects.nonNull(session.clientChannelInfo().tunnelStream))  // Not packing or tunnel stream
         {
             int ret = getNewBuffer(session, length, error);
-            if(ret < TransportReturnCodes.SUCCESS)
+            if (ret < TransportReturnCodes.SUCCESS)
                 return ret;
         }
         else
         {
             // We are packing, and may need to do something different based on the size of
             // the message and how much room is left in the present buffer.
-            if(length > ProviderPerfConfig.packingBufferLength())
+            if (length > ProviderPerfConfig.packingBufferLength())
             {
                // Message too large for our packing buffer, write and get a bigger one.
-                if(session.writingBuffer() != null)
+                if (session.writingBuffer() != null)
                 {
                     int ret = writeCurrentBuffer(session, error);
-                    if(ret < TransportReturnCodes.SUCCESS)
+                    if (ret < TransportReturnCodes.SUCCESS)
                     {
                         return ret;
                     }
@@ -454,17 +546,16 @@ public class ProviderThread extends Thread
             }
         }
         
-        if(session.writingBuffer() != null)
+        if (session.writingBuffer() != null)
         {
             return TransportReturnCodes.SUCCESS;
         }
         else
         {
-            TransportBuffer msgBuffer = session.clientChannelInfo().channel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, error);
-            if(msgBuffer == null)
-                return TransportReturnCodes.FAILURE;
-            session.writingBuffer(msgBuffer);
-            
+            int ret = getNewBuffer(session, length, error);
+            if(ret < TransportReturnCodes.SUCCESS)
+                return ret;
+
             return TransportReturnCodes.SUCCESS;
         }
     }
@@ -487,7 +578,7 @@ public class ProviderThread extends Thread
            {
         	   session.remaingPackedBufferLength(length);
         	   
-        	   if(session.tempWriteBuffer() == null)
+        	   if (session.tempWriteBuffer() == null)
         	   {
         		   Buffer tempBuffer = CodecFactory.createBuffer();
         		   tempBuffer.data(ByteBuffer.allocate(length));
@@ -542,12 +633,12 @@ public class ProviderThread extends Thread
        // Make sure we stop packing at the end of a burst of updates
        // in case the next burst is for a different channel. 
        // (This will also prevent any latency updates from sitting in the pack for a tick).
-       if(session.packedBufferCount() == (ProviderPerfConfig.totalBuffersPerPack() -1) || !allowPack || Objects.nonNull(session.clientChannelInfo().tunnelStream))
+       if (session.packedBufferCount() == (ProviderPerfConfig.totalBuffersPerPack() -1) || !allowPack || Objects.nonNull(session.clientChannelInfo().tunnelStream))
        {
-          int ret = writeCurrentBuffer(session, error);
+          int ret = encodeAndWriteCurrentBuffer(session, error);
           
           /* Gets tunnel stream buffer usage */
-          if(ProviderPerfConfig.tunnelStreamBufsUsed() && Objects.nonNull(session.clientChannelInfo().tunnelStream))
+          if (ProviderPerfConfig.tunnelStreamBufsUsed() && Objects.nonNull(session.clientChannelInfo().tunnelStream))
           {
         	  if (session.clientChannelInfo().tunnelStream.info(_tunnelStreamInfo, _errorInfo) == ReactorReturnCodes.SUCCESS)
         	  {
@@ -603,7 +694,7 @@ public class ProviderThread extends Thread
 	 	        		System.out.println("writeCurrentBuffer: The remaining packed buffer length " + session.remaingPackedBufferLength() +
 	 	   						" is not enough to copy data length " + msgBuffer.length());
 	 	        		channel.releaseBuffer(session.writingBuffer(), error);
-	 	        		return TransportReturnCodes.FAILURE;
+                        return TransportReturnCodes.FAILURE;
 	 		   		}
         	   }
         	   
@@ -652,7 +743,7 @@ public class ProviderThread extends Thread
                 return ret;
             
             // Encode the message with data appropriate for the domain
-            if(Objects.nonNull(providerSession.tempWriteBuffer()))
+            if (Objects.nonNull(providerSession.tempWriteBuffer()))
             {
             	ByteBuffer byteBuffer = providerSession.tempWriteBuffer().data();
             	byteBuffer.clear();

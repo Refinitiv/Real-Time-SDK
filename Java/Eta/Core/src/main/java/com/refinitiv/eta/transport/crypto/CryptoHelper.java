@@ -96,6 +96,11 @@ public class CryptoHelper {
         return _bufferData.appRecv.buffer();
     }
 
+    private ByteBuffer _netSendBuf;
+    private ByteBuffer _appSendBuf;
+    private ByteBuffer _netRecvBuf;
+    private ByteBuffer _appRecvBuf;
+
     public BufferData getBufferData()
     {
         return _bufferData;
@@ -106,6 +111,10 @@ public class CryptoHelper {
         _socketChannel = socketChannel;
         _engine = _sslEngineFactory.create();
         _bufferData = BufferData.create(_engine.getSession());
+        _netSendBuf = netSend();
+        _appSendBuf = appSend();
+        _netRecvBuf = netRecv();
+        _appRecvBuf = appRecv();
         _handshake = _handshakeManager.create(_engine, _bufferData);
     }
 
@@ -115,10 +124,10 @@ public class CryptoHelper {
         checkEngine();
         readCount = 0;
 
-        if (appRecv().position() > 0) //any data received during handshake renegotiation? should be a rare case
+        if (_appRecvBuf.position() > 0) //any data received during handshake renegotiation? should be a rare case
         {
-            appRecv().flip();
-            readCount += copyBytes(appRecv(), dst);
+            _appRecvBuf.flip();
+            readCount += copyBytes(_appRecvBuf, dst);
         }
 
         int decryptCount = 0;
@@ -128,9 +137,9 @@ public class CryptoHelper {
                 if (decryptCount != BUFFER_OVERFLOW_ON_READ)
                     readCount += decryptCount;
             } else { //if the destination buffer is small for the engine to unwrap data, use the intermediate buffer
-                decryptNetworkData(appRecv(), false);
-                appRecv().flip();
-                readCount += copyBytes(appRecv(), dst);
+                decryptNetworkData(_appRecvBuf, false);
+                _appRecvBuf.flip();
+                readCount += copyBytes(_appRecvBuf, dst);
             }
         }
 
@@ -164,7 +173,7 @@ public class CryptoHelper {
 
         while (src.hasRemaining() && canWrite)
         {
-            SSLEngineResult result = _engine.wrap(src, netSend());
+            SSLEngineResult result = _engine.wrap(src, _netSendBuf);
             if (result.getStatus() == SSLEngineResult.Status.OK)
             {
                 writeCount += result.bytesConsumed();
@@ -172,12 +181,12 @@ public class CryptoHelper {
                 break;
             }
 
-            netSend().flip();
+            _netSendBuf.flip();
             try
             {
-                while (netSend().hasRemaining())
+                while (_netSendBuf.hasRemaining())
                 {
-                    if (_socketChannel.write(netSend()) <= 0)
+                    if (_socketChannel.write(_netSendBuf) <= 0)
                     {
                         canWrite = false;
                         break;
@@ -186,10 +195,10 @@ public class CryptoHelper {
             }
             catch (IOException e)
             {
-                netSend().clear();
+                _netSendBuf.clear();
                 canWrite = false;
             }
-            netSend().compact();
+            _netSendBuf.compact();
 
             if ((_engine.getHandshakeStatus() != SSLEngineResult.HandshakeStatus.FINISHED)
                     && (_engine.getHandshakeStatus() != SSLEngineResult.HandshakeStatus.NOT_HANDSHAKING))
@@ -219,8 +228,8 @@ public class CryptoHelper {
     // We must send the appropriate alerts to indicate to the peer that we intend to close the TLS/SSL connection.
     public void cleanup() throws IOException
     {
-        if(appSend() != null){
-            appSend().clear();
+        if (_bufferData != null && _bufferData.appSend != null && _bufferData.appSend.buffer() != null){
+            _bufferData.appSend.buffer().clear();
         }
 
         if (_engine != null)
@@ -234,6 +243,7 @@ public class CryptoHelper {
         checkEngine();
         _handshake.perform(_socketChannel);
     }
+
     private int decryptNetworkData(ByteBuffer dest, boolean checkBufferOverflow) throws IOException
     {
         int count = 0;
@@ -246,17 +256,17 @@ public class CryptoHelper {
             throw new IOException("Tunnel Channel disconnected");
 
         // make NetRecvBuffer readable
-        netRecv().flip();
+        _netRecvBuf.flip();
 
         do {
-            result = _engine.unwrap(netRecv(), dest);
+            result = _engine.unwrap(_netRecvBuf, dest);
             checkUnwrapEngineResultStatus(result);
             count += result.bytesProduced();
-        }  while (netRecv().hasRemaining() && (result.getStatus() != SSLEngineResult.Status.BUFFER_UNDERFLOW)
+        }  while (_netRecvBuf.hasRemaining() && (result.getStatus() != SSLEngineResult.Status.BUFFER_UNDERFLOW)
                 && (result.getStatus() != SSLEngineResult.Status.BUFFER_OVERFLOW));
 
         // setup _bufferData.getNetRecvBuffer() back to writable
-        netRecv().compact();
+        _netRecvBuf.compact();
 
         if (checkBufferOverflow && result.getStatus() == SSLEngineResult.Status.BUFFER_OVERFLOW)
         {
@@ -291,7 +301,7 @@ public class CryptoHelper {
     // Attempt to fill _bufferData.getNetRecvBuffer() from the channel and return the number of bytes filled
     private int readFromChannel() throws IOException
     {
-        return _socketChannel.read(netRecv());
+        return _socketChannel.read(_netRecvBuf);
     }
 
     // Start TLS/SSL handshaking with the server peer.
