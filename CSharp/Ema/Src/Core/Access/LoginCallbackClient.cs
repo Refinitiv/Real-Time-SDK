@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -1166,6 +1166,16 @@ namespace LSEG.Ema.Access
 
                 m_AckMsg.Decode(msg, channelInfo.ReactorChannel!.MajorVersion, channelInfo.ReactorChannel.MinorVersion,
                     channelInfo.DataDictionary!);
+
+                m_AckMsg.SetServiceName(null!);
+
+                if (m_AckMsg.HasServiceId)
+                {
+                    ServiceDirectory? directory = m_OmmBaseImpl.DirectoryCallbackClient!.GetService(m_AckMsg.ServiceId());
+
+                    if (directory != null && directory.ServiceName != null)
+                        m_AckMsg.ServiceName(directory.ServiceName);
+                }
 
                 foreach (var loginItem in m_LoginItemList)
                 {

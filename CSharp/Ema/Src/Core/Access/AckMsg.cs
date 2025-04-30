@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023, 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023, 2024, 2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -333,6 +333,19 @@ namespace LSEG.Ema.Access
         {
             m_ackMsgEncoder.NackCode(nackCode);
             return this;
+        }
+
+        /// <summary>
+        /// Specifies ServiceName.
+        /// </summary>
+        /// <param name="serviceName">name of service to be set</param>
+        /// <returns>Reference to current <see cref="AckMsg"/> object.</returns>
+        internal override void SetServiceName(string serviceName)
+        {
+            if (serviceName != null)
+                base.SetServiceName(serviceName);
+            else
+                m_msgEncoder.m_serviceNameSet = false;
         }
 
         /// <summary>

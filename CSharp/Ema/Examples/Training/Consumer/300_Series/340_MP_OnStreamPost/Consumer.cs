@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023, 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -94,7 +94,8 @@ internal class AppClient : IOmmConsumerClient
     {
         if (ackMsg.HasMsgKey)
             Console.WriteLine("Item Name: " + (ackMsg.HasName ? ackMsg.Name() : "not set") + "\nService Name: "
-                    + (ackMsg.HasServiceName ? ackMsg.ServiceName() : "not set"));
+                    + (ackMsg.HasServiceName ? ackMsg.ServiceName() : "not set") + "\nService ID: "
+                    + (ackMsg.HasServiceId ? ackMsg.ServiceId() : "not set"));
 
         Console.WriteLine("Ack Id: " + ackMsg.AckId());
 

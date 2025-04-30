@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.              --
+// *|           Copyright (C) 2019,2024,2025 LSEG. All rights reserved.         --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -885,9 +885,10 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 	{
 		if (_ackMsg == null)
 			_ackMsg = new AckMsgImpl(_baseImpl.objManager());
-		
+
 		_ackMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 
+		_ackMsg.service(null);
 
 		if(channelInfo.sessionChannelInfo() != null && _ackMsg.hasServiceId())
 		{
@@ -899,7 +900,14 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				_ackMsg.serviceName(directory.serviceName());
 			}
 		}
-	
+		else if (_ackMsg.hasServiceId())
+		{
+			Directory<T> directory = _ommBaseImpl._directoryCallbackClient.directory(_ackMsg.serviceId());
+
+			if (directory != null && directory.serviceName() != null)
+				_ackMsg.serviceName(directory.serviceName());
+		}
+
 		for (Item<T> loginItem : _loginItemList)
 		{
 			_eventImpl._item = loginItem;

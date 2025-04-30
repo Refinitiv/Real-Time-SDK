@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.refinitiv.ema.examples.training.consumer.series300.ex341_MP_OffStreamPost;
@@ -112,7 +112,8 @@ class AppClient implements OmmConsumerClient
 	{
 		if ( ackMsg.hasMsgKey() )
 			System.out.println("Item Name: " + ( ackMsg.hasName() ? ackMsg.name() : "not set" ) +  "\nService Name: " 
-					+ ( ackMsg.hasServiceName() ? ackMsg.serviceName() : "not set" ) );
+					+ ( ackMsg.hasServiceName() ? ackMsg.serviceName() : "not set" ) + "\nService ID: "
+					+ ( ackMsg.hasServiceId() ? ackMsg.serviceId() : "not set" ) );
 
 		System.out.println("Ack Id: "  + ackMsg.ackId());
 

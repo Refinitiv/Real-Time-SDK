@@ -551,7 +551,7 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        internal void SetServiceName(string serviceName)
+        internal virtual void SetServiceName(string serviceName)
         {
             m_serviceName = serviceName;
             m_msgEncoder.m_serviceNameSet = true;

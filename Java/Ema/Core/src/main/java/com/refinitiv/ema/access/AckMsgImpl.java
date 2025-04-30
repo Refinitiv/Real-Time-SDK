@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2024, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -237,6 +237,15 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 	{	
 		msgServiceId(serviceId);
 		return this;
+	}
+
+	@Override
+	void service(String serviceName)
+	{
+		if (serviceName != null)
+			super.service(serviceName);
+		else
+			_serviceNameSet = false;
 	}
 
 	@Override
