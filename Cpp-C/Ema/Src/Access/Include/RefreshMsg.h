@@ -68,7 +68,7 @@
 #include "Access/Include/Msg.h"
 #include "Access/Include/OmmState.h"
 #include "Access/Include/OmmQos.h"
-#include "DataDictionary.h"
+#include "Rdm/Include/DataDictionary.h"
 
 namespace refinitiv {
 
