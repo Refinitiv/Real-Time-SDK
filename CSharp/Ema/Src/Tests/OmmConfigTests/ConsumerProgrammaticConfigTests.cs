@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2024 LSEG. All rights reserved.                   --
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1333,6 +1333,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             // Now set all of the method-based options to something different and verify that they get set in the login.
             consumerConfig.UserName("MethodUser");
             consumerConfig.ApplicationId("MethodId");
+            consumerConfig.ApplicationName("MethodName");
             consumerConfig.Position("MethodPosition");
             consumerConfig.Password("MethodPassword");
 
@@ -1346,7 +1347,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.True(testRole.RdmLoginRequest?.LoginAttrib.HasApplicationId);
             Assert.Equal("MethodId", testRole.RdmLoginRequest?.LoginAttrib.ApplicationId.ToString());
             Assert.True(consConfigImpl.AdminLoginRequest.LoginAttrib.HasApplicationName);
-            Assert.Equal("TestEMAApp", testRole.RdmLoginRequest?.LoginAttrib.ApplicationName.ToString());
+            Assert.Equal("MethodName", testRole.RdmLoginRequest?.LoginAttrib.ApplicationName.ToString());
             Assert.True(consConfigImpl.AdminLoginRequest.LoginAttrib.HasPosition);
             Assert.Equal("MethodPosition", testRole.RdmLoginRequest?.LoginAttrib.Position.ToString());
             Assert.True(consConfigImpl.AdminLoginRequest.HasPassword);

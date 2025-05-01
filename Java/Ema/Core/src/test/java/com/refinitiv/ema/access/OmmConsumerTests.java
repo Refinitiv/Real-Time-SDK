@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|             Copyright (C) 2024 LSEG. All rights reserved.            --
+// *|             Copyright (C) 2024-2025 LSEG. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -13968,5 +13968,42 @@ public class OmmConsumerTests extends TestCase
 		ommprovider.uninitialize();
 		ommprovider2.uninitialize();
 	}
-	
+
+	// change applicationId and applicationName, check that new values are
+	// propagated to the login request message
+	@Test
+	public void testConsumerAppIdName() {
+		OmmConsumerConfig consumerConfig = EmaFactory.createOmmConsumerConfig();
+		OmmConsumerConfigImpl config = (OmmConsumerConfigImpl) consumerConfig;
+
+		// check that the default values are as expected
+		String defaultAppId = "256";
+		String defaultAppName = "ema";
+
+		com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest loginReq = config.loginReq();
+
+		assertNotNull(loginReq);
+		assertTrue(loginReq.checkHasAttrib());
+		assertTrue(loginReq.attrib().checkHasApplicationId());
+		assertTrue(loginReq.attrib().checkHasApplicationName());
+
+		String defaultAppIdCfg = loginReq.attrib().applicationId().toString();
+		assertEquals(defaultAppId, defaultAppIdCfg);
+
+		String defaultAppNameCfg = loginReq.attrib().applicationName().toString();
+		assertEquals(defaultAppName, defaultAppNameCfg);
+
+		// modify them via API calls
+		String testAppId = "652";
+		String testAppName = "test-app-name";
+
+		config.applicationId(testAppId);
+		config.applicationName(testAppName);
+
+		String testAppIdCfg = loginReq.attrib().applicationId().toString();
+		String testAppNameCfg = loginReq.attrib().applicationName().toString();
+
+		assertEquals(testAppId, testAppIdCfg);
+		assertEquals(testAppName, testAppNameCfg);
+	}
 }

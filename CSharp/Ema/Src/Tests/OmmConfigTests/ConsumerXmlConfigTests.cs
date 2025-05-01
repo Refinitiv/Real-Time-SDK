@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2024 LSEG. All rights reserved.                   --
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -382,6 +382,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             consumerConfig.UserName("TestUserName");
             consumerConfig.Password("TestPassword");
             consumerConfig.ApplicationId("TestAppId");
+            consumerConfig.ApplicationName("TestAppName");
             consumerConfig.ClientId("TestClientId");
             consumerConfig.ClientSecret("TestClientSecret");
             consumerConfig.ClientJwk("TestClientJwk");
@@ -411,6 +412,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.Equal("TestUserName", copiedConfig.UserName);
             Assert.Equal("TestPassword", copiedConfig.Password);
             Assert.Equal("TestAppId", copiedConfig.ApplicationId);
+            Assert.Equal("TestAppName", copiedConfig.ApplicationName);
             Assert.Equal("TestClientId", copiedConfig.ClientId);
             Assert.Equal("TestClientSecret", copiedConfig.ClientSecret);
             Assert.Equal("TestClientJwk", copiedConfig.ClientJwk);

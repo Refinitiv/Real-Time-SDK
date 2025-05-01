@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -319,6 +319,17 @@ namespace LSEG.Ema.Access
                     if (!m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId.Equals(CurrentLoginRequest.LoginAttrib.ApplicationId.ToString()))
                     {
                         CurrentLoginRequest.LoginAttrib.ApplicationId.Data(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId);
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName))
+            {
+                if (CurrentLoginRequest.HasAttrib && CurrentLoginRequest.LoginAttrib.HasApplicationName)
+                {
+                    if (!m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName.Equals(CurrentLoginRequest.LoginAttrib.ApplicationName.ToString()))
+                    {
+                        CurrentLoginRequest.LoginAttrib.ApplicationName.Data(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName);
                     }
                 }
             }
