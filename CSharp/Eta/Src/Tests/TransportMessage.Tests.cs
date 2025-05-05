@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -20,6 +20,7 @@ using LSEG.Eta.Common;
 using LSEG.Eta.Transports;
 using System.Text;
 using System.Reflection;
+using LSEG.Eta.Tests;
 
 namespace LSEG.Eta.Transports.Tests;
 
@@ -806,8 +807,8 @@ public class TransportMessageTests : IDisposable
         bindOptions.ConnectionType = ConnectionType.ENCRYPTED;
         bindOptions.ProtocolType = ProtocolType.RWF;
         bindOptions.BindEncryptionOpts.EncryptionProtocolFlags = protocol;
-        bindOptions.BindEncryptionOpts.ServerCertificate = "certificate.test.crt";
-        bindOptions.BindEncryptionOpts.ServerPrivateKey = "certificate.test.key";
+        bindOptions.BindEncryptionOpts.ServerCertificate = CertificateUtil.CERTIFICATE_CRT;
+        bindOptions.BindEncryptionOpts.ServerPrivateKey = CertificateUtil.CERTIFICATE_KEY;
         bindOptions.ServiceName = portNumber;
         bindOptions.SysRecvBufSize = 64 * 1024;
 

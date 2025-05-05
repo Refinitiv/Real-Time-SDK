@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2023,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -182,6 +182,54 @@ namespace LSEG.Eta.Common
         /// Check wheter a thread has access to the critical section.
         /// </summary>
         public override bool Locked => false;
+    }
+
+    /// <summary>
+    /// The class for implementation of locking mechanism via RAII.
+    /// <see cref="EnterLockScope(Locker, bool)"/> method performs locking and returns disposable object that will release lock on its <c>Dispose</c>
+    /// method call. With <c>using</c> statement this guarantees unlocking even in case of exception without <c>try/finally</c> construct.
+    /// Note that returned objects allocated on stack, so there is no additional heap allocations performed.
+    /// </summary>
+    public static class LockerExtensions
+    {
+        /// <summary>
+        /// Acquires lock on <see cref="Locker"/>.
+        /// </summary>
+        /// <param name="locker">Lock object to be acquired.</param>
+        /// <param name="noLockIfAlreadyLocked">If <c>true</c> is passed and <paramref name="locker"/> already locked then do nothing.</param>
+        /// <returns>Returns disposable object that releases read lock on <see cref="LockerScope.Dispose"/> method call.</returns>
+        public static LockerScope EnterLockScope(this Locker locker, bool noLockIfAlreadyLocked = true) => new LockerScope(locker, noLockIfAlreadyLocked);
+
+        /// <inheritdoc/>
+        public ref struct LockerScope
+        {
+            private readonly Locker m_Locker;
+            private readonly bool m_ShouldUnlock;
+
+            /// <inheritdoc/>
+            public LockerScope(Locker locker, bool noLockIfAlreadyLocked)
+            {
+                m_Locker = locker;
+                if (noLockIfAlreadyLocked && !m_Locker.Locked || !noLockIfAlreadyLocked)
+                {
+                    m_Locker.Enter();
+                    m_ShouldUnlock = true;
+                }
+                else
+                {
+                    m_ShouldUnlock = false;
+                }
+            }
+
+            /// <inheritdoc/>
+            public void Dispose()
+            {
+                if (m_ShouldUnlock && m_Locker.Locked)
+                {
+                    m_Locker.Exit();
+                }
+            }
+        }
     }
 }
 

@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2023,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -121,7 +121,7 @@ namespace LSEG.Eta.PerfTools.ProvPerf
         public void AcceptNewChannel(IChannel channel)
         {
             ProviderSession provSession = new ProviderSession(m_XmlMsgData, m_ItemEncoder);
-            ++ConnectionCount;
+            Interlocked.Increment(ref ConnectionCount);
             m_ChannelHandler.AddChannel(channel, provSession, true);
         }
 
@@ -199,7 +199,7 @@ namespace LSEG.Eta.PerfTools.ProvPerf
             Console.WriteLine($"ProcessInactiveChannel ({inactiveTime})");
 
             m_ChannelHandler.ChannelLock.EnterWriteLock();
-            --ConnectionCount;
+            Interlocked.Decrement(ref ConnectionCount);
             m_ChannelHandler.ChannelLock.ExitWriteLock();
 
             if (ProviderPerfConfig.UseReactor) // use ETA VA Reactor
@@ -501,7 +501,7 @@ namespace LSEG.Eta.PerfTools.ProvPerf
                                     long inactiveTime = (long)GetTime.GetMicroseconds();
                                     ProvThreadInfo!.Stats.InactiveTime = inactiveTime;
 
-                                    --ConnectionCount;
+                                    Interlocked.Decrement(ref ConnectionCount);
 
                                     // unregister selectableChannel from Selector
                                     try
@@ -554,7 +554,7 @@ namespace LSEG.Eta.PerfTools.ProvPerf
             provSession.Init(ccInfo);
             ccInfo.UserSpec = provSession;
             provSession.ProviderThread = this;
-            ++ConnectionCount;
+            Interlocked.Increment(ref ConnectionCount);
 
             // initialize provider role
             m_ProviderRole.ChannelEventCallback = this;
@@ -652,7 +652,7 @@ namespace LSEG.Eta.PerfTools.ProvPerf
                         long inactiveTime = (long)GetTime.GetMicroseconds();
                         ProvThreadInfo!.Stats.InactiveTime = inactiveTime;
 
-                        --ConnectionCount;
+                        Interlocked.Decrement(ref ConnectionCount);
 
                         // unregister selectableChannel from Selector
                         m_SocketChannelMap.Remove(evt.ReactorChannel!.Socket!);

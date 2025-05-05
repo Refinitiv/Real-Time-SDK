@@ -1,12 +1,13 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
 using LSEG.Eta.ValueAdd.Reactor;
 using System.Text;
 
@@ -75,8 +76,9 @@ namespace LSEG.Ema.Access
             {
                 if(m_OmmServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                    text.AppendLine("Received non-existence client session")
+                    using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                        .AppendLine("Received non-existence client session")
                         .AppendLine($"ErrorText {msgEvent.ReactorErrorInfo.Error.Text}")
                         .AppendLine($"Instance Name {m_OmmServerBaseImpl.InstanceName}");
 
@@ -90,8 +92,9 @@ namespace LSEG.Ema.Access
             {
                 if (m_OmmServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                    text.AppendLine("Received error message.")
+                    using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                        .AppendLine("Received error message.")
                         .AppendLine($"ErrorText {msgEvent.ReactorErrorInfo.Error.Text}")
                         .AppendLine($"Client handle {clientSession.ClientHandle}")
                         .AppendLine($"Instance Name {m_OmmServerBaseImpl.InstanceName}");
@@ -104,6 +107,7 @@ namespace LSEG.Ema.Access
 
             if(!AcceptMessageWithoutBeingLogin && !clientSession.IsLogin)
             {
+                using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
                 StringBuilder temp = m_OmmServerBaseImpl.GetStrBuilder();
                 temp.Append("Message rejected - there is no logged in user for this session.");
 
@@ -111,12 +115,12 @@ namespace LSEG.Ema.Access
 
                 if (m_OmmServerBaseImpl.GetLoggerClient().IsTraceEnabled)
                 {
-                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                    text.AppendLine($"Stream Id {msg.StreamId}")
+                    temp
+                        .AppendLine($"Stream Id {msg.StreamId}")
                         .AppendLine($"Client handle {clientSession.ClientHandle}")
                         .AppendLine($"Instance Name {m_OmmServerBaseImpl.InstanceName}");
 
-                    m_OmmServerBaseImpl.GetLoggerClient().Trace(CLIENT_NAME, text.ToString());
+                    m_OmmServerBaseImpl.GetLoggerClient().Trace(CLIENT_NAME, temp.ToString());
                 }
 
                 return ReactorCallbackReturnCode.SUCCESS;
@@ -157,8 +161,9 @@ namespace LSEG.Ema.Access
                                 if(!AcceptMessageWithoutAcceptingRequests && m_IsDirectoryApiControl
                                     && !iProviderServiceStore.IsAcceptingRequests(msg.MsgKey.ServiceId))
                                 {
-                                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                                    text.Append($"Request message rejected - the service Id = {msg.MsgKey.ServiceId} does not accept any requests.");
+                                    using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                                        .Append($"Request message rejected - the service Id = {msg.MsgKey.ServiceId} does not accept any requests.");
 
                                     SendRejectMessage(clientSession, msg, StateCodes.USAGE_ERROR, text.ToString());
 
@@ -182,8 +187,9 @@ namespace LSEG.Ema.Access
                                 if(!AcceptMessageWithoutQosInRange && m_IsDirectoryApiControl && 
                                     !iProviderServiceStore.IsValidQosRange(msg.MsgKey.ServiceId, (IRequestMsg)msg))
                                 {
-                                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                                    text.Append($"Request message rejected - the service Id = {msg.MsgKey.ServiceId} does not support the specified QoS(");
+                                    using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                                        .Append($"Request message rejected - the service Id = {msg.MsgKey.ServiceId} does not support the specified QoS(");
 
                                     IRequestMsg requestMsg = (IRequestMsg)msg;
 
@@ -241,8 +247,9 @@ namespace LSEG.Ema.Access
                             {
                                 if(clientSession.CheckingExistingReq(itemInfo))
                                 {
-                                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                                    text.Append("Request Message rejected - Item already open with exact same message key on another stream.");
+                                    using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                                        .Append("Request Message rejected - Item already open with exact same message key on another stream.");
 
                                     SendRejectMessage(clientSession, msg, StateCodes.USAGE_ERROR, text.ToString());
 
@@ -278,9 +285,10 @@ namespace LSEG.Ema.Access
                                 {
                                     if(!AcceptMessageThatChangesService)
                                     {
-                                        StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                                        text.Append($"Request Message rejected - Attempt to reissue the service Id from {itemInfo.ServiceId}" +
-                                            $" to {msg.MsgKey.ServiceId} while this is not supported.");
+                                        using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                                        StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                                            .Append($"Request Message rejected - Attempt to reissue the service Id from {itemInfo.ServiceId}")
+                                            .Append($" to {msg.MsgKey.ServiceId} while this is not supported.");
 
                                         SendRejectMessage(clientSession, msg, StateCodes.USAGE_ERROR, text.ToString());
 
@@ -366,8 +374,9 @@ namespace LSEG.Ema.Access
                     }
                 default:
                     {
-                        StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                        text.Append($"Rejected unhandled message type {MsgClasses.ToString(msg.MsgClass)}");
+                        using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                        StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                            .Append($"Rejected unhandled message type {MsgClasses.ToString(msg.MsgClass)}");
 
                         if(itemInfo == null)
                         {
@@ -493,8 +502,9 @@ namespace LSEG.Ema.Access
             {
                 if (m_OmmServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                    text.AppendLine("Internal error. Failed to set decode iterator buffer and version in MarketPriceHandler.SendRejectMessage().")
+                    using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                        .AppendLine("Internal error. Failed to set decode iterator buffer and version in MarketPriceHandler.SendRejectMessage().")
                         .AppendLine($"Client handle {clientSession.ClientHandle}")
                         .AppendLine($"Instance Name {m_OmmServerBaseImpl.InstanceName}");
 
@@ -516,8 +526,9 @@ namespace LSEG.Ema.Access
             {
                 if (m_OmmServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                    text.AppendLine("Internal error. Failed to encode status message in MarketPriceHandler.SendRejectMessage().")
+                    using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                        .AppendLine("Internal error. Failed to encode status message in MarketPriceHandler.SendRejectMessage().")
                         .AppendLine($"Client handle {clientSession.ClientHandle}")
                         .AppendLine($"Instance Name {m_OmmServerBaseImpl.InstanceName}");
 
@@ -534,8 +545,9 @@ namespace LSEG.Ema.Access
             {
                 if (m_OmmServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                    text.AppendLine("Internal error: ReactorChannel.Submit() failed in MarketItemHandler.SendRejectMessage().")
+                    using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                        .AppendLine("Internal error: ReactorChannel.Submit() failed in MarketItemHandler.SendRejectMessage().")
                         .AppendLine($"Stream Id {msg.StreamId}")
                         .AppendLine($"Client handle {clientSession.ClientHandle}")
                         .AppendLine($"Error Id {errorInfo?.Error.ErrorId}")
@@ -565,12 +577,12 @@ namespace LSEG.Ema.Access
             {
                 if(m_OmmServerBaseImpl.GetDirectoryServiceStore().GetServiceNameById(msg.MsgKey.ServiceId, out var serviceName) == false)
                 {
-                    StringBuilder temp = m_OmmServerBaseImpl.GetStrBuilder();
-
                     if(m_OmmServerBaseImpl.GetLoggerClient().IsTraceEnabled)
                     {
-                        temp.AppendLine($"Post Message invalid - the service Id = {msg.MsgKey.ServiceId}" +
-                            $" does not exist in the source directory.")
+                        using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                        StringBuilder temp = m_OmmServerBaseImpl.GetStrBuilder()
+                            .Append($"Post Message invalid - the service Id = {msg.MsgKey.ServiceId}")
+                            .Append(" does not exist in the source directory.").AppendLine()
                             .AppendLine($"Stream Id {msg.StreamId}")
                             .AppendLine($"Client handle {clientSession.ClientHandle}")
                             .AppendLine($"Instance Name {m_OmmServerBaseImpl.InstanceName}");
@@ -599,8 +611,9 @@ namespace LSEG.Ema.Access
         {
             if (m_OmmServerBaseImpl.GetLoggerClient().IsTraceEnabled)
             {
-                StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder();
-                text.AppendLine($"Received  {messageName} message.")
+                using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+                StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
+                    .AppendLine($"Received  {messageName} message.")
                     .AppendLine($"Stream Id {msg.StreamId}")
                     .AppendLine($"Client Handle {clientSession.ClientHandle}")
                     .AppendLine($"Instance Name {m_OmmServerBaseImpl.InstanceName}");
@@ -620,8 +633,9 @@ namespace LSEG.Ema.Access
 
         void HandleNonExistenServiceId(IMsg msg, ClientSession clientSession, ItemInfo? itemInfo)
         {
-            StringBuilder temp = m_OmmServerBaseImpl.GetStrBuilder();
-            temp.Append($"Request Message rejected - the service Id = {msg.MsgKey.ServiceId} does not exist in the source directory.");
+            using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
+            StringBuilder temp = m_OmmServerBaseImpl.GetStrBuilder()
+                .Append($"Request Message rejected - the service Id = {msg.MsgKey.ServiceId} does not exist in the source directory.");
 
             SendRejectMessage(clientSession, msg, StateCodes.USAGE_ERROR, temp.ToString());
 

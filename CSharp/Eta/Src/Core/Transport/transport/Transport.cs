@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -29,7 +29,6 @@ namespace LSEG.Eta.Transports
         private static Object _initializationLock = new Object(); // lock used during Initial() and Uninitialize()
 
         internal static Locker GlobalLocker { get; private set; }
-        private static ReaderWriterLockSlim _slimLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         private static bool _globalLocking = true;
 
@@ -97,11 +96,11 @@ namespace LSEG.Eta.Transports
             TransportReturnCode ret = TransportReturnCode.SUCCESS;
             lock (_initializationLock)
             {
-                if (Interlocked.Read(ref _numInitCalls) >= 0)
+                if (_numInitCalls >= 0)
                 {
                     if (_numInitCalls == 0)
                     {
-                        Interlocked.Increment(ref _numInitCalls);
+                        ++_numInitCalls;
 
                         _globalLocking = initArgs.GlobalLocking;
                         GlobalLocker = _globalLocking
@@ -117,7 +116,7 @@ namespace LSEG.Eta.Transports
                     }
                     else
                     {
-                        Interlocked.Increment(ref _numInitCalls);
+                        ++_numInitCalls;
                         error = null;
                     }
                 }
@@ -158,8 +157,7 @@ namespace LSEG.Eta.Transports
                 }
                 else
                 {
-                    --_numInitCalls;
-                    if (_numInitCalls == 0)
+                    if ((--_numInitCalls) == 0)
                     {
                         try
                         {
@@ -200,11 +198,14 @@ namespace LSEG.Eta.Transports
             {
                 GlobalLocker?.Enter();
 
-                if (Interlocked.Read(ref _numInitCalls) == 0)
+                lock (_initializationLock)
                 {
-                    error = new Error(errorId: TransportReturnCode.INIT_NOT_INITIALIZED,
-                                         text: "Transport not initialized.");
-                    return null;
+                    if (_numInitCalls == 0)
+                    {
+                        error = new Error(errorId: TransportReturnCode.INIT_NOT_INITIALIZED,
+                                             text: "Transport not initialized.");
+                        return null;
+                    }
                 }
 
                 if (connectOptions is null)
@@ -291,11 +292,14 @@ namespace LSEG.Eta.Transports
             {
                 GlobalLocker?.Enter();
 
-                if (Interlocked.Read(ref _numInitCalls) == 0)
+                lock (_initializationLock)
                 {
-                    error = new Error(errorId: TransportReturnCode.INIT_NOT_INITIALIZED,
-                                         text: "Transport not initialized.");
-                    return null;
+                    if (_numInitCalls == 0)
+                    {
+                        error = new Error(errorId: TransportReturnCode.INIT_NOT_INITIALIZED,
+                                             text: "Transport not initialized.");
+                        return null;
+                    }
                 }
 
                 if (bindOptions == null)

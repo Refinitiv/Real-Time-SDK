@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -808,7 +808,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                     if (currentViewCount > 0 && wlItemStream.RequestsWithViewCount == currentViewCount 
                         && wlItemStream.UserRequestDlList.Count() > 0 
-                        && (viewChangedFromRemove || wlItemStream.AggregateView!.CommittedViews.Count == 0)
+                        && (viewChangedFromRemove || (wlItemStream.AggregateView?.CommittedViews.Count ?? 0) == 0)
                         && wlItemStream.RequestsWithViewCount == wlItemStream.UserRequestDlList.Count())
                     {
                         wlItemStream.RequestMsg.Flags |= RequestMsgFlags.NO_REFRESH;

@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -280,7 +280,8 @@ namespace LSEG.Ema.PerfTools.Common
                         Console.Write("  ");
                     }
 
-                    Console.WriteLine($"UpdRate: {updateCount / timePassedSec,8}, CPU: {processCpuLoad,6:0.00}%, Mem: {memoryUsage,6:0.00} MB");
+                    var updRate = timePassedSec > 0 ? updateCount / timePassedSec : 0;
+                    Console.WriteLine($"UpdRate: {updRate,8}, CPU: {processCpuLoad,6:0.00}%, Mem: {memoryUsage,6:0.00} MB");
 
                     if (requestCount > 0 || refreshCount > 0)
                     {

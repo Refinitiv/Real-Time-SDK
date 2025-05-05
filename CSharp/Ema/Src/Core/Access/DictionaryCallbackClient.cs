@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -43,6 +43,12 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
     private Eta.Codec.Int? m_rsslCurrentFid;
     protected OmmBaseImpl<T> m_OmmBaseImpl;
 
+    private OmmConsumerConfigImpl OmmConsumerConfig
+    {
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        get => (OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl;
+    }
+
     internal DictionaryCallbackClient(OmmBaseImpl<T> baseImpl) : base(baseImpl, "")
     {
         m_OmmBaseImpl = baseImpl;
@@ -50,17 +56,18 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
 
     internal void Initialize()
     {
-        if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest is not null
-            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminEnumDictionaryRequest is not null)
+        if (OmmConsumerConfig.AdminFieldDictionaryRequest is not null
+            && OmmConsumerConfig.AdminEnumDictionaryRequest is not null)
         {
-            ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary = false;
+            OmmConsumerConfig.DictionaryConfig.IsLocalDictionary = false;
         }
-        else if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.DataDictionary is null
-            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest is not null
-            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminEnumDictionaryRequest is null)
+        else if (OmmConsumerConfig.DictionaryConfig.DataDictionary is null
+            && OmmConsumerConfig.AdminFieldDictionaryRequest is not null
+            && OmmConsumerConfig.AdminEnumDictionaryRequest is null)
         {
-            StringBuilder temp = commonImpl.GetStrBuilder();
-            temp.Append("Invalid dictionary configuration was specified through the AddAdminMsg() method").Append(ILoggerClient.CR)
+            using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+            StringBuilder temp = commonImpl.GetStrBuilder()
+                .Append("Invalid dictionary configuration was specified through the AddAdminMsg() method").Append(ILoggerClient.CR)
                 .Append("Enumeration type definition request message was not populated.");
 
             if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
@@ -69,12 +76,13 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
             return;
         }
-        else if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.DataDictionary is null
-            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest is null
-            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminEnumDictionaryRequest is not null)
+        else if (OmmConsumerConfig.DictionaryConfig.DataDictionary is null
+            && OmmConsumerConfig.AdminFieldDictionaryRequest is null
+            && OmmConsumerConfig.AdminEnumDictionaryRequest is not null)
         {
-            StringBuilder temp = commonImpl.GetStrBuilder();
-            temp.Append("Invalid dictionary configuration was specified through the AddAdminMsg() method").Append(ILoggerClient.CR)
+            using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+            StringBuilder temp = commonImpl.GetStrBuilder()
+                .Append("Invalid dictionary configuration was specified through the AddAdminMsg() method").Append(ILoggerClient.CR)
                 .Append("RDM Field Dictionary request message was not populated.");
 
             if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
@@ -83,14 +91,14 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
         }
 
-        Rdm.DataDictionary? dictionary = ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.DataDictionary;
+        Rdm.DataDictionary? dictionary = OmmConsumerConfig.DictionaryConfig.DataDictionary;
         if ((dictionary is Rdm.DataDictionary)
             && dictionary.rsslDataDictionary() != null)
         {
             m_rsslLocalDictionary = ((Rdm.DataDictionary)dictionary).rsslDataDictionary();
-            ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary = true;
+            OmmConsumerConfig.DictionaryConfig.IsLocalDictionary = true;
         }
-        else if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary)
+        else if (OmmConsumerConfig.DictionaryConfig.IsLocalDictionary)
             LoadDictionaryFromFile();
         else
         {
@@ -127,7 +135,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
 
     internal bool DownloadDictionary(ServiceDirectory directory)
     {
-        if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary)
+        if (OmmConsumerConfig.DictionaryConfig.IsLocalDictionary)
         {
             if (m_rsslLocalDictionary != null
                 && m_rsslLocalDictionary.NumberOfEntries > 0)
@@ -144,15 +152,15 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         }
 
         if (directory.ChannelInfo?.DataDictionary != null
-            || ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary)
+            || OmmConsumerConfig.DictionaryConfig.IsLocalDictionary)
             return true;
 
-        if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest is not null
-            && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminEnumDictionaryRequest is not null)
+        if (OmmConsumerConfig.AdminFieldDictionaryRequest is not null
+            && OmmConsumerConfig.AdminEnumDictionaryRequest is not null)
         {
-            if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest!.ServiceId == directory!.Service!.ServiceId
-                || (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).FieldDictionaryRequestServiceName is not null
-                    && ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).FieldDictionaryRequestServiceName.Equals(directory.ServiceName)))
+            if (OmmConsumerConfig.AdminFieldDictionaryRequest!.ServiceId == directory!.Service!.ServiceId
+                || (OmmConsumerConfig.FieldDictionaryRequestServiceName is not null
+                    && OmmConsumerConfig.FieldDictionaryRequestServiceName.Equals(directory.ServiceName)))
                 DownloadDictionaryFromService(directory);
 
             return true;
@@ -195,8 +203,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             {
                 if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
                 {
-                    StringBuilder temp = commonImpl.GetStrBuilder();
-                    temp.Append("Internal Error: ReactorChannel.Submit() failed");
+                    using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder temp = commonImpl.GetStrBuilder()
+                        .Append("Internal Error: ReactorChannel.Submit() failed");
 
                     Eta.Transports.Error? error = rsslErrorInfo?.Error;
                     if (error != null)
@@ -219,8 +228,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             {
                 if (m_OmmBaseImpl.LoggerClient.IsTraceEnabled)
                 {
-                    StringBuilder temp = commonImpl.GetStrBuilder();
-                    temp.Append("Requested Dictionary ")
+                    using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder temp = commonImpl.GetStrBuilder()
+                        .Append("Requested Dictionary ")
                         .Append(dictName).Append(ILoggerClient.CR)
                         .Append("from Service ").Append(directory.ServiceName).Append(ILoggerClient.CR)
                         .Append("on Channel ").Append(ILoggerClient.CR)
@@ -277,8 +287,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
                 {
                     if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
                     {
-                        StringBuilder temp = commonImpl.GetStrBuilder();
-                        temp.Append("Received unknown RDMDictionary message type").Append(ILoggerClient.CR)
+                        using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                        StringBuilder temp = commonImpl.GetStrBuilder()
+                            .Append("Received unknown RDMDictionary message type").Append(ILoggerClient.CR)
                             .Append("message type ").Append(msg.MsgClass).Append(ILoggerClient.CR)
                             .Append("streamId ").Append(msg.StreamId).Append(ILoggerClient.CR);
 
@@ -299,11 +310,12 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             m_rsslLocalDictionary.Clear();
 
         CodecError codecError;
-        if (m_rsslLocalDictionary.LoadFieldDictionary(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.RdmFieldDictionaryFileName, out codecError) < 0)
+        if (m_rsslLocalDictionary.LoadFieldDictionary(OmmConsumerConfig.DictionaryConfig.RdmFieldDictionaryFileName, out codecError) < 0)
         {
-            StringBuilder temp = commonImpl.GetStrBuilder();
-            temp.Append("Unable to load RDMFieldDictionary from file named ")
-                .Append(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.RdmFieldDictionaryFileName)
+            using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+            StringBuilder temp = commonImpl.GetStrBuilder()
+                .Append("Unable to load RDMFieldDictionary from file named ")
+                .Append(OmmConsumerConfig.DictionaryConfig.RdmFieldDictionaryFileName)
                 .Append(ILoggerClient.CR)
                 .Append("Current working directory ")
                 .Append(System.IO.Directory.GetCurrentDirectory())
@@ -318,11 +330,12 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             return;
         }
 
-        if (m_rsslLocalDictionary.LoadEnumTypeDictionary(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.EnumTypeDefFileName, out codecError) < 0)
+        if (m_rsslLocalDictionary.LoadEnumTypeDictionary(OmmConsumerConfig.DictionaryConfig.EnumTypeDefFileName, out codecError) < 0)
         {
-            StringBuilder temp = commonImpl.GetStrBuilder();
-            temp.Append("Unable to load EnumType Dictionary from file named ")
-                .Append(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.EnumTypeDefFileName)
+            using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+            StringBuilder temp = commonImpl.GetStrBuilder()
+                .Append("Unable to load EnumType Dictionary from file named ")
+                .Append(OmmConsumerConfig.DictionaryConfig.EnumTypeDefFileName)
                 .Append(ILoggerClient.CR)
                 .Append("Current working directory ")
                 .Append(System.IO.Directory.GetCurrentDirectory())
@@ -338,14 +351,15 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
 
         if (m_OmmBaseImpl.LoggerClient.IsTraceEnabled)
         {
-            StringBuilder temp = commonImpl.GetStrBuilder();
-            temp.Append("Successfully loaded local dictionaries: ")
+            using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+            StringBuilder temp = commonImpl.GetStrBuilder()
+                .Append("Successfully loaded local dictionaries: ")
                 .Append(ILoggerClient.CR)
                 .Append("RDMFieldDictionary file named ")
-                .Append(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.RdmFieldDictionaryFileName)
+                .Append(OmmConsumerConfig.DictionaryConfig.RdmFieldDictionaryFileName)
                 .Append(ILoggerClient.CR)
                 .Append("EnumTypeDef file named ")
-                .Append(((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.EnumTypeDefFileName);
+                .Append(OmmConsumerConfig.DictionaryConfig.EnumTypeDefFileName);
 
             m_OmmBaseImpl.LoggerClient.Trace(CLIENT_NAME, temp.ToString());
         }
@@ -466,7 +480,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         rsslRequestMsg.DomainType = (int)Eta.Rdm.DomainType.DICTIONARY;
         rsslRequestMsg.ContainerType = Eta.Codec.DataTypes.NO_DATA;
 
-        DictionaryRequest rsslDictRequest = ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminFieldDictionaryRequest!;
+        DictionaryRequest rsslDictRequest = OmmConsumerConfig.AdminFieldDictionaryRequest!;
         if (rsslDictRequest.Streaming == true)
             rsslRequestMsg.ApplyStreaming();
 
@@ -491,8 +505,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         {
             if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
             {
-                StringBuilder temp = commonImpl.GetStrBuilder();
-                temp.Append("Internal Error: ReactorChannel.Submit() failed").Append(ILoggerClient.CR);
+                using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                StringBuilder temp = commonImpl.GetStrBuilder()
+                    .Append("Internal Error: ReactorChannel.Submit() failed").Append(ILoggerClient.CR);
                 Eta.Transports.Error? error = rsslErrorInfo?.Error;
 
                 if (error != null)
@@ -514,8 +529,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         {
             if (m_OmmBaseImpl.LoggerClient.IsTraceEnabled)
             {
-                StringBuilder temp = commonImpl.GetStrBuilder();
-                temp.Append("Requested Dictionary ")
+                using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                StringBuilder temp = commonImpl.GetStrBuilder()
+                    .Append("Requested Dictionary ")
                     .Append(rsslDictRequest.DictionaryName.ToString()).Append(ILoggerClient.CR)
                     .Append("from Service ").Append(directory.ServiceName).Append(ILoggerClient.CR)
                     .Append("on Channel ").Append(ILoggerClient.CR)
@@ -529,7 +545,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         rsslRequestMsg.DomainType = (int)Eta.Rdm.DomainType.DICTIONARY;
         rsslRequestMsg.ContainerType = Eta.Codec.DataTypes.NO_DATA;
 
-        DictionaryRequest rsslEnumDictRequest = ((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).AdminEnumDictionaryRequest!;
+        DictionaryRequest rsslEnumDictRequest = OmmConsumerConfig.AdminEnumDictionaryRequest!;
         if (rsslEnumDictRequest!.Streaming)
         {
             rsslRequestMsg.ApplyStreaming();
@@ -546,9 +562,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         {
             if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
             {
-                StringBuilder temp = commonImpl.GetStrBuilder();
-
-                temp.Append("Internal Error: ReactorChannel.Submit() failed").Append(ILoggerClient.CR);
+                using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                StringBuilder temp = commonImpl.GetStrBuilder()
+                    .Append("Internal Error: ReactorChannel.Submit() failed").Append(ILoggerClient.CR);
 
                 Eta.Transports.Error? error = rsslErrorInfo?.Error;
                 if (error != null)
@@ -570,8 +586,9 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         {
             if (m_OmmBaseImpl.LoggerClient.IsTraceEnabled)
             {
-                StringBuilder temp = commonImpl.GetStrBuilder();
-                temp.Append("Requested Dictionary ")
+                using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                StringBuilder temp = commonImpl.GetStrBuilder()
+                    .Append("Requested Dictionary ")
                     .Append(rsslDictRequest.DictionaryName.ToString()).Append(ILoggerClient.CR)
                     .Append("from Service ").Append(directory.ServiceName).Append(ILoggerClient.CR)
                     .Append("on Channel ").Append(ILoggerClient.CR)
@@ -2166,8 +2183,9 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
             }
             else
             {
-                StringBuilder message = m_OmmIProviderImpl.GetStrBuilder();
-                message.Append($"Service name of '{reqMsg.ServiceName()}' does not match existing request.")
+                using var lockScope = m_OmmIProviderImpl.GetUserLocker().EnterLockScope();
+                StringBuilder message = m_OmmIProviderImpl.GetStrBuilder()
+                    .Append($"Service name of '{reqMsg.ServiceName()}' does not match existing request.")
                     .Append($" Instance name='{m_OmmIProviderImpl.InstanceName}'.");
 
                 if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
@@ -2184,8 +2202,9 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
         {
             if (!m_SpecifiedServiceInReq || reqMsg.ServiceId() != ServiceId)
             {
-                StringBuilder message = m_OmmIProviderImpl.GetStrBuilder();
-                message.Append($"Service id of '{reqMsg.ServiceId()}' does not match existing request.")
+                using var lockScope = m_OmmIProviderImpl.GetUserLocker().EnterLockScope();
+                StringBuilder message = m_OmmIProviderImpl.GetStrBuilder()
+                    .Append($"Service id of '{reqMsg.ServiceId()}' does not match existing request.")
                     .Append($" Instance name='{m_OmmIProviderImpl.InstanceName}'.");
 
                 if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
@@ -2211,8 +2230,9 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
         {
             if (!reqMsg.Name().Equals(m_MsgKey.Name.ToString()))
             {
-                StringBuilder message = m_OmmIProviderImpl.GetStrBuilder();
-                message.Append($"Name of '{reqMsg.Name()}' does not match existing request.")
+                using var lockScope = m_OmmIProviderImpl.GetUserLocker().EnterLockScope();
+                StringBuilder message = m_OmmIProviderImpl.GetStrBuilder()
+                    .Append($"Name of '{reqMsg.Name()}' does not match existing request.")
                     .Append($" Instance name='{m_OmmIProviderImpl.InstanceName}'.");
 
                 if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
@@ -2251,11 +2271,8 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
             {
                 m_OmmIProviderImpl.ItemCallbackClient.AddToItemMap(m_OmmIProviderImpl.NextLongId(), this);
 
-                StringBuilder text = m_OmmIProviderImpl.GetStrBuilder();
-                text.Append($"Service name of '{serviceName}' is not found.");
-
                 ScheduleItemClosedStatus(m_OmmIProviderImpl.ItemCallbackClient, this,
-                    reqMsg.m_requestMsgEncoder.m_rsslMsg, text.ToString(), serviceName);
+                    reqMsg.m_requestMsgEncoder.m_rsslMsg, $"Service name of '{serviceName}' is not found.", serviceName);
 
                 return true;
             }
@@ -2381,14 +2398,13 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
 
         if (reactorChannel == null || !m_ClientSession.IsActiveClientSession)
         {
-            StringBuilder strBuilder = m_OmmIProviderImpl.GetStrBuilder();
-            strBuilder.Append($"Failed to close item request. Reason: client session is no longer active.");
+            var str = "Failed to close item request. Reason: client session is no longer active.";
 
-            m_OmmIProviderImpl.HandleInvalidUsage(strBuilder.ToString(), OmmInvalidUsageException.ErrorCodes.NO_ACTIVE_CHANNEL);
+            m_OmmIProviderImpl.HandleInvalidUsage(str, OmmInvalidUsageException.ErrorCodes.NO_ACTIVE_CHANNEL);
 
             if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
             {
-                m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME, strBuilder.ToString());
+                m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME, str);
             }
 
             return false;
@@ -2399,7 +2415,7 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
             if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
             {
                 m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME,
-                    $"Invalid streamId for this item in in IProviderDictionaryItem.Submit(CloseMsg)");
+                    "Invalid streamId for this item in in IProviderDictionaryItem.Submit(CloseMsg)");
             }
 
             return false;
@@ -2470,12 +2486,13 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
         ReactorChannel? reactorChannel = m_ClientSession?.m_ReactorChannel;
         if (reactorChannel is null)
         {
+            using var lockScope = m_OmmIProviderImpl.GetUserLocker().EnterLockScope();
             StringBuilder message = m_OmmIProviderImpl.GetStrBuilder();
 
             if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)
             {
                 message.Append("Internal error: ReactorChannel.Submit() failed in IProviderDictionaryItem.Submit(IRequestMsg requestMsg)")
-                    .AppendLine($"ReactorChannel is not avaliable");
+                    .AppendLine("ReactorChannel is not avaliable");
 
                 m_OmmIProviderImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
 
@@ -2493,6 +2510,7 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
         if ((ret = reactorChannel.Submit(requestMsg, submitOptions, out var ErrorInfo))
             < ReactorReturnCode.SUCCESS)
         {
+            using var lockScope = m_OmmIProviderImpl.GetUserLocker().EnterLockScope();
             StringBuilder message = m_OmmIProviderImpl.GetStrBuilder();
 
             if (m_OmmIProviderImpl.GetLoggerClient().IsErrorEnabled)

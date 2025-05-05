@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -6948,10 +6948,11 @@ namespace LSEG.Eta.Codec
         internal static CodecReturnCode EncodeSeriesEntryInit(EncodeIterator iter, SeriesEntry seriesEntry, int maxEncodingSize)
         {
             Series series;
-            EncodingLevel _levelInfo = iter._levelInfo[iter._encodingLevel];
+            EncodingLevel _levelInfo;
 
             /* Validations */
             Debug.Assert(null != iter && null != seriesEntry, "Invalid parameters or parameters passed in as NULL");
+            _levelInfo = iter._levelInfo[iter._encodingLevel];
             Debug.Assert(_levelInfo._containerType == DataTypes.SERIES, "Invalid encoding attempted - wrong type");
             Debug.Assert(_levelInfo._encodingState == EncodeIteratorStates.ENTRIES, "Unexpected encoding attempted");
             Debug.Assert(iter._curBufPos != 0, "Invalid encoding attempted - check buffer");

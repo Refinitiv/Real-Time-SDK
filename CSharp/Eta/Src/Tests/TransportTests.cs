@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1127,10 +1127,6 @@ namespace LSEG.Eta.Transports.Tests
     [Category("Transport")]
     public class TransportServerTests : IDisposable
     {
-        // certificates used by the Provider, can be found in the esdk-pkg repository
-        private const string CERTIFICATE_CRT = "certificate.test.crt";
-        private const string CERTIFICATE_KEY = "certificate.test.key";
-
         // how long is the test is expected to successfully complete, in milliseconds
         private const int DEFAULT_TIMEOUT = 10_000;
 
@@ -1589,11 +1585,6 @@ namespace LSEG.Eta.Transports.Tests
 
         public TransportServerTests()
         {
-            Assert.True(System.IO.File.Exists(CERTIFICATE_CRT),
-                $"Certificate file {CERTIFICATE_CRT} should be copied from the esdk-pkg repository to {System.IO.Directory.GetCurrentDirectory()}");
-            Assert.True(System.IO.File.Exists(CERTIFICATE_KEY),
-                $"Certificate key file {CERTIFICATE_KEY} should be copied from the esdk-pkg repository to {System.IO.Directory.GetCurrentDirectory()}");
-
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384);
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384);
@@ -1681,8 +1672,8 @@ namespace LSEG.Eta.Transports.Tests
                 BindEncryptionOpts =
                 {
                     EncryptionProtocolFlags = protocolFlags,
-                    ServerCertificate = CERTIFICATE_CRT,
-                    ServerPrivateKey = CERTIFICATE_KEY
+                    ServerCertificate = CertificateUtil.CERTIFICATE_CRT,
+                    ServerPrivateKey = CertificateUtil.CERTIFICATE_KEY
                 }
             };
 
@@ -1827,8 +1818,8 @@ namespace LSEG.Eta.Transports.Tests
                 BindEncryptionOpts =
                 {
                     EncryptionProtocolFlags = protocol,
-                    ServerCertificate = CERTIFICATE_CRT,
-                    ServerPrivateKey = CERTIFICATE_KEY,
+                    ServerCertificate = CertificateUtil.CERTIFICATE_CRT,
+                    ServerPrivateKey = CertificateUtil.CERTIFICATE_KEY,
                     TlsCipherSuites = cipherSuites
                 }
             };

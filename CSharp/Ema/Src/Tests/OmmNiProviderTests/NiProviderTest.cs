@@ -1168,7 +1168,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
             Assert.Null(exception);
 
-            provider?.Uninitialize();
+            provider.Uninitialize();
             adhSimulator.UnInitialize();
         }
 

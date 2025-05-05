@@ -1,11 +1,12 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
+using LSEG.Eta.Common;
 using LSEG.Eta.ValueAdd.Reactor;
 using System;
 using System.Collections.Generic;
@@ -58,16 +59,18 @@ namespace LSEG.Ema.Access
             {
                 if (m_ServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
+                    using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                        .Append("Received ReactorChannelEvent without a ");
 
                     if (clientSession == null)
                     {
-                        strBuilder.AppendLine("Received ReactorChannelEvent without a ClientSession")
+                        strBuilder.AppendLine("ClientSession")
                             .AppendLine($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
                     }
                     else
                     {
-                        strBuilder.AppendLine("Received ReactorChannelEvent without a ReactorChannel")
+                        strBuilder.AppendLine("ReactorChannel")
                             .AppendLine($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
                     }
 
@@ -83,9 +86,9 @@ namespace LSEG.Ema.Access
                     {
                         if (m_ServerBaseImpl.GetLoggerClient().IsTraceEnabled)
                         {
-                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-
-                            strBuilder.AppendLine($"Received ChannelOpened on client handle {clientSession.ClientHandle}")
+                            using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                .AppendLine($"Received ChannelOpened on client handle {clientSession.ClientHandle}")
                                 .AppendLine($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                             m_ServerBaseImpl.GetLoggerClient().Trace(CLIENT_NAME, strBuilder.ToString());
@@ -118,9 +121,9 @@ namespace LSEG.Ema.Access
 
                         if (m_ServerBaseImpl.GetLoggerClient().IsInfoEnabled)
                         {
-                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-
-                            strBuilder.AppendLine($"Received ChannelUp on client handle {clientSession.ClientHandle}")
+                            using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                .AppendLine($"Received ChannelUp on client handle {clientSession.ClientHandle}")
                                 .AppendLine($"\tInstance Name {m_ServerBaseImpl.InstanceName}")
                                 .Append($"\tComponent Version {componentInfoString}");
 
@@ -134,9 +137,9 @@ namespace LSEG.Ema.Access
                         {
                             if (m_ServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                             {
-                                StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-
-                                strBuilder.AppendLine($"Failed to set send buffer size on client handle  {clientSession.ClientHandle}")
+                                using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                                StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                    .AppendLine($"Failed to set send buffer size on client handle  {clientSession.ClientHandle}")
                                     .AppendLine($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                                 if (reactorChannel != null && reactorChannel.Channel != null)
@@ -170,9 +173,9 @@ namespace LSEG.Ema.Access
                         {
                             if (m_ServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                             {
-                                StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-
-                                strBuilder.AppendLine($"Failed to set receive buffer size on client handle  {clientSession.ClientHandle}")
+                                using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                                StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                    .AppendLine($"Failed to set receive buffer size on client handle  {clientSession.ClientHandle}")
                                     .AppendLine($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                                 if (reactorChannel != null && reactorChannel.Channel != null)
@@ -208,9 +211,9 @@ namespace LSEG.Ema.Access
                             {
                                 if (m_ServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                                 {
-                                    StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-
-                                    strBuilder.AppendLine($"Failed to set compression threshold on client handle  {clientSession.ClientHandle}")
+                                    using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                                    StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                        .AppendLine($"Failed to set compression threshold on client handle  {clientSession.ClientHandle}")
                                         .AppendLine($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                                     if (reactorChannel != null && reactorChannel.Channel != null)
@@ -245,9 +248,9 @@ namespace LSEG.Ema.Access
                         {
                             if (m_ServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                             {
-                                StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-
-                                strBuilder.AppendLine($"Failed to set high water mark on on client handle  {clientSession.ClientHandle}")
+                                using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                                StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                    .AppendLine($"Failed to set high water mark on on client handle  {clientSession.ClientHandle}")
                                     .AppendLine($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                                 if (reactorChannel != null && reactorChannel.Channel != null)
@@ -279,9 +282,9 @@ namespace LSEG.Ema.Access
                         {
                             if (m_ServerBaseImpl.GetLoggerClient().IsTraceEnabled)
                             {
-                                StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-
-                                strBuilder.AppendLine($"High water mark set on client handle {clientSession.ClientHandle}")
+                                using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                                StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                    .AppendLine($"High water mark set on client handle {clientSession.ClientHandle}")
                                     .AppendLine($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                                 m_ServerBaseImpl.GetLoggerClient().Trace(CLIENT_NAME, strBuilder.ToString());
@@ -298,8 +301,9 @@ namespace LSEG.Ema.Access
 
                         if (m_ServerBaseImpl.GetLoggerClient().IsTraceEnabled)
                         {
-                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-                            strBuilder.AppendLine($"Received FD Change event on client handle {clientSession.ClientHandle}")
+                            using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                .AppendLine($"Received FD Change event on client handle {clientSession.ClientHandle}")
                                 .Append($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                             m_ServerBaseImpl.GetLoggerClient().Trace(CLIENT_NAME, strBuilder.ToString());
@@ -313,8 +317,9 @@ namespace LSEG.Ema.Access
                     {
                         if (m_ServerBaseImpl.GetLoggerClient().IsTraceEnabled)
                         {
-                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-                            strBuilder.AppendLine($"Received ChannelReady event on client handle {clientSession.ClientHandle}")
+                            using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                .AppendLine($"Received ChannelReady event on client handle {clientSession.ClientHandle}")
                                 .Append($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                             m_ServerBaseImpl.GetLoggerClient().Trace(CLIENT_NAME, strBuilder.ToString());
@@ -326,8 +331,9 @@ namespace LSEG.Ema.Access
                     {
                         if (m_ServerBaseImpl.GetLoggerClient().IsWarnEnabled)
                         {
-                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-                            strBuilder.AppendLine($"Received ChannelDown event on client handle {clientSession.ClientHandle}")
+                            using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                .AppendLine($"Received ChannelDown event on client handle {clientSession.ClientHandle}")
                                 .Append($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                             if (reactorChannel != null && reactorChannel.Channel != null)
@@ -365,8 +371,9 @@ namespace LSEG.Ema.Access
                     {
                         if (m_ServerBaseImpl.GetLoggerClient().IsWarnEnabled)
                         {
-                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-                            strBuilder.AppendLine($"Received Channel warning event on client handle {clientSession.ClientHandle}")
+                            using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                .AppendLine($"Received Channel warning event on client handle {clientSession.ClientHandle}")
                                 .Append($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                             if (reactorChannel != null && reactorChannel.Channel != null)
@@ -396,8 +403,9 @@ namespace LSEG.Ema.Access
                     {
                         if (m_ServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                         {
-                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
-                            strBuilder.AppendLine($"Received unknown channel event type {evt.EventType}")
+                            using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
+                            StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder()
+                                .AppendLine($"Received unknown channel event type {evt.EventType}")
                                 .Append($"\tInstance Name {m_ServerBaseImpl.InstanceName}");
 
                             if (reactorChannel != null && reactorChannel.Channel != null)
@@ -438,6 +446,7 @@ namespace LSEG.Ema.Access
             {
                 if (reactorChannel.Reactor != null && reactorChannel.Close(out m_ReactorErrorInfo) != ReactorReturnCode.SUCCESS)
                 {
+                    using var lockScope = m_ServerBaseImpl.GetUserLocker().EnterLockScope();
                     StringBuilder strBuilder = m_ServerBaseImpl.GetStrBuilder();
 
                     strBuilder.AppendLine($"Failed to close reactor channel  {clientSession.ClientHandle}")

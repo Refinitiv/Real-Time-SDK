@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -45,7 +45,7 @@ namespace LSEG.Ema.Access
 
         private bool m_receivedEvent;
 
-        internal readonly StringBuilder m_StringBuilder = new (2048);
+        private readonly StringBuilder m_StringBuilder = new (2048);
         private readonly StringBuilder m_DispatchStringBuilder = new(1024);
 
         private readonly List<Socket> registerSocketList = new();
@@ -61,8 +61,6 @@ namespace LSEG.Ema.Access
         private bool m_LogDispatchError = true;
 
         private readonly ILoggerClient m_LoggerClient;
-
-        private readonly EmaObjectManager m_ObjectManager = new();
 
         private readonly RequestMsg m_EmaRequestMsg;
         private readonly RefreshMsg m_EmaRefreshMsg;
@@ -227,9 +225,9 @@ namespace LSEG.Ema.Access
 
                 if (eventSignal.InitEventSignal() != 0)
                 {
-                    GetStrBuilder().Append("Failed to initiate event signal for timeout in OmmServerBaseImpl (EventSingnal.InitEventSignal()).");
-
-                    string errorText = m_StringBuilder.ToString();
+                    string errorText = GetStrBuilder()
+                        .Append("Failed to initiate event signal for timeout in OmmServerBaseImpl (EventSingnal.InitEventSignal()).")
+                        .ToString();
 
                     throw new OmmInvalidUsageException(errorText, OmmInvalidUsageException.ErrorCodes.INTERNAL_ERROR);
                 }
@@ -260,13 +258,13 @@ namespace LSEG.Ema.Access
 
                 if (reactorErrInfo != null)
                 {
-                    GetStrBuilder().Append("Failed to initialize OmmServerBaseImpl (Reactor.CreateReactor).")
-                        .Append($" Error Id={reactorErrInfo.Error.ErrorId}")
-                        .Append($" Internal sysError={reactorErrInfo.Error.SysError}")
-                        .Append($" Error Location={reactorErrInfo.Location}")
-                        .Append($" Error Text={reactorErrInfo.Error.Text}.");
-
-                    string errorText = m_StringBuilder.ToString();
+                    string errorText = GetStrBuilder()
+                        .Append("Failed to initialize OmmServerBaseImpl (Reactor.CreateReactor).")
+                        .Append(" Error Id=").Append(reactorErrInfo.Error.ErrorId)
+                        .Append(" Internal sysError=").Append(reactorErrInfo.Error.SysError)
+                        .Append(" Error Location=").Append(reactorErrInfo.Location)
+                        .Append(" Error Text=").Append(reactorErrInfo.Error.Text).Append('.')
+                        .ToString();
 
                     throw new OmmInvalidUsageException(errorText, OmmInvalidUsageException.ErrorCodes.INTERNAL_ERROR);
                 }
@@ -305,12 +303,12 @@ namespace LSEG.Ema.Access
 
                 if(m_Server == null)
                 {
-                    GetStrBuilder().Append("Failed to initialize OmmServerBaseImpl (Transport.Bind).")
-                        .Append($" Error Id={error.ErrorId}")
-                        .Append($" Internal sysError={error.SysError}")
-                        .Append($" Error Text={error.Text}.");
-
-                    string errorText = m_StringBuilder.ToString();
+                    string errorText = GetStrBuilder()
+                        .Append("Failed to initialize OmmServerBaseImpl (Transport.Bind).")
+                        .Append(" Error Id=").Append(error.ErrorId)
+                        .Append(" Internal sysError=").Append(error.SysError)
+                        .Append(" Error Text=").Append(error.Text).Append('.')
+                        .ToString();
 
                     if(m_LoggerClient.IsErrorEnabled)
                     {
@@ -627,38 +625,38 @@ namespace LSEG.Ema.Access
 
         private string DumpActiveConfig(OmmIProviderConfigImpl configImpl)
         {
-            StringBuilder strBuilder = GetStrBuilder();
-
-            strBuilder.Append($"Print out active configuration detail.{ILoggerClient.CR}")
-                   .Append($"ConfiguredName: {configImpl.IProviderConfig.Name}{ILoggerClient.CR}")
-                   .Append($"InstanceName: {InstanceName}{ILoggerClient.CR}")
-                   .Append($"ItemCountHint: {configImpl.IProviderConfig.ItemCountHint}{ILoggerClient.CR}")
-                   .Append($"ServiceCountHint: {configImpl.IProviderConfig.ServiceCountHint}{ILoggerClient.CR}")
-                   .Append($"MaxDispatchCountApiThread: {configImpl.IProviderConfig.MaxDispatchCountApiThread}{ILoggerClient.CR}")
-                   .Append($"MaxDispatchCountUserThread: {configImpl.IProviderConfig.MaxDispatchCountUserThread}{ILoggerClient.CR}")
-                   .Append($"DispatchTimeoutApiThread: {configImpl.IProviderConfig.DispatchTimeoutApiThread}{ILoggerClient.CR}")
-                   .Append($"DispatchMode: {configImpl.DispatchModel}{ILoggerClient.CR}")
-                   .Append($"RequestTimeout: {configImpl.IProviderConfig.RequestTimeout}{ILoggerClient.CR}")
-                   .Append($"XmlTraceToStdout: {configImpl.IProviderConfig.XmlTraceToStdout}{ILoggerClient.CR}")
-                   .Append($"XmlTraceToFile: {configImpl.IProviderConfig.XmlTraceToFile}{ILoggerClient.CR}")
-                   .Append($"XmlTraceMaxFileSize: {configImpl.IProviderConfig.XmlTraceMaxFileSize}{ILoggerClient.CR}")
-                   .Append($"XmlTraceFileName: {configImpl.IProviderConfig.XmlTraceFileName}{ILoggerClient.CR}")
-                   .Append($"XmlTraceToMultipleFiles: {configImpl.IProviderConfig.XmlTraceToMultipleFiles}{ILoggerClient.CR}")
-                   .Append($"XmlTraceWrite: {configImpl.IProviderConfig.XmlTraceWrite}{ILoggerClient.CR}")
-                   .Append($"XmlTraceRead: {configImpl.IProviderConfig.XmlTraceRead}{ILoggerClient.CR}")
-                   .Append($"XmlTracePing: {configImpl.IProviderConfig.XmlTracePing}{ILoggerClient.CR}")
-                   .Append($"AcceptMessageWithoutBeingLogin: {configImpl.IProviderConfig.AcceptMessageWithoutBeingLogin}{ILoggerClient.CR}")
-                   .Append($"AcceptMessageWithoutAcceptingRequests: {configImpl.IProviderConfig.AcceptMessageWithoutAcceptingRequests}{ILoggerClient.CR}")
-                   .Append($"AcceptDirMessageWithoutMinFilters: {configImpl.IProviderConfig.AcceptDirMessageWithoutMinFilters}{ILoggerClient.CR}")
-                   .Append($"AcceptMessageWithoutQosInRange: {configImpl.IProviderConfig.AcceptMessageWithoutQosInRange}{ILoggerClient.CR}")
-                   .Append($"AcceptMessageSameKeyButDiffStream: {configImpl.IProviderConfig.AcceptMessageSameKeyButDiffStream}{ILoggerClient.CR}")
-                   .Append($"AcceptMessageThatChangesService: {configImpl.IProviderConfig.AcceptMessageThatChangesService}{ILoggerClient.CR}")
-                   .Append($"EnforceAckIDValidation: {configImpl.IProviderConfig.EnforceAckIDValidation}{ILoggerClient.CR}")
-                   .Append($"DirectoryAdminControl: {configImpl.AdminControlDirectory}{ILoggerClient.CR}")
-                   .Append($"DictionaryAdminControl: {configImpl.AdminControlDictionary}{ILoggerClient.CR}")
-                   .Append($"RefreshFirstRequired: {configImpl.IProviderConfig.RefreshFirstRequired}{ILoggerClient.CR}")
-                   .Append($"MaxFieldDictFragmentSize: {configImpl.IProviderConfig.FieldDictionaryFragmentSize}{ILoggerClient.CR}")
-                   .Append($"MaxEnumTypeFragmentSize: {configImpl.IProviderConfig.EnumTypeFragmentSize}{ILoggerClient.CR}");
+            using var lockScope = GetUserLocker().EnterLockScope();
+            StringBuilder strBuilder = GetStrBuilder()
+                .Append($"Print out active configuration detail.{ILoggerClient.CR}")
+                .Append($"ConfiguredName: {configImpl.IProviderConfig.Name}{ILoggerClient.CR}")
+                .Append($"InstanceName: {InstanceName}{ILoggerClient.CR}")
+                .Append($"ItemCountHint: {configImpl.IProviderConfig.ItemCountHint}{ILoggerClient.CR}")
+                .Append($"ServiceCountHint: {configImpl.IProviderConfig.ServiceCountHint}{ILoggerClient.CR}")
+                .Append($"MaxDispatchCountApiThread: {configImpl.IProviderConfig.MaxDispatchCountApiThread}{ILoggerClient.CR}")
+                .Append($"MaxDispatchCountUserThread: {configImpl.IProviderConfig.MaxDispatchCountUserThread}{ILoggerClient.CR}")
+                .Append($"DispatchTimeoutApiThread: {configImpl.IProviderConfig.DispatchTimeoutApiThread}{ILoggerClient.CR}")
+                .Append($"DispatchMode: {configImpl.DispatchModel}{ILoggerClient.CR}")
+                .Append($"RequestTimeout: {configImpl.IProviderConfig.RequestTimeout}{ILoggerClient.CR}")
+                .Append($"XmlTraceToStdout: {configImpl.IProviderConfig.XmlTraceToStdout}{ILoggerClient.CR}")
+                .Append($"XmlTraceToFile: {configImpl.IProviderConfig.XmlTraceToFile}{ILoggerClient.CR}")
+                .Append($"XmlTraceMaxFileSize: {configImpl.IProviderConfig.XmlTraceMaxFileSize}{ILoggerClient.CR}")
+                .Append($"XmlTraceFileName: {configImpl.IProviderConfig.XmlTraceFileName}{ILoggerClient.CR}")
+                .Append($"XmlTraceToMultipleFiles: {configImpl.IProviderConfig.XmlTraceToMultipleFiles}{ILoggerClient.CR}")
+                .Append($"XmlTraceWrite: {configImpl.IProviderConfig.XmlTraceWrite}{ILoggerClient.CR}")
+                .Append($"XmlTraceRead: {configImpl.IProviderConfig.XmlTraceRead}{ILoggerClient.CR}")
+                .Append($"XmlTracePing: {configImpl.IProviderConfig.XmlTracePing}{ILoggerClient.CR}")
+                .Append($"AcceptMessageWithoutBeingLogin: {configImpl.IProviderConfig.AcceptMessageWithoutBeingLogin}{ILoggerClient.CR}")
+                .Append($"AcceptMessageWithoutAcceptingRequests: {configImpl.IProviderConfig.AcceptMessageWithoutAcceptingRequests}{ILoggerClient.CR}")
+                .Append($"AcceptDirMessageWithoutMinFilters: {configImpl.IProviderConfig.AcceptDirMessageWithoutMinFilters}{ILoggerClient.CR}")
+                .Append($"AcceptMessageWithoutQosInRange: {configImpl.IProviderConfig.AcceptMessageWithoutQosInRange}{ILoggerClient.CR}")
+                .Append($"AcceptMessageSameKeyButDiffStream: {configImpl.IProviderConfig.AcceptMessageSameKeyButDiffStream}{ILoggerClient.CR}")
+                .Append($"AcceptMessageThatChangesService: {configImpl.IProviderConfig.AcceptMessageThatChangesService}{ILoggerClient.CR}")
+                .Append($"EnforceAckIDValidation: {configImpl.IProviderConfig.EnforceAckIDValidation}{ILoggerClient.CR}")
+                .Append($"DirectoryAdminControl: {configImpl.AdminControlDirectory}{ILoggerClient.CR}")
+                .Append($"DictionaryAdminControl: {configImpl.AdminControlDictionary}{ILoggerClient.CR}")
+                .Append($"RefreshFirstRequired: {configImpl.IProviderConfig.RefreshFirstRequired}{ILoggerClient.CR}")
+                .Append($"MaxFieldDictFragmentSize: {configImpl.IProviderConfig.FieldDictionaryFragmentSize}{ILoggerClient.CR}")
+                .Append($"MaxEnumTypeFragmentSize: {configImpl.IProviderConfig.EnumTypeFragmentSize}{ILoggerClient.CR}");
 
             return strBuilder.ToString();
         }
@@ -686,9 +684,13 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public StringBuilder GetStrBuilder()
+        public StringBuilder GetStrBuilder(bool clearPrevValue = true)
         {
-            m_StringBuilder.Clear();
+            if (clearPrevValue)
+            {
+                m_StringBuilder.Clear();
+            }
+
             return m_StringBuilder;
         }
 
@@ -781,10 +783,10 @@ namespace LSEG.Ema.Access
 
             if (GetLoggerClient().IsTraceEnabled)
             {
-                m_StringBuilder.Length = 0;
-                m_StringBuilder.Append("Added ItemInfo ").Append(itemInfo.Handle).Append(" to ItemInfoMap").Append(ILoggerClient.CR)
-                .Append("Client handle ").Append(itemInfo.ClientSession.ClientHandle);
-                GetLoggerClient().Trace(InstanceName, m_StringBuilder.ToString());
+                var traceTextBuilder = GetStrBuilder()
+                    .Append("Added ItemInfo ").Append(itemInfo.Handle).Append(" to ItemInfoMap")
+                    .Append(ILoggerClient.CR).Append("Client handle ").Append(itemInfo.ClientSession.ClientHandle);
+                GetLoggerClient().Trace(InstanceName, traceTextBuilder.ToString());
             }
 
             GetUserLocker().Exit();

@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -178,6 +178,7 @@ namespace LSEG.Ema.Access
 
         public void ModifyIOCtl(IOCtlCode code, int val)
         {
+            using var lockScope = GetUserLocker().EnterLockScope();
             StringBuilder text = GetStrBuilder();
 
             text.Append("IProvider applications do not support the ModifyIOCtl(int code, int value) method.");
@@ -603,22 +604,23 @@ namespace LSEG.Ema.Access
                     }
 
                     int errorCode;
-                    var errorText = GetStrBuilder();
-                    if (!m_OmmIProviderDirectoryStore.DecodeSourceDirectory(refreshMsgImpl.m_rsslMsg, errorText, out errorCode))
+                    var errorTextBuilder = GetStrBuilder();
+                    if (!m_OmmIProviderDirectoryStore.DecodeSourceDirectory(refreshMsgImpl.m_rsslMsg, errorTextBuilder, out errorCode))
                     {
-                        HandleInvalidUsage(errorText.ToString(), errorCode);
+                        HandleInvalidUsage(errorTextBuilder.ToString(), errorCode);
                         return;
                     }
 
                     clientSession = handle != 0 ? itemInfo!.ClientSession : null;
 
-                    if (!m_OmmIProviderDirectoryStore.SubmitSourceDirectory(clientSession, refreshMsgImpl.m_rsslMsg, GetStrBuilder(), m_StoreUserSubmitted, out errorCode))
+                    errorTextBuilder = GetStrBuilder();
+                    if (!m_OmmIProviderDirectoryStore.SubmitSourceDirectory(clientSession, refreshMsgImpl.m_rsslMsg, errorTextBuilder, m_StoreUserSubmitted, out errorCode))
                     {
-                        StringBuilder text = new StringBuilder();
-                        text.Append("Attempt to submit invalid directory domain message.")
+                        StringBuilder text = new StringBuilder()
+                            .Append("Attempt to submit invalid directory domain message.")
                             .Append(ILoggerClient.CR)
                             .Append("Reason = ")
-                            .Append(m_StringBuilder);
+                            .Append(errorTextBuilder);
                         HandleInvalidUsage(text.ToString(), errorCode);
                         return;
                     }
@@ -740,12 +742,12 @@ namespace LSEG.Ema.Access
 
                 if (itemInfo == null && handle != 0)
                 {
-                    m_StringBuilder.Length = 0;
-                    m_StringBuilder.Append("Attempt to submit UpdateMsg with non existent Handle = ")
+                    var textBuilder = GetStrBuilder()
+                        .Append("Attempt to submit UpdateMsg with non existent Handle = ")
                         .Append(handle)
                         .Append(".");
 
-                    HandleInvalidHandle(handle, m_StringBuilder.ToString());
+                    HandleInvalidHandle(handle, textBuilder.ToString());
                     return;
                 }
 
@@ -763,25 +765,26 @@ namespace LSEG.Ema.Access
                     {
                         if (itemInfo != null && !itemInfo.SentRefresh)
                         {
-                            m_StringBuilder.Length = 0;
-                            m_StringBuilder.Append("Attempt to submit UpdateMsg with SourceDirectory while RefreshMsg was not submitted on this stream yet. Handle = ").
-                                Append(itemInfo.Handle);
-                            HandleInvalidUsage(m_StringBuilder.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
+                            var textBuilder = GetStrBuilder()
+                                .Append("Attempt to submit UpdateMsg with SourceDirectory while RefreshMsg was not submitted on this stream yet. Handle = ")
+                                .Append(itemInfo.Handle);
+                            HandleInvalidUsage(textBuilder.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
                             return;
                         }
                     }
 
                     if (updateMsg.m_rsslMsg.ContainerType != Eta.Codec.DataTypes.MAP)
                     {
-                        m_StringBuilder.Length = 0;
-                        HandleInvalidUsage(m_StringBuilder.Append("Attempt to submit UpdateMsg with directory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
-                            .Append(DataType.AsString(updateMsg.Payload().DataType)).ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+                        var textBuilder = GetStrBuilder()
+                            .Append("Attempt to submit UpdateMsg with directory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
+                            .Append(DataType.AsString(updateMsg.Payload().DataType));
+                        HandleInvalidUsage(textBuilder.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
                         return;
                     }
 
                     if (!m_OmmIProviderDirectoryStore.DecodeSourceDirectory(updateMsg.m_rsslMsg, GetStrBuilder(), out var intCode))
                     {
-                        HandleInvalidUsage(m_StringBuilder.ToString(), intCode);
+                        HandleInvalidUsage(GetStrBuilder(clearPrevValue: false).ToString(), intCode);
                         return;
                     }
 
@@ -789,11 +792,11 @@ namespace LSEG.Ema.Access
 
                     if (!m_OmmIProviderDirectoryStore.SubmitSourceDirectory(clientSession, updateMsg.m_rsslMsg, GetStrBuilder(), m_StoreUserSubmitted, out intCode))
                     {
-                        var tmp = new StringBuilder();
-                        tmp.Append("Attempt to submit invalid directory domain message.")
+                        var tmp = new StringBuilder()
+                            .Append("Attempt to submit invalid directory domain message.")
                             .Append(ILoggerClient.CR)
                             .Append("Reason = ")
-                            .Append(m_StringBuilder);
+                            .Append(GetStrBuilder(clearPrevValue: false));
                         HandleInvalidUsage(tmp.ToString(), intCode);
                         return;
                     }
@@ -1080,8 +1083,9 @@ namespace LSEG.Ema.Access
 
                 if (GetLoggerClient().IsTraceEnabled)
                 {
-                    StringBuilder text = GetStrBuilder();
-                    text.Append(logText).Append(itemInfo.Handle)
+                    using var lockScope = GetUserLocker().EnterLockScope();
+                    StringBuilder text = GetStrBuilder()
+                        .Append(logText).Append(itemInfo.Handle)
                         .Append(", client handle = ")
                         .Append(itemInfo.ClientSession!.ClientHandle).Append(".");
 
@@ -1150,8 +1154,9 @@ namespace LSEG.Ema.Access
                                     {
                                         if (GetLoggerClient().IsWarnEnabled)
                                         {
-                                            StringBuilder text = GetStrBuilder();
-                                            text.Append("Skip sending source directory update message for handle ")
+                                            using var lockScope = GetUserLocker().EnterLockScope();
+                                            StringBuilder text = GetStrBuilder()
+                                                .Append("Skip sending source directory update message for handle ")
                                                 .Append(itemInfo.Handle).Append(", client handle ")
                                                 .Append(itemInfo.ClientSession!.ClientHandle).Append(" as refresh message is required first.");
 
@@ -1209,11 +1214,13 @@ namespace LSEG.Ema.Access
 
                         if (ReactorReturnCode.SUCCESS > ret)
                         {
+                            using var lockScope = GetUserLocker().EnterLockScope();
                             if (GetLoggerClient().IsErrorEnabled)
                             {
                                 Eta.Transports.Error error = m_ReactorErrorInfo!.Error;
 
-                                GetStrBuilder().Append("Internal error: ReactorChannel.Submit() failed in OmmProviderImpl.Submit(")
+                                var errorTextBuilder = GetStrBuilder()
+                                    .Append("Internal error: ReactorChannel.Submit() failed in OmmProviderImpl.Submit(")
                                     .Append(DataType.AsString(msgImpl.DataType)).Append(")").Append(ILoggerClient.CR)
                                     .Append("Client handle ").Append(itemInfo.ClientSession.ClientHandle).Append(ILoggerClient.CR)
                                     .Append("Error Id ").Append(error.ErrorId).Append(ILoggerClient.CR)
@@ -1221,10 +1228,10 @@ namespace LSEG.Ema.Access
                                     .Append("Error Location ").Append(m_ReactorErrorInfo.Location).Append(ILoggerClient.CR)
                                     .Append("Error Text ").Append(error.Text);
 
-                                GetLoggerClient().Error(InstanceName, m_StringBuilder.ToString());
+                                GetLoggerClient().Error(InstanceName, errorTextBuilder.ToString());
                             }
-                            var failText = GetStrBuilder();
-                            failText.Append("Failed to submit ")
+                            var failText = GetStrBuilder()
+                                .Append("Failed to submit ")
                                 .Append(DataType.AsString(msgImpl.DataType)).Append(". Reason: ")
                                 .Append(ret)
                                 .Append(". Error text: ")
@@ -1243,8 +1250,9 @@ namespace LSEG.Ema.Access
                         {
                             if (GetLoggerClient().IsWarnEnabled)
                             {
-                                StringBuilder warnText = GetStrBuilder();
-                                warnText.Append("Skip sending update message for handle ")
+                                using var lockScope = GetUserLocker().EnterLockScope();
+                                StringBuilder warnText = GetStrBuilder()
+                                    .Append("Skip sending update message for handle ")
                                     .Append(itemInfo.Handle)
                                     .Append(", client handle ")
                                     .Append(itemInfo.ClientSession!.ClientHandle).Append(" as refresh message is required first.");
@@ -1285,12 +1293,14 @@ namespace LSEG.Ema.Access
             ReactorReturnCode ret;
             if (ReactorReturnCode.SUCCESS > (ret = clientSession.Channel().Submit(msgImpl.m_rsslMsg, GetSubmitOptions(), out m_ReactorErrorInfo)))
             {
+                using var lockScope = GetUserLocker().EnterLockScope();
+
                 if (GetLoggerClient().IsErrorEnabled)
                 {
                     Eta.Transports.Error error = m_ReactorErrorInfo!.Error;
 
-                    StringBuilder errorLogText = GetStrBuilder();
-                    errorLogText.Append("Internal error: rsslChannel.Submit() failed in OmmProviderImpl.Submit(")
+                    StringBuilder errorLogText = GetStrBuilder()
+                        .Append("Internal error: rsslChannel.Submit() failed in OmmProviderImpl.Submit(")
                         .Append(DataType.AsString(msgImpl.DataType)).Append(")").Append(ILoggerClient.CR)
                         .Append("Client handle ").Append(clientSession.ClientHandle).Append(ILoggerClient.CR)
                         .Append("Error Id ").Append(error.ErrorId).Append(ILoggerClient.CR)
@@ -1301,8 +1311,8 @@ namespace LSEG.Ema.Access
                     GetLoggerClient().Error(InstanceName, errorLogText.ToString());
                 }
 
-                StringBuilder submitLogText = GetStrBuilder();
-                submitLogText.Append("Failed to submit ")
+                StringBuilder submitLogText = GetStrBuilder()
+                    .Append("Failed to submit ")
                     .Append(DataType.AsString(msgImpl.DataType)).Append(". Reason: ")
                     .Append(ret)
                     .Append(". Error text: ")

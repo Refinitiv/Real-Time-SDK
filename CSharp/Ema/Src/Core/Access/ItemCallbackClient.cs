@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -923,6 +923,7 @@ namespace LSEG.Ema.Access
             {
                 if (commonImpl.GetLoggerClient().IsErrorEnabled)
                 {
+                    using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
                     StringBuilder strBuilder = commonImpl.GetStrBuilder();
                     Error error = msgEvent.ReactorErrorInfo.Error;
 
@@ -951,9 +952,9 @@ namespace LSEG.Ema.Access
                     {
                         if (commonImpl.GetLoggerClient().IsErrorEnabled)
                         {
-                            StringBuilder strBuilder = commonImpl.GetStrBuilder();
-
-                            strBuilder.AppendLine($"Received an item event without a matching stream Id {msg.StreamId}")
+                            using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                            StringBuilder strBuilder = commonImpl.GetStrBuilder()
+                                .AppendLine($"Received an item event without a matching stream Id {msg.StreamId}")
                                 .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                                 .AppendLine($"\tReactor {channelInfo.Reactor.GetHashCode()}");
 
@@ -964,7 +965,7 @@ namespace LSEG.Ema.Access
                             }
                             else
                             {
-                                strBuilder.AppendLine($"\tReactorChannel is null");
+                                strBuilder.AppendLine("\tReactorChannel is null");
                             }
 
                             commonImpl.GetLoggerClient().Error(CLIENT_NAME, strBuilder.ToString());
@@ -985,9 +986,9 @@ namespace LSEG.Ema.Access
                     {
                         if (commonImpl.GetLoggerClient().IsErrorEnabled)
                         {
-                            StringBuilder strBuilder = commonImpl.GetStrBuilder();
-
-                            strBuilder.AppendLine($"Received response is mismatch with the initlal request for stream Id {streamId}")
+                            using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                            StringBuilder strBuilder = commonImpl.GetStrBuilder()
+                                .AppendLine($"Received response is mismatch with the initlal request for stream Id {streamId}")
                                 .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                                 .AppendLine($"\tReactor {channelInfo.Reactor.GetHashCode()}");
 
@@ -998,7 +999,7 @@ namespace LSEG.Ema.Access
                             }
                             else
                             {
-                                strBuilder.AppendLine($"\tReactorChannel is null");
+                                strBuilder.AppendLine("\tReactorChannel is null");
                             }
 
                             commonImpl.GetLoggerClient().Error(CLIENT_NAME, strBuilder.ToString());
@@ -1011,9 +1012,9 @@ namespace LSEG.Ema.Access
                 {
                     if (commonImpl.GetLoggerClient().IsErrorEnabled)
                     {
-                        StringBuilder strBuilder = commonImpl.GetStrBuilder();
-
-                        strBuilder.AppendLine("Received an item event without user specified pointer or stream info")
+                        using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                        StringBuilder strBuilder = commonImpl.GetStrBuilder()
+                            .AppendLine("Received an item event without user specified pointer or stream info")
                             .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                             .AppendLine($"\tReactor {channelInfo.Reactor.GetHashCode()}");
 
@@ -1024,7 +1025,7 @@ namespace LSEG.Ema.Access
                         }
                         else
                         {
-                            strBuilder.AppendLine($"\tReactorChannel is null");
+                            strBuilder.AppendLine("\tReactorChannel is null");
                         }
 
                         commonImpl.GetLoggerClient().Error(CLIENT_NAME, strBuilder.ToString());
@@ -1068,8 +1069,9 @@ namespace LSEG.Ema.Access
 
                     if(commonImpl.GetLoggerClient().IsErrorEnabled)
                     {
-                        StringBuilder strBuilder = commonImpl.GetStrBuilder();
-                        strBuilder.AppendLine("Received an item event with message containing unhandled message class")
+                        using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                        StringBuilder strBuilder = commonImpl.GetStrBuilder()
+                            .AppendLine("Received an item event with message containing unhandled message class")
                             .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                             .AppendLine($"\tReactor {channelInfo.Reactor?.GetHashCode()}");
 
@@ -1102,8 +1104,9 @@ namespace LSEG.Ema.Access
             {
                 if (commonImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder temp = commonImpl.GetStrBuilder();
-                    temp.AppendLine($"Received an item event without a matching stream Id {msg.StreamId}")
+                    using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder temp = commonImpl.GetStrBuilder()
+                        .AppendLine($"Received an item event without a matching stream Id {msg.StreamId}")
                         .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                         .AppendLine($"\tReactor {clientSession.Channel().Reactor!.GetHashCode()}");
 
@@ -1138,8 +1141,9 @@ namespace LSEG.Ema.Access
             {
                 if (commonImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder temp = commonImpl.GetStrBuilder();
-                    temp.AppendLine($"Received response is mismatch with the initlal request for stream Id {streamId}")
+                    using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder temp = commonImpl.GetStrBuilder()
+                        .AppendLine($"Received response is mismatch with the initlal request for stream Id {streamId}")
                         .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                         .AppendLine($"\tReactor {clientSession.Channel().Reactor!.GetHashCode()}");
 
@@ -1168,8 +1172,9 @@ namespace LSEG.Ema.Access
                 default:
                     if (commonImpl.GetLoggerClient().IsErrorEnabled)
                     {
-                        StringBuilder temp = commonImpl.GetStrBuilder();
-                        temp.AppendLine("Received an item event with message containing unhandled message class")
+                        using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                        StringBuilder temp = commonImpl.GetStrBuilder()
+                            .AppendLine("Received an item event with message containing unhandled message class")
                             .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                             .AppendLine($"\tReactor {msgEvent.ReactorChannel.GetHashCode()}");
 
@@ -1204,9 +1209,9 @@ namespace LSEG.Ema.Access
                 {
                     if(commonImpl.GetLoggerClient().IsErrorEnabled)
                     {
-                        var strBuilder = commonImpl.GetStrBuilder();
-
-                        strBuilder.AppendLine($"Received an item event with invalid refresh message stream Id {msg.StreamId}")
+                        using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                        var strBuilder = commonImpl.GetStrBuilder()
+                            .AppendLine($"Received an item event with invalid refresh message stream Id {msg.StreamId}")
                             .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                             .AppendLine($"\tReactor {channelInfo.Reactor!.GetHashCode()}");
 
@@ -1266,9 +1271,9 @@ namespace LSEG.Ema.Access
                 {
                     if (commonImpl.GetLoggerClient().IsErrorEnabled)
                     {
-                        var strBuilder = commonImpl.GetStrBuilder();
-
-                        strBuilder.AppendLine($"Received an item event with invalid update message stream Id {msg.StreamId}")
+                        using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                        var strBuilder = commonImpl.GetStrBuilder()
+                            .AppendLine($"Received an item event with invalid update message stream Id {msg.StreamId}")
                             .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                             .AppendLine($"\tReactor {channelInfo.ReactorChannel!.Reactor!.GetHashCode()}");
 
@@ -1322,9 +1327,9 @@ namespace LSEG.Ema.Access
                 {
                     if (commonImpl.GetLoggerClient().IsErrorEnabled)
                     {
-                        var strBuilder = commonImpl.GetStrBuilder();
-
-                        strBuilder.AppendLine($"Received an item event with invalid status message stream Id {msg.StreamId}")
+                        using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                        var strBuilder = commonImpl.GetStrBuilder()
+                            .AppendLine($"Received an item event with invalid status message stream Id {msg.StreamId}")
                             .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                             .AppendLine($"\tReactor {channelInfo.Reactor!.GetHashCode()}");
 
@@ -1378,9 +1383,9 @@ namespace LSEG.Ema.Access
                 {
                     if (commonImpl.GetLoggerClient().IsErrorEnabled)
                     {
-                        var strBuilder = commonImpl.GetStrBuilder();
-
-                        strBuilder.AppendLine($"Received an item event with invalid generic message stream Id {msg.StreamId}")
+                        using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                        var strBuilder = commonImpl.GetStrBuilder()
+                            .AppendLine($"Received an item event with invalid generic message stream Id {msg.StreamId}")
                             .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
                             .AppendLine($"\tReactor {channelInfo.ReactorChannel!.Reactor!.GetHashCode()}");
 
@@ -1463,156 +1468,63 @@ namespace LSEG.Ema.Access
         public long RegisterClient(RequestMsg reqMsg, T client, object? closure)
         {
             IRequestMsg requestMsg = reqMsg.m_requestMsgEncoder.m_rsslMsg;
+            using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
 
             switch (requestMsg.DomainType)
             {
                 case (int)DomainType.LOGIN:
                     {
-                        commonImpl.GetUserLocker().Enter();
-                        try
-                        {
-                            SingleItem<T> item = m_OmmBaseImpl.LoginCallbackClient!.CreateLoginItem(reqMsg, client, closure);
+                        SingleItem<T> item = m_OmmBaseImpl.LoginCallbackClient!.CreateLoginItem(reqMsg, client, closure);
 
-                            return AddToItemMap(m_OmmBaseImpl.NextLongId(), item);
-                        }
-                        finally
-                        {
-                            commonImpl.GetUserLocker().Exit();
-                        }
+                        return AddToItemMap(m_OmmBaseImpl.NextLongId(), item);
                     }
                 case (int)DomainType.DICTIONARY:
                     {
-                        commonImpl.GetUserLocker().Enter();
-                        try
+                        int nameType = requestMsg.MsgKey.NameType;
+                        if ((nameType != InstrumentNameTypes.UNSPECIFIED) && (nameType != InstrumentNameTypes.RIC))
                         {
-                            int nameType = requestMsg.MsgKey.NameType;
-                            if ((nameType != InstrumentNameTypes.UNSPECIFIED) && (nameType != InstrumentNameTypes.RIC))
+                            StringBuilder message = commonImpl.GetStrBuilder()
+                                .AppendLine($"Invalid ReqMsg's name type : {nameType}.  Instance name='{commonImpl.InstanceName}'");
+
+                            if (commonImpl.GetLoggerClient().IsErrorEnabled)
                             {
-                                StringBuilder message = commonImpl.GetStrBuilder();
-
-                                message.AppendLine($"Invalid ReqMsg's name type : {nameType}.  Instance name='{commonImpl.InstanceName}'");
-
-                                if (commonImpl.GetLoggerClient().IsErrorEnabled)
-                                {
-                                    commonImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
-                                }
-
-                                commonImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
-
-                                return 0;
+                                commonImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
                             }
 
-                            if (!requestMsg.MsgKey.CheckHasName())
-                            {
-                                StringBuilder message = commonImpl.GetStrBuilder();
+                            commonImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
 
-                                message.Append($"ReqMsg's name is not defined. Instance name='{commonImpl.InstanceName}'.");
-
-                                if (commonImpl.GetLoggerClient().IsErrorEnabled)
-                                {
-                                    commonImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
-                                }
-
-                                commonImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
-
-                                return 0;
-                            }
-
-                            if (commonImpl.BaseType == IOmmCommonImpl.ImpleType.CONSUMER)
-                            {
-                                DictionaryItem<T>? item = (DictionaryItem<T>?)commonImpl.GetEmaObjManager().m_dictionaryItemPool.Poll();
-                                if (item == null)
-                                {
-                                    item = new DictionaryItem<T>(m_OmmBaseImpl, client, closure);
-                                    commonImpl.GetEmaObjManager().m_dictionaryItemPool.UpdatePool(item);
-                                }
-                                else
-                                {
-                                    item.ResetDictionaryItem(m_OmmBaseImpl, client, closure);
-                                }
-
-                                if (!item.OpenDictionaryItem(reqMsg))
-                                {
-                                    RemoveFromMap(item);
-                                    return 0;
-                                }
-                                else
-                                {
-                                    return item.ItemId;
-                                }
-                            }
-                            else if (commonImpl.BaseType == IOmmCommonImpl.ImpleType.NIPROVIDER)
-                            {
-                                NiProviderDictionaryItem<T> dictionaryItem = new (m_OmmBaseImpl, client, closure);
-
-                                if (!dictionaryItem.Open(reqMsg))
-                                {
-                                    RemoveFromMap(dictionaryItem);
-                                    return 0;
-                                }
-                                else
-                                {
-                                    return dictionaryItem.ItemId;
-                                }
-                            }
-                            else
-                            {
-                                Item<T> dictionaryItem = (Item<T>)(object)new IProviderDictionaryItem((OmmIProviderImpl)commonImpl,
-                                    (IOmmProviderClient)client!, closure);
-
-                                if (!dictionaryItem.Open(reqMsg))
-                                {
-                                    RemoveFromMap(dictionaryItem);
-                                    return 0;
-                                }
-                                else
-                                {
-                                    return dictionaryItem.ItemId;
-                                }
-                            }
+                            return 0;
                         }
-                        finally
+
+                        if (!requestMsg.MsgKey.CheckHasName())
                         {
-                            commonImpl.GetUserLocker().Exit();
-                        }
-                    }
-                case (int)DomainType.SOURCE:
-                    {
-                        commonImpl.GetUserLocker().Enter();
-                        try
-                        {
-                            ChannelInfo? channelInfo = m_OmmBaseImpl.LoginCallbackClient!.ActiveChannelInfo();
-                            if (channelInfo == null)
+                            StringBuilder message = commonImpl.GetStrBuilder()
+                                .Append($"ReqMsg's name is not defined. Instance name='{commonImpl.InstanceName}'.");
+
+                            if (commonImpl.GetLoggerClient().IsErrorEnabled)
                             {
-                                StringBuilder message = commonImpl.GetStrBuilder();
-
-                                message.Append($"Failed to send a directory request due to no active channel." +
-                                    $" Instance name='{commonImpl.InstanceName}' in RegisterClient().");
-
-                                if (commonImpl.GetLoggerClient().IsErrorEnabled)
-                                {
-                                    commonImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
-                                }
-
-                                m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.NO_ACTIVE_CHANNEL);
-
-                                return 0;
+                                commonImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
                             }
 
-                            DirectoryItem<T>? item = (DirectoryItem<T>?)commonImpl.GetEmaObjManager().m_directoryItemPool.Poll();
+                            commonImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+
+                            return 0;
+                        }
+
+                        if (commonImpl.BaseType == IOmmCommonImpl.ImpleType.CONSUMER)
+                        {
+                            DictionaryItem<T>? item = (DictionaryItem<T>?)commonImpl.GetEmaObjManager().m_dictionaryItemPool.Poll();
                             if (item == null)
                             {
-                                item = new DirectoryItem<T>(m_OmmBaseImpl, client, closure);
-                                commonImpl.GetEmaObjManager().m_directoryItemPool.UpdatePool(item);
+                                item = new DictionaryItem<T>(m_OmmBaseImpl, client, closure);
+                                commonImpl.GetEmaObjManager().m_dictionaryItemPool.UpdatePool(item);
                             }
                             else
                             {
-                                item.ResetDirectoryItem(m_OmmBaseImpl, client, closure);
+                                item.ResetDictionaryItem(m_OmmBaseImpl, client, closure);
                             }
 
-                            item.ChannelInfo = channelInfo;
-
-                            if (!item.OpenDirectoryItem(reqMsg))
+                            if (!item.OpenDictionaryItem(reqMsg))
                             {
                                 RemoveFromMap(item);
                                 return 0;
@@ -1622,14 +1534,79 @@ namespace LSEG.Ema.Access
                                 return item.ItemId;
                             }
                         }
-                        finally
+                        else if (commonImpl.BaseType == IOmmCommonImpl.ImpleType.NIPROVIDER)
                         {
-                            commonImpl.GetUserLocker().Exit();
+                            NiProviderDictionaryItem<T> dictionaryItem = new (m_OmmBaseImpl, client, closure);
+
+                            if (!dictionaryItem.Open(reqMsg))
+                            {
+                                RemoveFromMap(dictionaryItem);
+                                return 0;
+                            }
+                            else
+                            {
+                                return dictionaryItem.ItemId;
+                            }
+                        }
+                        else
+                        {
+                            Item<T> dictionaryItem = (Item<T>)(object)new IProviderDictionaryItem((OmmIProviderImpl)commonImpl,
+                                (IOmmProviderClient)client!, closure);
+
+                            if (!dictionaryItem.Open(reqMsg))
+                            {
+                                RemoveFromMap(dictionaryItem);
+                                return 0;
+                            }
+                            else
+                            {
+                                return dictionaryItem.ItemId;
+                            }
+                        }
+                    }
+                case (int)DomainType.SOURCE:
+                    {
+                        ChannelInfo? channelInfo = m_OmmBaseImpl.LoginCallbackClient!.ActiveChannelInfo();
+                        if (channelInfo == null)
+                        {
+                            StringBuilder message = commonImpl.GetStrBuilder()
+                                .Append($"Failed to send a directory request due to no active channel.")
+                                .Append($" Instance name='{commonImpl.InstanceName}' in RegisterClient().");
+
+                            if (commonImpl.GetLoggerClient().IsErrorEnabled)
+                            {
+                                commonImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
+                            }
+
+                            m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.NO_ACTIVE_CHANNEL);
+
+                            return 0;
+                        }
+
+                        DirectoryItem<T>? item = (DirectoryItem<T>?)commonImpl.GetEmaObjManager().m_directoryItemPool.Poll();
+                        if (item == null)
+                        {
+                            item = new DirectoryItem<T>(m_OmmBaseImpl, client, closure);
+                            commonImpl.GetEmaObjManager().m_directoryItemPool.UpdatePool(item);
+                        }
+                        else
+                        {
+                            item.ResetDirectoryItem(m_OmmBaseImpl, client, closure);
+                        }
+
+                        item.ChannelInfo = channelInfo;
+
+                        if (!item.OpenDirectoryItem(reqMsg))
+                        {
+                            RemoveFromMap(item);
+                            return 0;
+                        }
+                        else
+                        {
+                            return item.ItemId;
                         }
                     }
                 default:
-                    commonImpl.GetUserLocker().Enter();
-                    try
                     {
                         if (requestMsg.CheckHasBatch())
                         {
@@ -1725,10 +1702,6 @@ namespace LSEG.Ema.Access
                             }
                         }
                     }
-                    finally
-                    {
-                        commonImpl.GetUserLocker().Exit();
-                    }
                     break;
             }
 
@@ -1751,9 +1724,10 @@ namespace LSEG.Ema.Access
 
             if (item == null || item.ClosedStatusClient != null)
             {
-                StringBuilder strBuilder = commonImpl.GetStrBuilder();
-                strBuilder.AppendLine($"Attempt to use invalid Handle on Reissue()." +
-                    $" Instance name='{commonImpl.InstanceName}'.");
+                using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                StringBuilder strBuilder = commonImpl.GetStrBuilder()
+                    .Append("Attempt to use invalid Handle on Reissue().")
+                    .Append($" Instance name='{commonImpl.InstanceName}'.");
 
                 if (commonImpl.GetLoggerClient().IsErrorEnabled)
                 {
@@ -1775,9 +1749,10 @@ namespace LSEG.Ema.Access
 
             if (item == null || item.ClosedStatusClient != null)
             {
-                StringBuilder strBuilder = commonImpl.GetStrBuilder();
-                strBuilder.AppendLine($"Attempt to use invalid Handle on Submit(PostMsg)." +
-                    $" Instance name='{commonImpl.InstanceName}'.");
+                using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                StringBuilder strBuilder = commonImpl.GetStrBuilder()
+                    .Append("Attempt to use invalid Handle on Submit(PostMsg).")
+                    .Append($" Instance name='{commonImpl.InstanceName}'.");
 
                 if (commonImpl.GetLoggerClient().IsErrorEnabled)
                 {
@@ -1799,9 +1774,10 @@ namespace LSEG.Ema.Access
 
             if (item == null || item.ClosedStatusClient != null)
             {
-                StringBuilder strBuilder = commonImpl.GetStrBuilder();
-                strBuilder.AppendLine($"Attempt to use invalid Handle on Submit(GenericMsg)." +
-                    $" Instance name='{commonImpl.InstanceName}'.");
+                using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                StringBuilder strBuilder = commonImpl.GetStrBuilder()
+                    .Append("Attempt to use invalid Handle on Submit(GenericMsg).")
+                    .Append($" Instance name='{commonImpl.InstanceName}'.");
 
                 if (commonImpl.GetLoggerClient().IsErrorEnabled)
                 {
@@ -1825,8 +1801,9 @@ namespace LSEG.Ema.Access
 
             if (commonImpl.GetLoggerClient().IsTraceEnabled)
             {
-                StringBuilder message = commonImpl.GetStrBuilder();
-                message.AppendLine($"Added Item {itemId}  of StreamId {item.StreamId} to item map")
+                using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                StringBuilder message = commonImpl.GetStrBuilder()
+                    .AppendLine($"Added Item {itemId}  of StreamId {item.StreamId} to item map")
                     .Append($"\tInstance name {commonImpl.InstanceName}");
 
                 commonImpl.GetLoggerClient().Trace(CLIENT_NAME, message.ToString());
@@ -1844,9 +1821,10 @@ namespace LSEG.Ema.Access
 
             if (commonImpl.GetLoggerClient().IsTraceEnabled)
             {
-                StringBuilder message = commonImpl.GetStrBuilder();
-                message.AppendLine($"Added Item {itemId} to item map").
-                    Append($"\tInstance name {commonImpl.InstanceName}");
+                using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                StringBuilder message = commonImpl.GetStrBuilder()
+                    .AppendLine($"Added Item {itemId} to item map")
+                    .Append($"\tInstance name {commonImpl.InstanceName}");
 
                 commonImpl.GetLoggerClient().Trace(CLIENT_NAME, message.ToString());
             }
@@ -1867,6 +1845,7 @@ namespace LSEG.Ema.Access
         {
             if (commonImpl.GetLoggerClient().IsTraceEnabled)
             {
+                using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
                 StringBuilder message = commonImpl.GetStrBuilder();
                 if (item.StreamId != 0)
                     message.AppendLine($"Removed Item {item.ItemId} of StreamId {item.StreamId} from item map")
@@ -1940,12 +1919,11 @@ namespace LSEG.Ema.Access
 
                 if (m_NextStreamId < 0)
                 {
-                    StringBuilder message = commonImpl.GetStrBuilder();
-                    message.Append("Unable to obtain next available stream id for item request.");
+                    var message = "Unable to obtain next available stream id for item request.";
                     if (commonImpl.GetLoggerClient().IsErrorEnabled)
-                        commonImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
+                        commonImpl.GetLoggerClient().Error(CLIENT_NAME, message);
 
-                    commonImpl.HandleInvalidUsage(message.ToString(), OmmInvalidUsageException.ErrorCodes.INTERNAL_ERROR);
+                    commonImpl.HandleInvalidUsage(message, OmmInvalidUsageException.ErrorCodes.INTERNAL_ERROR);
                 }
 
                 return m_NextStreamId;
@@ -2109,9 +2087,8 @@ namespace LSEG.Ema.Access
             {
                 if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
                 {
-                    StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
-                    message.AppendLine($"An incoming Msg to non-existent IOmmProviderClient has been dropped.");
-                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
+                    var message = "An incoming Msg to non-existent IOmmProviderClient has been dropped.";
+                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message);
                 }
             }
             else
@@ -2126,9 +2103,8 @@ namespace LSEG.Ema.Access
             {
                 if (commonImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder message = commonImpl.GetStrBuilder();
-                    message.AppendLine($"An incoming RefreshMsg to non-existent IOmmProviderClient has been dropped.");
-                    commonImpl.GetLoggerClient().Error(CLIENT_NAME, message.ToString());
+                    var message = "An incoming RefreshMsg to non-existent IOmmProviderClient has been dropped.";
+                    commonImpl.GetLoggerClient().Error(CLIENT_NAME, message);
                 }
             }
             else
@@ -2143,9 +2119,8 @@ namespace LSEG.Ema.Access
             {
                 if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
                 {
-                    StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
-                    message.AppendLine($"An incoming StatusMsg to non-existent IOmmProviderClient has been dropped.");
-                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
+                    var message = "An incoming StatusMsg to non-existent IOmmProviderClient has been dropped.";
+                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message);
                 }
             }
             else
@@ -2160,9 +2135,8 @@ namespace LSEG.Ema.Access
             {
                 if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
                 {
-                    StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
-                    message.AppendLine($"An incoming GenericMsg to non-existent IOmmProviderClient has been dropped.");
-                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
+                    var message = "An incoming GenericMsg to non-existent IOmmProviderClient has been dropped.";
+                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message);
                 }
             }
             else

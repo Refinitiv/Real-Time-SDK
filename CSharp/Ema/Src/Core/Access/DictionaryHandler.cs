@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -234,8 +234,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
 
             if (m_ommServerBaseImpl.GetLoggerClient().IsErrorEnabled)
             {
-                StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                temp.AppendLine("Dictionary message rejected - Invalid dictionary domain message.")
+                using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                    .AppendLine("Dictionary message rejected - Invalid dictionary domain message.")
                     .AppendLine($"Stream Id {dictEvent.Msg!.StreamId}")
                     .AppendLine($"Client handle {clientSession.ClientHandle}")
                     .Append("Instance Name ").Append(m_ommServerBaseImpl.InstanceName);
@@ -267,6 +268,7 @@ internal class DictionaryHandler : IDictionaryMsgCallback
                 {
                     if (m_ommServerBaseImpl.GetLoggerClient().IsTraceEnabled)
                     {
+                        using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
                         StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
                         temp.AppendLine("Received dictionary request message.")
                             .AppendLine($"\tStream Id {dictionaryMsg.StreamId}")
@@ -412,8 +414,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
                 {
                     if (m_ommServerBaseImpl.GetLoggerClient().IsTraceEnabled)
                     {
-                        StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                        temp.AppendLine("Received dictionary close message.")
+                        using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                        StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                            .AppendLine("Received dictionary close message.")
                             .AppendLine($"Stream Id {dictionaryMsg.StreamId}")
                             .AppendLine($"Client handle {clientSession.ClientHandle}")
                             .Append("Instance Name ").Append(m_ommServerBaseImpl.InstanceName);
@@ -499,8 +502,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
                 {
                     if (m_ommServerBaseImpl.GetLoggerClient().IsTraceEnabled)
                     {
-                        StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                        temp.AppendLine("Received refresh message.")
+                        using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                        StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                            .AppendLine("Received refresh message.")
                             .AppendLine($"Stream Id {dictEvent.Msg!.StreamId}")
                             .AppendLine($"Client handle {clientSession.ClientHandle}")
                             .Append("Instance Name ").Append(m_ommServerBaseImpl.InstanceName);
@@ -527,8 +531,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
                 {
                     if (m_ommServerBaseImpl.GetLoggerClient().IsTraceEnabled)
                     {
-                        StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                        temp.AppendLine("Received status message.")
+                        using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                        StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                            .AppendLine("Received status message.")
                             .AppendLine($"Stream Id {dictEvent.Msg!.StreamId}")
                             .AppendLine($"Client handle {clientSession.ClientHandle}")
                             .Append("Instance Name ").Append(m_ommServerBaseImpl.InstanceName);
@@ -553,8 +558,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
 
             default:
                 {
-                    StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                    temp.Append("Rejected unhandled dictionary message type ").Append(dictionaryMsg.DictionaryMsgType.ToString());
+                    using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                        .Append("Rejected unhandled dictionary message type ").Append(dictionaryMsg.DictionaryMsgType.ToString());
 
                     ItemInfo? itemInfo = clientSession.GetItemInfo(dictEvent.Msg!.StreamId);
 
@@ -736,8 +742,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
 
         if (m_ommServerBaseImpl.GetLoggerClient().IsTraceEnabled)
         {
-            StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-            temp.AppendLine("Successfully sent field dictionary type.")
+            using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+            StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                .AppendLine("Successfully sent field dictionary type.")
                 .AppendLine($"Dictionary name {dictionaryRequest.DictionaryRequest.DictionaryName}")
                 .AppendLine($"Stream Id {dictionaryRequest.StreamId}")
                 .Append("Client handle ").Append(clientSession.ClientHandle);
@@ -786,8 +793,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
             {
                 if (m_ommServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                    temp.AppendLine("Internal error. Failed to get buffer in DictionaryHandler.SendEnumTypeDictionaryResponse()")
+                    using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                        .AppendLine("Internal error. Failed to get buffer in DictionaryHandler.SendEnumTypeDictionaryResponse()")
                         .AppendLine($"Client handle {clientSession.ClientHandle}")
                         .AppendLine($"Instance Name {m_ommServerBaseImpl.InstanceName}")
                         .AppendLine($"Error Id {bufferError!.Error.ErrorId}")
@@ -809,8 +817,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
             {
                 if (m_ommServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                    temp.AppendLine("Internal error. Failed to set encode iterator in DictionaryHandler.SendEnumTypeDictionaryResponse()")
+                    using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                        .AppendLine("Internal error. Failed to set encode iterator in DictionaryHandler.SendEnumTypeDictionaryResponse()")
                         .AppendLine($"Client handle {clientSession.ClientHandle}")
                         .Append("Instance Name ").Append(m_ommServerBaseImpl.InstanceName);
 
@@ -828,8 +837,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
             {
                 if (m_ommServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                    temp.AppendLine("Internal error. Failed to encode message in DictionaryHandler.SendEnumTypeDictionaryResponse()")
+                    using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                        .AppendLine("Internal error. Failed to encode message in DictionaryHandler.SendEnumTypeDictionaryResponse()")
                         .AppendLine($"Client handle {clientSession.ClientHandle}")
                         .Append("Instance Name ").Append(m_ommServerBaseImpl.InstanceName);
 
@@ -843,8 +853,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
             {
                 if (m_ommServerBaseImpl.GetLoggerClient().IsErrorEnabled)
                 {
-                    StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                    temp.AppendLine("Failed to submit dictionary message in DictionaryHandler.SendEnumTypeDictionaryResponse().")
+                    using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                        .AppendLine("Failed to submit dictionary message in DictionaryHandler.SendEnumTypeDictionaryResponse().")
                         .AppendLine($"Error Id {submitError!.Error.ErrorId}")
                         .AppendLine($"Internal SysError {submitError.Error.SysError}")
                         .AppendLine($"Error Location {submitError.Location}")
@@ -864,8 +875,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
 
         if (m_ommServerBaseImpl.GetLoggerClient().IsTraceEnabled)
         {
-            StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-            temp.AppendLine("Successfully sent enumeration dictionary type.")
+            using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+            StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                .AppendLine("Successfully sent enumeration dictionary type.")
                 .AppendLine($"Dictionary name {dictionaryRequest.DictionaryRequest.DictionaryName}")
                 .AppendLine($"Stream Id {dictionaryRequest.StreamId}")
                 .Append("Client handle ").Append(clientSession.ClientHandle);
@@ -913,8 +925,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
         {
             if (m_ommServerBaseImpl.GetLoggerClient().IsErrorEnabled)
             {
-                StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                temp.AppendLine("Internal error. Failed to get buffer in DictionaryHandler.SendRequestReject()")
+                using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                    .AppendLine("Internal error. Failed to get buffer in DictionaryHandler.SendRequestReject()")
                     .AppendLine($"Error Id {bufferError!.Error.ErrorId}")
                     .AppendLine($"Internal SysError {bufferError.Error.SysError}")
                     .AppendLine($"Error Location {bufferError.Location}")
@@ -966,8 +979,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
 
             case DictionaryRejectEnum.DICTIONARY_NAME_NOT_FOUND:
                 {
-                    StringBuilder text = m_ommServerBaseImpl.GetStrBuilder();
-                    text.Append("Dictionary request message rejected - the reqesting dictionary name '")
+                    using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder text = m_ommServerBaseImpl.GetStrBuilder()
+                        .Append("Dictionary request message rejected - the reqesting dictionary name '")
                         .Append(dictionaryName).Append("' not found.");
                     m_DictionaryStatus.State.Text().Data(text.ToString());
                 }
@@ -975,8 +989,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
 
             case DictionaryRejectEnum.SERVICE_ID_NOT_FOUND:
                 {
-                    StringBuilder text = m_ommServerBaseImpl.GetStrBuilder();
-                    text.Append("Dictionary request message rejected - the service Id = ")
+                    using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                    StringBuilder text = m_ommServerBaseImpl.GetStrBuilder()
+                        .Append("Dictionary request message rejected - the service Id = ")
                         .Append(serviceId)
                         .Append("  does not exist in the source directory");
                     m_DictionaryStatus.State.Text().Data(text.ToString());
@@ -989,8 +1004,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
 
         if (traceMessage && m_ommServerBaseImpl.GetLoggerClient().IsTraceEnabled)
         {
-            StringBuilder text = m_ommServerBaseImpl.GetStrBuilder();
-            text.AppendLine(m_DictionaryStatus.State.Text().ToString())
+            using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+            StringBuilder text = m_ommServerBaseImpl.GetStrBuilder()
+                .AppendLine(m_DictionaryStatus.State.Text().ToString())
                 .AppendLine($"Stream Id {streamId}")
                 .AppendLine($"Client handle {clientSession.ClientHandle}")
                 .Append("Instance Name ").Append(m_ommServerBaseImpl.InstanceName);
@@ -1003,8 +1019,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
         {
             if (m_ommServerBaseImpl.GetLoggerClient().IsErrorEnabled)
             {
-                StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                temp.AppendLine("Internal error. Failed to set encode iterator in DictionaryHandler.EncodeDictionaryRequestReject()")
+                using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                    .AppendLine("Internal error. Failed to set encode iterator in DictionaryHandler.EncodeDictionaryRequestReject()")
                     .AppendLine($"Client handle {clientSession.ClientHandle}")
                     .Append("Instance Name ").Append(m_ommServerBaseImpl.InstanceName);
 
@@ -1019,8 +1036,9 @@ internal class DictionaryHandler : IDictionaryMsgCallback
         {
             if (m_ommServerBaseImpl.GetLoggerClient().IsErrorEnabled)
             {
-                StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder();
-                temp.AppendLine("Internal error. Failed to encode status message in DictionaryHandler.EncodeDictionaryRequestReject()")
+                using var lockScope = m_ommServerBaseImpl.GetUserLocker().EnterLockScope();
+                StringBuilder temp = m_ommServerBaseImpl.GetStrBuilder()
+                    .AppendLine("Internal error. Failed to encode status message in DictionaryHandler.EncodeDictionaryRequestReject()")
                     .AppendLine($"Client handle {clientSession.ClientHandle}")
                     .Append("Instance Name ").Append(m_ommServerBaseImpl.InstanceName);
 
