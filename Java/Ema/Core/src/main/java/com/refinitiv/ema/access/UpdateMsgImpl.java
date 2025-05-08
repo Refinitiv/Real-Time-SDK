@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -407,6 +407,25 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 			Utilities.addIndent(_toString, indent, true).append("permissionData=\"");
 			Utilities.asHexString(_toString, permissionData()).append("\"");
 		}
+		
+		 if (hasSeqNum())
+		     Utilities.addIndent(_toString, indent, true).append("seqNum=\"").append(seqNum()).append("\"");
+
+		 if (doNotCache())
+		     Utilities.addIndent(_toString, indent, true).append("doNotCache");
+
+		 if (doNotRipple())
+		     Utilities.addIndent(_toString, indent, true).append("doNotRipple");
+
+		 if (doNotConflate())
+		     Utilities.addIndent(_toString, indent, true).append("doNotConflate");
+
+		 if (hasConflated())
+		     Utilities.addIndent(_toString, indent, true).append("confInfo")
+		                                              .append(" count=\"")
+		                                              .append(conflatedCount()).append("\"")
+		                                              .append(" time=\"").append(conflatedTime())
+		                                              .append("\"");
 
 		indent--;
 		if (hasMsgKey())
