@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -306,6 +306,7 @@ public class StatusMsgTests extends TestCase
 				"    streamId=\"15\"\n" +
 				"    domain=\"MarketPrice Domain\"\n" +
 				"    state=\"Open / Ok / None / 'Status Complete'\"\n" +
+				"    clearCache\n" +
 				"    name=\"ABCDEF\"\n" +
 				"    nameType=\"1\"\n" +
 				"    serviceId=\"5\"\n" +

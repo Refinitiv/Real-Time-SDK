@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -517,6 +517,17 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 
 		if (privateStream())
 			Utilities.addIndent(_toString, indent, true).append("privateStream");
+		
+		if(clearCache())
+			Utilities.addIndent(_toString, indent, true).append("clearCache");
+		
+		if(doNotCache())
+			Utilities.addIndent(_toString, indent, true).append("doNotCache");
+		
+		if (hasQos())
+		    Utilities.addIndent(_toString, indent, true).append("qos=\"")
+		                                             .append(qos().toString())
+		                                             .append("\"");
 
 		Utilities.addIndent(_toString, indent, true).append("state=\"")
 													 .append(state().toString())

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
@@ -332,6 +332,9 @@ public class RefreshMsgTests extends TestCase
 				"    streamId=\"15\"\n" +
 				"    domain=\"MarketPrice Domain\"\n" +
 				"    solicited\n" +
+				"    clearCache\n" +
+				"    doNotCache\n" +
+				"    qos=\"RealTime/TickByTick\"\n" +
 				"    state=\"Open / Ok / None / 'Refresh Complete'\"\n" +
 				"    itemGroup=\"00 00\"\n" +
 				"    name=\"ABCDEF\"\n" +
