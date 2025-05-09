@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
+ *|           Copyright (C) 2019, 2024, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -2631,11 +2631,11 @@ void testArrayInt_Encode( bool fixedSize )
 	}
 
 	// Now do ETA decoding of OmmArray of Ints
-	RsslArray array;
-	RsslBuffer decArrayBuf;
-	RsslInt64 int64;
+	RsslArray array = RSSL_INIT_ARRAY;
+	RsslBuffer decArrayBuf = RSSL_INIT_BUFFER;
+	RsslInt64 int64 = 0;
 
-	RsslBuffer rsslBuf;
+	RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
 	RsslDecodeIterator decodeIter;
 	rsslClearDecodeIterator( &decodeIter );
 	rsslSetDecodeIteratorBuffer( &decodeIter, &rsslBuf );
@@ -2683,11 +2683,11 @@ void testArrayUInt_Encode( bool fixedSize )
 	}
 
 	// Now do ETA decoding of OmmArray of UInts
-	RsslArray array;
-	RsslBuffer decArrayBuf;
-	RsslUInt64 uIint64;
+	RsslArray array = RSSL_INIT_ARRAY;
+	RsslBuffer decArrayBuf = RSSL_INIT_BUFFER;
+	RsslUInt64 uIint64 = 0;
 
-	RsslBuffer rsslBuf;
+	RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
 	RsslDecodeIterator decodeIter;
 	rsslClearDecodeIterator( &decodeIter );
 	rsslSetDecodeIteratorBuffer( &decodeIter, &rsslBuf );
@@ -2735,11 +2735,11 @@ void testArrayFloat_Encode( bool fixedSize )
 	}
 
 	// Now do ETA decoding of OmmArray of Floats
-	RsslArray array;
-	RsslBuffer decArrayBuf;
-	RsslFloat rsslFloat;
+	RsslArray array = RSSL_INIT_ARRAY;
+	RsslBuffer decArrayBuf = RSSL_INIT_BUFFER;
+	RsslFloat rsslFloat = 0.0f;
 
-	RsslBuffer rsslBuf;
+	RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
 	RsslDecodeIterator decodeIter;
 	rsslClearDecodeIterator( &decodeIter );
 	rsslSetDecodeIteratorBuffer( &decodeIter, &rsslBuf );
@@ -2787,11 +2787,11 @@ void testArrayDouble_Encode( bool fixedSize )
 	}
 
 	// Now do ETA decoding of OmmArray of Doubles
-	RsslArray array;
-	RsslBuffer decArrayBuf;
-	RsslDouble rsslDouble;
+	RsslArray array = RSSL_INIT_ARRAY;
+	RsslBuffer decArrayBuf = RSSL_INIT_BUFFER;
+	RsslDouble rsslDouble = 0.0;
 
-	RsslBuffer rsslBuf;
+	RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
 	RsslDecodeIterator decodeIter;
 	rsslClearDecodeIterator( &decodeIter );
 	rsslSetDecodeIteratorBuffer( &decodeIter, &rsslBuf );
@@ -2839,11 +2839,11 @@ void testArrayReal_Encode( bool fixedSize )
 	}
 
 	// Now do ETA decoding of OmmArray of Reals
-	RsslArray array;
-	RsslBuffer decArrayBuf;
-	RsslReal rsslReal;
+	RsslArray array = RSSL_INIT_ARRAY;
+	RsslBuffer decArrayBuf = RSSL_INIT_BUFFER;
+	RsslReal rsslReal = RSSL_INIT_REAL;
 
-	RsslBuffer rsslBuf;
+	RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
 	RsslDecodeIterator decodeIter;
 	rsslClearDecodeIterator( &decodeIter );
 	rsslSetDecodeIteratorBuffer( &decodeIter, &rsslBuf );

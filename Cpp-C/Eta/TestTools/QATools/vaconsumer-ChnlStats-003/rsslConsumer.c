@@ -1323,7 +1323,7 @@ void parseCommandLine(int argc, char **argv)
 			else if (0 == strcmp("-debuginfoInterval", argv[i]))
 			{
 				i+=2; if (i > argc) printUsageAndExit(argv[0]);
-				reactorDebugLevel = (time_t)atoi(argv[i]);;
+				reactorDebugLevel = (time_t)atoi(argv[i]);
 			}
 			else if (strcmp("-tsServiceName", argv[i]) == 0)
 			{

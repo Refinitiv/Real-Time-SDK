@@ -8293,56 +8293,64 @@ int main(int argc, char* argv[])
 	int ret;
 	bool isGtestFilter = false;
 
-	::testing::InitGoogleTest(&argc, argv);
+	try {
+		::testing::InitGoogleTest(&argc, argv);
 
-	// Run ServerStartStopTests after all the other tests.
-	// ServerStartStopTests create and destroy the transport library and its internal members many times.
-	// It will interfere with other tests that could run parallel.
-	if (::testing::GTEST_FLAG(filter).empty() || ::testing::GTEST_FLAG(filter)=="*")
-	{
-		if (checkCertificateFiles() && checkClientCertificateFiles())
+		// Run ServerStartStopTests after all the other tests.
+		// ServerStartStopTests create and destroy the transport library and its internal members many times.
+		// It will interfere with other tests that could run parallel.
+		if (::testing::GTEST_FLAG(filter).empty() || ::testing::GTEST_FLAG(filter)=="*")
 		{
-			::testing::GTEST_FLAG(filter) = "-ServerStartStopTests.*";
+			if (checkCertificateFiles() && checkClientCertificateFiles())
+			{
+				::testing::GTEST_FLAG(filter) = "-ServerStartStopTests.*";
+			}
+			else
+			{
+				std::cout << "The tests that check encrypted connection will be skipped." << std::endl
+					<< "Creation of server on an encrypted connection requires key-file \"" << getPathServerKey() << "\" and certificate-file \"" << getPathServerCert() << "\"." << std::endl
+					<< "Creation of client on an encrypted connection requires certificate-file \"" << getOpenSSLCAStore() << "\"." << std::endl;
+				::testing::GTEST_FLAG(filter) = "-ServerStartStopTests.*:*Encrypted*:*EncrWebSock*";
+			}
+
 		}
 		else
 		{
-			std::cout << "The tests that check encrypted connection will be skipped." << std::endl
-				<< "Creation of server on an encrypted connection requires key-file \"" << getPathServerKey() << "\" and certificate-file \"" << getPathServerCert() << "\"." << std::endl
-				<< "Creation of client on an encrypted connection requires certificate-file \"" << getOpenSSLCAStore() << "\"." << std::endl;
-			::testing::GTEST_FLAG(filter) = "-ServerStartStopTests.*:*Encrypted*:*EncrWebSock*";
+			isGtestFilter = true;
 		}
 
-	}
-	else
-	{
-		isGtestFilter = true;
-	}
+		RsslThreadId dlThread;
+		RSSL_MUTEX_INIT(&pipeLock);
 
-	RsslThreadId dlThread;
-	RSSL_MUTEX_INIT(&pipeLock);
+		RSSL_THREAD_START(&dlThread, deadlockThread, &dlThread);
 
-	RSSL_THREAD_START(&dlThread, deadlockThread, &dlThread);
+		ret =  RUN_ALL_TESTS();
+		testComplete = true;
+		resetDeadlockTimer();
+		RSSL_THREAD_JOIN(dlThread);
 
-	ret =  RUN_ALL_TESTS();
-	testComplete = true;
-	resetDeadlockTimer();
-	RSSL_THREAD_JOIN(dlThread);
-
-	// Run ServerStartStopTests
-	if (!isGtestFilter)
-	{
-		if (checkCertificateFiles())
+		// Run ServerStartStopTests
+		if (!isGtestFilter)
 		{
-			::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*";
-		}
-		else
-		{
-			std::cout << "The tests ServerSSLStartStop*Test will be skipped." << std::endl
-				<< "Creation of server on an encrypted connection requires key-file \"" << getPathServerKey() << "\" and certificate-file \"" << getPathServerCert() << "\"." << std::endl;
-			::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*:-ServerStartStopTests.ServerSSL*";
-		}
+			if (checkCertificateFiles())
+			{
+				::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*";
+			}
+			else
+			{
+				std::cout << "The tests ServerSSLStartStop*Test will be skipped." << std::endl
+					<< "Creation of server on an encrypted connection requires key-file \"" << getPathServerKey() << "\" and certificate-file \"" << getPathServerCert() << "\"." << std::endl;
+				::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*:-ServerStartStopTests.ServerSSL*";
+			}
 
-		ret = RUN_ALL_TESTS();
+			ret = RUN_ALL_TESTS();
+		}
+	} catch (const std::exception& e) {
+		std::cout << "GoogleTest failed: %s\n"<< e.what() << std::endl;
+		return 1;
+	} catch (...) {
+		std::cout << "GoogleTest failed: unknown error\n" << std::endl;
+		return 1;
 	}
 	return ret;
 }

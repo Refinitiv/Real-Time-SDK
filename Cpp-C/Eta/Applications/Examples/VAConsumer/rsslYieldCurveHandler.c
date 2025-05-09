@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
+ * Copyright (C) 2019, 2025 LSEG. All rights reserved.
 */
 
 
@@ -1469,7 +1469,7 @@ static RsslRet redirectToPrivateStream(RsslReactor *pReactor, ChannelCommand *pC
 	RsslErrorInfo rsslErrorInfo;
 	RsslBuffer* msgBuf = 0;
 
-	ItemRequest *pItemRequest;
+	ItemRequest *pItemRequest = NULL;
 
 	/* add item name to private stream list */
 	if (pCommand->privateStreamYieldCurveItemCount < CHAN_CMD_MAX_ITEMS)
@@ -1480,6 +1480,7 @@ static RsslRet redirectToPrivateStream(RsslReactor *pReactor, ChannelCommand *pC
 	else
 	{
 		printf("Number of Private Stream Yield Curve items exceeded\n");
+		return RSSL_RET_FAILURE;
 	}
 
 	pItemRequest->streamId = getNextAvailableYieldCurvePrivateStreamId(pCommand);

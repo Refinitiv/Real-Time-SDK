@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|          Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
 */
 
@@ -299,7 +299,7 @@ void OmmIProviderImpl::submit(const GenericMsg& genericMsg, UInt64 handle)
 
 	ItemInfoPtr itemInfo = getItemInfo(handle);
 
-	if ( (itemInfo == 0) )
+	if ( itemInfo == 0 )
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit GenericMsg with non existent Handle = ");
@@ -354,7 +354,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 
 	ItemInfoPtr itemInfo = getItemInfo(handle);
 
-	if ( ( itemInfo == 0 ) && handle != 0 ) 
+	if ( itemInfo == 0 )
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit RefreshMsg with non existent Handle = ");
@@ -610,7 +610,7 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 
 	ItemInfoPtr itemInfo = getItemInfo(handle);
 
-	if ( ( itemInfo == 0 ) && handle != 0 )
+	if ( itemInfo == 0 )
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit UpdateMsg with non existent Handle = ");
@@ -788,7 +788,7 @@ void OmmIProviderImpl::submit(const StatusMsg& statusMsg, UInt64 handle)
 
 	ItemInfoPtr itemInfo = getItemInfo(handle);
 
-	if ( (itemInfo == 0 ) && handle != 0 )
+	if ( itemInfo == 0 )
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit StatusMsg with non existent Handle = ");
@@ -1298,7 +1298,7 @@ void OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle)
 
 	ItemInfoPtr itemInfo = getItemInfo(handle);
 
-	if ((itemInfo == 0))
+	if ( itemInfo == 0 )
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit AckMsg with non existent Handle = ");
@@ -1652,7 +1652,7 @@ void OmmIProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
 	{
 		ItemInfoPtr itemInfo = getItemInfo(handle);
 
-		if (itemInfo == 0)
+		if ( itemInfo == 0 )
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to modify I/O option with non existent Handle = ");

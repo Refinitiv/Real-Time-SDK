@@ -5182,16 +5182,9 @@ RsslInt32 rwsWriteAndFlush(RsslSocketChannel *rsslSocketChannel, rtr_msgb_t *msg
 				else
 				{
 					if (msgb->pool == rsslSocketChannel->gblInputBufs)
-					{
 						rtr_smplcFreeMsg(msgb);
-					}
 					else
-					{
 						rtr_dfltcFreeMsg(msgb);
-					}
-
-					msgb->buffer = 0;
-					msgb->length = 0;
 				}
 			}
    			else if (cc < 0)
@@ -5245,16 +5238,9 @@ RsslInt32 rwsWriteAndFlush(RsslSocketChannel *rsslSocketChannel, rtr_msgb_t *msg
 			else
 			{
 				if (msgb->pool == rsslSocketChannel->gblInputBufs)
-				{
 					rtr_smplcFreeMsg(msgb);
-				}
 				else
-				{
 					rtr_dfltcFreeMsg(msgb);
-				}
-
-				msgb->buffer = 0;
-				msgb->length = 0;
 			}
 		}
 		else

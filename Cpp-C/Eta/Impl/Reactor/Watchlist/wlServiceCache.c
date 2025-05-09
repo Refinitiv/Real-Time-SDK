@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
+ * Copyright (C) 2019, 2025 LSEG. All rights reserved.
 */
 
 #include "rtr/wlServiceCache.h"
@@ -291,6 +291,8 @@ RDMCachedService *rscCreateService(RsslErrorInfo *pErrorInfo)
 	rsslInitQueueLink(&pCachedService->_updatedServiceLink);
 	rsslInitQueue(&pCachedService->linkList);
 	rsslHeapBufferInit(&pCachedService->tempLinkArrayBuffer, sizeof(RsslRDMServiceLink));
+	memset(&pCachedService->_itemGroupsById, 0, sizeof(RsslHashTable));
+	memset(&pCachedService->linkTable, 0, sizeof(RsslHashTable));
 
 	if (rsslHashTableInit(&pCachedService->_itemGroupsById, 101, rsslHashBufferSum, 
 				rsslHashBufferCompare, RSSL_TRUE, pErrorInfo) != RSSL_RET_SUCCESS)

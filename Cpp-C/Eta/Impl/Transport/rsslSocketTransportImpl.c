@@ -6702,8 +6702,8 @@ static ripcSessInit ipcReconnectSocket(RsslSocketChannel *rsslSocketChannel, rip
 		/* This state indicates that we have some initialization beyond a socket connect to initialize the underlying transport
 		* So for HTTP, openSSL Encrypted connections, and long lining, this should initialize the socket.
 		*/
-		if (!initcomplete && (rsslSocketChannel->connType != RSSL_CONN_TYPE_SOCKET ||
-							  rsslSocketChannel->connType != RSSL_CONN_TYPE_WEBSOCKET) )
+		if (!initcomplete &&  rsslSocketChannel->connType != RSSL_CONN_TYPE_SOCKET &&
+							  rsslSocketChannel->connType != RSSL_CONN_TYPE_WEBSOCKET )
 		{
 			rsslSocketChannel->intState = RIPC_INT_ST_CLIENT_TRANSPORT_INIT;
 		}

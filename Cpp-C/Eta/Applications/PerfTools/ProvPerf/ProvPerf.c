@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 LSEG. All rights reserved.     
+ * Copyright (C) 2020, 2025 LSEG. All rights reserved.
 */
 
 #include "ProvPerf.h"
@@ -543,11 +543,16 @@ static RsslRet acceptReactorConnection(RsslServer *pRsslSrvr, RsslErrorInfo *pRs
 	RsslErrorInfo rsslErrorInfo;
 	RsslReactorOMMProviderRole providerRole;
 
-	ProviderThread *pProvThread;
-	ProviderSession *pProvSession;
+	ProviderThread *pProvThread = NULL;
+	ProviderSession *pProvSession = NULL;
 	RsslInt32 i, minProviderConnCount, connHandlerIndex;
 	int ret;
 
+	if (!providerThreadConfig.threadCount)
+	{
+		printf("Provider thread count need to be greater than zero.\n");
+		return RSSL_RET_FAILURE;
+	}
 	// find least loaded reactor thread
 	minProviderConnCount = 0x7fffffff;
 	for(i = 0; i < providerThreadConfig.threadCount; ++i)
@@ -559,6 +564,11 @@ static RsslRet acceptReactorConnection(RsslServer *pRsslSrvr, RsslErrorInfo *pRs
 			minProviderConnCount = connCount;
 			pProvThread = pTmpProvThread;
 			connHandlerIndex = i;
+		}
+		else
+		{
+			printf("Provider connection count greater than max value 0x7fffffff.\n");
+			return RSSL_RET_FAILURE;
 		}
 	}
 
@@ -813,7 +823,7 @@ int main(int argc, char **argv)
 /* Gives a channel to a provider thread that has the fewest open channels. */
 static RsslRet sendToLeastLoadedThread(RsslChannel *pChannel)
 {
-	ProviderThread *pProvThread;
+	ProviderThread *pProvThread = NULL;
 	RsslInt32 i, minProviderConnCount, connHandlerIndex;
 
 	minProviderConnCount = 0x7fffffff;

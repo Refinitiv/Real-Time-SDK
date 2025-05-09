@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|          Copyright (C) 2019-2022 LSEG. All rights reserved.               --
+// *|          Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #include "EmaCppConsPerf.h"
@@ -11,6 +11,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
+#include <iostream>
 
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
@@ -1260,7 +1261,7 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 	perfMessageData = new PerfMessageData(consPerfConfig.msgFilename, false);
 
 	// If there are multiple connections, determine which items are
-	 // to be opened on each connection. 
+	 // to be opened on each connection.
 	 // If any items are common to all connections, they are taken from the first
 	 // items in the item list.  The rest of the list is then divided to provide a unique
 	 // item list for each connection.
@@ -1692,14 +1693,16 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 
 int main( int argc, char* argv[] )
 {
-	
-	EmaCppConsPerf emaConsumerPerf ;
-	// If there are multiple connections, determine which items are
-	 // to be opened on each connection. 
-	 // If any items are common to all connections, they are taken from the first
-	 // items in the item list.  The rest of the list is then divided to provide a unique
-	 // item list for each connection.
-	emaConsumerPerf.inititailizeAndRun( argc, argv );
-
+	try{
+		EmaCppConsPerf emaConsumerPerf ;
+		// If there are multiple connections, determine which items are
+		 // to be opened on each connection.
+		 // If any items are common to all connections, they are taken from the first
+		 // items in the item list.  The rest of the list is then divided to provide a unique
+		 // item list for each connection.
+		emaConsumerPerf.inititailizeAndRun( argc, argv );
+	} catch (const OmmException& excp) {
+		cout << excp << endl;
+	}
 	return 0;
 }

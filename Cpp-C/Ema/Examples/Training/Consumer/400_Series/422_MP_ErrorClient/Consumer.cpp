@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
+// *|           Copyright (C) 2019, 2024, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -138,17 +138,21 @@ void AppClient::decode( const FieldList& fl )
 
 int main()
 {
-	AppClient client;
-	AppErrorClient errorClient;
-	UInt64 invalidHandle = 0;
-	OmmConsumer consumer( OmmConsumerConfig().username( "user" ).operationModel( OmmConsumerConfig::UserDispatchEnum ), errorClient );
-	consumer.reissue( ReqMsg(), invalidHandle );
-	consumer.submit ( GenericMsg(), invalidHandle );
-	consumer.submit ( PostMsg(), invalidHandle );
-	consumer.registerClient( ReqMsg().name( "IBM.N" ).serviceName( "DIRECT_FEED" ), client );
-	unsigned long long startTime = getCurrentTime();
-	while ( startTime + 60000 > getCurrentTime() )
-		consumer.dispatch( 10 );		// calls to onRefreshMsg(), onUpdateMsg(), or onStatusMsg() execute on this thread
-
+	try{
+		AppClient client;
+		AppErrorClient errorClient;
+		UInt64 invalidHandle = 0;
+		OmmConsumer consumer( OmmConsumerConfig().username( "user" ).operationModel( OmmConsumerConfig::UserDispatchEnum ), errorClient );
+		consumer.reissue( ReqMsg(), invalidHandle );
+		consumer.submit ( GenericMsg(), invalidHandle );
+		consumer.submit ( PostMsg(), invalidHandle );
+		consumer.registerClient( ReqMsg().name( "IBM.N" ).serviceName( "DIRECT_FEED" ), client );
+		unsigned long long startTime = getCurrentTime();
+		while ( startTime + 60000 > getCurrentTime() )
+			consumer.dispatch( 10 );		// calls to onRefreshMsg(), onUpdateMsg(), or onStatusMsg() execute on this thread
+	}
+	catch (const OmmException& excp) {
+		cout << excp << endl;
+	}
 	return 0;
 }

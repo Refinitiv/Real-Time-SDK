@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1012,11 +1012,22 @@ RsslRet processMarketPriceResponse(RsslChannel *chnl, RsslMsg* msg, RsslDecodeIt
 					return RSSL_RET_SUCCESS;
 				}
 			}
-
-			/* update our item state list if its a refresh, then process just like update */
-			itemInfo->itemState.dataState = msg->refreshMsg.state.dataState;
-			itemInfo->itemState.streamState = msg->refreshMsg.state.streamState;
-
+			if (itemInfo)
+			{
+				/* update our item state list if its a refresh, then process just like update */
+				itemInfo->itemState.dataState = msg->refreshMsg.state.dataState;
+				itemInfo->itemState.streamState = msg->refreshMsg.state.streamState;
+			}
+			else
+			{
+				printf("\nReceived incorrect response for stream %i - closing stream\n", msg->msgBase.streamId);
+				/* close stream */
+				if (closeMPItemStream(chnl, itemInfo->streamId) != RSSL_RET_SUCCESS)
+					return RSSL_RET_FAILURE;
+				/* remove private stream entry from list */
+				removeMarketPriceItemEntry(chnl, itemInfo->streamId, RSSL_TRUE);
+				return RSSL_RET_SUCCESS;
+			}
 			/* refresh continued - process just like update */
 
 		case RSSL_MC_UPDATE:

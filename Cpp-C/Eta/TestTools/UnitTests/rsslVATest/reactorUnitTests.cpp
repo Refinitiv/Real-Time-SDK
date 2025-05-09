@@ -6550,13 +6550,13 @@ void reactorUnitTests_ReconnectAttemptLimit(RsslConnectionTypes connectionType)
 	pConsCh = pConsMon->mutMsg.pReactorChannel;
 
 	/* Cons: Channel-down/reconnecting event. */
-	while(dispatchEvent(pConsMon, 800) != RSSL_RET_SUCCESS);;
+	while(dispatchEvent(pConsMon, 800) != RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pConsMon->channelDownReconnectingEventCount == 2);
 	ASSERT_TRUE(pConsMon->channelDownEventCount == 0);
 
 	/* Cons: Channel-down event. */
-	while(dispatchEvent(pConsMon, 800) != RSSL_RET_SUCCESS);;
+	while(dispatchEvent(pConsMon, 800) != RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN);
 	ASSERT_TRUE(pConsMon->channelDownReconnectingEventCount == 2);
 	ASSERT_TRUE(pConsMon->channelDownEventCount == 1);
@@ -6640,7 +6640,7 @@ void reactorUnitTests_ManyConnections(RsslConnectionTypes connectionType)
 		ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 		/* Prov: Accept client connection */
-		while( waitForConnection(pServer[index], 200) == false);;
+		while( waitForConnection(pServer[index], 200) == false);
 		acceptOpts.rsslAcceptOptions.userSpecPtr = &myProviderChannels[i];
 		ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
@@ -6770,7 +6770,7 @@ void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType)
 		ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 		/* Prov: Accept client connection */
-		while (waitForConnection(pServer[index], 200) == false);;
+		while (waitForConnection(pServer[index], 200) == false);
 		acceptOpts.rsslAcceptOptions.userSpecPtr = &myProviderChannels[i];
 		ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 

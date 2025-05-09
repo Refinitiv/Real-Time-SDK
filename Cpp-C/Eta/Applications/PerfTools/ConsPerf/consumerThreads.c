@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2022 LSEG. All rights reserved.
+ * Copyright (C) 2020-2022, 2025 LSEG. All rights reserved.
 */
 
 #include "consumerThreads.h"
@@ -2271,7 +2271,7 @@ static RsslRet processSourceDirectoryResp(ConsumerThread* pConsumerThread, RsslR
 	RsslRet ret;
 	RsslError closeError;
 	RsslBuffer serviceName;
-	RsslRDMService *pMsgServiceList;
+	RsslRDMService *pMsgServiceList = NULL;
 	RsslUInt32 msgServiceCount, iMsgServiceList;
 	RsslBool foundServiceName = RSSL_FALSE;
 	RsslBuffer tunnelServiceNameBuffer;
@@ -2313,7 +2313,6 @@ static RsslRet processSourceDirectoryResp(ConsumerThread* pConsumerThread, RsslR
 			}
 			break;
 		case RDM_DR_MT_STATUS:
-			break;
 		default:
 			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 					(char*)"Error: Received unhandled directory message type %d.", pDirectoryMsg->rdmMsgBase.rdmMsgType);

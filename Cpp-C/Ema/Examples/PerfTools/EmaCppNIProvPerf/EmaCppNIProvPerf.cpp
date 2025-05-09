@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|        Copyright (C) 2021-2022 LSEG. All rights reserved.                   
+// *|        Copyright (C) 2021-2022, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #include "EmaCppNIProvPerf.h"
@@ -1009,14 +1009,18 @@ void EmaCppNIProvPerf::providerPrintSummaryStats(FILE* file)
 
 int main(int argc, char* argv[])
 {
-	EmaCppNIProvPerf emaNIProvPerf;
-	// If there are multiple connections, determine which items are
-	 // to be opened on each connection. 
-	 // If any items are common to all connections, they are taken from the first
-	 // items in the item list.  The rest of the list is then divided to provide a unique
-	 // item list for each connection.
-	emaNIProvPerf.inititailizeAndRun(argc, argv);
-	
-	std::cout << "main(). Finish!" << std::endl;
+	try {
+		EmaCppNIProvPerf emaNIProvPerf;
+		// If there are multiple connections, determine which items are
+		 // to be opened on each connection.
+		 // If any items are common to all connections, they are taken from the first
+		 // items in the item list.  The rest of the list is then divided to provide a unique
+		 // item list for each connection.
+		emaNIProvPerf.inititailizeAndRun(argc, argv);
+
+		std::cout << "main(). Finish!" << std::endl;
+	} catch (const OmmException& excp) {
+		cout << excp << endl;
+	}
 	return 0;
 }

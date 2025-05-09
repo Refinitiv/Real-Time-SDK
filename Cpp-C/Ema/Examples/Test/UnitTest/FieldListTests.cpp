@@ -4233,7 +4233,7 @@ TEST(FieldListTests, testFieldListPrimitiveDecodingError)
 			}
 
 			{
-				Data* pData = new FieldList();;
+				Data* pData = new FieldList();
 
 				StaticDecoder::setRsslData( pData, &rsslBuf, RSSL_DT_FIELD_LIST, 20, RSSL_RWF_MINOR_VERSION, &dictionary );
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1234,7 +1234,7 @@ RsslRet processYieldCurveResponse(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIte
 			/* print out item name from key if it has it */
 			if (key && (key->flags & RSSL_MKF_HAS_NAME))
 				printf("\n%.*s", key->name.length, key->name.data);
-			else
+			else if (itemInfo)
 				printf("\n%s", itemInfo->itemname);
 
 			if (isPrivateStream) printf(" (PRIVATE STREAM)");
@@ -1261,7 +1261,7 @@ RsslRet processYieldCurveResponse(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIte
 		case RSSL_MC_STATUS:
 			if (isBatchRequest)
 				printf("\nReceived Batch StatusMsg for stream %i \n", msg->statusMsg.msgBase.streamId);
-			else
+			else if (itemInfo)
 				printf("\nReceived Item StatusMsg for stream %i \n", itemInfo->streamId);
 
 			/* update our state table with the new state */

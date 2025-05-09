@@ -1084,8 +1084,8 @@ void wtfDispatch(WtfComponent component, time_t timeoutMsec, RsslUInt64 index, R
 	int selectRet;
 	time_t currentTimeUsec, stopTimeUsec;
 
-	RsslReactorChannel *pChannel;
-	RsslReactor *pReactor;
+	RsslReactorChannel *pChannel = NULL;
+	RsslReactor *pReactor = NULL;
 	RsslRet lastDispatchRet = 0;
 
 	/* Ensure no events were missed from previous calls to wtfDispatch. */
@@ -3053,8 +3053,8 @@ void wtfSubmitMsg(RsslReactorSubmitMsgOptions *pOpts, WtfComponent component,
 		WtfSubmitMsgOptionsEx *pOptsEx, RsslBool noEventsExpected, RsslUInt16 serverIndex)
 {
 	RsslErrorInfo rsslErrorInfo;
-	RsslReactor *pReactor;
-	RsslReactorChannel *pChannel;
+	RsslReactor *pReactor = NULL;
+	RsslReactorChannel *pChannel = NULL;
 	WtfSubmitMsgOptionsEx exOpts;
 
 	if (!pOptsEx)

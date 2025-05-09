@@ -2,7 +2,7 @@
 *| This source code is provided under the Apache 2.0 license –
 *| and is provided AS IS with no warranty or guarantee of fit for purpose. –
 *| See the project's LICENSE.md for details. –
-*| Copyright (C) 2020 LSEG. All rights reserved.      –
+*| Copyright (C) 2020, 2025 LSEG. All rights reserved.
 *|-----------------------------------------------------------------------------
 */
 
@@ -22,37 +22,48 @@ void printHelp()
 
 int main(int argc, char **argv)
 {
-	::testing::InitGoogleTest(&argc, argv);
+	int ret = 0;
 
-	cmdlPrintJsonBuffer = false;
-	cmdlPrintRsslBuffer = false;
+	try {
+		::testing::InitGoogleTest(&argc, argv);
 
-	for(int i = 1; i < argc; ++i)
-	{
-		if (0 == strcmp(argv[i], "--printJsonBuffer"))
-			cmdlPrintJsonBuffer = true;
-		else if (0 == strcmp(argv[i], "--printRsslBuffer"))
-			cmdlPrintRsslBuffer = true;
-		else if (0 == strcmp(argv[i], "-?")
+		cmdlPrintJsonBuffer = false;
+		cmdlPrintRsslBuffer = false;
+
+		for (int i = 1; i < argc; ++i)
+		{
+			if (0 == strcmp(argv[i], "--printJsonBuffer"))
+				cmdlPrintJsonBuffer = true;
+			else if (0 == strcmp(argv[i], "--printRsslBuffer"))
+				cmdlPrintRsslBuffer = true;
+			else if (0 == strcmp(argv[i], "-?")
 				|| 0 == strcmp(argv[i], "-h")
 				|| 0 == strcmp(argv[i], "--help"))
-		{
-			printHelp();
-			return 0;
+			{
+				printHelp();
+				return 0;
+			}
+			else
+			{
+				cout << "Error: Unrecognized option '" << argv[i] << "'" << endl;
+				printHelp();
+				return 1;
+			}
 		}
-		else
-		{
-			cout << "Error: Unrecognized option '" << argv[i] << "'" << endl;
-			printHelp();
-			return 1;
-		}
+
+		MsgConversionTestBase::initTestData();
+
+		ret = RUN_ALL_TESTS();
+
+		MsgConversionTestBase::cleanupTestData();
+	} catch (const std::exception& e) {
+		std::cout << "GoogleTest failed: %s\n" << e.what() << std::endl;
+		return 1;
+	} catch (...) {
+		std::cout << "GoogleTest failed: unknown error\n" << std::endl;
+		return 1;
 	}
 
-	MsgConversionTestBase::initTestData();
-
-	int ret = RUN_ALL_TESTS();
-
-	MsgConversionTestBase::cleanupTestData();
 	return ret;
 }
 

@@ -371,7 +371,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 
 		while ((pLink = rsslQueueRemoveFirstLink(&pReactorWorker->freeInvalidTokenSessions)))
 		{
-			RsslReactorTokenSessionImpl* pTokenSession = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, invalidSessionLink, pLink);;
+			RsslReactorTokenSessionImpl* pTokenSession = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, invalidSessionLink, pLink);
 
 			rsslFreeReactorTokenSessionImpl(pTokenSession);
 		}

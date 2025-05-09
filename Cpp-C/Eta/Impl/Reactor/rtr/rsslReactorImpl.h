@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2024 LSEG. All rights reserved.
+ * Copyright (C) 2019-2024, 2025 LSEG. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_REACTOR_IMPL_H
@@ -307,6 +307,7 @@ RTR_C_INLINE void rsslClearReactorWarmStandbyServerInfoImpl(RsslReactorWarmStand
 {
 	memset(&pReactorWarmStandbyServerInfoImpl->reactorConnectInfoImpl, 0, sizeof(RsslReactorWarmStandbyServerInfoImpl));
 	rsslClearReactorConnectInfo(&pReactorWarmStandbyServerInfoImpl->reactorConnectInfoImpl.base);
+	rsslClearReactorPerServiceBasedOptions(&pReactorWarmStandbyServerInfoImpl->perServiceBasedOptions);
 	pReactorWarmStandbyServerInfoImpl->isActiveChannelConfig = RSSL_TRUE;
 }
 

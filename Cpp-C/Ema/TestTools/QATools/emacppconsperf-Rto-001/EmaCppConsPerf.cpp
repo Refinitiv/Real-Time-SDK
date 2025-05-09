@@ -1294,7 +1294,7 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 	perfMessageData = new PerfMessageData(consPerfConfig.msgFilename, false);
 
 	// If there are multiple connections, determine which items are
-	 // to be opened on each connection. 
+	 // to be opened on each connection.
 	 // If any items are common to all connections, they are taken from the first
 	 // items in the item list.  The rest of the list is then divided to provide a unique
 	 // item list for each connection.
@@ -1740,7 +1740,7 @@ int main( int argc, char* argv[] )
 	
 	EmaCppConsPerf emaConsumerPerf ;
 	// If there are multiple connections, determine which items are
-	 // to be opened on each connection. 
+	 // to be opened on each connection.
 	 // If any items are common to all connections, they are taken from the first
 	 // items in the item list.  The rest of the list is then divided to provide a unique
 	 // item list for each connection.

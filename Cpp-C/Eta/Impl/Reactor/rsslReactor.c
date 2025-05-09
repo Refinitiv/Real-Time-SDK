@@ -11340,7 +11340,7 @@ static RsslReactorOAuthCredentialRenewal* _reactorCopyRsslReactorOAuthCredential
 		if (pTokenSessionImpl->pOAuthCredentialRenewalImpl->memoryLength < (RsslUInt32)(msgSize + dataLength))
 		{
 			free(pTokenSessionImpl->pOAuthCredentialRenewalImpl);
-			pTokenSessionImpl->pOAuthCredentialRenewalImpl->memoryLength = 0;
+			pTokenSessionImpl->pOAuthCredentialRenewalImpl = NULL;
 
 			allocateMemory = RSSL_TRUE;
 		}
@@ -13485,7 +13485,7 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 			else
 			{
 				strcat(pParameterBuf, "&");
-				strncat(pParameterBuf, rssl_rest_dataformat_type_rwf_text.data, rssl_rest_dataformat_type_rwf_text.length);;
+				strncat(pParameterBuf, rssl_rest_dataformat_type_rwf_text.data, rssl_rest_dataformat_type_rwf_text.length);
 			}
 			break;
 		case RSSL_RD_DP_JSON2:

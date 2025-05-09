@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
+ * Copyright (C) 2019, 2025 LSEG. All rights reserved.
 */
 
 #include "rtr/wlItem.h"
@@ -109,7 +109,7 @@ RsslRet wlItemCopyKey(RsslMsgKey *pNewMsgKey, RsslMsgKey *pOldMsgKey, char **pMe
 		RsslErrorInfo *pErrorInfo)
 {
 	int bufferSize = 0;
-	char *newMemoryBuffer;
+	char *newMemoryBuffer = NULL;
 
 	*pNewMsgKey = *pOldMsgKey;
 
@@ -129,14 +129,14 @@ RsslRet wlItemCopyKey(RsslMsgKey *pNewMsgKey, RsslMsgKey *pOldMsgKey, char **pMe
 		*pMemoryBuffer = newMemoryBuffer;
 	}
 
-	if (pOldMsgKey->flags & RSSL_MKF_HAS_NAME && pOldMsgKey->name.length)
+	if (pOldMsgKey->flags & RSSL_MKF_HAS_NAME && pOldMsgKey->name.length && pOldMsgKey->name.data)
 	{
 		pNewMsgKey->name.data = newMemoryBuffer;
 		newMemoryBuffer += pNewMsgKey->name.length;
 		memcpy(pNewMsgKey->name.data, pOldMsgKey->name.data, pNewMsgKey->name.length);
 	}
 
-	if (pOldMsgKey->flags & RSSL_MKF_HAS_ATTRIB && pOldMsgKey->encAttrib.length)
+	if (pOldMsgKey->flags & RSSL_MKF_HAS_ATTRIB && pOldMsgKey->encAttrib.length && pOldMsgKey->encAttrib.data)
 	{
 		pNewMsgKey->encAttrib.data = newMemoryBuffer;
 		newMemoryBuffer += pNewMsgKey->encAttrib.length;

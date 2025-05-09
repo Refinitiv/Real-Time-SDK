@@ -1510,7 +1510,7 @@ void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 
 bool LoginCallbackClient::convertRdmLoginToRsslBuffer( RsslReactorChannel* pRsslReactorChannel, RsslRDMLoginMsgEvent* pEvent, RsslBuffer* pRsslMsgBuffer )
 {
-	if ( !pRsslReactorChannel && !pEvent && !pRsslMsgBuffer ) return false;
+	if ( !pRsslReactorChannel || !pEvent || !pRsslMsgBuffer ) return false;
 
 	pRsslMsgBuffer->length = 4096;
 	pRsslMsgBuffer->data = ( char* )malloc( sizeof( char ) * pRsslMsgBuffer->length );

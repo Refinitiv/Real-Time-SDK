@@ -54,7 +54,7 @@ void TunnelStreamCoreProvider::acceptTunnelStreamRequest(RsslRequestMsg* pReques
 
 	ASSERT_TRUE(rsslRequestMsgCheckStreaming(pRequestMsg));
 	ASSERT_TRUE(rsslRequestMsgCheckPrivateStream(pRequestMsg));
-	ASSERT_TRUE(rsslRequestMsgCheckQualifiedStream(pRequestMsg));;
+	ASSERT_TRUE(rsslRequestMsgCheckQualifiedStream(pRequestMsg));
 	ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&pRequestMsg->msgBase.msgKey));
 	ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&pRequestMsg->msgBase.msgKey));
 	ASSERT_EQ(RSSL_DT_FILTER_LIST, pRequestMsg->msgBase.containerType);

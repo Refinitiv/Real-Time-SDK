@@ -2032,7 +2032,7 @@ ItemStatusInfo::ItemStatusInfo(ProviderItem* pProviderItem, const EmaString& tex
 	_msgKey.identifier = pProviderItem->getRsslMsgKey().identifier;
 	_msgKey.serviceId = pProviderItem->getRsslMsgKey().serviceId;
 
-	_serviceName = pProviderItem->getServiceName();;
+	_serviceName = pProviderItem->getServiceName();
 
 	_privateStream = pProviderItem->isPrivateStream();
 }

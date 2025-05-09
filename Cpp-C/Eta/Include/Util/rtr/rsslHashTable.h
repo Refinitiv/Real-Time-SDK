@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
+ * Copyright (C) 2019, 2025 LSEG. All rights reserved.
 */
 
 /* Implements a basic hash table using the RsslQueue. */
@@ -104,6 +104,7 @@ RTR_C_INLINE RsslRet rsslHashTableInit(RsslHashTable *pTable, RsslUInt32 queueCo
 	RsslUInt64 queueListSize = queueCount * sizeof(RsslQueue);
 	RsslUInt32 i;
 
+	memset(pTable, 0, sizeof(RsslHashTable));
 
 	if (queueListSize > (size_t)-1) /* overflow */
 	{
@@ -112,10 +113,7 @@ RTR_C_INLINE RsslRet rsslHashTableInit(RsslHashTable *pTable, RsslUInt32 queueCo
 		return RSSL_RET_FAILURE;
 	}
 
-	memset(pTable, 0, sizeof(RsslHashTable));
-
 	pTable->queueCount = queueCount;
-	pTable->elementCount = 0;
 	pTable->thresholdCapacity = (RsslUInt32)((double)queueCount * LOAD_FACTOR);
 	pTable->dynamicSize = dynamicSize;
 

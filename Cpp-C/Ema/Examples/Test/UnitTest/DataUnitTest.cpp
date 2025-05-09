@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
+ *|           Copyright (C) 2019, 2024, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1289,42 +1289,56 @@ EmaString g_proxyPort;
 
 int main(int argc, char** argv) {
   int i = 1;
+  int retVal = 0;
 
-  for(; i < argc; i++)
-  {
-	if (0 == strcmp("-uname", argv[i]))
-	{
-		if (++i == argc)
-			break;
-		g_userName.set(argv[i]);
-	}
-	else if (0 == strcmp("-passwd", argv[i]))
-	{
-		if (++i == argc)
-			break;
-		g_password.set(argv[i]);
-	}
-	else if (0 == strcmp("-ph", argv[i]))
-	{
-		if (++i == argc)
-			break;
-		g_proxyHost.set(argv[i]);
-	}
-	else if (0 == strcmp("-pp", argv[i]))
-	{
-		if (++i == argc)
-			break;
-		g_proxyPort.set(argv[i]);
-	}
+  try {
+	  for (; i < argc; i++)
+	  {
+		  if (0 == strcmp("-uname", argv[i]))
+		  {
+			  if (++i == argc)
+				  break;
+			  g_userName.set(argv[i]);
+		  }
+		  else if (0 == strcmp("-passwd", argv[i]))
+		  {
+			  if (++i == argc)
+				  break;
+			  g_password.set(argv[i]);
+		  }
+		  else if (0 == strcmp("-ph", argv[i]))
+		  {
+			  if (++i == argc)
+				  break;
+			  g_proxyHost.set(argv[i]);
+		  }
+		  else if (0 == strcmp("-pp", argv[i]))
+		  {
+			  if (++i == argc)
+				  break;
+			  g_proxyPort.set(argv[i]);
+		  }
+	  }
+  } catch (const OmmException& excp) {
+	  cout << excp << endl;
   }
 
-  ::testing::AddGlobalTestEnvironment(new MyEnvironment);
-  ::testing::InitGoogleTest(&argc, argv);
+  try {
+	  ::testing::AddGlobalTestEnvironment(new MyEnvironment);
+	  ::testing::InitGoogleTest(&argc, argv);
 
-  /* Skipping the test cases for the EmaConfigTest.testLoadingConfigurationFromProgrammaticConfigForSessionManagement when a login credential isn't available */
-  if( (g_userName.length() == 0) || (g_password.length() == 0))
-  	testing::GTEST_FLAG(filter) += "-EmaConfigTest.testLoadingConfigurationFromProgrammaticConfigForSessionManagement";
+	  /* Skipping the test cases for the EmaConfigTest.testLoadingConfigurationFromProgrammaticConfigForSessionManagement when a login credential isn't available */
+	  if ((g_userName.length() == 0) || (g_password.length() == 0))
+		  testing::GTEST_FLAG(filter) += "-EmaConfigTest.testLoadingConfigurationFromProgrammaticConfigForSessionManagement";
 
-  int retVal(RUN_ALL_TESTS());
+	  retVal = RUN_ALL_TESTS();
+  } catch (const std::exception& e) {
+	  std::cout << "GoogleTest failed: %s\n" << e.what() << std::endl;
+	  return 1;
+  } catch (...) {
+	  std::cout << "GoogleTest failed: unknown error\n" << std::endl;
+	  return 1;
+  }
+
   return retVal;
 }

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -3053,7 +3053,7 @@ void copyKeyTest()
 	/* fail - null name in destination key */
 	keySource.flags = 0;
 	keySource.flags |= RSSL_MKF_HAS_NAME;
-	keyDest.name.length = sizeof(nameDest);;
+	keyDest.name.length = sizeof(nameDest);
 	ASSERT_TRUE(rsslCopyMsgKey(&keyDest, &keySource) == RSSL_RET_FAILURE); //copyKeyTest with null name in destination key failed
 
 	/* fail - null attrib in destination key */
@@ -8164,8 +8164,17 @@ int main(int argc, char* argv[])
 	_setupEncodeDataIterator();
 	_encodePayload(&encDataIter);
 	
-	::testing::InitGoogleTest(&argc, argv);
-	ret = RUN_ALL_TESTS();
+	try {
+		::testing::InitGoogleTest(&argc, argv);
+		ret = RUN_ALL_TESTS();
+	}catch (const std::exception& e) {
+		std::cout << "GoogleTest failed: %s\n" << e.what() << std::endl;
+		return 1;
+	}catch (...) {
+		std::cout << "GoogleTest failed: unknown error\n" << std::endl;
+		return 1;
+	}
+
 
 	free(encBuf.data);
 	free(encDataBuf.data);

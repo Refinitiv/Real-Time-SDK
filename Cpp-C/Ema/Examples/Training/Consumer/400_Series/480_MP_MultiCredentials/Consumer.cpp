@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+// *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -93,131 +93,131 @@ void printHelp()
 
 int main( int argc, char* argv[] )
 { 
-	OmmConsumerConfig config;
-	int i = 1;
-	
-	
-	config.consumerName("Consumer_2");
+	try {
 
-	while(i < argc)
-	{
-		bool credentialComplete = false;
+		OmmConsumerConfig config;
+		int i = 1;
 
-		if (strcmp(argv[i], "-OAuthCred") == 0)
+		config.consumerName("Consumer_2");
+
+		while(i < argc)
 		{
-			OAuth2Credential* oAuth = new OAuth2Credential;
+			bool credentialComplete = false;
 
-			while (!credentialComplete)
+			if (strcmp(argv[i], "-OAuthCred") == 0)
 			{
-				char* pToken = NULL;
-				char* pNextToken = NULL;
-				i++;
+				OAuth2Credential* oAuth = new OAuth2Credential;
 
-				if (i == argc)
+				while (!credentialComplete)
 				{
-					config.addOAuth2Credential(*oAuth, OAuthCredentialClient, (void*)oAuth);
-					oAuthCredentialStore.push_back(oAuth);
-					credentialComplete = true;
-					break;
-				}
+					char* pToken = NULL;
+					char* pNextToken = NULL;
+					i++;
 
-				if (strstr(argv[i], ":"))
-				{
-					pToken = strtok(argv[i], ":");
+					if (i == argc)
+					{
+						config.addOAuth2Credential(*oAuth, OAuthCredentialClient, (void*)oAuth);
+						oAuthCredentialStore.push_back(oAuth);
+						credentialComplete = true;
+						break;
+					}
 
-					if (strcmp(pToken, "userName") == 0)
+					if (strstr(argv[i], ":"))
 					{
-						pNextToken = strtok(NULL, ":");
-						oAuth->userName(EmaString(pNextToken));
+						pToken = strtok(argv[i], ":");
+
+						if (strcmp(pToken, "userName") == 0)
+						{
+							pNextToken = strtok(NULL, ":");
+							oAuth->userName(EmaString(pNextToken));
+						}
+						else if (strcmp(pToken, "password") == 0)
+						{
+							pNextToken = strtok(NULL, ":");
+							oAuth->password(EmaString(pNextToken));
+						}
+						else if (strcmp(pToken, "clientId") == 0)
+						{
+							pNextToken = strtok(NULL, ":");
+							oAuth->clientId(EmaString(pNextToken));
+						}
+						else if (strcmp(pToken, "clientSecret") == 0)
+						{
+							pNextToken = strtok(NULL, ":");
+							oAuth->clientSecret(EmaString(pNextToken));
+						}
+						else if (strcmp(pToken, "channelList") == 0)
+						{
+							pNextToken = strtok(NULL, ":");
+							oAuth->channelList(EmaString(pNextToken));
+						}
 					}
-					else if (strcmp(pToken, "password") == 0)
+					else
 					{
-						pNextToken = strtok(NULL, ":");
-						oAuth->password(EmaString(pNextToken));
+						// Hit the end of this credential, add it to the list.
+						config.addOAuth2Credential(*oAuth, OAuthCredentialClient, (void*)oAuth);
+						oAuthCredentialStore.push_back(oAuth);
+						credentialComplete = true;
 					}
-					else if (strcmp(pToken, "clientId") == 0)
-					{
-						pNextToken = strtok(NULL, ":");
-						oAuth->clientId(EmaString(pNextToken));
-					}
-					else if (strcmp(pToken, "clientSecret") == 0)
-					{
-						pNextToken = strtok(NULL, ":");
-						oAuth->clientSecret(EmaString(pNextToken));
-					}
-					else if (strcmp(pToken, "channelList") == 0)
-					{
-						pNextToken = strtok(NULL, ":");
-						oAuth->channelList(EmaString(pNextToken));
-					}
-				}
-				else
-				{
-					// Hit the end of this credential, add it to the list.
-					config.addOAuth2Credential(*oAuth, OAuthCredentialClient, (void*)oAuth);
-					oAuthCredentialStore.push_back(oAuth);
-					credentialComplete = true;
 				}
 			}
-		}
-		else if (strcmp(argv[i], "-LoginMsg") == 0)
-		{
-			Login::LoginReq* login = new Login::LoginReq;
-			EmaString channelList;
-
-			while (!credentialComplete)
+			else if (strcmp(argv[i], "-LoginMsg") == 0)
 			{
-				char* pToken = NULL;
-				char* pNextToken = NULL;
-				i++;
+				Login::LoginReq* login = new Login::LoginReq;
+				EmaString channelList;
 
-				if (i == argc)
+				while (!credentialComplete)
 				{
-					config.addLoginMsgCredential(login->getMessage(), channelList, LoginCredentialClient, (void*)login);
-					loginStore.push_back(login);
-					credentialComplete = true;
-					break;
-				}
+					char* pToken = NULL;
+					char* pNextToken = NULL;
+					i++;
 
-				if (strstr(argv[i], ":"))
-				{
-					pToken = strtok(argv[i], ":");
-
-					if (strcmp(pToken, "name") == 0)
+					if (i == argc)
 					{
-						pNextToken = strtok(NULL, ":");
-						login->name(EmaString(pNextToken));
+						config.addLoginMsgCredential(login->getMessage(), channelList, LoginCredentialClient, (void*)login);
+						loginStore.push_back(login);
+						credentialComplete = true;
+						break;
 					}
-					else if (strcmp(pToken, "channelList") == 0)
+
+					if (strstr(argv[i], ":"))
 					{
-						pNextToken = strtok(NULL, ":");
-						channelList = pNextToken;
+						pToken = strtok(argv[i], ":");
+
+						if (strcmp(pToken, "name") == 0)
+						{
+							pNextToken = strtok(NULL, ":");
+							login->name(EmaString(pNextToken));
+						}
+						else if (strcmp(pToken, "channelList") == 0)
+						{
+							pNextToken = strtok(NULL, ":");
+							channelList = pNextToken;
+						}
 					}
-				}
-				else
-				{
-					// Hit the end of this credential, add it to the list.
-					config.addLoginMsgCredential(login->getMessage(), channelList, LoginCredentialClient, (void*)login);
-					loginStore.push_back(login);
-					credentialComplete = true;
+					else
+					{
+						// Hit the end of this credential, add it to the list.
+						config.addLoginMsgCredential(login->getMessage(), channelList, LoginCredentialClient, (void*)login);
+						loginStore.push_back(login);
+						credentialComplete = true;
+					}
 				}
 			}
-		}
-		else
-		{
-			cout << "Invalid input." << endl;
-			printHelp();
-			exit(-1);
+			else
+			{
+				cout << "Invalid input." << endl;
+				printHelp();
+				exit(-1);
+			}
+
 		}
 
-	}
-
-	try { 
 		AppClient client;
 		OmmConsumer consumer(config);
 		pOmmConsumer = &consumer;
 		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ) , client );
-		
+
 		sleep( 600000 );			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;

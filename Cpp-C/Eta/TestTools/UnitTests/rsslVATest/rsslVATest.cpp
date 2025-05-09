@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -20,6 +20,7 @@ RsslBuffer g_proxyPort;
 int main(int argc, char* argv[])
 {
 	int i = 1;
+	int ret = 0;
 
 	rsslClearBuffer(&g_userName);
 	rsslClearBuffer(&g_password);
@@ -77,13 +78,20 @@ int main(int argc, char* argv[])
     
 	wtfClearGlobalConfig();
 	
-	::testing::InitGoogleTest(&argc, argv);
+	try {
+		::testing::InitGoogleTest(&argc, argv);
 
-	/* Skipping the test cases for ReactorSessionMgntTest when a user credential isn't available */
-	if( (g_userName.length == 0) || (g_password.length == 0))
-		testing::GTEST_FLAG(filter) += ":-*ReactorSessionMgntTest*:*ReactorQueryServiceDiscoveryTest*";
+		/* Skipping the test cases for ReactorSessionMgntTest when a user credential isn't available */
+		if ((g_userName.length == 0) || (g_password.length == 0))
+			testing::GTEST_FLAG(filter) += ":-*ReactorSessionMgntTest*:*ReactorQueryServiceDiscoveryTest*";
 
-	int ret = RUN_ALL_TESTS();
-	
+		ret = RUN_ALL_TESTS();
+	} catch (const std::exception& e) {
+		std::cout << "GoogleTest failed: %s\n" << e.what() << std::endl;
+		return 1;
+	} catch (...) {
+		std::cout << "GoogleTest failed: unknown error\n" << std::endl;
+		return 1;
+	}
 	return ret;
 }

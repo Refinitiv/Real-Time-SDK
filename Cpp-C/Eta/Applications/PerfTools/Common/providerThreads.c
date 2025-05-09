@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 LSEG. All rights reserved.     
+ * Copyright (C) 2020, 2025 LSEG. All rights reserved.
 */
 
 #include "providerThreads.h"
@@ -868,7 +868,7 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 			 * Change the stream ID to send it for a different item. */
 
 			RsslEncodeIterator eIter;
-			RsslBuffer *pEncMsgBuf;
+			RsslBuffer *pEncMsgBuf = NULL;
 
 			switch(nextItem->attributes.domainType)
 			{
@@ -881,6 +881,9 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 					pEncMsgBuf = &pSession->preEncMarketByOrderMsgs[((MarketByOrderItem*)nextItem->itemData)->iMsg];
 					getNextMarketByOrderUpdate((MarketByOrderItem*)nextItem->itemData);
 					break;
+				default:
+					printf("Unsupported domain type: %s \n", rsslDomainTypeToOmmString(nextItem->attributes.domainType));
+					return RSSL_RET_FAILURE;
 			}
 
 			if (rtrUnlikely(pSession->pWritingBuffer->length < pEncMsgBuf->length))
@@ -986,7 +989,7 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 			 * Change the stream ID to send it for a different item. */
 
 			RsslEncodeIterator eIter;
-			RsslBuffer *pEncMsgBuf;
+			RsslBuffer *pEncMsgBuf = NULL;
 
 			switch(nextItem->attributes.domainType)
 			{
@@ -999,6 +1002,10 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 					pEncMsgBuf = &pSession->preEncMarketByOrderMsgs[((MarketByOrderItem*)nextItem->itemData)->iMsg];
 					getNextMarketByOrderUpdate((MarketByOrderItem*)nextItem->itemData);
 					break;
+
+				default:
+					printf("Unsupported domain type: %s \n", rsslDomainTypeToOmmString(nextItem->attributes.domainType));
+					return RSSL_RET_FAILURE;
 			}
 
 			if (rtrUnlikely(pSession->pWritingBuffer->length < pEncMsgBuf->length))
@@ -1370,8 +1377,16 @@ RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession
 {
 	RsslError error;
 	RsslRet ret;
-	RsslChannel *pChannel = pSession->pChannelInfo->pChannel;
+	RsslChannel *pChannel = NULL;
 	RsslBool useTunnel = RSSL_FALSE;
+
+	if (!pSession || !pSession->pChannelInfo)
+	{
+		printf("sendItemMsgBuffer: pSession is not correct.\n");
+		return RSSL_RET_FAILURE;
+	}
+
+	pChannel = pSession->pChannelInfo->pChannel;
 
 	countStatIncr(&pProvThread->msgSentCount);
 

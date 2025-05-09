@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.
 */
 
 #include "transportPerfConfig.h"
@@ -927,10 +927,15 @@ static RsslServer* bindRsslServer(RsslError* error)
 static RsslRet sendToLeastLoadedThread(RsslChannel *chnl)
 {
 
-	SessionHandler *pConnHandler;
+	SessionHandler *pConnHandler = NULL;
 	RsslInt32 i, minProviderConnCount, connHandlerIndex;
 	NewChannel *pNewChannel;
 
+	if (!sessionHandlerCount)
+	{
+		printf("Number of session handlers is zero.\n");
+		return RSSL_RET_FAILURE;
+	}
 
 	minProviderConnCount = 0x7fffffff;
 	for(i = 0; i < sessionHandlerCount; ++i)
@@ -942,6 +947,12 @@ static RsslRet sendToLeastLoadedThread(RsslChannel *chnl)
 			minProviderConnCount = pTmpHandler->openChannelsCount;
 			pConnHandler = pTmpHandler;
 			connHandlerIndex = i;
+		}
+		else
+		{
+			printf("Number of open channels greater than max value 0x7fffffff. \n");
+			RSSL_MUTEX_UNLOCK(&pTmpHandler->handlerLock);
+			return RSSL_RET_FAILURE;
 		}
 		RSSL_MUTEX_UNLOCK(&pTmpHandler->handlerLock);
 	}

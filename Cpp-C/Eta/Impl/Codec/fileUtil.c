@@ -9,7 +9,7 @@
 
 FILE * openBinFile(const char * fileName, const char * mode)
 {
-	FILE * file;
+	FILE * file = NULL;
 #ifdef WIN32
 #if _MSC_VER < 1300
 	_fmode = _O_BINARY;
@@ -24,14 +24,17 @@ FILE * openBinFile(const char * fileName, const char * mode)
 			fileName = "stdout";
 	}
 
-	if (strcmp(fileName, "stdin") == 0)
-		file = stdin;
-	else if (strcmp(fileName, "stdout") == 0)
-		file = stdout;
-	else if (strcmp(fileName, "stderr") == 0)
-		file = stderr;
-	else
-		file = fopen(fileName, mode);
+	if (fileName)
+	{
+		if (strcmp(fileName, "stdin") == 0)
+			file = stdin;
+		else if (strcmp(fileName, "stdout") == 0)
+			file = stdout;
+		else if (strcmp(fileName, "stderr") == 0)
+			file = stderr;
+		else
+			file = fopen(fileName, mode);
+	}
 
 	if (!file)
 	{

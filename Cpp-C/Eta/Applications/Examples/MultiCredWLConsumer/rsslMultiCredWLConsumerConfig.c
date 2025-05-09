@@ -262,14 +262,14 @@ RsslRet parseJsonChannelInfo(cJSON* node, ConnectionInfoConfig* connectInfo)
 
 	if (value != NULL)
 	{
-		connectInfo->connectionInfo.rsslConnectOptions.connectionType = (RsslUInt)cJSON_GetNumberValue(value);;
+		connectInfo->connectionInfo.rsslConnectOptions.connectionType = (RsslUInt)cJSON_GetNumberValue(value);
 	}
 
 	value = cJSON_GetObjectItem(node, "encryptedConnType");
 
 	if (value != NULL)
 	{
-		connectInfo->connectionInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = (RsslUInt)cJSON_GetNumberValue(value);;
+		connectInfo->connectionInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = (RsslUInt)cJSON_GetNumberValue(value);
 	}
 
 	value = cJSON_GetObjectItem(node, "encryptionProtocolFlags");
