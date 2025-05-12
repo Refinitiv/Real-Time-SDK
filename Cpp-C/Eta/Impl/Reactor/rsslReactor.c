@@ -12229,13 +12229,13 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl* pReactorChannel, 
 {
 	RsslRet ret;
 
-	pReactorChannel->channelRole = *pRole;
-
-	switch(pReactorChannel->channelRole.base.roleType)
+	switch(pRole->base.roleType)
 	{
 		case RSSL_RC_RT_OMM_CONSUMER:
 		{
-			RsslReactorOMMConsumerRole *pConsRole = (RsslReactorOMMConsumerRole*)&pReactorChannel->channelRole;
+			pReactorChannel->channelRole.ommConsumerRole = pRole->ommConsumerRole;
+
+			RsslReactorOMMConsumerRole *pConsRole = &pReactorChannel->channelRole.ommConsumerRole;
 			RsslReactorConnectInfoImpl* pReactorConnectInfoImpl = pReactorChannel->currentConnectionOpts;
 			RsslUInt8 i = 0;
 			RsslReactorLoginRequestMsgCredential* tmpLoginRequestArray = NULL;
@@ -12480,7 +12480,9 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl* pReactorChannel, 
 
 		case RSSL_RC_RT_OMM_NI_PROVIDER:
 		{
-			RsslReactorOMMNIProviderRole *pNIProvRole = (RsslReactorOMMNIProviderRole*)&pReactorChannel->channelRole;
+			pReactorChannel->channelRole.ommNIProviderRole = pRole->ommNIProviderRole;
+
+			RsslReactorOMMNIProviderRole *pNIProvRole = &pReactorChannel->channelRole.ommNIProviderRole;
 
 			if (pNIProvRole->pLoginRequest
 					&& (pNIProvRole->pLoginRequest =
@@ -12503,6 +12505,12 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl* pReactorChannel, 
 				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to copy ommNIProviderRole directory refresh.");
 				return RSSL_RET_FAILURE;
 			}
+			break;
+		}
+
+		case RSSL_RC_RT_OMM_PROVIDER:
+		{
+			pReactorChannel->channelRole.ommProviderRole = pRole->ommProviderRole;
 			break;
 		}
 
