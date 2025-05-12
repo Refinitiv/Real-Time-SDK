@@ -65,6 +65,9 @@ if ( CMAKE_HOST_UNIX )
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different RDMFieldDictionaryTest
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RDMFieldDictionaryTest
 
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ../../../EmaConfig.xml
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/DefaultEmaConfig.xml
+
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     COMMENT "Copying EmaConfigTest.xml, enumtypeTest.def and RDMFieldDictionaryTest for Ema Unit Tests .... "
                     )
@@ -82,6 +85,9 @@ else()
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different RDMFieldDictionaryTest
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/RDMFieldDictionaryTest
 
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ../../../EmaConfig.xml
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/DefaultEmaConfig.xml
+
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaInvalidConfig.xml
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaInvalidConfig.xml
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaConfigTest.xml
@@ -90,6 +96,10 @@ else()
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/enumtypeTest.def
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different RDMFieldDictionaryTest
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/RDMFieldDictionaryTest
+
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ../../../EmaConfig.xml
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/DefaultEmaConfig.xml
+
 
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     COMMENT "Copying EmaConfigTest.xml, enumtypeTest.def and RDMFieldDictionaryTest for Ema Unit Tests .... "

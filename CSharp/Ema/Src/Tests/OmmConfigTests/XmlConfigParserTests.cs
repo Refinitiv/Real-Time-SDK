@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,8 +13,10 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests;
 
 public class XmlConfigParserTests : IDisposable
 {
+    // this is the EmaConfig.xml in the CSharp/Ema directory, ensure that it passes validation
+    public const string EMA_DEFAULT_CONFIG = "../../../../../EmaConfig.xml";
+
     public const string EMA_BLANK_CONFIG = "../../../OmmConfigTests/EmaBlankConfig.xml";
-    // this is a copy of the EmaConfig.xml from the CSharp/Ema directory
     public const string EMA_INVALID_CONFIG = "../../../OmmConfigTests/EmaInvalidConfig.xml";
     public const string EMA_MINIMAL_CONFIG = "../../../OmmConfigTests/EmaMinimalConfig.xml";
 
@@ -33,6 +35,7 @@ public class XmlConfigParserTests : IDisposable
 
     [Theory]
     [InlineData(EMA_BLANK_CONFIG)]
+    [InlineData(EMA_DEFAULT_CONFIG)]
     [InlineData(EMA_MINIMAL_CONFIG)]
     public void LoadValidConfig_Test(string configName)
     {

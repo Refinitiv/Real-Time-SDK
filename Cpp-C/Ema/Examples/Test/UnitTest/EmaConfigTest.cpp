@@ -5697,6 +5697,7 @@ public:
 	static const char* defaultFileNameNotExist;
 	static const char* userDefinedFileNameNotExist;
 	static const char* userDefinedFileExistsInvalidSchema;
+	static const char* defaultEmaConfig;
 
 	EmaString errorMsgText;
 	EmaString errorMsgTextSchema;
@@ -5705,6 +5706,7 @@ public:
 const char* EmaConfigTestNotExist::defaultFileNameNotExist = "EmaConfigFileNotExist.xml";
 const char* EmaConfigTestNotExist::userDefinedFileNameNotExist = "EmaConfigUserFileNotExist.xml";
 const char* EmaConfigTestNotExist::userDefinedFileExistsInvalidSchema = "./EmaInvalidConfig.xml";
+const char* EmaConfigTestNotExist::defaultEmaConfig = "./DefaultEmaConfig.xml";
 
 
 TEST_F(EmaConfigTestNotExist, OmmConsumerConfigShouldThrowException)
@@ -5834,4 +5836,31 @@ TEST_F(EmaConfigTestNotExist, OmmNiProviderConfigDefaultShouldNoException)
 			OmmNiProviderConfig config;
 		}
 	) << "When the default EmaConfig file is not available OmmNiProviderConfig does not throw any exception.";
+}
+
+TEST_F(EmaConfigTestNotExist, OmmEmaConfigsNoExceptionConsumer)
+{
+	ASSERT_NO_THROW(
+		{
+			OmmConsumerConfig consumerConfig{ defaultEmaConfig };
+		}
+	) << "When Consumer loads the default EmaConfig.xml file do not throw any exceptions.";
+}
+
+TEST_F(EmaConfigTestNotExist, OmmEmaConfigsNoExceptionIProvider)
+{
+	ASSERT_NO_THROW(
+		{
+			OmmIProviderConfig iprovConfig{ defaultEmaConfig };
+		}
+	) << "When IProvider loads the default EmaConfig.xml file do not throw any exceptions.";
+}
+
+TEST_F(EmaConfigTestNotExist, OmmEmaConfigsNoExceptionNiProvider)
+{
+	ASSERT_NO_THROW(
+		{
+			OmmNiProviderConfig niprovConfig{ defaultEmaConfig };
+		}
+	) << "When NiProvider loads the default EmaConfig.xml file do not throw any exceptions.";
 }
