@@ -7737,20 +7737,6 @@ public class Reactor
 					return retval;
 			}
 
-			// remove Reactor's channel key(s) from keySet
-			if (keySet != null)
-			{
-				Iterator<SelectionKey> iter = keySet.iterator();
-				while (iter.hasNext())
-				{
-					SelectionKey key = iter.next();
-					if (key.isReadable() && _reactorChannel == (ReactorChannel) key.attachment())
-					{
-						iter.remove();
-					}
-				}
-			}
-
 			// handle other channels
 			if (msgCount < maxMessages) // maxMessages not reached
 			{
@@ -7768,6 +7754,10 @@ public class Reactor
 							{
 								// retrieve associated reactor channel and read on that channel
 								ReactorChannel reactorChnl = (ReactorChannel) key.attachment();
+
+                                // remove Reactor's channel key(s) from keySet
+                                if (_reactorChannel == reactorChnl)
+                                    continue;
 
 								if (!isReactorChannelReady(reactorChnl))
 								{
@@ -7856,7 +7846,7 @@ public class Reactor
 						if (msgCount == maxMessages)
 						{
 							// update retval
-							retval = keySet.size() + retval;
+							retval = keySet.isEmpty() ? ReactorReturnCodes.SUCCESS : keySet.size() + retval;
 							break;
 						}
 					}
@@ -7912,6 +7902,20 @@ public class Reactor
 				}
 			} else // maxMessages reached
 			{
+				// remove Reactor's channel key(s) from keySet
+				if (keySet != null)
+				{
+					Iterator<SelectionKey> iter = keySet.iterator();
+					while (iter.hasNext())
+					{
+						SelectionKey key = iter.next();
+						if (key.isReadable() && _reactorChannel == key.attachment())
+						{
+							iter.remove();
+						}
+					}
+				}
+
 				// update retval
 				retval = _workerQueue.readQueueSize() + (keySet != null ? keySet.size()
 						: (_reactorChannelCount < _reactorChannelQueue.count() ? 1 : 0));
@@ -7921,7 +7925,7 @@ public class Reactor
 			_reactorLock.unlock();
 		}
 
-		return retval;
+        return retval;
 	}
 
 	/**
