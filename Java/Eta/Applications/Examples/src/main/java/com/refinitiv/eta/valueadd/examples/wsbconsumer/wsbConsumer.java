@@ -199,7 +199,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <li>-keypasswd keystore password for encryption.
  * <li>-u Login user name. Default is system user name.
  * <li>-passwd Password for the user name.
- * <li>-clientId Specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
+ * <li>-clientId Specifies a unique ID for application making the request to LDP token service, also known as AppKey generated using an AppGenerator.
  * <li>-clientSecret Specifies the associated client Secret with a provided clientId for V2 logins.
  * <li>-jwkFile Specifies the file containing the JWK encoded private key for V2 JWT logins.
  * <li>-tokenURLV1 Specifies the token URL for V1 token oauthpasswd grant type.

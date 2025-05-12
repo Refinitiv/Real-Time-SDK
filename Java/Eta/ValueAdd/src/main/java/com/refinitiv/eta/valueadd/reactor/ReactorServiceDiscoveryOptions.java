@@ -119,7 +119,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Sets the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins.
+     * Sets the user name required to authorize with the LDP token service. Mandatory for V1 oAuth Password Credentials logins.
      * 
      * @param userName the username.
      */	
@@ -130,7 +130,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Gets the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins.
+     * Gets the user name required to authorize with the LDP token service. Mandatory for V1 oAuth Password Credentials logins.
      * 
      * @return the userName
      */		
@@ -161,7 +161,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Sets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
+     * Sets the clientID used for LDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      * 
      * @param clientId the client Id
      */			
@@ -172,7 +172,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 
     /**
-     * Gets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
+     * Gets the clientID used for LDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      * 
      * @return clientId.
      */		
@@ -182,7 +182,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Sets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
+     * Sets the clientSecret, also known as the Service Account password, used to authenticate with LDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      * 
      * @param clientSecret the client secret
      */			
@@ -193,7 +193,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 
     /**
-     * Gets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
+     * Gets the clientSecret, also known as the Service Account password, used to authenticate with LDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      * 
      * @return clientSecret.
      */		
@@ -203,7 +203,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+     * Sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the LDP token service. Mandatory for V2 logins with client JWT logins
      * 
      * @param clientJWK the client JWK
      */			
@@ -214,7 +214,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Gets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+     * Gets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the LDP token service. Mandatory for V2 logins with client JWT logins
      * 
      * @return clientJWK.
      */		

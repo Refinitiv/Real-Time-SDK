@@ -104,7 +104,7 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig applicationId(String applicationId);
 	
 	/**
-	 * Specifies the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
+	 * Specifies the clientID used for LDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
 	 * 
 	 * @param clientId specifies an unique identifier.
 	 * @return reference to this object
@@ -177,9 +177,9 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig tokenServiceUrlV2(String tokenServiceUrlV2);
 	
 	/**
-	 * Specifies an URL to override the default for the RDP service discovery to get global endpoints.
+	 * Specifies an URL to override the default for the LDP service discovery to get global endpoints.
 	 * <p>Defaults to "https://api.refinitiv.com/streaming/pricing/v1/".</p>
-	 * @param serviceDiscoveryUrl specifies an URL for RDP service discovery.
+	 * @param serviceDiscoveryUrl specifies an URL for LDP service discovery.
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig serviceDiscoveryUrl(String serviceDiscoveryUrl);

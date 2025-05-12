@@ -298,8 +298,8 @@ public interface OmmConsumer
 	
 	
 	/** Provide updated OAuth2 credentials when the callback OmmOAuth2ConsumerClient::onCredentialRenewal is called.
-	 *  This method allows the application to use a secure credential storage when using RDP functionality such as 
-	 *  the RDP token service or RDP service discovery.
+	 *  This method allows the application to use a secure credential storage when using LDP functionality such as
+	 *  the LDP token service or LDP service discovery.
 	 *	This function can only be called within the onCredentialRenewal callback.  It will throw an 
 	 *  OmmInvalidUsageException if not called in the callback
 	 *	@param credentials OAuth2CredentialRenewal object that contains the credentials.

@@ -35,7 +35,7 @@ including:
  This is only used for V1 password credential logins. It is not used for V2 client credentials.
 -websocket Use the WebSocket transport protocol (optional).
 -tokenURL URL to perform authentication to get access and refresh tokens (optional).
--serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).
+-serviceDiscoveryURL URL for LDP service discovery to get global endpoints (optional).
 
 Optional RIC item name parameters.
 -itemName Request item name (optional). The default item name is IBM.N.

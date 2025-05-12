@@ -39,7 +39,7 @@ Note: please refer to README.md of RTSDK Java for generating a keystore file.
 -tokenURLV V1 URL to perform authentication to get access and refresh tokens (optional).
 -tokenURLV1 V1 URL to perform authentication to get access and refresh tokens (optional).
 -tokenURLV2 V2 URL to perform authentication to get access token (optional).
--serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).
+-serviceDiscoveryURL URL for LDP service discovery to get global endpoints (optional).
 
 Optional RIC item name parameters.
 -itemName Request item name (optional). The default item name is IBM.N.

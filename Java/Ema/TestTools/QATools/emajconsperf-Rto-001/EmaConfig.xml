@@ -310,7 +310,7 @@
 			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<!-- EMA discovers a host and a port from RDP service discovery for the specified location
+			<!-- EMA discovers a host and a port from LDP service discovery for the specified location
 				 when both of them are not set and the session management is enable. -->
 			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>
@@ -321,7 +321,7 @@
 			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<!-- EMA discovers a host and a port from RDP service discovery for the specified location
+			<!-- EMA discovers a host and a port from LDP service discovery for the specified location
 			    when both of them are not set and the session management is enable. -->
 			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>
@@ -385,7 +385,7 @@
 			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<!-- EMA discovers a host and a port from RDP service discovery for the specified location
+			<!-- EMA discovers a host and a port from LDP service discovery for the specified location
 				 when both of them are not set and the session management is enable. -->
 			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>
@@ -398,7 +398,7 @@
 			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<!-- EMA discovers a host and a port from RDP service discovery for the specified location
+			<!-- EMA discovers a host and a port from LDP service discovery for the specified location
 				 when both of them are not set and the session management is enable. -->
 			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>

@@ -25,7 +25,7 @@ class EncryptedChannelConfig extends HttpChannelConfig
 			encryptionConfig.clear();
 		}
 		// Override the default value for hostname and port as
-		// the Reactor can query them from RDP service discovery if not specified.
+		// the Reactor can query them from LDP service discovery if not specified.
 		hostName = "";
 		serviceName = "";
 		rsslConnectionType = ConnectionTypes.ENCRYPTED;

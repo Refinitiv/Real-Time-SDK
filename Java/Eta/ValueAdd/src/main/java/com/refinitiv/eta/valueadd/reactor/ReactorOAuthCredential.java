@@ -57,7 +57,7 @@ public class ReactorOAuthCredential
 	}
 	
 	 /**
-     * Gets user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins
+     * Gets user name required to authorize with the LDP token service. Mandatory for V1 oAuth Password Credentials logins
      * 
      * @return - User name buffer.
      */
@@ -67,7 +67,7 @@ public class ReactorOAuthCredential
     }
 
     /**
-     * Sets the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins
+     * Sets the user name required to authorize with the LDP token service. Mandatory for V1 oAuth Password Credentials logins
      *
      * @param userName the user name
      */
@@ -101,7 +101,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * Gets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
+     * Gets the clientID used for LDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      * 
      * @return - Client ID buffer.
      */
@@ -111,7 +111,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * Sets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
+     * Sets the clientID used for LDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      *
      * @param clientId the unique identifier for the application
      */
@@ -123,7 +123,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * Gets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
+     * Gets the clientSecret, also known as the Service Account password, used to authenticate with LDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      * 
      * @return - Client Secret buffer.
      */
@@ -134,7 +134,7 @@ public class ReactorOAuthCredential
     
     
     /**
-     * Sets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
+     * Sets the clientSecret, also known as the Service Account password, used to authenticate with LDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      *
      * @param clientSecret the client secret
      */
@@ -146,7 +146,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins.
+     * JWK formatted private key used to create the JWT. The JWT is used to authenticate with the LDP token service. Mandatory for V2 logins with client JWT logins.
      * 
      * @return - Client JWK buffer.
      */
@@ -156,7 +156,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * Sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins.
+     * Sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the LDP token service. Mandatory for V2 logins with client JWT logins.
      *
      * @param clientJwk the JWK formatted private key 
      */

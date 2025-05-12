@@ -420,7 +420,7 @@ public class EmaRdm
 	  public static final int INSTRUMENT_NAME_UNSPECIFIED     = 0;
 	  
 	  /**
-	   * Reuters Instrument Code
+	   * Instrument Code
 	   */
 	  public static final int INSTRUMENT_NAME_RIC             = 1;
 	  

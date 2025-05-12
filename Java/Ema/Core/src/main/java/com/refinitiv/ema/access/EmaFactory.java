@@ -808,7 +808,7 @@ public class EmaFactory
 	 * Creates a {@link com.refinitiv.ema.access.ServiceEndpointDiscovery} using the default URLs.
 	 * 
 	 * <p>The token service URL defaults to https://api.refinitiv.com/auth/oauth2/v1/token<br>
-	 * The RDP service discovery URL defaults to https://api.refinitiv.com/streaming/pricing/v1/</p>
+	 * The LDP service discovery URL defaults to https://api.refinitiv.com/streaming/pricing/v1/</p>
 	 * 
 	 * @return {@link com.refinitiv.ema.access.ServiceEndpointDiscovery}
 	 */

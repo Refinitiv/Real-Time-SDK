@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<?import com.refinitiv.ema.examples.rtviewer.desktop.common.fxcomponents.ScrollableTextField?>
+<ScrollPane fx:id="scrollPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.refinitiv.ema.examples.rtviewer.desktop.itemview.ItemViewController">
+   <HBox fx:id="contentHBox">
+      <children>
+         <VBox fx:id="submitVBox" alignment="TOP_CENTER" styleClass="customvbox" stylesheets="@../styles/specified-endpoint-style.css">
+            <children>
+               <VBox alignment="TOP_CENTER" style="-fx-border-width: 2;" styleClass="vboxwithframe">
+                  <children>
+                     <VBox>
+                        <Label>Service and Domain</Label>
+                        <VBox styleClass="innerboxwithframe">
+                           <children>
+                              <VBox styleClass="innerbox">
+                                 <children>
+                                    <Label text="Select Service:" />
+                                    <ComboBox fx:id="serviceCombobox" onAction="#onSelectService" styleClass="inputfield" />
+                                 </children>
+                              </VBox>
+                              <VBox styleClass="innerbox">
+                                 <children>
+                                    <Label text="Select Domain:" />
+                                    <ComboBox fx:id="domainCombobox" onAction="#onSelectDomain" prefWidth="150.0" styleClass="inputfield" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </VBox>
+                     </VBox>
+                     <StackPane>
+                        <children>
+                           <VBox fx:id="marketByContent" styleClass="innerboxwithframe" visible="false">
+                              <children>
+                                 <Label text="RIC:" />
+                                 <ScrollableTextField fx:id="ricMarketBy" tooltipText="Specify a single RIC"/>
+                              </children>
+                           </VBox>
+                           <VBox fx:id="marketPriceContent" spacing="15" visible="false">
+                              <children>
+                                 <VBox>
+                                    <Label>RIC(s)</Label>
+                                    <VBox styleClass="vbox">
+                                       <ScrollableTextField fx:id="ricMarketPrice" prefHeight="25.0" prefWidth="300.0" tooltipText="Specify a single RIC for a single item request or multiple RICs separated by commas for a batch request Examples: TRI.N or TRI.N, IBM.N"/>
+                                    </VBox>
+                                 </VBox>
+                                 <VBox>
+                                    <Label>View (optional)</Label>
+                                    <VBox styleClass="innerboxwithframe">
+                                       <VBox>
+                                          <children>
+                                             <HBox>
+                                                <Label maxWidth="130.0" minWidth="130.0">Available Fields:</Label>
+                                                <VBox styleClass="button-box" />
+                                                <Label maxWidth="130.0" minWidth="130.0">Fields in Request:</Label>
+                                             </HBox>
+                                             <HBox>
+                                                <children>
+                                                   <VBox>
+                                                      <children>
+                                                         <ListView fx:id="availableFields" prefHeight="140.0" prefWidth="130.0" />
+                                                         <TextField fx:id="searchField" prefWidth="130.0">
+                                                            <tooltip>
+                                                               <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Start typing to filter out available fields." wrapText="true">
+                                                                  <font>
+                                                                     <Font size="11.0" />
+                                                                  </font>
+                                                               </Tooltip>
+                                                            </tooltip>
+                                                         </TextField>
+                                                      </children>
+                                                   </VBox>
+                                                   <VBox styleClass="button-box">
+                                                      <children>
+                                                         <Button fx:id="moveFieldToSelected" mnemonicParsing="false" onMouseClicked="#onMoveFieldToSelectedBtnClick" prefHeight="30" text="&gt;">
+                                                            <tooltip>
+                                                               <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Add selected field to request view." wrapText="true">
+                                                                  <font>
+                                                                     <Font size="11.0" />
+                                                                  </font>
+                                                               </Tooltip>
+                                                            </tooltip>
+                                                         </Button>
+                                                         <Button fx:id="moveFieldToDeselected" mnemonicParsing="false" onMouseClicked="#onMoveFieldToDeselectedBtnClick" prefHeight="30" text="&lt;">
+                                                            <tooltip>
+                                                               <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Remove selected field from request view." wrapText="true">
+                                                                  <font>
+                                                                     <Font size="11.0" />
+                                                                  </font>
+                                                               </Tooltip>
+                                                            </tooltip>
+                                                         </Button>
+                                                         <Button fx:id="removeAll" mnemonicParsing="false" onMouseClicked="#onRemoveAllFieldsBtnClick" prefHeight="30" text="X">
+                                                            <tooltip>
+                                                               <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Clear request view." wrapText="true">
+                                                                  <font>
+                                                                     <Font size="11.0" />
+                                                                  </font>
+                                                               </Tooltip>
+                                                            </tooltip>
+                                                         </Button>
+                                                      </children>
+                                                   </VBox>
+                                                   <ListView fx:id="selectedFields" prefHeight="140.0" prefWidth="130.0" />
+                                                </children>
+                                             </HBox>
+                                          </children>
+                                       </VBox>
+                                    </VBox>
+                                 </VBox>
+                              </children>
+                           </VBox>
+                           <VBox fx:id="emptyContent" alignment="CENTER" styleClass="innerboxwithframe">
+                              <children>
+                                 <Label style="-fx-text-fill: lightgray;">Select Domain</Label>
+                              </children>
+                           </VBox>
+                        </children></StackPane>
+                     <VBox alignment="CENTER_LEFT">
+                        <children>
+                           <CheckBox fx:id="snapshotCheckbox" mnemonicParsing="false" style="-fx-padding: 5;" text="Snapshot" />
+                        </children>
+                     </VBox>
+                     <Button fx:id="submitButton" disable="true" mnemonicParsing="false" onAction="#onSubmitBtnPressed" prefHeight="27.0" prefWidth="150.0" text="Submit" styleClass="brand-button" />
+                  </children>
+               </VBox>
+               <HBox alignment="CENTER_LEFT" style="-fx-border-width: 2;" styleClass="vboxwithframe">
+                  <children>
+                     <CheckBox fx:id="debugCheckbox" mnemonicParsing="false" onAction="#onDebugChanged" style="-fx-padding: 5;" styleClass="customcheckbox" text="Debug" />
+                  </children>
+               </HBox>
+               <Button fx:id="backButton" maxWidth="323.0" minWidth="320.0" mnemonicParsing="false" onAction="#onBackBtnPressed" prefHeight="27.0" text="Back" styleClass="brand-button" />
+            </children>
+            <stylesheets>
+               <URL value="@../styles/specified-endpoint-style.css" />
+               <URL value="@../styles/item-view-style.css" />
+            </stylesheets>
+         </VBox>
+         <VBox fx:id="contentVBox">
+            <children>
+               <HBox alignment="CENTER_LEFT" style="-fx-border-width: 1;" styleClass="vboxwithframe" >
+                  <children>
+                     <Label fx:id="connectionStatus" prefHeight="20.0" maxWidth="-Infinity" styleClass="connectStatusActive"/>
+                  </children>
+               </HBox>
+               <TabPane fx:id="contentPane" style="-fx-border-color: lightgray; -fx-border-width: 1;" tabClosingPolicy="ALL_TABS" />
+               <TextArea fx:id="debugTextArea" editable="false" style="-fx-border-color: lightgray; -fx-border-width: 0 2 2 2; -fx-background-color: white;" visible="false" />
+            </children>
+         </VBox>
+      </children>
+   </HBox>
+</ScrollPane>

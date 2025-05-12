@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import com.refinitiv.ema.examples.rtviewer.desktop.common.fxcomponents.ScrollableTextField?>
+<fx:root styleClass="vboxwithframe" stylesheets="@../../styles/components.css" type="VBox" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <CheckBox fx:id="downloadDictCheckbox" mnemonicParsing="false" onAction="#onDownloadDictionaryChanged" selected="true" text="Download Dictionary from Network" />
+        <HBox>
+            <children>
+                <Label fx:id="fieldDictLabel" disable="true" styleClass="optionslabel" text="Field Dictionary: " />
+                <ScrollableTextField fx:id="fieldDictFile" disable="true" prefWidth="195" />
+                <Button fx:id="fieldDictFileBtn" disable="true" mnemonicParsing="false" maxHeight="27" onAction="#onFieldDictChooserBtnClick" styleClass="filechooserbutton" text="..." />
+            </children>
+        </HBox>
+        <HBox>
+            <children>
+                <Label fx:id="enumDictLabel" disable="true" styleClass="optionslabel" text="EnumType Dictionary: " />
+                <ScrollableTextField fx:id="enumDictFile" disable="true" prefWidth="195" />
+                <Button fx:id="enumDictFileBtn" disable="true" maxHeight="27"  mnemonicParsing="false" onAction="#onEnumDictChooserBtnClick" styleClass="filechooserbutton" text="..." />
+            </children>
+        </HBox>
+    </children>
+</fx:root>

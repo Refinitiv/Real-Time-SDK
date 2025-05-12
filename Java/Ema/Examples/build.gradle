@@ -70,7 +70,7 @@ task deleteDictionary( type: Delete ) {
 }
 
 def JVM_OPTIONS = "-Xms512m -Xmx1024m"
-def JVM_OPTIONS_RTTVIEWER_DESKTOP = "-Xms1g -Xmx2g"
+def JVM_OPTIONS_RTVIEWER_DESKTOP = "-Xms1g -Xmx2g"
 
 task deleteEmaConfig( type: Delete ) {
 	delete "$projectDir/EmaConfig.xml"
@@ -136,39 +136,39 @@ fileTree('.') {
 	}
 }
 
-task runrrtviewerdesktop ( type: JavaExec ) {
-	def exampleMainLocation = 'com.refinitiv.ema.examples.rrtmdviewer.desktop.RRTMDViewerDesktopMain'
-	def TaskDescription = 'RRTMDViewerDesktop'
-	group 'Run EMA RRTMDViewer desktop'
+task runrtviewerdesktop ( type: JavaExec ) {
+	def exampleMainLocation = 'com.refinitiv.ema.examples.rtviewer.desktop.RTViewerDesktopMain'
+	def TaskDescription = 'RTViewerDesktop'
+	group 'Run EMA RTViewer desktop'
 
 	description 'This task runs the ' + TaskDescription
 
 	dependsOn copyDictionary, copyEmaConfig
 
-	jvmArgs += "-Djava.util.logging.config.file=src/main/resources/rrtmdviewer/desktop/logging.properties"
+	jvmArgs += "-Djava.util.logging.config.file=src/main/resources/rtviewer/desktop/logging.properties"
 
-	if (JVM_OPTIONS_RTTVIEWER_DESKTOP)
-		jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS_RTTVIEWER_DESKTOP ) )
+	if (JVM_OPTIONS_RTVIEWER_DESKTOP)
+		jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS_RTVIEWER_DESKTOP ) )
 
 	mainClass.set(exampleMainLocation)
 	classpath = sourceSets.main.runtimeClasspath
 }
 
-task createRRTViewerFatJar (type: Jar) {
+task createRTViewerFatJar (type: Jar) {
 
-	group 'Run EMA RRTMDViewer desktop'
-	description 'This task builds fat jar for RRTViewer'
+	group 'Run EMA RTViewer desktop'
+	description 'This task builds fat jar for RTViewer'
 
 	manifest {
 		attributes(
-				'Main-Class' : 'com.refinitiv.ema.examples.rrtmdviewer.desktop.RRTMDViewerDesktopMain'
+				'Main-Class' : 'com.refinitiv.ema.examples.rrtviewer.desktop.RTViewerDesktopMain'
 		)
 	}
 
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE;
 
-	archiveBaseName.set('RRTMDViewer')
-	archiveBaseName.convention('RRTMDViewer');
+	archiveBaseName.set('RTViewer')
+	archiveBaseName.convention('RTViewer');
 
 	from {
 		configurations.compileClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }

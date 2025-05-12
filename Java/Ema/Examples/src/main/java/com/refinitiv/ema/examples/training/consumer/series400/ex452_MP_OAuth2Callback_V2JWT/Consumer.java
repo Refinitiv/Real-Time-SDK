@@ -55,7 +55,7 @@ class AppClient implements OmmConsumerClient
 
 	public void onError(String errorText, ServiceEndpointDiscoveryEvent event)
 	{
-		System.out.println("Failed to query RDP service discovery. Error text: " + errorText);
+		System.out.println("Failed to query LDP service discovery. Error text: " + errorText);
 	}
 }
 

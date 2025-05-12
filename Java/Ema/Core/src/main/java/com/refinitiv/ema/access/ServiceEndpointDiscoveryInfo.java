@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -10,7 +10,7 @@ package com.refinitiv.ema.access;
 import java.util.List;
 
 /**
- * ServiceEndpointDiscoveryInfo represents an service endpoint information from RDP service discovery.
+ * ServiceEndpointDiscoveryInfo represents an service endpoint information from LDP service discovery.
  *
  * <p>This class is retrieved from ServiceEndpointDiscoveryResp</p>
  * 

@@ -76,7 +76,7 @@ publishing {
 
                 developers {
                     developer {
-                        organization = 'Refinitiv'
+                        organization = 'LSEG'
                     }
                 }
 

@@ -186,7 +186,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <li>-aid Specifies the Application ID.
  * <li>-sessionMgnt (optional) Enable Session Management in the reactor.
  * <li>-l (optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.
- * <li>-query (optional) Queries RDP service discovery to get an endpoint according to a specified connection type and location.
+ * <li>-query (optional) Queries LDP service discovery to get an endpoint according to a specified connection type and location.
  * <li>-clientId Specifies the client Id for LSEG login V2, or specifies a unique ID with login V1 for applications making the request to Delivery Platform token service, this is also known as AppKey generated using an AppGenerator.
  * <li>-clientSecret Specifies the associated client Secret with a provided clientId for V2 logins.
  * <li>-jwkFile Specifies the file containing the JWK encoded private key for V2 JWT logins.
@@ -2021,7 +2021,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 			{
 				System.out.println("Error: Invalid connection type for " +
 								   watchlistConsumerConfig.connectionList().get(0).connectionType() +
-								   " querying RDP service discovery, only encrypted supported" );
+								   " querying LDP service discovery, only encrypted supported" );
 				System.exit(ReactorReturnCodes.FAILURE);
 			}
 

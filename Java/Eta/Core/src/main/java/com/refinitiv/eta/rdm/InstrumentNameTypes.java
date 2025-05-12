@@ -14,7 +14,7 @@ public class InstrumentNameTypes
 
     /** Symbology is not specified or not applicable */
     public static final int UNSPECIFIED     = 0;
-    /** Reuters Instrument Code */
+    /** Instrument Code */
     public static final int RIC             = 1;
     /** Contributor */
     public static final int CONTRIBUTOR     = 2;

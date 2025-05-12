@@ -410,7 +410,7 @@ public class ConsumerRole extends ReactorRole
 
     /**
      * This is used only for backward compatibility. All OAuth credentials should be specified in {@link ReactorOAuthCredential}
-     * Specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
+     * Specifies a unique ID for application making the request to LDP token service, also known as AppKey generated using an AppGenerator.
      * 
      * @param clientId the clientId
      * 
@@ -428,7 +428,7 @@ public class ConsumerRole extends ReactorRole
     
     /**
      * This is used only for backward compatibility. All OAuth credentials should be specified in {@link ReactorOAuthCredential}
-     * Specifies an unique ID defined for an application making a request to the RDP token service.
+     * Specifies an unique ID defined for an application making a request to the LDP token service.
      * 
      * @return clientId the clientId
      * 

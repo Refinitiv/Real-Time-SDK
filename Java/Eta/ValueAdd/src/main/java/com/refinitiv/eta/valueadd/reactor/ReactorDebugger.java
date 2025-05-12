@@ -16,7 +16,7 @@ interface ReactorDebugger {
     String CONNECTION_CONNECTING_PERFORMED = "Reactor@%d, Reactor channel@%d connection executed on channel fd=%d.]\n";
     String CONNECTION_DISCONNECT = "Reactor@%d, Reactor channel@%d disconnected with status = %s on channel fd=%d.]\n";
     String CONNECTION_RECONNECT = "Reactor@%d, Reactor channel@%d reconnecting on channel fd=%d.]\n";
-    String CONNECTION_RECONNECT_RDP = "Reactor@%d, Reactor channel@%d reconnecting to RDP on channel fd=%d.]\n";
+    String CONNECTION_RECONNECT_RDP = "Reactor@%d, Reactor channel@%d reconnecting to LDP on channel fd=%d.]\n";
 
     String EVENTQUEUE_COUNT_REACTOR = "Reactor@%d, reactor event count %d to be dispatched.]\n";
     String EVENTQUEUE_COUNT_ALL = "Reactor@%d, %d events to be dispatched from active channels event queue.]\n";

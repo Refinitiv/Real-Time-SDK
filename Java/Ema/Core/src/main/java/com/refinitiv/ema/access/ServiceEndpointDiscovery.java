@@ -8,7 +8,7 @@
 package com.refinitiv.ema.access;
 
 /**
- * ServiceEndpointDiscovery class provides the functionality to query endpoints from RDP service discovery.
+ * ServiceEndpointDiscovery class provides the functionality to query endpoints from LDP service discovery.
  *
  * <p>Application interacts with the service discovery through the ServiceEndpointDiscovery interface methods.<br>
  * The results of these interactions are communicated back to application through ServiceEndpointDiscoveryClient.</p>
@@ -39,7 +39,7 @@ package com.refinitiv.ema.access;
  *				// instantiate ServiceEndpointDiscovery object
  *				serviceEndpointDiscovery = EmaFactory.createServiceEndpointDiscovery();
  *
- *				// Query endpoints from RDP service discovery
+ *				// Query endpoints from LDP service discovery
  *				serviceEndpointDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOpion().username(userName)
  *							.password(password).transport(ServiceEndpointDiscoveryOption::TCP).clientId(clientId), appClient);
  *			}
@@ -62,7 +62,7 @@ package com.refinitiv.ema.access;
 public interface ServiceEndpointDiscovery
 {
 	/** 
-	 * Queries the RDP service discovery synchronously to get endpoints according to the specified parameters
+	 * Queries the LDP service discovery synchronously to get endpoints according to the specified parameters
 	 * 
 	 * <p>This method is ObjectLevelSafe.</p>
 	 * 
@@ -74,7 +74,7 @@ public interface ServiceEndpointDiscovery
 	public void registerClient(ServiceEndpointDiscoveryOption params, ServiceEndpointDiscoveryClient client);
 	
 	/** 
-	 * Queries the RDP service discovery synchronously to get endpoints according to the specified parameters
+	 * Queries the LDP service discovery synchronously to get endpoints according to the specified parameters
 	 * 
 	 * <p>This method is ObjectLevelSafe.</p>
 	 * 

@@ -86,7 +86,7 @@ class AppClient implements OmmConsumerClient, ServiceEndpointDiscoveryClient
 
 	public void onError(String errorText, ServiceEndpointDiscoveryEvent event)
 	{
-		System.out.println("Failed to query RDP service discovery. Error text: " + errorText);
+		System.out.println("Failed to query LDP service discovery. Error text: " + errorText);
 	}
 }
 
@@ -123,21 +123,21 @@ public class Consumer
 	    		+ "\ttoken service (mandatory for V1 password grant).\n"
 	    		+ "  -password password to perform authorization with the token \r\n"
 	    		+ "\tservice (mandatory for V1 password grant).\n"
-	    		+ "  -location location to get an endpoint from RDP service \r\n"
+	    		+ "  -location location to get an endpoint from LDP service \r\n"
 	    		+ "\tdiscovery. Defaults to \"us-east-1\" (optional).\n"
 	    		+ "  -clientId client ID for application making the request to(mandatory for V1 password grant and V2 client credentials grant) \r\n"
 	    		+ "  -clientSecret service account secret (mandatory for V2 client credentials grant).\n"
 	    		+ "  -jwkFile file containing the private JWK encoded in JSON format. (mandatory for V2 client credentials grant with JWT)\n"
 	    		+ "  -audience Audience value for JWT (optional for V2 oAuth client credentials with JWT).\n"
 	    		+ "  -websocket Use the WebSocket transport protocol (optional) \r\n"
-	    		+ "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
+	    		+ "\tLDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 	    		+ "  -keyfile keystore file for encryption.\n"
 	    		+ "  -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).\r\n"
 	    		+ "  -keypasswd keystore password for encryption.\n"
 				+ "  -tokenURL V1 URL to perform authentication to get access and refresh tokens (optional).\n"
 				+ "  -tokenURLV1 V1 URL to perform authentication to get access and refresh tokens (optional).\n"
 				+ "  -tokenURLV2 V2 URL to perform authentication to get access and refresh tokens (optional).\n"
-				+ "  -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).\n"
+				+ "  -serviceDiscoveryURL URL for LDP service discovery to get global endpoints (optional).\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
 	    		+ "  -itemName Request item name (optional).\n"
 	    		+ "  -ph Proxy host name (optional).\n"

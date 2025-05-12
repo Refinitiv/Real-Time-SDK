@@ -172,7 +172,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
  *
  * <li>-passwd changes the password used when logging into the provider
  * 
- * <li>-clientId specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator
+ * <li>-clientId specifies a unique ID for application making the request to LDP token service, also known as AppKey generated using an AppGenerator
  * 
  * <li>-sessionMgnt enables the session management in the Reactor
  *

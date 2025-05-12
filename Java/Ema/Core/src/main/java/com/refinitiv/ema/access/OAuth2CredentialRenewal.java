@@ -24,7 +24,7 @@ public interface OAuth2CredentialRenewal {
 	public OAuth2CredentialRenewal clear();
 	
 	/**
-     * Sets the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins
+     * Sets the user name required to authorize with the LDP token service. Mandatory for V1 oAuth Password Credentials logins
      * 
      * @param userName the userName for this request.
      * 
@@ -54,7 +54,7 @@ public interface OAuth2CredentialRenewal {
     public OAuth2CredentialRenewal newPassword(String newPassword);
     
     /**
-     * Sets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
+     * Sets the clientID used for LDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      *
      * @param clientId the unique identifier for the application
      * 
@@ -63,7 +63,7 @@ public interface OAuth2CredentialRenewal {
     public OAuth2CredentialRenewal clientId(String clientId);
     
     /**
-     * Sets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
+     * Sets the clientSecret, also known as the Service Account password, used to authenticate with LDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      *
      * @param clientSecret the client secret
      * 
@@ -72,7 +72,7 @@ public interface OAuth2CredentialRenewal {
     public OAuth2CredentialRenewal clientSecret(String clientSecret);
     
     /**
-     * Sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+     * Sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the LDP token service. Mandatory for V2 logins with client JWT logins
      *
      * @param clientJwk the client JWK string, encoded in  JSON format.
      * 
