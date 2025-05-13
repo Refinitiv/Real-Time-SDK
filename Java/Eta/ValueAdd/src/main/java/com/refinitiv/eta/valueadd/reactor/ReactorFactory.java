@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -32,13 +32,13 @@ public class ReactorFactory
     static LimitedVaPool _workerEventPool = new LimitedVaPool(true);
     static VaPool _watchlistPool = new VaPool(true);
     static VaPool _postTimeoutInfoPool = new VaPool(true);
-    static VaPool _itemAggregationKeyPool = new VaPool(true);
-    static VaPool _wlStreamPool = new VaPool(true);
-    static VaPool _wlRequestPool = new VaPool(true);
+    static LimitedVaPool _itemAggregationKeyPool = new LimitedVaPool(true);
+    static LimitedVaPool _wlStreamPool = new LimitedVaPool(true);
+    static LimitedVaPool _wlRequestPool = new LimitedVaPool(true);
     static VaPool _wlServicePool = new VaPool(true);
-    static VaPool _wlItemGroupPool = new VaPool(true);
-    static VaPool _wlIntegerPool = new VaPool(true);
-    static VaPool _wlViewPool = new VaPool(true);
+    static LimitedVaPool _wlItemGroupPool = new LimitedVaPool(true);
+    static LimitedVaPool _wlIntegerPool = new LimitedVaPool(true);
+    static LimitedVaPool _wlViewPool = new LimitedVaPool(true);
     static VaPool _packedBufferPool = new VaPool(true);
     static VaPool _wsbServicePool = new VaPool(true);
 
@@ -82,6 +82,19 @@ public class ReactorFactory
      */
     public static void setTunnelStreamMsgEventPoolLimit(int tunnelStreamMsgEventPoolLimit) {
         ReactorFactory._tunnelStreamMsgEventPool.setLimit(tunnelStreamMsgEventPoolLimit > 0 ? tunnelStreamMsgEventPoolLimit : DEFAULT_POOL_LIMIT);
+    }
+
+    /**
+     * Sets maximum number of objects in pools that supply objects for Watchlist use, if value is negative then amount of events is unlimited
+     * @param watchlistObjectsPoolLimit value to set
+     */
+    public static void setWatchlistObjectsPoolLimit(int watchlistObjectsPoolLimit) {
+        ReactorFactory._wlStreamPool.setLimit(watchlistObjectsPoolLimit > 0 ? watchlistObjectsPoolLimit : DEFAULT_POOL_LIMIT);
+        ReactorFactory._wlRequestPool.setLimit(watchlistObjectsPoolLimit > 0 ? watchlistObjectsPoolLimit : DEFAULT_POOL_LIMIT);
+        ReactorFactory._itemAggregationKeyPool.setLimit(watchlistObjectsPoolLimit > 0 ? watchlistObjectsPoolLimit : DEFAULT_POOL_LIMIT);
+        ReactorFactory._wlViewPool.setLimit(watchlistObjectsPoolLimit > 0 ? watchlistObjectsPoolLimit : DEFAULT_POOL_LIMIT);
+        ReactorFactory._wlItemGroupPool.setLimit(watchlistObjectsPoolLimit > 0 ? watchlistObjectsPoolLimit : DEFAULT_POOL_LIMIT);
+        ReactorFactory._wlIntegerPool.setLimit(watchlistObjectsPoolLimit > 0 ? watchlistObjectsPoolLimit * 3 : DEFAULT_POOL_LIMIT); // to account for 3 instances per WlStream
     }
 
     /**

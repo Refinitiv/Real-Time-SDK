@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -14,7 +14,7 @@ class PostUserInfoImpl implements PostUserInfo
 {
     private long _userAddr;
     private long _userId;
-    private StringBuilder _strBldr = new StringBuilder();
+    private StringBuilder _strBldr;
 
     PostUserInfoImpl()
     {
@@ -99,6 +99,8 @@ class PostUserInfoImpl implements PostUserInfo
     public String userAddrToString(long addrInt)
     {
         assert (addrInt >= 0 && addrInt <= 4294967296L) : "addrInt is out of range (0-4294967296)"; // uint32
+
+        if (_strBldr == null) _strBldr = new StringBuilder();
 
         _strBldr.setLength(0);
 

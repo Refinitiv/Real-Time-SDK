@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -94,8 +94,7 @@ class WlStream extends VaNode
     LinkedList<Msg> _msgPool = new LinkedList<Msg>();
     
     State _state = CodecFactory.createState();
-    EncodeIterator _eIter = CodecFactory.createEncodeIterator();
-    ReactorChannelInfo _reactorChannelInfo = ReactorFactory.createReactorChannelInfo();
+
     ReactorSubmitOptions _submitOptions = ReactorFactory.createReactorSubmitOptions();
     
     // outer table is indexed by post id and inner table is indexed by sequence number
@@ -110,9 +109,7 @@ class WlStream extends VaNode
 
     AckMsg _ackMsg;
     CloseMsg _closeMsg;
-    
-    ReactorChannelInfo _reactorChnlInfo = ReactorFactory.createReactorChannelInfo();
-    
+
     WlInteger _tableKey, _groupTableKey;
     
     int _requestsPausedCount;
@@ -420,9 +417,9 @@ class WlStream extends VaNode
 
 					_viewByteBuffer.clear();
 					_viewBuffer.data(_viewByteBuffer);
-					_eIter.clear();
-					_eIter.setBufferAndRWFVersion(_viewBuffer, _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
-					_aggregateView.viewHandler().encodeViewRequest(_eIter, _aggregateView);
+                    _watchlist._streamEncodeIterator.clear();
+                    _watchlist._streamEncodeIterator.setBufferAndRWFVersion(_viewBuffer, _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
+					_aggregateView.viewHandler().encodeViewRequest(_watchlist._streamEncodeIterator, _aggregateView);
 					msg.containerType(DataTypes.ELEMENT_LIST);
 					msg.encodedDataBody(_viewBuffer);
 				}
@@ -825,9 +822,9 @@ class WlStream extends VaNode
         int ret = ReactorReturnCodes.SUCCESS;
         
         // lazily initialize channel info to get maxFragmentSize
-        if (_reactorChannelInfo.channelInfo().maxFragmentSize() == 0)
+        if (_watchlist._reactorChannelInfo.channelInfo().maxFragmentSize() == 0)
         {
-            if ((ret = _reactorChannel.info(_reactorChannelInfo, errorInfo)) < ReactorReturnCodes.SUCCESS)
+            if ((ret = _reactorChannel.info(_watchlist._reactorChannelInfo, errorInfo)) < ReactorReturnCodes.SUCCESS)
             {
             	if (ret == ReactorReturnCodes.FAILURE && _reactorChannel.channel().state() != ChannelState.ACTIVE)
             		return ReactorReturnCodes.SUCCESS;
@@ -836,14 +833,14 @@ class WlStream extends VaNode
             }
         }
         
-        TransportBuffer buffer = _reactorChannel.getBuffer(_reactorChannelInfo.channelInfo().maxFragmentSize(), false, errorInfo);
+        TransportBuffer buffer = _reactorChannel.getBuffer(_watchlist._reactorChannelInfo.channelInfo().maxFragmentSize(), false, errorInfo);
         
         if (buffer != null)
         {
-            _eIter.clear();
-            _eIter.setBufferAndRWFVersion(buffer, _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
+            _watchlist._streamEncodeIterator.clear();
+            _watchlist._streamEncodeIterator.setBufferAndRWFVersion(buffer, _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
             
-            if ((ret = msg.encode(_eIter)) < CodecReturnCodes.SUCCESS)
+            if ((ret = msg.encode(_watchlist._streamEncodeIterator)) < CodecReturnCodes.SUCCESS)
             {
                 return ret;
             }
@@ -898,10 +895,10 @@ class WlStream extends VaNode
             {
                 // increase buffers to move things along
                 int ret2;
-                _reactorChnlInfo.clear();
-                if ((ret2 = _reactorChannel.info(_reactorChnlInfo, errorInfo)) >= ReactorReturnCodes.SUCCESS)
+                _watchlist._reactorChnlInfo.clear();
+                if ((ret2 = _reactorChannel.info(_watchlist._reactorChnlInfo, errorInfo)) >= ReactorReturnCodes.SUCCESS)
                 {
-                    int newNumberOfBuffers = _reactorChnlInfo.channelInfo().guaranteedOutputBuffers() + 2;
+                    int newNumberOfBuffers = _watchlist._reactorChnlInfo.channelInfo().guaranteedOutputBuffers() + 2;
                     if ((ret2 =_reactorChannel.ioctl(IoctlCodes.NUM_GUARANTEED_BUFFERS, newNumberOfBuffers, errorInfo)) < ReactorReturnCodes.SUCCESS)
                     {
                         return ret2;
@@ -1006,14 +1003,11 @@ class WlStream extends VaNode
         _ackMsg.msgClass(MsgClasses.ACK);
         _closeMsg.clear();
         _closeMsg.msgClass(MsgClasses.CLOSE);
-        _reactorChnlInfo.clear();
         _requestsPausedCount = 0;
         _paused = false;
         _requestMsg = null;
         _itemAggregationKey = null;
         _requestExpireTime = 0;
-        _eIter.clear();
-        _reactorChannelInfo.clear();
         _submitOptions.clear();
         _itemGroup = null;
         _tableKey = null;

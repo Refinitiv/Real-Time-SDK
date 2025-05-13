@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019-2024 LSEG. All rights reserved.              --
+// *|           Copyright (C) 2019-2025 LSEG. All rights reserved.              --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -292,7 +292,8 @@ class ConfigManager
 	public static final int ReactorMsgEventPoolLimit = 1103;
 	public static final int TunnelStreamMsgEventPoolLimit = 1104;
 	public static final int TunnelStreamStatusEventPoolLimit = 1105;
-	
+	public static final int WatchlistObjectsPoolLimit = 1106;
+
 	// WarmStandby
 	public static final int ConsumerWarmStandbyChannelSet = 1200;
 	
@@ -618,7 +619,8 @@ class ConfigManager
 		GlobalConfigDict.add( "TunnelStreamMsgEventPoolLimit", TunnelStreamMsgEventPoolLimit);
 		GlobalConfigDict.add( "TunnelStreamStatusEventPoolLimit", TunnelStreamStatusEventPoolLimit );
 		GlobalConfigDict.add("JsonConverterPoolsSize", JsonConverterPoolsSize);
-		
+		GlobalConfigDict.add( "WatchlistObjectsPoolLimit", WatchlistObjectsPoolLimit );
+
 		WarmStandbyGroupDict.add( "WarmStandbyGroup", WarmStandbyGroup);
 		WarmStandbyGroupDict.add( "WarmStandbyList", WarmStandbyList);
 		WarmStandbyGroupDict.add( "WarmStandbyChannel", WarmStandbyChannel);
@@ -814,7 +816,8 @@ class ConfigManager
 		"ReactorMsgEventPoolLimit",
 		"ServiceDiscoveryRetryCount",
 		"TunnelStreamMsgEventPoolLimit",
-		"TunnelStreamStatusEventPoolLimit"
+		"TunnelStreamStatusEventPoolLimit",
+		"WatchlistObjectsPoolLimit"
 	};
 
 	public static String UInt64Values[] = {

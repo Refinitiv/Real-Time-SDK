@@ -7,6 +7,7 @@
 		<WorkerEventPoolLimit value="1000"/>
 		<TunnelStreamMsgEventPoolLimit value="2500"/>
 		<TunnelStreamStatusEventPoolLimit value="3000"/>
+		<WatchlistObjectsPoolLimit value="50000"/>
 	</GlobalConfig>
 	
 <!-- defaultConsumer parameter defines which consumer configuration is used by OmmConsumer		-->

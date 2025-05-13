@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -51,7 +51,9 @@ class Watchlist extends VaNode
     DecodeIterator _dIter = CodecFactory.createDecodeIterator();
     // list to track stream timeouts
     LinkedList<WlStream> _streamTimeoutInfoList = new LinkedList<WlStream>();
-    
+    // encode iterator instance for use in WlStreams
+    EncodeIterator _streamEncodeIterator = CodecFactory.createEncodeIterator();
+
     int _numOutstandingPosts;
     
     Buffer _tempBuffer1 = CodecFactory.createBuffer();
@@ -61,6 +63,9 @@ class Watchlist extends VaNode
     Msg _tempMsg = CodecFactory.createMsg();
     
     WlInteger _tempWlInteger = ReactorFactory.createWlInteger();
+
+    ReactorChannelInfo _reactorChannelInfo = ReactorFactory.createReactorChannelInfo(); // instance used to retrieve maxFragmentSize
+    ReactorChannelInfo _reactorChnlInfo = ReactorFactory.createReactorChannelInfo(); // instance used to get up-to-date number of output buffers
 
     Watchlist(ReactorChannel reactorChannel, ConsumerRole consumerRole)
     {
@@ -692,6 +697,8 @@ class Watchlist extends VaNode
         _streamTimeoutInfoList.clear();
         _streamIdtoWlRequestTable.clear();
         _streamIdtoWlStreamTable.clear();
+        _reactorChannelInfo.clear();
+        _reactorChnlInfo.clear();
     }
     
     @Override

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|          Copyright (C) 2019-2022,2024 LSEG. All rights reserved.     
+// *|          Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -247,7 +247,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			ReactorFactory.setWorkerEventPoolLimit(activeConfig.globalConfig.workerEventPoolLimit);
 			ReactorFactory.setTunnelStreamMsgEventPoolLimit(activeConfig.globalConfig.tunnelStreamMsgEventPoolLimit);
 			ReactorFactory.setTunnelStreamStatusEventPoolLimit(activeConfig.globalConfig.tunnelStreamStatusEventPoolLimit);
-			
+			ReactorFactory.setWatchlistObjectsPoolLimit(activeConfig.globalConfig.watchlistObjectsPoolLimit);
+
 			try
 			{
 				_pipe = Pipe.open();
@@ -1085,7 +1086,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 		ConfigAttributes globalConfigAttributes = config.xmlConfig().getGlobalConfig();
 
-		if(globalConfigAttributes != null){
+		if (globalConfigAttributes != null){
 			_activeConfig.globalConfig = new GlobalConfig();
 			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.WorkerEventPoolLimit)) != null)
 			{
@@ -1095,17 +1096,14 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			{
 				_activeConfig.globalConfig.reactorChannelEventPoolLimit = ce.intValue();
 			}
-
 			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.ReactorMsgEventPoolLimit)) != null)
 			{
 				_activeConfig.globalConfig.reactorMsgEventPoolLimit = ce.intValue();
 			}
-
 			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.TunnelStreamMsgEventPoolLimit)) != null)
 			{
 				_activeConfig.globalConfig.tunnelStreamMsgEventPoolLimit = ce.intValue();
 			}
-
 			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.TunnelStreamStatusEventPoolLimit)) != null)
 			{
 				_activeConfig.globalConfig.tunnelStreamStatusEventPoolLimit = ce.intValue();
@@ -1114,6 +1112,10 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			{
 				_activeConfig.globalConfig.jsonConverterPoolsSize =
 						getJsonConverterPoolsSize(ce, _activeConfig, strBuilder(), _loggerClient);
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.WatchlistObjectsPoolLimit)) != null)
+			{
+				_activeConfig.globalConfig.watchlistObjectsPoolLimit = ce.intValue();
 			}
 		}
 		

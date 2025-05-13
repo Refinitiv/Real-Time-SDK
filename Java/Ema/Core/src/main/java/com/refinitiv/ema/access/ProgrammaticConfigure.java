@@ -668,6 +668,7 @@ class ProgrammaticConfigure
 		ElementEntry tunnelStreamMsgEventPoolLimit = getIntElementEntry(globalConfigEntry, "TunnelStreamMsgEventPoolLimit");
 		ElementEntry tunnelStreamStatusEventPoolLimit = getIntElementEntry(globalConfigEntry, "TunnelStreamStatusEventPoolLimit");
 		ElementEntry jsonConverterPoolsSize = getIntElementEntry(globalConfigEntry, "JsonConverterPoolsSize");
+		ElementEntry watchlistObjectsPoolLimit = getIntElementEntry(globalConfigEntry, "WatchlistObjectsPoolLimit");
 
 		if (reactorMsgEventPoolLimit != null) {
 			config.reactorMsgEventPoolLimit = convertToInt(reactorMsgEventPoolLimit.intValue());
@@ -686,6 +687,9 @@ class ProgrammaticConfigure
 		}
 		if (jsonConverterPoolsSize != null) {
 			config.jsonConverterPoolsSize = getJsonConverterPoolsSize(jsonConverterPoolsSize.intValue());
+		}
+		if (watchlistObjectsPoolLimit != null) {
+			config.watchlistObjectsPoolLimit = getWatchlistObjectsPoolsSize(watchlistObjectsPoolLimit.intValue());
 		}
 		return config;
 	}
@@ -3894,7 +3898,30 @@ class ProgrammaticConfigure
 		}
 		return (int) jsonConverterPoolsSize;
 	}
-	
+
+	private int getWatchlistObjectsPoolsSize(long watchlistObjectsPoolsSize)
+	{
+		if (watchlistObjectsPoolsSize < -1)
+		{
+			_emaConfigErrList.append( "WatchlistObjectsPoolsSize value should be equal or greater than -1.")
+					.append( " It will be set to default value: -1 (no limit).")
+					.create(Severity.WARNING);
+			return GlobalConfig.DEFAULT_WATCHLIST_OBJECTS_POOL_LIMIT;
+		}
+
+		if (watchlistObjectsPoolsSize > Integer.MAX_VALUE)
+		{
+			_emaConfigErrList.append("WatchlistObjectsPoolsSize value should not be greater than ")
+					.append(Integer.MAX_VALUE)
+					.append(". It will be set to ")
+					.append(Integer.MAX_VALUE)
+					.append(".")
+					.create(Severity.WARNING);
+			return Integer.MAX_VALUE;
+		}
+		return (int) watchlistObjectsPoolsSize;
+	}
+
 	private Predicate<MapEntry> filterMapEntry(String name) {
 		return mapEntry -> mapEntry.key().dataType() == DataTypes.ASCII &&
 				mapEntry.key().ascii().ascii().equalsIgnoreCase(name) &&

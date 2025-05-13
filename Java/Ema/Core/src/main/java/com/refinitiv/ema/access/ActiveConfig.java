@@ -224,7 +224,14 @@ abstract class ActiveConfig extends BaseConfig
 		.append("\n\t serviceDiscoveryRetryCount: ")
 		.append("\n\t restProxyHostName: ").append(restProxyHostName)
 		.append("\n\t restProxyPort: ").append(restProxyPort)
-		.append("\n\t sessionEnhancedItemRecovery: ").append(sessionEnhancedItemRecovery);
+		.append("\n\t sessionEnhancedItemRecovery: ").append(sessionEnhancedItemRecovery)
+		.append("\n\t reactorMsgEventPoolLimit: ").append(globalConfig.reactorMsgEventPoolLimit)
+		.append("\n\t reactorChannelEventPoolLimit: ").append(globalConfig.reactorChannelEventPoolLimit)
+		.append("\n\t workerEventPoolLimit: ").append(globalConfig.workerEventPoolLimit)
+		.append("\n\t tunnelStreamMsgEventPoolLimit: ").append(globalConfig.tunnelStreamMsgEventPoolLimit)
+		.append("\n\t tunnelStreamStatusEventPoolLimit: ").append(globalConfig.tunnelStreamStatusEventPoolLimit)
+		.append("\n\t jsonConverterPoolsSize: ").append(globalConfig.jsonConverterPoolsSize)
+		.append("\n\t watchlistObjectsPoolLimit: ").append(globalConfig.watchlistObjectsPoolLimit);
 
 		return traceStr;
 	}

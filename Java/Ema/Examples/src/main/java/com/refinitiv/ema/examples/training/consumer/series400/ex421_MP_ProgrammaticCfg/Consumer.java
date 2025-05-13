@@ -132,7 +132,12 @@ public class Consumer
 		ElementList innerElementList = EmaFactory.createElementList();
 		
 		elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_1" ));
-		
+
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "WatchlistObjectsPoolLimit", 200 ));
+		configMap.add(EmaFactory.createMapEntry().keyAscii( "GlobalConfig", MapEntry.MapAction.ADD, innerElementList ));
+
+		innerElementList.clear();
+
 		innerElementList.add(EmaFactory.createElementEntry().ascii( "Channel", "Channel_1" ));
 		innerElementList.add(EmaFactory.createElementEntry().ascii( "Dictionary", "Dictionary_1" ));
 		innerElementList.add(EmaFactory.createElementEntry().intValue( "ItemCountHint", 5000 ));
