@@ -408,8 +408,13 @@ else()
             )
     endif()
 
-    add_library( libema STATIC ${EmaSrcFiles})
-    target_include_directories(libema
+	set(_ema_tmp_dir "${CMAKE_CURRENT_BINARY_DIR}/libema_tmp.arch")
+	if (NOT EXISTS "${_ema_tmp_dir}/src")
+		file(MAKE_DIRECTORY "${_ema_tmp_dir}/src")
+	endif()
+
+    add_library( libema_tmp STATIC ${EmaSrcFiles} )
+    target_include_directories(libema_tmp
 									PRIVATE
 										Impl
 										../Rdm/Impl
@@ -422,10 +427,85 @@ else()
 										${Ema_SOURCE_DIR}/Src/Include
 										${Ema_SOURCE_DIR}/Src
 									)
-    target_link_libraries( libema 
-                                librsslVA 
-                                LibXml2::LibXml2 
-                            )
+    target_link_libraries( libema_tmp
+                                librsslVA
+                                LibXml2::LibXml2
+                         )
+
+    if ( CMAKE_HOST_WIN32 )
+
+        set_target_properties( libema_tmp PROPERTIES
+                                    ARCHIVE_OUTPUT_DIRECTORY_DEBUG_MDD
+                                        "${_ema_tmp_dir}/lib/Debug_MDd"
+                                    ARCHIVE_OUTPUT_DIRECTORY_RELEASE_MD
+                                        "${_ema_tmp_dir}/lib/Release_MD"
+                             )
+        target_compile_options( libema_tmp
+                                    PUBLIC
+                                        "/D __EMA_STATIC_BUILD__"
+                                        "/D __EMA_COPY_ON_SET__"
+                                    PRIVATE
+                                        ${RCDEV_DEBUG_TYPE_FLAGS_STATIC}
+                                        ${RTSDK_EXTRA_FLAGS}
+                              )
+    else()
+
+        set_target_properties( libema_tmp PROPERTIES
+                                    ARCHIVE_OUTPUT_DIRECTORY
+                                        "${_ema_tmp_dir}/lib"
+                             )
+        target_compile_options( libema_tmp
+                                    PUBLIC
+                                        "-D__EMA_STATIC_BUILD__"
+                                        "-D__EMA_COPY_ON_SET__"
+                                    PRIVATE
+                                        ${RTSDK_EXTRA_FLAGS}
+                              )
+    endif()
+
+DEBUG_PRINT(librsslVA_tmp)
+
+    file(WRITE ${_ema_tmp_dir}/src/libema_tmp.C "void libEmaArchive() {}\n")
+    add_library(libema STATIC ${_ema_tmp_dir}/src/libema_tmp.C)
+
+    target_include_directories(libema
+                                   PUBLIC
+                                       $<TARGET_PROPERTY:librsslVA_tmp,INTERFACE_INCLUDE_DIRECTORIES>
+                              )
+
+    set_target_properties(libema PROPERTIES OUTPUT_NAME "libema")
+
+    target_link_libraries(libema libema_tmp)
+
+    if (CMAKE_HOST_WIN32)
+        add_custom_command(TARGET libema POST_BUILD
+            COMMAND ${CMAKE_LINKER} /LIB
+                /OUT:"$<TARGET_FILE:libema>"
+                /LTCG "$<TARGET_FILE:libema_tmp>"
+                      "$<TARGET_FILE:LibXml2::LibXml2>"
+            DEPENDS $<TARGET_FILE:libema_tmp>
+                    $<TARGET_FILE:LibXml2::LibXml2>
+            COMMENT "Linking objects for static libema ..."
+            )
+    else()
+        set_target_properties( librssl PROPERTIES PREFIX "" )
+
+        file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/libema_tmp.arch")
+
+        add_custom_command(TARGET libema POST_BUILD
+            COMMAND ${CMAKE_AR} -x $<TARGET_FILE:libema_tmp>
+            COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LibXml2::LibXml2>
+            COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:libema> *.o
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libema_tmp.arch
+            DEPENDS $<TARGET_FILE:libema_tmp>
+                    $<TARGET_FILE:LibXml2::LibXml2>
+            COMMENT "Archiving objects for libema ..."
+            )
+    endif()
+    unset(_ema_tmp_dir)
+
+    #
+    ##          -- Build libema SHARED LIBRARY --
 
     add_library( libema_shared SHARED ${EmaSrcFiles} ${EmaWinRcFiles} )
     target_include_directories(libema_shared
@@ -444,15 +524,6 @@ else()
     target_link_libraries( libema_shared librsslVA_shared LibXml2::LibXml2 )
 
     if ( CMAKE_HOST_WIN32 )
-
-        target_compile_options( libema 
-                                    PUBLIC 
-                                        "/D __EMA_STATIC_BUILD__" 
-                                        "/D __EMA_COPY_ON_SET__" 
-                                    PRIVATE
-									    ${RCDEV_DEBUG_TYPE_FLAGS_STATIC}
-										${RTSDK_EXTRA_FLAGS}
-                                )
 
         target_compile_options( libema_shared 
                                     PRIVATE 
@@ -488,13 +559,6 @@ else()
                                     PREFIX 		"" 
                                     OUTPUT_NAME "libema" 
                             )
-        target_compile_options( libema 
-                                PUBLIC 
-                                    "-D__EMA_STATIC_BUILD__"
-                                    "-D__EMA_COPY_ON_SET__"
-								PRIVATE
-									${RTSDK_EXTRA_FLAGS}
-									)
 
         set_target_properties( libema_shared PROPERTIES DEFINE_SYMBOL "" ) # avoid -Dlibema_EXPORTS
         set_target_properties( libema_shared 

@@ -169,11 +169,11 @@ else()
 											${Eta_SOURCE_DIR}/Include/Reactor
 											$<TARGET_PROPERTY:librssl,INTERFACE_INCLUDE_DIRECTORIES>
                                 )
-	    target_link_libraries( librsslVA_tmp LibXml2::LibXml2 CJSON::CJSON  CCRONEXPR::CCRONEXPR librssl ${l8w8jwt_lib})
+	    target_link_libraries( librsslVA_tmp CJSON::CJSON  CCRONEXPR::CCRONEXPR librssl ${l8w8jwt_lib})
 
 DEBUG_PRINT(librsslVA_tmp)
 
-	file(WRITE ${_rsslVA_tmp_dir}/src/librsslVA_tmp.C "void librsslArchive() {}\n")
+	file(WRITE ${_rsslVA_tmp_dir}/src/librsslVA_tmp.C "void librsslVaArchive() {}\n")
     add_library(librsslVA STATIC ${_rsslVA_tmp_dir}/src/librsslVA_tmp.C)
 
     target_include_directories(librsslVA 
@@ -190,12 +190,10 @@ DEBUG_PRINT(librsslVA_tmp)
 							COMMAND ${CMAKE_LINKER} /LIB 
 														/OUT:"$<TARGET_FILE:librsslVA>" 
 														/LTCG "$<TARGET_FILE:librsslVA_tmp>"
-															  "$<TARGET_FILE:LibXml2::LibXml2>"
 															  "$<TARGET_FILE:CJSON::CJSON>"
 															  "$<TARGET_FILE:CCRONEXPR::CCRONEXPR>"
 															  ${l8w8jwt_target}
 							DEPENDS $<TARGET_FILE:librsslVA_tmp>
-									$<TARGET_FILE:LibXml2::LibXml2>
 									$<TARGET_FILE:CJSON::CJSON>
 									$<TARGET_FILE:CCRONEXPR::CCRONEXPR>
 									${l8w8jwt_target}
@@ -209,14 +207,12 @@ DEBUG_PRINT(librsslVA_tmp)
 		if(BUILD_ETA_JWT)
 			add_custom_command(TARGET librsslVA POST_BUILD
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslVA_tmp>
-								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LibXml2::LibXml2>
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CJSON::CJSON>
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CCRONEXPR::CCRONEXPR>
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:l8w8jwt::libl8w8jwt>
 								COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librsslVA> *.o
 								WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch
 								DEPENDS $<TARGET_FILE:librsslVA_tmp>
-										$<TARGET_FILE:LibXml2::LibXml2>
 										$<TARGET_FILE:CJSON::CJSON>
 										$<TARGET_FILE:l8w8jwt::libl8w8jwt>
 								COMMENT "Archiving objects for librsslVA ..."
@@ -225,13 +221,11 @@ DEBUG_PRINT(librsslVA_tmp)
 		
 			add_custom_command(TARGET librsslVA POST_BUILD
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslVA_tmp>
-								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LibXml2::LibXml2>
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CJSON::CJSON>
 								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CCRONEXPR::CCRONEXPR>
 								COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librsslVA> *.o
 								WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch
 								DEPENDS $<TARGET_FILE:librsslVA_tmp>
-										$<TARGET_FILE:LibXml2::LibXml2>
 										$<TARGET_FILE:CJSON::CJSON>
 								COMMENT "Archiving objects for librsslVA ..."
 								)
@@ -279,7 +273,6 @@ DEBUG_PRINT(librsslVA_tmp)
 
 		target_link_libraries( librsslVA_shared 
 										librssl_shared 
-										LibXml2::LibXml2
 										CJSON::CJSON
 										CCRONEXPR::CCRONEXPR
 										wininet.lib
@@ -315,7 +308,7 @@ DEBUG_PRINT(librsslVA_tmp)
                                     SOVERSION ${librsslVA_SO_VERSION}
                             )
 
-		target_link_libraries( librsslVA_shared librssl_shared LibXml2::LibXml2 CJSON::CJSON CCRONEXPR::CCRONEXPR ${l8w8jwt_lib})
+		target_link_libraries( librsslVA_shared librssl_shared CJSON::CJSON CCRONEXPR::CCRONEXPR ${l8w8jwt_lib})
 	endif()
 DEBUG_PRINT(librsslVA_tmp)
 	rcdev_add_target(rtsdk librsslVA librsslVA_shared)
