@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022,2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -109,6 +109,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannelEventTypes;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannelInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannelType;
 import com.refinitiv.eta.valueadd.reactor.ReactorConnectInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorConnectOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorDispatchOptions;
@@ -124,6 +125,8 @@ import com.refinitiv.eta.valueadd.reactor.ReactorServiceNameToId;
 import com.refinitiv.eta.valueadd.reactor.ReactorServiceNameToIdCallback;
 import com.refinitiv.eta.valueadd.reactor.ReactorServiceNameToIdEvent;
 import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyGroup;
+import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyServerInfo;
 import com.refinitiv.eta.valueadd.reactor.TunnelStreamInfo;
 import com.refinitiv.eta.valueadd.reactor.TunnelStreamSubmitOptions;
 
@@ -270,6 +273,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         _errorInfo = ReactorFactory.createReactorErrorInfo();
         _connectOptions = ReactorFactory.createReactorConnectOptions();
         _dispatchOptions = ReactorFactory.createReactorDispatchOptions();
+        _dispatchOptions.maxMessages(consConfig.maxMessages());
         _submitOptions = ReactorFactory.createReactorSubmitOptions();
         _connectInfo = ReactorFactory.createReactorConnectInfo();
         _reactorChannnelInfo = ReactorFactory.createReactorChannelInfo();
@@ -601,7 +605,95 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             _connectOptions.reconnectAttemptLimit(-1);
             _connectOptions.reconnectMaxDelay(5000);
             _connectOptions.reconnectMinDelay(1000);
-            
+
+            if(!_consPerfConfig.startingHostName().isEmpty())
+            {
+
+                if(!_consPerfConfig.useWatchlist())
+                {
+                    System.out.println("Warm Standby cannot be enabled without enabling reactor and watchlist functionality");
+                    System.exit(ReactorReturnCodes.FAILURE);
+                }
+
+                ReactorWarmStandbyGroup wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+                wsbGroup.warmStandbyMode(_consPerfConfig.wsbMode());
+
+                connectOptions = wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions();
+
+                /* set connect options  */
+                connectOptions.majorVersion(Codec.majorVersion());
+                connectOptions.minorVersion(Codec.minorVersion());
+                connectOptions.connectionType(_consPerfConfig.connectionType());
+                connectOptions.wSocketOpts().protocols(_consPerfConfig.protocolList());
+                connectOptions.guaranteedOutputBuffers(_consPerfConfig.guaranteedOutputBuffers());
+                connectOptions.numInputBuffers(_consPerfConfig.numInputBuffers());
+                if (_consPerfConfig.sendBufSize() > 0)
+                {
+                    connectOptions.sysSendBufSize(_consPerfConfig.sendBufSize());
+                }
+                if (_consPerfConfig.recvBufSize() > 0)
+                {
+                    connectOptions.sysRecvBufSize(_consPerfConfig.recvBufSize());
+                }
+                if(_consPerfConfig.connectionType() == ConnectionTypes.SOCKET)
+                {
+                    connectOptions.tcpOpts().tcpNoDelay(_consPerfConfig.tcpNoDelay());
+                }
+                // set the connection parameters on the connect options
+                connectOptions.unifiedNetworkInfo().address(_consPerfConfig.startingHostName());
+                connectOptions.unifiedNetworkInfo().serviceName(_consPerfConfig.startingPort());
+                connectOptions.unifiedNetworkInfo().interfaceName(_consPerfConfig.interfaceName());
+
+                if(connectOptions.connectionType() == ConnectionTypes.ENCRYPTED)
+                {
+                    connectOptions.tunnelingInfo().tunnelingType("None");
+                    connectOptions.encryptionOptions().connectionType(_consPerfConfig.encryptedConnectionType());
+                    connectOptions.encryptionOptions().KeystoreFile(_consPerfConfig.keyfile());
+                    connectOptions.encryptionOptions().KeystorePasswd(_consPerfConfig.keypasswd());
+                }
+
+                if(!_consPerfConfig.standbyHostName().isEmpty())
+                {
+                    ReactorWarmStandbyServerInfo wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+
+                    connectOptions = wsbServerInfo.reactorConnectInfo().connectOptions();
+                    /* set connect options  */
+                    connectOptions.majorVersion(Codec.majorVersion());
+                    connectOptions.minorVersion(Codec.minorVersion());
+                    connectOptions.connectionType(_consPerfConfig.connectionType());
+                    connectOptions.wSocketOpts().protocols(_consPerfConfig.protocolList());
+                    connectOptions.guaranteedOutputBuffers(_consPerfConfig.guaranteedOutputBuffers());
+                    connectOptions.numInputBuffers(_consPerfConfig.numInputBuffers());
+                    if (_consPerfConfig.sendBufSize() > 0)
+                    {
+                        connectOptions.sysSendBufSize(_consPerfConfig.sendBufSize());
+                    }
+                    if (_consPerfConfig.recvBufSize() > 0)
+                    {
+                        connectOptions.sysRecvBufSize(_consPerfConfig.recvBufSize());
+                    }
+                    if(_consPerfConfig.connectionType() == ConnectionTypes.SOCKET)
+                    {
+                        connectOptions.tcpOpts().tcpNoDelay(_consPerfConfig.tcpNoDelay());
+                    }
+                    // set the connection parameters on the connect options
+                    connectOptions.unifiedNetworkInfo().address(_consPerfConfig.standbyHostName());
+                    connectOptions.unifiedNetworkInfo().serviceName(_consPerfConfig.standbyPort());
+                    connectOptions.unifiedNetworkInfo().interfaceName(_consPerfConfig.interfaceName());
+
+                    if(connectOptions.connectionType() == ConnectionTypes.ENCRYPTED)
+                    {
+                        connectOptions.tunnelingInfo().tunnelingType("None");
+                        connectOptions.encryptionOptions().connectionType(_consPerfConfig.encryptedConnectionType());
+                        connectOptions.encryptionOptions().KeystoreFile(_consPerfConfig.keyfile());
+                        connectOptions.encryptionOptions().KeystorePasswd(_consPerfConfig.keypasswd());
+                    }
+                    wsbGroup.standbyServerList().add(wsbServerInfo);
+                }
+
+                _connectOptions.reactorWarmStandbyGroupList().add(wsbGroup);
+            }
+
             // connect via Reactor
             int ret;
             if ((ret = _reactor.connect(_connectOptions, _role, _errorInfo)) < ReactorReturnCodes.SUCCESS)
@@ -832,7 +924,8 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         System.out.println("\nConsumerThread " + _consThreadInfo.threadId() + " exiting...");
 	}
 
-	private int initializeJsonSession() {
+	private int initializeJsonSession()
+    {
         // Initializes the JSON converter library.
         _jsonConverterSession.jsonConverterOptions().datadictionary(_dictionaryHandler.dictionary());
         _jsonConverterSession.jsonConverterOptions().userClosure(this);
@@ -844,76 +937,72 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
 	/* Reads from a channel. */
 	private void selectorReadAndWrite(long selectTime)
-	{
-		Set<SelectionKey> keySet = null;
+    {
+        Set<SelectionKey> keySet = null;
 
-		// set select time 
+        // set select time
         try
         {
-        	int selectRetVal;
-        	
-        	if (_consPerfConfig.ticksPerSec() > 1000) // use nanosecond timer for tickRate of greater than 1000
-        	{
-        	    selectTime /= 1000000;
-        	}
+            int selectRetVal;
 
-        	if (selectTime > 0)
-        		selectRetVal = _selector.select(selectTime);
-        	else
-        		selectRetVal = _selector.selectNow();
-        		
+            if (_consPerfConfig.ticksPerSec() > 1000) // use nanosecond timer for tickRate of greater than 1000
+            {
+                selectTime /= 1000000;
+            }
+
+            if (selectTime > 0)
+                selectRetVal = _selector.select(selectTime);
+            else
+                selectRetVal = _selector.selectNow();
+
             if (selectRetVal > 0)
             {
                 keySet = _selector.selectedKeys();
             }
         }
-        catch (IOException e1)
+        catch (IOException e)
         {
-        	closeChannelAndShutDown(e1.getMessage());
-    		return;
+            closeChannelAndShutDown(e.getMessage());
+            return;
         }
 
         // nothing to read or write
         if (keySet == null)
             return;
 
-	        Iterator<SelectionKey> iter = keySet.iterator();
-	        int ret = CodecReturnCodes.SUCCESS;
-	        while (iter.hasNext())
-	        {
-	        	SelectionKey key = iter.next();
-	        	iter.remove();
-	        	if(!key.isValid())
-	                continue;
-	    		if (key.isReadable())
-	    		{
-	                if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use ETA Channel for sending and receiving
-	                {
-	                    read();
-	                }
-                else // use ETA VA Reactor for sending and receiving
+        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use ETA Channel for sending and receiving
+        {
+            Iterator<SelectionKey> iter = keySet.iterator();
+            int ret;
+            while (iter.hasNext())
+            {
+                SelectionKey key = iter.next();
+                iter.remove();
+                if (!key.isValid())
+                    continue;
+                if (key.isReadable())
                 {
-                    ReactorChannel reactorChannel = (ReactorChannel)key.attachment();
-                    read(reactorChannel);
+                    read();
                 }
-	    		}
-	
-	    		/* flush for write file descriptor and active state */
-	            if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use ETA Channel for sending and receiving
-	            {
-	        		if (key.isWritable())
-	        		{
-	        			ret = _channel.flush(_error);
-	        			if (ret == TransportReturnCodes.SUCCESS)
-	        			{
-	        				removeOption(SelectionKey.OP_WRITE, _channel);
-	        			}
-	        		}
-	            }
-	        }
+
+                /* flush for write file descriptor and active state */
+                if (key.isWritable())
+                {
+                    ret = _channel.flush(_error);
+                    if (ret == TransportReturnCodes.SUCCESS)
+                    {
+                        removeOption(SelectionKey.OP_WRITE, _channel);
+                    }
+                }
+            }
         }
-	
-    /* Reads from a channel with no select call. */
+        else // use ETA VA Reactor for sending and receiving
+        {
+            reactorRead(keySet);
+        }
+    }
+
+        /* Reads from a channel with no select call. */
     private void busyReadAndWrite(long selectTime)
     {
         long pollTime, currentTime = currentTime();
@@ -992,7 +1081,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         }
         else // VA Reactor Watchlist is enabled, submit message instead of buffer
         {
-            if (_reactorChannel.state() == com.refinitiv.eta.valueadd.reactor.ReactorChannel.State.READY)
+            if (_reactorChannel.state() == ReactorChannel.State.READY)
             {
             	if(Objects.isNull(_tunnelStreamHandler))
             	{
@@ -1751,155 +1840,6 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     }
 
     //process market price response.
-    private void processMarketPriceResp(Msg responseMsg)
-    {
-    	int ret = CodecReturnCodes.SUCCESS;
-    	int msgClass = responseMsg.msgClass();
-
-        if (_consThreadInfo.conversionTimeHandled()) {
-            do {
-                TransportBuffer buffer = _jsonConverterSession.convertToJsonMsg(_channel, _responseMsg.encodedMsgBuffer(), _error);
-                if (buffer == null) {
-                    if (_error.errorId() == TransportReturnCodes.NO_BUFFERS) {
-                        if ((ret = _channel.flush(_error)) < TransportReturnCodes.SUCCESS) {
-                            closeChannelAndShutDown("rsslFlush() failed with return code " + ret + "<" + _error.text() + ">");
-                            return;
-                        }
-                    } else {
-                        closeChannelAndShutDown("convertToJsonMsg(): Failed to convert RWF > JSON with error text: " + _error.text());
-                        return;
-                    }
-
-                } else {
-                    _channel.releaseBuffer(buffer, _error);
-                }
-            } while (_error.errorId() == TransportReturnCodes.NO_BUFFERS);
-        }
-    	
-    	switch (msgClass)
-    	{
-    	case MsgClasses.REFRESH:
-            _dIter.clear();
-            _dIter.setBufferAndRWFVersion(responseMsg.encodedDataBody(), _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
-
-            RefreshMsg refreshMsg = (RefreshMsg)responseMsg;
-    		_consThreadInfo.stats().refreshCount().increment();
-			
-    		//If we are still retrieving images, check if this item still needs one.
-			if((ret = _marketPriceDecoder.decodeUpdate(_dIter, responseMsg, _consThreadInfo)) != CodecReturnCodes.SUCCESS)
-			{
-            	closeChannelAndShutDown("Decoding failure: " + ret);
-        		return;
-			}
-    		if (_consThreadInfo.stats().imageRetrievalEndTime() == 0)
-    		{
-				if (refreshMsg.state().isFinal())
-				{
-	            	closeChannelAndShutDown("Received unexpected final state in refresh for item: " + StreamStates.toString(refreshMsg.state().streamState())+
-							refreshMsg.msgKey().name().toString());
-	        		return;
-				}
-
-				if (refreshMsg.checkRefreshComplete())
-				{
-    				if (_consPerfConfig.primeJVM() == false)
-    				{
-    	                if (refreshMsg.state().dataState() == DataStates.OK)
-    	                {
-                            _itemRequestList[refreshMsg.streamId()].requestState(ItemRequestState.HAS_REFRESH);
-                            _consThreadInfo.stats().refreshCompleteCount().increment();
-                            if (_consThreadInfo.stats().refreshCompleteCount().getTotal() == (_requestListSize - ITEM_STREAM_ID_START))
-                            {
-                                _consThreadInfo.stats().imageRetrievalEndTime(System.nanoTime());
-                                _consThreadInfo.stats().steadyStateLatencyTime(_consThreadInfo.stats().imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
-                            }
-    	                }
-    				}
-    				else // JVM priming enabled
-    				{
-    				    // Count snapshot images used for priming, ignoring state
-                        if (_JVMPrimingRefreshCount < (_requestListSize - ITEM_STREAM_ID_START))
-                        {
-                            _JVMPrimingRefreshCount++;
-                            // reset request state so items can be re-requested
-                            _itemRequestList[refreshMsg.streamId()].requestState(ItemRequestState.NOT_REQUESTED);
-                            if (_JVMPrimingRefreshCount == (_requestListSize - ITEM_STREAM_ID_START))
-                            {
-                                // reset request count and _requestListIndex so items can be re-requested
-                            	//set the image retrieval start time
-                                _consThreadInfo.stats().requestCount().init();
-                                _consThreadInfo.stats().refreshCompleteCount().init();
-                                _consThreadInfo.stats().refreshCount().init();
-                                _requestListIndex = ITEM_STREAM_ID_START;
-                            }
-                        }
-                        else // the streaming image responses after priming
-                        {
-                            if (refreshMsg.state().dataState() == DataStates.OK)
-                            {
-                                _itemRequestList[refreshMsg.streamId()].requestState(ItemRequestState.HAS_REFRESH);
-                                _consThreadInfo.stats().refreshCompleteCount().increment();
-                                if (_consThreadInfo.stats().refreshCompleteCount().getTotal() == (_requestListSize - ITEM_STREAM_ID_START))
-                                {
-                                    _consThreadInfo.stats().imageRetrievalEndTime(System.nanoTime());
-                                    _consThreadInfo.stats().steadyStateLatencyTime(_consThreadInfo.stats().imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
-                                }
-                            }
-                        }
-    				}
-				}
-    		}
-    		break;
-    	case MsgClasses.UPDATE:
-            _dIter.clear();
-            _dIter.setBufferAndRWFVersion(responseMsg.encodedDataBody(), _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
-
-    		if (_consThreadInfo.stats().imageRetrievalEndTime() > 0)
-    		{
-    			_consThreadInfo.stats().steadyStateUpdateCount().increment();
-    		}
-    		else
-    		{
-    			_consThreadInfo.stats().startupUpdateCount().increment();
-    		}
-			if (_consThreadInfo.stats().firstUpdateTime() == 0)
-				_consThreadInfo.stats().firstUpdateTime(System.nanoTime());
-			if((ret = _marketPriceDecoder.decodeUpdate(_dIter, responseMsg, _consThreadInfo)) != CodecReturnCodes.SUCCESS)
-			{
-            	closeChannelAndShutDown("Decoding failure: " + ret);
-        		return;
-			}
-    		break;
-        case MsgClasses.GENERIC:
-            _dIter.clear();
-            _dIter.setBufferAndRWFVersion(responseMsg.encodedDataBody(), _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
-
-            _consThreadInfo.stats().genMsgRecvCount().increment();
-            if((ret = _marketPriceDecoder.decodeUpdate(_dIter, responseMsg, _consThreadInfo)) != CodecReturnCodes.SUCCESS)
-            {
-                closeChannelAndShutDown("Decoding failure: " + ret);
-                return;
-            }
-            break;
-    	case MsgClasses.STATUS:
-    		StatusMsg statusMsg = (StatusMsg)responseMsg;
-    		_consThreadInfo.stats().statusCount().increment();
-    		
-			if (statusMsg.checkHasState() &&
-				statusMsg.state().isFinal())
-			{
-            	closeChannelAndShutDown("Received unexpected final state for item: " + StreamStates.toString(statusMsg.state().streamState())+
-            			_itemRequestList[statusMsg.streamId()].itemName());
-        		return;
-			}
-
-    		break;
-    	default:
-    		break;
-    	}
-    }
-
-    //process market price response.
     private void processMarketPriceResp(Msg responseMsg, DecodeIterator dIter)
     {
         int ret = CodecReturnCodes.SUCCESS;
@@ -1928,7 +1868,6 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         switch (msgClass)
         {
             case MsgClasses.REFRESH:
-
                 RefreshMsg refreshMsg = (RefreshMsg)responseMsg;
                 _consThreadInfo.stats().refreshCount().increment();
 
@@ -1998,7 +1937,6 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 }
                 break;
             case MsgClasses.UPDATE:
-
                 if (_consThreadInfo.stats().imageRetrievalEndTime() > 0)
                 {
                     _consThreadInfo.stats().steadyStateUpdateCount().increment();
@@ -2016,7 +1954,6 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 }
                 break;
             case MsgClasses.GENERIC:
-
                 _consThreadInfo.stats().genMsgRecvCount().increment();
                 if((ret = _marketPriceDecoder.decodeUpdate(dIter, responseMsg, _consThreadInfo)) != CodecReturnCodes.SUCCESS)
                 {
@@ -2991,7 +2928,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             closeReactor();
         }
     }
-    
+
     @Override
     public int reactorChannelEventCallback(ReactorChannelEvent event)
     {
@@ -3016,16 +2953,28 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 // register selector with channel event's reactorChannel
                 try
                 {
-                		event.reactorChannel().selectableChannel().register(_selector,
-                                                                        SelectionKey.OP_READ,
-                                                                        event.reactorChannel());
-                	}
+                    if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+                    {
+                        for(int i = 0; i < event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().size(); ++i)
+                        {
+                            event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i).register(_selector,
+                                    SelectionKey.OP_READ,
+                                    event.reactorChannel());
+                        }
+                    }
+                    else
+                    {
+                        event.reactorChannel().selectableChannel().register(_selector,
+                                SelectionKey.OP_READ,
+                                event.reactorChannel());
+                    }
+                }
                 catch (ClosedChannelException e)
                 {
                     System.out.println("selector register failed: " + e.getLocalizedMessage());
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
-                
+
                 // get and print the channel info
                 if (_reactorChannel.info(_reactorChannnelInfo, _errorInfo) != TransportReturnCodes.SUCCESS)
                 {
@@ -3042,19 +2991,44 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 System.out.println("Channel Change - Old Channel: "
                         + event.reactorChannel().oldSelectableChannel() + " New Channel: "
                         + event.reactorChannel().selectableChannel());
-                
+
                 // cancel old reactorChannel select
-                SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(_selector);
-                				if(key != null)
-                					key.cancel();
-                		
-                // register selector with channel event's new reactorChannel
+                SelectionKey key;
                 try
-                	{
-	                    event.reactorChannel().selectableChannel().register(_selector,
-	                                                                    SelectionKey.OP_READ,
-	                                                                    event.reactorChannel());
-                	}
+                {
+                    if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+                    {
+                        for(int i = 0; i < event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().size(); ++i)
+                        {
+                            if(!event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(
+                                    event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().get(i)))
+                            {
+                                key = event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().get(i).keyFor(_selector);
+
+                                if(key != null)
+                                    key.cancel();
+                            }
+                        }
+
+                        for(int i = 0; i < event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().size(); ++i)
+                        {
+                            event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i).register(_selector,
+                                    SelectionKey.OP_READ,
+                                    event.reactorChannel());
+                        }
+                    }
+                    else
+                    {
+                        key = event.reactorChannel().oldSelectableChannel().keyFor(_selector);
+                        if (key != null)
+                            key.cancel();
+
+                        // register selector with channel event's new reactorChannel
+                        event.reactorChannel().selectableChannel().register(_selector,
+                                SelectionKey.OP_READ,
+                                event.reactorChannel());
+                    }
+                }
                 catch (Exception e)
                 {
                     System.out.println("selector register failed: " + e.getLocalizedMessage());
@@ -3066,7 +3040,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             {
                 printEstimatedPostMsgSizes(event.reactorChannel().channel());
                 printEstimatedGenMsgSizes(event.reactorChannel().channel());
-                
+
                 if (isRequestedServiceUp())
                 {
                     // dictionaries were loaded at initialization. send item requests and post
@@ -3095,7 +3069,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
                     System.out.println("Requested service '" + _consPerfConfig.serviceName() + "' not up. Waiting for service to be up...");
                 }
-                
+
                 break;
             }
             case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
@@ -3104,20 +3078,34 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                     System.out.println("\nConnection down reconnecting: Channel " + event.reactorChannel().selectableChannel());
                 else
                     System.out.println("\nConnection down reconnecting");
-    
+
                 if (event.errorInfo() != null && event.errorInfo().error().text() != null)
                     System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
-                            
+
                 // allow Reactor to perform connection recovery
-                
+
                 // unregister selectableChannel from Selector
-	                if (event.reactorChannel().selectableChannel() != null)
-	                {
-                    SelectionKey key = event.reactorChannel().selectableChannel().keyFor(_selector);
-	                    if (key != null)
-	                        key.cancel();
-	                }
-                
+                SelectionKey key;
+                if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+                {
+                    for(int i = 0; i < event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().size(); ++i)
+                    {
+                        key = event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().get(i).keyFor(_selector);
+
+                        if(key != null)
+                            key.cancel();
+                    }
+                }
+                else
+                {
+                    if (event.reactorChannel().selectableChannel() != null)
+                    {
+                        key = event.reactorChannel().selectableChannel().keyFor(_selector);
+                        if (key != null)
+                            key.cancel();
+                    }
+                }
+
                 // only allow one connect
                 if (_service != null)
                 {
@@ -3128,7 +3116,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 break;
             }
             case ReactorChannelEventTypes.CHANNEL_DOWN:
-            {                
+            {
                 if (event.reactorChannel().selectableChannel() != null)
                     System.out.println("\nConnection down: Channel " + event.reactorChannel().selectableChannel());
                 else
@@ -3138,12 +3126,26 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                     System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
 
                 // unregister selectableChannel from Selector
-	                if (event.reactorChannel().selectableChannel() != null)
-	                {
-                    SelectionKey key = event.reactorChannel().selectableChannel().keyFor(_selector);
-	                    if (key != null)
-	                        key.cancel();
-	                }
+                SelectionKey key;
+                if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+                {
+                    for(int i = 0; i < event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().size(); ++i)
+                    {
+                        key = event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().get(i).keyFor(_selector);
+
+                        if(key != null)
+                            key.cancel();
+                    }
+                }
+                else
+                {
+                    if (event.reactorChannel().selectableChannel() != null)
+                    {
+                        key = event.reactorChannel().selectableChannel().keyFor(_selector);
+                        if (key != null)
+                            key.cancel();
+                    }
+                }
 
                 _shutdownCallback.shutdown();
                 _consThreadInfo.shutdownAck(true);
@@ -3166,18 +3168,26 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     @Override
     public int defaultMsgCallback(ReactorMsgEvent event)
     {
-
         Msg msg = event.msg();
-        processMarketPriceResp(msg);
+        if (msg.domainType() == DomainTypes.MARKET_PRICE) {
+            if (msg.encodedDataBody() != null && msg.encodedDataBody().data() != null) {
+                _dIter.clear();
+                _dIter.setBufferAndRWFVersion(msg.encodedDataBody(), _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
+            }
+            processMarketPriceResp(msg, _dIter);
+        }
 
         return ReactorCallbackReturnCodes.SUCCESS;
     }
-    
+
     public int handleTunnelStreamMsgCallback(Msg msg, ReactorChannel reactorChannel)
     {
-        processMarketPriceResp(msg);
-    	
-    	return ReactorCallbackReturnCodes.SUCCESS;
+        _dIter.clear();
+        _dIter.setBufferAndRWFVersion(msg.encodedDataBody(), reactorChannel.majorVersion(), reactorChannel.minorVersion());
+
+        processMarketPriceResp(msg, _dIter);
+
+        return ReactorCallbackReturnCodes.SUCCESS;
     }
 
     @Override
@@ -3313,24 +3323,17 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 _service.state().serviceState() == 1;
     }
 
-    private void read(ReactorChannel reactorChannel)
+    private void reactorRead(Set<SelectionKey> keySet)
     {
         int ret;
-        
+
         /* read until no more to read */
-        if (reactorChannel != null)
-        {
-            while ((ret = reactorChannel.dispatch(_dispatchOptions, _errorInfo)) > 0) {}
+        while ((ret = _reactor.dispatchAll(keySet, _dispatchOptions, _errorInfo)) > 0) {}
         if (ret == ReactorReturnCodes.FAILURE)
         {
-                if (reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                        reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
-                {
-           System.out.println("ReactorChannel dispatch failed: " + ret + "(" + _errorInfo.error().text() + ")");
-           closeReactor();
-           System.exit(ReactorReturnCodes.FAILURE);
-                }
-            }
+            System.out.println("ReactorChannel dispatch failed: " + ret + "(" + _errorInfo.error().text() + ")");
+            closeReactor();
+            System.exit(ReactorReturnCodes.FAILURE);
         }
     }
 

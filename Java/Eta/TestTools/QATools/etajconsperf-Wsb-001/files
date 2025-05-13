@@ -1,4 +1,0 @@
-#file,location
-ConsPerfConfig.java,Applications/PerfTools/src/main/java/com/refinitiv/eta/perftools/consperf
-ConsumerThread.java,Applications/PerfTools/src/main/java/com/refinitiv/eta/perftools/consperf
-

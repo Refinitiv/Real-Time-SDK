@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022,2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,6 +13,7 @@ import java.util.Arrays;
 import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.shared.CommandLine;
 import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyMode;
 
 /** Provides configuration that is not specific to any particular handler. */
 public class ConsPerfConfig
@@ -50,7 +51,13 @@ public class ConsPerfConfig
 	private int _recvBufSize;				/* System Receive Buffer Size. */
 	private int _highWaterMark;				/* sets the point which will cause ETA to automatically flush */
 	private boolean _tcpNoDelay;			/* Enable/Disable Nagle's algorithm. */
-	
+
+	private String _startingHostName;		/* Initial active connection hostname for warm standby connections */
+	private String _startingPort;			/* Initial active conneciton port for warm standby connections */
+	private String _standbyHostName;		/* Initial standby connection hostname for warm standby connections */
+	private String _standbyPort;			/* Initial standby conneciton port for warm standby connections */
+	private int _wsbMode;
+
 	private boolean _requestSnapshots;		/* Whether to request all items as snapshots. */
 
 	private String _username;				/* Username used when logging in. */
@@ -61,6 +68,7 @@ public class ConsPerfConfig
 	private int _latencyPostsPerSec;		/* Number of latency posts to send per second. */
 	private int _genMsgsPerSec;				/* Number of generic msgs to send per second. */
 	private int _latencyGenMsgsPerSec;		/* Number of latency generic msgs to send per second. */
+	private int _maxMessages;				/* Maximum number of events or messages processed in dispatchAll call. */
 
 	private int _requestsPerTick;			/* Number of requests to send per tick */
 	private int _requestsPerTickRemainder;	/* The remainder of number of requests to send per tick */
@@ -113,6 +121,7 @@ public class ConsPerfConfig
         CommandLine.addOption("serviceName", "DIRECT_FEED", "Name of service to request items from");
         CommandLine.addOption("itemCount", 100000, "Number of items to request");
         CommandLine.addOption("commonItemCount", 0, "Number of items common to all consumers, if using multiple connections");
+		CommandLine.addOption("maxMessages", 10000, "Maximum number of events or messages processed in dispatchAll call");
         CommandLine.addOption("postingRate", 0, "Rate at which to send post messages");
         CommandLine.addOption("postingLatencyRate", 0, "Rate at which to send latency post messages");
         CommandLine.addOption("genericMsgRate", 0, "Rate at which to send generic messages");
@@ -134,6 +143,11 @@ public class ConsPerfConfig
      	CommandLine.addOption("addConversionOverhead", false, "Enable JSON to RWF conversion");
      	CommandLine.addOption("spTLSv1.2", "", "Specifies for an encrypted connection to be able to use TLS 1.2, default is 1.2 and 1.3 enabled");
      	CommandLine.addOption("spTLSv1.3", "", "Specifies for an encrypted connection to be able to use TLS 1.3, default is 1.2 and 1.3 enabled");
+		CommandLine.addOption("warmStandbyMode", "", "Specifies the warm standby mode. This can either be \"login\" or \"service\".");
+		CommandLine.addOption("startingHostName", "", "Specifies the starting server hostname for warm standby.");
+		CommandLine.addOption("startingPort", "", "Specifies the starting server port for warm standby.");
+		CommandLine.addOption("standbyHostName", "", "Specifies the standby server hostname for warm standby.");
+		CommandLine.addOption("standbyPort", "", "Specifies the standby server port for warm standby.");
     }
 	
     /**
@@ -185,7 +199,34 @@ public class ConsPerfConfig
         _busyRead = CommandLine.booleanValue("busyRead");
         _tunnelStreamOutputBuffers = CommandLine.intValue("tunnelStreamOutputBufs");
         _tunnelStreamBufsUsed = CommandLine.booleanValue("tunnelStreamBuffersUsed");
-        try
+		_startingHostName = CommandLine.value("startingHostName");
+		_startingPort = CommandLine.value("startingPort");
+		_standbyHostName = CommandLine.value("standbyHostName");
+		_standbyPort = CommandLine.value("standbyPort");
+
+		if(!CommandLine.value("warmStandbyMode").isEmpty())
+		{
+			if(CommandLine.value("warmStandbyMode").equalsIgnoreCase("login"))
+			{
+				_wsbMode = ReactorWarmStandbyMode.LOGIN_BASED;
+			}
+			else if(CommandLine.value("warmStandbyMode").equalsIgnoreCase("service"))
+			{
+				_wsbMode = ReactorWarmStandbyMode.SERVICE_BASED;
+			}
+			else
+			{
+				System.err.println("Config Error: Only login or service warm standby modes are supported.\n");
+				System.out.println(CommandLine.optionHelpString());
+				System.exit(-1);
+			}
+		}
+		else
+		{
+			_wsbMode = ReactorWarmStandbyMode.LOGIN_BASED;
+		}
+
+		try
         {
         	_steadyStateTime = CommandLine.intValue("steadyStateTime");
         	_delaySteadyStateCalc = CommandLine.intValue("delaySteadyStateCalc");
@@ -260,6 +301,7 @@ public class ConsPerfConfig
         	_highWaterMark = CommandLine.intValue("highWaterMark");
         	_itemRequestCount = CommandLine.intValue("itemCount");
         	_commonItemCount = CommandLine.intValue("commonItemCount");
+			_maxMessages = CommandLine.intValue("maxMessages");
         	_postsPerSec = CommandLine.intValue("postingRate");
         	_latencyPostsPerSec = CommandLine.intValue("postingLatencyRate");
         	_genMsgsPerSec = CommandLine.intValue("genericMsgRate");
@@ -412,6 +454,13 @@ public class ConsPerfConfig
 			System.exit(-1);
 		}
 
+		if (_maxMessages < 1)
+		{
+			System.err.println("Config Error: maxMessages cannot be less than 1.");
+			System.out.println(CommandLine.optionHelpString());
+			System.exit(-1);
+		}
+
 		_requestsPerTick = _itemRequestsPerSec / _ticksPerSec;
 
 		_requestsPerTickRemainder = _itemRequestsPerSec % _ticksPerSec;
@@ -461,6 +510,7 @@ public class ConsPerfConfig
             "                   Username: " + (_username.length() > 0 ? _username : "(use system login name)") + "\n" +
             "                 Item Count: " + _itemRequestCount + "\n" +
             "          Common Item Count: " + _commonItemCount + "\n" +
+			"                maxMessages: " + _maxMessages + "\n" +
             "               Request Rate: " + _itemRequestsPerSec + "\n" +
             "          Request Snapshots: " + (_requestSnapshots ? "Yes" : "No") + "\n" +
             "               Posting Rate: " + _postsPerSec + "\n" +
@@ -819,7 +869,17 @@ public class ConsPerfConfig
 	{
 		return _commonItemCount;
 	}
-	
+
+	/**
+	 *  Maximum number of events or messages processed in dispatchAll call.
+	 *
+	 * @return the int
+	 */
+	public int maxMessages()
+	{
+		return _maxMessages;
+	}
+
 	/**
 	 *  Number of posts to send per second.
 	 *
@@ -966,6 +1026,56 @@ public class ConsPerfConfig
 	 */
 	public boolean calcRWFJSONConversionLatency() {
 		return _calcRWFJSONConversionLatency;
+	}
+
+	/**
+	 * The warm standby starting host name
+	 *
+	 * @return the warm standby starting host name
+	 */
+	public String startingHostName()
+	{
+		return _startingHostName;
+	}
+
+	/**
+	 * The warm standby starting port
+	 *
+	 * @return the warm standby starting port
+	 */
+	public String startingPort()
+	{
+		return _startingPort;
+	}
+
+	/**
+	 * The warm standby standby host name
+	 *
+	 * @return the warm standby standby host name
+	 */
+	public String standbyHostName()
+	{
+		return _standbyHostName;
+	}
+
+	/**
+	 * The warm standby standby port
+	 *
+	 * @return the warm standby standby port
+	 */
+	public String standbyPort()
+	{
+		return _standbyPort;
+	}
+
+	/**
+	 * The warm standby standby mode
+	 *
+	 * @return the warm standby standby mode
+	 */
+	public int wsbMode()
+	{
+		return _wsbMode;
 	}
 
 	/**
