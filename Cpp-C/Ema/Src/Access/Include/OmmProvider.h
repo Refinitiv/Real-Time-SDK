@@ -282,6 +282,7 @@ public :
 	void submit( const GenericMsg& genericMsg, UInt64 handle );
 
 	/** Sends a RefreshMsg.
+		Method accepts 0 as a handle value to fanout the message to all client connections for interactive provider only.
 		@param[in] refreshMsg specifies RefreshMsg to be sent
 		@param[in] identifies handle associated with an item stream on which to send the RefreshMsg
 		@return void
@@ -292,6 +293,7 @@ public :
 	void submit( const RefreshMsg& refreshMsg, UInt64 handle );
 
 	/** Sends a UpdateMsg.
+		Method accepts 0 as a handle value to fanout the message to all client connections for interactive provider only.
 		@param[in] updateMsg specifies UpdateMsg to be sent
 		@param[in] identifies handle associated with an item stream on which to send the UpdateMsg
 		@return void
@@ -302,6 +304,7 @@ public :
 	void submit( const UpdateMsg& updateMsg, UInt64 handle );
 	
 	/** Sends a StatusMsg.
+		Method accepts 0 as a handle value to fanout the message to all client connections for interactive provider only.
 		@param[in] statusMsg specifies StatusMsg to be sent
 		@param[in] identifies handle associated with an item stream on which to send the StatusMsg
 		@return void
