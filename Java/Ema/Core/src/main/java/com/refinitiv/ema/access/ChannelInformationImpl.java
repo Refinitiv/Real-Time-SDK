@@ -27,6 +27,9 @@ class ChannelInformationImpl implements ChannelInformation
 			int connectionType, int protocolType, int encryptedConnectionType, int majorVersion, int minorVersion, int pingTimeout,
 			int maxFragmentSize, int maxOutputBuffers, int guaranteedOutputBuffers, int numInputBuffers,
 			int sysSendBufSize, int sysRecvBufSize, int compressionType, int compressionThreshold, String securityProtocol) {
+		
+		clear();
+		
 		this._componentInfo = componentInfo;
 		this._hostname = hostname;
 		this._ipAddress = ipAddress;
