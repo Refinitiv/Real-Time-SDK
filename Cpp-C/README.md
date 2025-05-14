@@ -26,7 +26,7 @@ External modules used by this version of RTSDK C/C++:
      curl                  8.12.1
      googletest            1.8.1 (for older than Linux7) and 1.12.1 
      l8w8jwt               2.5.0
-     libxml2               2.13.6
+     libxml2               2.13.8
      lz4                   1.9.4 (for older than Linux7) and 1.10.0
      zlib                  1.3.1
 \* Tested on supported Linux and Windows platforms; \*\* Tested on supported Windows platform 
