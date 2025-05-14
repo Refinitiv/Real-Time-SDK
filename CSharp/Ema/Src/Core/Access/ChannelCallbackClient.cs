@@ -6,13 +6,14 @@
  *|-----------------------------------------------------------------------------
  */
 
-using LSEG.Eta.ValueAdd.Reactor;
-using LSEG.Eta.Codec;
 using System.Text;
 using System.Collections.Generic;
+using System.Threading;
+
+using LSEG.Eta.ValueAdd.Reactor;
+using LSEG.Eta.Codec;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.Transports;
-using System.Threading;
 
 namespace LSEG.Ema.Access
 {
@@ -20,15 +21,25 @@ namespace LSEG.Ema.Access
     {
         internal ChannelInfo? ParentChannel { get; set; }
 
+        internal SessionChannelInfo<IOmmConsumerClient>? SessionChannelInfo { get; set; }
+
         public ClientChannelConfig ChannelConfig { get; private set; }
         public Reactor Reactor { get; private set; }
         public ReactorChannel? ReactorChannel { get; set; }
         public DataDictionary? DataDictionary { get; set; }
+        // when this channel belongs to a SessionChannel
+        public SessionChannelConfig? SessionInfo { get; private set; }
 
         public ChannelInfo(ClientChannelConfig config, Reactor reactor)
         {
             ChannelConfig = config;
             Reactor = reactor;
+        }
+
+        public ChannelInfo(ClientChannelConfig config, Reactor reactor, SessionChannelConfig? sessionInfo)
+            : this(config, reactor)
+        {
+            SessionInfo = sessionInfo;
         }
     }
 
@@ -46,23 +57,37 @@ namespace LSEG.Ema.Access
         private static readonly ProxyOptions m_ProxyOptions = new();
         internal int InitialChannelConnectIndex = 0; /* This is used to keep track the channel index for the initial connection only */
         private int m_ChannelCount;
+        private ConsumerSession<T>? m_consumerSession;
 
         public ChannelCallbackClient(OmmBaseImpl<T> baseImpl, Reactor reactor)
         {
             this.baseImpl = baseImpl;
             this.reactor = reactor;
+            m_consumerSession = baseImpl.ConsumerSession;
 
-            if(baseImpl.LoggerClient.IsTraceEnabled)
+            if (baseImpl.LoggerClient.IsTraceEnabled)
             {
                 baseImpl.LoggerClient.Trace(CLIENT_NAME, "Created ChannelCallbackClient");
             }
         }
 
-        // EmaConfigImpl as third parameter.
-        public void InitializeConsumerRole(IReactorOAuthCredentialEventCallback? credentialCallback = null)
+        public void InitializeEmaManagerItemPools()
         {
+            if (reactorRole != null && reactorRole is ConsumerRole)
+            {
+                baseImpl.GetEmaObjManager().GrowSingleItemPool<T>((int)((ConsumerRole)reactorRole).WatchlistOptions.ItemCountHint);
+            }
+        }
+
+        #region Connection initialization
+
+        // EmaConfigImpl as third parameter.
+        internal void InitializeConsumerRole(IReactorOAuthCredentialEventCallback? credentialCallback = null)
+        {
+            OmmConsumerConfigImpl consumerConfigImpl = ((OmmConsumerConfigImpl)baseImpl.OmmConfigBaseImpl);
+
             // Generate the role based on the ConfigImpl.
-            ConsumerRole consumerRole = ((OmmConsumerConfigImpl)baseImpl.OmmConfigBaseImpl).GenerateConsumerRole();
+            ConsumerRole consumerRole = consumerConfigImpl.GenerateConsumerRole();
 
             LoginRequest loginReq = consumerRole.RdmLoginRequest!;
             loginReq.HasRole = true;
@@ -87,28 +112,80 @@ namespace LSEG.Ema.Access
 
             reactorRole = consumerRole;
 
-            InitializeReactor();
-        }
-        public void InitializeEmaManagerItemPools()
-        {
-            if (reactorRole != null && reactorRole is ConsumerRole)
+            ConsumerConfig consumerConfig = consumerConfigImpl.ConsumerConfig;
+
+            if (consumerConfig.ChannelSet.Count > 0
+                && consumerConfig.SessionChannelSet.Count > 0
+                && baseImpl.LoggerClient.IsWarnEnabled)
             {
-                baseImpl.GetEmaObjManager().GrowSingleItemPool<T>((int)((ConsumerRole)reactorRole).WatchlistOptions.ItemCountHint);
+                baseImpl.LoggerClient.Warn(CLIENT_NAME,
+                    "Either ChannelSet or SessionChannelSet should be defined, SessionChannelSet is used for this configuration.");
+            }
+
+            if (m_consumerSession != null)
+            {
+                /* Always turn on SingleOpen and AllowSuspectData feature in the watchlist */
+                loginReq.HasAttrib = true;
+                loginReq.LoginAttrib.HasSingleOpen = true;
+                loginReq.LoginAttrib.SingleOpen = 1;
+                loginReq.LoginAttrib.HasAllowSuspectData = true;
+                loginReq.LoginAttrib.AllowSuspectData = 1;
+
+                foreach (string sessionChannelName in consumerConfig.SessionChannelSet)
+                {
+                    if (consumerConfigImpl.SessionChannelInfoMap.TryGetValue(sessionChannelName, out var sessionChannelConfig))
+                    {
+                        SessionChannelInfo<IOmmConsumerClient> sessionChannelInfo = new (sessionChannelConfig, (dynamic)m_consumerSession);
+                        m_consumerSession.AddSessionChannelInfo(sessionChannelInfo);
+
+                        InitializeSessionChannel(sessionChannelInfo);
+                    }
+                    else if (baseImpl.LoggerClient.IsWarnEnabled)
+                    {
+                        StringBuilder strBuilder = baseImpl.GetStrBuilder();
+                        strBuilder.Append("SessionChannelSet includes an undefined session channel: ")
+                            .AppendLine(sessionChannelName);
+                        baseImpl.LoggerClient.Warn(CLIENT_NAME, strBuilder.ToString());
+                    }
+                }
+            }
+            else if (consumerConfig.ChannelSet.Count > 0)
+            {
+                InitializeReactor(consumerConfig.ChannelSet);
             }
         }
 
-        private void InitializeReactor()
+        internal void InitializeNiProviderRole()
         {
-            List<string> channelSet;
-            string channelNames = "";
-             reactorConnOptions = baseImpl.OmmConfigBaseImpl.GenerateReactorConnectOpts();
-            if (baseImpl.BaseType == IOmmCommonImpl.ImpleType.CONSUMER)
+            // Generate the role based on the ConfigImpl.
+            NIProviderRole niProviderRole = ((OmmNiProviderConfigImpl)baseImpl.OmmConfigBaseImpl).GenerateNiProviderRole();
+
+            LoginRequest loginReq = niProviderRole.RdmLoginRequest!;
+            loginReq.HasRole = true;
+            loginReq.Role = Eta.Rdm.Login.RoleTypes.PROV;
+            niProviderRole.RdmLoginRequest = loginReq;
+            niProviderRole.DictionaryDownloadMode = DictionaryDownloadMode.NONE;
+            niProviderRole.LoginMsgCallback = baseImpl.LoginCallbackClient;
+            niProviderRole.ChannelEventCallback = baseImpl.ChannelCallbackClient;
+            niProviderRole.DefaultMsgCallback = baseImpl.ItemCallbackClient;
+
+            reactorRole = niProviderRole;
+
+            InitializeReactor(((OmmNiProviderConfigImpl)baseImpl.OmmConfigBaseImpl).NiProviderConfig.ChannelSet);
+        }
+
+        private void InitializeReactor(List<string> channelSet, SessionChannelInfo<IOmmConsumerClient>? sessionChannelInfo = null)
+        {
+            StringBuilder channelNames = new StringBuilder();
+
+            if (sessionChannelInfo is not null
+                && baseImpl.OmmConfigBaseImpl is OmmConsumerConfigImpl consumerConfig)
             {
-                channelSet = ((OmmConsumerConfigImpl)baseImpl.OmmConfigBaseImpl).ConsumerConfig.ChannelSet;
+                reactorConnOptions = consumerConfig.GenerateReactorSessionConnectOpts(sessionChannelInfo);
             }
             else
             {
-                channelSet = ((OmmNiProviderConfigImpl)baseImpl.OmmConfigBaseImpl).NiProviderConfig.ChannelSet;
+                reactorConnOptions = baseImpl.OmmConfigBaseImpl.GenerateReactorConnectOpts();
             }
 
             m_ChannelCount = channelSet.Count;
@@ -120,6 +197,9 @@ namespace LSEG.Ema.Access
             if (baseImpl.LoggerClient.IsTraceEnabled)
             {
                 stringBuilder = new StringBuilder(2048);
+                if (sessionChannelInfo is not null)
+                    stringBuilder.Append("With Session Channel ");
+
                 if (channelSet.Count > 1)
                 {
                     stringBuilder.Append("Attempt to connect using the following list");
@@ -136,7 +216,8 @@ namespace LSEG.Ema.Access
 
             foreach (string channelName in channelSet)
             {
-                ChannelInfo channelInfo = new ChannelInfo(baseImpl.OmmConfigBaseImpl.ClientChannelConfigMap[channelName], reactor);
+                ChannelInfo channelInfo = new ChannelInfo(baseImpl.OmmConfigBaseImpl.ClientChannelConfigMap[channelName],
+                    reactor, sessionChannelInfo?.SessionChannelConfig);
 
                 // If proxy options were set by functions, override them for all connections.
                 if (string.IsNullOrEmpty(baseImpl.OmmConfigBaseImpl.ProxyHost) == false)
@@ -186,15 +267,15 @@ namespace LSEG.Ema.Access
                     {
                         StringBuilder strBuilder = baseImpl.GetStrBuilder();
                         strBuilder.Append($"Successfully set proxy options{ILoggerClient.CR}")
-                        .Append($"Channel name {channelName}{ILoggerClient.CR}")
-                        .Append($"Instance Name {baseImpl.InstanceName}{ILoggerClient.CR}")
-                        .Append($"with the following proxy configurations: " +
-                        $"{channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions}{ILoggerClient.CR}");
+                            .Append($"Channel name {channelName}{ILoggerClient.CR}")
+                            .Append($"Instance Name {baseImpl.InstanceName}{ILoggerClient.CR}")
+                            .Append($"with the following proxy configurations: " +
+                            $"{channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions}{ILoggerClient.CR}");
 
                         baseImpl.LoggerClient.Trace(CLIENT_NAME, strBuilder.ToString());
                     }
 
-                    if(channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType == Eta.Transports.ConnectionType.ENCRYPTED)
+                    if (channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.ConnectionType == Eta.Transports.ConnectionType.ENCRYPTED)
                     {
                         /* Overrides the encryption parameters from OmmConsumerConfig or OmmNiProviderConfig */
                         if (baseImpl.OmmConfigBaseImpl.SetEncryptedProtocolFlags)
@@ -212,8 +293,21 @@ namespace LSEG.Ema.Access
 
                     // Set the channelInfo on the ETA userSpecObject, this will
                     channelInfo.ChannelConfig.ConnectInfo.ConnectOptions.UserSpecObject = channelInfo;
-                    channelList.Add(channelInfo);
-                    channelNames += channelName;
+
+                    if (sessionChannelInfo != null)
+                    {
+                        channelInfo.SessionChannelInfo = sessionChannelInfo;
+                        sessionChannelInfo.ChannelInfoList.Add(channelInfo);
+                    }
+                    else
+                    {
+                        channelList.Add(channelInfo);
+                    }
+
+                    if (channelNames.Length != 0)
+                        channelNames.Append(',');
+
+                    channelNames.Append(channelName);
 
                     if (baseImpl.LoggerClient.IsTraceEnabled && stringBuilder != null)
                     {
@@ -242,11 +336,13 @@ namespace LSEG.Ema.Access
 
             if (supportedConnectionTypeChannelCount > 0)
             {
+                System.Diagnostics.Debug.WriteLine($"__log__ [ChannelCallbackClient] opening connection to: {channelNames.ToString()}");
+
                 if (reactor.Connect(reactorConnOptions, reactorRole!, out var errorInfo) < ReactorReturnCode.SUCCESS)
                 {
                     Error error = errorInfo!.Error;
                     StringBuilder strBuilder = baseImpl.GetStrBuilder();
-                    strBuilder.AppendLine($"Failed to add RsslChannel(s) to RsslReactor. Channel name(s) {channelNames}")
+                    strBuilder.AppendLine($"Failed to add RsslChannel(s) to RsslReactor. Channel name(s) {channelNames.ToString()}")
                         .AppendLine($"Instance Name {baseImpl.InstanceName}").AppendLine($"Reactor {reactor.GetHashCode()}")
                         .AppendLine($"Channel {error.Channel}").AppendLine($"Error Id {error.ErrorId}")
                         .AppendLine($"System error {error.SysError}").AppendLine($"Error location {errorInfo.Location}")
@@ -261,7 +357,7 @@ namespace LSEG.Ema.Access
                 {
                     StringBuilder strBuilder = baseImpl.GetStrBuilder();
                     strBuilder.AppendLine($"Successfully created a Reactor and Channel(s)")
-                        .AppendLine($"\tChannel name(s) {channelNames}")
+                        .AppendLine($"\tChannel name(s) {channelNames.ToString()}")
                         .AppendLine($"\tInstance name {baseImpl.InstanceName}");
 
                     baseImpl.LoggerClient.Trace(CLIENT_NAME, strBuilder.ToString());
@@ -279,11 +375,20 @@ namespace LSEG.Ema.Access
             }
         }
 
+        /// <seealso cref="ReactorChannelEventCallback(ReactorChannelEvent)"/>
+        private void InitializeSessionChannel(SessionChannelInfo<IOmmConsumerClient> sessionChannelInfo)
+        {
+            InitializeReactor(sessionChannelInfo.SessionChannelConfig.ChannelSet, sessionChannelInfo);
+        }
+
+        #endregion
+
         public ReactorCallbackReturnCode ReactorChannelEventCallback(ReactorChannelEvent evt)
         {
             baseImpl.EventReceived();
             ReactorChannel reactorChannel = evt.ReactorChannel!;
             ChannelInfo? channelInfo = (ChannelInfo?)reactorChannel.UserSpecObj;
+            SessionChannelInfo<IOmmConsumerClient>? sessionChannelInfo = channelInfo?.SessionChannelInfo;
 
             switch (evt.EventType)
             {
@@ -300,19 +405,44 @@ namespace LSEG.Ema.Access
                             baseImpl.LoggerClient.Trace(CLIENT_NAME, strBuilder.ToString());
                         }
 
+                        if(sessionChannelInfo != null )
+                        {
+                            sessionChannelInfo.ReactorChannel = reactorChannel;
+                            channelInfo!.ReactorChannel = reactorChannel;
+                        }
+
                         break;
                     }
                 case ReactorChannelEventType.CHANNEL_UP:
                     {
                         baseImpl.RegisterSocket(reactorChannel.Socket!);
 
-                        baseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP);
+                        if (sessionChannelInfo != null)
+                        {
+                            sessionChannelInfo.ReactorChannel = reactorChannel;
+                            channelInfo!.ReactorChannel = reactorChannel;
+
+                            sessionChannelInfo.State = OmmBaseImpl<T>.OmmImplState.CHANNEL_UP;
+
+                            sessionChannelInfo.ConsumerSession.ProcessChannelEvent(sessionChannelInfo, evt);
+
+                            sessionChannelInfo.ConsumerSession.SessionWatchlist.SubmitItemCloseForChannel(reactorChannel);
+
+                            if (sessionChannelInfo.ConsumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP))
+                            {
+                                baseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP);
+                            }
+                        }
+                        else
+                        {
+                            baseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP);
+                        }
 
                         m_ReactorChannelInfo.Clear();
 
                         SetRsslReactorChannel(reactorChannel, m_ReactorChannelInfo, out _);
 
-                        if(baseImpl.LoggerClient.IsInfoEnabled && m_ReactorChannelInfo.ChannelInfo.ComponentInfoList != null)
+                        if (baseImpl.LoggerClient.IsInfoEnabled && m_ReactorChannelInfo.ChannelInfo.ComponentInfoList != null)
                         {
                             int count = m_ReactorChannelInfo.ChannelInfo.ComponentInfoList.Count;
 
@@ -320,10 +450,10 @@ namespace LSEG.Ema.Access
                             strBuilder.AppendLine($"Received ChannelUp event on channel {channelInfo?.ChannelConfig.Name}")
                                 .Append($"\tInstance Name {baseImpl.InstanceName}");
 
-                            if(count > 0)
+                            if (count > 0)
                             {
                                 strBuilder.AppendLine().Append("\tComponent Version ");
-                                for(int i = 0; i < count; i++)
+                                for (int i = 0; i < count; i++)
                                 {
                                     strBuilder.Append(m_ReactorChannelInfo.ChannelInfo.ComponentInfoList[i].ComponentVersion.ToString());
                                     if (i < count - 1)
@@ -334,18 +464,18 @@ namespace LSEG.Ema.Access
                             baseImpl.LoggerClient.Info(CLIENT_NAME, strBuilder.ToString());
                         }
 
-                        if(channelInfo != null && channelInfo.ChannelConfig.HighWaterMark > 0)
+                        if (channelInfo != null && channelInfo.ChannelConfig.HighWaterMark > 0)
                         {
-                            if(reactorChannel.IOCtl(Eta.Transports.IOCtlCode.HIGH_WATER_MARK, channelInfo.ChannelConfig.HighWaterMark, out var errorInfo) 
+                            if (reactorChannel.IOCtl(Eta.Transports.IOCtlCode.HIGH_WATER_MARK, channelInfo.ChannelConfig.HighWaterMark, out var errorInfo)
                                 != ReactorReturnCode.SUCCESS)
                             {
-                                if(baseImpl.LoggerClient.IsErrorEnabled)
+                                if (baseImpl.LoggerClient.IsErrorEnabled)
                                 {
                                     StringBuilder strBuilder = baseImpl.GetStrBuilder();
                                     strBuilder.AppendLine($"Failed to set high water mark on channel {channelInfo.ChannelConfig.Name}")
                                         .AppendLine($"\tInstance Name {baseImpl.InstanceName}");
 
-                                    if(reactorChannel != null && reactorChannel.Channel != null)
+                                    if (reactorChannel != null && reactorChannel.Channel != null)
                                     {
                                         strBuilder.AppendLine($"\tReactor {reactorChannel.Reactor?.GetHashCode()}")
                                             .AppendLine($"\tChannel {reactorChannel.Channel.GetHashCode()}");
@@ -456,28 +586,39 @@ namespace LSEG.Ema.Access
                             baseImpl.LoggerClient.Trace(CLIENT_NAME, strBuilder.ToString());
                         }
 
-                        baseImpl.ProcessChannelEvent(evt);
-
-                        if (initialChannelReadyEventReceived)
+                        if (sessionChannelInfo != null)
                         {
-                            baseImpl.LoginCallbackClient!.ProcessChannelEvent(evt);
+                            sessionChannelInfo.ConsumerSession.ProcessChannelEvent(sessionChannelInfo, evt);
                         }
                         else
                         {
-                            initialChannelReadyEventReceived = true;
+                            baseImpl.ProcessChannelEvent(evt);
+
+                            if (initialChannelReadyEventReceived)
+                            {
+                                baseImpl.LoginCallbackClient!.ProcessChannelEvent(evt);
+                            }
+                            else
+                            {
+                                initialChannelReadyEventReceived = true;
+                            }
                         }
 
                         break;
                     }
                 case ReactorChannelEventType.CHANNEL_DOWN_RECONNECTING:
                     {
-                        if ((InitialChannelConnectIndex + 1) < m_ChannelCount)
+                        /* This section is used to get the current channel index for handling login request timeout for ChannelSet. */
+                        if (sessionChannelInfo == null)
                         {
-                            ++InitialChannelConnectIndex;
-                        }
-                        else
-                        {
-                            InitialChannelConnectIndex = 0;
+                            if ((InitialChannelConnectIndex + 1) < m_ChannelCount)
+                            {
+                                ++InitialChannelConnectIndex;
+                            }
+                            else
+                            {
+                                InitialChannelConnectIndex = 0;
+                            }
                         }
 
                         if (baseImpl.LoggerClient.IsWarnEnabled)
@@ -497,20 +638,34 @@ namespace LSEG.Ema.Access
                             }
 
                             strBuilder.AppendLine($"\tError Id {evt.ReactorErrorInfo.Error.ErrorId}")
-                                    .AppendLine($"\tInternal sysError {evt.ReactorErrorInfo.Error.SysError}")
-                                    .AppendLine($"\tError Location {evt.ReactorErrorInfo.Location}")
-                                    .Append($"\tError text {evt.ReactorErrorInfo.Error.Text}");
+                                .AppendLine($"\tInternal sysError {evt.ReactorErrorInfo.Error.SysError}")
+                                .AppendLine($"\tError Location {evt.ReactorErrorInfo.Location}")
+                                .Append($"\tError text {evt.ReactorErrorInfo.Error.Text}");
 
                             baseImpl.LoggerClient.Warn(CLIENT_NAME, strBuilder.ToString());
                         }
 
                         baseImpl.UnregisterSocket(reactorChannel.Socket!);
 
-                        baseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN);
+                        if (sessionChannelInfo != null)
+                        {
+                            sessionChannelInfo.State = OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN;
 
-                        baseImpl.ProcessChannelEvent(evt);
+                            if(sessionChannelInfo.ConsumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN))
+                            {
+                                baseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN);
+                            }
 
-                        baseImpl.LoginCallbackClient!.ProcessChannelEvent(evt);
+                            sessionChannelInfo.ConsumerSession.ProcessChannelEvent(sessionChannelInfo, evt);
+                        }
+                        else
+                        {
+                            baseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN);
+
+                            baseImpl.ProcessChannelEvent(evt);
+
+                            baseImpl.LoginCallbackClient!.ProcessChannelEvent(evt);
+                        }
 
                         break;
                     }
@@ -533,21 +688,37 @@ namespace LSEG.Ema.Access
                             }
 
                             strBuilder.AppendLine($"\tError Id {evt.ReactorErrorInfo.Error.ErrorId}")
-                                    .AppendLine($"\tInternal sysError {evt.ReactorErrorInfo.Error.SysError}")
-                                    .AppendLine($"\tError Location {evt.ReactorErrorInfo.Location}")
-                                    .Append($"\tError text {evt.ReactorErrorInfo.Error.Text}");
+                                .AppendLine($"\tInternal sysError {evt.ReactorErrorInfo.Error.SysError}")
+                                .AppendLine($"\tError Location {evt.ReactorErrorInfo.Location}")
+                                .Append($"\tError text {evt.ReactorErrorInfo.Error.Text}");
 
                             baseImpl.LoggerClient.Error(CLIENT_NAME, strBuilder.ToString());
                         }
 
-                        baseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN);
+                        if (sessionChannelInfo != null)
+                        {
+                            sessionChannelInfo.State = OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN;
 
-                        baseImpl.ProcessChannelEvent(evt);
+                            if (sessionChannelInfo.ConsumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN))
+                            {
+                                baseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN);
+                            }
 
-                        baseImpl.LoginCallbackClient!.ProcessChannelEvent(evt);
+                            sessionChannelInfo.ConsumerSession.ProcessChannelEvent(sessionChannelInfo, evt);
+                            baseImpl.CloseSessionChannel(sessionChannelInfo);
 
-                        baseImpl.CloseReactorChannel(evt.ReactorChannel);
+                            sessionChannelInfo.OnChannelClose(channelInfo);
+                        }
+                        else
+                        {
+                            baseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_DOWN);
 
+                            baseImpl.ProcessChannelEvent(evt);
+
+                            baseImpl.LoginCallbackClient!.ProcessChannelEvent(evt);
+
+                            baseImpl.CloseReactorChannel(evt.ReactorChannel);
+                        }
                         break;
                     }
                 case ReactorChannelEventType.WARNING:
@@ -569,9 +740,9 @@ namespace LSEG.Ema.Access
                             }
 
                             strBuilder.AppendLine($"\tError Id {evt.ReactorErrorInfo.Error.ErrorId}")
-                                    .AppendLine($"\tInternal sysError {evt.ReactorErrorInfo.Error.SysError}")
-                                    .AppendLine($"\tError Location {evt.ReactorErrorInfo.Location}")
-                                    .Append($"\tError text {evt.ReactorErrorInfo.Error.Text}");
+                                .AppendLine($"\tInternal sysError {evt.ReactorErrorInfo.Error.SysError}")
+                                .AppendLine($"\tError Location {evt.ReactorErrorInfo.Location}")
+                                .Append($"\tError text {evt.ReactorErrorInfo.Error.Text}");
 
                             baseImpl.LoggerClient.Warn(CLIENT_NAME, strBuilder.ToString());
                         }
@@ -597,9 +768,9 @@ namespace LSEG.Ema.Access
                             }
 
                             strBuilder.AppendLine($"\tError Id {evt.ReactorErrorInfo.Error.ErrorId}")
-                                    .AppendLine($"\tInternal sysError {evt.ReactorErrorInfo.Error.SysError}")
-                                    .AppendLine($"\tError Location {evt.ReactorErrorInfo.Location}")
-                                    .Append($"\tError text {evt.ReactorErrorInfo.Error.Text}");
+                                .AppendLine($"\tInternal sysError {evt.ReactorErrorInfo.Error.SysError}")
+                                .AppendLine($"\tError Location {evt.ReactorErrorInfo.Location}")
+                                .Append($"\tError text {evt.ReactorErrorInfo.Error.Text}");
 
                             baseImpl.LoggerClient.Error(CLIENT_NAME, strBuilder.ToString());
                         }
@@ -613,10 +784,17 @@ namespace LSEG.Ema.Access
 
         internal void CloseChannels()
         {
-            for (int index = channelList.Count - 1; index >= 0; index--)
+            if (baseImpl.ConsumerSession is null)
             {
-                channelList[index].DataDictionary = null;
-                baseImpl.CloseReactorChannel(channelList[index].ReactorChannel);
+                for (int index = channelList.Count - 1; index >= 0; index--)
+                {
+                    channelList[index].DataDictionary = null;
+                    baseImpl.CloseReactorChannel(channelList[index].ReactorChannel);
+                }
+            }
+            else
+            {
+                baseImpl.CloseConsumerSession();
             }
         }
 
@@ -631,7 +809,7 @@ namespace LSEG.Ema.Access
 
         internal ChannelInfo? GetChannelInfo(int index)
         {
-            if(channelList != null && index < channelList.Count)
+            if (channelList != null && index < channelList.Count)
             {
                 return channelList[index];
             }
@@ -648,25 +826,6 @@ namespace LSEG.Ema.Access
                 channelList[index].ReactorChannel = reactorChannel;
                 channelList[index].ReactorChannel?.Info(reactorChannlInfo, out reactorErrorInfo);
             }
-        }
-
-        internal void InitializeNIProviderRole()
-        {
-            // Generate the role based on the ConfigImpl.
-            NIProviderRole niProviderRole = ((OmmNiProviderConfigImpl)baseImpl.OmmConfigBaseImpl).GenerateNiProviderRole();
-
-            LoginRequest loginReq = niProviderRole.RdmLoginRequest!;
-            loginReq.HasRole = true;
-            loginReq.Role = Eta.Rdm.Login.RoleTypes.PROV;
-            niProviderRole.RdmLoginRequest = loginReq;
-            niProviderRole.DictionaryDownloadMode = DictionaryDownloadMode.NONE;
-            niProviderRole.LoginMsgCallback = baseImpl.LoginCallbackClient;
-            niProviderRole.ChannelEventCallback = baseImpl.ChannelCallbackClient;
-            niProviderRole.DefaultMsgCallback = baseImpl.ItemCallbackClient;
-
-            reactorRole = niProviderRole;
-
-            InitializeReactor();
         }
 
         private string ChannelParametersToString(ReactorConnectOptions reactorConnectOpts, ClientChannelConfig channelConfig)
@@ -720,7 +879,7 @@ namespace LSEG.Ema.Access
 
                             cfgParameters.AppendLine($"\tEncryptedProtocolType {reactorConnectInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol}");
                             cfgParameters.AppendLine($"\tEncryptedProtocolFlags {reactorConnectInfo.ConnectOptions.EncryptionOpts.EncryptionProtocolFlags}");
-                            cfgParameters.AppendLine($"\tAuthenticationTimeout {reactorConnectInfo.ConnectOptions.EncryptionOpts.AuthenticationTimeout/1000} sec");
+                            cfgParameters.AppendLine($"\tAuthenticationTimeout {reactorConnectInfo.ConnectOptions.EncryptionOpts.AuthenticationTimeout / 1000} sec");
 
                             if (reactorConnectInfo.ConnectOptions.EncryptionOpts.TlsCipherSuites != null)
                             {
@@ -747,7 +906,7 @@ namespace LSEG.Ema.Access
             strBuilder.AppendLine(strConnectionType).AppendLine($"\tChannel name {channelConfig.Name}")
                 .AppendLine($"\tInstance name {baseImpl.InstanceName}");
 
-            if(isValidChType)
+            if (isValidChType)
             {
                 strBuilder.AppendLine($"\tReactor @{baseImpl.reactor?.GetHashCode()}")
                     .AppendLine($"\tInterfaceName {reactorConnectInfo.ConnectOptions.UnifiedNetworkInfo.InterfaceName}")
@@ -765,6 +924,14 @@ namespace LSEG.Ema.Access
             }
 
             return strBuilder.ToString();
+        }
+
+        internal void RemoveSessionChannel(SessionChannelInfo<IOmmConsumerClient>? sessionChannelInfo)
+        {
+            if (sessionChannelInfo != null)
+            {
+                baseImpl.LoginCallbackClient!.RemoveSessionChannelInfo(sessionChannelInfo);
+            }
         }
     }
 }

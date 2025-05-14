@@ -2,14 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+using System.Collections.Generic;
+using System.Text;
+
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Reactor;
-using System;
-using System.Text;
 
 namespace LSEG.Ema.Access
 {
@@ -124,6 +126,13 @@ namespace LSEG.Ema.Access
         /// <param name="channelInformation"><see cref="Access.ChannelInformation"/> instance to be filled</param>
         public override void ChannelInformation(ChannelInformation channelInformation)
         {
+            if (ConsumerSession != null)
+            {
+                StringBuilder temp = GetStrBuilder();
+                temp.Append("The request routing feature do not support the ChannelInformation method. The SessionChannelInfo() must be used instead.");
+                throw new OmmInvalidUsageException(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
+            }
+
             if (LoginCallbackClient == null || LoginCallbackClient.m_LoginChannelList.Count == 0)
             {
                 channelInformation.Clear();
@@ -226,6 +235,15 @@ namespace LSEG.Ema.Access
             DictionaryCallbackClient = new DictionaryCallbackClientConsumer(this);
             DictionaryCallbackClient.Initialize();
 
+            if (ConsumerConfigImpl.ConsumerConfig.SessionChannelSet.Count > 0)
+            {
+                _ = new ConsumerSession<IOmmConsumerClient>(this);
+            }
+            else
+            {
+                ServiceListDict = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ServiceListDict;
+            }
+
             ItemCallbackClient = new ItemCallbackClientConsumer(this);
             ItemCallbackClient.Initialize();
 
@@ -247,9 +265,19 @@ namespace LSEG.Ema.Access
 
             ChannelCallbackClient.InitializeEmaManagerItemPools();
 
-            HandleLoginReqTimeout();
-            HandleDirectoryReqTimeout();
-            HandleDictionaryReqTimeout();
+            if (ConsumerSession != null)
+            {
+                ConsumerSession.HandleLoginReqTimeout();
+                ConsumerSession.HandleDirectoryReqTimeout();
+                ConsumerSession.HandleDictionaryReqTimeout();
+                ConsumerSession.ReorderSessionChannelInfoForSessionDirectory();
+            }
+            else
+            {
+                HandleLoginReqTimeout();
+                HandleDirectoryReqTimeout();
+                HandleDictionaryReqTimeout();
+            }
         }
 
         public void HandleDirectoryReqTimeout()
@@ -449,7 +477,24 @@ namespace LSEG.Ema.Access
 
             try
             {
-                base.ModifyIOCtl(code, val, LoginCallbackClient!.ActiveChannelInfo());
+                if (base.ConsumerSession != null)
+                {
+                    // Applies for all session channels for the preferred host feature
+                    foreach (var sessionChannelInfo in base.ConsumerSession.SessionChannelList)
+                    {
+                        if (sessionChannelInfo.ReactorChannel != null)
+                        {
+                            base.ModifyIOCtl(code, val, sessionChannelInfo.ReactorChannel);
+                        }
+                    }
+                }
+                else
+                {
+                    ReactorChannel? reactorChannel = LoginCallbackClient!.ActiveChannelInfo() != null ?
+                        LoginCallbackClient!.ActiveChannelInfo()!.ReactorChannel : null;
+
+                    base.ModifyIOCtl(code, val, reactorChannel);
+                }
             }
             finally
             {
@@ -460,6 +505,69 @@ namespace LSEG.Ema.Access
         protected override void OnDispatchError(string text, int errorCode)
         {
             m_ErrorClient?.OnDispatchError(text, errorCode);
+        }
+
+        private void PopulateChannelInformation(ChannelInformation channelInformation, ReactorChannel reactorChannel, 
+            ChannelInfo channelInfo)
+        {
+            if(reactorChannel != null)
+            {
+                channelInformation.Set(reactorChannel);
+
+                if (channelInfo != null)
+                {
+                    channelInformation.ChannelName = channelInfo.ChannelConfig.Name;
+                    if(channelInfo.SessionChannelInfo != null)
+                    {
+                        channelInformation.SessionChannelName = channelInfo.SessionChannelInfo.SessionChannelConfig.Name;
+                    }
+                }
+
+                channelInformation.IpAddress = "not available for OmmConsumer connections";
+                channelInformation.Port = reactorChannel.Port;
+            }
+        }
+
+        internal void SessionChannelInfo(List<ChannelInformation> sessionChannelInfoList)
+        {
+            if (sessionChannelInfoList == null)
+                return;
+
+            UserLock.Enter();
+
+            try
+            {
+                sessionChannelInfoList.Clear();
+
+                ChannelInfo? channelInfo;
+                ChannelInformation channelInformation;
+
+                if(ConsumerSession != null)
+                {
+                    if (ConsumerSession.SessionChannelList != null)
+                    {
+                        foreach (var sessionChannelInfo in ConsumerSession.SessionChannelList)
+                        {
+                            ReactorChannel? reactorChannel = sessionChannelInfo.ReactorChannel;
+
+                            if(reactorChannel != null)
+                            {
+                                channelInfo = (ChannelInfo?)reactorChannel.UserSpecObj;
+                                if(channelInfo != null)
+                                {
+                                    channelInformation = new ChannelInformation(reactorChannel);
+                                    PopulateChannelInformation(channelInformation, reactorChannel, channelInfo);
+                                    sessionChannelInfoList.Add(channelInformation);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                UserLock.Exit();
+            }
         }
     }
 }

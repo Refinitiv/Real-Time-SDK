@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023,2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -20,6 +20,8 @@ using LSEG.Eta.ValueAdd.Common;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.Common;
 using LSEG.Eta.Transports;
+using LSEG.Ema.Domain.Login;
+using Microsoft.Extensions.Primitives;
 
 namespace LSEG.Ema.Access
 {
@@ -42,9 +44,10 @@ namespace LSEG.Ema.Access
         public T? Client { get; }
         public long ItemId { get; set; }
         public Item<T>? Parent { get; }
+        public bool AssignedItemId { get; set; }
         public ClosedStatusClient<T>? ClosedStatusClient { get; set; }
         public bool Close();
-        public ServiceDirectory? Directory();
+        public ServiceDirectory<T>? Directory();
         public int GetNextStreamId(int numOfItem);
         public bool Open(RequestMsg reqMsg);
         public bool Modify(RequestMsg reqMsg);
@@ -60,8 +63,35 @@ namespace LSEG.Ema.Access
 
     internal class SingleItem<T> : VaNode, Item<T>
     {
+        /// <summary>
+        /// Defines Item states for handling item watchlist by EMA
+        /// </summary>
+        public enum StateEnum
+        {
+            /// <summary>
+            /// This is normal state without the request routing feature.
+            /// </summary>
+            NORMAL = 0,
+            /// <summary>
+            /// This indicates that this item is being recovered.
+            /// </summary>
+            RECOVERING = 1,
+            /// <summary>
+            /// This indicates that this item is being recovered but there is no matching service.
+            /// </summary>
+            RECOVERING_NO_MATHCING = 2,
+            /// <summary>
+            /// This is used to close this stream with the watchlist only without removing this item from EMA.
+            /// </summary>
+            CLOSING_STREAM = 3,
+            /// <summary>
+            /// This is used to indicate that this item is removed so it is not recovered
+            /// </summary>
+            REMOVED = 4
+        }
+
         private static readonly string CLIENT_NAME = "SingleItem";
-        internal ServiceDirectory? m_ServiceDirectory { get; set; }
+        internal ServiceDirectory<T>? m_ServiceDirectory { get; set; }
         internal string? ServiceName { get; set; }
         internal OmmBaseImpl<T> m_OmmBaseImpl;
         internal ItemType m_type;
@@ -78,6 +108,20 @@ namespace LSEG.Ema.Access
         public Item<T>? Parent { get; private set; }
         public long ItemId { get; set; }
         public ClosedStatusClient<T>? ClosedStatusClient { get; set; }
+
+        #region Request Routing Members
+        internal Eta.Codec.IRequestMsg? RequestMsg { get; set; }
+        internal StateEnum State { get; set; } = StateEnum.NORMAL;
+        internal ServiceList? ServiceList { get; set; }
+        internal HashSet<ServiceDirectory<T>>? ItemClosedDirHash { get; set; }
+        internal int LastDataState { get; set; } = 0;
+        internal int LastStatusCode { get; set; } = 0;
+        internal string LastStatusText { get; set; } = string.Empty;
+        internal string ItemName { get; set; } = string.Empty;
+        internal bool RetrytosameChannel { get; set; } = false;
+        public bool AssignedItemId { get; set; } = false;
+        public OpenSuspectClient<T>? OpenSuspectClient { get; set; }
+        #endregion
 
 #pragma warning disable CS8618
         public SingleItem()
@@ -127,25 +171,53 @@ namespace LSEG.Ema.Access
 
             m_OmmBaseImpl = baseImpl;
             m_ServiceDirectory = null;
+            ServiceName = null;
+
+            AssignedItemId = false;
+            RequestMsg = null;
+            State = StateEnum.NORMAL;
+            ServiceList = null;
+            ItemClosedDirHash = null;
+            LastDataState = 0;
+            LastStatusCode = 0;
+            LastStatusText = string.Empty;
+            ItemName = string.Empty;
+            RetrytosameChannel = false;
+            OpenSuspectClient = null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public virtual bool Close()
         {
-            ICloseMsg closeMsg = m_OmmBaseImpl.ItemCallbackClient!.CloseMsg();
-            closeMsg.ContainerType = DataTypes.NO_DATA;
-            closeMsg.DomainType = DomainType;
+            bool retCode = true;
 
-            bool retCode = Submit(closeMsg);
+            /* Don't send a close message to the ReactorChannel when the item is being recovered by EMA */
+            if (State == StateEnum.NORMAL || State == StateEnum.CLOSING_STREAM)
+            {
+                ICloseMsg closeMsg = m_OmmBaseImpl.ItemCallbackClient!.CloseMsg();
+                closeMsg.ContainerType = DataTypes.NO_DATA;
+                closeMsg.DomainType = DomainType;
+
+                retCode = Submit(closeMsg);
+
+                if (State == StateEnum.CLOSING_STREAM)
+                    return retCode;
+            }
 
             Remove();
             return retCode;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public ServiceDirectory? Directory()
+        public ServiceDirectory<T>? Directory()
         {
             return m_ServiceDirectory;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void Directory(ServiceDirectory<T>? directory)
+        {
+            m_ServiceDirectory = directory;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -164,16 +236,58 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public virtual bool Open(RequestMsg reqMsg)
         {
-            ServiceDirectory? service = null;
+            ServiceDirectory<T>? service = null;
+            ConsumerSession<T> consumerSession = Session();
+            Eta.ValueAdd.Rdm.LoginRefresh loginRefresh;
+            IRequestMsg rsslRequestMsg = reqMsg.m_rsslMsg;
+            SessionDirectory<T>? sessionDirectory = null;
             string? serviceName = null;
 
             if (reqMsg.HasServiceName)
             {
-                serviceName = reqMsg.ServiceName();
-                service = m_OmmBaseImpl.DirectoryCallbackClient!.GetService(serviceName);
+                if (consumerSession != null)
+                {
+                    sessionDirectory = consumerSession.GetSessionDirectoryByName(reqMsg.ServiceName());
+                    if (sessionDirectory != null)
+                    {
+                        HashSet<SingleItem<T>>? existingItemSet = null;
 
-                if (service == null && (!m_OmmBaseImpl.LoginCallbackClient!.LoginRefresh.LoginAttrib.HasSingleOpen
-                    || m_OmmBaseImpl.LoginCallbackClient.LoginRefresh.LoginAttrib.SingleOpen == 0))
+                        if (reqMsg.HasName)
+                        {
+                            ItemName = reqMsg.Name();
+                            existingItemSet = sessionDirectory.GetDirectoryByItemName(reqMsg.Name());
+
+                            service = sessionDirectory.MatchingWithExistingDirectory(existingItemSet, rsslRequestMsg);
+                        }
+
+                        /* Joins the same ReactorChannel with the existing item */
+                        if (service != null && existingItemSet != null)
+                        {
+                            sessionDirectory.PutDirectoryByHashSet(existingItemSet, this);
+                        }
+                        else
+                        {
+                            service = sessionDirectory.Directory(rsslRequestMsg);
+
+                            if (reqMsg.HasName && service != null)
+                            {
+                                sessionDirectory.PutDirectoryByItemName(ItemName, this);
+                            }
+                        }
+                    }
+
+                    serviceName = reqMsg.ServiceName();
+                    loginRefresh = consumerSession.LoginRefresh().LoginRefresh!;
+                }
+                else
+                {
+                    serviceName = reqMsg.ServiceName();
+                    service = m_OmmBaseImpl.DirectoryCallbackClient!.GetService(serviceName);
+                    loginRefresh = m_OmmBaseImpl.LoginCallbackClient!.LoginRefresh;
+                }
+
+                if (service == null && (!loginRefresh.LoginAttrib.HasSingleOpen
+                    || loginRefresh.LoginAttrib.SingleOpen == 0))
                 {
                     /* This ensures that the user will get a valid handle.  The callback should clean it up after. */
                     m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), this);
@@ -182,34 +296,308 @@ namespace LSEG.Ema.Access
                     message.Append($"Service name of '{reqMsg.ServiceName()}' is not found.");
 
                     ScheduleItemClosedStatus(m_OmmBaseImpl.ItemCallbackClient, this, reqMsg.m_requestMsgEncoder.m_rsslMsg,
-                                                                message.ToString(), serviceName);
+                                                                message.ToString(), ServiceName);
 
                     return true;
                 }
-            }
-            else if (reqMsg.HasServiceId)
-            {
-                service = m_OmmBaseImpl.DirectoryCallbackClient!.GetService(reqMsg.ServiceId());
-
-                if (service == null && (!m_OmmBaseImpl.LoginCallbackClient!.LoginRefresh.LoginAttrib.HasSingleOpen
-                || m_OmmBaseImpl.LoginCallbackClient.LoginRefresh.LoginAttrib.SingleOpen == 0))
+                else if (service == null && consumerSession != null)
                 {
-                    /* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+                    /* Add this item into the pending queue of the requested service name */
+                    consumerSession.AddPendingRequestByServiceName(reqMsg.ServiceName(), this, reqMsg);
+
+                    if (reqMsg.HasName)
+                    {
+                        ItemName = reqMsg.Name();
+                    }
+
+                    /* Specify service name */
+                    ServiceName = reqMsg.ServiceName();
+
+                    /* Assign a handle to this request.  This will be valid until the user close this handle */
                     m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), this);
+                    AssignedItemId = true;
 
-                    StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
-                    message.Append($"Service id of '{reqMsg.ServiceId()}' is not found.");
+                    StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+                    if (sessionDirectory == null)
+                    {
+                        temp.Append("No matching service present.");
+                    }
+                    else
+                    {
+                        temp.Append(sessionDirectory.WatchlistResult.ResultText);
+                    }
 
-                    ScheduleItemClosedStatus(m_OmmBaseImpl.ItemCallbackClient, this, reqMsg.m_requestMsgEncoder.m_rsslMsg,
-                                                      message.ToString(), null);
+                    ScheduleItemOpenOkStatus(m_OmmBaseImpl.ItemCallbackClient, this, reqMsg.m_requestMsgEncoder.m_rsslMsg,
+                                                temp.ToString(), reqMsg.ServiceName());
+                    return true;
+                }
+            }
+            else if (reqMsg.HasServiceListName)
+            {
+                if (consumerSession != null)
+                {
+                    ServiceList? serviceList = ConsumerSession<T>.GetServiceList(consumerSession.ServiceListDict, reqMsg.ServiceListName());
+
+                    if (serviceList != null)
+                    {
+                        ServiceList = serviceList;
+
+                        foreach (string concreteServiceName in serviceList.ConcreteServiceList)
+                        {
+                            sessionDirectory = consumerSession.GetSessionDirectoryByName(concreteServiceName);
+                            if (sessionDirectory != null)
+                            {
+                                HashSet<SingleItem<T>>? existingItemSet = null;
+                                if (reqMsg.HasName)
+                                {
+                                    ItemName = reqMsg.Name();
+                                    existingItemSet = sessionDirectory.GetDirectoryByItemName(ItemName);
+                                    service = sessionDirectory.MatchingWithExistingDirectory(existingItemSet, rsslRequestMsg);
+                                }
+
+                                /* Joins the same ReactorChannel with the existing item */
+                                if (service != null && existingItemSet != null)
+                                {
+                                    sessionDirectory.PutDirectoryByHashSet(existingItemSet, this);
+                                    serviceName = service.ServiceName;
+                                    break;
+                                }
+                                else
+                                {
+                                    service = sessionDirectory.Directory(rsslRequestMsg);
+
+                                    if (service != null)
+                                    {
+                                        if (reqMsg.HasName)
+                                        {
+                                            ItemName = reqMsg.Name();
+                                            sessionDirectory.PutDirectoryByItemName(ItemName, this);
+                                        }
+
+                                        serviceName = service.ServiceName;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (service == null)
+                        {
+                            serviceList.AddPendingRequest((dynamic)this, reqMsg);
+
+                            if (reqMsg.HasName)
+                            {
+                                ItemName = reqMsg.Name();
+                            }
+
+                            /* Specify service list name */
+                            ServiceName = reqMsg.ServiceListName();
+
+                            /* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+                            m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), this);
+
+                            StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+                            if (sessionDirectory == null)
+                            {
+                                temp.Append("No matching service present.");
+                            }
+                            else
+                            {
+                                temp.Append(sessionDirectory.WatchlistResult.ResultText);
+                            }
+
+                            ScheduleItemOpenOkStatus(m_OmmBaseImpl.ItemCallbackClient,
+                                                        this, reqMsg.m_requestMsgEncoder.m_rsslMsg,
+                                                        temp.ToString(), reqMsg.ServiceListName());
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+
+                        temp.Append($"The service list name '{reqMsg.ServiceListName()}' does not exist.");
+
+                        m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+
+                        return false;
+                    }
+                } // End checking ConsumerSession instance
+                else
+                {
+                    ServiceList? serviceList = ConsumerSession<T>.GetServiceList(m_OmmBaseImpl.ServiceListDict, reqMsg.ServiceListName());
+
+                    if (serviceList != null)
+                    {
+                        foreach (string concreteServiceName in serviceList.ConcreteServiceList)
+                        {
+                            service = m_OmmBaseImpl.DirectoryCallbackClient!.GetService(concreteServiceName);
+
+                            if (service != null)
+                            {
+                                serviceName = service.ServiceName;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+
+                        temp.Append($"The service list name '{reqMsg.ServiceListName()}' does not exist.");
+
+                        m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                if (reqMsg.HasServiceId)
+                {
+                    if (consumerSession != null)
+                    {
+                        sessionDirectory = consumerSession.GetSessionDirectoryById(reqMsg.ServiceId());
+
+                        if (sessionDirectory != null)
+                        {
+                            HashSet<SingleItem<T>>? existingItemSet = null;
+
+                            if (reqMsg.HasName)
+                            {
+                                ItemName = reqMsg.Name();
+
+                                existingItemSet = sessionDirectory.GetDirectoryByItemName(reqMsg.Name());
+
+                                service = sessionDirectory.MatchingWithExistingDirectory(existingItemSet, rsslRequestMsg);
+                            }
+
+                            /* Joins the same ReactorChannel with the existing item */
+                            if (service != null && existingItemSet != null)
+                            {
+                                sessionDirectory.PutDirectoryByHashSet(existingItemSet, this);
+                            }
+                            else
+                            {
+                                service = sessionDirectory.Directory(rsslRequestMsg);
+
+                                if (reqMsg.HasName && service != null)
+                                {
+                                    ItemName = reqMsg.Name();
+                                    sessionDirectory.PutDirectoryByItemName(ItemName, this);
+                                }
+                            }
+
+                            if (service != null)
+                            {
+                                /* Overrides with the actual service ID from source directory */
+                                reqMsg.ServiceId(service.Service!.ServiceId);
+                            }
+                        }
+
+                        loginRefresh = consumerSession.LoginRefresh().LoginRefresh!;
+                    }
+                    else
+                    {
+                        service = m_OmmBaseImpl.DirectoryCallbackClient!.GetService(reqMsg.ServiceId());
+                        loginRefresh = m_OmmBaseImpl.LoginCallbackClient!.LoginRefresh;
+                    }
+                }
+                else
+                {
+                    /* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+                    m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(LongIdGenerator.NextLongId(), this);
+                    ScheduleItemClosedStatus(m_OmmBaseImpl.ItemCallbackClient,
+                            this, reqMsg.m_requestMsgEncoder.m_rsslMsg,
+                            "Passed in request message does not identify any service.",
+                            null);
 
                     return true;
+                }
+
+                if (consumerSession == null)
+                {
+                    if (service == null && (!loginRefresh.LoginAttrib.HasSingleOpen || loginRefresh.LoginAttrib.SingleOpen == 0))
+                    {
+                        /* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+                        m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(LongIdGenerator.NextLongId(), this);
+
+                        StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+
+                        temp.Append("Service id of '")
+                            .Append(reqMsg.ServiceId())
+                            .Append("' is not found.");
+
+                        ScheduleItemClosedStatus(m_OmmBaseImpl.ItemCallbackClient!,
+                                this, reqMsg.m_requestMsgEncoder.m_rsslMsg,
+                                temp.ToString(), null);
+
+                        return true;
+                    }
+                }
+                else
+                {   /* ConsumerSession is enabled */
+                    if (service == null)
+                    {
+                        if (sessionDirectory == null)
+                        {
+                            /* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+                            m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(LongIdGenerator.NextLongId(), this);
+
+                            StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+
+                            temp.Append("Service id of '")
+                                .Append(reqMsg.ServiceId())
+                                .Append("' is not found.");
+
+                            ScheduleItemClosedStatus(m_OmmBaseImpl.ItemCallbackClient,
+                                    this, reqMsg.m_requestMsgEncoder.m_rsslMsg,
+                                    temp.ToString(), null);
+
+                            return true;
+                        }
+                        else
+                        {
+                            StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+
+                            /* Add this item into the pending queue of the requested service Id */
+                            consumerSession.AddPendingRequestByServiceId(sessionDirectory, this, reqMsg);
+
+                            if (reqMsg.HasName)
+                            {
+                                ItemName = reqMsg.Name();
+                            }
+
+                            /* Specify service name */
+                            ServiceName = sessionDirectory.ServiceName;
+
+                            /* Assign a handle to this request.  This will be valid until the user close this handle */
+                            m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), this);
+                            AssignedItemId = true;
+
+                            temp.Append(sessionDirectory.WatchlistResult.ResultText);
+
+                            ScheduleItemOpenOkStatus(m_OmmBaseImpl.ItemCallbackClient,
+                                                        this, reqMsg.m_requestMsgEncoder.m_rsslMsg,
+                                                        temp.ToString(), sessionDirectory.ServiceName);
+                            return true;
+                        }
+                    }
                 }
             }
 
             m_ServiceDirectory = service;
 
             return Submit(reqMsg.m_requestMsgEncoder.m_rsslMsg, serviceName, false);
+        }
+
+        private void ScheduleItemOpenOkStatus(ItemCallbackClient<T> client, SingleItem<T> item, Eta.Codec.Msg rsslMsg, string statusText, string serviceName)
+        {
+            if (OpenSuspectClient != null) return;
+
+            OpenSuspectClient = new OpenSuspectClient<T>(client, item, rsslMsg, statusText, serviceName);
+            m_OmmBaseImpl.TimeoutEventManager!.AddTimeoutEvent(1000, OpenSuspectClient);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -225,7 +613,23 @@ namespace LSEG.Ema.Access
                     }
                 }
 
-                m_OmmBaseImpl.ItemCallbackClient!.RemoveFromMap(this);
+                if (m_ServiceDirectory != null)
+                {
+                    SessionDirectory<T>? sessionDirectory = m_ServiceDirectory.SessionDirectory;
+                    if (sessionDirectory != null)
+                    {
+                        sessionDirectory.RemoveDirectoryByItemName(ItemName, this);
+                    }
+
+                    RequestMsg = null;
+                    ItemClosedDirHash = null;
+                }
+
+                bool returnToPool = !(State == StateEnum.RECOVERING || State == StateEnum.RECOVERING_NO_MATHCING);
+
+                m_OmmBaseImpl.ItemCallbackClient!.RemoveFromMap(this, returnToPool);
+
+                State = StateEnum.REMOVED;
            }
         }
 
@@ -258,7 +662,7 @@ namespace LSEG.Ema.Access
         {
             string? serviceName = postMsg.HasServiceName ? postMsg.ServiceName() : null;
 
-            if (!ValidateServiceName(serviceName))
+            if (!ValidateServiceName(postMsg, serviceName))
             {
                 return false;
             }
@@ -269,6 +673,20 @@ namespace LSEG.Ema.Access
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public virtual bool Submit(GenericMsg genericMsg)
         {
+            var consumerSession = Session();
+            if(consumerSession != null)
+            {
+                if(genericMsg.HasServiceId && m_ServiceDirectory?.Service != null)
+                {
+                    int serviceId = genericMsg.ServiceId();
+                    if(serviceId == m_ServiceDirectory.GeneratedServiceId())
+                    {
+                        /* Translate to the actual service Id */
+                        genericMsg.ServiceId(m_ServiceDirectory.Service.ServiceId);
+                    }
+                }
+            }
+            
             return Submit(genericMsg.m_rsslMsg as IGenericMsg, null);
         }
 
@@ -291,7 +709,37 @@ namespace LSEG.Ema.Access
             }
 
             ReactorSubmitOptions submitOptions = m_OmmBaseImpl.GetSubmitOptions();
-            ReactorChannel reactorChannel = m_OmmBaseImpl.LoginCallbackClient!.ActiveChannelInfo()!.ReactorChannel!;
+            ReactorChannel reactorChannel;
+
+            if (m_OmmBaseImpl.ConsumerSession == null)
+            {
+                reactorChannel = m_OmmBaseImpl.LoginCallbackClient!.ActiveChannelInfo()!.ReactorChannel!;
+            }
+            else
+            {
+                reactorChannel = m_ServiceDirectory!.ChannelInfo!.ReactorChannel!;
+            }
+
+            if(reactorChannel == null)
+            {
+                StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
+
+                if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                {
+                    message.Append("Internal error: ReactorChannel.Submit() failed in SingleItem.Submit(ICloseMsg closeMsg)")
+                    .AppendLine($"\tReactorChannel is not avaliable");
+
+                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
+
+                    message.Clear();
+                }
+
+                message.Append("Failed to close item request. Reason: ReactorChannel is not avaliable");
+
+                m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), (int)ReactorReturnCode.FAILURE);
+
+                return false;
+            }
 
             submitOptions.ApplyClientChannelConfig(reactorChannel.GetClientChannelConfig()!);
             submitOptions.ServiceName = null;
@@ -329,14 +777,46 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        protected virtual bool Submit(IRequestMsg requestMsg, string? serviceName, bool isReissue)
+        internal virtual bool Submit(IRequestMsg requestMsg, string? serviceName, bool isReissue, bool reportError = true)
         {
-            ReactorChannel? reactorChannel = m_OmmBaseImpl.LoginCallbackClient?.ActiveChannelInfo()?.ReactorChannel;
+            ReactorChannel? reactorChannel;
+
+            if (Session() != null)
+            {
+                reactorChannel = Directory()?.ChannelInfo?.ReactorChannel;
+            }
+            else
+            {
+                reactorChannel = m_OmmBaseImpl.LoginCallbackClient?.ActiveChannelInfo()?.ReactorChannel;
+            }
 
             ReactorSubmitOptions submitOptions = m_OmmBaseImpl.GetSubmitOptions();
             if (reactorChannel != null)
             {
                 submitOptions.ApplyClientChannelConfig(reactorChannel.GetClientChannelConfig()!);
+            }
+            else
+            {
+                if (reportError)
+                {
+                    StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
+
+                    if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                    {
+                        message.Append("Internal error: ReactorChannel.Submit() failed in SingleItem.Submit(IRequestMsg requestMsg)")
+                        .AppendLine($"\tReactorChannel is not avaliable");
+
+                        m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
+
+                        message.Clear();
+                    }
+
+                    message.Append("Failed to open or modify item request. Reason: ReactorChannel is not avaliable");
+
+                    m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), (int)ReactorReturnCode.FAILURE);
+                }
+
+                return false;
             }
 
             bool restoreServiceIDFlag = false;
@@ -434,24 +914,64 @@ namespace LSEG.Ema.Access
 
                     requestMsg.StreamId = GetNextStreamId(numOfItem);
                     StreamId = requestMsg.StreamId;
-                    m_OmmBaseImpl.ItemCallbackClient!.AddToMap(m_OmmBaseImpl.NextLongId(), this);
+
+                    if (AssignedItemId == false)
+                    {
+                        m_OmmBaseImpl.ItemCallbackClient!.AddToMap(m_OmmBaseImpl.NextLongId(), this);
+                    }
+                    else
+                    {
+                        m_OmmBaseImpl.ItemCallbackClient!.AddToMap(ItemId, this);
+                    }
 
                     SingleItem<T>? item;
                     int itemStreamStart = StreamId;
+                    int originalBatchFlags = requestMsg.Flags;
                     for (int index = 0; index < numOfItem; index++)
                     {
                         item = items[index];
                         item.m_ServiceDirectory = m_ServiceDirectory;
                         item.StreamId = ++itemStreamStart;
                         item.DomainType = DomainType;
+                        item.ServiceList = ServiceList;
+                        item.ServiceName = ServiceName;
                         m_OmmBaseImpl.ItemCallbackClient!.AddToMap(m_OmmBaseImpl.NextLongId(), item);
+
+                        if (Session() != null)
+                        {
+                            int flags = requestMsg.Flags;
+                            flags &= ~RequestMsgFlags.HAS_BATCH;
+                            requestMsg.Flags = flags;
+
+                            if (item.RequestMsg == null)
+                            {
+                                item.RequestMsg = new Eta.Codec.Msg();
+
+                                item.RequestMsg.MsgClass = MsgClasses.REQUEST;
+                                requestMsg.Copy(item.RequestMsg, CopyMsgFlags.ALL_FLAGS);
+                                item.RequestMsg.MsgKey.ApplyHasName();
+                                item.RequestMsg.MsgKey.Name.Data(item.ItemName);
+                                item.RequestMsg.StreamId = item.StreamId;
+                            }
+                        }
                     }
+
+                    /* Restore the original flags for the batch request */
+                    requestMsg.Flags = originalBatchFlags;
                 }
                 else
                 {
                     StreamId = GetNextStreamId(0);
                     requestMsg.StreamId = StreamId;
-                    m_OmmBaseImpl.ItemCallbackClient!.AddToMap(m_OmmBaseImpl.NextLongId(), this);
+
+                    if (AssignedItemId == false)
+                    {
+                        m_OmmBaseImpl.ItemCallbackClient!.AddToMap(m_OmmBaseImpl.NextLongId(), this);
+                    }
+                    else
+                    {
+                        m_OmmBaseImpl.ItemCallbackClient!.AddToMap(ItemId, this);
+                    }
                 }
             }
             else
@@ -468,11 +988,11 @@ namespace LSEG.Ema.Access
                 requestMsg.DomainType = DomainType;
             }
 
-            if (reactorChannel != null)
-            {
-                ReactorReturnCode ret = reactorChannel.Submit((Eta.Codec.Msg)requestMsg, submitOptions, out var ErrorInfo);
+            ReactorReturnCode ret = reactorChannel.Submit((Eta.Codec.Msg)requestMsg, submitOptions, out var ErrorInfo);
 
-                if (ret < ReactorReturnCode.SUCCESS)
+            if (ret < ReactorReturnCode.SUCCESS)
+            {
+                if (reportError)
                 {
                     StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
 
@@ -503,32 +1023,7 @@ namespace LSEG.Ema.Access
                     }
 
                     m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), (int)ret);
-
-                    return false;
                 }
-            }
-            else
-            {
-                StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
-
-                if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
-                {
-                    message.Append("Internal error: ReactorChannel.Submit() failed in SingleItem.Submit(IRequestMsg requestMsg)")
-                    .AppendLine($"\tReactorChannel is not avaliable");
-
-                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
-
-                    message.Clear();
-                }
-
-                message.Append("Failed to open or modify item request. Reason: ReactorChannel is not avaliable");
-
-                if (restoreServiceIDFlag)
-                {
-                    requestMsg.MsgKey.Flags |= MsgKeyFlags.HAS_SERVICE_ID;
-                }
-
-                m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), (int)ReactorReturnCode.FAILURE);
 
                 return false;
             }
@@ -536,6 +1031,15 @@ namespace LSEG.Ema.Access
             if (restoreServiceIDFlag)
             {
                 requestMsg.MsgKey.Flags |= MsgKeyFlags.HAS_SERVICE_ID;
+            }
+
+            /* There is no need to clone batch request as it is not used for recovering */
+            if (Session() != null && RequestMsg == null && !requestMsg.CheckHasBatch())
+            {
+                RequestMsg = new Eta.Codec.Msg();
+
+                RequestMsg.MsgClass = MsgClasses.REQUEST;
+                requestMsg.Copy(RequestMsg, CopyMsgFlags.ALL_FLAGS);
             }
 
             return true;
@@ -555,7 +1059,16 @@ namespace LSEG.Ema.Access
                 submitMsg.DomainType = DomainType;
             }
 
-            ReactorChannel? reactorChannel = m_OmmBaseImpl.LoginCallbackClient?.ActiveChannelInfo()?.ReactorChannel;
+            ReactorChannel? reactorChannel;
+
+            if (Session() != null)
+            {
+                reactorChannel = Directory()?.ChannelInfo?.ReactorChannel;
+            }
+            else
+            {
+                reactorChannel = m_OmmBaseImpl.LoginCallbackClient?.ActiveChannelInfo()?.ReactorChannel;
+            }
 
             if (reactorChannel != null)
             {
@@ -619,11 +1132,57 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        private bool ValidateServiceName(string? serviceName)
+        private bool ValidateServiceName(PostMsg postMsg, string? serviceName)
         {
-            if (serviceName == null || m_OmmBaseImpl.DirectoryCallbackClient!.GetService(serviceName) != null)
+            ServiceDirectory<IOmmConsumerClient>? directory = null;
+            string? errorText = null;
+            if (Session() != null)
             {
-                return true;
+                IPostMsg rsslPostMsg = postMsg.m_rsslMsg;
+                SessionChannelInfo<IOmmConsumerClient>? sessionChannelInfo = m_ServiceDirectory?.ChannelInfo?.SessionChannelInfo;
+                if (serviceName != null)
+                {
+                    directory = sessionChannelInfo?.GetDirectoryByName(serviceName);
+                    if (directory?.Service != null && directory.Service.Action != MapEntryActions.DELETE)
+                    {
+                        return true;
+                    }
+
+                    errorText = $"Message submitted with unknown service name {serviceName}";
+                }
+                else if (rsslPostMsg.CheckHasMsgKey() && rsslPostMsg.MsgKey.CheckHasServiceId())
+                {
+                    /* Search from the generated service Id */
+                    var sessionDirectory = Session().GetSessionDirectoryById(rsslPostMsg.MsgKey.ServiceId);
+
+                    if (sessionDirectory != null)
+                    {
+                        /* Search from service name whether this SessionChannelInfo has it. */
+                        directory = sessionChannelInfo?.GetDirectoryByName(sessionDirectory.ServiceName);
+
+                        if (directory?.Service != null && directory.Service.Action != MapEntryActions.DELETE)
+                        {
+                            /* Translate to the actual service ID from the provider */
+                            rsslPostMsg.MsgKey.ServiceId = directory.Service.ServiceId;
+                            return true;
+                        }
+                    }
+
+                    errorText = $"Message submitted with unknown service Id {rsslPostMsg.MsgKey.ServiceId}";
+                }
+                else
+                {
+                    errorText = "Message submitted with unspecified service Name and Id";
+                }
+            }
+            else
+            {
+                if (serviceName == null || m_OmmBaseImpl.DirectoryCallbackClient!.GetService(serviceName) != null)
+                {
+                    return true;
+                }
+
+                errorText = $"Message submitted with unknown service name {serviceName}";
             }
 
             StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
@@ -632,7 +1191,7 @@ namespace LSEG.Ema.Access
                 strBuilder.AppendLine("Internal error: ReactorChannel.Submit() failed in SingleItem.Submit(PostMsg)")
                     .AppendLine($"\tError Id {ReactorReturnCode.INVALID_USAGE}")
                     .AppendLine("\tError Location ItemCallbackClient.Submit(IPostMsg,String)")
-                    .AppendLine($"\tError Text Message submitted with unknown service name {serviceName}");
+                    .AppendLine($"\tError Text {errorText}");
 
                 m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, strBuilder.ToString());
                 strBuilder.Clear();
@@ -640,7 +1199,7 @@ namespace LSEG.Ema.Access
 
             strBuilder.Append("Failed to submit PostMsg on item stream. Reason: ")
                        .Append(ReactorReturnCode.INVALID_USAGE)
-                       .Append($". Error text: Message submitted with unknown service name {serviceName}");
+                       .Append($". Error text: {errorText}");
 
             m_OmmBaseImpl.HandleInvalidUsage(strBuilder.ToString(), (int)ReactorReturnCode.INVALID_USAGE);
             return false;
@@ -653,6 +1212,11 @@ namespace LSEG.Ema.Access
 
             ClosedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
             m_OmmBaseImpl.TimeoutEventManager!.AddTimeoutEvent(1000, ClosedStatusClient);
+        }
+
+        internal ConsumerSession<T> Session()
+        {
+            return m_OmmBaseImpl.ConsumerSession!;
         }
     }
 
@@ -704,18 +1268,28 @@ namespace LSEG.Ema.Access
             return HandleInvalidAttemp("Invalid attempt to close batch stream");
         }
 
-        internal void AddBatchItems(int numOfItem)
+        internal void AddBatchItems(List<string> itemList)
         {
-            SingleItem<T> singleItem;
+            SingleItem<T>? singleItem;
 
-            for(int i = 0; i < numOfItem; i++)
+            for(int i = 0; i < itemList.Count; i++)
             {
-                singleItem = new SingleItem<T>(m_OmmBaseImpl, Client, Closure, this);
+                if ((singleItem = (SingleItem<T>?)m_OmmBaseImpl.GetEmaObjManager().m_singleItemPool.Poll()) == null)
+                {
+                    singleItem = new SingleItem<T>(m_OmmBaseImpl, Client, Closure, this);
+                    m_OmmBaseImpl.GetEmaObjManager().m_singleItemPool.UpdatePool(singleItem);
+                }
+                else
+                {
+                    singleItem.Reset(m_OmmBaseImpl, Client!, Closure, this);
+                }
+
+                singleItem.ItemName = itemList[i];
 
                 SingleItemList.Add(singleItem);
             }
 
-            ItemCount = numOfItem;
+            ItemCount = itemList.Count;
         }
 
         internal SingleItem<T>? GetSingleItem(int streamId)
@@ -851,7 +1425,9 @@ namespace LSEG.Ema.Access
 
             client.m_StatusMsg.Decode(statusMsg, Codec.MajorVersion(), Codec.MajorVersion(), null!);
 
-            client.m_StatusMsg.SetServiceName(serviceName!);
+            if(serviceName != null)
+                client.m_StatusMsg.SetServiceName(serviceName);
+
             client.EventImpl.Item = item;
             client.NotifyOnAllMsg(client.m_StatusMsg!);
             client.NotifyOnStatusMsg();
@@ -864,6 +1440,92 @@ namespace LSEG.Ema.Access
             {
                 ((ItemCallbackClient<T>)client).RemoveFromMap(item);
             }
+        }
+    }
+
+    internal class OpenSuspectClient<T> : ITimeoutClient
+    {
+        private IMsgKey msgKey = new MsgKey();
+        private Buffer statusText = new Buffer();
+        private string? serviceName;
+        private int domainType;
+        private int streamId;
+        private Item<T> item;
+        private bool isPrivateStream;
+        private CallbackClient<T> client;
+        private State state = new State();
+
+        public OpenSuspectClient(CallbackClient<T> client, Item<T> item, IMsg msg, string statusText, string? serviceName)
+        {
+            this.client = client;
+            this.item = item;
+            this.statusText.Data(statusText);
+            domainType = msg.DomainType;
+            msgKey.Clear();
+            this.serviceName = serviceName;
+            streamId = msg.StreamId;
+
+            if (msg.MsgKey != null)
+                msg.MsgKey.Copy(msgKey);
+
+            state.StreamState(StreamStates.OPEN);
+            state.DataState(DataStates.SUSPECT);
+            state.Code(StateCodes.NONE);
+
+            switch (msg.MsgClass)
+            {
+                case MsgClasses.REFRESH:
+                    isPrivateStream = (msg.Flags & RefreshMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+                    break;
+                case MsgClasses.STATUS:
+                    isPrivateStream = (msg.Flags & StatusMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+                    break;
+                case MsgClasses.REQUEST:
+                    isPrivateStream = (msg.Flags & RequestMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+                    break;
+                case MsgClasses.ACK:
+                    isPrivateStream = (msg.Flags & AckMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+                    break;
+                default:
+                    isPrivateStream = false;
+                    break;
+            }
+        }
+
+        public void HandleTimeoutEvent()
+        {
+            IStatusMsg statusMsg = client.StatusMsg();
+
+            statusMsg.StreamId = streamId;
+            statusMsg.DomainType = domainType;
+            statusMsg.ContainerType = DataTypes.NO_DATA;
+
+            statusMsg.ApplyHasState();
+            statusMsg.State.StreamState(state.StreamState());
+            if (item.Type() != ItemType.BATCH_ITEM)
+                statusMsg.State.DataState(state.DataState());
+            else
+                statusMsg.State.DataState(DataStates.OK);
+            statusMsg.State.Code(state.Code());
+            statusMsg.State.Text(statusText);
+
+            statusMsg.ApplyHasMsgKey();
+            msgKey.Copy(statusMsg.MsgKey);
+
+            if (isPrivateStream)
+                statusMsg.ApplyPrivateStream();
+
+            if (client.m_StatusMsg == null)
+                client.m_StatusMsg = new StatusMsg();
+
+            client.m_StatusMsg.Decode(statusMsg, Codec.MajorVersion(), Codec.MajorVersion(), null!);
+
+            if(serviceName != null)
+                client.m_StatusMsg.SetServiceName(serviceName!);
+
+            client.EventImpl.Item = item;
+            client.NotifyOnAllMsg(client.m_StatusMsg!);
+            client.NotifyOnStatusMsg();
         }
     }
 
@@ -883,18 +1545,31 @@ namespace LSEG.Ema.Access
 
         private MonitorWriteLocker? m_StreamIdAccessLock;
 
+        private ConsumerSession<T>? m_ConsumerSession; /* This is used when there is a consumer session */
+
         public ItemCallbackClient(OmmBaseImpl<T> baseImpl) : base(baseImpl, CLIENT_NAME)
         {
             m_OmmBaseImpl = baseImpl;
-            int itemCountHint;
+            m_ConsumerSession = baseImpl.ConsumerSession;
 
-            if (commonImpl.BaseType == IOmmCommonImpl.ImpleType.CONSUMER)
-               itemCountHint = (int)((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).ConsumerConfig.ItemCountHint;
+            if (m_ConsumerSession != null)
+            {
+                m_ItemHandleDict = m_ConsumerSession.SessionWatchlist.ItemHandleMap();
+                m_StreamIdDict = m_ConsumerSession.SessionWatchlist.StreamIdMap();
+                m_ConsumerSession.SessionWatchlist.CallbackClient(this);
+            }
             else
-               itemCountHint = (int)((OmmNiProviderConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).NiProviderConfig.ItemCountHint;
+            {
+                int itemCountHint;
 
-            m_ItemHandleDict = new Dictionary<long, Item<T>>(itemCountHint);
-            m_StreamIdDict = new Dictionary<int, Item<T>>(itemCountHint);
+                if (commonImpl.BaseType == IOmmCommonImpl.ImpleType.CONSUMER)
+                    itemCountHint = (int)((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).ConsumerConfig.ItemCountHint;
+                else
+                    itemCountHint = (int)((OmmNiProviderConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).NiProviderConfig.ItemCountHint;
+
+                m_ItemHandleDict = new Dictionary<long, Item<T>>(itemCountHint);
+                m_StreamIdDict = new Dictionary<int, Item<T>>(itemCountHint);
+            }
 
             m_UpdateMsg = m_OmmBaseImpl.GetEmaObjManager().GetOmmUpdateMsg();
             m_RefreshMsg = m_OmmBaseImpl.GetEmaObjManager().GetOmmRefreshMsg();
@@ -1201,8 +1876,10 @@ namespace LSEG.Ema.Access
         {
             m_RefreshMsg!.Decode(msg, channelInfo.MajorVersion, channelInfo.MinorVersion, dataDictionary);
 
+            bool fromBatchRequest = false;
             if (EventImpl.Item!.Type() == ItemType.BATCH_ITEM)
             {
+                fromBatchRequest = true;
                 EventImpl.Item = ((BatchItem<T>)EventImpl.Item).GetSingleItem(msg.StreamId);
 
                 if (EventImpl.Item == null)
@@ -1222,11 +1899,38 @@ namespace LSEG.Ema.Access
                 }
             }
 
-            ServiceDirectory? serviceDirectory = EventImpl.Item.Directory();
+            ServiceDirectory<T>? serviceDirectory = EventImpl.Item.Directory();
 
             if (serviceDirectory != null)
             {
                 m_RefreshMsg.SetServiceName(serviceDirectory.ServiceName!);
+
+                if (EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
+                {
+                    SingleItem<T> singleItem = ((SingleItem<T>)EventImpl.Item);
+
+                    singleItem.ItemClosedDirHash = null;
+
+                    if (singleItem.ServiceList != null)
+                    {
+                        m_RefreshMsg.SetServiceName(singleItem.ServiceList.Name);
+                        m_RefreshMsg.ServiceIdInt(singleItem.ServiceList.ServiceId);
+                    }
+                    else if (serviceDirectory.HasGeneratedServiceId) /* Gets the mapping alternate service Id if any */
+                        m_RefreshMsg.ServiceIdInt(serviceDirectory.GeneratedServiceId());
+                }
+
+                /* Adds the item to the item map of SessionDirectory when the item is requested by batch request. */
+                if (fromBatchRequest)
+                {
+                    if (serviceDirectory.SessionDirectory != null && EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
+                    {
+                        if (m_RefreshMsg.HasName)
+                        {
+                            serviceDirectory.SessionDirectory.PutDirectoryByItemName(m_RefreshMsg.Name(), ((SingleItem<T>)EventImpl.Item));
+                        }
+                    }
+                }
             }
             else if (EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
             {
@@ -1284,11 +1988,30 @@ namespace LSEG.Ema.Access
                 }
             }
 
-            ServiceDirectory? serviceDirectory = EventImpl.Item.Directory();
+            ServiceDirectory<T>? serviceDirectory = EventImpl.Item.Directory();
 
             if (serviceDirectory != null)
             {
                 m_UpdateMsg.SetServiceName(serviceDirectory.ServiceName!);
+
+                if (EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
+                {
+                    SingleItem<T> singleItem = ((SingleItem<T>)EventImpl.Item);
+
+                    if (singleItem.ServiceList != null)
+                    {
+                        m_UpdateMsg.SetServiceName(singleItem.ServiceList.Name);
+                        m_UpdateMsg.ServiceIdInt(singleItem.ServiceList.ServiceId);
+
+                        singleItem.ItemClosedDirHash = null;
+                    }
+                    else if (serviceDirectory.HasGeneratedServiceId) /* Gets the mapping alternate service Id if any */
+                    {
+                        m_UpdateMsg.ServiceIdInt(serviceDirectory.GeneratedServiceId());
+
+                        singleItem.ItemClosedDirHash = null;
+                    }
+                }
             }
             else if (EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
             {
@@ -1340,7 +2063,7 @@ namespace LSEG.Ema.Access
                 }
             }
 
-            ServiceDirectory? serviceDirectory = EventImpl.Item.Directory();
+            ServiceDirectory<T>? serviceDirectory = EventImpl.Item.Directory();
 
             if (serviceDirectory != null)
             {
@@ -1353,6 +2076,11 @@ namespace LSEG.Ema.Access
             else
             {
                 m_StatusMsg.SetServiceName(null!);
+            }
+
+            if(m_ConsumerSession != null)
+            {
+                return m_ConsumerSession.SessionWatchlist.HandleItemStatus((IStatusMsg)msg, m_StatusMsg, EventImpl.Item);
             }
 
             NotifyOnAllMsg(m_StatusMsg);
@@ -1396,6 +2124,21 @@ namespace LSEG.Ema.Access
                 }
             }
 
+            ServiceDirectory<T>? serviceDirectory = EventImpl.Item.Directory();
+            if (serviceDirectory != null)
+            {
+                if (msg.MsgKey.CheckHasServiceId())
+                {
+                    int serviceId = msg.MsgKey.ServiceId;
+                    if (serviceId == serviceDirectory.Service!.ServiceId)
+                    {
+                        /* Gets the mapping alternate service Id if any */
+                        if (serviceDirectory.HasGeneratedServiceId)
+                            m_GenericMsg.ServiceIdInt(serviceDirectory.GeneratedServiceId());
+                    }
+                }
+            }
+
             NotifyOnAllMsg(m_GenericMsg);
             NotifyOnGenericMsg();
 
@@ -1432,11 +2175,22 @@ namespace LSEG.Ema.Access
                 }
             }
 
-            ServiceDirectory? serviceDirectory = EventImpl.Item.Directory();
+            ServiceDirectory<T>? serviceDirectory = EventImpl.Item.Directory();
 
             if (serviceDirectory != null)
             {
                 m_AckMsg.SetServiceName(serviceDirectory.ServiceName!);
+
+                if (msg.MsgKey.CheckHasServiceId())
+                {
+                    int serviceId = msg.MsgKey.ServiceId;
+                    if (serviceId == serviceDirectory.Service!.ServiceId)
+                    {
+                        /* Gets the mapping alternate service Id if any */
+                        if (serviceDirectory.HasGeneratedServiceId)
+                            m_AckMsg.ServiceIdInt(serviceDirectory.GeneratedServiceId());
+                    }
+                }
             }
             else
             {
@@ -1566,6 +2320,14 @@ namespace LSEG.Ema.Access
                     }
                 case (int)DomainType.SOURCE:
                     {
+                        ConsumerSession<T>? consumerSession = m_OmmBaseImpl.ConsumerSession;
+
+                        if (consumerSession != null)
+                        {
+                            SingleItem<T> dirItem = m_OmmBaseImpl.DirectoryCallbackClient!.DirectoryItem(consumerSession, reqMsg, client, closure);
+                            return dirItem.ItemId;
+                        }
+
                         ChannelInfo? channelInfo = m_OmmBaseImpl.LoginCallbackClient!.ActiveChannelInfo();
                         if (channelInfo == null)
                         {
@@ -1656,7 +2418,7 @@ namespace LSEG.Ema.Access
                             }
                             else
                             {
-                                batchItem.AddBatchItems(reqMsg.m_requestMsgEncoder.BatchItemList.Count);
+                                batchItem.AddBatchItems(reqMsg.m_requestMsgEncoder.BatchItemList);
                                 var items = batchItem.SingleItemList;
                                 int numOfItem = items.Count;
 
@@ -1841,7 +2603,7 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public void RemoveFromMap(Item<T> item)
+        public void RemoveFromMap(Item<T> item, bool returnToPool = true)
         {
             if (commonImpl.GetLoggerClient().IsTraceEnabled)
             {
@@ -1867,7 +2629,10 @@ namespace LSEG.Ema.Access
                 m_StreamIdDict.Remove(item.StreamId);
             }
 
-            item.BackToPool();
+            if (returnToPool)
+            {
+                item.BackToPool();
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]

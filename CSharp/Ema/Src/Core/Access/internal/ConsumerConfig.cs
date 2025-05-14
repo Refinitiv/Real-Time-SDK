@@ -7,15 +7,16 @@
  */
 
 using System.Collections.Generic;
-using System.Reflection.Metadata;
 
 namespace LSEG.Ema.Access
 {
-	internal class ConsumerConfig : XmlTraceConfigurable
-	{
+    internal class ConsumerConfig : XmlTraceConfigurable
+    {
         public ConsumerConfig()
         {
             ChannelSet = new List<string>();
+            SessionChannelSet = new List<string>();
+
             Clear();
         }
 
@@ -23,6 +24,8 @@ namespace LSEG.Ema.Access
         public ConsumerConfig(ConsumerConfig oldConfig)
         {
             ChannelSet = new List<string>();
+            SessionChannelSet = new List<string>();
+
             Name = oldConfig.Name;
             Dictionary = oldConfig.Dictionary;
             Logger = oldConfig.Logger;
@@ -45,7 +48,12 @@ namespace LSEG.Ema.Access
             ReconnectMinDelay = oldConfig.ReconnectMinDelay;
             ReissueTokenAttemptInterval = oldConfig.ReissueTokenAttemptInterval;
             ReissueTokenAttemptLimit = oldConfig.ReissueTokenAttemptLimit;
-            oldConfig.ChannelSet.ForEach(channelName => ChannelSet.Add(channelName));
+
+            ChannelSet.AddRange(oldConfig.ChannelSet);
+
+            SessionChannelSet.AddRange(oldConfig.SessionChannelSet);
+            SessionEnhancedItemRecovery = oldConfig.SessionEnhancedItemRecovery;
+
             RestEnableLog = oldConfig.RestEnableLog;
             RestEnableLogViaCallback = oldConfig.RestEnableLogViaCallback;
             RestLogFileName = oldConfig.RestLogFileName;
@@ -67,6 +75,14 @@ namespace LSEG.Ema.Access
 
         public List<string> ChannelSet { get; set; }
 
+        /// List of SessionChannelInfo names
+        public List<string> SessionChannelSet { get; set; }
+
+        /// Specifies a more aggressive recovery behaviors with a session channel set. If
+        /// set to 1, when a service goes down, EMA will immediately attempt to recover
+        /// the item if the item's requested service is available on another connection.
+        public uint SessionEnhancedItemRecovery { get; set; } = 1; // This option is enabled by default.
+
         public string Dictionary { get; set; } = string.Empty;
 
         public long DictionaryRequestTimeOut { get; set; }
@@ -79,7 +95,7 @@ namespace LSEG.Ema.Access
 
         public long DispatchTimeoutApiThread { get; set; }
 
-        public bool EnableRtt { get; set; } 
+        public bool EnableRtt { get; set; }
 
         public uint ItemCountHint { get; set; }
 
@@ -156,7 +172,11 @@ namespace LSEG.Ema.Access
             ReconnectMinDelay = 1000;
             ReissueTokenAttemptInterval = 5000;
             ReissueTokenAttemptLimit = -1;
+
             ChannelSet.Clear();
+            SessionChannelSet.Clear();
+            SessionEnhancedItemRecovery = 1;
+
             RestEnableLog = false;
             RestEnableLogViaCallback = false;
             RestLogFileName = string.Empty;
@@ -164,6 +184,7 @@ namespace LSEG.Ema.Access
             RestProxyHostName = string.Empty;
             RestProxyPort = string.Empty;
             ServiceCountHint = 513;
+
             XmlTraceToFile = false;
             XmlTraceMaxFileSize = 100_000_000;
             XmlTraceFileName = "EmaTrace";
@@ -198,7 +219,11 @@ namespace LSEG.Ema.Access
             DestConfig.ReconnectMinDelay = ReconnectMinDelay;
             DestConfig.ReissueTokenAttemptInterval = ReissueTokenAttemptInterval;
             DestConfig.ReissueTokenAttemptLimit = ReissueTokenAttemptLimit;
-            ChannelSet.ForEach(channelName => DestConfig.ChannelSet.Add(channelName));
+
+            DestConfig.ChannelSet.AddRange(ChannelSet);
+            DestConfig.SessionChannelSet.AddRange(SessionChannelSet);
+            DestConfig.SessionEnhancedItemRecovery = SessionEnhancedItemRecovery;
+
             DestConfig.RestEnableLog = RestEnableLog;
             DestConfig.RestEnableLogViaCallback = RestEnableLogViaCallback;
             DestConfig.RestLogFileName = RestLogFileName;

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -71,6 +71,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
             [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
             public void SetNext(ReactorChannel? thisNext, ReactorChannel? thatNext) { thisNext!._reactorChannelNext = thatNext; }
         }
+
+        /* This is used to indicate the worker thread only whether the closed ack is sent from worker to Reactor */
+        internal bool IsClosedAckSent = false;
 
         internal static readonly ReactorChannelLink REACTOR_CHANNEL_LINK = new();
 
@@ -265,6 +268,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     retVal = Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.SHUTDOWN,
                             "ReactorChannel.Close",
                             "Reactor is shutdown, close aborted.");
+
                 if (State != ReactorChannelState.CLOSED)
                     retVal = Reactor.CloseChannel(this, out errorInfo);
 
@@ -811,6 +815,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             TokenSession = null;
             Watchlist = null;
             ReadRet = TransportReturnCode.SUCCESS;
+            IsClosedAckSent = false;
         }
 
         /// <summary>

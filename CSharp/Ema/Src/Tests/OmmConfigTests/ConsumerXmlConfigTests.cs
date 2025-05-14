@@ -544,7 +544,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // This config should have one consumer, logger and dictionary, and 1 client channel.
             Assert.Single(copiedConfig.ConsumerConfigMap);
-            Assert.Single(copiedConfig.ClientChannelConfigMap);
+            Assert.Equal(2, copiedConfig.ClientChannelConfigMap.Count);
             Assert.Single(copiedConfig.LoggerConfigMap);
             Assert.Single(copiedConfig.DictionaryConfigMap);
 

@@ -12,8 +12,8 @@ using System;
 using System.Collections.Generic;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
-using static LSEG.Eta.Rdm.Directory;
 
+using static LSEG.Eta.Rdm.Directory;
 using System.IO;
 
 namespace LSEG.Ema.Access
@@ -48,6 +48,8 @@ namespace LSEG.Ema.Access
         // Dictionary tables indexed by the name of the config.
         internal Dictionary<string, ConsumerConfig> ConsumerConfigMap { get; set; }
 
+        internal Dictionary<string, SessionChannelConfig> SessionChannelInfoMap { get; set; }
+
         // Xml parser class.  This is not used with the "active" configuration in OmmBaseImpl
         internal XmlConfigParser? XmlParser { get; set; }
 
@@ -71,12 +73,14 @@ namespace LSEG.Ema.Access
         private const string DefaultPort = "14002";
 
         private static readonly HostPortParser hostPortParser = new (DefaultHost, DefaultPort);
+        internal Dictionary<string, ServiceList>? ServiceListDict { get; private set; }
 
         // Default constructor
         internal OmmConsumerConfigImpl(string? path)
             : base()
         {
             ConsumerConfigMap = new Dictionary<string, ConsumerConfig>();
+            SessionChannelInfoMap = new Dictionary<string, SessionChannelConfig>();
           
             // The error log will only be used by a user-created object, not by the internal EMA cache.
             ConfigErrorLog = new ConfigErrorList();
@@ -92,7 +96,7 @@ namespace LSEG.Ema.Access
         // Copy Constructor that will be used in OmmBaseImpl.  This will contain only the information needed by EMA to generate
         // ReactorConnectOptions and the ReactorRole.  It will not copy everything, just:
         // the configured required Consumer(in order: ConsuemerName, DefaultConsumer, the first Consumer in the consumer list, the default consumer)
-        // any channels directly referenced by the consumer(or 
+        // any channels and session channels directly referenced by the consumer(or 
         // the dictionary referenced by the consumer(or default)
         // 
         // PREREQUSITES: OldConfigImpl has been verified with VerifyConfiguration()
@@ -100,6 +104,7 @@ namespace LSEG.Ema.Access
             : base()
         {
             ConsumerConfigMap = new Dictionary<string, ConsumerConfig>();
+            SessionChannelInfoMap = new Dictionary<string, SessionChannelConfig>();
             ClientChannelConfigMap = new Dictionary<string, ClientChannelConfig>();
             LoggerConfigMap = new Dictionary<string, LoggerConfig>();
             DictionaryConfigMap = new Dictionary<string, DictionaryConfig>();
@@ -153,7 +158,12 @@ namespace LSEG.Ema.Access
                 OldConfigImpl.AdminEnumDictionaryRequest.Copy(AdminEnumDictionaryRequest);
             }
 
-            ClientChannelConfig? tmpChannelConfig = null;
+            if(OldConfigImpl.ServiceListDict != null)
+            {
+                ServiceListDict = OldConfigImpl.ServiceListDict;
+            }
+
+            ClientChannelConfig? tmpChannelConfig;
 
             ConsumerConfig.Clear();
 
@@ -195,8 +205,11 @@ namespace LSEG.Ema.Access
 
             ConsumerConfigMap.Add(ConsumerConfig.Name, ConsumerConfig);
 
-            // If the channelset is empty we're in the default connection state or HostName and Port have been specified, so create a default config, and set hostName and port if it's been configured.
-            if (ConsumerConfig.ChannelSet.Count == 0)
+            // If the channelset is empty we're in the default connection state or
+            // HostName and Port have been specified, so create a default config, and set
+            // hostName and port if it's been configured.
+            if (ConsumerConfig.ChannelSet.Count == 0
+                && ConsumerConfig.SessionChannelSet.Count == 0)
             {
                 tmpChannelConfig = new ClientChannelConfig();
                 tmpChannelConfig.Name = "DefaultEmaChannel";
@@ -228,61 +241,51 @@ namespace LSEG.Ema.Access
             }
             else   
             {
-                // There are channels in the channelSet, so copy them all over. Don't need to add the name because it's already in there.
-                foreach (string channelName in ConsumerConfig.ChannelSet)
+                CopyChannelConfigs(OldConfigImpl, ConsumerConfig.ChannelSet);
+            }
+
+            SessionChannelInfoMap.Clear();
+
+            if (ConsumerConfig.SessionChannelSet.Count != 0)
+            {
+                foreach (string sessionChannelName in ConsumerConfig.SessionChannelSet)
                 {
-                    // If the channel name already exists in ClientChannelConfigMap, just continue, it's already been added. 
-                    if (ClientChannelConfigMap.ContainsKey(channelName))
-                    {
+                    // copy all SessionChannelInfo named in the SessionChannelSet
+                    // associated with this Consumer config
+                    if (SessionChannelInfoMap.ContainsKey(sessionChannelName))
                         continue;
-                    }
 
-                    tmpChannelConfig = new ClientChannelConfig(OldConfigImpl.ClientChannelConfigMap[channelName]);
+                    // first copy the SessionChannelInfo itself
+                    SessionChannelConfig sessionChannelInfo = new SessionChannelConfig(OldConfigImpl.SessionChannelInfoMap[sessionChannelName]);
+                    
+                    SessionChannelInfoMap[sessionChannelName] = sessionChannelInfo;
 
-                    // If hostname and port are set, this should be the only channel in the list, so override the host, port, and connectionType config.
-                    if (!string.IsNullOrEmpty(HostName) && !string.IsNullOrEmpty(Port))
-                    {
-                        tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address = HostName;
-                        tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = Port;
-                        tmpChannelConfig.ConnectInfo.ConnectOptions.ConnectionType = Eta.Transports.ConnectionType.SOCKET;
-                    }
-                    else
-                    {
-                        if (tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address is not null)
-                        {
-                            tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName ??= DefaultPort;
-                        }
-                    }
-
-                    // If the proxy is set on the top leve, override the proxy info set in each channel configuration.
-                    if (!string.IsNullOrEmpty(ProxyHost))
-                        tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyHostName = ProxyHost;
-                    if (!string.IsNullOrEmpty(ProxyPort))
-                        tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPort = ProxyPort;
-                    if (!string.IsNullOrEmpty(ProxyUserName))
-                        tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyUserName = ProxyUserName;
-                    if (!string.IsNullOrEmpty(ProxyPassword))
-                        tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPassword = ProxyPassword;
-
-                    ClientChannelConfigMap.Add(tmpChannelConfig.Name, tmpChannelConfig);
+                    // copy Channels named in the ChannelSet
+                    CopyChannelConfigs(OldConfigImpl, sessionChannelInfo.ChannelSet);
                 }
             }
 
+            // Copy Consumer's Logger, if there is any
             LoggerConfig.Clear();
-            
-            if (string.IsNullOrEmpty(ConsumerConfig.Logger) == false)
+            if (!string.IsNullOrEmpty(ConsumerConfig.Logger))
             {
-                // There's a configured logger config, so copy it over.
-                OldConfigImpl.LoggerConfigMap[ConsumerConfig.Logger].Copy(LoggerConfig);
+                if (!LoggerConfigMap.ContainsKey(ConsumerConfig.Logger))
+                {
+                    // There's a configured logger config, so copy it over if not copied
+                    // by the SessionChannelInfo already
+                    OldConfigImpl.LoggerConfigMap[ConsumerConfig.Logger].Copy(LoggerConfig);
+
+                    LoggerConfigMap.Add(LoggerConfig.Name, LoggerConfig);
+                }
             }
             else
             {
                 // LoggerConfig has alredy been initialized to defaults in the Clear() method.
                 LoggerConfig.Name = "DefaultEmaLogger";
                 ConsumerConfig.Logger = LoggerConfig.Name;
-            }
 
-            LoggerConfigMap.Add(LoggerConfig.Name, LoggerConfig);
+                LoggerConfigMap.Add(LoggerConfig.Name, LoggerConfig);
+            }
 
             DictionaryConfig.Clear();
             
@@ -299,6 +302,50 @@ namespace LSEG.Ema.Access
             }
 
             DictionaryConfigMap.Add(DictionaryConfig.Name, DictionaryConfig);
+        }
+
+        private void CopyChannelConfigs(OmmConsumerConfigImpl OldConfigImpl, List<string> channelNames)
+        {
+            // There are channels in the channelSet, so copy them all over. Don't need to
+            // add the name because it's already in there.
+            foreach (string channelName in channelNames)
+            {
+                // If the channel name already exists in ClientChannelConfigMap, just
+                // continue, it's already been added.
+                if (ClientChannelConfigMap.ContainsKey(channelName))
+                {
+                    continue;
+                }
+
+                ClientChannelConfig tmpChannelConfig = new ClientChannelConfig(OldConfigImpl.ClientChannelConfigMap[channelName]);
+
+                // If hostname and port are set, this should be the only channel in the list, so override the host, port, and connectionType config.
+                if (!string.IsNullOrEmpty(HostName) && !string.IsNullOrEmpty(Port))
+                {
+                    tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address = HostName;
+                    tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = Port;
+                    tmpChannelConfig.ConnectInfo.ConnectOptions.ConnectionType = Eta.Transports.ConnectionType.SOCKET;
+                }
+                else
+                {
+                    if (tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address is not null)
+                    {
+                        tmpChannelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName ??= DefaultPort;
+                    }
+                }
+
+                // If the proxy is set on the top leve, override the proxy info set in each channel configuration.
+                if (!string.IsNullOrEmpty(ProxyHost))
+                    tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyHostName = ProxyHost;
+                if (!string.IsNullOrEmpty(ProxyPort))
+                    tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPort = ProxyPort;
+                if (!string.IsNullOrEmpty(ProxyUserName))
+                    tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyUserName = ProxyUserName;
+                if (!string.IsNullOrEmpty(ProxyPassword))
+                    tmpChannelConfig.ConnectInfo.ConnectOptions.ProxyOptions.ProxyPassword = ProxyPassword;
+
+                ClientChannelConfigMap.Add(tmpChannelConfig.Name, tmpChannelConfig);
+            }
         }
 
         internal void Clear()
@@ -329,6 +376,7 @@ namespace LSEG.Ema.Access
             RestProxyPort = string.Empty;
             RestProxyUserName = string.Empty;
             RestProxyPassword = string.Empty;
+
             ConsumerConfig.Clear();
             LoggerConfig.Clear();
             DictionaryConfig.Clear();
@@ -337,9 +385,12 @@ namespace LSEG.Ema.Access
             LoggerConfigMap.Clear();
             DictionaryConfigMap.Clear();
             ConfigErrorLog?.Clear();
+            SessionChannelInfoMap.Clear();
+
             SetEncryptedProtocolFlags = false;
             CipherSuites = null;
             m_DataDictionary = null;
+            ServiceListDict = null;
         }
 
         // Takes in a host name formatted in the following way:
@@ -562,12 +613,13 @@ namespace LSEG.Ema.Access
             }
         }
 
-        // Iterates through the consumer config and determines everything is correct:
-        // The Default Consumer is present
-        // All Channels referenced by the Consumers are present
-        // All Channels referenced in warm standby(when implemented) are present
-        // All Loggers referenced by the consumers are present
-        // All Dictionaries referenced by the consumers are present
+        /// Iterates through the consumer config and determines everything is correct:
+        ///
+        /// The Default Consumer is present
+        /// All Channels referenced by the Consumers are present
+        /// All Channels referenced in warm standby(when implemented) are present
+        /// All Loggers referenced by the consumers are present
+        /// All Dictionaries referenced by the consumers are present
         internal void VerifyConfiguration()
         {
             // First, if there's a default consumer, verify that it exists in the consumerConfigMap
@@ -597,6 +649,31 @@ namespace LSEG.Ema.Access
                         if (ClientChannelConfigMap.ContainsKey(channelName) == false)
                         {
                             throw new OmmInvalidConfigurationException("Channel " + channelName + " in Consumer " + consumer.Name + " is not defined in this OmmConsumerConfig");
+                        }
+                    }
+                }
+
+                if (consumer.SessionChannelSet.Count != 0)
+                {
+                    foreach (string sessionChannelName in consumer.SessionChannelSet)
+                    {
+                        if (!SessionChannelInfoMap.ContainsKey(sessionChannelName))
+                        {
+                            throw new OmmInvalidConfigurationException($"SessionChannel {sessionChannelName} in Consumer {consumer.Name} is not defined in this OmmConsumerConfig");
+                        }
+
+                        // Verify referred SessionChannel configuration
+                        SessionChannelConfig sessionChannel = SessionChannelInfoMap[sessionChannelName];
+                        if (sessionChannel.ChannelSet.Count != 0)
+                        {
+                            // a SessionChannelInfo might refer to at least one Channel
+                            foreach (string channelName in sessionChannel.ChannelSet)
+                            {
+                                if (!ClientChannelConfigMap.ContainsKey(channelName))
+                                {
+                                    throw new OmmInvalidConfigurationException($"Channel {channelName} in SessionChannel {sessionChannelName} for Consumer {consumer.Name} is not defined in this OmmConsumerConfig");
+                                }
+                            }
                         }
                     }
                 }
@@ -748,6 +825,40 @@ namespace LSEG.Ema.Access
             return connOpts;
         }
 
+        internal ReactorConnectOptions GenerateReactorSessionConnectOpts(SessionChannelInfo<IOmmConsumerClient> sessionInfo)
+        {
+            ReactorConnectOptions connOpts = new ReactorConnectOptions();
+            SessionChannelConfig sessionConfig = sessionInfo.SessionChannelConfig;
+
+            /* Overries these reconnect parameters if they are not set */
+            if(sessionConfig.ReconnectAttemptLimitSet == false)
+            {
+                sessionConfig.ReconnectAttemptLimit = ConsumerConfig.ReconnectAttemptLimit;
+            }
+
+            if (sessionConfig.ReconnectMaxDelaySet == false)
+            {
+                sessionConfig.ReconnectMaxDelay = ConsumerConfig.ReconnectMaxDelay;
+            }
+
+            if (sessionConfig.ReconnectMinDelaySet == false)
+            {
+                sessionConfig.ReconnectMinDelay = ConsumerConfig.ReconnectMinDelay;
+            }
+
+            connOpts.SetReconnectMaxDelay((int)sessionConfig.ReconnectMaxDelay);
+            connOpts.SetReconnectMinDelay((int)sessionConfig.ReconnectMinDelay);
+            connOpts.SetReconnectAttempLimit((int)sessionConfig.ReconnectAttemptLimit);
+
+            foreach (string chnlName in sessionConfig.ChannelSet)
+            {
+                ClientChannelConfig chnlConfig = ClientChannelConfigMap[chnlName];
+                connOpts.ConnectionList.Add(chnlConfig.ConnectInfo);
+            }
+
+            return connOpts;
+        }
+
         private Ema.Rdm.DataDictionary? m_DataDictionary = null;
 
         internal void DataDictionary(Ema.Rdm.DataDictionary dataDictionary, bool shouldCopyIntoAPI)
@@ -844,6 +955,27 @@ namespace LSEG.Ema.Access
             {
                 throw new OmmInvalidConfigurationException($"Failed to set REST request timeout with value: {restRequsetTimeout}");
             }
+        }
+
+        internal void AddServiceList(ServiceList serviceList)
+        {
+            if (string.IsNullOrEmpty(serviceList.Name))
+            {
+                ServiceListDict = null;
+                throw new OmmInvalidUsageException("The ServiceList's name must be non-empty string value.",
+                    OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+            }
+
+            ServiceListDict ??= new Dictionary<string, ServiceList>();
+
+            if (ServiceListDict.ContainsKey(serviceList.Name))
+            {
+                throw new OmmInvalidUsageException($"The {serviceList.Name} name of ServiceList has been added to OmmConsumerConfig.",
+                    OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+            }
+
+            /* Deep copy of the passed in ServiceList and keeps a list of ServiceList for handling by ConsumerSession */
+            ServiceListDict.Add(serviceList.Name, new ServiceList(serviceList));
         }
     }
 }

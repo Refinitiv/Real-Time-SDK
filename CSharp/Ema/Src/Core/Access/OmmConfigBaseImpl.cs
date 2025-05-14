@@ -67,9 +67,11 @@ namespace LSEG.Ema.Access
 
         internal LoggerConfig LoggerConfig { get; set; } = new LoggerConfig();
 
-        // Dictionary tables indexed by the name of the config.
         internal Dictionary<string, ClientChannelConfig> ClientChannelConfigMap { get; set; }
+
         internal Dictionary<string, LoggerConfig> LoggerConfigMap { get; set; }
+
+        // Dictionary tables indexed by the name of the config.
         internal Dictionary<string, DictionaryConfig> DictionaryConfigMap { get; set; }
 
         internal ConfigErrorList? ConfigErrorLog { get; set; } = null;

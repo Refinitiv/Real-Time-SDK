@@ -24,7 +24,7 @@ namespace LSEG.Ema.Access
     /// </remarks>
     public sealed class ChannelInformation
     {
-        private StringBuilder m_stringBuilder = new StringBuilder();
+        private StringBuilder m_stringBuilder = new ();
 
         /// <summary>
         /// Constructir for ChannelInformation
@@ -141,6 +141,16 @@ namespace LSEG.Ema.Access
         public string? ComponentInfo { get; set; }
 
         /// <summary>
+        /// The EMA's configuration session channel name
+        /// </summary>
+        public string SessionChannelName { get; set; } = string.Empty;
+
+        /// <summary>
+        ///  The EMA's configuration channel name
+        /// </summary>
+        public string ChannelName { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets the encryption protocol type used to authenticate the the <see cref="ConnectionType.ENCRYPTED"/> connection type.
         /// </summary>
         /// <remarks>This property is valid only for the <see cref="ConnectionType.ENCRYPTED"/> connection type.</remarks>
@@ -173,6 +183,8 @@ namespace LSEG.Ema.Access
             CompressionThreshold = 0;
             EncryptedConnectionType = ConnectionType.UNIDENTIFIED;
             EncryptionProtocol = SslProtocols.None;
+            SessionChannelName  = string.Empty;
+            ChannelName  = string.Empty;
         }
 
         internal void Set(ReactorChannel reactorChannel)
@@ -250,6 +262,17 @@ namespace LSEG.Ema.Access
         public override string ToString()
         {
             m_stringBuilder.Length = 0;
+
+            if(!string.IsNullOrEmpty(ChannelName))
+            {
+                m_stringBuilder.AppendLine($"channelName: {ChannelName}");
+            }
+
+            if(!string.IsNullOrEmpty(SessionChannelName))
+            {
+                m_stringBuilder.AppendLine($"sessionChannelName: {SessionChannelName}");
+            }
+
             m_stringBuilder.Append("hostname: ").Append(Hostname).AppendLine()
                 .Append("\tIP address: ").Append(IpAddress).AppendLine()
                 .Append("\tport: ").Append(Port).AppendLine()

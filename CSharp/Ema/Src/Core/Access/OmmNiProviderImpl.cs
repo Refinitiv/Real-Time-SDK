@@ -952,7 +952,7 @@ namespace LSEG.Ema.Access
             DirectoryServiceStore.GetDirectoryRefreshMsg(m_NiProviderDirectoryStore,
                m_NiProviderDirectoryStore.GetApiControlDirectory().DirectoryRefresh, true);
 
-            ChannelCallbackClient.InitializeNIProviderRole();
+            ChannelCallbackClient.InitializeNiProviderRole();
 
             HandleLoginReqTimeout();
         }
@@ -1338,7 +1338,10 @@ namespace LSEG.Ema.Access
 
             try
             {
-                base.ModifyIOCtl(code, val, LoginCallbackClient!.ActiveChannelInfo());
+                ReactorChannel? reactorChannel = LoginCallbackClient!.ActiveChannelInfo() != null ?
+                    LoginCallbackClient!.ActiveChannelInfo()!.ReactorChannel : null;
+
+                base.ModifyIOCtl(code, val, reactorChannel);
             }
             finally
             {

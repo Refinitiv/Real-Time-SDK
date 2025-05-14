@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023, 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -92,6 +92,8 @@ namespace LSEG.Ema.Access
         private bool m_qosSet = false;
 
         internal RequestMsgEncoder m_requestMsgEncoder;
+
+        private string? m_ServiceListName;
 
         /// <summary>
         /// Constructor for RequestMsg
@@ -203,6 +205,13 @@ namespace LSEG.Ema.Access
         public bool HasBatch { get => m_rsslMsg.CheckHasBatch(); }
 
         /// <summary>
+        /// Indicates presence of the ServiceListName.
+        /// serviceListName is an optional member of RequestMsg.
+        /// </summary>
+        /// <value>true if service list name is set; false otherwise</value>
+        public bool HasServiceListName { get { return m_ServiceListName != null; } }
+
+        /// <summary>
         /// Returns PriorityClass.
         /// Calling this method must be preceded by a call to <see cref="HasPriority"/>.
         /// </summary>
@@ -306,6 +315,22 @@ namespace LSEG.Ema.Access
         }
 
         /// <summary>
+        ///  Returns the ServiceListName specified in this RequestMsg.
+        /// </summary>
+        /// <returns>String containing service list name</returns>
+        ///  <exception cref="OmmInvalidUsageException">Thrown if the message does not have a set service list name, which can be verified with <see cref="HasServiceListName"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public string ServiceListName()
+        {
+            if (m_ServiceListName == null)
+            {
+                throw new OmmInvalidUsageException("Invalid attempt to call ServiceListName() while Service list name is not set.");
+            }
+
+            return m_ServiceListName;
+        }
+
+        /// <summary>
         /// Specifies StreamId
         /// </summary>
         /// <param name="streamId">The stream Id</param>
@@ -376,6 +401,37 @@ namespace LSEG.Ema.Access
         public RequestMsg ServiceId(int serviceId)
         {
             m_requestMsgEncoder.ServiceId(serviceId);
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies a service list name defined in a <see cref="ServiceList"/>.
+        /// </summary>
+        /// <remarks>
+        /// EMA sends item request according of the order of concrete services defined in <see cref="ServiceList"/>.
+        /// </remarks>
+        /// <exception cref="OmmInvalidUsageException">if service id or service name is already set or if serviceListName is null.</exception>
+        /// <param name="serviceListName">specifies a service list name</param>
+        /// <returns>Reference to current <see cref="RequestMsg"/> object.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public RequestMsg ServiceListName(string serviceListName)
+        {
+            if (serviceListName == null)
+            {
+                throw new OmmInvalidUsageException("Passed in serviceListName is null.", OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+            }
+
+            if(m_msgEncoder.m_serviceNameSet)
+            {
+                throw new OmmInvalidUsageException("Service name is already set for this RequestMsg.", OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+            }
+
+            if( m_requestMsgEncoder.m_rsslMsg.MsgKey.CheckHasServiceId())
+            {
+                throw new OmmInvalidUsageException("Service Id is already set for this RequestMsg.", OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+            }
+
+            m_ServiceListName = serviceListName;
             return this;
         }
 
@@ -536,6 +592,7 @@ namespace LSEG.Ema.Access
         public RequestMsg Clear()
         {
             Clear_All();
+            m_ServiceListName = null;
             return this;
         }
 
@@ -779,6 +836,13 @@ namespace LSEG.Ema.Access
         {
             var copy = new RequestMsg();
             CopyMsg(copy);
+
+            /* Set the service list name if the service name is not set. */
+            if (!m_msgEncoder!.m_serviceNameSet && m_ServiceListName != null)
+            {
+                copy.m_ServiceListName = m_ServiceListName;
+            }
+
             return copy;
         }
 

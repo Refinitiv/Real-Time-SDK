@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -11,6 +11,7 @@ using System;
 using LSEG.Eta.ValueAdd.Reactor;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
+using System.Collections.Generic;
 
 namespace LSEG.Ema.Access
 {
@@ -21,6 +22,7 @@ namespace LSEG.Ema.Access
         internal OmmConsumer? m_OmmConsumer;
         internal OmmProvider? m_OmmProvider;
         internal long clientHandle;
+        private OmmBaseImpl<T>? m_OmmBaseImpl;
 
         internal Item<T>? Item { get; set; }
 
@@ -52,6 +54,11 @@ namespace LSEG.Ema.Access
         {
         }
 
+        public OmmEventImpl(OmmBaseImpl<T> ommBaseImpl)
+        {
+            m_OmmBaseImpl = ommBaseImpl;
+        }
+
         public long Handle
         {
             get
@@ -80,6 +87,35 @@ namespace LSEG.Ema.Access
 
         public OmmProvider Provider => m_OmmProvider!;
 
+        private void PopulateChannelInformation(ChannelInformation channelInformation, ReactorChannel reactorChannel,
+            ChannelInfo? channelInfo )
+        {
+            if(reactorChannel != null)
+            {
+                channelInformation.Set(reactorChannel);
+
+                if(channelInfo != null)
+                {
+                    channelInformation.ChannelName = channelInfo.ChannelConfig.Name;
+
+                    if(channelInfo.SessionChannelInfo != null)
+                    {
+                        channelInformation.SessionChannelName = channelInfo.SessionChannelInfo.SessionChannelConfig.Name;
+                    }
+                }
+
+                if (m_OmmProvider == null)
+                {
+                    channelInformation.IpAddress = "not available for OmmConsumer connections";
+                    channelInformation.Port = reactorChannel.Port;
+                }
+                else if (m_OmmProvider.ProviderRole == OmmProviderConfig.ProviderRoleEnum.NON_INTERACTIVE)
+                {
+                    channelInformation.IpAddress = "not available for OmmNiProvider connections";
+                }
+            }
+        }
+
         public ChannelInformation ChannelInformation()
         {
             if (channelInformation == null)
@@ -93,17 +129,11 @@ namespace LSEG.Ema.Access
 
             if (ReactorChannel != null)
             {
-                channelInformation.Set(ReactorChannel);
+                ChannelInfo? channelInfo = ReactorChannel.UserSpecObj as ChannelInfo;
 
-                if (m_OmmProvider == null)
-                {
-                    channelInformation.IpAddress = "not available for OmmConsumer connections";
-                    channelInformation.Port = ReactorChannel.Port;
-                }
-                else if (m_OmmProvider.ProviderRole == OmmProviderConfig.ProviderRoleEnum.NON_INTERACTIVE)
-                {
-                    channelInformation.IpAddress = "not available for OmmNiProvider connections";
-                }
+                PopulateChannelInformation(channelInformation, ReactorChannel, channelInfo);
+
+                return channelInformation;
             }
 
             // for NiProviders, the only channel is the login channel so we'll just use
@@ -122,7 +152,42 @@ namespace LSEG.Ema.Access
                 }
             }
 
-            return channelInformation!;
+            return channelInformation;
+        }
+
+        public void SessionChannelInfo(List<ChannelInformation> sessionChannelInfoList)
+        {
+            if (sessionChannelInfoList == null) return;
+
+            sessionChannelInfoList.Clear();
+
+            ChannelInfo? channelInfo;
+            ChannelInformation channelInformation;
+
+            if(m_OmmBaseImpl != null && m_OmmBaseImpl.ConsumerSession != null)
+            {
+                if(m_OmmBaseImpl.ConsumerSession.SessionChannelList != null)
+                {
+                    foreach(var sessionChannelInfo in m_OmmBaseImpl.ConsumerSession.SessionChannelList)
+                    {
+                        ReactorChannel? reactorChannel = sessionChannelInfo.ReactorChannel;
+
+                        if(reactorChannel != null)
+                        {
+                            channelInfo = (ChannelInfo?)reactorChannel.UserSpecObj;
+
+                            if(channelInfo != null)
+                            {
+                                channelInformation = new ChannelInformation();
+
+                                PopulateChannelInformation(channelInformation, reactorChannel, channelInfo);
+
+                                sessionChannelInfoList.Add(channelInformation);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -133,7 +198,7 @@ namespace LSEG.Ema.Access
         internal StatusMsg? m_StatusMsg;
         internal GenericMsg? m_GenericMsg;
         internal AckMsg? m_AckMsg;
-        protected IOmmCommonImpl commonImpl;
+        internal IOmmCommonImpl commonImpl;
         
         // ETA message class types
         protected IRefreshMsg? codecRefreshMsg;
@@ -146,7 +211,7 @@ namespace LSEG.Ema.Access
         public CallbackClient(OmmBaseImpl<T> baseImpl, string clientName)
         {
             commonImpl = baseImpl;
-            EventImpl = new OmmEventImpl<T>();
+            EventImpl = new OmmEventImpl<T>(baseImpl);
         }
 
         public CallbackClient(OmmServerBaseImpl baseImpl, string clientName)

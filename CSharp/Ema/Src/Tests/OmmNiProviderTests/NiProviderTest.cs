@@ -1048,6 +1048,8 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
                 Assert.True(handle != 0);
 
+                expectedChannelInfoStr = $"channelName: DefaultEmaChannel{NewLine}" + expectedChannelInfoStr;
+
                 /* Checks the expected RefreshMsg from the login request */
                 providerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {

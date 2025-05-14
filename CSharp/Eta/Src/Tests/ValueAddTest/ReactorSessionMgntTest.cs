@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2023, 2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -439,6 +439,11 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.Equal(TOKEN_TYPE, reactorAuthTokenInfo.TokenType);
             Assert.Equal(EXPIRES_IN, reactorAuthTokenInfo.ExpiresIn);
 
+            while (reactorEventFD.Available > 0 || reactorChannel == null)
+            {
+                reactor.Dispatch(dispatchOpts, out errorInfo);
+            }
+
             Assert.Equal(ReactorChannelEventType.CHANNEL_UP, reactorChannelEventTypes[1]);
 
             readSockets.Clear();
@@ -582,7 +587,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             Socket.Select(readSockets, null, null, 10 * 1000 * 1000);
 
-            while (reactorEventFD.Available > 0)
+            while (reactorEventFD.Available > 0 || reactorChannel == null)
             {
                 reactor.Dispatch(dispatchOpts, out errorInfo);
             }

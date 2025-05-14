@@ -2,16 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
+using LSEG.Ema.Access.Tests.OmmNiProviderTests;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using System;
+using Xunit.Abstractions;
 
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 {
@@ -36,9 +38,14 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
         private ReactorSubmitOptions m_SubmitOptions = new ReactorSubmitOptions();
 
-        public LoginHandler(ProviderTest providerTest)
+        ProviderTest?  m_ProviderTest;
+        ITestOutputHelper? output;
+
+        public LoginHandler(ProviderTest providerTest, ITestOutputHelper output)
         {
             m_ProviderSessionOptions = providerTest.ProviderSessionOptions;
+            m_ProviderTest = providerTest;
+            this.output = output;
         }
 
         public LoginHandler(ProviderSessionOptions providerSessionOptions)
@@ -56,24 +63,33 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 return ReactorReturnCode.FAILURE;
             }
 
+            if(m_ProviderTest != null)
+                output?.WriteLine($"[LoginHandler:{m_ProviderTest.ServerPort}] Handling login message: {loginMsg.LoginMsgType}");
+
+
             switch (loginMsg.LoginMsgType)
             {
                 case LoginMsgType.REQUEST:
                     {
                         LoginRequest loginRequest = loginMsg.LoginRequest!;
 
-                        if(m_ProviderSessionOptions.SendLoginReject)
+                        if (m_ProviderSessionOptions.SendLoginReject)
                         {
-                            if (SendRequestReject(reactorChannel!, loginRequest.StreamId, "Force logout by Provider", out _) != ReactorReturnCode.SUCCESS)
+                            if (SendRequestReject(reactorChannel!, loginRequest.StreamId, "Force logout by Provider", out var rejectError) != ReactorReturnCode.SUCCESS)
                             {
+                                if(m_ProviderTest != null)
+                                    output?.WriteLine($"[LoginHandler:{m_ProviderTest.ServerPort}] Failed to send Login Reject: {rejectError}");
+
                                 return ReactorReturnCode.FAILURE;
                             }
 
                             break;
                         }
-
-                        if (SendRefresh(reactorChannel!, loginRequest, out _) != ReactorReturnCode.SUCCESS)
+                        else if (SendRefresh(reactorChannel!, loginRequest, out var refreshError) != ReactorReturnCode.SUCCESS)
                         {
+                            if (m_ProviderTest != null)
+                                output?.WriteLine($"[LoginHandler:{m_ProviderTest.ServerPort}] Failed to send Login Refresh: {refreshError}");
+
                             return ReactorReturnCode.FAILURE;
                         }
                         break;
@@ -92,6 +108,9 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
         private ReactorReturnCode SendRefresh(ReactorChannel reactorChannel, LoginRequest loginRequest, out ReactorErrorInfo? errorInfo)
         {
+            if (m_ProviderTest != null)
+                output?.WriteLine($"[LoginHandler:{m_ProviderTest.ServerPort}] Sending login refresh response");
+
             errorInfo = null;
 
             ITransportBuffer? msgBuf = reactorChannel.GetBuffer(REFRESH_MSG_SIZE, false, out errorInfo);
@@ -102,12 +121,12 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
             m_LoginRefresh.Clear();
 
-            // provide login response information 
+            // provide login response information
 
-            // streamId 
+            // streamId
             m_LoginRefresh.StreamId = loginRequest.StreamId;
 
-            // username 
+            // username
             m_LoginRefresh.HasUserName = true;
             m_LoginRefresh.UserName = loginRequest.UserName;
 
@@ -171,24 +190,28 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
         public ReactorReturnCode SendRequestReject(ReactorChannel chnl, int streamId, string statusText, out ReactorErrorInfo? errorInfo)
         {
+            if (m_ProviderTest != null)
+                output?.WriteLine($"[LoginHandler:{m_ProviderTest.ServerPort}] Sending login request rejected response");
+
             // get a buffer for the login request reject status */
             ITransportBuffer? msgBuf = chnl.GetBuffer(REJECT_MSG_SIZE, false, out errorInfo);
             if (msgBuf == null)
             {
                 return ReactorReturnCode.FAILURE;
             }
+
             CodecReturnCode ret = EncodeRequestReject(chnl, streamId, statusText, msgBuf, errorInfo);
             if (ret != CodecReturnCode.SUCCESS)
             {
-
                 return ReactorReturnCode.FAILURE;
             }
+
             return chnl.Submit(msgBuf, m_SubmitOptions, out errorInfo);
         }
 
         private CodecReturnCode EncodeRequestReject(ReactorChannel chnl, int streamId, string statusText, ITransportBuffer msgBuf, ReactorErrorInfo? errorInfo)
         {
-            // set-up message 
+            // set-up message
             m_LoginStatus.StreamId = streamId;
             m_LoginStatus.HasState = true;
             m_LoginStatus.State.StreamState(StreamStates.CLOSED);

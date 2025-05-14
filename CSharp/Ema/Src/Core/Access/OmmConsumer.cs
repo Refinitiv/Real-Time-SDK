@@ -6,6 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System.Collections.Generic;
+
 namespace LSEG.Ema.Access
 {
     /// <summary>
@@ -329,5 +331,15 @@ namespace LSEG.Ema.Access
         /// <param name="handle">identifies item to close</param>
         public void Unregister(long handle) =>
             m_OmmConsumerImpl?.Unregister(handle);
+
+        /// <summary>
+        /// Returns a list of channel information for session channels associated with the event.
+        /// </summary>
+        /// <remarks>
+        /// This function returns an empty list if this event does not have any session channels.
+        /// </remarks>
+        /// <param name="sessionChannelInfoList">The ChannelInformation list</param>
+        public void SessionChannelInfo(List<ChannelInformation> sessionChannelInfoList) =>
+            m_OmmConsumerImpl?.SessionChannelInfo(sessionChannelInfoList);
     }
 }

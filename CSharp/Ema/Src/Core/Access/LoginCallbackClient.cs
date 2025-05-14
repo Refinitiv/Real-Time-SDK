@@ -2,18 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
+using System.Collections.Generic;
+using System.Text;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Ema.Access
@@ -23,7 +21,7 @@ namespace LSEG.Ema.Access
         private static readonly string CLIENT_NAME = "LoginItem";
 
         internal LoginRequest m_loginRequest;
-        public List<ChannelInfo>? LoginChannelList { get; set; }
+        internal List<ChannelInfo>? LoginChannelList { get; set; }
 
 #pragma warning disable CS8618
         public LoginItem() : base()
@@ -49,18 +47,32 @@ namespace LSEG.Ema.Access
         public void HandleTimeoutEvent()
         {
             LoginCallbackClient<T> loginCallbackClient = m_OmmBaseImpl.LoginCallbackClient!;
+            ConsumerSession<T>? consumerSession = m_OmmBaseImpl.ConsumerSession;
+            List<SessionChannelInfo<IOmmConsumerClient>>? sessionChannelList = (consumerSession != null && consumerSession.SessionChannelList.Count > 0)
+                ? consumerSession.SessionChannelList : null;
 
-            if (LoginChannelList == null || LoginChannelList.Count == 0)
-            {
+            if (LoginChannelList?.Count == 0 && (consumerSession == null || !consumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK)))
                 return;
-            }
 
             m_OmmBaseImpl.EventReceived();
-            ReactorChannel reactorChannel = LoginChannelList[0].ReactorChannel!;
+            ReactorChannel reactorChannel;
 
-            RefreshMsg refreshMsg = loginCallbackClient.m_RefreshMsg!;
-            refreshMsg.Decode(loginCallbackClient.GetRefreshMsg()!, reactorChannel.MajorVersion,
-                reactorChannel.MinorVersion, null!);
+            RefreshMsg? refreshMsg = loginCallbackClient.m_RefreshMsg;
+
+            if (refreshMsg == null)
+                return;
+
+            if (m_OmmBaseImpl.ConsumerSession == null)
+            {
+                reactorChannel = LoginChannelList![0].ReactorChannel!;
+
+                refreshMsg.Decode(loginCallbackClient.GetRefreshMsg()!, reactorChannel.MajorVersion,
+                    reactorChannel.MinorVersion, null!);
+            }
+            else
+            {
+                reactorChannel = sessionChannelList![0].ReactorChannel!;
+            }
 
             loginCallbackClient.EventImpl.Item = this;
             loginCallbackClient.EventImpl.ReactorChannel = reactorChannel;
@@ -70,8 +82,7 @@ namespace LSEG.Ema.Access
 
             if(refreshMsg.State().StreamState != OmmState.StreamStates.OPEN)
             {
-                if(loginCallbackClient.LoginItems != null)
-                    loginCallbackClient.LoginItems.Remove(this);
+                loginCallbackClient.LoginItems?.Remove(this);
 
                 Remove();
             }
@@ -80,7 +91,7 @@ namespace LSEG.Ema.Access
         public override bool Modify(RequestMsg reqMsg)
         {
             CodecReturnCode ret;
-            if((ret = m_OmmBaseImpl.LoginCallbackClient!.OverlayLoginRequest(reqMsg.m_rsslMsg)) 
+            if((ret = m_OmmBaseImpl.LoginCallbackClient!.OverlayLoginRequest(reqMsg.m_rsslMsg))
                 != CodecReturnCode.SUCCESS)
             {
                 StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
@@ -100,13 +111,95 @@ namespace LSEG.Ema.Access
                 return false;
             }
 
-            bool submitRet = Submit(m_OmmBaseImpl.LoginCallbackClient!.CurrentLoginRequest);
+            bool submitRet;
+
+            if (m_OmmBaseImpl.ConsumerSession == null)
+            {
+                submitRet = Submit(m_OmmBaseImpl.LoginCallbackClient!.CurrentLoginRequest);
+            }
+            else
+            {
+                submitRet = Submit(m_OmmBaseImpl.ConsumerSession, m_OmmBaseImpl.LoginCallbackClient!.CurrentLoginRequest);
+            }
 
             /* Unset the pause all and no refresh flags on the stored request. */
             m_OmmBaseImpl.LoginCallbackClient!.CurrentLoginRequest.Flags &= ~LoginRequestFlags.PAUSE_ALL;
             m_OmmBaseImpl.LoginCallbackClient!.CurrentLoginRequest.Flags &= ~LoginRequestFlags.NO_REFRESH;
 
             return submitRet;
+        }
+
+        public override bool Close()
+        {
+            Remove();
+
+            m_OmmBaseImpl.LoginCallbackClient!.LoginItems?.Remove(this);
+            return true;
+        }
+
+        ReactorReturnCode  SubmitLoginRequest(ReactorChannel reactorChannel, ReactorSubmitOptions submitOptions, LoginRequest loginRequest)
+        {
+            ReactorReturnCode ret;
+
+            if (ReactorReturnCode.SUCCESS > (ret = reactorChannel.Submit(loginRequest, submitOptions,
+                    out var errorInfo)))
+            {
+                StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
+                if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                {
+                    strBuilder.Append("Internal error: ReactorChannel.Submit() failed in LoginItem.Submit(RequestMsg)")
+                    .AppendLine($"\tReactorChannel {reactorChannel.Channel?.GetHashCode()}")
+                    .AppendLine($"\tError Id {errorInfo?.Error.ErrorId}")
+                    .AppendLine($"\tInternal SysError {errorInfo?.Error.SysError}")
+                    .AppendLine($"\tError Location {errorInfo?.Location}")
+                    .Append($"\tError Text {errorInfo?.Error.Text}");
+
+                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, strBuilder.ToString());
+
+                    strBuilder.Clear();
+                }
+
+                strBuilder.Append($"Failed to open or modify item request. Reason: {ret}.")
+                .Append($" Error text: {errorInfo?.Error.Text}");
+
+                m_OmmBaseImpl.HandleInvalidUsage(strBuilder.ToString(), (int)ret);
+
+                return ret;
+            }
+
+            return ret;
+        }
+
+        bool Submit(ConsumerSession<T> consumerSession, LoginRequest rdmRequestMsg)
+        {
+            ReactorSubmitOptions rsslSubmitOptions = m_OmmBaseImpl.GetSubmitOptions();
+            rdmRequestMsg.StreamId = StreamId;
+            
+            if (!rdmRequestMsg.HasUserNameType)
+            {
+                rdmRequestMsg.HasUserNameType = true;
+                rdmRequestMsg.UserNameType = Eta.Rdm.Login.UserIdTypes.NAME;
+            }
+
+            ReactorReturnCode ret;
+            foreach (var entry in consumerSession.SessionChannelList)
+            {
+                rsslSubmitOptions.ServiceName = null;
+                rsslSubmitOptions.RequestMsgOptions.Clear();
+
+                /* Ensure that the ReactorChannel is ready to submit the message */
+                if (entry.ReactorChannel!.State == ReactorChannelState.UP || entry.ReactorChannel!.State == ReactorChannelState.READY)
+                {
+                    ret = SubmitLoginRequest(entry.ReactorChannel, rsslSubmitOptions, rdmRequestMsg);
+                    if (ReactorReturnCode.SUCCESS > ret)
+                    {
+                        return false;
+                    }
+                }
+                ret = 0;
+            }
+
+            return true;
         }
 
         bool Submit(LoginRequest rdmRequestMsg)
@@ -128,29 +221,10 @@ namespace LSEG.Ema.Access
                 submitOptions.ServiceName = null;
                 submitOptions.RequestMsgOptions.UserSpecObj = this;
 
-                if(ReactorReturnCode.SUCCESS > (ret = channelInfo.ReactorChannel.Submit(rdmRequestMsg, submitOptions,
-                    out var errorInfo)))
+                ret = SubmitLoginRequest(channelInfo.ReactorChannel, submitOptions, rdmRequestMsg);
+
+                if (ReactorReturnCode.SUCCESS > ret)
                 {
-                    StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
-                    if(m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
-                    {
-                        strBuilder.Append("Internal error: ReactorChannel.Submit() failed in LoginItem.Submit(RequestMsg)")
-                        .AppendLine($"\tReactorChannel {channelInfo.ReactorChannel.Channel?.GetHashCode()}")
-                        .AppendLine($"\tError Id {errorInfo?.Error.ErrorId}")
-                        .AppendLine($"\tInternal SysError {errorInfo?.Error.SysError}")
-                        .AppendLine($"\tError Location {errorInfo?.Location}")
-                        .Append($"\tError Text {errorInfo?.Error.Text}");
-
-                        m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, strBuilder.ToString());
-
-                        strBuilder.Clear();
-                    }
-
-                    strBuilder.Append($"Failed to open or modify item request. Reason: {ret}.")
-                    .Append($" Error text: {errorInfo?.Error.Text}");
-
-                    m_OmmBaseImpl.HandleInvalidUsage(strBuilder.ToString(), OmmInvalidUsageException.ErrorCodes.FAILURE);
-
                     return false;
                 }
             }
@@ -173,6 +247,180 @@ namespace LSEG.Ema.Access
                 m_OmmBaseImpl.HandleInvalidUsage(message.ToString(), (int)ReactorReturnCode.FAILURE);
 
                 return false;
+            }
+
+            return true;
+        }
+
+        public override bool Submit(PostMsg postMsg)
+        {
+            var consumerSession = m_OmmBaseImpl.ConsumerSession;
+
+            if (consumerSession == null)
+            {
+                return base.Submit(postMsg);
+            }
+            else
+            {
+                bool supportPosting = true;
+                if(consumerSession.LoginRefresh()!.LoginRefresh!.HasFeatures && consumerSession.LoginRefresh()!.LoginRefresh!.SupportedFeatures.HasSupportPost)
+                {
+                    if(consumerSession.LoginRefresh()!.LoginRefresh!.SupportedFeatures.SupportOMMPost == 0)
+                    {
+                        supportPosting = false;
+                    }
+                }
+                else
+                {
+                    supportPosting = false;
+                }
+
+                if(!supportPosting)
+                {
+                    StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+                    temp.Append("Invalid attempt to submit PostMsg while posting not supported by provider.");
+
+                    if(m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                    {
+                        m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, temp.ToString());
+                    }
+
+                    m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INVALID_OPERATION);
+
+                    return false;
+                }
+
+                return Submit(consumerSession, postMsg.m_rsslMsg, postMsg.HasServiceName ? postMsg.ServiceName() : null);
+            }
+        }
+
+        bool Submit(ConsumerSession<T> consumerSession, IPostMsg rsslPostMsg, string? serviceName)
+        {
+            ReactorSubmitOptions reactorSubmitOptions = m_OmmBaseImpl.GetSubmitOptions();
+            ReactorReturnCode ret;
+
+            rsslPostMsg.StreamId = StreamId;
+
+            foreach (var entry in consumerSession.SessionChannelList)
+            {
+                /* Validate whether the service name is valid for SessionChannelInfo before submitting it. */
+                bool result = consumerSession.ValidateServiceName(entry, rsslPostMsg, serviceName);
+
+                if(result == false)
+                {
+                    /* The PostMsg is dropped from this session channel */
+                    continue;
+                }
+
+                reactorSubmitOptions.ServiceName = serviceName;
+                reactorSubmitOptions.RequestMsgOptions.Clear();
+
+                /* Ensure that the ReactorChannel is ready to submit the message */
+                if(entry.ReactorChannel!.State == ReactorChannelState.UP || entry.ReactorChannel.State == ReactorChannelState.READY)
+                {
+                    if(ReactorReturnCode.SUCCESS > (ret = entry.ReactorChannel.Submit(rsslPostMsg, reactorSubmitOptions, out var errorInfo)))
+                    {
+                        StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+                        if(m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                        {
+                            temp.Append($"Internal error: ReactorChannel.Submit() failed in LoginItem.Submit(IPostMsg) ")
+                            .AppendLine($"\tChannel {errorInfo?.Error.Channel?.GetHashCode()}")
+                            .AppendLine($"\tError Id {errorInfo?.Error.ErrorId}")
+                            .AppendLine($"\tInternal sysError {errorInfo?.Error.SysError}")
+                            .AppendLine($"\tError Location {errorInfo?.Location}")
+                            .Append($"\tError Text {errorInfo?.Error.Text}");
+
+                            m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, temp.ToString());
+
+                            temp.Clear();
+                        }
+
+                        temp.Append("Failed to submit PostMsg on item stream. Reason: ")
+                        .Append(ret)
+                        .Append(". Error text: ")
+                        .Append(errorInfo?.Error.Text);
+
+                        m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), (int)ret);
+
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public override bool Submit(GenericMsg genericMsg)
+        {
+            var consumerSession = m_OmmBaseImpl.ConsumerSession;
+
+            if (consumerSession == null)
+            {
+                return base.Submit(genericMsg);
+            }
+            else
+            {
+                return Submit(consumerSession, genericMsg.m_rsslMsg);
+            }
+        }
+
+        bool Submit(ConsumerSession<T> consumerSession, IGenericMsg rsslGenericMsg)
+        {
+            ReactorSubmitOptions reactorSubmitOptions = m_OmmBaseImpl.GetSubmitOptions();
+            ReactorReturnCode ret;
+            rsslGenericMsg.StreamId = StreamId;
+            bool hasServiceId = rsslGenericMsg.CheckHasMsgKey() && rsslGenericMsg.MsgKey.CheckHasServiceId();
+            int originalServiceId = 0; /* Keeps the original service Id in order to check it with every SessionChannelInfo */
+
+            if(hasServiceId)
+            {
+                originalServiceId = rsslGenericMsg.MsgKey.ServiceId;
+            }
+
+            foreach (var entry in consumerSession.SessionChannelList)
+            {
+                /* Translate from generated service Id to the actual service Id */
+                consumerSession.CheckServiceId(entry, rsslGenericMsg);
+
+                reactorSubmitOptions.ServiceName = null;
+                reactorSubmitOptions.RequestMsgOptions.Clear();
+
+                /* Ensure that the ReactorChannel is ready to submit the message */
+                if (entry.ReactorChannel!.State == ReactorChannelState.UP || entry.ReactorChannel.State == ReactorChannelState.READY)
+                {
+                    if(ReactorReturnCode.SUCCESS > (ret = entry.ReactorChannel.Submit(rsslGenericMsg, reactorSubmitOptions, out var errorInfo)))
+                    {
+                        StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+                        if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                        {
+                            temp.Append($"Internal error: ReactorChannel.Submit() failed in LoginItem.Submit(IGenericMsg) ")
+                            .AppendLine($"\tChannel {errorInfo?.Error.Channel?.GetHashCode()}")
+                            .AppendLine($"\tError Id {errorInfo?.Error.ErrorId}")
+                            .AppendLine($"\tInternal sysError {errorInfo?.Error.SysError}")
+                            .AppendLine($"\tError Location {errorInfo?.Location}")
+                            .Append($"\tError Text {errorInfo?.Error.Text}");
+
+                            m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, temp.ToString());
+
+                            temp.Clear();
+                        }
+
+                        temp.Append("Failed to submit GenericMsg on item stream. Reason: ")
+                        .Append(ret)
+                        .Append(". Error text: ")
+                        .Append(errorInfo?.Error.Text);
+
+                        m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), (int)ret);
+
+                        return false;
+                    }
+                }
+
+                // Restore the original service Id in order to check with another SessionChannelInfo
+                if(hasServiceId)
+                {
+                    rsslGenericMsg.MsgKey.ServiceId = originalServiceId;
+                }
             }
 
             return true;
@@ -291,8 +539,6 @@ namespace LSEG.Ema.Access
             m_OmmBaseImpl = baseImpl;
             m_NotifyChannelDownReconnecting = false;
 
-            m_RefreshMsg = m_OmmBaseImpl.GetEmaObjManager().GetOmmRefreshMsg();
-
             CurrentLoginRequest = m_OmmBaseImpl.OmmConfigBaseImpl.AdminLoginRequest;
 
             /* Override the default login request from OmmConsumerConfig */
@@ -335,6 +581,11 @@ namespace LSEG.Ema.Access
             }
         }
 
+        internal void RemoveSessionChannelInfo(SessionChannelInfo<IOmmConsumerClient>? sessionChannelInfo)
+        {
+            sessionChannelInfo?.ConsumerSession.SessionChannelList.Remove(sessionChannelInfo);
+        }
+
         public LoginRefresh LoginRefresh
         {
             get
@@ -366,16 +617,54 @@ namespace LSEG.Ema.Access
         {
             IMsg? msg = loginEvent.Msg;
             LoginMsg? loginMsg = loginEvent.LoginMsg;
-            ReactorChannel reactorChannel = loginEvent.ReactorChannel!;
-            ChannelInfo channelInfo = (ChannelInfo)reactorChannel.UserSpecObj!;
+            ReactorChannel? reactorChannel = loginEvent.ReactorChannel;
+            ChannelInfo? channelInfo = (ChannelInfo?)reactorChannel?.UserSpecObj;
+            SessionChannelInfo<IOmmConsumerClient>? sessionChannelInfo = channelInfo?.SessionChannelInfo;
+            ConsumerSession<IOmmConsumerClient>? consumerSession = sessionChannelInfo?.ConsumerSession;
 
             m_OmmBaseImpl.EventReceived();
 
+            if(channelInfo == null)
+            {
+                if(consumerSession != null)
+                {
+                    m_OmmBaseImpl.CloseSessionChannel(sessionChannelInfo);
+                }
+                else
+                {
+                    m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
+                }
+
+                if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                {
+                    StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
+
+                    strBuilder.AppendLine("Received a ReactorChannel without UserSpecObj")
+                        .AppendLine($"\tReactor {reactorChannel?.GetHashCode()}")
+                        .AppendLine($"\tChannel {reactorChannel?.Channel?.GetHashCode()}")
+                        .AppendLine($"\tError Id {loginEvent.ReactorErrorInfo.Error.ErrorId}")
+                        .AppendLine($"\tInternal SysError {loginEvent.ReactorErrorInfo.Error.SysError}")
+                        .AppendLine($"\tError Location {loginEvent.ReactorErrorInfo}")
+                        .AppendLine($"\tError Text {loginEvent.ReactorErrorInfo}");
+
+                    m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, strBuilder.ToString());
+                }
+
+                return ReactorCallbackReturnCode.SUCCESS;
+            }
+
             if(loginMsg == null)
             {
-                m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
+                if (consumerSession != null)
+                {
+                    m_OmmBaseImpl.CloseSessionChannel(sessionChannelInfo);
+                }
+                else
+                {
+                    m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
+                }
 
-                if(m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
                 {
                     StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
 
@@ -397,11 +686,7 @@ namespace LSEG.Ema.Access
             {
                 case LoginMsgType.REFRESH:
                     {
-                        if(!m_LoginChannelList.Contains(channelInfo))
-                        {
-                            RemoveChannelInfo(loginEvent.ReactorChannel);
-                            m_LoginChannelList.Add(channelInfo);
-                        }
+                        bool notifyRefreshMsg = true;
 
                         if(codecRefreshMsg == null)
                         {
@@ -415,7 +700,32 @@ namespace LSEG.Ema.Access
                         codecRefreshMsg.MsgClass = MsgClasses.REFRESH;
                         msg?.Copy(codecRefreshMsg, CopyMsgFlags.ALL_FLAGS);
 
-                        loginMsg.LoginRefresh!.Copy(LoginRefresh);
+                        LoginRefresh loginRefresh;
+
+                        if (consumerSession != null)
+                        {
+                            loginRefresh = sessionChannelInfo!.LoginRefresh();
+
+                            if (!consumerSession.SessionChannelList.Contains(sessionChannelInfo))
+                            {
+                                consumerSession.SessionChannelList.Add(sessionChannelInfo);
+                            }
+
+                            sessionChannelInfo.ReceivedLoginRefresh = true;
+                        }
+                        else
+                        {
+                            loginRefresh = LoginRefresh;
+
+                            if (!m_LoginChannelList.Contains(channelInfo))
+                            {
+                                RemoveChannelInfo(loginEvent.ReactorChannel);
+                                m_LoginChannelList.Add(channelInfo);
+                            }
+                        }
+
+                        loginRefresh.Clear();
+                        loginMsg.LoginRefresh!.Copy(loginRefresh);
                         State state = loginMsg.LoginRefresh.State;
 
                         bool closeChannel = false;
@@ -424,7 +734,24 @@ namespace LSEG.Ema.Access
                         {
                             closeChannel = true;
 
-                            m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN);
+                            if(consumerSession != null)
+                            {
+                                sessionChannelInfo!.State = OmmBaseImpl<T>.OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN;
+
+                                consumerSession.IncreaseNumOfLoginClose();
+
+                                sessionChannelInfo!.LoginRefresh().State.StreamState(state.StreamState());
+                                sessionChannelInfo.LoginRefresh().State.DataState(state.DataState());
+
+                                if (consumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN))
+                                {
+                                    m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN);
+                                }
+                            }
+                            else
+                            {
+                                m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN);
+                            }
 
                             StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
                             strBuilder.AppendLine($"RDMLogin stream was closed with refresh message");
@@ -451,32 +778,81 @@ namespace LSEG.Ema.Access
                                 m_OmmBaseImpl.LoggerClient.Warn(CLIENT_NAME, strBuilder.ToString());
                             }
 
-                            if(m_OmmBaseImpl.ImplState >= OmmBaseImpl<T>.OmmImplState.CHANNEL_UP)
-                                m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_SUSPECT);
+                            if (sessionChannelInfo != null)
+                            {
+                                if (sessionChannelInfo.State >= OmmBaseImpl<T>.OmmImplState.CHANNEL_UP)
+                                    sessionChannelInfo.State = OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_SUSPECT;
+
+                                sessionChannelInfo.LoginRefresh().State.StreamState(state.StreamState());
+                                sessionChannelInfo.LoginRefresh().State.DataState(state.DataState());
+                            }
+                            else
+                            {
+                                if (m_OmmBaseImpl.ImplState >= OmmBaseImpl<T>.OmmImplState.CHANNEL_UP)
+                                    m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_SUSPECT);
+                            }
                         }
                         else
                         {
-                            m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK);
-                            m_OmmBaseImpl.SetActiveReactorChannel(channelInfo);
-                            m_OmmBaseImpl.ReLoadDirectory();
-
-                            if (m_OmmBaseImpl.LoggerClient.IsTraceEnabled)
+                            if (consumerSession != null)
                             {
-                                StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
+                                sessionChannelInfo!.State = OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK;
 
-                                strBuilder.AppendLine("RDMLogin stream was open with refresh message")
-                                    .AppendLine(loginMsg.ToString());
+                                consumerSession.IncreaseNumOfLoginOk();
 
-                                m_OmmBaseImpl.LoggerClient.Trace(CLIENT_NAME, strBuilder.ToString());
+                                sessionChannelInfo.LoginRefresh().State.StreamState(state.StreamState());
+                                sessionChannelInfo.LoginRefresh().State.DataState(state.DataState());
+
+                                if (consumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK) || consumerSession.SendInitialLoginRefresh)
+                                {
+                                    consumerSession.AggregateLoginResponse();
+
+                                    /* Swap to send with the aggregated login refresh */
+                                    loginMsg = (LoginMsg)consumerSession.LoginRefresh();
+                                    msg = null;
+                                    consumerSession.SendInitialLoginRefresh = true;
+                                }
+                                else
+                                {
+                                    /* Wait until EMA's receives login refresh message from all channels. */
+                                    notifyRefreshMsg = false;
+                                }
+                            }
+
+                            if (notifyRefreshMsg)
+                            {
+                                m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK);
+                                m_OmmBaseImpl.SetActiveReactorChannel(channelInfo);
+                                m_OmmBaseImpl.ReLoadDirectory();
+
+                                if (m_OmmBaseImpl.LoggerClient.IsTraceEnabled)
+                                {
+                                    StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
+
+                                    strBuilder.AppendLine("RDMLogin stream was open with refresh message")
+                                        .AppendLine(loginMsg.ToString());
+
+                                    m_OmmBaseImpl.LoggerClient.Trace(CLIENT_NAME, strBuilder.ToString());
+                                }
                             }
                         }
 
-                        ProcessRefreshMsg(msg!, reactorChannel, loginMsg);
-
-                        if(closeChannel)
+                        if (notifyRefreshMsg)
                         {
-                            m_OmmBaseImpl.UnsetActiveRsslReactorChannel(channelInfo);
-                            m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
+                            ProcessRefreshMsg(msg, reactorChannel!, loginMsg);
+                        }
+
+                        if (closeChannel)
+                        {
+                            if (sessionChannelInfo != null)
+                            {
+                                m_OmmBaseImpl.CloseSessionChannel(sessionChannelInfo);
+                            }
+                            else
+                            {
+                                m_OmmBaseImpl.UnsetActiveRsslReactorChannel(channelInfo);
+                                m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
+                            }
                         }
 
                         break;
@@ -484,6 +860,7 @@ namespace LSEG.Ema.Access
                 case LoginMsgType.STATUS:
                     {
                         bool closeChannel = false;
+                        bool notifyStatusMsg = true;
 
                         LoginStatus loginStatus = loginMsg.LoginStatus!;
 
@@ -493,10 +870,6 @@ namespace LSEG.Ema.Access
 
                             if(state.StreamState() != StreamStates.OPEN)
                             {
-                                closeChannel = true;
-
-                                m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN);
-
                                 StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
                                 strBuilder.AppendLine($"RDMLogin stream was closed with status message");
                                 LoginMsgToString(strBuilder, loginMsg, LoginMsgType.STATUS);
@@ -504,9 +877,41 @@ namespace LSEG.Ema.Access
 
                                 LoginFailureMsg = strBuilder.ToString();
 
-                                if(m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
+                                if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
                                 {
                                     m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, LoginFailureMsg);
+                                }
+
+                                closeChannel = true;
+
+                                if (consumerSession != null)
+                                {
+                                    sessionChannelInfo!.State = OmmBaseImpl<T>.OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN;
+
+                                    consumerSession.IncreaseNumOfLoginClose();
+
+                                    sessionChannelInfo!.LoginRefresh().State.StreamState(state.StreamState());
+                                    sessionChannelInfo.LoginRefresh().State.DataState(state.DataState());
+
+                                    if (consumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN))
+                                    {
+                                        m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN);
+                                    }
+                                    else
+                                    {
+                                        notifyStatusMsg = false;
+
+                                        int streamState = loginStatus.State.StreamState();
+                                        loginStatus.State.StreamState(StreamStates.OPEN);
+                                        msg = null;
+
+                                        ProcessStatusMsg(msg, reactorChannel!, loginMsg);
+                                        loginStatus.State.StreamState(streamState);
+                                    }
+                                }
+                                else
+                                {
+                                    m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.CHANNEL_UP_STREAM_NOT_OPEN);
                                 }
                             }
                             else if (state.DataState() == DataStates.SUSPECT)
@@ -522,12 +927,33 @@ namespace LSEG.Ema.Access
                                     m_OmmBaseImpl.LoggerClient.Warn(CLIENT_NAME, strBuilder.ToString());
                                 }
 
-                                if (m_OmmBaseImpl.ImplState >= OmmBaseImpl<T>.OmmImplState.CHANNEL_UP)
-                                    m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_SUSPECT);
+                                if (consumerSession != null)
+                                {
+                                    sessionChannelInfo!.LoginRefresh().State.StreamState(state.StreamState());
+                                    sessionChannelInfo.LoginRefresh().State.DataState(state.DataState());
+
+                                    if (sessionChannelInfo.State >= OmmBaseImpl<T>.OmmImplState.CHANNEL_UP)
+                                    {
+                                        sessionChannelInfo.State = OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_SUSPECT;
+                                    }
+
+                                    if (consumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_SUSPECT))
+                                    {
+                                        m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_SUSPECT);
+                                    }
+                                    else
+                                    {
+                                        notifyStatusMsg = false;
+                                    }
+                                }
+                                else
+                                {
+                                    if (m_OmmBaseImpl.ImplState >= OmmBaseImpl<T>.OmmImplState.CHANNEL_UP)
+                                        m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_SUSPECT);
+                                }
                             }
                             else
                             {
-                                m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK);
                                 m_OmmBaseImpl.SetActiveReactorChannel(channelInfo);
 
                                 if (m_OmmBaseImpl.LoggerClient.IsTraceEnabled)
@@ -538,6 +964,31 @@ namespace LSEG.Ema.Access
                                         .AppendLine(loginMsg.ToString());
 
                                     m_OmmBaseImpl.LoggerClient.Trace(CLIENT_NAME, strBuilder.ToString());
+                                }
+
+                                if (consumerSession != null)
+                                {
+                                    sessionChannelInfo!.State = OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK;
+
+                                    consumerSession.IncreaseNumOfLoginOk();
+
+                                    sessionChannelInfo.LoginRefresh().State.StreamState(state.StreamState());
+                                    sessionChannelInfo.LoginRefresh().State.DataState(state.DataState());
+
+                                    if (consumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK) || consumerSession.SendInitialLoginRefresh)
+                                    {
+                                        m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK);
+
+                                        consumerSession.AggregateLoginResponse();
+                                        msg = null;
+                                        ProcessRefreshMsg(msg, reactorChannel!, loginMsg);
+                                        consumerSession.SendInitialLoginRefresh = true;
+                                        notifyStatusMsg = false;
+                                    }
+                                }
+                                else
+                                {
+                                    m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.LOGIN_STREAM_OPEN_OK);
                                 }
                             }
                         }
@@ -554,12 +1005,22 @@ namespace LSEG.Ema.Access
                             }
                         }
 
-                        ProcessStatusMsg(msg!, reactorChannel, loginMsg);
+                        if (notifyStatusMsg)
+                        {
+                            ProcessStatusMsg(msg!, reactorChannel!, loginMsg);
+                        }
 
                         if (closeChannel)
                         {
-                            m_OmmBaseImpl.UnsetActiveRsslReactorChannel(channelInfo);
-                            m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
+                            if (sessionChannelInfo != null)
+                            {
+                                m_OmmBaseImpl.CloseSessionChannel(sessionChannelInfo);
+                            }
+                            else
+                            {
+                                m_OmmBaseImpl.UnsetActiveRsslReactorChannel(channelInfo);
+                                m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
+                            }
                         }
 
                         break;
@@ -568,7 +1029,7 @@ namespace LSEG.Ema.Access
                     {
                         if(msg != null && msg.MsgClass == MsgClasses.GENERIC)
                         {
-                            ProcessGenericMsg(msg!, reactorChannel, loginEvent);
+                            ProcessGenericMsg(msg!, reactorChannel!, loginEvent);
                             break;
                         }
 
@@ -597,14 +1058,28 @@ namespace LSEG.Ema.Access
 
             ReactorSubmitOptions rsslSubmitOptions = m_OmmBaseImpl.GetSubmitOptions();
 
-            foreach (ChannelInfo entry in m_LoginChannelList)
+            if (m_OmmBaseImpl.ConsumerSession != null)
             {
-                rsslSubmitOptions.Clear();
-                rsslSubmitOptions.ApplyClientChannelConfig(entry.ChannelConfig);
-                entry.ReactorChannel?.Submit((Eta.Codec.Msg)closeMsg, rsslSubmitOptions, out _);
-            }
+                List<SessionChannelInfo<IOmmConsumerClient>> sessionChannelList = m_OmmBaseImpl.ConsumerSession.SessionChannelList;
 
-            return m_LoginChannelList.Count;
+                foreach (SessionChannelInfo<IOmmConsumerClient> entry in sessionChannelList)
+                {
+                    entry.ReactorChannel?.Submit(closeMsg, rsslSubmitOptions, out _);
+                }
+
+                return sessionChannelList.Count;
+            }
+            else
+            {
+                foreach (ChannelInfo entry in m_LoginChannelList)
+                {
+                    rsslSubmitOptions.Clear();
+                    rsslSubmitOptions.ApplyClientChannelConfig(entry.ChannelConfig);
+                    entry.ReactorChannel?.Submit((Eta.Codec.Msg)closeMsg, rsslSubmitOptions, out _);
+                }
+
+                return m_LoginChannelList.Count;
+            }
         }
 
         internal SingleItem<T> CreateLoginItem(RequestMsg reqMsg, T client, object? closure)
@@ -631,7 +1106,17 @@ namespace LSEG.Ema.Access
             /* Do not give a refresh msg to the user if one is not present */
             if (m_RefreshMsg != null)
             {
-                m_OmmBaseImpl.TimeoutEventManager!.AddTimeoutEvent(10, item);
+                if (m_OmmBaseImpl.ConsumerSession != null)
+                {
+                    if (m_OmmBaseImpl.ConsumerSession.SendInitialLoginRefresh)
+                    {
+                        m_OmmBaseImpl.TimeoutEventManager!.AddTimeoutEvent(10, item);
+                    }
+                }
+                else
+                {
+                    m_OmmBaseImpl.TimeoutEventManager!.AddTimeoutEvent(10, item);
+                }
             }
 
             return item;
@@ -639,43 +1124,32 @@ namespace LSEG.Ema.Access
 
         internal ChannelInfo? ActiveChannelInfo()
         {
-            if (m_LoginChannelList != null)
+            int numOfChannel = m_LoginChannelList.Count;
+            for (int idx = 0; idx < numOfChannel; ++idx)
             {
-                int numOfChannel = m_LoginChannelList.Count;
-                for (int idx = 0; idx < numOfChannel; ++idx)
-                {
-                    ReactorChannelState state = m_LoginChannelList[idx].ReactorChannel!.State;
-                    if (state == ReactorChannelState.READY || state == ReactorChannelState.UP)
-                        return m_LoginChannelList[idx];
-                }
-
-                return numOfChannel > 0 ? m_LoginChannelList[numOfChannel - 1] : null;
+                ReactorChannelState state = m_LoginChannelList[idx].ReactorChannel!.State;
+                if (state == ReactorChannelState.READY || state == ReactorChannelState.UP)
+                    return m_LoginChannelList[idx];
             }
 
-            return null;
+            return numOfChannel > 0 ? m_LoginChannelList[numOfChannel - 1] : null;
         }
 
         internal void RemoveChannelInfo(ReactorChannel? reactorChannel)
         {
-            if(m_LoginChannelList != null)
+            for (int index = 0; index < m_LoginChannelList.Count; index++)
             {
-                for(int index = 0; index < m_LoginChannelList.Count; index++)
+                ChannelInfo channelInfo = m_LoginChannelList[index];
+                if (channelInfo.ReactorChannel == reactorChannel)
                 {
-                    ChannelInfo channelInfo = m_LoginChannelList[index];
-                    if(channelInfo.ReactorChannel == reactorChannel)
-                    {
-                        m_LoginChannelList.RemoveAt(index);
-                        break;
-                    }
+                    m_LoginChannelList.RemoveAt(index);
+                    break;
                 }
             }
         }
 
-        ReactorCallbackReturnCode ProcessRefreshMsg(IMsg msg, ReactorChannel reactorChannel, LoginMsg loginMsg)
+        internal ReactorCallbackReturnCode ProcessRefreshMsg(IMsg? msg, ReactorChannel reactorChannel, LoginMsg loginMsg)
         {
-            if (m_LoginItemList == null)
-                return ReactorCallbackReturnCode.SUCCESS;
-
             if (m_RefreshMsg == null)
                 m_RefreshMsg = m_OmmBaseImpl.GetEmaObjManager().GetOmmRefreshMsg();
 
@@ -692,32 +1166,54 @@ namespace LSEG.Ema.Access
                 m_RefreshMsg.DecodeMsg(reactorChannel.MajorVersion, reactorChannel.MinorVersion, m_EncodedBuffer, null, null);
             }
 
+            if (m_LoginItemList == null)
+                return ReactorCallbackReturnCode.SUCCESS;
+
             m_LoginItemLock.Enter();
 
-            int itemSize = m_LoginItemList.Count;
-            for (int idx = 0; idx < itemSize; ++idx)
+            /* Special handing for the request routing feature */
+            if (m_OmmBaseImpl.ConsumerSession != null && m_OmmBaseImpl.ConsumerSession.SendInitialLoginRefresh)
             {
-                EventImpl.Item = m_LoginItemList[idx];
-                EventImpl.ReactorChannel = reactorChannel;
-
-                NotifyOnAllMsg(m_RefreshMsg);
-                NotifyOnRefreshMsg();
+                /* Checks whether the user is still login to a server */
+                if (m_OmmBaseImpl.ConsumerSession.CheckUserStillLogin())
+                {
+                    m_RefreshMsg.SetDataState(DataStates.OK);
+                }
+                else
+                {
+                    m_RefreshMsg.SetDataState(DataStates.SUSPECT);
+                }
             }
 
-            if (loginMsg.LoginRefresh!.State.StreamState() != StreamStates.OPEN)
+            try
             {
+                int itemSize = m_LoginItemList.Count;
                 for (int idx = 0; idx < itemSize; ++idx)
-                    m_LoginItemList[idx].Remove();
+                {
+                    EventImpl.Item = m_LoginItemList[idx];
+                    EventImpl.ReactorChannel = reactorChannel;
 
-                m_LoginItemList.Clear();
+                    NotifyOnAllMsg(m_RefreshMsg);
+                    NotifyOnRefreshMsg();
+                }
+
+                if (loginMsg.LoginRefresh!.State.StreamState() != StreamStates.OPEN)
+                {
+                    for (int idx = 0; idx < itemSize; ++idx)
+                        m_LoginItemList[idx].Remove();
+
+                    m_LoginItemList.Clear();
+                }
             }
-
-            m_LoginItemLock.Exit();
+            finally
+            {
+                m_LoginItemLock.Exit();
+            }
 
             return ReactorCallbackReturnCode.SUCCESS;
         }
 
-        ReactorCallbackReturnCode ProcessStatusMsg(IMsg msg, ReactorChannel reactorChannel, LoginMsg loginMsg)
+        ReactorCallbackReturnCode ProcessStatusMsg(IMsg? msg, ReactorChannel reactorChannel, LoginMsg loginMsg)
         {
             if (m_LoginItemList == null)
                 return ReactorCallbackReturnCode.SUCCESS;
@@ -739,25 +1235,44 @@ namespace LSEG.Ema.Access
 
             m_LoginItemLock.Enter();
 
-            int itemSize = m_LoginItemList.Count;
-            for (int idx = 0; idx < itemSize; ++idx)
+            /* Special handing for the request routing feature */
+            if(m_OmmBaseImpl.ConsumerSession != null && m_OmmBaseImpl.ConsumerSession.SendInitialLoginRefresh)
             {
-                EventImpl.Item = m_LoginItemList[idx];
-                EventImpl.ReactorChannel = reactorChannel;
-
-                NotifyOnAllMsg(m_StatusMsg);
-                NotifyOnStatusMsg();
+                /* Checks whether the user is still login to a server */
+                if (m_StatusMsg.HasState && m_OmmBaseImpl.ConsumerSession.CheckUserStillLogin())
+                {
+                    m_StatusMsg.SetDataState(DataStates.OK);
+                }
+                else
+                {
+                    m_StatusMsg.SetDataState(DataStates.SUSPECT);
+                }
             }
 
-            if (loginMsg.LoginStatus!.HasState && loginMsg.LoginStatus.State.StreamState() != StreamStates.OPEN)
+            try
             {
+                int itemSize = m_LoginItemList.Count;
                 for (int idx = 0; idx < itemSize; ++idx)
-                    m_LoginItemList[idx].Remove();
+                {
+                    EventImpl.Item = m_LoginItemList[idx];
+                    EventImpl.ReactorChannel = reactorChannel;
 
-                m_LoginItemList.Clear();
+                    NotifyOnAllMsg(m_StatusMsg);
+                    NotifyOnStatusMsg();
+                }
+
+                if (loginMsg.LoginStatus!.HasState && loginMsg.LoginStatus.State.StreamState() != StreamStates.OPEN)
+                {
+                    for (int idx = 0; idx < itemSize; ++idx)
+                        m_LoginItemList[idx].Remove();
+
+                    m_LoginItemList.Clear();
+                }
             }
-
-            m_LoginItemLock.Exit();
+            finally
+            {
+                m_LoginItemLock.Exit();
+            }
 
             return ReactorCallbackReturnCode.SUCCESS;
         }
@@ -774,16 +1289,21 @@ namespace LSEG.Ema.Access
 
             m_LoginItemLock.Enter();
 
-            for (int idx = 0; idx < m_LoginItemList.Count; ++idx)
+            try
             {
-                EventImpl.Item = m_LoginItemList[idx];
-                EventImpl.ReactorChannel = reactorChannel;
+                for (int idx = 0; idx < m_LoginItemList.Count; ++idx)
+                {
+                    EventImpl.Item = m_LoginItemList[idx];
+                    EventImpl.ReactorChannel = reactorChannel;
 
-                NotifyOnAllMsg(m_GenericMsg);
-                NotifyOnGenericMsg();
+                    NotifyOnAllMsg(m_GenericMsg);
+                    NotifyOnGenericMsg();
+                }
             }
-
-            m_LoginItemLock.Exit();
+            finally
+            { 
+                m_LoginItemLock.Exit();
+            }
 
             return ReactorCallbackReturnCode.SUCCESS;
         }
@@ -1047,7 +1567,7 @@ namespace LSEG.Ema.Access
              * Password
              * Pause
              * No refresh
-             * 
+             *
              * Note: Pause and no refresh should be removed from the cached request after submitting to the reactor
             */
 
@@ -1154,6 +1674,15 @@ namespace LSEG.Ema.Access
                 m_GenericMsg.Decode(msg, channelInfo.ReactorChannel!.MajorVersion, channelInfo.ReactorChannel.MinorVersion,
                     channelInfo.DataDictionary!);
 
+                if (channelInfo.SessionChannelInfo != null && m_GenericMsg.HasServiceId)
+                {
+                    var directory = channelInfo.SessionChannelInfo.GetDirectoryById(m_GenericMsg.ServiceId());
+                    if (directory != null && directory.HasGeneratedServiceId)
+                    {
+                        m_GenericMsg.ServiceIdInt(directory.GeneratedServiceId());
+                    }
+                }
+
                 foreach (var loginItem in m_LoginItemList)
                 {
                     EventImpl.Item = loginItem;
@@ -1182,10 +1711,22 @@ namespace LSEG.Ema.Access
 
                 if (m_AckMsg.HasServiceId)
                 {
-                    ServiceDirectory? directory = m_OmmBaseImpl.DirectoryCallbackClient!.GetService(m_AckMsg.ServiceId());
+                    if (channelInfo.SessionChannelInfo != null)
+                    {
+                        var directory = channelInfo.SessionChannelInfo.GetDirectoryById(m_AckMsg.ServiceId());
+                        if (directory != null && directory.HasGeneratedServiceId)
+                        {
+                            m_AckMsg.ServiceIdInt(directory.GeneratedServiceId());
+                            m_AckMsg.ServiceName(directory.ServiceName!);
+                        }
+                    }
+                    else
+                    {
+                        var directory = m_OmmBaseImpl.DirectoryCallbackClient!.GetService(m_AckMsg.ServiceId());
 
-                    if (directory != null && directory.ServiceName != null)
-                        m_AckMsg.ServiceName(directory.ServiceName);
+                        if (directory != null && directory.ServiceName != null)
+                            m_AckMsg.ServiceName(directory.ServiceName);
+                    }
                 }
 
                 foreach (var loginItem in m_LoginItemList)

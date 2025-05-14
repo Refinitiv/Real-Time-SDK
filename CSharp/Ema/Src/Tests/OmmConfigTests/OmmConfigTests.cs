@@ -6,16 +6,17 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Security;
+
 using LSEG.Ema.Rdm;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Security;
 using static LSEG.Ema.Access.EmaConfig;
 using static LSEG.Eta.Rdm.Directory;
 namespace LSEG.Ema.Access.Tests.OmmConfigTests;
@@ -6922,6 +6923,7 @@ public class OmmConfigTests : IDisposable
         Assert.Equal("./RDMFieldDictionary", testDictionaryConfig.RdmFieldDictionaryFileName);
         Assert.Equal("RWFFld", testDictionaryConfig.RdmFieldDictionaryItemName);
 
+        copiedConfig.VerifyConfiguration();
     }
 
     // This test will load different failure scenarios for the verification method.

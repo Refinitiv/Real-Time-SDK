@@ -16,6 +16,7 @@ using LSEG.Eta.Codec;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace LSEG.Ema.Access
 {
@@ -44,153 +45,6 @@ namespace LSEG.Ema.Access
 
         private XmlNode? CurrNode2;
         private XmlAttribute? XmlAttribute;
-
-        private static HashSet<string> xmlNodeNames { get; } = new HashSet<string>
-        {
-            "EmaConfig",
-            // Generic strings used across structures
-            "Name",
-            "Dictionary",
-            "Channel",
-            "Logger",
-            // Consumer related strings
-            "ConsumerGroup",
-            "ConsumerList",
-            "DefaultConsumer",
-            "Consumer",
-            "ChannelSet",
-            "DictionaryRequestTimeOut",
-            "DirectoryRequestTimeOut",
-            "LoginRequestTimeOut",
-            "DispatchTimeoutApiThread",
-            "EnableRtt",
-            "ItemCountHint",
-            "MaxDispatchCountApiThread",
-            "MaxDispatchCountUserThread",
-            "MaxOutstandingPosts",
-            "MsgKeyInUpdates",
-            "ObeyOpenWindow",
-            "PostAckTimeout",
-            "ReconnectAttemptLimit",
-            "ReconnectMaxDelay",
-            "ReconnectMinDelay",
-            "RequestTimeout",
-            "RestEnableLog",
-            "RestEnableLogViaCallback",
-            "RestLogFileName",
-            "RestRequestTimeOut",
-            "ServiceCountHint",
-
-            // Trace received/sent messages to file (write them in XML format)
-            "XmlTraceToStdout",
-            "XmlTraceToFile",
-            "XmlTraceMaxFileSize",
-            "XmlTraceFileName",
-            "XmlTraceToMultipleFiles",
-            "XmlTraceWrite",
-            "XmlTraceRead",
-            "XmlTracePing",
-
-            // Provider related strings
-            "MergeSourceDirectoryStreams",
-            "RecoverUserSubmitSourceDirectory",
-            "RefreshFirstRequired",
-            "RemoveItemsOnDisconnect",
-            "RestProxyHostName",
-            "RestProxyPort",
-            // Channel related strings
-            "AuthenticationTimeout", // This is used only for the encrypted connection type.
-            "ChannelGroup",
-            "ChannelList",
-            "ChannelType",
-            "EncryptedProtocolType",
-            "ConnectionPingTimeout",
-            "EnableSessionManagement",
-            "GuaranteedOutputBuffers",
-            "HighWaterMark",
-            "InitializationTimeout",
-            "InterfaceName",
-            "Location",
-            "NumInputBuffers",
-            "ServiceDiscoveryRetryCount",
-            "SysRecvBufSize",
-            "SysSendBufSize",
-            "CompressionType",
-            "CompressionThreshold",
-            "DirectWrite",
-            "Host",
-            "Port",
-            "ProxyHost",
-            "ProxyPort",
-            "TcpNodelay",
-            "SecurityProtocol",
-            // Logger related strings
-            "LoggerGroup",
-            "LoggerList",
-            "FileName",
-            "IncludeDateInLoggerOutput",
-            "NumberOfLogFiles",
-            "MaxLogFileSize",
-            "LoggerSeverity",
-            "LoggerType",
-            // Dictionary related strings
-            "DictionaryGroup",
-            "DictionaryList",
-            "EnumTypeDefFileName",
-            "EnumTypeDefItemName",
-            "RdmFieldDictionaryFileName",
-            "RdmFieldDictionaryItemName",
-            "DictionaryType",
-            // NiProvider related strings
-            "Directory",
-            "Service",
-            "NiProviderGroup",
-            "DirectoryGroup",
-            // IProvider related strings
-            "IProviderGroup",
-            "IProviderList",
-            "IProvider",
-            "ServerGroup",
-            "ServerList",
-            "Server",
-            "AcceptDirMessageWithoutMinFilters",
-            "AcceptMessageSameKeyButDiffStream",
-            "AcceptMessageThatChangesService",
-            "AcceptMessageWithoutAcceptingRequests",
-            "AcceptMessageWithoutBeingLogin",
-            "AcceptMessageWithoutQosInRange",
-            "EnforceAckIDValidation",
-            "EnumTypeFragmentSize",
-            "FieldDictionaryFragmentSize",
-            // Server related strings
-            "ConnectionMinPingTimeout",
-            "ServerType",
-            "ServerCert",
-            "ServerPrivateKey",
-            "CipherSuite",
-            "MaxFragmentSize",
-            // Directory related strings
-            "DirectoryList",
-            "InfoFilter",
-            "StateFilter",
-            "LoadFilter",
-            "CapabilitiesEntry",
-            "Capabilities",
-            "QoS",
-            "QoSEntry",
-            "Timeliness",
-            "Rate",
-            "Status",
-            "StreamState",
-            "DataState",
-            "ServiceState",
-            "StatusCode",
-            "StatusText",
-            "AcceptingRequests",
-            "LoadFactor",
-            "OpenWindow",
-            "OpenLimit",
-        };
 
         // Xml Configuration parser for an OmmConsumerConfig.
         // This method looks for the following configuration groups and parses them:
@@ -237,13 +91,11 @@ namespace LSEG.Ema.Access
                 ParseDictionaryGroup(GroupNode, Config.DictionaryConfigMap, Config.ConfigErrorLog!);
             }
 
-            // Now iterate through the entirety of the XML and find any elements that aren't available 
-            foreach (XmlNode node in ConfigNode)
+            GroupNode = ConfigNode.SelectSingleNode("SessionChannelGroup");
+            if (GroupNode != null)
             {
-                if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                {
-                    Config.ConfigErrorLog?.Add("Unknown XML element: " + node.Name, LoggerLevel.ERROR);
-                }
+                // Parse the SessionChannel group here
+                ParseSessionChannelGroup(GroupNode, Config.SessionChannelInfoMap, Config.ConfigErrorLog!);
             }
         }
 
@@ -310,15 +162,6 @@ namespace LSEG.Ema.Access
                     Config.FirstConfiguredDirectory = tmpFirstName;
                 }
             }
-
-            // Now iterate through the entirety of the XML and find any elements that aren't available 
-            foreach (XmlNode node in ConfigNode)
-            {
-                if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                {
-                    Config.ConfigErrorLog?.Add("Unknown XML element: " + node.Name, LoggerLevel.ERROR);
-                }
-            }
         }
 
         // Xml Configuration parser for an OmmNiProviderConfigImpl.
@@ -341,7 +184,7 @@ namespace LSEG.Ema.Access
             XmlNode? GroupNode = ConfigNode.SelectSingleNode("IProviderGroup");
             if (GroupNode != null)
             {
-                // Parse the Consumer Group here
+                // Parse the Provider Group here
                 ParseIProviderGroup(GroupNode, Config);
             }
 
@@ -384,15 +227,6 @@ namespace LSEG.Ema.Access
                     Config.FirstConfiguredDirectory = tmpFirstName;
                 }
             }
-
-            // Now iterate through the entirety of the XML and find any elements that aren't available 
-            foreach (XmlNode node in ConfigNode)
-            {
-                if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                {
-                    Config.ConfigErrorLog?.Add("Unknown XML element: " + node.Name, LoggerLevel.ERROR);
-                }
-            }
         }
 
         private static string IncorrectFormatMessage(string attribut)
@@ -433,7 +267,7 @@ namespace LSEG.Ema.Access
             foreach (XmlNode consumerListNode in CurrNodeList)
             {
                 bool foundConfig = false;
-                var consumerNodeParser = new NodeParser("Consumer", consumerListNode);
+                NodeParser consumerNodeParser = new("Consumer", consumerListNode);
                 ConsumerConfig tmpConfig;
                 if (CurrNode == null)
                     return;
@@ -487,28 +321,8 @@ namespace LSEG.Ema.Access
                     tmpConfig.ChannelSet.Add(XmlAttribute.Value);
                 }
 
-                // ChannelSet string containing a comma separated list of Channel names
-                CurrNode2 = consumerListNode.SelectSingleNode("ChannelSet");
-                if (CurrNode2 != null)
-                {
-                    if (CurrNode2 != null)
-                    {
-                        ValueNode = (XmlElement)CurrNode2;
-                        XmlAttribute = ValueNode.GetAttributeNode("value");
+                HandleSingleListNode(consumerListNode, "Consumer", "ChannelSet", tmpConfig.ChannelSet);
 
-                        if (XmlAttribute == null)
-                        {
-                            throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer ChannelSet element");
-                        }
-
-                        tmpConfig.ChannelSet.Clear();
-
-                        string[] channelArray = XmlAttribute.Value.Split(',');
-
-                        foreach (string channelName in channelArray)
-                            tmpConfig.ChannelSet.Add(channelName.Trim());
-                    }
-                }
                 consumerNodeParser
                     .Parse(() => tmpConfig.Dictionary)
                     .Parse(() => tmpConfig.DictionaryRequestTimeOut)
@@ -534,20 +348,15 @@ namespace LSEG.Ema.Access
                     .Parse(() => tmpConfig.RestProxyHostName)
                     .Parse(() => tmpConfig.RestProxyPort)
                     .Parse(() => tmpConfig.RestEnableLog)
-                    .Parse(() => tmpConfig.RestEnableLogViaCallback);
+                    .Parse(() => tmpConfig.RestEnableLogViaCallback)
+                    .Parse(() => tmpConfig.SessionEnhancedItemRecovery);
 
                 ParseXmlTraceConfigNodes(consumerNodeParser, tmpConfig);
                 if (foundConfig == false)
                     Config.ConsumerConfigMap.Add(tmpConfig.Name, tmpConfig);
 
-                // Checks for unsupported element in a Consumer group
-                foreach (XmlNode node in consumerListNode.ChildNodes)
-                {
-                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                    {
-                        Config.ConfigErrorLog?.Add($"Unknown Consumer entry element: {node.Name}", LoggerLevel.ERROR);
-                    }
-                }
+                // SessionChannelSet string containing a comma separated list of SessionChannel names
+                HandleSingleListNode(consumerListNode, "Consumer", "SessionChannelSet", tmpConfig.SessionChannelSet);
             }
         }
 
@@ -641,29 +450,7 @@ namespace LSEG.Ema.Access
                     tmpConfig.ChannelSet.Add(XmlAttribute.Value);
                 }
 
-                // ChannelSet string containing a comma separated list of Channel names
-                CurrNode2 = niProviderListNode.SelectSingleNode("ChannelSet");
-                if (CurrNode2 != null)
-                {
-                    if (CurrNode2 != null)
-                    {
-                        ValueNode = (XmlElement)CurrNode2;
-                        var XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                        if (XmlAttribute == null)
-                        {
-                            throw new OmmInvalidConfigurationException(
-                                "Missing value attribute in the NiProvider ChannelSet element");
-                        }
-
-                        tmpConfig.ChannelSet.Clear();
-
-                        string[] channelArray = XmlAttribute.Value.Split(',');
-
-                        foreach (string channelName in channelArray)
-                            tmpConfig.ChannelSet.Add(channelName.Trim());
-                    }
-                }
+                HandleSingleListNode(niProviderListNode, "NiProvider", "ChannelSet", tmpConfig.ChannelSet);
 
                 niProviderParser.Parse(() => tmpConfig.Directory)
                     .Parse(() => tmpConfig.DispatchTimeoutApiThread)
@@ -687,15 +474,6 @@ namespace LSEG.Ema.Access
 
                 if (foundConfig == false)
                     Config.NiProviderConfigMap.Add(tmpConfig.Name, tmpConfig);
-
-                // Checks for unsupported element in a NiProvider group
-                foreach (XmlNode node in niProviderListNode.ChildNodes)
-                {
-                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                    {
-                        Config.ConfigErrorLog?.Add($"Unknown NiProvider entry element: {node.Name}", LoggerLevel.ERROR);
-                    }
-                }
             }
         }
 
@@ -798,15 +576,6 @@ namespace LSEG.Ema.Access
                 ParseXmlTraceConfigNodes(iProviderParser, tmpConfig);
                 if (foundConfig == false)
                     Config.IProviderConfigMap.Add(tmpConfig.Name, tmpConfig);
-
-                // Checks for unsupported element in a IProvider group
-                foreach (XmlNode node in iProviderListNode.ChildNodes)
-                {
-                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                    {
-                        Config.ConfigErrorLog?.Add($"Unknown IProvider entry element: {node.Name}", LoggerLevel.ERROR);
-                    }
-                }
             }
         }
 
@@ -932,15 +701,6 @@ namespace LSEG.Ema.Access
 
                 if (foundConfig == false)
                     configMap.Add(tmpConfig.Name, tmpConfig);
-
-                // Checks for unsupported element in a Channel group
-                foreach (XmlNode node in channelListNode.ChildNodes)
-                {
-                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                    {
-                        configError.Add($"Unknown Channel entry element: {node.Name}", LoggerLevel.ERROR);
-                    }
-                }
             }
         }
 
@@ -965,7 +725,7 @@ namespace LSEG.Ema.Access
             {
                 bool foundConfig = false;
                 ServerConfig tmpConfig;
-                NodeParser serverNodeParser = new NodeParser("Server", serverListNode);
+                NodeParser serverNodeParser = new("Server", serverListNode);
                 // Name string, this is required
                 CurrNode2 = serverListNode.SelectSingleNode("Name");
                 if (CurrNode2 != null)
@@ -1038,15 +798,6 @@ namespace LSEG.Ema.Access
 
                 if (foundConfig == false)
                     configMap.Add(tmpConfig.Name, tmpConfig);
-
-                // Checks for unsupported element in a Channel group
-                foreach (XmlNode node in serverListNode.ChildNodes)
-                {
-                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                    {
-                        configError.Add($"Unknown Server entry element: {node.Name}", LoggerLevel.ERROR);
-                    }
-                }
             }
         }
 
@@ -1120,15 +871,6 @@ namespace LSEG.Ema.Access
 
                 if (foundConfig == false)
                     configMap.Add(tmpConfig.Name, tmpConfig);
-
-                // Checks for unsupported element in a Logger group
-                foreach (XmlNode node in loggerListNode.ChildNodes)
-                {
-                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                    {
-                        configError.Add($"Unknown Logger entry element: {node.Name}", LoggerLevel.ERROR);
-                    }
-                }
             }
         }
 
@@ -1201,15 +943,6 @@ namespace LSEG.Ema.Access
 
                 if (foundConfig == false)
                     configMap.Add(tmpConfig.Name, tmpConfig);
-
-                // Checks for unsupported element in a Dictionary group
-                foreach (XmlNode node in dictionaryListNode.ChildNodes)
-                {
-                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                    {
-                        configError.Add($"Unknown Dictionary entry element: {node.Name}", LoggerLevel.ERROR);
-                    }
-                }
             }
         }
 
@@ -1464,24 +1197,6 @@ namespace LSEG.Ema.Access
                                                 tmpServiceConfig.Service.Info.CapabilitiesList.Add(tmpCapability);
                                             }
                                         }
-
-                                        // Checks for unsupported elements
-                                        foreach (XmlNode node in capabilitiesNode.ChildNodes)
-                                        {
-                                            if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                                            {
-                                                configError.Add($"Unknown Service InfoFilter CapabilitiesEntry element: {node.Name}", LoggerLevel.ERROR);
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // Checks for unsupported elements
-                                foreach (XmlNode node in CurrNode2.ChildNodes)
-                                {
-                                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                                    {
-                                        configError.Add($"Unknown Service InfoFilter Capabilities element: {node.Name}", LoggerLevel.ERROR);
                                     }
                                 }
                             }
@@ -1675,24 +1390,6 @@ namespace LSEG.Ema.Access
                                         Utilities.ToRsslQos(rate, timeliness, tmpQos);
 
                                         tmpServiceConfig.Service.Info.QosList.Add(tmpQos);
-
-                                        // Checks for unsupported elements
-                                        foreach (XmlNode node in qosNode.ChildNodes)
-                                        {
-                                            if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                                            {
-                                                configError.Add($"Unknown Service InfoFilter QoSEntry element: {node.Name}", LoggerLevel.ERROR);
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // Checks for unsupported elements
-                                foreach (XmlNode node in CurrNode2.ChildNodes)
-                                {
-                                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                                    {
-                                        configError.Add($"Unknown Service InfoFilter QoS element: {node.Name}", LoggerLevel.ERROR);
                                     }
                                 }
                             }
@@ -1744,15 +1441,6 @@ namespace LSEG.Ema.Access
                                 {
                                     throw new OmmInvalidConfigurationException(
                                         "The value attribute in the Directory Service SupportsOutOfBandSnapshots element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                                }
-                            }
-
-                            // Checks for unsupported elements
-                            foreach (XmlNode node in serviceListNode.ChildNodes)
-                            {
-                                if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                                {
-                                    configError.Add($"Unknown Service InfoFilter element: {node.Name}", LoggerLevel.ERROR);
                                 }
                             }
                         }
@@ -1923,24 +1611,6 @@ namespace LSEG.Ema.Access
 
                                     tmpServiceConfig.Service.State.Status.Text().Data(XmlAttribute.Value);
                                 }
-
-                                // Checks for unsupported elements
-                                foreach (XmlNode node in CurrNode2.ChildNodes)
-                                {
-                                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                                    {
-                                        configError.Add($"Unknown Service StateFilter Status element: {node.Name}", LoggerLevel.ERROR);
-                                    }
-                                }
-                            }
-
-                            // Checks for unsupported elements
-                            foreach (XmlNode node in serviceNode.ChildNodes)
-                            {
-                                if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                                {
-                                    configError.Add($"Unknown Service StateFilter element: {node.Name}", LoggerLevel.ERROR);
-                                }
                             }
                         }
 
@@ -2023,14 +1693,6 @@ namespace LSEG.Ema.Access
                                         "The value attribute in the Directory Service LoadFactor element is incorrectly formatted. Correct format is an unsigned numeric string");
                                 }
                             }
-
-                            foreach (XmlNode node in serviceNode.ChildNodes)
-                            {
-                                if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                                {
-                                    configError.Add($"Unknown Service LoadInfo entry element: {node.Name}", LoggerLevel.ERROR);
-                                }
-                            }
                         }
 
                         if (foundServiceConfig == false)
@@ -2055,29 +1717,11 @@ namespace LSEG.Ema.Access
 
                             tmpConfig.ServiceMap.Add(tmpServiceConfig.Service.Info.ServiceName.ToString(), tmpServiceConfig);
                         }
-
-                        // Checks for unsupported elements
-                        foreach (XmlNode node in serviceListNode.ChildNodes)
-                        {
-                            if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                            {
-                                configError.Add($"Unknown Service entry element: {node.Name}", LoggerLevel.ERROR);
-                            }
-                        }
                     }
                 }
 
                 if (foundConfig == false)
                     configMap.Add(tmpConfig.Name, tmpConfig);
-
-                // Checks for unsupported elements
-                foreach (XmlNode node in directoryListNode.ChildNodes)
-                {
-                    if (node.NodeType == XmlNodeType.Element && !xmlNodeNames.Contains(node.Name))
-                    {
-                        configError.Add($"Unknown Directory entry element: {node.Name}", LoggerLevel.ERROR);
-                    }
-                }
             }
         }
 
@@ -2392,5 +2036,176 @@ namespace LSEG.Ema.Access
                 throw new ArgumentException($"Invalid expression: {propertyExpression.Body}. It needs to be a property.");
             }
         }
+
+        private void ParseSessionChannelGroup(XmlNode DictionaryNode, Dictionary<string, SessionChannelConfig> configMap, ConfigErrorList configError)
+        {
+            CurrNode = DictionaryNode.SelectSingleNode("SessionChannelList");
+
+            if (CurrNode == null)
+            {
+                throw new OmmInvalidConfigurationException("Missing SessionChannelList element");
+
+            }
+
+            CurrNodeList = CurrNode.SelectNodes("SessionChannelInfo");
+
+            if (CurrNodeList == null)
+            {
+                throw new OmmInvalidConfigurationException("Missing SessionChannelInfo element");
+            }
+
+            foreach (XmlNode sessionChannelInfoNode in CurrNodeList)
+            {
+                bool foundConfig = false;
+                SessionChannelConfig tmpConfig;
+
+                NodeParser sessionChannelInfoNodeParser = new NodeParser("SessionChannelInfo", sessionChannelInfoNode);
+
+                // Name string, this is required
+                if (HandleSingleStringNode(sessionChannelInfoNode, "SessionChannelInfo", "Name", out string? sessionChannelName))
+                {
+                    if (configMap.ContainsKey(sessionChannelName))
+                    {
+                        tmpConfig = configMap[sessionChannelName];
+                        foundConfig = true;
+                    }
+                    else
+                    {
+                        tmpConfig = new SessionChannelConfig();
+                        tmpConfig.Name = sessionChannelName;
+                    }
+                }
+                else
+                {
+                    throw new OmmInvalidConfigurationException("Missing SessionChannelInfo Name element");
+                }
+
+                /* Added checking to ensure that these parameters are set as Consumer's parameters can be used instead. */
+                if (sessionChannelInfoNode.SelectSingleNode("ReconnectAttemptLimit") != null)
+                {
+                    sessionChannelInfoNodeParser.Parse(() => tmpConfig.ReconnectAttemptLimit);
+                    tmpConfig.ReconnectAttemptLimitSet = true;
+                }
+
+                if (sessionChannelInfoNode.SelectSingleNode("ReconnectMaxDelay") != null)
+                {
+                    sessionChannelInfoNodeParser.Parse(() => tmpConfig.ReconnectMaxDelay);
+                    tmpConfig.ReconnectMaxDelaySet = true;
+                }
+
+                if (sessionChannelInfoNode.SelectSingleNode("ReconnectMinDelay") != null)
+                {
+                    sessionChannelInfoNodeParser.Parse(() => tmpConfig.ReconnectMinDelay);
+                    tmpConfig.ReconnectMinDelaySet = true;
+                }
+
+                HandleSingleListNode(sessionChannelInfoNode, "SessionChannelInfo", "ChannelSet",  tmpConfig.ChannelSet);
+
+                if (!foundConfig)
+                {
+                    configMap.Add(tmpConfig.Name, tmpConfig);
+                }
+            }
+        }
+
+        #region Helper methods
+
+        internal bool HandleSingleStringNode(XmlNode groupNode, string groupName, string nodeName, [NotNullWhen(true)]out string? nodeValue)
+        {
+            CurrNode2 = groupNode.SelectSingleNode(nodeName);
+            if (CurrNode2 != null)
+            {
+                ValueNode = (XmlElement)CurrNode2;
+                XmlAttribute = ValueNode.GetAttributeNode("value");
+
+                if (XmlAttribute == null)
+                {
+                    throw new OmmInvalidConfigurationException(
+                        $"Missing value attribute in the {groupName} {nodeName} element");
+                }
+
+                nodeValue = XmlAttribute.Value;
+                return true;
+            }
+            nodeValue = null;
+            return false;
+        }
+
+        internal bool HandleSingleULongNode(XmlNode groupNode, string groupName, string nodeName, out ulong nodeValue)
+        {
+            CurrNode2 = groupNode.SelectSingleNode(nodeName);
+            if (CurrNode2 != null)
+            {
+                ValueNode = (XmlElement)CurrNode2;
+                XmlAttribute = ValueNode.GetAttributeNode("value");
+
+                if (XmlAttribute == null)
+                {
+                    throw new OmmInvalidConfigurationException(
+                        $"Missing value attribute in the {groupName} {nodeName} element");
+                }
+
+                if (ulong.TryParse(XmlAttribute.Value, out nodeValue))
+                    return true;
+                else
+                    throw new OmmInvalidConfigurationException(
+                        $"The value attribute in the {groupName} {nodeName} element is incorrectly formatted. Correct format is an unsigned numeric string.");
+            }
+            nodeValue = default;
+            return false;
+        }
+
+        internal bool HandleSingleLongNode(XmlNode groupNode, string groupName, string nodeName, out long nodeValue)
+        {
+            CurrNode2 = groupNode.SelectSingleNode(nodeName);
+            if (CurrNode2 != null)
+            {
+                ValueNode = (XmlElement)CurrNode2;
+                XmlAttribute = ValueNode.GetAttributeNode("value");
+
+                if (XmlAttribute == null)
+                {
+                    throw new OmmInvalidConfigurationException(
+                        $"Missing value attribute in the {groupName} {nodeName} element");
+                }
+
+                if (long.TryParse(XmlAttribute.Value, out nodeValue))
+                    return true;
+                else
+                    throw new OmmInvalidConfigurationException(
+                        $"The value attribute in the {groupName} {nodeName} element is incorrectly formatted. Correct format is a numeric string.");
+            }
+            nodeValue = default;
+            return false;
+        }
+
+        internal bool HandleSingleListNode(XmlNode groupNode, string groupName, string nodeName, List<string> nodeValue)
+        {
+            CurrNode2 = groupNode.SelectSingleNode(nodeName);
+            if (CurrNode2 != null)
+            {
+                ValueNode = (XmlElement)CurrNode2;
+                XmlAttribute = ValueNode.GetAttributeNode("value");
+
+                if (XmlAttribute == null)
+                {
+                    throw new OmmInvalidConfigurationException(
+                        $"Missing value attribute in the {groupName} {nodeName} element");
+                }
+
+                nodeValue.Clear();
+
+                string[] valuesArray = XmlAttribute.Value.Split(',');
+
+                foreach (string strValue in valuesArray)
+                    nodeValue.Add(strValue.Trim());
+
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
     }
 }

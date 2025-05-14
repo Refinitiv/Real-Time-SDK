@@ -364,6 +364,12 @@ public sealed class OmmState : Data
         return ToString();
     }
 
+    /* This is used to override the data state from the ETA State */
+    internal void SetDataState(int dataState)
+    {
+        m_State.DataState(dataState);
+    }
+
     private LSEG.Eta.Codec.State m_State = new();
 
     internal const string OPEN_STRING = "Open";

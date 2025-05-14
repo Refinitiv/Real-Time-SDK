@@ -2,10 +2,9 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2022-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1233,6 +1232,11 @@ namespace LSEG.Eta.Transports.Tests
                returnChannel = Transport.Connect(connectOptions, out error);
                Assert.Null(error);
 
+
+               InProgInfo inProgInfo = new();
+               returnChannel.Init(inProgInfo, out error);
+               Assert.Null(error);
+
                return returnChannel;
            });
 
@@ -1337,6 +1341,13 @@ namespace LSEG.Eta.Transports.Tests
                 returnChannel = Transport.Connect(connectOptions, out error);
                 Assert.Null(error);
 
+                if (blocking == false)
+                {
+                    InProgInfo inProgInfo = new();
+                    returnChannel.Init(inProgInfo, out error);
+                    Assert.Null(error);
+                }
+
                 return returnChannel;
             });
 
@@ -1408,17 +1419,6 @@ namespace LSEG.Eta.Transports.Tests
 
                 do
                 {
-                    if (isClient)
-                    {
-                        initRet = channelArg.Init(inProg, out initError);
-                        Assert.Null(initError);
-
-                        if (initRet == TransportReturnCode.SUCCESS || initRet == TransportReturnCode.FAILURE)
-                        {
-                            Assert.True(false); // Unexpected return code.
-                        }
-                    }
-
                     channelArg.Socket.Poll(-1, SelectMode.SelectRead);
 
                     initRet = channelArg.Init(inProg, out initError);
@@ -1724,6 +1724,10 @@ namespace LSEG.Eta.Transports.Tests
 
                 Assert.Null(error);
 
+                InProgInfo inProgInfo = new();
+                returnChannel.Init(inProgInfo, out error);
+                Assert.Null(error);
+
                 return returnChannel;
             });
 
@@ -1912,6 +1916,13 @@ namespace LSEG.Eta.Transports.Tests
                     else
                     {
                     	Assert.Null(error);
+
+                        if (blocking == false)
+                        {
+                            InProgInfo inProgInfo = new();
+                            returnChannel.Init(inProgInfo, out error);
+                            Assert.Null(error);
+                        }
                     }
                 }
                 else

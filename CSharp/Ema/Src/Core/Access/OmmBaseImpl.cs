@@ -33,13 +33,14 @@ namespace LSEG.Ema.Access
             public const long INITIALIZED = 1;
             public const long REACTOR_INITIALIZED = 2;
             public const long CHANNEL_DOWN = 3;
-            public const long CHANNEL_UP = 4;
-            public const long CHANNEL_UP_STREAM_NOT_OPEN = 5;
-            public const long LOGIN_STREAM_OPEN_SUSPECT = 6;
-            public const long LOGIN_STREAM_OPEN_OK = 7;
-            public const long LOGIN_STREAM_CLOSED = 8;
-            public const long DIRECTORY_STREAM_OPEN_SUSPECT = 9;
-            public const long DIRECTORY_STREAM_OPEN_OK = 10;
+            public const long CHANNEL_CLOSED = 4;
+            public const long CHANNEL_UP = 5;
+            public const long CHANNEL_UP_STREAM_NOT_OPEN = 6;
+            public const long LOGIN_STREAM_OPEN_SUSPECT = 7;
+            public const long LOGIN_STREAM_OPEN_OK = 8;
+            public const long LOGIN_STREAM_CLOSED = 9;
+            public const long DIRECTORY_STREAM_OPEN_SUSPECT = 10;
+            public const long DIRECTORY_STREAM_OPEN_OK = 11;
         }
 
         private static int INSTANCE_ID = 0;
@@ -74,7 +75,6 @@ namespace LSEG.Ema.Access
         public long ImplState = OmmImplState.NOT_INITIALIZED;
 
         protected bool m_EventTimeout;
-
 
         private ReactorSubmitOptions m_SubmitOptions = new ReactorSubmitOptions();
 
@@ -295,23 +295,25 @@ namespace LSEG.Ema.Access
                 // Set up specific config from the Consumer/NiProv here
                 if (BaseType == IOmmCommonImpl.ImpleType.CONSUMER)
                 {
+                    OmmConsumerConfigImpl configImpl = (OmmConsumerConfigImpl)OmmConfigBaseImpl;
+
                     // REST specific options.
-                    ((OmmConsumerConfigImpl)OmmConfigBaseImpl).PopulateReactorOptions(reactorOptions);
+                    configImpl.PopulateReactorOptions(reactorOptions);
 
                     // Enable XML tracing
-                    reactorOptions.XmlTracing = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceToStdout;
-                    reactorOptions.XmlTraceToFile = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceToFile;
-                    reactorOptions.XmlTraceMaxFileSize = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceMaxFileSize;
-                    reactorOptions.XmlTraceFileName = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceFileName;
-                    reactorOptions.XmlTraceToMultipleFiles = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceToMultipleFiles;
-                    reactorOptions.XmlTraceWrite = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceWrite;
-                    reactorOptions.XmlTraceRead = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTraceRead;
-                    reactorOptions.XmlTracePing = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.XmlTracePing;
+                    reactorOptions.XmlTracing = configImpl.ConsumerConfig.XmlTraceToStdout;
+                    reactorOptions.XmlTraceToFile = configImpl.ConsumerConfig.XmlTraceToFile;
+                    reactorOptions.XmlTraceMaxFileSize = configImpl.ConsumerConfig.XmlTraceMaxFileSize;
+                    reactorOptions.XmlTraceFileName = configImpl.ConsumerConfig.XmlTraceFileName;
+                    reactorOptions.XmlTraceToMultipleFiles = configImpl.ConsumerConfig.XmlTraceToMultipleFiles;
+                    reactorOptions.XmlTraceWrite = configImpl.ConsumerConfig.XmlTraceWrite;
+                    reactorOptions.XmlTraceRead = configImpl.ConsumerConfig.XmlTraceRead;
+                    reactorOptions.XmlTracePing = configImpl.ConsumerConfig.XmlTracePing;
 
-                    LoginRequestTimeOut = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.LoginRequestTimeOut;
-                    DispatchTimeoutApiThread = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.DispatchTimeoutApiThread;
-                    MaxDispatchCountApiThread = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.MaxDispatchCountApiThread;
-                    MaxDispatchCountUserThread = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.MaxDispatchCountUserThread;
+                    LoginRequestTimeOut = configImpl.ConsumerConfig.LoginRequestTimeOut;
+                    DispatchTimeoutApiThread = configImpl.ConsumerConfig.DispatchTimeoutApiThread;
+                    MaxDispatchCountApiThread = configImpl.ConsumerConfig.MaxDispatchCountApiThread;
+                    MaxDispatchCountUserThread = configImpl.ConsumerConfig.MaxDispatchCountUserThread;
                 }
                 else
                 {
@@ -834,6 +836,14 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void ResetTimeoutEvent()
+        {
+            m_EventTimeout = false;
+        }
+
+        internal bool IsEventTimeout => m_EventTimeout;
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void HandleLoginReqTimeout()
         {
             if (LoginRequestTimeOut == 0)
@@ -867,8 +877,8 @@ namespace LSEG.Ema.Access
 
                     StringBuilder strBuilder = GetStrBuilder();
                     strBuilder.Append($"login failed (timed out after waiting {LoginRequestTimeOut} milliseconds)");
-                    
-                    if(channelConfig != null)
+
+                    if (channelConfig != null)
                     {
                         strBuilder.Append($" for {channelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address}:" +
                             $"{channelConfig.ConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName})");
@@ -892,17 +902,16 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        protected void ModifyIOCtl(IOCtlCode code, int val, ChannelInfo? activeChannelInfo)
+        protected void ModifyIOCtl(IOCtlCode code, int val, ReactorChannel? reactorChannel)
         {
-            if (activeChannelInfo == null
-                || activeChannelInfo.ReactorChannel == null)
+            if (reactorChannel == null)
             {
                 HandleInvalidUsage("No active channel to modify I/O option.",
                     OmmInvalidUsageException.ErrorCodes.NO_ACTIVE_CHANNEL);
                 return;
             }
 
-            ReactorReturnCode ret = activeChannelInfo.ReactorChannel.IOCtl((Eta.Transports.IOCtlCode)(int)code, val, out var error);
+            ReactorReturnCode ret = reactorChannel.IOCtl((Eta.Transports.IOCtlCode)(int)code, val, out var error);
 
             if (ret != ReactorReturnCode.SUCCESS)
             {
@@ -924,7 +933,7 @@ namespace LSEG.Ema.Access
         /// <param name="client">The passed in Client</param>
         /// <param name="clientInterface">The client interface name</param>
         /// <returns><c>true</c> if the client is not set;otherwise <c>false</c></returns>
-    [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         protected bool CheckClient(T client, string clientInterface = "IOmmConsumerClient")
         {
             if (client == null)
@@ -936,6 +945,62 @@ namespace LSEG.Ema.Access
             return false;
         }
 
+        #region ConsumerSession management
+
+        internal ConsumerSession<T>? ConsumerSession { get; set; }
+
+        /// <summary>
+        /// This is used to reference service list dictionary specified in the <see cref="OmmConsumerConfig.AddServiceList(ServiceList)"/> method.
+        /// </summary>
+        public Dictionary<string, ServiceList>? ServiceListDict { get; internal set; }
+
+        internal void CloseSessionChannelOnly(SessionChannelInfo<IOmmConsumerClient>? sessionChannelInfo)
+        {
+            if (sessionChannelInfo == null)
+                return;
+
+            ReactorChannel? reactorChannel = sessionChannelInfo?.ReactorChannel;
+
+            if (reactorChannel?.Reactor != null
+                && reactorChannel.Close(out var rsslErrorInfo) != ReactorReturnCode.SUCCESS)
+            {
+                if (LoggerClient.IsErrorEnabled)
+                {
+                    GetStrBuilder().Append("Failed to close reactor channel (rsslReactorChannel).")
+                        .Append("' RsslChannel='")
+                        .Append((rsslErrorInfo?.Error.Channel != null ? rsslErrorInfo.Error.Channel.GetHashCode() : 0).ToString("X"))
+                        .Append("Error Id ").Append(rsslErrorInfo?.Error.ErrorId)
+                        .Append("Internal sysError ").Append(rsslErrorInfo?.Error.SysError)
+                        .Append("Error Location ").Append(rsslErrorInfo?.Location)
+                        .Append("Error Text ").Append(rsslErrorInfo?.Error.Text).Append("'. ");
+
+                    LoggerClient.Error(InstanceName, stringBuilder.ToString());
+                }
+            }
+        }
+
+        internal void CloseSessionChannel(SessionChannelInfo<IOmmConsumerClient>? sessionChannelInfo)
+        {
+            CloseSessionChannelOnly(sessionChannelInfo);
+
+            ChannelCallbackClient!.RemoveSessionChannel(sessionChannelInfo);
+        }
+
+        internal void CloseConsumerSession()
+        {
+            if (ConsumerSession is null)
+                return;
+
+            List<SessionChannelInfo<IOmmConsumerClient>> sessionChannelList = ConsumerSession.SessionChannelList;
+
+            for (int index = sessionChannelList.Count -1; index >= 0; index--)
+            {
+                CloseSessionChannel(sessionChannelList[index]);
+            }
+
+            ConsumerSession.Close();
+        }
+        #endregion
 
         public ILoggerClient GetLoggerClient()
         {

@@ -221,7 +221,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
         {
             ProviderSessionOptions = opts;
 
-            m_LoginHandler = new LoginHandler(this);
+            m_LoginHandler = new LoginHandler(this, output);
             m_DirectoryHandler = new DirectoryHandler(this);
 
             MarketItemHandler = new MarketItemHandler(m_LoginHandler, ProviderSessionOptions);
@@ -378,7 +378,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                                 return ReactorCallbackReturnCode.FAILURE;
                             break;
                         case MsgClasses.CLOSE:
-                            m_Output.WriteLine($"Received close message with streamId={msg.StreamId} and unsupported Domain '{msg.DomainType}'");
+                            m_Output.WriteLine($"[ProviderTest] Received close message with streamId={msg.StreamId} and unsupported Domain '{msg.DomainType}'");
                             break;
                         case MsgClasses.GENERIC:
                             if (MarketItemHandler.ProcessGenericMsg(reactorChannel, (Eta.Codec.Msg)msg, m_DecodeIterator) != ReactorReturnCode.SUCCESS)
@@ -390,7 +390,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                             break;
                         default:
-                            m_Output.WriteLine($"Received unhandled Msg Class: {MsgClasses.ToString(msg.MsgClass)} with streamId={msg.StreamId} and unsupported Domain '{msg.DomainType}'");
+                            m_Output.WriteLine($"[ProviderTest] Received unhandled Msg Class: {MsgClasses.ToString(msg.MsgClass)} with streamId={msg.StreamId} and unsupported Domain '{msg.DomainType}'");
                             break;
                     }
                     break;

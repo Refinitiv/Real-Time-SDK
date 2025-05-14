@@ -660,7 +660,7 @@ namespace LSEG.Ema.Access
             {
                 return m_OmmServerBaseImpl.DictionaryHandler.GetDictionaryByServiceId(itemInfo.MsgKey.ServiceId);
             }
-            else if (msg.MsgKey.CheckHasServiceId())
+            else if (msg.MsgKey != null && msg.MsgKey.CheckHasServiceId())
             {
                 return m_OmmServerBaseImpl.DictionaryHandler.GetDictionaryByServiceId(msg.MsgKey.ServiceId);
             }

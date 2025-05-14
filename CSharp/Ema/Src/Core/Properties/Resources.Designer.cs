@@ -74,7 +74,7 @@ namespace LSEG.Ema.Properties {
         ///      similar structure and the XML Configuration parser is able to automatically adjust
         ///      itself depending on which kind of congiguration is requested by the application.
         ///
-        ///      The Consum [rest of string was truncated]&quot;;.
+        ///      The Consumer configurat [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string EmaConfigSchema {
             get {

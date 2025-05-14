@@ -84,6 +84,11 @@ public sealed class OmmInvalidUsageException : OmmException
         public const int PERSISTENCE_FULL = -9;
 
         /// <summary>
+        /// Indicate that the Reactor is shutdown
+        /// </summary>
+        public const int SHUTDOWN = -10;
+
+        /// <summary>
         /// Indicates that the specified version is not supported
         /// </summary>
         public const int VERSION_NOT_SUPPORTED = -16;

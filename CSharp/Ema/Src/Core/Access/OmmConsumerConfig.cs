@@ -8,7 +8,6 @@
 
 using System.Collections.Generic;
 using System.Net.Security;
-using System.Text;
 
 namespace LSEG.Ema.Access
 {
@@ -470,6 +469,20 @@ namespace LSEG.Ema.Access
         public OmmConsumerConfig DataDictionary(Ema.Rdm.DataDictionary dataDictionary, bool shouldCopyIntoAPI = false)
         {
             OmmConsConfigImpl.DataDictionary(dataDictionary, shouldCopyIntoAPI);
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies a list of concrete service names which is used to subscribe items with the service list name.
+        /// </summary>
+        /// <param name="serviceList">ServiceList object that contains the concrete service names.</param>
+        /// <returns>reference to this object.</returns>
+        public OmmConsumerConfig AddServiceList(ServiceList serviceList)
+        {
+            if (serviceList == null)
+                return this;
+
+            OmmConsConfigImpl.AddServiceList(serviceList);
             return this;
         }
     }

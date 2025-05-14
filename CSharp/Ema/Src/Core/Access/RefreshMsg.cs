@@ -643,6 +643,16 @@ namespace LSEG.Ema.Access
             return Clone();
         }
 
+        /* This is used to override the data state from the ETA State */
+        internal void SetDataState(int dataState)
+        {
+            /* Overrides the data state for decoding with EMA message */
+            m_state.SetDataState(dataState);
+
+            /* Overries the data state for cloning EMA message */
+            m_rsslMsg.State.DataState(dataState);
+        }
+
         /// <summary>
         /// Completes encoding current RefreshMsg
         /// </summary>

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2023, 2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -133,6 +133,15 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                                 ProcessReactorEventImpl(reactorEvent);
                             }
+                            else
+                            {
+                                var reactorChannel = (ReactorChannel?)notifierEvent.UserSpec;
+                                if (reactorChannel?.Channel != null && reactorChannel.State == ReactorChannelState.INITIALIZING &&
+                                (reactorChannel.Channel.State == ChannelState.INACTIVE || reactorChannel.Channel.State == ChannelState.INITIALIZING))
+                                {
+                                    InitializeChannel(reactorChannel);
+                                }
+                            }
                         }
                         if(notifierEvent.IsWriteable())
                         {
@@ -228,6 +237,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                         if (channel is null && reactorChannel.State != ReactorChannelState.RDP_RT)
                         {
+                            reactorChannel.SetChannel(channel);
+
                             // Reconnect attempt failed -- send channel down event.
                             m_ReconnectingChannelQueue.Remove(reactorChannel);
                             if (reactorChannel.TokenSession != null && (reactorChannel.TokenSession.SessionMgntState == SessionState.STOP_TOKEN_REQUEST ||
@@ -306,7 +317,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     case ReactorEventImpl.ImplType.CHANNEL_DOWN:
                         {
                             ProcessChannelClose(reactorChannel);
-                            if (reactorChannel != null && reactorChannel.Server == null && !reactorChannel.RecoveryAttemptLimitReached())
+
+                            if (reactorChannel != null && !reactorChannel.IsClosedAckSent  &&
+                                reactorChannel.Server == null && !reactorChannel.RecoveryAttemptLimitReached())
                             {
                                 /* Go into connection recovery. */
                                 reactorChannel.CalculateNextReconnectTime();
@@ -318,6 +331,10 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     case ReactorEventImpl.ImplType.CHANNEL_CLOSE:
                         {
                             ProcessChannelClose(reactorChannel);
+                            
+                            if(reactorChannel != null)
+                                reactorChannel.IsClosedAckSent = true;
+
                             SendReactorImplEvent(reactorChannel!, ReactorEventImpl.ImplType.CHANNEL_CLOSE_ACK,
                                     ReactorReturnCode.SUCCESS, null, null);
                             break;

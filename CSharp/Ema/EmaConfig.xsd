@@ -36,6 +36,9 @@
         - DictionaryGroup
         - DirectoryGroup
         - ServerGroup
+		
+      Any configuration may contain the following elements below the EmaConfig root:
+	    - SessionChannelGroup
 
       Please note that the .NET XML Schema validation supports only v1.0 Schema.
     </xs:documentation>
@@ -294,6 +297,19 @@
                           <xs:element name="ServiceCountHint" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+						  
+			  <xs:element name="SessionChannelSet" minOccurs="0" maxOccurs="1">
+                            <!-- a comma-separated list of Session Channel names -->
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="SessionEnhancedItemRecovery" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                             </xs:complexType>
                           </xs:element>
 
@@ -1532,6 +1548,63 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element> <!-- end DictionaryGroup -->
+		
+		<!-- SessionChannelGroup configuration -->
+        <xs:element name="SessionChannelGroup" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+
+              <xs:element name="SessionChannelList" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:element name="SessionChannelInfo" minOccurs="1" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:all>
+
+                          <!-- SessionChannelInfo Name is required -->
+                          <xs:element name="Name" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ChannelSet" minOccurs="0" maxOccurs="1">
+                            <!-- a comma-separated list of Channel names -->
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectAttemptLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectMaxDelay" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="ReconnectMinDelay" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                        </xs:all>
+                      </xs:complexType>
+                    </xs:element> <!-- end SessionChannelInfo -->
+
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element> <!-- end SessionChannelList -->
+
+            </xs:all>
+          </xs:complexType>
+        </xs:element> <!-- end SessionChannelGroup -->
 
       </xs:all>
     </xs:complexType>

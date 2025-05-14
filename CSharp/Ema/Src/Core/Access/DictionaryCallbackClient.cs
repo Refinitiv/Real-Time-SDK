@@ -133,7 +133,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         return ProcessCallback(msgEvent, (DictionaryItem<T>)(msgEvent.StreamInfo.UserSpec!));
     }
 
-    internal bool DownloadDictionary(ServiceDirectory directory)
+    internal bool DownloadDictionary(ServiceDirectory<T> directory, ChannelDictionary<T> dictionary)
     {
         if (OmmConsumerConfig.DictionaryConfig.IsLocalDictionary)
         {
@@ -161,7 +161,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
             if (OmmConsumerConfig.AdminFieldDictionaryRequest!.ServiceId == directory!.Service!.ServiceId
                 || (OmmConsumerConfig.FieldDictionaryRequestServiceName is not null
                     && OmmConsumerConfig.FieldDictionaryRequestServiceName.Equals(directory.ServiceName)))
-                DownloadDictionaryFromService(directory);
+                DownloadDictionaryFromService(directory, dictionary);
 
             return true;
         }
@@ -177,7 +177,6 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         msgKey.ApplyHasFilter();
         msgKey.Filter = Eta.Rdm.Dictionary.VerbosityValues.NORMAL;
 
-        ChannelDictionary<T> dictionary = PollChannelDict(m_OmmBaseImpl);
         dictionary.ChannelInfo(directory!.ChannelInfo!);
 
         ReactorSubmitOptions rsslSubmitOptions = m_OmmBaseImpl.GetSubmitOptions();
@@ -408,7 +407,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
 
     private void SpecifyServiceNameFromId(Ema.Access.Msg msgImpl)
     {
-        ServiceDirectory? directory = m_OmmBaseImpl.DirectoryCallbackClient!.GetService(msgImpl.m_rsslMsg.MsgKey.ServiceId);
+        ServiceDirectory<T>? directory = m_OmmBaseImpl.DirectoryCallbackClient!.GetService(msgImpl.m_rsslMsg.MsgKey.ServiceId);
 
         if (directory != null)
         {
@@ -473,7 +472,7 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         return null;
     }
 
-    internal bool DownloadDictionaryFromService(ServiceDirectory directory)
+    internal bool DownloadDictionaryFromService(ServiceDirectory<T> directory, ChannelDictionary<T> dictionary)
     {
         Eta.Codec.IRequestMsg rsslRequestMsg = RequestMsg();
 
@@ -491,7 +490,6 @@ internal class DictionaryCallbackClient<T> : CallbackClient<T>, IDictionaryMsgCa
         msgKey.Name = rsslDictRequest.DictionaryName;
         rsslRequestMsg.StreamId = FIELD_DICTIONARY_STREAM_ID;
 
-        ChannelDictionary<T> dictionary = PollChannelDict(m_OmmBaseImpl);
         dictionary.ChannelInfo(directory.ChannelInfo!);
 
         ReactorSubmitOptions rsslSubmitOptions = m_OmmBaseImpl.GetSubmitOptions();
@@ -1787,7 +1785,7 @@ internal class NiProviderDictionaryItem<T> : SingleItem<T>, IProviderItem
 
         m_IsPrivateStream = reqMsg.PrivateStream();
 
-        m_ServiceDirectory = new ServiceDirectory(serviceName!);
+        m_ServiceDirectory = new ServiceDirectory<T>(serviceName!);
 
         reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.Copy(m_MsgKey);
 
@@ -1895,7 +1893,7 @@ internal class NiProviderDictionaryItem<T> : SingleItem<T>, IProviderItem
         m_ItemWatchList.RemoveItem(this);
     }
 
-    protected override bool Submit(IRequestMsg requestMsg, string? serviceName, bool isReissue)
+    internal override bool Submit(IRequestMsg requestMsg, string? serviceName, bool isReissue, bool resportError = true)
     {
         ReactorSubmitOptions submitOptions = m_OmmBaseImpl.GetSubmitOptions();
         submitOptions.ServiceName = null;
@@ -2100,12 +2098,14 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
 
     public LinkedListNode<IProviderItem>? ItemListNode { get; set; }
 
+    public bool AssignedItemId { get; set; } = false;
+
     private const string CLIENT_NAME = "IProviderDictionaryItem";
     private readonly ItemWatchList m_ItemWatchList;
     private readonly OmmIProviderImpl m_OmmIProviderImpl;
     private readonly MsgKey m_MsgKey = new MsgKey();
 
-    private ServiceDirectory? m_ServiceDirectory;
+    private ServiceDirectory<IOmmProviderClient>? m_ServiceDirectory;
     private bool m_IsPrivateStream;
     private bool m_SpecifiedServiceInReq;
     private bool m_ReceivedInitResp = false;
@@ -2157,7 +2157,7 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
         return retCode;
     }
 
-    public ServiceDirectory? Directory()
+    public ServiceDirectory<IOmmProviderClient>? Directory()
     {
         return m_ServiceDirectory;
     }
@@ -2308,7 +2308,7 @@ internal class IProviderDictionaryItem : Item<IOmmProviderClient>, IProviderItem
 
         m_IsPrivateStream = reqMsg.PrivateStream();
 
-        m_ServiceDirectory = new ServiceDirectory(serviceName!);
+        m_ServiceDirectory = new ServiceDirectory<IOmmProviderClient>(serviceName!);
 
         reqMsg.m_requestMsgEncoder.m_rsslMsg.MsgKey.Copy(m_MsgKey);
 

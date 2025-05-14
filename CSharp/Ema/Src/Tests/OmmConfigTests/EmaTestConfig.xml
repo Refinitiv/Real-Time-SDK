@@ -10,6 +10,7 @@
 				<Name value="TestConsumer"/>
 				<Channel value="TestChannel_1"/>
 				<Logger value="TestLogger_1"/>
+                <SessionEnhancedItemRecovery value="1"/>
 				<Dictionary value="TestDictionary_1"/>
 				<DictionaryRequestTimeOut value="10"/>
 				<DirectoryRequestTimeOut value="20"/>
@@ -43,6 +44,7 @@
 			<Consumer>
 				<Name value="TestConsumer_2"/>
 				<ChannelSet value="TestChannel_1, TestChannel_2"/>
+				<SessionChannelSet value="SessionTestChannel_2, SessionTestChannel_1"/>
 				<Channel value="TestChannel_1"/>
 			</Consumer>
 
@@ -82,7 +84,7 @@
 			</NiProvider>
 		</NiProviderList>
 	</NiProviderGroup>
-	
+
 	<IProviderGroup>
 		<DefaultIProvider value="TestIProv_1"/>
 		<IProviderList>
@@ -97,7 +99,7 @@
 				<MaxDispatchCountApiThread value="40"/>
 				<MaxDispatchCountUserThread value="50"/>
 				<RequestTimeout value="70"/>
-				<RefreshFirstRequired value="0"/>				
+				<RefreshFirstRequired value="0"/>
 				<ServiceCountHint value="80"/>
 				<XmlTraceToStdout value="1"/>
 				<AcceptDirMessageWithoutMinFilters value="1"/>
@@ -145,17 +147,17 @@
 				<ProxyPort value="proxyPort1"/>
 				<TcpNodelay value="1"/>
 				<!-- this is 0110, which has 0x04 set, so this should pass through -->
-				<SecurityProtocol value="6"/>			
+				<SecurityProtocol value="6"/>
 				<AuthenticationTimeout value="25000"/>
 			</Channel>
-		
+
 			<Channel>
 				<Name value="TestChannel_2"/>
 			</Channel>
-	
+
 		</ChannelList>
 	</ChannelGroup>
-	
+
 	<ServerGroup>
 		<ServerList>
 			<Server>
@@ -288,11 +290,28 @@
 						</DictionariesProvided>
 						<DictionariesUsed>
 							<DictionariesUsedEntry value="TestDictionary_1"/>
-						</DictionariesUsed>						
+						</DictionariesUsed>
 					</InfoFilter>
 				</Service>
 			</Directory>
 		</DirectoryList>
 	</DirectoryGroup>
 
+    <SessionChannelGroup>
+      <SessionChannelList>
+
+        <SessionChannelInfo>
+          <Name value="SessionTestChannel_1" />
+          <ReconnectAttemptLimit value="-1" />
+          <ReconnectMaxDelay value="500" />
+          <ReconnectMinDelay value="600" />
+          <ChannelSet value="TestChannel_1, TestChannel_2" />
+        </SessionChannelInfo>
+
+        <!-- SessionTestChannel_2 is all defaults -->
+        <SessionChannelInfo>
+          <Name value="SessionTestChannel_2" />
+        </SessionChannelInfo>
+      </SessionChannelList>
+    </SessionChannelGroup>
 </EmaConfig>

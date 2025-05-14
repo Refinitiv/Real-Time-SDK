@@ -588,9 +588,12 @@ namespace LSEG.Ema.Access
         {
             if (!m_itemGroupDataSet)
             {
-                m_itemGroupData.CopyFrom(m_rsslMsg.GroupId.Data().Contents,
-                    m_rsslMsg.GroupId.Position,
-                    m_rsslMsg.GroupId.Length);
+                if (m_rsslMsg.GroupId.Data() != null)
+                {
+                    m_itemGroupData.CopyFrom(m_rsslMsg.GroupId.Data().Contents,
+                        m_rsslMsg.GroupId.Position,
+                        m_rsslMsg.GroupId.Length);
+                }
                 m_itemGroupDataSet = true;
             }
             return m_itemGroupData;
@@ -622,6 +625,17 @@ namespace LSEG.Ema.Access
             }
 
             return $"{NewLine}{GetType().Name}.ToString() method could not be used for just encoded object. Use ToString(dictionary) for just encoded object.";
+        }
+
+        /// <summary>
+        /// This is used to override the service Id for decoding messages.
+        /// </summary>
+        /// <param name="serviceId">The new service Id</param>
+        internal void ServiceIdInt(int serviceId)
+        {
+            m_rsslMsg.ApplyHasMsgKey();
+            m_rsslMsg.MsgKey.ApplyHasServiceId();
+            m_rsslMsg.MsgKey.ServiceId = serviceId;
         }
 
         /// <summary>

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2022-2023, 2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -288,6 +288,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             ReactorOptions reactorOptions = new ReactorOptions();
             reactorOptions.UserSpecObj = this;
             Reactor reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo errorInfo);
+            ReactorDispatchOptions dispatchOpts = new ReactorDispatchOptions();
             Assert.NotNull(reactor);
 
             Socket reactorEventFD = reactor.EventSocket;
@@ -372,6 +373,18 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 };
 
                 ReactorReturnCode retVal = reactor.Connect(connectOptons, consumerRole, out errorInfo);
+
+
+                if (testOption == 3)
+                {
+                    reactorEventFD.Poll(-1, SelectMode.SelectRead);
+
+                    do
+                    {
+                        reactor.Dispatch(dispatchOpts, out errorInfo);
+                    } while (reactorEventFD.Available > 0);
+                }
+
                 return retVal;
             });
 
@@ -385,8 +398,6 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
             Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
-
-            ReactorDispatchOptions dispatchOpts = new ReactorDispatchOptions();
 
             while (reactorEventFD.Poll(1 * 1000 * 1000, SelectMode.SelectRead) != true) ;
 

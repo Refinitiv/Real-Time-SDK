@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -55,6 +55,9 @@ namespace LSEG.Ema.Access
                         break;
                     case "DictionaryGroup":
                         ParseDictionaryGroup((ElementList)entry.Load, consumerConfig.DictionaryConfigMap, consumerConfig.ConfigErrorLog);
+                        break;
+                    case "SessionChannelGroup":
+                        ParseSessionChannelGroup((ElementList)entry.Load, consumerConfig.SessionChannelInfoMap, consumerConfig.ConfigErrorLog);
                         break;
                     default:
                         consumerConfig.ConfigErrorLog?.Add("Unknown Group element: " + entry.Key.Ascii().ToString(), LoggerLevel.ERROR);
@@ -232,7 +235,7 @@ namespace LSEG.Ema.Access
                                 {
                                     // Channel string.  Keeping the behavior the same as XML: If ChannelSet is present, that overrides the "Channel", even if it's later in the map.
                                     case "Channel":
-                                        CheckElementEntry("consumer", "Channel", DataTypes.ASCII_STRING, consumerEntry);
+                                        CheckElementEntry("Consumer", "Channel", DataTypes.ASCII_STRING, consumerEntry);
                                         if(channelSetFound == false)
                                         {
                                             tmpConfig.ChannelSet.Clear();
@@ -241,7 +244,7 @@ namespace LSEG.Ema.Access
                                         break;
                                     // ChannelSet string containing a comma separated list of Channel names. This will override in all cases.
                                     case "ChannelSet":
-                                        CheckElementEntry("consumer", "ChannelSet", DataTypes.ASCII_STRING, consumerEntry);
+                                        CheckElementEntry("Consumer", "ChannelSet", DataTypes.ASCII_STRING, consumerEntry);
                                         tmpConfig.ChannelSet.Clear();
 
                                         string[] channelArray = consumerEntry.OmmAsciiValue().ToString().Split(',');
@@ -250,6 +253,22 @@ namespace LSEG.Ema.Access
                                             tmpConfig.ChannelSet.Add(channelArray[i].Trim());
 
                                         channelSetFound = true;
+                                        break;
+                                    case "SessionChannelSet":
+                                        CheckElementEntry("Consumer", "SessionChannelSet", DataTypes.ASCII_STRING, consumerEntry);
+                                        tmpConfig.SessionChannelSet.Clear();
+
+                                        string[] sessionChannelArray = consumerEntry.OmmAsciiValue().ToString().Split(',');
+
+                                        for (int i = 0; i < sessionChannelArray.Length; i++)
+                                            tmpConfig.SessionChannelSet.Add(sessionChannelArray[i].Trim());
+                                        
+                                        break;
+                                    // SessionEnhancedItemRecovery uint
+                                    case "SessionEnhancedItemRecovery":
+                                        CheckElementEntry("Consumer", "SessionEnhancedItemRecovery", DataTypes.UINT, consumerEntry);
+
+                                        tmpConfig.SessionEnhancedItemRecovery = Utilities.Convert_ulong_uint(consumerEntry.UIntValue());
                                         break;
                                     // Dictionary string
                                     case "Dictionary":
@@ -421,57 +440,11 @@ namespace LSEG.Ema.Access
 
                                         break;
 
-                                    // XmlTraceToStdout bool
-                                    case "XmlTraceToStdout":
-                                        CheckElementEntry("Consumer", "XmlTraceToStdout", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceToStdout = (consumerEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceToFile bool
-                                    case "XmlTraceToFile":
-                                        CheckElementEntry("Consumer", "XmlTraceToFile", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceToFile = (consumerEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceToFile string
-                                    case "XmlTraceFileName":
-                                        CheckElementEntry("Consumer", "XmlTraceFileName", DataTypes.ASCII_STRING, consumerEntry);
-
-                                        tmpConfig.XmlTraceFileName = consumerEntry.OmmAsciiValue().ToString();
-                                        break;
-                                    // XmlTraceMaxFileSize ulong
-                                    case "XmlTraceMaxFileSize":
-                                        CheckElementEntry("Consumer", "XmlTraceMaxFileSize", DataTypes.UINT, consumerEntry);
-
-                                        tmpConfig.XmlTraceMaxFileSize = consumerEntry.UIntValue();
-                                        break;
-                                    // XmlTraceToMultipleFiles bool
-                                    case "XmlTraceToMultipleFiles":
-                                        CheckElementEntry("Consumer", "XmlTraceToMultipleFiles", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceToMultipleFiles = (consumerEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceWrite bool
-                                    case "XmlTraceWrite":
-                                        CheckElementEntry("Consumer", "XmlTraceWrite", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceWrite = (consumerEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceRead bool
-                                    case "XmlTraceRead":
-                                        CheckElementEntry("Consumer", "XmlTraceRead", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceRead = (consumerEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTracePing bool
-                                    case "XmlTracePing":
-                                        CheckElementEntry("Consumer", "XmlTracePing", DataTypes.UINT, consumerEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTracePing = (consumerEntry.UIntValue() != 0);
-                                        break;
-
                                     default:
-                                        ommConfig.ConfigErrorLog?.Add("Unknown Consumer entry element: " + consumerEntry.Name, LoggerLevel.ERROR);
+                                        if (!ParseXmlTraceConfigNodes("Consumer", tmpConfig, consumerEntry))
+                                        {
+                                            ommConfig.ConfigErrorLog?.Add("Unknown Consumer entry element: " + consumerEntry.Name, LoggerLevel.ERROR);
+                                        }
                                         break;
                                 }
                             }
@@ -752,57 +725,11 @@ namespace LSEG.Ema.Access
 
                                         break;
 
-                                    // XmlTraceToStdout bool
-                                    case "XmlTraceToStdout":
-                                        CheckElementEntry("NiProvider", "XmlTraceToStdout", DataTypes.UINT, niProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceToStdout = (niProviderEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceToFile bool
-                                    case "XmlTraceToFile":
-                                        CheckElementEntry("NiProvider", "XmlTraceToFile", DataTypes.UINT, niProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceToFile = (niProviderEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceToFile string
-                                    case "XmlTraceFileName":
-                                        CheckElementEntry("NiProvider", "XmlTraceFileName", DataTypes.ASCII_STRING, niProviderEntry);
-
-                                        tmpConfig.XmlTraceFileName = niProviderEntry.OmmAsciiValue().ToString();
-                                        break;
-                                    // XmlTraceMaxFileSize ulong
-                                    case "XmlTraceMaxFileSize":
-                                        CheckElementEntry("NiProvider", "XmlTraceMaxFileSize", DataTypes.UINT, niProviderEntry);
-
-                                        tmpConfig.XmlTraceMaxFileSize = niProviderEntry.UIntValue();
-                                        break;
-                                    // XmlTraceToMultipleFiles bool
-                                    case "XmlTraceToMultipleFiles":
-                                        CheckElementEntry("NiProvider", "XmlTraceToMultipleFiles", DataTypes.UINT, niProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceToMultipleFiles = (niProviderEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceWrite bool
-                                    case "XmlTraceWrite":
-                                        CheckElementEntry("NiProvider", "XmlTraceWrite", DataTypes.UINT, niProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceWrite = (niProviderEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceRead bool
-                                    case "XmlTraceRead":
-                                        CheckElementEntry("NiProvider", "XmlTraceRead", DataTypes.UINT, niProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceRead = (niProviderEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTracePing bool
-                                    case "XmlTracePing":
-                                        CheckElementEntry("NiProvider", "XmlTracePing", DataTypes.UINT, niProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTracePing = (niProviderEntry.UIntValue() != 0);
-                                        break;
-
                                     default:
-                                        ommConfig.ConfigErrorLog?.Add("Unknown NiProvider entry element: " + niProviderEntry.Name, LoggerLevel.ERROR);
+                                        if (!ParseXmlTraceConfigNodes("NiProvider", tmpConfig, niProviderEntry))
+                                        {
+                                            ommConfig.ConfigErrorLog?.Add("Unknown NiProvider entry element: " + niProviderEntry.Name, LoggerLevel.ERROR);
+                                        }
                                         break;
                                 }
                             }
@@ -989,55 +916,6 @@ namespace LSEG.Ema.Access
 
                                         break;
 
-                                    // XmlTraceToStdout bool
-                                    case "XmlTraceToStdout":
-                                        CheckElementEntry("IProvider", "XmlTraceToStdout", DataTypes.UINT, iProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceToStdout = (iProviderEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceToFile bool
-                                    case "XmlTraceToFile":
-                                        CheckElementEntry("IProvider", "XmlTraceToFile", DataTypes.UINT, iProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceToFile = (iProviderEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceToFile string
-                                    case "XmlTraceFileName":
-                                        CheckElementEntry("IProvider", "XmlTraceFileName", DataTypes.ASCII_STRING, iProviderEntry);
-
-                                        tmpConfig.XmlTraceFileName = iProviderEntry.OmmAsciiValue().ToString();
-                                        break;
-                                    // XmlTraceMaxFileSize ulong
-                                    case "XmlTraceMaxFileSize":
-                                        CheckElementEntry("IProvider", "XmlTraceMaxFileSize", DataTypes.UINT, iProviderEntry);
-
-                                        tmpConfig.XmlTraceMaxFileSize = iProviderEntry.UIntValue();
-                                        break;
-                                    // XmlTraceToMultipleFiles bool
-                                    case "XmlTraceToMultipleFiles":
-                                        CheckElementEntry("IProvider", "XmlTraceToMultipleFiles", DataTypes.UINT, iProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceToMultipleFiles = (iProviderEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceWrite bool
-                                    case "XmlTraceWrite":
-                                        CheckElementEntry("IProvider", "XmlTraceWrite", DataTypes.UINT, iProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceWrite = (iProviderEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTraceRead bool
-                                    case "XmlTraceRead":
-                                        CheckElementEntry("IProvider", "XmlTraceRead", DataTypes.UINT, iProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTraceRead = (iProviderEntry.UIntValue() != 0);
-                                        break;
-                                    // XmlTracePing bool
-                                    case "XmlTracePing":
-                                        CheckElementEntry("IProvider", "XmlTracePing", DataTypes.UINT, iProviderEntry, "and have a value of \"0\" or \"1\".");
-
-                                        tmpConfig.XmlTracePing = (iProviderEntry.UIntValue() != 0);
-                                        break;
-
                                     // AcceptDirMessageWithoutMinFilters uint->bool
                                     case "AcceptDirMessageWithoutMinFilters":
                                         if (iProviderEntry.Load == null || iProviderEntry.Load.Code == DataCode.BLANK || iProviderEntry.LoadType != DataTypes.UINT)
@@ -1120,7 +998,10 @@ namespace LSEG.Ema.Access
                                         tmpConfig.FieldDictionaryFragmentSize = Utilities.Convert_ulong_int(iProviderEntry.UIntValue());
                                         break;
                                     default:
-                                        ommConfig.ConfigErrorLog?.Add("Unknown IProvider entry element: " + iProviderEntry.Name, LoggerLevel.ERROR);
+                                        if (!ParseXmlTraceConfigNodes("IProvider", tmpConfig, iProviderEntry))
+                                        {
+                                            ommConfig.ConfigErrorLog?.Add("Unknown IProvider entry element: " + iProviderEntry.Name, LoggerLevel.ERROR);
+                                        }
                                         break;
                                 }
                             }
@@ -2432,6 +2313,101 @@ namespace LSEG.Ema.Access
             }
         }
 
+        static void ParseSessionChannelGroup(ElementList channelList, Dictionary<string, SessionChannelConfig> configMap, ConfigErrorList? errorList)
+        {
+            foreach (ElementEntry groupEntry in channelList)
+            {
+                switch (groupEntry.Name)
+                {
+                    case "SessionChannelList":
+                        if (groupEntry.Load == null || groupEntry.LoadType != DataTypes.MAP)
+                        {
+                            throw new OmmInvalidConfigurationException("Invalid SessionChannelGroup. SessionChannelGroup must be a Map");
+                        }
+
+                        if (DataTypes.ASCII_STRING != ((Map)groupEntry.Load).KeyType())
+                        {
+                            throw new OmmInvalidConfigurationException("Invalid key type for SessionChannelList. KeyType must be ASCII_STRING");
+                        }
+
+                        foreach (MapEntry sessionChannel in (Map)groupEntry.Load)
+                        {
+                            bool foundConfig = false;
+                            SessionChannelConfig tmpConfig;
+
+                            if (sessionChannel.Load == null || DataTypes.ELEMENT_LIST != sessionChannel.LoadType)
+                            {
+                                throw new OmmInvalidConfigurationException("Invalid entry payload type for SessionChannelGroup Map Entry. These map entries must contain ELEMENT_LIST");
+                            }
+
+                            if (sessionChannel.Key.Data.Code == DataCode.BLANK)
+                            {
+                                throw new OmmInvalidConfigurationException("Invalid entry key type for SessionChannelGroup Map Entry. The Key must not be blank");
+                            }
+
+                            string name = sessionChannel.Key.Ascii().ToString();
+
+                            if (configMap.ContainsKey(name))
+                            {
+                                tmpConfig = configMap[name];
+                                foundConfig = true;
+                            }
+                            else
+                            {
+                                tmpConfig = new SessionChannelConfig();
+                                tmpConfig.Name = name;
+                            }
+
+                            foreach (ElementEntry channelEntry in (ElementList)sessionChannel.Load)
+                            {
+                                switch (channelEntry.Name)
+                                {
+                                    case "ReconnectAttemptLimit":
+                                        CheckElementEntry("SessionChannelInfo", "ReconnectAttemptLimit", DataTypes.INT, channelEntry);
+
+                                        tmpConfig.ReconnectAttemptLimit = channelEntry.IntValue();
+                                        tmpConfig.ReconnectAttemptLimitSet = true;
+                                        break;
+
+                                    case "ReconnectMaxDelay":
+                                        CheckElementEntry("SessionChannelInfo", "ReconnectMaxDelay", DataTypes.INT, channelEntry);
+
+                                        tmpConfig.ReconnectMaxDelay = channelEntry.IntValue();
+                                        tmpConfig.ReconnectMaxDelaySet = true;
+                                        break;
+
+                                    case "ReconnectMinDelay":
+                                        CheckElementEntry("SessionChannelInfo", "ReconnectMinDelay", DataTypes.INT, channelEntry);
+
+                                        tmpConfig.ReconnectMinDelay = channelEntry.IntValue();
+                                        tmpConfig.ReconnectMinDelaySet = true;
+                                        break;
+
+                                    case "ChannelSet":
+                                        CheckElementEntry("SessionChannelInfo", "ChannelSet", DataTypes.ASCII_STRING, channelEntry);
+                                        tmpConfig.ChannelSet.Clear();
+
+                                        string[] channelArray = channelEntry.OmmAsciiValue().ToString().Split(',');
+                                        for (int i = 0; i < channelArray.Length; i++)
+                                            tmpConfig.ChannelSet.Add(channelArray[i].Trim());
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+                            }
+
+                            if (!foundConfig)
+                                configMap.Add(tmpConfig.Name, tmpConfig);
+                        }
+                        break;
+                    default:
+                        errorList?.Add("Unknown SessionChannelGroup element: " + groupEntry.Name, LoggerLevel.ERROR);
+                        break;
+                }
+            }
+        }
+
         static void CheckElementEntry(string groupName, string elementName, int dataType, ElementEntry elementEntry, string? errorMessageAddition = null)
         {
             if (elementEntry.Load == null || elementEntry.Load.Code == DataCode.BLANK || elementEntry.LoadType != dataType)
@@ -2442,6 +2418,73 @@ namespace LSEG.Ema.Access
                         : ", cannot be blank, " + errorMessageAddition));
             }
         }
+
+        static bool ParseXmlTraceConfigNodes(string groupName, XmlTraceConfigurable configImpl, ElementEntry elementEntry)
+        {
+            switch (elementEntry.Name)
+            {
+                // XmlTraceToStdout bool
+                case "XmlTraceToStdout":
+                    CheckElementEntry(groupName, "XmlTraceToStdout", DataTypes.UINT, elementEntry, "and have a value of \"0\" or \"1\".");
+
+                    configImpl.XmlTraceToStdout = (elementEntry.UIntValue() != 0);
+                    return true;
+
+                // XmlTraceToFile bool
+                case "XmlTraceToFile":
+                    CheckElementEntry(groupName, "XmlTraceToFile", DataTypes.UINT, elementEntry, "and have a value of \"0\" or \"1\".");
+
+                    configImpl.XmlTraceToFile = (elementEntry.UIntValue() != 0);
+                    return true;
+
+                // XmlTraceToFile string
+                case "XmlTraceFileName":
+                    CheckElementEntry(groupName, "XmlTraceFileName", DataTypes.ASCII_STRING, elementEntry);
+
+                    configImpl.XmlTraceFileName = elementEntry.OmmAsciiValue().ToString();
+                    return true;
+
+                // XmlTraceMaxFileSize ulong
+                case "XmlTraceMaxFileSize":
+                    CheckElementEntry(groupName, "XmlTraceMaxFileSize", DataTypes.UINT, elementEntry);
+
+                    configImpl.XmlTraceMaxFileSize = elementEntry.UIntValue();
+                    return true;
+
+                // XmlTraceToMultipleFiles bool
+                case "XmlTraceToMultipleFiles":
+                    CheckElementEntry(groupName, "XmlTraceToMultipleFiles", DataTypes.UINT, elementEntry, "and have a value of \"0\" or \"1\".");
+
+                    configImpl.XmlTraceToMultipleFiles = (elementEntry.UIntValue() != 0);
+                    return true;
+
+                // XmlTraceWrite bool
+                case "XmlTraceWrite":
+                    CheckElementEntry(groupName, "XmlTraceWrite", DataTypes.UINT, elementEntry, "and have a value of \"0\" or \"1\".");
+
+                    configImpl.XmlTraceWrite = (elementEntry.UIntValue() != 0);
+                    return true;
+
+                // XmlTraceRead bool
+                case "XmlTraceRead":
+                    CheckElementEntry(groupName, "XmlTraceRead", DataTypes.UINT, elementEntry, "and have a value of \"0\" or \"1\".");
+
+                    configImpl.XmlTraceRead = (elementEntry.UIntValue() != 0);
+                    return true;
+
+                // XmlTracePing bool
+                case "XmlTracePing":
+                    CheckElementEntry(groupName, "XmlTracePing", DataTypes.UINT, elementEntry, "and have a value of \"0\" or \"1\".");
+
+                    configImpl.XmlTracePing = (elementEntry.UIntValue() != 0);
+                    return true;
+
+                default:
+                    return false;
+
+            }
+        }
+
     }
 }
 

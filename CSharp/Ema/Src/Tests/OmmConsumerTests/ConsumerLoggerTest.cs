@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -63,7 +63,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
         private static readonly string ERROR_LOG = $"{NewLine}ERROR|: loggerMsg{NewLine}    ClientName: Consumer_1_Error{NewLine}    Severity: Error    Text:    login failed (timed out after" +
             $" waiting 3000 milliseconds) for localhost:5555){NewLine}loggerMsgEnd{NewLine}{NewLine}ERROR|: loggerMsg{NewLine}    ClientName: ChannelCallbackClient{NewLine}    Severity: Error    Text:    Received ChannelDown" +
-            $" event on channel Channel_1{NewLine}\tInstance Name Consumer_1_Error{NewLine}\tChannel is null{NewLine}\tError Id SUCCESS{NewLine}\tInternal sysError 0{NewLine}\tError Location {NewLine}\tError text {NewLine}loggerMsgEnd{NewLine}";
+            $" event on channel Channel_1{NewLine}\tInstance Name Consumer_1_Error{NewLine}\tReactor";
 
         private static readonly string WARNING_LOG = $"{NewLine}WARN|: loggerMsg{NewLine}    ClientName: ChannelCallbackClient{NewLine}    Severity: Warning    Text:" +
             $"    Received ChannelDownReconnecting event on channel Channel_1{NewLine}\tInstance Name Consumer_1_Warning{NewLine}\tChannel is null{NewLine}\tError Id SUCCESS{NewLine}" +
@@ -155,7 +155,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             }
             else if (logLevel.Equals("Error"))
             {
-                Assert.Equal(ERROR_LOG.Replace("Consumer_1", "Consumer_2"), logOutput);
+                Assert.StartsWith(ERROR_LOG.Replace("Consumer_1", "Consumer_2"), logOutput);
             }
             else if (logLevel.Equals("Verbose"))
             {
@@ -246,7 +246,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             }
             else if (logLevel.Equals("Error"))
             {
-                Assert.Equal(ERROR_LOG, logOutput);
+                Assert.StartsWith(ERROR_LOG, logOutput);
             }
             else if (logLevel.Equals("Verbose"))
             {

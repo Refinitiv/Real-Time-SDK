@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,10 +12,11 @@ using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using System.Collections.Generic;
 using System.Text;
+using static LSEG.Eta.Rdm.Directory;
 
 namespace LSEG.Ema.Access
 {
-    internal class ServiceDirectory
+    internal class ServiceDirectory<T>
     {
         public ServiceDirectory(Service service)
         {
@@ -32,17 +33,41 @@ namespace LSEG.Ema.Access
         public string? ServiceName { get; set; }
 
         public ChannelInfo? ChannelInfo { get; set; }
+
+        public bool HasGeneratedServiceId { get; private set; }
+
+        private int m_serviceId;
+
+        public SessionDirectory<T>? SessionDirectory { get; set; }
+
+        public void GeneratedServiceId(int serviceId)
+        {
+            HasGeneratedServiceId = true;
+            m_serviceId = serviceId;
+        }
+
+        public int GeneratedServiceId()
+        {
+            return m_serviceId;
+        }
+        public override string ToString()
+        {
+            return $"Name: {ServiceName},\tId: {Service?.ServiceId},\tGenerateServiceId: {GeneratedServiceId()}";
+        }
     }
 
     internal class DirectoryCallbackClient<T> : CallbackClient<T>, IDirectoryMsgCallback
     {
         private static readonly string CLIENT_NAME = "DirectoryCallbackClient";
 
-        private IDictionary<int, ServiceDirectory> m_ServiceByIdDict;
-        private IDictionary<string, ServiceDirectory> m_ServiceByNameDict;
+        private IDictionary<int, ServiceDirectory<T>> m_ServiceByIdDict;
+        private IDictionary<string, ServiceDirectory<T>> m_ServiceByNameDict;
         private OmmBaseImpl<T> m_OmmBaseImpl;
 
         public DirectoryRequest? DirectoryRequest { get; private set; }
+
+        // This is used only for request routing to fan out source directory aggregation
+        public List<DirectoryItem<T>> DirectoryItemList { get; private set; }
 
         public DirectoryCallbackClient(OmmBaseImpl<T> baseImpl) : base(baseImpl, CLIENT_NAME)
         {
@@ -50,14 +75,16 @@ namespace LSEG.Ema.Access
 
             int serviceCountHint = (int)((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).ConsumerConfig.ServiceCountHint;
             int initialHashSize = (int)(serviceCountHint / 0.75 + 1);
-            m_ServiceByIdDict = new Dictionary<int, ServiceDirectory>(initialHashSize);
-            m_ServiceByNameDict = new Dictionary<string, ServiceDirectory>(initialHashSize);
+            m_ServiceByIdDict = new Dictionary<int, ServiceDirectory<T>>(initialHashSize);
+            m_ServiceByNameDict = new Dictionary<string, ServiceDirectory<T>>(initialHashSize);
 
             /* Creates these message using the EmaObjManager */
             m_RefreshMsg = m_OmmBaseImpl.GetEmaObjManager().GetOmmRefreshMsg();
             m_UpdateMsg = m_OmmBaseImpl.GetEmaObjManager().GetOmmUpdateMsg();
             m_StatusMsg = m_OmmBaseImpl.GetEmaObjManager().GetOmmStatusMsg();
             m_GenericMsg = m_OmmBaseImpl.GetEmaObjManager().GetOmmGenericMsg();
+
+            DirectoryItemList = new List<DirectoryItem<T>>();
         }
 
         public ReactorCallbackReturnCode RdmDirectoryMsgCallback(RDMDirectoryMsgEvent dirMsgEvent)
@@ -67,10 +94,19 @@ namespace LSEG.Ema.Access
             DirectoryMsg? directoryMsg = dirMsgEvent.DirectoryMsg;
             ReactorChannel? reactorChannel = dirMsgEvent.ReactorChannel;
             ChannelInfo? channelInfo = (ChannelInfo?)reactorChannel?.UserSpecObj;
+            SessionChannelInfo<IOmmConsumerClient>? sessionChannelInfo = channelInfo?.SessionChannelInfo;
+            ConsumerSession<IOmmConsumerClient>? consumerSession = sessionChannelInfo?.ConsumerSession;
 
             if (directoryMsg == null)
             {
-                m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
+                if (consumerSession != null)
+                {
+                    m_OmmBaseImpl.CloseSessionChannel(sessionChannelInfo);   
+                }
+                else
+                {
+                    m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
+                }
 
                 if (m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
                 {
@@ -114,7 +150,19 @@ namespace LSEG.Ema.Access
                                 m_OmmBaseImpl.LoggerClient.Error(CLIENT_NAME, message.ToString());
                             }
 
-                            ProcessDirectoryPayload(directoryMsg.DirectoryRefresh!.ServiceList, reactorChannel!);
+                            if (consumerSession != null)
+                            {
+                                consumerSession.ProcessDirectoryPayload(directoryMsg.DirectoryRefresh!.ServiceList, reactorChannel);
+
+                                m_OmmBaseImpl.CloseSessionChannel(sessionChannelInfo);
+                            }
+                            else
+                            {
+                                m_OmmBaseImpl.CloseReactorChannel(reactorChannel!);
+
+                                ProcessDirectoryPayload(directoryMsg.DirectoryRefresh!.ServiceList, reactorChannel!);
+                            }
+
                             break;
                         }
                         else if (state.DataState() == DataStates.SUSPECT)
@@ -128,24 +176,58 @@ namespace LSEG.Ema.Access
                                 m_OmmBaseImpl.LoggerClient.Warn(CLIENT_NAME, message.ToString());
                             }
 
-                            m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+                            if (consumerSession != null)
+                            {
+                                sessionChannelInfo!.State = OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT;
 
-                            ProcessDirectoryPayload(directoryMsg.DirectoryRefresh!.ServiceList, reactorChannel!);
+                                if(consumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT))
+                                {
+                                    m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+                                }
+
+                                consumerSession.ProcessDirectoryPayload(directoryMsg.DirectoryRefresh!.ServiceList, reactorChannel);
+                            }
+                            else
+                            {
+                                m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+
+                                ProcessDirectoryPayload(directoryMsg.DirectoryRefresh!.ServiceList, reactorChannel!);
+                            }
                             break;
                         }
 
-                        m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+                        bool changeToOpenOk = false;
 
-                        if(m_OmmBaseImpl.LoggerClient.IsTraceEnabled)
+                        if (consumerSession != null)
                         {
-                            StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
-                            message.AppendLine("RDMDirectory stream state was open with refresh message ")
-                                .Append($"\t{state.ToString()}");
+                            sessionChannelInfo!.State = OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_OK;
 
-                            m_OmmBaseImpl.LoggerClient.Trace(CLIENT_NAME, message.ToString());
+                            if(consumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_OK))
+                            {
+                                changeToOpenOk = true;
+                            }
+
+                            consumerSession.ProcessDirectoryPayload(directoryMsg.DirectoryRefresh!.ServiceList, reactorChannel);
+                        }
+                        else
+                        {
+                            ProcessDirectoryPayload(directoryMsg.DirectoryRefresh!.ServiceList, reactorChannel!);
+                            changeToOpenOk = true;
                         }
 
-                        ProcessDirectoryPayload(directoryMsg.DirectoryRefresh!.ServiceList, reactorChannel!);
+                        if (changeToOpenOk)
+                        {
+                            m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+
+                            if (m_OmmBaseImpl.LoggerClient.IsTraceEnabled)
+                            {
+                                StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
+                                message.AppendLine("RDMDirectory stream state was open with refresh message ")
+                                    .Append($"\t{state.ToString()}");
+
+                                m_OmmBaseImpl.LoggerClient.Trace(CLIENT_NAME, message.ToString());
+                            }
+                        }
                         break;
                     }
                 case DirectoryMsgType.STATUS:
@@ -156,6 +238,15 @@ namespace LSEG.Ema.Access
 
                             if(state.StreamState() != StreamStates.OPEN)
                             {
+                                if (consumerSession != null)
+                                {
+                                    m_OmmBaseImpl.CloseSessionChannel(sessionChannelInfo);
+                                }
+                                else
+                                {
+                                    m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
+                                }
+
                                 m_OmmBaseImpl.CloseReactorChannel(reactorChannel);
 
                                 if(m_OmmBaseImpl.LoggerClient.IsErrorEnabled)
@@ -180,7 +271,19 @@ namespace LSEG.Ema.Access
                                     m_OmmBaseImpl.LoggerClient.Warn(CLIENT_NAME, message.ToString());
                                 }
 
-                                m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+                                if (consumerSession != null)
+                                {
+                                    sessionChannelInfo!.State = OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT;
+
+                                    if(consumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT))
+                                    {
+                                        m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+                                    }
+                                }
+                                else
+                                {
+                                    m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+                                }    
                                 break;
                             }
 
@@ -194,7 +297,19 @@ namespace LSEG.Ema.Access
                                 m_OmmBaseImpl.LoggerClient.Trace(CLIENT_NAME, message.ToString());
                             }
 
-                            m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+                            if (consumerSession != null)
+                            {
+                                sessionChannelInfo!.State = OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_OK;
+
+                                if(consumerSession.CheckAllSessionChannelHasState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_OK))
+                                {
+                                    m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+                                }
+                            }
+                            else
+                            {
+                                m_OmmBaseImpl.SetOmmImplState(OmmBaseImpl<T>.OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+                            }
                         }
                         else
                         {
@@ -213,7 +328,15 @@ namespace LSEG.Ema.Access
                             m_OmmBaseImpl.LoggerClient.Trace(CLIENT_NAME, "Received RDMDirectory update message");
                         }
 
-                        ProcessDirectoryPayload(directoryMsg.DirectoryUpdate!.ServiceList, reactorChannel!);
+                        if (consumerSession != null)
+                        {
+                            consumerSession.ProcessDirectoryPayload(directoryMsg.DirectoryUpdate!.ServiceList, reactorChannel);
+                            consumerSession.FanoutSourceDirectoryResponse(DirectoryMsgType.UPDATE);
+                        }
+                        else
+                        {
+                            ProcessDirectoryPayload(directoryMsg.DirectoryUpdate!.ServiceList, reactorChannel!);
+                        }
                         break;
                     }
                 default:
@@ -242,11 +365,11 @@ namespace LSEG.Ema.Access
             {
                 case DirectoryMsgType.REFRESH:
                 {
-                    m_RefreshMsg!.Decode(msg, reactorChannel.MajorVersion, reactorChannel.MinorVersion, 
+                    m_RefreshMsg!.Decode(msg, reactorChannel.MajorVersion, reactorChannel.MinorVersion,
                     ((ChannelInfo)reactorChannel.UserSpecObj!).DataDictionary!);
 
                     EventImpl.Item = item;
-                    
+
                     NotifyOnAllMsg(m_RefreshMsg);
                     NotifyOnRefreshMsg();
 
@@ -267,11 +390,11 @@ namespace LSEG.Ema.Access
                 break;
             case DirectoryMsgType.UPDATE :
                 {
-                    m_UpdateMsg!.Decode(msg, reactorChannel.MajorVersion, reactorChannel.MinorVersion, 
+                    m_UpdateMsg!.Decode(msg, reactorChannel.MajorVersion, reactorChannel.MinorVersion,
                             ((ChannelInfo)reactorChannel.UserSpecObj!).DataDictionary!);
 
                     EventImpl.Item = item;
-                    
+
                     NotifyOnAllMsg(m_UpdateMsg);
                     NotifyOnUpdateMsg();
                 }
@@ -279,24 +402,24 @@ namespace LSEG.Ema.Access
             case DirectoryMsgType.STATUS :
                 {
                     m_StatusMsg!.Decode(msg, reactorChannel.MajorVersion, reactorChannel.MinorVersion, null!);
-    
+
                     EventImpl.Item = item;
 
                     NotifyOnAllMsg(m_StatusMsg);
                     NotifyOnStatusMsg();
-                    
+
                     IStatusMsg tempStatusMsg = ((IStatusMsg)msg);
                     if (tempStatusMsg.CheckHasState() &&
-                            tempStatusMsg.State.StreamState() != StreamStates.OPEN) 
+                            tempStatusMsg.State.StreamState() != StreamStates.OPEN)
                         EventImpl.Item.Remove();
                 }
                 break;
             case DirectoryMsgType.CONSUMER_STATUS :
                 {
                     m_GenericMsg!.Decode(msg, reactorChannel.MajorVersion, reactorChannel.MinorVersion, null!);
-    
+
                     EventImpl.Item = item;
-                    
+
                     NotifyOnAllMsg(m_GenericMsg);
                     NotifyOnGenericMsg();
                 }
@@ -365,7 +488,7 @@ namespace LSEG.Ema.Access
                             }
 
                             Service? existingService = null;
-                            ServiceDirectory? existingDirectory = null;
+                            ServiceDirectory<T>? existingDirectory = null;
                             if (m_ServiceByNameDict.Count > 0)
                             {
                                 if (m_ServiceByNameDict.TryGetValue(serviceName, out existingDirectory))
@@ -394,7 +517,7 @@ namespace LSEG.Ema.Access
                                 Service newService = new();
                                 oneService.Copy(newService);
 
-                                ServiceDirectory directory = new (newService);
+                                ServiceDirectory<T> directory = new (newService);
                                 directory.ChannelInfo = chnlInfo;
                                 directory.ServiceName = serviceName;
 
@@ -404,7 +527,7 @@ namespace LSEG.Ema.Access
                                 if (((OmmConsumerConfigImpl)m_OmmBaseImpl.OmmConfigBaseImpl).DictionaryConfig.IsLocalDictionary ||
                                     (newService.State.AcceptingRequests == 1 && newService.State.ServiceStateVal == 1))
                                 {
-                                    m_OmmBaseImpl.DictionaryCallbackClient!.DownloadDictionary(directory);
+                                    m_OmmBaseImpl.DictionaryCallbackClient!.DownloadDictionary(directory, m_OmmBaseImpl.DictionaryCallbackClient!.PollChannelDict(m_OmmBaseImpl));
                                 }
                             }
 
@@ -413,7 +536,7 @@ namespace LSEG.Ema.Access
                     case MapEntryActions.UPDATE:
                         {
                             Service? existingService = null;
-                            ServiceDirectory? existingDirectory = null;
+                            ServiceDirectory<T>? existingDirectory = null;
                             if (m_ServiceByIdDict.Count > 0)
                             {
                                 if (m_ServiceByIdDict.TryGetValue(oneService.ServiceId, out existingDirectory))
@@ -473,7 +596,8 @@ namespace LSEG.Ema.Access
                             {
                                 oneService.State.Copy(existingService.State);
                                 if (oneService.State.AcceptingRequests == 1 && oneService.State.ServiceStateVal == 1)
-                                    m_OmmBaseImpl.DictionaryCallbackClient!.DownloadDictionary(existingDirectory!);
+                                    m_OmmBaseImpl.DictionaryCallbackClient!.DownloadDictionary(existingDirectory!, 
+                                        m_OmmBaseImpl.DictionaryCallbackClient!.PollChannelDict(m_OmmBaseImpl));
                             }
 
                             existingService.Action = MapEntryActions.UPDATE;
@@ -590,16 +714,92 @@ namespace LSEG.Ema.Access
             }
         }
 
-        public ServiceDirectory? GetService(string serviceName)
+        public ServiceDirectory<T>? GetService(string serviceName)
         {
-            m_ServiceByNameDict.TryGetValue(serviceName, out ServiceDirectory? service);
+            m_ServiceByNameDict.TryGetValue(serviceName, out ServiceDirectory<T>? service);
             return service;
         }
 
-        public ServiceDirectory? GetService(int serviceId)
+        public ServiceDirectory<T>? GetService(int serviceId)
         {
-            m_ServiceByIdDict.TryGetValue(serviceId, out ServiceDirectory? service);
+            m_ServiceByIdDict.TryGetValue(serviceId, out ServiceDirectory<T>? service);
             return service;
+        }
+
+
+
+        internal SingleItem<T> DirectoryItem(ConsumerSession<T> consumerSession, RequestMsg reqMsg, T client, object? closure)
+        {
+            DirectoryItem<T>? item = (DirectoryItem<T>?)commonImpl.GetEmaObjManager().m_directoryItemPool.Poll();
+            if (item == null)
+            {
+                item = new DirectoryItem<T>(m_OmmBaseImpl, client, closure);
+                commonImpl.GetEmaObjManager().m_directoryItemPool.UpdatePool(item);
+            }
+            else
+            {
+                item.ResetDirectoryItem(m_OmmBaseImpl, client, closure);
+            }
+
+            // Checks for service ID or service name and filter ID
+            if(reqMsg.HasServiceName)
+            {
+                string serviceName = reqMsg.ServiceName();
+
+                SessionDirectory<T>? sessionDir = consumerSession.GetSessionDirectoryByName(serviceName);
+
+                if(sessionDir == null && !consumerSession.SupportSingleOpen())
+                {
+                    /* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+                    m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), item);
+
+                    StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
+                    message.Append($"Service name of '{serviceName}' is not found.");
+
+                    item.ScheduleItemClosedStatus(m_OmmBaseImpl.DirectoryCallbackClient!, item, reqMsg.m_requestMsgEncoder.m_rsslMsg,
+                                                                message.ToString(), serviceName);
+
+                    return item;
+                }
+
+                item.ServiceName = serviceName;
+            }
+            else if(reqMsg.HasServiceId)
+            {
+                int serviceId = reqMsg.ServiceId();
+                SessionDirectory<T>? sessionDir = consumerSession.GetSessionDirectoryById(serviceId);
+                item.ServiceId(serviceId);
+
+                if (sessionDir == null && !consumerSession.SupportSingleOpen())
+                {
+                    /* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+                    m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), item);
+
+                    StringBuilder message = m_OmmBaseImpl.GetStrBuilder();
+                    message.Append($"Service Id of '{serviceId}' is not found.");
+
+                    item.ScheduleItemClosedStatus(m_OmmBaseImpl.DirectoryCallbackClient!, item, reqMsg.m_requestMsgEncoder.m_rsslMsg,
+                                                            message.ToString(), null);
+                    return item;
+                }
+                else
+                {
+                    item.ServiceName = sessionDir?.ServiceName;
+                }
+            }
+
+            if(reqMsg.HasFilter)
+            {
+                item.FilterId = reqMsg.Filter();
+            }
+
+            m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), item);
+
+            DirectoryItemList.Add(item);
+
+            m_OmmBaseImpl.TimeoutEventManager!.AddTimeoutEvent(10, item);
+
+            return item;
         }
     }
 
@@ -620,60 +820,91 @@ namespace LSEG.Ema.Access
 
         public void NotifyOnAllMsgImpl(Msg msg)
         {
-            EventImpl.Item!.Client!.OnAllMsg(msg, EventImpl);
+            EventImpl.Item!.Client?.OnAllMsg(msg, EventImpl);
         }
 
         public void NotifyOnRefreshMsgImpl()
         {
-            EventImpl.Item!.Client!.OnRefreshMsg(m_RefreshMsg!, EventImpl);
+            EventImpl.Item!.Client?.OnRefreshMsg(m_RefreshMsg!, EventImpl);
         }
 
         public void NotifyOnUpdateMsgImpl()
         {
-            EventImpl.Item!.Client!.OnUpdateMsg(m_UpdateMsg!, EventImpl);
+            EventImpl.Item!.Client?.OnUpdateMsg(m_UpdateMsg!, EventImpl);
         }
 
         public void NotifyOnStatusMsgImpl()
         {
-            EventImpl.Item!.Client!.OnStatusMsg(m_StatusMsg!, EventImpl);
+            EventImpl.Item!.Client?.OnStatusMsg(m_StatusMsg!, EventImpl);
         }
 
         public void NotifyOnGenericMsgImpl()
         {
-            EventImpl.Item!.Client!.OnGenericMsg(m_GenericMsg!, EventImpl);
+            EventImpl.Item!.Client?.OnGenericMsg(m_GenericMsg!, EventImpl);
         }
 
         public void NotifyOnAckMsgImpl()
         {
-            EventImpl.Item!.Client!.OnAckMsg(m_AckMsg!, EventImpl);
+            EventImpl.Item!.Client?.OnAckMsg(m_AckMsg!, EventImpl);
         }
     }
 
-    internal class DirectoryItem<T> : SingleItem<T>
+    internal class DirectoryItem<T> : SingleItem<T>, ITimeoutClient
     {
         private static readonly string CLIENT_NAME = "DirectoryItem";
         public ChannelInfo? ChannelInfo { get; set; }
 
+        public long FilterId { get; set; }
+
+        private int m_serviceId; 
+        public bool HasServiceId { get; internal set; } = false;
+
         public DirectoryItem() : base()
         {
             m_type = ItemType.DIRECTORY_ITEM;
+
+            FilterId = ServiceFilterFlags.INFO | ServiceFilterFlags.STATE | ServiceFilterFlags.GROUP |
+                ServiceFilterFlags.LOAD | ServiceFilterFlags.DATA | ServiceFilterFlags.LINK;
+
+            ServiceName = "";
         }
 
         public DirectoryItem(OmmBaseImpl<T> ommBaseImpl, T client, object? closure) :
             base(ommBaseImpl, client, closure, null)
         {
             m_type = ItemType.DIRECTORY_ITEM;
+
+            FilterId = ServiceFilterFlags.INFO | ServiceFilterFlags.STATE | ServiceFilterFlags.GROUP |
+                ServiceFilterFlags.LOAD | ServiceFilterFlags.DATA | ServiceFilterFlags.LINK;
+
+            ServiceName = "";
         }
 
         public void ResetDirectoryItem(OmmBaseImpl<T> ommBaseImpl, T client, object? closure)
         {
             Reset(ommBaseImpl, client, closure, null);
             ChannelInfo = null;
+
+            FilterId = ServiceFilterFlags.INFO | ServiceFilterFlags.STATE | ServiceFilterFlags.GROUP |
+                ServiceFilterFlags.LOAD | ServiceFilterFlags.DATA | ServiceFilterFlags.LINK;
+
+            ServiceName = "";
+        }
+
+        public void ServiceId(int serviceId)
+        {
+            HasServiceId = true;
+            m_serviceId = serviceId;
+        }
+
+        public int ServiceId()
+        {
+            return m_serviceId;
         }
 
         public bool OpenDirectoryItem(RequestMsg reqMsg)
         {
-            ServiceDirectory? service = null;
+            ServiceDirectory<T>? service = null;
 
             if (reqMsg.HasServiceName)
             {
@@ -712,6 +943,8 @@ namespace LSEG.Ema.Access
                     return true;
                 }
             }
+
+
 
             m_ServiceDirectory = service;
 
@@ -803,6 +1036,37 @@ namespace LSEG.Ema.Access
             }
 
             return true;
+        }
+
+        public void HandleTimeoutEvent()
+        {
+            if (m_OmmBaseImpl.DirectoryCallbackClient!.DirectoryItemList.Count == 0)
+                return;
+
+            m_OmmBaseImpl.ConsumerSession?.FanoutSourceDirectoryResponsePerItem(this, DirectoryMsgType.REFRESH, true);
+        }
+
+        public override bool Close()
+        {
+            if (m_OmmBaseImpl.ConsumerSession == null)
+            {
+                ICloseMsg rsslCloseMsg = m_OmmBaseImpl.DirectoryCallbackClient!.CloseMsg();
+                rsslCloseMsg.ContainerType = Eta.Codec.DataTypes.NO_DATA;
+                rsslCloseMsg.DomainType = DomainType;
+
+                bool retCode = Submit(rsslCloseMsg);
+
+                Remove();
+                return retCode;
+            }
+            else
+            {
+                Remove();
+
+                m_OmmBaseImpl.DirectoryCallbackClient!.DirectoryItemList.Remove(this);
+
+                return true;
+            }
         }
     }
 }
