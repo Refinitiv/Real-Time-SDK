@@ -19,20 +19,20 @@ External modules used by this version of RTSDK CSharp:
         ----------                                 -------
         K4os.Compression.LZ4                       1.3.8
         Microsoft.Csharp                           4.5.0
-        Microsoft.IdentityModel.Abstractions       8.1.2 
-        Microsoft.IdentityModel.Jsonwebtokends     8.1.2 
-        Microsoft.IdentityModel.Logging            8.1.2 
-        Microsoft.IdentityModel.Tokens             8.1.2 
+        Microsoft.IdentityModel.Abstractions       8.9.0 
+        Microsoft.IdentityModel.Jsonwebtokends     8.9.0 
+        Microsoft.IdentityModel.Logging            8.9.0 
+        Microsoft.IdentityModel.Tokens             8.9.0 
         Microsoft.Netcore.Platforms                5.0.0
-        NLog                                       5.3.4
-        NLog.Extensions.Logging                    5.3.14
-        System.IdentityModel.Tokens.Jwt            8.1.2
+        NLog                                       5.4.0
+        NLog.Extensions.Logging                    5.4.0
+        System.IdentityModel.Tokens.Jwt            8.9.0
 
 
 # Software Requirements
 - Visual Studio 2022
 - .NET Core 6 or .NET Core 8. NOTE: .NET 8 is used in default build
-- xUnit 2.9.2 or higher for unit testing.
+- xUnit 2.9.3 or higher for unit testing.
 
 ### Platforms and Compilers used in Test
 
