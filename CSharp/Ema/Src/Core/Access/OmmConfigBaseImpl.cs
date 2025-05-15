@@ -78,6 +78,8 @@ namespace LSEG.Ema.Access
 
         internal LoginRequest AdminLoginRequest { get; set; } = new LoginRequest();
 
+        internal bool SetAdminLoginRequest { get; set; } = false;
+
         internal bool SetEncryptedProtocolFlags { get; set; } = false;
 
         internal uint EncryptedTLSProtocolFlags { get; set; } = EmaConfig.EncryptedTLSProtocolFlags.NONE;
@@ -103,7 +105,7 @@ namespace LSEG.Ema.Access
             Password = string.Empty;
             Position = string.Empty;
             ApplicationId = string.Empty;
-            ApplicationName = string.Empty;
+            ApplicationName = "ema";
             ProxyHost = string.Empty;
             ProxyPort = string.Empty;
             ProxyUserName = string.Empty;

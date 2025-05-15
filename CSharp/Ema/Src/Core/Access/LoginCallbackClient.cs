@@ -541,41 +541,44 @@ namespace LSEG.Ema.Access
 
             CurrentLoginRequest = m_OmmBaseImpl.OmmConfigBaseImpl.AdminLoginRequest;
 
-            /* Override the default login request from OmmConsumerConfig */
-            if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.UserName))
+            if (!m_OmmBaseImpl.OmmConfigBaseImpl.SetAdminLoginRequest)
             {
-                if (!m_OmmBaseImpl.OmmConfigBaseImpl.UserName.Equals(CurrentLoginRequest.UserName.ToString()))
+                /* Override the default login request from OmmConsumerConfig */
+                if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.UserName))
                 {
-                    CurrentLoginRequest.UserName.Data(m_OmmBaseImpl.OmmConfigBaseImpl.UserName);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.Password) && CurrentLoginRequest.HasPassword)
-            {
-                if (!m_OmmBaseImpl.OmmConfigBaseImpl.Password.Equals(CurrentLoginRequest.Password.ToString()))
-                {
-                    CurrentLoginRequest.Password.Data(m_OmmBaseImpl.OmmConfigBaseImpl.Password);
-                }
-            }
-
-            if(!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId))
-            {
-                if(CurrentLoginRequest.HasAttrib && CurrentLoginRequest.LoginAttrib.HasApplicationId)
-                {
-                    if (!m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId.Equals(CurrentLoginRequest.LoginAttrib.ApplicationId.ToString()))
+                    if (!m_OmmBaseImpl.OmmConfigBaseImpl.UserName.Equals(CurrentLoginRequest.UserName.ToString()))
                     {
-                        CurrentLoginRequest.LoginAttrib.ApplicationId.Data(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId);
+                        CurrentLoginRequest.UserName.Data(m_OmmBaseImpl.OmmConfigBaseImpl.UserName);
                     }
                 }
-            }
 
-            if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName))
-            {
-                if (CurrentLoginRequest.HasAttrib && CurrentLoginRequest.LoginAttrib.HasApplicationName)
+                if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.Password) && CurrentLoginRequest.HasPassword)
                 {
-                    if (!m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName.Equals(CurrentLoginRequest.LoginAttrib.ApplicationName.ToString()))
+                    if (!m_OmmBaseImpl.OmmConfigBaseImpl.Password.Equals(CurrentLoginRequest.Password.ToString()))
                     {
-                        CurrentLoginRequest.LoginAttrib.ApplicationName.Data(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName);
+                        CurrentLoginRequest.Password.Data(m_OmmBaseImpl.OmmConfigBaseImpl.Password);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId))
+                {
+                    if (CurrentLoginRequest.HasAttrib && CurrentLoginRequest.LoginAttrib.HasApplicationId)
+                    {
+                        if (!m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId.Equals(CurrentLoginRequest.LoginAttrib.ApplicationId.ToString()))
+                        {
+                            CurrentLoginRequest.LoginAttrib.ApplicationId.Data(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationId);
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName))
+                {
+                    if (CurrentLoginRequest.HasAttrib && CurrentLoginRequest.LoginAttrib.HasApplicationName)
+                    {
+                        if (!m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName.Equals(CurrentLoginRequest.LoginAttrib.ApplicationName.ToString()))
+                        {
+                            CurrentLoginRequest.LoginAttrib.ApplicationName.Data(m_OmmBaseImpl.OmmConfigBaseImpl.ApplicationName);
+                        }
                     }
                 }
             }

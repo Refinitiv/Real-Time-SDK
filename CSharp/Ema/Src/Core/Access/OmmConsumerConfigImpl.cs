@@ -134,6 +134,7 @@ namespace LSEG.Ema.Access
             RestProxyPassword = OldConfigImpl.RestProxyPassword;
             DispatchModel = OldConfigImpl.DispatchModel;
             OldConfigImpl.AdminLoginRequest.Copy(AdminLoginRequest);
+            SetAdminLoginRequest = OldConfigImpl.SetAdminLoginRequest;
             SetEncryptedProtocolFlags = OldConfigImpl.SetEncryptedProtocolFlags;
             EncryptedTLSProtocolFlags = OldConfigImpl.EncryptedTLSProtocolFlags;
             CipherSuites = OldConfigImpl.CipherSuites;
@@ -361,7 +362,7 @@ namespace LSEG.Ema.Access
             Password = string.Empty;
             Position = string.Empty;
             ApplicationId = string.Empty;
-            ApplicationName = string.Empty;
+            ApplicationName = "ema";
             ClientId = string.Empty;
             ClientSecret = string.Empty;
             ClientJwk = string.Empty;
@@ -387,6 +388,7 @@ namespace LSEG.Ema.Access
             ConfigErrorLog?.Clear();
             SessionChannelInfoMap.Clear();
 
+            SetAdminLoginRequest = false;
             SetEncryptedProtocolFlags = false;
             CipherSuites = null;
             m_DataDictionary = null;
@@ -422,6 +424,7 @@ namespace LSEG.Ema.Access
             switch (requestMsg.m_requestMsgEncoder.m_rsslMsg.DomainType)
             {
                 case (int)DomainType.LOGIN:
+                    SetAdminLoginRequest = false;
                     LoginRequest tmpLoginRequest = new LoginRequest();
 
                     AdminLoginRequest.Clear();
@@ -454,6 +457,8 @@ namespace LSEG.Ema.Access
                         AdminLoginRequest.InitDefaultRequest(1);
                         return;
                     }
+
+                    SetAdminLoginRequest = true;
                     break;
                 case (int)DomainType.SOURCE:
                     DirectoryRequest tmpDirectoryRequest = new DirectoryRequest();
@@ -710,57 +715,59 @@ namespace LSEG.Ema.Access
             role.EnumTypeDictionaryName.Data(dictConfig.EnumTypeDefItemName);
 
             AdminLoginRequest ??= new LoginRequest();
-           
-            // Setup the Login name if UserName, Password or position are set
-            if (!string.IsNullOrEmpty(UserName))
+
+            if (!SetAdminLoginRequest)
             {
-                AdminLoginRequest.UserName.Data(UserName);
-            }
-            else if (AdminLoginRequest.UserName.Length == 0)
-            {
-                try
+                // Setup the Login name if UserName, Password or position are set
+                if (!string.IsNullOrEmpty(UserName))
                 {
-                    AdminLoginRequest.UserName.Data(Environment.UserName);
+                    AdminLoginRequest.UserName.Data(UserName);
                 }
-                catch (Exception)
+                else if (AdminLoginRequest.UserName.Length == 0)
                 {
-                    AdminLoginRequest.UserName.Data("ema");
+                    try
+                    {
+                        AdminLoginRequest.UserName.Data(Environment.UserName);
+                    }
+                    catch (Exception)
+                    {
+                        AdminLoginRequest.UserName.Data("ema");
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(Password))
+                {
+                    AdminLoginRequest.HasAttrib = true;
+                    AdminLoginRequest.Flags |= LoginRequestFlags.HAS_PASSWORD;
+                    AdminLoginRequest.Password.Data(Password);
+                }
+                if (!string.IsNullOrEmpty(Position))
+                {
+                    AdminLoginRequest.HasAttrib = true;
+                    AdminLoginRequest.LoginAttrib.Flags |= LoginAttribFlags.HAS_POSITION;
+                    AdminLoginRequest.LoginAttrib.Position.Data(Position);
+                }
+
+                if (!string.IsNullOrEmpty(ApplicationId))
+                {
+                    AdminLoginRequest.HasAttrib = true;
+                    AdminLoginRequest.LoginAttrib.Flags |= LoginAttribFlags.HAS_APPLICATION_ID;
+                    AdminLoginRequest.LoginAttrib.ApplicationId.Data(ApplicationId);
+                }
+
+                if (!string.IsNullOrEmpty(ApplicationName))
+                {
+                    AdminLoginRequest.HasAttrib = true;
+                    AdminLoginRequest.LoginAttrib.Flags |= LoginAttribFlags.HAS_APPLICATION_NAME;
+                    AdminLoginRequest.LoginAttrib.ApplicationName.Data(ApplicationName);
+                }
+
+                if (consConfig.EnableRtt)
+                {
+                    AdminLoginRequest.HasAttrib = true;
+                    AdminLoginRequest.LoginAttrib.HasSupportRoundTripLatencyMonitoring = true;
                 }
             }
-
-            if (!string.IsNullOrEmpty(Password))
-            {
-                AdminLoginRequest.HasAttrib = true;
-                AdminLoginRequest.Flags |= LoginRequestFlags.HAS_PASSWORD;
-                AdminLoginRequest.Password.Data(Password);
-            }
-            if (!string.IsNullOrEmpty(Position))
-            {
-                AdminLoginRequest.HasAttrib = true;
-                AdminLoginRequest.LoginAttrib.Flags |= LoginAttribFlags.HAS_POSITION;
-                AdminLoginRequest.LoginAttrib.Position.Data(Position);
-            }
-
-            if (!string.IsNullOrEmpty(ApplicationId))
-            {
-                AdminLoginRequest.HasAttrib = true;
-                AdminLoginRequest.LoginAttrib.Flags |= LoginAttribFlags.HAS_APPLICATION_ID;
-                AdminLoginRequest.LoginAttrib.ApplicationId.Data(ApplicationId);
-            }
-
-            if (!string.IsNullOrEmpty(ApplicationName))
-            {
-                AdminLoginRequest.HasAttrib = true;
-                AdminLoginRequest.LoginAttrib.Flags |= LoginAttribFlags.HAS_APPLICATION_NAME;
-                AdminLoginRequest.LoginAttrib.ApplicationName.Data(ApplicationName);
-            }
-
-            if (consConfig.EnableRtt)
-            {
-                AdminLoginRequest.HasAttrib = true;
-                AdminLoginRequest.LoginAttrib.HasSupportRoundTripLatencyMonitoring = true;
-            }
-
 
             AdminLoginRequest.StreamId = 1; // Set the stream ID for login domain
             role.RdmLoginRequest = AdminLoginRequest;

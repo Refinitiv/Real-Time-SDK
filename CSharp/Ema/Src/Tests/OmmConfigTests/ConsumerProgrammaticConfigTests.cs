@@ -1330,7 +1330,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.Equal(Dictionary.VerbosityValues.VERBOSE, testRole.RdmFieldDictionaryRequest?.Verbosity);
             Assert.Equal(10, testRole.RdmFieldDictionaryRequest?.ServiceId);
 
-            // Now set all of the method-based options to something different and verify that they get set in the login.
+            // Now set all of the method-based options to something different and verify that they NOT set in the login.
             consumerConfig.UserName("MethodUser");
             consumerConfig.ApplicationId("MethodId");
             consumerConfig.ApplicationName("MethodName");
@@ -1342,16 +1342,16 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             testRole = copiedConfig.GenerateConsumerRole();
 
             Assert.NotNull(testRole.RdmLoginRequest);
-            Assert.Equal("MethodUser", testRole.RdmLoginRequest?.UserName.ToString());
+            Assert.NotEqual("MethodUser", testRole.RdmLoginRequest?.UserName.ToString());
             Assert.True(testRole.RdmLoginRequest?.HasAttrib);
             Assert.True(testRole.RdmLoginRequest?.LoginAttrib.HasApplicationId);
-            Assert.Equal("MethodId", testRole.RdmLoginRequest?.LoginAttrib.ApplicationId.ToString());
+            Assert.NotEqual("MethodId", testRole.RdmLoginRequest?.LoginAttrib.ApplicationId.ToString());
             Assert.True(consConfigImpl.AdminLoginRequest.LoginAttrib.HasApplicationName);
-            Assert.Equal("MethodName", testRole.RdmLoginRequest?.LoginAttrib.ApplicationName.ToString());
+            Assert.NotEqual("MethodName", testRole.RdmLoginRequest?.LoginAttrib.ApplicationName.ToString());
             Assert.True(consConfigImpl.AdminLoginRequest.LoginAttrib.HasPosition);
-            Assert.Equal("MethodPosition", testRole.RdmLoginRequest?.LoginAttrib.Position.ToString());
+            Assert.NotEqual("MethodPosition", testRole.RdmLoginRequest?.LoginAttrib.Position.ToString());
             Assert.True(consConfigImpl.AdminLoginRequest.HasPassword);
-            Assert.Equal("MethodPassword", testRole.RdmLoginRequest?.Password.ToString());
+            Assert.NotEqual("MethodPassword", testRole.RdmLoginRequest?.Password.ToString());
 
             Assert.NotNull(testRole.RdmDirectoryRequest);
             Assert.Equal(ServiceFilterFlags.DATA, testRole.RdmDirectoryRequest?.Filter);
