@@ -127,7 +127,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 Assert.Equal(ReactorChannelEventType.CHANNEL_READY, channelEvent.EventType);
 
-                OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 Assert.Single(serverBaseImpl.ConnectedChannelList);
 
@@ -212,7 +212,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 Assert.Equal(1, providerClient.ReceivedOnReqMsg);
 
-                OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
                 Assert.Single(serverBaseImpl.ConnectedChannelList);
 
                 simpleConsumer.UnInitialize();
@@ -321,7 +321,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 Assert.Equal(2, providerClient.ReceivedOnReqMsg);
 
-                OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
                 Assert.Single(serverBaseImpl.ConnectedChannelList);
 
                 simpleConsumer.UnInitialize();
@@ -605,7 +605,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 Assert.Equal(2, providerClient.ReceivedOnReqMsg);
 
-                OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
                 Assert.Single(serverBaseImpl.ConnectedChannelList);
 
                 simpleConsumer.SubmitItemRequest(streamID, (int)serviceID, itemName, domainType);
@@ -751,7 +751,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                    .OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                        : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
 
                 string expecedLoginUser = "";
@@ -965,7 +965,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                    .OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                        : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
@@ -1125,7 +1125,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                    .OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                        : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 ommServerBaseImpl.MarketItemHandler.AcceptMessageWithoutAcceptingRequests = acceptWithoutAcceptingReqs;
 
@@ -1353,7 +1353,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                    .OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                        : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 ommServerBaseImpl.MarketItemHandler.AcceptMessageWithoutQosInRange = acceptOutOfRangeQos;
 
@@ -1589,7 +1589,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                    .OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                        : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 ommServerBaseImpl.MarketItemHandler.AcceptMessageSameKeyButDiffStream = acceptSameKeyDiffStream;
 
@@ -1829,7 +1829,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                    .OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                        : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 ommServerBaseImpl.MarketItemHandler.AcceptMessageThatChangesService = acceptServiceNameChange;
 
@@ -2144,7 +2144,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                    .OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                        : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 string expecedLoginUser = "";
 
@@ -2387,7 +2387,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                    .OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                        : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 string expecedLoginUser = "";
 
@@ -2628,7 +2628,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                    .OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                        : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 ommServerBaseImpl.MarketItemHandler.EnforceAckIDValidation = enforceAckID;
 
@@ -2885,7 +2885,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                     .Port(serverPort).OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                         : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 string expecedLoginUser = "";
 
@@ -3220,7 +3220,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                    .OperationModel(userDispatch ? OmmIProviderConfig.OperationModelMode.USER_DISPATCH
                        : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 string expecedLoginUser = "";
 
@@ -3450,7 +3450,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
             {
                 provider = new OmmProvider(config.Port(connectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName), providerClient, providerErrorClient, null);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 Assert.Contains("DefaultEmaIProvider", provider.ProviderName);
 
@@ -3558,7 +3558,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                     config.Port(serverPort)
                    .OperationModel(OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
 
-                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+                ommServerBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
 
                 string expecedLoginUser = "";
 

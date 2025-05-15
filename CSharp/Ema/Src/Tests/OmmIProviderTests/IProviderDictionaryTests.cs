@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -799,7 +799,9 @@ public class IProviderDictionaryTests : IDisposable
         channelEvent = (ReactorChannelEvent)reactorEvent.ReactorEvent;
         Assert.Equal(ReactorChannelEventType.CHANNEL_READY, channelEvent.EventType);
 
-        switch (((OmmServerBaseImpl)provider!.m_OmmProviderImpl).ConfigImpl.AdminControlDictionary)
+        OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
+
+        switch (serverBaseImpl.ConfigImpl.AdminControlDictionary)
         {
             case OmmIProviderConfig.AdminControlMode.USER_CONTROL:
                 // Provider Client -- that is, the User-provided application, receives
@@ -816,7 +818,6 @@ public class IProviderDictionaryTests : IDisposable
                 break;
         }
 
-        OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider!.m_OmmProviderImpl;
         Assert.Single(serverBaseImpl.ConnectedChannelList);
 
         // consumer gets dictionaries only when requested in the first place

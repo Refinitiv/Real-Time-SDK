@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -197,7 +197,7 @@ public class ModifyIOCtlTest : IDisposable
 
             Assert.Equal(1, providerClient.ReceivedOnReqMsg);
 
-            OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl;
+            OmmServerBaseImpl serverBaseImpl = (OmmServerBaseImpl)provider.m_OmmProviderImpl!;
             Assert.Single(serverBaseImpl.ConnectedChannelList);
 
             // modify IOCtl codes as defined in test parameters
