@@ -219,6 +219,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 						
 						consumerSession.increaseNumOfLoginClose();
 						
+						sessionChannelInfo.loginRefresh().state().streamState(state.streamState());
+						sessionChannelInfo.loginRefresh().state().dataState(state.dataState());
+						
 						if(consumerSession.checkAllSessionChannelHasState(OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN))
 						{
 							_ommBaseImpl.ommImplState(OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN);
@@ -260,17 +263,20 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 		        	}
 					
-					if (_ommBaseImpl.ommImplState() >= OmmImplState.RSSLCHANNEL_UP )
+					if(consumerSession != null)
 					{
-						if(sessionChannelInfo != null)
-						{
+						if (sessionChannelInfo.state() >= OmmImplState.RSSLCHANNEL_UP )
 							sessionChannelInfo.state(OmmImplState.LOGIN_STREAM_OPEN_SUSPECT);
-						}
-						else
-						{
-							_ommBaseImpl.ommImplState(OmmImplState.LOGIN_STREAM_OPEN_SUSPECT);
-						}
+						
+						sessionChannelInfo.loginRefresh().state().streamState(state.streamState());
+						sessionChannelInfo.loginRefresh().state().dataState(state.dataState());
 					}
+					else
+					{
+						if (_ommBaseImpl.ommImplState() >= OmmImplState.RSSLCHANNEL_UP )
+							_ommBaseImpl.ommImplState(OmmImplState.LOGIN_STREAM_OPEN_SUSPECT);
+					}
+					
 				}
 				else
 				{
@@ -279,8 +285,11 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 						sessionChannelInfo.state(OmmImplState.LOGIN_STREAM_OPEN_OK);
 						
 						consumerSession.increaseNumOfLoginOk();
+						
+						sessionChannelInfo.loginRefresh().state().streamState(state.streamState());
+						sessionChannelInfo.loginRefresh().state().dataState(state.dataState());
 
-						if(consumerSession.checkAllSessionChannelHasState(OmmImplState.LOGIN_STREAM_OPEN_OK))
+						if(consumerSession.checkAllSessionChannelHasState(OmmImplState.LOGIN_STREAM_OPEN_OK) || consumerSession.isInitialLoginRefreshSent())
 						{
 							consumerSession.aggregateLoginResponse();
 							
@@ -371,6 +380,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 							
 							consumerSession.increaseNumOfLoginClose();
 							
+							sessionChannelInfo.loginRefresh().state().streamState(state.streamState());
+							sessionChannelInfo.loginRefresh().state().dataState(state.dataState());
+							
 							if(consumerSession.checkAllSessionChannelHasState(OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN))
 							{
 								_ommBaseImpl.ommImplState(OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN);
@@ -412,6 +424,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 						
 						if(consumerSession != null)
 						{
+							 sessionChannelInfo.loginRefresh().state().streamState(state.streamState());
+							 sessionChannelInfo.loginRefresh().state().dataState(state.dataState());
+							
 							if(sessionChannelInfo.state() >= OmmImplState.RSSLCHANNEL_UP)
 							{
 								sessionChannelInfo.state(OmmImplState.LOGIN_STREAM_OPEN_SUSPECT);
@@ -456,7 +471,10 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 							
 							consumerSession.increaseNumOfLoginOk();
 							
-							if(consumerSession.checkAllSessionChannelHasState(OmmImplState.LOGIN_STREAM_OPEN_OK))
+							 sessionChannelInfo.loginRefresh().state().streamState(state.streamState());
+							 sessionChannelInfo.loginRefresh().state().dataState(state.dataState());
+							
+							if(consumerSession.checkAllSessionChannelHasState(OmmImplState.LOGIN_STREAM_OPEN_OK) || consumerSession.isInitialLoginRefreshSent())
 							{
 								_ommBaseImpl.ommImplState(OmmImplState.LOGIN_STREAM_OPEN_OK);
 								
@@ -555,6 +573,20 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		
 		_loginItemLock.lock();
 		
+		/* Special handing for the request routing feature */
+		if(_ommBaseImpl.consumerSession() != null && _ommBaseImpl.consumerSession().isInitialLoginRefreshSent())
+		{
+		    /* Checks whether the user is still login to a server */
+		    if(_ommBaseImpl.consumerSession().checkUserStillLogin())
+		    {
+		    	((OmmStateImpl)_refreshMsg.state()).setDataState(DataState.OK);
+		    }
+		    else
+		    {
+		    	((OmmStateImpl)_refreshMsg.state()).setDataState(DataState.SUSPECT);
+		    }
+		}
+		
 		int itemSize = _loginItemList.size();
 		for (int idx = 0; idx < itemSize; ++idx)
 		{
@@ -602,6 +634,20 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			return ReactorCallbackReturnCodes.SUCCESS;
 		
 		_loginItemLock.lock();
+		
+		/* Special handing for the request routing feature */
+		if(_ommBaseImpl.consumerSession() != null && _ommBaseImpl.consumerSession().isInitialLoginRefreshSent())
+		{
+		    /* Checks whether the user is still login to a server */
+		    if(_statusMsg.hasState() && _ommBaseImpl.consumerSession().checkUserStillLogin())
+		    {
+		    	((OmmStateImpl)_statusMsg.state()).setDataState(DataState.OK);
+		    }
+		    else
+		    {
+		    	((OmmStateImpl)_statusMsg.state()).setDataState(DataState.SUSPECT);
+		    }
+		}
 		
 		int itemSize = _loginItemList.size();
 		for (int idx = 0; idx < itemSize; ++idx)
@@ -1310,7 +1356,16 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 			
 		}
 		
-		boolean submitRet = submit(_baseImpl.loginCallbackClient().rsslLoginRequest());
+		boolean submitRet;
+		
+		if(_baseImpl.consumerSession() == null)
+		{
+			submitRet = submit(_baseImpl.loginCallbackClient().rsslLoginRequest());
+		}
+		else
+		{
+			submitRet = submit(_baseImpl.consumerSession(), _baseImpl.loginCallbackClient().rsslLoginRequest());
+		}
 		
 		/* Unset the pause all and no refresh flags on the stored request. */
 		_baseImpl.loginCallbackClient().rsslLoginRequest().flags(_baseImpl.loginCallbackClient().rsslLoginRequest().flags() & ~LoginRequestFlags.PAUSE_ALL);
@@ -1503,7 +1558,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		 ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		 rdmRequestMsg.streamId(_streamId);
-		 //TODO Workaround
+
 		 if ( !rdmRequestMsg.checkHasUserNameType() )
 		 {
 			 rdmRequestMsg.applyHasUserNameType();
@@ -1526,7 +1581,6 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 					return false;
 				}
 			}
-			ret = 0;
 		}
 		
 		return true;
@@ -1696,7 +1750,14 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslGenericMsg.streamId(_streamId);
+		boolean hasServiceId = rsslGenericMsg.checkHasMsgKey() && rsslGenericMsg.msgKey().checkHasServiceId();
+		int originalServiceId = 0; /* Keeps the original service Id in order to check it with every SessionChannelInfo */
 		int ret;
+		
+		if(hasServiceId)
+		{
+			originalServiceId = rsslGenericMsg.msgKey().serviceId();
+		}
 		
 	    for (SessionChannelInfo<T> entry : consumerSession.sessionChannelList())
 		{
@@ -1740,6 +1801,12 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 					return false;
 			    }
 			}
+			
+			 // Restore the original service Id in order to check with another SessionChannelInfo
+			 if(hasServiceId)
+			 {
+				 rsslGenericMsg.msgKey().serviceId(originalServiceId);
+			 }
 		}
 	    
 		return true;

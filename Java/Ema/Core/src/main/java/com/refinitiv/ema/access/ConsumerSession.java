@@ -2,16 +2,16 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|              Copyright (C) 2024 LSEG. All rights reserved.                --
+// *|              Copyright (C) 2024-2025 LSEG. All rights reserved.           --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -157,12 +157,11 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 	private OmmBaseImpl<T>			_ommBaseImpl;
 	private ActiveConfig			_activeConfig;
 	
-	private List<SessionChannelInfo<T>> 		_sessionChannelList;
+	private List<SessionChannelInfo<T>> 	_sessionChannelList;
+	private List<SessionChannelInfo<T>>  	_tempActionSessionChannelList;
 	private int                     _numOfLoginOk = 0;
 	private int						_numOfLoginClose = 0;
 	private LoginRefresh 			_loginRefresh; // login refresh aggregation for ConsumerSession
-	
-	LinkedHashSet<String>           _serviceList; // Keeps a list of concrete service name from all connections.
 	
 	int								_generateServiceId; // This is used to generate an unique service Id for service name for source directory response
 	
@@ -172,11 +171,12 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 	
 	private Map<Integer, SessionDirectory<T>>		_sessionDirById;
 	
+	// This keeps the list of deleted SessionDirectory
+	private HashSet<SessionDirectory<T>> _removedSessionDirSet;
+	
 	private Buffer 					_rsslEncBuffer;
 	
 	private boolean 				_sendDirectoryResponse;
-	
-	private List<SessionDirectory<T>> _removeSessionDirList; // This is temporary list to remove SessionDirectory
 	
 	private boolean 				_sendInitialLoginRefresh;
 	
@@ -200,7 +200,12 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 	
 	/* This is used to download data dictionary from network */
 	private ChannelDictionary<T>		_channelDictionary;
+
+	/* This is used to indicate whether the ConsumerSession instance is initialized and ready to use. */
+	private boolean				_isConsumerSessionInitialized = false;
 	
+	/* Keeps a list of mismatch service names between session channels that need to be handled */
+	private HashSet<String>		_mismatchServiceSet;
 	ConsumerSession(OmmBaseImpl<T> baseImpl, Map<String, ServiceListImpl> serviceListMap)
 	{
 		_ommBaseImpl = baseImpl;
@@ -208,13 +213,16 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		_activeConfig = _ommBaseImpl.activeConfig();
 		_sessionChannelList = new ArrayList<SessionChannelInfo<T>>();
 		
+		_tempActionSessionChannelList = new ArrayList<SessionChannelInfo<T>>();
+		
 		_loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
 		_loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
 		
 		int initialHashSize =  (int)(_ommBaseImpl.activeConfig().serviceCountHint/ 0.75 + 1);
-		_serviceList = new LinkedHashSet<String>(initialHashSize);
 		_sessionDirByName = new LinkedHashMap<String, SessionDirectory<T>>(initialHashSize);
 		_sessionDirById = new LinkedHashMap<Integer, SessionDirectory<T>>(initialHashSize);
+		
+		_removedSessionDirSet = new HashSet<SessionDirectory<T>>();
 		
 		_generateServiceId = 32766;
 		
@@ -570,6 +578,72 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 	/* This is used to reorder all SessionChannelInfo of every SessionDirectory according to the session's connection list */
 	public void reorderSessionChannelInfoForSessionDirectory()
 	{
+		if(_isConsumerSessionInitialized)
+			return;
+		
+		if(_mismatchServiceSet != null)
+		{
+			/* Removed the session channel which has mismatch service names */
+			for(String serviceName : _mismatchServiceSet)
+			{
+				SessionDirectory<T> sessionDirectory = _sessionDirByName.get(serviceName);
+				if(sessionDirectory != null)
+				{
+					int generatedServiceId = sessionDirectory.service().serviceId();
+					boolean isFirstSessionChannel = false;
+					for(int index = 0; index < _sessionChannelList.size();)
+					{
+						SessionChannelInfo<T> sessionChanelInfo = _sessionChannelList.get(index);
+						Directory<T> directory = sessionChanelInfo.getDirectoryByName(sessionDirectory.serviceName());
+						if(directory != null)
+						{
+							if(!isFirstSessionChannel)
+							{
+								/* Update the service from the first SessionChannelInfo which has the service name */
+								directory.service().copy(sessionDirectory.service());
+								sessionDirectory.service().serviceId(generatedServiceId);
+								directory.generatedServiceId(generatedServiceId);
+								sessionDirectory.sessionChannelList().clear();
+								sessionDirectory.sessionChannelList().add(sessionChanelInfo);
+								isFirstSessionChannel = true;
+							}
+							else
+							{
+								boolean result = compareServiceForAggregation(sessionDirectory, directory);
+								
+								if(result == false)
+								{
+									if (_ommBaseImpl.loggerClient().isErrorEnabled())
+									{
+										StringBuilder temp = _ommBaseImpl.strBuilder();
+										temp.append("Failed to compare service for aggregation, closing session channel: " + sessionChanelInfo).append(OmmLoggerClient.CR)
+										.append("Instance Name ").append(_ommBaseImpl.instanceName());
+										_ommBaseImpl.loggerClient().error(_ommBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
+									}
+									
+									/* Closes this SessionChannelInfo from the consumer session */
+									new ScheduleCloseSeesinChannel<T>(this, sessionChanelInfo, directory).handleTimeoutEvent();
+									
+									/* Don't increase the index as this session channel is removed from the list */
+									continue;
+								}
+								else
+								{
+									directory.generatedServiceId(generatedServiceId);
+									sessionDirectory.sessionChannelList().add(sessionChanelInfo);
+								}
+							}	
+						}
+						
+						/* Increase the index to the next session channel info if any*/
+						++index; 
+					}
+				}
+			}
+			
+			_mismatchServiceSet = null;
+		}
+		
 		Iterator<SessionDirectory<T>> sessionDirIt =  _sessionDirByName.values().iterator();
 		
 		List<SessionChannelInfo<T>> tempChannelInfoList;
@@ -602,6 +676,8 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			sessionDir.sessionChannelList().clear();
 			sessionDir.sessionChannelList(tempChannelInfoList);
 		}
+		
+		_isConsumerSessionInitialized = true; // Indicates that the ConsumerSession is initialized.
 	}
 	
 	public List<SessionChannelInfo<T>> sessionChannelList()
@@ -633,9 +709,36 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 	{
 		return _sendInitialLoginRefresh;
 	}
+	
+	private List<SessionChannelInfo<T>>  activeSessionChannelList()
+	{
+		_tempActionSessionChannelList.clear();
+		
+		SessionChannelInfo<T> sessionChannelInfo;
+		for(int index = 0; index < _sessionChannelList.size(); index++)
+		{
+			sessionChannelInfo = _sessionChannelList.get(index);
+			
+			if(sessionChannelInfo.reactorChannel() != null)
+			{
+				if(sessionChannelInfo.reactorChannel().state() == ReactorChannel.State.UP || 
+						sessionChannelInfo.reactorChannel().state() == ReactorChannel.State.READY)
+				{
+					_tempActionSessionChannelList.add(sessionChannelInfo);
+				}
+			}
+		}
+		
+		return _tempActionSessionChannelList;
+	}
 
 	public SessionChannelInfo<T> aggregateLoginResponse()
 	{
+		List<SessionChannelInfo<T>> activeChannelList = activeSessionChannelList();
+		
+		if(activeChannelList.size() == 0)
+			return null;
+		
 		_loginRefresh.clear();
 		SessionChannelInfo<T> firstLoginResponse = null;
 		
@@ -645,9 +748,9 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		int attribFlags = 0;
 		int featuresFlags = 0;
 		
-		for(int index = 0; index < _sessionChannelList.size(); index++)
+		for(int index = 0; index < activeChannelList.size(); index++)
 		{
-			SessionChannelInfo<T> sessionChannel = _sessionChannelList.get(index);
+			SessionChannelInfo<T> sessionChannel = activeChannelList.get(index);
 			
 			if(sessionChannel.loginRefresh().flags() > 0)
 			{
@@ -669,127 +772,131 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			}
 		}
 		
-		firstLoginResponse.loginRefresh().attrib().flags(attribFlags);
-		firstLoginResponse.loginRefresh().features().flags(featuresFlags);
-		
-		/* Aggregate login response attributes and features from all session channels */
-		for(int index = 1; index < _sessionChannelList.size(); index++)
+		/* Ensure that at least one channel receives the login refresh message from the provider */
+		if(firstLoginResponse != null)
 		{
-			SessionChannelInfo<T> sessionChannel = _sessionChannelList.get(index);
+			firstLoginResponse.loginRefresh().attrib().flags(attribFlags);
+			firstLoginResponse.loginRefresh().features().flags(featuresFlags);
 			
-			if( (attribFlags & LoginAttribFlags.HAS_ALLOW_SUSPECT_DATA) != 0)
+			/* Aggregate login response attributes and features from all session channels */
+			for(int index = 1; index < activeChannelList.size(); index++)
 			{
-				long allowSuspectData = firstLoginResponse.loginRefresh().attrib().allowSuspectData();
-				allowSuspectData &= sessionChannel.loginRefresh().attrib().allowSuspectData();
+				SessionChannelInfo<T> sessionChannel = activeChannelList.get(index);
 				
-				firstLoginResponse.loginRefresh().attrib().allowSuspectData(allowSuspectData);
-			}
-			
-			if( (attribFlags & LoginAttribFlags.HAS_PROVIDE_PERM_EXPR) != 0)
-			{
-				long providePermExpr = firstLoginResponse.loginRefresh().attrib().providePermissionExpressions();
-				providePermExpr &= sessionChannel.loginRefresh().attrib().providePermissionExpressions();
+				if( (attribFlags & LoginAttribFlags.HAS_ALLOW_SUSPECT_DATA) != 0)
+				{
+					long allowSuspectData = firstLoginResponse.loginRefresh().attrib().allowSuspectData();
+					allowSuspectData &= sessionChannel.loginRefresh().attrib().allowSuspectData();
+					
+					firstLoginResponse.loginRefresh().attrib().allowSuspectData(allowSuspectData);
+				}
 				
-				firstLoginResponse.loginRefresh().attrib().providePermissionExpressions(providePermExpr);
-			}
-			
-			if( (attribFlags & LoginAttribFlags.HAS_PROVIDE_PERM_PROFILE) != 0)
-			{
-				long providePermProfile = firstLoginResponse.loginRefresh().attrib().providePermissionProfile();
-				providePermProfile &= sessionChannel.loginRefresh().attrib().providePermissionProfile();
+				if( (attribFlags & LoginAttribFlags.HAS_PROVIDE_PERM_EXPR) != 0)
+				{
+					long providePermExpr = firstLoginResponse.loginRefresh().attrib().providePermissionExpressions();
+					providePermExpr &= sessionChannel.loginRefresh().attrib().providePermissionExpressions();
+					
+					firstLoginResponse.loginRefresh().attrib().providePermissionExpressions(providePermExpr);
+				}
 				
-				firstLoginResponse.loginRefresh().attrib().providePermissionProfile(providePermProfile);
-			}
-			
-
-			if( (attribFlags & LoginAttribFlags.HAS_CONSUMER_SUPPORT_RTT) != 0)
-			{
-				long supportRTT = firstLoginResponse.loginRefresh().attrib().supportRTTMonitoring();
-				supportRTT &= sessionChannel.loginRefresh().attrib().supportRTTMonitoring();
-			
-				firstLoginResponse.loginRefresh().attrib().supportRTTMonitoring(supportRTT);
-			}
-			
-			if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_REQUESTS) != 0)
-			{
-				long batchRequests = firstLoginResponse.loginRefresh().features().supportBatchRequests();
-				batchRequests &= sessionChannel.loginRefresh().features().supportBatchRequests();
+				if( (attribFlags & LoginAttribFlags.HAS_PROVIDE_PERM_PROFILE) != 0)
+				{
+					long providePermProfile = firstLoginResponse.loginRefresh().attrib().providePermissionProfile();
+					providePermProfile &= sessionChannel.loginRefresh().attrib().providePermissionProfile();
+					
+					firstLoginResponse.loginRefresh().attrib().providePermissionProfile(providePermProfile);
+				}
 				
-				firstLoginResponse.loginRefresh().features().supportBatchRequests(batchRequests);
-			}
-			
-			if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_POST) != 0)
-			{
-				long supportPost = firstLoginResponse.loginRefresh().features().supportOMMPost();
-				supportPost &= sessionChannel.loginRefresh().features().supportOMMPost();
+	
+				if( (attribFlags & LoginAttribFlags.HAS_CONSUMER_SUPPORT_RTT) != 0)
+				{
+					long supportRTT = firstLoginResponse.loginRefresh().attrib().supportRTTMonitoring();
+					supportRTT &= sessionChannel.loginRefresh().attrib().supportRTTMonitoring();
 				
-				firstLoginResponse.loginRefresh().features().supportOMMPost(supportPost);
-			}
-			
-			if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_OPT_PAUSE) != 0)
-			{
-				long supportOPTPause = firstLoginResponse.loginRefresh().features().supportOptimizedPauseResume();
-				supportOPTPause &= sessionChannel.loginRefresh().features().supportOptimizedPauseResume();
+					firstLoginResponse.loginRefresh().attrib().supportRTTMonitoring(supportRTT);
+				}
 				
-				firstLoginResponse.loginRefresh().features().supportOptimizedPauseResume(supportOPTPause);
-			}
-			
-			if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_VIEW) != 0)
-			{
-				long supportView = firstLoginResponse.loginRefresh().features().supportViewRequests();
-				supportView &= sessionChannel.loginRefresh().features().supportViewRequests();
+				if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_REQUESTS) != 0)
+				{
+					long batchRequests = firstLoginResponse.loginRefresh().features().supportBatchRequests();
+					batchRequests &= sessionChannel.loginRefresh().features().supportBatchRequests();
+					
+					firstLoginResponse.loginRefresh().features().supportBatchRequests(batchRequests);
+				}
 				
-				firstLoginResponse.loginRefresh().features().supportViewRequests(supportView);
-			}
-			
-			if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_REISSUES) != 0)
-			{
-				long batchReissue = firstLoginResponse.loginRefresh().features().supportBatchReissues();
-				batchReissue &= sessionChannel.loginRefresh().features().supportBatchReissues();
+				if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_POST) != 0)
+				{
+					long supportPost = firstLoginResponse.loginRefresh().features().supportOMMPost();
+					supportPost &= sessionChannel.loginRefresh().features().supportOMMPost();
+					
+					firstLoginResponse.loginRefresh().features().supportOMMPost(supportPost);
+				}
 				
-				firstLoginResponse.loginRefresh().features().supportBatchReissues(batchReissue);
-			}
-			
-			if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_CLOSES) != 0)
-			{
-				long batchClose = firstLoginResponse.loginRefresh().features().supportBatchCloses();
-				batchClose &= sessionChannel.loginRefresh().features().supportBatchCloses();
+				if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_OPT_PAUSE) != 0)
+				{
+					long supportOPTPause = firstLoginResponse.loginRefresh().features().supportOptimizedPauseResume();
+					supportOPTPause &= sessionChannel.loginRefresh().features().supportOptimizedPauseResume();
+					
+					firstLoginResponse.loginRefresh().features().supportOptimizedPauseResume(supportOPTPause);
+				}
 				
-				firstLoginResponse.loginRefresh().features().supportBatchCloses(batchClose);
+				if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_VIEW) != 0)
+				{
+					long supportView = firstLoginResponse.loginRefresh().features().supportViewRequests();
+					supportView &= sessionChannel.loginRefresh().features().supportViewRequests();
+					
+					firstLoginResponse.loginRefresh().features().supportViewRequests(supportView);
+				}
+				
+				if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_REISSUES) != 0)
+				{
+					long batchReissue = firstLoginResponse.loginRefresh().features().supportBatchReissues();
+					batchReissue &= sessionChannel.loginRefresh().features().supportBatchReissues();
+					
+					firstLoginResponse.loginRefresh().features().supportBatchReissues(batchReissue);
+				}
+				
+				if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_CLOSES) != 0)
+				{
+					long batchClose = firstLoginResponse.loginRefresh().features().supportBatchCloses();
+					batchClose &= sessionChannel.loginRefresh().features().supportBatchCloses();
+					
+					firstLoginResponse.loginRefresh().features().supportBatchCloses(batchClose);
+				}
+				
+				if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_ENH_SL) != 0)
+				{
+					long supportEHN_SL = firstLoginResponse.loginRefresh().features().supportEnhancedSymbolList();
+					supportEHN_SL &= sessionChannel.loginRefresh().features().supportEnhancedSymbolList();
+				
+					firstLoginResponse.loginRefresh().features().supportEnhancedSymbolList(supportEHN_SL);
+				}
 			}
 			
-			if((featuresFlags & LoginSupportFeaturesFlags.HAS_SUPPORT_ENH_SL) != 0)
+			/* Makes sure that only supported attributes and features are provided to users */
+			attribFlags &= (LoginAttribFlags.HAS_ALLOW_SUSPECT_DATA | LoginAttribFlags.HAS_PROVIDE_PERM_EXPR | LoginAttribFlags.HAS_PROVIDE_PERM_PROFILE | LoginAttribFlags.HAS_CONSUMER_SUPPORT_RTT);
+			featuresFlags &= (LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_REQUESTS | LoginSupportFeaturesFlags.HAS_SUPPORT_POST | LoginSupportFeaturesFlags.HAS_SUPPORT_OPT_PAUSE |
+					LoginSupportFeaturesFlags.HAS_SUPPORT_VIEW| LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_REISSUES | LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_CLOSES | LoginSupportFeaturesFlags.HAS_SUPPORT_ENH_SL);
+			
+			/* Always enables the single open and allow suspect data flags */
+			attribFlags |= (LoginAttribFlags.HAS_SINGLE_OPEN | LoginAttribFlags.HAS_ALLOW_SUSPECT_DATA);
+			firstLoginResponse.loginRefresh().attrib().flags(attribFlags);
+			firstLoginResponse.loginRefresh().features().flags(featuresFlags);
+			
+			/* Copy to the aggregated login refresh message */
+			firstLoginResponse.loginRefresh().copy(_loginRefresh);
+			
+			/* Always enable the single open feature */
+			if(_enableSingleOpen)	
 			{
-				long supportEHN_SL = firstLoginResponse.loginRefresh().features().supportEnhancedSymbolList();
-				supportEHN_SL &= sessionChannel.loginRefresh().features().supportEnhancedSymbolList();
-			
-				firstLoginResponse.loginRefresh().features().supportEnhancedSymbolList(supportEHN_SL);
+				/* Overrides the single open as it is handled by EMA */
+				_loginRefresh.attrib().allowSuspectData(1);
+				_loginRefresh.attrib().singleOpen(1);
 			}
+			
+			firstLoginResponse.loginRefresh().attrib().flags(originalAttribFlags);
+			firstLoginResponse.loginRefresh().features().flags(originalFeaturesFlags);
 		}
-		
-		/* Makes sure that only supported attributes and features are provided to users */
-		attribFlags &= (LoginAttribFlags.HAS_ALLOW_SUSPECT_DATA | LoginAttribFlags.HAS_PROVIDE_PERM_EXPR | LoginAttribFlags.HAS_PROVIDE_PERM_PROFILE | LoginAttribFlags.HAS_CONSUMER_SUPPORT_RTT);
-		featuresFlags &= (LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_REQUESTS | LoginSupportFeaturesFlags.HAS_SUPPORT_POST | LoginSupportFeaturesFlags.HAS_SUPPORT_OPT_PAUSE |
-				LoginSupportFeaturesFlags.HAS_SUPPORT_VIEW| LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_REISSUES | LoginSupportFeaturesFlags.HAS_SUPPORT_BATCH_CLOSES | LoginSupportFeaturesFlags.HAS_SUPPORT_ENH_SL);
-		
-		/* Always enables the single open and allow suspect data flags */
-		attribFlags |= (LoginAttribFlags.HAS_SINGLE_OPEN | LoginAttribFlags.HAS_ALLOW_SUSPECT_DATA);
-		firstLoginResponse.loginRefresh().attrib().flags(attribFlags);
-		firstLoginResponse.loginRefresh().features().flags(featuresFlags);
-		
-		/* Copy to the aggregated login refresh message */
-		firstLoginResponse.loginRefresh().copy(_loginRefresh);
-		
-		/* Always enable the single open feature */
-		if(_enableSingleOpen)	
-		{
-			/* Overrides the single open as it is handled by EMA */
-			_loginRefresh.attrib().allowSuspectData(1);
-			_loginRefresh.attrib().singleOpen(1);
-		}
-		
-		firstLoginResponse.loginRefresh().attrib().flags(originalAttribFlags);
-		firstLoginResponse.loginRefresh().features().flags(originalFeaturesFlags);
 		
 		return firstLoginResponse;
 	}
@@ -827,14 +934,6 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		Iterator<SessionDirectory<T>> it =  _sessionDirByName.values().iterator();
 		SessionDirectory<T> sessionDirectory;
 		
-		if(_removeSessionDirList == null)
-		{
-			_removeSessionDirList = new ArrayList<SessionDirectory<T>>();
-		}
-		else
-		{
-			_removeSessionDirList.clear();
-		}
 		
 		while(it.hasNext())
 		{
@@ -842,18 +941,10 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			
 			if(sessionDirectory.sessionChannelList().size() == 0)
 			{
-				_removeSessionDirList.add(sessionDirectory);
+				_removedSessionDirSet.add(sessionDirectory);
 				continue;
 			}
-		}
-		
-		for(SessionDirectory<T> entry : _removeSessionDirList)
-		{
-			_sessionDirByName.remove(entry.serviceName());
-			_sessionDirById.remove(entry.service().serviceId());
-			_serviceList.remove(entry.serviceName());
-		}
-		
+		}		
 	}
 	
 	void fanoutSourceDirectoryResponsePerItem(DirectoryItem<T> item, DirectoryMsgType msgType, boolean isInitialRequest)
@@ -1094,29 +1185,24 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			{
 				Iterator<Entry<String, SessionDirectory<T>>> it = _sessionDirByName.entrySet().iterator();
 				Entry<String, SessionDirectory<T>> entry;
+				SessionDirectory<T> sessionDir;
 				Service service;
 				
-				if(_sessionDirByName.entrySet().size() > 0)
+				while(it.hasNext())
 				{
-					boolean isUpdated = false;
-					while(it.hasNext())
-					{
-						entry = it.next();
-
-						if(isUpdated || isInitalRequest)
-						{
-							isUpdated = true;
-							service = entry.getValue().service();
+					entry = it.next();
+					sessionDir = entry.getValue();
 					
+					if(isInitalRequest || sessionDir.isUpdated())
+					{
+						service = sessionDir.service();
+				
+						if(service != null)
+						{
 							// Adjusts the service flags according to the request filter.
 							service.flags(service.flags() & (int)item.filterId());
 							directoryRefresh.serviceList().add(service);
 						}
-					}
-					
-					if(isUpdated == false)
-					{
-						return null; // There is no need to send source directory response.
 					}
 				}
 			}
@@ -1128,7 +1214,8 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 				{
 					SessionDirectory<T> sessionDirectory = _sessionDirByName.get(item.serviceName());
 					
-					if(sessionDirectory != null)
+					/* Checks to ensure that the SessionDir is not removed */
+					if(sessionDirectory != null && !_removedSessionDirSet.contains(sessionDirectory))
 					{
 						Service service = sessionDirectory.service();
 						service.flags(service.flags() & (int)item.filterId());
@@ -1141,7 +1228,8 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 					
 					SessionDirectory<T> sessionDirectory = _sessionDirById.get(item.serviceId());
 					
-					if(sessionDirectory != null)
+					/* Checks to ensure that the SessionDir is not removed */
+					if(sessionDirectory != null && !_removedSessionDirSet.contains(sessionDirectory))
 					{
 						Service service = sessionDirectory.service();
 						service.flags(service.flags() & (int)item.filterId());
@@ -1160,6 +1248,7 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			{
 				Iterator<Entry<String, SessionDirectory<T>>> it = _sessionDirByName.entrySet().iterator();
 				Entry<String, SessionDirectory<T>> entry;
+				SessionDirectory<T> sessionDirectory;
 				Service service;
 				
 				if(_sessionDirByName.entrySet().size() > 0)
@@ -1168,15 +1257,20 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 					while(it.hasNext())
 					{
 						entry = it.next();
+						sessionDirectory = entry.getValue();
 						
-						if(entry.getValue().isUpdated())
+						/* Checks to ensure that the SessionDir is not removed */
+						if(!_removedSessionDirSet.contains(sessionDirectory))
 						{
-							isUpdated = true;
-							service = entry.getValue().service();
-							
-							// Adjusts the service flags according to the request filter.
-							service.flags(service.flags() & (int)item.filterId());
-							directoryUpdate.serviceList().add(service);
+							if(sessionDirectory.isUpdated())
+							{
+								isUpdated = true;
+								service = sessionDirectory.service();
+								
+								// Adjusts the service flags according to the request filter.
+								service.flags(service.flags() & (int)item.filterId());
+								directoryUpdate.serviceList().add(service);
+							}
 						}
 					}
 					
@@ -1197,7 +1291,8 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 				{
 					SessionDirectory<T> sessionDirectory = _sessionDirByName.get(item.serviceName());
 					
-					if(sessionDirectory != null && sessionDirectory.isUpdated())
+					/* Checks to ensure that the SessionDir is not removed */
+					if(sessionDirectory != null && !_removedSessionDirSet.contains(sessionDirectory) && sessionDirectory.isUpdated())
 					{
 						Service service = sessionDirectory.service();
 						service.flags(service.flags() & (int)item.filterId());
@@ -1215,7 +1310,8 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 					
 					SessionDirectory<T> sessionDirectory = _sessionDirById.get(item.serviceId());
 					
-					if(sessionDirectory != null && sessionDirectory.isUpdated())
+					/* Checks to ensure that the SessionDir is not removed */
+					if(sessionDirectory != null && !_removedSessionDirSet.contains(sessionDirectory) && sessionDirectory.isUpdated())
 					{
 						Service service = sessionDirectory.service();
 						service.flags(service.flags() & (int)item.filterId());
@@ -1337,7 +1433,7 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			else if(serviceState.checkHasAcceptingRequests())
 			{
 				sessionDirectory.service().state().applyHasAcceptingRequests();
-				sessionDirectory.service().state().acceptingRequests(serviceState.serviceState());
+				sessionDirectory.service().state().acceptingRequests(serviceState.acceptingRequests());
 				sessionDirectory.isUpdated(true);
 				
 				_sendDirectoryResponse = true;
@@ -1450,9 +1546,6 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		
 		if(sessionDirectory == null)
 		{
-			// Adds a concrete service name to the list
-			_serviceList.add(directory.serviceName());
-			
 			Service newService = DirectoryMsgFactory.createService();
 			directory.service().copy(newService);
 			
@@ -1475,7 +1568,10 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			_sendDirectoryResponse = true;
 			newSessionDirectory.isUpdated(true);
 			
-			handlePendingRequestsForServiceList((SessionDirectory<OmmConsumerClient>) newSessionDirectory);
+			if(_isConsumerSessionInitialized)
+			{
+				handlePendingRequestsForServiceList((SessionDirectory<OmmConsumerClient>) newSessionDirectory);
+			}
 		}
 		else if (sessionDirectory.service().checkHasInfo() == false) 
 		{
@@ -1497,7 +1593,10 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			handlePendingRequestsForServiceList((SessionDirectory<OmmConsumerClient>) sessionDirectory);
 			
 			/* Recover items in the item recovery queue if any. */
-			nextDispatchTime(1000); 
+			nextDispatchTime(1000);
+			
+			/* Removed the SessionDirectory from the list as it is added again */
+			_removedSessionDirSet.remove(sessionDirectory);
 		}
 		else
 		{
@@ -1505,20 +1604,26 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			
 			if(result == false)
 			{
-				if (_ommBaseImpl.loggerClient().isTraceEnabled())
+				if(_isConsumerSessionInitialized)
 				{
-					StringBuilder temp = _ommBaseImpl.strBuilder();
-		        	temp.append("Failed to compare service for aggregation, closing session channel: " + sessionChannelInfo).append(OmmLoggerClient.CR)
-						.append("Instance Name ").append(_ommBaseImpl.instanceName());
-					_ommBaseImpl.loggerClient().trace(_ommBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.TRACE));
+					if (_ommBaseImpl.loggerClient().isErrorEnabled())
+					{
+						StringBuilder temp = _ommBaseImpl.strBuilder();
+			        	temp.append("Failed to compare service for aggregation, ignoring the " + sessionDirectory.serviceName() + " from session channel name: " + 
+						sessionChannelInfo.sessionChannelConfig().name + ", channel name: " + directory.channelInfo()._channelConfig.name)
+			        	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommBaseImpl.instanceName());
+						_ommBaseImpl.loggerClient().error(_ommBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
+					}
 				}
-				
-				
-				/* Schedule an timeout event to close this SessionChannelInfo outside of source directory callback */
-				_ommBaseImpl.addTimeoutEvent(1, new ScheduleCloseSeesinChannel<T>(this, sessionChannelInfo, directory));
-				
-				/* Recover items in the item recovery queue if any. */
-				nextDispatchTime(1000);
+				else
+				{
+					if(_mismatchServiceSet == null)
+					{
+						_mismatchServiceSet = new HashSet<String>();
+					}
+					
+					_mismatchServiceSet.add(sessionDirectory.serviceName());
+				}
 			}
 			else
 			{
@@ -1540,12 +1645,16 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 				if(!isAdded)
 					sessionDirectory.sessionChannelList().add(sessionChannelInfo);
 				
-				sessionDirectory.handlePendingRequests(sessionChannelInfo, sessionDirectory.service());
+				/* Recovers the pending requests after the consumer session initialization */
+				if(_isConsumerSessionInitialized)
+				{
+					sessionDirectory.handlePendingRequests(sessionChannelInfo, sessionDirectory.service());
 				
-				handlePendingRequestsForServiceList((SessionDirectory<OmmConsumerClient>) sessionDirectory);
+					handlePendingRequestsForServiceList((SessionDirectory<OmmConsumerClient>) sessionDirectory);
 				
-				/* Recover items in the item recovery queue if any. */
-				nextDispatchTime(1000); 
+					/* Recover items in the item recovery queue if any. */
+					nextDispatchTime(1000);
+				}
 			}
 		}
 		
@@ -1706,7 +1815,7 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		return false;
 	}
 	
-	/* This is used to check and close a ReactorChannel which doesn't provide a login response in time */
+	/* This is used to check and close a ReactorChannel which doesn't provide a login response in time for the handleLoginReqTimeout() method */
 	public void checkLoginResponseAndCloseReactorChannel()
 	{
 		/* Closes channels if it doesn't receive a login response */
@@ -1750,7 +1859,7 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		{
 			SessionChannelInfo<T> sessionChannelInfo = _sessionChannelList.get(i);
 			
-			if( (sessionChannelInfo.state() & state) != 0)
+			if( (sessionChannelInfo.state() & state) == state)
 				return true;
 		}
 	
@@ -1782,6 +1891,9 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 	
 	void handleLoginStreamForChannelDown(List<LoginItem<T>>	loginItemList, ReactorChannel reactorChannel, int sessionListSize)
 	{
+		/* Update the aggregated login response as this session channel is not ready. */
+		aggregateLoginResponse();
+		
 		if (loginItemList == null)
 			return;
 		
@@ -1802,7 +1914,7 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		
 		if(_sendInitialLoginRefresh)
 		{
-			if(closedStream)
+			if(checkUserStillLogin() == false)
 			{
 				_rsslState.dataState(DataState.SUSPECT);
 			}
@@ -1833,13 +1945,24 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			((OmmConsumerClient) _eventImpl._item.client()).onStatusMsg(_statusMsgImpl, _eventImpl);
 		}
 	}
+		
+	public boolean checkUserStillLogin()
+	{
+		for(SessionChannelInfo<T> entry : _sessionChannelList)
+		{
+			if(entry.loginRefresh().state().streamState() == StreamState.OPEN &&
+					entry.loginRefresh().state().dataState() == DataState.OK)
+	        {
+	            return true;
+	        }
+	    }
+
+		return false;
+	}
 	
 	public void processChannelEvent(SessionChannelInfo<T> sessionChannelInfo, ReactorChannelEvent event)
 	{
 		List<LoginItem<T>>	loginItemList = _ommBaseImpl.loginCallbackClient().loginItemList();
-		
-		if (loginItemList == null)
-			return;
 		
 		_rsslState.clear();
 		
@@ -1848,6 +1971,11 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		case ReactorChannelEventTypes.CHANNEL_UP:
 			
 			if(_sendInitialLoginRefresh)
+				return;
+			
+			sessionChannelInfo.sendChannelUp = true;
+			
+			if (loginItemList == null)
 				return;
 			
 			populateStatusMsg();
@@ -1870,13 +1998,11 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 				((OmmConsumerClient) _eventImpl._item.client()).onStatusMsg(_statusMsgImpl, _eventImpl);
 			}
 			
-			sessionChannelInfo.sendChannelUp = true;
-			
 			break;
 		
 		case ReactorChannelEventTypes.CHANNEL_READY:
 			
-			if(sessionChannelInfo.sendChannelUp)
+			if(sessionChannelInfo.sendChannelUp || loginItemList == null)
 				return;
 			
 			populateStatusMsg();
@@ -1909,15 +2035,23 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			break;
 			
 		  case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
+			  
+			sessionChannelInfo.sendChannelUp = false;
+			
+			if (loginItemList == null)
+				return;
 			
 			populateStatusMsg();
 			
 			_rsslState.streamState(StreamState.OPEN);
 			
+			/* Update the aggregated login response as this session channel is not ready. */
+			aggregateLoginResponse();
+			
 			
 			if(_sendInitialLoginRefresh)
 			{
-				if(_sessionChannelList.size() == 1)
+				if(checkUserStillLogin() == false)
 				{
 					_rsslState.dataState(DataState.SUSPECT);
 				}
@@ -1948,10 +2082,10 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 				((OmmConsumerClient) _eventImpl._item.client()).onStatusMsg(_statusMsgImpl, _eventImpl);
 			}
 			
-			sessionChannelInfo.sendChannelUp = false;
-			
 			break;
 		case ReactorChannelEventTypes.CHANNEL_DOWN:
+			
+			sessionChannelInfo.sendChannelUp = false;
 			
 			handleLoginStreamForChannelDown(loginItemList, event.reactorChannel(), _sessionChannelList.size());
 			
@@ -1993,6 +2127,7 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		/* Clears all SessionDirectory mapping */
 		_sessionDirByName.clear();
 		_sessionDirById.clear();
+		_removedSessionDirSet.clear();
 	}
 
 	public boolean hasActiveChannel()

@@ -424,16 +424,19 @@ class SessionChannelInfo<T>
 		 	{
 		 		SessionDirectory<T> sessionDirectory = _consumerSession.sessionDirectoryByName(directoryIt.next().serviceName());
 		 		
-		 		sessionDirectory.HandleSessionChannelClose(this);
+		 		if(sessionDirectory != null)
+		 		{
+		 			sessionDirectory.HandleSessionChannelClose(this);
+		 		}
 		 	}
-		 	
-		 	_serviceById.clear();
-		 	_serviceByName.clear();
 		}
 		else if (channelInfo.getReactorChannelType() == ReactorChannelType.WARM_STANDBY)
 		{
 			_consumerSession.watchlist().recoverStaleWSBItems(this, _wsbStaleItems, false);
 		}
+		
+	 	_serviceById.clear();
+	 	_serviceByName.clear();
 	}
 	
 	public void close()

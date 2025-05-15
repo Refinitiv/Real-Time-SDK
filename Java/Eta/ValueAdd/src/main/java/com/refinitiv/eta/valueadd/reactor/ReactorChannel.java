@@ -127,7 +127,9 @@ public class ReactorChannel extends VaNode
 	int flags;
 	int userNameType;
 	
-    
+	/* This is used to indicate the worker thread only whether the closed ack is sent from worker to Reactor */
+	boolean isClosedAckSent = false;
+	
     /** The ReactorChannel's state. */
     public enum State
     {
@@ -401,6 +403,8 @@ public class ReactorChannel extends VaNode
         }
         
         _wsbDirectoryUpdate.clear();
+        
+        isClosedAckSent = false;
     }
 
     @Override

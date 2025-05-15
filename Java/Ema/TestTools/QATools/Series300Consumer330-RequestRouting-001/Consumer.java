@@ -51,15 +51,8 @@ class AppClient implements OmmConsumerClient
 			
 		System.out.println();
 		//API QA
-		if (refreshMsg.domainType() == 1)
-		{
-			System.out.println("\nevent session info (refresh)\n");
-			printSessionInfo(event);
-		}
-		else 
-		{
-			System.out.println("\nevent channel info (refresh)\n" + event.channelInformation() );
-		}
+		System.out.println("\nevent session info (refresh)\n");
+		printSessionInfo(event);
 		//END API QA
 	}
 	
@@ -74,15 +67,8 @@ class AppClient implements OmmConsumerClient
 		
 		System.out.println();
 		//API QA
-		if (updateMsg.domainType() == 1)
-		{
-			System.out.println("\nevent session info (update)\n");
-			printSessionInfo(event);
-		}
-		else 
-		{
-			System.out.println("\nevent channel info (update)\n" + event.channelInformation() );
-		}
+		System.out.println("\nevent session info (update)\n");
+		printSessionInfo(event);
 		//END API QA
 	}
 
@@ -98,15 +84,8 @@ class AppClient implements OmmConsumerClient
 		
 		System.out.println();
 		//API QA
-		if (statusMsg.domainType() == 1)
-		{
-			System.out.println("\nevent session info (status)\n");
-			printSessionInfo(event);
-		}
-		else 
-		{
-			System.out.println("\nevent channel info (status)\n" + event.channelInformation() );
-		}
+		System.out.println("\nevent session info (status)\n");
+		printSessionInfo(event);
 		//END API QA
 	}
 	//API QA

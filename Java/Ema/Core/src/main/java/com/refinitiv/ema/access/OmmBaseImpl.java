@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|          Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.
+// *|      Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -2316,16 +2316,16 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	void unsetActiveRsslReactorChannel(ChannelInfo cancelChannelInfo) {}
 	
 	
-	protected void modifyIOCtl(int code, int value, ChannelInfo activeChannelInfo)
+	protected void modifyIOCtl(int code, int value, ReactorChannel reactorChannel)
 	{
-		if(activeChannelInfo == null || activeChannelInfo.rsslReactorChannel() == null)
+		if(reactorChannel == null || reactorChannel.channel() == null)
 		{
 			strBuilder().append("No active channel to modify I/O option.");
 			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
 			return;
 		}
 		
-		Channel channel = activeChannelInfo.rsslReactorChannel().channel();
+		Channel channel = reactorChannel.channel();
 		Error error = TransportFactory.createError();
 		
 		int ret = channel.ioctl(code, value, error);

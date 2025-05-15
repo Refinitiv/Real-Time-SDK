@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022,2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.     
  *|-----------------------------------------------------------------------------
  */
 
@@ -357,7 +357,7 @@ class Worker implements Runnable
                 break;
             case CHANNEL_DOWN:
                 processChannelClose(reactorChannel);
-                if (reactorChannel.server() == null && !event.reactorChannel().recoveryAttemptLimitReached())
+                if (!reactorChannel.isClosedAckSent && reactorChannel.server() == null && !event.reactorChannel().recoveryAttemptLimitReached())
                 {
                     /* Go into connection recovery. */
                     reactorChannel.calculateNextReconnectTime();
@@ -378,6 +378,8 @@ class Worker implements Runnable
             		_reactor.removeReactorChannel(reactorChannel);
 
                 }
+                
+                reactorChannel.isClosedAckSent = true;
                 sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_CLOSE_ACK,
                         ReactorReturnCodes.SUCCESS, null, null);
                 break;

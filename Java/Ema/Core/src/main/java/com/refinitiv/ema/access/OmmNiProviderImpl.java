@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.     
+// *|         Copyright (C) 2019,2024-2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -1935,7 +1935,10 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		try
 		{
-			super.modifyIOCtl(code, value, _activeChannelInfo);
+			ReactorChannel reactorChannel = _loginCallbackClient.activeChannelInfo() != null ?
+					 _loginCallbackClient.activeChannelInfo().rsslReactorChannel() : null;
+			
+			super.modifyIOCtl(code, value, reactorChannel);
 		}
 		finally
 		{

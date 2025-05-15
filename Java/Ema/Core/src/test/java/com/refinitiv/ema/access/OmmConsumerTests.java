@@ -334,10 +334,15 @@ public class OmmConsumerTests extends TestCase
 			System.out.println(ex);
 			assertFalse(true);
 		}
-		
-		assertNotNull(consumer);
-		consumer.uninitialize();
-		ommprovider.uninitialize();
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
+			
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+		}
 	}
 	
 	@Test
@@ -462,12 +467,16 @@ public class OmmConsumerTests extends TestCase
 		{
 			assertFalse(true);
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -551,12 +560,16 @@ public class OmmConsumerTests extends TestCase
 		{
 			assertFalse(true);
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -658,13 +671,17 @@ public class OmmConsumerTests extends TestCase
 
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
-		ommprovider3.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+			ommprovider3.uninitialize();
+		}
 	}
 	
 	@Test
@@ -775,12 +792,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -887,12 +908,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	public void testMultiConnectionsForLoginStreamAndForceLogoutFromProvider()
@@ -1009,7 +1034,7 @@ public class OmmConsumerTests extends TestCase
 			
 			assertEquals(1, statusMsg.streamId());
 			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
-			assertEquals("Open / Suspect / Not entitled / 'Force logout'", statusMsg.state().toString());
+			assertEquals("Open / Ok / Not entitled / 'Force logout'", statusMsg.state().toString());
 			
 			message = consumerClient.popMessage();
 			
@@ -1026,12 +1051,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -1126,7 +1155,7 @@ public class OmmConsumerTests extends TestCase
 		{
 			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_9"), consumerClient);
 			
-			assertEquals(3, consumerClient.queueSize()); // Ensure that the callback receives only one login message
+			assertEquals(4, consumerClient.queueSize()); // Ensure that the callback receives only one login message
 			
 			Msg message = consumerClient.popMessage();
 			
@@ -1214,14 +1243,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -1469,14 +1500,16 @@ public class OmmConsumerTests extends TestCase
 		{
 			assertFalse(true);
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -1898,14 +1931,16 @@ public class OmmConsumerTests extends TestCase
 		{
 			assertFalse(true);
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -2324,14 +2359,16 @@ public class OmmConsumerTests extends TestCase
 		{
 			assertFalse(true);
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -2571,14 +2608,16 @@ public class OmmConsumerTests extends TestCase
 		{
 			assertFalse(true);
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -2819,14 +2858,16 @@ public class OmmConsumerTests extends TestCase
 		{
 			assertFalse(true);
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -2891,14 +2932,16 @@ public class OmmConsumerTests extends TestCase
 		{
 			assertFalse(true);
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -2964,14 +3007,16 @@ public class OmmConsumerTests extends TestCase
 		{
 			assertFalse(true);
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -3133,14 +3178,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -3607,14 +3654,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -4082,14 +4131,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -4185,14 +4236,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -4384,14 +4437,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	
@@ -4506,14 +4561,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -4617,14 +4674,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -4725,14 +4784,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -4924,14 +4985,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -5221,13 +5284,15 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	@Test
 	public void testMultiConnectionsBatchItemRequestByServiceList()
@@ -5388,14 +5453,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -5506,14 +5573,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -5645,14 +5714,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -5770,14 +5841,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -5909,14 +5982,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -6035,13 +6110,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -6144,14 +6222,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -6236,14 +6316,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -6399,14 +6481,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -6595,14 +6679,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -6692,14 +6778,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -6796,14 +6884,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -6940,14 +7030,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -7013,18 +7105,20 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitializing...");
 		
-		System.out.println("Uninitializing...");
+			consumer.uninitialize();
 		
-		consumer.uninitialize();
+			/* Ensure that there is no item status as the item is unregistered */
+			assertEquals(0, consumerClient.queueSize());
 		
-		/* Ensure that there is no item status as the item is unregistered */
-		assertEquals(0, consumerClient.queueSize());
-		
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -7112,14 +7206,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -7240,14 +7336,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -7359,14 +7457,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -7511,14 +7611,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -7694,14 +7796,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -7784,13 +7888,15 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitializing...");
 		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+		}
 	}
 	
 	@Test
@@ -7929,14 +8035,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -8019,14 +8127,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -8146,14 +8256,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -8303,14 +8415,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -8453,14 +8567,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -8603,14 +8719,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -8766,14 +8884,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -8873,7 +8993,7 @@ public class OmmConsumerTests extends TestCase
 					.payload(nestedUpdateMsg), itemHandle ));
 			
 			assertEquals("Failed to submit PostMsg on item stream. Reason: ReactorReturnCodes.INVALID_USAGE. Error text: "
-					+ "Message submitted with unknown service Id 32768", exception.getLocalizedMessage());
+					+ "Message submitted with unknown service Id " + serviceId, exception.getLocalizedMessage());
 			
 			/* This is invalid usage as the UNKNOWN_FEED service name doesn't exist in any providers */
 			exception = assertThrows(OmmInvalidUsageException.class,  () -> tempConsumer.submit( postMsg.postId( 1 ).serviceName("UNKNOWN_FEED")
@@ -8901,14 +9021,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -9051,14 +9173,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -9180,14 +9304,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -9356,14 +9482,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -9490,14 +9618,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -9709,14 +9839,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -10131,14 +10263,16 @@ public class OmmConsumerTests extends TestCase
 
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitilizing...");
 		
-		System.out.println("Uninitilizing...");
-		
-		consumer.uninitialize();
-		ommprovider3.uninitialize();
-		ommprovider4.uninitialize();
+			consumer.uninitialize();
+			ommprovider3.uninitialize();
+			ommprovider4.uninitialize();
+		}
 	}
 	
 	@Test
@@ -10283,14 +10417,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -10438,14 +10574,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -10591,14 +10729,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -10747,14 +10887,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -10843,14 +10985,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -10959,14 +11103,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -11078,14 +11224,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -11181,14 +11329,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -11451,14 +11601,16 @@ public class OmmConsumerTests extends TestCase
 
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitilizing...");
 		
-		System.out.println("Uninitilizing...");
-		
-		consumer.uninitialize();
-		ommprovider3.uninitialize();
-		ommprovider4.uninitialize();
+			consumer.uninitialize();
+			ommprovider3.uninitialize();
+			ommprovider4.uninitialize();
+		}
 	}
 	
 	@Test
@@ -11590,11 +11742,13 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
-		
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -11791,11 +11945,13 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
-		
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	public void testRequestingTheSameItemNameAndServiceListName()
@@ -11894,14 +12050,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -12040,14 +12198,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
 		
-		assertNotNull(consumer);
-		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -12482,16 +12642,18 @@ public class OmmConsumerTests extends TestCase
 
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitilizing...");
 		
-		System.out.println("Uninitilizing...");
-		
-		consumer.uninitialize();
-		ommprovider1.uninitialize();
-		ommprovider2.uninitialize();
-		ommprovider3.uninitialize();
-		ommprovider4.uninitialize();
+			consumer.uninitialize();
+			ommprovider1.uninitialize();
+			ommprovider2.uninitialize();
+			ommprovider3.uninitialize();
+			ommprovider4.uninitialize();
+		}
 	}
 	
 	@Test
@@ -12905,14 +13067,16 @@ public class OmmConsumerTests extends TestCase
 
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitilizing...");
 		
-		System.out.println("Uninitilizing...");
-		
-		consumer.uninitialize();
-		ommprovider3.uninitialize();
-		ommprovider4.uninitialize();
+			consumer.uninitialize();
+			ommprovider3.uninitialize();
+			ommprovider4.uninitialize();
+		}
 	}
 	
 	@Test
@@ -13389,16 +13553,18 @@ public class OmmConsumerTests extends TestCase
 
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitilizing...");
 		
-		System.out.println("Uninitilizing...");
-		
-		consumer.uninitialize();
-		ommprovider1.uninitialize();
-		ommprovider2.uninitialize();
-		ommprovider3.uninitialize();
-		ommprovider4.uninitialize();
+			consumer.uninitialize();
+			ommprovider1.uninitialize();
+			ommprovider2.uninitialize();
+			ommprovider3.uninitialize();
+			ommprovider4.uninitialize();
+		}
 	}
 	
 	@Test
@@ -13486,13 +13652,15 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitializing...");
 		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -13599,14 +13767,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitializing...");
 		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -13744,14 +13914,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitializing...");
 		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider2.uninitialize();
-		ommprovider3.uninitialize();
+			consumer.uninitialize();
+			ommprovider2.uninitialize();
+			ommprovider3.uninitialize();
+		}
 	}
 	
 	@Test
@@ -13850,14 +14022,16 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitializing...");
 		
-		System.out.println("Uninitializing...");
-		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 	
 	@Test
@@ -13959,14 +14133,697 @@ public class OmmConsumerTests extends TestCase
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		finally
+		{
+			assertNotNull(consumer);
 		
-		assertNotNull(consumer);
+			System.out.println("Uninitializing...");
 		
-		System.out.println("Uninitializing...");
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
+	}
+	
+	@Test
+	public void testMultiConnectionItemRecoveryWithDirectoryStreamViaRegisterClientConnectionDownAndUp()
+	{	
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
 		
-		consumer.uninitialize();
-		ommprovider.uninitialize();
-		ommprovider2.uninitialize();
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+		
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+		
+		ProviderTestClient providerClient = new ProviderTestClient(providerTestOptions);
+		
+		// Provider_1 provides the DIRECT_FEED service name
+		OmmProvider ommprovider = EmaFactory.createOmmProvider(config.port("19001").providerName("Provider_1"), providerClient);
+		
+		assertNotNull(ommprovider);
+		
+		// Provider_3 provides the DIRECT_FEED_2 service name
+		OmmProvider ommprovider2 = EmaFactory.createOmmProvider(config.port("19004").providerName("Provider_3"), providerClient);
+		
+		assertNotNull(ommprovider2);
+		
+		OmmConsumer consumer = null;
+		ConsumerTestClient consumerClient = new ConsumerTestClient();
+		
+		try
+		{
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_9"));
+			
+			ReqMsg reqMsg = EmaFactory.createReqMsg();
+			
+			/* Get the service ID for the DIRECT_FEED service name */
+			int serviceId = ((OmmConsumerImpl)consumer).consumerSession().sessionDirectoryByName("DIRECT_FEED").service().serviceId();
+			
+			long directoryHandle = consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DIRECT_FEED"), consumerClient);
+			
+			long itemHandle = consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("LSEG.L"), consumerClient);
+			
+			Thread.sleep(2000);
+			
+			assertEquals(2, consumerClient.queueSize()); // Ensure that the consumer receives one source directory and one item refresh message.
+			
+			Msg message = consumerClient.popMessage();
+			
+			assertTrue(message instanceof RefreshMsg);
+			
+			RefreshMsg refreshMsg = (RefreshMsg)message;
+			
+			assertEquals(2, refreshMsg.streamId());
+			assertEquals(DomainTypes.SOURCE, refreshMsg.domainType());
+			assertEquals("Open / Ok / None / ''", refreshMsg.state().toString());
+			assertTrue(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+			assertTrue(refreshMsg.hasMsgKey());
+			assertFalse(refreshMsg.hasServiceId());
+			assertTrue(refreshMsg.hasServiceName());
+			assertEquals("DIRECT_FEED", refreshMsg.serviceName());
+			assertEquals(DataTypes.MAP, refreshMsg.payload().dataType());
+			Map payload = refreshMsg.payload().map();
+			assertEquals(1, payload.size());
+			
+			Iterator<MapEntry> mapIt =  payload.iterator();	
+			assertTrue(mapIt.hasNext());
+			MapEntry mapEntry = mapIt.next();
+			assertEquals(serviceId, mapEntry.key().uintValue());
+			assertEquals(MapEntry.MapAction.ADD, mapEntry.action());
+			
+			message = consumerClient.popMessage();
+			
+			assertTrue(message instanceof RefreshMsg);
+			
+			refreshMsg = (RefreshMsg)message;
+			
+			/* Checks item refresh message */
+			assertEquals(5, refreshMsg.streamId());
+			assertEquals(DomainTypes.MARKET_PRICE, refreshMsg.domainType());
+			assertEquals("Open / Ok / None / 'Refresh Completed'", refreshMsg.state().toString());
+			assertTrue(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+			assertTrue(refreshMsg.hasMsgKey());
+			assertTrue(refreshMsg.hasServiceId());
+			assertEquals(serviceId, refreshMsg.serviceId());
+			assertTrue(refreshMsg.hasServiceName());
+			assertEquals("DIRECT_FEED", refreshMsg.serviceName());
+			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
+			
+			/* Bring down the connection for the DIRECT_FEED service name */
+			ommprovider.uninitialize();
+			
+			int count = 0;
+			while(count < 5 && consumerClient.queueSize() != 2)
+			{
+				Thread.sleep(500);
+				++count;
+			}
+			
+			assertEquals(2, consumerClient.queueSize());
+			
+			message = consumerClient.popMessage();
+			assertTrue(message instanceof UpdateMsg);
+			
+			UpdateMsg updateMsg = (UpdateMsg)message;
+			assertEquals(2, updateMsg.streamId());
+			assertEquals(DomainTypes.SOURCE, updateMsg.domainType());
+			assertEquals(DataTypes.MAP, updateMsg.payload().dataType());
+			
+		    payload = updateMsg.payload().map();
+			assertEquals(1, payload.size());
+			
+			mapIt =  payload.iterator();
+			assertTrue(mapIt.hasNext());
+			mapEntry = mapIt.next();
+			
+			assertEquals(serviceId, mapEntry.key().uintValue());
+			assertEquals(MapEntry.MapAction.DELETE, mapEntry.action());
+			assertEquals(DataTypes.NO_DATA, mapEntry.loadType());
+			
+			message = consumerClient.popMessage();
+			assertTrue(message instanceof StatusMsg);
+			
+			StatusMsg statusMsg = (StatusMsg)message;
+			
+			assertTrue(statusMsg.hasServiceName());
+			assertEquals("DIRECT_FEED", statusMsg.serviceName());
+			assertTrue(statusMsg.hasServiceId());
+			assertEquals(serviceId, statusMsg.serviceId());
+			assertEquals("LSEG.L", statusMsg.name());
+			assertEquals(OmmState.StreamState.OPEN, statusMsg.state().streamState());
+			assertEquals(OmmState.DataState.SUSPECT, statusMsg.state().dataState());
+			assertEquals(OmmState.StatusCode.NONE, statusMsg.state().statusCode());
+			assertEquals("channel down.", statusMsg.state().statusText());
+			
+			/* Bring the provider up again */
+			ommprovider = EmaFactory.createOmmProvider(config.port("19001").providerName("Provider_1"), providerClient);
+			
+			/* Waits for channel up and the consumer receives the source directory update */
+			count = 0;
+			while(count < 10 && consumerClient.queueSize() != 2)
+			{
+				Thread.sleep(1000);
+				++count;
+			}
+			
+			assertEquals(2, consumerClient.queueSize());
+			
+			message = consumerClient.popMessage();
+			
+			assertTrue(message instanceof UpdateMsg);
+			
+			updateMsg = (UpdateMsg)message;
+			assertEquals(2, updateMsg.streamId());
+			assertEquals(DomainTypes.SOURCE, updateMsg.domainType());
+			assertEquals(DataTypes.MAP, updateMsg.payload().dataType());
+			assertTrue(updateMsg.hasMsgKey());
+			assertFalse(updateMsg.hasServiceId());
+			assertTrue(updateMsg.hasServiceName());
+			assertEquals("DIRECT_FEED", updateMsg.serviceName());
+			assertEquals(DataTypes.MAP, updateMsg.payload().dataType());
+			payload = updateMsg.payload().map();
+			assertEquals(1, payload.size());
+			
+			mapIt =  payload.iterator();	
+			assertTrue(mapIt.hasNext());
+			mapEntry = mapIt.next();
+			assertEquals(serviceId, mapEntry.key().uintValue());
+			assertEquals(MapEntry.MapAction.ADD, mapEntry.action());
+			assertEquals(DataTypes.FILTER_LIST, mapEntry.loadType());
+			
+			message = consumerClient.popMessage();
+			
+			assertTrue(message instanceof RefreshMsg);
+			
+			refreshMsg = (RefreshMsg)message;
+			
+			/* Checks item refresh message */
+			assertEquals(5, refreshMsg.streamId());
+			assertEquals(DomainTypes.MARKET_PRICE, refreshMsg.domainType());
+			assertEquals("Open / Ok / None / 'Refresh Completed'", refreshMsg.state().toString());
+			assertTrue(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+			assertTrue(refreshMsg.hasMsgKey());
+			assertTrue(refreshMsg.hasServiceId());
+			assertEquals(serviceId, refreshMsg.serviceId());
+			assertTrue(refreshMsg.hasServiceName());
+			assertEquals("DIRECT_FEED", refreshMsg.serviceName());
+			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
+			
+			consumer.unregister(directoryHandle);
+			consumer.unregister(itemHandle);
+		}
+		catch(OmmException ex)
+		{
+			assertFalse(true);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			assertNotNull(consumer);
+			
+			System.out.println("Uninitializing...");
+			
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
+	}
+	
+	@Test
+	public void testMultiConnectionsForLoginStreamWithReloginToServers()
+	{
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
+		
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+		
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+		providerTestOptions.sendRefreshAttrib = true;
+		
+		ProviderTestClient providerClient = new ProviderTestClient(providerTestOptions);
+		
+		OmmProvider ommprovider = EmaFactory.createOmmProvider(config.port("19001"), providerClient);
+		
+		ProviderTestOptions providerTestOptions2 = new ProviderTestOptions();
+		providerTestOptions2.sendRefreshAttrib = true;
+		providerTestOptions2.supportOMMPosting = true;
+		
+		ProviderTestClient providerClient2 = new ProviderTestClient(providerTestOptions2);
+		
+		OmmProvider ommprovider2 = EmaFactory.createOmmProvider(config.port("19004"), providerClient2);
+		
+		OmmConsumer consumer = null;
+		ConsumerTestOptions options = new ConsumerTestOptions();
+		
+		ConsumerTestClient consumerClient = new ConsumerTestClient(options);
+		
+		try
+		{
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_9"), consumerClient);
+			
+			assertEquals(3, consumerClient.queueSize()); // Ensure that the callback receives only one login message
+			
+			Msg message = consumerClient.popMessage();
+			
+			StatusMsg statusMsg = (StatusMsg)message;
+
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertEquals("Open / Suspect / None / 'session channel up'", statusMsg.state().toString());
+			
+			message = consumerClient.popMessage();
+			
+			statusMsg = (StatusMsg)message;
+			
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertEquals("Open / Suspect / None / 'session channel up'", statusMsg.state().toString());
+			
+			message = consumerClient.popMessage();
+			
+			assertTrue(message instanceof RefreshMsg);
+			
+			RefreshMsg refreshMsg = (RefreshMsg)message;
+			
+			assertEquals(1, refreshMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, refreshMsg.domainType());
+			assertEquals("Open / Ok / None / 'Login accepted'", refreshMsg.state().toString());
+			assertTrue(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+			assertTrue(refreshMsg.hasMsgKey());
+			assertEquals(DataTypes.NO_DATA, refreshMsg.payload().dataType());
+			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
+			
+			ElementList elementList = refreshMsg.attrib().elementList();
+
+			boolean foundOmmPosting = false;
+			
+			for(ElementEntry element : elementList)
+			{
+				switch(element.name())
+				{
+					case EmaRdm.ENAME_SINGLE_OPEN:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_ALLOW_SUSPECT_DATA:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_SUPPORT_BATCH:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_SUPPORT_POST:
+					{
+						foundOmmPosting = true;
+						assertEquals(1, element.uintValue());
+						break;
+					}
+				}
+			}
+			
+			assertFalse(foundOmmPosting);
+			
+			// Bring down the Channel_1 of Connection_1
+			ommprovider.uninitialize();
+			
+			ProviderTestOptions providerTestOptions3 = new ProviderTestOptions();
+			providerTestOptions3.sendRefreshAttrib = true;
+			providerTestOptions3.supportOMMPosting = true;
+			
+			ProviderTestClient providerClient3 = new ProviderTestClient(providerTestOptions3);
+			
+			// Bring up the Channel_2 of Connection_1
+			ommprovider = EmaFactory.createOmmProvider(config.port("19002"), providerClient3);
+			
+			/* Waits until the Channel_1 of Connection_1 is closed */
+			Thread.sleep(4000);
+			
+			assertEquals(3, consumerClient.queueSize());
+			
+			message = consumerClient.popMessage();
+			
+			statusMsg = (StatusMsg)message;
+		
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertEquals("Open / Ok / None / 'session channel down reconnecting'", statusMsg.state().toString());
+			
+			message = consumerClient.popMessage();
+			
+			assertTrue(message instanceof RefreshMsg);
+			
+			refreshMsg = (RefreshMsg)message;
+			
+			assertEquals(1, refreshMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, refreshMsg.domainType());
+			assertEquals("Open / Ok / None / 'Login accepted'", refreshMsg.state().toString());
+			assertTrue(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+			assertTrue(refreshMsg.hasMsgKey());
+			assertEquals(DataTypes.NO_DATA, refreshMsg.payload().dataType());
+			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
+			
+			elementList = refreshMsg.attrib().elementList();
+			
+			foundOmmPosting = false;
+			
+			for(ElementEntry element : elementList)
+			{
+				switch(element.name())
+				{
+					case EmaRdm.ENAME_SINGLE_OPEN:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_ALLOW_SUSPECT_DATA:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_SUPPORT_BATCH:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_SUPPORT_POST:
+					{
+						foundOmmPosting = true;
+						assertEquals(1, element.uintValue());
+						break;
+					}
+				}
+			}
+			
+			/* Ensure that OmmPosting is found */
+			assertTrue(foundOmmPosting);
+			
+			message = consumerClient.popMessage();
+			
+			statusMsg = (StatusMsg)message;
+			
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertEquals("Open / Ok / None / 'session channel up'", statusMsg.state().toString());
+		}
+		catch(OmmException | InterruptedException ex)
+		{
+			assertFalse(true);
+		}
+		finally
+		{
+			assertNotNull(consumer);
+		
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+			
+		}
+	}
+	
+	@Test
+	public void testMultiConnectionsForLoginStreamForConnectionRecovery()
+	{
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
+		
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+		
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+		
+		ProviderTestClient providerClient = new ProviderTestClient(providerTestOptions);
+		
+		OmmProvider ommprovider = EmaFactory.createOmmProvider(config.port("19001"), providerClient);
+		
+		assertNotNull(ommprovider);
+		
+		OmmProvider ommprovider2 = EmaFactory.createOmmProvider(config.port("19004"), providerClient);
+		
+		assertNotNull(ommprovider2);
+		
+		OmmConsumer consumer = null;
+		ConsumerTestOptions options = new ConsumerTestOptions();
+		
+		ConsumerTestClient consumerClient = new ConsumerTestClient(options);
+		
+		try
+		{
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_9"), consumerClient);
+			
+			assertEquals(3, consumerClient.queueSize()); // Ensure that the callback receives only one login message
+			
+			Msg message = consumerClient.popMessage();
+			
+			StatusMsg statusMsg = (StatusMsg)message;
+
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertEquals("Open / Suspect / None / 'session channel up'", statusMsg.state().toString());
+			
+			message = consumerClient.popMessage();
+			
+			statusMsg = (StatusMsg)message;
+			
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertEquals("Open / Suspect / None / 'session channel up'", statusMsg.state().toString());
+			
+			message = consumerClient.popMessage();
+			
+			assertTrue(message instanceof RefreshMsg);
+			
+			RefreshMsg refreshMsg = (RefreshMsg)message;
+			
+			assertEquals(1, refreshMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, refreshMsg.domainType());
+			assertEquals("Open / Ok / None / 'Login accepted'", refreshMsg.state().toString());
+			assertTrue(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+			assertTrue(refreshMsg.hasMsgKey());
+			assertEquals(DataTypes.NO_DATA, refreshMsg.payload().dataType());
+			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
+			
+			ElementList elementList = refreshMsg.attrib().elementList();
+			
+			boolean foundOmmPosting = false;
+			
+			for(ElementEntry element : elementList)
+			{
+				switch(element.name())
+				{
+					case EmaRdm.ENAME_SINGLE_OPEN:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_ALLOW_SUSPECT_DATA:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_SUPPORT_BATCH:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_SUPPORT_POST:
+					{
+						foundOmmPosting = true;
+						assertEquals(0, element.uintValue());
+						break;
+					}
+				}
+			}
+			
+			assertFalse(foundOmmPosting);
+			
+			// Bring down the Channel_1 of Connection_1
+			ommprovider.uninitialize();
+			
+			/* Waits until the Connect_1 is closed */
+			Thread.sleep(7000);
+			
+			assertEquals(3, consumerClient.queueSize());
+			
+			for(int i = 0; i < 2; i++)
+			{
+				message = consumerClient.popMessage();
+			
+				statusMsg = (StatusMsg)message;
+			
+				assertEquals(1, statusMsg.streamId());
+				assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+				assertEquals("Open / Ok / None / 'session channel down reconnecting'", statusMsg.state().toString());
+			}
+			
+			message = consumerClient.popMessage();
+			
+			statusMsg = (StatusMsg)message;
+		
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertEquals("Open / Ok / None / 'session channel closed'", statusMsg.state().toString());
+			
+			// Bring down the Connection_2
+			ommprovider2.uninitialize();
+			
+			Thread.sleep(2000);
+			
+			assertEquals(1, consumerClient.queueSize());
+			message = consumerClient.popMessage();
+			
+			statusMsg = (StatusMsg)message;
+		
+			/* There is timing issue that EMA hasn't received the login status message for channel down yet. So, the data state is still OK */
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertEquals("Open / Ok / None / 'session channel down reconnecting'", statusMsg.state().toString());
+			
+			/* Change the login response to support OMM posting */
+			providerTestOptions.sendRefreshAttrib = true;
+			providerTestOptions.supportOMMPosting = true;
+			ProviderTestClient providerClient2 = new ProviderTestClient(providerTestOptions);
+			
+			// Bring up Channel_5 of Connection_2
+			ommprovider2 = EmaFactory.createOmmProvider(config.port("19005"), providerClient2);
+			
+			Thread.sleep(2000);
+			
+			assertEquals(2, consumerClient.queueSize());
+			
+			message = consumerClient.popMessage();
+			
+			assertTrue(message instanceof RefreshMsg);
+			
+			refreshMsg = (RefreshMsg)message;
+			
+			assertEquals(1, refreshMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, refreshMsg.domainType());
+			assertEquals("Open / Ok / None / 'Login accepted'", refreshMsg.state().toString());
+			assertTrue(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+			assertTrue(refreshMsg.hasMsgKey());
+			assertEquals(DataTypes.NO_DATA, refreshMsg.payload().dataType());
+			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
+			
+			elementList = refreshMsg.attrib().elementList();
+			
+			foundOmmPosting = false;
+			
+			for(ElementEntry element : elementList)
+			{
+				switch(element.name())
+				{
+					case EmaRdm.ENAME_SINGLE_OPEN:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_ALLOW_SUSPECT_DATA:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_SUPPORT_BATCH:
+					{
+						assertEquals(1, element.uintValue());
+						break;
+					}
+					case EmaRdm.ENAME_SUPPORT_POST:
+					{
+						foundOmmPosting = true;
+						assertEquals(1, element.uintValue());
+						break;
+					}
+				}
+			}
+			
+			/* Ensure that OmmPosting is found */
+			assertTrue(foundOmmPosting);
+			
+			message = consumerClient.popMessage();
+			
+			statusMsg = (StatusMsg)message;
+			
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertEquals("Open / Ok / None / 'session channel up'", statusMsg.state().toString());
+			
+		}
+		catch(OmmException | InterruptedException ex)
+		{
+			assertFalse(true);
+		}
+		finally
+		{
+			assertNotNull(consumer);
+		
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
+	}
+	
+	@Test
+	public void testMultiConnectionsModifyIOCtlForGuaranteedOutputBuffersTes()
+	{
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
+		
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+		
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+
+		ProviderTestClient providerClient = new ProviderTestClient(providerTestOptions);
+
+		OmmProvider ommprovider = EmaFactory.createOmmProvider(config.port("19001"), providerClient);
+
+		OmmProvider ommprovider2 = EmaFactory.createOmmProvider(config.port("19004"), providerClient);
+
+		OmmConsumer consumer = null;
+
+		try
+		{
+		    consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_9"));
+
+		    List<ChannelInformation> channelInformationList = new ArrayList<ChannelInformation>();
+
+		    consumer.sessionChannelInfo(channelInformationList);
+
+		    assertEquals(2, channelInformationList.size());
+
+		    // Checks with the configured value from EMA configuration file.
+		    assertEquals(5000, channelInformationList.get(0).guaranteedOutputBuffers());
+		    assertEquals(5000, channelInformationList.get(1).guaranteedOutputBuffers());
+
+		    int expectedGuranteedOutputBuffers = 7000;
+
+		    consumer.modifyIOCtl(IOCtlCode.NUM_GUARANTEED_BUFFERS, expectedGuranteedOutputBuffers);
+
+		    consumer.sessionChannelInfo(channelInformationList);
+
+		    assertEquals(2, channelInformationList.size());
+
+		    assertEquals(expectedGuranteedOutputBuffers, channelInformationList.get(0).guaranteedOutputBuffers());
+		    assertEquals(expectedGuranteedOutputBuffers, channelInformationList.get(1).guaranteedOutputBuffers());
+		}
+		catch(OmmException exp)
+		{
+			assertFalse(true);
+		}
+		finally
+		{
+			assertNotNull(consumer);
+		
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+		}
 	}
 
 	// change applicationId and applicationName, check that new values are

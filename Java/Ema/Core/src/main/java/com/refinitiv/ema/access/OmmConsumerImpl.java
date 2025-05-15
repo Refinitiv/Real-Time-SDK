@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|          Copyright (C) 2019-2022, 2024 LSEG. All rights reserved.
+// *|       Copyright (C) 2019-2022, 2024-2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -832,7 +832,24 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		
 		try
 		{
-			super.modifyIOCtl(code, value, _loginCallbackClient.activeChannelInfo());
+			if(consumerSession() != null)
+			{
+				 // Applies for all session channels for the preferred host feature
+				 for(SessionChannelInfo<OmmConsumerClient> sessionChannelInfo : consumerSession().sessionChannelList())
+				 {
+					 if(sessionChannelInfo.reactorChannel() != null)
+					 {
+						 super.modifyIOCtl(code, value, sessionChannelInfo.reactorChannel());
+					 }
+				 }
+			}
+			else
+			{
+				 ReactorChannel reactorChannel = _loginCallbackClient.activeChannelInfo() != null ?
+						 _loginCallbackClient.activeChannelInfo().rsslReactorChannel() : null;
+				
+				super.modifyIOCtl(code, value, reactorChannel);
+			}
 		}
 		finally
 		{
