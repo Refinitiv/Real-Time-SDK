@@ -595,7 +595,7 @@ TEST(RequestMsgTests, testDomainTypeUnsupported)
 	}
 }
 
-TEST(RequestMsgTests, testReqMsgWithServiceIdAndName)
+TEST(RequestMsgTests, testReqMsgWithServiceIdAndNameAndServiceList)
 {
 
 	try
@@ -615,6 +615,19 @@ TEST(RequestMsgTests, testReqMsgWithServiceIdAndName)
 	{
 		ReqMsg reqMsg;
 
+		reqMsg.serviceListName(EmaString("SVG1")).serviceId(10);
+
+		EXPECT_FALSE(true) << "Setting ServiceId while ServiceListName is set. Exception expected.";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Setting ServiceId while ServiceListName is set. Exception expected.";
+	}
+
+	try
+	{
+		ReqMsg reqMsg;
+
 		reqMsg.serviceId( 10 ).serviceName( EmaString( "DIRECT_FEED" ) );
 
 		EXPECT_FALSE( true ) << "Setting ServiceName while id is set. Exception expected." ;
@@ -623,7 +636,48 @@ TEST(RequestMsgTests, testReqMsgWithServiceIdAndName)
 	{
 		EXPECT_TRUE( true ) << "Setting ServiceName while id is set. Exception expected." ;
 	}
+
+	try
+	{
+		ReqMsg reqMsg;
+
+		reqMsg.serviceListName(EmaString("SVG1")).serviceName(EmaString("DIRECT_FEED"));
+
+		EXPECT_FALSE(true) << "Setting ServiceName while ServiceListName is set. Exception expected.";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Setting ServiceName while ServiceListName is set. Exception expected.";
+	}
+
+	try
+	{
+		ReqMsg reqMsg;
+
+		reqMsg.serviceName(EmaString("DIRECT_FEED")).serviceListName(EmaString("SVG1"));
+
+		EXPECT_FALSE(true) << "Setting ServiceListName while ServiceName is set. Exception expected.";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Setting ServiceListName while ServiceName is set. Exception expected.";
+	}
+
+	try
+	{
+		ReqMsg reqMsg;
+
+		reqMsg.serviceId(10).serviceListName(EmaString("SVG1"));
+
+		EXPECT_FALSE(true) << "Setting ServiceListName while id is set. Exception expected.";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Setting ServiceListName while id is set. Exception expected.";
+	}
 }
+
+
 
 TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 {

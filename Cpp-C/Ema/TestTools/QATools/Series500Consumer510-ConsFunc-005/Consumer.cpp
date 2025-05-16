@@ -152,17 +152,17 @@ int main( int argc, char* argv[] )
 		switch (_TEST) {
 		case 0:
 			cout << "***APIQA TEST 0 : ReqMsg does NOT set qos and same itemName, one is normal, one is private stream.***" << endl;
-			if (domainName = "mp")
+			if (domainName == "mp")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_PRICE).serviceListName("SVG1").name(itemName).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_PRICE).serviceListName("SVG1").name(itemName), client);
 			}
-			if (domainName = "mbo")
+			else if (domainName == "mbo")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_ORDER).serviceListName("SVG1").name(itemName).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_ORDER).serviceListName("SVG1").name(itemName), client);
 			}
-			if (domainName = "mbp")
+			else if (domainName == "mbp")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_PRICE).serviceListName("SVG1").name(itemName).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_PRICE).serviceListName("SVG1").name(itemName), client);
@@ -170,17 +170,17 @@ int main( int argc, char* argv[] )
 			break;
 		case 11:
 			cout << "***APIQA TEST 11 : ReqMsg.qos(Timeliness.REALTIME, Rate.TICK_BY_TICK), one is normal, one is private stream.***" << endl;
-			if (domainName = "mp")
+			if (domainName == "mp")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::TickByTickEnum).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::TickByTickEnum), client);
 			}
-			if (domainName = "mbo")
+			else if (domainName == "mbo")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_ORDER).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::TickByTickEnum).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_ORDER).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::TickByTickEnum), client);
 			}
-			if (domainName = "mbp")
+			else if (domainName == "mbp")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::TickByTickEnum).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::TickByTickEnum), client);
@@ -188,17 +188,17 @@ int main( int argc, char* argv[] )
 			break;
 		case 12:
 			cout << "***APIQA TEST 12 : ReqMsg.qos(Timeliness.BEST_DELAYED_TIMELINESS, Rate.TICK_BY_TICK), one is normal, one is private stream.***" << endl;
-			if (domainName = "mp")
+			if (domainName == "mp")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::InexactDelayedEnum, OmmQos::Rate::TickByTickEnum).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::InexactDelayedEnum, OmmQos::Rate::TickByTickEnum), client);
 			}
-			if (domainName = "mbo")
+			else if (domainName == "mbo")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_ORDER).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::InexactDelayedEnum, OmmQos::Rate::TickByTickEnum).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_ORDER).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::InexactDelayedEnum, OmmQos::Rate::TickByTickEnum), client);
 			}
-			if (domainName = "mbp")
+			else if (domainName == "mbp")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::InexactDelayedEnum, OmmQos::Rate::TickByTickEnum).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::InexactDelayedEnum, OmmQos::Rate::TickByTickEnum), client);
@@ -206,17 +206,17 @@ int main( int argc, char* argv[] )
 			break;
 		case 21:
 			cout << "***APIQA TEST 21 : ReqMsg.qos(Timeliness.REALTIME, Rate.JIT_CONFLATED), one is normal, one is private stream.***" << endl;
-			if (domainName = "mp")
+			if (domainName == "mp")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::JustInTimeConflatedEnum).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::JustInTimeConflatedEnum), client);
 			}
-			if (domainName = "mbo")
+			else if (domainName == "mbo")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_ORDER).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::JustInTimeConflatedEnum).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_ORDER).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::JustInTimeConflatedEnum), client);
 			}
-			if (domainName = "mbp")
+			else if (domainName == "mbp")
 			{
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::JustInTimeConflatedEnum).privateStream(true), client);
 				consumer.registerClient(ReqMsg().domainType(MMT_MARKET_BY_PRICE).serviceListName("SVG1").name(itemName).qos(OmmQos::Timeliness::RealTimeEnum, OmmQos::Rate::JustInTimeConflatedEnum), client);

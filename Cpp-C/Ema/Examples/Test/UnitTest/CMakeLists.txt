@@ -9,9 +9,11 @@ set(_UnitTestSrcFiles
         EmaAppClient.cpp EmaAppClient.h
         EmaBufferTest.cpp EmaConfigTest.cpp
         EmaStringTests.cpp EmaVectorTest.cpp
+        EmaTestClients.h EmaTestClients.cpp
         FieldListTests.cpp FilterListTests.cpp
         GenericMsgTests.cpp LoginHelperTest.cpp
         MapTests.cpp NoDataSizeTest.cpp
+        OmmConsumerTests.cpp 
         OmmExceptionTests.cpp PackedMsgTest.cpp
         PollFdMaintenanceTest.cpp PostMsgTests.cpp
         PreferredHostTest.cpp RefreshMsgTests.cpp

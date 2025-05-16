@@ -239,6 +239,122 @@
 			<XmlTraceToStdout value="0"/>
 			<XmlTraceToFile value="1" />
 		</Consumer>
+		
+		<Consumer>
+			<Name value="RequestRoutingTestCons_2Channel"/>
+			<SessionChannelSet value="TestSessionChannelSingle_1, TestSessionChannelSingle_2"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<LoginRequestTimeOut value="5000"/>
+			<SessionEnhancedItemRecovery value="1"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<DirectoryRequestTimeOut value="2000"/>
+			<RequestTimeout value="2000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="RequestRoutingTestCons_2ChannelLongReconnect"/>
+			<SessionChannelSet value="TestSessionChannelSingle_1, TestSessionChannelSingle_2"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<LoginRequestTimeOut value="5000"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="10000"/>
+			<ReconnectMaxDelay value="10000"/>
+			<SessionEnhancedItemRecovery value="1"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<DirectoryRequestTimeOut value="2000"/>
+			<RequestTimeout value="10000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="RequestRoutingTestCons_2ChannelNoReconnect"/>
+			<SessionChannelSet value="TestSessionChannelSingle_1, TestSessionChannelSingle_2"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<LoginRequestTimeOut value="5000"/>
+			<ReconnectAttemptLimit value="0"/>
+			<SessionEnhancedItemRecovery value="1"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<DirectoryRequestTimeOut value="2000"/>
+			<RequestTimeout value="2000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="RequestRoutingTestCons_2ChannelEnhancedOff"/>
+			<SessionChannelSet value="TestSessionChannelSingle_1, TestSessionChannelSingle_2"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<LoginRequestTimeOut value="5000"/>
+			<SessionEnhancedItemRecovery value="0"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<DirectoryRequestTimeOut value="2000"/>
+			<RequestTimeout value="2000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="RequestRoutingTestCons_2ChannelEnhancedOffNoReconnect"/>
+			<SessionChannelSet value="TestSessionChannelSingle_1, TestSessionChannelSingle_2"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<LoginRequestTimeOut value="5000"/>
+			<ReconnectAttemptLimit value="0"/>
+			<SessionEnhancedItemRecovery value="0"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<DirectoryRequestTimeOut value="2000"/>
+			<RequestTimeout value="2000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="RequestRoutingTestCons_2ChannelDownloadDict"/>
+			<SessionChannelSet value="TestSessionChannelSingle_1, TestSessionChannelSingle_2"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<LoginRequestTimeOut value="5000"/>
+			<SessionEnhancedItemRecovery value="1"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_1"/>
+			<DirectoryRequestTimeOut value="2000"/>
+			<RequestTimeout value="2000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="RequestRoutingTestCons_2WSBGroups"/>
+			<SessionChannelSet value="TestSessionChannelWSB_1, TestSessionChannelWSB_2"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<LoginRequestTimeOut value="10000"/>
+			<SessionEnhancedItemRecovery value="1"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<DirectoryRequestTimeOut value="10000"/>
+			<RequestTimeout value="2000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="RequestRoutingTestCons_4Channel_PH"/>
+			<SessionChannelSet value="TestSessionChannelPH_1, TestSessionChannelPH_2"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<LoginRequestTimeOut value="5000"/>
+			<SessionEnhancedItemRecovery value="1"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<DirectoryRequestTimeOut value="2000"/>
+			<RequestTimeout value="2000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="SingleConnection"/>
+			<ChannelSet value="TestChannel_15000"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<LoginRequestTimeOut value="5000"/>
+			<SessionEnhancedItemRecovery value="1"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<DirectoryRequestTimeOut value="2000"/>
+			<RequestTimeout value="2000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="SingleConnectionDownloadDict"/>
+			<ChannelSet value="TestChannel_15000"/>
+			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
+			<LoginRequestTimeOut value="5000"/>
+			<SessionEnhancedItemRecovery value="1"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_1"/>
+			<DirectoryRequestTimeOut value="2000"/>
+			<RequestTimeout value="2000"/>
+		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
 
@@ -377,7 +493,56 @@
 			<XmlTraceRead value="1"/>
 			<XmlTracePing value="0"/>
 			<XmlTraceHex value="0"/>
-		
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                              -->
+			<Name value="TestProvider_15000"/>
+			<Server value="TestServer_15000"/>
+			<Logger value="Logger_2"/>
+			<RefreshFirstRequired value="1"/>
+			<RequestTimeout value="8000"/>
+			<DispatchTimeoutApiThread value="90"/>
+			<CatchUnhandledException value="0"/>
+			<MaxDispatchCountApiThread value="400"/>
+			<MaxDispatchCountUserThread value="5"/>
+			<Directory value="Directory_2"/>
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                              -->
+			<Name value="TestProvider_15001"/>
+			<Server value="TestServer_15001"/>
+			<RefreshFirstRequired value="1"/>
+			<ItemCountHint value="500000"/>
+			<Logger value="Logger_2"/>
+			<RequestTimeout value="8000"/>
+			<DispatchTimeoutApiThread value="90"/>
+			<CatchUnhandledException value="0"/>
+			<MaxDispatchCountApiThread value="400"/>
+			<MaxDispatchCountUserThread value="5"/>		
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                              -->
+			<Name value="TestProvider_15002"/>
+			<Server value="TestServer_15002"/>
+			<RefreshFirstRequired value="1"/>
+			<Logger value="Logger_2"/>
+			<RequestTimeout value="8000"/>
+			<DispatchTimeoutApiThread value="90"/>
+			<CatchUnhandledException value="0"/>
+			<MaxDispatchCountApiThread value="400"/>
+			<MaxDispatchCountUserThread value="5"/>		
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                              -->
+			<Name value="TestProvider_15003"/>
+			<Server value="TestServer_15003"/>
+			<RefreshFirstRequired value="1"/>
+			<Logger value="Logger_2"/>
+			<RequestTimeout value="8000"/>
+			<DispatchTimeoutApiThread value="90"/>
+			<CatchUnhandledException value="0"/>
+			<MaxDispatchCountApiThread value="400"/>
+			<MaxDispatchCountUserThread value="5"/>		
 		</IProvider>
 	</IProviderList>
 </IProviderGroup>
@@ -537,6 +702,43 @@
 			<Host value="localhost"/>
 			<Port value="14004"/>
 		</Channel>
+		<Channel>
+			<Name value="TestChannel_15000"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="15000"/>
+		</Channel>
+		<Channel>
+			<Name value="TestChannel_15001"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="15001"/>
+		</Channel>
+		
+		<Channel>
+			<Name value="TestChannel_15002"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="15002"/>
+		</Channel>
+		<Channel>
+			<Name value="TestChannel_15003"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="15003"/>
+		</Channel>
 	</ChannelList>
 </ChannelGroup>
 
@@ -622,6 +824,66 @@
 			<TcpNodelay value="1"/>
 			<Port value="14002"/>
 			<SecurityProtocol value="8"/>
+		</Server>
+		<Server>
+			<Name value="TestServer_15000"/>
+			<ServerType value="ServerType::RSSL_SOCKET"/>
+			<!-- CompressionType is optional: defaulted to None -->
+			<!-- possible values: None, ZLib, LZ4 -->
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+			<ConnectionPingTimeout value="30000"/>
+			<!-- TcpNodelay is optional: defaulted to 1 -->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+			<TcpNodelay value="1"/>
+			<Port value="15000"/>
+			<ServerSharedSocket value="0"/>
+		</Server>
+		<Server>
+			<Name value="TestServer_15001"/>
+			<ServerType value="ServerType::RSSL_SOCKET"/>
+			<!-- CompressionType is optional: defaulted to None -->
+			<!-- possible values: None, ZLib, LZ4 -->
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+			<ConnectionPingTimeout value="30000"/>
+			<!-- TcpNodelay is optional: defaulted to 1 -->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+			<TcpNodelay value="1"/>
+			<Port value="15001"/>
+			<ServerSharedSocket value="0"/>
+		</Server>
+		<Server>
+			<Name value="TestServer_15002"/>
+			<ServerType value="ServerType::RSSL_SOCKET"/>
+			<!-- CompressionType is optional: defaulted to None -->
+			<!-- possible values: None, ZLib, LZ4 -->
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+			<ConnectionPingTimeout value="30000"/>
+			<!-- TcpNodelay is optional: defaulted to 1 -->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+			<TcpNodelay value="1"/>
+			<Port value="15002"/>
+			<ServerSharedSocket value="0"/>
+		</Server>
+		<Server>
+			<Name value="TestServer_15003"/>
+			<ServerType value="ServerType::RSSL_SOCKET"/>
+			<!-- CompressionType is optional: defaulted to None -->
+			<!-- possible values: None, ZLib, LZ4 -->
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+			<ConnectionPingTimeout value="30000"/>
+			<!-- TcpNodelay is optional: defaulted to 1 -->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+			<TcpNodelay value="1"/>
+			<Port value="15003"/>
+			<ServerSharedSocket value="0"/>
 		</Server>
 	</ServerList>
 </ServerGroup>
@@ -839,6 +1101,26 @@
 			<Channel value="Channel_4"/>
 			<PerServiceNameSet value="DIRECT_FEED2, DIRECT_FEED3"/>
 		</WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+			<Name value="RequestRoutingWSBServer_15000"/>
+			<Channel value="TestChannel_15000"/>
+			<PerServiceNameSet value="DIRECT_FEED"/>
+		</WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+			<Name value="RequestRoutingWSBServer_15001"/>
+			<Channel value="TestChannel_15001"/>
+			<PerServiceNameSet value="DIRECT_FEED_2"/>
+		</WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+			<Name value="RequestRoutingWSBServer_15002"/>
+			<Channel value="TestChannel_15002"/>
+			<PerServiceNameSet value="DIRECT_FEED"/>
+		</WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+			<Name value="RequestRoutingWSBServer_15003"/>
+			<Channel value="TestChannel_15003"/>
+			<PerServiceNameSet value="DIRECT_FEED_2"/>
+		</WarmStandbyServerInfo>
 	</WarmStandbyServerInfoList>
 </WarmStandbyServerInfoGroup>
 
@@ -855,6 +1137,18 @@
 			<StartingActiveServer value="Server_Info_2"/>
 			<StandbyServerSet value="Server_Info_1"/>
 			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="RequestRouting_WSBLogin_1"/>
+			<StartingActiveServer value="RequestRoutingWSBServer_15000"/>
+			<StandbyServerSet value="RequestRoutingWSBServer_15001"/>
+			<WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="RequestRouting_WSBLogin_2"/>
+			<StartingActiveServer value="RequestRoutingWSBServer_15002"/>
+			<StandbyServerSet value="RequestRoutingWSBServer_15003"/>
+			<WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
 		</WarmStandbyChannel>
 	</WarmStandbyList>
 </WarmStandbyGroup>
@@ -884,6 +1178,11 @@
 		<Logger>
 			<Name value="Logger_3"/>
 			<LoggerType value="LoggerType::Stderr"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_4"/>
+			<LoggerType value="LoggerType::Stdout"/>
+			<LoggerSeverity value="LoggerSeverity::Verbose"/>
 		</Logger>
 	</LoggerList>
 </LoggerGroup>
@@ -978,6 +1277,53 @@
 			<PreferredWSBChannelName value="WarmStandbyChannel_2"/>
 			<PHFallBackWithInWSBGroup value="1"/>
 			
+		</SessionChannelInfo>
+		
+		<SessionChannelInfo>
+			<Name value="TestSessionChannelSingle_1"/>
+			<ChannelSet value="TestChannel_15000"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="500" />
+		</SessionChannelInfo>
+		<SessionChannelInfo>
+			<Name value="TestSessionChannelSingle_2"/>
+			<ChannelSet value="TestChannel_15001"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="500" />
+		</SessionChannelInfo>
+		<SessionChannelInfo>
+			<Name value="TestSessionChannelPH_1"/>
+			<ChannelSet value="TestChannel_15000, TestChannel_15001"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredChannelName value="TestChannel_15001"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="500" />
+		</SessionChannelInfo>
+		<SessionChannelInfo>
+			<Name value="TestSessionChannelPH_2"/>
+			<ChannelSet value="TestChannel_15002, TestChannel_15003"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredChannelName value="TestChannel_15003"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="500" />
+		</SessionChannelInfo>
+		<SessionChannelInfo>
+			<Name value="TestSessionChannelWSB_1"/>
+			<WarmStandbyChannelSet value="RequestRouting_WSBLogin_1"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="500" />
+		</SessionChannelInfo>
+		<SessionChannelInfo>
+			<Name value="TestSessionChannelWSB_2"/>
+			<WarmStandbyChannelSet value="RequestRouting_WSBLogin_2"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="500" />
 		</SessionChannelInfo>
 	</SessionChannelList>
 </SessionChannelGroup>

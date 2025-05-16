@@ -323,9 +323,9 @@ void ReqMsgEncoder::attrib( const ComplexType& attrib )
 
 void ReqMsgEncoder::serviceId( UInt16 serviceId )
 {
-	if ( hasServiceName() )
+	if ( hasServiceName() || hasServiceListName() )
 	{
-		EmaString text( "Attempt to set serviceId while service name is already set." );
+		EmaString text( "Attempt to set serviceId while service name or service list name is already set." );
 		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}

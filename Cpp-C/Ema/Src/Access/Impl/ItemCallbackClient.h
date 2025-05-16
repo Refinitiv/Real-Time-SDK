@@ -222,6 +222,13 @@ public :
 
 	EmaString					itemName;
 
+	EmaVector<bool*>* sessionChannelItemClosedList;			// Boolean array vector that corresponds to the session channels that have been attempted and rejected by the upstream provider.
+															// Each index should correspond to the channel in ConsumerRoutingSession.routingChannelList[index]
+
+	UInt32 closedListSize;									// Size of the closed list for memset purposes.
+
+	UInt32 currentServiceListIndex;
+
 protected :
 
 	ConsumerItem( OmmBaseImpl&, OmmConsumerClient&, void* , Item* );
@@ -326,6 +333,7 @@ public :
 	bool close();
 
 	bool sendClose();					// Sends a close message, but does not destroy this object.
+	bool submitCloseOnReactorChannel(RsslReactorChannel*);
 	void remove();
 
 	EmaString& getServiceName();
@@ -367,6 +375,7 @@ private :
 	bool submit( RsslGenericMsg* );
 	bool submit( RsslRequestMsg* );
 	bool submit( RsslCloseMsg* );
+
 	bool submit( RsslPostMsg*, RsslBuffer* pServiceName );
 
 	static const EmaString		_clientName;
@@ -382,10 +391,6 @@ private :
 	UInt32						_serviceId;
 	bool						_hasServiceId;
 
-
-	EmaVector<ConsumerRoutingSessionChannel*> _deniedChannelList;			// This is an EmaVector of consumer routing channels that have been denied for thie current directory.
-																			// This is used for request routing, and this is reset upon connection.
-	
 	SingleItem();
 	SingleItem( const SingleItem& );
 	SingleItem& operator=( const SingleItem& );

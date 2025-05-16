@@ -6412,15 +6412,18 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 					{
 						pCallbackChannel = &pChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
 						_reactorSetupMainWSBReactorChannel(pCallbackChannel, pChannel);
+						((RsslReactorChannelImpl*)pCallbackChannel)->pUnderlyingReactorChannel = pChannel;
 					}
 
 					loginRenewalEvent.pReactorChannel = pCallbackChannel;
 					
 					_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-					pChannel->inLoginCredentialCallback = RSSL_TRUE;
+					((RsslReactorChannelImpl*)pCallbackChannel)->inLoginCredentialCallback = RSSL_TRUE;
 					cret = (*pReactorLoginRenewalEvent->pRequest->pLoginRenewalEventCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &loginRenewalEvent);
-					pChannel->inLoginCredentialCallback = RSSL_FALSE;
+					((RsslReactorChannelImpl*)pCallbackChannel)->inLoginCredentialCallback = RSSL_FALSE;
 					_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+					((RsslReactorChannelImpl*)pCallbackChannel)->pUnderlyingReactorChannel = NULL;
 
 					if (cret != RSSL_RC_CRET_SUCCESS)
 					{
@@ -10470,6 +10473,11 @@ RSSL_VA_API RsslRet rsslReactorSubmitLoginCredentialRenewal(RsslReactor* pReacto
 		goto submitFailed;
 	}
 
+	if (pChannelImpl->pUnderlyingReactorChannel != NULL)
+	{
+		pChannelImpl = pChannelImpl->pUnderlyingReactorChannel;
+	}
+
 	tmpRequestMsg = *pChannelImpl->channelRole.ommConsumerRole.pLoginRequest;
 	// Update the current pReactorChannel's login msg with the new buffers and copy it.
 	if (pOptions->userName.data != 0 && pOptions->userName.length != 0)
@@ -10511,7 +10519,7 @@ RSSL_VA_API RsslRet rsslReactorSubmitLoginCredentialRenewal(RsslReactor* pReacto
 
 	if (pChannelImpl->doNotNotifyWorkerOnCredentialChange == RSSL_FALSE)
 	{
-		if (_reactorSendLoginCredentialRenewalRequest(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+		if (_reactorSendLoginCredentialRenewalRequest(pReactorImpl, (RsslReactorChannel*)pChannelImpl, pError) != RSSL_RET_SUCCESS)
 		{
 			goto submitFailed;
 		}

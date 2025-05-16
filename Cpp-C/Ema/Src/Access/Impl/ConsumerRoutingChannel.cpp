@@ -221,7 +221,9 @@ ConsumerRoutingSessionChannel::ConsumerRoutingSessionChannel(OmmBaseImpl& consum
 	loginInfo(),
 	routedRequestList(consumerBaseImpl),
 	inPreferredHost(false),
-	sentChannelUpStatus(false)
+	sentChannelUpStatus(false),
+	closeOnDownReconnecting(false),
+	sessionIndex(0)
 {
 	reconnecting = false;
 	channelClosed = false;
@@ -238,6 +240,7 @@ void ConsumerRoutingSessionChannel::clear()
 {
 	receivedLoginRefresh = false;
 	inPreferredHost = false;
+	closeOnDownReconnecting = false;
 	pReactorChannel = NULL;
 
 	pRoutingSession = NULL;

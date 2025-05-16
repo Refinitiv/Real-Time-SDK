@@ -51,8 +51,11 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::aggregateD
 	bool sendUpdate = false;
 	if (initialized == false)
 	{
+		UInt64 currentId = getId();
 		// This should only be called when it's not a DELETE action.
 		setService(newDirectory.getService());
+
+		setId(currentId);
 		
 		// Insert the routing channel into the proper place in the routing session set.
 		EmaString& routingSessionName = newDirectory._pChannel->getConsumerRoutingChannel()->name;
@@ -100,9 +103,11 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::aggregateD
 				Int64 found = _supportedDomains.search(const_cast<DirectoryDomainType*>(&newDomainType), DirectoryDomainType::compare);
 				if (found == -1)
 				{
-					newDomainType.count = 1;
+					DirectoryDomainType* insertDomain = new DirectoryDomainType();
+					insertDomain->domain = (UInt32)newDirectory._supportedDomains[i]->domain;
+					insertDomain->count = 1;
 
-					_supportedDomains.insert_sorted(const_cast<DirectoryDomainType*>(&newDomainType), DirectoryDomainType::compare);
+					_supportedDomains.insert_sorted(const_cast<DirectoryDomainType*>(insertDomain), DirectoryDomainType::compare);
 					sendUpdate = true;
 				}
 				else
@@ -123,43 +128,47 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::aggregateD
 				RsslUInt oldAcceptingRequests = _service.state.acceptingRequests;
 				RsslUInt oldServiceState = _service.state.serviceState;
 
-				if (newDirectory._service.state.acceptingRequests == 0)
+				if ((newDirectory._service.state.flags | RDM_SVC_STF_HAS_ACCEPTING_REQS) != 0)
 				{
-					bool acceptingRequests = false;
-					for (UInt32 i = 0; i < routingChannelList.size(); i++)
+					_service.state.flags |= RDM_SVC_STF_HAS_ACCEPTING_REQS;
+					if (newDirectory._service.state.acceptingRequests == 0)
 					{
-						if (routingChannelList[i] == NULL)
-							continue;
-
-						DirectoryPtr* chnlDirectoryPtr = routingChannelList[i]->serviceByName.find(&newDirectory._name);
-
-						if (chnlDirectoryPtr == NULL)
+						bool acceptingRequests = false;
+						for (UInt32 i = 0; i < routingChannelList.size(); i++)
 						{
-							const char* temp = "Failed to create chnlDirectoryPtr in aggregregateDirectoryInfo. Out of memory.";
-							throwMeeException(temp);
-						}
-						Directory* pDirectory = *chnlDirectoryPtr;
+							if (routingChannelList[i] == NULL)
+								continue;
 
-						if (pDirectory->_service.state.acceptingRequests == 1)
-						{
-							acceptingRequests = true;
-							break;
+							DirectoryPtr* chnlDirectoryPtr = routingChannelList[i]->serviceByName.find(&newDirectory._name);
+
+							if (chnlDirectoryPtr == NULL)
+							{
+								const char* temp = "Failed to create chnlDirectoryPtr in aggregregateDirectoryInfo. Out of memory.";
+								throwMeeException(temp);
+							}
+							Directory* pDirectory = *chnlDirectoryPtr;
+
+							if (pDirectory->_service.state.acceptingRequests == 1)
+							{
+								acceptingRequests = true;
+								break;
+							}
 						}
+
+						if (acceptingRequests == false)
+							_service.state.acceptingRequests = 0;
+
+					}
+					else
+					{
+						// Doesn't matter what the previous value(s) were, we have at least one service now accepting requests.
+						_service.state.acceptingRequests = newDirectory._service.state.acceptingRequests;
 					}
 
-					if (acceptingRequests == false)
-						_service.state.acceptingRequests = 0;
-
-				}
-				else
-				{
-					// Doesn't matter what the previous value(s) were, we have at least one service now accepting requests.
-					_service.state.acceptingRequests = newDirectory._service.state.acceptingRequests;
-				}
-
-				if (oldAcceptingRequests != _service.state.acceptingRequests)
-				{
-					sendUpdate = true;
+					if (oldAcceptingRequests != _service.state.acceptingRequests)
+					{
+						sendUpdate = true;
+					}
 				}
 
 				if (newDirectory._service.state.serviceState == 0)

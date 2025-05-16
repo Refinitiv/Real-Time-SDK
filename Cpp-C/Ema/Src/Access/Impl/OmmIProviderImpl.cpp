@@ -354,7 +354,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 
 	ItemInfoPtr itemInfo = getItemInfo(handle);
 
-	if ( ( itemInfo == 0 ) && handle != 0 ) 
+	if ((itemInfo == 0) && (handle != 0))
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit RefreshMsg with non existent Handle = ");
@@ -610,7 +610,7 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 
 	ItemInfoPtr itemInfo = getItemInfo(handle);
 
-	if ( ( itemInfo == 0 ) && handle != 0 )
+	if ( (itemInfo == 0) && (handle != 0))
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit UpdateMsg with non existent Handle = ");
@@ -788,7 +788,7 @@ void OmmIProviderImpl::submit(const StatusMsg& statusMsg, UInt64 handle)
 
 	ItemInfoPtr itemInfo = getItemInfo(handle);
 
-	if ( (itemInfo == 0 ) && handle != 0 )
+	if ((itemInfo == 0) && (handle != 0))
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit StatusMsg with non existent Handle = ");
@@ -1298,7 +1298,7 @@ void OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle)
 
 	ItemInfoPtr itemInfo = getItemInfo(handle);
 
-	if ( itemInfo == 0 )
+	if (itemInfo == 0)
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit AckMsg with non existent Handle = ");

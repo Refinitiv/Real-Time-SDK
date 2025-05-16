@@ -1928,10 +1928,10 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 							SingleItem* pSingleItem = (SingleItem*)channelItemList.pop_front();
 
 							if (pSingleItem == NULL)
-					break;
+								break;
 
 							// If the item's directory is the same as this directory, re-route it, otherwise put the item back into the list
-							if (pSingleItem->getDirectory() == pDirectory)
+							if (((pSingleItem->getReqMsg()->flags & RSSL_RQMF_PRIVATE_STREAM) == 0) && pSingleItem->getDirectory() == pDirectory)
 							{
 								pSingleItem->sendClose();
 								pSingleItem->setItemList(NULL);
@@ -2055,7 +2055,6 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 
 			if (_ommBaseImpl.isInitialized() == true && pChannel->getConsumerRoutingChannel() != NULL)
 			{
-				// We don't need to do the fanout here because we should have already gotten a closedRecover/suspect from the watchlist for all items and already re-routed.
 				pDirectory->getService()->state.serviceState = 0;
 				pDirectory->getService()->state.acceptingRequests = 0;
 
@@ -2171,11 +2170,12 @@ void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 	DirectoryItem* pItem = NULL;
 
 	pItem = (DirectoryItem*)callbackClient._requestList->getList().front();
+	UInt32 count = 0;
 
 	if (pItem == NULL)
 		return;
 
-	do
+	while (count < callbackClient._requestList->getList().size())
 	{
 		RsslRDMDirectoryUpdate directoryUpdate;
 		RsslUpdateMsg updateMsg;
@@ -2186,6 +2186,7 @@ void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 		rsslClearEncodeIterator(&eIter);
 
 		RsslRDMService* pService = NULL;
+		count++;
 
 		if (allocateAndSetEncodeIteratorBuffer(pBaseImpl, &rsslMsgBuffer, DEFAULT_DIRECTORY_RESP_MSG_SIZE, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION,
 			&eIter, "DirectoryCallbackClient::fanoutAllDirectoryRequests") != RSSL_RET_SUCCESS)
@@ -2233,6 +2234,7 @@ void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 				(*pRoutingServicePtr)->populateService(pService);
 
 				pService->action = RSSL_MPEA_ADD_ENTRY;
+				pService->serviceId = (*pRoutingServicePtr)->getId();
 				directoryUpdate.serviceList = pService;
 			}
 			else if (pRoutingSession->updatedServiceList.getPositionOf(pItem->serviceName) != -1)
@@ -2254,6 +2256,7 @@ void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 
 				// Set the action to update
 				pService->action = RSSL_MPEA_UPDATE_ENTRY;
+				pService->serviceId = (*pRoutingServicePtr)->getId();
 				directoryUpdate.serviceList = pService;
 			}
 			else if (pRoutingSession->deletedServiceList.getPositionOf(pItem->serviceName) != -1)
@@ -2280,7 +2283,12 @@ void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 				free((void*)pService);
 				pService = NULL;
 				// This request does not match any of the changed values, so just continue with the loop.
-				continue;
+				pItem = (DirectoryItem*)pItem->next();
+
+				if (pItem == NULL)
+					break;
+				else
+					continue;
 			}
 		}
 		else
@@ -2323,6 +2331,7 @@ void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 				// Populate the service with the information
 				(*pRoutingServicePtr)->populateService(&pService[serviceIter]);
 				pService[serviceIter].action = RSSL_MPEA_ADD_ENTRY;
+				pService[serviceIter].serviceId = (*pRoutingServicePtr)->getId();
 				serviceIter++;
 			}
 
@@ -2346,13 +2355,14 @@ void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 
 				// Set the action to update
 				pService[serviceIter].action = RSSL_MPEA_UPDATE_ENTRY;
+				pService[serviceIter].serviceId = (*pRoutingServicePtr)->getId();
 				serviceIter++;
 			}
 
 			for (UInt32 i = 0; i < pRoutingSession->deletedServiceList.size(); i++)
 			{
 				// Get the aggregated service id here.
-				ConsumerRoutingService** pRoutingServicePtr = pRoutingSession->serviceByName.find(&pRoutingSession->updatedServiceList[i]);
+				ConsumerRoutingService** pRoutingServicePtr = pRoutingSession->serviceByName.find(&pRoutingSession->deletedServiceList[i]);
 
 				if (pRoutingServicePtr == NULL)
 				{
@@ -2373,7 +2383,6 @@ void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 			directoryUpdate.serviceCount = serviceIter;
 			directoryUpdate.serviceList = pService;
 		} 
-
 
 		RsslErrorInfo rsslErrorInfo;
 		clearRsslErrorInfo(&rsslErrorInfo);
@@ -2430,7 +2439,7 @@ void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 
 		if (pItem == NULL)
 			break;
-	}while (pItem != (DirectoryItem*)callbackClient._requestList->getList().back());
+	}
 
 	// Clear out the service lists in pRoutingSession
 	pRoutingSession->deletedServiceList.clear();
@@ -2468,7 +2477,7 @@ void DirectoryCallbackClient::fanoutSingleDirectoryRequest(void* info)
 
 	int serviceIter = 0;
 	ConsumerRoutingService* pRoutingService = (ConsumerRoutingService*)pRoutingSession->serviceList.front();
-	do
+	for(UInt32 i = 0; i < pRoutingSession->serviceList.size(); i++)
 	{
 		if (pRoutingService == NULL)
 		{
@@ -2481,17 +2490,30 @@ void DirectoryCallbackClient::fanoutSingleDirectoryRequest(void* info)
 			pRoutingService = (ConsumerRoutingService*)pRoutingService->next();
 			continue;
 		}
+	
+		if (pItem->serviceName.empty() || pItem->serviceName == pRoutingService->getName())
+		{
+			pRoutingService->populateService(&pService[serviceIter]);
+			pService[serviceIter].action = RSSL_MPEA_ADD_ENTRY;
+			pService[serviceIter].serviceId = pRoutingService->getId();
+			pService[serviceIter].flags = pItem->filter & pService[serviceIter].flags;
+			serviceIter++;
+		}
 
-		pRoutingService->populateService(&pService[serviceIter]);
-		pService[serviceIter].action = RSSL_MPEA_ADD_ENTRY;
-		serviceIter++;
 		pRoutingService = (ConsumerRoutingService*)pRoutingService->next();
-	} while (pRoutingService != pRoutingSession->serviceList.back());
+	} 
 
 	directoryRefresh.serviceCount = serviceIter;
 	directoryRefresh.serviceList = pService;
 	directoryRefresh.filter = pItem->filter;
 	directoryRefresh.rdmMsgBase.streamId = pItem->getStreamId();
+	directoryRefresh.flags |= RDM_DR_RFF_SOLICITED;
+
+	if (!pItem->serviceName.empty())
+	{
+		directoryRefresh.flags |= RDM_DR_RFF_HAS_SERVICE_ID;
+		directoryRefresh.serviceId = (RsslUInt16)pItem->serviceId;
+	}
 
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo(&rsslErrorInfo);
@@ -2768,9 +2790,17 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 		if(_ommBaseImpl.getConsumerRoutingSession() == NULL)
 			pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getServiceName() );
 		else
-			pDirectory = *_ommBaseImpl.getConsumerRoutingSession()->serviceByName.find(&reqMsgEncoder.getServiceName());
+		{
+			ConsumerRoutingService** directoryPtr = _ommBaseImpl.getConsumerRoutingSession()->serviceByName.find(&reqMsgEncoder.getServiceName());
+			if (directoryPtr != NULL)
+			{
+				pDirectory = *directoryPtr;
+			}
+		}
 
-		if ( !pDirectory && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen )
+		// Let the request go through if the directory isn't found and either request routing is on, or request routing is off and single open is off
+		if ( !pDirectory && (_ommBaseImpl.getConsumerRoutingSession() != NULL || 
+				(_ommBaseImpl.getConsumerRoutingSession() == NULL && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen)))
 		{
 			EmaString temp( "Service name of '" );
 			temp.append( reqMsgEncoder.getServiceName() ).append( "' is not found." );
@@ -2778,6 +2808,9 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 			scheduleItemClosedStatus(reqMsgEncoder, temp);
 			return true;
 		}
+
+		if(pDirectory != NULL)
+			serviceId = pDirectory->getId();
 	}
 	else
 	{
@@ -2786,11 +2819,17 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 			if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
 				pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId );
 			else
-				pDirectory = *_ommBaseImpl.getConsumerRoutingSession()->serviceById.find(reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId);
+			{
+				ConsumerRoutingService** directoryPtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId);
+				if (directoryPtr != NULL)
+				{
+					pDirectory = *directoryPtr;
+				}
+			}
 
-			serviceName = pDirectory->getName();
-
-			if ( !pDirectory && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen)
+			// Let the request go through if the directory isn't found and either request routing is on, or request routing is off and single open is off
+			if (!pDirectory && (_ommBaseImpl.getConsumerRoutingSession() != NULL ||
+				(_ommBaseImpl.getConsumerRoutingSession() == NULL && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen)))
 			{
 				EmaString temp( "Service id of '" );
 				temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId ).
@@ -2799,6 +2838,11 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 				scheduleItemClosedStatus(reqMsgEncoder, temp);
 				return true;
 			}
+			
+			if (pDirectory != NULL)
+				serviceName = pDirectory->getName();
+
+			serviceId = reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId;
 		}
 	}
 

@@ -1220,10 +1220,10 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			{
 				RsslUInt32 index;
 
-				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				for (index = 0; index < pReactorChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
-					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
-					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+					FD_CLR(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_CLR(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 				}
 			}
 

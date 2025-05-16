@@ -154,6 +154,10 @@ namespace refinitiv {
 
 				bool					inPreferredHost;			// flag indicating that this session channel is currently in the preferred host operation, so do not attempt to reroute the requests
 
+				UInt32					sessionIndex;				// Index in pRoutingSession->routingChannelList.
+
+				bool					closeOnDownReconnecting;	// Close the channel when a DOWN_RECONNECTING event is received.  This is only set when the login is denied.
+
 
 				// Hash tables and a direct list of services 
 				HashTable<UInt16, DirectoryPtr, UInt16rHasher, UInt16Equal_To> serviceById;			// keyed by the concrete service for this channel

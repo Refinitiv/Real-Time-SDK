@@ -1431,6 +1431,7 @@ void ChannelCallbackClient::initialize()
 			}
 
 			_ommBaseImpl.getConsumerRoutingSession()->activeChannelCount++;
+			routingSessionChannel->sessionIndex = _ommBaseImpl.getConsumerRoutingSession()->routingChannelList.size();
 			_ommBaseImpl.getConsumerRoutingSession()->routingChannelList.push_back(routingSessionChannel);
 		}
 	}
@@ -1930,7 +1931,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		}
 		else
 		{
-		_ommBaseImpl.getLoginCallbackClient().processChannelEvent( pEvent );
+			_ommBaseImpl.getLoginCallbackClient().processChannelEvent( pEvent );
 		}
 
 		_ommBaseImpl.closeChannel( pRsslReactorChannel );
@@ -2009,15 +2010,26 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		// Since this may be the first time we see a reactorChannel, set it on the associated Channel object.
 		pChannel->setChannelState(Channel::ChannelDownReconnectingEnum);
 
-		// Set this to true on the routing channel if it exists
+	
 		if (pChannel->getConsumerRoutingChannel())
 		{
-			pChannel->getConsumerRoutingChannel()->reconnecting = true;
+			// closedOnDownReconnecting gets set when the login is denied.  Do not send out an additional channel event here, and close the channel.
+			// We should have received all fanout by this point.
+			if (pChannel->getConsumerRoutingChannel()->closeOnDownReconnecting != true)
+			{	
+				// Set this to true on the routing channel if it exists
+				pChannel->getConsumerRoutingChannel()->reconnecting = true;
 
-			pChannel->getConsumerRoutingChannel()->pRoutingSession->processChannelEvent(pChannel->getConsumerRoutingChannel(), pEvent);
+				pChannel->getConsumerRoutingChannel()->pRoutingSession->processChannelEvent(pChannel->getConsumerRoutingChannel(), pEvent);
+			}
+			else
+			{
+				_ommBaseImpl.closeChannel(pRsslReactorChannel);
+			}
 
 			// Re-route any items on this list only if preferred host is not currently happening and enhanced item recovery is turned on.  They should have gotten a OPEN/SUSPECT status from the underlying watchlist previous to this.
-			if (pChannel->getConsumerRoutingChannel()->inPreferredHost == false && _ommBaseImpl.getActiveConfig().consumerRoutingSessionEnhancedItemRecovery == true)
+			if (pChannel->getConsumerRoutingChannel()->inPreferredHost == false && 
+				(_ommBaseImpl.getActiveConfig().consumerRoutingSessionEnhancedItemRecovery == true || pChannel->getConsumerRoutingChannel()->closeOnDownReconnecting == true))
 			{
 				EmaList<Item*>& pendingList = pChannel->getConsumerRoutingChannel()->routedRequestList.getList();
 				SingleItem* pItem = (SingleItem*)pendingList.pop_front();
@@ -2032,6 +2044,13 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 
 					pItem = (SingleItem*)pendingList.pop_front();
 				}
+			}
+
+			if (pChannel->getConsumerRoutingChannel()->closeOnDownReconnecting == true)
+			{
+				if (_ommBaseImpl.getConsumerRoutingSession()->activeChannelCount == 0)
+					_ommBaseImpl.setState(OmmBaseImpl::RsslChannelDownEnum);
+
 			}
 		}
 

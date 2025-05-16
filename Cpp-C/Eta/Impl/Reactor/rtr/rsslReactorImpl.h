@@ -566,6 +566,7 @@ struct _RsslReactorChannelImpl
 	RsslBool						  deepCopyRole;			/* This RsslReactorChannelImpl contains a deepy copy of the channel role credentials */
 	RsslBool			inLoginCredentialCallback;
 	RsslBool			doNotNotifyWorkerOnCredentialChange;
+	RsslReactorChannelImpl* pUnderlyingReactorChannel;
 };
 
 RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pInfo)

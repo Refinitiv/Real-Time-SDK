@@ -429,6 +429,11 @@ void OmmConsumerImpl::loadDirectory()
 			}
 		}
 
+		// Clear out the lists, they would have been populated with the aggregateDirectory calls above.
+		_pConsumerRoutingSession->deletedServiceList.clear();
+		_pConsumerRoutingSession->addedServiceList.clear();
+		_pConsumerRoutingSession->updatedServiceList.clear();
+
 		// Fanout any pending requests.  This will also clear the internal add/update/delete queues.
 		_pDirectoryCallbackClient->fanoutAllDirectoryRequests((void*)this);
 	}

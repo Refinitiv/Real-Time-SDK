@@ -68,6 +68,7 @@ namespace access {
 		bool initialLoginRefreshReceived;
 		bool sentInitialLoginRefresh;
 		LoginInfo	aggregatedLoginInfo;
+		StatusMsg _statusMsg;
 
 		bool enhancedItemRecovery;
 

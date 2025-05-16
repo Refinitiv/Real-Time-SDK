@@ -936,7 +936,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			}
 			else
 			{
-				_ommBaseImpl.closeChannel(pRsslReactorChannel);
+				pChannel->getConsumerRoutingChannel()->closeOnDownReconnecting = true;
 
 				if (pChannel->getConsumerRoutingChannel()->pRoutingSession->activeChannelCount == 0)
 					_ommBaseImpl.setState(OmmBaseImpl::RsslChannelDownEnum);
@@ -950,6 +950,8 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		bool dispatchMsgToUser = true;			// Governs whether or not this status is dispatched to the user.  
 												// For Request Routing, this should happen whenever a OPEN/OK happens, or ALL active channel logins are in OPEN/SUSPECT 
 												// or have been explicilty CLOSED by the upstream provider.
+
+		bool setToOpenOk = true;
 
 		if ( pLoginMsg->status.flags & RDM_LG_STF_HAS_STATE )
 		{
@@ -985,6 +987,10 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 						{
 							dispatchMsgToUser = false;
 						}
+					}
+					else if (pSession->activeChannelCount == 1)
+					{
+						setToOpenOk = false;
 					}
 				}
 				stateToString( pState, _loginFailureMsg );
@@ -1044,6 +1050,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 					// Check to see if all of the channels are in a LoginStreamOpenSuspectEnum status or closed.  
 					// If they are all in that status, set the ommbaseimpl state to LoginStreamOpenSuspectEnum so it can transition to the next step.
+
 					for (UInt32 i = 0; i < pSession->routingChannelList.size(); i++)
 					{
 						if (pSession->routingChannelList[i] != NULL && pSession->routingChannelList[i]->channelState == OmmBaseImpl::LoginStreamOpenSuspectEnum)
@@ -1052,11 +1059,17 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 					if (loginSuspectCount == pSession->activeChannelCount)
 					{
-						_ommBaseImpl.setState( OmmBaseImpl::LoginStreamOpenSuspectEnum );
+						_ommBaseImpl.setState(OmmBaseImpl::LoginStreamOpenSuspectEnum);
+						setToOpenOk = false;
 					}
 					else
 					{
 						dispatchMsgToUser = false;
+
+						if (pSession->activeChannelCount == 1)
+						{
+							setToOpenOk = false;
+						}
 					}
 				}
 			}
@@ -1115,6 +1128,12 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			}
 		}
 
+		if (setToOpenOk == true)
+		{
+			pLoginMsg->status.state.streamState = RSSL_STREAM_OPEN;
+			pLoginMsg->status.state.dataState = RSSL_DATA_OK;
+		}
+
 		_loginItemLock.lock();
 
 		if (dispatchMsgToUser && _loginItems.size() )
@@ -1131,7 +1150,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			}
 			else
 			{
-				_ommBaseImpl.closeChannel(pRsslReactorChannel);
+				pChannel->getConsumerRoutingChannel()->closeOnDownReconnecting = true;
 
 				if (pChannel->getConsumerRoutingChannel()->pRoutingSession->activeChannelCount == 0)
 					_ommBaseImpl.setState(OmmBaseImpl::RsslChannelDownEnum);
@@ -1172,11 +1191,24 @@ RsslReactorCallbackRet LoginCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg
 	RsslBuffer rsslMsgBuffer;
 	rsslClearBuffer( &rsslMsgBuffer );
 
+	RsslUInt32 majorVersion = RSSL_RWF_MAJOR_VERSION;
+	RsslUInt32 minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (pRsslReactorChannel->majorVersion != 0)
+	{
+		majorVersion = pRsslReactorChannel->majorVersion;
+	}
+
+	if (pRsslReactorChannel->minorVersion != 0)
+	{
+		minorVersion = pRsslReactorChannel->minorVersion;
+	}
+
 	if ( pRsslMsg )
 	{
 		StaticDecoder::setRsslData( &_refreshMsg, pRsslMsg,
-		                            pRsslReactorChannel->majorVersion,
-		                            pRsslReactorChannel->minorVersion,
+		                            majorVersion,
+		                            minorVersion,
 		                            0 );
 	}
 	else
@@ -1185,8 +1217,8 @@ RsslReactorCallbackRet LoginCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg
 			return RSSL_RC_CRET_SUCCESS;
 
 		StaticDecoder::setRsslData( &_refreshMsg, &rsslMsgBuffer, RSSL_DT_MSG,
-		                            pRsslReactorChannel->majorVersion,
-		                            pRsslReactorChannel->minorVersion,
+		                            majorVersion,
+		                            minorVersion,
 		                            0 );
 	}
 
@@ -1220,11 +1252,24 @@ RsslReactorCallbackRet LoginCallbackClient::processStatusMsg( RsslMsg* pRsslMsg,
 	RsslBuffer rsslMsgBuffer;
 	rsslClearBuffer( &rsslMsgBuffer );
 
+	RsslUInt32 majorVersion = RSSL_RWF_MAJOR_VERSION;
+	RsslUInt32 minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (pRsslReactorChannel->majorVersion != 0)
+	{
+		majorVersion = pRsslReactorChannel->majorVersion;
+	}
+
+	if (pRsslReactorChannel->minorVersion != 0)
+	{
+		minorVersion = pRsslReactorChannel->minorVersion;
+	}
+
 	if ( pRsslMsg )
 	{
 		StaticDecoder::setRsslData( &_statusMsg, pRsslMsg,
-		                            pRsslReactorChannel->majorVersion,
-		                            pRsslReactorChannel->minorVersion,
+									majorVersion,
+		                            minorVersion,
 		                            0 );
 	}
 	else
@@ -1233,8 +1278,8 @@ RsslReactorCallbackRet LoginCallbackClient::processStatusMsg( RsslMsg* pRsslMsg,
 			return RSSL_RC_CRET_SUCCESS;
 
 		StaticDecoder::setRsslData( &_statusMsg, &rsslMsgBuffer, RSSL_DT_MSG,
-		                            pRsslReactorChannel->majorVersion,
-		                            pRsslReactorChannel->minorVersion,
+									majorVersion,
+		                            minorVersion,
 		                            0 );
 	}
 
@@ -1267,9 +1312,22 @@ RsslReactorCallbackRet LoginCallbackClient::processGenericMsg( RsslMsg* pRsslMsg
 {
 	Channel* channel = static_cast<Channel*>(pRsslReactorChannel->userSpecPtr);
 
+	RsslUInt32 majorVersion = RSSL_RWF_MAJOR_VERSION;
+	RsslUInt32 minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (pRsslReactorChannel->majorVersion != 0)
+	{
+		majorVersion = pRsslReactorChannel->majorVersion;
+	}
+
+	if (pRsslReactorChannel->minorVersion != 0)
+	{
+		minorVersion = pRsslReactorChannel->minorVersion;
+	}
+
 	StaticDecoder::setRsslData( &_genericMsg, pRsslMsg,
-	                            pRsslReactorChannel->majorVersion,
-	                            pRsslReactorChannel->minorVersion,
+	                            majorVersion,
+	                            minorVersion,
 								channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	// Fan out the generic msg to all registered handles
@@ -1289,18 +1347,49 @@ RsslReactorCallbackRet LoginCallbackClient::processAckMsg( RsslMsg* pRsslMsg, Rs
 {
 	Channel* channel = static_cast<Channel*>(pRsslReactorChannel->userSpecPtr);
 
+	RsslUInt32 majorVersion = RSSL_RWF_MAJOR_VERSION;
+	RsslUInt32 minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (pRsslReactorChannel->majorVersion != 0)
+	{
+		majorVersion = pRsslReactorChannel->majorVersion;
+	}
+
+	if (pRsslReactorChannel->minorVersion != 0)
+	{
+		minorVersion = pRsslReactorChannel->minorVersion;
+	}
+
 	StaticDecoder::setRsslData( &_ackMsg, pRsslMsg,
-	                            pRsslReactorChannel->majorVersion,
-	                            pRsslReactorChannel->minorVersion,
+								majorVersion,
+	                            minorVersion,
 								channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	// Sets serviceName on received AckMsg assuming serviceId exists
 	if ( pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) 
 	{
-		const Directory* pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory(pRsslMsg->msgBase.msgKey.serviceId);
-		if ( pDirectory ) 
+		if (_ommBaseImpl.getConsumerRoutingSession() != NULL)
 		{
-			_ackMsg.getDecoder().setServiceName(pDirectory->getName().c_str(), pDirectory->getName().length());
+			Directory** pDirectoryPtr = channel->getConsumerRoutingChannel()->serviceById.find(pRsslMsg->msgBase.msgKey.serviceId);
+
+			if (pDirectoryPtr != NULL)
+			{
+				Directory* pDirectory = *pDirectoryPtr;
+				_ackMsg.getDecoder().setServiceName(pDirectory->getName().c_str(), pDirectory->getName().length());
+
+				if (pDirectory->hasGeneratedServiceId())
+				{
+					_ackMsg.getDecoder().setServiceId((UInt16)pDirectory->getGeneratedServiceId());
+				}
+			}
+		}
+		else
+		{
+			const Directory* pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory(pRsslMsg->msgBase.msgKey.serviceId);
+			if (pDirectory)
+			{
+				_ackMsg.getDecoder().setServiceName(pDirectory->getName().c_str(), pDirectory->getName().length());
+			}
 		}
 	}
 
@@ -1793,8 +1882,8 @@ bool LoginItem::submit( const PostMsg& postMsg )
 
 	if (_ommBaseImpl.getConsumerRoutingSession() != NULL)
 	{
-	if ( postMsgEncoder.hasServiceName() )
-	{
+		if ( postMsgEncoder.hasServiceName() )
+		{
 			const EmaString& serviceName = postMsgEncoder.getServiceName();
 
 			serviceNameBuffer.data = (char*)serviceName.c_str();
@@ -1848,6 +1937,9 @@ bool LoginItem::submit( const PostMsg& postMsg )
 			ConsumerRoutingService** pRoutingServicePtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(pRsslPostMsg->msgBase.msgKey.serviceId);
 			if (!pRoutingServicePtr)
 			{
+				EmaString text("Failed to submit PostMsg on login stream. Reason: invalid service id");
+
+				_ommBaseImpl.handleIue(text, OmmInvalidUsageException::InvalidArgumentEnum);
 				return false;
 			}
 
@@ -1867,6 +1959,8 @@ bool LoginItem::submit( const PostMsg& postMsg )
 
 			serviceNameBuffer.data = (char*)serviceName.c_str();
 			serviceNameBuffer.length = serviceName.length();
+
+			pRsslPostMsg->msgBase.msgKey.flags &= ~RSSL_MKF_HAS_SERVICE_ID;
 
 			// Submit the request with the service name specified.  This will overwrite any serviceId set in the request.
 			for (UInt32 i = 0; i < pRoutingService->routingChannelList.size(); i++)
@@ -1911,21 +2005,56 @@ bool LoginItem::submit( const PostMsg& postMsg )
 
 bool LoginItem::submit( const GenericMsg& genMsg )
 {
-	bool ret;
+	const GenericMsgEncoder& genericMsgEncoder = static_cast<const GenericMsgEncoder&>(genMsg.getEncoder());
+
 	// For request routing, fan this out to all the connected providers.  These currently should not be seent by EMA, as the Reactor will handle sending RTT responses automatically.
 	if (_ommBaseImpl.getConsumerRoutingSession() != NULL)
 	{
+		ConsumerRoutingService** pRoutingServicePtr = NULL;
+		if (genericMsgEncoder.hasServiceId())
+		{
+			pRoutingServicePtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(genericMsgEncoder.getRsslGenericMsg()->msgBase.msgKey.serviceId);
+		}
+
 		for (UInt32 i = 0; i < _ommBaseImpl.getConsumerRoutingSession()->routingChannelList.size(); ++i)
 		{
 			ConsumerRoutingSessionChannel* routingChannel = _ommBaseImpl.getConsumerRoutingSession()->routingChannelList[i];
 			// routingChannel should never be null
 			if (routingChannel->pReactorChannel != NULL)
-			{
-				ret = submit(static_cast<const GenericMsgEncoder&>(genMsg.getEncoder()).getRsslGenericMsg(), routingChannel->pReactorChannel);
-				if (ret == false)
+			{	
+				if (genericMsgEncoder.hasServiceId())
 				{
-					return ret;
+					if (!pRoutingServicePtr)
+					{
+						return submit(static_cast<const GenericMsgEncoder&>(genMsg.getEncoder()).getRsslGenericMsg(), routingChannel->pReactorChannel);
+					}
+
+					ConsumerRoutingService* pRoutingService = *pRoutingServicePtr;
+
+					// If the channel is in the routing service list, substitute the found serviceId here.
+					if (pRoutingService->routingChannelList[sessionChannel->sessionIndex] != NULL)
+					{
+						Directory** pDirectoryPtr = sessionChannel->serviceByName.find(&pRoutingService->getName());
+
+						if (pDirectoryPtr == NULL)
+						{
+							return submit(static_cast<const GenericMsgEncoder&>(genMsg.getEncoder()).getRsslGenericMsg(), routingChannel->pReactorChannel);
+						}
+
+						Directory* pDirectory = *pDirectoryPtr;
+
+						genericMsgEncoder.getRsslGenericMsg()->msgBase.msgKey.serviceId = (RsslUInt16)pDirectory->getService()->serviceId;
+
+						return submit(static_cast<const GenericMsgEncoder&>(genMsg.getEncoder()).getRsslGenericMsg(), routingChannel->pReactorChannel);
+					}
+					else
+					{
+						return submit(static_cast<const GenericMsgEncoder&>(genMsg.getEncoder()).getRsslGenericMsg(), routingChannel->pReactorChannel);
+					}
 				}
+				else
+					return submit(static_cast<const GenericMsgEncoder&>(genMsg.getEncoder()).getRsslGenericMsg(), routingChannel->pReactorChannel);
+
 			}
 }
 
@@ -1986,42 +2115,42 @@ bool LoginItem::submit( RsslGenericMsg* pRsslGenericMsg, RsslReactorChannel* pRe
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	pRsslGenericMsg->msgBase.streamId = _streamId;
 
-		rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
+	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 
-		submitMsgOpts.pRsslMsg = ( RsslMsg* )pRsslGenericMsg;
+	submitMsgOpts.pRsslMsg = ( RsslMsg* )pRsslGenericMsg;
 
 	submitMsgOpts.majorVersion = pReactorChannel->majorVersion;
 	submitMsgOpts.minorVersion = pReactorChannel->minorVersion;
 
-		RsslErrorInfo rsslErrorInfo;
-		clearRsslErrorInfo( &rsslErrorInfo );
-		RsslRet ret;
+	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
+	RsslRet ret;
+
 	if ( ( ret = rsslReactorSubmitMsg(_ommBaseImpl.getRsslReactor(),
-										pReactorChannel,
-		                                   &submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+			pReactorChannel, &submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+	{
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
-			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			{
-				EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in submit( RsslGenericMsg* )" );
-				temp.append( CR )
-				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+			EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in submit( RsslGenericMsg* )" );
+			temp.append( CR )
+			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
+			.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
+			.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
+			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
+			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-			}
-
-			EmaString text( "Failed to submit GenericMsg on login stream. Reason: " );
-			text.append( rsslRetCodeToString( ret ) )
-			.append( ". Error text: " )
-			.append( rsslErrorInfo.rsslError.text );
-
-			_ommBaseImpl.handleIue( text, ret );
-
-			return false;
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
+
+		EmaString text( "Failed to submit GenericMsg on login stream. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+		.append( ". Error text: " )
+		.append( rsslErrorInfo.rsslError.text );
+
+		_ommBaseImpl.handleIue( text, ret );
+
+		return false;
+	}
 
 	return true;
 }
@@ -2039,34 +2168,34 @@ bool LoginItem::submit( RsslPostMsg* pRsslPostMsg, RsslBuffer* pServiceName, Rss
 	submitMsgOpts.majorVersion = pReactorChannel->majorVersion;
 	submitMsgOpts.minorVersion = pReactorChannel->minorVersion;
 
-		RsslErrorInfo rsslErrorInfo;
-		clearRsslErrorInfo( &rsslErrorInfo );
-		RsslRet ret;
+	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
+	RsslRet ret;
+
 	if ((ret = rsslReactorSubmitMsg(_ommBaseImpl.getRsslReactor(),
-		pReactorChannel,
-		                                   &submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+		pReactorChannel, &submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+	{
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
-			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			{
-				EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in submit( RsslPostMsg* )" );
-				temp.append( CR )
-				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-			}
-
-			EmaString text( "Failed to submit PostMsg on login stream. Reason: " );
-			text.append( rsslRetCodeToString( ret ) )
-			.append( ". Error text: " )
-			.append( rsslErrorInfo.rsslError.text );
-
-			_ommBaseImpl.handleIue( text, ret );
-
-			return false;
+			EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in submit( RsslPostMsg* )" );
+			temp.append( CR )
+			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
+			.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
+			.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
+			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
+			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
+
+		EmaString text( "Failed to submit PostMsg on login stream. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+		.append( ". Error text: " )
+		.append( rsslErrorInfo.rsslError.text );
+
+		_ommBaseImpl.handleIue( text, ret );
+
+		return false;
+	}
 
 	return true;
 }

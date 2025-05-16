@@ -58,7 +58,8 @@ ConsumerRoutingSession::ConsumerRoutingSession(OmmBaseImpl& consumerBaseImpl) :
 	serviceByName(),
 	deletedServiceList(),
 	addedServiceList(),
-	updatedServiceList()
+	updatedServiceList(),
+	_statusMsg()
 {
 	enhancedItemRecovery = false;
 	serviceIdCounter = 1;
@@ -322,6 +323,7 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 		Directory* pDirectory = NULL;
 		ServiceList** pServiceListPtr = baseImpl.getActiveConfig().serviceListByName.find(&(item.getServiceListName()));
 		bool foundDirectory = false;   // This will be set to true if any directory is found, so the request can go to the pending lists.
+		UInt32 serviceListIndex = item.currentServiceListIndex;
 
 		if (pServiceListPtr == NULL)
 		{
@@ -334,12 +336,30 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 
 		item.sessionChannel = NULL;
 		bool matchedService = false;
+
+		if (item.sessionChannelItemClosedList == NULL)
+		{
+			item.sessionChannelItemClosedList = new EmaVector<bool*>();
+			item.closedListSize = concreteServiceList.size();
+
+			for (UInt32 i = 0; i < routingChannelList.size(); ++i)
+			{
+				bool* pDirectoryFlagList = (bool*)malloc(sizeof(bool) * concreteServiceList.size());
+				memset((void*)pDirectoryFlagList, 0, (sizeof(bool) * concreteServiceList.size()));
+				item.sessionChannelItemClosedList->push_back(pDirectoryFlagList);
+			}
+		}
+
 		// Iterate through the concrete service list, if there is a match, set the directory here and continue.
 		for (UInt32 i = 0; i < concreteServiceList.size(); ++i)
 		{
-			ConsumerRoutingService** pRoutingServicePtr = baseImpl.getConsumerRoutingSession()->serviceByName.find(&concreteServiceList[i]);
+			ConsumerRoutingService** pRoutingServicePtr = baseImpl.getConsumerRoutingSession()->serviceByName.find(&concreteServiceList[serviceListIndex]);
 			if (!pRoutingServicePtr)
 			{
+				// Increment the service list index here.  If it's equal to the size of the concreteServiceList, set the index to 0
+				serviceListIndex++;
+				if (serviceListIndex == concreteServiceList.size())
+					serviceListIndex = 0;
 				continue;
 			}
 
@@ -349,6 +369,9 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 			{
 				// We have seen this service before, but it currently isn't active, so we continue
 				foundDirectory = true;
+				serviceListIndex++;
+				if (serviceListIndex == concreteServiceList.size())
+					serviceListIndex = 0;
 				continue;
 			}
 
@@ -358,15 +381,20 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 				if (pRoutingService->routingChannelList[j] == NULL || pRoutingService->routingChannelList[j]->channelClosed == true)
 					continue;
 
+				// Skip this directory if it has already been marked as closed by this service on this session channel.
+				if (item.sessionChannelItemClosedList != NULL && ((*(item.sessionChannelItemClosedList))[j])[serviceListIndex] == true)
+					continue;
+
 				// Skip this channel if the request is currently on the same service name as the consumer routing service and it's the same channel
 				if (item.getDirectory() != NULL && pRoutingService->getName() == item.getDirectory()->getName() && pOldChannel == pRoutingService->routingChannelList[j])
 					continue;
 
-				pDirectory = *pRoutingService->routingChannelList[j]->serviceByName.find(&concreteServiceList[i]);
+				pDirectory = *pRoutingService->routingChannelList[j]->serviceByName.find(&concreteServiceList[serviceListIndex]);
 
 				if (pDirectory->serviceMatch(item.getReqMsg()) == true)
 				{
 					item.sessionChannel = pRoutingService->routingChannelList[j];
+					item.currentServiceListIndex = serviceListIndex;
 					item.setDirectory(pDirectory);
 					item.setServiceName((EmaString&)pDirectory->getName());
 					pRoutingService->routingChannelList[j]->routedRequestList.addItem(&item);
@@ -379,6 +407,11 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 			{
 				break;
 			}
+
+			// Increment the service list index here.  If it's equal to the size of the concreteServiceList, set the index to 0
+			serviceListIndex++;
+			if (serviceListIndex == concreteServiceList.size())
+				serviceListIndex = 0;
 		}
 
 		if (item.sessionChannel == NULL)
@@ -403,6 +436,20 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 			return false;
 		}
 
+		if (item.sessionChannelItemClosedList == NULL)
+		{
+			item.sessionChannelItemClosedList = new EmaVector<bool*>();
+
+			item.closedListSize = 1;
+
+			for (UInt32 i = 0; i < routingChannelList.size(); ++i)
+			{
+				bool* pDirectoryFlag = (bool*)malloc(sizeof(bool));
+				*pDirectoryFlag = false;
+				item.sessionChannelItemClosedList->push_back(pDirectoryFlag);
+			}
+		}
+
 		ConsumerRoutingSessionChannel* pOldChannel = item.sessionChannel;
 
 		item.sessionChannel = NULL;
@@ -411,6 +458,11 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 		{
 			// Skip any channels that are NULL here.
 			if (pRoutingService->routingChannelList[i] == NULL || pOldChannel == pRoutingService->routingChannelList[i])
+				continue;
+
+			// Skip this directory if it has already been marked as closed by this service on this session channel.
+			// Since this does not have a serviceList, the bool pointer will be a singleton bool
+			if (*((*(item.sessionChannelItemClosedList))[i]) == true)
 				continue;
 
 			Directory* pDirectory = *pRoutingService->routingChannelList[i]->serviceByName.find(&item.getServiceName());
@@ -446,16 +498,34 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 			return false;
 		}
 
+		if (item.sessionChannelItemClosedList == NULL)
+		{
+			item.sessionChannelItemClosedList = new EmaVector<bool*>();
+			item.closedListSize = 1;
+
+			for (UInt32 i = 0; i < routingChannelList.size(); ++i)
+			{
+				bool* pDirectoryFlag = (bool*)malloc(sizeof(bool));
+				*pDirectoryFlag = false;
+				item.sessionChannelItemClosedList->push_back(pDirectoryFlag);
+			}
+		}
+
 		item.sessionChannel = NULL;
 
 		for (UInt32 i = 0; i < pRoutingService->routingChannelList.size(); i++)
 		{
 			// Skip any channels that are NULL or match the old channel here.
-			if (routingChannelList[i] == NULL || pOldChannel == routingChannelList[i])
+			if (pRoutingService->routingChannelList[i] == NULL || pOldChannel == pRoutingService->routingChannelList[i])
 				continue;
 
-			Directory* pDirectory = *pRoutingService->routingChannelList[i]->serviceByName.find(&pRoutingService->getName());
-			
+			Directory** pDirectoryPtr =  pRoutingService->routingChannelList[i]->serviceByName.find(&pRoutingService->getName());
+
+			if (pDirectoryPtr == NULL)
+				continue;
+
+			Directory* pDirectory = *pDirectoryPtr;
+
 			if (pDirectory->serviceMatch(item.getReqMsg()) == true)
 			{
 				item.sessionChannel = pRoutingService->routingChannelList[i];

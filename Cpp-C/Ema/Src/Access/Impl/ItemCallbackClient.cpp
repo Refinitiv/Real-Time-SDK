@@ -160,7 +160,8 @@ ItemList* Item::getItemList()
 ConsumerItem::ConsumerItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* pParentItem ) :
 	_ommBaseImpl( ommBaseImpl ),
 	_client( ommConsClient ),
-	_event(ommBaseImpl)
+	_event(ommBaseImpl),
+	currentServiceListIndex(0)
 {
 	_event._handle = ( UInt64 )this;
 	_event._closure = closure;
@@ -168,7 +169,8 @@ ConsumerItem::ConsumerItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommCons
 
 	_event._channel = (void*)ommBaseImpl.getRsslReactorChannel();
 
-	sessionChannel = NULL;	
+	sessionChannel = NULL;
+	sessionChannelItemClosedList = NULL;
 }
 
 ConsumerItem::~ConsumerItem()
@@ -176,6 +178,15 @@ ConsumerItem::~ConsumerItem()
 	if (_currentItemList)
 	{
 		_currentItemList->removeItem(this);
+	}
+
+	if (sessionChannelItemClosedList != NULL)
+	{
+		for (UInt32 i = 0; i < sessionChannelItemClosedList->size(); i++)
+		{
+			free((void*)((*sessionChannelItemClosedList)[i]));
+		}
+		delete sessionChannelItemClosedList;
 	}
 }
 
@@ -588,21 +599,21 @@ bool SingleItem::open( const ReqMsg& reqMsg )
 	else if ( reqMsgEncoder.hasServiceName() )
 	{
 		if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
-	{
-		pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getServiceName() );
-		if ( !pDirectory )
 		{
-			EmaString temp( "Service name of '" );
-			temp.append( reqMsgEncoder.getServiceName() ).
-				append( "' is not found." );
-			scheduleItemClosedStatus( reqMsgEncoder, temp );
+			pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getServiceName() );
+			if ( !pDirectory )
+			{
+				EmaString temp( "Service name of '" );
+				temp.append( reqMsgEncoder.getServiceName() ).
+					append( "' is not found." );
+				scheduleItemClosedStatus( reqMsgEncoder, temp );
 
-			return true;
-		}
+				return true;
+			}
 			_pDirectory = pDirectory;
-	}
-	else
-	{
+		}
+		else
+		{
 			if (_ommBaseImpl.getConsumerRoutingSession()->matchRequestToSessionChannel(*this) == false)
 			{
 				if (reqMsgEncoder.getRsslRequestMsg()->flags & RSSL_RQMF_PRIVATE_STREAM)
@@ -612,8 +623,8 @@ bool SingleItem::open( const ReqMsg& reqMsg )
 						append("' is not found.");
 					scheduleItemClosedStatus(reqMsgEncoder, temp);
 				}
-		else
-		{
+				else
+				{
 					// Add to the pending request list
 					this->sessionChannel = NULL;
 					this->setDirectory(NULL);
@@ -623,7 +634,7 @@ bool SingleItem::open( const ReqMsg& reqMsg )
 					{
 						/*Send stream close status for the batch stream */
 						EmaString temp("Batch request acknowledged.");
-			scheduleItemClosedStatus( reqMsgEncoder, temp );
+						scheduleItemClosedStatus( reqMsgEncoder, temp );
 					}
 					else
 					{
@@ -634,8 +645,8 @@ bool SingleItem::open( const ReqMsg& reqMsg )
 					}
 				}
 
-			return true;
-		}
+				return true;
+			}
 		}
 	}
 	else
@@ -648,25 +659,43 @@ bool SingleItem::open( const ReqMsg& reqMsg )
 			{
 				pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory(reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId);
 
-		if ( !pDirectory )
-		{
-			EmaString temp( "Service id of '" );
-			temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId ).
-				append( "' is not found." );
-			scheduleItemClosedStatus( reqMsgEncoder, temp );
+				if ( !pDirectory )
+				{
+					EmaString temp( "Service id of '" );
+					temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId ).
+						append( "' is not found." );
+					scheduleItemClosedStatus( reqMsgEncoder, temp );
 
-			return true;
-		}
+					return true;
+				}
+
 				_pDirectory = pDirectory;
 			}
 			else
 			{
 				if (_ommBaseImpl.getConsumerRoutingSession()->matchRequestToSessionChannel(*this) == false)
 				{
-					EmaString temp("Service id of '");
-					temp.append(reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId).
-						append("' is not found.");
-					scheduleItemClosedStatus(reqMsgEncoder, temp);
+					ConsumerRoutingService** pRoutingServicePtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(_serviceId);
+					if (!pRoutingServicePtr)
+					{
+						EmaString temp("Service id of '");
+						temp.append(reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId).
+							append("' is not found.");
+						scheduleItemClosedStatus(reqMsgEncoder, temp);
+					}
+					else
+					{
+						// Add to the pending request list
+						this->sessionChannel = NULL;
+						this->setDirectory(NULL);
+						_ommBaseImpl.getConsumerRoutingSession()->pendingRequestList.addItem(this);
+
+						EmaString temp("Request with service id of '");
+						temp.append(reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId).
+							append("' does not match any active service, will request when one becomes available.");
+						scheduleItemSuspectStatus(reqMsgEncoder, temp);
+					}
+					
 
 					return true;
 	}
@@ -689,7 +718,7 @@ bool SingleItem::open( const ReqMsg& reqMsg )
 
 	// Only submit the message if a sessionChannel has been defined to route to.
 	if (_ommBaseImpl.getConsumerRoutingSession() == NULL || sessionChannel != NULL)
-	return submit( reqMsgEncoder.getRsslRequestMsg() );
+		return submit( reqMsgEncoder.getRsslRequestMsg() );
 	else
 		return true;
 }
@@ -752,34 +781,134 @@ bool SingleItem::sendClose()
 bool SingleItem::submit( const PostMsg& postMsg )
 {
 	const PostMsgEncoder& postMsgEncoder = static_cast<const PostMsgEncoder&>( postMsg.getEncoder() );
-
-	if ( postMsgEncoder.hasServiceName() )
+	if (_ommBaseImpl.getConsumerRoutingSession() != NULL)
 	{
-		const Directory* pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( postMsgEncoder.getServiceName() );
-		if ( !pDirectory )
+		if (sessionChannel == NULL)
 		{
-			EmaString temp("Failed to submit PostMsg on item stream. Reason: Service name of '");
-			temp.append(postMsgEncoder.getServiceName()).append("' is not found.");
+			EmaString text("Failed to submit PostMsg. Reason: No current session channel for this handle");
 
-			_ommBaseImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
-
+			_ommBaseImpl.handleIue(text, OmmInvalidUsageException::InvalidArgumentEnum);
 			return false;
 		}
 
-		const EmaString& serviceName = pDirectory->getName();
+		if (postMsgEncoder.hasServiceName())
+		{
+			Directory** pDirectoryPtr = sessionChannel->serviceByName.find(&postMsgEncoder.getServiceName());
 
-		RsslBuffer serviceNameBuffer = RSSL_INIT_BUFFER;
-		serviceNameBuffer.data = (char*)serviceName.c_str();
-		serviceNameBuffer.length = serviceName.length();
+			if (pDirectoryPtr == NULL)
+			{
+				EmaString temp("Failed to submit PostMsg on item stream. Reason: Service name of '");
+				temp.append(postMsgEncoder.getServiceName()).append("' is not found.");
 
-		return submit( static_cast<const PostMsgEncoder&>( postMsg.getEncoder() ).getRsslPostMsg(), &serviceNameBuffer );
+				_ommBaseImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+
+				return false;
+			}
+			Directory* pDirectory = *pDirectoryPtr;
+
+			const EmaString& serviceName = pDirectory->getName();
+
+			RsslBuffer serviceNameBuffer = RSSL_INIT_BUFFER;
+			serviceNameBuffer.data = (char*)serviceName.c_str();
+			serviceNameBuffer.length = serviceName.length();
+
+			return submit(static_cast<const PostMsgEncoder&>(postMsg.getEncoder()).getRsslPostMsg(), &serviceNameBuffer);
+		}
+		else
+		{
+			ConsumerRoutingService** pRoutingServicePtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(postMsgEncoder.getRsslPostMsg()->msgBase.msgKey.serviceId);
+			if (!pRoutingServicePtr)
+			{
+				EmaString text("Failed to submit PostMsg. Reason: invalid service id");
+
+				_ommBaseImpl.handleIue(text, OmmInvalidUsageException::InvalidArgumentEnum);
+				return false;
+			}
+
+			ConsumerRoutingService* pRoutingService = *pRoutingServicePtr;
+			const EmaString& serviceName = pRoutingService->getName();
+
+			RsslBuffer serviceNameBuffer = RSSL_INIT_BUFFER;
+			serviceNameBuffer.data = (char*)serviceName.c_str();
+			serviceNameBuffer.length = serviceName.length();
+
+			postMsgEncoder.getRsslPostMsg()->msgBase.msgKey.flags &= ~RSSL_MKF_HAS_SERVICE_ID;
+
+			return submit(static_cast<const PostMsgEncoder&>(postMsg.getEncoder()).getRsslPostMsg(), &serviceNameBuffer);
+		}
 	}
+	else
+	{
+		if (postMsgEncoder.hasServiceName())
+		{
+			const Directory* pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory(postMsgEncoder.getServiceName());
+			if (!pDirectory)
+			{
+				EmaString temp("Failed to submit PostMsg on item stream. Reason: Service name of '");
+				temp.append(postMsgEncoder.getServiceName()).append("' is not found.");
 
-	return submit( static_cast<const PostMsgEncoder&>( postMsg.getEncoder() ).getRsslPostMsg(), NULL );
+				_ommBaseImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+
+				return false;
+			}
+
+			const EmaString& serviceName = pDirectory->getName();
+
+			RsslBuffer serviceNameBuffer = RSSL_INIT_BUFFER;
+			serviceNameBuffer.data = (char*)serviceName.c_str();
+			serviceNameBuffer.length = serviceName.length();
+
+			return submit(static_cast<const PostMsgEncoder&>(postMsg.getEncoder()).getRsslPostMsg(), &serviceNameBuffer);
+		}
+
+		return submit(static_cast<const PostMsgEncoder&>(postMsg.getEncoder()).getRsslPostMsg(), NULL);
+	}
 }
 
 bool SingleItem::submit( const GenericMsg& genMsg )
 {
+	const GenericMsgEncoder& genericMsgEncoder = static_cast<const GenericMsgEncoder&>(genMsg.getEncoder());
+	if (_ommBaseImpl.getConsumerRoutingSession() != NULL)
+	{
+		if (sessionChannel == NULL)
+		{
+			EmaString text("Failed to submit GenericMsg. Reason: No current session channel for this handle");
+
+			_ommBaseImpl.handleIue(text, OmmInvalidUsageException::InvalidArgumentEnum);
+			return false;
+		}
+
+		if(genericMsgEncoder.hasServiceId())
+		{
+			ConsumerRoutingService** pRoutingServicePtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(genericMsgEncoder.getRsslGenericMsg()->msgBase.msgKey.serviceId);
+			if (!pRoutingServicePtr)
+			{
+				return submit(static_cast<const GenericMsgEncoder&>(genMsg.getEncoder()).getRsslGenericMsg());
+			}
+
+			ConsumerRoutingService* pRoutingService = *pRoutingServicePtr;
+
+			if (pRoutingService->routingChannelList[sessionChannel->sessionIndex] != NULL)
+			{
+				Directory** pDirectoryPtr = sessionChannel->serviceByName.find(&pRoutingService->getName());
+
+				if (pDirectoryPtr == NULL)
+				{
+					return submit(static_cast<const GenericMsgEncoder&>(genMsg.getEncoder()).getRsslGenericMsg());
+				}
+				Directory* pDirectory = *pDirectoryPtr;
+
+				genericMsgEncoder.getRsslGenericMsg()->msgBase.msgKey.serviceId = (RsslUInt16)pDirectory->getService()->serviceId;
+
+				return submit(static_cast<const GenericMsgEncoder&>(genMsg.getEncoder()).getRsslGenericMsg());
+			}
+			else
+			{
+				return submit(static_cast<const GenericMsgEncoder&>(genMsg.getEncoder()).getRsslGenericMsg());
+			}
+		}
+	}
+
 	return submit( static_cast<const GenericMsgEncoder&>( genMsg.getEncoder() ).getRsslGenericMsg() );
 }
 
@@ -995,6 +1124,55 @@ bool SingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
 	}
 
 	submitMsgOpts.pRsslMsg = (RsslMsg*)pRsslCloseMsg;
+
+	submitMsgOpts.majorVersion = pReactorChannel->majorVersion;
+	submitMsgOpts.minorVersion = pReactorChannel->minorVersion;
+	submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
+
+	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
+	RsslRet ret;
+	if ( ( ret = rsslReactorSubmitMsg(_ommBaseImpl.getRsslReactor(),
+										pReactorChannel,
+										&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+	{
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		{
+			EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in SingleItem::submit( RsslCloseMsg* )" );
+			temp.append( CR )
+				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
+				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
+				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
+				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
+				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+		}
+
+		EmaString text( "Failed to close item request. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		_ommBaseImpl.handleIue( text, ret );
+
+		return false;
+	}
+
+	return true;
+}
+
+bool SingleItem::submitCloseOnReactorChannel (RsslReactorChannel* pReactorChannel )
+{
+	RsslReactorSubmitMsgOptions submitMsgOpts;
+	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
+
+	RsslCloseMsg rsslCloseMsg;
+	rsslClearCloseMsg(&rsslCloseMsg);
+
+	rsslCloseMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	rsslCloseMsg.msgBase.domainType = _domainType;
+
+	submitMsgOpts.pRsslMsg = (RsslMsg*)&rsslCloseMsg;
 
 	submitMsgOpts.majorVersion = pReactorChannel->majorVersion;
 	submitMsgOpts.minorVersion = pReactorChannel->minorVersion;
@@ -1862,7 +2040,7 @@ void ItemCallbackClient::sendItemStatus( void* pInfo )
 	StatusMsg statusMsg;
 
 	StaticDecoder::setRsslData( &statusMsg, (RsslMsg*)&rsslStatusMsg, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, 0 );
-
+	
 	statusMsg.getDecoder().setServiceName( pClosedStatusInfo->getServiceName().c_str(), pClosedStatusInfo->getServiceName().length() );
 
 	Item* item = pClosedStatusInfo->getItem();
@@ -3723,6 +3901,20 @@ RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg,
 			{
 				_refreshMsg.getDecoder().setServiceName(NULL, 0);
 			}
+
+			if (_refreshMsg.getState().getStreamState() == OmmState::OpenEnum && _refreshMsg.getState().getDataState() == OmmState::OkEnum)
+			{
+				if (pSingleItem->sessionChannelItemClosedList != NULL)
+				{
+					
+					for (UInt32 i = 0; i < pSingleItem->sessionChannelItemClosedList->size(); i++)
+					{
+						bool* tmpbool = (*(pSingleItem->sessionChannelItemClosedList))[i];
+						memset((void*)((*(pSingleItem->sessionChannelItemClosedList))[i]), 0, (sizeof(bool)*pSingleItem->closedListSize));
+					}
+				}
+			}
+			
 			break;
 		case Item::NiProviderDictionaryItemEnum:
 			pNIProvDictionaryItem = static_cast<NiProviderDictionaryItem*>(item);
@@ -3829,12 +4021,16 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 	bool isWsb = false;
 
 	RsslStatusMsg* pStatusMsg = (RsslStatusMsg*)pRsslMsg;
-	bool recoverToDifferentChannel = false;
 
 	StaticDecoder::setRsslData( &_statusMsg, pRsslMsg,
 		pRsslReactorChannel->majorVersion,
 		pRsslReactorChannel->minorVersion,
 		pRsslDataDictionary );
+
+	bool sendClose = false;
+	bool submitRequest = false;
+	bool rerouteRequest = false;
+	bool sendCloseOnOldReactorChannel = false;
 
 	if (pChannel->getParentChannel() != NULL && pChannel->getParentChannel()->getReactorChannelType() == Channel::WARM_STANDBY)
 		isWsb = true;
@@ -3918,7 +4114,7 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 
 				// If this is a batch item, let it flow through because the item's about to be closed.
 				// This can only be a batch, dictionary, or single item type.
-				SingleItem* pSingleItem = (SingleItem*)item;
+
 				// Do not do any parsing if this is a private stream.
 				if ((pSingleItem->getReqMsg()->flags & RSSL_RQMF_PRIVATE_STREAM) == 0)
 				{
@@ -3926,10 +4122,38 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 					{
 						if (pRsslMsg->statusMsg.state.streamState != RSSL_STREAM_OPEN)
 						{
-							recoverToDifferentChannel = true;
+							if (pRsslMsg->statusMsg.state.streamState == RSSL_STREAM_CLOSED)
+							{
+								// Set the bool flag on the current servicelistIndex in the sessionChannelItemClosedList's index that corresponds to the current channel for this item.
+								if(pSingleItem->sessionChannelItemClosedList != NULL)
+									((*(pSingleItem->sessionChannelItemClosedList))[pSingleItem->sessionChannel->sessionIndex])[pSingleItem->currentServiceListIndex] = true;
 
-							pRsslMsg->statusMsg.state.streamState = RSSL_STREAM_OPEN;
-							pRsslMsg->statusMsg.state.dataState = RSSL_DATA_SUSPECT;
+								if (ommBaseImpl.getConsumerRoutingSession()->matchRequestToSessionChannel(*pSingleItem) == false)
+								{
+									// This means there aren't any matching services, so all services we're aware of have closed this item.
+									// Set the stream state to CLOSED/SUSPECT
+									pRsslMsg->statusMsg.state.streamState = RSSL_STREAM_CLOSED;
+								}
+								else
+								{
+									pRsslMsg->statusMsg.state.streamState = RSSL_STREAM_OPEN;
+									pRsslMsg->statusMsg.state.dataState = RSSL_DATA_SUSPECT;
+									submitRequest = true;
+								}
+							}
+							else
+							{
+
+								pRsslMsg->statusMsg.state.streamState = RSSL_STREAM_OPEN;
+								pRsslMsg->statusMsg.state.dataState = RSSL_DATA_SUSPECT;
+
+								// If the stream state is not CLOSED or CLOSED_RECOVER(meaning that the underlying watchlist has closed it), close the request.
+								if (origState.streamState != RSSL_STREAM_CLOSED && origState.streamState != RSSL_STREAM_CLOSED_RECOVER)
+									sendClose = true;
+								// Re-route and submit this item.  This will move the item out of the current session channel's item list
+								submitRequest = true;
+								rerouteRequest = true;
+							}
 						}
 						// This covers the case for OPEN/SUSPECT.
 						else if (origState.streamState == RSSL_STREAM_OPEN && origState.dataState == RSSL_DATA_SUSPECT)
@@ -3940,7 +4164,30 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 							// If this is warm standby, recovery will happen only when a service goes down for the full WSB group/the full WSB connection is lost
 							if (isWsb == false && pChannel->getConsumerRoutingChannel()->inPreferredHost == false && ommBaseImpl.getConsumerRoutingSession()->enhancedItemRecovery == true && (pRsslReactorChannel->pRsslChannel != NULL && pRsslReactorChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE))
 							{
-								recoverToDifferentChannel = true;
+								// Attempt to re-route the item.  If this succeeds, close the item and submit it on the other channel.  Otherwise, leave the item on this session channel
+								ConsumerRoutingSessionChannel* pOldChannel = pSingleItem->sessionChannel;
+								if (ommBaseImpl.getConsumerRoutingSession()->matchRequestToSessionChannel(*pSingleItem) == false)
+								{
+									pSingleItem->sessionChannel = pOldChannel;
+								}
+								else
+								{
+									// Close the item on the old channel
+									sendCloseOnOldReactorChannel = true;
+									// Submit this item.  Do not reroute, because that has already been done.
+									submitRequest = true;
+								}
+							}
+						}
+						else if (origState.streamState == RSSL_STREAM_OPEN && origState.dataState == RSSL_DATA_OK)
+						{
+							if (pSingleItem->sessionChannelItemClosedList != NULL)
+							{
+								for (UInt32 i = 0; i < pSingleItem->sessionChannelItemClosedList->size(); i++)
+								{
+									bool* tmpbool = (*(pSingleItem->sessionChannelItemClosedList))[i];
+									memset((void*)((*(pSingleItem->sessionChannelItemClosedList))[i]), 0, (sizeof(bool)* pSingleItem->closedListSize));
+								}
 							}
 						}
 					}
@@ -3970,18 +4217,13 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 	item->onAllMsg( _statusMsg );
 	item->onStatusMsg( _statusMsg );
 
-	// If the item needs to be recovered to a different channel(see above), close it here and re-route.
-	if (_ommCommonImpl.getImplType() == OmmCommonImpl::ConsumerEnum && recoverToDifferentChannel == true)
-	{
-		SingleItem* pCloseItem = (SingleItem*)item;
-		// If the stream state is not CLOSED or CLOSED_RECOVER(meaning that the underlying watchlist has closed it), close the request.
-		if (origState.streamState != RSSL_STREAM_CLOSED && origState.streamState != RSSL_STREAM_CLOSED_RECOVER)
-			pCloseItem->sendClose();
-		// Immediately re-route and submit this item.  This will move the item out of the current session channel's item list
-		pCloseItem->reSubmit(true);
-
-		return RSSL_RC_CRET_SUCCESS;
-	}
+	if(sendClose == true)
+		((SingleItem*)item)->sendClose();
+	if(sendCloseOnOldReactorChannel == true)
+		((SingleItem*)item)->submitCloseOnReactorChannel(pRsslReactorChannel);
+	// Immediately re-route and submit this item.  This will move the item out of the current session channel's item list
+	if(submitRequest == true)
+		((SingleItem*)item)->reSubmit(rerouteRequest);
 
 	// This wil remove the item in all cases from the lists. 
 	if ( pRsslMsg->statusMsg.flags & RSSL_STMF_HAS_STATE )
@@ -4277,7 +4519,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 									// The request has already been added to the channel that it's going to be routed to or the pending list
 									// It will get moved to this(itemCallbackClient) list when the generated close message is received from the watchlist
 									if (ommBaseImpl.getConsumerRoutingSession() == NULL)
-									addToList(pBatchItem);
+										addToList(pBatchItem);
 
 									addToMap(pBatchItem);
 
@@ -4299,7 +4541,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 											else
 											{
 												EmaString temp;
-												if (!reqMsgEncoder.getServiceListName().empty())
+												if (reqMsgEncoder.hasServiceListName())
 												{
 													temp.append("Service list name of '");
 													temp.append(reqMsgEncoder.getServiceListName()).
@@ -4314,10 +4556,32 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 												pBatchItem->getImpl().getConsumerRoutingSession()->pendingRequestList.addItem(pBatchItem->getSingleItemList()[i]);
 												pBatchItem->getSingleItemList()[i]->scheduleItemSuspectStatus(reqMsgEncoder, temp);
 											}
+
+											// If this is a consumer routing session, set up the closed directory list.
+											if (ommBaseImpl.getConsumerRoutingSession() != NULL)
+											{
+												int serviceCount = 1;
+												if (reqMsgEncoder.hasServiceListName())
+												{
+													// We've already checked in the send above, so this service list name is valid.
+													ServiceList** pServiceList = ommBaseImpl.getActiveConfig().serviceListByName.find(&(reqMsgEncoder.getServiceListName()));
+													serviceCount = (*pServiceList)->concreteServiceList().size();
+												}
+
+												pBatchItem->getSingleItemList()[i]->sessionChannelItemClosedList = new EmaVector<bool*>();
+												pBatchItem->getSingleItemList()[i]->closedListSize = serviceCount;
+
+												for (UInt32 j = 0; j < ommBaseImpl.getConsumerRoutingSession()->routingChannelList.size(); ++j)
+												{
+													bool* pDirectoryFlagList = (bool*)malloc(sizeof(bool) * serviceCount);
+													memset((void*)pDirectoryFlagList, 0, sizeof(bool) * serviceCount);
+													pBatchItem->getSingleItemList()[i]->sessionChannelItemClosedList->push_back(pDirectoryFlagList);
+												}
+											}
 										}
 										else
 										{
-										addToList(pBatchItem->getSingleItemList()[i]);
+											addToList(pBatchItem->getSingleItemList()[i]);
 										}
 
 										addToMap(pBatchItem->getSingleItemList()[i]);
@@ -4353,7 +4617,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 							{
 								// The request has already been added to the channel that it's going to be routed to or the pending list
 								if(ommBaseImpl.getConsumerRoutingSession() == NULL)
-								addToList( pItem );
+									addToList( pItem );
 
 								addToMap( pItem );
 							}
@@ -4641,7 +4905,8 @@ bool ItemCallbackClient::isStreamIdInUse( int nextStreamId )
 
 bool ItemCallbackClient::splitAndSendSingleRequest(const ReqMsg& reqMsg, OmmConsumerClient& ommConsClient, void* closure)
 {
-	RsslRequestMsg* rsslReqMsg = static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder()).getRsslRequestMsg();
+	const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder());
+	RsslRequestMsg* rsslReqMsg = reqMsgEncoder.getRsslRequestMsg();
 	rsslReqMsg->flags &= ~RSSL_RQMF_HAS_BATCH;
 
 	/*decode to get item names */
@@ -4675,7 +4940,7 @@ bool ItemCallbackClient::splitAndSendSingleRequest(const ReqMsg& reqMsg, OmmCons
 					{
 						RsslBuffer rsslBuffer;
 						rsslReqMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
-						Item* pItem = NULL;
+						SingleItem* pItem = NULL;
 
 						while (rsslDecodeArrayEntry(&decodeIter, &rsslBuffer) != RSSL_RET_END_OF_CONTAINER)
 						{
@@ -4692,7 +4957,8 @@ bool ItemCallbackClient::splitAndSendSingleRequest(const ReqMsg& reqMsg, OmmCons
 										{
 											// The request has already been added to the channel that it's going to be routed to or the pending list if this is request routing.
 											if (static_cast<OmmBaseImpl&>(_ommCommonImpl).getConsumerRoutingSession() == NULL)
-											addToList(pItem);
+												addToList(pItem);
+
 											addToMap(pItem);
 										}
 									}

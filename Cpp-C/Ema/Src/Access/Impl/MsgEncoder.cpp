@@ -109,7 +109,7 @@ void MsgEncoder::serviceListName(const EmaString& serviceListName)
 {
 	if (hasServiceId() || hasServiceName())
 	{
-		EmaString text("Attempt to set serviceName while service id or service name is already set.");
+		EmaString text("Attempt to set serviceListName while service id or service name is already set.");
 		throwIueException(text, OmmInvalidUsageException::InvalidOperationEnum);
 		return;
 	}
