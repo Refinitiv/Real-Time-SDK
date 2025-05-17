@@ -1914,7 +1914,7 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		
 		if(_sendInitialLoginRefresh)
 		{
-			if(checkUserStillLogin() == false)
+			if(checkConnectionsIsDown())
 			{
 				_rsslState.dataState(DataState.SUSPECT);
 			}
@@ -1944,6 +1944,20 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			((OmmConsumerClient)_eventImpl._item.client()).onAllMsg(_statusMsgImpl, _eventImpl);
 			((OmmConsumerClient) _eventImpl._item.client()).onStatusMsg(_statusMsgImpl, _eventImpl);
 		}
+	}
+	
+	public boolean checkConnectionsIsDown()
+	{
+		for(SessionChannelInfo<T> entry : _sessionChannelList)
+		{
+			if(entry.reactorChannel().state() == ReactorChannel.State.UP ||
+					entry.reactorChannel().state() ==  ReactorChannel.State.READY)
+	        {
+	            return false;
+	        }
+	    }
+
+		return true;
 	}
 		
 	public boolean checkUserStillLogin()
@@ -2051,15 +2065,21 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			
 			if(_sendInitialLoginRefresh)
 			{
-				if(checkUserStillLogin() == false)
+				if(checkConnectionsIsDown())
 				{
 					_rsslState.dataState(DataState.SUSPECT);
 				}
 				else
 				{
-					_rsslState.dataState(DataState.OK);
+					if(checkUserStillLogin())
+					{
+						_rsslState.dataState(DataState.OK);
+					}
+					else
+					{
+						_rsslState.dataState(DataState.SUSPECT);
+					}
 				}
-				
 			}
 			else
 			{

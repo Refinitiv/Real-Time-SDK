@@ -12381,10 +12381,9 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 statusMsg = (StatusMsg)message;
 
-                /* There is timing issue that EMA hasn't received the login status message for channel down yet. So, the data state is still OK */
                 Assert.Equal(1, statusMsg.StreamId());
                 Assert.Equal(EmaRdm.MMT_LOGIN, statusMsg.DomainType());
-                Assert.Equal("Open / Ok / None / 'session channel down reconnecting'", statusMsg.State().ToString());
+                Assert.Equal("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.State().ToString());
 
                 /* Change the login response to support OMM posting */
                 providerTestOptions.SendRefreshAttrib = true;
@@ -12394,7 +12393,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 // Bring up Channel_5 of Connection_2
                 ommprovider2 = new OmmProvider(config.Port("19005"), providerClient2);
 
-                Thread.Sleep(2500);
+                Thread.Sleep(3000);
 
                 Assert.Equal(2, consumerClient.QueueSize());
 

@@ -14680,10 +14680,9 @@ public class OmmConsumerTests extends TestCase
 			
 			statusMsg = (StatusMsg)message;
 		
-			/* There is timing issue that EMA hasn't received the login status message for channel down yet. So, the data state is still OK */
 			assertEquals(1, statusMsg.streamId());
 			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
-			assertEquals("Open / Ok / None / 'session channel down reconnecting'", statusMsg.state().toString());
+			assertEquals("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.state().toString());
 			
 			/* Change the login response to support OMM posting */
 			providerTestOptions.sendRefreshAttrib = true;

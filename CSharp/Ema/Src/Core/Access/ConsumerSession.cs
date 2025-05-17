@@ -940,7 +940,7 @@ internal class ConsumerSession<T> : IDirectoryServiceClient<T>
 
         if(SendInitialLoginRefresh)
         {
-            if(CheckUserStillLogin() == false)
+            if(CheckConnectionsIsDown())
             {
                 m_State.DataState(DataStates.SUSPECT);
             }
@@ -969,6 +969,25 @@ internal class ConsumerSession<T> : IDirectoryServiceClient<T>
             ((IOmmConsumerClient?)m_EventImpl.Item.Client)?.OnAllMsg(m_StatusMsg, m_EventImpl);
             ((IOmmConsumerClient?)m_EventImpl.Item.Client)?.OnStatusMsg(m_StatusMsg, m_EventImpl);
         }
+    }
+
+    internal bool CheckConnectionsIsDown()
+    {
+        foreach (var entry in m_SessionChannelList)
+        {
+            var reactorChannel = entry.ReactorChannel;
+
+            if (reactorChannel != null)
+            {
+                if (reactorChannel.State == ReactorChannelState.UP || 
+                    reactorChannel.State == ReactorChannelState.READY)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     internal bool CheckUserStillLogin()
@@ -1079,13 +1098,20 @@ internal class ConsumerSession<T> : IDirectoryServiceClient<T>
 
                 if (SendInitialLoginRefresh)
                 {
-                    if(CheckUserStillLogin() == false)
+                    if(CheckConnectionsIsDown())
                     {
                         m_State.DataState(DataStates.SUSPECT);
                     }
                     else
                     {
-                        m_State.DataState(DataStates.OK);
+                        if (CheckUserStillLogin())
+                        {
+                            m_State.DataState(DataStates.OK);
+                        }
+                        else
+                        {
+                            m_State.DataState(DataStates.SUSPECT);
+                        }
                     }
                 }
                 else
