@@ -12,37 +12,35 @@ using LSEG.Eta.ValueAdd.Reactor;
 using System;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using Xunit.Abstractions;
 using static LSEG.Eta.Rdm.Directory;
 
 using LSEG.Ema.Rdm;
 using System.Collections.Generic;
+using Polly;
+using Polly.Retry;
 
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 {
-
-    public class OmmConsumerTest : IDisposable
+    public class OmmConsumerTest
     {
-        public void Dispose()
-        {
-            EtaGlobalPoolTestUtil.Clear();
-        }
-
         ITestOutputHelper output;
 
         public OmmConsumerTest(ITestOutputHelper output)
         {
             this.output = output;
-
         }
 
         internal static void CheckRefreshPayload(ProviderTest providerTest, int itemIndex, RefreshMsg refreshMsg, 
             string itemName, State? expectedState = null, HashSet<int>? fidSet = null)
         {
+            if(refreshMsg.DomainType() == 0)
+            {
+                return;
+            }
             Assert.Equal((int)DomainType.MARKET_PRICE, refreshMsg.DomainType());
             Assert.True(refreshMsg.ClearCache());
-            Assert.True(refreshMsg.MarkForClear().Complete());
+            Assert.True(refreshMsg.Complete());
             Assert.True(refreshMsg.Solicited());
 
             if (expectedState is null)
@@ -73,9 +71,9 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             MarketPriceItem marketPriceItem = providerTest.MarketItemHandler
                 .MarketPriceItems[itemIndex];
 
-            Assert.Equal(DataType.DataTypes.FIELD_LIST, refreshMsg.MarkForClear().Payload().DataType);
+            Assert.Equal(DataType.DataTypes.FIELD_LIST, refreshMsg.Payload().DataType);
 
-            FieldList fieldList = refreshMsg.MarkForClear().Payload().FieldList();
+            FieldList fieldList = refreshMsg.Payload().FieldList();
             var fieldIt = fieldList.GetEnumerator();
             FieldEntry fieldEntry;
 
@@ -135,7 +133,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             MarketPriceItem marketPriceItem = providerTest.MarketItemHandler
                 .MarketPriceItems[itemIndex];
 
-            FieldList fieldList = updateMsg.MarkForClear().Payload().FieldList();
+            FieldList fieldList = updateMsg.Payload().FieldList();
 
             var fieldIt = fieldList.GetEnumerator();
 
@@ -269,6 +267,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             {
                 consumerClient.StatusMsgHandler = (statusMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
                     Assert.True(statusMsg.HasState);
@@ -409,6 +408,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 /* Checks the expected RefreshMsg from the source directory request */
                 consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
 
                     Assert.Equal(DataType.DataTypes.MAP, refreshMsg.MarkForClear().Payload().DataType);
@@ -580,7 +580,6 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             }
 
             Assert.Null(exception);
-
             consumer?.Uninitialize();
             providerTest.UnInitialize();
         }
@@ -627,6 +626,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 /* Checks the expected RefreshMsg from the login request */
                 consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
 
                     Assert.Equal(DataType.DataTypes.NO_DATA, refreshMsg.MarkForClear().Payload().DataType);
@@ -776,6 +776,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 /* Checks the expected RefreshMsg from the market data request */
                 consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
                     Assert.Same(this, consEvent.Closure);
 
@@ -784,6 +785,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumerClient.UpdateMsgHandler = (updateMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
                     Assert.Same(this, consEvent.Closure);
                     Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.MarkForClear().Payload().DataType);
@@ -868,6 +870,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumerClient.StatusMsgHandler = (statusMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
                     Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
@@ -952,6 +955,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumerClient.StatusMsgHandler = (statusMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
                     Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
@@ -1037,6 +1041,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumerClient.StatusMsgHandler = (statusMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
                     Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
@@ -1121,6 +1126,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumerClient.StatusMsgHandler = (statusMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
                     Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
 
@@ -1239,10 +1245,10 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 {
                     HandleList.Add(handle + count++);
                 }
-
                 consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
-                    if(consumerClient.ReceivedOnRefresh <= 2)
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+                    if (consumerClient.ReceivedOnRefresh <= 2)
                         CheckRefreshPayload(providerTest, 0, refreshMsg, itemNames[0]);
                     else if (consumerClient.ReceivedOnRefresh <= 4)
                         CheckRefreshPayload(providerTest, 1, refreshMsg, itemNames[1]);
@@ -1252,6 +1258,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumerClient.UpdateMsgHandler = (updateMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     if (consumerClient.ReceivedOnRefresh <= 2)
                         CheckUpdatePayload(providerTest, 0, updateMsg);
                     else if (consumerClient.ReceivedOnRefresh <= 4)
@@ -1264,7 +1271,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 {
                     // Checks with the batch's handle only.
                     Assert.Equal(handle, consEvent.Handle);
-                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.MarkForClear().Payload().DataType);
+                    Assert.Equal(DataType.DataTypes.NO_DATA, statusMsg.Payload().DataType);
 
                     Assert.True(statusMsg.HasState);
                     Assert.Equal(OmmState.StreamStates.CLOSED, statusMsg.State().StreamState);
@@ -1272,17 +1279,19 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                     Assert.Equal(OmmState.StatusCodes.NONE, statusMsg.State().StatusCode);
                     Assert.Equal("Stream closed for batch", statusMsg.State().StatusText);
                 };
-
+                RetryPolicy<bool> allReceived;
                 if (userDispatch)
                 {
-                    consumer.Dispatch(DispatchTimeout.INFINITE_WAIT);
-                    consumer.Dispatch(DispatchTimeout.INFINITE_WAIT);
-                    consumer.Dispatch(DispatchTimeout.INFINITE_WAIT);
+                    allReceived = Policy.HandleResult<bool>(res => res)
+                        .WaitAndRetry(4, retryAttempt => { consumer.Dispatch(DispatchTimeout.INFINITE_WAIT); return TimeSpan.FromMilliseconds(10); });
                 }
                 else
                 {
-                    Thread.Sleep(10000);
+                    allReceived = Policy.HandleResult<bool>(res => res)
+                        .WaitAndRetry(15, retryAttempt => TimeSpan.FromMilliseconds(1000));
                 }
+
+                allReceived.Execute(() => consumerClient.ReceivedOnAll < 7 || providerTest.MarketItemHandler.MarketPriceItemIndex < 3);
 
                 // Provider receives only 3 market data requests
                 Assert.Equal(3, providerTest.MarketItemHandler.MarketPriceItemIndex);
@@ -1361,6 +1370,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal((int)DomainType.MARKET_PRICE, refreshMsg.DomainType());
                     Assert.True(refreshMsg.ClearCache());
                     Assert.True(refreshMsg.MarkForClear().Complete());
@@ -1405,6 +1415,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumerClient.UpdateMsgHandler = (updateMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     MarketPriceItem marketPriceItem = providerTest.MarketItemHandler
                            .MarketPriceItems[0];
 
@@ -1673,6 +1684,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal((int)DomainType.MARKET_PRICE, refreshMsg.DomainType());
                     Assert.True(refreshMsg.ClearCache());
                     Assert.True(refreshMsg.MarkForClear().Complete());
@@ -1735,6 +1747,10 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 consumer.Reissue(requestMsg, handle);
 
                 consumer.Dispatch(DispatchTimeout.INFINITE_WAIT);
+
+                Policy.HandleResult<bool>(v => !v)
+                      .WaitAndRetry(10, retryAttempt => TimeSpan.FromMilliseconds(1000))
+                       .Execute(() => consumerClient.ReceivedOnAll == 2 && providerTest.MarketItemHandler.MarketPriceItemIndex == 2);
 
                 // Provider receives 2 market data requests
                 Assert.Equal(2, providerTest.MarketItemHandler.MarketPriceItemIndex);
@@ -1801,6 +1817,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 /* Checks the expected RefreshMsg from the market data request */
                 consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
                     Assert.Same(this, consEvent.Closure);
 
@@ -1828,6 +1845,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                     consumerClient.AckMsgHandler = (ackMsg, consEvent) =>
                     {
+                        using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                         Assert.Equal(handle, consEvent.Handle);
 
                         // Check ack message from provider side
@@ -1924,6 +1942,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 /* Checks the expected RefreshMsg from the market data request */
                 consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(loginHandle, consEvent.Handle);
                     Assert.Same(this, consEvent.Closure);
                     Assert.Equal((int)DomainType.LOGIN, refreshMsg.DomainType());
@@ -1957,6 +1976,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                     consumerClient.AckMsgHandler = (ackMsg, consEvent) =>
                     {
+                        using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                         Assert.Equal(loginHandle, consEvent.Handle);
 
                         // Check ack message from provider side
@@ -2056,6 +2076,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 /* Checks the expected RefreshMsg from the market data request */
                 consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
 
                     CheckRefreshPayload(providerTest, 0, refreshMsg, itemName);
@@ -2078,6 +2099,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                     consumerClient.GenericMsgHandler = (genericMsg, consEvent) =>
                     {
+                        using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                         Assert.Equal(handle, consEvent.Handle);
                         Assert.Same(this, consEvent.Closure);
 
@@ -2187,6 +2209,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 /* Checks the expected RefreshMsg from the market data request */
                 consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Same(this, consEvent.Closure);
 
                     if (refreshIndex == 0)
@@ -2213,6 +2236,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumerClient.UpdateMsgHandler = (updateMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
                     Assert.Same(this, consEvent.Closure);
                     Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.MarkForClear().Payload().DataType);
@@ -2230,6 +2254,20 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 {
                     Thread.Sleep(12000);
                 }
+
+                RetryPolicy<bool> allReceived;
+                if (userDispatch)
+                {
+                    allReceived = Policy.HandleResult<bool>(v => !v)
+                        .WaitAndRetry(4, retryAttempt => { consumer.Dispatch(DispatchTimeout.INFINITE_WAIT); return TimeSpan.FromMilliseconds(1000); });
+                }
+                else
+                {
+                    allReceived = Policy.HandleResult<bool>(v => !v)
+                        .WaitAndRetry(15, retryAttempt => TimeSpan.FromMilliseconds(1000));
+                }
+
+                allReceived.Execute(() => consumerClient.ReceivedOnAll == 3);
 
                 Assert.Equal(3, consumerClient.ReceivedOnAll);
                 Assert.Equal(2, consumerClient.ReceivedOnRefresh);

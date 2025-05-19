@@ -20,13 +20,8 @@ using DataDictionary = LSEG.Eta.Codec.DataDictionary;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class PackedMsgTest : IDisposable
+    public class PackedMsgTest
     {
-        public void Dispose()
-        {
-            EtaGlobalPoolTestUtil.Clear();
-        }
-
         static DataDictionary DataDictionary = new DataDictionary();
 
         private static void LoadDictionary()
@@ -60,7 +55,7 @@ namespace LSEG.Ema.Access.Tests
             OmmIProviderConfig config = new();
             OmmException? exception = null;
             OmmProvider? provider = null;
-            OmmProviderItemClientTest providerClient = new();
+            var providerClient = new OmmProviderItemClientTest();
 
             string port = "18001";
 
@@ -296,6 +291,7 @@ namespace LSEG.Ema.Access.Tests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case EmaRdm.MMT_LOGIN:
@@ -329,7 +325,7 @@ namespace LSEG.Ema.Access.Tests
 
                 long invalidItemHandle = 555;
 
-                var ex = Assert.Throws<OmmInvalidUsageException>(() => packedMsg.AddMsg(new RefreshMsg(), invalidItemHandle));
+                var ex = Assert.Throws<OmmInvalidUsageException>(() => packedMsg.AddMsg(new RefreshMsg().MarkForClear(), invalidItemHandle));
 
                 Assert.Equal("Incorrect item handle for incoming message.", ex.Message);
             }
@@ -727,7 +723,7 @@ namespace LSEG.Ema.Access.Tests
 
                 var decodeFieldList = decodeRefreshMsg.MarkForClear().Payload().FieldList();
 
-                var iterator = decodeFieldList.GetEnumerator();
+                var iterator = (FieldListEnumerator)decodeFieldList.GetEnumerator();
                 Assert.True(iterator.MoveNext());
                 FieldEntry entry = iterator.Current;
                 Assert.Equal(22, entry.FieldId);
@@ -764,8 +760,8 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(DataType.DataTypes.FIELD_LIST, decodeUpdateMsg.MarkForClear().Payload().DataType);
 
                 decodeFieldList = decodeUpdateMsg.MarkForClear().Payload().FieldList();
-
-                iterator = decodeFieldList.GetEnumerator();
+                iterator.Clear();
+                iterator = (FieldListEnumerator)decodeFieldList.GetEnumerator();
                 Assert.True(iterator.MoveNext());
                 entry = iterator.Current;
                 Assert.Equal(22, entry.FieldId);
@@ -782,7 +778,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(60, entry.OmmRealValue().AsDouble());
 
                 Assert.False(iterator.MoveNext());
-
+                iterator.Clear();
             }
             catch (OmmException ommException)
             {
@@ -822,6 +818,7 @@ namespace LSEG.Ema.Access.Tests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case EmaRdm.MMT_LOGIN:
@@ -927,6 +924,7 @@ namespace LSEG.Ema.Access.Tests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case EmaRdm.MMT_LOGIN:
@@ -1047,6 +1045,7 @@ namespace LSEG.Ema.Access.Tests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case EmaRdm.MMT_LOGIN:
@@ -1160,6 +1159,7 @@ namespace LSEG.Ema.Access.Tests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case EmaRdm.MMT_LOGIN:
@@ -1302,7 +1302,7 @@ namespace LSEG.Ema.Access.Tests
 
                 var decodeFieldList = decodeRefreshMsg.MarkForClear().Payload().FieldList();
 
-                var iterator = decodeFieldList.GetEnumerator();
+                var iterator = (FieldListEnumerator)decodeFieldList.GetEnumerator();
                 Assert.True(iterator.MoveNext());
                 FieldEntry entry = iterator.Current;
                 Assert.Equal(22, entry.FieldId);
@@ -1319,7 +1319,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(50, entry.OmmRealValue().AsDouble());
 
                 Assert.False(iterator.MoveNext());
-
+                iterator.Clear();
                 /* Check with the second message */
                 testReactorEvent = simpleConsumer.EventQueue.Dequeue();
 
@@ -1340,7 +1340,7 @@ namespace LSEG.Ema.Access.Tests
 
                 decodeFieldList = decodeUpdateMsg.MarkForClear().Payload().FieldList();
 
-                iterator = decodeFieldList.GetEnumerator();
+                iterator = (FieldListEnumerator)decodeFieldList.GetEnumerator();
                 Assert.True(iterator.MoveNext());
                 entry = iterator.Current;
                 Assert.Equal(22, entry.FieldId);
@@ -1357,7 +1357,7 @@ namespace LSEG.Ema.Access.Tests
                 Assert.Equal(60, entry.OmmRealValue().AsDouble());
 
                 Assert.False(iterator.MoveNext());
-
+                iterator.Clear();
                 simpleConsumer.UnInitialize();
 
                 for (int i = 0; i < 5; i++)

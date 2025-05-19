@@ -22,18 +22,15 @@ using LSEG.Ema.Access.Tests.OmmConsumerTests;
 using System.ComponentModel;
 using LSEG.Eta.Rdm;
 using LSEG.Ema.Access.Tests.OmmNiProviderTests;
+using LSEG.Eta.Tests.Utils;
 
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests;
 
 /// <summary>
 /// Tests for <see cref="Ema.Access.DictionaryHandler"/> of the EMA Interactive Provider.
 /// </summary>
-public class IProviderDictionaryTests : IDisposable
+public class IProviderDictionaryTests
 {
-    public void Dispose()
-    {
-        EtaGlobalPoolTestUtil.Clear();
-    }
 
     ITestOutputHelper m_Output;
 
@@ -80,6 +77,7 @@ public class IProviderDictionaryTests : IDisposable
         // While Source Directory Handler is missing, provide a USER-generated response with dictionaries
         providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
         {
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
             switch (requestMsg.DomainType())
             {
                 case EmaRdm.MMT_DIRECTORY:
@@ -173,6 +171,7 @@ public class IProviderDictionaryTests : IDisposable
         // While Source Directory Handler is missing, provide a USER-generated response with dictionaries
         providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
         {
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
             switch (requestMsg.DomainType())
             {
                 case EmaRdm.MMT_DIRECTORY:
@@ -193,8 +192,8 @@ public class IProviderDictionaryTests : IDisposable
 
                 default:
                     provider!.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
-                        .DomainType(requestMsg.DomainType())
-                        .Solicited(true).MarkForClear(), providerEvent.Handle);
+                    .DomainType(requestMsg.DomainType())
+                    .Solicited(true).MarkForClear(), providerEvent.Handle);
                     break;
             }
         };
@@ -210,11 +209,11 @@ public class IProviderDictionaryTests : IDisposable
 
             TestReactorEvent reactorEvent;
             InitializeSimpleConsumer(provider, providerClient, simpleConsumer);
-
+            
             {
                 // Submit Dictionary request with invalid dictionary name, expect rejection message
                 simpleConsumer.SubmitDictionaryRequest(streamId: simpleConsumer.DictionaryStreamId,
-                    serviceId: simpleConsumer.DictionaryServiceId, serviceName, "DoesNotExist");
+                serviceId: simpleConsumer.DictionaryServiceId, serviceName, "DoesNotExist");
 
                 Thread.Sleep(1000);
 
@@ -325,6 +324,7 @@ public class IProviderDictionaryTests : IDisposable
         // While Source Directory Handler is missing, provide a USER-generated response with dictionaries
         providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
         {
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
             switch (requestMsg.DomainType())
             {
                 case EmaRdm.MMT_DIRECTORY:
@@ -476,9 +476,7 @@ public class IProviderDictionaryTests : IDisposable
     {
         // Intercept standard output (Console) to the memory buffer to examine Logger
         // messages (similar to ConsumerLoggerTest) for expected error reports
-        MemoryStream memoryStream = new(12 * 1024);
-        StreamWriter streamWriter = new(memoryStream);
-        Console.SetOut(streamWriter);
+        using RedirectedConsoleOutput consoleOutput = new();
 
         // Test case setup
         OmmIProviderConfig config = (dictionaryOperationModelMode == OmmIProviderConfig.AdminControlMode.API_CONTROL)
@@ -505,6 +503,7 @@ public class IProviderDictionaryTests : IDisposable
         // While Source Directory Handler is missing, provide a USER-generated response with dictionaries
         providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
         {
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
             switch (requestMsg.DomainType())
             {
                 case EmaRdm.MMT_DIRECTORY:
@@ -564,8 +563,7 @@ public class IProviderDictionaryTests : IDisposable
 
             Thread.Sleep(1000);
 
-            string logOutput = System.Text.Encoding.ASCII.GetString(memoryStream.GetBuffer(), 0,
-                (int)memoryStream.Length);
+            string logOutput = consoleOutput.ToString();
 
             Assert.NotNull(logOutput);
             Assert.NotEmpty(logOutput);
@@ -634,6 +632,7 @@ public class IProviderDictionaryTests : IDisposable
 
         providerClient.ReqMsgHandler = (RequestMsg reqMsg, IOmmProviderEvent providerEvent) =>
         {
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
             Assert.NotNull(reqMsg);
             switch (reqMsg.DomainType())
             {
@@ -688,6 +687,7 @@ public class IProviderDictionaryTests : IDisposable
             /* Checks the expected RefreshMsg from the RWFFld request */
             providerFldClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                 Assert.Equal(fldHandle, consEvent.Handle);
 
                 Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.MarkForClear().Payload().DataType);
@@ -723,6 +723,7 @@ public class IProviderDictionaryTests : IDisposable
             /* Checks the expected RefreshMsg from the RWFFld request */
             providerEnumClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                 Assert.Equal(enumHandle, consEvent.Handle);
 
                 Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.MarkForClear().Payload().DataType);
@@ -885,7 +886,7 @@ public class IProviderDictionaryTests : IDisposable
 
                 providerEvent.Provider.Submit(refreshMsg.Name(requestMsg.Name())//.ServiceName(requestMsg.ServiceName())
                     .ServiceId(requestMsg.ServiceId())
-                    .DomainType(EmaRdm.MMT_DICTIONARY).Filter(requestMsg.Filter()).MarkForClear().Payload(series)
+                    .DomainType(EmaRdm.MMT_DICTIONARY).Filter(requestMsg.Filter()).MarkForClear().Payload(series.MarkForClear())
                     .Complete(result).Solicited(true),
                     providerEvent.Handle);
             }
@@ -901,7 +902,7 @@ public class IProviderDictionaryTests : IDisposable
 
                 providerEvent.Provider.Submit(refreshMsg.Name(requestMsg.Name())
                     .ServiceId(requestMsg.ServiceId())
-                    .DomainType(EmaRdm.MMT_DICTIONARY).Filter(requestMsg.Filter()).MarkForClear().Payload(series)
+                    .DomainType(EmaRdm.MMT_DICTIONARY).Filter(requestMsg.Filter()).MarkForClear().Payload(series.MarkForClear())
                     .Complete(result).Solicited(true),
                     providerEvent.Handle);
 
@@ -953,9 +954,7 @@ public class IProviderDictionaryTests : IDisposable
     {
         // Intercept standard output (Console) to the memory buffer to examine Logger
         // messages (similar to ConsumerLoggerTest) for expected error reports
-        MemoryStream memoryStream = new(12 * 1024);
-        StreamWriter streamWriter = new(memoryStream);
-        System.Console.SetOut(streamWriter);
+        using RedirectedConsoleOutput consoleOutput = new();
 
         OmmIProviderConfig config = (dictionaryOperationModelMode == OmmIProviderConfig.AdminControlMode.API_CONTROL)
             ? new OmmIProviderConfig("../../../OmmIProviderTests/EmaConfigTest.xml")
@@ -970,13 +969,14 @@ public class IProviderDictionaryTests : IDisposable
         string serviceName = "DIRECT_FEED";
 
         var dataDictionary = new Rdm.DataDictionary();
-
+        
         dataDictionary.LoadFieldDictionary(DataDictionaryTests.FIELD_DICTIONARY_FILENAME);
         dataDictionary.LoadEnumTypeDictionary(DataDictionaryTests.ENUM_TABLE_FILENAME);
 
         // While Source Directory Handler is missing, provide a USER-generated response with dictionaries
         providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
         {
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
             switch (requestMsg.DomainType())
             {
                 case EmaRdm.MMT_DIRECTORY:
@@ -994,7 +994,7 @@ public class IProviderDictionaryTests : IDisposable
                 default:
                     provider!.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                         .DomainType(requestMsg.DomainType())
-                        .Solicited(true), providerEvent.Handle);
+                        .Solicited(true).MarkForClear(), providerEvent.Handle);
                     break;
             }
         };
@@ -1016,8 +1016,7 @@ public class IProviderDictionaryTests : IDisposable
 
             Thread.Sleep(1000);
 
-            string logOutput = System.Text.Encoding.ASCII.GetString(memoryStream.GetBuffer(), 0,
-                (int)memoryStream.Length);
+            string logOutput = consoleOutput.ToString();
 
             Assert.NotNull(logOutput);
             Assert.NotEmpty(logOutput);

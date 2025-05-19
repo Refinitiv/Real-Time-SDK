@@ -1,12 +1,11 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -17,13 +16,8 @@ using Xunit.Abstractions;
 
 namespace LSEG.Ema.Access.Tests;
 
-public class ArrayTests : IDisposable
+public class ArrayTests
 {
-    public void Dispose()
-    {
-        EtaGlobalPoolTestUtil.Clear();
-    }
-
     private const int DEFAULT_BUFFER_SIZE = 1024;
 
     ITestOutputHelper output;
@@ -3317,7 +3311,7 @@ public class ArrayTests : IDisposable
     [InlineData(false)]
     public void TestArrayTime_EncodeDecode(bool fixedSize)
     {
-        OmmArray encArray = new();
+        OmmArray encArray = new OmmArray().MarkForClear();
 
         EncodeIterator encIter = new();
         Eta.Codec.Buffer buf = new();
@@ -3345,13 +3339,12 @@ public class ArrayTests : IDisposable
 
             Assert.False(true);
         }
-
         encArray.AddTime(04, 05, 06, 07);
         encArray.AddTime(14, 15, 16, 17);
         encArray.MarkForClear().Complete();
 
         // Decoding
-
+        
         DecodeIterator decodeIter = new DecodeIterator();
         decodeIter.SetBufferAndRWFVersion(encArray!.Encoder!.m_encodeIterator!.Buffer(),
             Codec.MajorVersion(), Codec.MinorVersion());
@@ -3361,7 +3354,7 @@ public class ArrayTests : IDisposable
         Assert.Equal((fixedSize ? 8 : 0), encArray.FixedWidth);
 
         IEnumerator<OmmArrayEntry> iter = encArray.GetEnumerator();
-
+       
         Assert.True(iter.MoveNext());
         OmmArrayEntry ae1 = iter.Current;
         Assert.Equal(DataType.DataTypes.TIME, ae1.LoadType);
@@ -3380,7 +3373,7 @@ public class ArrayTests : IDisposable
         Assert.Equal(05, ae2.OmmTimeValue().Minute);
         Assert.Equal(06, ae2.OmmTimeValue().Second);
         Assert.Equal(07, ae2.OmmTimeValue().Millisecond);
-
+        
         Assert.True(iter.MoveNext());
         OmmArrayEntry ae3 = iter.Current;
         Assert.Equal(DataType.DataTypes.TIME, ae3.LoadType);
@@ -3388,7 +3381,7 @@ public class ArrayTests : IDisposable
         Assert.Equal(15, ae3.OmmTimeValue().Minute);
         Assert.Equal(16, ae3.OmmTimeValue().Second);
         Assert.Equal(17, ae3.OmmTimeValue().Millisecond);
-
+        
         Assert.False(iter.MoveNext());
 
         iter = encArray.GetEnumerator();
@@ -3449,7 +3442,7 @@ public class ArrayTests : IDisposable
 
         Assert.Equal(fixedSize, encArray.HasFixedWidth);
         Assert.Equal((fixedSize ? 8 : 0), encArray.FixedWidth);
-
+        
         iter = encArray.GetEnumerator();
 
         Assert.True(iter.MoveNext());
@@ -3488,7 +3481,7 @@ public class ArrayTests : IDisposable
         Assert.Equal(17, ae3.OmmTimeValue().Millisecond);
 
         Assert.False(iter.MoveNext());
-
+        
         iter = encArray.GetEnumerator();
         {
             Assert.Equal(fixedSize, encArray.HasFixedWidth);

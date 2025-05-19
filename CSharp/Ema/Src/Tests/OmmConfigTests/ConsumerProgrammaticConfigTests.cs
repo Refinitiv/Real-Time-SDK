@@ -20,13 +20,8 @@ using static LSEG.Eta.Rdm.Directory;
 
 namespace LSEG.Ema.Access.Tests.OmmConfigTests
 {
-    public class ConsumerProgrammaticConfigTests : IDisposable
+    public class ConsumerProgrammaticConfigTests
     {
-        public void Dispose()
-        {
-            EtaGlobalPoolTestUtil.Clear();
-        }
-
         private static readonly ConsumerConfig defaultConsConfig = new ();
         private static readonly ClientChannelConfig defaultChannelConfig = new ();
         private static readonly LoggerConfig defaultLoggerConfig = new ();
@@ -1394,6 +1389,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                     {
                         try
                         {
+                            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                             RestProxyParamsLoadTest();
                         }
                         catch (Exception ex)

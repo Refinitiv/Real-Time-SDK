@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -17,13 +17,8 @@ using System;
 
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests;
 
-public class ModifyIOCtlTest : IDisposable
+public class ModifyIOCtlTest
 {
-    public void Dispose()
-    {
-        EtaGlobalPoolTestUtil.Clear();
-    }
-
     ITestOutputHelper output;
 
     public ModifyIOCtlTest(ITestOutputHelper output)
@@ -192,6 +187,7 @@ public class ModifyIOCtlTest : IDisposable
         /* Checks the expected RefreshMsg from the market data request */
         consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
         {
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
             Assert.Equal(handle, consEvent.Handle);
 
             OmmConsumerTest.CheckRefreshPayload(providerTest, 0, refreshMsg, itemName);
@@ -216,6 +212,7 @@ public class ModifyIOCtlTest : IDisposable
 
             consumerClient.GenericMsgHandler = (genericMsg, consEvent) =>
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                 Assert.Equal(handle, consEvent.Handle);
                 Assert.Same(this, consEvent.Closure);
 

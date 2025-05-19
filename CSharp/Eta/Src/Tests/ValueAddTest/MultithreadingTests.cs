@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -17,6 +17,7 @@ using Buffer = LSEG.Eta.Codec.Buffer;
 using Array = LSEG.Eta.Codec.Array;
 using LSEG.Eta.Common;
 using System.Threading;
+using AspectInjector.Broker;
 
 namespace LSEG.Eta.ValuedAdd.Tests;
 
@@ -275,6 +276,11 @@ public class MultithreadingTests
 		{
 			string closure = (string)(evt.StreamInfo.UserSpec);
 
+            if(evt.Msg.MsgClass == MsgClasses.STATUS)
+            {
+                return ReactorCallbackReturnCode.SUCCESS;
+            }
+
 			Assert.True(evt.Msg.MsgClass == MsgClasses.REFRESH);
 			IRefreshMsg refreshMsg = (IRefreshMsg)evt.Msg;
 
@@ -333,16 +339,12 @@ public class MultithreadingTests
 		}
 		public void Run()
 		{
-			try
-			{
-				do
-				{
-					TestReactor.Dispatch(-1);
+            do
+            {
+                TestReactor.Dispatch(-1);
 
-				} while (m_Dispatching);
-			}
-			catch { Assert.False(true); }
-		}
+            } while (m_Dispatching);
+        }
 	}
 
 	public interface TestWithMultithreadedOmmConsumer
@@ -585,43 +587,32 @@ public class MultithreadingTests
 
 		/* Consumer sends request. */
 		String[] stocks = stockList.Split(",");
+        List<Thread> threads = new ();
 		foreach (string stock in stocks)
 		{
-
 			AppClient appClient = new AppClient(stock);
-			new Thread(new ThreadStart(() => 
-			{
-				for (int i = 0; i < numIteration; i++)
-				{
+            var thread = new Thread(new ThreadStart(() =>
+            {
+                for (int i = 0; i < numIteration; i++)
+                {
 
-					test.RunTest(consumer,
-						appClient,
-						Provider.DefaultService.Info.ServiceName.ToString(),
-						(int)DomainType.MARKET_PRICE,
-						streaming,
-						viewFieldList
-						);
+                    test.RunTest(consumer,
+                        appClient,
+                        Provider.DefaultService.Info.ServiceName.ToString(),
+                        (int)DomainType.MARKET_PRICE,
+                        streaming,
+                        viewFieldList
+                        );
+                }
+            }));
+            threads.Add(thread);
+            thread.Start();
+        }
 
-					try
-					{
-						Thread.Sleep(5);
-					}
-					catch (Exception)
-					{
-					}
-				}
-			})).Start();
-		}
-        
-        try {
-        	
-			Thread.Sleep(15000); // Wait 15 seconds to complete all requests
-			
-			consumer.Stop();
-			provider.Stop();
-			
-		} catch (Exception) {}
-        
+        Thread.Sleep(15000); // Wait 15 seconds to complete all requests
+        Thread.JoinAll(threads);
+        consumer.Stop();
+        provider.Stop();
         return consumer;
     }
 
@@ -715,7 +706,7 @@ public class MultithreadingTests
 	{
 		string stockList = "AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
 		MultithreadedOmmConsumer consumer = MultithreadedSubscriptionTest(true, stockList, null, 30, true, new MultithreadedSubTheSameItemListTest());
-		Assert.True(consumer.NumRefreshCompleteMessage == (stockList.Split(",").Length * 30));
+        Assert.True(consumer.NumRefreshCompleteMessage == (stockList.Split(",").Length * 30));
 		Assert.True(consumer.NumRefreshMessage == (consumer.NumRefreshCompleteMessage * 2));
 	}
 

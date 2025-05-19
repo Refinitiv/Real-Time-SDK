@@ -12,6 +12,7 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,13 +25,8 @@ using static LSEG.Eta.Rdm.Directory;
 
 namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 {
-    public class NiProviderTest : IDisposable
+    public class NiProviderTest
     {
-        public void Dispose()
-        {
-            EtaGlobalPoolTestUtil.Clear();
-        }
-
         ITestOutputHelper m_Output;
 
         public NiProviderTest(ITestOutputHelper output)
@@ -224,7 +220,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
             FieldList fieldList = decodeRefreshMsg.MarkForClear().Payload().FieldList();
 
-            var iterator = fieldList.GetEnumerator();
+            var iterator = (FieldListEnumerator)fieldList.GetEnumerator();
             Assert.True(iterator.MoveNext());
             FieldEntry entry = iterator.Current;
             Assert.Equal(22, entry.FieldId);
@@ -246,7 +242,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             Assert.Equal(19, entry.OmmRealValue().AsDouble());
 
             Assert.False(iterator.MoveNext());
-
+            iterator.Clear();
             Assert.Empty(adhSimulator.EventQueue); // There is no message in the Event queue.
 
             provider?.Submit(new UpdateMsg().ServiceName("NI_PUB").Name("IBM.N")
@@ -278,7 +274,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
             fieldList = decodeUpdateMsg.MarkForClear().Payload().FieldList();
 
-            iterator = fieldList.GetEnumerator();
+            iterator = (FieldListEnumerator)fieldList.GetEnumerator();
             Assert.True(iterator.MoveNext());
             entry = iterator.Current;
             Assert.Equal(22, entry.FieldId);
@@ -290,7 +286,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             Assert.Equal(15, entry.OmmRealValue().AsDouble());
 
             Assert.False(iterator.MoveNext());
-
+            iterator.Clear();
             Assert.Empty(adhSimulator.EventQueue); // There is no message in the Event queue.
 
             provider?.Submit(new UpdateMsg().ServiceId(0).Name("IBM.N")
@@ -320,7 +316,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
             fieldList = decodeUpdateMsg.MarkForClear().Payload().FieldList();
 
-            iterator = fieldList.GetEnumerator();
+            iterator = (FieldListEnumerator)fieldList.GetEnumerator();
             Assert.True(iterator.MoveNext());
             entry = iterator.Current;
             Assert.Equal(22, entry.FieldId);
@@ -332,7 +328,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             Assert.Equal(20, entry.OmmRealValue().AsDouble());
 
             Assert.False(iterator.MoveNext());
-
+            iterator.Clear();
             Assert.Empty(adhSimulator.EventQueue); // There is no message in the Event queue.
 
             Assert.Null(exception);
@@ -897,6 +893,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                 /* Checks the expected RefreshMsg from the login request */
                 providerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(handle, consEvent.Handle);
 
                     Assert.Equal(DataType.DataTypes.NO_DATA, refreshMsg.MarkForClear().Payload().DataType);
@@ -1220,6 +1217,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                 /* Checks the expected RefreshMsg from the RWFFld request */
                 providerFldClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(fldHandle, consEvent.Handle);
 
                     Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.MarkForClear().Payload().DataType);
@@ -1255,6 +1253,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                 /* Checks the expected RefreshMsg from the RWFFld request */
                 providerEnumClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(enumHandle, consEvent.Handle);
 
                     Assert.Equal(DataType.DataTypes.SERIES, refreshMsg.MarkForClear().Payload().DataType);
@@ -1281,10 +1280,13 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
                     for (int i = 0; i < 50; i++)
                         provider.Dispatch(1000000);
                 }
-                else
-                {
-                    Thread.Sleep(10000);
-                }
+
+                Policy.HandleResult<bool>(v => v)
+                    .WaitAndRetry(60, retryAttempt => TimeSpan.FromMilliseconds(1000))
+                    .Execute(() => providerFldClient.ReceivedOnAll == 2 && fldComplelte && enumComplete && providerEnumClient.ReceivedOnAll == 13);
+
+                //wait to finish all processings
+                Thread.Sleep(1000);
 
                 Assert.True(fldComplelte && enumComplete);
 

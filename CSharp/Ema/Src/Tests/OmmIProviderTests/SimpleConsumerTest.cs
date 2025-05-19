@@ -1,15 +1,13 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading;
 
 using LSEG.Ema.Access.Tests.OmmConsumerTests;
@@ -20,8 +18,6 @@ using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 
 using Xunit.Abstractions;
-using static LSEG.Eta.Rdm.Dictionary;
-using static LSEG.Eta.ValueAdd.Reactor.WlRequest;
 
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 {
@@ -555,7 +551,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
             m_EncodeIterator.Clear();
             m_EncodeIterator.SetBufferAndRWFVersion(msgBuf, m_ReactorChannel.MajorVersion, m_ReactorChannel.MinorVersion);
-
+            
 
             CodecReturnCode ret = statusMsg.EncodeInit(m_EncodeIterator, 0);
             if (ret < CodecReturnCode.SUCCESS)
@@ -571,7 +567,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
             m_ReactorSubmitOptions.Clear();
             m_ReactorChannel.Submit(msgBuf, m_ReactorSubmitOptions, out errorInfo);
-
+            
             return true;
         }
 

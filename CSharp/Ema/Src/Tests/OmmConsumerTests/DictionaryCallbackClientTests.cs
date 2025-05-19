@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -16,13 +16,8 @@ using Xunit.Abstractions;
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests;
 
 /// testing the <see cref="Access.DictionaryCallbackClient"/>
-public class DictionaryCallbackClientTests : IDisposable
+public class DictionaryCallbackClientTests
 {
-    public void Dispose()
-    {
-        EtaGlobalPoolTestUtil.Clear();
-    }
-
     private const int TEST_TIMEOUT_MS = 10_000;
 
     private ITestOutputHelper output;
@@ -188,6 +183,7 @@ public class DictionaryCallbackClientTests : IDisposable
         * received dictionaries into dataDictionary */
         consumerClient.RefreshMsgHandler = (refreshMsg, consEvent) =>
         {
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
             bool complete = refreshMsg.MarkForClear().Complete();
 
             switch (refreshMsg.MarkForClear().Payload().DataType)

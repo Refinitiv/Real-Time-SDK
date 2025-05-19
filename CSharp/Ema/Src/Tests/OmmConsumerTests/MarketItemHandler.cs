@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -283,6 +283,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             if (!msg.CheckNoRefresh())
             {
                 ReactorReturnCode ret = SendItemResponse(chnl, msg);
+                Thread.Sleep(100);
                 if (ret != ReactorReturnCode.SUCCESS)
                 {
                     return ReactorReturnCode.FAILURE;
@@ -290,7 +291,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 if(m_ProviderSessionOptions.SendMarketDataItemUpdate && requestMsg.CheckStreaming())
                 {
-                    System.Threading.Thread.Sleep(4000);
+                    Thread.Sleep(4000);
 
                     ret = SendItemUpdate(chnl, msg);
                     if (ret != ReactorReturnCode.SUCCESS)

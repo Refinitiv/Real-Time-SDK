@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,14 +12,8 @@ using System;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class EmaComplexTypeSimpleTests : IDisposable
+    public class EmaComplexTypeSimpleTests
     {
-        public void Dispose()
-        {
-            EtaGlobalPoolTestUtil.Clear();
-            EtaGlobalPoolTestUtil.CheckEtaGlobalPoolSizes();
-        }
-
         private void LoadEnumTypeDictionary(DataDictionary dataDictionary)
         {
             if (dataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out CodecError error) < 0)
@@ -505,7 +499,7 @@ namespace LSEG.Ema.Access.Tests
             var decodedMsgPayload = decodedPostMsg.MarkForClear().Payload().UpdateMsg();
             var decodedElemList = decodedMsgPayload.MarkForClear().Payload().ElementList();
 
-            var enumer = decodedElemList.GetEnumerator();
+            var enumer = (ElementListEnumerator)decodedElemList.GetEnumerator();
             Assert.True(enumer.MoveNext());
             var curr = enumer.Current;
             Assert.Equal(DataTypes.INT, curr.LoadType);
@@ -518,6 +512,7 @@ namespace LSEG.Ema.Access.Tests
             decodedElemList.Clear();
             elemList.Clear();
             updateMsg.Clear();
+            enumer.Clear();
         }
     }
 }

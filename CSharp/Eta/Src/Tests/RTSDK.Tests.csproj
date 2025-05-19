@@ -10,6 +10,7 @@
     <AssemblyOriginatorKeyFile>namekeys.snk</AssemblyOriginatorKeyFile>
     <AssemblyName>ESDK.Tests</AssemblyName>
     <BaseOutputPath>$(ProjectDir)..\..\Executables\RTSDK.Tests</BaseOutputPath>
+    <DelaySign>true</DelaySign>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -27,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspectInjector" Version="2.8.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.categories" Version="3.0.1" />

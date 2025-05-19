@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -18,13 +18,8 @@ using Enum = LSEG.Eta.Codec.Enum;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class EmaComplexTypeHandler : IDisposable
+    public class EmaComplexTypeHandler
     {
-        public void Dispose()
-        {
-            EtaGlobalPoolTestUtil.Clear();
-        }
-
         public static int length = 5;
         public static int defaultArrayDataType = DataType.DataTypes.QOS;
         public static int mapKeyFieldId = 1;

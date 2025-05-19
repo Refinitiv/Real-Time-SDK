@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -2542,50 +2542,4 @@ namespace LSEG.Eta.Tests
             }
         }
     }
-
-    public class MsgParameters
-    {
-        public Boolean HasMsgKey { get; set; }
-        public Boolean HasExtendedHeader { get; set; }
-        public Boolean HasPermData { get; set; }
-        public int StreamId { get; set; }
-        public int ContainerType { get; set; }
-        public int MsgDomainType { get; set; }
-        public int MsgClass { get; set; }
-        public int PayloadType { get; set; }
-        public Boolean DoNotCache { get; set; }
-        public Boolean DoNotConflate { get; set; }
-        public int SeqNum { get; set; }
-        public Boolean HasState { get; set; }
-        public int NackCode { get; set; }
-        public Boolean HasText { get; set; }
-        public Boolean Ack { get; set; }
-        public Boolean PostComplete { get; set; }
-        public Boolean HasPostUserRights { get; set; }
-        public Boolean RefreshComplete { get; set; }
-        public Boolean Streaming { get; set; }
-        public Boolean HasQos { get; set; }
-        public Boolean Pause { get; set; }
-        public Boolean NoRefresh { get; set; }
-        public Boolean HasPriority { get; set; }
-        public Boolean PrivateStream { get; set; }
-        public Boolean HasMsgKeyType { get; set; }
-
-        public Boolean HasMsgKeyInUpdates { get; set; }
-        public Boolean HasConfInfoInUpdates { get; set; }
-        public Boolean HasWorstQos { get; set; }
-        public Boolean QualifiedStream { get; set; }
-        public Boolean HasConfInfo { get; set; }
-        public Boolean DoNotRipple { get; set; }
-        public Boolean HasPostUserInfo { get; set; }
-        public Boolean Discardable { get; set; }
-        public int SecondarySeqNum { get; set; }
-        public Boolean ClearCache { get; set; }
-        public Boolean HasPartNum { get; set; }
-        public Boolean Solicited { get; set; }
-        public Boolean MessageComplete { get; set; }
-        public Boolean HasGroupId { get; set; }
-        public Boolean HasPostId { get; set; }
-    }
-
 }

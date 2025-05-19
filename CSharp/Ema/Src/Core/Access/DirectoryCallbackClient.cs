@@ -820,32 +820,32 @@ namespace LSEG.Ema.Access
 
         public void NotifyOnAllMsgImpl(Msg msg)
         {
-            EventImpl.Item!.Client?.OnAllMsg(msg, EventImpl);
+            EventImpl.Item?.Client?.OnAllMsg(msg, EventImpl);
         }
 
         public void NotifyOnRefreshMsgImpl()
         {
-            EventImpl.Item!.Client?.OnRefreshMsg(m_RefreshMsg!, EventImpl);
+            EventImpl.Item?.Client?.OnRefreshMsg(m_RefreshMsg!, EventImpl);
         }
 
         public void NotifyOnUpdateMsgImpl()
         {
-            EventImpl.Item!.Client?.OnUpdateMsg(m_UpdateMsg!, EventImpl);
+            EventImpl.Item?.Client?.OnUpdateMsg(m_UpdateMsg!, EventImpl);
         }
 
         public void NotifyOnStatusMsgImpl()
         {
-            EventImpl.Item!.Client?.OnStatusMsg(m_StatusMsg!, EventImpl);
+            EventImpl.Item?.Client?.OnStatusMsg(m_StatusMsg!, EventImpl);
         }
 
         public void NotifyOnGenericMsgImpl()
         {
-            EventImpl.Item!.Client?.OnGenericMsg(m_GenericMsg!, EventImpl);
+            EventImpl.Item?.Client?.OnGenericMsg(m_GenericMsg!, EventImpl);
         }
 
         public void NotifyOnAckMsgImpl()
         {
-            EventImpl.Item!.Client?.OnAckMsg(m_AckMsg!, EventImpl);
+            EventImpl.Item?.Client?.OnAckMsg(m_AckMsg!, EventImpl);
         }
     }
 

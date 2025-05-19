@@ -16,14 +16,8 @@ using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class EmaMsgTests : IDisposable
+    public class EmaMsgTests
     {
-        public void Dispose()
-        {
-            EtaGlobalPoolTestUtil.Clear();
-            EtaGlobalPoolTestUtil.CheckEtaGlobalPoolSizes();
-        }
-
         bool[] values = { true, false };
         int[] msgDataTypes = {(int)DataType.DataTypes.UPDATE_MSG, (int)DataType.DataTypes.REFRESH_MSG, (int)DataType.DataTypes.STATUS_MSG,
             (int)DataType.DataTypes.REQ_MSG, (int)DataType.DataTypes.ACK_MSG, (int)DataType.DataTypes.GENERIC_MSG, (int)DataType.DataTypes.POST_MSG };

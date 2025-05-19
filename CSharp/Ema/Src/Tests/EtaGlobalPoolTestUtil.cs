@@ -1,33 +1,103 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
+using AspectInjector.Broker;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace LSEG.Ema.Access.Tests;
 
-internal static class EtaGlobalPoolTestUtil
+[SkipInjection]
+public static class EtaGlobalPoolTestUtil
 {
-    public static readonly List<Data> MarkedForClear = new ();
+    private static ThreadLocal<Stack<ClearableSection>> _threadSections =
+        new(() => new Stack<ClearableSection>());
+    private static int _activeConsumers = 0;
+    private static readonly ManualResetEventSlim _allSectionsCleared = new (true);
 
-    public static T MarkForClear<T>(this T data) where T : Data
+    public static IDisposable CreateClearableSection()
     {
-        MarkedForClear.Add(data);
-        return data;
+        var section = new ClearableSection();
+        _threadSections!.Value!.Push(section);
+        _allSectionsCleared.Reset();
+        Interlocked.Increment(ref _activeConsumers);
+        return section;
     }
 
-    public static void Clear()
+    public static T MarkForClear<T>(this T clearable) where T : Data
     {
-        MarkedForClear.ForEach(d => d.Clear_All());
-        MarkedForClear.Clear();
+        if (_threadSections.Value == null || _threadSections.Value.Count == 0)
+        {
+            throw new InvalidOperationException("No active ClearableSection found. Use CreateSection() construct first.");
+        }
+
+        _threadSections.Value.Peek().AddClearable(clearable);
+        return clearable;
     }
 
-    public static void CheckEtaGlobalPoolSizes()
+    public static void ClearAll()
     {
+        var sections = _threadSections.Value;
+        while (sections!.Count > 0)
+        {
+            var section = sections.Pop();
+            section.Dispose();
+        }
+    }
+
+    private class ClearableSection : IDisposable
+    {
+        private readonly List<Data> _clearables = new();
+        private bool _isDisposed = false;
+
+        public void AddClearable(Data clearable)
+        {
+            if (_isDisposed)
+                throw new ObjectDisposedException(nameof(ClearableSection));
+
+            _clearables.Add(clearable);
+        }
+
+        public void Dispose()
+        {
+            if (_isDisposed)
+                return;
+
+            if (Interlocked.Decrement(ref _activeConsumers) == 0)
+            {
+                _allSectionsCleared.Set();
+            }
+
+            _isDisposed = true;
+
+            foreach (var clearable in _clearables)
+            {
+                clearable.Clear_All();
+            }
+
+            _clearables.Clear();
+
+            if (_threadSections.Value != null && _threadSections.Value.Count > 0)
+            {
+                var poppedSection = _threadSections.Value.Pop();
+
+                if (poppedSection != this)
+                {
+                    throw new InvalidOperationException("Nested sections were disposed in the wrong order.");
+                }
+            }
+        }
+    }
+
+    public static void CheckPoolSizes()
+    {
+        _allSectionsCleared.Wait();
         var pool = EtaObjectGlobalPool.Instance;
         Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaBufferPool.Count);
         Assert.Equal(EtaObjectGlobalPool.INITIAL_POOL_SIZE, pool.m_etaEncodeIteratorPool.Count);

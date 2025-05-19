@@ -11,7 +11,7 @@ using static LSEG.Ema.Access.EmaConfig;
 
 namespace LSEG.Ema.Access.Tests.OmmConfigTests;
 
-public class XmlConfigParserTests : IDisposable
+public class XmlConfigParserTests
 {
     // this is the EmaConfig.xml in the CSharp/Ema directory, ensure that it passes validation
     public const string EMA_DEFAULT_CONFIG = "../../../../../EmaConfig.xml";
@@ -23,16 +23,6 @@ public class XmlConfigParserTests : IDisposable
     public const string MALFORMED_XML = "../../../OmmConfigTests/Malformed.xml";
 
     public const string EMA_INCOMPLETE_CONFIG = "../../../OmmConfigTests/EmaIncompleteConfig.xml";
-
-    public XmlConfigParserTests()
-    {
-    }
-
-    public void Dispose()
-    {
-        EtaGlobalPoolTestUtil.Clear();
-    }
-
     [Theory]
     [InlineData(EMA_BLANK_CONFIG)]
     [InlineData(EMA_DEFAULT_CONFIG)]

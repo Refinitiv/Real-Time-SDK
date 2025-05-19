@@ -642,7 +642,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             do
             {
-                System.Threading.Thread.Sleep(1000);
+                Thread.Sleep(1000);
                 reactor.Dispatch(dispatchOpts, out errorInfo);
                 loopCount--;
             }while (loopCount > 0);

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -835,9 +835,7 @@ public class TransportLockTests : IDisposable
             State = RunningState.RUNNING;
 
             TransportReturnCode retVal;
-            int sleepTime = 1;
-            if (DEBUG)
-                sleepTime = 250;
+            const int sleepTime = 250;
 
             while (m_Running)
             {
@@ -1978,7 +1976,6 @@ public class TransportLockTests : IDisposable
     public void LockTest35()
     {
         TestArgs args = new TestArgs();
-
         args.RunTime = TimeSpan.FromSeconds(5);
         args.ClientSessionCount = 3;
         args.ThreadsPerChannels = 3;

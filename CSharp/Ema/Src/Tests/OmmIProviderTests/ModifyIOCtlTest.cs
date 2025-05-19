@@ -17,13 +17,8 @@ using System;
 
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests;
 
-public class ModifyIOCtlTest : IDisposable
+public class ModifyIOCtlTest
 {
-    public void Dispose()
-    {
-        EtaGlobalPoolTestUtil.Clear();
-    }
-
     ITestOutputHelper m_Output;
 
     public ModifyIOCtlTest(ITestOutputHelper output)
@@ -157,6 +152,7 @@ public class ModifyIOCtlTest : IDisposable
 
             providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                 switch (requestMsg.DomainType())
                 {
                     case (int)DomainType.LOGIN:
@@ -254,6 +250,7 @@ public class ModifyIOCtlTest : IDisposable
 
             providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                 switch (requestMsg.DomainType())
                 {
                     case (int)DomainType.LOGIN:

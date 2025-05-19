@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -15,14 +15,8 @@ using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Ema.Access.Tests
 {
-    public class EmaContainersTest : IDisposable
+    public class EmaContainersTest
     {
-        public void Dispose()
-        {
-            EtaGlobalPoolTestUtil.Clear();
-            EtaGlobalPoolTestUtil.CheckEtaGlobalPoolSizes();
-        }
-
         private EmaObjectManager m_objectManager = new EmaObjectManager();
 
         private int[] containerTypes = { DataType.DataTypes.FILTER_LIST,
@@ -571,7 +565,7 @@ namespace LSEG.Ema.Access.Tests
             CodecTestUtil.EncodeSimpleElementList(encodeIterator, new int[] { DataTypes.INT, DataTypes.UINT, DataTypes.UINT });
 
             ElementList elementList = m_objectManager.GetOmmElementList();
-            elementList.DecodeElementList(Codec.MajorVersion(), Codec.MinorVersion(), buffer, null, null);
+            elementList.MarkForClear().DecodeElementList(Codec.MajorVersion(), Codec.MinorVersion(), buffer, null, null);
             Assert.Equal(Access.DataType.DataTypes.ELEMENT_LIST, elementList.DataType);
 
             Map map = m_objectManager.GetOmmMap();
@@ -662,9 +656,9 @@ namespace LSEG.Ema.Access.Tests
             fieldListEnc.MarkForClear().Complete();
 
             FieldList fieldListDec = new();
-            fieldListDec.Decode(Codec.MajorVersion(), Codec.MinorVersion(), fieldListEnc.Encoder!.GetEncodedBuffer(false), dataDictionary, null);
-
-            var iterator = fieldListDec.GetEnumerator();
+            fieldListDec.MarkForClear().Decode(Codec.MajorVersion(), Codec.MinorVersion(), fieldListEnc.Encoder!.GetEncodedBuffer(false), dataDictionary, null);
+            
+            var iterator = (FieldListEnumerator)fieldListDec.GetEnumerator();
             Assert.True(iterator.MoveNext());
             var fieldEntry = iterator.Current;
             Assert.NotNull(fieldEntry);
@@ -686,7 +680,7 @@ namespace LSEG.Ema.Access.Tests
             Assert.NotNull(fieldEntry);
             Assert.Equal(30015, fieldEntry.FieldId);
             Assert.Equal(Data.DataCode.BLANK, fieldEntry.Code); // Check for blank OmmArray
-
+            
             // Move to next FieldEntry
             Assert.True(iterator.MoveNext());
             fieldEntry = iterator.Current;
@@ -702,15 +696,15 @@ namespace LSEG.Ema.Access.Tests
             arrayEntry = arrayIt.Current;
             Assert.Equal((ulong)4, arrayEntry.OmmUIntValue().Value);
             Assert.False(arrayIt.MoveNext()); // Ensure there is no more OmmArrayEntry
-
+            
             Assert.False(iterator.MoveNext()); // Ensure there is no more FieldEntry
 
+            iterator.Clear();
             ommArrayEnc.ClearAndReturnToPool_All();
             ommArrayEnc2.ClearAndReturnToPool_All();
             fieldListEnc.ClearAndReturnToPool_All();
             fieldListDec.ClearAndReturnToPool_All();
             CheckEmaObjectManagerPoolSizes(m_objectManager);
-
         }
 
         [Fact]
@@ -726,8 +720,8 @@ namespace LSEG.Ema.Access.Tests
 
             ElementList elementListDec = new();
             elementListDec.Decode(Codec.MajorVersion(), Codec.MinorVersion(), elementListEnc.Encoder!.GetEncodedBuffer(false), null, null);
-
-            var iterator = elementListDec.GetEnumerator();
+            
+            var iterator = (ElementListEnumerator) elementListDec.GetEnumerator();
             Assert.True(iterator.MoveNext());
             var elementEntry = iterator.Current;
             Assert.NotNull(elementEntry);
@@ -767,7 +761,7 @@ namespace LSEG.Ema.Access.Tests
             Assert.False(arrayIt.MoveNext()); // Ensure there is no more OmmArrayEntry
 
             Assert.False(iterator.MoveNext()); // Ensure there is no more ElementEntry
-
+            iterator.Clear();
             ommArrayEnc.ClearAndReturnToPool_All();
             ommArrayEnc2.ClearAndReturnToPool_All();
             elementListEnc.ClearAndReturnToPool_All();

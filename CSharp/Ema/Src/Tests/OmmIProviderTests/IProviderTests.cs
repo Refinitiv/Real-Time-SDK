@@ -20,13 +20,8 @@ using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 {
-    public class IProviderTests : IDisposable
+    public class IProviderTests
     {
-        public void Dispose()
-        {
-            EtaGlobalPoolTestUtil.Clear();
-        }
-
         ITestOutputHelper m_Output;
 
         public IProviderTests(ITestOutputHelper output)
@@ -176,6 +171,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                     : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     provider.Submit(new RefreshMsg().StreamId(requestMsg.StreamId())
                         .DomainType(requestMsg.DomainType())
                         .Solicited(true), providerEvent.Handle);
@@ -264,6 +260,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                     : OmmIProviderConfig.OperationModelMode.API_DISPATCH), providerClient);
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -392,6 +389,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -758,6 +756,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -969,6 +968,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.MARKET_PRICE:
@@ -1136,6 +1136,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -1368,6 +1369,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -1597,6 +1599,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -1837,6 +1840,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -1933,6 +1937,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.CloseHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     /* Checks for the close message of the item domain */
                     if (requestMsg.DomainType() > EmaRdm.MMT_DIRECTORY)
                     {
@@ -1953,6 +1958,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReissueMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     /* Checks for the close message of the item domain */
                     if (requestMsg.DomainType() > EmaRdm.MMT_DIRECTORY)
                     {
@@ -2150,6 +2156,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -2230,6 +2237,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.CloseHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     /* Checks for the close message of the item domain */
                     if (requestMsg.DomainType() > EmaRdm.MMT_DIRECTORY)
                     {
@@ -2393,6 +2401,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -2640,6 +2649,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -2720,6 +2730,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.PostMsgHandler = (postMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     Assert.Equal(itemHandle, providerEvent.Handle);
 
                     /* Checks the generic message on the item stream */
@@ -2891,6 +2902,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -3226,6 +3238,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:
@@ -3564,6 +3577,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 providerClient.ReqMsgHandler = (requestMsg, providerEvent) =>
                 {
+                    using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
                     switch (requestMsg.DomainType())
                     {
                         case (int)DomainType.LOGIN:

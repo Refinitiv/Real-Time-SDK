@@ -8,6 +8,7 @@
 
 using System;
 using System.IO;
+using LSEG.Eta.Tests.Utils;
 using LSEG.Eta.ValueAdd.Reactor;
 using Xunit.Abstractions;
 
@@ -67,7 +68,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
         private static readonly string WARNING_LOG = $"{NewLine}WARN|: loggerMsg{NewLine}    ClientName: ChannelCallbackClient{NewLine}    Severity: Warning    Text:" +
             $"    Received ChannelDownReconnecting event on channel Channel_1{NewLine}\tInstance Name Consumer_1_Warning{NewLine}\tChannel is null{NewLine}\tError Id SUCCESS{NewLine}" +
-            $"\tInternal sysError 0{NewLine}\tError Location Reactor.Connect{NewLine}\tError text DNS resolution failure for address \"Invalidhost.abc\" with error text \"No such host is known.\".";
+            $"\tInternal sysError 0{NewLine}\tError Location Reactor.Connect{NewLine}\tError text DNS resolution failure for address \"Invalidhost.abc\" with error text";
 
         ITestOutputHelper output;
 
@@ -201,9 +202,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             OmmException? exception = null;
             OmmConsumer? consumer = null;
 
-            MemoryStream memoryStream = new (8192);
-            StreamWriter streamWriter = new (memoryStream);
-            System.Console.SetOut(streamWriter);
+            using RedirectedConsoleOutput consoleOutput = new();
 
             try
             {
@@ -231,8 +230,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
                 Assert.Null(exception);
             }
 
-            string logOutput = System.Text.Encoding.ASCII.GetString(memoryStream.GetBuffer(), 0, 
-                (int)memoryStream.Length);
+            string logOutput = consoleOutput.ToString();
 
             Assert.NotNull(logOutput);
 
@@ -348,9 +346,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
         {
             // Intercept standard output (Console) to the memory buffer to examine Logger
             // messages for expected log messages
-            MemoryStream memoryStream = new(12 * 1024);
-            StreamWriter streamWriter = new(memoryStream);
-            Console.SetOut(streamWriter);
+            using RedirectedConsoleOutput consoleOutput = new();
 
             // Application configures NLog
             NLog.Targets.DebugTarget target = new NLog.Targets.DebugTarget() { Name = "Debug" };
@@ -403,8 +399,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
             // verify that the EMA IProvider was still able to output log messages as
             // configured - to Console
-            string logOutput = System.Text.Encoding.ASCII.GetString(memoryStream.GetBuffer(), 0,
-                (int)memoryStream.Length);
+            string logOutput = consoleOutput.ToString();
 
             Assert.NotNull(logOutput);
             Assert.NotEmpty(logOutput);
