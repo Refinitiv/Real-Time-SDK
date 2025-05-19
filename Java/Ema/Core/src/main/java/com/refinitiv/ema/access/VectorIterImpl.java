@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2023 LSEG. All rights reserved.     
+// *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -131,10 +131,7 @@ class VectorIterImpl implements Iterator<VectorEntry>
 	private com.refinitiv.eta.codec.Vector rsslVectorInstance()
 	{
 		com.refinitiv.eta.codec.Vector retData = null;
-		if (_vectorImpl._objManager._rsslVectorPool.size() > 0)
-		{
-			retData = _vectorImpl._objManager._rsslVectorPool.remove(_vectorImpl._objManager._rsslVectorPool.size()-1);
-		}
+		retData = _vectorImpl._objManager._rsslVectorPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createVector();
@@ -148,10 +145,7 @@ class VectorIterImpl implements Iterator<VectorEntry>
 	private com.refinitiv.eta.codec.DecodeIterator decodeIteratorInstance()
 	{
 		com.refinitiv.eta.codec.DecodeIterator retData = null;
-		if (_vectorImpl._objManager._etaDecodeIteratorPool.size() > 0)
-		{
-			retData = _vectorImpl._objManager._etaDecodeIteratorPool.remove(_vectorImpl._objManager._etaDecodeIteratorPool.size()-1);
-		}
+		retData = _vectorImpl._objManager._etaDecodeIteratorPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createDecodeIterator();

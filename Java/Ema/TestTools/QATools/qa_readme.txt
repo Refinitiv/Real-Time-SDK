@@ -1053,3 +1053,21 @@ emajconsperf-Rto-001
            -uname <username> -password <password> -clientId <clientId> \
              -tickRate 1000 -steadyStateTime 300 \
              -itemFile 350k.xml -consumerName Perf_Consumer_WSJSON_1"
+			 
+Module: Emajconsperf-Clone
+--------------------------------
+emajconsperf-Clone-001
+	EMA Performance Test tool to perform deep copy of the Refresh, Update and Status message then put these messages in to a message queue in order to 
+	process later by a seperate thread.
+	
+	./gradlew runEMAPerfConsumer --args="-serviceName ELEKTRON_DD \
+			 -tickRate 1000 -steadyStateTime 300 \
+             -itemFile live100K.xml -consumerName Perf_Consumer_1" \
+			 -enableMessageQueue true -cloneMsgBufSize 1024 -refreshMsgPoolSize 5000 -updateMsgPoolSize 10000 -statusMsgPoolSize 5000
+
+    # encrypted websocket json rssl.json.v2
+    ./gradlew runEMAPerfConsumer --args="-serviceName ELEKTRON_DD \
+             -tickRate 1000 -steadyStateTime 300 \
+             -itemFile live100K.xml -consumerName Perf_Consumer_1" \
+			 -enableMessageQueue true -cloneMsgBufSize 1024 -refreshMsgPoolSize 5000 -updateMsgPoolSize 10000 -statusMsgPoolSize 5000
+	

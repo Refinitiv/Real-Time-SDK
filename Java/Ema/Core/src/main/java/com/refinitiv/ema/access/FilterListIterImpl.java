@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2023 LSEG. All rights reserved.     
+// *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -133,10 +133,7 @@ class FilterListIterImpl implements Iterator<FilterEntry>
 	private com.refinitiv.eta.codec.FilterList rsslFilterListInstance()
 	{
 		com.refinitiv.eta.codec.FilterList retData = null;
-		if (_filterListImpl._objManager._rsslFilterListPool.size() > 0)
-		{
-			retData = _filterListImpl._objManager._rsslFilterListPool.remove(_filterListImpl._objManager._rsslFilterListPool.size()-1);
-		}
+		retData = _filterListImpl._objManager._rsslFilterListPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createFilterList();
@@ -150,10 +147,7 @@ class FilterListIterImpl implements Iterator<FilterEntry>
 	private com.refinitiv.eta.codec.DecodeIterator decodeIteratorInstance()
 	{
 		com.refinitiv.eta.codec.DecodeIterator retData = null;
-		if (_filterListImpl._objManager._etaDecodeIteratorPool.size() > 0)
-		{
-			retData = _filterListImpl._objManager._etaDecodeIteratorPool.remove(_filterListImpl._objManager._etaDecodeIteratorPool.size()-1);
-		}
+		retData = _filterListImpl._objManager._etaDecodeIteratorPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createDecodeIterator();

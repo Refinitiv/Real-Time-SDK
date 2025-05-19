@@ -7,13 +7,15 @@
 
 package com.refinitiv.ema.unittest;
 
+import static org.junit.Assert.assertThrows;
+
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.ema.rdm.EmaRdm;
 import com.refinitiv.ema.unittest.TestUtilities.EncodingTypeFlags;
-import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
@@ -22,15 +24,15 @@ import junit.framework.TestCase;
 
 public class StatusMsgTests extends TestCase
 {
+	private static com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory.createDataDictionary();
+	
 	public StatusMsgTests(String name)
 	{
 		super(name);
 	}
 	
-	public void testStatusMsg_Decode()
+	private com.refinitiv.eta.codec.Buffer encodeETAStatusMsg()
 	{
-		TestUtilities.printTestHead("testStatusMsg_Decode", "eta encoding ema decoding");
-
 		com.refinitiv.eta.codec.Buffer fieldListBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
 		fieldListBuf.data(ByteBuffer.allocate(1024));
 
@@ -46,7 +48,7 @@ public class StatusMsgTests extends TestCase
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
 					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
-			return;
+			return null;
 		}
 		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
@@ -56,7 +58,7 @@ public class StatusMsgTests extends TestCase
 		System.out.println("Begin ETA StatusMsg Set");
 		com.refinitiv.eta.codec.StatusMsg statusMsg = (com.refinitiv.eta.codec.StatusMsg) com.refinitiv.eta.codec.CodecFactory
 				.createMsg();
-		statusMsg.msgClass(com.refinitiv.eta.codec.MsgClasses.REFRESH);
+		statusMsg.msgClass(com.refinitiv.eta.codec.MsgClasses.STATUS);
 
 		statusMsg.domainType(com.refinitiv.eta.rdm.DomainTypes.MARKET_PRICE);
 
@@ -115,19 +117,56 @@ public class StatusMsgTests extends TestCase
 		{
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
 					+ " encountered with setBufferAndRWFVersion. " + " Error Text: " + CodecReturnCodes.info(retVal));
-			return;
+			return null;
 		}
 
 		statusMsg.encode(encIter);
 
 		System.out.println("End ETA StatusMsg Buffer Encoding");
 		System.out.println();
+		
+		return msgBuf;
+	}
+	
+	StatusMsg encodeEMAStatusMsg()
+	{
+		StatusMsg statusMsg = EmaFactory.createStatusMsg();
+		
+		statusMsg.streamId(15);
+		
+		statusMsg.name("ABCDEF");
+		statusMsg.nameType(com.refinitiv.ema.rdm.EmaRdm.INSTRUMENT_NAME_RIC);
+		statusMsg.serviceId(5);
+		statusMsg.filter(12);
+		statusMsg.id(21);
+		statusMsg.serviceName("DIRECT_FEED");
+		
+		statusMsg.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "status complete");
+		
+		statusMsg.clearCache(true);
+		
+		statusMsg.publisherId(30, 15);
+		
+		FieldList fieldList = EmaFactory.createFieldList();
+		fieldList.add(EmaFactory.createFieldEntry().intValue(1, 5));
+		
+		statusMsg.attrib(fieldList);
+		statusMsg.payload(fieldList);
+		
+		return statusMsg;
+	}
+	
+	public void testStatusMsg_Decode()
+	{
+		TestUtilities.printTestHead("testStatusMsg_Decode", "eta encoding ema decoding");
+
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAStatusMsg();
 
 		System.out.println("Begin EMA StatusMsg Decoding");
 
 		com.refinitiv.ema.access.StatusMsg emaStatusMsg = JUnitTestConnect.createStatusMsg();
 
-		JUnitTestConnect.setRsslData(emaStatusMsg, msgBuf, majorVersion, minorVersion, dictionary, null);
+		JUnitTestConnect.setRsslData(emaStatusMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 
 		TestUtilities.checkResult(emaStatusMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE,
 				"StatusMsg.domainType()");
@@ -194,103 +233,13 @@ public class StatusMsgTests extends TestCase
 	{
 		TestUtilities.printTestHead("testStatusMsg_toString", "eta encoding ema toString");
 
-		com.refinitiv.eta.codec.Buffer fieldListBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		fieldListBuf.data(ByteBuffer.allocate(1024));
-
-		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
-				.createDataDictionary();
-		TestUtilities.eta_encodeDictionaryMsg(dictionary);
-
-		int retVal;
-		System.out.println("Begin ETA FieldList Encoding");
-		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error encoding field list.");
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
-					+ CodecReturnCodes.info(retVal));
-			return;
-		}
-		System.out.println("End ETA FieldList Encoding");
-		System.out.println();
-
-		fieldListBuf.data(fieldListBuf.data(), 0, fieldListBuf.length());
-
-		System.out.println("Begin ETA StatusMsg Set");
-		com.refinitiv.eta.codec.StatusMsg statusMsg = (com.refinitiv.eta.codec.StatusMsg) com.refinitiv.eta.codec.CodecFactory
-				.createMsg();
-		statusMsg.msgClass(com.refinitiv.eta.codec.MsgClasses.REFRESH);
-
-		statusMsg.domainType(com.refinitiv.eta.rdm.DomainTypes.MARKET_PRICE);
-
-		statusMsg.streamId(15);
-
-		statusMsg.applyHasMsgKey();
-
-		statusMsg.msgKey().applyHasName();
-		statusMsg.msgKey().name().data("ABCDEF");
-
-		statusMsg.msgKey().applyHasNameType();
-		statusMsg.msgKey().nameType(com.refinitiv.eta.rdm.InstrumentNameTypes.RIC);
-
-		statusMsg.msgKey().applyHasServiceId();
-		statusMsg.msgKey().serviceId(5);
-
-		statusMsg.msgKey().applyHasFilter();
-		statusMsg.msgKey().filter(12);
-
-		statusMsg.msgKey().applyHasIdentifier();
-		statusMsg.msgKey().identifier(21);
-
-		statusMsg.msgKey().applyHasAttrib();
-		statusMsg.msgKey().attribContainerType(com.refinitiv.eta.codec.DataTypes.FIELD_LIST);
-		statusMsg.msgKey().encodedAttrib(fieldListBuf);
-
-		statusMsg.applyHasState();
-		statusMsg.state().code(com.refinitiv.eta.codec.StateCodes.NONE);
-		statusMsg.state().streamState(com.refinitiv.eta.codec.StreamStates.OPEN);
-		statusMsg.state().dataState(com.refinitiv.eta.codec.DataStates.OK);
-		statusMsg.state().text().data("status complete");
-
-		statusMsg.applyClearCache();
-
-		statusMsg.applyHasPostUserInfo();
-		statusMsg.postUserInfo().userAddr(15);
-		statusMsg.postUserInfo().userId(30);
-
-		statusMsg.containerType(com.refinitiv.eta.codec.DataTypes.FIELD_LIST);
-		statusMsg.encodedDataBody(fieldListBuf);
-
-		System.out.println("End ETA StatusMsg Set");
-		System.out.println();
-
-		System.out.println("Begin ETA StatusMsg Buffer Encoding");
-
-		com.refinitiv.eta.codec.Buffer msgBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		msgBuf.data(ByteBuffer.allocate(2048));
-
-		com.refinitiv.eta.codec.EncodeIterator encIter = com.refinitiv.eta.codec.CodecFactory
-				.createEncodeIterator();
-		encIter.clear();
-		int majorVersion = Codec.majorVersion();
-		int minorVersion = Codec.minorVersion();
-		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ " encountered with setBufferAndRWFVersion. " + " Error Text: " + CodecReturnCodes.info(retVal));
-			return;
-		}
-
-		statusMsg.encode(encIter);
-
-		System.out.println("End ETA StatusMsg Buffer Encoding");
-		System.out.println();
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAStatusMsg();
 
 		System.out.println("Begin EMA StatusMsg toString");
 
 		com.refinitiv.ema.access.StatusMsg emaStatusMsg = JUnitTestConnect.createStatusMsg();
 
-		JUnitTestConnect.setRsslData(emaStatusMsg, msgBuf, majorVersion, minorVersion, dictionary, null);
+		JUnitTestConnect.setRsslData(emaStatusMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 
 		System.out.println(emaStatusMsg);
 
@@ -1010,111 +959,19 @@ public class StatusMsgTests extends TestCase
 	{
 		TestUtilities.printTestHead("testStatusMsg_clone", "cloning for ema status message");
 
-		com.refinitiv.eta.codec.Buffer fieldListBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		fieldListBuf.data(ByteBuffer.allocate(1024));
-
-		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
-				.createDataDictionary();
-		TestUtilities.eta_encodeDictionaryMsg(dictionary);
-
-		int retVal;
-		System.out.println("Begin ETA FieldList Encoding");
-		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error encoding field list.");
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
-					+ CodecReturnCodes.info(retVal));
-			return;
-		}
-		System.out.println("End ETA FieldList Encoding");
-		System.out.println();
-
-		fieldListBuf.data(fieldListBuf.data(), 0, fieldListBuf.length());
-
-		System.out.println("Begin ETA StatusMsg Set");
-		com.refinitiv.eta.codec.StatusMsg statusMsg = (com.refinitiv.eta.codec.StatusMsg) com.refinitiv.eta.codec.CodecFactory
-				.createMsg();
-		statusMsg.msgClass(com.refinitiv.eta.codec.MsgClasses.REFRESH);
-
-		statusMsg.domainType(com.refinitiv.eta.rdm.DomainTypes.MARKET_PRICE);
-
-		statusMsg.streamId(15);
-
-		statusMsg.applyHasMsgKey();
-
-		statusMsg.msgKey().applyHasName();
-		statusMsg.msgKey().name().data("ABCDEF");
-
-		statusMsg.msgKey().applyHasNameType();
-		statusMsg.msgKey().nameType(com.refinitiv.eta.rdm.InstrumentNameTypes.RIC);
-
-		statusMsg.msgKey().applyHasServiceId();
-		statusMsg.msgKey().serviceId(5);
-
-		statusMsg.msgKey().applyHasFilter();
-		statusMsg.msgKey().filter(12);
-
-		statusMsg.msgKey().applyHasIdentifier();
-		statusMsg.msgKey().identifier(21);
-
-		statusMsg.msgKey().applyHasAttrib();
-		statusMsg.msgKey().attribContainerType(com.refinitiv.eta.codec.DataTypes.FIELD_LIST);
-		statusMsg.msgKey().encodedAttrib(fieldListBuf);
-
-		statusMsg.applyHasState();
-		statusMsg.state().code(com.refinitiv.eta.codec.StateCodes.NONE);
-		statusMsg.state().streamState(com.refinitiv.eta.codec.StreamStates.OPEN);
-		statusMsg.state().dataState(com.refinitiv.eta.codec.DataStates.OK);
-		statusMsg.state().text().data("status complete");
-
-		statusMsg.applyClearCache();
-
-		statusMsg.applyHasPostUserInfo();
-		statusMsg.postUserInfo().userAddr(15);
-		statusMsg.postUserInfo().userId(30);
-
-		statusMsg.containerType(com.refinitiv.eta.codec.DataTypes.FIELD_LIST);
-		statusMsg.encodedDataBody(fieldListBuf);
-
-		setMoreFields(statusMsg);
-
-		System.out.println("End ETA StatusMsg Set");
-		System.out.println();
-
-		System.out.println("Begin ETA StatusMsg Buffer Encoding");
-
-		com.refinitiv.eta.codec.Buffer msgBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		msgBuf.data(ByteBuffer.allocate(2048));
-
-		com.refinitiv.eta.codec.EncodeIterator encIter = com.refinitiv.eta.codec.CodecFactory
-				.createEncodeIterator();
-		encIter.clear();
-		int majorVersion = Codec.majorVersion();
-		int minorVersion = Codec.minorVersion();
-		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ " encountered with setBufferAndRWFVersion. " + " Error Text: " + CodecReturnCodes.info(retVal));
-			return;
-		}
-
-		statusMsg.encode(encIter);
-
-		System.out.println("End ETA StatusMsg Buffer Encoding");
-		System.out.println();
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAStatusMsg();
 
 		System.out.println("Begin EMA StatusMsg clone");
 
 		com.refinitiv.eta.codec.StatusMsg statusMsgDecode = (com.refinitiv.eta.codec.StatusMsg)com.refinitiv.eta.codec.CodecFactory.createMsg();
 
 		com.refinitiv.eta.codec.DecodeIterator decIter = com.refinitiv.eta.codec.CodecFactory.createDecodeIterator();
-		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		decIter.setBufferAndRWFVersion(msgBuf, Codec.majorVersion(), Codec.minorVersion());
 		statusMsgDecode.decode(decIter);
 
 		com.refinitiv.ema.access.StatusMsg emaStatusMsg = JUnitTestConnect.createStatusMsg();
 				
-		JUnitTestConnect.setRsslData(emaStatusMsg, statusMsgDecode, majorVersion, minorVersion, dictionary, null);
+		JUnitTestConnect.setRsslData(emaStatusMsg, statusMsgDecode, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 		
 		com.refinitiv.ema.access.StatusMsg emaStatusMsgClone = EmaFactory.createStatusMsg(emaStatusMsg);
 		
@@ -1136,131 +993,22 @@ public class StatusMsgTests extends TestCase
 		System.out.println();
 	}
 
-	private void setMoreFields(com.refinitiv.eta.codec.StatusMsg statusMsg) {
-		statusMsg.applyHasExtendedHdr();
-		Buffer extendedHeader = CodecFactory.createBuffer();
-		extendedHeader.data(ByteBuffer.wrap(new byte[] {5, -6, 7, -8}));
-		statusMsg.extendedHeader(extendedHeader);
-
-		Buffer itemGroup = CodecFactory.createBuffer();
-		itemGroup.data(ByteBuffer.wrap(new byte[] {30, 40, 50, 60, 77, 77, 77, 77, 88}));
-		statusMsg.groupId(itemGroup);
-
-		statusMsg.applyHasPermData();
-		Buffer permissionData = CodecFactory.createBuffer();
-		permissionData.data(ByteBuffer.wrap(new byte[]{50, 51, 52, 53}));
-		statusMsg.permData(permissionData);
-
-		statusMsg.applyPrivateStream();
-	}
-
 	public void testStatusMsg_cloneEdit()
 	{
 		TestUtilities.printTestHead("testStatusMsg_clone", "cloning for ema status message");
 
-		com.refinitiv.eta.codec.Buffer fieldListBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		fieldListBuf.data(ByteBuffer.allocate(1024));
-
-		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
-				.createDataDictionary();
-		TestUtilities.eta_encodeDictionaryMsg(dictionary);
-
-		int retVal;
-		System.out.println("Begin ETA FieldList Encoding");
-		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error encoding field list.");
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
-					+ CodecReturnCodes.info(retVal));
-			return;
-		}
-		System.out.println("End ETA FieldList Encoding");
-		System.out.println();
-
-		fieldListBuf.data(fieldListBuf.data(), 0, fieldListBuf.length());
-
-		System.out.println("Begin ETA StatusMsg Set");
-		com.refinitiv.eta.codec.StatusMsg statusMsg = (com.refinitiv.eta.codec.StatusMsg) com.refinitiv.eta.codec.CodecFactory
-				.createMsg();
-		statusMsg.msgClass(com.refinitiv.eta.codec.MsgClasses.REFRESH);
-
-		statusMsg.domainType(com.refinitiv.eta.rdm.DomainTypes.MARKET_PRICE);
-
-		statusMsg.streamId(15);
-
-		statusMsg.applyHasMsgKey();
-
-		statusMsg.msgKey().applyHasName();
-		statusMsg.msgKey().name().data("ABCDEF");
-
-		statusMsg.msgKey().applyHasNameType();
-		statusMsg.msgKey().nameType(com.refinitiv.eta.rdm.InstrumentNameTypes.RIC);
-
-		statusMsg.msgKey().applyHasServiceId();
-		statusMsg.msgKey().serviceId(5);
-
-		statusMsg.msgKey().applyHasFilter();
-		statusMsg.msgKey().filter(12);
-
-		statusMsg.msgKey().applyHasIdentifier();
-		statusMsg.msgKey().identifier(21);
-
-		statusMsg.msgKey().applyHasAttrib();
-		statusMsg.msgKey().attribContainerType(com.refinitiv.eta.codec.DataTypes.FIELD_LIST);
-		statusMsg.msgKey().encodedAttrib(fieldListBuf);
-
-		statusMsg.applyHasState();
-		statusMsg.state().code(com.refinitiv.eta.codec.StateCodes.NONE);
-		statusMsg.state().streamState(com.refinitiv.eta.codec.StreamStates.OPEN);
-		statusMsg.state().dataState(com.refinitiv.eta.codec.DataStates.OK);
-		statusMsg.state().text().data("status complete");
-
-		statusMsg.applyClearCache();
-
-		statusMsg.applyHasPostUserInfo();
-		statusMsg.postUserInfo().userAddr(15);
-		statusMsg.postUserInfo().userId(30);
-
-		statusMsg.containerType(com.refinitiv.eta.codec.DataTypes.FIELD_LIST);
-		statusMsg.encodedDataBody(fieldListBuf);
-
-		System.out.println("End ETA StatusMsg Set");
-		System.out.println();
-
-		System.out.println("Begin ETA StatusMsg Buffer Encoding");
-
-		com.refinitiv.eta.codec.Buffer msgBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		msgBuf.data(ByteBuffer.allocate(2048));
-
-		com.refinitiv.eta.codec.EncodeIterator encIter = com.refinitiv.eta.codec.CodecFactory
-				.createEncodeIterator();
-		encIter.clear();
-		int majorVersion = Codec.majorVersion();
-		int minorVersion = Codec.minorVersion();
-		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ " encountered with setBufferAndRWFVersion. " + " Error Text: " + CodecReturnCodes.info(retVal));
-			return;
-		}
-
-		statusMsg.encode(encIter);
-
-		System.out.println("End ETA StatusMsg Buffer Encoding");
-		System.out.println();
-
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAStatusMsg();
 		System.out.println("Begin EMA StatusMsg clone");
 
 		com.refinitiv.eta.codec.StatusMsg statusMsgDecode = (com.refinitiv.eta.codec.StatusMsg)com.refinitiv.eta.codec.CodecFactory.createMsg();
 
 		com.refinitiv.eta.codec.DecodeIterator decIter = com.refinitiv.eta.codec.CodecFactory.createDecodeIterator();
-		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		decIter.setBufferAndRWFVersion(msgBuf, Codec.majorVersion(), Codec.minorVersion());
 		statusMsgDecode.decode(decIter);
 
 		com.refinitiv.ema.access.StatusMsg emaStatusMsg = JUnitTestConnect.createStatusMsg();
 
-		JUnitTestConnect.setRsslData(emaStatusMsg, statusMsgDecode, majorVersion, minorVersion, dictionary, null);
+		JUnitTestConnect.setRsslData(emaStatusMsg, statusMsgDecode, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 		
 		com.refinitiv.ema.access.StatusMsg emaStatusMsgClone = EmaFactory.createStatusMsg(emaStatusMsg);
 
@@ -1311,4 +1059,427 @@ public class StatusMsgTests extends TestCase
 		if(expected.hasPermissionData())
 			TestUtilities.checkResult(expected.permissionData().equals(actual.permissionData()), checkPrefix + "permissionData");
 	}
+	
+	public void testStatusMsg_InitCopyingMessageWithUnknownSize()
+	{
+		StatusMsg copyStatusMsg = EmaFactory.createStatusMsg(-1);
+		int capacity = JUnitTestConnect.getCopiedBufferCapacity(copyStatusMsg);
+		
+		TestUtilities.checkResult(capacity == 0, "Checks capacity of the copied buffer");
+		
+		copyStatusMsg.clear();
+		
+		capacity = JUnitTestConnect.getCopiedBufferCapacity(copyStatusMsg);
+		
+		TestUtilities.checkResult(capacity == 0, "Checks capacity of the copied buffer after clearing");
+	}
+	
+	public void testStatusMsg_InitCopyingMessage()
+	{
+		StatusMsg copyStatusMsg = EmaFactory.createStatusMsg(1024);
+		int capacity = JUnitTestConnect.getCopiedBufferCapacity(copyStatusMsg);
+		
+		TestUtilities.checkResult(capacity == 1024, "Checks capacity of copied buffer");
+		copyStatusMsg.clear();
+		
+		capacity = JUnitTestConnect.getCopiedBufferCapacity(copyStatusMsg);
+		TestUtilities.checkResult(capacity == 1024, "Checks capacity of the copied buffer after clearing StatusMsg");
+	}
+	
+	public void testStatusMsg_copy_from_EncodingEMAStatusMsg()
+	{
+		TestUtilities.printTestHead("testStatusMsg_copy_from_emptyStatusMsg", "ema copying from empty ema message");
+		
+		StatusMsg emaStatusMsg = EmaFactory.createStatusMsg();
+		
+		emaStatusMsg.name("LSEG.O");
+		emaStatusMsg.streamId(5);
+		emaStatusMsg.serviceId(1);
+		emaStatusMsg.state(OmmState.StreamState.OPEN, OmmState.DataState.SUSPECT, OmmState.StatusCode.NONE, "Service is not available");
+		
+		StatusMsg copyStatusMsg = EmaFactory.createStatusMsg(-1);
+		
+		DataDictionary emaDataDictionary = EmaFactory.createDataDictionary();
+		emaDataDictionary.loadFieldDictionary(TestUtilities.getFieldDictionaryFileName());
+		emaDataDictionary.loadEnumTypeDictionary(TestUtilities.getEnumTableFileName());
+		
+		emaStatusMsg.copy(copyStatusMsg);
+		
+		TestUtilities.checkResult("emaStatusMsg.toString().equals(copyStatusMsg.toString())", emaStatusMsg.toString(emaDataDictionary).equals(copyStatusMsg.toString()));
+		TestUtilities.checkResult("emaStatusMsg.toString(emaDataDictionary).equals(copyStatusMsg.toString(emaDataDictionary))", emaStatusMsg.toString(emaDataDictionary).equals(copyStatusMsg.toString(emaDataDictionary)));
+	}
+	
+	public void testStatusMsg_copy_from_decodingStatusMsg_and_copied_message()
+	{
+		TestUtilities.printTestHead("testStatusMsg_copy_from_decodingStatusMsg_and_copied_message", "eta encoding ema copying");
+		
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAStatusMsg();
+		
+		int encodedBufferSize = msgBuf.length();
+		
+		System.out.println("Begin EMA StatusMsg Decoding");
+
+		com.refinitiv.ema.access.StatusMsg emaStatusMsg = JUnitTestConnect.createStatusMsg();
+
+		JUnitTestConnect.setRsslData(emaStatusMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+		
+		String expectedServiceName = "DIRECT_FEED";
+		
+		/* Set the service name as well */
+		emaStatusMsg.serviceName(expectedServiceName);
+		
+		System.out.println("Begin EMA StatusMsg Copying");
+		
+		StatusMsg copyStatusMsg = EmaFactory.createStatusMsg(encodedBufferSize);
+		
+		emaStatusMsg.copy(copyStatusMsg);
+		
+		StatusMsg copyStatusMsg2 = EmaFactory.createStatusMsg(encodedBufferSize);
+		
+		copyStatusMsg.copy(copyStatusMsg2);
+		
+		ArrayList<StatusMsg> list = new ArrayList<StatusMsg>();
+		
+		list.add(copyStatusMsg);
+		list.add(copyStatusMsg2);
+		
+		for(int i = 0; i < list.size(); i++)
+		{
+			StatusMsg checkingStatusMsg = list.get(i);
+			
+			TestUtilities.checkResult(JUnitTestConnect.getDataDictionary(checkingStatusMsg) != null, "Checks the reference to DataDictionary after copying StatusMsg");
+			
+			TestUtilities.checkResult(checkingStatusMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE,
+					"StatusMsg.domainType()");
+
+			TestUtilities.checkResult(checkingStatusMsg.streamId() == 15, "StatusMsg.streamId()");
+
+			TestUtilities.checkResult(checkingStatusMsg.hasMsgKey(), "StatusMsg.hasMsgKey()");
+
+			TestUtilities.checkResult(checkingStatusMsg.hasId(), "StatusMsg.hasId()");
+
+			TestUtilities.checkResult(checkingStatusMsg.id() == 21, "StatusMsg.id()");
+
+			TestUtilities.checkResult(checkingStatusMsg.hasFilter(), "StatusMsg.hasFilter()");
+
+			TestUtilities.checkResult(checkingStatusMsg.filter() == 12, "StatusMsg.hasFilter()");
+
+			TestUtilities.checkResult(checkingStatusMsg.hasServiceId(), "StatusMsg.hasServiceId()");
+
+			TestUtilities.checkResult(checkingStatusMsg.serviceId() == 5, "StatusMsg.serviceId()");
+			
+			TestUtilities.checkResult(checkingStatusMsg.hasServiceName(), "StatusMsg.hasServiceName()");
+			
+			TestUtilities.checkResult(checkingStatusMsg.serviceName().equals(expectedServiceName) , "StatusMsg.serviceName()");
+
+
+			TestUtilities.checkResult(checkingStatusMsg.hasNameType(), "StatusMsg.hasNameType()");
+
+			TestUtilities.checkResult(checkingStatusMsg.nameType() == com.refinitiv.ema.rdm.EmaRdm.INSTRUMENT_NAME_RIC,
+					"StatusMsg.nameType()");
+
+			TestUtilities.checkResult(checkingStatusMsg.hasName(), "StatusMsg.hasName()");
+
+			TestUtilities.checkResult(checkingStatusMsg.name().compareTo("ABCDEF") == 0, "StatusMsg.name()");
+
+			TestUtilities.checkResult(
+					checkingStatusMsg.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST,
+					"StatusMsg.attrib().dataType()");
+
+			TestUtilities.checkResult(checkingStatusMsg.clearCache(), "StatusMsg.clearCache()");
+
+			TestUtilities.checkResult(checkingStatusMsg.hasPublisherId(), "StatusMsg.hasPublisherId()");
+
+			TestUtilities.checkResult(checkingStatusMsg.publisherIdUserAddress() == 15, "StatusMsg.publisherIdUserAddress()");
+
+			TestUtilities.checkResult(checkingStatusMsg.publisherIdUserId() == 30, "StatusMsg.publisherIdUserId()");
+
+			TestUtilities.checkResult(
+					checkingStatusMsg.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST,
+					"StatusMsg.payload().dataType()");
+
+			TestUtilities.checkResult(checkingStatusMsg.hasState(), "StatusMsg.hasState()");
+
+			TestUtilities.checkResult(checkingStatusMsg.state().code() == OmmState.StatusCode.NONE, "StatusMsg.state().code()");
+
+			TestUtilities.checkResult(checkingStatusMsg.state().streamState() == OmmState.StreamState.OPEN,
+					"StatusMsg.state().streamState()");
+
+			TestUtilities.checkResult(checkingStatusMsg.state().dataState() == OmmState.DataState.OK,
+					"StatusMsg.state().dataState()");
+
+			TestUtilities.checkResult(checkingStatusMsg.state().statusText().compareTo("status complete") == 0,
+					"StatusMsg.state().statusText()");
+			
+			System.out.println("Clears the copied message");
+			checkingStatusMsg.clear();
+			
+			int capacity = JUnitTestConnect.getCopiedBufferCapacity(checkingStatusMsg);
+			TestUtilities.checkResult(capacity == encodedBufferSize, "Checks capacity of the copied buffer after clearing StatusMsg");
+			TestUtilities.checkResult(JUnitTestConnect.getDataDictionary(checkingStatusMsg) == null, "Checks the null reference to DataDictionary after clearing StatusMsg");
+		}
+	}
+	
+	public void testStatusMsg_copy_from_edited_copiedmessage()
+	{
+		TestUtilities.printTestHead("testStatusMsg_copy_from_edited_copiedmessage", "eta encoding ema copying from edited copied message");
+		
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAStatusMsg();
+		
+		int encodedBufferSize = msgBuf.length();
+		
+		System.out.println("Begin EMA StatusMsg Decoding");
+
+		com.refinitiv.ema.access.StatusMsg emaStatusMsg = JUnitTestConnect.createStatusMsg();
+
+		JUnitTestConnect.setRsslData(emaStatusMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+		
+		System.out.println("Begin EMA StatusMsg Copying");
+		
+		StatusMsg copyStatusMsg = EmaFactory.createStatusMsg(encodedBufferSize);
+		
+		emaStatusMsg.copy(copyStatusMsg);
+	
+		TestUtilities.checkResult(copyStatusMsg.hasPermissionData() == false, "Check that the permission data is not set");
+		TestUtilities.checkResult(copyStatusMsg.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "StatusMsg.attrib().dataType()");
+		TestUtilities.checkResult(copyStatusMsg.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "StatusMsg.payload().dataType()");
+		
+		StatusMsg copyStatusMsg2 = EmaFactory.createStatusMsg(encodedBufferSize);
+		
+		ByteBuffer permData = ByteBuffer.wrap(new byte[]{16, 32, 48});
+		
+		/* Edits some properties of the message */
+		copyStatusMsg.permissionData(permData);
+		copyStatusMsg.attrib(emaStatusMsg);
+		copyStatusMsg.payload(emaStatusMsg);
+		
+		copyStatusMsg.copy(copyStatusMsg2);
+		
+		TestUtilities.checkResult(copyStatusMsg2.hasPermissionData(), "Check to ensure that the permission is set");
+		TestUtilities.checkResult(permData.equals(copyStatusMsg2.permissionData()), "copyStatusMsg2 permdata should match copy alter");
+		TestUtilities.checkResult(copyStatusMsg2.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.STATUS_MSG, "StatusMsg.attrib().dataType()");
+		
+		StatusMsg attribPayload = copyStatusMsg2.attrib().statusMsg();
+		
+		TestUtilities.checkResult("emaStatusMsg.toString().equals(attribPayload.toString())", emaStatusMsg.toString().equals(attribPayload.toString()));
+		
+		TestUtilities.checkResult(copyStatusMsg2.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.STATUS_MSG, "StatusMsg.payload().dataType()");
+		
+		StatusMsg payloadMsg = copyStatusMsg2.payload().statusMsg();
+		
+		TestUtilities.checkResult("emaStatusMsg.toString().equals(payloadMsg.toString())", emaStatusMsg.toString().equals(payloadMsg.toString()));
+	}
+	
+	public void testStatusMsg_clone_from_edited_clonedmessage()
+	{
+		TestUtilities.printTestHead("testStatusMsg_copy_from_edited_copiedmessage", "eta encoding ema cloning from edited cloned message");
+		
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAStatusMsg();
+		
+		System.out.println("Begin EMA StatusMsg Decoding");
+
+		com.refinitiv.ema.access.StatusMsg emaStatusMsg = JUnitTestConnect.createStatusMsg();
+
+		JUnitTestConnect.setRsslData(emaStatusMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+		
+		System.out.println("Begin EMA StatusMsg Copying");
+		
+		StatusMsg cloneStatusMsg = EmaFactory.createStatusMsg(emaStatusMsg);
+	
+		TestUtilities.checkResult(cloneStatusMsg.hasPermissionData() == false, "Check that the permission data is not set");
+		TestUtilities.checkResult(cloneStatusMsg.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "StatusMsg.attrib().dataType()");
+		TestUtilities.checkResult(cloneStatusMsg.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "StatusMsg.payload().dataType()");
+		
+		ByteBuffer permData = ByteBuffer.wrap(new byte[]{16, 32, 48});
+		
+		/* Edits some properties of the message */
+		cloneStatusMsg.permissionData(permData);
+		cloneStatusMsg.attrib(emaStatusMsg);
+		cloneStatusMsg.payload(emaStatusMsg);
+		
+		StatusMsg cloneStatusMsg2 = EmaFactory.createStatusMsg(cloneStatusMsg);
+		
+		TestUtilities.checkResult(cloneStatusMsg2.hasPermissionData(), "Check to ensure that the permission is set");
+		TestUtilities.checkResult(permData.equals(cloneStatusMsg2.permissionData()), "copyStatusMsg2 permdata should match copy alter");
+		TestUtilities.checkResult(cloneStatusMsg2.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.STATUS_MSG, "StatusMsg.attrib().dataType()");
+		
+		StatusMsg attribPayload = cloneStatusMsg2.attrib().statusMsg();
+		
+		TestUtilities.checkResult("emaStatusMsg.toString().equals(attribPayload.toString())", emaStatusMsg.toString().equals(attribPayload.toString()));
+		
+		TestUtilities.checkResult(cloneStatusMsg2.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.STATUS_MSG, "StatusMsg.payload().dataType()");
+		
+		StatusMsg payloadMsg = cloneStatusMsg2.payload().statusMsg();
+		
+		TestUtilities.checkResult("emaStatusMsg.toString().equals(payloadMsg.toString())", emaStatusMsg.toString().equals(payloadMsg.toString()));
+	}
+	
+	public void testStatusMsg_invalid_destination_StatusMsg()
+	{
+		TestUtilities.printTestHead("testStatusMsg_invalid_destination_StatusMsg", "eta encoding and ema copying with invalid destination refresh message");
+		
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAStatusMsg();
+		
+		System.out.println("Begin EMA StatusMsg Decoding");
+
+		com.refinitiv.ema.access.StatusMsg emaStatusMsg = JUnitTestConnect.createStatusMsg();
+
+		JUnitTestConnect.setRsslData(emaStatusMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+		
+		System.out.println("Begin EMA StatusMsg Copying with EMA encoding message");
+		
+		System.out.println("Create EMA StatusMsg for encoding");
+		StatusMsg copyStatusMsg = EmaFactory.createStatusMsg(); 
+		
+		Exception exception = assertThrows(OmmInvalidUsageException.class,  () -> emaStatusMsg.copy(copyStatusMsg));
+		
+		OmmInvalidUsageException OIU = (OmmInvalidUsageException)exception;
+		
+		TestUtilities.checkResult(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT == OIU.errorCode(), "Checks OmmInvalidUsageException.errorCode()");
+		
+		TestUtilities.checkResult("The passed in destination message is used for encoding only on com.refinitiv.ema.access.StatusMsgImpl.copy(StatusMsg destStatusMsg)".equals(exception.getMessage()), "Checks OmmInvalidUsageException.getMessage()");
+	}
+	
+	public void testStatusMsg_EmaEncode_Clone()
+	{
+		TestUtilities.printTestHead("testStatusMsg_EmaEncode_Clone", "Ema encoding and ema cloning message");
+		
+		StatusMsg statusMsg = encodeEMAStatusMsg();
+		
+		StatusMsg clonedMsg = EmaFactory.createStatusMsg(statusMsg);
+		
+		TestUtilities.checkResult(clonedMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE,
+				"StatusMsg.domainType()");
+
+		TestUtilities.checkResult(clonedMsg.streamId() == 15, "StatusMsg.streamId()");
+
+		TestUtilities.checkResult(clonedMsg.hasMsgKey(), "StatusMsg.hasMsgKey()");
+
+		TestUtilities.checkResult(clonedMsg.hasId(), "StatusMsg.hasId()");
+
+		TestUtilities.checkResult(clonedMsg.id() == 21, "StatusMsg.id()");
+
+		TestUtilities.checkResult(clonedMsg.hasFilter(), "StatusMsg.hasFilter()");
+
+		TestUtilities.checkResult(clonedMsg.filter() == 12, "StatusMsg.hasFilter()");
+
+		TestUtilities.checkResult(clonedMsg.hasServiceId(), "StatusMsg.hasServiceId()");
+
+		TestUtilities.checkResult(clonedMsg.serviceId() == 5, "StatusMsg.serviceId()");
+		
+		TestUtilities.checkResult(clonedMsg.hasServiceName(), "StatusMsg.hasServiceName()");
+		
+		TestUtilities.checkResult(clonedMsg.serviceName().equals("DIRECT_FEED") , "StatusMsg.serviceName()");
+
+		TestUtilities.checkResult(clonedMsg.hasNameType(), "StatusMsg.hasNameType()");
+
+		TestUtilities.checkResult(clonedMsg.nameType() == com.refinitiv.ema.rdm.EmaRdm.INSTRUMENT_NAME_RIC,
+				"StatusMsg.nameType()");
+
+		TestUtilities.checkResult(clonedMsg.hasName(), "StatusMsg.hasName()");
+
+		TestUtilities.checkResult(clonedMsg.name().compareTo("ABCDEF") == 0, "StatusMsg.name()");
+
+		TestUtilities.checkResult(
+				clonedMsg.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST,
+				"StatusMsg.attrib().dataType()");
+
+		TestUtilities.checkResult(clonedMsg.clearCache(), "StatusMsg.clearCache()");
+
+		TestUtilities.checkResult(clonedMsg.hasPublisherId(), "StatusMsg.hasPublisherId()");
+
+		TestUtilities.checkResult(clonedMsg.publisherIdUserAddress() == 15, "StatusMsg.publisherIdUserAddress()");
+
+		TestUtilities.checkResult(clonedMsg.publisherIdUserId() == 30, "StatusMsg.publisherIdUserId()");
+
+		TestUtilities.checkResult(
+				clonedMsg.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST,
+				"StatusMsg.payload().dataType()");
+
+		TestUtilities.checkResult(clonedMsg.hasState(), "StatusMsg.hasState()");
+
+		TestUtilities.checkResult(clonedMsg.state().code() == OmmState.StatusCode.NONE, "StatusMsg.state().code()");
+
+		TestUtilities.checkResult(clonedMsg.state().streamState() == OmmState.StreamState.OPEN,
+				"StatusMsg.state().streamState()");
+
+		TestUtilities.checkResult(clonedMsg.state().dataState() == OmmState.DataState.OK,
+				"StatusMsg.state().dataState()");
+
+		TestUtilities.checkResult(clonedMsg.state().statusText().compareTo("status complete") == 0,
+				"StatusMsg.state().statusText()");
+	}
+	
+	public void testStatusMsg_EmaEncode_Copy()
+	{
+		TestUtilities.printTestHead("testStatusMsg_EmaEncode_Copy", "Ema encoding and ema copying message");
+		
+		StatusMsg statusMsg = encodeEMAStatusMsg();
+		
+		StatusMsg copiedMsg = EmaFactory.createStatusMsg(1024);
+		
+		statusMsg.copy(copiedMsg);
+		
+		TestUtilities.checkResult(copiedMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE,
+				"StatusMsg.domainType()");
+
+		TestUtilities.checkResult(copiedMsg.streamId() == 15, "StatusMsg.streamId()");
+
+		TestUtilities.checkResult(copiedMsg.hasMsgKey(), "StatusMsg.hasMsgKey()");
+
+		TestUtilities.checkResult(copiedMsg.hasId(), "StatusMsg.hasId()");
+
+		TestUtilities.checkResult(copiedMsg.id() == 21, "StatusMsg.id()");
+
+		TestUtilities.checkResult(copiedMsg.hasFilter(), "StatusMsg.hasFilter()");
+
+		TestUtilities.checkResult(copiedMsg.filter() == 12, "StatusMsg.hasFilter()");
+
+		TestUtilities.checkResult(copiedMsg.hasServiceId(), "StatusMsg.hasServiceId()");
+
+		TestUtilities.checkResult(copiedMsg.serviceId() == 5, "StatusMsg.serviceId()");
+		
+		TestUtilities.checkResult(copiedMsg.hasServiceName(), "StatusMsg.hasServiceName()");
+		
+		TestUtilities.checkResult(copiedMsg.serviceName().equals("DIRECT_FEED") , "StatusMsg.serviceName()");
+
+		TestUtilities.checkResult(copiedMsg.hasNameType(), "StatusMsg.hasNameType()");
+
+		TestUtilities.checkResult(copiedMsg.nameType() == com.refinitiv.ema.rdm.EmaRdm.INSTRUMENT_NAME_RIC,
+				"StatusMsg.nameType()");
+
+		TestUtilities.checkResult(copiedMsg.hasName(), "StatusMsg.hasName()");
+
+		TestUtilities.checkResult(copiedMsg.name().compareTo("ABCDEF") == 0, "StatusMsg.name()");
+
+		TestUtilities.checkResult(
+				copiedMsg.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST,
+				"StatusMsg.attrib().dataType()");
+
+		TestUtilities.checkResult(copiedMsg.clearCache(), "StatusMsg.clearCache()");
+
+		TestUtilities.checkResult(copiedMsg.hasPublisherId(), "StatusMsg.hasPublisherId()");
+
+		TestUtilities.checkResult(copiedMsg.publisherIdUserAddress() == 15, "StatusMsg.publisherIdUserAddress()");
+
+		TestUtilities.checkResult(copiedMsg.publisherIdUserId() == 30, "StatusMsg.publisherIdUserId()");
+
+		TestUtilities.checkResult(
+				copiedMsg.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST,
+				"StatusMsg.payload().dataType()");
+
+		TestUtilities.checkResult(copiedMsg.hasState(), "StatusMsg.hasState()");
+
+		TestUtilities.checkResult(copiedMsg.state().code() == OmmState.StatusCode.NONE, "StatusMsg.state().code()");
+
+		TestUtilities.checkResult(copiedMsg.state().streamState() == OmmState.StreamState.OPEN,
+				"StatusMsg.state().streamState()");
+
+		TestUtilities.checkResult(copiedMsg.state().dataState() == OmmState.DataState.OK,
+				"StatusMsg.state().dataState()");
+
+		TestUtilities.checkResult(copiedMsg.state().statusText().compareTo("status complete") == 0,
+				"StatusMsg.state().statusText()");
+	}
+	
 }

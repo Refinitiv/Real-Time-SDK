@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2023 LSEG. All rights reserved.     
+// *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -136,10 +136,7 @@ class OmmArrayIterImpl implements Iterator<OmmArrayEntry>
 	private com.refinitiv.eta.codec.Array rsslArrayInstance()
 	{
 		com.refinitiv.eta.codec.Array retData = null;
-		if (_ommArrayImpl._objManager._rsslArrayPool.size() > 0)
-		{
-			retData = _ommArrayImpl._objManager._rsslArrayPool.remove(_ommArrayImpl._objManager._rsslArrayPool.size()-1);
-		}
+		retData = _ommArrayImpl._objManager._rsslArrayPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createArray();
@@ -153,10 +150,7 @@ class OmmArrayIterImpl implements Iterator<OmmArrayEntry>
 	private com.refinitiv.eta.codec.DecodeIterator decodeIteratorInstance()
 	{
 		com.refinitiv.eta.codec.DecodeIterator retData = null;
-		if (_ommArrayImpl._objManager._etaDecodeIteratorPool.size() > 0)
-		{
-			retData = _ommArrayImpl._objManager._etaDecodeIteratorPool.remove(_ommArrayImpl._objManager._etaDecodeIteratorPool.size()-1);
-		}
+		retData = _ommArrayImpl._objManager._etaDecodeIteratorPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createDecodeIterator();

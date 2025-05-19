@@ -1,0 +1,4 @@
+#file,location
+ConsPerfConfig.java,PerfTools/src/main/java/com/refinitiv/ema/perftools/emajconsperf
+ConsumerThread.java,PerfTools/src/main/java/com/refinitiv/ema/perftools/emajconsperf
+live100K.xml,PerfTools

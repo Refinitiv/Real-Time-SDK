@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2023 LSEG. All rights reserved.     
+// *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -141,10 +141,7 @@ class FieldListIterImpl implements Iterator<FieldEntry>
 	private com.refinitiv.eta.codec.FieldList rsslFieldListInstance()
 	{
 		com.refinitiv.eta.codec.FieldList retData = null;
-		if (_fieldListImpl._objManager._rsslFieldListPool.size() > 0)
-		{
-			retData = _fieldListImpl._objManager._rsslFieldListPool.remove(_fieldListImpl._objManager._rsslFieldListPool.size()-1);
-		}
+		retData = _fieldListImpl._objManager._rsslFieldListPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createFieldList();
@@ -158,10 +155,7 @@ class FieldListIterImpl implements Iterator<FieldEntry>
 	private com.refinitiv.eta.codec.DecodeIterator decodeIteratorInstance()
 	{
 		com.refinitiv.eta.codec.DecodeIterator retData = null;
-		if (_fieldListImpl._objManager._etaDecodeIteratorPool.size() > 0)
-		{
-			retData = _fieldListImpl._objManager._etaDecodeIteratorPool.remove(_fieldListImpl._objManager._etaDecodeIteratorPool.size()-1);
-		}
+		retData = _fieldListImpl._objManager._etaDecodeIteratorPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createDecodeIterator();

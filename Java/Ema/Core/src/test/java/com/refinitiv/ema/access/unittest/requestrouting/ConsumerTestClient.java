@@ -167,7 +167,9 @@ public class ConsumerTestClient implements OmmConsumerClient
 		{
 			_handles.add(consumerEvent.handle());
 			
-			RefreshMsg cloneMsg = EmaFactory.createRefreshMsg(refreshMsg);
+			RefreshMsg cloneMsg = EmaFactory.createRefreshMsg(1280);
+			
+			refreshMsg.copy(cloneMsg);
 		
 			if(refreshMsg.domainType() == EmaRdm.MMT_DICTIONARY)
 			{
@@ -221,7 +223,9 @@ public class ConsumerTestClient implements OmmConsumerClient
 		
 		try
 		{
-			UpdateMsg cloneMsg = EmaFactory.createUpdateMsg(updateMsg);
+			UpdateMsg cloneMsg = EmaFactory.createUpdateMsg(1280);
+			
+			updateMsg.copy(cloneMsg);
 			
 			System.out.println(cloneMsg);
 			
@@ -244,7 +248,9 @@ public class ConsumerTestClient implements OmmConsumerClient
 		
 		try
 		{
-			StatusMsg cloneMsg = EmaFactory.createStatusMsg(statusMsg);
+			StatusMsg cloneMsg = EmaFactory.createStatusMsg(1280);
+			
+			statusMsg.copy(cloneMsg);
 			
 			System.out.println(cloneMsg);
 		
@@ -265,7 +271,9 @@ public class ConsumerTestClient implements OmmConsumerClient
 		
 		try
 		{
-			GenericMsg cloneMsg = EmaFactory.createGenericMsg(genericMsg);
+			GenericMsg cloneMsg = EmaFactory.createGenericMsg(1280);
+			
+			genericMsg.copy(cloneMsg);
 			
 			System.out.println(cloneMsg);
 		
@@ -287,9 +295,9 @@ public class ConsumerTestClient implements OmmConsumerClient
 		
 		try
 		{
-			AckMsg cloneMsg = EmaFactory.createAckMsg(ackMsg);
+			AckMsg cloneMsg = EmaFactory.createAckMsg(1280);
 			
-			System.out.println(cloneMsg);
+			ackMsg.copy(cloneMsg);
 		
 			_messageQueue.add(cloneMsg);
 			

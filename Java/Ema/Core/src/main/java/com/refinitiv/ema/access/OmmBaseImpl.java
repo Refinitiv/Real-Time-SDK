@@ -220,7 +220,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		
 		try
 		{
-			_objManager.initialize();
+			_objManager.initialize(EmaObjectManager.DATA_POOL_INITIAL_SIZE);
 			
 			GlobalPool.lock();
 			GlobalPool.initialize();
@@ -417,7 +417,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		
 		try
 		{
-			_objManager.initialize();
+			_objManager.initialize(EmaObjectManager.DATA_POOL_INITIAL_SIZE);
 			
 			GlobalPool.lock();
 			GlobalPool.initialize();

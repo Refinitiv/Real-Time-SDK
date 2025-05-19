@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2023 LSEG. All rights reserved.     
+// *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -150,10 +150,7 @@ class MapIterImpl implements Iterator<MapEntry>
 	private com.refinitiv.eta.codec.Map rsslMapInstance()
 	{
 		com.refinitiv.eta.codec.Map retData = null;
-		if (_mapImpl._objManager._rsslMapPool.size() > 0)
-		{
-			retData = _mapImpl._objManager._rsslMapPool.remove(_mapImpl._objManager._rsslMapPool.size()-1);
-		}
+		retData = _mapImpl._objManager._rsslMapPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createMap();
@@ -167,10 +164,7 @@ class MapIterImpl implements Iterator<MapEntry>
 	private com.refinitiv.eta.codec.DecodeIterator decodeIteratorInstance()
 	{
 		com.refinitiv.eta.codec.DecodeIterator retData = null;
-		if (_mapImpl._objManager._etaDecodeIteratorPool.size() > 0)
-		{
-			retData= _mapImpl._objManager._etaDecodeIteratorPool.remove(_mapImpl._objManager._etaDecodeIteratorPool.size()-1);
-		}
+		retData= _mapImpl._objManager._etaDecodeIteratorPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createDecodeIterator();

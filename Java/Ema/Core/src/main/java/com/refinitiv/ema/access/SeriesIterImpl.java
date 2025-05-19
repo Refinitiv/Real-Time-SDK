@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2023 LSEG. All rights reserved.     
+// *|           Copyright (C) 2023, 2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -128,10 +128,7 @@ class SeriesIterImpl implements Iterator<SeriesEntry>
 	private com.refinitiv.eta.codec.Series rsslSeriesInstance()
 	{
 		com.refinitiv.eta.codec.Series retData = null;
-		if (_seriesImpl._objManager._rsslSeriesPool.size() > 0)
-		{
-			retData = _seriesImpl._objManager._rsslSeriesPool.remove(_seriesImpl._objManager._rsslSeriesPool.size()-1);
-		}
+		retData = _seriesImpl._objManager._rsslSeriesPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createSeries();
@@ -145,10 +142,7 @@ class SeriesIterImpl implements Iterator<SeriesEntry>
 	private com.refinitiv.eta.codec.DecodeIterator decodeIteratorInstance()
 	{
 		com.refinitiv.eta.codec.DecodeIterator retData = null;
-		if (_seriesImpl._objManager._etaDecodeIteratorPool.size() > 0)
-		{
-			retData = _seriesImpl._objManager._etaDecodeIteratorPool.remove(_seriesImpl._objManager._etaDecodeIteratorPool.size()-1);
-		}
+		retData = _seriesImpl._objManager._etaDecodeIteratorPool.poll();
         if (retData == null)
         {
         	retData = com.refinitiv.eta.codec.CodecFactory.createDecodeIterator();

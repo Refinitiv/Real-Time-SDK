@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|            Copyright (C) 2019, 2024 LSEG. All rights reserved      
+// *|            Copyright (C) 2019, 2024-2025 LSEG. All rights reserved      
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -38,6 +38,7 @@ class MsgImpl extends DataImpl implements Msg
 	protected com.refinitiv.eta.codec.Buffer _copiedBuffer = CodecFactory.createBuffer();
 	protected int _allocatedMemory = AllocatedMemory.UNKNOWN;
 	protected ByteBuffer _extendedHeader;
+	protected boolean _isUpdatedAfterCopying;
 	
 	MsgImpl(int dataType, EmaObjectManager objManager)
 	{
@@ -66,40 +67,61 @@ class MsgImpl extends DataImpl implements Msg
 		}
 	}
 	
-	MsgImpl(MsgImpl other, String functionName)
+	MsgImpl(MsgImpl other)
 	{
-		this(other._dataType, new EmaObjectManager());
+		this(other._dataType, EmaObjectManager.GlobalObjectManager);
 		_rsslEncodeIter = com.refinitiv.eta.codec.CodecFactory.createEncodeIterator();
-
-		_objManager.initialize();
-
-		cloneBufferToMsg(this, other, functionName);
-		//set exact flags from ETA message as RWF binary flags could be empty
-		_rsslMsg.flags(other._rsslMsg.flags());
 	}
-
-	@Override
-	public boolean hasMsgKey()
+	
+	boolean copy(Msg msg, String methodName)
 	{
-		switch (_dataType)
+		MsgImpl msgImpl = (MsgImpl)msg;
+		
+		if(msgImpl._objManager == null)
+		{
+			String errText = errorString()
+					.append("The passed in destination message is used for encoding only on ")
+					.append(methodName)
+					.toString();
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+		
+		boolean copiedEncodedBuffer = cloneBufferToMsg(msgImpl, this, methodName);
+		//set exact flags from ETA message as RWF binary flags could be empty
+		msgImpl._rsslMsg.flags(this._rsslMsg.flags());
+		
+		msgImpl._isUpdatedAfterCopying = false;
+		
+		return copiedEncodedBuffer;
+	}
+	
+	static boolean checkHasMsgKey(com.refinitiv.eta.codec.Msg rsslMsg, int dataType)
+	{
+		switch (dataType)
         {
             case DataTypes.UPDATE_MSG :
-                return ((_rsslMsg.flags() & UpdateMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
+                return ((rsslMsg.flags() & UpdateMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
             case DataTypes.REFRESH_MSG :
-                return ((_rsslMsg.flags() & RefreshMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
+                return ((rsslMsg.flags() & RefreshMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
             case DataTypes.STATUS_MSG :
-                return ((_rsslMsg.flags() & StatusMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
+                return ((rsslMsg.flags() & StatusMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
             case DataTypes.GENERIC_MSG :
-                return ((_rsslMsg.flags() & GenericMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
+                return ((rsslMsg.flags() & GenericMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
             case DataTypes.POST_MSG :
-                return ((_rsslMsg.flags() & PostMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
+                return ((rsslMsg.flags() & PostMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
             case DataTypes.ACK_MSG :
-                return ((_rsslMsg.flags() & AckMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
+                return ((rsslMsg.flags() & AckMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
             case DataTypes.REQ_MSG :
                 return true;
             default :
                 return false;
         }
+	}
+
+	@Override
+	public boolean hasMsgKey()
+	{
+		return checkHasMsgKey(_rsslMsg, _dataType);
 	}
 
 	@Override
@@ -420,6 +442,8 @@ class MsgImpl extends DataImpl implements Msg
 			throw ommOORExcept().message("Passed in streamId is out of range. [(-2147483648) - 2147483647]");
 				
 		_rsslMsg.streamId(streamId);
+		
+		_isUpdatedAfterCopying = true;
 	}
 
 	void msgDomainType(int domainType)
@@ -429,6 +453,8 @@ class MsgImpl extends DataImpl implements Msg
 		
 		_domainTypeSet = true;
 		_rsslMsg.domainType(domainType);
+		
+		_isUpdatedAfterCopying = true;
 	}
 	
 	boolean domainTypeSet()
@@ -469,6 +495,8 @@ class MsgImpl extends DataImpl implements Msg
 		
 		_rsslMsg.msgKey().applyHasName();
 		_rsslMsg.msgKey().name().data(name);
+		
+		_isUpdatedAfterCopying = true;
 	}
 
 	void msgNameType(int nameType)
@@ -504,6 +532,8 @@ class MsgImpl extends DataImpl implements Msg
 		
 		_rsslMsg.msgKey().applyHasNameType();
 		_rsslMsg.msgKey().nameType(nameType);
+		
+		_isUpdatedAfterCopying = true;
 	}
 
 	void msgServiceId(int serviceId)
@@ -539,6 +569,8 @@ class MsgImpl extends DataImpl implements Msg
 		
 		_rsslMsg.msgKey().applyHasServiceId();
 		_rsslMsg.msgKey().serviceId(serviceId);
+		
+		_isUpdatedAfterCopying = true;
 	}
 
 	void msgId(int id)
@@ -574,6 +606,8 @@ class MsgImpl extends DataImpl implements Msg
 		
 		_rsslMsg.msgKey().applyHasIdentifier();
 		_rsslMsg.msgKey().identifier(id);
+		
+		_isUpdatedAfterCopying = true;
 	}
 
 	void msgFilter(long filter)
@@ -609,12 +643,16 @@ class MsgImpl extends DataImpl implements Msg
 		
 		_rsslMsg.msgKey().applyHasFilter();
 		_rsslMsg.msgKey().filter(filter);
+		
+		_isUpdatedAfterCopying = true;
 	}
 
    void  msgSeqNum(long seqNum)
    {
 	   if (seqNum < 0 || seqNum > 4294967295L)
 			throw ommOORExcept().message("Passed in seqNum is out of range. [0 - 4294967295]");
+	   
+	   _isUpdatedAfterCopying = true;
 		
 	   switch (_dataType)
        {
@@ -640,6 +678,8 @@ class MsgImpl extends DataImpl implements Msg
                break;
            case DataTypes.STATUS_MSG :
            case DataTypes.REQ_MSG :
+        	   _isUpdatedAfterCopying = false;
+        	   break;
            default :
         	   return;
        }
@@ -649,6 +689,8 @@ class MsgImpl extends DataImpl implements Msg
    {
 	   if (partNum < 0 || partNum > 32767)
 			throw ommOORExcept().message("Passed in partNum is out of range. [0 - 32767]");
+	   
+	   _isUpdatedAfterCopying = true;
 	   
 	   switch (_dataType)
        {
@@ -668,6 +710,8 @@ class MsgImpl extends DataImpl implements Msg
            case DataTypes.STATUS_MSG :
            case DataTypes.ACK_MSG :
            case DataTypes.REQ_MSG :
+        	   _isUpdatedAfterCopying = false;
+        	   break;
            default :
                return;
        }
@@ -677,6 +721,8 @@ class MsgImpl extends DataImpl implements Msg
    {
 	   if (userId < 0 || userId > 4294967295L || userAddress < 0 || userAddress > 4294967295L)
 			throw ommOORExcept().message("Passed in userId or userAddress is out of range. [0 - 4294967295]");
+	   
+	   _isUpdatedAfterCopying = true;
 		
 	   switch (_dataType)
        {
@@ -702,6 +748,8 @@ class MsgImpl extends DataImpl implements Msg
            case DataTypes.GENERIC_MSG :
            case DataTypes.ACK_MSG :
            case DataTypes.REQ_MSG :
+        	   _isUpdatedAfterCopying = false;
+        	   break;
            default :
                break;
        }
@@ -711,6 +759,8 @@ class MsgImpl extends DataImpl implements Msg
    {
 	   if (permissionData == null)
 			throw ommIUExcept().message("Passed in permissionData is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+	   
+	   _isUpdatedAfterCopying = true;
 	   
 	   switch (_dataType)
        {
@@ -736,6 +786,8 @@ class MsgImpl extends DataImpl implements Msg
         		break;
            case DataTypes.ACK_MSG :
            case DataTypes.REQ_MSG :
+        	   _isUpdatedAfterCopying = false;
+        	   break;
            default :
                break;
        }
@@ -776,6 +828,8 @@ class MsgImpl extends DataImpl implements Msg
 		msgKey.applyHasAttrib();
 		msgKey.attribContainerType(Utilities.toRsslDataType(attrib.dataType()));
 		Utilities.copy(((DataImpl)attrib).encodedData(),  msgKey.encodedAttrib());
+		
+		_isUpdatedAfterCopying = true;
 	}
 
 	void msgPayload(ComplexType payload)
@@ -785,6 +839,8 @@ class MsgImpl extends DataImpl implements Msg
 		
 		_rsslMsg.containerType(Utilities.toRsslDataType(payload.dataType()));
 		Utilities.copy(((DataImpl)payload).encodedData(),  _rsslMsg.encodedDataBody());
+		
+		_isUpdatedAfterCopying = true;
 	}
 
 	void msgExtendedHeader(ByteBuffer buffer)
@@ -820,6 +876,7 @@ class MsgImpl extends DataImpl implements Msg
         }        
 	    
 		Utilities.copy(buffer, _rsslMsg.extendedHeader());
+		_isUpdatedAfterCopying = true;
 	}
 	
 	boolean msgHasServiceId()
@@ -832,8 +889,9 @@ class MsgImpl extends DataImpl implements Msg
 		_serviceNameSet = false;
 		_serviceName = null;
 		_domainTypeSet = false;
+		_isUpdatedAfterCopying = false;
 
-		if (_rsslEncodeIter != null)
+		if (_rsslEncodeIter != null && _rsslMsg != null)
 		{
 			_rsslMsg.clear();
 			_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType - DataType.DataTypes.REQ_MSG]);
@@ -854,6 +912,12 @@ class MsgImpl extends DataImpl implements Msg
 			}
 			else
 				_rsslBuffer.clear();
+		}
+		
+		if(_copiedBuffer.data() != null)
+		{
+			_copiedBuffer.data().clear();
+			_rsslDictionary = null; // Release the reference to the DataDictionary object.
 		}
 	}
 	
@@ -892,7 +956,17 @@ class MsgImpl extends DataImpl implements Msg
 		return _rsslBuffer;
 	}
 	
-	void cloneBufferToMsg(MsgImpl destMsg, MsgImpl other, String functionName)
+	// Allocates the ByteBuffer only when the size is more than zero
+	void initByteBuffer(int size)
+	{
+		if(size > 0)
+		{
+			ByteBuffer byteBuffer =  ByteBuffer.allocate(size);
+			_copiedBuffer.data(byteBuffer);
+		}
+	}
+	
+	boolean cloneBufferToMsg(MsgImpl destMsg, MsgImpl other, String functionName)
 	{
 		if(other._rsslBuffer.length() > 0)
 		{
@@ -900,39 +974,74 @@ class MsgImpl extends DataImpl implements Msg
 			destMsg._allocatedMemory |= AllocatedMemory.ENC_MSG_BUFFER;
 			destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
 			destMsg._rsslMsg.streamId(other.streamId());
+			return true;
 		}
 		else
 		{
+			Buffer encodedData = other.encodedData();
+			
+			// Try to get the encoded buffer if available.
+			if(encodedData != null && other.encodedData().length() > 0)
+			{
+				Utilities.copy(other._rsslBuffer, destMsg._copiedBuffer);
+				destMsg._allocatedMemory |= AllocatedMemory.ENC_MSG_BUFFER;
+				destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
+				destMsg._rsslMsg.streamId(other.streamId());
+				return true;
+			}
+			
 			if(other._rsslMsg.msgClass() == MsgClasses.STATUS)
 			{
 				com.refinitiv.eta.codec.StatusMsg statusMsg = (com.refinitiv.eta.codec.StatusMsg)other._rsslMsg;
 				com.refinitiv.eta.codec.StatusMsg encodeStatusMsg = (com.refinitiv.eta.codec.StatusMsg)CodecFactory.createMsg();
-				com.refinitiv.eta.codec.EncodeIterator encIter = CodecFactory.createEncodeIterator();
 				
-		        encodeStatusMsg.msgClass(MsgClasses.STATUS);
-				encodeStatusMsg.domainType(statusMsg.domainType());
-				encodeStatusMsg.containerType(statusMsg.containerType());
-				
-				if( (statusMsg.flags() & StatusMsgFlags.HAS_MSG_KEY) != 0)
+				if(_rsslEncodeIter == null)
 				{
-					encodeStatusMsg.flags(StatusMsgFlags.HAS_STATE | StatusMsgFlags.HAS_MSG_KEY);
-					encodeStatusMsg.msgKey().flags(MsgKeyFlags.HAS_NAME);
-					encodeStatusMsg.msgKey().name(statusMsg.msgKey().name());
+					_rsslEncodeIter = com.refinitiv.eta.codec.CodecFactory.createEncodeIterator();
 				}
 				else
 				{
-					encodeStatusMsg.flags(StatusMsgFlags.HAS_STATE);
+					_rsslEncodeIter.clear();
 				}
 								
-				encodeStatusMsg.state().code(statusMsg.state().code());
-				encodeStatusMsg.state().dataState(statusMsg.state().dataState());
-				encodeStatusMsg.state().streamState(statusMsg.state().streamState());
-				encodeStatusMsg.state().text(statusMsg.state().text());
+		        encodeStatusMsg.msgClass(MsgClasses.STATUS);
+				encodeStatusMsg.domainType(statusMsg.domainType());
+				encodeStatusMsg.containerType(statusMsg.containerType());
+				encodeStatusMsg.streamId(other.streamId());
 				
-				destMsg._copiedBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
+				if( (statusMsg.flags() & StatusMsgFlags.HAS_MSG_KEY) != 0)
+				{
+					if( (statusMsg.msgKey().flags() & MsgKeyFlags.HAS_NAME) != 0)
+					{
+						encodeStatusMsg.flags(StatusMsgFlags.HAS_MSG_KEY);
+						encodeStatusMsg.msgKey().flags(MsgKeyFlags.HAS_NAME);
+						encodeStatusMsg.msgKey().name(statusMsg.msgKey().name());
+					}
+					
+					if( (statusMsg.msgKey().flags() & MsgKeyFlags.HAS_SERVICE_ID) != 0)
+					{
+						encodeStatusMsg.flags(StatusMsgFlags.HAS_MSG_KEY);
+						encodeStatusMsg.msgKey().flags(encodeStatusMsg.msgKey().flags() | MsgKeyFlags.HAS_SERVICE_ID);
+						encodeStatusMsg.msgKey().serviceId(statusMsg.msgKey().serviceId());
+					}
+				}
 				
-				encIter.setBufferAndRWFVersion(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer);
-				encodeStatusMsg.encode(encIter);
+				if( (statusMsg.flags() & StatusMsgFlags.HAS_STATE) != 0)
+				{
+					encodeStatusMsg.flags(encodeStatusMsg.flags() | StatusMsgFlags.HAS_STATE);
+					encodeStatusMsg.state().code(statusMsg.state().code());
+					encodeStatusMsg.state().dataState(statusMsg.state().dataState());
+					encodeStatusMsg.state().streamState(statusMsg.state().streamState());
+					encodeStatusMsg.state().text(statusMsg.state().text());
+				}
+				
+				if(destMsg._copiedBuffer.data() != null && destMsg._copiedBuffer.data().capacity() < CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE)
+					destMsg._copiedBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
+				else
+					destMsg._copiedBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
+				
+				_rsslEncodeIter.setBufferAndRWFVersion(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer);
+				encodeStatusMsg.encode(_rsslEncodeIter);
 				
 				destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
 			
@@ -942,20 +1051,42 @@ class MsgImpl extends DataImpl implements Msg
 			{
 				com.refinitiv.eta.codec.RequestMsg reqMsg = (com.refinitiv.eta.codec.RequestMsg)other._rsslMsg;
 				com.refinitiv.eta.codec.RequestMsg encodeReqMsg = (com.refinitiv.eta.codec.RequestMsg)CodecFactory.createMsg();
-				com.refinitiv.eta.codec.EncodeIterator encIter = CodecFactory.createEncodeIterator();
+				
+				if(_rsslEncodeIter == null)
+				{
+					_rsslEncodeIter = com.refinitiv.eta.codec.CodecFactory.createEncodeIterator();
+				}
+				else
+				{
+					_rsslEncodeIter.clear();
+				}
 				
 				encodeReqMsg.msgClass(MsgClasses.REQUEST);
 				encodeReqMsg.domainType(reqMsg.domainType());
 				encodeReqMsg.containerType(reqMsg.containerType());
+				encodeReqMsg.streamId(other.streamId());
 				
-				//encodeReqMsg.flags(RequestMsgFlags.HAS_MSG_KEY);
-				encodeReqMsg.msgKey().flags(MsgKeyFlags.HAS_NAME);
-				encodeReqMsg.msgKey().name(reqMsg.msgKey().name());
+				if( (reqMsg.msgKey().flags() & MsgKeyFlags.HAS_NAME) != 0)
+				{
+					encodeReqMsg.flags(StatusMsgFlags.HAS_MSG_KEY);
+					encodeReqMsg.msgKey().flags(MsgKeyFlags.HAS_NAME);
+					encodeReqMsg.msgKey().name(reqMsg.msgKey().name());
+				}
+				
+				if( (reqMsg.msgKey().flags() & MsgKeyFlags.HAS_SERVICE_ID) != 0)
+				{
+					encodeReqMsg.flags(StatusMsgFlags.HAS_MSG_KEY);
+					encodeReqMsg.msgKey().flags(encodeReqMsg.msgKey().flags() | MsgKeyFlags.HAS_SERVICE_ID);
+					encodeReqMsg.msgKey().serviceId(reqMsg.msgKey().serviceId());
+				}
 
-				destMsg._copiedBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
+				if(destMsg._copiedBuffer.data() != null && destMsg._copiedBuffer.data().capacity() < CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE)
+					destMsg._copiedBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
+				else
+					destMsg._copiedBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
 				
-				encIter.setBufferAndRWFVersion(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer);
-				encodeReqMsg.encode(encIter);
+				_rsslEncodeIter.setBufferAndRWFVersion(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer);
+				encodeReqMsg.encode(_rsslEncodeIter);
 				
 				destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
 			
@@ -968,6 +1099,8 @@ class MsgImpl extends DataImpl implements Msg
 						.toString();
 				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 			}
+			
+			return false;
 		}
 	}
 

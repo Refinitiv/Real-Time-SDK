@@ -30,7 +30,7 @@ public class EmaFactory
 	}
 
 	/**
-	 * Creates a {@link com.refinitiv.ema.access.ReqMsg}.
+	 * Creates a {@link com.refinitiv.ema.access.ReqMsg} for encoding only.
 	 * @return {@link com.refinitiv.ema.access.ReqMsg}
 	 */
 	public static ReqMsg createReqMsg()
@@ -49,7 +49,17 @@ public class EmaFactory
 	}
 	
 	/**
-	 * Creates a {@link com.refinitiv.ema.access.RefreshMsg}.
+	 * Creates a {@link com.refinitiv.ema.access.ReqMsg} which is used to copy from another message for decoding routine.
+	 * @param initialSize the initial size of the buffer for copying
+	 * @return {@link com.refinitiv.ema.access.ReqMsg}
+	 */
+	public static ReqMsg createReqMsg(int initialSize)
+	{
+		return new ReqMsgImpl(initialSize);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.RefreshMsg} for encoding only.
 	 * @return {@link com.refinitiv.ema.access.RefreshMsg}
 	 */
 	public static RefreshMsg createRefreshMsg()
@@ -66,9 +76,19 @@ public class EmaFactory
 	{
 		return new RefreshMsgImpl(other);
 	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.RefreshMsg} which is used to copy from another message for decoding routine.
+	 * @param initialSize the initial size of the buffer for copying
+	 * @return {@link com.refinitiv.ema.access.RefreshMsg}
+	 */
+	public static RefreshMsg createRefreshMsg(int initialSize)
+	{
+		return new RefreshMsgImpl(initialSize);
+	}
 
 	/**
-	 * Creates a {@link com.refinitiv.ema.access.UpdateMsg}.
+	 * Creates a {@link com.refinitiv.ema.access.UpdateMsg} for encoding only.
 	 * @return {@link com.refinitiv.ema.access.UpdateMsg}
 	 */
 	public static UpdateMsg createUpdateMsg()
@@ -87,7 +107,17 @@ public class EmaFactory
 	}
 	
 	/**
-	 * Creates a {@link com.refinitiv.ema.access.StatusMsg}.
+	 * Creates a {@link com.refinitiv.ema.access.UpdateMsg} which is used to copy from another message decoding routine.
+	 * @param initialSize the initial size of the buffer
+	 * @return {@link com.refinitiv.ema.access.UpdateMsg}
+	 */
+	public static UpdateMsg createUpdateMsg(int initialSize)
+	{
+		return new UpdateMsgImpl(initialSize);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.StatusMsg} for encoding only.
 	 * @return {@link com.refinitiv.ema.access.StatusMsg}
 	 */
 	public static StatusMsg createStatusMsg()
@@ -106,7 +136,17 @@ public class EmaFactory
 	}
 	
 	/**
-	 * Creates a {@link com.refinitiv.ema.access.PostMsg}.
+	 * Creates a {@link com.refinitiv.ema.access.StatusMsg} which is used to copy from another message.
+	 * @param initialSize the initial size of the buffer
+	 * @return {@link com.refinitiv.ema.access.StatusMsg}
+	 */
+	public static StatusMsg createStatusMsg(int initialSize)
+	{
+		return new StatusMsgImpl(initialSize);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.PostMsg} for encoding only.
 	 * @return {@link com.refinitiv.ema.access.PostMsg}
 	 */
 	public static PostMsg createPostMsg()
@@ -126,7 +166,17 @@ public class EmaFactory
 	}
 	
 	/**
-	 * Creates a {@link com.refinitiv.ema.access.AckMsg}.
+	 * Creates a {@link com.refinitiv.ema.access.PostMsg} which is used to copy from another message.
+	 * @param initialSize the initial size of the buffer
+	 * @return {@link com.refinitiv.ema.access.PostMsg}
+	 */
+	public static PostMsg createPostMsg(int initialSize)
+	{
+		return new PostMsgImpl(initialSize);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.AckMsg} for encoding only.
 	 * @return {@link com.refinitiv.ema.access.AckMsg}
 	 */
 	public static AckMsg createAckMsg()
@@ -145,7 +195,17 @@ public class EmaFactory
 	}
 	
 	/**
-	 * Creates a {@link com.refinitiv.ema.access.GenericMsg}.
+	 * Creates a {@link com.refinitiv.ema.access.AckMsg} which is used to copy from another message.
+	 * @param initialSize the initial size of the buffer
+	 * @return {@link com.refinitiv.ema.access.AckMsg}
+	 */
+	public static AckMsg createAckMsg(int initialSize)
+	{
+		return new AckMsgImpl(initialSize);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.GenericMsg} for encoding only.
 	 * @return {@link com.refinitiv.ema.access.GenericMsg}
 	 */
 	public static GenericMsg createGenericMsg()
@@ -161,6 +221,16 @@ public class EmaFactory
 	public static GenericMsg createGenericMsg(GenericMsg other)
 	{
 		return new GenericMsgImpl(other);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.GenericMsg} which is used copy from another message.
+	 * @param initialSize the initial size of the buffer
+	 * @return {@link com.refinitiv.ema.access.GenericMsg}
+	 */
+	public static GenericMsg createGenericMsg(int initialSize)
+	{
+		return new GenericMsgImpl(initialSize);
 	}
 	
 	/**

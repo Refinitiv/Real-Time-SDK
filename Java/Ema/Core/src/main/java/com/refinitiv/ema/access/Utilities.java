@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019,2024 LSEG. All rights reserved.
+// *|           Copyright (C) 2019,2024-2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -242,11 +242,23 @@ class Utilities
 	{
 		int srcBufferlength = srcBuffer.length();
 		if (destByteBuffer == null)
-			destByteBuffer =  objManager.acquireByteBuffer(srcBufferlength);
+		{
+			if(objManager != null)
+				destByteBuffer =  objManager.acquireByteBuffer(srcBufferlength);
+			else
+				destByteBuffer = ByteBuffer.allocate(srcBufferlength);
+		}
 		else if (destByteBuffer != null && destByteBuffer.capacity() < srcBufferlength)
 		{
-			objManager.releaseByteBuffer(destByteBuffer);
-			destByteBuffer =  objManager.acquireByteBuffer(srcBufferlength);
+			if(objManager != null)
+			{
+				objManager.releaseByteBuffer(destByteBuffer);
+				destByteBuffer =  objManager.acquireByteBuffer(srcBufferlength);
+			}
+			else
+			{
+				destByteBuffer = ByteBuffer.allocate(srcBufferlength);
+			}
 		}
 		
 		destByteBuffer.clear();

@@ -2,48 +2,52 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.unittest;
 
+import static org.junit.Assert.assertThrows;
+
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.refinitiv.ema.access.*;
-import com.refinitiv.ema.rdm.EmaRdm;
 import com.refinitiv.ema.rdm.DataDictionary;
-import com.refinitiv.ema.unittest.TestUtilities.EncodingTypeFlags;
-import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.NakCodes;
 
 import junit.framework.TestCase;
 
 public class AckMsgTests extends TestCase
 {
+	private static com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory.createDataDictionary();
+	
 	public AckMsgTests(String name)
 	{
 		super(name);
 	}
 	
-	public void testAckMsg_Decode()
+	private com.refinitiv.eta.codec.Buffer encodeETAAckMsg()
 	{
-		TestUtilities.printTestHead("testAckMsg_Decode", "eta encoding ema decoding");
-		
 		com.refinitiv.eta.codec.Buffer fieldListBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
 		fieldListBuf.data(ByteBuffer.allocate(1024));
 
+		if(dictionary.numberOfEntries() == 0)
+			TestUtilities.eta_encodeDictionaryMsg(dictionary);
+
 		int retVal;
 		System.out.println("Begin ETA FieldList Encoding");
-		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
 					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
-			return;
+			return null;
 		}
 		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
@@ -59,6 +63,9 @@ public class AckMsgTests extends TestCase
 		ackMsg.streamId( 15 );
 		
 		ackMsg.ackId(321);
+
+		ackMsg.applyHasText();
+		ackMsg.text().data("denied by source");
 		
 		ackMsg.applyHasSeqNum();
 		ackMsg.seqNum( 22 );
@@ -66,9 +73,6 @@ public class AckMsgTests extends TestCase
 		ackMsg.applyHasNakCode();
 		ackMsg.nakCode(com.refinitiv.eta.codec.NakCodes.DENIED_BY_SRC);
 		
-		ackMsg.applyHasText();
-		ackMsg.text().data("denied by source");
-
 		ackMsg.applyHasMsgKey();
 
 		ackMsg.msgKey().applyHasName();
@@ -109,19 +113,54 @@ public class AckMsgTests extends TestCase
 		{
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
-			return;
+			return null;
 		}
 		
 		ackMsg.encode(encIter);
 
 	    System.out.println("End ETA AckMsg Buffer Encoding");
 		System.out.println();
+		
+		return msgBuf;
+	}
+	
+	private AckMsg encodeEMAAckMsg()
+	{
+		AckMsg emaAckMsg = EmaFactory.createAckMsg();
+		
+		emaAckMsg.streamId(15);
+		emaAckMsg.ackId(321);
+		emaAckMsg.text("access denied");
+		emaAckMsg.seqNum(22);
+		emaAckMsg.nackCode(NakCodes.ACCESS_DENIED);
+		
+		emaAckMsg.name("ABCDEF");
+		emaAckMsg.nameType(com.refinitiv.ema.rdm.EmaRdm.INSTRUMENT_NAME_RIC);
+		emaAckMsg.serviceId(5);
+		emaAckMsg.filter(12);
+		emaAckMsg.id(21);
+		emaAckMsg.serviceName("DIRECT_FEED");
+		
+		FieldList fieldList = EmaFactory.createFieldList();
+		fieldList.add(EmaFactory.createFieldEntry().intValue(1, 5));
+		
+		emaAckMsg.attrib(fieldList);
+		emaAckMsg.payload(fieldList);
+		
+		return emaAckMsg;
+	}
+	
+	public void testAckMsg_Decode()
+	{
+		TestUtilities.printTestHead("testAckMsg_Decode", "eta encoding ema decoding");
+		
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAAckMsg();
 
 		System.out.println("Begin EMA AckMsg Decoding");
 
 		com.refinitiv.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
 		
-		JUnitTestConnect.setRsslData(emaAckMsg, msgBuf, majorVersion, minorVersion, TestUtilities.getDataDictionary(), null);
+		JUnitTestConnect.setRsslData(emaAckMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 
 		TestUtilities.checkResult(emaAckMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE, "AckMsg.domainType()");
 		
@@ -175,102 +214,13 @@ public class AckMsgTests extends TestCase
 	{
 		TestUtilities.printTestHead("testAckMsg_toString", "eta encoding ema toString");
 		
-		com.refinitiv.eta.codec.Buffer fieldListBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		fieldListBuf.data(ByteBuffer.allocate(1024));
-
-		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory.createDataDictionary();
-		TestUtilities.eta_encodeDictionaryMsg(dictionary);
-
-		int retVal;
-		System.out.println("Begin ETA FieldList Encoding");
-		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error encoding field list.");
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
-					+ CodecReturnCodes.info(retVal));
-			return;
-		}
-		System.out.println("End ETA FieldList Encoding");
-		System.out.println();
-
-		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
-		
-	    System.out.println("Begin ETA AckMsg Set");
-		com.refinitiv.eta.codec.AckMsg ackMsg = (com.refinitiv.eta.codec.AckMsg)com.refinitiv.eta.codec.CodecFactory.createMsg();
-		ackMsg.msgClass(com.refinitiv.eta.codec.MsgClasses.ACK);
-		
-		ackMsg.domainType( com.refinitiv.eta.rdm.DomainTypes.MARKET_PRICE );
-		
-		ackMsg.streamId( 15 );
-		
-		ackMsg.ackId(321);
-
-		ackMsg.applyHasText();
-		ackMsg.text().data("denied by source");
-		
-		ackMsg.applyHasSeqNum();
-		ackMsg.seqNum( 22 );
-
-		ackMsg.applyHasNakCode();
-		ackMsg.nakCode(com.refinitiv.eta.codec.NakCodes.DENIED_BY_SRC);
-
-		ackMsg.applyHasNakCode();
-		ackMsg.nakCode(com.refinitiv.eta.codec.NakCodes.DENIED_BY_SRC);
-		
-		ackMsg.applyHasMsgKey();
-
-		ackMsg.msgKey().applyHasName();
-		ackMsg.msgKey().name().data( "ABCDEF" );
-		
-		ackMsg.msgKey().applyHasNameType();
-		ackMsg.msgKey().nameType( com.refinitiv.eta.rdm.InstrumentNameTypes.RIC );
-
-		ackMsg.msgKey().applyHasServiceId();
-		ackMsg.msgKey().serviceId(5);
-		
-		ackMsg.msgKey().applyHasFilter();
-		ackMsg.msgKey().filter( 12 );
-	
-		ackMsg.msgKey().applyHasIdentifier();
-		ackMsg.msgKey().identifier(21);
-		
-		ackMsg.msgKey().applyHasAttrib();
-		ackMsg.msgKey().attribContainerType( com.refinitiv.eta.codec.DataTypes.FIELD_LIST );
-		ackMsg.msgKey().encodedAttrib(fieldListBuf);
-	
-		ackMsg.containerType(com.refinitiv.eta.codec.DataTypes.FIELD_LIST);
-		ackMsg.encodedDataBody(fieldListBuf);
-
-		System.out.println("End ETA AckMsg Set");
-		System.out.println();
-
-		System.out.println("Begin ETA AckMsg Buffer Encoding");
-
-		com.refinitiv.eta.codec.Buffer msgBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		msgBuf.data(ByteBuffer.allocate(2048));
-		
-		com.refinitiv.eta.codec.EncodeIterator encIter = com.refinitiv.eta.codec.CodecFactory.createEncodeIterator();
-		encIter.clear();
-		int majorVersion = Codec.majorVersion();
-		int minorVersion = Codec.minorVersion();
-		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
-							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
-			return;
-		}
-		
-		ackMsg.encode(encIter);
-
-	    System.out.println("End ETA AckMsg Buffer Encoding");
-		System.out.println();
+	    com.refinitiv.eta.codec.Buffer msgBuf = encodeETAAckMsg();
 
 		System.out.println("Begin EMA AckMsg toString");
 
 		com.refinitiv.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
 		
-		JUnitTestConnect.setRsslData(emaAckMsg, msgBuf, majorVersion, minorVersion, dictionary, null);
+		JUnitTestConnect.setRsslData(emaAckMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 
 		System.out.println(emaAckMsg);
 		// check that we can still get the toString on encoded/decoded msg.
@@ -636,7 +586,7 @@ public class AckMsgTests extends TestCase
 
         // Create a ETA Buffer to encode into
         com.refinitiv.eta.codec.Buffer buffer = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-        buffer.data(ByteBuffer.allocate(8192));
+        buffer.data(ByteBuffer.allocate(18192));
         
     	int majorVersion = Codec.majorVersion();  // This should be initialized to the MAJOR version of RWF being encoded
 		int minorVersion = Codec.minorVersion();  // This should be initialized to the MINOR version of RWF being encoded
@@ -913,21 +863,6 @@ public class AckMsgTests extends TestCase
 	     System.out.println("\ttestAckMsg_EncodeETAAckMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherAckMsg_EMADecode passed");
 	}
 
-	public void testAckMsg_cloneIsNotSupportedFromTheEncodeSide()
-	{
-		TestUtilities.printTestHead("testAckMsg_cloneIsNotSupportedFromTheEncodeSide", "cloning is not supported on encode side");
-		AckMsg msg = EmaFactory.createAckMsg()
-				.domainType(EmaRdm.MMT_MARKET_PRICE);
-
-		try {
-			AckMsg cloneMessage = EmaFactory.createAckMsg(msg);
-			TestUtilities.checkResult(false, "Clone not supported  - exception expected: ");
-		} catch ( OmmException excp ) {
-			TestUtilities.checkResult(true, "Clone not supported  - exception expected: " +  excp.getMessage() );
-			TestUtilities.checkResult(excp.getMessage().startsWith("Failed to clone empty encoded buffer"), "Clone not supported - exception text validated");
-		}
-	}
-
 	public void testAckMsg_cloneMsgKeyWLScenario()
 	{
 		TestUtilities.printTestHead("testAckMsg_cloneMsgKeyWLScenario", "cloning for minimal ema ack message");
@@ -950,110 +885,19 @@ public class AckMsgTests extends TestCase
 	{
 		TestUtilities.printTestHead("testAckMsg_clone", "cloning for ema ack message");
 		
-		com.refinitiv.eta.codec.Buffer fieldListBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		fieldListBuf.data(ByteBuffer.allocate(1024));
-
-		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory.createDataDictionary();
-		TestUtilities.eta_encodeDictionaryMsg(dictionary);
-
-		int retVal;
-		System.out.println("Begin ETA FieldList Encoding");
-		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error encoding field list.");
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
-					+ CodecReturnCodes.info(retVal));
-			return;
-		}
-		System.out.println("End ETA FieldList Encoding");
-		System.out.println();
-
-		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
-		
-	    System.out.println("Begin ETA AckMsg Set");
-		com.refinitiv.eta.codec.AckMsg ackMsg = (com.refinitiv.eta.codec.AckMsg)com.refinitiv.eta.codec.CodecFactory.createMsg();
-		ackMsg.msgClass(com.refinitiv.eta.codec.MsgClasses.ACK);
-		
-		ackMsg.domainType( com.refinitiv.eta.rdm.DomainTypes.MARKET_PRICE );
-		
-		ackMsg.streamId( 15 );
-		
-		ackMsg.ackId(321);
-
-		ackMsg.applyHasText();
-		ackMsg.text().data("denied by source");
-		
-		ackMsg.applyHasSeqNum();
-		ackMsg.seqNum( 22 );
-
-		ackMsg.applyHasNakCode();
-		ackMsg.nakCode(com.refinitiv.eta.codec.NakCodes.DENIED_BY_SRC);
-
-		ackMsg.applyHasNakCode();
-		ackMsg.nakCode(com.refinitiv.eta.codec.NakCodes.DENIED_BY_SRC);
-		
-		ackMsg.applyHasMsgKey();
-
-		ackMsg.msgKey().applyHasName();
-		ackMsg.msgKey().name().data( "ABCDEF" );
-		
-		ackMsg.msgKey().applyHasNameType();
-		ackMsg.msgKey().nameType( com.refinitiv.eta.rdm.InstrumentNameTypes.RIC );
-
-		ackMsg.msgKey().applyHasServiceId();
-		ackMsg.msgKey().serviceId(5);
-		
-		ackMsg.msgKey().applyHasFilter();
-		ackMsg.msgKey().filter( 12 );
-	
-		ackMsg.msgKey().applyHasIdentifier();
-		ackMsg.msgKey().identifier(21);
-		
-		ackMsg.msgKey().applyHasAttrib();
-		ackMsg.msgKey().attribContainerType( com.refinitiv.eta.codec.DataTypes.FIELD_LIST );
-		ackMsg.msgKey().encodedAttrib(fieldListBuf);
-	
-		ackMsg.containerType(com.refinitiv.eta.codec.DataTypes.FIELD_LIST);
-		ackMsg.encodedDataBody(fieldListBuf);
-
-		setMoreFields(ackMsg);
-
-		System.out.println("End ETA AckMsg Set");
-		System.out.println();
-
-		System.out.println("Begin ETA AckMsg Buffer Encoding");
-
-		com.refinitiv.eta.codec.Buffer msgBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		msgBuf.data(ByteBuffer.allocate(2048));
-		
-		com.refinitiv.eta.codec.EncodeIterator encIter = com.refinitiv.eta.codec.CodecFactory.createEncodeIterator();
-		encIter.clear();
-		int majorVersion = Codec.majorVersion();
-		int minorVersion = Codec.minorVersion();
-		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
-							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
-			return;
-		}
-		
-		ackMsg.encode(encIter);
-
-	    System.out.println("End ETA AckMsg Buffer Encoding");
-		System.out.println();
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAAckMsg();
 
 		System.out.println("Begin EMA AckMsg Clone");
 		
 		com.refinitiv.eta.codec.AckMsg ackMsgDecode = (com.refinitiv.eta.codec.AckMsg)com.refinitiv.eta.codec.CodecFactory.createMsg();
 
 		com.refinitiv.eta.codec.DecodeIterator decIter = com.refinitiv.eta.codec.CodecFactory.createDecodeIterator();
-		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		decIter.setBufferAndRWFVersion(msgBuf, Codec.majorVersion(), Codec.minorVersion());
 		ackMsgDecode.decode(decIter);
 
 		com.refinitiv.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
 		
-		JUnitTestConnect.setRsslData(emaAckMsg, ackMsgDecode, majorVersion, minorVersion, dictionary, null);
+		JUnitTestConnect.setRsslData(emaAckMsg, ackMsgDecode, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 		
 		com.refinitiv.ema.access.AckMsg emaAckMsgClone = EmaFactory.createAckMsg(emaAckMsg);
 
@@ -1076,121 +920,23 @@ public class AckMsgTests extends TestCase
 		System.out.println();
 	}
 
-	private void setMoreFields(com.refinitiv.eta.codec.AckMsg ackMsg) {
-		ackMsg.applyHasExtendedHdr();
-		Buffer extendedHeader = CodecFactory.createBuffer();
-		extendedHeader.data(ByteBuffer.wrap(new byte[] {5, -6, 7, -8}));
-		ackMsg.extendedHeader(extendedHeader);
-
-		ackMsg.applyPrivateStream();
-	}
-
 	public void testAckMsg_cloneEdit()
 	{
 		TestUtilities.printTestHead("testAckMsg_cloneEdit", "clone and edit ema ack message");
 		
-		com.refinitiv.eta.codec.Buffer fieldListBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		fieldListBuf.data(ByteBuffer.allocate(1024));
-
-		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory.createDataDictionary();
-		TestUtilities.eta_encodeDictionaryMsg(dictionary);
-
-		int retVal;
-		System.out.println("Begin ETA FieldList Encoding");
-		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error encoding field list.");
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
-					+ CodecReturnCodes.info(retVal));
-			return;
-		}
-		System.out.println("End ETA FieldList Encoding");
-		System.out.println();
-
-		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
-		
-	    System.out.println("Begin ETA AckMsg Set");
-		com.refinitiv.eta.codec.AckMsg ackMsg = (com.refinitiv.eta.codec.AckMsg)com.refinitiv.eta.codec.CodecFactory.createMsg();
-		ackMsg.msgClass(com.refinitiv.eta.codec.MsgClasses.ACK);
-		
-		ackMsg.domainType( com.refinitiv.eta.rdm.DomainTypes.MARKET_PRICE );
-		
-		ackMsg.streamId( 15 );
-		
-		ackMsg.ackId(321);
-
-		ackMsg.applyHasText();
-		ackMsg.text().data("denied by source");
-		
-		ackMsg.applyHasSeqNum();
-		ackMsg.seqNum( 22 );
-
-		ackMsg.applyHasNakCode();
-		ackMsg.nakCode(com.refinitiv.eta.codec.NakCodes.DENIED_BY_SRC);
-
-		ackMsg.applyHasNakCode();
-		ackMsg.nakCode(com.refinitiv.eta.codec.NakCodes.DENIED_BY_SRC);
-		
-		ackMsg.applyHasMsgKey();
-
-		ackMsg.msgKey().applyHasName();
-		ackMsg.msgKey().name().data( "ABCDEF" );
-		
-		ackMsg.msgKey().applyHasNameType();
-		ackMsg.msgKey().nameType( com.refinitiv.eta.rdm.InstrumentNameTypes.RIC );
-
-		ackMsg.msgKey().applyHasServiceId();
-		ackMsg.msgKey().serviceId(5);
-		
-		ackMsg.msgKey().applyHasFilter();
-		ackMsg.msgKey().filter( 12 );
-	
-		ackMsg.msgKey().applyHasIdentifier();
-		ackMsg.msgKey().identifier(21);
-		
-		ackMsg.msgKey().applyHasAttrib();
-		ackMsg.msgKey().attribContainerType( com.refinitiv.eta.codec.DataTypes.FIELD_LIST );
-		ackMsg.msgKey().encodedAttrib(fieldListBuf);
-	
-		ackMsg.containerType(com.refinitiv.eta.codec.DataTypes.FIELD_LIST);
-		ackMsg.encodedDataBody(fieldListBuf);
-
-		System.out.println("End ETA AckMsg Set");
-		System.out.println();
-
-		System.out.println("Begin ETA AckMsg Buffer Encoding");
-
-		com.refinitiv.eta.codec.Buffer msgBuf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		msgBuf.data(ByteBuffer.allocate(2048));
-		
-		com.refinitiv.eta.codec.EncodeIterator encIter = com.refinitiv.eta.codec.CodecFactory.createEncodeIterator();
-		encIter.clear();
-		int majorVersion = Codec.majorVersion();
-		int minorVersion = Codec.minorVersion();
-		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
-		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
-							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
-			return;
-		}
-		
-		ackMsg.encode(encIter);
-
-	    System.out.println("End ETA AckMsg Buffer Encoding");
-		System.out.println();
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAAckMsg();
 
 		System.out.println("Begin EMA AckMsg Clone");
 		
 		com.refinitiv.eta.codec.AckMsg ackMsgDecode = (com.refinitiv.eta.codec.AckMsg)com.refinitiv.eta.codec.CodecFactory.createMsg();
 
 		com.refinitiv.eta.codec.DecodeIterator decIter = com.refinitiv.eta.codec.CodecFactory.createDecodeIterator();
-		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		decIter.setBufferAndRWFVersion(msgBuf, Codec.majorVersion(), Codec.minorVersion());
 		ackMsgDecode.decode(decIter);
 
 		com.refinitiv.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
 		
-		JUnitTestConnect.setRsslData(emaAckMsg, ackMsgDecode, majorVersion, minorVersion, dictionary, null);
+		JUnitTestConnect.setRsslData(emaAckMsg, ackMsgDecode, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 		
 		com.refinitiv.ema.access.AckMsg emaAckMsgClone = EmaFactory.createAckMsg(emaAckMsg);
 		
@@ -1273,5 +1019,353 @@ public class AckMsgTests extends TestCase
 		if(expected.hasText())
 			TestUtilities.checkResult(expected.text().equals(actual.text()), checkPrefix + "text");
 	}
+	
+	public void testAckMsg_InitCopyingMessageWithUnknownSize()
+	{
+		AckMsg copyAckMsg = EmaFactory.createAckMsg(-1);
+		int capacity = JUnitTestConnect.getCopiedBufferCapacity(copyAckMsg);
+		
+		TestUtilities.checkResult(capacity == 0, "Checks capacity of the copied buffer");
+		
+		copyAckMsg.clear();
+		
+		capacity = JUnitTestConnect.getCopiedBufferCapacity(copyAckMsg);
+		
+		TestUtilities.checkResult(capacity == 0, "Checks capacity of the copied buffer after clearing");
+	}
+	
+	public void testAckMsg_InitCopyingMessage()
+	{
+		AckMsg copyAckMsg = EmaFactory.createAckMsg(1024);
+		int capacity = JUnitTestConnect.getCopiedBufferCapacity(copyAckMsg);
+		
+		TestUtilities.checkResult(capacity == 1024, "Checks capacity of copied buffer");
+		copyAckMsg.clear();
+		
+		capacity = JUnitTestConnect.getCopiedBufferCapacity(copyAckMsg);
+		TestUtilities.checkResult(capacity == 1024, "Checks capacity of the copied buffer after clearing AckMsg");
+	}
+	
+	public void testAckMsg_copy_from_decodingAckMsg_and_copied_message()
+	{
+		TestUtilities.printTestHead("testAckMsg_copy_from_decodingAckMsg_and_copied_message", "eta encoding ema copying");
+		
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAAckMsg();
+		
+		int encodedBufferSize = msgBuf.length();
+		
+		System.out.println("Begin EMA AckMsg Decoding");
+
+		com.refinitiv.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
+
+		JUnitTestConnect.setRsslData(emaAckMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+		
+		String expectedServiceName = "DIRECT_FEED";
+		
+		/* Set the service name as well */
+		emaAckMsg.serviceName(expectedServiceName);
+		
+		System.out.println("Begin EMA AckMsg Copying");
+		
+		AckMsg copyAckMsg = EmaFactory.createAckMsg(encodedBufferSize);
+		
+		emaAckMsg.copy(copyAckMsg);
+		
+		AckMsg copyAckMsg2 = EmaFactory.createAckMsg(encodedBufferSize);
+		
+		copyAckMsg.copy(copyAckMsg2);
+		
+		ArrayList<AckMsg> list = new ArrayList<AckMsg>();
+		
+		list.add(copyAckMsg);
+		list.add(copyAckMsg2);
+		
+		for(int i = 0; i < list.size(); i++)
+		{
+			AckMsg checkingAckMsg = list.get(i);
+			
+			TestUtilities.checkResult(JUnitTestConnect.getDataDictionary(checkingAckMsg) != null, "Checks the reference to DataDictionary after copying AckMsg");
+			
+			TestUtilities.checkResult(checkingAckMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE, "AckMsg.domainType()");
+			
+			TestUtilities.checkResult(checkingAckMsg.streamId() == 15, "AckMsg.streamId()");
+
+			TestUtilities.checkResult(checkingAckMsg.ackId() == 321, "AckMsg.ackId()");
+			
+			TestUtilities.checkResult(checkingAckMsg.hasSeqNum(), "AckMsg.hasSeqNum()");
+			
+			TestUtilities.checkResult(checkingAckMsg.seqNum() == 22, "AckMsg.seqNum()");
+
+			TestUtilities.checkResult(checkingAckMsg.hasNackCode(), "AckMsg.hasNackCode()");
+			
+			TestUtilities.checkResult(checkingAckMsg.nackCode() == com.refinitiv.ema.access.AckMsg.NackCode.DENIED_BY_SOURCE, "AckMsg.nackCode()");
+
+			TestUtilities.checkResult(checkingAckMsg.hasText(), "AckMsg.hasText()");
+			
+			TestUtilities.checkResult(checkingAckMsg.text().compareTo("denied by source") == 0, "AckMsg.text()");
+
+			TestUtilities.checkResult(checkingAckMsg.hasMsgKey(), "AckMsg.hasMsgKey()");
+
+			TestUtilities.checkResult(checkingAckMsg.hasId(), "AckMsg.hasId()");
+			
+			TestUtilities.checkResult(checkingAckMsg.id() == 21, "AckMsg.id()");
+
+			TestUtilities.checkResult(checkingAckMsg.hasFilter(), "AckMsg.hasFilter()");
+			
+			TestUtilities.checkResult(checkingAckMsg.filter() == 12 , "AckMsg.hasFilter()");
+
+			TestUtilities.checkResult(checkingAckMsg.hasServiceId(), "AckMsg.hasServiceId()");
+			
+			TestUtilities.checkResult(checkingAckMsg.serviceId() == 5 , "AckMsg.serviceId()");
+			
+			TestUtilities.checkResult(checkingAckMsg.hasServiceName(), "AckMsg.hasServiceName()");
+			
+			TestUtilities.checkResult(checkingAckMsg.serviceName().equals(expectedServiceName) , "AckMsg.serviceName()");
+
+			TestUtilities.checkResult(checkingAckMsg.hasNameType(), "AckMsg.hasNameType()");
+			
+			TestUtilities.checkResult(checkingAckMsg.nameType() == com.refinitiv.ema.rdm.EmaRdm.INSTRUMENT_NAME_RIC , "AckMsg.nameType()");
+
+			TestUtilities.checkResult(checkingAckMsg.hasName(), "AckMsg.hasName()");
+			
+			TestUtilities.checkResult(checkingAckMsg.name().compareTo("ABCDEF") == 0, "AckMsg.name()");
+
+			TestUtilities.checkResult(checkingAckMsg.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "AckMsg.attrib().dataType()");
+			
+			TestUtilities.checkResult(checkingAckMsg.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "AckMsg.payload().dataType()");
+			
+			System.out.println("Clears the copied message");
+			checkingAckMsg.clear();
+			
+			int capacity = JUnitTestConnect.getCopiedBufferCapacity(checkingAckMsg);
+			TestUtilities.checkResult(capacity == encodedBufferSize, "Checks capacity of the copied buffer after clearing AckMsg");
+			TestUtilities.checkResult(JUnitTestConnect.getDataDictionary(checkingAckMsg) == null, "Checks the null reference to DataDictionary after clearing AckMsg");
+		}
+	}
+	
+	public void testAckMsg_copy_from_edited_copiedmessage()
+	{
+		TestUtilities.printTestHead("testAckMsg_copy_from_edited_copiedmessage", "eta encoding ema copying from edited copied message");
+		
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAAckMsg();
+		
+		int encodedBufferSize = msgBuf.length();
+		
+		System.out.println("Begin EMA AckMsg Decoding");
+
+		com.refinitiv.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
+
+		JUnitTestConnect.setRsslData(emaAckMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+		
+		System.out.println("Begin EMA AckMsg Copying");
+		
+		AckMsg copyAckMsg = EmaFactory.createAckMsg(encodedBufferSize);
+		
+		emaAckMsg.copy(copyAckMsg);
+	
+		TestUtilities.checkResult(copyAckMsg.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "AckMsg.attrib().dataType()");
+		TestUtilities.checkResult(copyAckMsg.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "AckMsg.payload().dataType()");
+		
+		AckMsg copyAckMsg2 = EmaFactory.createAckMsg(encodedBufferSize);
+		
+		/* Edits some properties of the message */
+		copyAckMsg.attrib(emaAckMsg);
+		copyAckMsg.payload(emaAckMsg);
+		
+		copyAckMsg.copy(copyAckMsg2);
+		
+		TestUtilities.checkResult(copyAckMsg2.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.ACK_MSG, "AckMsg.attrib().dataType()");
+		
+		AckMsg attribPayload = copyAckMsg2.attrib().ackMsg();
+		
+		TestUtilities.checkResult("emaAckMsg.toString().equals(attribPayload.toString())", emaAckMsg.toString().equals(attribPayload.toString()));
+		
+		TestUtilities.checkResult(copyAckMsg2.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.ACK_MSG, "AckMsg.payload().dataType()");
+		
+		AckMsg payloadMsg = copyAckMsg2.payload().ackMsg();
+		
+		TestUtilities.checkResult("emaAckMsg.toString().equals(payloadMsg.toString())", emaAckMsg.toString().equals(payloadMsg.toString()));
+	}
+	
+	public void testAckMsg_clone_from_edited_clonedmessage()
+	{
+		TestUtilities.printTestHead("testAckMsg_copy_from_edited_copiedmessage", "eta encoding ema cloning from edited cloned message");
+		
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAAckMsg();
+		
+		System.out.println("Begin EMA AckMsg Decoding");
+
+		com.refinitiv.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
+
+		JUnitTestConnect.setRsslData(emaAckMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+		
+		System.out.println("Begin EMA AckMsg Copying");
+		
+		AckMsg cloneAckMsg = EmaFactory.createAckMsg(emaAckMsg);
+	
+		TestUtilities.checkResult(cloneAckMsg.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "AckMsg.attrib().dataType()");
+		TestUtilities.checkResult(cloneAckMsg.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "AckMsg.payload().dataType()");
+		
+		/* Edits some properties of the message */
+		cloneAckMsg.attrib(emaAckMsg);
+		cloneAckMsg.payload(emaAckMsg);
+		
+		AckMsg cloneAckMsg2 = EmaFactory.createAckMsg(cloneAckMsg);
+		
+		TestUtilities.checkResult(cloneAckMsg2.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.ACK_MSG, "AckMsg.attrib().dataType()");
+		
+		AckMsg attribPayload = cloneAckMsg2.attrib().ackMsg();
+		
+		TestUtilities.checkResult("emaAckMsg.toString().equals(attribPayload.toString())", emaAckMsg.toString().equals(attribPayload.toString()));
+		
+		TestUtilities.checkResult(cloneAckMsg2.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.ACK_MSG, "AckMsg.payload().dataType()");
+		
+		AckMsg payloadMsg = cloneAckMsg2.payload().ackMsg();
+		
+		TestUtilities.checkResult("emaAckMsg.toString().equals(payloadMsg.toString())", emaAckMsg.toString().equals(payloadMsg.toString()));
+	}
+	
+	public void testAckMsg_invalid_destination_AckMsg()
+	{
+		TestUtilities.printTestHead("testAckMsg_invalid_destination_AckMsg", "eta encoding and ema copying with invalid destination ack message");
+		
+		com.refinitiv.eta.codec.Buffer msgBuf = encodeETAAckMsg();
+		
+		System.out.println("Begin EMA AckMsg Decoding");
+
+		com.refinitiv.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
+
+		JUnitTestConnect.setRsslData(emaAckMsg, msgBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+		
+		System.out.println("Begin EMA AckMsg Copying with EMA encoding message");
+		
+		System.out.println("Create EMA AckMsg for encoding");
+		AckMsg copyAckMsg = EmaFactory.createAckMsg(); 
+		
+		Exception exception = assertThrows(OmmInvalidUsageException.class,  () -> emaAckMsg.copy(copyAckMsg));
+		
+		OmmInvalidUsageException OIU = (OmmInvalidUsageException)exception;
+		
+		TestUtilities.checkResult(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT == OIU.errorCode(), "Checks OmmInvalidUsageException.errorCode()");
+		
+		TestUtilities.checkResult("The passed in destination message is used for encoding only on com.refinitiv.ema.access.AckMsgImpl.copy(AckMsg destAckMsg)".equals(exception.getMessage()), "Checks OmmInvalidUsageException.getMessage()");
+	}
+	
+	public void testAckMsg_EmaEncode_Clone()
+	{
+		TestUtilities.printTestHead("testAckMsg_EmaEncode_Clone", "Ema encoding and ema cloning message");
+		
+		AckMsg emaAckMsg = encodeEMAAckMsg();
+		
+		AckMsg clonedMsg = EmaFactory.createAckMsg(emaAckMsg);
+		
+		TestUtilities.checkResult(clonedMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE, "AckMsg.domainType()");
+		
+		TestUtilities.checkResult(clonedMsg.streamId() == 15, "AckMsg.streamId()");
+
+		TestUtilities.checkResult(clonedMsg.ackId() == 321, "AckMsg.ackId()");
+		
+		TestUtilities.checkResult(clonedMsg.hasSeqNum(), "AckMsg.hasSeqNum()");
+		
+		TestUtilities.checkResult(clonedMsg.seqNum() == 22, "AckMsg.seqNum()");
+
+		TestUtilities.checkResult(clonedMsg.hasNackCode(), "AckMsg.hasNackCode()");
+		
+		TestUtilities.checkResult(clonedMsg.nackCode() == com.refinitiv.ema.access.AckMsg.NackCode.ACCESS_DENIED, "AckMsg.nackCode()");
+
+		TestUtilities.checkResult(clonedMsg.hasText(), "AckMsg.hasText()");
+		
+		TestUtilities.checkResult(clonedMsg.text().compareTo("access denied") == 0, "AckMsg.text()");
+
+		TestUtilities.checkResult(clonedMsg.hasMsgKey(), "AckMsg.hasMsgKey()");
+
+		TestUtilities.checkResult(clonedMsg.hasId(), "AckMsg.hasId()");
+		
+		TestUtilities.checkResult(clonedMsg.id() == 21, "AckMsg.id()");
+
+		TestUtilities.checkResult(clonedMsg.hasFilter(), "AckMsg.hasFilter()");
+		
+		TestUtilities.checkResult(clonedMsg.filter() == 12 , "AckMsg.hasFilter()");
+
+		TestUtilities.checkResult(clonedMsg.hasServiceId(), "AckMsg.hasServiceId()");
+		
+		TestUtilities.checkResult(clonedMsg.serviceId() == 5 , "AckMsg.serviceId()");
+		
+		TestUtilities.checkResult(clonedMsg.hasServiceName(), "AckMsg.hasServiceName()");
+		
+		TestUtilities.checkResult(clonedMsg.serviceName().equals("DIRECT_FEED") , "AckMsg.serviceName()");
+
+		TestUtilities.checkResult(clonedMsg.hasNameType(), "AckMsg.hasNameType()");
+		
+		TestUtilities.checkResult(clonedMsg.nameType() == com.refinitiv.ema.rdm.EmaRdm.INSTRUMENT_NAME_RIC , "AckMsg.nameType()");
+
+		TestUtilities.checkResult(clonedMsg.hasName(), "AckMsg.hasName()");
+		
+		TestUtilities.checkResult(clonedMsg.name().compareTo("ABCDEF") == 0, "AckMsg.name()");
+		
+		TestUtilities.checkResult(clonedMsg.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "AckMsg.attrib().dataType()");
+		
+		TestUtilities.checkResult(clonedMsg.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "AckMsg.payload().dataType()");
+	}
+	
+	public void testAckMsg_EmaEncode_Copy()
+	{
+		TestUtilities.printTestHead("testAckMsg_EmaEncode_Copy", "Ema encoding and ema copying message");
+		
+		AckMsg emaAckMsg = encodeEMAAckMsg();
+		
+		AckMsg copiedMsg = EmaFactory.createAckMsg(1024);
+		
+		emaAckMsg.copy(copiedMsg);
+		
+		TestUtilities.checkResult(copiedMsg.domainType() == com.refinitiv.ema.rdm.EmaRdm.MMT_MARKET_PRICE, "AckMsg.domainType()");
+		
+		TestUtilities.checkResult(copiedMsg.streamId() == 15, "AckMsg.streamId()");
+
+		TestUtilities.checkResult(copiedMsg.ackId() == 321, "AckMsg.ackId()");
+		
+		TestUtilities.checkResult(copiedMsg.hasSeqNum(), "AckMsg.hasSeqNum()");
+		
+		TestUtilities.checkResult(copiedMsg.seqNum() == 22, "AckMsg.seqNum()");
+
+		TestUtilities.checkResult(copiedMsg.hasNackCode(), "AckMsg.hasNackCode()");
+		
+		TestUtilities.checkResult(copiedMsg.nackCode() == com.refinitiv.ema.access.AckMsg.NackCode.ACCESS_DENIED, "AckMsg.nackCode()");
+
+		TestUtilities.checkResult(copiedMsg.hasText(), "AckMsg.hasText()");
+		
+		TestUtilities.checkResult(copiedMsg.text().compareTo("access denied") == 0, "AckMsg.text()");
+
+		TestUtilities.checkResult(copiedMsg.hasMsgKey(), "AckMsg.hasMsgKey()");
+
+		TestUtilities.checkResult(copiedMsg.hasId(), "AckMsg.hasId()");
+		
+		TestUtilities.checkResult(copiedMsg.id() == 21, "AckMsg.id()");
+
+		TestUtilities.checkResult(copiedMsg.hasFilter(), "AckMsg.hasFilter()");
+		
+		TestUtilities.checkResult(copiedMsg.filter() == 12 , "AckMsg.hasFilter()");
+
+		TestUtilities.checkResult(copiedMsg.hasServiceId(), "AckMsg.hasServiceId()");
+		
+		TestUtilities.checkResult(copiedMsg.serviceId() == 5 , "AckMsg.serviceId()");
+		
+		TestUtilities.checkResult(copiedMsg.hasServiceName(), "AckMsg.hasServiceName()");
+		
+		TestUtilities.checkResult(copiedMsg.serviceName().equals("DIRECT_FEED") , "AckMsg.serviceName()");
+
+		TestUtilities.checkResult(copiedMsg.hasNameType(), "AckMsg.hasNameType()");
+		
+		TestUtilities.checkResult(copiedMsg.nameType() == com.refinitiv.ema.rdm.EmaRdm.INSTRUMENT_NAME_RIC , "AckMsg.nameType()");
+
+		TestUtilities.checkResult(copiedMsg.hasName(), "AckMsg.hasName()");
+		
+		TestUtilities.checkResult(copiedMsg.name().compareTo("ABCDEF") == 0, "AckMsg.name()");
+		
+		TestUtilities.checkResult(copiedMsg.attrib().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "AckMsg.attrib().dataType()");
+		
+		TestUtilities.checkResult(copiedMsg.payload().dataType() == com.refinitiv.ema.access.DataType.DataTypes.FIELD_LIST, "AckMsg.payload().dataType()");
+	}
+
 
 }

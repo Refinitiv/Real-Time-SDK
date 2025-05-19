@@ -1034,7 +1034,7 @@ public class OmmConsumerTests extends TestCase
 			
 			assertEquals(1, statusMsg.streamId());
 			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
-			assertEquals("Open / Ok / Not entitled / 'Force logout'", statusMsg.state().toString());
+			assertEquals("Open / Suspect / Not entitled / 'Force logout'", statusMsg.state().toString());
 			
 			message = consumerClient.popMessage();
 			

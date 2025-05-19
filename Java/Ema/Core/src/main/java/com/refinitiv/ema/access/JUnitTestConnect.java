@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -243,7 +243,7 @@ public class JUnitTestConnect
 	public static EmaObjectManager _objManager = new EmaObjectManager();
 	
 	static {
-		_objManager.initialize();
+		_objManager.initialize(EmaObjectManager.DATA_POOL_INITIAL_SIZE);
 	}
 
 	// used only for JUNIT tests
@@ -1936,5 +1936,21 @@ public class JUnitTestConnect
     public static void setDefaultXmlSchemaName(String fileName)
     {
         ConfigReader.defaultXsdFileName = fileName;
-    } 
+    }
+    
+    public static int getCopiedBufferCapacity(Msg msg)
+    {
+    	MsgImpl msgImpl = (MsgImpl)msg;
+    	if(msgImpl._copiedBuffer.data() != null)
+    	{
+    		return msgImpl._copiedBuffer.data().capacity();
+    	}
+    	return 0;
+    }
+    
+    public static DataDictionary getDataDictionary(Msg msg)
+    {
+    	MsgImpl msgImpl = (MsgImpl)msg;
+    	return msgImpl._rsslDictionary;
+    }
 }

@@ -2,99 +2,201 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.     
+// *|           Copyright (C) 2019, 2024-2025 LSEG. All rights reserved.     
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Deque;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.ArrayDeque;
 
 import com.refinitiv.eta.valueadd.common.VaPool;
 
 class EmaObjectManager
 {
-	private final static int DATA_POOL_INITIAL_SIZE = 5;
+	final static int DATA_POOL_INITIAL_SIZE = 5;
 	private final static int DEFAULT_BYTE_BUFFER_SIZE = 5;
 	private final static int MAX_NUM_BYTE_BUFFER = 5;
 	private final static int MAX_BYTE_BUFFER_CAPABILITY = 2000;
+	private final static int DEFAULT_ETA_CONTAINER_SIZE = 10;
 
 	private List<ByteBuffer>[] _byteBufferList;
 	private boolean _intialized;
 	
-	VaPool _ommIntPool = new VaPool(false);
-	VaPool _ommUIntPool = new VaPool(false);
-	VaPool _ommFloatPool = new VaPool(false);
-	VaPool _ommDoublePool = new VaPool(false);
-	VaPool _ommBufferPool = new VaPool(false);
-	VaPool _ommAsciiPool = new VaPool(false);
-	VaPool _ommUtf8Pool = new VaPool(false);
-	VaPool _ommRmtesPool = new VaPool(false);
-	VaPool _ommRealPool = new VaPool(false);
-	VaPool _ommDatePool = new VaPool(false);
-	VaPool _ommTimePool = new VaPool(false);
-	VaPool _ommDateTimePool = new VaPool(false);
-	VaPool _ommQosPool = new VaPool(false);
-	VaPool _ommStatePool = new VaPool(false);
-	VaPool _ommEnumPool = new VaPool(false);
-	VaPool _ommArrayPool = new VaPool(false);
-	VaPool _fieldListPool = new VaPool(false);
-	VaPool _mapPool = new VaPool(false);
-	VaPool _elementListPool = new VaPool(false);
-	VaPool _filterListPool = new VaPool(false);
-	VaPool _vectorPool = new VaPool(false);
-	VaPool _seriesPool = new VaPool(false);
-	VaPool _opaquePool = new VaPool(false);
-	VaPool _ansiPagePool = new VaPool(false);
-	VaPool _xmlPool = new VaPool(false);
-	VaPool _jsonPool = new VaPool(false);
-	VaPool _reqMsgPool = new VaPool(false);
-	VaPool _refreshMsgPool = new VaPool(false);
-	VaPool _statusMsgPool = new VaPool(false);
-	VaPool _updateMsgPool = new VaPool(false);
-	VaPool _ackMsgPool = new VaPool(false);
-	VaPool _postMsgPool = new VaPool(false);
-	VaPool _genericMsgPool = new VaPool(false);
-	VaPool _noDataPool = new VaPool(false);
-	VaPool _ommErrorPool = new VaPool(false);
-
-	VaPool _singleItemPool = new VaPool(false);
-	VaPool _batchItemPool = new VaPool(false);
-	VaPool _subItemPool = new VaPool(false);
-	VaPool _tunnelItemPool = new VaPool(false);
-	VaPool _dictionaryItemPool = new VaPool(false);
-	VaPool _niproviderDictionaryItemPool = new VaPool(false);
-	VaPool _iproviderDictionaryItemPool = new VaPool(false);
-	VaPool _directoryItemPool = new VaPool(false);
-	VaPool _loginItemPool = new VaPool(false);
-	VaPool _longObjectPool = new VaPool(false);
-	VaPool _intObjectPool = new VaPool(false);
-
-	VaPool _timeoutEventPool = new VaPool(false);
-
-	VaPool _fieldEntryPool = new VaPool(false);
-	VaPool _elementEntryPool = new VaPool(false);
-	VaPool _arrayEntryPool = new VaPool(false);
-	VaPool _filterEntryPool = new VaPool(false);
-	VaPool _mapEntryPool = new VaPool(false);
-	VaPool _seriesEntryPool = new VaPool(false);
-	VaPool _vectorEntryPool = new VaPool(false);
-	VaPool _ommServiceIdIntegerPool = new VaPool(true);
-	VaPool _streamInfoPool = new VaPool(true);
+	static EmaObjectManager GlobalObjectManager;
 	
-	ArrayList<com.refinitiv.eta.codec.ElementList> _rsslElementListPool = new ArrayList<com.refinitiv.eta.codec.ElementList>();
-	ArrayList<com.refinitiv.eta.codec.Vector> _rsslVectorPool = new ArrayList<com.refinitiv.eta.codec.Vector>();
-	ArrayList<com.refinitiv.eta.codec.FieldList> _rsslFieldListPool = new ArrayList<com.refinitiv.eta.codec.FieldList>();
-	ArrayList<com.refinitiv.eta.codec.FilterList> _rsslFilterListPool = new ArrayList<com.refinitiv.eta.codec.FilterList>();
-	ArrayList<com.refinitiv.eta.codec.Map> _rsslMapPool = new ArrayList<com.refinitiv.eta.codec.Map>();
-	ArrayList<com.refinitiv.eta.codec.Series> _rsslSeriesPool = new ArrayList<com.refinitiv.eta.codec.Series>();
-	ArrayList<com.refinitiv.eta.codec.Array> _rsslArrayPool = new ArrayList<com.refinitiv.eta.codec.Array>();
+	static 
+	{
+		GlobalObjectManager = new EmaObjectManager(true);
+		GlobalObjectManager.initialize(DATA_POOL_INITIAL_SIZE * 2);
+	}
 	
-	ArrayList<com.refinitiv.eta.codec.DecodeIterator> _etaDecodeIteratorPool = new ArrayList<com.refinitiv.eta.codec.DecodeIterator>();
+	VaPool _ommIntPool;
+	VaPool _ommUIntPool;
+	VaPool _ommFloatPool;
+	VaPool _ommDoublePool;
+	VaPool _ommBufferPool;
+	VaPool _ommAsciiPool;
+	VaPool _ommUtf8Pool;
+	VaPool _ommRmtesPool;
+	VaPool _ommRealPool;
+	VaPool _ommDatePool;
+	VaPool _ommTimePool;
+	VaPool _ommDateTimePool;
+	VaPool _ommQosPool;
+	VaPool _ommStatePool;
+	VaPool _ommEnumPool;
+	VaPool _ommArrayPool;
+	VaPool _fieldListPool;
+	VaPool _mapPool;
+	VaPool _elementListPool;
+	VaPool _filterListPool;
+	VaPool _vectorPool;
+	VaPool _seriesPool;
+	VaPool _opaquePool;
+	VaPool _ansiPagePool;
+	VaPool _xmlPool;
+	VaPool _jsonPool;
+	VaPool _reqMsgPool;
+	VaPool _refreshMsgPool;
+	VaPool _statusMsgPool;
+	VaPool _updateMsgPool;
+	VaPool _ackMsgPool;
+	VaPool _postMsgPool;
+	VaPool _genericMsgPool;
+	VaPool _noDataPool;
+	VaPool _ommErrorPool;
+
+	VaPool _singleItemPool;
+	VaPool _batchItemPool;
+	VaPool _subItemPool;
+	VaPool _tunnelItemPool;
+	VaPool _dictionaryItemPool;
+	VaPool _niproviderDictionaryItemPool;
+	VaPool _iproviderDictionaryItemPool;
+	VaPool _directoryItemPool;
+	VaPool _loginItemPool;
+	VaPool _longObjectPool;
+	VaPool _intObjectPool;
+
+	VaPool _timeoutEventPool;
+
+	VaPool _fieldEntryPool;
+	VaPool _elementEntryPool;
+	VaPool _arrayEntryPool;
+	VaPool _filterEntryPool;
+	VaPool _mapEntryPool;
+	VaPool _seriesEntryPool;
+	VaPool _vectorEntryPool;
+	VaPool _ommServiceIdIntegerPool;
+	VaPool _streamInfoPool;
 	
-	<T> void initialize()
+	Deque<com.refinitiv.eta.codec.ElementList> _rsslElementListPool;
+	Deque<com.refinitiv.eta.codec.Vector> _rsslVectorPool;
+	Deque<com.refinitiv.eta.codec.FieldList> _rsslFieldListPool;
+	Deque<com.refinitiv.eta.codec.FilterList> _rsslFilterListPool;
+	Deque<com.refinitiv.eta.codec.Map> _rsslMapPool;
+	Deque<com.refinitiv.eta.codec.Series> _rsslSeriesPool;
+	Deque<com.refinitiv.eta.codec.Array> _rsslArrayPool;
+	
+	Deque<com.refinitiv.eta.codec.DecodeIterator> _etaDecodeIteratorPool;
+	
+	EmaObjectManager()
+	{
+		this(false);
+	}
+	
+	EmaObjectManager(boolean globalLock)
+	{
+		_ommIntPool = new VaPool(globalLock);
+		_ommUIntPool = new VaPool(globalLock);
+		_ommFloatPool = new VaPool(globalLock);
+		_ommDoublePool = new VaPool(globalLock);
+		_ommBufferPool = new VaPool(globalLock);
+		_ommAsciiPool = new VaPool(globalLock);
+		_ommUtf8Pool = new VaPool(globalLock);
+		_ommRmtesPool = new VaPool(globalLock);
+		_ommRealPool = new VaPool(globalLock);
+		_ommDatePool = new VaPool(globalLock);
+		_ommTimePool = new VaPool(globalLock);
+		_ommDateTimePool = new VaPool(globalLock);
+		_ommQosPool = new VaPool(globalLock);
+		_ommStatePool = new VaPool(globalLock);
+		_ommEnumPool = new VaPool(globalLock);
+		_ommArrayPool = new VaPool(globalLock);
+		_fieldListPool = new VaPool(globalLock);
+		_mapPool = new VaPool(globalLock);
+		_elementListPool = new VaPool(globalLock);
+		_filterListPool = new VaPool(globalLock);
+		_vectorPool = new VaPool(globalLock);
+		_seriesPool = new VaPool(globalLock);
+		_opaquePool = new VaPool(globalLock);
+		_ansiPagePool = new VaPool(globalLock);
+		_xmlPool = new VaPool(globalLock);
+		_jsonPool = new VaPool(globalLock);
+		_reqMsgPool = new VaPool(globalLock);
+		_refreshMsgPool = new VaPool(globalLock);
+		_statusMsgPool = new VaPool(globalLock);
+		_updateMsgPool = new VaPool(globalLock);
+		_ackMsgPool = new VaPool(globalLock);
+		_postMsgPool = new VaPool(globalLock);
+		_genericMsgPool = new VaPool(globalLock);
+		_noDataPool = new VaPool(globalLock);
+		_ommErrorPool = new VaPool(globalLock);
+
+		_singleItemPool = new VaPool(globalLock);
+		_batchItemPool = new VaPool(globalLock);
+		_subItemPool = new VaPool(globalLock);
+		_tunnelItemPool = new VaPool(globalLock);
+		_dictionaryItemPool = new VaPool(globalLock);
+		_niproviderDictionaryItemPool = new VaPool(globalLock);
+		_iproviderDictionaryItemPool = new VaPool(globalLock);
+		_directoryItemPool = new VaPool(globalLock);
+		_loginItemPool = new VaPool(globalLock);
+		_longObjectPool = new VaPool(globalLock);
+		_intObjectPool = new VaPool(globalLock);
+
+		_timeoutEventPool = new VaPool(globalLock);
+
+		_fieldEntryPool = new VaPool(globalLock);
+		_elementEntryPool = new VaPool(globalLock);
+		_arrayEntryPool = new VaPool(globalLock);
+		_filterEntryPool = new VaPool(globalLock);
+		_mapEntryPool = new VaPool(globalLock);
+		_seriesEntryPool = new VaPool(globalLock);
+		_vectorEntryPool = new VaPool(globalLock);
+		_ommServiceIdIntegerPool = new VaPool(true);
+		_streamInfoPool = new VaPool(true);
+		
+		if(globalLock)
+		{
+			_rsslElementListPool = new ConcurrentLinkedDeque<com.refinitiv.eta.codec.ElementList>();
+			_rsslVectorPool = new ConcurrentLinkedDeque<com.refinitiv.eta.codec.Vector>();
+			_rsslFieldListPool = new ConcurrentLinkedDeque<com.refinitiv.eta.codec.FieldList>();
+			_rsslFilterListPool = new ConcurrentLinkedDeque<com.refinitiv.eta.codec.FilterList>();
+			_rsslMapPool = new ConcurrentLinkedDeque<com.refinitiv.eta.codec.Map>();
+			_rsslSeriesPool = new ConcurrentLinkedDeque<com.refinitiv.eta.codec.Series>();
+			_rsslArrayPool = new ConcurrentLinkedDeque<com.refinitiv.eta.codec.Array>();
+			_etaDecodeIteratorPool = new ConcurrentLinkedDeque<com.refinitiv.eta.codec.DecodeIterator>();
+		}
+		else
+		{
+			_rsslElementListPool = new ArrayDeque<com.refinitiv.eta.codec.ElementList>(DEFAULT_ETA_CONTAINER_SIZE);
+			_rsslVectorPool = new ArrayDeque<com.refinitiv.eta.codec.Vector>(DEFAULT_ETA_CONTAINER_SIZE);
+			_rsslFieldListPool = new ArrayDeque<com.refinitiv.eta.codec.FieldList>(DEFAULT_ETA_CONTAINER_SIZE);
+			_rsslFilterListPool = new ArrayDeque<com.refinitiv.eta.codec.FilterList>(DEFAULT_ETA_CONTAINER_SIZE);
+			_rsslMapPool = new ArrayDeque<com.refinitiv.eta.codec.Map>(DEFAULT_ETA_CONTAINER_SIZE);
+			_rsslSeriesPool = new ArrayDeque<com.refinitiv.eta.codec.Series>(DEFAULT_ETA_CONTAINER_SIZE);
+			_rsslArrayPool = new ArrayDeque<com.refinitiv.eta.codec.Array>(DEFAULT_ETA_CONTAINER_SIZE);
+			_etaDecodeIteratorPool = new ArrayDeque<com.refinitiv.eta.codec.DecodeIterator>(DEFAULT_ETA_CONTAINER_SIZE);
+		}
+	}
+	
+	<T> void initialize(long poolSize)
 	{
 		if (_intialized)
 			return;
