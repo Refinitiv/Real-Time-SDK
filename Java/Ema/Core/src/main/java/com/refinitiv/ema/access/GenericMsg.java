@@ -287,7 +287,7 @@ public interface GenericMsg extends Msg
 	 *  Performs a deep copy of {@link GenericMsg} into the passed in object.
 	 * @param destGenericMsg to copy GenericMsg into. 
 	 * @throws OmmInvalidUsageException if this object is not used for decoding routine.
-	 * @throws OmmInvalidUsageException if the destGenericMsg is not created from {@link EmaFactory.createGenericMsg(int initialSize)}
+	 * @throws OmmInvalidUsageException if the destGenericMsg is not created from {@link EmaFactory#createGenericMsg(int initialSize)}
 	 */
 	public void copy(GenericMsg destGenericMsg);
 }

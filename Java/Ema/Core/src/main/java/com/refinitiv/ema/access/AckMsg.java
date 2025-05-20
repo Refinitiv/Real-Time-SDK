@@ -356,8 +356,8 @@ public interface AckMsg extends Msg
 	/**
 	 *  Performs a deep copy of {@link AckMsg} into the passed in object.
 	 * @param destAckMsg to copy AckMsg into. 
-	 * @throws OmmInvalidUsageException if this object is not used for decoding routine.
-	 * @throws OmmInvalidUsageException if the destAckMsg is not created from {@link EmaFactory.createAckMsg(int initialSize)}
+	 * @throws OmmInvalidUsageException if this object is not used for decoding routine, or if 
+	 *    the destAckMsg is not created from {@link EmaFactory#createAckMsg(int initialSize)}
 	 */
 	public void copy(AckMsg destAckMsg);
 }

@@ -444,7 +444,7 @@ public interface ReqMsg extends Msg
 	 *  Performs a deep copy of {@link ReqMsg} into the passed in object.
 	 * @param destReqMsg to copy ReqMsg into. 
 	 * @throws OmmInvalidUsageException if this object is not used for decoding routine.
-	 * @throws OmmInvalidUsageException if the destReqMsg is not created from {@link EmaFactory.createReqMsg(int initialSize)}
+	 * @throws OmmInvalidUsageException if the destReqMsg is not created from {@link EmaFactory#createReqMsg(int initialSize)}
 	 */
 	public void copy(ReqMsg destReqMsg);
 }

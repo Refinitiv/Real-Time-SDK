@@ -355,7 +355,7 @@ public interface StatusMsg extends Msg
 	 *  Performs a deep copy of {@link StatusMsg} into the passed in object.
 	 * @param destStatusMsg to copy StatusMsg into. 
 	 * @throws OmmInvalidUsageException if this object is not used for decoding routine.
-	 * @throws OmmInvalidUsageException if the destStatusMsg is not created from {@link EmaFactory.createStatusMsg(int initialSize)}
+	 * @throws OmmInvalidUsageException if the destStatusMsg is not created from {@link EmaFactory#createStatusMsg(int initialSize)}
 	 */
 	public void copy(StatusMsg destStatusMsg);
 }

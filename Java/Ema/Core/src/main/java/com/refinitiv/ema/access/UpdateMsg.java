@@ -369,7 +369,7 @@ public interface UpdateMsg extends Msg
 	 *  Performs a deep copy of {@link UpdateMsg} into the passed in object.
 	 * @param destUpdateMsg to copy UpdateMsg into. 
 	 * @throws OmmInvalidUsageException if this object is not used for decoding routine.
-	 * @throws OmmInvalidUsageException if the destUpdateMsg is not created from {@link EmaFactory.createUpdateMsg(int initialSize)}
+	 * @throws OmmInvalidUsageException if the destUpdateMsg is not created from {@link EmaFactory#createUpdateMsg(int initialSize)}
 	 */
 	public void copy(UpdateMsg destUpdateMsg);
 }

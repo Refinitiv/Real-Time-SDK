@@ -68,7 +68,7 @@ task downloadBinaryPack(type: Download) {
 
 	def releaseToDownload = "RTSDK-BinaryPack-" + BINARY_PACK_VERSION_TO_DOWNLOAD
 	def zipFileToDownload = releaseToDownload + ".zip"
-	src 'https://github.com/Refinitiv/Real-Time-SDK/releases/download/Real-Time-SDK-' + BINARY_PACK_VERSION_TO_DOWNLOAD + '/' + zipFileToDownload
+	src 'https://github.com/Refinitiv/Real-Time-SDK/releases/download/Real-Time-SDK-' + BINARY_PACK_VERSION_TO_DOWNLOAD + '-CppC/' + zipFileToDownload
 	dest new File('../.', 'RTSDK-BinaryPack.zip')
 }
 

@@ -467,7 +467,7 @@ public interface RefreshMsg extends Msg
 	 *  Performs a deep copy of {@link RefreshMsg} into the passed in object.
 	 * @param destRefreshMsg to copy RefreshMsg into. 
 	 * @throws OmmInvalidUsageException if this object is not used for decoding routine.
-	 * @throws OmmInvalidUsageException if the destRefreshMsg is not created from {@link EmaFactory.createRefreshMsg(int initialSize)}
+	 * @throws OmmInvalidUsageException if the destRefreshMsg is not created from {@link EmaFactory#createRefreshMsg(int initialSize)}
 	 */
 	public void copy(RefreshMsg destRefreshMsg);
 }

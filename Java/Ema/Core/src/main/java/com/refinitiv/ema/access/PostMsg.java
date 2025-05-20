@@ -403,7 +403,7 @@ public interface PostMsg extends Msg
 	 *  Performs a deep copy of {@link PostMsg} into the passed in object.
 	 * @param destPostMsg to copy PostMsg into. 
 	 * @throws OmmInvalidUsageException if this object is not used for decoding routine.
-	 * @throws OmmInvalidUsageException if the destPostMsg is not created from {@link EmaFactory.createPostMsg(int initialSize)}
+	 * @throws OmmInvalidUsageException if the destPostMsg is not created from {@link EmaFactory#createPostMsg(int initialSize)}
 	 */
 	public void copy(PostMsg destPostMsg);
 }
