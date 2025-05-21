@@ -56,6 +56,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         public ProviderTestClient(ITestOutputHelper output, ProviderTestOptions providerTestOptions)
         {
             m_ProviderTestOptions = providerTestOptions;
+
             m_Output = output;
         }
 
@@ -97,17 +98,19 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
         public void SendLoginResponse(OmmProvider provider, bool acceptLoginRequest, string? statusText = null)
         {
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
             if (acceptLoginRequest)
             {
                 if (m_ProviderTestOptions.SendRefreshAttrib)
                 {
                     provider.Submit(new RefreshMsg().DomainType(EmaRdm.MMT_LOGIN).Name(m_LoginUserName!).NameType(EmaRdm.USER_NAME).Complete(true).Solicited(true).Attrib(m_RefreshAttributes!).
-                        State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Login accepted"),LoginHandle);
+                        State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Login accepted").MarkForClear(),LoginHandle);
                 }
                 else
                 {
                     provider.Submit(new RefreshMsg().DomainType(EmaRdm.MMT_LOGIN).Name(m_LoginUserName!).NameType(EmaRdm.USER_NAME).Complete(true).Solicited(true).
-                        State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Login accepted"), LoginHandle);
+                        State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Login accepted").MarkForClear(), LoginHandle);
                 }
             }
             else
@@ -115,11 +118,15 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 provider.Submit(new StatusMsg().DomainType(EmaRdm.MMT_LOGIN).Name(m_LoginUserName!).NameType(EmaRdm.USER_NAME).
                         State(OmmState.StreamStates.CLOSED, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NOT_AUTHORIZED, statusText ?? "Login denied"), LoginHandle);
             }
+
+            m_RefreshAttributes?.ClearAndReturnToPool_All();
         }
 
         void ProcessDictionaryRequest(RequestMsg reqMsg, IOmmProviderEvent providerEvent)
         {
-         if (DataDictionary == null)
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
+            if (DataDictionary == null)
             {
                 DataDictionary = new DataDictionary();
 
@@ -129,7 +136,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             result = false;
             m_RefreshMsg.Clear().ClearCache(true);
-            m_Series.Clear();
+            m_Series = new Series();
 
             if (reqMsg.Name().Equals("RWFFld"))
             {
@@ -145,7 +152,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                             DomainType(EmaRdm.MMT_DICTIONARY).Filter(reqMsg.Filter()).Payload(m_Series).Complete(result).
                             Solicited(true), providerEvent.Handle);
 
-                    m_RefreshMsg.Clear();
+                    m_RefreshMsg.MarkForClear().Clear();
                 }
             }
             else if (reqMsg.Name().Equals("RWFEnum"))
@@ -162,14 +169,18 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                             DomainType(EmaRdm.MMT_DICTIONARY).Filter(reqMsg.Filter()).Payload(m_Series).Complete(result).
                             Solicited(true), providerEvent.Handle);
 
-                    m_RefreshMsg.Clear();
+                    m_RefreshMsg.MarkForClear().Clear();
                 }
             }
+
+            m_Series.MarkForClear();
         }
 
         public void OnReqMsg(RequestMsg reqMsg, IOmmProviderEvent providerEvent)
         {
             m_Output.WriteLine($"OnReqMsg({providerEvent.Provider.ProviderName})");
+
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
 
             switch (reqMsg.DomainType())
             {
@@ -246,7 +257,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                     AccessLock.Enter();
                     try
                     {
-                        RequestMsg requestMsg = new (reqMsg);
+                        RequestMsg requestMsg = new (reqMsg.MarkForClear());
                         m_Output.WriteLine(requestMsg.ToString());
                         m_MessageQueue.Enqueue(requestMsg);
 
@@ -274,7 +285,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                         fieldList.AddReal(25, 3994, OmmReal.MagnitudeTypes.EXPONENT_NEG_2);
                         fieldList.AddReal(30, 9, OmmReal.MagnitudeTypes.EXPONENT_0);
                         fieldList.AddReal(31, 19, OmmReal.MagnitudeTypes.EXPONENT_0);
-                        fieldList.Complete();
+                        fieldList.MarkForClear().Complete();
 
                         RefreshMsg refreshMsg = new RefreshMsg().Name(reqMsg.Name()).ServiceId(reqMsg.ServiceId()).Solicited(true).DomainType(reqMsg.DomainType()).
                             State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Refresh Completed").Complete(true);
@@ -293,19 +304,19 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                             refreshMsg.ItemGroup(m_ProviderTestOptions.ItemGroupId);
                         }
 
-                        providerEvent.Provider.Submit(refreshMsg, providerEvent.Handle);
+                        providerEvent.Provider.Submit(refreshMsg.MarkForClear(), providerEvent.Handle);
 
                         if(m_ProviderTestOptions.SendUpdateMessage)
                         {
-                            fieldList.Clear();
-                            fieldList.AddReal(22, 3991, OmmReal.MagnitudeTypes.EXPONENT_NEG_2);
-                            fieldList.AddReal(25, 3995, OmmReal.MagnitudeTypes.EXPONENT_NEG_2);
-                            fieldList.Complete();
+                            FieldList fieldList2 = new FieldList();
+                            fieldList2.AddReal(22, 3991, OmmReal.MagnitudeTypes.EXPONENT_NEG_2);
+                            fieldList2.AddReal(25, 3995, OmmReal.MagnitudeTypes.EXPONENT_NEG_2);
+                            fieldList2.MarkForClear().Complete();
 
                             UpdateMsg updateMsg = new UpdateMsg().Name(reqMsg.Name()).ServiceId(reqMsg.ServiceId()).UpdateTypeNum(EmaRdm.INSTRUMENT_UPDATE_TRADE).DomainType(reqMsg.DomainType())
-                                .Payload(fieldList);
+                                .Payload(fieldList2);
 
-                            providerEvent.Provider.Submit( updateMsg, providerEvent.Handle);
+                            providerEvent.Provider.Submit( updateMsg.MarkForClear(), providerEvent.Handle);
                         }
 
                         RequestAttributes requestAttributes = new()
@@ -329,7 +340,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                     if(m_ProviderTestOptions.SourceDirectoryPayload != null)
                     {
                         RefreshMsg refreshMsg = new RefreshMsg().DomainType(EmaRdm.MMT_DIRECTORY).ClearCache(true).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
-                            Payload(m_ProviderTestOptions.SourceDirectoryPayload).Solicited(true).Complete(true);
+                            Payload(m_ProviderTestOptions.SourceDirectoryPayload).Solicited(true).Complete(true).MarkForClear();
 
                         providerEvent.Provider.Submit(refreshMsg, providerEvent.Handle);
                     }
@@ -376,7 +387,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                         summaryData.AddEnumValue(1709, 559);
                         summaryData.AddTime(3798, 15, 45, 47, 0, 0, 0);
                         summaryData.AddTime(14269, 15, 45, 47, 451, 675, 0);
-                        summaryData.Complete();
+                        summaryData.MarkForClear().Complete();
 
                         Map map = new Map();
 
@@ -385,7 +396,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                         FieldList mapEntryValue = new FieldList();
                         mapEntryValue.AddUInt(6453, 1);
-                        mapEntryValue.Complete();
+                        mapEntryValue.MarkForClear().Complete();
 
                         map.AddKeyBuffer(new EmaBuffer(Encoding.ASCII.GetBytes("itemA")), MapAction.ADD, mapEntryValue);
 
@@ -396,13 +407,13 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                         mapEntryValue.Clear().AddUInt(6453, 3);
                         mapEntryValue.Complete();
                         map.AddKeyBuffer(new EmaBuffer(Encoding.ASCII.GetBytes("itemC")), MapAction.ADD, mapEntryValue);
-                        map.Complete();
+                        map.MarkForClear().Complete();
 
                         RefreshMsg refreshMsg = new RefreshMsg().Name(reqMsg.Name()).DomainType(EmaRdm.MMT_SYMBOL_LIST).ServiceId(reqMsg.ServiceId()).Solicited(true).
                                 State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Refresh Completed").
                                 Payload(map).Complete(true);
 
-                        providerEvent.Provider.Submit(refreshMsg, providerEvent.Handle);
+                        providerEvent.Provider.Submit(refreshMsg.MarkForClear(), providerEvent.Handle);
                     }
                     finally
                     {
@@ -432,7 +443,9 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
         public void OnPostMsg(PostMsg postMsg, IOmmProviderEvent providerEvent) 
         {
-            PostMsg cloneMsg = new(postMsg);
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
+            PostMsg cloneMsg = new(postMsg.MarkForClear());
 
             m_Output.WriteLine($"OnPost({providerEvent.Provider.ProviderName}) {cloneMsg}");
 
@@ -460,7 +473,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                     ackMsg.AckId(postMsg.PostId()).DomainType(postMsg.DomainType());
 
-                    providerEvent.Provider.Submit(ackMsg, providerEvent.Handle);
+                    providerEvent.Provider.Submit(ackMsg.MarkForClear(), providerEvent.Handle);
                 }
             }
             finally

@@ -1338,14 +1338,24 @@ namespace LSEG.Ema.Access
             {
                 if (!groupId.Equals(itemInfo.ItemGroup))
                 {
-                    UpdateItemGroup(itemInfo, groupId);
-                    itemInfo.ItemGroup = groupId;
+                    /* Create deep copy for group ID */
+                    Buffer copyGroupId = new Buffer();
+                    copyGroupId.Data(new ByteBuffer(groupId.Length));
+                    groupId.Copy(copyGroupId);
+
+                    UpdateItemGroup(itemInfo, copyGroupId);
+                    itemInfo.ItemGroup = copyGroupId;
                 }
             }
             else
             {
-                itemInfo.ItemGroup = groupId;
-                AddItemGroup(itemInfo, groupId);
+                /* Create deep copy for group ID */
+                Buffer copyGroupId = new Buffer();
+                copyGroupId.Data(new ByteBuffer(groupId.Length));
+                groupId.Copy(copyGroupId);
+
+                itemInfo.ItemGroup = copyGroupId;
+                AddItemGroup(itemInfo, copyGroupId);
             }
         }
 

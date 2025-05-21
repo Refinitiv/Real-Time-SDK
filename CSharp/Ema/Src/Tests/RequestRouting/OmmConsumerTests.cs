@@ -7,6 +7,7 @@
  */
 
 using LSEG.Ema.Rdm;
+using LSEG.Eta.Codec;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -837,20 +838,22 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
 
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
             /* Source directory refresh for the first server */
             OmmArray capablities = new OmmArray();
             capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
             capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-            capablities.Complete();
+            capablities.MarkForClear().Complete();
             OmmArray dictionaryUsed = new OmmArray();
             dictionaryUsed.AddAscii("RWFFld");
             dictionaryUsed.AddAscii("RWFEnum");
-            dictionaryUsed.Complete();
+            dictionaryUsed.MarkForClear().Complete();
 
             OmmArray qosList = new OmmArray();
             qosList.AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK);
             qosList.AddQos(100, 100);
-            qosList.Complete();
+            qosList.MarkForClear().Complete();
 
             ElementList serviceInfoId = new ElementList();
             serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
@@ -859,20 +862,20 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
             serviceInfoId.AddArray(EmaRdm.ENAME_QOS, qosList);
             serviceInfoId.AddAscii(EmaRdm.ENAME_ITEM_LIST, "#.itemlist");
             serviceInfoId.AddUInt(EmaRdm.ENAME_SUPPS_QOS_RANGE, 0);
-            serviceInfoId.Complete();
+            serviceInfoId.MarkForClear().Complete();
 
             ElementList serviceStateId = new ElementList();
             serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-            serviceStateId.Complete();
+            serviceStateId.MarkForClear().Complete();
 
             FilterList filterList = new FilterList();
             filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
             filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-            filterList.Complete();
+            filterList.MarkForClear().Complete();
 
             Map map = new Map();
             map.AddKeyUInt(1, MapAction.ADD, filterList);
-            map.Complete();
+            map.MarkForClear().Complete();
 
             ProviderTestOptions providerTestOptions = new ProviderTestOptions();
             ProviderTestClient providerClient = new ProviderTestClient(m_Output, providerTestOptions);
@@ -884,7 +887,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
             /* Source directory refresh for the second server with different QoS*/
             qosList.Clear();
             qosList.AddQos(500, 500);
-            qosList.Complete();
+            qosList.MarkForClear().Complete();
 
             serviceInfoId.Clear();
             serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
@@ -893,16 +896,16 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
             serviceInfoId.AddArray(EmaRdm.ENAME_QOS, qosList);
             serviceInfoId.AddAscii(EmaRdm.ENAME_ITEM_LIST, "#.itemlist");
             serviceInfoId.AddUInt(EmaRdm.ENAME_SUPPS_QOS_RANGE, 0);
-            serviceInfoId.Complete();
+            serviceInfoId.MarkForClear().Complete();
 
             filterList.Clear();
             filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
             filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-            filterList.Complete();
+            filterList.MarkForClear().Complete();
 
             Map map2 = new Map();
             map2.AddKeyUInt(1, MapAction.ADD, filterList);
-            map2.Complete();
+            map2.MarkForClear().Complete();
 
             ProviderTestOptions providerTestOptions2 = new ProviderTestOptions();
             providerTestOptions2.SourceDirectoryPayload = map2;
@@ -964,7 +967,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 RequestMsg reqMsg = new();
 
-                long directoryHandle = consumer.RegisterClient(reqMsg.DomainType(EmaRdm.MMT_DIRECTORY), consumerClient);
+                long directoryHandle = consumer.RegisterClient(reqMsg.DomainType(EmaRdm.MMT_DIRECTORY).MarkForClear(), consumerClient);
 
                 Thread.Sleep(2000);
 
@@ -2769,6 +2772,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -2807,19 +2812,19 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 FilterList filterList = new FilterList();
                 Map map = new Map();
-                map.AddKeyUInt(1, MapAction.DELETE, filterList.Complete());
-                map.Complete();
+                map.AddKeyUInt(1, MapAction.DELETE, filterList.MarkForClear().Complete());
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
-                        Payload(map), 0);   // use 0 item handle to fanout to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fanout to all subscribers
 
                 map.Clear();
                 map.AddKeyUInt(1, MapAction.DELETE, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 ommprovider2.Submit(updateMsg.Clear().DomainType(EmaRdm.MMT_DIRECTORY).
-                        Payload(map), 0);   // use 0 item handle to fanout to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fanout to all subscribers
 
                 while (consumerClient.QueueSize() < 1) { }
 
@@ -2922,6 +2927,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -3137,20 +3144,20 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 // Change service's state to down from one provider
                 ElementList serviceState = new ElementList();
                 serviceState.AddUInt(EmaRdm.ENAME_SVC_STATE, 0);
-                serviceState.Complete();
+                serviceState.MarkForClear().Complete();
 
                 FilterList filterListEnc = new FilterList();
                 filterListEnc.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.UPDATE, serviceState);
-                filterListEnc.Complete();
+                filterListEnc.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterListEnc);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_STATE_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fan-out to all subscribers	
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fan-out to all subscribers	
 
                 Thread.Sleep(5000);
 
@@ -3159,7 +3166,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 ommprovider2.Submit(updateMsg.Clear().DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_STATE_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fan-out to all subscribers	
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fan-out to all subscribers	
 
                 Thread.Sleep(5000);
 
@@ -3398,6 +3405,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -3614,20 +3623,20 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 ElementList serviceState = new ElementList();
                 serviceState.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
                 serviceState.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 0);
-                serviceState.Complete();
+                serviceState.MarkForClear().Complete();
 
                 FilterList filterListEnc = new FilterList();
                 filterListEnc.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.UPDATE, serviceState);
-                filterListEnc.Complete();
+                filterListEnc.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterListEnc);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_STATE_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fan-out to all subscribers	
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fan-out to all subscribers	
 
                 Thread.Sleep(5000);
 
@@ -3858,37 +3867,39 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         [Fact]
         public void MultiConnectionsReceiveDirectoryResponseOnlyOneConnectionTest()
         {
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
 
             /* Source directory refresh */
             OmmArray capablities = new OmmArray();
             capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-            capablities.Complete();
+            capablities.MarkForClear().Complete();
 
             OmmArray dictionaryUsed = new OmmArray();
             dictionaryUsed.AddAscii("RWFFld");
             dictionaryUsed.AddAscii("RWFEnum");
-            dictionaryUsed.Complete();
+            dictionaryUsed.MarkForClear().Complete();
 
             ElementList serviceInfoId = new ElementList();
 
             serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
             serviceInfoId.AddArray(EmaRdm.ENAME_CAPABILITIES, capablities);
             serviceInfoId.AddArray(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed);
-            serviceInfoId.Complete();
+            serviceInfoId.MarkForClear().Complete();
 
             ElementList serviceStateId = new ElementList();
             serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-            serviceStateId.Complete();
+            serviceStateId.MarkForClear().Complete();
 
             FilterList filterList = new FilterList();
             filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
             filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-            filterList.Complete();
+            filterList.MarkForClear().Complete();
 
             Map map = new Map();
             map.AddKeyUInt(1, MapAction.ADD, filterList);
-            map.Complete();
+            map.MarkForClear().Complete();
 
             ProviderTestOptions providerTestOptions = new ProviderTestOptions();
 
@@ -4653,6 +4664,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_12"));
 
                 consumerClient.Consumer(consumer);
@@ -4663,14 +4676,14 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 array.AddAscii("itemA");
                 array.AddAscii("itemB");
                 array.AddAscii("itemC");
-                array.Complete();
+                array.MarkForClear().Complete();
 
                 batch.AddArray(EmaRdm.ENAME_BATCH_ITEM_LIST, array);
-                batch.Complete();
+                batch.MarkForClear().Complete();
 
                 RequestMsg reqMsg = new();
 
-                consumer.RegisterClient(reqMsg.ServiceName("DIRECT_FEED").Payload(batch), consumerClient);
+                consumer.RegisterClient(reqMsg.ServiceName("DIRECT_FEED").Payload(batch).MarkForClear(), consumerClient);
 
                 Thread.Sleep(2000);
 
@@ -4944,6 +4957,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 ServiceList serviceList = new ServiceList("SVG1");
 
                 serviceList.ConcreteServiceList.Add("DIRECT_FEED");
@@ -4957,14 +4972,14 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 array.AddAscii("itemA");
                 array.AddAscii("itemB");
                 array.AddAscii("itemC");
-                array.Complete();
+                array.MarkForClear().Complete();
 
                 batch.AddArray(EmaRdm.ENAME_BATCH_ITEM_LIST, array);
-                batch.Complete();
+                batch.MarkForClear().Complete();
 
                 RequestMsg reqMsg = new RequestMsg();
 
-                consumer.RegisterClient(reqMsg.ServiceListName("SVG1").Payload(batch), consumerClient);
+                consumer.RegisterClient(reqMsg.ServiceListName("SVG1").Payload(batch).MarkForClear(), consumerClient);
 
                 Thread.Sleep(2000);
 
@@ -5223,6 +5238,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -5264,20 +5281,20 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceState.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_DOWN);
                 serviceState.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1);
                 serviceState.AddState(EmaRdm.ENAME_STATUS, OmmState.StreamStates.OPEN, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NONE);
-                serviceState.Complete();
+                serviceState.MarkForClear().Complete();
 
                 FilterList filterListEnc = new FilterList();
                 filterListEnc.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceState);
-                filterListEnc.Complete();
+                filterListEnc.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterListEnc);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_STATE_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fan-out to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fan-out to all subscribers
 
 
                 Thread.Sleep(2000); // Wait until consumer receives the item Open/Suspect status message from the VA Watchlist
@@ -5983,37 +6000,37 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 OmmArray capablities = new OmmArray();
                 capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
                 capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-                capablities.Complete();
+                capablities.MarkForClear().Complete();
 
                 OmmArray dictionaryUsed = new OmmArray();
                 dictionaryUsed.AddAscii("RWFFld");
                 dictionaryUsed.AddAscii("RWFEnum");
-                dictionaryUsed.Complete();
+                dictionaryUsed.MarkForClear().Complete();
 
                 ElementList serviceInfoId = new ElementList();
 
                 serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED2");
                 serviceInfoId.AddArray(EmaRdm.ENAME_CAPABILITIES, capablities);
                 serviceInfoId.AddArray(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed);
-                serviceInfoId.Complete();
+                serviceInfoId.MarkForClear().Complete();
 
                 ElementList serviceStateId = new ElementList();
                 serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-                serviceStateId.Complete();
+                serviceStateId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
                 filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(2, MapAction.ADD, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                                                         Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
-                                                        Payload(map), 0);
+                                                        Payload(map).MarkForClear(), 0);
 
                 Thread.Sleep(2000);
 
@@ -6152,20 +6169,20 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceState.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 0);
                 serviceState.AddState(EmaRdm.ENAME_STATUS, OmmState.StreamStates.CLOSED_RECOVER, OmmState.DataStates.SUSPECT,
                         OmmState.StatusCodes.NONE, "Item temporary closed");
-                serviceState.Complete();
+                serviceState.MarkForClear().Complete();
 
                 FilterList filterListEnc = new FilterList();
                 filterListEnc.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.UPDATE, serviceState);
-                filterListEnc.Complete();
+                filterListEnc.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterListEnc);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_STATE_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fan-out to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fan-out to all subscribers
 
                 Thread.Sleep(2000);
 
@@ -6198,17 +6215,17 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 OmmArray capablities = new OmmArray();
                 capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
                 capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-                capablities.Complete();
+                capablities.MarkForClear().Complete();
 
                 OmmArray dictionaryUsed = new OmmArray();
                 dictionaryUsed.AddAscii("RWFFld");
                 dictionaryUsed.AddAscii("RWFEnum");
-                dictionaryUsed.Complete();
+                dictionaryUsed.MarkForClear().Complete();
 
                 OmmArray qosList = new OmmArray();
                 qosList.AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK);
                 qosList.AddQos(100, 100);
-                qosList.Complete();
+                qosList.MarkForClear().Complete();
 
                 ElementList serviceInfoId = new ElementList();
                 serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
@@ -6217,25 +6234,25 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceInfoId.AddArray(EmaRdm.ENAME_QOS, qosList);
                 serviceInfoId.AddAscii(EmaRdm.ENAME_ITEM_LIST, "#.itemlist");
                 serviceInfoId.AddUInt(EmaRdm.ENAME_SUPPS_QOS_RANGE, 0);
-                serviceInfoId.Complete();
+                serviceInfoId.MarkForClear().Complete();
 
                 ElementList serviceStateId = new ElementList();
                 serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-                serviceStateId.Complete();
+                serviceStateId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
                 filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 map = new Map();
                 map.AddKeyUInt(2, MapAction.ADD, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 updateMsg = new UpdateMsg();
                 ommprovider2.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                                                         Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
-                                                        Payload(map), 0);
+                                                        Payload(map).MarkForClear(), 0);
 
                 Thread.Sleep(2000);
 
@@ -6501,32 +6518,32 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
             /* Source directory for this the first provider */
             OmmArray capablities = new OmmArray();
             capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-            capablities.Complete();
+            capablities.MarkForClear().Complete();
 
             OmmArray dictionaryUsed = new OmmArray();
             dictionaryUsed.AddAscii("RWFFld");
             dictionaryUsed.AddAscii("RWFEnum");
-            dictionaryUsed.Complete();
+            dictionaryUsed.MarkForClear().Complete();
 
             ElementList serviceInfoId = new ElementList();
 
             serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
             serviceInfoId.AddArray(EmaRdm.ENAME_CAPABILITIES, capablities);
             serviceInfoId.AddArray(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed);
-            serviceInfoId.Complete();
+            serviceInfoId.MarkForClear().Complete();
 
             ElementList serviceStateId = new ElementList();
             serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-            serviceStateId.Complete();
+            serviceStateId.MarkForClear().Complete();
 
             FilterList filterList = new FilterList();
             filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
             filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-            filterList.Complete();
+            filterList.MarkForClear().Complete();
 
             Map map = new Map();
             map.AddKeyUInt(1, MapAction.ADD, filterList);
-            map.Complete();
+            map.MarkForClear().Complete();
 
             providerTestOptions.SourceDirectoryPayload = map;
 
@@ -6541,31 +6558,31 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
             OmmArray capablities2 = new OmmArray();
             capablities2.AddUInt(EmaRdm.MMT_MARKET_PRICE);
             capablities2.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-            capablities2.Complete();
+            capablities2.MarkForClear().Complete();
 
             OmmArray dictionaryUsed2 = new OmmArray();
             dictionaryUsed2.AddAscii("RWFFld");
             dictionaryUsed2.AddAscii("RWFEnum");
-            dictionaryUsed2.Complete();
+            dictionaryUsed2.MarkForClear().Complete();
 
             ElementList serviceInfoId2 = new ElementList();
             serviceInfoId2.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
             serviceInfoId2.AddArray(EmaRdm.ENAME_CAPABILITIES, capablities2);
             serviceInfoId2.AddArray(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed2);
-            serviceInfoId2.Complete();
+            serviceInfoId2.MarkForClear().Complete();
 
             ElementList serviceStateId2 = new ElementList();
             serviceStateId2.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-            serviceStateId2.Complete();
+            serviceStateId2.MarkForClear().Complete();
 
             FilterList filterList2 = new FilterList();
             filterList2.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId2);
             filterList2.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId2);
-            filterList2.Complete();
+            filterList2.MarkForClear().Complete();
 
             Map map2 = new Map();
             map2.AddKeyUInt(1, MapAction.ADD, filterList2);
-            map2.Complete();
+            map2.MarkForClear().Complete();
 
             providerTestOptions2.SourceDirectoryPayload = map2;
 
@@ -6826,6 +6843,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new RequestMsg();
@@ -6869,19 +6888,19 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceGroupId.AddBuffer(EmaRdm.ENAME_GROUP, providerTestOptions.ItemGroupId);
                 serviceGroupId.AddState(EmaRdm.ENAME_STATUS,
                         OmmState.StreamStates.CLOSED_RECOVER, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NONE, "Group Status Msg");
-                serviceGroupId.Complete();
+                serviceGroupId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_GROUP_ID, FilterAction.SET, serviceGroupId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 ommprovider.Submit(new UpdateMsg().DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_GROUP_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fanout to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fanout to all subscribers
 
                 Thread.Sleep(2000); // Wait until consumer receives the group status message.
 
@@ -7065,6 +7084,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -7106,20 +7127,20 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 ElementList serviceState = new ElementList();
                 serviceState.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
                 serviceState.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 0);
-                serviceState.Complete();
+                serviceState.MarkForClear().Complete();
 
                 FilterList filterListEnc = new FilterList();
                 filterListEnc.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.UPDATE, serviceState);
-                filterListEnc.Complete();
+                filterListEnc.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterListEnc);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_STATE_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fan-out to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fan-out to all subscribers
 
                 serviceState.Clear();
                 serviceState.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
@@ -7216,6 +7237,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -7257,20 +7280,20 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 ElementList serviceState = new ElementList();
                 serviceState.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
                 serviceState.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 0);
-                serviceState.Complete();
+                serviceState.MarkForClear().Complete();
 
                 FilterList filterListEnc = new FilterList();
                 filterListEnc.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.UPDATE, serviceState);
-                filterListEnc.Complete();
+                filterListEnc.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterListEnc);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_STATE_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fan-out to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fan-out to all subscribers
 
                 serviceState.Clear();
                 serviceState.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
@@ -7711,6 +7734,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 ServiceList serviceList = new ServiceList("SVG1");
 
                 serviceList.ConcreteServiceList.Add("UNKNOWN_SERVICE");
@@ -7741,37 +7766,37 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 OmmArray capablities = new OmmArray();
                 capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
                 capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-                capablities.Complete();
+                capablities.MarkForClear().Complete();
 
                 OmmArray dictionaryUsed = new OmmArray();
                 dictionaryUsed.AddAscii("RWFFld");
                 dictionaryUsed.AddAscii("RWFEnum");
-                dictionaryUsed.Complete();
+                dictionaryUsed.MarkForClear().Complete();
 
                 ElementList serviceInfoId = new ElementList();
 
                 serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED2");
                 serviceInfoId.AddArray(EmaRdm.ENAME_CAPABILITIES, capablities);
                 serviceInfoId.AddArray(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed);
-                serviceInfoId.Complete();
+                serviceInfoId.MarkForClear().Complete();
 
                 ElementList serviceStateId = new ElementList();
                 serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-                serviceStateId.Complete();
+                serviceStateId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
                 filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(2, MapAction.ADD, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                                                         Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
-                                                        Payload(map), 0);
+                                                        Payload(map).MarkForClear(), 0);
 
                 Thread.Sleep(2000);
 
@@ -7840,6 +7865,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 ServiceList serviceList = new ServiceList("SVG1");
 
                 serviceList.ConcreteServiceList.Add("DIRECT_FEED");
@@ -7891,20 +7918,20 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceState.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1);
                 serviceState.AddState(EmaRdm.ENAME_STATUS, OmmState.StreamStates.OPEN, OmmState.DataStates.SUSPECT,
                     OmmState.StatusCodes.NONE);
-                serviceState.Complete();
+                serviceState.MarkForClear().Complete();
 
                 FilterList filterListEnc = new FilterList();
                 filterListEnc.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.UPDATE, serviceState);
-                filterListEnc.Complete();
+                filterListEnc.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterListEnc);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_STATE_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fan-out to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fan-out to all subscribers
 
                 ommprovider.Submit(new StatusMsg().DomainType(EmaRdm.MMT_MARKET_PRICE)
                         .State(OmmState.StreamStates.CLOSED_RECOVER, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NONE, "Item temporary closed")
@@ -7994,6 +8021,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 ServiceList serviceList = new ServiceList("SVG1");
 
                 serviceList.ConcreteServiceList.Add("DIRECT_FEED");
@@ -8043,19 +8072,19 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceGroupId.AddBuffer(EmaRdm.ENAME_GROUP, providerTestOptions.ItemGroupId);
                 serviceGroupId.AddState(EmaRdm.ENAME_STATUS,
                         OmmState.StreamStates.CLOSED_RECOVER, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NONE, "Group Status Msg");
-                serviceGroupId.Complete();
+                serviceGroupId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_GROUP_ID, FilterAction.SET, serviceGroupId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 ommprovider.Submit(new UpdateMsg().DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_GROUP_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fanout to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fanout to all subscribers
 
                 Thread.Sleep(2000); // Wait until consumer receives the item closed recoverable status message.
 
@@ -8142,6 +8171,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 ServiceList serviceList = new ServiceList("SVG1");
 
                 serviceList.ConcreteServiceList.Add("DIRECT_FEED");
@@ -8191,19 +8222,19 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceGroupId.AddBuffer(EmaRdm.ENAME_GROUP, providerTestOptions.ItemGroupId);
                 serviceGroupId.AddState(EmaRdm.ENAME_STATUS,
                         OmmState.StreamStates.OPEN, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NONE, "Group Status Msg");
-                serviceGroupId.Complete();
+                serviceGroupId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_GROUP_ID, FilterAction.SET, serviceGroupId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 ommprovider.Submit(new UpdateMsg().DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_GROUP_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fanout to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fanout to all subscribers
 
                 Thread.Sleep(2000); // Wait until consumer receives the item closed recoverable status message.
 
@@ -8290,6 +8321,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -8334,7 +8367,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
                 nestedFieldList.AddTime(18, 11, 29, 30);
                 nestedFieldList.AddEnumValue(37, 3);
-                nestedFieldList.Complete();
+                nestedFieldList.MarkForClear().Complete();
 
                 nestedUpdateMsg.Payload(nestedFieldList);
 
@@ -8342,7 +8375,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 consumer.Submit(postMsg.PostId(++postId).ServiceName("DIRECT_FEED")
                                                             .Name("IBM.N").SolicitAck(false).Complete(true)
-                                                            .Payload(nestedUpdateMsg), itemHandle);
+                                                            .Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), itemHandle);
 
                 Thread.Sleep(1000);
 
@@ -8448,6 +8481,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -8483,25 +8518,24 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(OmmState.DataStates.OK, refreshMsg.State().DataState);
                 Assert.Equal(OmmState.StatusCodes.NONE, refreshMsg.State().StatusCode);
 
-                /* Submit a PostMsg to the first item stream */
-                PostMsg postMsg = new PostMsg();
-                UpdateMsg nestedUpdateMsg = new UpdateMsg();
-                FieldList nestedFieldList = new FieldList();
-
-                nestedFieldList.AddReal(22, 34, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
-                nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
-                nestedFieldList.AddTime(18, 11, 29, 30);
-                nestedFieldList.AddEnumValue(37, 3);
-                nestedFieldList.Complete();
-
-                nestedUpdateMsg.Payload(nestedFieldList);
-
                 /* This is invalid usage as the DIRECT_FEED_2 service name doesn't exist on the provider of this item stream but the second provider. */
                 OmmInvalidUsageException expectedException = Assert.Throws<OmmInvalidUsageException>(() =>
                 {
+                    PostMsg postMsg = new PostMsg();
+                    UpdateMsg nestedUpdateMsg = new UpdateMsg();
+                    FieldList nestedFieldList = new FieldList();
+
+                    nestedFieldList.AddReal(22, 34, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
+                    nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
+                    nestedFieldList.AddTime(18, 11, 29, 30);
+                    nestedFieldList.AddEnumValue(37, 3);
+                    nestedFieldList.MarkForClear().Complete();
+
+                    nestedUpdateMsg.Payload(nestedFieldList);
+
                     consumer.Submit(postMsg.PostId(1).ServiceName("DIRECT_FEED_2")
                                                             .Name("IBM.N").SolicitAck(false).Complete(true)
-                                                            .Payload(nestedUpdateMsg), itemHandle);
+                                                            .Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), itemHandle);
                 });
 
                 Assert.StartsWith("Failed to submit PostMsg on item stream. Reason: INVALID_USAGE. Error text: " +
@@ -8511,26 +8545,64 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 /* This is invalid usage as the service Id doesn't exist on the provider of this item stream but the second provider */
                 expectedException = Assert.Throws<OmmInvalidUsageException>(() =>
+                {
+                    PostMsg postMsg = new PostMsg();
+                    UpdateMsg nestedUpdateMsg = new UpdateMsg();
+                    FieldList nestedFieldList = new FieldList();
+
+                    nestedFieldList.AddReal(22, 34, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
+                    nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
+                    nestedFieldList.AddTime(18, 11, 29, 30);
+                    nestedFieldList.AddEnumValue(37, 3);
+                    nestedFieldList.MarkForClear().Complete();
+
                     consumer.Submit(postMsg.Clear().PostId(2).ServiceId(serviceId)
-                    .Name("IBM.N").SolicitAck(true).Complete(true)
-                    .Payload(nestedUpdateMsg), itemHandle));
+                        .Name("IBM.N").SolicitAck(true).Complete(true)
+                        .Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), itemHandle);
+                    });
 
                 Assert.StartsWith("Failed to submit PostMsg on item stream. Reason: INVALID_USAGE. Error text: "
                     + "Message submitted with unknown service Id 32768", expectedException.Message);
 
                 /* This is invalid usage as the UNKNOWN_FEED service name doesn't exist in any providers */
-                expectedException = Assert.Throws<OmmInvalidUsageException>(() => consumer.Submit(postMsg.PostId(1).ServiceName("UNKNOWN_FEED")
+                expectedException = Assert.Throws<OmmInvalidUsageException>(() =>
+                {
+                    PostMsg postMsg = new PostMsg();
+                    UpdateMsg nestedUpdateMsg = new UpdateMsg();
+                    FieldList nestedFieldList = new FieldList();
+
+                    nestedFieldList.AddReal(22, 34, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
+                    nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
+                    nestedFieldList.AddTime(18, 11, 29, 30);
+                    nestedFieldList.AddEnumValue(37, 3);
+                    nestedFieldList.MarkForClear().Complete();
+
+                    consumer.Submit(postMsg.PostId(1).ServiceName("UNKNOWN_FEED")
                                                         .Name("IBM.N").SolicitAck(false).Complete(true)
-                                                        .Payload(nestedUpdateMsg), itemHandle));
+                                                        .Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), itemHandle);
+                 });
 
                 Assert.StartsWith("Failed to submit PostMsg on item stream. Reason: INVALID_USAGE. Error text: "
                     + "Message submitted with unknown service name UNKNOWN_FEED", expectedException.Message);
 
 
                 /* This is invalid usage as the 65535 service Id doesn't exist in any providers */
-                expectedException = Assert.Throws<OmmInvalidUsageException>(() => consumer.Submit(postMsg.Clear().PostId(2).ServiceId(65535)
+                expectedException = Assert.Throws<OmmInvalidUsageException>(() =>
+                {
+                    PostMsg postMsg = new PostMsg();
+                    UpdateMsg nestedUpdateMsg = new UpdateMsg();
+                    FieldList nestedFieldList = new FieldList();
+
+                    nestedFieldList.AddReal(22, 34, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
+                    nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
+                    nestedFieldList.AddTime(18, 11, 29, 30);
+                    nestedFieldList.AddEnumValue(37, 3);
+                    nestedFieldList.MarkForClear().Complete();
+
+                    consumer.Submit(postMsg.Clear().PostId(2).ServiceId(65535)
                     .Name("IBM.N").SolicitAck(true).Complete(true)
-                    .Payload(nestedUpdateMsg), itemHandle));
+                    .Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), itemHandle);
+                });
 
                 Assert.StartsWith("Failed to submit PostMsg on item stream. Reason: INVALID_USAGE. Error text: "
                     + "Message submitted with unknown service Id 65535", expectedException.Message);
@@ -8578,6 +8650,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -8608,7 +8682,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
                 nestedFieldList.AddTime(18, 11, 29, 30);
                 nestedFieldList.AddEnumValue(37, 3);
-                nestedFieldList.Complete();
+                nestedFieldList.MarkForClear().Complete();
 
                 nestedUpdateMsg.Payload(nestedFieldList);
 
@@ -8616,9 +8690,9 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 consumer.Submit(postMsg.PostId(++postId).ServiceName("DIRECT_FEED")
                                                             .Name("IBM.N").SolicitAck(false).Complete(true)
-                                                            .Payload(nestedUpdateMsg), loginHandle);
+                                                            .Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), loginHandle);
 
-                Thread.Sleep(1000);
+                Thread.Sleep(10000);
 
                 /* Checks to ensure that the provider receives the PostMsg */
                 Assert.Equal(1, providerClient1.QueueSize());
@@ -8690,6 +8764,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
             {
                 Assert.NotNull(consumer);
 
+                Thread.Sleep(1000);
+
                 m_Output.WriteLine("Uninitializing...");
 
                 consumer.Uninitialize();
@@ -8721,6 +8797,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -8764,11 +8842,11 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
                 nestedFieldList.AddTime(18, 11, 29, 30);
                 nestedFieldList.AddEnumValue(37, 3);
-                nestedFieldList.Complete();
+                nestedFieldList.MarkForClear().Complete();
 
                 nestedUpdateMsg.Payload(nestedFieldList);
 
-                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).Complete(true).Payload(nestedUpdateMsg), itemHandle);
+                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).Complete(true).Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), itemHandle);
 
                 Thread.Sleep(1000);
 
@@ -8844,6 +8922,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -8887,11 +8967,12 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
                 nestedFieldList.AddTime(18, 11, 29, 30);
                 nestedFieldList.AddEnumValue(37, 3);
-                nestedFieldList.Complete();
+                nestedFieldList.MarkForClear().Complete();
 
                 nestedUpdateMsg.Payload(nestedFieldList);
 
-                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).ServiceId(32767).Complete(true).Payload(nestedUpdateMsg), itemHandle);
+                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).ServiceId(32767).Complete(true).Payload(nestedUpdateMsg.MarkForClear())
+                    .MarkForClear(), itemHandle);
 
                 Thread.Sleep(3000);
 
@@ -9006,6 +9087,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -9036,11 +9119,11 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
                 nestedFieldList.AddTime(18, 11, 29, 30);
                 nestedFieldList.AddEnumValue(37, 3);
-                nestedFieldList.Complete();
+                nestedFieldList.MarkForClear().Complete();
 
                 // nestedUpdateMsg.Payload(nestedFieldList);
                 /* The service Id is required in order to decode the GenericMsg's payload which includes FieldList properly */
-                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).Complete(true).Payload(nestedUpdateMsg), loginHandle);
+                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).Complete(true).Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), loginHandle);
 
                 Thread.Sleep(1000);
 
@@ -9145,6 +9228,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -9174,11 +9259,12 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
                 nestedFieldList.AddTime(18, 11, 29, 30);
                 nestedFieldList.AddEnumValue(37, 3);
-                nestedFieldList.Complete();
+                nestedFieldList.MarkForClear().Complete();
 
                 nestedUpdateMsg.Payload(nestedFieldList);
                 /* The service Id is required in order to decode the GenericMsg's payload which includes FieldList properly */
-                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).Complete(true).ServiceId(32767).Payload(nestedUpdateMsg), loginHandle);
+                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).Complete(true).ServiceId(32767)
+                    .Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), loginHandle);
 
                 Thread.Sleep(1000);
 
@@ -9338,6 +9424,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 var consumerSession = consumer.m_OmmConsumerImpl!.ConsumerSession;
@@ -9368,12 +9456,12 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 /* Provider sends source directory update to delete the DIRECT_FEED service name. */
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.DELETE, new FilterList());
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                                         Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
-                                        Payload(map), 0);
+                                        Payload(map).MarkForClear(), 0);
 
                 Thread.Sleep(1000);
 
@@ -9381,17 +9469,17 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 OmmArray capablities = new OmmArray();
                 capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
                 capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-                capablities.Complete();
+                capablities.MarkForClear().Complete();
 
                 OmmArray dictionaryUsed = new OmmArray();
                 dictionaryUsed.AddAscii("RWFFld");
                 dictionaryUsed.AddAscii("RWFEnum");
-                dictionaryUsed.Complete();
+                dictionaryUsed.MarkForClear().Complete();
 
                 OmmArray qosList = new OmmArray();
                 qosList.AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK);
                 qosList.AddQos(55, 55);
-                qosList.Complete();
+                qosList.MarkForClear().Complete();
 
                 ElementList serviceInfoId = new ElementList();
                 serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
@@ -9400,21 +9488,21 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceInfoId.AddArray(EmaRdm.ENAME_QOS, qosList);
                 serviceInfoId.AddAscii(EmaRdm.ENAME_ITEM_LIST, "#.itemlist");
                 serviceInfoId.AddUInt(EmaRdm.ENAME_SUPPS_QOS_RANGE, 0);
-                serviceInfoId.Complete();
+                serviceInfoId.MarkForClear().Complete();
 
                 ElementList serviceStateId = new ElementList();
                 serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
                 serviceStateId.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1);
-                serviceStateId.Complete();
+                serviceStateId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
                 filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 map.Clear();
                 map.AddKeyUInt(1, MapAction.ADD, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 updateMsg.Clear();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
@@ -9493,6 +9581,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 ServiceList serviceList = new ServiceList("SVG1");
 
                 serviceList.ConcreteServiceList.Add("DIRECT_FEED");
@@ -9525,13 +9615,13 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 /* Provider sends source directory update to delete the DIRECT_FEED service name. */
                 Map map = new Map();
-                map.AddKeyUInt(1, MapAction.DELETE, new FilterList());
-                map.Complete();
+                map.AddKeyUInt(1, MapAction.DELETE, new FilterList().MarkForClear());
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                                         Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
-                                        Payload(map), 0);
+                                        Payload(map).MarkForClear(), 0);
 
                 Thread.Sleep(1000);
 
@@ -9539,17 +9629,17 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 OmmArray capablities = new OmmArray();
                 capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
                 capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-                capablities.Complete();
+                capablities.MarkForClear().Complete();
 
                 OmmArray dictionaryUsed = new OmmArray();
                 dictionaryUsed.AddAscii("RWFFld");
                 dictionaryUsed.AddAscii("RWFEnum");
-                dictionaryUsed.Complete();
+                dictionaryUsed.MarkForClear().Complete();
 
                 OmmArray qosList = new OmmArray();
                 qosList.AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK);
                 qosList.AddQos(55, 55);
-                qosList.Complete();
+                qosList.MarkForClear().Complete();
 
                 ElementList serviceInfoId = new ElementList();
                 serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
@@ -9558,21 +9648,21 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceInfoId.AddArray(EmaRdm.ENAME_QOS, qosList);
                 serviceInfoId.AddAscii(EmaRdm.ENAME_ITEM_LIST, "#.itemlist");
                 serviceInfoId.AddUInt(EmaRdm.ENAME_SUPPS_QOS_RANGE, 0);
-                serviceInfoId.Complete();
+                serviceInfoId.MarkForClear().Complete();
 
                 ElementList serviceStateId = new ElementList();
                 serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
                 serviceStateId.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1);
-                serviceStateId.Complete();
+                serviceStateId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
                 filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 map.Clear();
                 map.AddKeyUInt(1, MapAction.ADD, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 updateMsg.Clear();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
@@ -9649,6 +9739,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 var consumerSession = consumer.m_OmmConsumerImpl!.ConsumerSession;
@@ -9679,13 +9771,13 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 /* Provider sends source directory update to delete the DIRECT_FEED service name. */
                 Map map = new Map();
-                map.AddKeyUInt(1, MapAction.DELETE, new FilterList());
-                map.Complete();
+                map.AddKeyUInt(1, MapAction.DELETE, new FilterList().MarkForClear());
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                                         Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
-                                        Payload(map), 0);
+                                        Payload(map).MarkForClear(), 0);
 
                 Thread.Sleep(1000);
 
@@ -9694,17 +9786,17 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
                 capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
                 capablities.AddUInt(55);
-                capablities.Complete();
+                capablities.MarkForClear().Complete();
 
                 OmmArray dictionaryUsed = new OmmArray();
                 dictionaryUsed.AddAscii("RWFFld");
                 dictionaryUsed.AddAscii("RWFEnum");
-                dictionaryUsed.Complete();
+                dictionaryUsed.MarkForClear().Complete();
 
                 OmmArray qosList = new OmmArray();
                 qosList.AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK);
                 qosList.AddQos(55, 55);
-                qosList.Complete();
+                qosList.MarkForClear().Complete();
 
                 ElementList serviceInfoId = new ElementList();
                 serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
@@ -9713,17 +9805,17 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceInfoId.AddArray(EmaRdm.ENAME_QOS, qosList);
                 serviceInfoId.AddAscii(EmaRdm.ENAME_ITEM_LIST, "#.itemlist");
                 serviceInfoId.AddUInt(EmaRdm.ENAME_SUPPS_QOS_RANGE, 0);
-                serviceInfoId.Complete();
+                serviceInfoId.MarkForClear().Complete();
 
                 ElementList serviceStateId = new ElementList();
                 serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
                 serviceStateId.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1);
-                serviceStateId.Complete();
+                serviceStateId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
                 filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 map.Clear();
                 map.AddKeyUInt(1, MapAction.ADD, filterList);
@@ -9806,6 +9898,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 ServiceList serviceList = new ServiceList("SVG1");
 
                 serviceList.ConcreteServiceList.Add("DIRECT_FEED");
@@ -9841,13 +9935,13 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 /* Provider sends source directory update to delete the DIRECT_FEED service name. */
                 Map map = new Map();
-                map.AddKeyUInt(1, MapAction.DELETE, new FilterList());
-                map.Complete();
+                map.AddKeyUInt(1, MapAction.DELETE, new FilterList().MarkForClear());
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                                         Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
-                                        Payload(map), 0);
+                                        Payload(map).MarkForClear(), 0);
 
                 Thread.Sleep(1000);
 
@@ -9856,17 +9950,17 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
                 capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
                 capablities.AddUInt(55);
-                capablities.Complete();
+                capablities.MarkForClear().Complete();
 
                 OmmArray dictionaryUsed = new OmmArray();
                 dictionaryUsed.AddAscii("RWFFld");
                 dictionaryUsed.AddAscii("RWFEnum");
-                dictionaryUsed.Complete();
+                dictionaryUsed.MarkForClear().Complete();
 
                 OmmArray qosList = new OmmArray();
                 qosList.AddQos(OmmQos.Timelinesses.REALTIME, OmmQos.Rates.TICK_BY_TICK);
                 qosList.AddQos(55, 55);
-                qosList.Complete();
+                qosList.MarkForClear().Complete();
 
                 ElementList serviceInfoId = new ElementList();
                 serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
@@ -9875,17 +9969,17 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceInfoId.AddArray(EmaRdm.ENAME_QOS, qosList);
                 serviceInfoId.AddAscii(EmaRdm.ENAME_ITEM_LIST, "#.itemlist");
                 serviceInfoId.AddUInt(EmaRdm.ENAME_SUPPS_QOS_RANGE, 0);
-                serviceInfoId.Complete();
+                serviceInfoId.MarkForClear().Complete();
 
                 ElementList serviceStateId = new ElementList();
                 serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
                 serviceStateId.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1);
-                serviceStateId.Complete();
+                serviceStateId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
                 filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 map.Clear();
                 map.AddKeyUInt(1, MapAction.ADD, filterList);
@@ -10058,6 +10152,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -10097,20 +10193,20 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 serviceState.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_DOWN);
                 serviceState.AddUInt(EmaRdm.ENAME_ACCEPTING_REQS, 1);
                 serviceState.AddState(EmaRdm.ENAME_STATUS, OmmState.StreamStates.OPEN, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NONE);
-                serviceState.Complete();
+                serviceState.MarkForClear().Complete();
 
                 FilterList filterListEnc = new FilterList();
                 filterListEnc.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceState);
-                filterListEnc.Complete();
+                filterListEnc.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(1, MapAction.UPDATE, filterListEnc);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                         Filter(EmaRdm.SERVICE_STATE_FILTER).
-                        Payload(map), 0);   // use 0 item handle to fan-out to all subscribers
+                        Payload(map).MarkForClear(), 0);   // use 0 item handle to fan-out to all subscribers
 
 
                 Thread.Sleep(2000); // Wait until consumer receives the item Open/Suspect status message from the VA Watchlist
@@ -10511,6 +10607,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 ServiceList serviceList = new ServiceList("SVG1");
 
                 serviceList.ConcreteServiceList.Add("DIRECT_FEED");
@@ -10522,9 +10620,13 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 consumer.RegisterClient(reqMsg.ServiceName("DIRECT_FEED").Name("itemA"), consumerClient);
 
-                consumer.RegisterClient(reqMsg.Clear().ServiceName("DIRECT_FEED").Name("itemB"), consumerClient);
+                RequestMsg reqMsg2 = new();
 
-                consumer.RegisterClient(reqMsg.Clear().ServiceListName("SVG1").Name("itemC"), consumerClient);
+                consumer.RegisterClient(reqMsg2.ServiceName("DIRECT_FEED").Name("itemB"), consumerClient);
+
+                RequestMsg reqMsg3 = new();
+
+                consumer.RegisterClient(reqMsg3.ServiceListName("SVG1").Name("itemC"), consumerClient);
 
                 Thread.Sleep(2000);
 
@@ -11162,6 +11264,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -11171,7 +11275,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 long loginHandle = consumer.RegisterClient(reqMsg.DomainType(EmaRdm.MMT_LOGIN), consumerClient);
 
-                Thread.Sleep(1000);
+                Thread.Sleep(3000);
 
                 Assert.Equal(1, consumerClient.QueueSize());
 
@@ -11319,37 +11423,37 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 OmmArray capablities = new OmmArray();
                 capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
                 capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-                capablities.Complete();
+                capablities.MarkForClear().Complete();
 
                 OmmArray dictionaryUsed = new OmmArray();
                 dictionaryUsed.AddAscii("RWFFld");
                 dictionaryUsed.AddAscii("RWFEnum");
-                dictionaryUsed.Complete();
+                dictionaryUsed.MarkForClear().Complete();
 
                 ElementList serviceInfoId = new ElementList();
 
                 serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED2");
                 serviceInfoId.AddArray(EmaRdm.ENAME_CAPABILITIES, capablities);
                 serviceInfoId.AddArray(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed);
-                serviceInfoId.Complete();
+                serviceInfoId.MarkForClear().Complete();
 
                 ElementList serviceStateId = new ElementList();
                 serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-                serviceStateId.Complete();
+                serviceStateId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
                 filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(2, MapAction.ADD, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                                                         Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
-                                                        Payload(map), 0);
+                                                        Payload(map).MarkForClear(), 0);
 
                 Thread.Sleep(2000);
 
@@ -11397,6 +11501,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 ServiceList serviceList = new ServiceList("SVG1");
 
                 serviceList.ConcreteServiceList.Add("UNKNOWN_SERVICE");
@@ -11433,37 +11539,37 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 OmmArray capablities = new OmmArray();
                 capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
                 capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-                capablities.Complete();
+                capablities.MarkForClear().Complete();
 
                 OmmArray dictionaryUsed = new OmmArray();
                 dictionaryUsed.AddAscii("RWFFld");
                 dictionaryUsed.AddAscii("RWFEnum");
-                dictionaryUsed.Complete();
+                dictionaryUsed.MarkForClear().Complete();
 
                 ElementList serviceInfoId = new ElementList();
 
                 serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED2");
                 serviceInfoId.AddArray(EmaRdm.ENAME_CAPABILITIES, capablities);
                 serviceInfoId.AddArray(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed);
-                serviceInfoId.Complete();
+                serviceInfoId.MarkForClear().Complete();
 
                 ElementList serviceStateId = new ElementList();
                 serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-                serviceStateId.Complete();
+                serviceStateId.MarkForClear().Complete();
 
                 FilterList filterList = new FilterList();
                 filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId);
                 filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId);
-                filterList.Complete();
+                filterList.MarkForClear().Complete();
 
                 Map map = new Map();
                 map.AddKeyUInt(2, MapAction.ADD, filterList);
-                map.Complete();
+                map.MarkForClear().Complete();
 
                 UpdateMsg updateMsg = new UpdateMsg();
                 ommprovider.Submit(updateMsg.DomainType(EmaRdm.MMT_DIRECTORY).
                                                         Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).
-                                                        Payload(map), 0);
+                                                        Payload(map).MarkForClear(), 0);
 
                 Thread.Sleep(2000);
 
@@ -11512,10 +11618,21 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
-                LSEG.Ema.Domain.Login.LoginReq loginReq = new();
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
+                ElementList elementList = new ElementList();
+                elementList.AddUInt(EmaRdm.ENAME_ALLOW_SUSPECT_DATA, 1);
+                elementList.AddUInt(EmaRdm.ENAME_PROV_PERM_PROF, 1);
+                elementList.AddUInt(EmaRdm.ENAME_PROV_PERM_EXP, 1);
+                elementList.AddUInt(EmaRdm.ENAME_SINGLE_OPEN, 1);
+                elementList.AddUInt(EmaRdm.ENAME_ROLE, (ulong)EmaRdm.LOGIN_ROLE_CONS);
+                elementList.MarkForClear().Complete();
+
+                RequestMsg loginReqMsg = new();
+                loginReqMsg.Name("user").NameType(1).DomainType(1).Attrib(elementList);
 
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9")
-                    .AddAdminMsg(loginReq.Message()));
+                    .AddAdminMsg(loginReqMsg.MarkForClear()));
 
                 RequestMsg reqMsg = new();
 
@@ -11532,8 +11649,10 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Msg message = consumerClient.PopMessage();
 
                 // Submit login reissue to the providers.
+                RequestMsg loginReqMsg2 = new();
+                loginReqMsg2.Name("user").NameType(1).DomainType(1).Attrib(elementList).Pause(true);
 
-                consumer.Reissue(loginReq.Pause(true).Message(), loginHandle);
+                consumer.Reissue(loginReqMsg2.MarkForClear(), loginHandle);
 
                 Thread.Sleep(1000);
 
@@ -11592,10 +11711,19 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
-                LSEG.Ema.Domain.Login.LoginReq loginReq = new();
+                ElementList elementList = new ElementList();
+                elementList.AddUInt(EmaRdm.ENAME_ALLOW_SUSPECT_DATA, 1);
+                elementList.AddUInt(EmaRdm.ENAME_PROV_PERM_PROF, 1);
+                elementList.AddUInt(EmaRdm.ENAME_PROV_PERM_EXP, 1);
+                elementList.AddUInt(EmaRdm.ENAME_SINGLE_OPEN, 1);
+                elementList.AddUInt(EmaRdm.ENAME_ROLE, (ulong)EmaRdm.LOGIN_ROLE_CONS);
+                elementList.MarkForClear().Complete();
+
+                RequestMsg loginReqMsg = new();
+                loginReqMsg.Name("user").NameType(1).DomainType(1).Attrib(elementList);
 
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_1")
-                    .AddAdminMsg(loginReq.Message()));
+                    .AddAdminMsg(loginReqMsg.MarkForClear()));
 
                 RequestMsg reqMsg = new();
 
@@ -11612,7 +11740,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Msg message = consumerClient.PopMessage();
 
                 // Submit login reissue to the providers.
-                consumer.Reissue(loginReq.Pause(true).Message(), loginHandle);
+                consumer.Reissue(loginReqMsg.Name("user").NameType(1).DomainType(1).Attrib(elementList).Pause(true),
+                    loginHandle);
 
                 Thread.Sleep(1000);
 
@@ -11666,6 +11795,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new OmmConsumer(new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"));
 
                 RequestMsg reqMsg = new();
@@ -11695,7 +11826,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
                 nestedFieldList.AddTime(18, 11, 29, 30);
                 nestedFieldList.AddEnumValue(37, 3);
-                nestedFieldList.Complete();
+                nestedFieldList.MarkForClear().Complete();
 
                 nestedUpdateMsg.Payload(nestedFieldList);
 
@@ -11703,7 +11834,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 providerTestOptions.SubmitGenericMsgWithServiceId = 1;
 
                 /* The service Id is required in order to decode the GenericMsg's payload which includes FieldList properly */
-                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).Complete(true).ServiceId(32767).Payload(nestedUpdateMsg), loginHandle);
+                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).Complete(true).ServiceId(32767)
+                    .Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), loginHandle);
 
                 Thread.Sleep(1000);
 
@@ -12275,6 +12407,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
             try
             {
+                using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
                 consumer = new (new OmmConsumerConfig(EmaConfigFileLocation).ConsumerName("Consumer_9"), consumerClient);
 
                 Assert.Equal(3, consumerClient.QueueSize()); // Ensure that the callback receives only one login message
@@ -12390,14 +12524,22 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 providerTestOptions.SupportOMMPosting = true;
                 ProviderTestClient providerClient2 = new ProviderTestClient(m_Output, providerTestOptions);
 
+                m_Output.WriteLine("Bring up Channel_5");
+
                 // Bring up Channel_5 of Connection_2
                 ommprovider2 = new OmmProvider(config.Port("19005"), providerClient2);
 
-                Thread.Sleep(3000);
-
-                Assert.Equal(2, consumerClient.QueueSize());
+                Thread.Sleep(2000);
 
                 message = consumerClient.PopMessage();
+
+                while(message is not RefreshMsg)
+                {
+                    if(consumerClient.QueueSize() > 0)
+                        message = consumerClient.PopMessage();
+                    
+                    Thread.Sleep(500);
+                }
 
                 Assert.True(message is RefreshMsg);
 

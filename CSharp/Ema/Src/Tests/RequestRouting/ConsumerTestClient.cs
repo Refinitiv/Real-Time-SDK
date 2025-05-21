@@ -189,6 +189,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         {
             AccessLock.Enter();
 
+            using var _ = EtaGlobalPoolTestUtil.CreateClearableSection();
+
             try
             {
                 m_Handles.Add(consumerEvent.Handle);
@@ -217,13 +219,13 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                             nestedFieldList.AddReal(25, 35, OmmReal.MagnitudeTypes.EXPONENT_POS_1);
                             nestedFieldList.AddTime(18, 11, 29, 30);
                             nestedFieldList.AddEnumValue(37, 3);
-                            nestedFieldList.Complete();
+                            nestedFieldList.MarkForClear().Complete();
 
                             nestedUpdateMsg.Payload(nestedFieldList);
 
                             m_Consumer?.Submit(postMsg.PostId(++m_PostId).ServiceName("DIRECT_FEED")
                                                                         .Name("IBM.N").SolicitAck(false).Complete(true)
-                                                                        .Payload(nestedUpdateMsg), consumerEvent.Handle);
+                                                                        .Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), consumerEvent.Handle);
                         }
                     }
 

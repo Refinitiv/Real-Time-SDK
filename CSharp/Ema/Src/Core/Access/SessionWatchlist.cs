@@ -448,10 +448,10 @@ internal sealed class SessionWatchlist<T>
         }
 
         State state = rsslStatusMsg.State;
-        int originalStreamState = state.StreamState();
+        int originalStreamState = rsslStatusMsg.CheckHasState() ? state.StreamState() : StreamStates.UNSPECIFIED;
         bool notifyStatusMsg = true;
 
-        while (true && singleItem.RequestMsg != null)
+        while (true && singleItem.RequestMsg != null && rsslStatusMsg.CheckHasState())
         {
             IRequestMsg requestMsg = singleItem.RequestMsg;
 
@@ -563,7 +563,10 @@ internal sealed class SessionWatchlist<T>
         }
 
         /* Restore the original stream state */
-        state.StreamState(originalStreamState);
+        if (rsslStatusMsg.CheckHasState())
+        {
+            state.StreamState(originalStreamState);
+        }
 
         _consumerSession.NextDispatchTime(1000); // Wait for 1 millisecond to recover
 
