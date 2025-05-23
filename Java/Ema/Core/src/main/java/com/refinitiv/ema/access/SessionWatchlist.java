@@ -205,7 +205,7 @@ class SessionWatchlist<T>
 					ChannelInfo channelInfo = item.directory().channelInfo();
 					
 					// Gets a Directory from SessionDirectory
-					Directory<T> directory = item.directory().sessionDirectory().updateSessionChannelInfo(rsslRequestMsg.domainType(), channelInfo.rsslReactorChannel(), true, item._itemClosedDirHash);
+					Directory<T> directory = item.directory().sessionDirectory().updateSessionChannelInfo(rsslRequestMsg, channelInfo.rsslReactorChannel(), true, item._itemClosedDirHash);
 					
 					if(directory == null)
 					{
@@ -219,8 +219,6 @@ class SessionWatchlist<T>
 								item.state(SingleItem.ItemStates.RECOVERING_NO_MATHCING);
 								
 								_recoveryItemQueue.addLast(rsslRequestMsg); /* Add this RequestMsg back to the request item queue to process later.*/
-								
-								_consumerSession.nextDispatchTime(1000000); /* Wait for 1 second to recover the recover queue */
 							}
 							else
 							{
@@ -267,7 +265,7 @@ class SessionWatchlist<T>
 					SessionDirectory<T> currentSessionDir = item.directory().sessionDirectory();
 					
 					// Gets the same service from others connection if any.
-					Directory<T> directory = currentSessionDir.updateSessionChannelInfo(rsslRequestMsg.domainType(), channelInfo.rsslReactorChannel(), item._retrytosameChannel, item._itemClosedDirHash);
+					Directory<T> directory = currentSessionDir.updateSessionChannelInfo(rsslRequestMsg, channelInfo.rsslReactorChannel(), item._retrytosameChannel, item._itemClosedDirHash);
 					
 					if(directory == null)
 					{
@@ -323,7 +321,7 @@ class SessionWatchlist<T>
 						/* Try again with the same service name on the same ReactorChannel */
 						if(directory == null)
 						{
-							directory = currentSessionDir.updateSessionChannelInfo(rsslRequestMsg.domainType(), channelInfo.rsslReactorChannel(), true, item._itemClosedDirHash);
+							directory = currentSessionDir.updateSessionChannelInfo(rsslRequestMsg, channelInfo.rsslReactorChannel(), true, item._itemClosedDirHash);
 							
 							if(directory != null)
 							{
@@ -359,8 +357,6 @@ class SessionWatchlist<T>
 									item.state(SingleItem.ItemStates.RECOVERING_NO_MATHCING);
 									
 									_recoveryItemQueue.addLast(rsslRequestMsg); /* Add this RequestMsg back to the request item queue to process later.*/
-								
-									_consumerSession.nextDispatchTime(1000000); /* Wait for 1 second to recover the recover queue */
 								}
 								else
 								{
@@ -752,7 +748,7 @@ class SessionWatchlist<T>
     }
     
     /* Determines if a service supports a qos or qos range. */
-    private boolean isQosSupported(Qos qos, Qos worstQos, Service service, Qos matchedQos)
+    boolean isQosSupported(Qos qos, Qos worstQos, Service service, Qos matchedQos)
     {
         boolean ret = false;
         

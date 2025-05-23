@@ -39,6 +39,8 @@ namespace LSEG.Ema.Access
 
         private Queue<SingleItem<T>> m_TempRemoveSingleItems = new Queue<SingleItem<T>>();
 
+        readonly Qos _matchedQos = new Qos();
+
         internal SessionDirectory(ConsumerSession<T> consumerSession, string serviceName)
         {
             ServiceName = serviceName;
@@ -302,7 +304,7 @@ namespace LSEG.Ema.Access
             }
         }
 
-        internal ServiceDirectory<T>? UpdateSessionChannelInfo(int domainType, ReactorChannel? current, bool retryWithCurrentDir, 
+        internal ServiceDirectory<T>? UpdateSessionChannelInfo(IRequestMsg requestMsg, ReactorChannel? current, bool retryWithCurrentDir, 
             HashSet<ServiceDirectory<T>>? itemClosedDirHash)
         {
             if (SessionChannelInfoList.Count != 0)
@@ -325,7 +327,14 @@ namespace LSEG.Ema.Access
                         }
 
                         /* Ensure that the service provides the requested capability */
-                        if (!SessionWatchlist<T>.IsCapabilitySupported(domainType, directory.Service!))
+                        if (!SessionWatchlist<T>.IsCapabilitySupported(requestMsg.DomainType, directory.Service!))
+                        {
+                            continue;
+                        }
+
+                        /* Ensure that the service provides the requested QoS */
+                        _matchedQos.Clear();
+                        if (!m_ConsumerSession.SessionWatchlist.IsQosSupported(requestMsg.Qos, requestMsg.WorstQos, directory.Service!, _matchedQos))
                         {
                             continue;
                         }

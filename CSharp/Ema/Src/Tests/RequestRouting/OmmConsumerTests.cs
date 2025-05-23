@@ -8692,7 +8692,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                                                             .Name("IBM.N").SolicitAck(false).Complete(true)
                                                             .Payload(nestedUpdateMsg.MarkForClear()).MarkForClear(), loginHandle);
 
-                Thread.Sleep(10000);
+                Thread.Sleep(1000);
 
                 /* Checks to ensure that the provider receives the PostMsg */
                 Assert.Equal(1, providerClient1.QueueSize());

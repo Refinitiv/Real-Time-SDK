@@ -171,7 +171,7 @@ internal sealed class SessionWatchlist<T>
                     ChannelInfo channelInfo = item.Directory()!.ChannelInfo!;
 
                     // Gets a ServiceDirectory from SessionDirectory
-                    ServiceDirectory<T>? directory = item.Directory()!.SessionDirectory!.UpdateSessionChannelInfo(rsslRequestMsg.DomainType,
+                    ServiceDirectory<T>? directory = item.Directory()!.SessionDirectory!.UpdateSessionChannelInfo(rsslRequestMsg,
                         channelInfo.ReactorChannel, true, item.ItemClosedDirHash);
 
                     if (directory == null)
@@ -186,8 +186,6 @@ internal sealed class SessionWatchlist<T>
                                 item.State  = SingleItem<T>.StateEnum.RECOVERING_NO_MATHCING;
 
                                 _recoveryItemQueue.Enqueue(rsslRequestMsg); /* Add this RequestMsg back to the request item queue to process later.*/
-
-                                _consumerSession.NextDispatchTime(1000000); /* Wait for 1 second to recover the recover queue */
                             }
                             else
                             {
@@ -201,7 +199,6 @@ internal sealed class SessionWatchlist<T>
                         else
                         {
                             _recoveryItemQueue.Enqueue(rsslRequestMsg); /* Add this RequestMsg back to the request item queue to process later.*/
-
                             _consumerSession.NextDispatchTime(1000000); /* Wait for 1 second to recover the recover queue */
                         }
                     }
@@ -234,7 +231,7 @@ internal sealed class SessionWatchlist<T>
                     SessionDirectory<T> currentSessionDir = item.Directory()!.SessionDirectory!;
 
                     // Gets the same service from others connection if any.
-                    ServiceDirectory<T>? directory = currentSessionDir.UpdateSessionChannelInfo(rsslRequestMsg.DomainType, channelInfo.ReactorChannel, 
+                    ServiceDirectory<T>? directory = currentSessionDir.UpdateSessionChannelInfo(rsslRequestMsg, channelInfo.ReactorChannel, 
                         item.RetrytosameChannel, item.ItemClosedDirHash);
 
                     if (directory == null)
@@ -291,7 +288,7 @@ internal sealed class SessionWatchlist<T>
                         /* Try again with the same service name on the same ReactorChannel */
                         if (directory == null)
                         {
-                            directory = currentSessionDir.UpdateSessionChannelInfo(rsslRequestMsg.DomainType, channelInfo.ReactorChannel, true,
+                            directory = currentSessionDir.UpdateSessionChannelInfo(rsslRequestMsg, channelInfo.ReactorChannel, true,
                                 item.ItemClosedDirHash);
 
                             if (directory != null)
@@ -328,8 +325,6 @@ internal sealed class SessionWatchlist<T>
                                     item.State = SingleItem<T>.StateEnum.RECOVERING_NO_MATHCING;
 
                                     _recoveryItemQueue.Enqueue(rsslRequestMsg); /* Add this RequestMsg back to the request item queue to process later.*/
-
-                                    _consumerSession.NextDispatchTime(1000000); /* Wait for 1 second to recover the recover queue */
                                 }
                                 else
                                 {
@@ -343,7 +338,6 @@ internal sealed class SessionWatchlist<T>
                             else
                             {
                                 _recoveryItemQueue.Enqueue(rsslRequestMsg); /* Add this RequestMsg back to the request item queue to process later.*/
-
                                 _consumerSession.NextDispatchTime(1000000); /* Wait for 1 second to recover the recover queue */
                             }
                         }

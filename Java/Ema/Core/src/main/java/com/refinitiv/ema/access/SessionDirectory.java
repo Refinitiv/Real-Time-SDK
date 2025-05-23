@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CopyMsgFlags;
 import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.Qos;
 import com.refinitiv.eta.codec.RequestMsg;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceState;
@@ -43,6 +44,7 @@ class SessionDirectory<T>
 	private WatchlistResult _watchlistResult;
 	private WatchlistResult tempWatchlistResult;
 	private LongObject tmpLongObject = new LongObject();
+	Qos _matchedQos = CodecFactory.createQos();
 	
 	SessionDirectory(ConsumerSession<T> consumerSession, String serviceName)
 	{
@@ -210,7 +212,7 @@ class SessionDirectory<T>
 		return false;
 	}
 	
-	Directory<T> updateSessionChannelInfo(int domainType, ReactorChannel current, boolean retryWithCurrentDir, HashSet<Directory<T>> itemClosedDirHash)
+	Directory<T> updateSessionChannelInfo(RequestMsg requestMsg, ReactorChannel current, boolean retryWithCurrentDir, HashSet<Directory<T>> itemClosedDirHash)
 	{
 		if(_sessionChannelInfoList.size() != 0)
 		{
@@ -232,7 +234,14 @@ class SessionDirectory<T>
 					}
 					
 					/* Ensure that the service provides the requested capability */
-					if(!SessionWatchlist.isCapabilitySupported(domainType, directory.service()))
+					if(!SessionWatchlist.isCapabilitySupported(requestMsg.domainType(), directory.service()))
+					{
+						continue;
+					}
+					
+					/* Ensure that the service provides the requested QoS */
+					_matchedQos.clear();
+					if(!_consumerSession.watchlist().isQosSupported(requestMsg.qos(), requestMsg.worstQos(), directory.service(), _matchedQos))
 					{
 						continue;
 					}
