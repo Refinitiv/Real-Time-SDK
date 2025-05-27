@@ -519,6 +519,7 @@
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>		
+			<Directory value="Directory_2"/>
 		</IProvider>
 		<IProvider>
 			<!-- Name is mandatory                                                              -->
@@ -530,7 +531,8 @@
 			<DispatchTimeoutApiThread value="90"/>
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
-			<MaxDispatchCountUserThread value="5"/>		
+			<MaxDispatchCountUserThread value="5"/>
+			<Directory value="Directory_2"/>
 		</IProvider>
 		<IProvider>
 			<!-- Name is mandatory                                                              -->
@@ -543,6 +545,7 @@
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>		
+			<Directory value="Directory_2"/>
 		</IProvider>
 	</IProviderList>
 </IProviderGroup>
