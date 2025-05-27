@@ -20,6 +20,10 @@
 #include <errno.h>
 #include <ctype.h>
 #include <iostream>
+#include <atomic>
+#include <sstream>
+#include <vector>
+#include <iterator>
 
 #include "gtest/gtest.h"
 #include "rtr/rsslTransport.h"
@@ -65,7 +69,7 @@
 // MAX_TIMEWAIT_NOUPDATES_MS  Select time limit (ms) to wait any updates on client side: checkLongTimeNoRead()
 #ifndef DEBUGMODE_TRANSPORTTEST
 #define TIMEOUT_DEADLOCK_SEC 15
-#define MAX_TIMEWAIT_NOUPDATES_MS 2500
+#define MAX_TIMEWAIT_NOUPDATES_MS 4000
 #else
 #define TIMEOUT_DEADLOCK_SEC 1000
 #define MAX_TIMEWAIT_NOUPDATES_MS 1000000
@@ -518,6 +522,10 @@ public:
 	TestHandler* pSystemTestHandler;  // SystemTests can handle some event, for example to test received data
 
 	int expectedReadCount;     // If > 0, there is a limit on the number of read operations
+	
+	int selectCount;
+	//const static size_t szArrSelectCount = 32;
+	//int arrSelectCount[szArrSelectCount];
 
 	ReadChannel()
 	{
@@ -529,6 +537,8 @@ public:
 		signalForWrite = NULL;
 		pSystemTestHandler = NULL;
 		expectedReadCount = 0;
+		selectCount = 0;
+		//memset(arrSelectCount, 0, sizeof(arrSelectCount));
 	}
 
 	/*	Read from pChnl.  Increments the read counter whenever rsslRead returns a buffer.
@@ -539,21 +549,24 @@ public:
 	*/
 	void readLoop(RsslBool blocking)
 	{
-		fd_set readfds;
-		fd_set useread;
+		//fd_set readfds;
+		fd_set useRead;
+		fd_set useExcept;
 		RsslRet readRet;
 		RsslError err;
 		int readmsg = 0;
 		bool readIncrement = false;
 		bool shouldForceSelect = false;
+		char errorText[256] = "";
 
-		FD_ZERO(&readfds);
-		FD_ZERO(&useread);
+		//FD_ZERO(&readfds);
+		//FD_ZERO(&useread);
 
 		RsslBuffer* readBuf;
 
 		struct timeval selectTime;
 		int selRet;
+		//bool selectReturnedNoData = false;
 
 		if ( pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE )
 		{
@@ -569,19 +582,27 @@ public:
 				shouldForceSelect = true;
 		}
 
-		FD_SET(pChnl->socketId, &readfds);
+		//FD_SET(pChnl->socketId, &readfds);
 
 		while ( !shutdownTest && !failTest )
 		{
 			if ( expectedReadCount > 0 && expectedReadCount <= readmsg )
 				break;
 
+			//selectReturnedNoData = false;
+
 			if ( blocking == RSSL_FALSE || shouldForceSelect )
 			{
-				useread = readfds;
+				FD_ZERO(&useRead);
+				FD_ZERO(&useExcept);
+				FD_SET(pChnl->socketId, &useRead);
+				FD_SET(pChnl->socketId, &useExcept);
+				//useRead = readfds;
+
 				selectTime.tv_sec = 0L;
-				selectTime.tv_usec = 500000;
-				selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+				selectTime.tv_usec = 40000; // 500000;
+				selRet = select(FD_SETSIZE, &useRead, NULL, &useExcept, &selectTime);
+				selectCount++;
 
 				/* We're shutting down, so there is no failure case here */
 				if ( shutdownTest || failTest )
@@ -589,11 +610,13 @@ public:
 					break;
 				}
 
-				ASSERT_GE(selRet, 0) << "Reader select failed.";
+				ASSERT_GE(selRet, 0) << "Reader select failed, system errno: " << errno;
 
-				if (!FD_ISSET(pChnl->socketId, &useread))
+				if ( !FD_ISSET(pChnl->socketId, &useRead) && !FD_ISSET(pChnl->socketId, &useExcept) )
 				{
-					continue;
+					//selectReturnedNoData = true;
+					if ( (selectCount % 4) != 0 )
+						continue;
 				}
 			}
 
@@ -620,6 +643,14 @@ public:
 					RSSL_MUTEX_LOCK(lock);
 					++(*(readCount));
 					RSSL_MUTEX_UNLOCK(lock);
+
+					//if ( selectReturnedNoData )
+					//{
+					//	std::cout << "rsslRead read a message, but select returned NoData selectCount: " << selectCount
+					//		<< ", readmsg: " << readmsg << ", readBuf.len:" << readBuf->length << std::endl;
+					//}
+					//arrSelectCount[readmsg % szArrSelectCount] = selectCount;
+					selectCount = 0;
 				}
 				else
 				{
@@ -662,7 +693,6 @@ public:
 				// Notify the handler: allow to do tests on the received data
 				if ( pSystemTestHandler != NULL && readBuf != NULL )
 				{
-					char errorText[256] = "";
 					if ( !pSystemTestHandler->handleDataBuffer(readBuf, errorText, sizeof(errorText)) )
 					{
 						if ( lockReadWrite != NULL )
@@ -902,7 +932,7 @@ class WriteChannelTransport
 public:
 	RsslThreadId*	pThreadId;
 	RsslChannel*	pChnl;
-	int				writeCount;					/* Counter of write operations. See writeLoop(). */
+	std::atomic<int>	writeCount;				/* Counter of write operations. See writeLoop(). */
 
 	RsslUInt32		requiredMsgLength;			/* Length of each separated message that packed into the buffer. */
 	RsslUInt32		msgWriteCount;				/* Count of writing messages in this test, 0 - default, MAX_MSG_WRITE_COUNT */
@@ -981,7 +1011,7 @@ public:
 		else
 			fillLength = 0;
 
-		int kn = snprintf(writeBuf->data + k, (fillLength - k), "%d:", writeCount);
+		int kn = snprintf(writeBuf->data + k, (fillLength - k), "%d:", writeCount.load());
 		if (kn > 0)
 			k += kn;
 
@@ -1041,7 +1071,7 @@ public:
 
 	void writeBuffer_Blocking(RsslChannel* chnl, RsslBuffer* buffer, RsslWriteInArgs* writeInArgs, RsslWriteOutArgs* writeOutArgs, RsslError* pError)
 	{
-		RsslRet ret;
+		RsslRet ret, retFlush;
 		bool needFlush = false;
 		unsigned kAttemptsCallFlush = 0;
 
@@ -1056,7 +1086,7 @@ public:
 				RSSL_MUTEX_UNLOCK(lockReadWrite);
 			}
 			failTest = true;
-			ASSERT_TRUE(false) << "writeBuffer_Blocking. rsslWriteEx failed.  Error: " << pError->text;
+			ASSERT_TRUE(false) << "writeBuffer_Blocking. rsslWriteEx failed. [" << channelTitle << "] ret: " << ret << ", Error: " << pError->text;
 		}
 		else
 		{
@@ -1065,17 +1095,18 @@ public:
 
 		while ( needFlush && !shutdownTest && !failTest )
 		{
-			if ( (ret = rsslFlush(pChnl, pError)) < RSSL_RET_SUCCESS )
+			if ( (retFlush = rsslFlush(pChnl, pError)) < RSSL_RET_SUCCESS )
 			{
 				if ( lockReadWrite != NULL )
 				{
 					RSSL_MUTEX_UNLOCK(lockReadWrite);
 				}
 				failTest = true;
-				ASSERT_TRUE(false) << "writeBuffer_Blocking. rsslFlush failed. attempts: " << kAttemptsCallFlush << ", Error: " << pError->text;
+				ASSERT_TRUE(false) << "writeBuffer_Blocking. rsslFlush failed. [" << channelTitle << "] attempts: " << kAttemptsCallFlush
+					<< ", ret:" << ret << ", retFlush:" << retFlush << ", Error: " << pError->text;
 			}
 
-			if ( ret == RSSL_RET_SUCCESS )
+			if ( retFlush == RSSL_RET_SUCCESS )
 			{
 				needFlush = false;
 			}
@@ -1086,7 +1117,8 @@ public:
 					RSSL_MUTEX_UNLOCK(lockReadWrite);
 				}
 				failTest = true;
-				ASSERT_TRUE(false) << "writeBuffer_Blocking. rsslFlush failed many times. attempts: " << kAttemptsCallFlush << ", Error: " << pError->text;
+				ASSERT_TRUE(false) << "writeBuffer_Blocking. rsslFlush failed many times. [" << channelTitle << "] attempts:" << kAttemptsCallFlush
+					<< ", ret:" << ret << ", retFlush:" << retFlush << ", Error: " << pError->text;
 			}
 		}
 
@@ -1101,7 +1133,7 @@ public:
 		int selRet;
 		struct timeval selectTime;
 
-		RsslRet ret;
+		RsslRet ret, retFlush;
 		bool needFlush = false;
 		unsigned kAttemptsCallFlush = 0;
 
@@ -1120,7 +1152,7 @@ public:
 						RSSL_MUTEX_UNLOCK(lockReadWrite);
 					}
 					failTest = true;
-					ASSERT_TRUE(false) << "writeBuffer_NonBlocking. Flush failed.  Error: " << pError->text;
+					ASSERT_TRUE(false) << "writeBuffer_NonBlocking. Flush failed. [" << channelTitle << "] ret: " << ret << ", Error: " << pError->text;
 				}
 
 				if ( shutdownTest || failTest )
@@ -1128,7 +1160,13 @@ public:
 
 				ret = rsslWriteEx(chnl, buffer, writeInArgs, writeOutArgs, pError);
 				if ( ret < RSSL_RET_SUCCESS )
+				{
 					needFlush = true;
+					if ( ret != RSSL_RET_WRITE_CALL_AGAIN && !shutdownTest && !failTest )
+					{
+						std::cout << "writeBuffer_NonBlocking. rsslWriteEx failed. [" << channelTitle << "] ret: " << ret << ", Error: " << pError->text << std::endl;
+					}
+				}
 			}
 		}
 		else if ( ret == RSSL_RET_WRITE_FLUSH_FAILED || ret >= RSSL_RET_SUCCESS )
@@ -1142,9 +1180,10 @@ public:
 				RSSL_MUTEX_UNLOCK(lockReadWrite);
 			}
 			failTest = true;
-			ASSERT_TRUE(false) << "writeBuffer_NonBlocking. Write failed.  Error: " << pError->text;
+			ASSERT_TRUE(false) << "writeBuffer_NonBlocking. Write failed. [" << channelTitle << "] ret: " << ret << ", Error: " << pError->text;
 		}
 
+		retFlush = RSSL_RET_SUCCESS;
 		FD_ZERO(&readfds);
 		FD_ZERO(&exceptfds);
 		FD_ZERO(&writefds);
@@ -1154,7 +1193,7 @@ public:
 			FD_SET(pChnl->socketId, &writefds);
 			FD_SET(pChnl->socketId, &exceptfds);
 			selectTime.tv_sec = 0L;
-			selectTime.tv_usec = 20000;
+			selectTime.tv_usec = 100000;
 			selRet = select(FD_SETSIZE, NULL, &writefds, &exceptfds, &selectTime);
 
 			if ( shutdownTest || failTest )
@@ -1169,22 +1208,24 @@ public:
 					RSSL_MUTEX_UNLOCK(lockReadWrite);
 				}
 				failTest = true;
-				ASSERT_TRUE(false) << "writeBuffer_NonBlocking. Select failed. attempts: " << kAttemptsCallFlush << ", Errno: " << errno;
+				ASSERT_TRUE(false) << "writeBuffer_NonBlocking. Select failed. [" << channelTitle << "] attempts: " << kAttemptsCallFlush
+					<< ", ret:" << ret << ", retFlush:" << retFlush << ", Errno: " << errno;
 			}
 
 			if ( FD_ISSET(pChnl->socketId, &writefds) )
 			{
 				/* Hard looping on Flush to ensure that the call is made. */
-				if ( (ret = rsslFlush(pChnl, pError)) < RSSL_RET_SUCCESS )
+				if ( (retFlush = rsslFlush(pChnl, pError)) < RSSL_RET_SUCCESS )
 				{
 					if ( lockReadWrite != NULL )
 					{
 						RSSL_MUTEX_UNLOCK(lockReadWrite);
 					}
 					failTest = true;
-					ASSERT_TRUE(false) << "writeBuffer_NonBlocking. Flush failed. attempts: " << kAttemptsCallFlush << ", Error: " << pError->text;
+					ASSERT_TRUE(false) << "writeBuffer_NonBlocking. Flush failed. [" << channelTitle << "] attempts: " << kAttemptsCallFlush
+						<< ", ret:" << ret << ", retFlush:" << retFlush << ", Error: " << pError->text;
 				}
-				if ( ret == RSSL_RET_SUCCESS )
+				if ( retFlush == RSSL_RET_SUCCESS )
 					needFlush = false;
 				FD_CLR(pChnl->socketId, &writefds);
 			}
@@ -1205,7 +1246,10 @@ public:
 					RSSL_MUTEX_UNLOCK(lockReadWrite);
 				}
 				failTest = true;
-				ASSERT_TRUE(false) << "writeBuffer_NonBlocking. rsslFlush failed many times. attempts: " << kAttemptsCallFlush << " ret:" << ret;
+				ASSERT_TRUE(false) << "writeBuffer_NonBlocking. rsslFlush failed many times. [" << channelTitle << "] attempts:" << kAttemptsCallFlush
+					<< ", ret:" << ret << ", retFlush:" << retFlush << ", selRet:" << selRet << ", writeCount:" << writeCount.load();
+				//std::cout << "writeBuffer_NonBlocking. rsslFlush failed many times. [" << channelTitle << "] attempts:" << kAttemptsCallFlush << ", ret:" << ret << ", retFlush:" << retFlush << ", selRet:" << selRet << ", writeCount:" << writeCount.load() << std::endl;
+				//needFlush = false;
 			}
 		}
 	}
@@ -2157,7 +2201,7 @@ class WriteChannelSystem
 public:
 	RsslThreadId*	pThreadId;
 	RsslChannel*	pChnl;
-	int				writeCount;					/* Counter of write operations. See writeLoop(). */
+	std::atomic<int>	writeCount;				/* Counter of write operations. See writeLoop(). */
 
 	RsslUInt32		requiredMsgLength;			/* Length of each separated message that packed into the buffer. */
 	RsslUInt32		msgWriteCount;				/* Count of writing messages in this test, 0 - default, MAX_MSG_WRITE_COUNT */
@@ -2857,6 +2901,7 @@ protected:
 
 	RsslTimeValue startTime;
 	RsslTimeValue curTime;
+	RsslUInt64	maxTimeWait;
 
 	virtual void SetUp()
 	{
@@ -2874,6 +2919,7 @@ protected:
 
 		startTime = 0;
 		curTime = 0;
+		maxTimeWait = 0;
 
 		rsslInitialize(RSSL_LOCK_GLOBAL, &err);
 	}
@@ -2989,6 +3035,11 @@ protected:
 		bool isCheckLongTimeNoRead = false;
 		if (readCountPrev < readCount)
 		{
+			if (startTime > 0 && curTime > 0)
+			{
+				if ( (curTime - startTime) > maxTimeWait )
+					maxTimeWait = (curTime - startTime);
+			}
 			readCountPrev = readCount;
 			startTime = 0;
 		}
@@ -3001,11 +3052,115 @@ protected:
 			}
 			else if ( (curTime - startTime) > MAX_TIMEWAIT_NOUPDATES_MS )
 			{
+				if ( (curTime - startTime) > maxTimeWait )
+					maxTimeWait = (curTime - startTime);
 				failTest = true;
 				isCheckLongTimeNoRead = true;
 			}
 		}
 		return isCheckLongTimeNoRead;
+	}
+};
+
+class SimpleBufferChecker : public TestHandler
+{
+public:
+	std::vector<int> indices;  // indices of messages read
+
+	SimpleBufferChecker() {
+		indices.reserve(MAX_MSG_WRITE_COUNT);
+	}
+
+	bool handleDataBuffer(RsslBuffer* pReadBuffer, char* pErrorText, size_t szErrorText)
+	{
+		char* p = pReadBuffer->data;
+		RsslUInt32 buflen = pReadBuffer->length;
+		unsigned k = 0;
+
+		int ind;
+		const char* testBuffer = "TestDataInfo";
+		size_t lenTestBuffer = strlen(testBuffer);
+		size_t len;
+
+		bool isTextCorrect = false;
+
+		do {
+			if (*p != '[')
+				break;
+			while (k < buflen && *(p + k) == '[')
+				k++;
+			if (k >= buflen)
+				break;
+
+			if (!isdigit(*(p + k)))
+				break;
+
+			ind = atoi(p + k);
+			while (k < buflen && *(p + k) != ':')
+				k++;
+
+			k++;  // skip ':'
+			if (k >= buflen)
+				break;
+
+			if (buflen - k > lenTestBuffer)
+				len = lenTestBuffer;
+			else
+				len = buflen - k;
+
+			if (strncmp(p + k, testBuffer, len) != 0)
+				break;
+
+			indices.push_back(ind);
+
+			isTextCorrect = true;
+		} while (false);
+
+		return isTextCorrect;
+	}
+
+	void dumpIndices(std::ostringstream& outputStream, RsslInt32 n)
+	{
+		outputStream << "{sz:" << indices.size() << "}[";
+		if (!indices.empty()) {
+			std::vector<int>::iterator it;
+			if (n > 0)
+			{
+				if (n < indices.size())
+					it = std::next(indices.begin(), n);
+				else
+					it = indices.begin();
+			}
+			else if (n < 0)
+			{
+				if (-n < indices.size())
+					it = std::prev(indices.end(), -n);
+				else
+					it = indices.begin();
+			}
+			else
+			{
+				it = indices.begin();
+			}
+
+			auto end = indices.end();
+
+			while (it != end) {
+				outputStream << *it++;
+				if (it != end)
+					outputStream << ',';
+			}
+		}
+		outputStream << ']';
+		return;
+	}
+
+	void dumpLast100Indices(const char* title)
+	{
+		std::ostringstream outputStream;
+		dumpIndices(outputStream, -100);
+		std::cout << "Test failed. [" << title << "]. indices: " << outputStream.str() << std::endl;
+		return;
 	}
 };
 
@@ -3172,6 +3327,8 @@ TEST_P(GlobalLockTestsFragmentedFixture, NonBlockingTwoWayClientServerTransport)
 	int readCount = 0;
 	int readCountPrev = 0;
 	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+	int writeCountSrvW = 0;
+	int writeCountCliW = 0;
 
 	startupServerAndConections(0, RSSL_FALSE,
 		testParams.maxFragmentSize,
@@ -3192,6 +3349,11 @@ TEST_P(GlobalLockTestsFragmentedFixture, NonBlockingTwoWayClientServerTransport)
 	clientWriteOpts.pThreadId = &clientWriteThread;
 	clientWriteOpts.pChnl = clientChannel;
 
+	// TestHandler checks the data buffer on Read (server and client) side
+	SimpleBufferChecker checkerSrvR, checkerCliR;
+	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
+	clientReadOpts.pSystemTestHandler = &checkerCliR;
+
 	RSSL_THREAD_START(&serverReadThread, nonBlockingReadThread, (void*)&serverReadOpts);
 	RSSL_THREAD_START(&serverWriteThread, nonBlockingWriteTransportThread, (void*)&serverWriteOpts);
 
@@ -3204,7 +3366,10 @@ TEST_P(GlobalLockTestsFragmentedFixture, NonBlockingTwoWayClientServerTransport)
 		RSSL_MUTEX_LOCK(&readLock);
 		readCount = msgsRead;
 		RSSL_MUTEX_UNLOCK(&readLock);
-		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount;
+		writeCountSrvW = serverWriteOpts.writeCount.load();
+		writeCountCliW = clientWriteOpts.writeCount.load();
+		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount
+			<< " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")";
 	} while (readCount < (msgWriteCount * 2) && !failTest);
 
 	shutdownTest = true;
@@ -3235,7 +3400,18 @@ TEST_P(GlobalLockTestsFragmentedFixture, NonBlockingTwoWayClientServerTransport)
 		RSSL_THREAD_JOIN(serverReadThread);
 	}
 
-	ASSERT_FALSE(failTest) << "Test failed.";
+	if (failTest)
+	{
+		checkerSrvR.dumpLast100Indices("serverRead");
+		checkerCliR.dumpLast100Indices("clientRead");
+	}
+	if (maxTimeWait > 200)
+		std::cout << "maxTimeWait: " << maxTimeWait << " ms" << std::endl;
+
+	ASSERT_FALSE(failTest) << "Test failed. readCount: " << msgsRead
+		<< ", lastSelectCount: " << serverReadOpts.selectCount << ", " << clientReadOpts.selectCount
+		<< ", writeCount [" << serverWriteOpts.channelTitle << "]: " << serverWriteOpts.writeCount
+		<< ", [" << clientWriteOpts.channelTitle << "]: " << clientWriteOpts.writeCount;
 }
 
 TEST_P(GlobalLockTestsPackedFixture, NonBlockingTwoWayClientServerPacked)
@@ -3262,6 +3438,8 @@ TEST_P(GlobalLockTestsPackedFixture, NonBlockingTwoWayClientServerPacked)
 	int readCount = 0;
 	int readCountPrev = 0;
 	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+	int writeCountSrvW = 0;
+	int writeCountCliW = 0;
 
 	// The expected number of messages that will be read
 	int nReadMsgsExpect = calculateExpectedReadMessagesCount(false, msgWriteCount);
@@ -3285,6 +3463,11 @@ TEST_P(GlobalLockTestsPackedFixture, NonBlockingTwoWayClientServerPacked)
 	clientWriteOpts.pThreadId = &clientWriteThread;
 	clientWriteOpts.pChnl = clientChannel;
 
+	// TestHandler checks the data buffer on Read (server and client) side
+	SimpleBufferChecker checkerSrvR, checkerCliR;
+	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
+	clientReadOpts.pSystemTestHandler = &checkerCliR;
+
 	RSSL_THREAD_START(&serverReadThread, nonBlockingReadThread, (void*)&serverReadOpts);
 	RSSL_THREAD_START(&serverWriteThread, nonBlockingWritePackedThread, (void*)&serverWriteOpts);
 
@@ -3300,10 +3483,13 @@ TEST_P(GlobalLockTestsPackedFixture, NonBlockingTwoWayClientServerPacked)
 		RSSL_MUTEX_LOCK(&readLock);
 		readCount = msgsRead;
 		RSSL_MUTEX_UNLOCK(&readLock);
-		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2);
+		writeCountSrvW = serverWriteOpts.writeCount.load();
+		writeCountCliW = clientWriteOpts.writeCount.load();
+		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2)
+			<< " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")";
 	} while (readCount < (nReadMsgsExpect * 2) && !failTest);
 
-//	std::cout << "GlobalLockTestsPackedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2) << std::endl;
+//	std::cout << "GlobalLockTestsPackedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2) << " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")" << std::endl;
 
 	shutdownTest = true;
 	time_sleep(50);
@@ -3333,7 +3519,18 @@ TEST_P(GlobalLockTestsPackedFixture, NonBlockingTwoWayClientServerPacked)
 		RSSL_THREAD_JOIN(serverReadThread);
 	}
 
-	ASSERT_FALSE(failTest) << "Test failed.";
+	if (failTest)
+	{
+		checkerSrvR.dumpLast100Indices("serverRead");
+		checkerCliR.dumpLast100Indices("clientRead");
+	}
+	if (maxTimeWait > 200)
+		std::cout << "maxTimeWait: " << maxTimeWait << " ms" << std::endl;
+
+	ASSERT_FALSE(failTest) << "Test failed. readCount: " << msgsRead
+		<< ", lastSelectCount: " << serverReadOpts.selectCount << ", " << clientReadOpts.selectCount
+		<< ", writeCount [" << serverWriteOpts.channelTitle << "]: " << serverWriteOpts.writeCount
+		<< ", [" << clientWriteOpts.channelTitle << "]: " << clientWriteOpts.writeCount;
 }
 
 /*	Test kicks off one writer and one reader thread for the client and server.  Once
@@ -3415,6 +3612,8 @@ TEST_P(GlobalLockTestsFragmentedFixture, BlockingTwoWayClientServerTransport)
 	int readCount = 0;
 	int readCountPrev = 0;
 	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+	int writeCountSrvW = 0;
+	int writeCountCliW = 0;
 
 	startupServerAndConections(0, RSSL_TRUE,
 		testParams.maxFragmentSize,
@@ -3437,6 +3636,11 @@ TEST_P(GlobalLockTestsFragmentedFixture, BlockingTwoWayClientServerTransport)
 	clientWriteOpts.pThreadId = &clientWriteThread;
 	clientWriteOpts.pChnl = clientChannel;
 
+	// TestHandler checks the data buffer on Read (server and client) side
+	SimpleBufferChecker checkerSrvR, checkerCliR;
+	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
+	clientReadOpts.pSystemTestHandler = &checkerCliR;
+
 	RSSL_THREAD_START(&serverReadThread, blockingReadThread, (void*)&serverReadOpts);
 	RSSL_THREAD_START(&serverWriteThread, blockingWriteTransportThread, (void*)&serverWriteOpts);
 
@@ -3451,11 +3655,14 @@ TEST_P(GlobalLockTestsFragmentedFixture, BlockingTwoWayClientServerTransport)
 		RSSL_MUTEX_LOCK(&readLock);
 		readCount = msgsRead;
 		RSSL_MUTEX_UNLOCK(&readLock);
+		writeCountSrvW = serverWriteOpts.writeCount.load();
+		writeCountCliW = clientWriteOpts.writeCount.load();
 
-		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount;
+		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount
+			<< " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")";
 	} while (readCount < (msgWriteCount * 2) && !failTest);
 
-//	std::cout << "GlobalLockTestsFragmentedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << std::endl;
+//	std::cout << "GlobalLockTestsFragmentedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")" << std::endl;
 
 	shutdownTest = true;
 	time_sleep(50);
@@ -3487,7 +3694,18 @@ TEST_P(GlobalLockTestsFragmentedFixture, BlockingTwoWayClientServerTransport)
 
 //	std::cout << "GlobalLockTestsFragmentedFixture  FINISH." << std::endl;
 
-	ASSERT_FALSE(failTest) << "Test failed.";
+	if (failTest)
+	{
+		checkerSrvR.dumpLast100Indices("serverRead");
+		checkerCliR.dumpLast100Indices("clientRead");
+	}
+	if (maxTimeWait > 200)
+		std::cout << "maxTimeWait: " << maxTimeWait << " ms" << std::endl;
+
+	ASSERT_FALSE(failTest) << "Test failed. readCount: " << msgsRead
+		<< ", lastSelectCount: " << serverReadOpts.selectCount << ", " << clientReadOpts.selectCount
+		<< ", writeCount [" << serverWriteOpts.channelTitle << "]: " << serverWriteOpts.writeCount
+		<< ", [" << clientWriteOpts.channelTitle << "]: " << clientWriteOpts.writeCount;
 }
 
 TEST_P(GlobalLockTestsPackedFixture, BlockingTwoWayClientServerPacked)
@@ -3513,6 +3731,8 @@ TEST_P(GlobalLockTestsPackedFixture, BlockingTwoWayClientServerPacked)
 	int readCount = 0;
 	int readCountPrev = 0;
 	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+	int writeCountSrvW = 0;
+	int writeCountCliW = 0;
 
 	// The expected number of messages that will be read
 	int nReadMsgsExpect = calculateExpectedReadMessagesCount(true, msgWriteCount);
@@ -3538,6 +3758,11 @@ TEST_P(GlobalLockTestsPackedFixture, BlockingTwoWayClientServerPacked)
 	clientWriteOpts.pThreadId = &clientWriteThread;
 	clientWriteOpts.pChnl = clientChannel;
 
+	// TestHandler checks the data buffer on Read (server and client) side
+	SimpleBufferChecker checkerSrvR, checkerCliR;
+	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
+	clientReadOpts.pSystemTestHandler = &checkerCliR;
+
 	RSSL_THREAD_START(&serverReadThread, blockingReadThread, (void*)&serverReadOpts);
 	RSSL_THREAD_START(&serverWriteThread, blockingWritePackedThread, (void*)&serverWriteOpts);
 
@@ -3550,11 +3775,14 @@ TEST_P(GlobalLockTestsPackedFixture, BlockingTwoWayClientServerPacked)
 		RSSL_MUTEX_LOCK(&readLock);
 		readCount = msgsRead;
 		RSSL_MUTEX_UNLOCK(&readLock);
+		writeCountSrvW = serverWriteOpts.writeCount.load();
+		writeCountCliW = clientWriteOpts.writeCount.load();
 
-		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect * 2);
+		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect * 2)
+			<< " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")";
 	} while (readCount < (nReadMsgsExpect * 2) && !failTest);
 
-//	std::cout << "GlobalLockTestsPackedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2) << std::endl;
+//	std::cout << "GlobalLockTestsPackedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2) << " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")" << std::endl;
 
 	shutdownTest = true;
 	time_sleep(50);
@@ -3582,7 +3810,18 @@ TEST_P(GlobalLockTestsPackedFixture, BlockingTwoWayClientServerPacked)
 	//RSSL_THREAD_JOIN(clientReadThread);
 	//RSSL_THREAD_JOIN(serverReadThread);
 
-	ASSERT_FALSE(failTest) << "Test failed.";
+	if (failTest)
+	{
+		checkerSrvR.dumpLast100Indices("serverRead");
+		checkerCliR.dumpLast100Indices("clientRead");
+	}
+	if (maxTimeWait > 200)
+		std::cout << "maxTimeWait: " << maxTimeWait << " ms" << std::endl;
+
+	ASSERT_FALSE(failTest) << "Test failed. readCount: " << msgsRead
+		<< ", lastSelectCount: " << serverReadOpts.selectCount << ", " << clientReadOpts.selectCount
+		<< ", writeCount [" << serverWriteOpts.channelTitle << "]: " << serverWriteOpts.writeCount
+		<< ", [" << clientWriteOpts.channelTitle << "]: " << clientWriteOpts.writeCount;
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -3590,7 +3829,9 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET,  100, 6000, 0,     0, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 5999, 6000, 0, 20000, RSSL_CONN_TYPE_INIT, 0 )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 1250, 6000, 0, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 2377, 6000, 0, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 5999, 6000, 0, 40000, RSSL_CONN_TYPE_INIT, 0 )
 	)
 );
 
@@ -3599,7 +3840,9 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 6000, 0,     0, RSSL_CONN_TYPE_SOCKET, 0 ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5999, 6000, 0, 10000, RSSL_CONN_TYPE_SOCKET, 0 )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 2377, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5999, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, 0 )
 	)
 );
 
@@ -3608,8 +3851,9 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 6000, 0,     0, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5993, 6000, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 2377, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5993, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -3618,8 +3862,9 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 6000, 0,     0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5993, 6000, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 2377, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5993, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -3627,9 +3872,10 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthEncrWebSockRWF,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 6000, 0,    0, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 6000, 0, 4000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5993, 6000, 0, 4000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 6000, 0,     0, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 2377, 6000, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5993, 6000, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -3637,9 +3883,10 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthEncrWebSockJSON,
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 6000, 0,    0, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 6000, 0, 4000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5993, 6000, 0, 4000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 6000, 0,     0, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 2377, 6000, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5993, 6000, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -3649,9 +3896,9 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET,  100, 3000, 3000,     0, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 1250, 3000, 3000, 10000, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 2797, 3000, 3000, 10000, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 2998, 3000, 3000, 20000, RSSL_CONN_TYPE_INIT, 0 )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 1250, 3000, 3000, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 2377, 3000, 3000, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 2998, 3000, 3000, 40000, RSSL_CONN_TYPE_INIT, 0 )
 	)
 );
 
@@ -3660,8 +3907,9 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 3000, 3000,     0, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 3000, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 2998, 3000, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 3000, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 2377, 3000, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 2998, 3000, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -3670,8 +3918,9 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 3000, 3000,     0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 3000, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 3000, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 2377, 3000, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -3681,8 +3930,10 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET,   100,  6000, 38750,     0, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET,  5999,  6000, 38750, 20000, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 12263, 38000, 38750, 20000, RSSL_CONN_TYPE_INIT, 0 )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET,  1250,  6000, 38750, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET,  2377,  6000, 38750, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET,  5999,  6000, 38750, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 12263, 38000, 38750, 40000, RSSL_CONN_TYPE_INIT, 0 )
 	)
 );
 
@@ -3691,8 +3942,10 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,   100,  6000, 38750,     0, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  5999,  6000, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 38000, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250,  6000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  2377,  6000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  5999,  6000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 38000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -3701,8 +3954,10 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,   100,  6000, 38750,     0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  5999,  6000, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 38000, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250,  6000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  2377,  6000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  5999,  6000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 38000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -3716,11 +3971,12 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,   100, 0,     0, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  5999, 0, 20000, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6135, 0, 20000, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6145, 0, 20000, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6150, 0, 20000, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET, 12263, 0, 20000, RSSL_CONN_TYPE_INIT, 0 )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  1250, 0, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  5999, 0, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6135, 0, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6145, 0, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6150, 0, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET, 12263, 0, 40000, RSSL_CONN_TYPE_INIT, 0 )
 	)
 );
 
@@ -3747,6 +4003,7 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,   100, 38750,     0, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  1250, 38750,     0, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  5999, 38750, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6135, 38750, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6145, 38750, 20000, RSSL_CONN_TYPE_INIT, 0 ),
@@ -3760,6 +4017,7 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,   100, 0,     0, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  1250, 0,     0, RSSL_CONN_TYPE_SOCKET, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  5999, 0, 20000, RSSL_CONN_TYPE_SOCKET, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6135, 0, 20000, RSSL_CONN_TYPE_SOCKET, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6145, 0, 20000, RSSL_CONN_TYPE_SOCKET, 0 ),
@@ -3773,11 +4031,12 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,   100, 0, 40000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  5999, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -3786,14 +4045,14 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWFMSz3000,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,   100, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  2797, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  2979, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,   100, 3000, 40000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  2797, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  2979, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -3802,12 +4061,13 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWFMSz38750,
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,   100, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,   100, 38750, 40000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  5999, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -3816,11 +4076,12 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,   100, 0, 40000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  5999, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -3830,13 +4091,13 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,   100, 3000,     0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  2797, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  2979, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 3000, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  2797, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  2979, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -3846,11 +4107,12 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,   100, 38750,     0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 38750, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  1250, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  5999, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6135, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6145, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  6150, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 12263, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -3859,11 +4121,12 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,   100, 0, 40000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  5999, 0, 10000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6135, 0, 10000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6145, 0, 10000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6150, 0, 10000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 12263, 0, 10000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  1250, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  5999, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6135, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6145, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6150, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 12263, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -3872,11 +4135,12 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,   100, 0, 40000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  5999, 0, 10000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6135, 0, 10000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6145, 0, 10000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6150, 0, 10000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 12263, 0, 10000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  1250, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  5999, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6135, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6145, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  6150, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 12263, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -3917,6 +4181,7 @@ protected:
 
 	RsslTimeValue startTime;
 	RsslTimeValue curTime;
+	RsslUInt64	maxTimeWait;
 
 	virtual void SetUp()
 	{
@@ -3934,6 +4199,7 @@ protected:
 
 		startTime = 0;
 		curTime = 0;
+		maxTimeWait = 0;
 
 		rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &err);
 	}
@@ -4019,6 +4285,11 @@ protected:
 		bool isCheckLongTimeNoRead = false;
 		if (readCountPrev < readCount)
 		{
+			if (startTime > 0 && curTime > 0)
+			{
+				if ( (curTime - startTime) > maxTimeWait )
+					maxTimeWait = (curTime - startTime);
+			}
 			readCountPrev = readCount;
 			startTime = 0;
 		}
@@ -4031,6 +4302,8 @@ protected:
 			}
 			else if ( (curTime - startTime) > MAX_TIMEWAIT_NOUPDATES_MS )
 			{
+				if ( (curTime - startTime) > maxTimeWait )
+					maxTimeWait = (curTime - startTime);
 				failTest = true;
 				isCheckLongTimeNoRead = true;
 			}
@@ -4137,6 +4410,8 @@ TEST_P(GlobalLockChannelTestsFragmentedFixture, NonBlockingTwoWayClientServerTra
 	int readCount = 0;
 	int readCountPrev = 0;
 	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+	int writeCountSrvW = 0;
+	int writeCountCliW = 0;
 
 	// serverChannelWr, clientChannelRd are connected by port 15000
 	startupServerAndConections(0, RSSL_FALSE,
@@ -4166,6 +4441,11 @@ TEST_P(GlobalLockChannelTestsFragmentedFixture, NonBlockingTwoWayClientServerTra
 	clientWriteOpts.pThreadId = &clientWriteThread;
 	clientWriteOpts.pChnl = connectionB.pClientChannel;
 
+	// TestHandler checks the data buffer on Read (server and client) side
+	SimpleBufferChecker checkerSrvR, checkerCliR;
+	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
+	clientReadOpts.pSystemTestHandler = &checkerCliR;
+
 	RSSL_THREAD_START(&serverReadThread, nonBlockingReadThread, (void*)&serverReadOpts);
 	RSSL_THREAD_START(&serverWriteThread, nonBlockingWriteTransportThread, (void*)&serverWriteOpts);
 
@@ -4180,11 +4460,14 @@ TEST_P(GlobalLockChannelTestsFragmentedFixture, NonBlockingTwoWayClientServerTra
 		RSSL_MUTEX_LOCK(&readLock);
 		readCount = msgsRead;
 		RSSL_MUTEX_UNLOCK(&readLock);
+		writeCountSrvW = serverWriteOpts.writeCount.load();
+		writeCountCliW = clientWriteOpts.writeCount.load();
 
-		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount;
+		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount
+			<< " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")";
 	} while (readCount < (msgWriteCount * 2) && !failTest);
 
-//	std::cout << "GlobalLockChannelTestsFragmentedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << std::endl;
+//	std::cout << "GlobalLockChannelTestsFragmentedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")" << std::endl;
 
 	shutdownTest = true;
 	time_sleep(50);
@@ -4219,7 +4502,18 @@ TEST_P(GlobalLockChannelTestsFragmentedFixture, NonBlockingTwoWayClientServerTra
 
 //	std::cout << "GlobalLockChannelTestsFragmentedFixture  FINISH." << std::endl;
 
-	ASSERT_FALSE(failTest) << "Test failed.";
+	if (failTest)
+	{
+		checkerSrvR.dumpLast100Indices("serverRead");
+		checkerCliR.dumpLast100Indices("clientRead");
+	}
+	if (maxTimeWait > 200)
+		std::cout << "maxTimeWait: " << maxTimeWait << " ms" << std::endl;
+
+	ASSERT_FALSE(failTest) << "Test failed. readCount: " << msgsRead
+		<< ", lastSelectCount: " << serverReadOpts.selectCount << ", " << clientReadOpts.selectCount
+		<< ", writeCount [" << serverWriteOpts.channelTitle << "]: " << serverWriteOpts.writeCount
+		<< ", [" << clientWriteOpts.channelTitle << "]: " << clientWriteOpts.writeCount;
 }
 
 TEST_P(GlobalLockChannelTestsFragmentedFixture, BlockingTwoWayClientServerTransport)
@@ -4244,6 +4538,8 @@ TEST_P(GlobalLockChannelTestsFragmentedFixture, BlockingTwoWayClientServerTransp
 	int readCount = 0;
 	int readCountPrev = 0;
 	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+	int writeCountSrvW = 0;
+	int writeCountCliW = 0;
 
 	// serverChannelWr, clientChannelRd are connected by port 15000
 	startupServerAndConections(0, RSSL_TRUE,
@@ -4275,6 +4571,11 @@ TEST_P(GlobalLockChannelTestsFragmentedFixture, BlockingTwoWayClientServerTransp
 	clientWriteOpts.pThreadId = &clientWriteThread;
 	clientWriteOpts.pChnl = connectionB.pClientChannel;
 
+	// TestHandler checks the data buffer on Read (server and client) side
+	SimpleBufferChecker checkerSrvR, checkerCliR;
+	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
+	clientReadOpts.pSystemTestHandler = &checkerCliR;
+
 	RSSL_THREAD_START(&serverReadThread, blockingReadThread, (void*)&serverReadOpts);
 	RSSL_THREAD_START(&serverWriteThread, blockingWriteTransportThread, (void*)&serverWriteOpts);
 
@@ -4288,11 +4589,14 @@ TEST_P(GlobalLockChannelTestsFragmentedFixture, BlockingTwoWayClientServerTransp
 		RSSL_MUTEX_LOCK(&readLock);
 		readCount = msgsRead;
 		RSSL_MUTEX_UNLOCK(&readLock);
+		writeCountSrvW = serverWriteOpts.writeCount.load();
+		writeCountCliW = clientWriteOpts.writeCount.load();
 
-		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount;
+		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount
+			<< " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")";
 	} while (readCount < (msgWriteCount * 2) && !failTest);
 
-//	std::cout << "GlobalLockChannelTestsFragmentedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << std::endl;
+//	std::cout << "GlobalLockChannelTestsFragmentedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")" << std::endl;
 	shutdownTest = true;
 	time_sleep(50);
 
@@ -4325,7 +4629,140 @@ TEST_P(GlobalLockChannelTestsFragmentedFixture, BlockingTwoWayClientServerTransp
 	EXPECT_EQ(rsslCloseChannel(connectionA.pClientChannel, &err), RSSL_RET_SUCCESS) << "connA clientChannel close error: " << err.text;
 
 //	std::cout << "GlobalLockChannelTestsFragmentedFixture  FINISH." << std::endl;
-	ASSERT_FALSE(failTest) << "Test failed.";
+
+	if (failTest)
+	{
+		checkerSrvR.dumpLast100Indices("serverRead");
+		checkerCliR.dumpLast100Indices("clientRead");
+	}
+	if (maxTimeWait > 200)
+		std::cout << "maxTimeWait: " << maxTimeWait << " ms" << std::endl;
+
+	ASSERT_FALSE(failTest) << "Test failed. readCount: " << msgsRead
+		<< ", lastSelectCount: " << serverReadOpts.selectCount << ", " << clientReadOpts.selectCount
+		<< ", writeCount [" << serverWriteOpts.channelTitle << "]: " << serverWriteOpts.writeCount
+		<< ", [" << clientWriteOpts.channelTitle << "]: " << clientWriteOpts.writeCount;
+}
+
+TEST_P(GlobalLockChannelTestsPackedFixture, NonBlockingTwoWayClientServerPacked)
+{
+	RsslThreadId serverReadThread, serverWriteThread, clientReadThread, clientWriteThread;
+	ReadChannel serverReadOpts, clientReadOpts;
+
+	const GLobalLockPackedTestParams& testParams = GetParam();
+	RsslUInt32 packedBufferLength = getPackedBufferLength();
+
+	WriteChannelPacked serverWriteOpts(testParams.msgLength, packedBufferLength, testParams.msgWriteCount, "SrvW");
+	WriteChannelPacked clientWriteOpts(testParams.msgLength, packedBufferLength, testParams.msgWriteCount, "CliW");
+
+	RsslError err;
+	int readCount = 0;
+	int readCountPrev = 0;
+	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+	int writeCountSrvW = 0;
+	int writeCountCliW = 0;
+
+	// The expected number of messages that will be read
+	int nReadMsgsExpect = calculateExpectedReadMessagesCount(false, msgWriteCount);
+
+	// serverChannelWr, clientChannelRd are connected by port 15000
+	startupServerAndConections(0, RSSL_FALSE,
+		testParams.maxFragmentSize,
+		testParams.connType, testParams.encryptedProtocol, testParams.wsProtocolType,
+		RSSL_COMP_NONE, 0U,
+		&connectionA);
+
+	// serverChannelRd, clientChannelWr are connected by port 15001
+	startupServerAndConections(1, RSSL_FALSE,
+		testParams.maxFragmentSize,
+		testParams.connType, testParams.encryptedProtocol, testParams.wsProtocolType,
+		RSSL_COMP_NONE, 0U,
+		&connectionB);
+
+	serverReadOpts.pThreadId = &serverReadThread;
+	serverReadOpts.pChnl = connectionB.pServerChannel;
+	serverReadOpts.readCount = &msgsRead;
+	serverReadOpts.lock = &readLock;
+	serverReadOpts.expectedReadCount = nReadMsgsExpect;
+	serverWriteOpts.pThreadId = &serverWriteThread;
+	serverWriteOpts.pChnl = connectionA.pServerChannel;
+
+	clientReadOpts.pThreadId = &clientReadThread;
+	clientReadOpts.pChnl = connectionA.pClientChannel;
+	clientReadOpts.readCount = &msgsRead;
+	clientReadOpts.lock = &readLock;
+	clientReadOpts.expectedReadCount = nReadMsgsExpect;
+	clientWriteOpts.pThreadId = &clientWriteThread;
+	clientWriteOpts.pChnl = connectionB.pClientChannel;
+
+	// TestHandler checks the data buffer on Read (server and client) side
+	SimpleBufferChecker checkerSrvR, checkerCliR;
+	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
+	clientReadOpts.pSystemTestHandler = &checkerCliR;
+
+	RSSL_THREAD_START(&serverReadThread, nonBlockingReadThread, (void*)&serverReadOpts);
+	RSSL_THREAD_START(&serverWriteThread, nonBlockingWritePackedThread, (void*)&serverWriteOpts);
+
+	RSSL_THREAD_START(&clientReadThread, nonBlockingReadThread, (void*)&clientReadOpts);
+	RSSL_THREAD_START(&clientWriteThread, nonBlockingWritePackedThread, (void*)&clientWriteOpts);
+
+//	std::cout << "GlobalLockChannelTestsPackedFixture.NonBlocking  Run test. msgWriteCount: " << msgWriteCount << std::endl;
+
+	do
+	{
+		time_sleep(50);
+		RSSL_MUTEX_LOCK(&readLock);
+		readCount = msgsRead;
+		RSSL_MUTEX_UNLOCK(&readLock);
+		writeCountSrvW = serverWriteOpts.writeCount.load();
+		writeCountCliW = clientWriteOpts.writeCount.load();
+
+		EXPECT_FALSE(checkLongTimeNoRead(readCountPrev, readCount)) << "Long time no read data. readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect * 2)
+			<< " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")";
+	} while (readCount < (nReadMsgsExpect * 2) && !failTest);
+
+//	std::cout << "GlobalLockChannelTestsPackedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2) << " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")" << std::endl;
+	shutdownTest = true;
+	time_sleep(50);
+
+//	std::cout << "GlobalLockChannelTestsPackedFixture  Before Join Write-threads." << std::endl;
+	if (failTest)
+	{
+		RSSL_THREAD_KILL(&clientWriteThread);
+		RSSL_THREAD_KILL(&serverWriteThread);
+	}
+	else
+	{
+		RSSL_THREAD_JOIN(clientWriteThread);
+		RSSL_THREAD_JOIN(serverWriteThread);
+	}
+
+//	std::cout << "GlobalLockChannelTestsPackedFixture  Before rsslCloseChannel. Writers side." << std::endl;
+	EXPECT_EQ(rsslCloseChannel(connectionA.pServerChannel, &err), RSSL_RET_SUCCESS) << "connA serverChannel close error: " << err.text;
+	EXPECT_EQ(rsslCloseChannel(connectionB.pClientChannel, &err), RSSL_RET_SUCCESS) << "connB clientChannel close error: " << err.text;
+
+//	std::cout << "GlobalLockChannelTestsPackedFixture  Before Join Read-threads." << std::endl;
+	RSSL_THREAD_JOIN(clientReadThread);
+	RSSL_THREAD_JOIN(serverReadThread);
+
+//	std::cout << "GlobalLockChannelTestsPackedFixture  Before rsslCloseChannel. Readers side." << std::endl;
+	EXPECT_EQ(rsslCloseChannel(connectionB.pServerChannel, &err), RSSL_RET_SUCCESS) << "connB serverChannel close error: " << err.text;
+	EXPECT_EQ(rsslCloseChannel(connectionA.pClientChannel, &err), RSSL_RET_SUCCESS) << "connA clientChannel close error: " << err.text;
+
+//	std::cout << "GlobalLockChannelTestsPackedFixture  FINISH." << std::endl;
+
+	if (failTest)
+	{
+		checkerSrvR.dumpLast100Indices("serverRead");
+		checkerCliR.dumpLast100Indices("clientRead");
+	}
+	if (maxTimeWait > 200)
+		std::cout << "maxTimeWait: " << maxTimeWait << " ms" << std::endl;
+
+	ASSERT_FALSE(failTest) << "Test failed. readCount: " << msgsRead
+		<< ", lastSelectCount: " << serverReadOpts.selectCount << ", " << clientReadOpts.selectCount
+		<< ", writeCount [" << serverWriteOpts.channelTitle << "]: " << serverWriteOpts.writeCount
+		<< ", [" << clientWriteOpts.channelTitle << "]: " << clientWriteOpts.writeCount;
 }
 
 TEST_P(GlobalLockChannelTestsPackedFixture, BlockingTwoWayClientServerPacked)
@@ -4351,6 +4788,8 @@ TEST_P(GlobalLockChannelTestsPackedFixture, BlockingTwoWayClientServerPacked)
 	int readCount = 0;
 	int readCountPrev = 0;
 	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+	int writeCountSrvW = 0;
+	int writeCountCliW = 0;
 
 	// The expected number of messages that will be read
 	int nReadMsgsExpect = calculateExpectedReadMessagesCount(true, msgWriteCount);
@@ -4385,6 +4824,11 @@ TEST_P(GlobalLockChannelTestsPackedFixture, BlockingTwoWayClientServerPacked)
 	clientWriteOpts.pThreadId = &clientWriteThread;
 	clientWriteOpts.pChnl = connectionB.pClientChannel;
 
+	// TestHandler checks the data buffer on Read (server and client) side
+	SimpleBufferChecker checkerSrvR, checkerCliR;
+	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
+	clientReadOpts.pSystemTestHandler = &checkerCliR;
+
 	RSSL_THREAD_START(&serverReadThread, blockingReadThread, (void*)&serverReadOpts);
 	RSSL_THREAD_START(&serverWriteThread, blockingWritePackedThread, (void*)&serverWriteOpts);
 
@@ -4397,11 +4841,14 @@ TEST_P(GlobalLockChannelTestsPackedFixture, BlockingTwoWayClientServerPacked)
 		RSSL_MUTEX_LOCK(&readLock);
 		readCount = msgsRead;
 		RSSL_MUTEX_UNLOCK(&readLock);
+		writeCountSrvW = serverWriteOpts.writeCount.load();
+		writeCountCliW = clientWriteOpts.writeCount.load();
 
-		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2);
+		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2)
+			<< " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")";
 	} while (readCount < (nReadMsgsExpect * 2) && !failTest);
 
-//	std::cout << "GlobalLockChannelTestsPackedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2) << std::endl;
+//	std::cout << "GlobalLockChannelTestsPackedFixture  Loop finished. failTest: " << failTest << " readCount: " << readCount << " nReadMsgsExpect*2: " << (nReadMsgsExpect*2) << " writeCounts: " << (writeCountSrvW + writeCountCliW) << " (" << writeCountSrvW << ", " << writeCountCliW << ")" << std::endl;
 	shutdownTest = true;
 	time_sleep(50);
 
@@ -4434,7 +4881,18 @@ TEST_P(GlobalLockChannelTestsPackedFixture, BlockingTwoWayClientServerPacked)
 
 //	std::cout << "GlobalLockChannelTestsPackedFixture  FINISH." << std::endl;
 
-	ASSERT_FALSE(failTest) << "Test failed.";
+	if (failTest)
+	{
+		checkerSrvR.dumpLast100Indices("serverRead");
+		checkerCliR.dumpLast100Indices("clientRead");
+	}
+	if (maxTimeWait > 200)
+		std::cout << "maxTimeWait: " << maxTimeWait << " ms" << std::endl;
+
+	ASSERT_FALSE(failTest) << "Test failed. readCount: " << msgsRead
+		<< ", lastSelectCount: " << serverReadOpts.selectCount << ", " << clientReadOpts.selectCount
+		<< ", writeCount [" << serverWriteOpts.channelTitle << "]: " << serverWriteOpts.writeCount
+		<< ", [" << clientWriteOpts.channelTitle << "]: " << clientWriteOpts.writeCount;
 }
 
 //GLobalLockFragmentedTestParams(
@@ -4446,6 +4904,7 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,   100, 0,     0, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  1250, 0, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  5999, 0, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6135, 0, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6145, 0, 20000, RSSL_CONN_TYPE_INIT, 0 ),
@@ -4460,6 +4919,7 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,   100, 3000,     0, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  1250, 3000, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  5999, 3000, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6135, 3000, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6145, 3000, 20000, RSSL_CONN_TYPE_INIT, 0 ),
@@ -4474,6 +4934,7 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,   100, 38750,     0, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  1250, 38750, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  5999, 38750, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6135, 38750, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_SOCKET,  6145, 38750, 20000, RSSL_CONN_TYPE_INIT, 0 ),
@@ -4487,6 +4948,7 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 0,     0, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 0, 20000, RSSL_CONN_TYPE_SOCKET, 0 ),
 		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5999, 0, 20000, RSSL_CONN_TYPE_SOCKET, 0 )
 	)
 );
@@ -4495,8 +4957,9 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWF,
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5999, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5999, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -4504,8 +4967,29 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSON,
 	GlobalLockChannelTestsFragmentedFixture,
 	::testing::Values(
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5999, 0, 10000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5999, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+	)
+);
+
+INSTANTIATE_TEST_SUITE_P(
+	MsgLengthEncrWebSockRWF,
+	GlobalLockChannelTestsFragmentedFixture,
+	::testing::Values(
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 0,     0, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5999, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE )
+	)
+);
+
+INSTANTIATE_TEST_SUITE_P(
+	MsgLengthEncrWebSockJSON,
+	GlobalLockChannelTestsFragmentedFixture,
+	::testing::Values(
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 0,     0, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockFragmentedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5999, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -4515,6 +4999,7 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET,  100, 6000, 0,     0, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_INIT, 0 ),
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 5999, 6000, 0, 20000, RSSL_CONN_TYPE_INIT, 0 )
 	)
 );
@@ -4524,7 +5009,8 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 6000, 0,     0, RSSL_CONN_TYPE_SOCKET, 0 ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5999, 6000, 0, 10000, RSSL_CONN_TYPE_SOCKET, 0 )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5999, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, 0 )
 	)
 );
 
@@ -4532,8 +5018,9 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWF,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 6000, 0,    0, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 0, 1000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 6000, 0,     0, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5993, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -4541,8 +5028,29 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSON,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 6000, 0,    0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 0, 1000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 6000, 0,     0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5993, 6000, 0, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+	)
+);
+
+INSTANTIATE_TEST_SUITE_P(
+	MsgLengthEncrWebSockRWF,
+	GlobalLockChannelTestsPackedFixture,
+	::testing::Values(
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 6000, 0,     0, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5993, 6000, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWF_PROTOCOL_TYPE )
+	)
+);
+
+INSTANTIATE_TEST_SUITE_P(
+	MsgLengthEncrWebSockJSON,
+	GlobalLockChannelTestsPackedFixture,
+	::testing::Values(
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED,  100, 6000, 0,     0, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 1250, 6000, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_ENCRYPTED, 5993, 6000, 0, 20000, RSSL_CONN_TYPE_WEBSOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -4552,7 +5060,8 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET,  100, 3000, 3000,     0, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 2998, 3000, 3000, 20000, RSSL_CONN_TYPE_INIT, 0 )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 1250, 3000, 3000, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 2998, 3000, 3000, 40000, RSSL_CONN_TYPE_INIT, 0 )
 	)
 );
 
@@ -4560,8 +5069,9 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWFMSz3000,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 3000, 3000,    0, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 2998, 3000, 3000, 1000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 3000, 3000,     0, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 3000, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 2998, 3000, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -4569,8 +5079,9 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSONMSz3000,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 3000, 3000,    0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 3000, 1000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 3000, 3000,     0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 3000, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 3000, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -4580,7 +5091,8 @@ INSTANTIATE_TEST_SUITE_P(
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
 		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET,  100, 6000, 38750,     0, RSSL_CONN_TYPE_INIT, 0 ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 5999, 6000, 38750, 20000, RSSL_CONN_TYPE_INIT, 0 )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 1250, 6000, 38750, 40000, RSSL_CONN_TYPE_INIT, 0 ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_SOCKET, 5999, 6000, 38750, 40000, RSSL_CONN_TYPE_INIT, 0 )
 	)
 );
 
@@ -4588,8 +5100,9 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockRWFMSz38750,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 6000, 38750,    0, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 38750, 1000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 6000, 38750,     0, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5999, 6000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -4597,8 +5110,9 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSONMSz38750,
 	GlobalLockChannelTestsPackedFixture,
 	::testing::Values(
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 6000, 38750,    0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 38750, 1000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET,  100, 6000, 38750,     0, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 1250, 6000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockPackedTestParams( RSSL_CONN_TYPE_WEBSOCKET, 5999, 6000, 38750, 20000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
