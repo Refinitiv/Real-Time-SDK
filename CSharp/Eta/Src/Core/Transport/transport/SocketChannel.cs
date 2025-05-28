@@ -142,11 +142,6 @@ namespace LSEG.Eta.Transports
 
         private int m_receive_packet_size;
 
-        /* Handling for Socket.ConnectAsync() */
-        private Task m_connectAsyncTask;
-        private int m_connectTimeoutAsync;
-        private int m_sendTimeoutAsync; // Set SendTimeOut after the connection is established.
-
         #endregion
 
         /// <summary>
@@ -215,7 +210,7 @@ namespace LSEG.Eta.Transports
                 // Create TCP/IP Socket
                 m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp)
                 {
-                    Blocking = connectOptions.Blocking,
+                    Blocking = true,
                     NoDelay = connectOptions.TcpOpts.TcpNoDelay,
                     ReceiveBufferSize = connectOptions.SysRecvBufSize == 0 ? SocketProtocol.DefaultSystemBufferSize : connectOptions.SysRecvBufSize,
                     SendBufferSize = connectOptions.SysSendBufSize == 0 ? SocketProtocol.DefaultSystemBufferSize : connectOptions.SysSendBufSize,
@@ -243,20 +238,12 @@ namespace LSEG.Eta.Transports
                     m_socket.Bind(bindEndPoint);
                 }
 
-                if (connectOptions.Blocking)
-                {
-                    m_socket.Connect(remote_ep);
+                m_socket.Connect(remote_ep);
 
-                    /* Specify the SendTimeout after the connection is established. */
-                    m_socket.SendTimeout = connectOptions.SendTimeout;
-                    m_remote_ep = m_socket.RemoteEndPoint;
-                }
-                else
-                {
-                    m_connectAsyncTask = m_socket.ConnectAsync(remote_ep);
-                    m_connectTimeoutAsync = connectOptions.ConnectTimeout;
-                    m_sendTimeoutAsync = connectOptions.SendTimeout; // Set after the connection is established.
-                }
+                /* Specify the SendTimeout after the connection is established. */
+                m_socket.SendTimeout = connectOptions.SendTimeout;
+
+                m_remote_ep = m_socket.RemoteEndPoint;
 
                 if(connectOptions.ConnectionType == ConnectionType.ENCRYPTED)
                 {
@@ -269,6 +256,8 @@ namespace LSEG.Eta.Transports
                 }
 
                 SetReadWriteHandlers(false);
+                
+                m_socket.Blocking = connectOptions.Blocking;
             }
             catch (Exception exp)
             {
@@ -759,15 +748,6 @@ namespace LSEG.Eta.Transports
 
         public bool FinishConnect(ChannelBase channel)
         {
-            if(m_connectAsyncTask != null && m_socket != null)
-            {
-                /* Wait for the Socket to connect for the non-blocking socket within the connect timeout. */
-                m_connectAsyncTask.Wait(m_connectTimeoutAsync);
-                m_connectAsyncTask = null;
-                m_socket.SendTimeout = m_sendTimeoutAsync;
-                m_remote_ep = m_socket.RemoteEndPoint;
-            }
-
             if (m_Encrypted && m_CompleteProxy && !m_CompletedHandshake)
             {
                 if (m_ServerCertificate != null) // Indicates server's side channel

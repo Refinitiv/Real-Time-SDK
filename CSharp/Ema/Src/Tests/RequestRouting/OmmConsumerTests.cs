@@ -275,6 +275,16 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 statusMsg = (StatusMsg)consumerClient.PopMessage();
                 Assert.Equal(1, statusMsg.StreamId());
                 Assert.Equal(EmaRdm.MMT_LOGIN, statusMsg.DomainType());
+                Assert.Equal("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.State().ToString());
+
+                channelInfo = consumerClient.PopChannelInfo();
+                Assert.Equal("Channel_4", channelInfo.ChannelName);
+                Assert.Equal("Connection_2", channelInfo.SessionChannelName);
+                Assert.Equal(ChannelState.CLOSED, channelInfo.ChannelState);
+
+                statusMsg = (StatusMsg)consumerClient.PopMessage();
+                Assert.Equal(1, statusMsg.StreamId());
+                Assert.Equal(EmaRdm.MMT_LOGIN, statusMsg.DomainType());
                 Assert.Equal("Open / Suspect / None / 'session channel up'", statusMsg.State().ToString());
 
                 channelInfo = consumerClient.PopChannelInfo();
@@ -288,19 +298,9 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.State().ToString());
 
                 channelInfo = consumerClient.PopChannelInfo();
-                Assert.Equal("Channel_4", channelInfo.ChannelName);
-                Assert.Equal("Connection_2", channelInfo.SessionChannelName);
-                Assert.Equal(ChannelState.INITIALIZING, channelInfo.ChannelState);
-
-                statusMsg = (StatusMsg)consumerClient.PopMessage();
-                Assert.Equal(1, statusMsg.StreamId());
-                Assert.Equal(EmaRdm.MMT_LOGIN, statusMsg.DomainType());
-                Assert.Equal("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.State().ToString());
-
-                channelInfo = consumerClient.PopChannelInfo();
                 Assert.Equal("Channel_5", channelInfo.ChannelName);
                 Assert.Equal("Connection_2", channelInfo.SessionChannelName);
-                Assert.Equal(ChannelState.INITIALIZING, channelInfo.ChannelState);
+                Assert.Equal(ChannelState.CLOSED, channelInfo.ChannelState);
 
                 refreshMsg = (RefreshMsg)consumerClient.PopMessage();
                 Assert.Equal(1, refreshMsg.StreamId());

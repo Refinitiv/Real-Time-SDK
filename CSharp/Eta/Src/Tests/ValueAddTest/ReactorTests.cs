@@ -374,17 +374,6 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
                 ReactorReturnCode retVal = reactor.Connect(connectOptons, consumerRole, out errorInfo);
 
-
-                if (testOption == 3)
-                {
-                    reactorEventFD.Poll(-1, SelectMode.SelectRead);
-
-                    do
-                    {
-                        reactor.Dispatch(dispatchOpts, out errorInfo);
-                    } while (reactorEventFD.Available > 0);
-                }
-
                 return retVal;
             });
 
