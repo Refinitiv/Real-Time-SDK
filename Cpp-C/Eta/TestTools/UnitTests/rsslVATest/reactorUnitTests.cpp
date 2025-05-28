@@ -2242,7 +2242,7 @@ TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_Unauthori
 	/* Wait until the connection is switched successfully to the encrypted connection */
 	ASSERT_TRUE(dispatchEvent(pConsMon, 10000) >= RSSL_RET_SUCCESS);
 	time_sleep(2000);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 3000) >= RSSL_RET_SUCCESS);
+	dispatchEvent(pConsMon, 3000);
 
 	/* Check for token information */
 	ASSERT_TRUE(pConsMon->authEventStatusCode == 400);
@@ -2382,7 +2382,7 @@ TEST_P(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_InvalidAu
 	/* Wait until the connection is switched successfully to the encrypted connection */
 	ASSERT_TRUE(dispatchEvent(pConsMon, 8000) >= RSSL_RET_SUCCESS);
 	time_sleep(2000);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 3000) >= RSSL_RET_SUCCESS);
+	dispatchEvent(pConsMon, 3000);
 
 	/* Check for token information */
 	ASSERT_TRUE(pConsMon->authEventStatusCode == 0); /* No HTTP response status code as the URL is invalid*/

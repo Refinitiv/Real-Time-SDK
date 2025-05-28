@@ -6156,7 +6156,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								pReactorTokenMgntEvent->reactorAuthTokenEvent.statusCode = pTokenSession->httpStatusCode;
 
 								// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
-								if (pReactorChannel->reactorChannel.pWarmStandbyChInfo != NULL)
+								if (pReactorChannel && pReactorChannel->reactorChannel.pWarmStandbyChInfo != NULL)
 								{
 									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
 									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
@@ -6197,7 +6197,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.statusCode = pReactorChannel ? pTokenSession->httpStatusCode : pReactorOAuthCredentialRenewalImpl->httpStatusCode;
 							
 							// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
-							if (pReactorChannel->reactorChannel.pWarmStandbyChInfo != NULL)
+							if (pReactorChannel && pReactorChannel->reactorChannel.pWarmStandbyChInfo != NULL)
 							{
 								pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
 								_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
@@ -6274,7 +6274,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						/* Send login message only when the watchlist is enable. 
 							Note: Unlike above, this should never be sent in the preferred host case.
 						*/
-						if (pReactorChannel->pWatchlist && pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
+						if (pReactorChannel && pReactorChannel->pWatchlist && pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
 						{
 							rsslWatchlistClearProcessMsgOptions(&processOpts);
 							processOpts.pRdmMsg = (RsslRDMMsg*)pReactorChannel->channelRole.ommConsumerRole.pLoginRequest;
@@ -6303,7 +6303,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.statusCode = pReactorOAuthCredentialRenewalImpl->httpStatusCode;
 
 							// The current channel could be a WSB connection that has transitioned to the channel list, so set up the main channel here.
-							if (pReactorChannel->reactorChannel.pWarmStandbyChInfo != NULL)
+							if (pReactorChannel && pReactorChannel->reactorChannel.pWarmStandbyChInfo != NULL)
 							{
 								pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
 								_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
