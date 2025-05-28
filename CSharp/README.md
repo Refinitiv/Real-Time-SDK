@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source low-level Transport and OMM encoder/decoder API. It is used for optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2022-2024 LSEG. All rights reserved.
+Copyright (C) 2022-2025 LSEG. All rights reserved.
 
 # New In This Release
 
@@ -39,12 +39,13 @@ External modules used by this version of RTSDK CSharp:
         Windows Server 2019 Standard Edition or later 64-bit, .NET SDK 6.0.421
         Windows Server 2022 Standard Edition or later 64-bit, .NET SDK 8.0.403
 	Windows 11 64-bit, .NET SDK 8.0.403
-        Oracle Linux Server 7.X 64-bit, .NET SDK 6.0.421
-        Red Hat Enterprise Server 7.X Release 64-bit, .NET SDK 6.0.421
         Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 6.0.421
         Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 8.0.401
         Red Hat Enterprise Server 9.X Release 64-bit, .NET SDK 8.0.401
         Ubuntu 20.04 64-bit, .NET SDK 6.0.421
+        Galaxy Kylin 10, 64-bit
+        Amazon Linux 2, 64-bit
+        Amazon Linux 2023, 64-bit
 
 ### Encryption Support
 
@@ -70,8 +71,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data. Conn
 
 This release has been tested with the following:
 
-- ADS 3.8.1
-- ADH 3.8.1
+- ADS 3.8.2
+- ADH 3.8.2
 - DACS 7.12
 
 # Documentation
@@ -176,11 +177,11 @@ You can download RTSDK libraries and dependencies from NuGet. Choose the appropr
 
         <dependency>
                 <ItemGroup>
-                    <PackageReference Include="LSEG.Eta.Core" Version="3.3.1.1"/>
-                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.3.1.1"/>
-                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.3.1.1"/>
-                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.3.1.1"/>
-                    <PackageReference Include="LSEG.Ema.Core" Version="3.3.1.1"/>
+                    <PackageReference Include="LSEG.Eta.Core" Version="3.4.0.0"/>
+                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.4.0.0"/>
+                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.4.0.0"/>
+                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.4.0.0"/>
+                    <PackageReference Include="LSEG.Ema.Core" Version="3.4.0.0"/>
                 </ItemGroup/>
         </dependency>
 

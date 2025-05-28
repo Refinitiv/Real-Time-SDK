@@ -10,29 +10,68 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.2.3.G2 aka EMA/ETA 3.3.1.G2 aka 3.3.1.1
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.3.0.L2 aka EMA/ETA 3.4.0.L2 aka 3.4.0.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release which incorporates a GitHub Pull request.
+This release of EMA C# has support for the Request Routing feature and application defined ServiceLists. Request Routing, a client-side feature, provides the application the capability to route market data item requests to multiple connections depending on the availability of services on each connection by matching quality of service and capabilities.
 
-Customer Issues Resolved
-----------------------------------------------------------------------------------------
-- [GitHub Pull Request #300, GitHub #301] - [RTSDK-9563] - GitHub Pull Request to fix DirectoryConfigMap property should be used instead of DictionaryConfigMap 
+In addition, this serves as maintenance release with support for Amazon Linux versions and bug fixes. 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 ---------------------------------------------
+RTSDK CSharp Release 2.3.0.L2 (May 28, 2025)
+---------------------------------------------
+
+EMA CSharp 3.4.0.L2/3.4.0.0 Issues Resolved
+-------------------------------------------
+- [RTSDK-1143] - Improved EMA exception and error handling documentation
+- [RTSDK-8435] - EMA C# support for OmmJson to represent JSON data type
+- [RTSDK-8469] - EMA C# Request Routing: Add new configuration values for XML and programmatic config
+- [RTSDK-8470] - EMA C# Request Routing: OmmConsumer intialization and channel management
+- [RTSDK-8471] - EMA C# Request Routing: Login stream aggregation and handling
+- [RTSDK-8472] - EMA C# Request Routing with SL: Service management and handling(Source Directory)
+- [RTSDK-8473] - EMA C# Request Routing: Dictionary handling
+- [RTSDK-8474] - EMA C# Request Routing: Standard Item Stream handling
+- [RTSDK-8475] - EMA C# Request Routing: Symbol List request handling
+- [RTSDK-8476] - EMA C# Request Routing: OmmConsumer and OmmConsumerEvent functional changes
+- [RTSDK-8478] - EMA C# Request Routing: Added 510_RequestRouting_FileCfg and 511_RequestRouting_ProgrammaticCfg
+- [RTSDK-8479] - EMA C# Request Routing: Logger changes
+- [RTSDK-8822] - Double invocation of Uninitialize() cause System.NullReferenceException
+- [RTSDK-9230] - Unit tests added to ensure that EmaConfig.xml is validated against schema
+- [RTSDK-9390] - Extend EMA OmmConsumerConfig to set application name
+- [RTSDK-9441] - OffStream Post: ServiceName is not set on the AckMsg
+
+ETA CSharp 3.4.0.L2 Issues Resolved
+-----------------------------------
+- [RTSDK-9469] - ETA C# Watchlist must not fanout item status when the service state is not updated
+
+Both ETA and EMA CSharp 3.4.0.L2 Issues Resolved
+------------------------------------------------
+- [RTSDK-8530] - Part II C# Coverity Scan: Fix for issues found from scan
+- [RTSDK-9208] - Unit/integration tests abort when exception isn't handled in background thread
+- [RTSDK-9486] - Amazon Linux 2023 and Amazon Linux 2: Add Support for builds
+- [RTSDK-9674] - Update to C# versions dependencies: Microsoft.IdentityModel.Tokens, System.IdentityModel.Tokens.Jwt, NLog, Microsoft.NET.Test.Sdk, xunit, coverlet.collector (see README for details)
+
+---------------------------------------------
+RTSDK CSharp Release 2.3.0.L1 -- SKIPPED for C# 
+---------------------------------------------
+
+---------------------------------------------
 RTSDK CSharp Release 2.2.3.G2 (Mar 21, 2025)
 ---------------------------------------------
+
+This is a maintenance release which incorporates a GitHub Pull request. The Galaxy Kylin qualification was also completed in this timeframe (no code changes).
 
 EMA CSharp 3.3.1.G2/3.3.1.1 Issues Resolved
 -------------------------------------------
 - [RTSDK-9563] - GitHub Pull Request to fix DirectoryConfigMap property should be used instead of DictionaryConfigMap [GitHub Pull Request #300, GitHub #301]
+- [RTSDK-9449] - Galaxy Kylin Qualification
 
 ---------------------------------------------
-RTSDK 2.2.3.G1 Release: No changes for CSharp
+RTSDK CSharp Release 2.2.3.G1 -- SKIPPED for C# 
 ---------------------------------------------
 
 ---------------------------------------------

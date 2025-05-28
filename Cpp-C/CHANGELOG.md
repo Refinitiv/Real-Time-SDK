@@ -7,25 +7,46 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.3.0.L1 aka EMA/ETA 3.9.0.Ll aka 3.9.0.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.3.0.L2 aka EMA/ETA 3.9.0.L2 aka 3.9.0.1
 ----------------------------------------------------------------------------------------
 
-This release introduces support for the Request Routing feature (improved resiliency) and serves as a maintenance release with customer fixes. This release adds support for Amazon Linux versions and removes support for Linux 7 (Oracle Linux 7 library will not be shipped).
-
-Customer Issues Resolved
-------------------------
-- [GitHub #212] - [RTSDK-6790] - Expand the definition of InterfaceName to include name of interface such as 'eth1' (in addition to hostname and IP)
-- [Case Number: 14014166] - [RTSDK-9187] - OMMConsumer creation failure after high reconnection retry count
-- [Case Number: 14224685] - [RTSDK-9375] - EMA Consumer 501 has incorrect preferred host configuration
-- [Case Number: 14518490] - [RTSDK-9549] - IProv170 crashes when getChannelInformation in onReqMsg function
+This is a maintenance release with updates to dependencies and bug fixes including fixes for EMA C++ Request Routing.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.3.0.L2 (May 28, 2025)
+--------------------------------------------
+
+EMA C++ 3.9.0.L2 Issues Resolved
+--------------------------------
+- [RTSDK-9230] - Unit tests added to ensure that EmaConfig.xml is validated against schema
+- [RTSDK-9648] - EMAC++ Request Routing: Upon item close, EMA Request Routing will attempt all other channels that have not been closed yet, including the current one
+- [RTSDK-9649] - EMAC++ Request Routing Fix: EMA tries to recover first service in serviceList during recovery state
+- [RTSDK-9652] - EMAC++ Request Routing: Upon receiving OPEN/SUSPECT statuses from the reactor, if the current channel is the only channel available for the current item, EMA Request Routing will not attempt to reroute to another channel.
+- [RTSDK-9728] - Additional EMAC++ Request Routing unit tests are included
+
+
+ETA C 3.9.0.L2 Issues Resolved
+--------------------------------
+- [RTSDK-8099] - UnitTest failures when tests are run in a batch on Linux8: NonBlockingTwoWayClientServerTransport
+- [RTSDK-8967] - [ETA.C] Channel role is copied incorrectly in _reactorChannelCopyRole rsslReactor.c
+- [RTSDK-9554] - Removed unused libxml2 dependency from librsslVA build
+- [RTSDK-9751] - ETAC Reactor: Fixed WSB Reactor channel handling with the rsslReactorSubmitLoginCredentialRenewal call
+
+Both ETA C and EMA C++ 3.9.0.L2 Issues Resolved
+-----------------------------------------------
+- [RTSDK-3424] - Update to copyrights in files
+- [RTSDK-9673] - Update to C/C++ versions dependencies: libxml2 is updated to 2.13.8 and l8w8jwt is updated to 2.5.0
+- [RTSDK-9686] - Fixes for issues found by Coverity Security scan
+
+--------------------------------------------
 RTSDK C++/C Release 2.3.0.L1 (Apr 22, 2025)
 --------------------------------------------
+
+This release introduces support for the Request Routing feature (improved resiliency) and serves as a maintenance release with customer fixes. This release adds support for Amazon Linux versions and removes support for Linux 7 (Oracle Linux 7 library will not be shipped).
 
 EMA C++ 3.9.0.L1 Issues Resolved
 --------------------------------

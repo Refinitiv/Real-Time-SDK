@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source LSEG low-level Transport and OMM encoder/decoder API. It is used by the LSEG Real-Time Distribution Systems and LSEG Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2024 LSEG. All rights reserved.
+Copyright (C) 2019-2025 LSEG. All rights reserved.
 
 # New In This Release
 
@@ -23,6 +23,7 @@ External modules used by this version of RTSDK Java:
 	commons-lang3				3.14.0
 	commons-logging				1.3.4
 	commons-text		 		1.12.0
+	Conscrypt OpenJDK Uber                  2.5.2
 	jackson-annotations	 		2.18.1
 	jackson-core	 			2.18.1  
 	jackson-databind 			2.18.1
@@ -85,11 +86,12 @@ NOTE: To obtain JNI Libraries for deprecated versions, VS 2013, please use a Bin
 
 Platforms:
 
-	Oracle Linux Server 7.X 64-bit
-        Red Hat Enterprise Server 7.X Release 64-bit
         Red Hat Enterprise Server 8.X Release 64-bit
         Red Hat Enterprise Server 9.X Release 64-bit
 	Ubuntu 20.04 64-bit Qualification
+        Galaxy Kylin 10, 64-bit
+        Amazon Linux 2, 64-bit
+        Amazon Linux 2023, 64-bit
 
 #### Tested Versions
 
@@ -137,8 +139,8 @@ NOTE: Connectivity to Real-Time Direct is supported for Level 1 and Level 2 data
 
 This release has been tested with the following:
 
-- ADS 3.8.1
-- ADH 3.8.1
+- ADS 3.8.2
+- ADH 3.8.2
 - DACS 7.12
 
 # Documentation
@@ -220,40 +222,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.8.3.0</version>
+		<version>3.9.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.8.3.0</version>
+		<version>3.9.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.8.3.0</version>
+		<version>3.9.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.8.3.0</version>
+		<version>3.9.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.8.3.0</version>
+		<version>3.9.0.1</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.8.3.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.8.3.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.8.3.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.8.3.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.8.3.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.9.0.1'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.9.0.1'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.9.0.1'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.9.0.1'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.9.0.1'
 
 # Developing 
 

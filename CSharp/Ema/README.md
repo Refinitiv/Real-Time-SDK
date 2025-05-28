@@ -75,7 +75,7 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
 
     Library Name            Package Version
     ------------            ----------------
-    LSEG.Ema.Core.dll       ema3.3.1.1
+    LSEG.Ema.Core.dll       ema3.4.0.0
 
 # EMA CSharp Issues and Workarounds
 
@@ -85,17 +85,17 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - CSharp Edition
-    Release Number: 3.3.1
-    Load Number: 1
-    Load ID: emacsharp3.3.1.L1.all 
-        Supersedes: emacsharp3.3.0.L1.all 
+    Release Number: 3.4.0
+    Load Number: 2
+    Load ID: emacsharp3.4.0.L2.all
+        Supersedes: emacsharp3.3.1.L1.all 
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.66_RealTimeDistributionSystem_25.21 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.67_RealTimeDistributionSystem_25.32 for RWF and Marketfeed Record Templates
 
 # Security
 

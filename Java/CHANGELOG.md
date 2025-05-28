@@ -9,27 +9,79 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.2.3.L1 aka EMA/ETA 3.8.3.L1 aka 3.8.3.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.3.0.L2 aka EMA/ETA 3.9.0.L2 aka 3.9.0.1
 ----------------------------------------------------------------------------------------
 
-This release of EMA Java has support for the Request Routing feature and application defined ServiceLists. Request Routing, a client-side feature, provides the application the capability to route market data item requests to multiple connections depending on the availability of services on each connection by matching quality of service and capabilities.
-
-In addition, this serves as maintenance release with support for Windows 11, customer issue fixes and other minor enhancements. Note that starting with this version, EMA configuration is validated/enforced using an embedded schema file.
+This release introduces support for Conscrypt OpenJDK Uber, an alternative to Java encryption with client & server implementation and better performance. In addition, this release serves as a maintenance release with support for Amazon Linux versions, fixes related to Request Routing feature, customer issue fixes, a performance improvement with DispatchAll and other enhancements/fixes.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [Case Number: 13278230] - [RTSDK-8244] - Qualification on Windows 11
-- [Case Number: 13522186] - [RTSDK-8564] - ServiceList feature in EMA Java
-- [GitHub #275] - [RTSDK-8434] - EMAJ should provide OmmJson to represent JSON data type
-- [GitHub #289] - [RTSDK-9142] - ETAJ RMTESToUTF8 does not work
+
+- [GitHub #290] - [RTSDK-9191] - Enhancement to address indefinite growth of Java EMA/ETA ReactorFactory pool due to peaks in usage 
+- [GitHub #293] - [RTSDK-9390] - Extend EMA OmmConsumerConfig to set application name
+- [GitHub #299] - [RTSDK-9336] - Poor performance in WlItemHandler.closeWlStream (WlStream) 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK Java Release 2.3.0.L2 (May 28, 2025)
+--------------------------------------------
+
+EMA Java 3.9.0.L2 Issues Resolved
+---------------------------------
+- [RTSDK-1143] - Improved EMA exception and error handling documentation
+- [RTSDK-9376] - EMAJ IProvider Config issue with processing null or empty port value
+- [RTSDK-9390] - Extend EMA OmmConsumerConfig to set application name [GitHub #293]
+- [RTSDK-9441] - EMAJ OffStream Post: ServiceName is not set on the AckMsg
+- [RTSDK-9504] - Modified EMAJ examples and perf tools to support the Conscrypt security provider
+- [RTSDK-9522] - EMA Java Request routing: Fix source directory stream item handling to manipulate the DELETE action properly
+- [RTSDK-9230] - Unit tests added to ensure that EmaConfig.xml is validated against schema
+- [RTSDK-9531] - EMA Java Request routing: Fix inconsistency data state and login refresh of login stream handling
+- [RTSDK-9533] - ClassCastException while running EMAJ PerfProvider
+- [RTSDK-9555] - EMAJ WSB There is 'No Dictionary' error during decoding refresh and update messages
+- [RTSDK-9564] - EMAJ WSB There is no log message displayed for CHANNEL_UP event
+- [RTSDK-9567] - EMA Java Request routing: Handling source directory mismatch after OmmConsumer initialization
+- [RTSDK-9614] - EMA Java: Permit/support pooling of cloned messages for better memory management
+- [RTSDK-9771] - EMAJ refreshMsg decoding does not print qos
+
+ETA Java 3.9.0.L2 Issues Resolved
+---------------------------------
+- [RTSDK-9689] - Exception in sample code when connecting ETAJ ProvPerf to ETAC ConsPerf with Websocket Json protocol
+
+
+Both ETA Java and EMA Java 3.9.0.L2 Issues Resolved
+---------------------------------------------------
+- [RTSDK-6859] - Performance improvement with DispatchAll (Reactor); ConsPerf tool updated with warm standby support
+- [RTSDK-7758] - Introduction of Conscrypt OpenJDK Uber (an alternative to Java Security) for encrypted connections
+- [RTSDK-9179] - Remove support for Linux 7 from releases with pre-build libraries
+- [RTSDK-9191] - Enhancement to address indefinite growth of Java EMA/ETA ReactorFactory pool due to peaks in usage [GitHub #290]
+- [RTSDK-9351] - Changes from "Refinitiv" to "LSEG" for references in RTSDK Java (no application impact)
+- [RTSDK-9486] - Amazon Linux 2023 and Amazon Linux 2: Add Support for builds
+- [RTSDK-9336] - Poor performance in WlItemHandler.closeWlStream(WlStream) [GitHub #299]
+
+--------------------------------------------
+RTSDK Java Release 2.3.0.L1: SKIPPTED for Java
+--------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.2.3.G2 (Mar 21, 2025)
+--------------------------------------------
+
+The Galaxy Kylin qualification was completed in this timeframe (no code changes).
+
+Both ETA Java and EMA Java 3.9.0.L2 Issues Resolved
+---------------------------------------------------
+- [RTSDK-9449] - Galaxy Kylin Qualification
+
+--------------------------------------------
 RTSDK Java Release 2.2.3.L1 (Dec 12, 2024)
 --------------------------------------------
+
+This release of EMA Java has support for the Request Routing feature and application defined ServiceLists. Request Routing, a client-side feature, provides the application the capability to route market data item requests to multiple connections depending on the availability of services on each connection by matching quality of service and capabilities.
+
+In addition, this serves as maintenance release with support for Windows 11, customer issue fixes and other minor enhancements. Note that starting with this version, EMA configuration is validated/enforced using an embedded schema file.
 
 EMA Java 3.8.3.L1 Issues Resolved
 ---------------------------------

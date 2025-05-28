@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.66
-!tag Build_RDMD  4.20.66
-!tag DT_Version  25.21
-!tag Date        17-Mar-2025
+!tag RT_Version  4.20.67
+!tag Build_RDMD  4.20.67
+!tag DT_Version  25.32
+!tag Date        05-May-2025
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -36,7 +36,7 @@ RDN_EXCHID     4
       5        "PSE"   NYSE Arca
       6        "XPH"   NASDAQ OMX PSX when trading in SIAC (formerly Philadelphia Stock Exchange)
       7        "THM"   NASDAQ InterMarket
-      8        "MID"   NYSE Chicago
+      8        "MID"   NYSE Texas Inc
       9        "NYQ"   Consolidated Issue, listed by NYSE
      10        "TOR"   Toronto Stock Exchange
      11        "MON"   Montreal Stock Exchange
@@ -4936,6 +4936,9 @@ LEG40_TYPE 12832
      15       "LEPO"   Low Exercise Price Options
      16       "FOPT"   Flex Option
      17       "SHRS"   Shares
+     18       "TTAC"   TRF that is traded at underlying close
+     19       "TTAM"   TRF that is traded at market
+     20       "MOC "   Market On Close future
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -7131,7 +7134,7 @@ CLS_A_EXID 13625
       5        "PSE"   NYSE Arca
       6        "XPH"   NASDAQ OMX PSX when trading in SIAC (formerly Philadelphia Stock Exchange)
       7        "THM"   NASDAQ InterMarket
-      8        "MID"   NYSE Chicago
+      8        "MID"   NYSE Texas Inc
       9        "NYQ"   Consolidated Issue, listed by NYSE
      10        "TOR"   Toronto Stock Exchange
      11        "MON"   Montreal Stock Exchange
@@ -7677,7 +7680,7 @@ CLS_A_EXID 13625
     551        "LCA"   NYSE American when trading NASDAQ Global Market
     552        "LCB"   Boston Stock Exchange for Nasdaq Large Cap
     553        "LCC"   NYSE National Exchange for Nasdaq Large Cap
-    554        "LCM"   NYSE Chicago for Nasdaq Large Cap
+    554        "LCM"   NYSE Texas When Trading Nasdaq Global Market
     555        "LCN"   New York Stock Exchange for Nasdaq Large Cap
     556        "LCP"    NYSE Arca FOR NASDAQ LARGE CAP
     557        "LCW"   Chicago Board Options Exchange for Nasdaq Large Cap Equity
@@ -7687,7 +7690,7 @@ CLS_A_EXID 13625
     561        "SCA"   NYSE American when trading NASDAQ Global Market
     562        "SCB"   Boston Stock Exchange for Nasdaq Capital Market
     563        "SCC"   NYSE National Exchange for Nasdaq Capital Market
-    564        "SCM"   NYSE Chicago for Nasdaq Capital Market
+    564        "SCM"   NYSE Texas When Trading Nasdaq Capital Market
     565        "SCN"   New York Stock Exchange for Nasdaq Capital Market
     566        "SCP"   NYSE Arca FOR NASDAQ SMALL CAP
     567        "SCW"   Chicago Board Options Exchange for Nasdaq Capital Market
@@ -7774,7 +7777,7 @@ CLS_A_EXID 13625
     648        "GSA"   NYSE American when trading NASDAQ Global Select Market
     649        "GSB"   Boston SE when trading Nasdaq Global Select Market
     650        "GSW"   CBOE when trading Nasdaq Global Select Market
-    651        "GSM"   NYSE Chicago for Nasdaq Global Select Market
+    651        "GSM"   NYSE Texas When Trading Nasdaq Global Select Market
     652        "GSC"   NYSE National Exchange when trading Nasdaq Global Select Market
     653        "GSI"   ISE when trading Nasdaq Global Select Market
     654        "GSL"   NASD TRF when trading Nasdaq Global Select Market
@@ -8912,6 +8915,8 @@ CLS_A_EXID 13625
    1786        "EMS"   Energy Market Services Tradepoint
    1787        "BBE"   BBCE - Balcao Brasileiro De Comercializacao De Energia
    1788        "SBR"   SIGMA BROKING
+   1789        "NPM"   NASDAQ PRIVATE MARKET
+   1790        "MIQ"   NYSE TEXAS
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17097,6 +17102,9 @@ DLVY_TERMS 12959
      49      "EXT  "   Delivered Ex-Tank
      50      "EXP  "   Delivered Ex-Plant
      51      "EXPI "   Delivered Ex-Pipe
+     52      "DONB "   Delivered on Board
+     53      "DHUB "   Delivered into Hub
+     54      "DBOR "   Delivered at the Border
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17390,6 +17398,17 @@ ROUTE_INDX 12977
     108   "BLPG3   "   US Gulf to Japan
     109   "TC17    "   Middle East Gulf to East Africa
     110   "TC20    "   Clean 90K Middle East Gulf to UK-Cont
+    111   "EC11    "   North West Europe to US Gulf
+    112   "EC22    "   Middle East Gulf to West Coast India
+    113   "EC23    "   Middle East Gulf to China
+    114   "EC34    "   US Gulf to Far East
+    115   "EC35    "   US Gulf to North West Europe
+    116   "EC36    "   US Gulf to Brazil
+    117   "EC43    "   Singapore to China
+    118   "EC52    "   Korea to West Coast India
+    119   "EC57    "   Korea to Singapore
+    120   "VG62    "   East Coast South America to West Coast India
+    121   "PO45    "   Singapore Straits to North West Europe
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19229,6 +19248,8 @@ MET_TYP25  13632
     278   "TOTCAREM"   TotalCarbonEmissions
     279   "OLD     "   number of "Old" crop year positions
     280   "OTHER   "   number of "Other" crop year positions
+    281   "UFA     "   Unpaid Floating Accrual
+    282   "NUFFA   "   Net Unpaid Fixed Floating Accrual
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19808,6 +19829,7 @@ CNTR_SZ_UT 13611
     448      "CB/mw"   kg CO2 equivalent/mwh
     449      "MAD/P"   Moroccan Dirham Per Point
     450      "C/dmt"   kg CO2 equivalent/dmt
+    451      "RTFC "   Renewable transport fuel certificate
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23575,6 +23597,7 @@ PRIMACT_TP 13621
      44   "CRUSHVOL"   Crushings (volume)
      45   "CRUSHCAP"   Crushings (Capacity Utilisation %)
      46   "SUR BLCE"   SURPLUS BALANCE
+     47   "AV D DLY"   Average Days Delay
 !
 ! ACRONYM    FID
 ! -------    ---

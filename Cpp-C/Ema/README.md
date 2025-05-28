@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.9.0.L1
+    libema.lib                ema3.9.0.L2
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.9.0.L1
-    libema.dll                ema3.9.0.L1
+    libema.lib                ema3.9.0.L2
+    libema.dll                ema3.9.0.L2
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.9.0.L1
+    libema.a                    ema3.9.0.L2
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.9.0.L1          libema.so.23          ema3.9.0.L1
+    libema.so.3.9.0.L2          libema.so.23          ema3.9.0.L2
     
   
 # EMA C++ Issues and Workarounds
@@ -154,18 +154,18 @@ This will create all necessary soft links for example makefiles to link. It is s
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
     Release Number: 3.9.0
-    Load Number: 1
-    Windows Load ID: ema3.9.0.L1.win
-        Supersedes: ema3.8.3.L1.win
-    Linux Load ID: ema3.9.0.L1.linux
-        Supersedes: ema3.8.3.L1.linux
+    Load Number: 2
+    Windows Load ID: ema3.9.0.L2.win
+        Supersedes: ema3.9.0.L1.win
+    Linux Load ID: ema3.9.0.L2.linux
+        Supersedes: ema3.9.0.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.66_RealTimeDistributionSystem_25.21 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.67_RealTimeDistributionSystem_25.32 for RWF and Marketfeed Record Templates
 
 # Security
 
