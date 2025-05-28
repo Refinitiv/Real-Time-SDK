@@ -188,6 +188,14 @@ class SessionChannelInfo<T>
 						}
 		            	if( existingDirectory.channelInfo() != chnlInfo )
 		            	{
+		            		if(existingDirectory.channelInfo().getParentChannel() != null)
+		            		{
+		            			if(chnlInfo.getParentChannel() != null)
+		            			{
+		            				chnlInfo.getParentChannel().rsslDictionary(existingDirectory.channelInfo().getParentChannel().rsslDictionary());
+		            			}
+		            		}
+		            		
 		            		chnlInfo.rsslDictionary(existingDirectory.channelInfo().rsslDictionary());
 		            		existingDirectory.channelInfo(chnlInfo);
 		            	}
@@ -256,6 +264,14 @@ class SessionChannelInfo<T>
 					}
 	            	if((existingDirectory != null) && existingDirectory.channelInfo() != chnlInfo )
 	            	{
+	            		if(existingDirectory.channelInfo().getParentChannel() != null)
+	            		{
+	            			if(chnlInfo.getParentChannel() != null)
+	            			{
+	            				chnlInfo.getParentChannel().rsslDictionary(existingDirectory.channelInfo().getParentChannel().rsslDictionary());
+	            			}
+	            		}
+	            		
 	            		chnlInfo.rsslDictionary(existingDirectory.channelInfo().rsslDictionary());
 	            		existingDirectory.channelInfo(chnlInfo);
 	            	}

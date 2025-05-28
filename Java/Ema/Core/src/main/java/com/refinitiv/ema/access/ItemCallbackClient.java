@@ -3184,6 +3184,8 @@ class SingleItem<T> extends Item<T>
 		_lastDataState = 0;
 		_lastStatusCode = 0;
 		_lastStatusText = "";
+		
+		_openSuspectClient = null;
 	}
 	
 	int state()
