@@ -621,7 +621,7 @@ TEST_F(OmmConsumerTest, RequestRoutingLoginChannelDown)
 
 		EXPECT_EQ(channelInfo.size(), 2);
 
-		EXPECT_GE(consClient.getMessageQueueSize(), 1);
+		EXPECT_GE(consClient.getMessageQueueSize(), 1u);
 
 		while ((msg = consClient.popMsg()) != NULL)
 		{
@@ -648,7 +648,7 @@ TEST_F(OmmConsumerTest, RequestRoutingLoginChannelDown)
 
 		EXPECT_EQ(channelInfo.size(), 2);
 
-		EXPECT_GE(consClient.getMessageQueueSize(), 2);
+		EXPECT_GE(consClient.getMessageQueueSize(), 2u);
 
 		OmmState::StreamState streamState = OmmState::StreamState::ClosedEnum;
 		OmmState::DataState dataState = OmmState::DataState::NoChangeEnum;
@@ -5641,7 +5641,7 @@ TEST_F(OmmConsumerTest, RequestRoutingDictionaryRequestByServiceName)
 
 		ASSERT_EQ(provClient2.getMessageQueueSize(), 0);
 
-		ASSERT_GE(consClient.getMessageQueueSize(), 1);
+		ASSERT_GE(consClient.getMessageQueueSize(), 1u);
 
 		RefreshMsg* refresh = static_cast<RefreshMsg*>(consClient.popMsg());
 
@@ -5659,7 +5659,7 @@ TEST_F(OmmConsumerTest, RequestRoutingDictionaryRequestByServiceName)
 
 		ASSERT_EQ(provClient2.getMessageQueueSize(), 0);
 
-		ASSERT_GE(consClient.getMessageQueueSize(), 1);
+		ASSERT_GE(consClient.getMessageQueueSize(), 1u);
 
 		refresh = static_cast<RefreshMsg*>(consClient.popMsg());
 
@@ -12744,7 +12744,7 @@ TEST_F(OmmConsumerTest, SingleConnectionDictionaryRequestByServiceName)
 
 		testSleep(5000);
 
-		ASSERT_GE(consClient.getMessageQueueSize(), 1);
+		ASSERT_GE(consClient.getMessageQueueSize(), 1u);
 
 		msg = consClient.popMsg();
 
@@ -12762,7 +12762,7 @@ TEST_F(OmmConsumerTest, SingleConnectionDictionaryRequestByServiceName)
 
 		testSleep(5000);
 
-		ASSERT_GE(consClient.getMessageQueueSize(), 1);
+		ASSERT_GE(consClient.getMessageQueueSize(), 1u);
 
 		msg = consClient.popMsg();
 
