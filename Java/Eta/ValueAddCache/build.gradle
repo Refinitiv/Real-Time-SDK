@@ -1,6 +1,8 @@
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
-apply plugin: 'java-library'
+plugins {
+    id 'maven-publish'
+    id 'java-library'
+    id 'org.jreleaser' version '1.18.0'
+}
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
@@ -91,25 +93,37 @@ publishing {
 
     repositories {
         maven {
-            credentials {
-                username = findProperty('ossrhUsername')
-                password = findProperty('ossrhPassword')
-            }
-            name = "repository"
-            def releaseRepository = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotRepository = "https://oss.sonatype.org/content/repositories/snapshots/"
-            url = project.version.endsWith('SNAPSHOT') ? snapshotRepository : releaseRepository
+            name = "PreDeploy"
+            url = uri(layout.buildDirectory.dir("pre-deploy"))
         }
     }
 }
 
-signing {
-    setRequired {
-        // signing is only required if the artifacts are to be published
-        gradle.taskGraph.allTasks.any { it.equals( PublishToMavenRepository) }
+jreleaser {
+    signing {
+        active = 'ALWAYS'
+        armored = true
     }
-    sign configurations.archives
-    sign publishing.publications.mavenJava
+
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
+                    password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
+                    stagingRepository('build/pre-deploy')
+                }
+            }
+        }
+    }
+
+    release {
+        github {
+            enabled = false
+        }
+    }
 }
 
 eclipse {
