@@ -528,7 +528,8 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 			_itemRequestList[itemId].itemInfo().attributes().domainType(_itemInfoList.itemInfoList()[itemListIndex].domainType());
 
 			_itemRequestList[itemId].itemName(_itemInfoList.itemInfoList()[itemListIndex].name());
-
+			_itemRequestList[itemId].itemInfo().itemId(itemId);
+			
     		if (!_itemInfoList.itemInfoList()[itemListIndex].isSnapshot())
     		{
     			int flags = _itemRequestList[itemId].itemInfo().itemFlags() | ItemFlags.IS_STREAMING_REQ;
