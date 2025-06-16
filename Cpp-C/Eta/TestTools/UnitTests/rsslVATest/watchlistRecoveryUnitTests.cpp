@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -2440,8 +2440,8 @@ void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslC
 
 		/* Test that the reconnect occurred at the expected time.
 		 * It should double for each reconnection (up to the max, not accounted for here). */
-		ASSERT_TRUE((pEvent->base.timeUsec - startTimeUsec)/1000 > reconnectMinDelay * pow((double)2,i) - 300);
-		ASSERT_TRUE((pEvent->base.timeUsec - startTimeUsec)/1000 < reconnectMinDelay * pow((double)2,i) + 300);
+		ASSERT_TRUE((pEvent->base.timeUsec - startTimeUsec)/1000.0 > reconnectMinDelay * pow((double)2,i) - 300);
+		ASSERT_TRUE((pEvent->base.timeUsec - startTimeUsec)/1000.0 < reconnectMinDelay * pow((double)2,i) + 300);
 
 		ASSERT_TRUE(pEvent = wtfGetEvent());
 		ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);

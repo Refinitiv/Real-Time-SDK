@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -39,6 +39,7 @@ rwfToJsonBase::rwfToJsonBase(int bufSize, int maxPrequel, RsslUInt16 convFlags, 
 	_maxLen(0),
 	_bufLen(0),
 	_reset(true),
+	_firstMsg(false),
 	_convFlags(convFlags),
 	_buf(0),
 	_solicitedFlagPtr(0),
@@ -53,8 +54,18 @@ rwfToJsonBase::rwfToJsonBase(int bufSize, int maxPrequel, RsslUInt16 convFlags, 
 	_pstr(0),
 	_size(0),
 	_dictionaryList(0),
-	_dictionaryCount(0)
+	_dictionaryCount(0),
+	_msgType(0),
+	_hasErrorDebugInfo(false),
+	_errorId(0),
+	_errorText(NULL),
+	_errorFile(NULL),
+	_errorLine(0),
+	_errorOffset(0),
+	_errorOriginalMessage(NULL),
+	_buffer(RSSL_INIT_BUFFER)
 {
+	rsslClearDecodeIterator(&_iter);
 
 	/* Add in a buffer for a worst case 8 byte memcpy by int */
 	if ((_buf = (char*)malloc(bufSize + 8)) == 0)
@@ -72,8 +83,8 @@ rwfToJsonBase::rwfToJsonBase(int bufSize, int maxPrequel, RsslUInt16 convFlags, 
 
 	if ((_tokens = (jsmntok_t*)malloc(numTokens * sizeof(jsmntok_t))) == NULL)
 		_error = 1;
-
-	memset(_tokens, 0, _numTokens * sizeof(jsmntok_t));
+	else
+		memset(_tokens, 0, _numTokens * sizeof(jsmntok_t));
 }
 //////////////////////////////////////////////////////////////////////
 //

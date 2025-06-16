@@ -1610,7 +1610,7 @@ void providerInit(Provider *pProvider, ProviderType providerType,
 	char* pEnd = NULL;
 	RsslInt32 cpuId = 0;
 
-	memset(pProvider, 0, sizeof(pProvider));
+	memset(pProvider, 0, sizeof(Provider));
 	pProvider->providerType = providerType;
 	clearValueStatistics(&pProvider->cpuUsageStats);
 	clearValueStatistics(&pProvider->memUsageStats);

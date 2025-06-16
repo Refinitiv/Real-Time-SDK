@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|          Copyright (C) 2019-2022 LSEG. All rights reserved.               --
+// *|          Copyright (C) 2019-2022, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #include "ConsumerThread.h"
@@ -610,7 +610,7 @@ bool ConsumerThread::sendPostBurst(UInt32 postItemBurstCount)
 	// templates for messages (from MsgData.xml)
 	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
 
-	Int32 latencyPostNumber = (pConsPerfCfg->latencyPostsPerSec > 0) ? latencyPostRandomArray->getNext() : -1;
+	Int64 latencyPostNumber = (pConsPerfCfg->latencyPostsPerSec > 0) ? latencyPostRandomArray->getNext() : -1;
 	PerfTimeValue latencyStartTime;
 
 	RotateAppVectorUtil postRotateList(postItemList, consThreadState.getCurrentPostItemIndex());
@@ -684,7 +684,7 @@ bool ConsumerThread::sendGenMsgBurst(UInt32 genMsgItemBurstCount)
 	// templates for messages (from MsgData.xml)
 	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
 
-	Int32 latencyGenericNumber = (pConsPerfCfg->latencyGenMsgsPerSec > 0) ? latencyGenericRandomArray->getNext() : -1;
+	Int64 latencyGenericNumber = (pConsPerfCfg->latencyGenMsgsPerSec > 0) ? latencyGenericRandomArray->getNext() : -1;
 	PerfTimeValue latencyStartTime;
 
 	RotateAppVectorUtil genericRotateList(genMsgItemList, consThreadState.getCurrentGenericsItemIndex());

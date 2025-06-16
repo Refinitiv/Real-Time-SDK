@@ -450,6 +450,7 @@ TunnelStreamRequest::TunnelStreamRequest() :
  _guaranteedOutputBuffers( 50 ),
  _serviceIdSet( false ),
  _serviceNameSet( false ),
+ _nameSet( false ),
  _serviceName(),
  _name(),
  _cos(),
@@ -465,6 +466,7 @@ TunnelStreamRequest::TunnelStreamRequest( const TunnelStreamRequest& other ) :
  _serviceIdSet( other._serviceIdSet ),
  _serviceNameSet( other._serviceNameSet ),
  _serviceName( other._serviceName ),
+ _nameSet( other._nameSet ),
  _name( other._name ),
  _cos( other._cos ),
  _pImpl( 0 )

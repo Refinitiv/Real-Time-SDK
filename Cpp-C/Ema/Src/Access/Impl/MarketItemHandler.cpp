@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020,2024 LSEG. All rights reserved. 
+ *|          Copyright (C) 2019-2020,2024, 2025 LSEG. All rights reserved. 
  *|-----------------------------------------------------------------------------
 */
 
@@ -36,9 +36,15 @@ static struct
 };
 
 MarketItemHandler::MarketItemHandler(OmmServerBaseImpl* ommServerBaseImpl) :
-	_pOmmServerBaseImpl(ommServerBaseImpl)
+	_pOmmServerBaseImpl(ommServerBaseImpl),
+	_rsslMsgBuffer(RSSL_INIT_BUFFER),
+	_rsslQosStringBuffer(RSSL_INIT_BUFFER),
+	_isDirectoryApiControl(true)
 {
 	_isDirectoryApiControl = _pOmmServerBaseImpl->getActiveConfig().getDirectoryAdminControl() == OmmIProviderConfig::ApiControlEnum ? true : false;
+	
+	rsslClearEncodeIterator(&_rsslEncodeIter);
+	rsslClearDecodeIterator(&_rsslDecodeIter);
 }
 
 MarketItemHandler::~MarketItemHandler()

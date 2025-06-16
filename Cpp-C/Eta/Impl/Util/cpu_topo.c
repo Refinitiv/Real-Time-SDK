@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|         Copyright (C) 2022,2024 LSEG. All rights reserved.                --
+ *|         Copyright (C) 2022,2024,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1131,7 +1131,7 @@ static  int CPUTopologyParams(RsslErrorInfo* pError)
     if (glbl_ptr->error)
     {
         rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-            "CPUTopologyParams()  cpuid error=%u. maxCPUID = %u (0x%X) - highest CPUID leaf index this processor supports. hasLeafB=%u",
+            "CPUTopologyParams()  cpuid error=%u. maxCPUID = %lu (0x%lX) - highest CPUID leaf index this processor supports. hasLeafB=%u",
             glbl_ptr->error, maxCPUID, maxCPUID, glbl_ptr->hasLeafB);
         return -2;
     }

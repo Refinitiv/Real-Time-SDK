@@ -31,7 +31,8 @@ LoginRdmReqMsgImpl::LoginRdmReqMsgImpl() :
 	_instanceId(),
 	_channelList(),
 	_client(defaultLoginConsClient),
-	_toStringSet(false)
+	_toStringSet(false),
+	_arrayIndex(0)
 {
 	EmaString _defalutPosition;
 	emaGetPosition(_defalutPosition);
@@ -65,7 +66,8 @@ LoginRdmReqMsgImpl::LoginRdmReqMsgImpl(OmmLoginCredentialConsumerClient& client)
 	_instanceId(),
 	_channelList(),
 	_client(client),
-	_toStringSet(false)
+	_toStringSet(false),
+	_arrayIndex(0)
 {
 	_hasLoginClient = true;
 	_closure = NULL;
@@ -100,7 +102,8 @@ LoginRdmReqMsgImpl::LoginRdmReqMsgImpl(OmmLoginCredentialConsumerClient& client,
 	_instanceId(),
 	_channelList(),
 	_client(client),
-	_toStringSet(false)
+	_toStringSet(false),
+	_arrayIndex(0)
 {
 	_hasLoginClient = true;
 	_closure = closure;

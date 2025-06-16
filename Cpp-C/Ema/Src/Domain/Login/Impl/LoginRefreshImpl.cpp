@@ -2,7 +2,7 @@
 *|            This source code is provided under the Apache 2.0 license
 *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 *|                See the project's LICENSE.md for details.
-*|           Copyright (C) 2019-2020, 2024 LSEG. All rights reserved.        --
+*|           Copyright (C) 2019-2020, 2024, 2025 LSEG. All rights reserved.
 *|-----------------------------------------------------------------------------
 */
 
@@ -96,6 +96,9 @@ LoginRefreshImpl& LoginRefreshImpl::clear()
 	_authenticationTTReissueSet = false;
 	_authenticationErrorCodeSet = false;
 	_authenticationErrorTextSet = false;
+	
+	_authenticationTTReissue = 0;
+	_authenticationErrorCode = 0;
 
 	_solicited = true;
 	_clearCache = false;
@@ -108,6 +111,7 @@ LoginRefreshImpl& LoginRefreshImpl::clear()
 
 	_nameType = USER_NAME;
 	_domainType = MMT_LOGIN;
+	_seqNum = 0;
 
 #ifdef __EMA_COPY_ON_SET__
 	_statusText.clear();

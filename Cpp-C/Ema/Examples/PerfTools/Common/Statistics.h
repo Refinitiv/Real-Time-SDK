@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+// *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #ifndef _STATISTICS_H
@@ -35,7 +35,14 @@ struct ResourceUsageStats {
 	PerfTimeValue _prevTimeUsec;
 	Int64 _prevUserTimeUsec;
 	Int64 _prevKernelTimeUsec;
-	ResourceUsageStats() : cpuUsageFraction(0), memUsageBytes(0), _prevTimeUsec(0), _prevUserTimeUsec(0), _prevKernelTimeUsec(0) {};
+	ResourceUsageStats() : cpuUsageFraction(0), memUsageBytes(0), _prevTimeUsec(0), _prevUserTimeUsec(0), _prevKernelTimeUsec(0) 
+	{
+#if defined(WIN32)
+		_currentProcess = 0;
+#else
+		_pageSize = 0;
+#endif
+	};
 	bool initResourceUsageStats();
 	bool getResourceUsageStats();
 	ResourceUsageStats& operator=(const ResourceUsageStats& other)
@@ -56,7 +63,7 @@ struct ResourceUsageStats {
 	};
 #if defined(WIN32)
 	HANDLE _currentProcess;
-#elif defined(Linux)
+#else
 	int _pageSize;
 #endif
 };

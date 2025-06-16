@@ -2509,10 +2509,19 @@ static RsslRet processSourceDirectoryRespJson(ConsumerThread* pConsumerThread, c
 
 static RsslRet processDictionaryResp(ConsumerThread* pConsumerThread, RsslRDMDictionaryMsg *pDictionaryMsg, RsslDecodeIterator *pDIter)
 {
-	RsslRet ret;
+	RsslRet ret = RSSL_RET_FAILURE;
 	RsslError closeError;
 	char errTxt[256];
 	RsslBuffer errorText = {255, (char*)errTxt};
+
+	if (!pDictionaryMsg)
+	{
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+			(char*)"processDictionaryResp() failed: pDictionaryMsg is NULL");
+		rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+		shutdownThreads = RSSL_TRUE;
+		return ret;
+	}
 
 	switch(pDictionaryMsg->rdmMsgBase.rdmMsgType)
 	{

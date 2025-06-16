@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2024 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -2041,6 +2041,13 @@ RsslInt32 ripcSSLInit(void *session, ripcSessInProg *inPr, RsslError *error)
 				if (chnl != NULL)
 				{
 					chnl->sslCurrentProtocol = ripcGetProtocolVersion(sess->connection);
+				}
+				else
+				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 ripcSSLInit error on getting RsslSocketChannel from the SSL_get_ex_data method.", __FILE__, __LINE__);
+					ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+					return -1;
 				}
 
 				if (ripcVerifyCert(sess->connection, chnl, error) == RSSL_FALSE)

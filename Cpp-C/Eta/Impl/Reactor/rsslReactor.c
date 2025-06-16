@@ -3312,7 +3312,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 						}
 					}
 
-					_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Ready event queue GROUP COUNT (%lu) to be dispatched from active event queue group.]\n",
+					_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Ready event queue GROUP COUNT (%u) to be dispatched from active event queue group.]\n",
 						pReactor, pReactorImpl->activeEventQueueGroup.readyEventQueueGroup.count);
 				}
 
@@ -3464,7 +3464,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 						}
 					}
 
-					_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE") event queue count %lu to be dispatched.]\n", pReactor,
+					_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE") event queue count %u to be dispatched.]\n", pReactor,
 						pReactorImpl->reactorEventQueue.eventQueue.count);
 				}
 
@@ -3503,7 +3503,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 						}
 					}
 
-					_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Per Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") event queue count (%lu) to be dispatched on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
+					_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Per Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") event queue count (%u) to be dispatched on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
 						pReactor, pReactorChannel, pReactorChannel->eventQueue.eventQueue.count, pReactorChannel->reactorChannel.pRsslChannel->socketId);
 				}
 
@@ -5046,7 +5046,7 @@ RSSL_VA_API RsslRet rsslReactorCloseChannel(RsslReactor *pReactor, RsslReactorCh
 			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Closes reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactor,
 				pReactorChannel, pChannel->socketId);
 
-			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE"), number of closing call(%hu) and number of dispatching per channel call(%lu) ]\n",
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE"), number of closing call(%hu) and number of dispatching per channel call(%u) ]\n",
 				pReactor, pReactorChannel, pReactorChannel->pChannelDebugInfo->numOfCloseChannelCall, pReactorChannel->pChannelDebugInfo->numOfDispatchCall);
 		}
 		
@@ -11103,14 +11103,17 @@ static RsslRet _reactorSendPreferredHostOptionsEvent(
 RSSL_VA_API RsslRet rsslReactorChannelIoctl(RsslReactorChannel *pReactorChannel, int code, void *value, RsslErrorInfo *pError)
 {
 	RsslRet ret = RSSL_RET_SUCCESS;
-	RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl*)pReactorChannel;
-	RsslReactorImpl *pReactorImpl = pReactorChannelImpl->pParentReactor;
+	RsslReactorChannelImpl *pReactorChannelImpl = NULL;
+	RsslReactorImpl *pReactorImpl = NULL;
 
 	if (!pReactorChannel)
 	{
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorChannel is not provided.");
 		return RSSL_RET_INVALID_ARGUMENT;
 	}
+
+	pReactorChannelImpl = (RsslReactorChannelImpl*)pReactorChannel;
+	pReactorImpl = pReactorChannelImpl->pParentReactor;
 
 	if (!pReactorChannel->pRsslChannel)
 	{
@@ -11521,7 +11524,7 @@ RsslReactorOAuthCredential* rsslCreateOAuthCredentialCopyV1(RsslReactorOAuthCred
 	tokenScope = pOAuthCredential ? pOAuthCredential->tokenScope : defaultOAuthCredential.tokenScope;
 	dataLength += tokenScope.length;
 	dataLength += userNameLength;
-	if(copySensitiveData == RSSL_TRUE || pOAuthCredential->pOAuthCredentialEventCallback == NULL)
+	if(copySensitiveData == RSSL_TRUE || pOAuthCredential != NULL && pOAuthCredential->pOAuthCredentialEventCallback == NULL)
 		dataLength += passwordLength;
 	dataLength += (pOAuthCredential && pOAuthCredential->clientId.length) ? pOAuthCredential->clientId.length : (pConsRole && pConsRole->clientId.length ? pConsRole->clientId.length : 0);
 
@@ -14788,7 +14791,6 @@ static RsslRet _reactorWSReadWatchlistMsg(RsslReactorImpl *pReactorImpl, RsslRea
 	/* Fanout the close message to all standby servers */
 	if (isActiveServer)
 	{
-		int originalStreamId = pOptions->pRsslMsg->msgBase.streamId;
 		if (pOptions->pRsslMsg && pOptions->pRsslMsg->msgBase.msgClass == RSSL_MC_STATUS && pOptions->pRsslMsg->msgBase.domainType != RSSL_DMT_SYMBOL_LIST)
 		{
 			pStatusMsg = (RsslStatusMsg*)pOptions->pRsslMsg;

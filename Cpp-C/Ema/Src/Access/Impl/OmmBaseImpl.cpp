@@ -3055,7 +3055,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			_pChannelCallbackClient->initialize();
 		}
 
-		UInt64 timeOutLengthInMicroSeconds = _activeConfig.loginRequestTimeOut * 1000;
+		UInt64 timeOutLengthInMicroSeconds = static_cast<UInt64>(_activeConfig.loginRequestTimeOut) * 1000;
 		_eventTimedOut = false;
 		TimeOut* loginWatcher( new TimeOut( *this, timeOutLengthInMicroSeconds, &OmmBaseImpl::terminateIf, reinterpret_cast< void* >( this ), true ) );
 		while ( ! _atExit && ! _eventTimedOut &&

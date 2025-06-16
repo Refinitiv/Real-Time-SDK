@@ -2,7 +2,7 @@
 *| This source code is provided under the Apache 2.0 license –
 *| and is provided AS IS with no warranty or guarantee of fit for purpose. –
 *| See the project's LICENSE.md for details. –
-*| Copyright (C) 2020 LSEG. All rights reserved.      –
+*| Copyright (C) 2020, 2025 LSEG. All rights reserved.
 *|-----------------------------------------------------------------------------
 */
 
@@ -893,9 +893,14 @@ class EnumValueTestParam
 		/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
 		friend ostream &operator<<(ostream &out, const EnumValueTestParam& params)
 		{
+			std::ios::fmtflags f(out.flags());
+
 			out << "[protocolType: "<< params.protocolType
 				<< ", stringValue:" << params.stringValue
 				<< ", isOverflow:" << std::boolalpha << params .isOverflow << "]";
+
+			out.flags(f);
+
 			return out;
 		}
 };
@@ -993,11 +998,16 @@ public:
 	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
 	friend ostream &operator<<(ostream &out, const IntValueTestParam& params)
 	{
+		std::ios::fmtflags f(out.flags());
+
 		out << "[protocolType: " << params.protocolType
 			<< ", stringValue:" << params.stringValue
 			<< ", isOverflow:" << std::boolalpha << params.isOverflow
 			<< ", checkMaxMin:" << params.checkMaxMin
 			<< "]";
+
+		out.flags(f);
+
 		return out;
 	}
 };
@@ -1104,9 +1114,14 @@ public:
 	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
 	friend ostream &operator<<(ostream &out, const UIntValueTestParam& params)
 	{
+		std::ios::fmtflags f(out.flags());
+
 		out << "[protocolType: " << params.protocolType
 			<< ", stringValue:" << params.stringValue
 			<< ", isOverflow:" << std::boolalpha << params.isOverflow << "]";
+
+		out.flags(f);
+
 		return out;
 	}
 };

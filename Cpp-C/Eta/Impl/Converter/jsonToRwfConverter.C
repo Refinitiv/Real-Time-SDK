@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -2008,17 +2008,18 @@ bool jsonToRwfConverter::processSetFieldEntries(jsmntok_t *tokPtr,
 		return false;
 	}
 
+	if (dataTok == 0)
+	{
+		error(SET_DEFINITION_ERROR, __LINE__, __FILE__);
+		return false;
+	}
+
 	if (setDefDbPtr->definitions[fieldListPtr->setId].count != dataTok->size)
 	{
 		error(SET_DEFINITION_ERROR, __LINE__, __FILE__);
 		return false;
 	}
 
-	if ( dataTok == 0 )
-	{
-		error(SET_DEFINITION_ERROR, __LINE__, __FILE__);
-		return false;
-	}
 	if (dataTok->type != JSMN_ARRAY)
 	{
 		unexpectedTokenType(JSMN_ARRAY, dataTok, __LINE__, __FILE__);
@@ -2259,13 +2260,13 @@ bool jsonToRwfConverter::processSetElementEntries(jsmntok_t *tokPtr,
 		return false;
 	}
 
-	if (setDefDbPtr->definitions[elementListPtr->setId].count != dataTok->size)
+	if (dataTok == 0)
 	{
 		error(SET_DEFINITION_ERROR, __LINE__, __FILE__);
 		return false;
 	}
 
-	if ( dataTok == 0)
+	if (setDefDbPtr->definitions[elementListPtr->setId].count != dataTok->size)
 	{
 		error(SET_DEFINITION_ERROR, __LINE__, __FILE__);
 		return false;
@@ -3430,21 +3431,21 @@ bool jsonToRwfConverter::processSeries(jsmntok_t ** const tokPtr, void* setDb)
 		  	if (tmpTok->type != JSMN_OBJECT)
 				return false;
 			rsslClearSeriesEntry(&seriesEntry);
-			if ((_rsslRet = rsslEncodeSeriesEntryInit(&_iter, &seriesEntry, 0) < RSSL_RET_SUCCESS))
+			if ((_rsslRet = rsslEncodeSeriesEntryInit(&_iter, &seriesEntry, 0)) < RSSL_RET_SUCCESS)
 			{
 				error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
 				return false;
 			}
 			if (processContainer(&tmpTok, series.containerType, localSetDb) == false)
 				return false;
-			if ((_rsslRet = rsslEncodeSeriesEntryComplete(&_iter, RSSL_TRUE) < RSSL_RET_SUCCESS))
+			if ((_rsslRet = rsslEncodeSeriesEntryComplete(&_iter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
 			{
 				error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
 				return false;
 			}
 		}
 	}
-	if ((_rsslRet = rsslEncodeSeriesComplete(&_iter, RSSL_TRUE) < RSSL_RET_SUCCESS))
+	if ((_rsslRet = rsslEncodeSeriesComplete(&_iter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
 	{
 		error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
 		return false;

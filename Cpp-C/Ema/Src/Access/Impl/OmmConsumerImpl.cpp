@@ -213,7 +213,7 @@ void OmmConsumerImpl::loadDictionary()
 	}
 	else
 	{
-		UInt64 timeOutLengthInMicroSeconds = _activeConfig.dictionaryRequestTimeOut * 1000;
+		UInt64 timeOutLengthInMicroSeconds = static_cast<UInt64>(_activeConfig.dictionaryRequestTimeOut) * 1000;
 		_eventTimedOut = false;
 
 		TimeOut* pWatcher = 0;
@@ -289,7 +289,7 @@ void OmmConsumerImpl::loadDictionary()
 
 void OmmConsumerImpl::loadDirectory()
 {
-	UInt64 timeOutLengthInMicroSeconds = _activeConfig.directoryRequestTimeOut * 1000;
+	UInt64 timeOutLengthInMicroSeconds = static_cast<UInt64>(_activeConfig.directoryRequestTimeOut) * 1000;
 	_eventTimedOut = false;
 
 	TimeOut* pWatcher = 0;
@@ -481,6 +481,13 @@ void OmmConsumerImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role)
 
 	if (getActiveConfig().enableRtt)
 	{
+		if (!consumerRole.pLoginRequest)
+		{
+			EmaString temp("No login request to setRsslReactorChannelRole.");
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+			return;
+		}
+
 		consumerRole.pLoginRequest->flags |= RDM_LG_RQF_RTT_SUPPORT;
 	}
 }

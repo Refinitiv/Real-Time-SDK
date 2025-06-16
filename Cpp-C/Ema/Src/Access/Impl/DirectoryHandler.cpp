@@ -39,12 +39,17 @@ static struct
 };
 
 DirectoryHandler::DirectoryHandler(OmmServerBaseImpl* ommServerBaseImpl) :
-	_pOmmServerBaseImpl(ommServerBaseImpl)
+	_pOmmServerBaseImpl(ommServerBaseImpl),
+	_rsslMsgBuffer(RSSL_INIT_BUFFER)
 {
 	_apiAdminControl = _pOmmServerBaseImpl->getActiveConfig().getDirectoryAdminControl() == OmmIProviderConfig::ApiControlEnum  ? true : false;
 
 	_refreshText.data = (char *)"Refresh Complete";
 	_refreshText.length = 16;
+
+	rsslClearEncodeIterator(&_rsslEncodeIter);
+	rsslClearDecodeIterator(&_rsslDecodeIter);
+	rsslClearRDMDirectoryMsg(&_rsslRdmDirectoryMsg);
 }
 
 DirectoryHandler::~DirectoryHandler()

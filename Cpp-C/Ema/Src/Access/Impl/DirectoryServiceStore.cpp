@@ -1664,7 +1664,9 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 		pServiceList = userSubmitSourceDirectory.update.serviceList;
 		break;
 	default:
-		break;
+		EmaString temp("Internal error: unhandled message class: ");
+		temp.append(rsslMsgClassToOmmString(pMsg->msgBase.msgClass));
+		return false;
 	}
 
 	if (!storeUserSubmitted)

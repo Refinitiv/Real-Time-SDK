@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|         Copyright (C) 2021-2022 LSEG. All rights reserved.
+// *|         Copyright (C) 2021-2022, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #pragma once
@@ -82,9 +82,6 @@ public:
 	ProvItemInfo* getCurrentUpdatesItem() const { return currentUpdatesItem; }
 	void setCurrentUpdatesItem(ProvItemInfo* item) { currentUpdatesItem = item; }
 
-	UInt32 getPackedPerTick() const { return packedPerTick; }
-	UInt32 getPackedPerTickRemainder() const { return packedPerTick; }
-
 private:
 	const NIProvPerfConfig& niProvConfig;
 
@@ -94,10 +91,6 @@ private:
 	UInt32	updatesPerTick;					/* Updates per tick */
 	UInt32	updatesPerTickRemainder;		/* Updates per tick (remainder) */
 	ProvItemInfo* currentUpdatesItem;		/* Current item in updates rotating list */
-
-	// Sending PackedMsg-es
-	UInt32	packedPerTick;					/* Packed per tick */
-	UInt32	packedPerTickRemainder;			/* Packed per tick (remainder) */
 
 };  // class ProviderThreadState
 

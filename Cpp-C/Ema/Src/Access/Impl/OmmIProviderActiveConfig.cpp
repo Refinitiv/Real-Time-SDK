@@ -13,6 +13,9 @@ static const EmaString DEFAULT_IPROVIDER_SERVICE_NAME("14002");
 
 OmmIProviderActiveConfig::OmmIProviderActiveConfig() :
 	ActiveServerConfig(DEFAULT_IPROVIDER_SERVICE_NAME),
+	operationModel(OmmIProviderConfig::OperationModel::ApiDispatchEnum),
+	dictionaryAdminControl(OmmIProviderConfig::AdminControl::ApiControlEnum),
+	directoryAdminControl(OmmIProviderConfig::AdminControl::ApiControlEnum),
 	refreshFirstRequired(DEFAULT_REFRESH_FIRST_REQUIRED),
 	enforceAckIDValidation(DEFAULT_ENFORCE_ACK_ID_VALIDATION)
 {

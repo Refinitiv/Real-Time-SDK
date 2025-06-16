@@ -3,7 +3,7 @@
  *| This source code is provided under the Apache 2.0 license
  *| AS IS with no warranty or guarantee of fit for purpose.
  *| See the project's LICENSE.md for details.
- *| Copyright (C) 2019 LSEG. All rights reserved.
+ *| Copyright (C) 2019, 2025 LSEG. All rights reserved.
  *|-------------------------------------------------------------------------------
  */
 
@@ -588,7 +588,7 @@ int main(int argc, char **argv)
 							 * The listening socket can be closed by calling rsslCloseServer. This prevents any new connection attempts.
 							 * If shutting down connections for all connected clients, the provider should call rsslCloseChannel for each connection client.
 							*/
-							if ((etaSrvr) && (rsslCloseServer(etaSrvr, &error) < RSSL_RET_SUCCESS))
+							if (rsslCloseServer(etaSrvr, &error) < RSSL_RET_SUCCESS)
 							{
 								printf("Error %s (%d) (errno: %d) encountered with rsslCloseServer.  Error Text: %s\n",
 									rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);

@@ -13,7 +13,8 @@ _pFidsList(0)
 EnumTypeTableImpl::EnumTypeTableImpl(RsslEnumTypeTable* rsslEnumTypeTable) :
 _pEnumTypeTable(rsslEnumTypeTable),
 _pEnumTypeList(0),
-_pFidsList(0)
+_pFidsList(0),
+_refreshEnumTypeList(false)
 {
 }
 

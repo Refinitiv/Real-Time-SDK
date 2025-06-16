@@ -1027,7 +1027,7 @@ void OmmIProviderImpl::submit(const PackedMsg& packedMsg)
 
 	transportBuffer->length = 0;
 
-	if (ret = rsslReactorSubmit(_pRsslReactor, reactorChannel, transportBuffer, &submitOpts, &rsslErrorInfo) < RSSL_RET_SUCCESS)
+	if ((ret = rsslReactorSubmit(_pRsslReactor, reactorChannel, transportBuffer, &submitOpts, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
 	{
 		packedMsgImpl->clear();
 
@@ -1338,7 +1338,7 @@ void OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle)
 		if (!pServiceId)
 		{
 			EmaString temp("Attempt to submit AckMsg with service name of ");
-			temp.append(serviceName).append(" whose matching service id of ").append(*pServiceId).append(" that was not included in the SourceDirectory.");
+			temp.append(serviceName).append(" that was not included in the SourceDirectory.");
 
 			if (OmmLoggerClient::VerboseEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity && _pLoggerClient)
 			{

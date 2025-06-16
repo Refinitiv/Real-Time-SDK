@@ -2,7 +2,8 @@
 
 using namespace refinitiv::ema::rdm;
 
-EnumTypeImpl::EnumTypeImpl()
+EnumTypeImpl::EnumTypeImpl() :
+	_pRsslEnumType(NULL)
 {
 
 }

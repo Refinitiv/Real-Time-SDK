@@ -1503,7 +1503,9 @@ FieldClearAndExit:
 	
 		free(newSetDef);
 	}
+
 	rsslDeleteFieldSetDefDb(dictionary);
+
 	return RSSL_RET_FAILURE;
 }
 

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|         Copyright (C) 2021-2022 LSEG. All rights reserved. 
+// *|         Copyright (C) 2021-2022, 2025 LSEG. All rights reserved. 
 ///*|-----------------------------------------------------------------------------
 
 #include "ProviderThread.h"
@@ -509,7 +509,7 @@ void ProviderThread::sendUpdateMessages()
 	// templates for messages (from MsgData.xml)
 	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
 
-	Int32 latencyUpdateNumber = (provPerfConfig.latencyUpdatesPerSec > 0) ? latencyUpdateRandomArray->getNext() : -1;
+	Int64 latencyUpdateNumber = (provPerfConfig.latencyUpdatesPerSec > 0) ? latencyUpdateRandomArray->getNext() : -1;
 	PerfTimeValue latencyStartTime;
 	PerfTimeValue measureEncodeStartTime, measureEncodeEndTime;
 
@@ -559,9 +559,14 @@ void ProviderThread::sendUpdateMessages()
 			case RSSL_DMT_MARKET_PRICE:
 				prepareUpdateMessageMarketPrice(*pUpdateMsg, latencyStartTime);
 				break;
+			
 			case RSSL_DMT_MARKET_BY_ORDER:
 				prepareUpdateMessageMarketByOrder(*pUpdateMsg, latencyStartTime);
 				break;
+
+			default:
+				printf("sendUpdateMessages: unhandled domain type: %s\n", rsslDomainTypeToOmmString((RsslUInt8)itemInfo->getDomain()));
+				return;
 			}
 		}
 		else
@@ -581,8 +586,13 @@ void ProviderThread::sendUpdateMessages()
 				if (++indMboUpdMsg >= preEncodedMboUpdateMessages.size())
 					indMboUpdMsg = 0;
 				break;
+			
+			default:
+				printf("sendUpdateMessages: unhandled domain type: %s\n", rsslDomainTypeToOmmString((RsslUInt8)itemInfo->getDomain()));
+				return;
 			}
 		}
+
 
 		pUpdateMsg->domainType(itemInfo->getDomain());
 
@@ -623,7 +633,7 @@ void ProviderThread::sendGenericMessages()
 	// templates for messages (from MsgData.xml)
 	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
 
-	Int32 latencyGenericNumber = (provPerfConfig.latencyGenMsgsPerSec > 0) ? latencyGenericRandomArray->getNext() : -1;
+	Int64 latencyGenericNumber = (provPerfConfig.latencyGenMsgsPerSec > 0) ? latencyGenericRandomArray->getNext() : -1;
 	PerfTimeValue latencyStartTime;
 	PerfTimeValue measureEncodeStartTime, measureEncodeEndTime;
 
@@ -678,9 +688,14 @@ void ProviderThread::sendGenericMessages()
 			case RSSL_DMT_MARKET_PRICE:
 				prepareGenericMessageMarketPrice(*pGenericMsg, latencyStartTime);
 				break;
+			
 			case RSSL_DMT_MARKET_BY_ORDER:
 				prepareGenericMessageMarketByOrder(*pGenericMsg, latencyStartTime);
 				break;
+			
+			default:
+				printf("sendUpdateMessages: unhandled domain type: %s\n", rsslDomainTypeToOmmString((RsslUInt8)itemInfo->getDomain()));
+				return;
 			}
 		}
 		else
@@ -700,6 +715,10 @@ void ProviderThread::sendGenericMessages()
 				if (++indMboGenericMsg >= preEncodedMboGenericMessages.size())
 					indMboGenericMsg = 0;
 				break;
+			
+			default:
+				printf("sendUpdateMessages: unhandled domain type: %s\n", rsslDomainTypeToOmmString((RsslUInt8)itemInfo->getDomain()));
+				return;
 			}
 		}
 

@@ -417,8 +417,8 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		}
 
 		/* Destroy the notifier for RsslRestClient to register to the Reactor worker's notifier */
-		if (pReactorImpl->pWorkerNotifierEvent);
-		rsslDestroyNotifierEvent(pReactorImpl->pWorkerNotifierEvent);
+		if (pReactorImpl->pWorkerNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorImpl->pWorkerNotifierEvent);
 
 		if (rsslRestClientUninitialize(&rsslError))
 		{
@@ -1935,6 +1935,13 @@ RsslRet _reactorWorkerHandleChannelFailure(RsslReactorImpl *pReactorImpl, RsslRe
 
 	/* Need to indicate if the worker was attempting to connect or initialize the channel. */
 	RsslBool isConnectFailure = (pReactorChannel->workerParentList == &pReactorWorker->initializingChannels || pReactorChannel->workerParentList == &pReactorWorker->reconnectingChannels);
+
+	if (pReactorChannel == NULL)
+	{
+		rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Reactor channel is not set.");
+		return RSSL_RET_FAILURE;
+	}
 
 	if(pReactorChannel->reactorChannel.pRsslChannel != 0 &&
 	   pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
@@ -3976,7 +3983,7 @@ RsslRet _reactorWorkerHandlePingTimeout(RsslReactorChannelImpl* pReactorChannel,
 		sendPingMessage = pReactorChannel->sendWSPingMessage;
 	}
 
-	if (pReactorChannel->reactorChannel.pRsslChannel != NULL && pReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE && sendPingMessage)
+	if (pReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE && sendPingMessage)
 	{
 		/* Check if the elapsed time is greater than our ping-send interval. */
 		if ((pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastPingSentMs) > pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor)

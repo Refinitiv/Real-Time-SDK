@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2024 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2020-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -4138,7 +4138,7 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslRe
 	switch(pEvent->channelEventType)
 	{
 		case RSSL_RC_CET_CHANNEL_UP:
-			if (pMyReactor->pNotifier != NULL)
+			if (pMyChannel && pMyReactor->pNotifier != NULL)
 			{
 				/* We're using RsslNotifier; add notification for this channel. */
 				pMyChannel->pNotifierEvent = rsslCreateNotifierEvent();
@@ -6383,7 +6383,7 @@ static void reactorUnitTests_MultiThreadDispatch(RsslConnectionTypes connectionT
 
 		removeConnection(pMyReactor, myReactorChannel1.pReactorChannel);
 
-		while(ret = dispatchEvent(pMyReactor, 100) != RSSL_RET_READ_WOULD_BLOCK)
+		while((ret = dispatchEvent(pMyReactor, 100)) != RSSL_RET_READ_WOULD_BLOCK)
 		{
 			ASSERT_TRUE(ret >= RSSL_RET_SUCCESS);
 
@@ -6775,11 +6775,11 @@ void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType)
 		ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 		/* Prov: dispatch; last received event should be conn ready */
-		do { rsslRet = dispatchEvents(pProvMon, 200, 1000); ASSERT_TRUE(rsslRet >= RSSL_RET_SUCCESS || RSSL_RET_READ_WOULD_BLOCK); } while (pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+		do { rsslRet = dispatchEvents(pProvMon, 200, 1000); ASSERT_TRUE(rsslRet >= RSSL_RET_SUCCESS || rsslRet == RSSL_RET_READ_WOULD_BLOCK); } while (pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
 
 		/* Cons: dispatch; last received event should be conn ready */
-		do { rsslRet = dispatchEvents(pConsMon, 200, 1000); ASSERT_TRUE(rsslRet >= RSSL_RET_SUCCESS || RSSL_RET_READ_WOULD_BLOCK); } while (pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+		do { rsslRet = dispatchEvents(pConsMon, 200, 1000); ASSERT_TRUE(rsslRet >= RSSL_RET_SUCCESS || rsslRet ==  RSSL_RET_READ_WOULD_BLOCK); } while (pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
 
 		ASSERT_TRUE(myConsumerChannels[i].pReactorChannel != NULL);

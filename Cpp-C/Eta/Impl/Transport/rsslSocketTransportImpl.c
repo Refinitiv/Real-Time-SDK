@@ -7343,7 +7343,7 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 	}
 
 	/* priority write stuff */
-	for (i = 0; i < RIPC_MAX_PRIORITY_QUEUE; i++);
+	for (i = 0; i < RIPC_MAX_PRIORITY_QUEUE; i++)
 	{
 		rsslInitQueue(&rsslSocketChannel->priorityQueues[i].priorityQueue);
 		rsslSocketChannel->priorityQueues[i].queueLength = 0;
@@ -10853,12 +10853,12 @@ RSSL_RSSL_SOCKET_FAST(RsslRet) rsslSocketIoctl(rsslChannelImpl *rsslChnlImpl, Rs
 
 		rsslSocketChannel->dbgFlags = iValue;
 		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_IN) && (dumpInFuncPresent == RSSL_FALSE))
-			rsslSocketChannel->dbgFlags &= !RSSL_DEBUG_IPC_DUMP_IN;
+			rsslSocketChannel->dbgFlags &= ~RSSL_DEBUG_IPC_DUMP_IN;
 		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT) && (dumpOutFuncPresent == RSSL_FALSE))
-			rsslSocketChannel->dbgFlags &= !RSSL_DEBUG_IPC_DUMP_OUT;
+			rsslSocketChannel->dbgFlags &= ~RSSL_DEBUG_IPC_DUMP_OUT;
 		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT) 
 			&& ((dumpInFuncPresent == RSSL_FALSE) || (dumpOutFuncPresent == RSSL_FALSE)))
-			rsslSocketChannel->dbgFlags &= !RSSL_DEBUG_IPC_DUMP_INIT;
+			rsslSocketChannel->dbgFlags &= ~RSSL_DEBUG_IPC_DUMP_INIT;
 		break;
 	}
 

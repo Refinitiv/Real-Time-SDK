@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
 */
 
@@ -20,6 +20,7 @@ ItemInfo::ItemInfo(OmmServerBaseImpl& ommServerBaseimpl) :
 _streamId(0),
 _name(),
 _flags(None),
+_domainType(0),
 _itemGroup(),
 _pClientSession(0),
 _sentRefresh(false),
