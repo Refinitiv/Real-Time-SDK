@@ -943,7 +943,6 @@ RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 	RsslQueueLink *pLink;
 	RsslWatchlistImpl *pWatchlistImpl = (RsslWatchlistImpl*)pServiceCache->pUserSpec;
 	RsslRet ret;
-
 	RSSL_QUEUE_FOR_EACH_LINK(&pEvent->updatedServiceList, pLink)
 	{
 		RDMCachedService *pService = RSSL_QUEUE_LINK_TO_OBJECT(RDMCachedService, _updatedServiceLink,
@@ -1083,7 +1082,6 @@ RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 
 				/*** Now, check if there are requests waiting for an update to this
 				 * service and try to recover them. ***/
-
 				if ((pHashLink = rsslHashTableFind(&pWatchlistImpl->base.requestedSvcByName, 
 								&pService->rdm.info.serviceName, NULL)))
 				{
@@ -1098,17 +1096,23 @@ RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 						rsslQueueAddLinkToBack(&pWlService->requestedServices,
 								&pRequestedService->qlDirectoryRequests);
 					}
+					
+					pWatchlistImpl->base.pCurrentWlRequestedService = pRequestedService;
 
 					RSSL_QUEUE_FOR_EACH_LINK(&pRequestedService->recoveringList, 
 							pRequestLink)
 					{
+
 						WlItemRequest *pItemRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlItemRequest,
 								base.qlStateQueue, pRequestLink);
-
 						if ((ret = wlItemRequestFindStream(&pWatchlistImpl->base, &pWatchlistImpl->items, 
 										pItemRequest, pErrorInfo, RSSL_TRUE)) != RSSL_RET_SUCCESS)
 							return ret;
 					}
+
+					// The application might have closed items in the status update callback, so clean up the requested service here if necessary.
+					wlRequestedServiceCheckRefCount(&pWatchlistImpl->base, pRequestedService);
+					pWatchlistImpl->base.pCurrentWlRequestedService = NULL;
 
 				}
 
@@ -1127,6 +1131,8 @@ RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 								&pRequestedService->qlDirectoryRequests);
 					}
 
+					pWatchlistImpl->base.pCurrentWlRequestedService = pRequestedService;
+
 					RSSL_QUEUE_FOR_EACH_LINK(&pRequestedService->recoveringList, 
 							pRequestLink)
 					{
@@ -1137,6 +1143,10 @@ RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 										pItemRequest, pErrorInfo, RSSL_TRUE)) != RSSL_RET_SUCCESS)
 							return ret;
 					}
+
+					// The application might have closed items in the status update callback, so clean up the requested service here if necessary.
+					wlRequestedServiceCheckRefCount(&pWatchlistImpl->base, pRequestedService);
+					pWatchlistImpl->base.pCurrentWlRequestedService = NULL;
 				}
 				break;
 			}
@@ -4041,7 +4051,13 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 						wlItemRequestClose(&pWatchlistImpl->base, &pWatchlistImpl->items, 
 								pItemRequest);
 
-						wlRequestedServiceCheckRefCount(&pWatchlistImpl->base, pItemRequest->pRequestedService);
+						// An application can attempt to close an item during a fanout callback, where the watchlist is currently iterating on one of the queues
+						// in pItemRequest->pRequestedService, so delay this check and cleanup until after the watchlist iterates fully through the queue in question.
+						if (pWatchlistImpl->base.pCurrentWlRequestedService != pItemRequest->pRequestedService)
+						{
+							wlRequestedServiceCheckRefCount(&pWatchlistImpl->base, pItemRequest->pRequestedService);
+						}
+						
 						wlDestroyItemRequest(pWatchlistImpl, pItemRequest, pErrorInfo);
 
 						if (pItemStream)

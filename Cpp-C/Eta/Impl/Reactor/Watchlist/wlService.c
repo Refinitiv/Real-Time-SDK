@@ -106,7 +106,6 @@ WlRequestedService* wlRequestedServiceOpen(WlBase *pBase, RsslBuffer *pServiceNa
 
 
 		memcpy(pRequestedService->serviceName.data, pServiceName->data, pServiceName->length);
-
 		rsslHashTableInsertLink(&pBase->requestedSvcByName, 
 				&pRequestedService->hlServiceRequests, 
 				(void*)&pRequestedService->serviceName, &hashSum);
@@ -129,9 +128,8 @@ WlRequestedService* wlRequestedServiceOpen(WlBase *pBase, RsslBuffer *pServiceNa
 	pService = wlServiceCacheFindService(pBase->pServiceCache,
 			pServiceName, pServiceId);
 
-	pRequestedService->pMatchingService = pService ? (WlService*)pService->pUserSpec : NULL;
-
-	if (pService)
+	// If the service's action is currently DELETE, this has been requested for a directory fanout, so do not set the matching service here.
+	if (pService && pService->rdm.action != RSSL_MPEA_DELETE_ENTRY)
 	{
 		WlService *pWlService = (WlService*)pService->pUserSpec;
 		assert(pWlService);
@@ -151,7 +149,9 @@ void wlRequestedServiceClose(WlBase *pBase, WlRequestedService *pRequestedServic
 	assert(pRequestedService->recoveringList.count == 0);
 
 	if (pRequestedService->flags & WL_RSVC_HAS_NAME)
+	{
 		rsslHashTableRemoveLink(&pBase->requestedSvcByName, &pRequestedService->hlServiceRequests);
+	}
 	else
 	{
 		assert(pRequestedService->flags & WL_RSVC_HAS_ID);

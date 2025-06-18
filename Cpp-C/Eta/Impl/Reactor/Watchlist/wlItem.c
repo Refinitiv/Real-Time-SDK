@@ -1515,7 +1515,9 @@ RsslRet wlItemRequestFindStream(WlBase *pBase, WlItems *pItems, WlItemRequest *p
 					!= RSSL_RET_SUCCESS)
 				return ret;
 
-			wlRequestedServiceCheckRefCount(pBase, pItemRequest->pRequestedService);
+			if(pBase->pCurrentWlRequestedService != pItemRequest->pRequestedService)
+				wlRequestedServiceCheckRefCount(pBase, pItemRequest->pRequestedService);
+
 			wlItemRequestDestroy(pBase, pItemRequest);
 		}
 	}

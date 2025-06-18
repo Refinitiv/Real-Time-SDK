@@ -101,6 +101,11 @@ typedef struct
 	WtfCallbackAction consumerDictionaryCallbackAction;
 	WtfCallbackAction providerDictionaryCallbackAction;
 
+	RsslRDMLoginMsgCallback* consumerLoginCallbackFunction;			/*!< If not NULL, this will be executed during the Login Msg Callback. */
+	RsslRDMDirectoryMsgCallback* consumerDirectoryCallbackFunction; /*!< If not NULL, this will be executed during the Directory Msg Callback. */
+	RsslRDMDictionaryMsgCallback* consumerDictionaryCallbackFunction;	/*!< If not NULL, this will be executed during the Dictionary Msg Callback. */
+	RsslDefaultMsgCallback* consumerDefaultCallbackFunction;			/*!< If not NULL, this will be executed during the Default Msg Callback. */
+	RsslReactorChannelEventCallback* consumerChannelCallbackFunction;			/*!< If not NULL, this will be executed during the channel event Callbacks. */
 } WatchlistTestFramework;
 
 /* Represents the currently-used framework. */
@@ -250,6 +255,8 @@ static RsslReactorCallbackRet msgCallback(RsslReactor* pReactor,
 			{
 				EXPECT_TRUE(wtf.pConsReactorChannel == pReactorChannel) << "Mismatched Consumer channel in msgCallback.";
 			}
+
+
 			break;
 		}
 	}
@@ -279,6 +286,13 @@ static RsslReactorCallbackRet msgCallback(RsslReactor* pReactor,
 	if (component == WTF_TC_PROVIDER)
 	{
 		pRsslMsgEvent->serverIndex = (RsslUInt64)pReactorChannel->userSpecPtr;
+	}
+	else
+	{
+		if (wtf.consumerDefaultCallbackFunction != NULL)
+		{
+			(*(wtf.consumerDefaultCallbackFunction))(pReactor, pReactorChannel, pEvent);
+		}
 	}
 
 	++wtf.eventCount;
@@ -463,6 +477,11 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor* pReactor,
 		  break;
 	}
 
+	if (component == WTF_TC_CONSUMER && wtf.consumerChannelCallbackFunction != NULL)
+	{
+		(*(wtf.consumerChannelCallbackFunction))(pReactor, pReactorChannel, pEvent);
+	}
+
 	return RSSL_RC_CRET_SUCCESS;
 }
 
@@ -491,6 +510,7 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor* pReactor,
 			{
 				EXPECT_TRUE(wtf.pConsReactorChannel == pReactorChannel) << "Mismatched channel.";
 			}
+
 			break;
 		}
 	}
@@ -524,6 +544,13 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor* pReactor,
 	{
 		pRdmMsgEvent->serverIndex = (RsslUInt64)pReactorChannel->userSpecPtr;
 	}
+	else
+	{
+		if (wtf.consumerLoginCallbackFunction != NULL)
+		{
+			(*(wtf.consumerLoginCallbackFunction))(pReactor, pReactorChannel, pInfo);
+		}
+	}
 
 	++wtf.eventCount;
 	return RSSL_RC_CRET_SUCCESS;
@@ -554,6 +581,7 @@ static RsslReactorCallbackRet directoryMsgCallback(RsslReactor* pReactor,
 			{
 				EXPECT_TRUE(wtf.pConsReactorChannel == pReactorChannel) << "Mismatched Consumer channel in directoryCallback.";
 			}
+
 			break;
 		}
 	}
@@ -587,6 +615,13 @@ static RsslReactorCallbackRet directoryMsgCallback(RsslReactor* pReactor,
 	{
 		pRdmMsgEvent->serverIndex = (RsslUInt64)pReactorChannel->userSpecPtr;
 	}
+	else
+	{
+		if (wtf.consumerDirectoryCallbackFunction != NULL)
+		{
+			(*(wtf.consumerDirectoryCallbackFunction))(pReactor, pReactorChannel, pInfo);
+		}
+	}
 
 	++wtf.eventCount;
 	return RSSL_RC_CRET_SUCCESS;
@@ -616,6 +651,7 @@ static RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor* pReactor,
 			{
 				EXPECT_TRUE(wtf.pConsReactorChannel == pReactorChannel) << "Mismatched Consumer channel in dictionaryCallback.";
 			}
+
 			break;
 		}
 	}
@@ -659,6 +695,13 @@ static RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor* pReactor,
 	{
 		pRdmMsgEvent->serverIndex = (RsslUInt64)pReactorChannel->userSpecPtr;
 	}
+	else
+	{
+		if (wtf.consumerDictionaryCallbackFunction != NULL)
+		{
+			(*(wtf.consumerDictionaryCallbackFunction))(pReactor, pReactorChannel, pInfo);
+		}
+	}
 
 	++wtf.eventCount;
 	return RSSL_RC_CRET_SUCCESS;
@@ -680,6 +723,11 @@ void wtfInit(WtfInitOpts *pOpts, RsslUInt32 maxOutputBufSize)
 	wtf.pConsReactorChannel = NULL;
 	wtf.consReactorChannelUp = RSSL_FALSE;
 	wtf.socketIdListCount = 0;
+	wtf.consumerLoginCallbackFunction = NULL;
+	wtf.consumerDirectoryCallbackFunction = NULL;
+	wtf.consumerDictionaryCallbackFunction = NULL;
+	wtf.consumerDefaultCallbackFunction = NULL;
+	wtf.consumerChannelCallbackFunction = NULL;
 	rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslErrorInfo.rsslError);
 
 #ifdef WIN32
@@ -737,6 +785,15 @@ void wtfInit(WtfInitOpts *pOpts, RsslUInt32 maxOutputBufSize)
 	ASSERT_TRUE(rsslReactorInitJsonConverter(wtf.pConsReactor, &jsonConverterOptions, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	wtf.state = WTF_ST_INITIALIZED;
+}
+
+void wtfClearCallbacks()
+{
+	wtf.consumerLoginCallbackFunction = NULL;
+	wtf.consumerDirectoryCallbackFunction = NULL;
+	wtf.consumerDictionaryCallbackFunction = NULL;
+	wtf.consumerDefaultCallbackFunction = NULL;
+	wtf.consumerChannelCallbackFunction = NULL;
 }
 
 void wtfCleanup()
@@ -1425,6 +1482,21 @@ void wtfSetupConnection(WtfSetupConnectionOpts *pOpts, RsslConnectionTypes conne
 		wtf.ommConsumerRole.directoryMsgCallback = directoryMsgCallback;
 	if (pOpts->consumerDictionaryCallback != WTF_CB_NONE)
 		wtf.ommConsumerRole.dictionaryMsgCallback = dictionaryMsgCallback;
+
+	if (pOpts->consumerLoginCallbackFunction != NULL)
+		wtf.consumerLoginCallbackFunction = pOpts->consumerLoginCallbackFunction;
+
+	if (pOpts->consumerDirectoryCallbackFunction != NULL)
+		wtf.consumerDirectoryCallbackFunction = pOpts->consumerDirectoryCallbackFunction;
+
+	if (pOpts->consumerDictionaryCallbackFunction != NULL)
+		wtf.consumerDictionaryCallbackFunction = pOpts->consumerDictionaryCallbackFunction;
+
+	if (pOpts->consumerDefaultCallbackFunction != NULL)
+		wtf.consumerDefaultCallbackFunction = pOpts->consumerDefaultCallbackFunction;
+
+	if (pOpts->consumerChannelCallbackFunction != NULL)
+		wtf.consumerChannelCallbackFunction = pOpts->consumerChannelCallbackFunction;
 
 	rsslClearOMMProviderRole(&wtf.ommProviderRole);
 	wtf.ommProviderRole.base.defaultMsgCallback = msgCallback;

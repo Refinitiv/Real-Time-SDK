@@ -332,6 +332,11 @@
 			<Dictionary value="Dictionary_2"/>
 			<DirectoryRequestTimeOut value="2000"/>
 			<RequestTimeout value="2000"/>
+			<XmlTraceToStdout value="0" />
+			<XmlTraceDump value="1"/>
+			<XmlTraceWrite value="1"/>
+			<XmlTraceRead value="1"/>
+			<XmlTracePing value="1"/>
 		</Consumer>
 		<Consumer>
 			<Name value="SingleConnection"/>
@@ -1301,6 +1306,7 @@
 			<ChannelSet value="TestChannel_15000, TestChannel_15001"/>
 			<EnablePreferredHostOptions value="1"/>
 			<PreferredChannelName value="TestChannel_15001"/>
+			<PHDetectionTimeInterval value="0"/>
 			<ReconnectAttemptLimit value="-1"/>
 			<ReconnectMinDelay value="300" />
 			<ReconnectMaxDelay value="500" />
@@ -1310,6 +1316,7 @@
 			<ChannelSet value="TestChannel_15002, TestChannel_15003"/>
 			<EnablePreferredHostOptions value="1"/>
 			<PreferredChannelName value="TestChannel_15003"/>
+			<PHDetectionTimeInterval value="0"/>
 			<ReconnectAttemptLimit value="-1"/>
 			<ReconnectMinDelay value="300" />
 			<ReconnectMaxDelay value="500" />

@@ -292,16 +292,23 @@ RsslRet wlDirectoryProcessProviderMsgEvent(WlBase *pBase, WlDirectory *pDirector
 				WlRequestedService, qlServiceRequests, pLink);
 			RsslQueueLink *pRequestLink;
 
+			pBase->pCurrentWlRequestedService = pRequestedService;
+
 			RSSL_QUEUE_FOR_EACH_LINK(&pRequestedService->openDirectoryRequests,
 				pRequestLink)
 			{
 				WlDirectoryRequest *pDirectoryRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlDirectoryRequest,
 					base.qlStateQueue, pRequestLink);
 
+				
 				if ((ret = wlSendDirectoryMsgToRequest(pBase, pDirectoryRequest,
 					NULL, pMsgEvent->pRsslMsg, pErrorInfo)) != RSSL_RET_SUCCESS)
 					return ret;
 			}
+
+			// The application might have closed items in the status update callback, so clean up the requested service here if necessary.
+			wlRequestedServiceCheckRefCount(pBase, pRequestedService);
+			pBase->pCurrentWlRequestedService = NULL;
 		}
 
 		return RSSL_RET_SUCCESS;
@@ -401,6 +408,8 @@ RsslRet wlDirectoryProcessProviderMsgEvent(WlBase *pBase, WlDirectory *pDirector
 					WlRequestedService, qlServiceRequests, pLink);
 			RsslQueueLink *pRequestLink;
 
+			pBase->pCurrentWlRequestedService = pRequestedService;
+
 			RSSL_QUEUE_FOR_EACH_LINK(&pRequestedService->openDirectoryRequests, 
 					pRequestLink)
 			{
@@ -410,6 +419,10 @@ RsslRet wlDirectoryProcessProviderMsgEvent(WlBase *pBase, WlDirectory *pDirector
 				wlSendDirectoryMsgToRequest(pBase, pDirectoryRequest, 
 						&directoryMsg, NULL, pErrorInfo);
 			}
+
+			// The application might have closed items in the status update callback, so clean up the requested service here if necessary.
+			wlRequestedServiceCheckRefCount(pBase, pRequestedService);
+			pBase->pCurrentWlRequestedService = NULL;
 		}
 	}
 
@@ -533,6 +546,8 @@ RsslRet wlFanoutDirectoryMsg(WlBase *pBase, WlDirectory *pDirectory, RsslQueue *
 			WlRequestedService* pRequestedService = RSSL_QUEUE_LINK_TO_OBJECT(WlRequestedService,
 				qlDirectoryRequests, pRequestedServiceLink);
 
+			pBase->pCurrentWlRequestedService = pRequestedService;
+
 			RSSL_QUEUE_FOR_EACH_LINK(&pRequestedService->openDirectoryRequests,
 				pRequestLink)
 			{
@@ -542,6 +557,10 @@ RsslRet wlFanoutDirectoryMsg(WlBase *pBase, WlDirectory *pDirectory, RsslQueue *
 					pErrorInfo)) != RSSL_RET_SUCCESS)
 					return ret;
 			}
+
+			// The application might have closed items in the status update callback, so clean up the requested service here if necessary.
+			wlRequestedServiceCheckRefCount(pBase, pRequestedService);
+			pBase->pCurrentWlRequestedService = NULL;
 		}
 
 		++pFanoutService;

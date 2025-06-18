@@ -1848,6 +1848,10 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 					// Match the service here.  If it matches, re-submit the request to the connection associated with pDirectory
 					if (pDirectory->serviceMatch(pSingleItem->getReqMsg()))
 					{
+						if (pSingleItem->sessionChannel != NULL)
+						{
+							pSingleItem->sendClose();
+						}
 						pSingleItem->setDirectory(pDirectory);
 						pSingleItem->sessionChannel = pChannel->getConsumerRoutingChannel();
 						pChannel->getConsumerRoutingChannel()->routedRequestList.addItem(pSingleItem);
@@ -1942,6 +1946,31 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 								channelItemList.push_back((Item*)pSingleItem);
 							}
 						}
+
+						// Go through the pending list, as well, because we may have gotten an OPEN/SUSPECT status, so the item was moved to the pending list
+						EmaList<Item*>& pendingItemList = pChannel->getConsumerRoutingChannel()->pRoutingSession->pendingRequestList.getList();
+
+						itemCount = pendingItemList.size();
+
+						for (int i = 0; i < itemCount; i++)
+						{
+							SingleItem* pSingleItem = (SingleItem*)pendingItemList.pop_front();
+
+							if (pSingleItem == NULL)
+								break;
+
+							// If the item's directory is the same as this directory, re-route it, otherwise put the item back into the list
+							if (pSingleItem->sessionChannel == pChannel->getConsumerRoutingChannel() && ((pSingleItem->getReqMsg()->flags & RSSL_RQMF_PRIVATE_STREAM) == 0) && pSingleItem->getDirectory() == pDirectory)
+							{
+								pSingleItem->sendClose();
+								pSingleItem->setItemList(NULL);
+								pSingleItem->reSubmit(true);
+							}
+							else
+							{
+								pendingItemList.push_back((Item*)pSingleItem);
+							}
+						}
 					}
 
 					// If the current directory is active and accepting requests, and there are pending requests that can match this service, send them now.
@@ -1999,6 +2028,10 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 							// Match the service here.  If it matches, re-submit the request to the connection associated with pDirectory
 							if (pDirectory->serviceMatch(pSingleItem->getReqMsg()))
 							{
+								if (pSingleItem->sessionChannel != NULL)
+								{
+									pSingleItem->sendClose();
+								}
 								pSingleItem->setDirectory(pDirectory);
 								pSingleItem->sessionChannel = pChannel->getConsumerRoutingChannel();
 								pChannel->getConsumerRoutingChannel()->routedRequestList.addItem(pSingleItem);
@@ -2063,6 +2096,7 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 					sendUpdate = true;
 				}
 			}
+			// Note: We do not need to deal with re-routing the requests here, because the reactor will fan out a CLOSED_RECOVER status for all items associated with this service whenever a DELETE action is received.
 			break;
 		}
 		default :

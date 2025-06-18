@@ -247,6 +247,8 @@ RTR_C_INLINE void wtfClearInitOpts(WtfInitOpts *pOpts)
  * provider & consumer reactors,  and binds the provider component's server. */
 void wtfInit(WtfInitOpts *pOpts, RsslUInt32 maxOutputBufSize = 0);
 
+void wtfClearCallbacks();
+
 void wtfBindServer(RsslConnectionTypes connectionType, char  *pServerPort = const_cast<char*>("14011"));
 
 void wtfShutdownServer(RsslUInt16 serverIndex = 0);
@@ -353,6 +355,11 @@ typedef struct
 	RsslUInt32				connectionCount;		/*!< The number of connections in reactorConnectionList. */
 	RsslPreferredHostOptions preferredHostOpts;
 	RsslBool watchlistOn;						/* Turns off the watchlist, used for preferred host tests */
+	RsslRDMLoginMsgCallback* consumerLoginCallbackFunction;			/*!< If not NULL, this will be executed during the Login Msg Callback. */
+	RsslRDMDirectoryMsgCallback* consumerDirectoryCallbackFunction; /*!< If not NULL, this will be executed during the Directory Msg Callback. */
+	RsslRDMDictionaryMsgCallback* consumerDictionaryCallbackFunction;	/*!< If not NULL, this will be executed during the Dictionary Msg Callback. */
+	RsslDefaultMsgCallback* consumerDefaultCallbackFunction;			/*!< If not NULL, this will be executed during the Default Msg Callback. */
+	RsslReactorChannelEventCallback* consumerChannelCallbackFunction;			/*!< If not NULL, this will be executed during the channel event Callbacks. */
 } WtfSetupConnectionOpts;
 
 /* Initializes commonly used settings of WtfSetupConnectionOpts. */
@@ -379,6 +386,11 @@ static void wtfClearSetupConnectionOpts(WtfSetupConnectionOpts *pOpts)
 	pOpts->pServerPort = const_cast<char*>("14011");
 	pOpts->reactorConnectionList = NULL;
 	pOpts->connectionCount = 0;
+	pOpts->consumerLoginCallbackFunction = NULL;
+	pOpts->consumerDirectoryCallbackFunction = NULL;
+	pOpts->consumerDictionaryCallbackFunction = NULL;
+	pOpts->consumerDefaultCallbackFunction = NULL;
+	pOpts->consumerChannelCallbackFunction = NULL;
 	rsslClearRsslPreferredHostOptions(&pOpts->preferredHostOpts);
 	pOpts->watchlistOn = RSSL_TRUE;
 }
@@ -414,6 +426,12 @@ typedef struct
 
 	RsslUInt32				connectionCount;		/*!< The number of connections in reactorConnectionList. */
 	RsslPreferredHostOptions preferredHostOpts;
+
+	RsslRDMLoginMsgCallback* consumerLoginCallbackFunction;			/*!< If not NULL, this will be executed during the Login Msg Callback. */
+	RsslRDMDirectoryMsgCallback* consumerDirectoryCallbackFunction; /*!< If not NULL, this will be executed during the Directory Msg Callback. */
+	RsslRDMDictionaryMsgCallback* consumerDictionaryCallbackFunction;	/*!< If not NULL, this will be executed during the Dictionary Msg Callback. */
+	RsslDefaultMsgCallback* consumerDefaultCallbackFunction;			/*!< If not NULL, this will be executed during the Default Msg Callback. */
+	RsslReactorChannelEventCallback* consumerChannelCallbackFunction;			/*!< If not NULL, this will be executed during the channel event Callbacks. */
 } WtfSetupWarmStandbyOpts;
 
 /* Initializes commonly used settings of WtfSetupWarmStandbyConnectionOpts. */
@@ -441,6 +459,11 @@ static void wtfClearSetupWarmStandbyConnectionOpts(WtfSetupWarmStandbyOpts *pOpt
 	pOpts->warmStandbyGroupCount = 0;
 	pOpts->reactorConnectionList = NULL;
 	pOpts->connectionCount = 0;
+	pOpts->consumerLoginCallbackFunction = NULL;
+	pOpts->consumerDirectoryCallbackFunction = NULL;
+	pOpts->consumerDictionaryCallbackFunction = NULL;
+	pOpts->consumerDefaultCallbackFunction = NULL;
+	pOpts->consumerChannelCallbackFunction = NULL;
 	rsslClearRsslPreferredHostOptions(&pOpts->preferredHostOpts);
 }
 

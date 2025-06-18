@@ -59,12 +59,12 @@ struct WlRequestedService
 	RsslBuffer			serviceName;		/* Name of the requested service. */
 	RsslUInt			serviceId;			/* ID of the requested service. */
 	WlService			*pMatchingService;	/* Service matching this request, if available. */
-	RsslQueue			recoveringList;		/* Item requests recovering to this service. */
-	RsslQueue			itemRequests;		/* Item requests associated with this service. */
-	RsslQueue			directoryRequests;	/* Directory requests for this service. */
+	RsslQueue			recoveringList;		/* Item requests recovering to this service, associated with WlRequestBase.qlStateQueue */
+	RsslQueue			itemRequests;		/* Item requests associated with this service, associated by WlItemRequest.qlRequestedService */
+	RsslQueue			directoryRequests;	/* Directory requests for this service, associated with WlDirectoryRequest.qlRequestedService */
 	RsslQueue			openDirectoryRequests;	/* Directory requests that have been served
 												 * by the cache and can receive updates from
-												 * the directory stream. */
+												 * the directory stream, associated with WlRequestBase.qlStateQueue for directory requests */
 
 };
 

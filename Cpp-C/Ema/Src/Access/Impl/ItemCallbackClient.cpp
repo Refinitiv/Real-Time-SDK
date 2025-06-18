@@ -3904,13 +3904,24 @@ RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg,
 
 			if (_refreshMsg.getState().getStreamState() == OmmState::OpenEnum && _refreshMsg.getState().getDataState() == OmmState::OkEnum)
 			{
-				if (pSingleItem->sessionChannelItemClosedList != NULL)
+				if (_ommCommonImpl.getImplType() == OmmCommonImpl::ConsumerEnum)
 				{
-					
-					for (UInt32 i = 0; i < pSingleItem->sessionChannelItemClosedList->size(); i++)
+					OmmBaseImpl& ommBaseImpl = (OmmBaseImpl&)_ommCommonImpl;
+					if (pSingleItem->sessionChannelItemClosedList != NULL)
 					{
-						bool* tmpbool = (*(pSingleItem->sessionChannelItemClosedList))[i];
-						memset((void*)((*(pSingleItem->sessionChannelItemClosedList))[i]), 0, (sizeof(bool)*pSingleItem->closedListSize));
+
+						for (UInt32 i = 0; i < pSingleItem->sessionChannelItemClosedList->size(); i++)
+						{
+							bool* tmpbool = (*(pSingleItem->sessionChannelItemClosedList))[i];
+							memset((void*)((*(pSingleItem->sessionChannelItemClosedList))[i]), 0, (sizeof(bool) * pSingleItem->closedListSize));
+						}
+					}
+
+					// This should cover the OPEN/OK refresh.  The watchlist should never send an OPEN/SUSPECT refresh, those should always be status messages(below)
+					if (pSingleItem->getItemList() == &ommBaseImpl.getConsumerRoutingSession()->pendingRequestList)
+					{
+						// This item was in pending, but the stream is now active, so move it to the session channel's request list.
+						pSingleItem->sessionChannel->routedRequestList.addItem(pSingleItem);
 					}
 				}
 			}
@@ -4039,9 +4050,9 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 	{
 		OmmBaseImpl& ommBaseImpl = (OmmBaseImpl&)_ommCommonImpl;
 
-	if ( item->getType() == Item::BatchItemEnum )
-	{
-		item = static_cast<BatchItem *>(item)->getSingleItem( pRsslMsg->msgBase.streamId );
+		if ( item->getType() == Item::BatchItemEnum )
+		{
+			item = static_cast<BatchItem *>(item)->getSingleItem( pRsslMsg->msgBase.streamId );
 			SingleItem* pSingleItem = static_cast<SingleItem*>(item);
 	
 			if (item->getType() == Item::BatchItemEnum)
@@ -4169,6 +4180,8 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 								if (ommBaseImpl.getConsumerRoutingSession()->matchRequestToSessionChannel(*pSingleItem) == false)
 								{
 									pSingleItem->sessionChannel = pOldChannel;
+									// Add the item to the pending list here.  If we get an OPEN/OK response at all, we'll move this back to the channel's list.
+									ommBaseImpl.getConsumerRoutingSession()->pendingRequestList.addItem(pSingleItem);
 								}
 								else
 								{
@@ -4188,6 +4201,12 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 									bool* tmpbool = (*(pSingleItem->sessionChannelItemClosedList))[i];
 									memset((void*)((*(pSingleItem->sessionChannelItemClosedList))[i]), 0, (sizeof(bool)* pSingleItem->closedListSize));
 								}
+							}
+
+							if (pSingleItem->getItemList() == &ommBaseImpl.getConsumerRoutingSession()->pendingRequestList)
+							{
+								// This item was in pending, but the stream is now active, so move it to the session channel's request list.
+								pSingleItem->sessionChannel->routedRequestList.addItem(pSingleItem);
 							}
 						}
 					}

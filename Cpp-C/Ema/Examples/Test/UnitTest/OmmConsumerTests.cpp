@@ -12857,4 +12857,475 @@ TEST_F(OmmConsumerTest, SingleConnectionRequestServiceList)
 	}
 }
 
+/*	This test does the following
+ *	1. Starts up a request routing consumer with preferred host enabled, and starts two providers on the non-preferred ports.
+ *		a. All providers provide DIRECT_FEED
+ *  2. Checks to see that the consumer does intitialize
+ *  3. Verify that there are two channels is active in the consumer
+ *  4. Requests the one item on DIRECT_FEED
+ *  5. Verify that one request goes out to the correct provider
+ *  6. Start up the configured preferred providers
+ *  7. Call cons.fallbackPreferredHost();
+ *  8. Validate that all connections are handled correctly, with providers 1 and 3 getting a login message(indicating that the connection was closed), and providers 2 and 4 getting the login and directory requests
+ *     and provider 2 also getting an item request
+ */
+TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemPHRecover)
+{
+	Map serviceMap;
+	setupSingleServiceMap(serviceMap, "DIRECT_FEED", 2);
+	ProviderTestOptions provTestOptions;
+	provTestOptions.directoryPayload = &serviceMap;
 
+	IProviderTestClientBase provClient1(provTestOptions);
+
+	OmmIProviderConfig provConfig1("EmaConfigTest.xml");
+	provConfig1.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15000");
+
+	IProviderTestClientBase provClient2(provTestOptions);
+
+	OmmIProviderConfig provConfig2("EmaConfigTest.xml");
+	provConfig2.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15001");
+
+	IProviderTestClientBase provClient3(provTestOptions);
+
+	OmmIProviderConfig provConfig3("EmaConfigTest.xml");
+	provConfig3.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15002");
+
+	IProviderTestClientBase provClient4(provTestOptions);
+
+	OmmIProviderConfig provConfig4("EmaConfigTest.xml");
+	provConfig4.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15003");
+
+	ConsumerTestOptions consTestOptions;
+	ConsumerTestClientBase consClient(consTestOptions);
+	OmmConsumerConfig consConfig("EmaConfigTest.xml");
+	consConfig.consumerName("RequestRoutingTestCons_4Channel_PH");
+
+	try
+	{
+		ReqMsg consRequest;
+		Msg* msg;
+		ReqMsg* reqMsg;
+		RefreshMsg* refreshMsg;
+		StatusMsg* statusMsg;
+
+		OmmProvider prov1(provConfig1, provClient1);
+		OmmProvider prov3(provConfig3, provClient3);
+
+		OmmConsumer cons(consConfig);
+
+		EmaVector<ChannelInformation> channelInfo;
+
+		cons.getSessionInformation(channelInfo);
+
+		ASSERT_EQ(channelInfo.size(), 2);
+
+		consRequest.clear().name("Item1").domainType(MMT_MARKET_PRICE).serviceName("DIRECT_FEED");
+
+		provClient1.clear();
+		provClient3.clear();
+
+		UInt64 handle1 = cons.registerClient(consRequest, consClient);
+
+		testSleep(500);
+
+		// Check to see that the request has been made to prov1
+		ASSERT_EQ(provClient1.getMessageQueueSize(), 1);
+		ASSERT_EQ(provClient3.getMessageQueueSize(), 0);
+		msg = provClient1.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getName(), "Item1");
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_MARKET_PRICE);
+		ASSERT_EQ(reqMsg->getServiceName(), "DIRECT_FEED");
+		ASSERT_EQ(reqMsg->getServiceId(), 2);
+
+		ASSERT_EQ(consClient.getMessageQueueSize(), 1);
+
+		msg = consClient.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::RefreshMsgEnum);
+		refreshMsg = static_cast<RefreshMsg*>(msg);
+		ASSERT_EQ(refreshMsg->getName(), "Item1");
+		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
+		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
+		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_TRUE(refreshMsg->getComplete());
+
+		OmmProvider prov2(provConfig2, provClient2);
+		OmmProvider prov4(provConfig4, provClient4);
+	
+		// Sleep to make sure that everything's up
+		testSleep(500);
+
+		cons.fallbackPreferredHost();
+
+		testSleep(1000);
+
+		// Check to see that the request has been made to prov1
+		ASSERT_EQ(provClient1.getMessageQueueSize(), 1);
+		ASSERT_EQ(provClient2.getMessageQueueSize(), 3);
+		ASSERT_EQ(provClient3.getMessageQueueSize(), 1);
+		ASSERT_EQ(provClient4.getMessageQueueSize(), 2);
+		
+		msg = provClient1.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_LOGIN);
+
+		// Check client 2
+		msg = provClient2.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_LOGIN);
+
+		msg = provClient2.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_DIRECTORY);
+
+		msg = provClient2.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getName(), "Item1");
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_MARKET_PRICE);
+		ASSERT_EQ(reqMsg->getServiceName(), "DIRECT_FEED");
+		ASSERT_EQ(reqMsg->getServiceId(), 2);
+
+		// Check client 3
+		msg = provClient3.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_LOGIN);
+
+		// Check client 4
+		msg = provClient4.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_LOGIN);
+
+		msg = provClient4.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_DIRECTORY);
+
+		ASSERT_EQ(consClient.getMessageQueueSize(), 2);
+
+		msg = consClient.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_MARKET_PRICE);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
+
+		msg = consClient.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::RefreshMsgEnum);
+		refreshMsg = static_cast<RefreshMsg*>(msg);
+		ASSERT_EQ(refreshMsg->getName(), "Item1");
+		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
+		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
+		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_TRUE(refreshMsg->getComplete());
+		
+	}
+	catch (...)
+	{
+		ASSERT_TRUE(false) << "uncaught exception in test";
+	}
+}
+
+/*	This test does the following
+ *	1. Starts up a request routing consumer with preferred host enabled, and starts two providers on the non-preferred ports.
+ *		a. All providers provide DIRECT_FEED
+ *		b. Providers 1 and 3 provide DIRECT_FEED with RT/TBT QoS, providers 2 and 4 provide delayed.
+ *  2. Checks to see that the consumer does intitialize
+ *  3. Verify that there are two channels is active in the consumer
+ *  4. Requests the one item on DIRECT_FEED with no QoS specified
+ *  5. Verify that one request goes out to the correct provider
+ *  6. Start up the configured preferred providers
+ *  7. Call cons.fallbackPreferredHost();
+ *  8. Validate that all connections are handled correctly, with providers 1 and 3 getting a login message(indicating that the connection was closed), and providers 2 and 4 getting the login and directory requests
+ *     and provider 2 also getting an item request
+ */
+TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemPHRecoverDifferentQoS)
+{
+	Map serviceMap1;
+	serviceMap1.addKeyUInt(2, MapEntry::AddEnum, FilterList().
+		add(SERVICE_INFO_ID, FilterEntry::SetEnum, ElementList().
+			addAscii(ENAME_NAME, "DIRECT_FEED").
+			addAscii(ENAME_VENDOR, "company").
+			addArray(ENAME_CAPABILITIES, OmmArray().
+				addUInt(MMT_DICTIONARY).
+				addUInt(MMT_MARKET_PRICE).
+				addUInt(MMT_MARKET_BY_PRICE).
+				addUInt(MMT_SYMBOL_LIST).
+				addUInt(MMT_SYSTEM).
+				complete()).
+			addArray(ENAME_QOS, OmmArray().
+				addQos()
+				.complete()).
+			addArray(ENAME_DICTIONARYS_USED, OmmArray().
+				addAscii("RWFFld").
+				addAscii("RWFEnum").
+				complete()).
+			addArray(ENAME_DICTIONARYS_PROVIDED, OmmArray().
+				addAscii("RWFFld").
+				addAscii("RWFEnum").
+				complete()).
+			addAscii(ENAME_ITEM_LIST, "ItemList").
+			complete()).
+		add(SERVICE_STATE_ID, FilterEntry::SetEnum, ElementList().
+			addUInt(ENAME_SVC_STATE, SERVICE_UP).
+			addUInt(ENAME_ACCEPTING_REQS, SERVICE_YES).
+			complete()).
+		complete()).complete();
+	ProviderTestOptions provTestOptions1;
+	provTestOptions1.directoryPayload = &serviceMap1;
+
+	Map serviceMap2;
+	serviceMap2.addKeyUInt(2, MapEntry::AddEnum, FilterList().
+		add(SERVICE_INFO_ID, FilterEntry::SetEnum, ElementList().
+			addAscii(ENAME_NAME, "DIRECT_FEED").
+			addAscii(ENAME_VENDOR, "company").
+			addArray(ENAME_CAPABILITIES, OmmArray().
+				addUInt(MMT_DICTIONARY).
+				addUInt(MMT_MARKET_PRICE).
+				addUInt(MMT_MARKET_BY_PRICE).
+				addUInt(MMT_SYMBOL_LIST).
+				addUInt(MMT_SYSTEM).
+				complete()).
+			addArray(ENAME_QOS, OmmArray().
+				addQos(150, 150)
+				.complete()).
+			addArray(ENAME_DICTIONARYS_USED, OmmArray().
+				addAscii("RWFFld").
+				addAscii("RWFEnum").
+				complete()).
+			addArray(ENAME_DICTIONARYS_PROVIDED, OmmArray().
+				addAscii("RWFFld").
+				addAscii("RWFEnum").
+				complete()).
+			addAscii(ENAME_ITEM_LIST, "ItemList").
+			complete()).
+		add(SERVICE_STATE_ID, FilterEntry::SetEnum, ElementList().
+			addUInt(ENAME_SVC_STATE, SERVICE_UP).
+			addUInt(ENAME_ACCEPTING_REQS, SERVICE_YES).
+			complete()).
+		complete()).complete();
+	ProviderTestOptions provTestOptions2;
+	provTestOptions2.directoryPayload = &serviceMap2;
+
+	IProviderTestClientBase provClient1(provTestOptions1);
+
+	OmmIProviderConfig provConfig1("EmaConfigTest.xml");
+	provConfig1.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15000");
+
+	IProviderTestClientBase provClient2(provTestOptions2);
+
+	OmmIProviderConfig provConfig2("EmaConfigTest.xml");
+	provConfig2.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15001");
+
+	IProviderTestClientBase provClient3(provTestOptions1);
+
+	OmmIProviderConfig provConfig3("EmaConfigTest.xml");
+	provConfig3.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15002");
+
+	IProviderTestClientBase provClient4(provTestOptions2);
+
+	OmmIProviderConfig provConfig4("EmaConfigTest.xml");
+	provConfig4.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15003");
+
+	ConsumerTestOptions consTestOptions;
+	ConsumerTestClientBase consClient(consTestOptions);
+	OmmConsumerConfig consConfig("EmaConfigTest.xml");
+	consConfig.consumerName("RequestRoutingTestCons_4Channel_PH");
+
+	try
+	{
+		ReqMsg consRequest;
+		Msg* msg;
+		ReqMsg* reqMsg;
+		RefreshMsg* refreshMsg;
+		StatusMsg* statusMsg;
+
+		OmmProvider prov1(provConfig1, provClient1);
+		OmmProvider prov3(provConfig3, provClient3);
+
+		OmmConsumer cons(consConfig);
+
+		EmaVector<ChannelInformation> channelInfo;
+
+		int totalRequestAfterPH = 0;
+
+		cons.getSessionInformation(channelInfo);
+
+		ASSERT_EQ(channelInfo.size(), 2);
+
+		consRequest.clear().name("Item1").domainType(MMT_MARKET_PRICE).serviceName("DIRECT_FEED");
+
+		provClient1.clear();
+		provClient3.clear();
+
+		UInt64 handle1 = cons.registerClient(consRequest, consClient);
+
+		testSleep(500);
+
+		// Check to see that the request has been made to prov1
+		ASSERT_EQ(provClient1.getMessageQueueSize(), 1);
+		ASSERT_EQ(provClient3.getMessageQueueSize(), 0);
+		msg = provClient1.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getName(), "Item1");
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_MARKET_PRICE);
+		ASSERT_EQ(reqMsg->getServiceName(), "DIRECT_FEED");
+		ASSERT_EQ(reqMsg->getServiceId(), 2);
+
+		ASSERT_EQ(consClient.getMessageQueueSize(), 1);
+
+		msg = consClient.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::RefreshMsgEnum);
+		refreshMsg = static_cast<RefreshMsg*>(msg);
+		ASSERT_EQ(refreshMsg->getName(), "Item1");
+		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
+		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
+		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_TRUE(refreshMsg->getComplete());
+
+		OmmProvider prov2(provConfig2, provClient2);
+		OmmProvider prov4(provConfig4, provClient4);
+
+		// Sleep to make sure that everything's up
+		testSleep(500);
+
+		std::cout << "Calling PH" << std::endl;
+		cons.fallbackPreferredHost();
+
+		testSleep(10000);
+
+		// Check to see that the request has been made to prov1
+		ASSERT_EQ(provClient1.getMessageQueueSize(), 1);
+		ASSERT_GE(provClient2.getMessageQueueSize(), 2);		// prov 2 and 4 may both get the request
+		ASSERT_EQ(provClient3.getMessageQueueSize(), 1);
+		ASSERT_GE(provClient4.getMessageQueueSize(), 2);
+
+		msg = provClient1.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_LOGIN);
+
+		// Check client 2
+		msg = provClient2.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_LOGIN);
+
+		msg = provClient2.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_DIRECTORY);
+
+		msg = provClient2.popMsg();
+
+		if (msg != NULL)
+		{
+			ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+			reqMsg = static_cast<ReqMsg*>(msg);
+			ASSERT_EQ(reqMsg->getName(), "Item1");
+			ASSERT_EQ(reqMsg->getDomainType(), MMT_MARKET_PRICE);
+			ASSERT_EQ(reqMsg->getServiceName(), "DIRECT_FEED");
+			ASSERT_EQ(reqMsg->getServiceId(), 2);
+			totalRequestAfterPH++;
+		}
+
+		// Check client 3
+		msg = provClient3.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_LOGIN);
+
+		// Check client 4
+		msg = provClient4.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_LOGIN);
+
+		msg = provClient4.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+		reqMsg = static_cast<ReqMsg*>(msg);
+		ASSERT_EQ(reqMsg->getDomainType(), MMT_DIRECTORY);
+
+		msg = provClient4.popMsg();
+
+		if (msg != NULL)
+		{
+			ASSERT_EQ(msg->getDataType(), DataType::ReqMsgEnum);
+			reqMsg = static_cast<ReqMsg*>(msg);
+			ASSERT_EQ(reqMsg->getName(), "Item1");
+			ASSERT_EQ(reqMsg->getDomainType(), MMT_MARKET_PRICE);
+			ASSERT_EQ(reqMsg->getServiceName(), "DIRECT_FEED");
+			ASSERT_EQ(reqMsg->getServiceId(), 2);
+			totalRequestAfterPH++;
+		}
+
+		// Make sure one request went out in total
+		ASSERT_EQ(totalRequestAfterPH, 1);
+
+		ASSERT_EQ(consClient.getMessageQueueSize(), 3);
+
+		msg = consClient.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_MARKET_PRICE);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
+
+		msg = consClient.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_MARKET_PRICE);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
+
+		msg = consClient.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::RefreshMsgEnum);
+		refreshMsg = static_cast<RefreshMsg*>(msg);
+		ASSERT_EQ(refreshMsg->getName(), "Item1");
+		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
+		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
+		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_TRUE(refreshMsg->getComplete());
+
+	}
+	catch (...)
+	{
+		ASSERT_TRUE(false) << "uncaught exception in test";
+	}
+}

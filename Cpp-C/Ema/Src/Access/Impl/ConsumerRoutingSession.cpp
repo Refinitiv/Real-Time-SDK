@@ -557,10 +557,6 @@ void ConsumerRoutingSession::processChannelEvent(ConsumerRoutingSessionChannel* 
 	RsslBuffer tmpBuffer = RSSL_INIT_BUFFER;
 	int reconnectingCount = 0;
 
-
-	if (loginItems.size() == 0)
-		return;
-
 	// This will clear the statusMsg structure.
 	pSessionChannel->loginInfo.loginRefreshMsg.populate(statusMsg, tmpBuffer);
 	statusMsg.flags |= RSSL_STMF_HAS_STATE;

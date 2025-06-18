@@ -33,6 +33,7 @@ RsslRDMMsg *wlCreateRdmMsgCopy(RsslRDMMsg *pRdmMsg, RsslBuffer *pMemoryBuffer,
 		RsslErrorInfo *pErrorInfo);
 
 typedef struct WlStreamBase WlStreamBase;
+typedef struct WlRequestedService WlRequestedService;
 
 static const RsslInt32 LOGIN_STREAM_ID = 1;
 static const RsslInt32 DIRECTORY_STREAM_ID = 2;
@@ -169,6 +170,7 @@ typedef struct WlBase
 	RsslUInt32 			maxOutstandingPosts;	/* Acknowledgement pool limit. */
 	RsslUInt32 			postAckTimeout;			/* Timeout for acks of posts. */
 	RsslBool			enableWarmStandBy;		/* Enables the warm standby feature. */
+	WlRequestedService* pCurrentWlRequestedService;	/* This is used to make sure we do not delete the current requested service when fanning out messages if the user closes anything */
 } WlBase;
 
 /* Options for initializing the base structure. */

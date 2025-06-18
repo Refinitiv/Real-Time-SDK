@@ -116,6 +116,7 @@ RsslRet wlBaseInit(WlBase *pBase, WlBaseInitOptions *pOpts, RsslErrorInfo *pErro
 	pBase->nextProviderStreamId = MIN_STREAM_ID;
 	pBase->ticksPerMsec = pOpts->ticksPerMsec;
 	pBase->enableWarmStandBy = pOpts->enableWarmStandBy;
+	pBase->pCurrentWlRequestedService = NULL;
 
 	if ((ret = rsslHashTableInit(&pBase->requestsByStreamId, 10007, rsslHashU32Sum, 
 			rsslHashU32Compare, RSSL_TRUE, pErrorInfo)) != RSSL_RET_SUCCESS)

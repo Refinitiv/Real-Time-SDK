@@ -885,27 +885,27 @@ void OmmConsumerImpl::fallbackPreferredHost()
 	if (_pConsumerRoutingSession == NULL)
 	{
 		if (_pReactorChannel == NULL)
-	{
-		_userLock.unlock();
-		EmaString temp("No active channel to perform fall back.");
-		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
-		return;
-	}
+		{
+			_userLock.unlock();
+			EmaString temp("No active channel to perform fall back.");
+			handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+			return;
+		}
 
-	RsslErrorInfo rsslErrorInfo;
-		RsslRet ret = rsslReactorFallbackToPreferredHost(_pReactorChannel, &rsslErrorInfo);
+		RsslErrorInfo rsslErrorInfo;
+			RsslRet ret = rsslReactorFallbackToPreferredHost(_pReactorChannel, &rsslErrorInfo);
 
-	if (ret != RSSL_RET_SUCCESS)
-	{
-		_userLock.unlock();
-		EmaString temp("Failed to perform preferred host fall back.");
-			temp.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
-			.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
-			.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
-			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
-		handleIue(temp, ret);
-		return;
-	}
+		if (ret != RSSL_RET_SUCCESS)
+		{
+			_userLock.unlock();
+			EmaString temp("Failed to perform preferred host fall back.");
+				temp.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+			handleIue(temp, ret);
+			return;
+		}
 	}
 	else
 	{
@@ -914,11 +914,13 @@ void OmmConsumerImpl::fallbackPreferredHost()
 			if (_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel != NULL)
 			{
 				RsslErrorInfo rsslErrorInfo;
-				RsslRet ret = rsslReactorFallbackToPreferredHost(_pReactorChannel, &rsslErrorInfo);
+				_pConsumerRoutingSession->routingChannelList[i]->inPreferredHost = true;
+				RsslRet ret = rsslReactorFallbackToPreferredHost(_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel, &rsslErrorInfo);
 
 				// Do not fail if individual channels do not have fallbacktopreferred host turned on
 				if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_INVALID_ARGUMENT)
 				{
+					_pConsumerRoutingSession->routingChannelList[i]->inPreferredHost = false;
 					_userLock.unlock();
 					EmaString temp("Failed to perform preferred host fall back.");
 					temp.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)

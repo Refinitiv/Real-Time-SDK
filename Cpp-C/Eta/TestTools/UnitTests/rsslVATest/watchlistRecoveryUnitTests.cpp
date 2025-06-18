@@ -13,44 +13,51 @@
 #define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
 #endif
 
-void watchlistRecoveryTest_OneItem_ClosedRecover(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen, RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_TwoItems_RequestTimeout(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_RequestTimeout_Multipart(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_ClearCache(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_QosChange(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_TwoItems_OpenWindow(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_ServiceNameChange(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_AllowSuspectDataOff(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_GroupMerge(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_LoginClosed(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_LoginClosed_Directory(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_LoginCloseRequest(RsslBool useRsslMsg, RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_DirectoryClosedRecover(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_QosRange(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_NoCapability(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_NoQosRequest(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_StaticQos(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_ServiceDeleted(RsslBool singleOpen, RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_Redirect(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_RedirectToPrivateStream(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_Dictionary(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_LoginCredentialsUpdate(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_UnknownStream(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen, RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_LoginAuthenticationUpdate(RsslConnectionTypes connetionType);
-void watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback(RsslConnectionTypes connectionType);
+void watchlistRecoveryTest_OneItem_ClosedRecover();
+void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen);
+void watchlistRecoveryTest_TwoItems_RequestTimeout();
+void watchlistRecoveryTest_OneItem_RequestTimeout_Multipart();
+void watchlistRecoveryTest_OneItem_ClearCache();
+void watchlistRecoveryTest_OneItem_QosChange();
+void watchlistRecoveryTest_TwoItems_OpenWindow();
+void watchlistRecoveryTest_OneItem_ServiceNameChange();
+void watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream();
+void watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff();
+void watchlistRecoveryTEST_FrivateStreamWithPayloadAndExtHeader();
+void watchlistRecoveryTest_OneItem_AllowSuspectDataOff();
+void watchlistRecoveryTest_OneItem_GroupMerge();
+void watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState();
+void watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState();
+void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen);
+void watchlistRecoveryTest_OneItem_LoginClosed();
+void watchlistRecoveryTest_OneItem_LoginClosed_Directory();
+void watchlistRecoveryTest_OneItem_LoginCloseRequest(RsslBool useRsslMsg);
+void watchlistRecoveryTest_OneItem_DirectoryClosedRecover();
+void watchlistRecoveryTest_OneItem_QosRange();
+void watchlistRecoveryTest_OneItem_NoCapability();
+void watchlistRecoveryTest_OneItem_NoQosRequest();
+void watchlistRecoveryTest_OneItem_StaticQos();
+void watchlistRecoveryTest_OneItem_ServiceDeleted(RsslBool singleOpen);
+void watchlistRecoveryTest_OneItem_Redirect();
+void watchlistRecoveryTest_OneItem_RedirectToPrivateStream();
+void watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey();
+void watchlistRecoveryTest_OneItem_Dictionary();
+void watchlistRecoveryTest_LoginCredentialsUpdate();
+void watchlistRecoveryTest_UnknownStream();
+void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen);
+void watchlistRecoveryTest_LoginAuthenticationUpdate();
+void watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback();
+void watchlistRecoveryTest_OneItem_DisconnectChangeQoS();
+void watchlistRecoveryTest_OneItem_DisconnectChangeQoS_CloseInCallback();
+void watchlistRecoveryTest_OneItem_DisconnectChangeQoS_CloseAndRerequestInCallback();
+void watchlistRecoveryTest_OneItem_ServiceDeleted_ItemCloseAndRerequestInDirectoryCallback();
 
 
+// Global variables for callbacks
+bool sendClose = false;
+bool resendRequest = false;
 
-class WatchlistRecoveryTest : public ::testing::TestWithParam<RsslConnectionTypes> {
+class WatchlistRecoveryTest : public ::testing::Test {
 public:
 
 	static void SetUpTestCase()
@@ -60,7 +67,10 @@ public:
 
 	virtual void SetUp()
 	{
-		wtfBindServer(GetParam());
+		sendClose = false;
+		resendRequest = false;
+		wtfClearCallbacks();
+		wtfBindServer(RSSL_CONN_TYPE_SOCKET);
 	}
 
 	static void TearDownTestCase()
@@ -70,204 +80,219 @@ public:
 
 	virtual void TearDown()
 	{
+		sendClose = false;
+		resendRequest = false;
+		wtfClearCallbacks();
 		wtfCloseServer();
 	}
 };
 
-TEST_P(WatchlistRecoveryTest, OneItem_Disconnect_SingleOpen)
+TEST_F(WatchlistRecoveryTest, OneItem_Disconnect_SingleOpen)
 {
-	watchlistRecoveryTest_OneItem_Disconnect(RSSL_TRUE, GetParam());
+	watchlistRecoveryTest_OneItem_Disconnect(RSSL_TRUE);
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_Disconnect)
+TEST_F(WatchlistRecoveryTest, OneItem_Disconnect)
 {
-	watchlistRecoveryTest_OneItem_Disconnect(RSSL_FALSE, GetParam());
+	watchlistRecoveryTest_OneItem_Disconnect(RSSL_FALSE);
 }
 
-TEST_P(WatchlistRecoveryTest, UnknownStream)
+TEST_F(WatchlistRecoveryTest, UnknownStream)
 {
-	watchlistRecoveryTest_UnknownStream(GetParam());
+	watchlistRecoveryTest_UnknownStream();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_ClosedRecover)
+TEST_F(WatchlistRecoveryTest, OneItem_ClosedRecover)
 {
-	watchlistRecoveryTest_OneItem_ClosedRecover(GetParam());
+	watchlistRecoveryTest_OneItem_ClosedRecover();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_RequestTimeout_SingleOpen)
+TEST_F(WatchlistRecoveryTest, OneItem_RequestTimeout_SingleOpen)
 {
-	watchlistRecoveryTest_OneItem_RequestTimeout(RSSL_TRUE, GetParam());
+	watchlistRecoveryTest_OneItem_RequestTimeout(RSSL_TRUE);
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_RequestTimeout)
+TEST_F(WatchlistRecoveryTest, OneItem_RequestTimeout)
 {
-	watchlistRecoveryTest_OneItem_RequestTimeout(RSSL_FALSE, GetParam());
+	watchlistRecoveryTest_OneItem_RequestTimeout(RSSL_FALSE);
 }
 
-TEST_P(WatchlistRecoveryTest, TwoItems_RequestTimeout)
+TEST_F(WatchlistRecoveryTest, TwoItems_RequestTimeout)
 {
-	watchlistRecoveryTest_TwoItems_RequestTimeout(GetParam());
+	watchlistRecoveryTest_TwoItems_RequestTimeout();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_RequestTimeout_Multipart)
+TEST_F(WatchlistRecoveryTest, OneItem_RequestTimeout_Multipart)
 {
-	watchlistRecoveryTest_OneItem_RequestTimeout_Multipart(GetParam());
+	watchlistRecoveryTest_OneItem_RequestTimeout_Multipart();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_ClearCache)
+TEST_F(WatchlistRecoveryTest, OneItem_ClearCache)
 {
-	watchlistRecoveryTest_OneItem_ClearCache(GetParam());
+	watchlistRecoveryTest_OneItem_ClearCache();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_QosChange)
+TEST_F(WatchlistRecoveryTest, OneItem_QosChange)
 {
-	watchlistRecoveryTest_OneItem_QosChange(GetParam());
+	watchlistRecoveryTest_OneItem_QosChange();
 }
 
-TEST_P(WatchlistRecoveryTest, TwoItems_OpenWindow)
+TEST_F(WatchlistRecoveryTest, TwoItems_OpenWindow)
 {
-	watchlistRecoveryTest_TwoItems_OpenWindow(GetParam());
+	watchlistRecoveryTest_TwoItems_OpenWindow();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_ServiceNameChange)
+TEST_F(WatchlistRecoveryTest, OneItem_ServiceNameChange)
 {
-	watchlistRecoveryTest_OneItem_ServiceNameChange(GetParam());
+	watchlistRecoveryTest_OneItem_ServiceNameChange();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_ClosedRecover_PrivateStream)
+TEST_F(WatchlistRecoveryTest, OneItem_ClosedRecover_PrivateStream)
 {
-	watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream(GetParam());
+	watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_ClosedRecover_SingleOpenOff)
+TEST_F(WatchlistRecoveryTest, OneItem_ClosedRecover_SingleOpenOff)
 {
-	watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff(GetParam());
+	watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff();
 }
 
-TEST_P(WatchlistRecoveryTest, PrivateStreamWithPayloadAndExtHeader)
+TEST_F(WatchlistRecoveryTest, PrivateStreamWithPayloadAndExtHeader)
 {
-	watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader(GetParam());
+	watchlistRecoveryTEST_FrivateStreamWithPayloadAndExtHeader();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_AllowSuspectDataOff)
+TEST_F(WatchlistRecoveryTest, OneItem_AllowSuspectDataOff)
 {
-	watchlistRecoveryTest_OneItem_AllowSuspectDataOff(GetParam());
+	watchlistRecoveryTest_OneItem_AllowSuspectDataOff();
 }
 
-TEST_P(WatchlistRecoveryTest, TwoItems_ClosedRecoverFromServiceState)
+TEST_F(WatchlistRecoveryTest, TwoItems_ClosedRecoverFromServiceState)
 {
-	watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState(GetParam());
+	watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_GroupMerge)
+TEST_F(WatchlistRecoveryTest, OneItem_GroupMerge)
 {
-	watchlistRecoveryTest_OneItem_GroupMerge(GetParam());
+	watchlistRecoveryTest_OneItem_GroupMerge();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_LoginClosedRecover_SingleOpen)
+TEST_F(WatchlistRecoveryTest, OneItem_LoginClosedRecover_SingleOpen)
 {
-	watchlistRecoveryTest_OneItem_LoginClosedRecover(RSSL_TRUE, GetParam());
+	watchlistRecoveryTest_OneItem_LoginClosedRecover(RSSL_TRUE);
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_LoginClosedRecover)
+TEST_F(WatchlistRecoveryTest, OneItem_LoginClosedRecover)
 {
-	watchlistRecoveryTest_OneItem_LoginClosedRecover(RSSL_FALSE, GetParam());
+	watchlistRecoveryTest_OneItem_LoginClosedRecover(RSSL_FALSE);
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_LoginClosed)
+TEST_F(WatchlistRecoveryTest, OneItem_LoginClosed)
 {
-	watchlistRecoveryTest_OneItem_LoginClosed(GetParam());
+	watchlistRecoveryTest_OneItem_LoginClosed();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_LoginCloseRequest_RDMMsg)
+TEST_F(WatchlistRecoveryTest, OneItem_LoginCloseRequest_RDMMsg)
 {
-	watchlistRecoveryTest_OneItem_LoginCloseRequest(RSSL_FALSE, GetParam());
+	watchlistRecoveryTest_OneItem_LoginCloseRequest(RSSL_FALSE);
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_LoginCloseRequest_RsslMsg)
+TEST_F(WatchlistRecoveryTest, OneItem_LoginCloseRequest_RsslMsg)
 {
-	watchlistRecoveryTest_OneItem_LoginCloseRequest(RSSL_TRUE, GetParam());
+	watchlistRecoveryTest_OneItem_LoginCloseRequest(RSSL_TRUE);
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_ClosedRecoverFromGroupState)
+TEST_F(WatchlistRecoveryTest, OneItem_ClosedRecoverFromGroupState)
 {
-	watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState(GetParam());
+	watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_QosRange)
+TEST_F(WatchlistRecoveryTest, OneItem_QosRange)
 {
-	watchlistRecoveryTest_OneItem_QosRange(GetParam());
+	watchlistRecoveryTest_OneItem_QosRange();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_NoCapability)
+TEST_F(WatchlistRecoveryTest, OneItem_NoCapability)
 {
-	watchlistRecoveryTest_OneItem_NoCapability(GetParam());
+	watchlistRecoveryTest_OneItem_NoCapability();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_NoQosRequest)
+TEST_F(WatchlistRecoveryTest, OneItem_NoQosRequest)
 {
-	watchlistRecoveryTest_OneItem_NoQosRequest(GetParam());
+	watchlistRecoveryTest_OneItem_NoQosRequest();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_StaticQos)
+TEST_F(WatchlistRecoveryTest, OneItem_StaticQos)
 {
-	watchlistRecoveryTest_OneItem_StaticQos(GetParam());
+	watchlistRecoveryTest_OneItem_StaticQos();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_ServiceDeleted_SingleOpen)
+TEST_F(WatchlistRecoveryTest, OneItem_ServiceDeleted_SingleOpen)
 {
-	watchlistRecoveryTest_OneItem_ServiceDeleted(RSSL_TRUE, GetParam());
+	watchlistRecoveryTest_OneItem_ServiceDeleted(RSSL_TRUE);
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_ServiceDeleted)
+TEST_F(WatchlistRecoveryTest, OneItem_ServiceDeleted)
 {
-	watchlistRecoveryTest_OneItem_ServiceDeleted(RSSL_FALSE, GetParam());
+	watchlistRecoveryTest_OneItem_ServiceDeleted(RSSL_FALSE);
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_Redirect)
+TEST_F(WatchlistRecoveryTest, OneItem_Redirect)
 {
-	watchlistRecoveryTest_OneItem_Redirect(GetParam());
+	watchlistRecoveryTest_OneItem_Redirect();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_RedirectToPrivateStream)
+TEST_F(WatchlistRecoveryTest, OneItem_RedirectToPrivateStream)
 {
-	watchlistRecoveryTest_OneItem_RedirectToPrivateStream(GetParam());
+	watchlistRecoveryTest_OneItem_RedirectToPrivateStream();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_RedirectToPrivateStream_WithKey)
+TEST_F(WatchlistRecoveryTest, OneItem_RedirectToPrivateStream_WithKey)
 {
-	watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey(GetParam());
+	watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey();
 }
 
-TEST_P(WatchlistRecoveryTest, LoginCredentialsUpdate)
+TEST_F(WatchlistRecoveryTest, LoginCredentialsUpdate)
 {
-	watchlistRecoveryTest_LoginCredentialsUpdate(GetParam());
+	watchlistRecoveryTest_LoginCredentialsUpdate();
 }
 
-TEST_P(WatchlistRecoveryTest, LoginAuthenticationUpdate)
+TEST_F(WatchlistRecoveryTest, LoginAuthenticationUpdate)
 {
-	watchlistRecoveryTest_LoginAuthenticationUpdate(GetParam());
+	watchlistRecoveryTest_LoginAuthenticationUpdate();
 }
 
-TEST_P(WatchlistRecoveryTest, OneItem_Dictionary)
+TEST_F(WatchlistRecoveryTest, OneItem_Dictionary)
 {
-	watchlistRecoveryTest_OneItem_Dictionary(GetParam());
+	watchlistRecoveryTest_OneItem_Dictionary();
 }
 
-TEST_P(WatchlistRecoveryTest, TwoItems_CloseStateSecond_CloseBothInCallback)
+TEST_F(WatchlistRecoveryTest, TwoItems_CloseStateSecond_CloseBothInCallback)
 {
-	watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback(GetParam());
+	watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback();
 }
 
-INSTANTIATE_TEST_SUITE_P(
-	TestingWatchlistRecoveryTests,
-	WatchlistRecoveryTest,
-	::testing::Values(
-		RSSL_CONN_TYPE_SOCKET, RSSL_CONN_TYPE_WEBSOCKET
-	));
+TEST_F(WatchlistRecoveryTest, OneItem_DisconnectChangeQoS)
+{
+	watchlistRecoveryTest_OneItem_DisconnectChangeQoS();
+}
 
+TEST_F(WatchlistRecoveryTest, OneItem_DisconnectChangeQoS_CloseInCallback)
+{
+	watchlistRecoveryTest_OneItem_DisconnectChangeQoS_CloseInCallback();
+}
 
-void watchlistRecoveryTest_OneItem_ClosedRecover(RsslConnectionTypes connetionType)
+TEST_F(WatchlistRecoveryTest, OneItem_DisconnectChangeQoS_CloseAndRerequestInCallback)
+{
+	watchlistRecoveryTest_OneItem_DisconnectChangeQoS_CloseAndRerequestInCallback();
+}
+
+TEST_F(WatchlistRecoveryTest, OneItem_ServiceDeleted_ItemCloseAndRerequestInDirectoryCallback)
+{
+	watchlistRecoveryTest_OneItem_ServiceDeleted_ItemCloseAndRerequestInDirectoryCallback();
+}
+
+void watchlistRecoveryTest_OneItem_ClosedRecover()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -342,7 +367,7 @@ void watchlistRecoveryTest_OneItem_ClosedRecover(RsslConnectionTypes connetionTy
 }
 
 
-void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen, RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -537,7 +562,7 @@ void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen, RsslConne
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_TwoItems_RequestTimeout(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_TwoItems_RequestTimeout()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -744,7 +769,7 @@ void watchlistRecoveryTest_TwoItems_RequestTimeout(RsslConnectionTypes connetion
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_RequestTimeout_Multipart(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_RequestTimeout_Multipart()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -920,7 +945,7 @@ void watchlistRecoveryTest_OneItem_RequestTimeout_Multipart(RsslConnectionTypes 
 }
 
 
-void watchlistRecoveryTest_OneItem_ClearCache(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_ClearCache()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1053,7 +1078,7 @@ void watchlistRecoveryTest_OneItem_ClearCache(RsslConnectionTypes connetionType)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_QosChange(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_QosChange()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1069,8 +1094,8 @@ void watchlistRecoveryTest_OneItem_QosChange(RsslConnectionTypes connetionType)
 	realTimeQos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
 
 	rsslClearQos(&delayedQos);
-	delayedQos.timeliness = RSSL_QOS_TIME_REALTIME;
-	delayedQos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+	delayedQos.timeliness = RSSL_QOS_TIME_DELAYED;
+	delayedQos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
 
 	ASSERT_TRUE(wtfStartTest());
 
@@ -1210,7 +1235,7 @@ void watchlistRecoveryTest_OneItem_QosChange(RsslConnectionTypes connetionType)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_TwoItems_OpenWindow(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_TwoItems_OpenWindow()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1340,7 +1365,7 @@ void watchlistRecoveryTest_TwoItems_OpenWindow(RsslConnectionTypes connetionType
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_ServiceNameChange(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_ServiceNameChange()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1468,7 +1493,7 @@ void watchlistRecoveryTest_OneItem_ServiceNameChange(RsslConnectionTypes conneti
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1539,7 +1564,7 @@ void watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream(RsslConnectionTyp
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader(RsslConnectionTypes connetionType)
+void watchlistRecoveryTEST_FrivateStreamWithPayloadAndExtHeader()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1701,7 +1726,7 @@ void watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader(RsslConnectionTy
 }
 
 
-void watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1796,7 +1821,7 @@ void watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff(RsslConnectionTyp
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_AllowSuspectDataOff(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_AllowSuspectDataOff()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1873,7 +1898,7 @@ void watchlistRecoveryTest_OneItem_AllowSuspectDataOff(RsslConnectionTypes conne
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -2019,7 +2044,7 @@ void watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState(RsslConnection
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_GroupMerge(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_GroupMerge()
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -2204,7 +2229,7 @@ void watchlistRecoveryTest_OneItem_GroupMerge(RsslConnectionTypes connetionType)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -2324,7 +2349,7 @@ void watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState(RsslConnectionTyp
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent			*pEvent;
@@ -2754,7 +2779,7 @@ void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslC
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_LoginClosed(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_LoginClosed()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent				*pEvent;
@@ -2934,7 +2959,7 @@ void watchlistRecoveryTest_OneItem_LoginClosed(RsslConnectionTypes connetionType
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_LoginClosed_Directory(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_LoginClosed_Directory()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent				*pEvent;
@@ -3036,7 +3061,7 @@ void watchlistRecoveryTest_OneItem_LoginClosed_Directory(RsslConnectionTypes con
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_LoginCloseRequest(RsslBool useRsslMsg, RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_LoginCloseRequest(RsslBool useRsslMsg)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent			*pEvent;
@@ -3126,7 +3151,7 @@ void watchlistRecoveryTest_OneItem_LoginCloseRequest(RsslBool useRsslMsg, RsslCo
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_DirectoryClosedRecover(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_DirectoryClosedRecover()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent			*pEvent;
@@ -3240,7 +3265,7 @@ void watchlistRecoveryTest_OneItem_DirectoryClosedRecover(RsslConnectionTypes co
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_QosRange(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_QosRange()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3313,7 +3338,7 @@ void watchlistRecoveryTest_OneItem_QosRange(RsslConnectionTypes connetionType)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_NoCapability(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_NoCapability()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3360,7 +3385,7 @@ void watchlistRecoveryTest_OneItem_NoCapability(RsslConnectionTypes connetionTyp
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_NoQosRequest(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_NoQosRequest()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3432,7 +3457,7 @@ void watchlistRecoveryTest_OneItem_NoQosRequest(RsslConnectionTypes connetionTyp
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_StaticQos(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_StaticQos()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3535,7 +3560,7 @@ void watchlistRecoveryTest_OneItem_StaticQos(RsslConnectionTypes connetionType)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_ServiceDeleted(RsslBool singleOpen, RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_ServiceDeleted(RsslBool singleOpen)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3675,7 +3700,7 @@ void watchlistRecoveryTest_OneItem_ServiceDeleted(RsslBool singleOpen, RsslConne
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_Redirect(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_Redirect()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3756,7 +3781,7 @@ void watchlistRecoveryTest_OneItem_Redirect(RsslConnectionTypes connetionType)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_RedirectToPrivateStream(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_RedirectToPrivateStream()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3826,7 +3851,7 @@ void watchlistRecoveryTest_OneItem_RedirectToPrivateStream(RsslConnectionTypes c
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3906,7 +3931,7 @@ void watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey(RsslConnectio
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_Dictionary(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_Dictionary()
 {
 	WtfSetupConnectionOpts		setupOpts;
 	RsslReactorSubmitMsgOptions opts;
@@ -4065,7 +4090,7 @@ void watchlistRecoveryTest_OneItem_Dictionary(RsslConnectionTypes connetionType)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_LoginCredentialsUpdate(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_LoginCredentialsUpdate()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent *pEvent;
@@ -4327,7 +4352,7 @@ void watchlistRecoveryTest_LoginCredentialsUpdate(RsslConnectionTypes connetionT
 	
 }
 
-void watchlistRecoveryTest_LoginAuthenticationUpdate(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_LoginAuthenticationUpdate()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent *pEvent;
@@ -4602,7 +4627,7 @@ void watchlistRecoveryTest_LoginAuthenticationUpdate(RsslConnectionTypes conneti
 	
 }
 
-void watchlistRecoveryTest_UnknownStream(RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_UnknownStream()
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -4681,7 +4706,7 @@ void watchlistRecoveryTest_UnknownStream(RsslConnectionTypes connetionType)
 
 
 
-void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen, RsslConnectionTypes connetionType)
+void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen)
 {
 	/* Test message fanout in response to disconnection. */
 
@@ -4863,7 +4888,7 @@ void _watchlistRecoveryTest_TwoItems_Callback_CloseSecondStream()
 	wtfSetConsumerMsgCallbackAction(NULL);
 }
 
-void watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback(RsslConnectionTypes connectionType)
+void watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback()
 {
 	WtfEvent* pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -4960,6 +4985,1044 @@ void watchlistRecoveryTest_TwoItems_CloseStateSecondInCallback(RsslConnectionTyp
 	/* Consumer receives no more events. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(!wtfGetEvent());
+
+	wtfFinishTest();
+}
+
+void watchlistRecoveryTest_OneItem_DisconnectChangeQoS()
+{
+	/* Test message fanout in response to disconnection. */
+
+	RsslReactorSubmitMsgOptions opts;
+	WtfEvent* pEvent;
+	RsslRequestMsg			requestMsg, * pRequestMsg;
+	RsslStatusMsg* pStatusMsg;
+	RsslRDMLoginRequest* pLoginRequest;
+	RsslRDMLoginStatus* pLoginStatus;
+	RsslRDMLoginRefresh loginRefresh;
+	RsslRDMLoginRefresh* pLoginRefresh;
+	RsslRDMDirectoryRequest	directoryRequest;
+	RsslRDMDirectoryRequest* pDirectoryRequest;
+	RsslRDMDirectoryRefresh directoryRefresh;
+	RsslRDMDirectoryRefresh* pDirectoryRefresh;
+	RsslRDMDirectoryUpdate* pDirectoryUpdate;
+	RsslRDMService* serviceList;
+	WtfSetupConnectionOpts	csOpts;
+	const RsslInt32 		reconnectMinDelay = 1000, reconnectMaxDelay = 3000;
+	WtfChannelEvent* pChannelEvent;
+	RsslRDMService			service;
+	RsslUInt32 providerLoginStream;
+	RsslUInt32 directoryStreamId;
+	RsslQos			delayedQos;
+
+	rsslClearQos(&delayedQos);
+	delayedQos.timeliness = RSSL_QOS_TIME_DELAYED;
+	delayedQos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
+
+	ASSERT_TRUE(wtfStartTest());
+
+	wtfClearSetupConnectionOpts(&csOpts);
+	csOpts.reconnectMinDelay = reconnectMinDelay;
+	csOpts.reconnectMaxDelay = reconnectMaxDelay;
+	wtfSetupConnection(&csOpts);
+
+	/* Consumer requests directory. */
+	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
+	opts.requestMsgOptions.pUserSpec = (void*)0x77775555;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+	/* Consumer receives directory refresh. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryRefresh = (RsslRDMDirectoryRefresh*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
+	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775555);
+	serviceList = pDirectoryRefresh->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_ADD_ENTRY);
+
+	/* Request first item with a real time/tick by tick qos */
+	rsslClearRequestMsg(&requestMsg);
+	requestMsg.msgBase.streamId = 3;
+	requestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	requestMsg.flags = RSSL_RQMF_STREAMING | RSSL_RQMF_HAS_QOS;
+	requestMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+	requestMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&requestMsg;
+	opts.pServiceName = &service1Name;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+	/* Provider receives request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+	ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+
+	/* Close channel from provider. */
+	wtfCloseChannel(WTF_TC_PROVIDER);
+
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	/* Consumer receives Open/Suspect login status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.rdmMsgType == RDM_LG_MT_STATUS);
+	ASSERT_TRUE(pLoginStatus->flags & RDM_LG_STF_HAS_STATE);
+	ASSERT_TRUE(pLoginStatus->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pLoginStatus->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pLoginStatus->state.code == RSSL_SC_NONE);
+
+	/* Consumer receives directory update removing service. */
+	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
+	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
+	serviceList = pDirectoryUpdate->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_DELETE_ENTRY);
+
+	/* Consumer receives item status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
+	ASSERT_TRUE(pStatusMsg->msgBase.streamId == 3);
+	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
+	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
+	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+
+	/* Consumer receives channel event. */
+	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE((pChannelEvent = wtfGetChannelEvent(pEvent)));
+	ASSERT_TRUE(pChannelEvent->channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pChannelEvent->rsslErrorId == RSSL_RET_FAILURE);
+
+	/* Wait for channel to come back. */
+	wtfAcceptWithTime(reconnectMinDelay * 2);
+
+	/* Provider receives channel-up & ready events. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+	/* Consumer receives channel-up & ready events. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+	/* Provider receives login request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pLoginRequest = (RsslRDMLoginRequest*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pLoginRequest->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pLoginRequest->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
+	providerLoginStream = pLoginRequest->rdmMsgBase.streamId;
+
+	/* Provider sends login response. */
+	rsslClearRDMLoginRefresh(&loginRefresh);
+	loginRefresh.flags |= RDM_LG_RFF_SOLICITED;
+	loginRefresh.userName = loginUserName;
+	loginRefresh.rdmMsgBase.streamId = providerLoginStream;
+	loginRefresh.flags |= RDM_LG_RFF_HAS_SUPPORT_OPT_PAUSE;
+	loginRefresh.supportOptimizedPauseResume = 1;
+	loginRefresh.flags |= RDM_LG_RFF_HAS_SUPPORT_VIEW;
+	loginRefresh.supportViewRequests = 1;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&loginRefresh;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
+
+	/* Consumer receives login response. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pLoginRefresh = (RsslRDMLoginRefresh*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pLoginRefresh->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pLoginRefresh->rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH);
+	ASSERT_TRUE(pLoginRefresh->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
+
+	/* Provider receives source directory request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryRequest = (RsslRDMDirectoryRequest*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryRequest->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryRequest->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
+	directoryStreamId = pDirectoryRequest->rdmMsgBase.streamId;
+
+	/* Provider sends directory refresh. */
+	rsslClearRDMDirectoryRefresh(&directoryRefresh);
+	directoryRefresh.rdmMsgBase.streamId = directoryStreamId;
+	directoryRefresh.filter = wtfGetProviderDirectoryFilter();
+	directoryRefresh.flags = RDM_DR_RFF_SOLICITED | RDM_DR_RFF_CLEAR_CACHE;
+
+	// Change the service info to send a delayed qos.
+	directoryRefresh.serviceList = &service;
+	directoryRefresh.serviceCount = 1;
+	wtfSetService1Info(&service);
+	service.info.qosList = &delayedQos;
+	service.info.qosCount = 1;
+
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRefresh;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);	
+	
+	/* Consumer receives item status then directory refresh. */	
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	/* Consumer receives item status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
+	ASSERT_TRUE(pStatusMsg->msgBase.streamId == 3);
+	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pStatusMsg->flags& RSSL_STMF_HAS_STATE);
+	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
+	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775555);
+	serviceList = pDirectoryUpdate->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_ADD_ENTRY);
+
+	ASSERT_TRUE(!wtfGetEvent());
+
+	wtfFinishTest();
+}
+
+
+// This callback is for the Msg callback for the following test
+RsslReactorCallbackRet closeMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslMsgEvent* pEvent)
+{
+	RsslCloseMsg			closeMsg;
+	RsslReactorSubmitMsgOptions opts;
+	if (sendClose)
+	{
+		rsslClearCloseMsg(&closeMsg);
+		closeMsg.msgBase.streamId = pEvent->pRsslMsg->msgBase.streamId;
+		closeMsg.msgBase.domainType = pEvent->pRsslMsg->msgBase.domainType;
+
+		rsslClearReactorSubmitMsgOptions(&opts);
+		opts.pRsslMsg = (RsslMsg*)&closeMsg;
+		wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+	}
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+void watchlistRecoveryTest_OneItem_DisconnectChangeQoS_CloseInCallback()
+{
+	/* Test message fanout in response to disconnection. */
+
+	RsslReactorSubmitMsgOptions opts;
+	WtfEvent* pEvent;
+	RsslRequestMsg			requestMsg, * pRequestMsg;
+	RsslStatusMsg* pStatusMsg;
+	RsslRDMLoginRequest* pLoginRequest;
+	RsslRDMLoginStatus* pLoginStatus;
+	RsslRDMLoginRefresh loginRefresh;
+	RsslRDMLoginRefresh* pLoginRefresh;
+	RsslRDMDirectoryRequest	directoryRequest;
+	RsslRDMDirectoryRequest* pDirectoryRequest;
+	RsslRDMDirectoryRefresh directoryRefresh;
+	RsslRDMDirectoryRefresh* pDirectoryRefresh;
+	RsslRDMDirectoryUpdate* pDirectoryUpdate;
+	RsslRDMService* serviceList;
+	WtfSetupConnectionOpts	csOpts;
+	const RsslInt32 		reconnectMinDelay = 1000, reconnectMaxDelay = 3000;
+	WtfChannelEvent* pChannelEvent;
+	RsslRDMService			service;
+	RsslUInt32 providerLoginStream;
+	RsslUInt32 directoryStreamId;
+	RsslQos			delayedQos;
+
+	rsslClearQos(&delayedQos);
+	delayedQos.timeliness = RSSL_QOS_TIME_DELAYED;
+	delayedQos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
+
+	ASSERT_TRUE(wtfStartTest());
+
+	wtfClearSetupConnectionOpts(&csOpts);
+	csOpts.reconnectMinDelay = reconnectMinDelay;
+	csOpts.reconnectMaxDelay = reconnectMaxDelay;
+	csOpts.consumerDefaultCallbackFunction = closeMsgCallback;
+	wtfSetupConnection(&csOpts);
+
+	/* Consumer requests directory. */
+	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
+	opts.requestMsgOptions.pUserSpec = (void*)0x77775555;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+	/* Consumer receives directory refresh. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryRefresh = (RsslRDMDirectoryRefresh*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
+	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775555);
+	serviceList = pDirectoryRefresh->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_ADD_ENTRY);
+
+	/* Request first item with a real time/tick by tick qos */
+	rsslClearRequestMsg(&requestMsg);
+	requestMsg.msgBase.streamId = 3;
+	requestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	requestMsg.flags = RSSL_RQMF_STREAMING | RSSL_RQMF_HAS_QOS;
+	requestMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+	requestMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&requestMsg;
+	opts.pServiceName = &service1Name;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+	/* Provider receives request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+	ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+
+	/* Close channel from provider. */
+	wtfCloseChannel(WTF_TC_PROVIDER);
+
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	/* Consumer receives Open/Suspect login status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.rdmMsgType == RDM_LG_MT_STATUS);
+	ASSERT_TRUE(pLoginStatus->flags & RDM_LG_STF_HAS_STATE);
+	ASSERT_TRUE(pLoginStatus->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pLoginStatus->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pLoginStatus->state.code == RSSL_SC_NONE);
+
+	/* Consumer receives directory update removing service. */
+	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
+	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
+	serviceList = pDirectoryUpdate->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_DELETE_ENTRY);
+
+	/* Consumer receives item status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
+	ASSERT_TRUE(pStatusMsg->msgBase.streamId == 3);
+	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
+	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
+	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+
+	/* Consumer receives channel event. */
+	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE((pChannelEvent = wtfGetChannelEvent(pEvent)));
+	ASSERT_TRUE(pChannelEvent->channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pChannelEvent->rsslErrorId == RSSL_RET_FAILURE);
+
+	/* Wait for channel to come back. */
+	wtfAcceptWithTime(reconnectMinDelay * 2);
+
+	/* Provider receives channel-up & ready events. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+	/* Consumer receives channel-up & ready events. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+	/* Provider receives login request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pLoginRequest = (RsslRDMLoginRequest*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pLoginRequest->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pLoginRequest->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
+	providerLoginStream = pLoginRequest->rdmMsgBase.streamId;
+
+	/* Provider sends login response. */
+	rsslClearRDMLoginRefresh(&loginRefresh);
+	loginRefresh.flags |= RDM_LG_RFF_SOLICITED;
+	loginRefresh.userName = loginUserName;
+	loginRefresh.rdmMsgBase.streamId = providerLoginStream;
+	loginRefresh.flags |= RDM_LG_RFF_HAS_SUPPORT_OPT_PAUSE;
+	loginRefresh.supportOptimizedPauseResume = 1;
+	loginRefresh.flags |= RDM_LG_RFF_HAS_SUPPORT_VIEW;
+	loginRefresh.supportViewRequests = 1;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&loginRefresh;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
+
+	/* Consumer receives login response. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pLoginRefresh = (RsslRDMLoginRefresh*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pLoginRefresh->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pLoginRefresh->rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH);
+	ASSERT_TRUE(pLoginRefresh->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
+
+	/* Provider receives source directory request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryRequest = (RsslRDMDirectoryRequest*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryRequest->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryRequest->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
+	directoryStreamId = pDirectoryRequest->rdmMsgBase.streamId;
+
+	/* Provider sends directory refresh. */
+	rsslClearRDMDirectoryRefresh(&directoryRefresh);
+	directoryRefresh.rdmMsgBase.streamId = directoryStreamId;
+	directoryRefresh.filter = wtfGetProviderDirectoryFilter();
+	directoryRefresh.flags = RDM_DR_RFF_SOLICITED | RDM_DR_RFF_CLEAR_CACHE;
+
+	// Change the service info to send a delayed qos.
+	directoryRefresh.serviceList = &service;
+	directoryRefresh.serviceCount = 1;
+	wtfSetService1Info(&service);
+	service.info.qosList = &delayedQos;
+	service.info.qosCount = 1;
+
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRefresh;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
+
+	/* Consumer receives item status then directory refresh. */
+	sendClose = true;
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	/* Consumer receives item status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
+	ASSERT_TRUE(pStatusMsg->msgBase.streamId == 3);
+	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
+	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
+	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775555);
+	serviceList = pDirectoryUpdate->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_ADD_ENTRY);
+
+	/* Request item again with a delayed/conflated qos */
+	rsslClearRequestMsg(&requestMsg);
+	requestMsg.msgBase.streamId = 3;
+	requestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	requestMsg.flags = RSSL_RQMF_STREAMING | RSSL_RQMF_HAS_QOS;
+	requestMsg.qos.timeliness = RSSL_QOS_TIME_DELAYED;
+	requestMsg.qos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&requestMsg;
+	opts.pServiceName = &service1Name;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+	/* Provider receives request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(!(pRequestMsg->flags& RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags& RSSL_RQMF_NO_REFRESH));
+	ASSERT_TRUE(pRequestMsg->flags& RSSL_RQMF_STREAMING);
+	ASSERT_TRUE(pRequestMsg->qos.timeliness == RSSL_QOS_TIME_DELAYED);
+	ASSERT_TRUE(pRequestMsg->qos.rate == RSSL_QOS_RATE_TIME_CONFLATED);
+
+	// Make sure nothing else gets sent
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(!wtfGetEvent());
+
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(!wtfGetEvent());
+
+	wtfFinishTest();
+}
+
+// This callback is for the Msg callback for the following test
+RsslReactorCallbackRet closeAndRerequestMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslMsgEvent* pEvent)
+{
+	RsslCloseMsg			closeMsg;
+	RsslRequestMsg			requestMsg;
+	RsslReactorSubmitMsgOptions opts;
+	if (sendClose)
+	{
+		printf("Sending item close\n");
+		rsslClearCloseMsg(&closeMsg);
+		closeMsg.msgBase.streamId = pEvent->pRsslMsg->msgBase.streamId;
+		closeMsg.msgBase.domainType = pEvent->pRsslMsg->msgBase.domainType;
+
+		rsslClearReactorSubmitMsgOptions(&opts);
+		opts.pRsslMsg = (RsslMsg*)&closeMsg;
+		wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+		/* Request item again with a delayed/conflated qos */
+		rsslClearRequestMsg(&requestMsg);
+		requestMsg.msgBase.streamId = 3;
+		requestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+		requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+		requestMsg.flags = RSSL_RQMF_STREAMING | RSSL_RQMF_HAS_QOS;
+		requestMsg.qos.timeliness = RSSL_QOS_TIME_DELAYED;
+		requestMsg.qos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
+
+		rsslClearReactorSubmitMsgOptions(&opts);
+		opts.pRsslMsg = (RsslMsg*)&requestMsg;
+		opts.pServiceName = &service1Name;
+		wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+	}
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+void watchlistRecoveryTest_OneItem_DisconnectChangeQoS_CloseAndRerequestInCallback()
+{
+	/* Test message fanout in response to disconnection. */
+
+	RsslReactorSubmitMsgOptions opts;
+	WtfEvent* pEvent;
+	RsslRequestMsg			requestMsg, * pRequestMsg;
+	RsslStatusMsg* pStatusMsg;
+	RsslRDMLoginRequest* pLoginRequest;
+	RsslRDMLoginStatus* pLoginStatus;
+	RsslRDMLoginRefresh loginRefresh;
+	RsslRDMLoginRefresh* pLoginRefresh;
+	RsslRDMDirectoryRequest	directoryRequest;
+	RsslRDMDirectoryRequest* pDirectoryRequest;
+	RsslRDMDirectoryRefresh directoryRefresh;
+	RsslRDMDirectoryRefresh* pDirectoryRefresh;
+	RsslRDMDirectoryUpdate* pDirectoryUpdate;
+	RsslRDMService* serviceList;
+	WtfSetupConnectionOpts	csOpts;
+	const RsslInt32 		reconnectMinDelay = 1000, reconnectMaxDelay = 3000;
+	WtfChannelEvent* pChannelEvent;
+	RsslRDMService			service;
+	RsslUInt32 providerLoginStream;
+	RsslUInt32 directoryStreamId;
+	RsslQos			delayedQos;
+
+	rsslClearQos(&delayedQos);
+	delayedQos.timeliness = RSSL_QOS_TIME_DELAYED;
+	delayedQos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
+
+	ASSERT_TRUE(wtfStartTest());
+
+	wtfClearSetupConnectionOpts(&csOpts);
+	csOpts.reconnectMinDelay = reconnectMinDelay;
+	csOpts.reconnectMaxDelay = reconnectMaxDelay;
+	csOpts.consumerDefaultCallbackFunction = closeAndRerequestMsgCallback;
+	wtfSetupConnection(&csOpts);
+
+	/* Consumer requests directory. */
+	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
+	opts.requestMsgOptions.pUserSpec = (void*)0x77775555;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+	/* Consumer receives directory refresh. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryRefresh = (RsslRDMDirectoryRefresh*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
+	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775555);
+	serviceList = pDirectoryRefresh->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_ADD_ENTRY);
+
+	/* Request first item with a real time/tick by tick qos */
+	rsslClearRequestMsg(&requestMsg);
+	requestMsg.msgBase.streamId = 3;
+	requestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	requestMsg.flags = RSSL_RQMF_STREAMING | RSSL_RQMF_HAS_QOS;
+	requestMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+	requestMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&requestMsg;
+	opts.pServiceName = &service1Name;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+	/* Provider receives request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+	ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+
+	/* Close channel from provider. */
+	wtfCloseChannel(WTF_TC_PROVIDER);
+
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	/* Consumer receives Open/Suspect login status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.rdmMsgType == RDM_LG_MT_STATUS);
+	ASSERT_TRUE(pLoginStatus->flags & RDM_LG_STF_HAS_STATE);
+	ASSERT_TRUE(pLoginStatus->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pLoginStatus->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pLoginStatus->state.code == RSSL_SC_NONE);
+
+	/* Consumer receives directory update removing service. */
+	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
+	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
+	serviceList = pDirectoryUpdate->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_DELETE_ENTRY);
+
+	/* Consumer receives item status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
+	ASSERT_TRUE(pStatusMsg->msgBase.streamId == 3);
+	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
+	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
+	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+
+	/* Consumer receives channel event. */
+	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE((pChannelEvent = wtfGetChannelEvent(pEvent)));
+	ASSERT_TRUE(pChannelEvent->channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pChannelEvent->rsslErrorId == RSSL_RET_FAILURE);
+
+	/* Wait for channel to come back. */
+	wtfAcceptWithTime(reconnectMinDelay * 2);
+
+	/* Provider receives channel-up & ready events. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+	/* Consumer receives channel-up & ready events. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+	/* Provider receives login request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pLoginRequest = (RsslRDMLoginRequest*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pLoginRequest->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pLoginRequest->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
+	providerLoginStream = pLoginRequest->rdmMsgBase.streamId;
+
+	/* Provider sends login response. */
+	rsslClearRDMLoginRefresh(&loginRefresh);
+	loginRefresh.flags |= RDM_LG_RFF_SOLICITED;
+	loginRefresh.userName = loginUserName;
+	loginRefresh.rdmMsgBase.streamId = providerLoginStream;
+	loginRefresh.flags |= RDM_LG_RFF_HAS_SUPPORT_OPT_PAUSE;
+	loginRefresh.supportOptimizedPauseResume = 1;
+	loginRefresh.flags |= RDM_LG_RFF_HAS_SUPPORT_VIEW;
+	loginRefresh.supportViewRequests = 1;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&loginRefresh;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
+
+	/* Consumer receives login response. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pLoginRefresh = (RsslRDMLoginRefresh*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pLoginRefresh->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pLoginRefresh->rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH);
+	ASSERT_TRUE(pLoginRefresh->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
+
+	/* Provider receives source directory request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryRequest = (RsslRDMDirectoryRequest*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryRequest->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryRequest->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
+	directoryStreamId = pDirectoryRequest->rdmMsgBase.streamId;
+
+	/* Provider sends directory refresh. */
+	rsslClearRDMDirectoryRefresh(&directoryRefresh);
+	directoryRefresh.rdmMsgBase.streamId = directoryStreamId;
+	directoryRefresh.filter = wtfGetProviderDirectoryFilter();
+	directoryRefresh.flags = RDM_DR_RFF_SOLICITED | RDM_DR_RFF_CLEAR_CACHE;
+
+	// Change the service info to send a delayed qos.
+	directoryRefresh.serviceList = &service;
+	directoryRefresh.serviceCount = 1;
+	wtfSetService1Info(&service);
+	service.info.qosList = &delayedQos;
+	service.info.qosCount = 1;
+
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRefresh;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
+
+	/* Consumer receives item status then directory refresh. */
+	sendClose = true;
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	/* Consumer receives item status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
+	ASSERT_TRUE(pStatusMsg->msgBase.streamId == 3);
+	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
+	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
+	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775555);
+	serviceList = pDirectoryUpdate->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_ADD_ENTRY);
+
+	/* Provider receives request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+	ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+	ASSERT_TRUE(pRequestMsg->qos.timeliness == RSSL_QOS_TIME_DELAYED);
+	ASSERT_TRUE(pRequestMsg->qos.rate == RSSL_QOS_RATE_TIME_CONFLATED);
+
+	// Make sure nothing else gets sent
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(!wtfGetEvent());
+
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(!wtfGetEvent());
+
+	wtfFinishTest();
+}
+
+
+// This callback is for the Msg callback for the following test
+RsslReactorCallbackRet serviceDeletedDirectoryCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslRDMDirectoryMsgEvent* pEvent)
+{
+	RsslRequestMsg			requestMsg;
+	RsslCloseMsg			closeMsg;
+	RsslReactorSubmitMsgOptions opts;
+	if (sendClose)
+	{
+		printf("Sending item close\n");
+		// Close stream Id 3.
+		rsslClearCloseMsg(&closeMsg);
+		closeMsg.msgBase.streamId = 3;
+		closeMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+
+		rsslClearReactorSubmitMsgOptions(&opts);
+		opts.pRsslMsg = (RsslMsg*)&closeMsg;
+		wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+		/* Request item again with a delayed/conflated qos */
+		rsslClearRequestMsg(&requestMsg);
+		requestMsg.msgBase.streamId = 3;
+		requestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+		requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+		requestMsg.flags = RSSL_RQMF_STREAMING | RSSL_RQMF_HAS_QOS;
+		requestMsg.qos.timeliness = RSSL_QOS_TIME_DELAYED;
+		requestMsg.qos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
+
+		rsslClearReactorSubmitMsgOptions(&opts);
+		opts.pRsslMsg = (RsslMsg*)&requestMsg;
+		opts.pServiceName = &service1Name;
+		wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+	}
+	return RSSL_RC_CRET_SUCCESS;
+}
+void watchlistRecoveryTest_OneItem_ServiceDeleted_ItemCloseAndRerequestInDirectoryCallback()
+{
+	RsslReactorSubmitMsgOptions opts;
+	WtfEvent* pEvent;
+	RsslRequestMsg	requestMsg, * pRequestMsg;
+	RsslCloseMsg* pCloseMsg;
+	RsslStatusMsg* pStatusMsg;
+	RsslInt32		providerItemStream;
+	RsslRDMDirectoryRequest directoryRequest;
+	RsslRDMDirectoryUpdate directoryUpdate;
+	RsslRDMDirectoryRefresh* pDirectoryRefresh;
+	RsslRDMDirectoryUpdate* pDirectoryUpdate;
+	RsslRDMService service1;
+	RsslRDMService* serviceList;
+	RsslRefreshMsg* pRefreshMsg, refreshMsg;
+	WtfSetupConnectionOpts sOpts;
+
+	RsslQos			delayedQos;
+
+	rsslClearQos(&delayedQos);
+	delayedQos.timeliness = RSSL_QOS_TIME_DELAYED;
+	delayedQos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
+
+
+	ASSERT_TRUE(wtfStartTest());
+
+	wtfClearSetupConnectionOpts(&sOpts);
+	sOpts.consumerDirectoryCallbackFunction = serviceDeletedDirectoryCallback;
+	wtfSetupConnection(&sOpts);
+
+	/* Consumer requests directory. */
+	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+	/* Consumer receives directory refresh. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryRefresh = (RsslRDMDirectoryRefresh*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
+	serviceList = pDirectoryRefresh->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_ADD_ENTRY);
+
+	/* Request first item. */
+	rsslClearRequestMsg(&requestMsg);
+	requestMsg.msgBase.streamId = 3;
+	requestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	requestMsg.flags = RSSL_RQMF_STREAMING | RSSL_RQMF_HAS_QOS;
+	requestMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+	requestMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&requestMsg;
+	opts.pServiceName = &service1Name;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+	/* Provider receives request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+	ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+	providerItemStream = pRequestMsg->msgBase.streamId;
+
+	/* Provider deletes service. */
+	rsslClearRDMDirectoryUpdate(&directoryUpdate);
+	rsslClearRDMService(&service1);
+	service1.serviceId = service1Id;
+	service1.action = RSSL_MPEA_DELETE_ENTRY;
+	directoryUpdate.serviceCount = 1;
+	directoryUpdate.serviceList = &service1;
+	directoryUpdate.rdmMsgBase.streamId = wtfGetProviderDirectoryStream();
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryUpdate;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
+	
+	sendClose = true;
+
+	/* Watchlist receives directory update, which will close and reopen the item */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	/* Consumer receives directory update removing service. */
+	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
+	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
+	serviceList = pDirectoryUpdate->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_DELETE_ENTRY);
+
+	/* Consumer receives item status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
+	ASSERT_TRUE(pStatusMsg->msgBase.streamId == 3);
+	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
+	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
+	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+
+	/* Provider receives CloseMsg. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pCloseMsg = (RsslCloseMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pCloseMsg->msgBase.msgClass == RSSL_MC_CLOSE);
+	ASSERT_TRUE(pCloseMsg->msgBase.streamId == 4);
+	ASSERT_TRUE(pCloseMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	
+	sendClose = false;
+
+	/* Provider restores service. */
+	rsslClearRDMDirectoryUpdate(&directoryUpdate);
+	wtfSetService1Info(&service1);
+	directoryUpdate.rdmMsgBase.streamId = wtfGetProviderDirectoryStream();
+	directoryUpdate.serviceList = &service1;
+	directoryUpdate.serviceCount = 1;
+	service1.info.qosCount = 1;
+	service1.info.qosList = &delayedQos;
+	directoryUpdate.filter = wtfGetProviderDirectoryFilter();
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryUpdate;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
+
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	/* Consumer receives directory update status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 2);
+	serviceList = pDirectoryUpdate->serviceList;
+	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
+	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_ADD_ENTRY);
+
+	/* Provider receives request. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_HAS_PRIORITY));
+	ASSERT_TRUE(!(pRequestMsg->flags & RSSL_RQMF_NO_REFRESH));
+	ASSERT_TRUE(pRequestMsg->flags & RSSL_RQMF_STREAMING);
+	providerItemStream = pRequestMsg->msgBase.streamId;
+
+	/* Provider sends refresh. */
+	rsslClearRefreshMsg(&refreshMsg);
+	refreshMsg.flags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_CLEAR_CACHE | RSSL_RFMF_HAS_QOS
+		| RSSL_RFMF_SOLICITED | RSSL_RFMF_REFRESH_COMPLETE;
+	refreshMsg.msgBase.streamId = providerItemStream;
+	refreshMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	refreshMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	refreshMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_SERVICE_ID;
+	refreshMsg.msgBase.msgKey.serviceId = service1Id;
+	refreshMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+	refreshMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+	refreshMsg.state.streamState = RSSL_STREAM_OPEN;
+	refreshMsg.state.dataState = RSSL_DATA_OK;
+
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRsslMsg = (RsslMsg*)&refreshMsg;
+	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
+
+	/* Consumer receives refresh. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pRefreshMsg = (RsslRefreshMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pRefreshMsg->msgBase.msgClass == RSSL_MC_REFRESH);
+	ASSERT_TRUE(pRefreshMsg->msgBase.streamId == 3);
+	ASSERT_TRUE(pRefreshMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
+
 
 	wtfFinishTest();
 }
