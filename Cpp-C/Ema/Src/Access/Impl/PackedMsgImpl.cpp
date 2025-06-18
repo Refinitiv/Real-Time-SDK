@@ -31,6 +31,7 @@ PackedMsgImpl::PackedMsgImpl(OmmProvider* ommProvider):
 	_ommIProviderImpl(NULL),
 	_ommNiProviderImpl(NULL)
 {
+	rsslClearEncodeIterator(&_eIter);
 }
 
 PackedMsgImpl::~PackedMsgImpl() 
@@ -533,7 +534,7 @@ void PackedMsgImpl::reactorReleaseBuffer()
 	RsslRet retVal;
 	RsslErrorInfo rsslErrorInfo;
 
-	if (_packedBuf  && _packedBuf->data && (retVal = rsslReactorReleaseBuffer(_reactorChannel, _packedBuf, &rsslErrorInfo) < RSSL_RET_SUCCESS))
+	if (_packedBuf  && _packedBuf->data && (retVal = rsslReactorReleaseBuffer(_reactorChannel, _packedBuf, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
 	{
 		EmaString temp("Failed to release Msg buffer in addMsg().");
 		temp.append("Return code: ").append((UInt64)retVal).append(CR);

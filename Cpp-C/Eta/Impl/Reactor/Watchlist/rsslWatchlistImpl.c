@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.     
 */
 
 #include "rtr/rsslWatchlistImpl.h"
@@ -1022,9 +1022,6 @@ RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 
 					pItemGroup = RSSL_HASH_LINK_TO_OBJECT(WlItemGroup, hlItemGroupTable, pHashLink);
 
-					if (pGroupState->flags & RDM_SVC_GRF_HAS_MERGED_TO_GROUP)
-						wlItemGroupMerge(pItemGroup, pWlService, &pGroupState->mergedToGroup);
-
 					if (pGroupState->flags & RDM_SVC_GRF_HAS_STATUS)
 					{
 						/* Fanout status. */
@@ -1056,10 +1053,14 @@ RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 
 						pWatchlistImpl->items.pCurrentFanoutGroup = NULL;
 						if (pItemGroup->openStreamList.count == 0)
+						{
 							wlItemGroupRemove(pItemGroup);
-
+							continue;
+						}
 					}
 
+					if (pGroupState->flags & RDM_SVC_GRF_HAS_MERGED_TO_GROUP)
+						wlItemGroupMerge(pItemGroup, pWlService, &pGroupState->mergedToGroup);
 
 				}
 
@@ -5271,7 +5272,7 @@ static RsslRet wlStreamSubmitMsg(RsslWatchlistImpl *pWatchlistImpl,
 								pHashLink = rsslHashTableFind(&pActiveChannelWatchlist->base.pServiceCache->_servicesById, &pService->serviceId, NULL);
 								if (pHashLink)
 								{
-									RDMCachedService *pService = pService = RSSL_HASH_LINK_TO_OBJECT(RDMCachedService, _idLink, pHashLink);
+									RDMCachedService *pService = RSSL_HASH_LINK_TO_OBJECT(RDMCachedService, _idLink, pHashLink);
 									if (pService->rdm.state.serviceState == 0 || pService->rdm.state.acceptingRequests == 0)
 									{
 										/* Returns as the service of the active channel is not accepting request yet.*/

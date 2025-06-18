@@ -371,6 +371,8 @@ public:
 	fd_set	exceptFds;
 	ADHSimulator(RsslCreateReactorOptions& reactorOpts, char* portNo)
 	{
+		runFlag = false;
+
 		if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 		{
 			EXPECT_TRUE(false) << "Reactor creation failed: %s\n", rsslErrorInfo.rsslError.text;

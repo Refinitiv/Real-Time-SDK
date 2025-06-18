@@ -43,7 +43,7 @@ static void _processActiveChannel(ChannelHandler *pHandler, ChannelInfo *pChanne
 		snprintf(error.text, sizeof(error.text), "channelActiveCallback returned failure.");
 		error.rsslErrorId = RSSL_RET_FAILURE;
 		channelHandlerCloseChannel(pHandler, pChannelInfo, &error);
-		return;
+		exit(-1);
 	}
 
 	rsslQueueRemoveLink(&pHandler->initializingChannelList, &pChannelInfo->queueLink);

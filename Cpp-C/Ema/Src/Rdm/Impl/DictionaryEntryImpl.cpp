@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -15,11 +15,16 @@
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
 
-DictionaryEntryImpl::DictionaryEntryImpl(bool isManagedByUser) : _isManagedByUser(isManagedByUser)
+DictionaryEntryImpl::DictionaryEntryImpl(bool isManagedByUser) : 
+	_isManagedByUser(isManagedByUser),
+	_pRsslDictionaryEntry(NULL),
+	_pEnumEntryList(NULL)
 {
 }
 
-DictionaryEntryImpl::DictionaryEntryImpl(RsslDictionaryEntry* rsslDictionaryEntry)
+DictionaryEntryImpl::DictionaryEntryImpl(RsslDictionaryEntry* rsslDictionaryEntry):
+	_isManagedByUser(false),
+	_pEnumEntryList(NULL)
 {
 	_pRsslDictionaryEntry = rsslDictionaryEntry;
 }

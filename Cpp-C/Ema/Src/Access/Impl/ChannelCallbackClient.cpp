@@ -1911,14 +1911,18 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received ChannelDown event on channel " );
-			temp.append(pChannelConfig->name).append( CR )
-			.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
-			.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
-			.append( "RsslChannel " ).append( ptrToStringAsHex( pEvent->pError->rsslError.channel ) ).append( CR )
-			.append( "Error Id " ).append( pEvent->pError->rsslError.rsslErrorId ).append( CR )
-			.append( "Internal sysError " ).append( pEvent->pError->rsslError.sysError ).append( CR )
-			.append( "Error Location " ).append( pEvent->pError->errorLocation ).append( CR )
-			.append( "Error Text " ).append( pEvent->pError->rsslError.rsslErrorId ? pEvent->pError->rsslError.text : "" );
+			temp.append(pChannelConfig->name).append(CR)
+				.append("Instance Name ").append(_ommBaseImpl.getInstanceName()).append(CR)
+				.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR);
+			
+			if (pEvent->pError)
+			{
+				temp.append("RsslChannel ").append(ptrToStringAsHex(pEvent->pError->rsslError.channel)).append(CR)
+					.append("Error Id ").append(pEvent->pError->rsslError.rsslErrorId).append(CR)
+					.append("Internal sysError ").append(pEvent->pError->rsslError.sysError).append(CR)
+					.append("Error Location ").append(pEvent->pError->errorLocation).append(CR)
+					.append("Error Text ").append(pEvent->pError->rsslError.rsslErrorId ? pEvent->pError->rsslError.text : "");
+			}
 
 			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
@@ -1973,7 +1977,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 				.append("Instance Name ").append(_ommBaseImpl.getInstanceName()).append(CR)
 				.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR);
 			
-			if (pEvent && pEvent->pError)
+			if (pEvent->pError)
 			{
 				temp.append( "RsslChannel " ).append( ptrToStringAsHex( pEvent->pError->rsslError.channel ) ).append( CR )
 				.append( "Error Id " ).append( pEvent->pError->rsslError.rsslErrorId ).append( CR )

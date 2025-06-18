@@ -1828,7 +1828,7 @@ void OmmNiProviderImpl::submit(const PackedMsg& packedMsg)
 
 	transportBuffer->length = 0;
 
-	if (ret = rsslReactorSubmit(_pRsslReactor, _pReactorChannel, transportBuffer, &submitOpts, &rsslErrorInfo) < RSSL_RET_SUCCESS)
+	if ((ret = rsslReactorSubmit(_pRsslReactor, _pReactorChannel, transportBuffer, &submitOpts, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
 	{
 		packedMsgImpl->clear();
 

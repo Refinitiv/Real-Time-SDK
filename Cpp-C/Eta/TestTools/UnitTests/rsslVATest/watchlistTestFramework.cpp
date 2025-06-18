@@ -951,7 +951,7 @@ void wtfConnect(WtfSetupConnectionOpts *pOpts)
 
 
 	if ((ret = rsslReactorConnect(wtf.pConsReactor, &connectOpts, 
-					(RsslReactorChannelRole*)&wtf.ommConsumerRole, &rsslErrorInfo) != RSSL_RET_SUCCESS))
+					(RsslReactorChannelRole*)&wtf.ommConsumerRole, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
 	{
 		printf("wtfConnect: rsslReactorConnect() failed: %d(%s -- %s)\n",
 				ret,
@@ -989,7 +989,7 @@ void wtfWarmStandbyConnect(WtfSetupWarmStandbyOpts *pOpts)
 	connectOpts.preferredHostOptions.warmStandbyGroupListIndex = pOpts->preferredHostOpts.warmStandbyGroupListIndex;
 
 	if ((ret = rsslReactorConnect(wtf.pConsReactor, &connectOpts,
-		(RsslReactorChannelRole*)&wtf.ommConsumerRole, &rsslErrorInfo) != RSSL_RET_SUCCESS))
+		(RsslReactorChannelRole*)&wtf.ommConsumerRole, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
 	{
 		printf("wtfConnect: rsslReactorConnect() failed: %d(%s -- %s)\n",
 			ret,
@@ -3543,7 +3543,7 @@ RsslRet wtfProviderEncodeMarketPriceDataBody(RsslBuffer *pBuffer, WtfMarketPrice
 		}
 	}
 
-	if ((ret = rsslEncodeFieldListComplete(&encodeIter, RSSL_TRUE) < RSSL_RET_SUCCESS))
+	if ((ret = rsslEncodeFieldListComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
 	{
 		return ret;
 	}

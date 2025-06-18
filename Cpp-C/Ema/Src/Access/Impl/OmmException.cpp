@@ -31,7 +31,8 @@ const EmaString OmmJsonConverterExceptionString( "OmmJsonConverterException" );
 EmaString TempETString;
 
 OmmException::OmmException() :
- _errorTextLength( 0 )
+ _errorTextLength( 0 ),
+ _errorTextPadding( 0 )
 {
 	*(_space + EMASTRING_SIZE) = 0x00;
 	*(_errorText + EMASTRING_SIZE) = 0x00;
@@ -47,7 +48,8 @@ OmmException::~OmmException()
 }
 
 OmmException::OmmException( const OmmException& other ) :
- _errorTextLength( other._errorTextLength )
+ _errorTextLength( other._errorTextLength ),
+ _errorTextPadding( other._errorTextPadding )
 {
 	*(_space + EMASTRING_SIZE) = 0x00;
 	memcpy( _errorText + EMASTRING_SIZE, other._errorText + EMASTRING_SIZE, _errorTextLength + 1 );

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -58,7 +58,7 @@ RSSL_API void * rsslReserveAlignedBufferMemory(RsslBuffer *pBuffer, RsslUInt32 e
 
 RSSL_API void * rsslReserveBufferMemory(RsslBuffer *pBuffer, RsslUInt32 elementCount, RsslUInt32 sizeofElement)
 {
-	RsslUInt64 totalBytes = elementCount * sizeofElement;
+	RsslUInt64 totalBytes = (RsslUInt64)elementCount * sizeofElement;
 
 	if (totalBytes < pBuffer->length)
 	{

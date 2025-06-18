@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+// *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #include "ConsumerManager.h"
@@ -10,8 +10,11 @@
 using namespace refinitiv::ema::access;
 
 ConsumerManager::ConsumerManager( const EmaString& host, const EmaString& username ) :
- running( false )
+ running( false ), _threadId( 0 )
 {
+#ifdef WIN32
+	_handle = 0;
+#endif
 	ommConsumer = new OmmConsumer( OmmConsumerConfig().host( host ).username( username ).operationModel( OmmConsumerConfig::UserDispatchEnum ) );
 }
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019, 2024 LSEG. All rights reserved.             --
+ *|           Copyright (C) 2019, 2024, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -33,7 +33,8 @@ extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 OmmConsumerConfigImpl::OmmConsumerConfigImpl(const EmaString & path) :
 	EmaConfigImpl(path),
 	_operationModel( OmmConsumerConfig::ApiDispatchEnum ),
-	_pOmmRestLoggingClient(0)
+	_pOmmRestLoggingClient(0),
+	_pRestLoggingClosure(NULL)
 {
 	_instanceNodeName = "ConsumerGroup|ConsumerList|Consumer.";
 	_pEmaConfig->verifyDefaultConsumer();

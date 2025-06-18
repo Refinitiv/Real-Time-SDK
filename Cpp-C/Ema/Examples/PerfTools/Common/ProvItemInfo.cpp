@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
 // *|                See the project's LICENSE.md for details.
-// *|          Copyright (C) 2021 LSEG. All rights reserved.                    --
+// *|          Copyright (C) 2021, 2025 LSEG. All rights reserved.
 ///*|-----------------------------------------------------------------------------
 
 #include "ProvItemInfo.h"
@@ -19,22 +19,25 @@ RefreshItems::RefreshItems() : itemsA(), itemsB()
 RefreshItems::~RefreshItems()
 {
 	ProvItemInfo* itemInfo;
+	ProvItemInfo* itemInfoTmp;
 
 	mutex.lock();
 
 	itemInfo = itemsA.front();
 	while (itemInfo != NULL)
 	{
-		delete itemInfo;
+		itemInfoTmp = itemInfo;
 		itemInfo = itemInfo->next();
+		delete itemInfoTmp;
 	}
 	itemsA.clear();
 
 	itemInfo = itemsB.front();
 	while (itemInfo != NULL)
 	{
-		delete itemInfo;
+		itemInfoTmp = itemInfo;
 		itemInfo = itemInfo->next();
+		delete itemInfoTmp;
 	}
 	itemsB.clear();
 

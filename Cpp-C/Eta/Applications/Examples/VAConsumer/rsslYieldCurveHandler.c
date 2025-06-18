@@ -1194,6 +1194,9 @@ RsslRet processYieldCurveResponse(RsslReactor *pReactor, RsslReactorChannel *pRe
 				return RSSL_RET_SUCCESS;
 			}
 		}
+		/*Request was not found*/
+		if(!pRequest)
+			return RSSL_RET_SUCCESS;
 	}
 	else
 	{

@@ -2755,7 +2755,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 		}
 
 		/* priority write stuff */
-		for (i = 0; i < RIPC_MAX_PRIORITY_QUEUE; i++);
+		for (i = 0; i < RIPC_MAX_PRIORITY_QUEUE; i++)
 		{
 			rsslInitQueue(&rsslSocketChannel->priorityQueues[i].priorityQueue);
 			rsslSocketChannel->priorityQueues[i].queueLength = 0;
@@ -4298,7 +4298,7 @@ RsslInt32 rwsReadWsConnMsg(void *transport, char *buf, int bufLen, ripcRWFlags r
 
 	if (wsSess) frame = &(wsSess->frameHdr);
 
-	if (!frame->partial)
+	if (frame && !frame->partial)
 	{
 		clearFrameHeader(frame);
 		pfBuff = &(frame->buffer[0]);

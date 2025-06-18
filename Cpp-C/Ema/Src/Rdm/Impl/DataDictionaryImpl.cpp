@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.               --
  *|-----------------------------------------------------------------------------
  */
 
@@ -35,7 +35,8 @@ DataDictionaryImpl::DataDictionaryImpl(bool ownRsslDataDictionary) :
 	_ownRsslDataDictionary(ownRsslDataDictionary),
 	_pfieldNameToIdHash(0),
 	_dictionaryEntry(false),
-	_dataAccessMutex()
+	_dataAccessMutex(),
+	_pRsslDataDictionary(NULL)
 {
 	RTR_ATOMIC_SET(_dataDictionaryRefConuter, 0);
 
@@ -70,7 +71,8 @@ DataDictionaryImpl::DataDictionaryImpl(const DataDictionaryImpl& other) :
 	_ownRsslDataDictionary(true),
 	_pfieldNameToIdHash(0),
 	_dictionaryEntry(false),
-	_dataAccessMutex()
+	_dataAccessMutex(),
+	_pRsslDataDictionary(NULL)
 {
 	RTR_ATOMIC_SET(_dataDictionaryRefConuter, 0);
 

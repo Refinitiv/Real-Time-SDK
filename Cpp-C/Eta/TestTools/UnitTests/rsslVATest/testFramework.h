@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 #ifndef RSSL_TEST_FRAMEWORK_H
@@ -44,8 +44,8 @@ extern const char *funcName;
 
 extern RsslInt64 totalTestCount;
 
-/* Static initializer of buffer from given string(-1 accounts for null terminator) */
-#define rssl_init_buffer_from_string(__string) { sizeof(__string) - 1, __string }
+/* Static initializer of buffer from given string */
+#define rssl_init_buffer_from_string(__string) { (RsslUInt32)strlen(__string), __string }
 
 RsslUInt32 _createFlagCombinations(RsslUInt32** destFlags, const RsslUInt32* baseFlags, RsslUInt32 baseFlagsSize, RsslBool skipZero);
 

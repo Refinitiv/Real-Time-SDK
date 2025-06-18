@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -29,7 +29,15 @@ ReadEvent::ReadEvent(RsslBuffer* pBuffer, RsslChannel* pChannel, RsslInt lastRea
 	}
 		
 	_pChannel = pChannel;
-	_lastReadRet = lastReadRet; 
+	_lastReadRet = lastReadRet;
+	rsslClearDecodeIterator(&_dIter);
+	_lastReadRet = 0;
+	memset(&_errorInfo, 0, sizeof(RsslErrorInfo));
+	pMsg = NULL;
+	pLoginMsg = NULL;
+	pDirectoryMsg = NULL;
+	pTunnelMsg = NULL;
+	pMsgDecode = NULL;
 }
 
 ReadEvent::~ReadEvent()

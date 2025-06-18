@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 LSEG. All rights reserved.     
+ * Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.     
 */
 
 #include "rtr/rsslErrorInfo.h"
@@ -340,7 +340,7 @@ static RsslRet _rsslEncodeServiceList(RsslEncodeIterator *pEncodeIter, RsslRDMDi
 
 		if(pService->serviceId > 0xFFFF)
 		{
-			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Service Id: %d is out of range.\n", pService->serviceId);
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Service Id: %llu is out of range.\n", pService->serviceId);
 			return RSSL_RET_FAILURE;
 		}
 

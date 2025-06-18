@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2019, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -48,12 +48,25 @@ void CoreComponent::submit(RsslRDMMsgBase* pMsgBase, RsslMsg* pMsg)
 	} while (true);
 }
 
-CoreComponent::CoreComponent()
+CoreComponent::CoreComponent():
+	_pServer(NULL),
+	_readInArgs(RSSL_INIT_READ_IN_ARGS),
+	_readOutArgs(RSSL_INIT_READ_OUT_ARGS),
+	_maxFragmentSize(0),
+	_writeInArgs(RSSL_INIT_WRITE_IN_ARGS),
+	_writeOutArgs(RSSL_INIT_WRITE_OUT_ARGS),
+	_pChannel(NULL),
+	_channelInfo(),
+	_errorInfo(),
+	_error()
 {
 	_portToBind = 17123;
 	FD_ZERO(&readFds);
 	FD_ZERO(&writeFds);
 	FD_ZERO(&exceptFds);
+	rsslClearInProgInfo(&_inProg);
+	rsslClearEncodeIterator(&_eIter);
+	rsslClearDecodeIterator(&_dIter);
 }
 	
 RsslServer* CoreComponent::server()

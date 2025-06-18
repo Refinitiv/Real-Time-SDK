@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2020 LSEG. All rights reserved.               --
+ *|          Copyright (C) 2019-2020, 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
 */
 
@@ -72,11 +72,17 @@ Dictionary* DictionaryPayload::getDictionary() const
 
 DictionaryHandler::DictionaryHandler(OmmServerBaseImpl* ommServerBaseImpl) :
 	_pOmmServerBaseImpl(ommServerBaseImpl),
-	_pDefaultDictionaryForUse(NULL)
+	_pDefaultDictionaryForUse(NULL),
+	_maxEnumTypeFragmentSize(0),
+	_maxFieldDictFragmentSize(0),
+	_errorInfo()
 {
 	_apiAdminControl = _pOmmServerBaseImpl->getActiveConfig().getDictionaryAdminControl() == OmmIProviderConfig::ApiControlEnum ? true : false;
 
 	_pDefaultLocalDictionary = LocalDictionary::create(*_pOmmServerBaseImpl, _pOmmServerBaseImpl->getActiveConfig());  // Creates the default local dictionary
+
+	rsslClearRDMDictionaryMsg(&_rdmDictionaryStatus);
+	rsslClearRDMDictionaryMsg(&_rdmDictionaryRefresh);
 }
 
 DictionaryHandler::~DictionaryHandler()

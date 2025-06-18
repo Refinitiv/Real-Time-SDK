@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2021 LSEG. All rights reserved.
+ * Copyright (C) 2019-2021, 2025 LSEG. All rights reserved.
 */
 
 /* LatencyRandomArray.h
@@ -47,10 +47,10 @@ public:
 	/* Iterate over the LatencyRandomArray. The value returned indicates which message in the tick
 	 * should contain latency information.  If the value is -1, no latency message should be
 	 * sent in that tick. The iteration starts over when the end of the array is reached. */
-	refinitiv::ema::access::Int32 getNext();
+	refinitiv::ema::access::Int64 getNext();
 
 private:
-	refinitiv::ema::access::EmaVector<refinitiv::ema::access::Int32> latencyTickNumbers;
+	refinitiv::ema::access::EmaVector<refinitiv::ema::access::Int64> latencyTickNumbers;
 
 	refinitiv::ema::access::UInt32 currentIndex;
 };  // class LatencyRandomArray

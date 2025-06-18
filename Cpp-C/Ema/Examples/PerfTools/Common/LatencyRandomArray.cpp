@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose. See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2021 LSEG. All rights reserved.
+ * Copyright (C) 2019-2021, 2025 LSEG. All rights reserved.
 */
 
 #include "LatencyRandomArray.h"
@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <string.h>
 #include <time.h>
+#include <algorithm>
 
 using namespace refinitiv::ema::access;
 
@@ -24,7 +25,7 @@ void LatencyRandomArrayOptions::clearLatencyRandomArrayOptions()
 }
 	
 LatencyRandomArray::LatencyRandomArray(LatencyRandomArrayOptions const& opts) :
-	latencyTickNumbers( (UInt64)(opts.ticksPerSec * opts.arrayCount) ), currentIndex(0)
+	latencyTickNumbers( (Int64)opts.ticksPerSec * opts.arrayCount ), currentIndex(0)
 {
 	int i, setPos;
 
@@ -85,9 +86,7 @@ LatencyRandomArray::LatencyRandomArray(LatencyRandomArrayOptions const& opts) :
 		{
 			int pos1 = abs(rand() % opts.ticksPerSec);
 			int pos2 = abs(rand() % opts.ticksPerSec);
-			int tmpB = latencyTickNumbers[setPos + pos1];
-			latencyTickNumbers[setPos + pos1] = latencyTickNumbers[setPos + pos2];
-			latencyTickNumbers[setPos + pos2] = tmpB;
+			std::swap(latencyTickNumbers[setPos + pos1], latencyTickNumbers[setPos + pos2]);
 		}
 
 		/* Now, for each tick that sends a latency message, determine which message that will be */
@@ -100,7 +99,7 @@ LatencyRandomArray::LatencyRandomArray(LatencyRandomArrayOptions const& opts) :
 	assert(setPos == latencyTickNumbers.size());
 }
 
-Int32 LatencyRandomArray::getNext()
+Int64 LatencyRandomArray::getNext()
 {
 	UInt32 index = currentIndex;
 	if (++currentIndex >= latencyTickNumbers.size())

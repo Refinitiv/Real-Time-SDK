@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
+ * Copyright (C) 2019, 2025 LSEG. All rights reserved.
 */
 
 #include "rtr/wlDirectory.h"
@@ -320,7 +320,10 @@ RsslRet wlDirectoryProcessProviderMsgEvent(WlBase *pBase, WlDirectory *pDirector
 		RsslBuffer memBuffer = pBase->tempDecodeBuffer;
 
 		rsslClearDecodeIterator(pIter);
-		rsslSetDecodeIteratorRWFVersion(pIter, pBase->pRsslChannel->majorVersion, pBase->pRsslChannel->minorVersion);
+		if (pBase->pRsslChannel && pBase->pRsslChannel->majorVersion && pBase->pRsslChannel->minorVersion)
+			rsslSetDecodeIteratorRWFVersion(pIter, pBase->pRsslChannel->majorVersion, pBase->pRsslChannel->minorVersion);
+		else
+			rsslSetDecodeIteratorRWFVersion(pIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
 		rsslSetDecodeIteratorBuffer(pIter, &pMsgEvent->pRsslMsg->msgBase.encDataBody);
 		if ((ret = rsslDecodeRDMDirectoryMsg(pIter, pMsgEvent->pRsslMsg,
 				&directoryMsg, &memBuffer, pErrorInfo)) == RSSL_RET_SUCCESS)

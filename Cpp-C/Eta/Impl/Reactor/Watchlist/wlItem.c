@@ -193,7 +193,7 @@ RsslRet wlItemRequestInit(WlItemRequest *pItemRequest, WlBase *pBase, WlItems *p
 					&& pOpts->viewType != RDM_VIEW_TYPE_ELEMENT_NAME_LIST)
 			{
 				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
-						"Unknown view type %u.", pOpts->viewType);
+						"Unknown view type %llu.", pOpts->viewType);
 				return RSSL_RET_INVALID_DATA;
 			}
 			if (!(pItemRequest->pView = wlViewCreate(pOpts->viewElemList, 
@@ -1231,7 +1231,7 @@ RsslRet wlExtractViewFromMsg(WlBase *pBase, WlItemRequestCreateOpts *pOpts,
 	else
 	{
 		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__,
-				"Invalid :ViewType or :ViewType not found -- %d.", pOpts->viewType);
+				"Invalid :ViewType or :ViewType not found -- %llu.", pOpts->viewType);
 		return RSSL_RET_FAILURE;
 	}
 }

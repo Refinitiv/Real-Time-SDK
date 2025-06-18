@@ -85,6 +85,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_serverReadEventFdsIdx = -1;
 #endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
+	rsslClearReactorAcceptOptions(&_reactorAcceptOptions);
+	rsslClearOMMProviderRole(&_providerRole);
 }
 
 OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, OmmProviderClient& ommProviderClient, OmmProviderErrorClient& client, void* closure) :
@@ -136,6 +138,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	}
 
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
+	rsslClearReactorAcceptOptions(&_reactorAcceptOptions);
+	rsslClearOMMProviderRole(&_providerRole);
 }
 
 OmmServerBaseImpl::~OmmServerBaseImpl()
