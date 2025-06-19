@@ -1,12 +1,10 @@
-/*
- *|-------------------------------------------------------------------------------
- *| This source code is provided under the Apache 2.0 license
- *| AS IS with no warranty or guarantee of fit for purpose.
- *| See the project's LICENSE.md for details.
- *| Copyright (C) 2019, 2025 LSEG. All rights reserved.
- *|-------------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2020,2024-2025 LSEG. All rights reserved.
+ *|-----------------------------------------------------------------------------
  */
-
 
 /*
  * This is the ETA Interactive Provider Training series of the ETA Training Suite
@@ -1015,7 +1013,7 @@ int main(int argc, char **argv)
 		{
 			/* Closes all streams for the Interactive Provider after run-time has elapsed in our simple Interactive Provider example.
 			 * If the provider application must shut down, it can either leave consumer connections intact or shut them down. If the provider
-			 * decides to close consumer connections, the provider should send an RsslStatusMsg on each connection’s Login stream closing the stream.
+			 * decides to close consumer connections, the provider should send an RsslStatusMsg on each connectionï¿½s Login stream closing the stream.
 			 * At this point, the consumer should assume that its other open streams are also closed.
 			 */
 

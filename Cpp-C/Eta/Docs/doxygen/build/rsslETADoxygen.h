@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.
+ *|           Copyright (C) 2018-2020,2022,2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -5193,7 +5193,7 @@
  *      This information can be applied to a LSEG Real-Time Distribution System
  *	cache or routed further upstream to the source of data. Once received, the upstream
  *	components can republish data to downstream consumers. Post messages can be routed
- *	along a specific item stream, referred to as on-stream posting, or along a user’s
+ *	along a specific item stream, referred to as on-stream posting, or along a userï¿½s
  *	Login stream, referred to as off-stream posting. An RsslPostMsg can contain any Transport API
  *	container type, including other messages. User identification information can be
  *	associated with a post message and can be provided along with the content that was posted.

@@ -1,9 +1,10 @@
-/*
- * This source code is provided under the Apache 2.0 license and is provided
- * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
- * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
-*/
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2015-2016,2019-2020,2024 LSEG. All rights reserved.
+ *|-----------------------------------------------------------------------------
+ */
 
 /* loginProvider.h
  * Determines the information a provider needs for accepting logins, and provides

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2015,2017-2019,2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -55,7 +55,7 @@ RSSL_API RsslRet rsslFilterListFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 f
 
 
 /**
- * @brief The RsslFilterList is a non-uniform container type of filterId (8-bit identifier) – value pair entries.  Each entry, known as
+ * @brief The RsslFilterList is a non-uniform container type of filterId (8-bit identifier) ï¿½ value pair entries.  Each entry, known as
  * an RsslFilterEntry, contains an id corresponding to one of 32 possible bit-value identifiers.  These identifiers
  * are typically defined by a domain model specification and can be used to indicate interest or presence of specific
  * entries through the inclusion of the of the id in the RsslMsgKey::filter. 

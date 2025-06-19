@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2015,2017-2020,2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -36,7 +36,7 @@ extern "C" {
 typedef struct {
 	RsslUInt16		flags;				 /*!< @brief Flag values used to indicate optional member presence. The available options are defined by values present in \ref RsslMsgKeyFlags. */
 	RsslUInt16		serviceId;			 /*!< @brief The serviceId is a two-byte unsigned integer used to identify a specific service.   */
-	RsslUInt8		nameType;			 /*!< @brief Name Type. This indicates the type of the name member, examples are ‘User Name’ or ‘RIC’ (Instrument Code). */
+	RsslUInt8		nameType;			 /*!< @brief Name Type. This indicates the type of the name member, examples are ï¿½User Nameï¿½ or ï¿½RICï¿½ (Instrument Code). */
 	RsslBuffer		name;				 /*!< @brief Name associated with the contents of the item stream. */
 	RsslUInt32		filter;			  	 /*!< @brief Filter specification, used to request or indicate which filter entries are present with a filter list payload.  */
 	RsslInt32		identifier;			 /*!< @brief User specified numeric identifier. Usage of this is defined on a per-domain model basis. */

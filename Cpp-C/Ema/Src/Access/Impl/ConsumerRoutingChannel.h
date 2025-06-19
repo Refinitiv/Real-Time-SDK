@@ -2,9 +2,10 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|         Copyright (C) 2024 LSEG. All rights reserved.             --
+ *|           Copyright (C) 2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
+
  
  // These classes represent a the information for and config of a single Reactor Channel instance within the Consumer Session for the request routing concept.
  // The SessionChannel has containers for the Channels, ChannelConfig for the ChannelSet, WarmStandbyChannelConfig, and ChannelConfig for the various Warm Standby channels.

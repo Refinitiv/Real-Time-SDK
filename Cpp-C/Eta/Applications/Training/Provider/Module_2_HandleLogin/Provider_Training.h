@@ -1,9 +1,10 @@
-/*
- * This source code is provided under the Apache 2.0 license and is provided
- * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
- * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
-*/
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2020,2024 LSEG. All rights reserved.
+ *|-----------------------------------------------------------------------------
+ */
 
 /*
  * This is the ETA Interactive Provider Training series of the ETA Training Suite
@@ -102,7 +103,7 @@
  ************************************************************************
  * Summary:
  * Applications authenticate with one another using the Login domain model. 
- * An OMM Interactive Provider must handle the consumer’s Login request messages 
+ * An OMM Interactive Provider must handle the consumerï¿½s Login request messages 
  * and supply appropriate responses.
  * 
  * In this module, after receiving a Login request, the Interactive Provider 

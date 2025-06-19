@@ -1,12 +1,10 @@
-/*
- *|-------------------------------------------------------------------------------
- *| This source code is provided under the Apache 2.0 license
- *| AS IS with no warranty or guarantee of fit for purpose.
- *| See the project's LICENSE.md for details.
- *| Copyright (C) 2019, 2025 LSEG. All rights reserved.
- *|-------------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2020,2024-2025 LSEG. All rights reserved.
+ *|-----------------------------------------------------------------------------
  */
-
 
 /*
  * This is the ETA Interactive Provider Training series of the ETA Training Suite
@@ -106,7 +104,7 @@
  ************************************************************************
  * Summary:
  * Applications authenticate with one another using the Login domain model. 
- * An OMM Interactive Provider must handle the consumer’s Login request messages 
+ * An OMM Interactive Provider must handle the consumerï¿½s Login request messages 
  * and supply appropriate responses.
  * 
  * In this module, after receiving a Login request, the Interactive Provider 
@@ -148,7 +146,7 @@
  * The Source Directory domain model conveys information about all available services 
  * in the system. An OMM consumer typically requests a Source Directory to retrieve 
  * information about available services and their capabilities. This includes information 
- * about supported domain types, the service’s state, the QoS, and any item group 
+ * about supported domain types, the serviceï¿½s state, the QoS, and any item group 
  * information associated with the service. LSEG recommends that at a minimum, 
  * an Interactive Provider supply the Info, State, and Group filters for the Source Directory.
  * 
@@ -2197,7 +2195,7 @@ RsslRet sendLoginResponse(EtaChannelManagementInfo *etaChannelManagementInfo)
 		return retval;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -2272,10 +2270,10 @@ RsslBuffer* etaGetBuffer(RsslChannel *etaChannel, RsslUInt32 size, RsslError *rs
 	 */
 	if ((msgBuf = rsslGetBuffer(etaChannel, size, RSSL_FALSE, &error)) == NULL) /* first check Error */
 	{
-		/* Check to see if this is just out of buffers or if it’s unrecoverable */
+		/* Check to see if this is just out of buffers or if itï¿½s unrecoverable */
 		if (error.rsslErrorId != RSSL_RET_BUFFER_NO_BUFFERS)
 		{
-			/* it’s unrecoverable Error */
+			/* itï¿½s unrecoverable Error */
 			printf("Error %s (%d) (errno: %d) encountered with rsslGetBuffer. Error Text: %s\n",
 				rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
 			/* Connection should be closed, return failure */
@@ -2427,7 +2425,7 @@ RsslRet sendLoginRequestRejectStatusMsg(EtaChannelManagementInfo *etaChannelMana
 		return RSSL_RET_FAILURE;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -3165,7 +3163,7 @@ RsslRet sendSourceDirectoryResponse(EtaChannelManagementInfo *etaChannelManageme
 		return retval;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -3304,7 +3302,7 @@ RsslRet sendSrcDirectoryRequestRejectStatusMsg(EtaChannelManagementInfo *etaChan
 		return RSSL_RET_FAILURE;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -3743,7 +3741,7 @@ RsslRet sendDictionaryResponse(EtaChannelManagementInfo *etaChannelManagementInf
 			return retval;
 		}
 
-		/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+		/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 		/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 		 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 		 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -3894,7 +3892,7 @@ RsslRet sendDictionaryCloseStatusMsg(EtaChannelManagementInfo *etaChannelManagem
 			return RSSL_RET_FAILURE;
 		}
 
-		/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+		/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 		/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 		 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 		 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -4039,7 +4037,7 @@ RsslRet sendDictionaryRequestRejectStatusMsg(EtaChannelManagementInfo *etaChanne
 		return RSSL_RET_FAILURE;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -4596,7 +4594,7 @@ RsslRet sendMarketPriceItemResponse(EtaChannelManagementInfo *etaChannelManageme
 		return retval;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -4721,7 +4719,7 @@ RsslRet sendMarketPriceItemCloseStatusMsg(EtaChannelManagementInfo *etaChannelMa
 		return RSSL_RET_FAILURE;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -4904,7 +4902,7 @@ RsslRet sendMarketPriceItemRequestRejectStatusMsg(EtaChannelManagementInfo *etaC
 		return RSSL_RET_FAILURE;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.

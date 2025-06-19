@@ -1,12 +1,10 @@
-/*
- *|-------------------------------------------------------------------------------
- *| This source code is provided under the Apache 2.0 license
- *| AS IS with no warranty or guarantee of fit for purpose.
- *| See the project's LICENSE.md for details.
- *| Copyright (C) 2019 LSEG. All rights reserved.
- *|-------------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2020,2024 LSEG. All rights reserved.
+ *|-----------------------------------------------------------------------------
  */
-
 
 /*
  * This is the ETA Consumer Training series of the ETA Training Suite
@@ -44,7 +42,7 @@
  ************************************************************************
  * Summary:
  * Ping or heartbeat messages indicate the continued presence of an application. 
- * After the consumer’s connection is active, ping messages must be exchanged. 
+ * After the consumerï¿½s connection is active, ping messages must be exchanged. 
  * The negotiated ping timeout is retrieved using the rsslGetChannelInfo() function. 
  * The connection will be terminated if ping heartbeats are not sent or received 
  * within the expected time frame.
@@ -132,7 +130,7 @@
  * services in the system. An OMM consumer typically requests a Source 
  * Directory to retrieve information about available services and their 
  * capabilities. This includes information about supported domain types, the 
- * service’s state, the quality of service (QoS), and any item group 
+ * serviceï¿½s state, the quality of service (QoS), and any item group 
  * information associated with the service.
  *
  * Detailed Descriptions:
@@ -1799,7 +1797,7 @@ RsslRet sendLoginRequest(EtaChannelManagementInfo *etaChannelManagementInfo)
 	RsslBuffer userNameBuf;
 
 	/* Prefer use of clear functions for initializations over using static initializers. Clears tend to be more performant than
-	 * using static initializers. Although if you do choose to use static initializers instead, you don’t need to clear.
+	 * using static initializers. Although if you do choose to use static initializers instead, you donï¿½t need to clear.
 	 */
 	rsslClearElementList(&elementList);
 	rsslClearElementEntry(&elementEntry);
@@ -1973,7 +1971,7 @@ RsslRet sendLoginRequest(EtaChannelManagementInfo *etaChannelManagementInfo)
 		return retval;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -2263,7 +2261,7 @@ RsslRet closeLoginStream(EtaChannelManagementInfo *etaChannelManagementInfo)
 		return RSSL_RET_FAILURE;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -2324,10 +2322,10 @@ RsslBuffer* etaGetBuffer(RsslChannel *etaChannel, RsslUInt32 size, RsslError *rs
 	 */
 	if ((msgBuf = rsslGetBuffer(etaChannel, size, RSSL_FALSE, &error)) == NULL) /* first check Error */
 	{
-		/* Check to see if this is just out of buffers or if it’s unrecoverable */
+		/* Check to see if this is just out of buffers or if itï¿½s unrecoverable */
 		if (error.rsslErrorId != RSSL_RET_BUFFER_NO_BUFFERS)
 		{
-			/* it’s unrecoverable Error */
+			/* itï¿½s unrecoverable Error */
 			printf("Error %s (%d) (errno: %d) encountered with rsslGetBuffer. Error Text: %s\n",
 				rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
 			/* Connection should be closed, return failure */
@@ -2479,7 +2477,7 @@ RsslRet sendSourceDirectoryRequest(EtaChannelManagementInfo *etaChannelManagemen
 		return retval;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -2678,7 +2676,7 @@ RsslRet processSourceDirectoryResponse(EtaChannelManagementInfo *etaChannelManag
 						{
 							/* Show how to use RsslContainerType.
 							 * After rsslDecodeFilterEntry function returns, the RsslFilterList.containerType (or RsslFilterEntry.containerType if present)
-							 * can invoke the correct contained type’s decode functions.
+							 * can invoke the correct contained typeï¿½s decode functions.
 							 * if filterEntry.containerType is present, switch on that; otherwise switch on filterList.containerType
 							 */
 							RsslContainerType cType;
@@ -3485,7 +3483,7 @@ RsslRet sendDictionaryRequest(EtaChannelManagementInfo *etaChannelManagementInfo
 		return retval;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -3631,7 +3629,7 @@ RsslRet sendMarketPriceItemRequest(EtaChannelManagementInfo *etaChannelManagemen
 		return retval;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.
@@ -3842,7 +3840,7 @@ RsslRet decodeMarketPricePayload(RsslFieldList* fieldList, RsslDecodeIterator* d
 	RsslDictionaryEntry* dictionaryEntry = NULL;
 
 	/* Prefer use of clear functions for initializations over using static initializers. Clears tend to be more performant than
-	 * using static initializers. Although if you do choose to use static initializers instead, you don’t need to clear.
+	 * using static initializers. Although if you do choose to use static initializers instead, you donï¿½t need to clear.
 	 */
 	rsslClearReal(&fidRealValue);
 	rsslClearQos(&fidQosValue);
@@ -4177,7 +4175,7 @@ RsslRet closeMarketPriceItemStream(EtaChannelManagementInfo *etaChannelManagemen
 		return RSSL_RET_FAILURE;
 	}
 
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
+	/* set the bufferï¿½s encoded content length prior to writing, this can be obtained from the iterator. */
 	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
 	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
 	 * in the buffer. This ensures that only the required bytes are written to the network.

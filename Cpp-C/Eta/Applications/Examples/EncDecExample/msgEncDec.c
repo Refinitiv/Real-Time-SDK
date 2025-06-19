@@ -2,11 +2,9 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2022 LSEG. All rights reserved.              --
+ *|           Copyright (C) 2015,2019-2022,2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
-
-
 
 #include "msgEncDec.h"
 #include "mapEncDec.h"
@@ -38,7 +36,7 @@ RsslRet exampleEncodeRefreshMsgWithMap(RsslEncodeIterator *encIter)
 	/* Use the stream Id corresponding to the request, because it is in reply to a request, its solicited */
 	refreshMsg.msgBase.streamId = 6; 
 
-	/* Populate flags for refresh message members and behavior ûbecause this in response to a request
+	/* Populate flags for refresh message members and behavior ï¿½because this in response to a request
 	   This should be solicited, msgKey should be present, single part refresh so it is complete,
 	   and also want the concrete qos of the stream */
 	refreshMsg.flags = RSSL_RFMF_SOLICITED | RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_REFRESH_COMPLETE |

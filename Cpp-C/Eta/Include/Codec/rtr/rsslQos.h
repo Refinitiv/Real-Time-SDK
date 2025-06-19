@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2015,2017-2019,2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -74,7 +74,7 @@ static const RsslBuffer RSSL_OMMSTR_QOS_TIME_DELAYED_UNKNOWN = { 14, (char*)"Del
 static const RsslBuffer RSSL_OMMSTR_QOS_TIME_DELAYED = { 7, (char*)"Delayed" };
 
 /** 
- * @brief RsslQos Rate enumerations, used to convey information about the data’s period of change.
+ * @brief RsslQos Rate enumerations, used to convey information about the dataï¿½s period of change.
  */
 typedef enum {
 	RSSL_QOS_RATE_UNSPECIFIED		= 0,	/*!< Rate is Unspecified, indicates initialized structure and not intended to be encoded */

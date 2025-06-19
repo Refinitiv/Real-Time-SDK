@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.
+ *|           Copyright (C) 2019,2021,2024 LSEG. All rights reserved.
 #]=============================================================================]
 
 option(RCDEV_TRACE_ENABLED "Will be enabled if any of the previous are ON" "$ENV{RCDEV_TRACE_ENABLED}")

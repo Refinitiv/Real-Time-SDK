@@ -1,10 +1,11 @@
 /*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
- *|                See the project's LICENSE.Md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.     
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
+
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 //QATools modify to send multiple item request 
 

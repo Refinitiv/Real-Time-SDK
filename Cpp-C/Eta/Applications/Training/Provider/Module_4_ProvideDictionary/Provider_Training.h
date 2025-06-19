@@ -1,9 +1,10 @@
-/*
- * This source code is provided under the Apache 2.0 license and is provided
- * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
- * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
-*/
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2020,2024 LSEG. All rights reserved.
+ *|-----------------------------------------------------------------------------
+ */
 
 /*
  * This is the ETA Interactive Provider Training series of the ETA Training Suite
@@ -102,7 +103,7 @@
  ************************************************************************
  * Summary:
  * Applications authenticate with one another using the Login domain model. 
- * An OMM Interactive Provider must handle the consumer’s Login request messages 
+ * An OMM Interactive Provider must handle the consumerï¿½s Login request messages 
  * and supply appropriate responses.
  * 
  * In this module, after receiving a Login request, the Interactive Provider 
@@ -144,7 +145,7 @@
  * The Source Directory domain model conveys information about all available services 
  * in the system. An OMM consumer typically requests a Source Directory to retrieve 
  * information about available services and their capabilities. This includes information 
- * about supported domain types, the service’s state, the QoS, and any item group 
+ * about supported domain types, the serviceï¿½s state, the QoS, and any item group 
  * information associated with the service. LSEG recommends that at a minimum, 
  * an Interactive Provider supply the Info, State, and Group filters for the Source Directory.
  * 

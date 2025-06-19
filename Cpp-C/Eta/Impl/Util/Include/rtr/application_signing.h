@@ -2,9 +2,10 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|          Copyright (C) 2019-2023 LSEG. All rights reserved.               --
+ *|           Copyright (C) 2018-2019,2023-2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
+
  
 #ifndef _APPLICATION_SIGNING_H_
 #define _APPLICATION_SIGNING_H_

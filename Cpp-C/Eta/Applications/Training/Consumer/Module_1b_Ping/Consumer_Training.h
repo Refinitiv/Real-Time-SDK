@@ -1,9 +1,10 @@
-/*
- * This source code is provided under the Apache 2.0 license and is provided
- * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
- * LICENSE.md for details. 
- * Copyright (C) 2019 LSEG. All rights reserved.
-*/
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2020,2024 LSEG. All rights reserved.
+ *|-----------------------------------------------------------------------------
+ */
 
 /*
  * This is the ETA Consumer Training series of the ETA Training Suite
@@ -38,7 +39,7 @@
  ************************************************************************
  * Summary:
  * Ping or heartbeat messages indicate the continued presence of an application. 
- * After the consumer’s connection is active, ping messages must be exchanged. 
+ * After the consumerï¿½s connection is active, ping messages must be exchanged. 
  * The negotiated ping timeout is retrieved using the rsslGetChannelInfo() function. 
  * The connection will be terminated if ping heartbeats are not sent or received 
  * within the expected time frame.

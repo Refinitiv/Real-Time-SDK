@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2015,2017-2019,2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -60,7 +60,7 @@ static const RsslBuffer RSSL_OMMSTR_VTF_SUPPORTS_SORTING = { 15, (char*)"Support
 RSSL_API RsslRet rsslVectorFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 flags);
 
 /**
- * @brief The RsslVector is a uniform container type of associated index–container pair entries.  Each entry, known as
+ * @brief The RsslVector is a uniform container type of associated indexï¿½container pair entries.  Each entry, known as
  * an RsslVectorEntry, contains an \ref RsslUInt index and a container payload.  The payload is a container type as indicated 
  * by RsslVector::containerType.  
  * @see RSSL_INIT_VECTOR, rsslClearVector, RsslVectorFlags, rsslDecodeVector, rsslEncodeVectorInit, rsslEncodeVectorComplete, rsslEncodeVectorSetDefsComplete, rsslEncodeVectorSummaryDataComplete

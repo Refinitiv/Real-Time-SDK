@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019 LSEG. All rights reserved.                 --
+ *|           Copyright (C) 2015,2017-2019,2024 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -59,7 +59,7 @@ static const RsslBuffer RSSL_OMMSTR_MPF_HAS_KEY_FIELD_ID = { 13, (char*)"HasKeyF
 RSSL_API RsslRet rsslMapFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 flags);
 
 /**
- * @brief The RsslMap is a uniform container type of associated key–container pair entries.  Each entry, known as
+ * @brief The RsslMap is a uniform container type of associated keyï¿½container pair entries.  Each entry, known as
  * an RsslMapEntry, contains an entry key and a value.  The key is a base primitive type as indicated by RsslMap::keyPrimitiveType and the value is a container type as indicated 
  * by RsslMap::containerType.  
  * @see RSSL_INIT_MAP, rsslClearMap, RsslMapFlags, rsslDecodeMap, rsslEncodeMapInit, rsslEncodeMapComplete, rsslEncodeMapSetDefsComplete, rsslEncodeMapSummaryDataComplete
