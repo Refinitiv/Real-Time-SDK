@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
- *
- * Decsription:
+/*
+ * Description:
  * This header file defines a macro that implements that fastest 
  * unsigned long division by 10 including the remainder. It may be
  * different per operating system.

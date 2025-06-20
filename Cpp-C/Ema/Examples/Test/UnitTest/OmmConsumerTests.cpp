@@ -13219,9 +13219,9 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemPHRecoverDifferentQoS)
 
 		// Check to see that the request has been made to prov1
 		ASSERT_EQ(provClient1.getMessageQueueSize(), 1);
-		ASSERT_GE(provClient2.getMessageQueueSize(), 2);		// prov 2 and 4 may both get the request
+		ASSERT_GE(provClient2.getMessageQueueSize(), 2u);		// prov 2 and 4 may both get the request
 		ASSERT_EQ(provClient3.getMessageQueueSize(), 1);
-		ASSERT_GE(provClient4.getMessageQueueSize(), 2);
+		ASSERT_GE(provClient4.getMessageQueueSize(), 2u);
 
 		msg = provClient1.popMsg();
 
