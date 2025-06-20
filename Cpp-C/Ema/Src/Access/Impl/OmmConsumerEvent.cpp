@@ -57,7 +57,7 @@ const ChannelInformation& OmmConsumerEvent::getChannelInformation() const
 	return _channelInfo;
 }
 
-const void OmmConsumerEvent::getSessionInformation(EmaVector<ChannelInformation>& channelInfoList) const
+void OmmConsumerEvent::getSessionInformation(EmaVector<ChannelInformation>& channelInfoList) const
 {
 	RsslReactorChannel* rsslReactorChannel = reinterpret_cast<RsslReactorChannel*>(_channel);
 	OmmConsumerImpl& consImpl = (OmmConsumerImpl&)_ommBaseImpl;

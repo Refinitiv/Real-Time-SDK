@@ -180,6 +180,8 @@ private :
 
 	void channelParametersToString(ActiveConfig&, ChannelConfig*, EmaString& );
 
+	void freeReactorWarmStandbyGroup(RsslReactorConnectOptions &connectOpt, RsslReactorWarmStandbyGroup* warmStandbyChannelGroup);
+
 	ChannelCallbackClient( OmmBaseImpl&, RsslReactor* );
 
 	virtual ~ChannelCallbackClient();

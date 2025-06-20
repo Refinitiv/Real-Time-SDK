@@ -72,7 +72,10 @@ UpdateMsg::UpdateMsg(const UpdateMsg& other) :
 			filter(getFilter());
 		}
 
-		attrib(getAttrib().getData());
+		if (_pDecoder->hasAttrib())
+		{
+			attrib(getAttrib().getData());
+		}
 	}
 
 	domainType(getDomainType());
@@ -115,7 +118,10 @@ UpdateMsg::UpdateMsg(const UpdateMsg& other) :
 
 	doNotRipple(getDoNotRipple());
 
-	payload(getPayload().getData());
+	if (_pDecoder->hasPayload())
+	{
+		payload(getPayload().getData());
+	}
 }
 
 UpdateMsg::~UpdateMsg()

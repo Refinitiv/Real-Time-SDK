@@ -82,7 +82,10 @@ ReqMsg::ReqMsg(const ReqMsg& other) :
 			filter(getFilter());
 		}
 
-		attrib(getAttrib().getData());
+		if (_pDecoder->hasAttrib())
+		{
+			attrib(getAttrib().getData());
+		}
 	}
 
 	domainType(getDomainType());
@@ -97,7 +100,10 @@ ReqMsg::ReqMsg(const ReqMsg& other) :
 		static_cast<ReqMsgDecoder*>(_pDecoder)->setServiceName(other.getServiceName());
 	}
 
-	payload(getPayload().getData());
+	if (_pDecoder->hasPayload())
+	{
+		payload(getPayload().getData());
+	}
 }
 
 ReqMsg::~ReqMsg()

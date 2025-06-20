@@ -1311,6 +1311,7 @@ RsslReactorCallbackRet DictionaryCallbackClient::processCallback( RsslReactor* p
 		{
 			processRefreshMsg(&rsslMsgBuffer, pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion, pItem, completeFlag );
 		}
+		rsslDeleteDataDictionary(&rsslDataDictionary);
 	}
 	break;
 

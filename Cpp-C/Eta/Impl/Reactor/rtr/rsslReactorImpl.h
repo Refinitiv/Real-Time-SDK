@@ -837,7 +837,7 @@ RTR_C_INLINE void _rsslFreeWarmStandbyHandler(RsslReactorWarmStandByHandlerImpl 
 	RsslQueueLink* pLink = NULL;
 	RsslReactorWarmStandbyServiceImpl* pReactorWarmStandbyServiceImpl = NULL;
 	RsslReactorSubmitMsgOptionsImpl* pSubmitMsgOptionsImpl;
-	
+
 	for (i = 0; i < count; i++)
 	{
 		pReactorWarmStandByGroupImpl = &(pWarmStandByHandler)->warmStandbyGroupList[i];
@@ -908,6 +908,11 @@ RTR_C_INLINE void _rsslFreeWarmStandbyHandler(RsslReactorWarmStandByHandlerImpl 
 			pConsRole->pLoginRequestList = NULL;
 
 			/* This has already been free'd in the above */
+			pConsRole->pLoginRequest = NULL;
+		}
+		else if (pConsRole->pLoginRequest != NULL)
+		{
+			free(pConsRole->pLoginRequest);
 			pConsRole->pLoginRequest = NULL;
 		}
 

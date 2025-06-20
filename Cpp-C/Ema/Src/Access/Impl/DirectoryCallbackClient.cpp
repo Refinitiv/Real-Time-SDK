@@ -1795,8 +1795,6 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 			// If the current directory is accepting requests and there are pending requests, send them now.
 			if (_ommBaseImpl.isInitialized() == true && pChannel->getConsumerRoutingChannel() != NULL && pDirectory->getAcceptingRequests() == 1)
 			{
-				ConsumerRoutingService* pRoutingService = (ConsumerRoutingService*)*(pChannel->getConsumerRoutingChannel()->serviceByName.find(&pDirectory->getName()));
-
 				EmaList<Item*>& pendingItems = pChannel->getConsumerRoutingChannel()->pRoutingSession->pendingRequestList.getList();
 
 				int itemCount = pendingItems.size();
@@ -1915,8 +1913,6 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 				{
 					sendUpdate = true;
 				}
-
-				ConsumerRoutingService* pRoutingService = (ConsumerRoutingService*)*(pChannel->getConsumerRoutingChannel()->serviceByName.find(&pDirectory->getName()));
 
 				if(_ommBaseImpl.isInitialized() == true)
 				{
@@ -2469,6 +2465,9 @@ void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 		free((void*)pService);
 		pService = NULL;
 
+		if (rsslMsgBuffer.data)
+			free(rsslMsgBuffer.data);
+
 		pItem = (DirectoryItem*)pItem->next();
 
 		if (pItem == NULL)
@@ -2489,11 +2488,9 @@ void DirectoryCallbackClient::fanoutSingleDirectoryRequest(void* info)
 	RsslRefreshMsg refreshMsg;
 	RsslRet retCode;
 	RsslBuffer rsslMsgBuffer = RSSL_INIT_BUFFER;
-	RsslEncIterator eIter;
 
 	rsslClearRefreshMsg(&refreshMsg);
 	rsslClearRDMDirectoryRefresh(&directoryRefresh);
-	rsslClearEncodeIterator(&eIter);
 
 	RsslRDMService* pService;
 
@@ -2549,8 +2546,17 @@ void DirectoryCallbackClient::fanoutSingleDirectoryRequest(void* info)
 		directoryRefresh.serviceId = (RsslUInt16)pItem->serviceId;
 	}
 
+	RsslEncIterator eIter;
 	RsslErrorInfo rsslErrorInfo;
+	rsslClearEncodeIterator(&eIter);
 	clearRsslErrorInfo(&rsslErrorInfo);
+
+	if (allocateAndSetEncodeIteratorBuffer(pBaseImpl, &rsslMsgBuffer, DEFAULT_DIRECTORY_RESP_MSG_SIZE, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION,
+		&eIter, "DirectoryCallbackClient::fanoutAllDirectoryRequests") != RSSL_RET_SUCCESS)
+	{
+		return;
+	}
+
 	retCode = rsslEncodeRDMDirectoryMsg(&eIter, (RsslRDMDirectoryMsg*)&directoryRefresh, &rsslMsgBuffer.length, &rsslErrorInfo);
 
 	while (retCode == RSSL_RET_BUFFER_TOO_SMALL)
@@ -2575,7 +2581,6 @@ void DirectoryCallbackClient::fanoutSingleDirectoryRequest(void* info)
 
 	rsslSetDecodeIteratorBuffer(&dIter, &rsslMsgBuffer);
 
-
 	if (rsslDecodeMsg(&dIter, (RsslMsg*)&refreshMsg) != RSSL_RET_SUCCESS)
 	{
 		EmaString text("Internal error. Unable to decode generated message in  ");
@@ -2597,10 +2602,13 @@ void DirectoryCallbackClient::fanoutSingleDirectoryRequest(void* info)
 	pService = NULL;
 
 	pItem->sentRefresh = true;
+
+	if (rsslMsgBuffer.data)
+		free(rsslMsgBuffer.data);
 }
 
 // This is in response to an explititly sent directory request
-RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pRsslReactor, RsslReactorChannel* pRsslReactorChannel,
+RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor*, RsslReactorChannel* pRsslReactorChannel,
     RsslRDMDirectoryMsgEvent* pEvent, SingleItem* pItem )
 {
 	RsslRet retCode;

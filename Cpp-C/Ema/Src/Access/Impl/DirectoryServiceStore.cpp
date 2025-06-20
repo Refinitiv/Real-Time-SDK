@@ -1556,8 +1556,11 @@ bool DirectoryServiceStore::addServiceIdAndNamePair(RsslUInt64 serviceId, const 
 		}
 		else
 		{
-			if (_serviceNameToServiceId.find(pServiceName) != 0)
+			if (_serviceNameToServiceId.find(pServiceName))
+			{
+				delete pServiceName;
 				return true;
+			}
 		}
 	}
 	else if (_providerRole == OmmProviderConfig::NonInteractiveEnum)

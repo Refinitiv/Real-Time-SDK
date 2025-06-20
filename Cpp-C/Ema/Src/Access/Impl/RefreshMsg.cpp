@@ -73,7 +73,10 @@ RefreshMsg::RefreshMsg(const RefreshMsg& other) :
 			filter(getFilter());
 		}
 
-		attrib(getAttrib().getData());
+		if (_pDecoder->hasAttrib())
+		{
+			attrib(getAttrib().getData());
+		}
 	}
 
 	domainType(getDomainType());
@@ -127,7 +130,10 @@ RefreshMsg::RefreshMsg(const RefreshMsg& other) :
 
 	privateStream(getPrivateStream());
 
-	payload(getPayload().getData());
+	if (_pDecoder->hasPayload())
+	{
+		payload(getPayload().getData());
+	}
 }
 
 RefreshMsg::~RefreshMsg()

@@ -115,7 +115,10 @@ AckMsg::AckMsg(const AckMsg& other) :
 			filter(getFilter());
 		}
 
-		attrib(getAttrib().getData());
+		if (_pDecoder->hasAttrib())
+		{
+			attrib(getAttrib().getData());
+		}
 	}
 
 	domainType(getDomainType());
@@ -130,7 +133,10 @@ AckMsg::AckMsg(const AckMsg& other) :
 		static_cast<AckMsgDecoder*>(_pDecoder)->setServiceName(other.getServiceName());
 	}
 
-	payload(getPayload().getData());
+	if (_pDecoder->hasPayload())
+	{
+		payload(getPayload().getData());
+	}
 }
 
 AckMsg::~AckMsg()

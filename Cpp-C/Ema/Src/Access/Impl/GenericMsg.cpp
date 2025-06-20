@@ -71,7 +71,10 @@ GenericMsg::GenericMsg(const GenericMsg& other) :
 			filter(getFilter());
 		}
 
-		attrib(getAttrib().getData());
+		if (_pDecoder->hasAttrib())
+		{
+			attrib(getAttrib().getData());
+		}
 	}
 
 	domainType(getDomainType());
@@ -81,7 +84,10 @@ GenericMsg::GenericMsg(const GenericMsg& other) :
 		extendedHeader(getExtendedHeader());
 	}
 
-	payload(getPayload().getData());
+	if (_pDecoder->hasPayload())
+	{
+		payload(getPayload().getData());
+	}
 }
 
 GenericMsg::~GenericMsg()

@@ -603,6 +603,34 @@ Channel* ChannelCallbackClient::channelConfigToReactorConnectInfo(ChannelConfig*
 	}
 }
 
+void ChannelCallbackClient::freeReactorWarmStandbyGroup(RsslReactorConnectOptions& connectOpt, RsslReactorWarmStandbyGroup* warmStandbyChannelGroup)
+{
+	if (warmStandbyChannelGroup != nullptr)
+	{
+		for (UInt32 j = 0; j < connectOpt.warmStandbyGroupCount; ++j)
+		{
+			if (warmStandbyChannelGroup[j].standbyServerCount > 0)
+			{
+				RsslReactorWarmStandbyServerInfo* warmStandbyServerInfo = NULL;
+				for (UInt32 k = 0; k < warmStandbyChannelGroup[j].standbyServerCount; ++k)
+				{
+					warmStandbyServerInfo = &warmStandbyChannelGroup[j].standbyServerList[k];
+
+					if (warmStandbyServerInfo->perServiceBasedOptions.serviceNameCount > 0)
+						free(warmStandbyServerInfo->perServiceBasedOptions.serviceNameList);
+				}
+
+				delete[] warmStandbyChannelGroup[j].standbyServerList;
+			}
+
+			if (warmStandbyChannelGroup[j].startingActiveServer.perServiceBasedOptions.serviceNameCount > 0)
+				free(warmStandbyChannelGroup[j].startingActiveServer.perServiceBasedOptions.serviceNameList);
+		}
+
+		delete[] warmStandbyChannelGroup;
+	}
+}
+
 void ChannelCallbackClient::initialize()
 {
 	RsslReactorChannelRole role;
@@ -625,18 +653,17 @@ void ChannelCallbackClient::initialize()
 			EmaVector<WarmStandbyChannelConfig*>& warmStandbyChannelSet = activeConfig.configWarmStandbySet;
 		UInt32 channelCfgSetLastIndex = activeConfigChannelSet.size() - 1;
 
-		RsslReactorConnectInfo* reactorConnectInfo = 0;
-			RsslReactorWarmStandbyGroup* warmStandbyChannelGroup = NULL;
+		RsslReactorConnectInfo* reactorConnectInfo = nullptr;
+		RsslReactorWarmStandbyGroup* warmStandbyChannelGroup = nullptr;
 
-			RsslReactorConnectOptions connectOpt;
-			rsslClearReactorConnectOptions(&connectOpt);
-			connectOpt.connectionCount = activeConfigChannelSet.size();
-			connectOpt.warmStandbyGroupCount = warmStandbyChannelSet.size();
-			connectOpt.reconnectAttemptLimit = activeConfig.reconnectAttemptLimit;
-			connectOpt.reconnectMinDelay = activeConfig.reconnectMinDelay;
-			connectOpt.reconnectMaxDelay = activeConfig.reconnectMaxDelay;
+		RsslReactorConnectOptions connectOpt;
+		rsslClearReactorConnectOptions(&connectOpt);
+		connectOpt.connectionCount = activeConfigChannelSet.size();
+		connectOpt.warmStandbyGroupCount = warmStandbyChannelSet.size();
+		connectOpt.reconnectAttemptLimit = activeConfig.reconnectAttemptLimit;
+		connectOpt.reconnectMinDelay = activeConfig.reconnectMinDelay;
+		connectOpt.reconnectMaxDelay = activeConfig.reconnectMaxDelay;
 				
-
 		if (activeConfigChannelSet.size() > 0)
 		{
 			try
@@ -970,20 +997,17 @@ void ChannelCallbackClient::initialize()
 
 			delete [] reactorConnectInfo;
 
-			for (UInt32 j = 0; j < connectOpt.warmStandbyGroupCount; ++j)
-			{
-				if (warmStandbyChannelGroup[j].standbyServerCount > 0)
-				{
-					delete[] warmStandbyChannelGroup[j].standbyServerList;
-				}
-			}
+			freeReactorWarmStandbyGroup(connectOpt, warmStandbyChannelGroup);
 
-			delete [] warmStandbyChannelGroup;
 			throwIueException( temp, rsslErrorInfo.rsslError.rsslErrorId );
 
 			return;
 		}
 
+		if (reactorConnectInfo != nullptr)
+			delete [] reactorConnectInfo;
+
+		freeReactorWarmStandbyGroup(connectOpt, warmStandbyChannelGroup);
 	}
 	else
 	{
@@ -1414,10 +1438,14 @@ void ChannelCallbackClient::initialize()
 
 				routingSessionChannel->channelList.removeAllChannel();
 
+				freeReactorWarmStandbyGroup(connectOpt, warmStandbyChannelGroup);
+
 				throwIueException(temp, rsslErrorInfo.rsslError.rsslErrorId);
 
 				return;
 			}
+
+			freeReactorWarmStandbyGroup(connectOpt, warmStandbyChannelGroup);
 
 			routingSessionChannel->channelState = OmmBaseImpl::RsslChannelDownEnum;
 

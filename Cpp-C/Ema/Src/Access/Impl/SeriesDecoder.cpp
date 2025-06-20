@@ -260,19 +260,29 @@ bool SeriesDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuf
 		switch ( _rsslSeries.containerType )
 		{
 		case RSSL_DT_FIELD_LIST :
-			_fieldListSetDef = g_pool.getFieldListSetDefItem();
+		{
+			if (!_fieldListSetDef)
+				_fieldListSetDef = g_pool.getFieldListSetDefItem();
+
 			rsslDecodeLocalFieldSetDefDb( &_decodeIter, _fieldListSetDef->getSetDefDb() );
 			_localSetDefDb = _fieldListSetDef->getSetDefDb();
 			break;
+		}
 		case RSSL_DT_ELEMENT_LIST :
-			_elementListSetDef = g_pool.getElementListSetDefItem();
+		{
+			if (!_elementListSetDef)
+				_elementListSetDef = g_pool.getElementListSetDefItem();
+
 			rsslDecodeLocalElementSetDefDb( &_decodeIter, _elementListSetDef->getSetDefDb() );
 			_localSetDefDb = _elementListSetDef->getSetDefDb();
 			break;
+		}
 		default :
+		{
 			_localSetDefDb = 0;
 			_errorCode = OmmError::UnsupportedDataTypeEnum;
 			return false;
+		}
 		}
 	}
 	else

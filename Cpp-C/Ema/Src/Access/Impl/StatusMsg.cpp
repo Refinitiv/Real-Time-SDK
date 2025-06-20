@@ -72,7 +72,10 @@ StatusMsg::StatusMsg(const StatusMsg& other) :
 			filter(getFilter());
 		}
 
-		attrib(getAttrib().getData());
+		if (_pDecoder->hasAttrib())
+		{
+			attrib(getAttrib().getData());
+		}
 	}
 
 	if (hasState())
@@ -92,7 +95,10 @@ StatusMsg::StatusMsg(const StatusMsg& other) :
 		static_cast<StatusMsgDecoder*>(_pDecoder)->setServiceName(other.getServiceName());
 	}
 
-	payload(getPayload().getData());
+	if (_pDecoder->hasPayload())
+	{
+		payload(getPayload().getData());
+	}
 }
 
 StatusMsg::~StatusMsg()

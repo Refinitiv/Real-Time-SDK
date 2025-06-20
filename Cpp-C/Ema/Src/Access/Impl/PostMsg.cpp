@@ -77,7 +77,10 @@ PostMsg::PostMsg(const PostMsg& other) :
 			filter(getFilter());
 		}
 
-		attrib(getAttrib().getData());
+		if (_pDecoder->hasAttrib())
+		{
+			attrib(getAttrib().getData());
+		}
 	}
 
 	domainType(getDomainType());
@@ -92,7 +95,10 @@ PostMsg::PostMsg(const PostMsg& other) :
 		static_cast<PostMsgDecoder*>(_pDecoder)->setServiceName(other.getServiceName());
 	}
 
-	payload(getPayload().getData());
+	if (_pDecoder->hasPayload())
+	{
+		payload(getPayload().getData());
+	}
 }
 
 PostMsg::~PostMsg()

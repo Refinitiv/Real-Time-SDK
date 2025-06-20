@@ -12381,6 +12381,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl* pReactorChannel, 
 				}
 
 				copiedLogin = RSSL_TRUE;
+				pReactorChannel->deepCopyRole = RSSL_TRUE;
 			}
 
 
@@ -12605,6 +12606,8 @@ static RsslRet _reactorChannelCopyRoleForWarmStandBy(RsslReactorChannelImpl* pRe
 					}
 					return RSSL_RET_FAILURE;
 				}
+
+				pReactorChannel->deepCopyRole = RSSL_TRUE;
 			}
 
 

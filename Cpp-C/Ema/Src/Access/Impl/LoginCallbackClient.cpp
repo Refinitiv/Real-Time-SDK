@@ -1679,6 +1679,7 @@ LoginItem* LoginCallbackClient::getLoginItem( const ReqMsg&, OmmConsumerClient& 
 		_loginItems.push_back(li);
 		if (_refreshReceived == true)
 		{
+			// callback function must delete liccs
 			LoginItemCreationCallbackStruct* liccs(new LoginItemCreationCallbackStruct(this, li));
 			TimeOut* timeOut = new TimeOut(_ommBaseImpl, 10, LoginCallbackClient::handleLoginItemCallback, liccs, true);
 		}
@@ -1698,6 +1699,7 @@ NiProviderLoginItem* LoginCallbackClient::getLoginItem( const ReqMsg&, OmmProvid
 		_loginItems.push_back(li);
 		if (_refreshReceived == true)
 		{
+			// callback function must delete liccs
 			NiProviderLoginItemCreationCallbackStruct* liccs(new NiProviderLoginItemCreationCallbackStruct(this, li));
 			TimeOut* timeOut = new TimeOut(_ommBaseImpl, 10, LoginCallbackClient::handleLoginItemCallback, liccs, true);
 		}
@@ -2246,6 +2248,8 @@ void LoginCallbackClient::handleLoginItemCallback( void* args )
 	LoginItemCreationCallbackStruct* arguments = reinterpret_cast< LoginItemCreationCallbackStruct* >( args );
 
 	arguments->loginCallbackClient->sendInternalMsg( arguments->loginItem );
+
+	delete arguments;
 }
 
 // This will re-aggregate logins after close, and if necessary, fan out the appropriate refresh or status messages.

@@ -74,7 +74,7 @@ public :
 	/** Returns an EmaVector containing the Session Information for this event.  If Request Routing is turned off, this will return an empty vector.
 	@return the channel information for this event
 	*/
-	const EMA_ACCESS_API void getSessionInformation(EmaVector<ChannelInformation>&) const;
+	EMA_ACCESS_API void getSessionInformation(EmaVector<ChannelInformation>&) const;
 
 	/** Returns the Channel Statistics for this event
 		@throw OmmInvalidUsageException if it cannot get the channel statistics
