@@ -197,7 +197,9 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"SendJsonConvError",
 	"EnablePreferredHostOptions",
 	"PHDetectionTimeInterval",
-	"PHFallBackWithInWSBGroup"
+	"PHFallBackWithInWSBGroup",
+	"UpdateTypeFilter",
+	"NegativeUpdateTypeFilter"
 };
 
 refinitiv::ema::access::EmaString DoubleValues[] = {

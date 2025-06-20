@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2017,2019-2020,2024 LSEG. All rights reserved.
+ *|        Copyright (C) 2017,2019-2020,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -63,6 +63,10 @@ public:
 
 	LoginReqImpl& role(refinitiv::ema::access::UInt32 value);
 
+	LoginReqImpl& updateTypeFilter(const refinitiv::ema::access::UInt64& value);
+	
+	LoginReqImpl& negativeUpdateTypeFilter(const refinitiv::ema::access::UInt64& value);
+
 	LoginReqImpl& singleOpen(bool value);
 
 	LoginReqImpl& supportProviderDictionaryDownload(bool value);
@@ -109,6 +113,10 @@ public:
 
 	bool hasNameType() const;
 
+	bool hasUpdateTypeFilter() const;
+
+	bool hasNegativeUpdateTypeFilter() const;
+
 	bool getAllowSuspectData() const;
 
 	bool getDownloadConnectionConfig() const;
@@ -145,6 +153,10 @@ public:
 
 	const refinitiv::ema::access::UInt32& getNameType() const;
 
+	const refinitiv::ema::access::UInt64& getUpdateTypeFilter() const;
+
+	const refinitiv::ema::access::UInt64& getNegativeUpdateTypeFilter() const;
+
 	const refinitiv::ema::access::EmaString& toString() const;
 
 private:
@@ -162,6 +174,8 @@ private:
 	bool						            _singleOpen;
 	bool									_supportProviderDictionaryDownload;
 	refinitiv::ema::access::UInt32									_role;
+	refinitiv::ema::access::UInt64									_updateTypeFilter;
+	refinitiv::ema::access::UInt64									_negativeUpdateTypeFilter;
 	bool									_pause;
 	refinitiv::ema::access::EmaString	                            _applicationId;
 	refinitiv::ema::access::EmaString	                            _applicationName;
@@ -190,6 +204,8 @@ private:
 	bool									_authenticationExtendedSet;
 	bool									_nameSet;
 	bool									_nameTypeSet;
+	bool									_updateTypeFilterSet;
+	bool									_negativeUpdateTypeFilterSet;
 
 	mutable refinitiv::ema::access::ElementList*	                _pElementList;
 

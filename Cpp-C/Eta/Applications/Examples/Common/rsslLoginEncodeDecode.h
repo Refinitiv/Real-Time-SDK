@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2015,2017-2018,2020,2022-2024 LSEG. All rights reserved.
+ *|     Copyright (C) 2015,2017-2018,2020,2022-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -35,6 +35,8 @@ typedef struct {
 	RsslUInt64	SingleOpen;
 	RsslUInt64	SupportProviderDictionaryDownload;
 	RsslUInt64	AllowSuspectData;
+	RsslUInt64  UpdateTypeFilter;
+	RsslUInt64	NegativeUpdateTypeFilter;
 	char		InstanceId[MAX_LOGIN_INFO_STRLEN];
 	RsslUInt64	Role;
 	RsslUInt64	DownloadConnectionConfig;
@@ -111,6 +113,8 @@ RTR_C_INLINE void clearLoginReqInfo(RsslLoginRequestInfo* loginReqInfo)
 	loginReqInfo->SingleOpen = 0;
 	loginReqInfo->SupportProviderDictionaryDownload = 0;
 	loginReqInfo->AllowSuspectData = 0;
+	loginReqInfo->UpdateTypeFilter = DEFAULT_UPDATE_TYPE_FILTER;
+	loginReqInfo->NegativeUpdateTypeFilter = 0;
 	loginReqInfo->InstanceId[0] = '\0';
 	loginReqInfo->Role = 0;
 	loginReqInfo->DownloadConnectionConfig = 0;

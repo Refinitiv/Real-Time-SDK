@@ -369,6 +369,17 @@ OmmConsumerConfig& OmmConsumerConfig::restProxyDomain(const EmaString& restProxy
 	return *this;
 }
 
+OmmConsumerConfig& OmmConsumerConfig::updateTypeFilter(const UInt64 updateFilter)
+{
+	_pImpl->updateTypeFilter(updateFilter);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::negativeUpdateTypeFilter(const UInt64 negatoveUpdateFilter)
+{
+	_pImpl->negativeUpdateTypeFilter(negatoveUpdateFilter);
+	return *this;
+}
 
 OmmConsumerConfig& OmmConsumerConfig::addServiceList(const ServiceList& serviceList)
 {

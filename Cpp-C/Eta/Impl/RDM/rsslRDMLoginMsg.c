@@ -195,7 +195,8 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				elementEntry.name = RSSL_ENAME_DOWNLOAD_CON_CONFIG;
 				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->downloadConnectionConfig)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
-
+			
+			/* RTT support */
 			if (pLoginRequest->flags & RDM_LG_RQF_RTT_SUPPORT)
 			{
 				rsslClearElementEntry(&elementEntry);
@@ -204,6 +205,26 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				tmp = RDM_LOGIN_RTT_ELEMENT;
 
 				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &tmp)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
+			}
+
+			/* UpdateTypeFilter */
+			if (pLoginRequest->flags & RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER)
+			{
+				rsslClearElementEntry(&elementEntry);
+				elementEntry.name = RSSL_ENAME_UPDATE_TYPE_FILTER;
+				elementEntry.dataType = RSSL_DT_UINT;
+
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->updateTypeFilter)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
+			}
+
+			/* NegativeUpdateTypeFilter */
+			if (pLoginRequest->flags & RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER)
+			{
+				rsslClearElementEntry(&elementEntry);
+				elementEntry.name = RSSL_ENAME_NEGATIVE_UPDATE_TYPE_FILTER;
+				elementEntry.dataType = RSSL_DT_UINT;
+
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->negativeUpdateTypeFilter)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
@@ -1383,12 +1404,25 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 						pLoginRequest->flags |= RDM_LG_RQF_HAS_AUTHN_EXTENDED;
 						pLoginRequest->authenticationExtended = element.encData;
 					}
+					/* RTT support */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_RTT))
 					{
 						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &RTTType)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 						if (!RSSL_ERROR_INFO_CHECK((RTTType == RDM_LOGIN_RTT_ELEMENT), ret, pError)) return RSSL_RET_FAILURE;
 						pLoginRequest->flags |= RDM_LG_RQF_RTT_SUPPORT;
+					}
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_UPDATE_TYPE_FILTER))
+					{
+						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->updateTypeFilter)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						pLoginRequest->flags |= RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER;
+					}
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_NEGATIVE_UPDATE_TYPE_FILTER))
+					{
+						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->negativeUpdateTypeFilter)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						pLoginRequest->flags |= RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER;
 					}
 				}
 			}

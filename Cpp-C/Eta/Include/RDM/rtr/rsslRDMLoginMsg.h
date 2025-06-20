@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2015,2017,2019-2021,2024 LSEG. All rights reserved.
+ *|     Copyright (C) 2015,2017,2019-2021,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -134,7 +134,9 @@ typedef enum {
 	RDM_LG_RQF_HAS_SUPPORT_PROV_DIC_DOWNLOAD	= 0x004000, /*!< (0x4000) Indiactes presence of the supportProviderDictionaryDownload member */
 	RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN	= 0x008000,	/*!< (0x8000) Indicates presence of the applicationAuthenticationToken member */
 	RDM_LG_RQF_HAS_AUTHN_EXTENDED		= 0x010000,	/*!< (0x010000) Indicates presence of extended authentication data. */
-	RDM_LG_RQF_RTT_SUPPORT				= 0x020000	/*!< (0x020000) Indicates that the consumer supports the RTT feature. */
+	RDM_LG_RQF_RTT_SUPPORT				= 0x020000,	/*!< (0x020000) Indicates that the consumer supports the RTT feature. */
+	RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER   = 0x040000, /*!< (0x040000) Indicates presence of the updateTypeFilter member. */
+	RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER = 0x080000 /*!< (0x080000) Indicates presence of the negativeUpdateTypeFilter member. */
 } RsslRDMLoginRequestFlags;
 
 /**
@@ -157,6 +159,8 @@ typedef struct {
 	RsslUInt	role;							/*!< Indicates the role of the application.  Populated by RDMLoginRoleTypes */
 	RsslUInt	singleOpen;						/*!< Indicates whether the Consumer desires for the Provider to handle recovery on its behalf. */
 	RsslUInt	supportProviderDictionaryDownload;	/*!< Indicates whether the Consumer supports dictionary download. */
+	RsslUInt    updateTypeFilter;				/*!<  Indicates whether the Consumer supports update filter. */
+	RsslUInt    negativeUpdateTypeFilter;		/*!<  Indicates whether the Consumer supports negative update filter. */
 	RsslBuffer	userName;						/*!< The UserName being used to login.  For UserAuthn Authentication, this should contain Authentication Token */
 	RsslUInt8	userNameType;					/*!< The type of the userName.  Populated by RDMLoginUserIdTypes */
 	RsslBuffer  applicationAuthorizationToken;	/*!< The ApplicationAuthorizationToken. */
@@ -188,6 +192,8 @@ RTR_C_INLINE void rsslClearRDMLoginRequest(RsslRDMLoginRequest *pRequest)
 	pRequest->providePermissionExpressions = 1;
 	pRequest->singleOpen = 1;
 	pRequest->supportProviderDictionaryDownload = 0;
+	pRequest->updateTypeFilter = DEFAULT_UPDATE_TYPE_FILTER;
+	pRequest->negativeUpdateTypeFilter = 0;
 	pRequest->allowSuspectData = 1;
 	pRequest->role = RDM_LOGIN_ROLE_CONS;
 	pRequest->downloadConnectionConfig = 0;

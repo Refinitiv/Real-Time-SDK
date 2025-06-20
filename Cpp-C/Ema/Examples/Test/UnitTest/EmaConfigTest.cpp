@@ -266,6 +266,10 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && retrievedValue == "Channel_3") << "extracting PreferredWSBChannelName name from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|PHFallBackWithInWSBGroup", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting PHFallBackWithInWSBGroup name from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|UpdateTypeFilter", uintValue);
+	EXPECT_TRUE(debugResult&& uintValue == 1) << "extracting UpdateTypeFilter name from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|NegativeUpdateTypeFilter", uintValue);
+	EXPECT_TRUE(debugResult&& uintValue == 3) << "extracting NegativeUpdateTypeFilter name from EmaConfig.xml";
 
 	/*Check sendJsonConvError in Consumer group*/
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|SendJsonConvError", uintValue);
@@ -671,6 +675,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 			.addAscii("PreferredChannelName", "Channel_1")
 			.addAscii("PreferredWSBChannelName", "Channel_2")
 			.addUInt("PHFallBackWithInWSBGroup", 1)
+			.addUInt("UpdateTypeFilter", UPD_EVENT_FILTER_TYPE_QUOTE )
+			.addUInt("NegativeUpdateTypeFilter", UPD_EVENT_FILTER_TYPE_MULTIPLE)
 			.complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
@@ -785,6 +791,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
 		EXPECT_TRUE( activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
 		EXPECT_TRUE( activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
+		EXPECT_TRUE( activeConfig.updateTypeFilter == UPD_EVENT_FILTER_TYPE_QUOTE) << "updateTypeFilter , \"True\"";
+		EXPECT_TRUE( activeConfig.negativeUpdateTypeFilter == UPD_EVENT_FILTER_TYPE_MULTIPLE) << "negativeUpdateTypeFilter , \"True\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -871,6 +879,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			.addAscii("PreferredChannelName", "Channel_1")
 			.addAscii("PreferredWSBChannelName", "Channel_2")
 			.addUInt("PHFallBackWithInWSBGroup", 1)
+			.addUInt("UpdateTypeFilter", UPD_EVENT_FILTER_TYPE_QUOTE)
+			.addUInt("NegativeUpdateTypeFilter", UPD_EVENT_FILTER_TYPE_MULTIPLE)
 			.complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
@@ -993,6 +1003,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
 		EXPECT_TRUE(activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
 		EXPECT_TRUE(activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
+		EXPECT_TRUE(activeConfig.updateTypeFilter == UPD_EVENT_FILTER_TYPE_QUOTE) << "updateTypeFilter , \"True\"";
+		EXPECT_TRUE(activeConfig.negativeUpdateTypeFilter == UPD_EVENT_FILTER_TYPE_MULTIPLE) << "negativeUpdateTypeFilter , \"True\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -1078,6 +1090,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 			.addAscii("PreferredChannelName", "Channel_1")
 			.addAscii("PreferredWSBChannelName", "Channel_2")
 			.addUInt("PHFallBackWithInWSBGroup", 1)
+			.addUInt("UpdateTypeFilter", UPD_EVENT_FILTER_TYPE_QUOTE)
+			.addUInt("NegativeUpdateTypeFilter", UPD_EVENT_FILTER_TYPE_MULTIPLE)
 			.complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
@@ -1201,6 +1215,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
 		EXPECT_TRUE(activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
 		EXPECT_TRUE(activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
+		EXPECT_TRUE(activeConfig.updateTypeFilter == UPD_EVENT_FILTER_TYPE_QUOTE) << "updateTypeFilter , \"True\"";
+		EXPECT_TRUE(activeConfig.negativeUpdateTypeFilter == UPD_EVENT_FILTER_TYPE_MULTIPLE) << "negativeUpdateTypeFilter , \"True\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -1282,6 +1298,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			.addAscii("PreferredChannelName", "Channel_1")
 			.addAscii("PreferredWSBChannelName", "Channel_2")
 			.addUInt("PHFallBackWithInWSBGroup", 1)
+			.addUInt("UpdateTypeFilter", UPD_EVENT_FILTER_TYPE_QUOTE)
+			.addUInt("NegativeUpdateTypeFilter", UPD_EVENT_FILTER_TYPE_MULTIPLE)
 			.complete())
 			.addKeyAscii("Consumer_2", MapEntry::AddEnum, ElementList()
 				.addAscii("Channel", "Channel_2")
@@ -1409,6 +1427,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
 		EXPECT_TRUE(activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
 		EXPECT_TRUE(activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
+		EXPECT_TRUE(activeConfig.updateTypeFilter == UPD_EVENT_FILTER_TYPE_QUOTE) << "updateTypeFilter , \"True\"";
+		EXPECT_TRUE(activeConfig.negativeUpdateTypeFilter == UPD_EVENT_FILTER_TYPE_MULTIPLE) << "negativeUpdateTypeFilter , \"True\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -2052,6 +2072,8 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 					.addAscii("Channel", "Channel_1")
 					.addAscii("Logger", "Logger_1")
 					.addAscii("Dictionary", "Dictionary_1")
+					.addUInt("UpdateTypeFilter", UPD_EVENT_FILTER_TYPE_QUOTE)
+					.addUInt("NegativeUpdateTypeFilter", UPD_EVENT_FILTER_TYPE_MULTIPLE)
 					.complete()).complete();
 
 				elementList.addMap("ConsumerList", innerMap);
@@ -2137,13 +2159,16 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 			{
 				// Must load data dictionary files from current working location.
 				OmmConsumerConfig ommConsumerConfig(localConfigPath);
-				OmmConsumerImpl ommConsumerImpl(ommConsumerConfig.config(outermostMap).host("localhost:14002").channelType(EmaConfig::ConnectionTypeEnum::WEBSOCKET));
+				OmmConsumerImpl ommConsumerImpl(ommConsumerConfig.config(outermostMap).host("localhost:14002").channelType(EmaConfig::ConnectionTypeEnum::WEBSOCKET)
+												.updateTypeFilter(UPD_EVENT_FILTER_TYPE_NEWS_ALERT).negativeUpdateTypeFilter(UPD_EVENT_FILTER_TYPE_VERIFY));
 
 				const OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
 
 				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_WEBSOCKET) << "connectionType , ChannelType::RSSL_WEBSOCKET";
 				EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->hostName == "localhost") << "SocketChannelConfig::hostname , \"localhost\"";
 				EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->serviceName == "14002") << "SocketChannelConfig::serviceName , \"14002\"";
+				EXPECT_TRUE(activeConfig.updateTypeFilter == UPD_EVENT_FILTER_TYPE_NEWS_ALERT) << "updateTypeFilter" << activeConfig.updateTypeFilter;
+				EXPECT_TRUE(activeConfig.negativeUpdateTypeFilter == UPD_EVENT_FILTER_TYPE_VERIFY) << "negativeUpdateTypeFilter" << activeConfig.negativeUpdateTypeFilter;
 			}
 			else if (testCase == 2)
 			{
@@ -2219,6 +2244,8 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addAscii("PreferredChannelName", "Channel_1")
 			.addAscii("PreferredWSBChannelName", "Channel_2")
 			.addUInt("PHFallBackWithInWSBGroup", 1)
+			.addUInt("UpdateTypeFilter", UPD_EVENT_FILTER_TYPE_NEWS_ALERT)
+			.addUInt("NegativeUpdateTypeFilter", UPD_EVENT_FILTER_TYPE_VERIFY)
 			.complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap).complete();
@@ -2336,6 +2363,8 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
 		EXPECT_TRUE(activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
 		EXPECT_TRUE(activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
+		EXPECT_TRUE(activeConfig.updateTypeFilter == UPD_EVENT_FILTER_TYPE_NEWS_ALERT) << "updateTypeFilter , \"True\"";
+		EXPECT_TRUE(activeConfig.negativeUpdateTypeFilter == UPD_EVENT_FILTER_TYPE_VERIFY) << "negativeUpdateTypeFilter , \"True\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[1]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[1]->compressionType == 2) << "compressionType , 2";
 		EXPECT_TRUE( activeConfig.configChannelSet[1]->guaranteedOutputBuffers == 7000) << "guaranteedOutputBuffers , 7000";

@@ -2,13 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2017,2019-2020,2024 LSEG. All rights reserved.
+ *|      Copyright (C) 2017,2019-2020,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 #include "LoginReqImpl.h"
 #include "OmmInvalidUsageException.h"
 #include "Utilities.h"
+#include "ActiveConfig.h"
 #include <new>
 
 using namespace refinitiv::ema::domain::login;
@@ -80,12 +81,14 @@ LoginReqImpl& LoginReqImpl::clear()
 	_authenticationExtendedSet = false;
 	_pauseSet = false;
 	_pause = false;
-
+	_updateTypeFilterSet = true;
+	_negativeUpdateTypeFilterSet = false;
 	_nameSet = true;
 	_nameTypeSet = true;
 
 	_nameType = USER_NAME;
 	_domainType = MMT_LOGIN;
+	_updateTypeFilter = DEFAULT_UPDATE_TYPE_FILTER;
 
 	applicationName("ema");
 	applicationId("256");
@@ -117,6 +120,8 @@ LoginReqImpl& LoginReqImpl::operator=(const LoginReqImpl& other)
 	_pauseSet = other._pauseSet;
 	_nameSet = other._nameSet;
 	_nameTypeSet = other._nameTypeSet;
+	_updateTypeFilter = other._updateTypeFilter;
+	_negativeUpdateTypeFilter = other._negativeUpdateTypeFilter;
 
 	_allowSuspectData = other._allowSuspectData;
 	_downloadConnectionConfig = other._downloadConnectionConfig;
@@ -242,6 +247,24 @@ LoginReqImpl& LoginReqImpl::role(UInt32 value)
 	_changed = true;
 	_roleSet = true;
 	_role = value;
+
+	return *this;
+}
+
+LoginReqImpl& LoginReqImpl::updateTypeFilter(const UInt64& value)
+{
+	_changed = true;
+	_updateTypeFilterSet = true;
+	_updateTypeFilter = value;
+
+	return *this;
+}
+
+LoginReqImpl& LoginReqImpl::negativeUpdateTypeFilter(const UInt64& value)
+{
+	_changed = true;
+	_negativeUpdateTypeFilterSet = true;
+	_negativeUpdateTypeFilter = value;
 
 	return *this;
 }
@@ -383,6 +406,16 @@ bool LoginReqImpl::hasName() const
 bool LoginReqImpl::hasNameType() const
 {
 	return _nameTypeSet;
+}
+
+bool LoginReqImpl::hasUpdateTypeFilter() const
+{
+	return _updateTypeFilterSet;
+}
+
+bool LoginReqImpl::hasNegativeUpdateTypeFilter() const
+{
+	return _negativeUpdateTypeFilterSet;
 }
 
 const ReqMsg& LoginReqImpl::getMessage()
@@ -567,6 +600,30 @@ const UInt32& LoginReqImpl::getNameType() const
 	return _nameType;
 }
 
+const UInt64& LoginReqImpl::getUpdateTypeFilter() const
+{
+	if (!_updateTypeFilterSet)
+	{
+		EmaString text(ENAME_UPDATE_TYPE_FILTER);
+		text.append(" element is not set");
+		throwIueException(text, OmmInvalidUsageException::InvalidOperationEnum);
+	}
+
+	return _updateTypeFilter;
+}
+
+const UInt64& LoginReqImpl::getNegativeUpdateTypeFilter() const
+{
+	if (!_negativeUpdateTypeFilterSet)
+	{
+		EmaString text(ENAME_NEGATIVE_UPDATE_TYPE_FILTER);
+		text.append(" element is not set");
+		throwIueException(text, OmmInvalidUsageException::InvalidOperationEnum);
+	}
+
+	return _negativeUpdateTypeFilter;
+}
+
 const EmaString& LoginReqImpl::toString() const
 {
 	_toString.clear();
@@ -705,6 +762,16 @@ const EmaString& LoginReqImpl::toString() const
 		_toString.append("\r\n").append(ENAME_USERNAME_TYPE).append(" : ").append(_nameType);
 	}
 
+	if (_updateTypeFilterSet)
+	{
+		_toString.append("\r\n").append(ENAME_UPDATE_TYPE_FILTER).append(" : ").append(_updateTypeFilter);
+	}
+
+	if (_negativeUpdateTypeFilterSet)
+	{
+		_toString.append("\r\n").append(ENAME_NEGATIVE_UPDATE_TYPE_FILTER).append(" : ").append(_negativeUpdateTypeFilter);
+	}
+
 	return _toString;
 }
 
@@ -799,6 +866,16 @@ void LoginReqImpl::encode(ReqMsg& reqMsg) const
 		{
 			_pElementList->addBuffer(ENAME_AUTH_EXTENDED, _authenticationExtended);
 		}
+	}
+
+	if (_updateTypeFilterSet)
+	{
+		_pElementList->addUInt(ENAME_UPDATE_TYPE_FILTER, _updateTypeFilter);
+	}
+
+	if (_negativeUpdateTypeFilterSet)
+	{
+		_pElementList->addUInt(ENAME_NEGATIVE_UPDATE_TYPE_FILTER, _negativeUpdateTypeFilter);
 	}
 
 	_pElementList->complete();
@@ -986,6 +1063,16 @@ void LoginReqImpl::decode(const ReqMsg& reqMsg)
 				}
 				if (elementEntry.getCode() == Data::NoCodeEnum)
 					name(elementEntry.getAscii());
+			}
+			else if (elementName == ENAME_UPDATE_TYPE_FILTER)
+			{
+				if (elementEntry.getCode() == Data::NoCodeEnum)
+					updateTypeFilter(elementEntry.getUInt());
+			}
+			else if (elementName == ENAME_NEGATIVE_UPDATE_TYPE_FILTER)
+			{
+				if (elementEntry.getCode() == Data::NoCodeEnum)
+					negativeUpdateTypeFilter(elementEntry.getUInt());
 			}
 		}
 		catch (const OmmInvalidUsageException& iue)

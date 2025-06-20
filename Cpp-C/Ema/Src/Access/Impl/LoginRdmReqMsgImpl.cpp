@@ -543,6 +543,34 @@ LoginRdmReqMsgImpl& LoginRdmReqMsgImpl::set(EmaConfigImpl* emaConfigImpl, RsslRe
 				_rsslRdmLoginRequest.authenticationExtended.length = _authenticationExtended.length();
 				_rsslRdmLoginRequest.flags |= RDM_LG_RQF_HAS_AUTHN_EXTENDED;
 			}
+			else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_UPDATE_TYPE_FILTER))
+			{
+				retCode = rsslDecodeUInt(&dIter, &_rsslRdmLoginRequest.updateTypeFilter);
+				if (retCode != RSSL_RET_SUCCESS)
+				{
+					EmaString temp("Internal error while decoding login attribute of update type filter. Error='");
+					temp.append(rsslRetCodeToString(retCode)).append("'. Attribute will be skipped.");
+					if (emaConfigImpl != NULL)
+						emaConfigImpl->appendConfigError(temp, OmmLoggerClient::WarningEnum);
+					continue;
+				}
+
+				_rsslRdmLoginRequest.flags |= RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER;
+			}
+			else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_NEGATIVE_UPDATE_TYPE_FILTER))
+			{
+				retCode = rsslDecodeUInt(&dIter, &_rsslRdmLoginRequest.negativeUpdateTypeFilter);
+				if (retCode != RSSL_RET_SUCCESS)
+				{
+					EmaString temp("Internal error while decoding login attribute of negative update type filter. Error='");
+					temp.append(rsslRetCodeToString(retCode)).append("'. Attribute will be skipped.");
+					if (emaConfigImpl != NULL)
+						emaConfigImpl->appendConfigError(temp, OmmLoggerClient::WarningEnum);
+					continue;
+				}
+
+				_rsslRdmLoginRequest.flags |= RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER;
+			}
 
 			retCode = rsslDecodeElementEntry( &dIter, &elementEntry );
 		}

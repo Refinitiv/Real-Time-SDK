@@ -917,6 +917,10 @@ EmaConfigImpl::EmaConfigImpl(const EmaString& configPath) :
 	_sslCAStoreSetViaFunctionCall(),
 	_channelTypeViaFunctionCall( RSSL_CONN_TYPE_INIT ),
 	_encryptedProtocolTypeViaFunctionCall( RSSL_CONN_TYPE_INIT ),
+	_updateTypeFilter( DEFAULT_UPDATE_TYPE_FILTER ), 
+	_updateTypeFilterSet( false ), 
+	_negativeUpdateTypeFilter( DEFAULT_NEGATIVE_UPDATE_TYPE_FILTER ),
+	_negativeUpdateTypeFilterSet ( false ),
 	_serviceLists()
 {
 }
@@ -1009,6 +1013,10 @@ void EmaConfigImpl::clear()
 	_proxyDomainSetViaFunctionCall.clear();
 	_channelTypeViaFunctionCall = RSSL_CONN_TYPE_INIT;
 	_encryptedProtocolTypeViaFunctionCall = RSSL_CONN_TYPE_INIT;
+	_updateTypeFilter = DEFAULT_UPDATE_TYPE_FILTER;
+	_updateTypeFilterSet = false;
+	_negativeUpdateTypeFilter = DEFAULT_NEGATIVE_UPDATE_TYPE_FILTER;
+	_negativeUpdateTypeFilterSet = false;
 }
 
 void EmaConfigImpl::username( const EmaString& username )
@@ -1553,6 +1561,27 @@ void EmaConfigImpl::restProxyDomain(const EmaString& restProxyDomain)
 		_restProxyDomainSetViaFunctionCall = "";
 }
 
+void EmaConfigImpl::updateTypeFilter(const UInt64 updateFilter)
+{
+	if (updateFilter < RWF_MAX_16)
+	{
+		_updateTypeFilter = updateFilter;
+		_updateTypeFilterSet = true;
+	}
+	else
+		_updateTypeFilter = RWF_MAX_16;
+}
+
+void EmaConfigImpl::negativeUpdateTypeFilter(const UInt64 negativeUpdateFilter)
+{
+	if (negativeUpdateFilter < RWF_MAX_16)
+	{
+		_negativeUpdateTypeFilter = negativeUpdateFilter;
+		_negativeUpdateTypeFilterSet = true;
+	}
+	else
+		_negativeUpdateTypeFilter = RWF_MAX_16;
+}
 void EmaConfigImpl::addServiceList(const ServiceList& serviceList)
 {
 	if (serviceList.name().length() == 0)
@@ -1579,7 +1608,6 @@ void EmaConfigImpl::addServiceList(const ServiceList& serviceList)
 
 	_serviceLists.push_back(pNewServiceList);
 }
-
 
 EmaConfigServerImpl::EmaConfigServerImpl( const EmaString& configPath ) :
 	EmaConfigBaseImpl( configPath ),

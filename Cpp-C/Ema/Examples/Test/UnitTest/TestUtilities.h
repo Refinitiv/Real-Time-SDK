@@ -13,6 +13,7 @@
 #include "rtr/rsslDataDictionary.h"
 #include "Access/Impl/StaticDecoder.h"
 #include "rtr/rsslMsgDecoders.h"
+#include "ActiveConfig.h"
 #include "Ema.h"
 
 /* These are user defined FIDs to be used in the example so that we can show types */

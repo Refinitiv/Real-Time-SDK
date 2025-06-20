@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2017,2019-2020,2024 LSEG. All rights reserved.
+ *|        Copyright (C) 2017,2019-2020,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -182,6 +182,18 @@ Login::LoginReq& Login::LoginReq::nameType(const UInt32& value)
 	return *this;
 }
 
+Login::LoginReq& Login::LoginReq::updateTypeFilter(const UInt64& value)
+{
+	_pLoginReqImpl->updateTypeFilter(value);
+	return *this;
+}
+
+Login::LoginReq& Login::LoginReq::negativeUpdateTypeFilter(const UInt64& value)
+{
+	_pLoginReqImpl->negativeUpdateTypeFilter(value);
+	return *this;
+}
+
 bool Login::LoginReq::hasAllowSuspectData() const
 {
 	return _pLoginReqImpl->hasAllowSuspectData();
@@ -265,6 +277,16 @@ bool Login::LoginReq::hasName() const
 bool Login::LoginReq::hasNameType() const
 {
 	return _pLoginReqImpl->hasNameType();
+}
+
+bool Login::LoginReq::hasUpdateTypeFilter() const
+{
+	return _pLoginReqImpl->hasUpdateTypeFilter();
+}
+
+bool Login::LoginReq::hasNegativeUpdateTypeFilter() const
+{
+	return _pLoginReqImpl->hasNegativeUpdateTypeFilter();
 }
 
 const ReqMsg& Login::LoginReq::getMessage() const
@@ -355,6 +377,16 @@ const EmaString& Login::LoginReq::getName() const
 const UInt32& Login::LoginReq::getNameType() const
 {
 	return _pLoginReqImpl->getNameType();
+}
+
+const UInt64& Login::LoginReq::getUpdateTypeFilter() const
+{
+	return _pLoginReqImpl->getUpdateTypeFilter();
+}
+
+const UInt64& Login::LoginReq::getNegativeUpdateTypeFilter() const
+{
+	return _pLoginReqImpl->getNegativeUpdateTypeFilter();
 }
 
 const EmaString& Login::LoginReq::toString() const

@@ -457,6 +457,18 @@ public :
 	*/
 	OmmConsumerConfig& restProxyDomain(const EmaString& restProxyDomain);
 
+	/** Specifies update type filter. It is a bitmask field used as a filter to determine whether an update message with a specific type should be transferred.
+	*	@param[in] updateFilter - specifies update type filter. Possible bit values specified in EmaRdm.h.
+	*	@return reference to this object
+	*/
+	OmmConsumerConfig& updateTypeFilter(const UInt64 updateFilter);
+
+	/** Specifies update type filter. It is a bitmask field used as a filter to determine whether an update message with a specific type should NOT be transferred.
+	*	@param[in] negativeUpdateFilter - specifies negative update type filter. Possible bit values specified in EmaRdm.h.
+	*	@return reference to this object
+	*/
+
+	OmmConsumerConfig& negativeUpdateTypeFilter(const UInt64 negativeUpdateFilter);
 	/** Specifies a new ServiceList to be added to this configuration. The ServiceList is a list of concrete service names that are can be subscribed to using the name of the service list.
 
 		@param[in] serviceList ServiceList object that contains the concrete service names.

@@ -80,7 +80,6 @@ private :
 	bool			_initialSet;				// Internal flag 
 	RsslRDMLoginRefresh _refreshMsg;
 
-
 };
 
 // This represents the handle and associated routing information for a Login Request.

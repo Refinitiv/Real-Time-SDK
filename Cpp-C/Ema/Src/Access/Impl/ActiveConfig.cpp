@@ -398,7 +398,11 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	phDetectionTimeInterval(DEFAULT_DETECTION_TIME_INTERVAL),
 	preferredChannelName(DEFAULT_CHANNEL_NAME),
 	preferredWSBChannelName(DEFAULT_WSB_CHANNEL_NAME),
-	phFallBackWithInWSBGroup(DEFAULT_FALL_BACK_WITH_IN_WSB_GROUP)
+	phFallBackWithInWSBGroup(DEFAULT_FALL_BACK_WITH_IN_WSB_GROUP),
+	updateTypeFilter(DEFAULT_UPDATE_TYPE_FILTER),
+	negativeUpdateTypeFilter( DEFAULT_NEGATIVE_UPDATE_TYPE_FILTER ),
+	updateTypeFilterSet(false),
+	negativeUpdateTypeFilterSet(false)
 {
 }
 
@@ -436,6 +440,12 @@ EmaString ActiveConfig::configTrace()
 		.append("\n\t preferredChannelName : ").append(preferredChannelName)
 		.append("\n\t preferredWSBChannelName : ").append(preferredWSBChannelName)
 		.append("\n\t phFallBackWithInWSBGroup : ").append(phFallBackWithInWSBGroup);
+
+	if (updateTypeFilterSet)
+		traceStr.append("\n\t updateTypeFilter : ").append(updateTypeFilter);
+
+	if(negativeUpdateTypeFilterSet)
+		traceStr.append("\n\t negativeUpdateTypeFilter : ").append(negativeUpdateTypeFilter);
 
 	return traceStr;
 }
@@ -552,6 +562,10 @@ void ActiveConfig::clear()
 	preferredChannelName.clear();
 	preferredWSBChannelName.clear();
 	phFallBackWithInWSBGroup = false;
+	updateTypeFilter = DEFAULT_UPDATE_TYPE_FILTER;
+	negativeUpdateTypeFilter = DEFAULT_NEGATIVE_UPDATE_TYPE_FILTER;
+	updateTypeFilterSet = false;
+	negativeUpdateTypeFilterSet = false;
 
 
 	if ( pDirectoryRefreshMsg )
@@ -680,6 +694,29 @@ void ActiveConfig::setRestRequestTimeOut(UInt64 value)
 		restRequestTimeOut = RWF_MAX_32;
 	else
 		restRequestTimeOut = (UInt32)value;
+}
+
+void ActiveConfig::setUpdateTypeFilter(UInt64 value)
+{
+	if (value < RWF_MAX_16)
+	{
+		updateTypeFilter = value;
+		updateTypeFilterSet = true;
+	}
+	else
+		updateTypeFilter = RWF_MAX_16;
+}
+
+void ActiveConfig::setNegativeUpdateTypeFilter(UInt64 value)
+{
+	if (value < RWF_MAX_16)
+	{
+		negativeUpdateTypeFilter = value;
+		negativeUpdateTypeFilterSet = true;
+	}
+	else
+		negativeUpdateTypeFilter = RWF_MAX_16;
+
 }
 
 ChannelConfig* ActiveConfig::findChannelConfig( const Channel* pChannel )

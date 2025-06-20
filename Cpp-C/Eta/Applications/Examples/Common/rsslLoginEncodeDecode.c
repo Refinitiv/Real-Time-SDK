@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2015,2017-2018,2020,2022,2024-2025 LSEG. All rights reserved.
+ *|   Copyright (C) 2015,2017-2018,2020,2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -233,11 +233,31 @@ RsslRet encodeLoginRequest(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo
 		element.dataType = RSSL_DT_UINT;
 		element.name = RSSL_ENAME_RTT;
 		tmp = RDM_LOGIN_RTT_ELEMENT;
-		if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &tmp)) < RSSL_RET_SUCCESS)
+		if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &loginReqInfo)) < RSSL_RET_SUCCESS)
 		{
 			printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
 			return ret;
 		}
+	}
+
+	/* UpdateTypeFilter */
+	element.dataType = RSSL_DT_UINT;
+	element.name = RSSL_ENAME_UPDATE_TYPE_FILTER;
+
+	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &loginReqInfo->UpdateTypeFilter)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	/* NegativeUpdateTypeFilter */
+	element.dataType = RSSL_DT_UINT;
+	element.name = RSSL_ENAME_NEGATIVE_UPDATE_TYPE_FILTER;
+
+	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &loginReqInfo->NegativeUpdateTypeFilter)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+		return ret;
 	}
 
 	/* complete encode element list */
@@ -486,6 +506,7 @@ RsslRet decodeLoginRequest(RsslLoginRequestInfo* loginReqInfo, RsslMsg* msg, Rss
 							return ret;
 						}
 					}
+					/* RTT support */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_RTT))
 					{
 						ret = rsslDecodeUInt(dIter, &tmp);
@@ -500,6 +521,26 @@ RsslRet decodeLoginRequest(RsslLoginRequestInfo* loginReqInfo, RsslMsg* msg, Rss
 						else
 							loginReqInfo->RTT = RSSL_FALSE;
 
+					}
+					/* UpdateTypeFilter */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_UPDATE_TYPE_FILTER))
+					{
+						ret = rsslDecodeUInt(dIter, &loginReqInfo->UpdateTypeFilter);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
+					}
+					/* NegativeUpdateTypeFilter */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_NEGATIVE_UPDATE_TYPE_FILTER))
+					{
+						ret = rsslDecodeUInt(dIter, &loginReqInfo->NegativeUpdateTypeFilter);
+						if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+						{
+							printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+							return ret;
+						}
 					}
 				}
 				else
@@ -1010,7 +1051,7 @@ RsslRet decodeLoginResponse(RsslLoginResponseInfo* loginRespInfo, RsslMsg* msg, 
 							return ret;
 						}
 					}
-					/* RTT */
+					/* RTT support */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_RTT))
 					{
 						ret = rsslDecodeUInt(dIter, &tmp);

@@ -189,6 +189,17 @@ void OmmConsumerImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 		if (pConfigImpl->get<UInt64>(instanceNodeName + "MaxOutstandingPosts", tmp))
 			_activeConfig.maxOutstandingPosts = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
+		if (pConfigImpl->get<UInt64>(instanceNodeName + "UpdateTypeFilter", tmp))
+		{
+			_activeConfig.updateTypeFilter = tmp > RWF_MAX_16 ? RWF_MAX_16 : tmp;
+			_activeConfig.updateTypeFilterSet = true;
+		}
+		if (pConfigImpl->get<UInt64>(instanceNodeName + "NegativeUpdateTypeFilter", tmp))
+		{
+			_activeConfig.negativeUpdateTypeFilter = tmp > RWF_MAX_16 ? RWF_MAX_16 : tmp;
+			_activeConfig.negativeUpdateTypeFilterSet = true;
+		}
+
 		_activeConfig.pRsslDirectoryRequestMsg = pConfigImpl->getDirectoryReq();
 
 		_activeConfig.pRsslEnumDefRequestMsg = pConfigImpl->getEnumDefDictionaryReq();
@@ -198,6 +209,16 @@ void OmmConsumerImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 		if (ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure())
 		{
 			ppc->retrieveCustomConfig(_activeConfig.configuredName, _activeConfig);
+		}
+
+		if (pConfigImpl->getUpdateTypeFilterSet())
+		{
+			_activeConfig.updateTypeFilter = pConfigImpl->getUpdateTypeFilter();
+		}
+
+		if (pConfigImpl->getNegativeUpdateTypeFilterSet())
+		{
+			_activeConfig.negativeUpdateTypeFilter = pConfigImpl->getNegativeUpdateTypeFilter();
 		}
 	}
 }
@@ -450,13 +471,73 @@ void OmmConsumerImpl::processChannelEvent( RsslReactorChannelEvent* )
 void OmmConsumerImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role)
 {
 	RsslReactorOMMConsumerRole& consumerRole = role.ommConsumerRole;
+	ActiveConfig& activeConfig = getActiveConfig();
+	UInt64 updateFilter = 0;
+	UInt64 negativeUpdateFilter = 0;
+	UInt32 updateFilterFlag = 0;
+	UInt32 negativeUpdateFilterFlag = 0;
+
 	rsslClearOMMConsumerRole( &consumerRole );
 	if (_LoginRequestMsgs.size() == 1)
 	{
+		consumerRole.pLoginRequest = getLoginCallbackClient().getLoginRequest();
+		if (activeConfig.getUpdateTypeFilterSet())
+		{
+			consumerRole.pLoginRequest->updateTypeFilter = activeConfig.updateTypeFilter;
+			consumerRole.pLoginRequest->flags |= RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER;
+		}
+
+		if (activeConfig.getNegativeUpdateTypeFilterSet())
+		{
+			consumerRole.pLoginRequest->negativeUpdateTypeFilter = activeConfig.negativeUpdateTypeFilter;
+			consumerRole.pLoginRequest->flags |= RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER;
+		}
+
 		consumerRole.pLoginRequest = _LoginRequestMsgs[0]->get();
 	}
 	else
 	{
+		updateFilter = _LoginReactorConfig[0]->loginRequestMsg->updateTypeFilter;
+		negativeUpdateFilter = _LoginReactorConfig[0]->loginRequestMsg->negativeUpdateTypeFilter;
+
+		updateFilterFlag = _LoginReactorConfig[0]->loginRequestMsg->flags & RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER;
+		negativeUpdateFilterFlag = _LoginReactorConfig[0]->loginRequestMsg->flags & RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER;
+
+		for (UInt32 i = 0; i < _LoginRequestMsgs.size(); i++)
+		{
+			if (activeConfig.getUpdateTypeFilterSet())
+			{
+				_LoginReactorConfig[i]->loginRequestMsg->updateTypeFilter = activeConfig.updateTypeFilter;
+				_LoginReactorConfig[i]->loginRequestMsg->flags |= RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER;
+			}
+			else
+			{
+				if ( _LoginReactorConfig[i]->loginRequestMsg->updateTypeFilter != updateFilter ||
+					 (_LoginReactorConfig[i]->loginRequestMsg->flags & RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER) != updateFilterFlag)
+				{
+					EmaString temp("Update type filter cannot be different in configured login request messages.");
+					handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+					return;
+				}
+			}
+
+			if (activeConfig.getNegativeUpdateTypeFilterSet())
+			{
+				_LoginReactorConfig[i]->loginRequestMsg->negativeUpdateTypeFilter = activeConfig.negativeUpdateTypeFilter;
+				_LoginReactorConfig[i]->loginRequestMsg->flags |= RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER;
+			}
+			else
+			{
+				if (_LoginReactorConfig[i]->loginRequestMsg->negativeUpdateTypeFilter != negativeUpdateFilter ||
+					(_LoginReactorConfig[i]->loginRequestMsg->flags & RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER) != negativeUpdateFilterFlag)
+				{
+					EmaString temp("Negative update type filter cannot be different in configured login request messages.");
+					handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+					return;
+				}
+			}
+
+		}
 		consumerRole.pLoginRequestList = _LoginReactorConfig;
 		consumerRole.loginRequestMsgCredentialCount = _LoginRequestMsgs.size();
 	}

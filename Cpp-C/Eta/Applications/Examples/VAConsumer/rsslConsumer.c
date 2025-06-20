@@ -77,6 +77,9 @@ static RsslBool sendJsonConvError = RSSL_FALSE;
 static RsslUInt32 jsonOutputBufferSize = 0;
 static RsslUInt32 jsonTokenIncrementSize = 0;
 
+static RsslUInt64 updateTypeFilter = 0;
+static RsslUInt64 negativeUpdateTypeFilter = 0;
+
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
 static int channelCommandCount = 0;
@@ -241,6 +244,8 @@ void printUsageAndExit(char *appName)
 			"\n -jsonOutputBufferSize size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough"
 			"\n -jsonTokenIncrementSize number of json token increment size for parsing JSON messages"
 			"\n -sendJsonConvError enable send json conversion error to provider"
+			"\n -updateTypeFilter set update type filter for login request"
+			"\n -negativeUpdateTypeFilter set negative update type filter for login request"
 			"\n"
 			"\n Options for Preferred host:"
 			"\n -enablePH enable Preferred host feature"
@@ -542,6 +547,16 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i++;
 				sendJsonConvError = RSSL_TRUE;
+			}
+			else if (strcmp("-updateTypeFilter", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				updateTypeFilter = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-negativeUpdateTypeFilter", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				negativeUpdateTypeFilter = atoi(argv[i - 1]);
 			}
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) ||
 				(strcmp("-webSocket", argv[i]) == 0) ||
@@ -2299,6 +2314,19 @@ int main(int argc, char **argv)
 	if (RTTSupport == RSSL_TRUE)
 	{
 		loginRequest.flags |= RDM_LG_RQF_RTT_SUPPORT;
+	}
+
+	/* Set update type filter*/
+	if (updateTypeFilter)
+	{
+		loginRequest.flags |= RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER;
+		loginRequest.updateTypeFilter = updateTypeFilter;
+	}
+	/* Set negative update type filter*/
+	if (negativeUpdateTypeFilter)
+	{
+		loginRequest.flags |= RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER;
+		loginRequest.negativeUpdateTypeFilter = negativeUpdateTypeFilter;
 	}
 
 	/* Initialize the default directory request(Use 2 as the Directory Stream Id) */

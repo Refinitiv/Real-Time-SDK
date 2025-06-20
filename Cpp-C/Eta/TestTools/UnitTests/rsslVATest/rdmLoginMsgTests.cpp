@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2018-2020,2024 LSEG. All rights reserved.
+ *|        Copyright (C) 2018-2020,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -101,7 +101,9 @@ void loginRequestMsgTests()
 		RDM_LG_RQF_HAS_USERNAME_TYPE,
 		RDM_LG_RQF_PAUSE_ALL,
 		RDM_LG_RQF_NO_REFRESH,
-		RDM_LG_RQF_HAS_SUPPORT_PROV_DIC_DOWNLOAD
+		RDM_LG_RQF_HAS_SUPPORT_PROV_DIC_DOWNLOAD,
+		RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER,
+		RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER
 	};
 	RsslUInt32 *flagsList, flagsListCount;
 
@@ -124,6 +126,8 @@ void loginRequestMsgTests()
 	RsslUInt singleOpen = 2;
 	RsslUInt supportDictionaryDownload = 3;
 	RsslUInt8 userNameType = RDM_LOGIN_USER_TOKEN;
+	RsslUInt64 updTypeFilter = RDMUpdateEventFilter::RDM_UPD_EVENT_FILTER_TYPE_VERIFY | RDMUpdateEventFilter::RDM_UPD_EVENT_FILTER_TYPE_CORRECTION;
+	RsslUInt64 negUpdTypeFilter = RDMUpdateEventFilter::RDM_UPD_EVENT_FILTER_TYPE_MULTIPLE | RDMUpdateEventFilter::RDM_UPD_EVENT_FILTER_TYPE_CLOSING_RUN;
 
 	clearTypedMessageStats(&stats);
 
@@ -217,6 +221,12 @@ void loginRequestMsgTests()
 
 					if (encRDMMsg.flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED)
 						encRDMMsg.authenticationExtended = authnExtended;
+
+					if (encRDMMsg.flags & RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER)
+						encRDMMsg.updateTypeFilter = updTypeFilter;
+
+					if (encRDMMsg.flags & RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER)
+						encRDMMsg.negativeUpdateTypeFilter = negUpdTypeFilter;
 
 					if (testWriteAction != TEST_EACTION_CREATE_COPY)
 					{
@@ -315,6 +325,12 @@ void loginRequestMsgTests()
 						ASSERT_TRUE(pDecRDMMsg->authenticationExtended.data != authnExtended.data); /* deep copy check */
 						ASSERT_TRUE(rsslBufferIsEqual(&pDecRDMMsg->authenticationExtended, &authnExtended));
 					}
+
+					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER)
+						ASSERT_TRUE(pDecRDMMsg->updateTypeFilter == updTypeFilter);
+
+					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER)
+						ASSERT_TRUE(pDecRDMMsg->negativeUpdateTypeFilter == negUpdTypeFilter);
 
 					if (testWriteAction == TEST_EACTION_CREATE_COPY)
 						free(pDecRDMMsg);

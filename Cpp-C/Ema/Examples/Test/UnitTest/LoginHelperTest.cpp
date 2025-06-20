@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2018-2020,2024 LSEG. All rights reserved.
+ *|        Copyright (C) 2018-2020,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -113,6 +113,18 @@ TEST(LoginHelperTest, encodeLoginRequestTest)
 	EXPECT_TRUE( loginReq.hasAuthenticationExtended() ) << "Checking Login::LoginReq::hasAuthenticationExtended()";
 	EXPECT_STREQ( loginReq.getAuthenticationExtended(), authenticationExtended ) << "Checking Login::LoginReq::getAuthenticationExtended()";
 
+	UInt64 updTypeFilter = UPD_EVENT_FILTER_TYPE_QUOTE | UPD_EVENT_FILTER_TYPE_NEWS_ALERT | UPD_EVENT_FILTER_TYPE_CORRECTION;
+	loginReq.updateTypeFilter(updTypeFilter);
+
+	EXPECT_TRUE(loginReq.hasUpdateTypeFilter()) << "Checking Login::LoginReq::hasUpdateTypeFilter()";
+	EXPECT_EQ(loginReq.getUpdateTypeFilter(), updTypeFilter) << "Checking Login::LoginReq::getUpdateTypeFilter()";
+
+	UInt64 negUpdTypeFilter = UPD_EVENT_FILTER_TYPE_TRADE | UPD_EVENT_FILTER_TYPE_ORDER_INDICATION | UPD_EVENT_FILTER_TYPE_MULTIPLE;
+	loginReq.negativeUpdateTypeFilter(negUpdTypeFilter);
+
+	EXPECT_TRUE(loginReq.hasNegativeUpdateTypeFilter()) << "Checking Login::LoginReq::hasNegativeUpdateTypeFilter()";
+	EXPECT_EQ(loginReq.getNegativeUpdateTypeFilter(), negUpdTypeFilter) << "Checking Login::LoginReq::getNegativeUpdateTypeFilter()";
+
 	ReqMsg& encReqMsg = const_cast<ReqMsg&>(loginReq.getMessage());
 
 	StaticDecoder::setData(&encReqMsg, 0);
@@ -214,6 +226,18 @@ TEST(LoginHelperTest, encodeLoginRequestTest)
 				text.append(ENAME_AUTH_EXTENDED);
 				EXPECT_STREQ( elementEntry.getBuffer(), authenticationExtended ) << text;
 			}
+			if (elementName == ENAME_UPDATE_TYPE_FILTER)
+			{
+				text.set("Checking decoded value of ");
+				text.append(ENAME_UPDATE_TYPE_FILTER);
+				EXPECT_EQ(elementEntry.getUInt(), updTypeFilter) << text;
+			}
+			if (elementName == ENAME_NEGATIVE_UPDATE_TYPE_FILTER)
+			{
+				text.set("Checking decoded value of ");
+				text.append(ENAME_NEGATIVE_UPDATE_TYPE_FILTER);
+				EXPECT_EQ(elementEntry.getUInt(), negUpdTypeFilter) << text;
+			}
 		}
 	}
 	catch (const OmmException& excp)
@@ -285,6 +309,9 @@ TEST(LoginHelperTest, decodeLoginRequestTest)
 	authenticationExtended.append("authenticationExtended", 22);
 	encodedElementList.addBuffer(ENAME_AUTH_EXTENDED, authenticationExtended);
 
+	encodedElementList.addUInt(ENAME_UPDATE_TYPE_FILTER, UPD_EVENT_FILTER_TYPE_QUOTE);
+	encodedElementList.addUInt(ENAME_NEGATIVE_UPDATE_TYPE_FILTER, UPD_EVENT_FILTER_TYPE_MULTIPLE);
+
 	encodedElementList.complete();
 
 	StaticDecoder::setData(&const_cast<ElementList&>(encodedElementList), 0);
@@ -340,6 +367,12 @@ TEST(LoginHelperTest, decodeLoginRequestTest)
 
 	EXPECT_TRUE( loginReq.hasAuthenticationExtended() ) << "Checking Login::LoginReq::hasAuthenticationExtended()";
 	EXPECT_STREQ( loginReq.getAuthenticationExtended(), authenticationExtended ) << "Checking Login::LoginReq::getAuthenticationExtended()";
+
+	EXPECT_TRUE( loginReq.hasUpdateTypeFilter() ) << "Checking Login::LoginReq::hasUpdateTypeFilter()";
+	EXPECT_EQ ( loginReq.getUpdateTypeFilter(), UPD_EVENT_FILTER_TYPE_QUOTE) << "Checking Login::LoginReq::getUpdateTypeFilter()";
+
+	EXPECT_TRUE( loginReq.hasNegativeUpdateTypeFilter() ) << "Checking Login::LoginReq::hasNegativeUpdateTypeFilter()";
+	EXPECT_EQ( loginReq.getNegativeUpdateTypeFilter(), UPD_EVENT_FILTER_TYPE_MULTIPLE ) << "Checking Login::LoginReq::getNegativeUpdateTypeFilter()";
 }
 
 TEST(LoginHelperTest, blankLoginRequestTest)
@@ -479,6 +512,23 @@ TEST(LoginHelperTest, errorHandlingLoginRequestTest)
 	{
 		EXPECT_FALSE( true ) << "Check expected exception message for Login::LoginReq::getAuthenticationExtended()";
 	}
+
+	foundExpectedException = false;
+
+	try
+	{
+		loginReq.getNegativeUpdateTypeFilter();
+	}
+	catch (const OmmInvalidUsageException& ivue)
+	{
+		foundExpectedException = true;
+		EXPECT_TRUE(ivue.getText() == EmaString("NegativeUpdateTypeFilter element is not set")) << "Check expected exception message for Login::LoginReq::getNegativeUpdateTypeFilter()";
+	}
+
+	if (!foundExpectedException)
+	{
+		EXPECT_FALSE( true ) << "Check expected exception message for Login::LoginReq::getNegativeUpdateTypeFilter()";
+	}
 }
 
 
@@ -508,6 +558,8 @@ TEST(LoginHelperTest, LoginReqClearTest)
 	loginReq.downloadConnectionConfig(true);
 	loginReq.pause(true);
 	loginReq.password("Password");
+	loginReq.updateTypeFilter(UPD_EVENT_FILTER_TYPE_QUOTE);
+	loginReq.negativeUpdateTypeFilter(UPD_EVENT_FILTER_TYPE_MULTIPLE);
 
 	EXPECT_TRUE( loginReq.hasAllowSuspectData() ) << "Check Login::LoginReq::clear()";
 	EXPECT_FALSE( loginReq.getAllowSuspectData() ) << "Check Login::LoginReq::clear()";
@@ -544,6 +596,10 @@ TEST(LoginHelperTest, LoginReqClearTest)
 	EXPECT_TRUE( loginReq.getPause() ) << "Check Login::LoginReq::clear()";
 	EXPECT_TRUE( loginReq.hasPassword() ) << "Check Login::LoginReq::clear()";
 	EXPECT_STREQ( loginReq.getPassword(), "Password" ) << "Check Login::LoginReq::clear()";
+	EXPECT_TRUE( loginReq.hasUpdateTypeFilter() ) << "Check Login::LoginReq::clear()";
+	EXPECT_EQ( loginReq.getUpdateTypeFilter(), UPD_EVENT_FILTER_TYPE_QUOTE ) << "Check Login::LoginReq::clear()";
+	EXPECT_TRUE( loginReq.hasNegativeUpdateTypeFilter() ) << "Check Login::LoginReq::clear()";
+	EXPECT_EQ( loginReq.getNegativeUpdateTypeFilter(), UPD_EVENT_FILTER_TYPE_MULTIPLE ) << "Check Login::LoginReq::clear()";
 
 	loginReq.clear();
 
@@ -566,6 +622,10 @@ TEST(LoginHelperTest, LoginReqClearTest)
 	EXPECT_FALSE( loginReq.hasPassword() ) << "Check Login::LoginReq::clear()";
 	EXPECT_FALSE( loginReq.hasPause() ) << "Check Login::LoginReq::clear()";
 	EXPECT_FALSE( loginReq.getPause() ) << "Check Login::LoginReq::clear()";
+
+	EXPECT_TRUE(loginReq.hasUpdateTypeFilter()) << "Check Login::LoginReq::clear()";
+	EXPECT_EQ(loginReq.getUpdateTypeFilter(), DEFAULT_UPDATE_TYPE_FILTER) << "Check Login::LoginReq::clear()";
+	EXPECT_FALSE(loginReq.hasNegativeUpdateTypeFilter()) << "Check Login::LoginReq::clear()";
 }
 
 TEST(LoginHelperTest, decodeLoginReqInvalidTypeTest)
@@ -644,6 +704,10 @@ TEST(LoginHelperTest, LoginRequestToStringTest)
 
 	loginReq.supportProviderDictionaryDownload(true);
 
+	loginReq.updateTypeFilter(UPD_EVENT_FILTER_TYPE_QUOTE | UPD_EVENT_FILTER_TYPE_NEWS_ALERT);
+
+	loginReq.negativeUpdateTypeFilter(UPD_EVENT_FILTER_TYPE_MULTIPLE | UPD_EVENT_FILTER_TYPE_VERIFY);
+
 	EmaBuffer authenticationExtended = EmaBuffer();
 	authenticationExtended.append("authenticationExtended", 22);
 	loginReq.authenticationExtended(authenticationExtended);
@@ -670,7 +734,9 @@ TEST(LoginHelperTest, LoginRequestToStringTest)
 		.append("\r\n").append(ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD).append(" : ").append("Supported")
 		.append("\r\n").append(ENAME_AUTH_EXTENDED).append(" : ").append(authenticationExtended)
 		.append("\r\n").append(ENAME_USERNAME).append(" : ").append(name)
-		.append("\r\n").append(ENAME_USERNAME_TYPE).append(" : ").append(USER_NAME);
+		.append("\r\n").append(ENAME_USERNAME_TYPE).append(" : ").append(USER_NAME)
+		.append("\r\n").append(ENAME_UPDATE_TYPE_FILTER).append(" : ").append(UPD_EVENT_FILTER_TYPE_QUOTE | UPD_EVENT_FILTER_TYPE_NEWS_ALERT)
+		.append("\r\n").append(ENAME_NEGATIVE_UPDATE_TYPE_FILTER).append(" : ").append(UPD_EVENT_FILTER_TYPE_MULTIPLE | UPD_EVENT_FILTER_TYPE_VERIFY);
 
 	EXPECT_STREQ( loginReq.toString(), expectedMessage ) << "Check expected string message for Login::LoginReq::toString()";
 }

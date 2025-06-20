@@ -145,6 +145,8 @@
 #define DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG		  false;
 #define DEFAULT_WSB_MODE							  RSSL_RWSB_MODE_LOGIN_BASED
 #define DEFAULT_SHOULD_INIT_CPUID_LIB				  true
+#define DEFAULT_UPDATE_TYPE_FILTER					  65533 /*!< This value is service info (first nibble) plus of all filters UPD_EVENT_FILTER_TYPE from EmaRdm.h except UPD_EVENT_FILTER_TYPE_QUOTE */
+#define DEFAULT_NEGATIVE_UPDATE_TYPE_FILTER			  0
 
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 #define SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL	0x02  /*!< Indicates that server listen port set though EMA interface function call from server client*/
@@ -560,6 +562,11 @@ public:
 	void setReconnectMinDelay( Int64 value );
 	void setReconnectMaxDelay( Int64 value );
 	void setRestRequestTimeOut( UInt64 value );
+	void setUpdateTypeFilter( UInt64 );
+	void setNegativeUpdateTypeFilter( UInt64 );
+
+	const bool getUpdateTypeFilterSet() const { return updateTypeFilterSet; };
+	const bool getNegativeUpdateTypeFilterSet() const { return negativeUpdateTypeFilterSet; };
 
 	ChannelConfig* findChannelConfig( const Channel* pChannel );
 	static bool findChannelConfig( EmaVector< ChannelConfig* >&, const EmaString&, unsigned int& );
@@ -618,6 +625,12 @@ public:
 	EmaString       preferredChannelName;
 	EmaString       preferredWSBChannelName;
 	bool			phFallBackWithInWSBGroup;
+
+	UInt64			updateTypeFilter;
+	UInt64			negativeUpdateTypeFilter;
+	
+	bool			updateTypeFilterSet;
+	bool			negativeUpdateTypeFilterSet;
 
 protected:
 

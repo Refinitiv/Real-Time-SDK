@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2015-2017,2019-2020,2024 LSEG. All rights reserved.
+ *|     Copyright (C) 2015-2017,2019-2020,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -68,6 +68,25 @@ static const refinitiv::ema::access::UInt8 MMT_NEWS_TEXT_ANALYTICS		= 33;	/*!< N
 static const refinitiv::ema::access::UInt8 MMT_SYSTEM					= 127;	/*!< System domain for use with domain netural content (e.g. tunnel stream creation) */
 static const refinitiv::ema::access::UInt8 MMT_MAX_RESERVED				= 127;	/*!< Maximum reserved message model type value */
 static const refinitiv::ema::access::UInt8 MMT_MAX_VALUE				= 255;	/*!< Maximum message model type value */
+//@}
+
+///@name Update event filter type 
+//@{
+/** Update event filter types describe login message update event filter type.
+*/
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_NONE = 0x000;					/*!< (0) No Update event type specified */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_UNSPECIFIED = 0x001;			/*!< (0x001) Unspecified Update Event */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_QUOTE = 0x002;				/*!< (0x002) Update Event Quote */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_TRADE = 0x004;				/*!< (0x004) Update Event Trade */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_NEWS_ALERT = 0x008;			/*!< (0x008) Update Event News Alert */		
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_VOLUME_ALERT = 0x010;			/*!< (0x010) Update Event Volume Alert */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_ORDER_INDICATION = 0x020;		/*!< (0x020) Update Event Order Indication */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_CLOSING_RUN = 0x040;			/*!< (0x040) Update Event Closing Run */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_CORRECTION = 0x080;			/*!< (0x080) Update Event Correction */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_MARKET_DIGEST = 0x100;		/*!< (0x100) Update Event Market Digest */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_QUOTES_TRADE = 0x200;			/*!< (0x200) Update Event Quotes followed by a Trade */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_MULTIPLE = 0x400;				/*!< (0x400) Update Event with filtering and conflation applied */
+static const refinitiv::ema::access::UInt64 UPD_EVENT_FILTER_TYPE_VERIFY = 0x800;				/*!< (0x800) Fields may have changed */
 //@}
 
 ///@name User Name Types
@@ -260,6 +279,7 @@ static const refinitiv::ema::access::UInt32 SYMBOL_LIST_DATA_SNAPSHOTS	= 0x002;	
 	A provider specifies it does support Round Trip Time.
 */
 static const refinitiv::ema::access::UInt32 SUPPORT_RTT = 2;	/*!< Support Round Trip Time */
+//@}
 
 ///@name Login Attribute Names
 //@{
@@ -298,6 +318,8 @@ static const  refinitiv::ema::access::EmaString ENAME_SEQ_NUM("SequenceNumber", 
 static const  refinitiv::ema::access::EmaString ENAME_STATE("State", 5);
 static const  refinitiv::ema::access::EmaString ENAME_SOLICITED("Solicited", 9);
 static const  refinitiv::ema::access::EmaString ENAME_CLEARCACHE("ClearCache", 10);
+static const  refinitiv::ema::access::EmaString ENAME_UPDATE_TYPE_FILTER("UpdateTypeFilter", 16);
+static const  refinitiv::ema::access::EmaString ENAME_NEGATIVE_UPDATE_TYPE_FILTER("NegativeUpdateTypeFilter", 24);
 //@}
 
 ///@name Round Trip Time Names

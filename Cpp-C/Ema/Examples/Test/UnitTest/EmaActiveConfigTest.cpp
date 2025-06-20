@@ -676,6 +676,9 @@ void EmaActiveConfigTest::ActiveConfigTestDefaultValues(ActiveConfig & activeCon
 	EXPECT_EQ(activeConfig.preferredChannelName, DEFAULT_CHANNEL_NAME);
 	EXPECT_EQ(activeConfig.preferredWSBChannelName, DEFAULT_WSB_CHANNEL_NAME);
 	EXPECT_EQ(activeConfig.phFallBackWithInWSBGroup, DEFAULT_FALL_BACK_WITH_IN_WSB_GROUP);
+
+	EXPECT_EQ(activeConfig.updateTypeFilter, DEFAULT_UPDATE_TYPE_FILTER);
+	EXPECT_EQ(activeConfig.negativeUpdateTypeFilter, DEFAULT_NEGATIVE_UPDATE_TYPE_FILTER);
 }
 
 TEST_F(EmaActiveConfigTest, ActiveConfigTest)
@@ -766,6 +769,22 @@ TEST_F(EmaActiveConfigTest, ActiveConfigTest)
 	activeConfig.setRestRequestTimeOut( 0 );
 	EXPECT_EQ(0, activeConfig.restRequestTimeOut) << "Should be equal to 0";
 
+	// setUpdateTypeFilter
+	activeConfig.setUpdateTypeFilter((RWF_MAX_16) + 1ULL);
+	EXPECT_EQ(RWF_MAX_16, activeConfig.updateTypeFilter) << "Should be equal to RWF_MAX_16 - maximum allowed value";
+	activeConfig.setUpdateTypeFilter(midValue);
+	EXPECT_EQ(midValue, activeConfig.updateTypeFilter) << "Should be equal to " << midValue;
+	activeConfig.setUpdateTypeFilter(0);
+	EXPECT_EQ(0, activeConfig.updateTypeFilter);
+
+	// setUpdateTypeFilter
+	activeConfig.setNegativeUpdateTypeFilter(RWF_MAX_16 + 1ULL);
+	EXPECT_EQ(RWF_MAX_16, activeConfig.negativeUpdateTypeFilter) << "Should be equal to RWF_MAX_16 - maximum allowed value";
+	activeConfig.setNegativeUpdateTypeFilter(midValue);
+	EXPECT_EQ(midValue, activeConfig.negativeUpdateTypeFilter) << "Should be equal to " << midValue;
+	activeConfig.setNegativeUpdateTypeFilter(0);
+	EXPECT_EQ(0, activeConfig.negativeUpdateTypeFilter);
+
 	// Make some changes...
 	activeConfig.obeyOpenWindow = 0;
 	activeConfig.postAckTimeout = 57;
@@ -799,6 +818,9 @@ TEST_F(EmaActiveConfigTest, ActiveConfigTest)
 	activeConfig.preferredChannelName = "non def preferredChannelName";
 	activeConfig.preferredWSBChannelName = "non def preferredWSBChannelName";
 	activeConfig.phFallBackWithInWSBGroup = true;
+
+	activeConfig.updateTypeFilter = 1;
+	activeConfig.negativeUpdateTypeFilter = 2;
 
 	// Tests clear method
 	activeConfig.clear();

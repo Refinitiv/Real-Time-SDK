@@ -935,6 +935,17 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	pConfigImpl->get<EmaString>(instanceNodeName + "PreferredChannelName", _activeConfig.preferredChannelName);
 	pConfigImpl->get<EmaString>(instanceNodeName + "PreferredWSBChannelName", _activeConfig.preferredWSBChannelName);
 
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "UpdateTypeFilter", tmp))
+	{
+		_activeConfig.updateTypeFilter = tmp > RWF_MAX_16 ? RWF_MAX_16 : tmp;
+		_activeConfig.updateTypeFilterSet = true;
+	}
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "NegativeUpdateTypeFilter", tmp))
+	{
+		_activeConfig.negativeUpdateTypeFilter = tmp > RWF_MAX_16 ? RWF_MAX_16 : tmp;
+		_activeConfig.negativeUpdateTypeFilterSet = true;
+	}
+
 	if (pConfigImpl->isUserSetShouldInitializeCPUIDlib())
 	{
 		_activeConfig.shouldInitializeCPUIDlib = pConfigImpl->getShouldInitializeCPUIDlib();

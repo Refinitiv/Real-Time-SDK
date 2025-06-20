@@ -1266,6 +1266,10 @@ static RsslRet _validateRole(RsslReactorChannelRole *pRole, RsslErrorInfo *pErro
 			RsslReactorOMMConsumerRole *pConsumerRole = &pRole->ommConsumerRole;
 			RsslBool singleOpenVerification = RSSL_FALSE;
 			RsslBool allowSuspectDataVerification = RSSL_FALSE;
+			RsslUInt updateTypeFilter;
+			RsslUInt32 flagUpdateTypeFilter;
+			RsslUInt negativeUpdateTypeFilter;
+			RsslUInt32 flagNegativeUpdateTypeFilter;
 
 			/* Auto dictionary download not supported when watchlist is enabled. */
 			if (pConsumerRole->dictionaryDownloadMode != RSSL_RC_DICTIONARY_DOWNLOAD_NONE && pConsumerRole->watchlistOptions.enableWatchlist)
@@ -1324,6 +1328,29 @@ static RsslRet _validateRole(RsslReactorChannelRole *pRole, RsslErrorInfo *pErro
 					if (pConsumerRole->pLoginRequestList[0]->loginRequestMsg == NULL)
 					{
 						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Login Request at index 0 is set to NULL.", i);
+						return RSSL_RET_INVALID_ARGUMENT;
+					}
+
+					if (i == 0)
+					{
+						updateTypeFilter = pRole->ommConsumerRole.pLoginRequestList[0]->loginRequestMsg->updateTypeFilter;
+						flagUpdateTypeFilter = pRole->ommConsumerRole.pLoginRequestList[0]->loginRequestMsg->flags & RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER;
+
+						negativeUpdateTypeFilter = pRole->ommConsumerRole.pLoginRequestList[0]->loginRequestMsg->negativeUpdateTypeFilter;
+						flagNegativeUpdateTypeFilter = pRole->ommConsumerRole.pLoginRequestList[0]->loginRequestMsg->flags & RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER;
+					}
+
+					if (pRole->ommConsumerRole.pLoginRequestList[i]->loginRequestMsg->updateTypeFilter != updateTypeFilter ||
+						(pRole->ommConsumerRole.pLoginRequestList[i]->loginRequestMsg->flags & RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER) != flagUpdateTypeFilter)
+					{
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "UpdateTypeFilter has different value or present flag in login requests.");
+						return RSSL_RET_INVALID_ARGUMENT;
+					}
+
+					if (pRole->ommConsumerRole.pLoginRequestList[i]->loginRequestMsg->negativeUpdateTypeFilter != negativeUpdateTypeFilter ||
+						(pRole->ommConsumerRole.pLoginRequestList[i]->loginRequestMsg->flags & RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER) != flagNegativeUpdateTypeFilter)
+					{
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "NegativeUpdateTypeFilter has different value or present flag in login requests.");
 						return RSSL_RET_INVALID_ARGUMENT;
 					}
 

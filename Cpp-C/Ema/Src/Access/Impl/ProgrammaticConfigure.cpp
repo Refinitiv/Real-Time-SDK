@@ -1922,6 +1922,14 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 												{
 													static_cast<ActiveConfig&>(activeConfig).setDictionaryRequestTimeOut( eentry.getUInt() );
 												}
+												else if (eentry.getName() == "UpdateTypeFilter")
+												{
+													static_cast<ActiveConfig&>(activeConfig).setUpdateTypeFilter(eentry.getUInt());
+												}
+												else if (eentry.getName() == "NegativeUpdateTypeFilter")
+												{
+													static_cast<ActiveConfig&>(activeConfig).setNegativeUpdateTypeFilter(eentry.getUInt());
+												}
 												break;
 
 											case DataType::IntEnum:

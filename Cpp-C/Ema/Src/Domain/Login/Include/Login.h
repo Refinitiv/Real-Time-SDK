@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2017,2019-2020,2024 LSEG. All rights reserved.
+ *|      Copyright (C) 2017,2019-2020,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -161,6 +161,16 @@ public :
 	@return reference to this object
 	*/
 	LoginReq& nameType(const refinitiv::ema::access::UInt32&);
+	
+	/** method to set update type filter
+	@return reference to this object
+	*/
+	LoginReq& updateTypeFilter(const refinitiv::ema::access::UInt64&);
+	
+	/** method to set update type filter
+	@return reference to this object
+	*/
+	LoginReq& negativeUpdateTypeFilter(const refinitiv::ema::access::UInt64&);
 	//@}
 
 	///@name Accessors
@@ -251,6 +261,16 @@ public :
 	*/
 	bool hasNameType() const;
 
+	/** method to check if update type filter is set
+	@return true if nameType is set
+	*/
+	bool hasUpdateTypeFilter() const;
+
+	/** method to check if negative update type filter is set
+	@return true if nameType is set
+	*/
+	bool hasNegativeUpdateTypeFilter() const;
+
 	/** method to obtain ReqMsg out of LoginReq
 		@return ReqMsg version of LoginReq
 	*/
@@ -329,6 +349,16 @@ public :
 	/** method to obtain nameType
 	*/
 	const refinitiv::ema::access::UInt32& getNameType() const;
+
+	/** method to obtain updateNameType
+	* @throw OmmInvalidUsageException if hasUpdateTypeFilter() returns false
+	*/
+	const refinitiv::ema::access::UInt64& getUpdateTypeFilter() const;
+
+	/** method to obtain negativeUpdateNameType
+	* @throw OmmInvalidUsageException if hasNegativeUpdateTypeFilter() returns false
+	*/
+	const refinitiv::ema::access::UInt64& getNegativeUpdateTypeFilter() const;
 
 	/** Returns a string representation of the class instance.
 	@return string representation of the class instance

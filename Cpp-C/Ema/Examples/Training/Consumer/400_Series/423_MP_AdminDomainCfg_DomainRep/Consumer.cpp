@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -97,7 +97,10 @@ int main()
 		// Modify Administrative domains with ReqMsg to override default configurations
 
 		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum )
-			.addAdminMsg(Login::LoginReq().name("user").applicationId("127")
+			.addAdminMsg(Login::LoginReq()
+				.name("user")
+				.applicationId("127")
+				.updateTypeFilter(UPD_EVENT_FILTER_TYPE_QUOTE | UPD_EVENT_FILTER_TYPE_TRADE | UPD_EVENT_FILTER_TYPE_VERIFY)
 			.position("127.0.0.1/net").allowSuspectData(true).getMessage())
 			.addAdminMsg( ReqMsg().domainType( MMT_DIRECTORY ).filter( SERVICE_INFO_FILTER | SERVICE_STATE_FILTER | SERVICE_GROUP_FILTER ) )
 			.addAdminMsg( ReqMsg().domainType( MMT_DICTIONARY ).filter( DICTIONARY_VERBOSE ).name( "RWFFld" ).serviceName( "DIRECT_FEED" ) )

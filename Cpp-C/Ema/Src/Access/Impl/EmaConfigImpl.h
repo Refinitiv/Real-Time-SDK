@@ -1307,8 +1307,9 @@ public:
 	void restProxyPasswd(const EmaString&);
 	void restProxyDomain(const EmaString&);
 
+	void updateTypeFilter(const UInt64 updateFilter);
+	void negativeUpdateTypeFilter(const UInt64 negativeUpdateFilter);
 	void addServiceList(const ServiceList&);
-
 
 	RsslRDMLoginRequest* getLoginReq();
 
@@ -1459,6 +1460,26 @@ public:
 		return _restProxyDomainSetViaFunctionCall;
 	}
 
+	const UInt64 getUpdateTypeFilter() const
+	{
+		return _updateTypeFilter;
+	}
+
+	const bool getUpdateTypeFilterSet() const
+	{
+		return _updateTypeFilterSet;
+	}
+
+	const UInt64 getNegativeUpdateTypeFilter() const
+	{
+		return _negativeUpdateTypeFilter;
+	}
+
+	const bool getNegativeUpdateTypeFilterSet() const
+	{
+		return _negativeUpdateTypeFilterSet;
+	}
+
 protected:
 
 	LoginRdmReqMsgImpl			_loginRdmReqMsg;
@@ -1504,6 +1525,11 @@ protected:
 	EmaString		_restProxyUserNameSetViaFunctionCall;
 	EmaString		_restProxyPasswdSetViaFunctionCall;
 	EmaString		_restProxyDomainSetViaFunctionCall;
+
+	UInt64			_updateTypeFilter;
+	UInt64			_negativeUpdateTypeFilter;
+	bool			_updateTypeFilterSet;
+	bool			_negativeUpdateTypeFilterSet;
 
 	EmaVector < OmmOAuth2CredentialImpl* > _oAuth2Credentials;
 

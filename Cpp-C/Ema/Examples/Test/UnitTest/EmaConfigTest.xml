@@ -71,6 +71,8 @@
 			<PreferredChannelName value="Channel_2"/>
 			<PreferredWSBChannelName value="Channel_3"/>
 			<PHFallBackWithInWSBGroup value="1"/>
+			<UpdateTypeFilter value="1"/>
+			<NegativeUpdateTypeFilter value="3"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_2_RequestRouting"/>

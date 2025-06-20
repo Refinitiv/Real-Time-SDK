@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2015-2021,2024 LSEG. All rights reserved.
+ *|       Copyright (C) 2015-2021,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -187,6 +187,51 @@ static const RsslBuffer RDM_OMMSTR_VIEW_TYPE_ELEMENT_NAME_LIST = { 15, (char*)"E
  * @see RDMViewTypes
  */
 RSSL_API const char* rsslRDMViewTypeToOmmString(RsslUInt type);
+
+
+typedef enum {
+	RDM_UPD_EVENT_FILTER_TYPE_NONE = 0,  /*!< (0) No Update event type specified */
+	RDM_UPD_EVENT_FILTER_TYPE_UNSPECIFIED        = 0x001,    /*!< (0x001) Unspecified Update Event */
+	RDM_UPD_EVENT_FILTER_TYPE_QUOTE = 0x002,    /*!< (0x002) Update Event Quote */
+	RDM_UPD_EVENT_FILTER_TYPE_TRADE = 0x004,    /*!< (0x004) Update Event Trade */
+	RDM_UPD_EVENT_FILTER_TYPE_NEWS_ALERT = 0x008,    /*!< (0x008) Update Event News Alert */
+	RDM_UPD_EVENT_FILTER_TYPE_VOLUME_ALERT = 0x010,    /*!< (0x010) Update Event Volume Alert */
+	RDM_UPD_EVENT_FILTER_TYPE_ORDER_INDICATION = 0x020,    /*!< (0x020) Update Event Order Indication */
+	RDM_UPD_EVENT_FILTER_TYPE_CLOSING_RUN = 0x040,    /*!< (0x040) Update Event Closing Run */
+	RDM_UPD_EVENT_FILTER_TYPE_CORRECTION = 0x080,    /*!< (0x080) Update Event Correction */
+	RDM_UPD_EVENT_FILTER_TYPE_MARKET_DIGEST = 0x100,    /*!< (0x100) Update Event Market Digest */
+	RDM_UPD_EVENT_FILTER_TYPE_QUOTES_TRADE = 0x200,    /*!< (0x200) Update Event Quotes followed by a Trade */
+	RDM_UPD_EVENT_FILTER_TYPE_MULTIPLE = 0x400,    /*!< (0x400) Update Event with filtering and conflation applied */
+	RDM_UPD_EVENT_FILTER_TYPE_VERIFY = 0x800,    /*!< (0x800) Fields may have changed */
+} RDMUpdateEventFilter;
+
+#define DEFAULT_UPDATE_TYPE_FILTER 65533  /*!< This value is service info (first nibble) plus of all filters UPD_EVENT_FILTER_TYPE except UPD_EVENT_FILTER_TYPE_QUOTE */
+
+/**
+ * @brief General OMM strings associated with the different update event filter types.
+ * @see RDMUpdateEventFilter, rsslRDMUpdateTypeFilterToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_UNSPECIFIED = { 11, (char*)"Unspecified" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_QUOTE = { 5, (char*)"Quote" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_TRADE = { 5, (char*)"Trade" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_NEWS_ALERT = { 9, (char*)"NewsAlert" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_VOLUME_ALERT = { 11, (char*)"VolumeAlert" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_ORDER_INDICATION = { 15, (char*)"OrderIndication" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_CLOSING_RUN = { 10, (char*)"ClosingRun" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_CORRECTION = { 10, (char*)"Correction" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_MARKET_DIGEST = { 12, (char*)"MarketDigest" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_QUOTES_TRADE = { 11, (char*)"QuotesTrade" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_MULTIPLE = { 8, (char*)"Multiple" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_VERIFY = { 6, (char*)"Verify" };
+
+/** 
+ * @brief Converts the provided update type filter enumeration to a general OMM string.
+ *
+ * @param update type filter to translate to string
+ * @return Null terminated character string containing the name of the update type filter
+ * @see RDMUpdateEventFilter
+ */
+RSSL_API const char* rsslRDMUpdateEventFilterTypeToOmmString(RsslUInt type);
 
 /**
  *	@}
@@ -877,6 +922,8 @@ static const RsslBuffer RSSL_ENAME_AUTHN_TT_REISSUE = { 23, (char*)"Authenticati
 static const RsslBuffer RSSL_ENAME_AUTHN_EXTENDED_RESP = { 26, (char*)"AuthenticationExtendedResp" };
 static const RsslBuffer RSSL_ENAME_AUTHN_ERROR_CODE = { 23, (char*)"AuthenticationErrorCode" };
 static const RsslBuffer RSSL_ENAME_AUTHN_ERROR_TEXT = { 23, (char*)"AuthenticationErrorText" };
+static const RsslBuffer RSSL_ENAME_UPDATE_TYPE_FILTER = { 16 , (char*)"UpdateTypeFilter" };
+static const RsslBuffer RSSL_ENAME_NEGATIVE_UPDATE_TYPE_FILTER = { 24, (char*)"NegativeUpdateTypeFilter" };
 
 //Round Trip Time - well known element names
 static const RsslBuffer RSSL_ENAME_RTT = { 16 , (char*)"RoundTripLatency" };
