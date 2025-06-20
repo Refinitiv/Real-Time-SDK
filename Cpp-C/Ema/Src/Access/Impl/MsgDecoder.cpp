@@ -9,6 +9,7 @@
 #include "Msg.h"
 #include "MsgDecoder.h"
 #include "StaticDecoder.h"
+#include "StatusMsgDecoder.h"
 #include "ExceptionTranslator.h"
 #include "rtr/rsslMsgEncoders.h"
 #include <stdlib.h>
@@ -19,14 +20,16 @@ using namespace refinitiv::ema::access;
 static RsslUInt32 paddingBufferLength = 128; // Padding for StatusMsg headers
 
 MsgDecoder::MsgDecoder() :
- _pRsslDictionary( 0 ),
+ _pRsslDictionary(nullptr),
  _attrib(),
  _payload(),
  _rsslMajVer(RSSL_RWF_MAJOR_VERSION),
  _rsslMinVer(RSSL_RWF_MINOR_VERSION),
  _rsslMsg(),
- _pRsslMsg(0),
- _allocatedMemFlag(UnknownEnum)
+ _pRsslMsg(nullptr),
+ _nameData(),
+ _copiedBufferData(),
+ _encAttribData()
 {
 	rsslClearBuffer(&_copiedBuffer);
 }
@@ -36,11 +39,7 @@ MsgDecoder::~MsgDecoder()
 	StaticDecoder::morph( &_payload, DataType::NoDataEnum );
 	StaticDecoder::morph( &_attrib, DataType::NoDataEnum );
 
-	if (_copiedBuffer.data)
-	{
-		free(_copiedBuffer.data);
-		rsslClearBuffer(&_copiedBuffer);
-	}
+	rsslClearBuffer(&_copiedBuffer);
 }
 
 void MsgDecoder::setAtExit()
@@ -77,36 +76,39 @@ RsslBuffer& MsgDecoder::getCopiedBuffer()
 	return _copiedBuffer;
 }
 
-void MsgDecoder::cloneBufferToMsg(Msg* destMsg, Msg* other, const char* functionName)
+void MsgDecoder::cloneBufferToMsg(Msg* other, const char* functionName)
 {
 	if(other->_pDecoder)
 	{
 		if (other->_pDecoder->getRsslBuffer().length > 0)
 		{
-			destMsg->_pDecoder->getCopiedBuffer().data = (char*)malloc(size_t(other->_pDecoder->getRsslBuffer().length));
-
-			if (destMsg->_pDecoder->getCopiedBuffer().data == 0)
-			{
-				EmaString errorText("Failed to copy encoded buffer for ");
-				errorText.append(functionName);
-				throwMeeException(errorText.c_str());
-			}
-
-			destMsg->_pDecoder->_allocatedMemFlag |= MsgDecoder::EncMsgBufferEnum;
-
 			// Copies the original RWF encoded buffer
-			destMsg->_pDecoder->getCopiedBuffer().length = other->_pDecoder->getRsslBuffer().length;
-			memcpy(destMsg->_pDecoder->getCopiedBuffer().data, other->_pDecoder->getRsslBuffer().data, destMsg->_pDecoder->getCopiedBuffer().length);
+			_copiedBufferData.setFrom(other->_pDecoder->getRsslBuffer().data, other->_pDecoder->getRsslBuffer().length);
 
-			if (destMsg->_pDecoder->setRsslData(other->_pDecoder->getMajorVersion(), other->_pDecoder->getMinorVersion(),
-				&(destMsg->_pDecoder->getCopiedBuffer()), other->_pDecoder->getRsslDictionary(), (void*)0) == false)
+			getCopiedBuffer().data = const_cast<char*>(_copiedBufferData.c_buf());
+			getCopiedBuffer().length = _copiedBufferData.length();
+
+			if (setRsslData(other->_pDecoder->getMajorVersion(), other->_pDecoder->getMinorVersion(),
+				&(getCopiedBuffer()), other->_pDecoder->getRsslDictionary(), (void*)0) == false)
 			{
 				EmaString errorText("Failed to decode the encoded buffer for ");
 				errorText.append(functionName);
 				throwIueException( errorText.c_str(), OmmInvalidUsageException::InternalErrorEnum );
 			}
 
-			destMsg->_pDecoder->_rsslMsg.msgBase.streamId = other->getStreamId();
+			_rsslMsg.msgBase.streamId = other->getStreamId();
+
+			// Copy potential modifications by ItemCallbackClient::processStatusMsg
+			if (other->getDataType() == DataType::StatusMsgEnum)
+			{
+				if (static_cast<StatusMsgDecoder*>(other->_pDecoder)->_pRsslMsg->statusMsg.flags & RSSL_STMF_HAS_STATE)
+				{
+					static_cast<StatusMsgDecoder*>(this)->_pRsslMsg->statusMsg.flags |= RSSL_STMF_HAS_STATE;
+					static_cast<StatusMsgDecoder*>(this)->_pRsslMsg->statusMsg.state.code = static_cast<StatusMsgDecoder*>(other->_pDecoder)->_pRsslMsg->statusMsg.state.code;
+					static_cast<StatusMsgDecoder*>(this)->_pRsslMsg->statusMsg.state.dataState = static_cast<StatusMsgDecoder*>(other->_pDecoder)->_pRsslMsg->statusMsg.state.dataState;
+					static_cast<StatusMsgDecoder*>(this)->_pRsslMsg->statusMsg.state.streamState = static_cast<StatusMsgDecoder*>(other->_pDecoder)->_pRsslMsg->statusMsg.state.streamState;
+				}
+			}
 		}
 		else
 		{
@@ -121,18 +123,10 @@ void MsgDecoder::cloneBufferToMsg(Msg* destMsg, Msg* other, const char* function
 					statusMsg.msgBase.msgKey.name.length +
 					statusMsg.state.text.length + paddingBufferLength;
 
-				destMsg->_pDecoder->getCopiedBuffer().data = (char*)malloc(bufferLength);
+				_copiedBufferData = EmaBuffer(nullptr, bufferLength);
 
-				if (destMsg->_pDecoder->getCopiedBuffer().data == 0)
-				{
-					EmaString errorText("Failed to copy encoded buffer for ");
-					errorText.append(functionName);
-					throwMeeException(errorText.c_str());
-				}
-
-				destMsg->_pDecoder->getCopiedBuffer().length = bufferLength;
-
-				destMsg->_pDecoder->_allocatedMemFlag |= MsgDecoder::EncMsgBufferEnum;
+				getCopiedBuffer().data = const_cast<char*>(_copiedBufferData.c_buf());
+				getCopiedBuffer().length = _copiedBufferData.length();
 
 				/* clear encode iterator */
 				rsslClearEncodeIterator(&encodeIter);
@@ -149,7 +143,7 @@ void MsgDecoder::cloneBufferToMsg(Msg* destMsg, Msg* other, const char* function
 				encodeStatusMsg.state.text = statusMsg.state.text;
 				
 				/* encode message */
-				rsslSetEncodeIteratorBuffer(&encodeIter, &destMsg->_pDecoder->getCopiedBuffer());
+				rsslSetEncodeIteratorBuffer(&encodeIter, &getCopiedBuffer());
 				rsslSetEncodeIteratorRWFVersion(&encodeIter, other->_pDecoder->getMajorVersion(), other->_pDecoder->getMinorVersion());
 				if ( ( ret = rsslEncodeMsg(&encodeIter, (RsslMsg*)&encodeStatusMsg) ) < RSSL_RET_SUCCESS)
 				{
@@ -159,17 +153,17 @@ void MsgDecoder::cloneBufferToMsg(Msg* destMsg, Msg* other, const char* function
 					throwIueException( errorText.c_str(), ret );
 				}
 
-				destMsg->_pDecoder->getCopiedBuffer().length = rsslGetEncodedBufferLength(&encodeIter);
+				getCopiedBuffer().length = rsslGetEncodedBufferLength(&encodeIter);
 
-				if (destMsg->_pDecoder->setRsslData(other->_pDecoder->getMajorVersion(), other->_pDecoder->getMinorVersion(),
-					&(destMsg->_pDecoder->getCopiedBuffer()), other->_pDecoder->getRsslDictionary(), (void*)0) == false)
+				if (setRsslData(other->_pDecoder->getMajorVersion(), other->_pDecoder->getMinorVersion(),
+					&(getCopiedBuffer()), other->_pDecoder->getRsslDictionary(), (void*)0) == false)
 				{
 					EmaString errorText("Failed to decode the encoded buffer for ");
 					errorText.append(functionName);
 					throwIueException( errorText.c_str(), OmmInvalidUsageException::InternalErrorEnum );
 				}
 
-				destMsg->_pDecoder->_rsslMsg.msgBase.streamId = other->getStreamId();
+				_rsslMsg.msgBase.streamId = other->getStreamId();
 			}
 			else
 			{
@@ -187,60 +181,31 @@ void MsgDecoder::cloneBufferToMsg(Msg* destMsg, Msg* other, const char* function
 	}
 }
 
-void MsgDecoder::deallocateCopiedBuffer(Msg* msg)
+void MsgDecoder::deallocateCopiedBuffer()
 {
-	if (msg->_pDecoder->_allocatedMemFlag & MsgDecoder::EncMsgBufferEnum)
-	{
-		if (msg->_pDecoder->getCopiedBuffer().data)
-		{
-			free(msg->_pDecoder->getCopiedBuffer().data);
-			rsslClearBuffer(&msg->_pDecoder->getCopiedBuffer());
-		}
-	}
+	RsslMsgKey& rsslMsgKey = _rsslMsg.msgBase.msgKey;
 
-	if (msg->_pDecoder->_allocatedMemFlag & MsgDecoder::NameEnum)
-	{
-		RsslMsgKey& rsslMsgKey = msg->_pDecoder->_rsslMsg.msgBase.msgKey;
-		if (rsslMsgKey.name.data)
-		{
-			free(rsslMsgKey.name.data);
-			rsslClearBuffer(&rsslMsgKey.name);
-		}
-	}
+	if (_nameData.c_buf() == rsslMsgKey.name.data)
+		rsslClearBuffer(&rsslMsgKey.name);
+	_nameData.release();
 
-	if (msg->_pDecoder->_allocatedMemFlag & MsgDecoder::EncAttribEnum)
-	{
-		RsslMsgKey& rsslMsgKey = msg->_pDecoder->_rsslMsg.msgBase.msgKey;
-		if (rsslMsgKey.encAttrib.data)
-		{
-			free(rsslMsgKey.encAttrib.data);
-			rsslClearBuffer(&rsslMsgKey.encAttrib);
-		}
-	}
+	if (_encAttribData.c_buf() == rsslMsgKey.encAttrib.data)
+		rsslClearBuffer(&rsslMsgKey.encAttrib);
+	_encAttribData.release();
 
-	msg->_pDecoder->_allocatedMemFlag = MsgDecoder::UnknownEnum;
+	if (_copiedBufferData.c_buf() == _copiedBuffer.data)
+		rsslClearBuffer(&_copiedBuffer);
+	_copiedBufferData.release();
 }
 
-void MsgDecoder::cloneMsgKey(const Msg& other, RsslMsgKey* destMsgKey, RsslUInt16* destMsgKeyFlag, const char* functionName)
+void MsgDecoder::cloneMsgKey(const Msg& other, RsslMsgKey* destMsgKey)
 {
-	*destMsgKeyFlag |= RSSL_UPMF_HAS_MSG_KEY;
-
 	if (other.hasName())
 	{
-		free(destMsgKey->name.data);
-		destMsgKey->name.data = (char*)malloc(other.getName().length());
+		_nameData.setFrom(other.getName().c_str(), other.getName().length());
 
-		if (destMsgKey->name.data == 0)
-		{
-			EmaString errorText("Failed to allocate memory for storing message's name in ");
-			errorText.append(functionName);
-			throwMeeException(errorText.c_str());
-		}
-
-		_allocatedMemFlag |= MsgDecoder::NameEnum;
-
-		memcpy(destMsgKey->name.data, other.getName().c_str(), other.getName().length());
-		destMsgKey->name.length = other.getName().length();
+		destMsgKey->name.data = const_cast<char*>(_nameData.c_buf());
+		destMsgKey->name.length = _nameData.length();
 
 		destMsgKey->flags |= RSSL_MKF_HAS_NAME;
 	}
@@ -273,30 +238,20 @@ void MsgDecoder::cloneMsgKey(const Msg& other, RsslMsgKey* destMsgKey, RsslUInt1
 	{
 		const RsslBuffer& rsslBuffer = const_cast<ComplexType&>(other.getAttrib().getData()).getDecoder().getRsslBuffer();
 
-		free(destMsgKey->encAttrib.data);
-		destMsgKey->encAttrib.data = (char*)malloc(rsslBuffer.length);
+		_encAttribData.setFrom(rsslBuffer.data, rsslBuffer.length);
 
-		if (destMsgKey->encAttrib.data == 0)
-		{
-			EmaString errorText("Failed to allocate memory for storing message's attrib in ");
-			errorText.append(functionName);
-			throwMeeException(errorText.c_str());
-		}
-
-		_allocatedMemFlag |= MsgDecoder::EncAttribEnum;
-
-		memcpy(destMsgKey->encAttrib.data, rsslBuffer.data, rsslBuffer.length);
-		destMsgKey->encAttrib.length = rsslBuffer.length;
+		destMsgKey->encAttrib.data = const_cast<char*>(_encAttribData.c_buf());
+		destMsgKey->encAttrib.length = _encAttribData.length();
 
 		destMsgKey->flags |= RSSL_MKF_HAS_ATTRIB;
 
 		if (other.getAttrib().getDataType() < DataType::MsgEnum)
 		{
-			destMsgKey->attribContainerType = (RsslUInt8)DataType::MsgEnum;
+			destMsgKey->attribContainerType = (RsslUInt8)other.getAttrib().getDataType();
 		}
 		else
 		{
-			destMsgKey->attribContainerType = (RsslUInt8)other.getAttrib().getDataType();
+			destMsgKey->attribContainerType = (RsslUInt8)DataType::MsgEnum;
 		}
 
 		StaticDecoder::setRsslData(&_attrib, &destMsgKey->encAttrib,

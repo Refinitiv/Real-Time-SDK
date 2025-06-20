@@ -38,6 +38,17 @@ RefreshMsgDecoder::~RefreshMsgDecoder()
 {
 }
 
+void RefreshMsgDecoder::cloneMsgKey(const Msg& other)
+{
+	RsslRefreshMsg* pRsslRefreshMsg = (RsslRefreshMsg*)_pRsslMsg;
+
+	rsslClearMsgKey(&pRsslRefreshMsg->msgBase.msgKey);
+
+	pRsslRefreshMsg->flags |= RSSL_RFMF_HAS_MSG_KEY;
+
+	MsgDecoder::cloneMsgKey(other, &pRsslRefreshMsg->msgBase.msgKey);
+}
+
 bool RefreshMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg, const RsslDataDictionary* rsslDictionary )
 {
 	_serviceNameSet = false;
@@ -432,6 +443,15 @@ void RefreshMsgDecoder::setServiceName( const char* serviceName, UInt32 length, 
 	_serviceNameSet = length ? true : false;
 
 	_serviceName.setInt( serviceName, length, nullTerm );
+}
+
+void RefreshMsgDecoder::setServiceName( const EmaString& serviceName )
+{
+	_serviceNameSet = serviceName.length() ? true : false;
+
+	_serviceNameData = serviceName;
+
+	_serviceName.setInt( _serviceNameData.c_str(), _serviceNameData.length(), true );
 }
 
 void RefreshMsgDecoder::setServiceId(UInt16 serviceId)

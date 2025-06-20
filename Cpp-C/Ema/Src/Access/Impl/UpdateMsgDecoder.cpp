@@ -19,6 +19,7 @@ UpdateMsgDecoder::UpdateMsgDecoder() :
  MsgDecoder(),
  _name(),
  _serviceName(),
+ _serviceNameData(),
  _extHeader(),
  _permission(),
  _hexBuffer(),
@@ -29,6 +30,17 @@ UpdateMsgDecoder::UpdateMsgDecoder() :
 
 UpdateMsgDecoder::~UpdateMsgDecoder()
 {
+}
+
+void UpdateMsgDecoder::cloneMsgKey(const Msg& other)
+{
+	RsslUpdateMsg* pRsslUpdateMsg = (RsslUpdateMsg*)_pRsslMsg;
+
+	rsslClearMsgKey(&pRsslUpdateMsg->msgBase.msgKey);
+
+	pRsslUpdateMsg->flags |= RSSL_UPMF_HAS_MSG_KEY;
+
+	MsgDecoder::cloneMsgKey(other, &pRsslUpdateMsg->msgBase.msgKey);
 }
 
 bool UpdateMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg, const RsslDataDictionary* rsslDictionary )
@@ -373,6 +385,15 @@ void UpdateMsgDecoder::setServiceName( const char* serviceName, UInt32 length, b
 	_serviceNameSet = length ? true : false;
 
 	_serviceName.setInt( serviceName, length, nullTerm );
+}
+
+void UpdateMsgDecoder::setServiceName( const EmaString& serviceName )
+{
+	_serviceNameSet = serviceName.length() ? true : false;
+
+	_serviceNameData = serviceName;
+
+	_serviceName.setInt( _serviceNameData.c_str(), _serviceNameData.length(), true );
 }
 
 void UpdateMsgDecoder::setServiceId(UInt16 serviceId)

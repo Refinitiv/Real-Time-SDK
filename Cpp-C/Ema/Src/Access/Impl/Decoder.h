@@ -47,7 +47,7 @@ public :
 	// RsslBuffer -> buffer containing actual wire data
 	virtual bool setRsslData( RsslDecodeIterator* , RsslBuffer* ) = 0;
 
-	virtual void setServiceName( const char* , UInt32 , bool nullTerm = true ) {}
+	virtual void setServiceName( const char* , UInt32 , bool = true ) {}
 
 	virtual void setServiceId(UInt16) {}
 

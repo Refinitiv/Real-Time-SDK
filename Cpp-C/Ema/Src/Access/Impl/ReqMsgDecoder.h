@@ -101,6 +101,8 @@ public :
 
 	void setServiceName( const char* , UInt32 , bool nullTerm = true );
 
+	void setServiceName( const EmaString& );
+
 	void setServiceId(UInt16);
 
 	const EmaBuffer& getHexBuffer() const;
@@ -109,6 +111,8 @@ public :
 
 	OmmError::ErrorCode getErrorCode() const;
 
+	void cloneMsgKey(const Msg& other);
+
 private :
 
 	void setQosInt();
@@ -116,6 +120,8 @@ private :
 	mutable EmaStringInt			_name;
 
 	mutable EmaStringInt			_serviceName;
+
+	EmaString						_serviceNameData;
 
 	mutable EmaBufferInt			_extHeader;
 

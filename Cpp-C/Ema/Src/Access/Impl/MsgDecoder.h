@@ -72,25 +72,17 @@ public :
 
 	RsslBuffer& getCopiedBuffer();
 
-	void static cloneBufferToMsg(Msg* destMsg, Msg* sourceMsg, const char* functionName);
+	void cloneBufferToMsg(Msg* sourceMsg, const char* functionName);
 
-	void static deallocateCopiedBuffer(Msg* msg);
-
-	void cloneMsgKey(const Msg& other, RsslMsgKey* destMsgKey, RsslUInt16* destMsgKeyFlag, const char* functionName);
+	void deallocateCopiedBuffer();
 
 protected :
-
-	enum AllocatedMemory
-	{
-		UnknownEnum = 0,
-		NameEnum = 0x01,
-		EncAttribEnum = 0x02,
-		EncMsgBufferEnum = 0x04
-	};
 
 	MsgDecoder();
 
 	virtual ~MsgDecoder();
+
+	void cloneMsgKey(const Msg& other, RsslMsgKey* destMsgKey);
 
 	const RsslDataDictionary*		_pRsslDictionary;
 
@@ -108,7 +100,11 @@ protected :
 
 	RsslMsg*						_pRsslMsg;
 
-	int								_allocatedMemFlag;
+	EmaBuffer						_nameData;
+
+	EmaBuffer						_copiedBufferData;
+
+	EmaBuffer						_encAttribData;
 };
 
 }

@@ -16,8 +16,6 @@ using namespace refinitiv::ema::access;
 
 PostMsgDecoder::PostMsgDecoder() :
  MsgDecoder(),
- _rsslMsg(),
- _pRsslMsg( 0 ),
  _name(),
  _extHeader(),
  _permission(),
@@ -30,6 +28,17 @@ PostMsgDecoder::PostMsgDecoder() :
 
 PostMsgDecoder::~PostMsgDecoder()
 {
+}
+
+void PostMsgDecoder::cloneMsgKey(const Msg& other)
+{
+	RsslPostMsg* pRsslPostMsg = (RsslPostMsg*)_pRsslMsg;
+
+	rsslClearMsgKey(&pRsslPostMsg->msgBase.msgKey);
+
+	pRsslPostMsg->flags |= RSSL_PSMF_HAS_MSG_KEY;
+
+	MsgDecoder::cloneMsgKey(other, &pRsslPostMsg->msgBase.msgKey);
 }
 
 bool PostMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg, const RsslDataDictionary* rsslDictionary )
@@ -267,6 +276,15 @@ void PostMsgDecoder::setServiceName( const char* serviceName, UInt32 length, boo
 	_serviceNameSet = length ? true : false;
 
 	_serviceName.setInt( serviceName, length, nullTerm );
+}
+
+void PostMsgDecoder::setServiceName( const EmaString& serviceName )
+{
+	_serviceNameSet = serviceName.length() ? true : false;
+
+	_serviceNameData = serviceName;
+
+	_serviceName.setInt( _serviceNameData.c_str(), _serviceNameData.length(), true );
 }
 
 void PostMsgDecoder::setServiceId(UInt16 serviceId)

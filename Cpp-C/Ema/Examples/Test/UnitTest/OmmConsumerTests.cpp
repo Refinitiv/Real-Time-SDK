@@ -5800,7 +5800,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestUnknownServiceNameServiceIdServiceL
 
 		statusMsg = static_cast<StatusMsg*>(msg);
 		ASSERT_EQ(statusMsg->getName(), "Item3");
-		//ASSERT_EQ(statusMsg->getServiceName(), "BadServiceList");
+		ASSERT_EQ(statusMsg->getServiceName(), "BadServiceList");
 		ASSERT_TRUE(statusMsg->hasState());
 		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::ClosedEnum);
 		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
@@ -6059,7 +6059,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSameItemTwice)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		msg = consClient.popMsg();
@@ -6069,7 +6069,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSameItemTwice)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -6171,7 +6171,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItem)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		consRequest.clear().name("Item2").domainType(MMT_MARKET_PRICE).serviceName("DIRECT_FEED_2");
@@ -6204,7 +6204,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItem)
 		ASSERT_EQ(refreshMsg->getName(), "Item2");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED_2");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		consRequest.clear().name("Item3").domainType(MMT_MARKET_PRICE).serviceId(1);
@@ -6237,7 +6237,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItem)
 		ASSERT_EQ(refreshMsg->getName(), "Item3");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		consRequest.clear().name("Item4").domainType(MMT_MARKET_PRICE).serviceId(2);
@@ -6270,7 +6270,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItem)
 		ASSERT_EQ(refreshMsg->getName(), "Item4");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED_2");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -6391,7 +6391,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestBatchItems)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		msg = consClient.popMsg();
@@ -6401,7 +6401,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestBatchItems)
 		ASSERT_EQ(refreshMsg->getName(), "Item2");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		consRequest.clear().domainType(MMT_MARKET_PRICE).serviceName("DIRECT_FEED_2").payload(ElementList().addArray(ENAME_BATCH_ITEM_LIST, OmmArray().addAscii("Item3").addAscii("Item4").complete()).complete());
@@ -6452,7 +6452,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestBatchItems)
 		ASSERT_EQ(refreshMsg->getName(), "Item3");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED_2");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		msg = consClient.popMsg();
@@ -6462,7 +6462,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestBatchItems)
 		ASSERT_EQ(refreshMsg->getName(), "Item4");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED_2");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		consRequest.clear().domainType(MMT_MARKET_PRICE).serviceId(1).payload(ElementList().addArray(ENAME_BATCH_ITEM_LIST, OmmArray().addAscii("Item5").addAscii("Item6").complete()).complete());
@@ -6513,7 +6513,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestBatchItems)
 		ASSERT_EQ(refreshMsg->getName(), "Item5");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		msg = consClient.popMsg();
@@ -6523,7 +6523,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestBatchItems)
 		ASSERT_EQ(refreshMsg->getName(), "Item6");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		consRequest.clear().domainType(MMT_MARKET_PRICE).serviceId(2).payload(ElementList().addArray(ENAME_BATCH_ITEM_LIST, OmmArray().addAscii("Item7").addAscii("Item8").complete()).complete());
@@ -6574,7 +6574,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestBatchItems)
 		ASSERT_EQ(refreshMsg->getName(), "Item7");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED_2");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		msg = consClient.popMsg();
@@ -6584,7 +6584,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestBatchItems)
 		ASSERT_EQ(refreshMsg->getName(), "Item8");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED_2");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 
@@ -6714,7 +6714,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRecoveryAfterTimeout)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -6813,7 +6813,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRecoveryAfterServiceDown)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		Map encodeMapDown;
@@ -6878,7 +6878,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRecoveryAfterServiceDown)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov2.submit(encodeUpdate, 0);
@@ -7007,7 +7007,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRerouteAfterChannelDownEn
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov1.closeChannel(provClient1.clientHandle);
@@ -7046,7 +7046,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRerouteAfterChannelDownEn
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -7146,7 +7146,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRerouteAfterChannelDownEn
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov1.closeChannel(provClient1.clientHandle);
@@ -7206,7 +7206,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRerouteAfterChannelDownEn
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -7305,7 +7305,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRerouteAfterChannelClosed
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov1.closeChannel(provClient1.clientHandle);
@@ -7348,7 +7348,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRerouteAfterChannelClosed
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -7448,7 +7448,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRerouteAfterChannelClosed
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov1.closeChannel(provClient1.clientHandle);
@@ -7493,7 +7493,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRerouteAfterChannelClosed
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -7601,7 +7601,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemBothCloseSuspect)
 		ASSERT_EQ(statusMsg->getName(), "Item1");
 		ASSERT_EQ(statusMsg->getServiceName(), "DIRECT_FEED");
 		ASSERT_TRUE(statusMsg->hasState());
-		//ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
 		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
 
 		msg = consClient.popMsg();
@@ -7759,7 +7759,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemCapabilitiesOnDifferentSe
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -7861,7 +7861,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemGroupCloseRecover)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		msg = consClient.popMsg();
@@ -7902,7 +7902,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemGroupCloseRecover)
 		ASSERT_EQ(statusMsg->getName(), "Item1");
 		ASSERT_EQ(statusMsg->getServiceName(), "DIRECT_FEED");
 		ASSERT_TRUE(statusMsg->hasState());
-		//ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
 		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
 
 		msg = consClient.popMsg();
@@ -7912,7 +7912,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemGroupCloseRecover)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 
@@ -8039,7 +8039,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemBringServiceUpAfterReques
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED_2");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -8140,7 +8140,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemItemCloseRecover)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		ASSERT_EQ(provClient1.activeRequests.size(), 1);
@@ -8173,7 +8173,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemItemCloseRecover)
 		ASSERT_EQ(statusMsg->getName(), "Item1");
 		ASSERT_EQ(statusMsg->getServiceName(), "DIRECT_FEED");
 		ASSERT_TRUE(statusMsg->hasState());
-		//ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
 		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
 
 		msg = consClient.popMsg();
@@ -8183,7 +8183,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemItemCloseRecover)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 
@@ -8290,7 +8290,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemUnsubscribeDuringRecovery
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		ASSERT_EQ(provClient1.activeRequests.size(), 1);
@@ -8340,7 +8340,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemUnsubscribeDuringRecovery
 		ASSERT_EQ(statusMsg->getName(), "Item1");
 		ASSERT_EQ(statusMsg->getServiceName(), "DIRECT_FEED");
 		ASSERT_TRUE(statusMsg->hasState());
-		//ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
 		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
 
 		msg = consClient.popMsg();
@@ -8476,7 +8476,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemClosedRecoverableAndRecov
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		ASSERT_EQ(provClient1.activeRequests.size(), 1);
@@ -8526,7 +8526,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemClosedRecoverableAndRecov
 		ASSERT_EQ(statusMsg->getName(), "Item1");
 		ASSERT_EQ(statusMsg->getServiceName(), "DIRECT_FEED");
 		ASSERT_TRUE(statusMsg->hasState());
-		//ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
 		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
 
 		msg = consClient.popMsg();
@@ -8565,7 +8565,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemClosedRecoverableAndRecov
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 	}
@@ -8741,7 +8741,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemWithUnmatchedQoSThenServi
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 		ASSERT_EQ(refreshMsg->getQos().getRate(), 100);
 		ASSERT_EQ(refreshMsg->getQos().getTimeliness(), 100);
@@ -8969,7 +8969,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemWithUnmatchedCapabilityTh
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -9081,7 +9081,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemOnStreamPosting)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		encodePostMsg.postId(1).serviceName("DIRECT_FEED").name("TestItem").solicitAck(false).payload(encodeInnerUpdate).complete();
@@ -9123,7 +9123,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemOnStreamPosting)
 		ackMsg = static_cast<AckMsg*>(msg);
 		ASSERT_EQ(ackMsg->getName(), "TestItem");
 		ASSERT_EQ(ackMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(ackMsg->getServiceId(), 1);
+		ASSERT_EQ(ackMsg->getServiceId(), 1);
 		ASSERT_EQ(ackMsg->getAckId(), 2);
 	}
 	catch (...)
@@ -9232,7 +9232,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemInvalidOnStreamPosting)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		encodePostMsg.postId(1).serviceName("BADSERVICE").name("TestItem").solicitAck(false).payload(encodeInnerUpdate).complete();
@@ -9438,7 +9438,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemOffStreamPosting)
 		ackMsg = static_cast<AckMsg*>(msg);
 		ASSERT_EQ(ackMsg->getName(), "TestItem");
 		ASSERT_EQ(ackMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(ackMsg->getServiceId(), 1);
+		ASSERT_EQ(ackMsg->getServiceId(), 1);
 		ASSERT_EQ(ackMsg->getAckId(), 2);
 
 		msg = consClient.popMsg();
@@ -9447,7 +9447,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemOffStreamPosting)
 		ackMsg = static_cast<AckMsg*>(msg);
 		ASSERT_EQ(ackMsg->getName(), "TestItem");
 		ASSERT_EQ(ackMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(ackMsg->getServiceId(), 1);
+		ASSERT_EQ(ackMsg->getServiceId(), 1);
 		ASSERT_EQ(ackMsg->getAckId(), 2);
 	}
 	catch (...)
@@ -9683,7 +9683,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceList)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		consRequest.clear().name("Item2").domainType(MMT_MARKET_PRICE).serviceListName("SVG2");
@@ -9713,7 +9713,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceList)
 		ASSERT_EQ(refreshMsg->getName(), "Item2");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG2");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		consRequest.clear().name("Item3").domainType(MMT_MARKET_PRICE).serviceListName("SVG3");
@@ -9743,7 +9743,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceList)
 		ASSERT_EQ(refreshMsg->getName(), "Item3");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG3");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -9847,7 +9847,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRecoveryAfterServiceDown
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		Map encodeMapDown;
@@ -9912,7 +9912,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRecoveryAfterServiceDown
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov2.submit(encodeUpdate, 0);
@@ -10046,7 +10046,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRerouteAfterChannelDownE
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov1.closeChannel(provClient1.clientHandle);
@@ -10085,7 +10085,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRerouteAfterChannelDownE
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -10189,7 +10189,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRerouteAfterChannelDownE
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov1.closeChannel(provClient1.clientHandle);
@@ -10242,7 +10242,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRerouteAfterChannelDownE
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -10346,7 +10346,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRerouteAfterChannelClose
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov1.closeChannel(provClient1.clientHandle);
@@ -10389,7 +10389,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRerouteAfterChannelClose
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -10494,7 +10494,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRerouteAfterChannelClose
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov1.closeChannel(provClient1.clientHandle);
@@ -10539,7 +10539,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRerouteAfterChannelClose
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -10650,9 +10650,9 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListBothCloseSuspect)
 
 		statusMsg = static_cast<StatusMsg*>(msg);
 		ASSERT_EQ(statusMsg->getName(), "Item1");
-		//ASSERT_EQ(statusMsg->getServiceName(), "SVG1");
+		ASSERT_EQ(statusMsg->getServiceName(), "SVG1");
 		ASSERT_TRUE(statusMsg->hasState());
-		//ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
 		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
 
 		msg = consClient.popMsg();
@@ -10661,7 +10661,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListBothCloseSuspect)
 
 		statusMsg = static_cast<StatusMsg*>(msg);
 		ASSERT_EQ(statusMsg->getName(), "Item1");
-		//ASSERT_EQ(statusMsg->getServiceName(), "SVG1");
+		ASSERT_EQ(statusMsg->getServiceName(), "SVG1");
 		ASSERT_TRUE(statusMsg->hasState());
 		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::ClosedEnum);
 		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
@@ -10794,7 +10794,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListBringServiceUpAfterReque
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -10929,7 +10929,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListRecoveryAfterTimeout)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -11036,7 +11036,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListGroupCloseRecover)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		Map newService;
@@ -11075,7 +11075,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListGroupCloseRecover)
 		ASSERT_EQ(statusMsg->getName(), "Item1");
 		ASSERT_EQ(statusMsg->getServiceName(), "SVG1");
 		ASSERT_TRUE(statusMsg->hasState());
-		//ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
 		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
 
 		msg = consClient.popMsg();
@@ -11085,7 +11085,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListGroupCloseRecover)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -11191,7 +11191,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListItemCloseRecover)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		ASSERT_EQ(provClient1.activeRequests.size(), 1);
@@ -11224,7 +11224,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListItemCloseRecover)
 		ASSERT_EQ(statusMsg->getName(), "Item1");
 		ASSERT_EQ(statusMsg->getServiceName(), "SVG1");
 		ASSERT_TRUE(statusMsg->hasState());
-		//ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
 		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
 
 		msg = consClient.popMsg();
@@ -11234,7 +11234,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListItemCloseRecover)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -11465,7 +11465,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListWithUnmatchedCapabilityT
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)
@@ -11645,7 +11645,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestServiceListWithUnmatchedQoSThenServ
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 		ASSERT_EQ(refreshMsg->getQos().getRate(), 100);
 		ASSERT_EQ(refreshMsg->getQos().getTimeliness(), 100);
@@ -11862,7 +11862,7 @@ TEST_F(OmmConsumerTest, RequestRoutingWSBSingleItemRecovery)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 		ASSERT_EQ(refreshMsg->getPayload().getDataType(), DataType::FieldListEnum);
 
@@ -11917,7 +11917,7 @@ TEST_F(OmmConsumerTest, RequestRoutingWSBSingleItemRecovery)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 		ASSERT_EQ(refreshMsg->getPayload().getDataType(), DataType::FieldListEnum);
 
@@ -11971,13 +11971,9 @@ TEST_F(OmmConsumerTest, RequestRoutingWSBSingleItemRecovery)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 		ASSERT_EQ(refreshMsg->getPayload().getDataType(), DataType::FieldListEnum);
-
-
-
-
 	}
 	catch (...)
 	{
@@ -12096,7 +12092,7 @@ TEST_F(OmmConsumerTest, RequestRoutingWSBSingleItemPrivateStreamRecoveryAfterClo
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 		ASSERT_EQ(refreshMsg->getPayload().getDataType(), DataType::FieldListEnum);
 
@@ -12344,7 +12340,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemPrivateStreamAfterService
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		Map encodeMapDown;
@@ -12476,7 +12472,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestPrivateStreamAfterChannelDown)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		prov1.closeChannel(provClient1.clientHandle);
@@ -12604,7 +12600,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemGenericMsg)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "DIRECT_FEED");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
 		ASSERT_TRUE(refreshMsg->getComplete());
 
 		encodeGenericMsg.clear().name("TestItem").complete();
@@ -12848,7 +12844,7 @@ TEST_F(OmmConsumerTest, SingleConnectionRequestServiceList)
 		ASSERT_EQ(refreshMsg->getName(), "Item1");
 		ASSERT_EQ(refreshMsg->getDomainType(), MMT_MARKET_PRICE);
 		ASSERT_EQ(refreshMsg->getServiceName(), "SVG1");
-		//ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)1);
+		ASSERT_EQ(refreshMsg->getServiceId(), (UInt32)2);
 		ASSERT_TRUE(refreshMsg->getComplete());
 	}
 	catch (...)

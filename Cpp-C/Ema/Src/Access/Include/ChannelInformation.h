@@ -152,7 +152,7 @@ public:
 	  Valid for SOCKET connection type
 	  @return port number
   */
-  const UInt16 port() const { return _port; }
+  UInt16 port() const { return _port; }
 
   /** Gets the IP address of the connected client
 	  @return string representation of this object's IP address

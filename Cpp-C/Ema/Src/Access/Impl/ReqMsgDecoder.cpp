@@ -33,6 +33,15 @@ ReqMsgDecoder::~ReqMsgDecoder()
 {
 }
 
+void ReqMsgDecoder::cloneMsgKey(const Msg& other)
+{
+	RsslRequestMsg* pRsslRequestMsg = (RsslRequestMsg*)_pRsslMsg;
+
+	rsslClearMsgKey(&pRsslRequestMsg->msgBase.msgKey);
+
+	MsgDecoder::cloneMsgKey(other, &pRsslRequestMsg->msgBase.msgKey);
+}
+
 bool ReqMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg, const RsslDataDictionary* rsslDictionary )
 {
 	_serviceNameSet = false;
@@ -451,6 +460,15 @@ void ReqMsgDecoder::setServiceName( const char* serviceName, UInt32 length, bool
 	_serviceNameSet = length ? true : false;
 
 	_serviceName.setInt( serviceName, length, nullTerm );
+}
+
+void ReqMsgDecoder::setServiceName( const EmaString& serviceName )
+{
+	_serviceNameSet = serviceName.length() ? true : false;
+
+	_serviceNameData = serviceName;
+
+	_serviceName.setInt( _serviceNameData.c_str(), _serviceNameData.length(), true );
 }
 
 void ReqMsgDecoder::setServiceId(UInt16 serviceId)

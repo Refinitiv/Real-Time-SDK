@@ -28,6 +28,17 @@ GenericMsgDecoder::~GenericMsgDecoder()
 {
 }
 
+void GenericMsgDecoder::cloneMsgKey(const Msg& other)
+{
+	RsslGenericMsg* pRsslGenericMsg = (RsslGenericMsg*)_pRsslMsg;
+
+	rsslClearMsgKey(&pRsslGenericMsg->msgBase.msgKey);
+
+	pRsslGenericMsg->flags |= RSSL_GNMF_HAS_MSG_KEY;
+
+	MsgDecoder::cloneMsgKey(other, &pRsslGenericMsg->msgBase.msgKey);
+}
+
 bool GenericMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg, const RsslDataDictionary* rsslDictionary )
 {
 	_pRsslMsg = rsslMsg;

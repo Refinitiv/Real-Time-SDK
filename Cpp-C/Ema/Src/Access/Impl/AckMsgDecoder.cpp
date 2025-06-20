@@ -30,6 +30,17 @@ AckMsgDecoder::~AckMsgDecoder()
 {
 }
 
+void AckMsgDecoder::cloneMsgKey(const Msg& other)
+{
+	RsslAckMsg* pRsslAckMsg = (RsslAckMsg*)_pRsslMsg;
+
+	rsslClearMsgKey(&pRsslAckMsg->msgBase.msgKey);
+
+	pRsslAckMsg->flags |= RSSL_AKMF_HAS_MSG_KEY;
+
+	MsgDecoder::cloneMsgKey(other, &pRsslAckMsg->msgBase.msgKey);
+}
+
 bool AckMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg, const RsslDataDictionary* pRsslDictionary )
 {
 	_serviceNameSet = false;
@@ -307,6 +318,15 @@ void AckMsgDecoder::setServiceName( const char* serviceName, UInt32 length, bool
 	_serviceNameSet = length ? true : false;
 
 	_serviceName.setInt( serviceName, length, nullTerm );
+}
+
+void AckMsgDecoder::setServiceName( const EmaString& serviceName )
+{
+	_serviceNameSet = serviceName.length() ? true : false;
+
+	_serviceNameData = serviceName;
+
+	_serviceName.setInt( _serviceNameData.c_str(), _serviceNameData.length(), true );
 }
 
 void AckMsgDecoder::setServiceId(UInt16 serviceId)

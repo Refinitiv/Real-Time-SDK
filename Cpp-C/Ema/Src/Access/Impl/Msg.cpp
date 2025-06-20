@@ -18,8 +18,8 @@
 using namespace refinitiv::ema::access;
 
 Msg::Msg() :
- _pDecoder( 0 ),
- _pEncoder( 0 ),
+ _pDecoder( nullptr ),
+ _pEncoder( nullptr ),
  _attrib(),
  _payload()
 {

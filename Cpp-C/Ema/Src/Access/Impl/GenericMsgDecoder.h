@@ -92,6 +92,8 @@ public :
 
 	OmmError::ErrorCode getErrorCode() const;
 
+	void cloneMsgKey(const Msg& other);
+
 private :
 
 	mutable EmaStringInt	_name;

@@ -93,11 +93,15 @@ public :
 
 	void setServiceName( const char*, UInt32 , bool nullTerm = true );
 
+	void setServiceName( const EmaString& );
+
 	void setServiceId(UInt16);
 
 	const RsslBuffer& getRsslBuffer() const;
 
 	OmmError::ErrorCode getErrorCode() const;
+
+	void cloneMsgKey(const Msg& other);
 
 	friend class AckMsg;
 
@@ -106,6 +110,8 @@ private :
 	mutable EmaStringInt	_name;
 
 	mutable EmaStringInt	_serviceName;
+
+	EmaString				_serviceNameData;
 
 	mutable EmaStringInt	_text;
 

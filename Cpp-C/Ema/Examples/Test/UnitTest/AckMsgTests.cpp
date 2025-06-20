@@ -645,6 +645,7 @@ TEST(AckMsgTests, testAckMsgHybrid)
 	{
 		EXPECT_FALSE( true ) << "AckMsg Hybrid Usage - exception not expected" ;
 	}
+	rsslDeleteDataDictionary( &dictionary );
 }
 
 TEST(AckMsgTests, testAckMsgError)

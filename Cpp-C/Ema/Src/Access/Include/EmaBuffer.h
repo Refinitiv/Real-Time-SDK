@@ -67,12 +67,24 @@ public :
 	*/
 	EmaBuffer& clear();
 
+	/** Releases contained buffer which reclaims memory it uses, and resets this EmaBuffer
+		to the clean state.
+		@return reference to this object
+	*/
+	EmaBuffer& release();
+
 	/** Assignment operator.
 		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] buf copied in EmaBuffer object
 		@return reference to this object
 	*/
 	EmaBuffer& operator=( const EmaBuffer& buf );
+
+	/** Move assignment operator
+	    @param[in] buf moved in EmaBuffer object.
+	    @return reference to this object
+	 */
+	EmaBuffer& operator=( EmaBuffer&& buf ) noexcept;
 
 	/** Method to set Buffer.
 		@throw OmmMemoryExhaustionException if application runs out of memory

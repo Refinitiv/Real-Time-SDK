@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2015,2019-2021,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2015,2019-2021,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -166,18 +166,18 @@ private :
 
 
 EmaBuffer::EmaBuffer() :
- _pBuffer( 0 ),
+ _pBuffer( nullptr ),
  _length( 0 ),
  _capacity( 0 ),
- _pCastingOperatorContext( 0 )
+ _pCastingOperatorContext( nullptr )
 {
 }
 
 EmaBuffer::EmaBuffer( const char* buf, UInt32 length ) :
- _pBuffer( 0 ),
+ _pBuffer( nullptr ),
  _length( length ),
  _capacity( length ),
- _pCastingOperatorContext( 0 )
+ _pCastingOperatorContext( nullptr )
 {
 	if ( _capacity )
 	{
@@ -190,7 +190,8 @@ EmaBuffer::EmaBuffer( const char* buf, UInt32 length ) :
 			return;
 		}
 
-		memcpy( (void*)_pBuffer, (void*)buf, length );
+		if ( buf )
+			memcpy( (void*)_pBuffer, (void*)buf, length );
 	}
 }
 
@@ -222,6 +223,22 @@ EmaBuffer::~EmaBuffer()
 
 	if ( _pCastingOperatorContext )
 		delete _pCastingOperatorContext;
+}
+
+EmaBuffer& EmaBuffer::release()
+{
+	if ( _pBuffer )
+		free( _pBuffer );
+
+	if ( _pCastingOperatorContext )
+		delete _pCastingOperatorContext;
+
+	_pBuffer = nullptr;
+	_length = 0;
+	_capacity = 0;
+	_pCastingOperatorContext = nullptr;
+
+	return *this;
 }
 
 EmaBuffer& EmaBuffer::clear()
@@ -272,6 +289,30 @@ EmaBuffer& EmaBuffer::operator=( const EmaBuffer& other )
 
 	return *this;
 }
+
+EmaBuffer& EmaBuffer::operator=( EmaBuffer&& other ) noexcept
+{
+	if ( this == &other ) return *this;
+
+	if ( _pBuffer )
+		free( _pBuffer );
+
+	if ( _pCastingOperatorContext )
+		delete _pCastingOperatorContext;
+
+	_pBuffer = other._pBuffer;
+	_length = other._length;
+	_capacity = other._capacity;
+	_pCastingOperatorContext = other._pCastingOperatorContext;
+
+	other._pBuffer = nullptr;
+	other._length = 0;
+	other._capacity = 0;
+	other._pCastingOperatorContext = nullptr;
+
+	return *this;
+}
+
 
 bool EmaBuffer::operator==( const EmaBuffer& other ) const
 {

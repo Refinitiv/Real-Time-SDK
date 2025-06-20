@@ -191,7 +191,7 @@ protected :
 private :
 
 	Msg( const Msg& );
-	Msg& operator=( const Msg& );
+	Msg& operator=( const Msg& ) = delete;
 };
 
 }

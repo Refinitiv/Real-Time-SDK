@@ -82,6 +82,8 @@ public :
 
 	void setServiceName( const char* , UInt32 , bool nullTerm = true );
 
+	void setServiceName( const EmaString& );
+
 	void setServiceId(UInt16);
 
 	UInt32 getFilter() const;
@@ -112,11 +114,9 @@ public :
 
 	OmmError::ErrorCode getErrorCode() const;
 
+	void cloneMsgKey(const Msg& other);
+
 private :
-
-	RsslMsg							_rsslMsg;
-
-	RsslMsg*						_pRsslMsg;
 
 	mutable EmaStringInt			_name;
 
@@ -125,6 +125,8 @@ private :
 	mutable EmaBufferInt			_permission;
 
 	mutable EmaStringInt			_serviceName;
+
+	EmaString						_serviceNameData;
 
 	mutable EmaBufferInt			_hexBuffer;
 

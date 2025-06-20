@@ -1024,6 +1024,7 @@ TEST(UpdateMsgTests, testUpdateMsgHybrid)
 	{
 		EXPECT_FALSE( true ) << "UpdateMsg Hybrid Usage - exception not expected" ;
 	}
+	rsslDeleteDataDictionary( &dictionary );
 }
 
 TEST(UpdateMsgTests, testUpdateMsgClone)
@@ -1114,6 +1115,7 @@ TEST(UpdateMsgTests, testUpdateMsgClone)
 		RsslMsg updateDecode;
 		RsslDecodeIterator decodeIter;
 
+		rsslClearMsg(&updateDecode);
 		rsslClearDecodeIterator(&decodeIter);
 
 		// Set the RWF version to decode with this iterator 

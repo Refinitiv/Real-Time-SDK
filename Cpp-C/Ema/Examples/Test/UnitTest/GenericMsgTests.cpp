@@ -102,6 +102,8 @@ TEST(GenericMsgTests, testGenericMsgwithRefreshMsg)
 
 		EXPECT_FALSE( true ) << "RefreshMsg as Payload of GenericMsg - exception NOT expected" ;
 	}
+
+	rsslDeleteDataDictionary( &dictionary );
 }
 
 TEST(GenericMsgTests, testGenericMsgWithOpaque)
@@ -1804,6 +1806,8 @@ TEST(GenericMsgTests, testGenericMsgHybrid)
 	{
 		EXPECT_FALSE( true ) << "GenericMsg Hybrid Usage - exception not expected" ;
 	}
+
+	rsslDeleteDataDictionary( &dictionary );
 }
 
 TEST(GenericMsgTests, testGenericMsgError)
@@ -1985,6 +1989,8 @@ TEST(GenericMsgTests, testGenericMsgtoString)
 	{
 		EXPECT_FALSE(true) << "GenericMsg toString Decode - exception not expected";
 	}
+
+	rsslDeleteDataDictionary( &dictionary );
 }
 
 TEST(GenericMsgTests, testGenericMsgClone)
