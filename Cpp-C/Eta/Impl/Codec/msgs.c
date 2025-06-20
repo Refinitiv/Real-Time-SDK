@@ -261,8 +261,6 @@ RSSL_API const char* rsslRDMUpdateEventFilterTypeToOmmString(RsslUInt type)
 {
 	switch (type)
 	{
-		switch (type)
-		{
 		case RDM_UPD_EVENT_FILTER_TYPE_UNSPECIFIED: return RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_UNSPECIFIED.data;
 		case RDM_UPD_EVENT_FILTER_TYPE_QUOTE: return RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_QUOTE.data;
 		case RDM_UPD_EVENT_FILTER_TYPE_TRADE: return RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_TRADE.data;
@@ -276,8 +274,6 @@ RSSL_API const char* rsslRDMUpdateEventFilterTypeToOmmString(RsslUInt type)
 		case RDM_UPD_EVENT_FILTER_TYPE_MULTIPLE: return RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_MULTIPLE.data;
 		case RDM_UPD_EVENT_FILTER_TYPE_VERIFY: return RDM_OMMSTR_UPD_EVENT_FILTER_TYPE_VERIFY.data;
 		default: return NULL;
-		}
-	default: return NULL;
 	}
 }
 
