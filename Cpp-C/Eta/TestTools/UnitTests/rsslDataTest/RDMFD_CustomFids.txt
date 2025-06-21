@@ -5,4 +5,4 @@
 FIDTEST1    "FIDTEST1"          -9001  NULL        NONE                5  MSG              5
 FIDTEST2    "FIDTEST2"          -9002  NULL        NONE                3  ANSI_PAGE        0 
 FIDTEST3    "FIDTEST3"          -9003  NULL        NONE 	             3  XML              0 
-FIDTEST4    "FIDTEST4"          -9004  NULL        ALPHANUMERIC       16  RMTES_STRING    16 
+FIDTEST4    "FIDTEST4"          -9004  UNKNOWN_NAME        ALPHANUMERIC       16  RMTES_STRING    16 

@@ -1218,6 +1218,12 @@ RSSL_API RsslRet rsslLoadFieldDictionary(	const char				*filename,
 		}
 	}
 
+	/* Ensure the rippleAcronym.data is freed for nonexistent ripple fild name. */
+	if (rippleAcronym.data)
+	{
+		free(rippleAcronym.data);
+	}
+
 	if (!dictionary->infoField_Version.data) /* Set default if tag not found */
 		if (copyTagData(&dictionary->infoField_Version, c_defaultVersion) < RSSL_RET_SUCCESS)
 			return _finishFailure(fp, dictionary, undefinedRipples, newDictEntry, &textFileReader);
