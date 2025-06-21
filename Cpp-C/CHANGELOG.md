@@ -7,18 +7,46 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.3.0.L2 aka EMA/ETA 3.9.0.L2 aka 3.9.0.1
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.3.0.L3 aka EMA/ETA 3.9.0.L3 aka 3.9.0.2
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with updates to dependencies and bug fixes including fixes for EMA C++ Request Routing.
+This is a maintenance release with support for the update filtering feature. Also included are a customer issue fix and bug fixes.
+
+Customer Issue Fixes
+--------------------
+- [Case Number: 14885950] -[RTSDK-9931] - ETA C memory leak when calling rsslDeleteDataDictionary [Case Number: 14885950]
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.3.0.L3 (Jun 30, 2025)
+--------------------------------------------
+
+EMA C++ 3.9.0.L3 Issues Resolved
+--------------------------------
+- [RTSDK-9768] - EMAC++: Message copy constructor does not take in structure changes
+- [RTSDK-9805] - EMAC++ Request Routing: Fix recovery issue with preferred host and request routing
+- [RTSDK-9895] - [EMA.C++] Memory is leaking in some OmmConsumerTests
+
+ETA C 3.9.0.L3 Issues Resolved
+--------------------------------
+- [RTSDK-9467] - ETAC: Watchlist crash when closing and re-requesting an item inside a callback during a provider close
+- [RTSDK-9931] - ETA C memory leak when calling rsslDeleteDataDictionary [Case Number: 14885950]
+
+Both ETA C and EMA C++ 3.9.0.L3 Issues Resolved
+-----------------------------------------------
+- [RTSDK-701] - Ability to build esdk with code coverage using CMAKE_CODE_COVERAGE_FLAGS
+- [RTSDK-9356] - Added/fixed copyrights in source files
+- [RTSDK-9599] - Support for Full Tick Replatform CVA UpdateFilter login settings
+- [RTSDK-9752] - Additional Fixes for issues found by Coverity Security scan
+
+--------------------------------------------
 RTSDK C++/C Release 2.3.0.L2 (May 28, 2025)
 --------------------------------------------
+
+This is a maintenance release with updates to dependencies and bug fixes including fixes for EMA C++ Request Routing.
 
 EMA C++ 3.9.0.L2 Issues Resolved
 --------------------------------

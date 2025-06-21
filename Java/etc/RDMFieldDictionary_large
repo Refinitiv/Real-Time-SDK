@@ -4,8 +4,8 @@
 ! LSEG. LSEG may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.67_RealTimeDistributionSystem_25.32		05/06/2025
-!	* Modified 05/06/2025 at Oak Brook:
+!   Version	 4.20.67_RealTimeDistributionSystem_25.41		05/26/2025
+!	* Modified 05/26/2025 at Oak Brook:
 !     - This file is a based on RWF.DAT from RDMD V4.20.67.
 !
 !   RDM Field Dictionary
@@ -30,8 +30,8 @@
 !tag Desc      RDF-D RWF field set
 !tag Type      1
 !tag Version   4.20.67
-!tag Build     3
-!tag Date      01-May-2025
+!tag Build     1
+!tag Date      13-Mar-2025
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN

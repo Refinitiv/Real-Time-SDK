@@ -140,11 +140,11 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib*              eta3.9.0.L2
-    librsslVA.lib             eta3.9.0.L2
-    librsslVACache.lib        eta3.9.0.L2
-    libansi.lib               eta3.9.0.L2
-    libdacs.lib               eta3.9.0.L2
+    librssl.lib*              eta3.9.0.L3
+    librsslVA.lib             eta3.9.0.L3
+    librsslVACache.lib        eta3.9.0.L3
+    libansi.lib               eta3.9.0.L3
+    libdacs.lib               eta3.9.0.L3
 
     *librssl.lib includes JsonConverter
 
@@ -152,18 +152,18 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.9.0.L2
-    librssl.lib               eta3.9.0.L2
-    librssl.pdb               eta3.9.0.L2
-    librsslVA.dll             eta3.9.0.L2
-    librsslVA.lib             eta3.9.0.L2
-    librsslVA.pdb             eta3.9.0.L2
-    librsslVACache.dll        eta3.9.0.L2
-    librsslVACache.lib        eta3.9.0.L2
-    librsslVACache.pdb        eta3.9.0.L2
-    librsslJsonConverter.dll  eta3.9.0.L2
-    librsslJsonConverter.lib  eta3.9.0.L2
-    librsslJsonConverter.pdb  eta3.9.0.L2
+    librssl.dll               eta3.9.0.L3
+    librssl.lib               eta3.9.0.L3
+    librssl.pdb               eta3.9.0.L3
+    librsslVA.dll             eta3.9.0.L3
+    librsslVA.lib             eta3.9.0.L3
+    librsslVA.pdb             eta3.9.0.L3
+    librsslVACache.dll        eta3.9.0.L3
+    librsslVACache.lib        eta3.9.0.L3
+    librsslVACache.pdb        eta3.9.0.L3
+    librsslJsonConverter.dll  eta3.9.0.L3
+    librsslJsonConverter.lib  eta3.9.0.L3
+    librsslJsonConverter.pdb  eta3.9.0.L3
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
@@ -181,22 +181,22 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.9.0.L2
-    librsslVA.a                        eta3.9.0.L2
-    librsslVACache.a                   eta3.9.0.L2
-    libansi.lib                        eta3.9.0.L2
-    libdacs.lib                        eta3.9.0.L2
+    librssl.a                          eta3.9.0.L3
+    librsslVA.a                        eta3.9.0.L3
+    librsslVACache.a                   eta3.9.0.L3
+    libansi.lib                        eta3.9.0.L3
+    libdacs.lib                        eta3.9.0.L3
 
 ##### Shared Library Manifest
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.9.0.1                 librssl.so.28                   eta3.9.0.L2
-    librsslVA.so.3.9.0.1               librsslVA.so.27                 eta3.9.0.L2
-    librsslJsonConverter.so.3.9.0.1    librsslJsonConverter.so.2       eta3.9.0.L2
+    librssl.so.3.9.0.2                 librssl.so.29                   eta3.9.0.L3
+    librsslVA.so.3.9.0.2               librsslVA.so.27                 eta3.9.0.L3
+    librsslJsonConverter.so.3.9.0.2    librsslJsonConverter.so.2       eta3.9.0.L3
 
-    librsslVACache.so.3.9.0.1          librsslVACache.so.4             eta3.9.0.L2
-    librsslRelMcast.so.3.9.0.1         librsslRelMcast.so.3            eta3.9.0.L2
+    librsslVACache.so.3.9.0.2          librsslVACache.so.4             eta3.9.0.L3
+    librsslRelMcast.so.3.9.0.2         librsslRelMcast.so.3            eta3.9.0.L3
 
 
 # ETA C-Edition Issues and Workarounds
@@ -221,18 +221,18 @@ The Transport API provides a helpful script that will create soft links for the 
     LSEG Item Number: N/A
     Product Name: Enterprise Transport API - C Edition
     Release Number: 3.9.0
-    Load Number: 2
-    Windows Load ID: eta3.9.0.L2.win
-        Supersedes: eta3.9.0.L1.win.rrg
-    Linux Load ID: eta3.9.0.L2.linux
-        Supersedes: eta3.9.0.L1.linux.rrg
+    Load Number: 3
+    Windows Load ID: eta3.9.0.L3.win
+        Supersedes: eta3.9.0.L2.win.rrg
+    Linux Load ID: eta3.9.0.L3.linux
+        Supersedes: eta3.9.0.L2.linux.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.67_RealTimeDistributionSystem_25.32 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.67_RealTimeDistributionSystem_25.41 for RWF and Marketfeed Record Templates
 
 # Security
 

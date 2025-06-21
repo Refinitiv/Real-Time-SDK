@@ -11,8 +11,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.67
 !tag Build_RDMD  4.20.67
-!tag DT_Version  25.32
-!tag Date        05-May-2025
+!tag DT_Version  25.41
+!tag Date        26-May-2025
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -225,7 +225,7 @@ RDN_EXCHID     4
     194        "KRE"   Kobe Rubber Exchange
     195        "MRV"   BME Spanish Exchange Derivatives L1+L2
     196        "KFI"   KOREA STOCK EXCHANGE - KOREA BONDS - KOFIA
-    197        "BFX"   Brussels Futures and Options Exchange
+    197        "BFX"   Euronext Brussels Derivatives
     198        "BRT"   Brussels SE Forward Market
     199        "DTB"   Deutsche Terminboerse
     200        "MRF"   MEFF Renta Fija
@@ -669,6 +669,7 @@ SETT_CCY   13620
    2046        "USM"   Millions of US Dollars
    2047        "ZIG"   Zimbabwe Gold (deprecated)
    2048        "WPU"   FTSE World Parity Unit
+   2049        "XAD"   Arab Accounting Dinar
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4939,6 +4940,7 @@ LEG40_TYPE 12832
      18       "TTAC"   TRF that is traded at underlying close
      19       "TTAM"   TRF that is traded at market
      20       "MOC "   Market On Close future
+     21       "ESLO"   Exchange Standardized Listed Options
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -6713,6 +6715,7 @@ GN_YLD5_TP  2734
       3        "BEY"   bond equivalent yield.
       4        "MTG"   mortgage yield.
       5        "ATY"   after tax yield.
+      6        "ETY"   Expected Trade Yield
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -7323,7 +7326,7 @@ CLS_A_EXID 13625
     194        "KRE"   Kobe Rubber Exchange
     195        "MRV"   BME Spanish Exchange Derivatives L1+L2
     196        "KFI"   KOREA STOCK EXCHANGE - KOREA BONDS - KOFIA
-    197        "BFX"   Brussels Futures and Options Exchange
+    197        "BFX"   Euronext Brussels Derivatives
     198        "BRT"   Brussels SE Forward Market
     199        "DTB"   Deutsche Terminboerse
     200        "MRF"   MEFF Renta Fija
@@ -7521,7 +7524,7 @@ CLS_A_EXID 13625
     392        "PUX"   PULPEX Exchange
     393        "SPC"   Saint Petersburg Currency Exchange
     394        "AVK"   AVK Brokerage St Petersburg
-    395        "NEO"   Aequitas NEO-N
+    395        "NEO"   CBOE Canada NEO-N
     396        "OME"   Osaka Mercantile Exchange
     397        "TIM"   Taiwan Futures Exchange
     398        "IBS"   IBIS Interbank information system
@@ -8491,9 +8494,9 @@ CLS_A_EXID 13625
    1362        "ECB"   European Central Bank data
    1363        "PGS"   PEGAS - Pan-European Gas Cooperation
    1364        "AAL"   Astra Agro Lestari
-   1365        "NLB"   Aequitas NEO-L
+   1365        "NLB"   CBOE Canada NEO-L
    1366        "ABO"   Aboissa
-   1367        "NLS"   Aequitas NEO-L Special Terms
+   1367        "NLS"   CBOE Canada NEO-L Special Terms
    1368        "ISR"   International Seaborne Market
    1369        "EPX"   EPEX SPOT
    1370        "MRN"   Machine Readable News
@@ -8646,7 +8649,7 @@ CLS_A_EXID 13625
    1517        "ATA"   Athens Stock Exchange APA
    1518        "GRF"   Griffin Markets Limited
    1519        "ASY"   A.A. Sayia & Company
-   1520        "NED"   AEQUITAS NEO-D
+   1520        "NED"   CBOE Canada NEO-D
    1521        "NFC"   NASDAQ/FINRA TRADE REPORTING FACILITY-TRF CHICAGO
    1522        "MAR"   Ministry of Agriculture and Rural Information Center, China
    1523        "MAS"   MONETARY AUTHORITY OF SINGAPORE
@@ -8917,6 +8920,19 @@ CLS_A_EXID 13625
    1788        "SBR"   SIGMA BROKING
    1789        "NPM"   NASDAQ PRIVATE MARKET
    1790        "MIQ"   NYSE TEXAS
+   1791        "GAB"   Government of Alberta
+   1792        "NPD"   NYSE Pillar Depth
+   1793        "GZP"   Guangzhou Power Exchange
+   1794        "BJX"   Beijing Power Exchange
+   1795        "IMW"   Inner Mongolia West Power Exchange
+   1796        "AAD"   Spare Exchange Code
+   1797        "AAE"   Spare Exchange Code
+   1798        "AAF"   Spare Exchange Code
+   1799        "XNE"   24X National Exchange LLC
+   1800        "GRI"   Green Impact Exchange
+   1801        "TXE"   Texas Stock Exchange
+   1802        "TXQ"   Consolidated Issue, listed by Texas SE
+   1803        "DRE"   Dream Exchange LLC
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12599,17 +12615,6 @@ ORDSIZEIND  6305
 ! ACRONYM    FID
 ! -------    ---
 !
-DUDT_UP_PT  6462
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0        "   "   Undefined
-      1        "IP "   IP
-      2        "OP "   OP
-!
-! ACRONYM    FID
-! -------    ---
-!
 SPS_FD_STS  6474
 !
 ! VALUE      DISPLAY   MEANING
@@ -14092,6 +14097,7 @@ STRGY_TYPE  8989
     207   "CLN SPK "   Clean Spark - The Clean Spark Spread is calculated using a gas emissions intensity factor. It is calculated by subtracting the carbon price from the spark spread.
     208   "CLN DRK "   Clean Dark - The Clean Dark Spread is calculated using a coal emissions intensity factor. It is calculated by subtracting the carbon price from the dark spread.
     209   "IESP    "   Inter-Exchange Spread
+    210   "IPSP    "   Inter-Product Spread
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19250,6 +19256,7 @@ MET_TYP25  13632
     280   "OTHER   "   number of "Other" crop year positions
     281   "UFA     "   Unpaid Floating Accrual
     282   "NUFFA   "   Net Unpaid Fixed Floating Accrual
+    283   "YCT_YTM "   Yield curve tenor yield to maturity
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23987,6 +23994,7 @@ MET_TYP26  13638
     274   "CLINTGRD"   Client Interest Grade
     275   "DLRMKGRD"   Dealer Market Grade
     276   "MARG RTO"   Margin Ratio
+    277   "YCT_YTM "   Yield curve tenor yield to maturity
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -24706,84 +24714,3 @@ TPACFL     15461
       0   "        "   undefined
       1   "N       "   No
       2   "Y       "   Yes
-!
-! ACRONYM    FID
-! -------    ---
-!
-DBOR_DM_TP 32303
-DM_TYPE    32304
-DEF_DMI    32312
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0   "        "   Undefined
-      1   "LCM     "   Legacy Compatible Model
-      2   "UDM     "   UDM (NOT IN USE)
-      3   "UNSPC_DM"   UNSPEC_DM
-      4   "LDM     "   Legacy Data Model
-      5   "PDM     "   Platform Data Model
-      6   "MVP     "   MVP Data Model
-      7   "WFL     "   Web-grabber FID List
-!
-! ACRONYM    FID
-! -------    ---
-!
-UDM_DM_CLS 32306
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0   "        "   Undefined
-      1   "Equities"   Equities
-      2   "Indices "   Indices
-      3   "Warrants"   Warrants
-      4   "Spreads "   Spreads
-      5   "Options "   Options
-      6   "Futures "   Futures
-      7   "FI      "   FI
-!
-! ACRONYM    FID
-! -------    ---
-!
-RENDDIRECT 32311
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0        "   "   Undefined
-      1        "L2U"   LCM to UDM
-      2        "U2L"   UDM to LCM
-!
-! ACRONYM    FID
-! -------    ---
-!
-FLTR_TYPE  32313
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0   "        "   Undefined
-      1   "Domain  "   Domain
-      2   "FLN     "   Field List Number
-      3   "ContxtID"   Context ID
-!
-! ACRONYM    FID
-! -------    ---
-!
-DEF_L_REND 32320
-DEF_U_REND 32321
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0   "        "   Undefined
-      1   "Dsbld   "   Rendition Disabled
-      2   "Opt     "   Rendition Optional
-      3   "Req     "   Rendition Required
-!
-! ACRONYM    FID
-! -------    ---
-!
-U_NOCID_H  32322
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0     "      "   Undefined
-      1     "Onpass"   Onpass
-      2     "Block "   Block
