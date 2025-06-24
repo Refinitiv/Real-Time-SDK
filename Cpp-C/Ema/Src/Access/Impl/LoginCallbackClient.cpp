@@ -951,7 +951,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 												// For Request Routing, this should happen whenever a OPEN/OK happens, or ALL active channel logins are in OPEN/SUSPECT 
 												// or have been explicilty CLOSED by the upstream provider.
 
-		bool setToOpenOk = true;
+		bool setToOpenOk = _ommBaseImpl.getConsumerRoutingSession() ? true : false; // Sets Open/Ok only when the request routing is enabled.
 
 		if ( pLoginMsg->status.flags & RDM_LG_STF_HAS_STATE )
 		{
