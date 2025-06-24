@@ -16,12 +16,12 @@ EnumTableDefinition::EnumTableDefinition(jsonToRwfSimple* jonToRwfSimple, RsslUI
 	_initializedHashTable(false),
 	_maxCount(maxCount)
 {
-	rsslHashTableCleanup(&_enumByDispalyValue);
+	memset(&_enumByDispalyValue, 0, sizeof(RsslHashTable));
 }
 
 EnumTableDefinition::~EnumTableDefinition()
 {
-	if (_initializedHashTable = true)
+	if (_initializedHashTable)
 	{
 		_initializedHashTable = false;
 
@@ -129,14 +129,17 @@ RsslBool EnumTableDefinition::findEnumDefinition(RsslBuffer* displayValue, RsslU
 	EnumDefinition *pEnumDefinition = NULL;
 	*foundEnumValue = -1;  /* Not found */
 
-	if ((rsslHashLink = rsslHashTableFind(&_enumByDispalyValue, displayValue, &hashSum)) != NULL)
+	if (_initializedHashTable)
 	{
-		pEnumDefinition = RSSL_HASH_LINK_TO_OBJECT(EnumDefinition, displayValueLink, rsslHashLink);
-
-		if (pEnumDefinition)
+		if ((rsslHashLink = rsslHashTableFind(&_enumByDispalyValue, displayValue, &hashSum)) != NULL)
 		{
-			*foundEnumValue = pEnumDefinition->enumValue;
-			return RSSL_TRUE;
+			pEnumDefinition = RSSL_HASH_LINK_TO_OBJECT(EnumDefinition, displayValueLink, rsslHashLink);
+
+			if (pEnumDefinition)
+			{
+				*foundEnumValue = pEnumDefinition->enumValue;
+				return RSSL_TRUE;
+			}
 		}
 	}
 	
