@@ -1195,7 +1195,7 @@ RsslRet processYieldCurveResponse(RsslReactor *pReactor, RsslReactorChannel *pRe
 			}
 		}
 		/*Request was not found*/
-		if(!pRequest)
+		if(!pRequest && msg->msgBase.msgClass != RSSL_MC_ACK)
 			return RSSL_RET_SUCCESS;
 	}
 	else
