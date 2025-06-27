@@ -175,6 +175,8 @@ ConsumerItem::ConsumerItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommCons
 
 ConsumerItem::~ConsumerItem()
 {
+	_ommBaseImpl.getItemCallbackClient().removeFromMap(this);
+
 	if (_currentItemList)
 	{
 		_currentItemList->removeItem(this);

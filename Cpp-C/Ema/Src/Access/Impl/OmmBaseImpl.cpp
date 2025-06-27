@@ -3444,15 +3444,15 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 
 	LoginCallbackClient::destroy( _pLoginCallbackClient );
 
-	ItemCallbackClient::destroy(_pItemCallbackClient);
-
-	ChannelCallbackClient::destroy( _pChannelCallbackClient );
-
 	if (_pConsumerRoutingSession != NULL)
 	{
 		delete _pConsumerRoutingSession;
 		_pConsumerRoutingSession = NULL;
 	}
+
+	ItemCallbackClient::destroy(_pItemCallbackClient);
+
+	ChannelCallbackClient::destroy(_pChannelCallbackClient);
 
 	if ( RSSL_RET_SUCCESS != rsslUninitialize() )
 	{
