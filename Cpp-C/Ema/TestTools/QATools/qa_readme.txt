@@ -15,6 +15,9 @@ Series100Consumer100-ConsFunc-002
 Series100Consumer100-ConsFunc-003
 	Alters consumer to be slow consumer when dispatch refreshMsg and updateMsg.
 
+Series100Consumer100-Unregister-001
+	Alters Consumer 100 to request invalid serviceName and then call consumer.unregister(handle) for testing RTSDK-9955.
+
 Module:  Series100Consumer110 
 -----------------
 
