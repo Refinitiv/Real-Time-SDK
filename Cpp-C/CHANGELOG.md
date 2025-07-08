@@ -14,7 +14,8 @@ This is a maintenance release with support for the update filtering feature. Als
 
 Customer Issue Fixes
 --------------------
-- [Case Number: 14885950] -[RTSDK-9931] - ETA C memory leak when calling rsslDeleteDataDictionary [Case Number: 14885950]
+- [Case Number: 14885950] - [RTSDK-9931] - ETA C memory leak when calling rsslDeleteDataDictionary
+- [GitHub #314] - [RTSDK-9955] - EMA C++ Consumer crashes when requesting an item with invalid serviceName and calling unregister(handle)
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
@@ -29,7 +30,7 @@ EMA C++ 3.9.0.L3 Issues Resolved
 - [RTSDK-9768] - EMAC++: Message copy constructor does not take in structure changes
 - [RTSDK-9805] - EMAC++ Request Routing: Fix recovery issue with preferred host and request routing
 - [RTSDK-9895] - [EMA.C++] Memory is leaking in some OmmConsumerTests
-- [RTSDK-9955] - EMA C++ Consumer crashes when requesting an item with invalid serviceName and calling unregister(handle)
+- [RTSDK-9955] - EMA C++ Consumer crashes when requesting an item with invalid serviceName and calling unregister(handle) [GitHub #314]
 
 ETA C 3.9.0.L3 Issues Resolved
 --------------------------------
