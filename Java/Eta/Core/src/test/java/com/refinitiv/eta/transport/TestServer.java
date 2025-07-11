@@ -8,6 +8,8 @@
 
 package com.refinitiv.eta.transport;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -28,7 +30,7 @@ public class TestServer implements Runnable
     final static boolean DEBUG = true;
     final static int TIMEOUTMS = 10000; // 10 seconds.
     final static int SLEEPTIMEMS = 25; // ms
-    
+
     ServerSocketChannel _ssc = null;
     SocketChannel _socketChannel = null;
     Selector _selector = null;
@@ -67,7 +69,7 @@ public class TestServer implements Runnable
         {
             while (System.currentTimeMillis() < endTimeMs)
             {
-                Thread.sleep(SLEEPTIMEMS);
+                Thread.sleep(JUnitConfigVariables.SLEEP_SERVER_WAIT);
                 if (check(state))
                     return;
             }
@@ -137,21 +139,25 @@ public class TestServer implements Runnable
      */
     public void setupServerSocket()
     {
-        try
+        for (int i = 0; i < JUnitConfigVariables.SERVER_BIND_RETRY_COUNT; i++)
         {
-            _selector = SelectorProvider.provider().openSelector();
-            _ssc = ServerSocketChannel.open();
-            _ssc.configureBlocking(false);
-            
-            InetSocketAddress isa = new InetSocketAddress(_port);
-            _ssc.socket().bind(isa);
+            try
+            {
+                _selector = SelectorProvider.provider().openSelector();
+                _ssc = ServerSocketChannel.open();
+                _ssc.configureBlocking(false);
 
-            _ssc.register(_selector, SelectionKey.OP_ACCEPT, _ssc);
-            _setup = true;
-        }
-        catch (IOException e)
-        {
-            fail("server socket setup failed, exception=" + e.toString());
+                InetSocketAddress isa = new InetSocketAddress(_port);
+                _ssc.socket().bind(isa);
+
+                _ssc.register(_selector, SelectionKey.OP_ACCEPT, _ssc);
+                _setup = true;
+                break;
+            }
+            catch (IOException e)
+            {
+                fail("Retry count#" + i + ". Server socket setup failed, exception=" + e.toString());
+            }
         }
     }
 
@@ -342,8 +348,7 @@ public class TestServer implements Runnable
         setupServerSocket();
         if (DEBUG)
         {
-            System.out
-                    .println("DEBUG: TestServer thread setup and ready to accept connections");
+            System.out.println("DEBUG: TestServer thread setup and ready to accept connections");
         }
         try
         {

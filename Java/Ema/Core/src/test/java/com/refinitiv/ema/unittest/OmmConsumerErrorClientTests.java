@@ -7,9 +7,13 @@
 
 package com.refinitiv.ema.unittest;
 
+import com.refinitiv.ema.JUnitConfigVariables;
 import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.rdm.EmaRdm;
+import com.refinitiv.ema.*;
 
+import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,6 +28,16 @@ public class OmmConsumerErrorClientTests {
 
     static AtomicReference<AssertionError> assertionError = new AtomicReference<>();
     static AtomicBoolean onJsonConverterErrorCalled = new AtomicBoolean(false);
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @After
+    public void tearDown()
+    {
+        try { Thread.sleep(JUnitConfigVariables.WAIT_AFTER_TEST); }
+        catch (Exception e) { }
+    }
 
     static class AppConsumerClient implements OmmConsumerClient
     {
@@ -390,7 +404,7 @@ public class OmmConsumerErrorClientTests {
     public void fidIsAbsentInDictionary_onJsonConverterErrorCallback() {
         TestUtilities.printTestHead("fidIsAbsentInDictionary_onJsonConverterErrorCallback", "Receiving Fid doesn't defined in Dictionary, error handling by onJsonConverterError callback");
 
-        final String port = "14002";
+        final String port = "19002";
         OmmConsumer consumer = null;
         OmmConsumerErrorClientTests.ProviderThread providerThread = new OmmConsumerErrorClientTests.ProviderThread(port);
 
@@ -433,7 +447,7 @@ public class OmmConsumerErrorClientTests {
     public void fidIsAbsentInDictionary_UserDispatch_ExceptionThrown() {
         TestUtilities.printTestHead("fidIsAbsentInDictionary_UserDispatch_ExceptionThrown", "Receiving Fid doesn't defined in Dictionary, there is no OmmConsumerErrorClient, USER_DISPATCH operation model, OmmException is thrown");
 
-        final String port = "14003";
+        final String port = "19003";
         boolean JsonConverterErrorThrown = false;
         OmmConsumer consumer = null;
         OmmConsumerErrorClientTests.ProviderThread providerThread = new OmmConsumerErrorClientTests.ProviderThread(port);
@@ -461,7 +475,7 @@ public class OmmConsumerErrorClientTests {
             System.out.println(ex.getMessage());
         }
         catch (OmmException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println("Caught Exception: \n" + ex.getMessage());
             JsonConverterErrorThrown = true;
             TestUtilities.checkResult(ex.getMessage().contains(ERROR_TEXT_FOR_JSON_CONVERTER));
         }

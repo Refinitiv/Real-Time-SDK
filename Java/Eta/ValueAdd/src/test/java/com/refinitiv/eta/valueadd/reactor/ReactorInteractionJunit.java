@@ -8,6 +8,9 @@
 
 package com.refinitiv.eta.valueadd.reactor;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.CloseMsg;
@@ -20,6 +23,7 @@ import com.refinitiv.eta.codec.RefreshMsg;
 import com.refinitiv.eta.codec.RequestMsg;
 import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.rdm.DomainTypes;
+import org.junit.rules.TestName;
 
 import static org.junit.Assert.*;
 
@@ -28,6 +32,24 @@ public class ReactorInteractionJunit
 	
     /** Reusable ReactorErrorInfo */
     ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
+
+    @After
+    public void tearDown()
+    {
+        try { Thread.sleep(JUnitConfigVariables.WAIT_AFTER_TEST); }
+        catch (Exception e) { }
+    }
 
     @Test
     public void SimpleRequestTest_Watchlist()

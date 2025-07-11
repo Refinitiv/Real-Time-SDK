@@ -24,7 +24,9 @@ import java.util.Collection;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.junit.runner.RunWith;
@@ -70,6 +72,24 @@ public class TunnelStreamJunit
     /** Reusable ReactorErrorInfo */
     ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
     TunnelStreamSubmitOptions _tsSubmitOpts = ReactorFactory.createTunnelStreamSubmitOptions();
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
+
+    @After
+    public void tearDown()
+    {
+        try { Thread.sleep(JUnitConfigVariables.WAIT_AFTER_TEST); }
+        catch (Exception e) { }
+    }
 
 
     boolean _enableWatchlist;
@@ -417,99 +437,104 @@ public class TunnelStreamJunit
         providerRole.defaultMsgCallback(provider);
         providerRole.tunnelStreamListenerCallback(provider);
 
-        /* Connect the consumer and provider. Setup login & directory streams automatically. */
-        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-        opts.setupDefaultLoginStream(true);
-        opts.setupDefaultDirectoryStream(true);
-        provider.bind(opts);
-        TestReactor.openSession(consumer, provider, opts);
+        try
+        {
+            /* Connect the consumer and provider. Setup login & directory streams automatically. */
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
 
-        /* Open a TunnelStream. */
-        TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
-        tsOpenOpts.name("Tunnel1");
-        tsOpenOpts.statusEventCallback(consumer);
-        tsOpenOpts.queueMsgCallback(consumer);
-        tsOpenOpts.defaultMsgCallback(consumer);
-        tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
-        tsOpenOpts.streamId(5);
-        tsOpenOpts.serviceId(Provider.defaultService().serviceId());
-        tsOpenOpts.domainType(DomainTypes.SYSTEM);
-        tsOpenOpts.userSpecObject(consumer);
+            /* Open a TunnelStream. */
+            TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
+            tsOpenOpts.name("Tunnel1");
+            tsOpenOpts.statusEventCallback(consumer);
+            tsOpenOpts.queueMsgCallback(consumer);
+            tsOpenOpts.defaultMsgCallback(consumer);
+            tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+            tsOpenOpts.streamId(5);
+            tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+            tsOpenOpts.domainType(DomainTypes.SYSTEM);
+            tsOpenOpts.userSpecObject(consumer);
 
-        Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
-        consTunnelStream = openedTsInfo.consumerTunnelStream();
-        provTunnelStream = openedTsInfo.providerTunnelStream();
+            Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
+            consTunnelStream = openedTsInfo.consumerTunnelStream();
+            provTunnelStream = openedTsInfo.providerTunnelStream();
 
-        /* Test tunnel stream accessors */
-        assertEquals(5, consTunnelStream.streamId());
-        /* Provider sends a refresh to the consumer. */
-        Msg msg = CodecFactory.createMsg();
+            /* Test tunnel stream accessors */
+            assertEquals(5, consTunnelStream.streamId());
+            /* Provider sends a refresh to the consumer. */
+            Msg msg = CodecFactory.createMsg();
 
-        _tsSubmitOpts.clear();
-        _tsSubmitOpts.containerType(DataTypes.MSG);
-        msg.clear();
-        msg.msgClass(MsgClasses.REFRESH);
-        msg.streamId(5);
-        msg.containerType(DataTypes.NO_DATA);
-        ((RefreshMsg)msg).state().streamState(StreamStates.OPEN);
-        ((RefreshMsg)msg).state().dataState(DataStates.OK);
+            _tsSubmitOpts.clear();
+            _tsSubmitOpts.containerType(DataTypes.MSG);
+            msg.clear();
+            msg.msgClass(MsgClasses.REFRESH);
+            msg.streamId(5);
+            msg.containerType(DataTypes.NO_DATA);
+            ((RefreshMsg)msg).state().streamState(StreamStates.OPEN);
+            ((RefreshMsg)msg).state().dataState(DataStates.OK);
 
-        assertEquals(ReactorReturnCodes.SUCCESS, provTunnelStream.submit(msg, _errorInfo));
-        providerReactor.dispatch(0);
+            assertEquals(ReactorReturnCodes.SUCCESS, provTunnelStream.submit(msg, _errorInfo));
+            providerReactor.dispatch(0);
 
-        /* Consumer receives the message. */
-        consumerReactor.dispatch(1);
-        event = consumerReactor.pollEvent();
-        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_MSG, event.type());
-        tsMsgEvent = (TunnelStreamMsgEvent)event.reactorEvent();
-        assertEquals(DataTypes.MSG, tsMsgEvent.containerType());
-        assertEquals(MsgClasses.REFRESH, tsMsgEvent.msg().msgClass());
+            /* Consumer receives the message. */
+            consumerReactor.dispatch(1);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.TUNNEL_STREAM_MSG, event.type());
+            tsMsgEvent = (TunnelStreamMsgEvent)event.reactorEvent();
+            assertEquals(DataTypes.MSG, tsMsgEvent.containerType());
+            assertEquals(MsgClasses.REFRESH, tsMsgEvent.msg().msgClass());
 
-        /* Provider receives a post. */
-        providerReactor.dispatch(1);
-        event = providerReactor.pollEvent();
-        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_MSG, event.type());
-        tsMsgEvent = (TunnelStreamMsgEvent)event.reactorEvent();
-        assertEquals(DataTypes.MSG, tsMsgEvent.containerType());
-        assertEquals(MsgClasses.POST, tsMsgEvent.msg().msgClass());
-        assertEquals(6, tsMsgEvent.msg().streamId());
+            /* Provider receives a post. */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.TUNNEL_STREAM_MSG, event.type());
+            tsMsgEvent = (TunnelStreamMsgEvent)event.reactorEvent();
+            assertEquals(DataTypes.MSG, tsMsgEvent.containerType());
+            assertEquals(MsgClasses.POST, tsMsgEvent.msg().msgClass());
+            assertEquals(6, tsMsgEvent.msg().streamId());
 
-        /* Provider closes the tunnel stream, starting FIN/ACK teardown */
-        provTunnelStream.close(false, _errorInfo);
-        providerReactor.dispatch(0);
+            /* Provider closes the tunnel stream, starting FIN/ACK teardown */
+            provTunnelStream.close(false, _errorInfo);
+            providerReactor.dispatch(0);
 
-        /* Consumer receives the open/suspect event */
-        consumerReactor.dispatch(1);
-        event = consumerReactor.pollEvent();
-        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
-        tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
-        assertEquals(null, tsStatusEvent.authInfo());
-        assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
-        assertEquals(StreamStates.OPEN, tsStatusEvent.state().streamState());
-        assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
-        assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
-        assertNotNull(tsStatusEvent.tunnelStream());
-        consumerReactor.dispatch(0);
+            /* Consumer receives the open/suspect event */
+            consumerReactor.dispatch(1);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
+            tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
+            assertEquals(null, tsStatusEvent.authInfo());
+            assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
+            assertEquals(StreamStates.OPEN, tsStatusEvent.state().streamState());
+            assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
+            assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
+            assertNotNull(tsStatusEvent.tunnelStream());
+            consumerReactor.dispatch(0);
 
-        /* Provider Reactor internally responds to FIN (no message). */
-        providerReactor.dispatch(0);
+            /* Provider Reactor internally responds to FIN (no message). */
+            providerReactor.dispatch(0);
 
-        /* Consumer receives the close event */
-        consumerReactor.dispatch(1);
-        event = consumerReactor.pollEvent();
-        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
-        tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
-        assertEquals(null, tsStatusEvent.authInfo());
-        assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
-        assertEquals(StreamStates.CLOSED, tsStatusEvent.state().streamState());
-        assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
-        assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
-        assertNotNull(tsStatusEvent.tunnelStream());
-        consumerReactor.dispatch(0);
-
-        TestReactorComponent.closeSession(consumer, provider);
-        consumerReactor.close();
-        providerReactor.close();
+            /* Consumer receives the close event */
+            consumerReactor.dispatch(1);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
+            tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
+            assertEquals(null, tsStatusEvent.authInfo());
+            assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
+            assertEquals(StreamStates.CLOSED, tsStatusEvent.state().streamState());
+            assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
+            assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
+            assertNotNull(tsStatusEvent.tunnelStream());
+            consumerReactor.dispatch(0);
+        }
+        finally
+        {
+            TestReactorComponent.closeSession(consumer, provider);
+            consumerReactor.close();
+            providerReactor.close();
+        }
     }
 
 
@@ -570,54 +595,17 @@ public class TunnelStreamJunit
         providerRole.defaultMsgCallback(provider);
         providerRole.tunnelStreamListenerCallback(provider);
 
-        /* Connect the consumer and provider. Setup login & directory streams automatically. */
-        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-        opts.setupDefaultLoginStream(true);
-        opts.setupDefaultDirectoryStream(true);
-        opts.reconnectAttemptLimit(-1);
-        provider.bind(opts);
-        TestReactor.openSession(consumer, provider, opts);
+        try
+        {
+            /* Connect the consumer and provider. Setup login & directory streams automatically. */
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            opts.reconnectAttemptLimit(-1);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
 
-        /* Control check, in case some other test uncovers a problem. */
-        assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
-        assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
-        assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
-        assertEquals(0, provider.reactorChannel().streamIdtoTunnelStreamTable().size());
-
-        assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
-        assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
-        assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
-        assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
-
-        /* Set TunnelStream open options. */
-        TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
-        tsOpenOpts.name("Tunnel1");
-        tsOpenOpts.statusEventCallback(consumer);
-        tsOpenOpts.queueMsgCallback(consumer);
-        tsOpenOpts.defaultMsgCallback(consumer);
-        tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
-        tsOpenOpts.serviceId(Provider.defaultService().serviceId());
-        tsOpenOpts.domainType(DomainTypes.SYSTEM);
-        tsOpenOpts.userSpecObject(consumer);     
-
-        /*** Test for proper cleanup after normal closing of streams. ***/
-        if (runTimeSec > 0) System.out.println("Running TunnelStream normal teardown cleanup test.");
-        startTime = System.nanoTime();
-        runCount = 0;
-        do
-        {            
-            for (int i = 0; i < tunnelStreamCount; ++i)
-            {
-                tsOpenOpts.streamId(i+5);
-                Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
-                consTunnels[i] = openedTsInfo.consumerTunnelStream();
-                provTunnels[i] = openedTsInfo.providerTunnelStream();
-            }
-
-            for (int i = 0; i < tunnelStreamCount; ++i)
-                consumer.closeTunnelStream(provider, consTunnels[i], provTunnels[i], true);
-            System.gc();
-
+            /* Control check, in case some other test uncovers a problem. */
             assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
             assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
             assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
@@ -628,300 +616,339 @@ public class TunnelStreamJunit
             assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
             assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
 
+            /* Set TunnelStream open options. */
+            TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
+            tsOpenOpts.name("Tunnel1");
+            tsOpenOpts.statusEventCallback(consumer);
+            tsOpenOpts.queueMsgCallback(consumer);
+            tsOpenOpts.defaultMsgCallback(consumer);
+            tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+            tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+            tsOpenOpts.domainType(DomainTypes.SYSTEM);
+            tsOpenOpts.userSpecObject(consumer);
 
-        }
-        while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
-
-        /*** Test for proper cleanup after a disconnection. ***/
-
-        if (runTimeSec > 0) System.out.println("Running TunnelStream disconnection cleanup test.");
-        startTime = System.nanoTime();
-        runCount = 0;
-        do
-        {            
-            for (int i = 0; i < tunnelStreamCount; ++i)
+            /*** Test for proper cleanup after normal closing of streams. ***/
+            if (runTimeSec > 0) System.out.println("Running TunnelStream normal teardown cleanup test.");
+            startTime = System.nanoTime();
+            runCount = 0;
+            do
             {
-                tsOpenOpts.streamId(i+5);
-                Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
-                consTunnels[i] = openedTsInfo.consumerTunnelStream();
-                provTunnels[i] = openedTsInfo.providerTunnelStream();
-            }
-
-            provider.closeChannel();
-            consumerReactor.dispatch(1 /* Channel down event */ + (_enableWatchlist ? 2 : 0)+ tunnelStreamCount /* Tunnel Stream Status Events */);
-            
-            if(_enableWatchlist)
-            {	            
-
-            	event = consumer.testReactor().pollEvent();
-     	        assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-     	        ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
-     	        assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-	            
-     	        RDMLoginMsgEvent loginMsgEvent;                
-	            event = consumer.testReactor().pollEvent();
-                assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
-                loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
-                assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());  
-
-                RDMDirectoryMsgEvent directoryMsgEvent;                
-                event = consumer.testReactor().pollEvent();
-                assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
-                directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
-                assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType()); 
-            }
-            
-            for (int i = 0; i < tunnelStreamCount; ++i)
-            {
-                event = consumerReactor.pollEvent();
-                assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
-                TunnelStreamStatusEvent tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
-                assertEquals(null, tsStatusEvent.authInfo());
-                assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
-                assertEquals(StreamStates.CLOSED_RECOVER, tsStatusEvent.state().streamState());
-                assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
-                assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
-                assertNotNull(tsStatusEvent.tunnelStream());
-                assertEquals(consTunnels[i], tsStatusEvent.tunnelStream());
-
-                assertEquals(ReactorReturnCodes.SUCCESS, tsStatusEvent.tunnelStream().close(false, _errorInfo));
-            }
-            
-            if(!_enableWatchlist)
-            {
-				event = consumer.testReactor().pollEvent();
-				assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-				ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
-				assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-            }
-            
-            System.gc();
-
-            assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
-            assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
-            assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
-            assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
-
-            /* Reopen session. */
-            TestReactor.openSession(consumer, provider, opts, true);
-
-            assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
-            assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
-            assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
-            assertEquals(0, provider.reactorChannel().streamIdtoTunnelStreamTable().size());
-        }
-        while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
-
-        /*** Test for proper cleanup after a disconnection, even if consumer does not properly close. ***/
-
-        if (runTimeSec > 0) System.out.println("Running TunnelStream disconnection cleanup test (consumer doesn't close).");
-        startTime = System.nanoTime();
-        runCount = 0;
-        do
-        {            
-            for (int i = 0; i < tunnelStreamCount; ++i)
-            {
-                tsOpenOpts.streamId(i+5);
-                Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
-                consTunnels[i] = openedTsInfo.consumerTunnelStream();
-                provTunnels[i] = openedTsInfo.providerTunnelStream();
-            }
-
-            provider.closeChannel();
-            consumerReactor.dispatch(1 + /* Channel down event */ + (_enableWatchlist ? 2 : 0)+ tunnelStreamCount /* Tunnel Stream Status Events */);
-
-            if (_enableWatchlist)
-            {
-				event = consumer.testReactor().pollEvent();
-				assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-				ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
-				assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-                 
-                RDMLoginMsgEvent loginMsgEvent;                
-                event = consumer.testReactor().pollEvent();
-                assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
-                loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
-                assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());  
-
-                RDMDirectoryMsgEvent directoryMsgEvent;                
-                event = consumer.testReactor().pollEvent();
-                assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
-                directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
-                assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
-            }
-            
-           
-            
-            for (int i = 0; i < tunnelStreamCount; ++i)
-            {
-                event = consumerReactor.pollEvent();
-                assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
-                TunnelStreamStatusEvent tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
-                assertEquals(null, tsStatusEvent.authInfo());
-                assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
-                assertEquals(StreamStates.CLOSED_RECOVER, tsStatusEvent.state().streamState());
-                assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
-                assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
-                assertNotNull(tsStatusEvent.tunnelStream());
-                assertEquals(consTunnels[i], tsStatusEvent.tunnelStream());
-            }
-            
-           
-            if(!_enableWatchlist)
-            {
-				event = consumer.testReactor().pollEvent();
-				assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-				ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
-				assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-            }
-            
-
-            System.gc();
-
-            assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
-            assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
-            assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
-            assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
-
-
-            /* Reopen session. */
-            TestReactor.openSession(consumer, provider, opts, true);
-
-            assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
-            assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
-            assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
-            assertEquals(0, provider.reactorChannel().streamIdtoTunnelStreamTable().size());
-
-        }
-        while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
-
-        TestReactorComponent.closeSession(consumer, provider);
-
-        /*** Test proper cleanup after a reject. ***/
-
-        /* Create consumer. */
-        consumer = new Consumer(consumerReactor);
-        consumerRole = (ConsumerRole)consumer.reactorRole();
-        consumerRole.initDefaultRDMLoginRequest();
-        consumerRole.initDefaultRDMDirectoryRequest();
-        consumerRole.channelEventCallback(consumer);
-        consumerRole.loginMsgCallback(consumer);
-        consumerRole.directoryMsgCallback(consumer);
-        consumerRole.dictionaryMsgCallback(consumer);
-        consumerRole.defaultMsgCallback(consumer);
-        consumerRole.watchlistOptions().enableWatchlist(_enableWatchlist);
-
-
-        /* Create provider that rejects all tunnel streams. */
-        TunnelStreamRejectProvider rejectProvider = new TunnelStreamRejectProvider(providerReactor);
-        providerRole = (ProviderRole)rejectProvider.reactorRole();
-        providerRole.channelEventCallback(rejectProvider);
-        providerRole.loginMsgCallback(rejectProvider);
-        providerRole.directoryMsgCallback(rejectProvider);
-        providerRole.dictionaryMsgCallback(rejectProvider);
-        providerRole.defaultMsgCallback(rejectProvider);
-        providerRole.tunnelStreamListenerCallback(rejectProvider);
-
-        /* Connect the consumer and provider. Setup login & directory streams automatically. */
-        rejectProvider.bind(opts);
-        TestReactor.openSession(consumer, rejectProvider, opts);
-
-        /* Control check. */
-        assertEquals(0, rejectProvider.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
-        assertEquals(0, rejectProvider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
-        assertEquals(0, rejectProvider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
-        assertEquals(0, rejectProvider.reactorChannel().streamIdtoTunnelStreamTable().size());
-        assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
-        assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
-        assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
-        assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
-
-        /* Set TunnelStream open options. */
-        tsOpenOpts.clear();
-        tsOpenOpts.name("Tunnel1");
-        tsOpenOpts.statusEventCallback(consumer);
-        tsOpenOpts.queueMsgCallback(consumer);
-        tsOpenOpts.defaultMsgCallback(consumer);
-        tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
-        tsOpenOpts.serviceId(Provider.defaultService().serviceId());
-        tsOpenOpts.domainType(DomainTypes.SYSTEM);
-        tsOpenOpts.userSpecObject(consumer);   
-
-        if (runTimeSec > 0) System.out.println("Running TunnelStream reject cleanup test.");
-        startTime = System.nanoTime();
-        runCount = 0;
-        do
-        {            
-            for (int i = 0; i < tunnelStreamCount; ++i)
-            {
-                tsOpenOpts.streamId(i+5);
-                assertEquals(ReactorReturnCodes.SUCCESS, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
-            }
-
-            consumerReactor.dispatch(0);
-            providerReactor.dispatch(tunnelStreamCount);
-            for (int i = 0; i < tunnelStreamCount; ++i)
-            {
-                event = providerReactor.pollEvent();
-                assertEquals(event.type(), TestReactorEventTypes.TUNNEL_STREAM_REQUEST);
-                if (!_enableWatchlist) /* Watchlist will likely use different stream ID. */
+                for (int i = 0; i < tunnelStreamCount; ++i)
                 {
-                    TunnelStreamRequestEvent requestEvent = event.tunnelStreamRequestEvent();
-                    assertEquals(5+i, requestEvent.streamId());
+                    tsOpenOpts.streamId(i+5);
+                    Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
+                    consTunnels[i] = openedTsInfo.consumerTunnelStream();
+                    provTunnels[i] = openedTsInfo.providerTunnelStream();
                 }
+
+                for (int i = 0; i < tunnelStreamCount; ++i)
+                    consumer.closeTunnelStream(provider, consTunnels[i], provTunnels[i], true);
+                System.gc();
+
+                assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
+                assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
+                assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
+                assertEquals(0, provider.reactorChannel().streamIdtoTunnelStreamTable().size());
+
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
+                assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
+
+
             }
+            while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
 
-            consumerReactor.dispatch(0); // dispatch for request retry
+            /*** Test for proper cleanup after a disconnection. ***/
 
-            // provider receives request retry
-            providerReactor.dispatch(tunnelStreamCount);
-            for (int i = 0; i < tunnelStreamCount; ++i)
+            if (runTimeSec > 0) System.out.println("Running TunnelStream disconnection cleanup test.");
+            startTime = System.nanoTime();
+            runCount = 0;
+            do
             {
-                event = providerReactor.pollEvent();
-                assertEquals(event.type(), TestReactorEventTypes.TUNNEL_STREAM_REQUEST);
-                if (!_enableWatchlist) /* Watchlist will likely use different stream ID. */
+                for (int i = 0; i < tunnelStreamCount; ++i)
                 {
-                    TunnelStreamRequestEvent requestEvent = event.tunnelStreamRequestEvent();
-                    assertEquals(5+i, requestEvent.streamId());
+                    tsOpenOpts.streamId(i+5);
+                    Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
+                    consTunnels[i] = openedTsInfo.consumerTunnelStream();
+                    provTunnels[i] = openedTsInfo.providerTunnelStream();
                 }
+
+                provider.closeChannel();
+                consumerReactor.dispatch(1 /* Channel down event */ + (_enableWatchlist ? 2 : 0)+ tunnelStreamCount /* Tunnel Stream Status Events */);
+
+                if(_enableWatchlist)
+                {
+
+                    event = consumer.testReactor().pollEvent();
+                    assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+                    ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+                    assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+
+                    RDMLoginMsgEvent loginMsgEvent;
+                    event = consumer.testReactor().pollEvent();
+                    assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+                    loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+                    assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+                    RDMDirectoryMsgEvent directoryMsgEvent;
+                    event = consumer.testReactor().pollEvent();
+                    assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+                    directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+                    assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
+                }
+
+                for (int i = 0; i < tunnelStreamCount; ++i)
+                {
+                    event = consumerReactor.pollEvent();
+                    assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
+                    TunnelStreamStatusEvent tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
+                    assertEquals(null, tsStatusEvent.authInfo());
+                    assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
+                    assertEquals(StreamStates.CLOSED_RECOVER, tsStatusEvent.state().streamState());
+                    assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
+                    assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
+                    assertNotNull(tsStatusEvent.tunnelStream());
+                    assertEquals(consTunnels[i], tsStatusEvent.tunnelStream());
+
+                    assertEquals(ReactorReturnCodes.SUCCESS, tsStatusEvent.tunnelStream().close(false, _errorInfo));
+                }
+
+                if(!_enableWatchlist)
+                {
+                    event = consumer.testReactor().pollEvent();
+                    assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+                    ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+                    assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+                }
+
+                System.gc();
+
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
+                assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
+
+                /* Reopen session. */
+                TestReactor.openSession(consumer, provider, opts, true);
+
+                assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
+                assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
+                assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
+                assertEquals(0, provider.reactorChannel().streamIdtoTunnelStreamTable().size());
             }
+            while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
 
-            consumerReactor.dispatch(tunnelStreamCount);
+            /*** Test for proper cleanup after a disconnection, even if consumer does not properly close. ***/
 
-            for (int i = 0; i < tunnelStreamCount; ++i)
+            if (runTimeSec > 0) System.out.println("Running TunnelStream disconnection cleanup test (consumer doesn't close).");
+            startTime = System.nanoTime();
+            runCount = 0;
+            do
             {
-                event = consumerReactor.pollEvent();
-                assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
-                TunnelStreamStatusEvent tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
-                assertEquals(null, tsStatusEvent.authInfo());
-                assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
-                assertEquals(StreamStates.CLOSED, tsStatusEvent.state().streamState());
-                assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
-                assertEquals(StateCodes.NOT_ENTITLED, tsStatusEvent.state().code());
-                assertNotNull(tsStatusEvent.tunnelStream());
-                assertEquals(ReactorReturnCodes.SUCCESS, tsStatusEvent.tunnelStream().close(false, _errorInfo));
-            }
-            System.gc();
+                for (int i = 0; i < tunnelStreamCount; ++i)
+                {
+                    tsOpenOpts.streamId(i+5);
+                    Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
+                    consTunnels[i] = openedTsInfo.consumerTunnelStream();
+                    provTunnels[i] = openedTsInfo.providerTunnelStream();
+                }
 
+                provider.closeChannel();
+                consumerReactor.dispatch(1 + /* Channel down event */ + (_enableWatchlist ? 2 : 0)+ tunnelStreamCount /* Tunnel Stream Status Events */);
+
+                if (_enableWatchlist)
+                {
+                    event = consumer.testReactor().pollEvent();
+                    assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+                    ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+                    assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+
+                    RDMLoginMsgEvent loginMsgEvent;
+                    event = consumer.testReactor().pollEvent();
+                    assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+                    loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+                    assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+                    RDMDirectoryMsgEvent directoryMsgEvent;
+                    event = consumer.testReactor().pollEvent();
+                    assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+                    directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+                    assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
+                }
+
+
+
+                for (int i = 0; i < tunnelStreamCount; ++i)
+                {
+                    event = consumerReactor.pollEvent();
+                    assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
+                    TunnelStreamStatusEvent tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
+                    assertEquals(null, tsStatusEvent.authInfo());
+                    assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
+                    assertEquals(StreamStates.CLOSED_RECOVER, tsStatusEvent.state().streamState());
+                    assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
+                    assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
+                    assertNotNull(tsStatusEvent.tunnelStream());
+                    assertEquals(consTunnels[i], tsStatusEvent.tunnelStream());
+                }
+
+
+                if(!_enableWatchlist)
+                {
+                    event = consumer.testReactor().pollEvent();
+                    assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+                    ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+                    assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+                }
+
+
+                System.gc();
+
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
+                assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
+
+
+                /* Reopen session. */
+                TestReactor.openSession(consumer, provider, opts, true);
+
+                assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
+                assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
+                assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
+                assertEquals(0, provider.reactorChannel().streamIdtoTunnelStreamTable().size());
+
+            }
+            while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
+
+            TestReactorComponent.closeSession(consumer, provider);
+
+            /*** Test proper cleanup after a reject. ***/
+
+            /* Create consumer. */
+            consumer = new Consumer(consumerReactor);
+            consumerRole = (ConsumerRole)consumer.reactorRole();
+            consumerRole.initDefaultRDMLoginRequest();
+            consumerRole.initDefaultRDMDirectoryRequest();
+            consumerRole.channelEventCallback(consumer);
+            consumerRole.loginMsgCallback(consumer);
+            consumerRole.directoryMsgCallback(consumer);
+            consumerRole.dictionaryMsgCallback(consumer);
+            consumerRole.defaultMsgCallback(consumer);
+            consumerRole.watchlistOptions().enableWatchlist(_enableWatchlist);
+
+
+            /* Create provider that rejects all tunnel streams. */
+            TunnelStreamRejectProvider rejectProvider = new TunnelStreamRejectProvider(providerReactor);
+            providerRole = (ProviderRole)rejectProvider.reactorRole();
+            providerRole.channelEventCallback(rejectProvider);
+            providerRole.loginMsgCallback(rejectProvider);
+            providerRole.directoryMsgCallback(rejectProvider);
+            providerRole.dictionaryMsgCallback(rejectProvider);
+            providerRole.defaultMsgCallback(rejectProvider);
+            providerRole.tunnelStreamListenerCallback(rejectProvider);
+
+            /* Connect the consumer and provider. Setup login & directory streams automatically. */
+            rejectProvider.bind(opts);
+            TestReactor.openSession(consumer, rejectProvider, opts);
+
+            /* Control check. */
             assertEquals(0, rejectProvider.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
             assertEquals(0, rejectProvider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
             assertEquals(0, rejectProvider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
             assertEquals(0, rejectProvider.reactorChannel().streamIdtoTunnelStreamTable().size());
-
             assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
             assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
             assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
             assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
 
+            /* Set TunnelStream open options. */
+            tsOpenOpts.clear();
+            tsOpenOpts.name("Tunnel1");
+            tsOpenOpts.statusEventCallback(consumer);
+            tsOpenOpts.queueMsgCallback(consumer);
+            tsOpenOpts.defaultMsgCallback(consumer);
+            tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+            tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+            tsOpenOpts.domainType(DomainTypes.SYSTEM);
+            tsOpenOpts.userSpecObject(consumer);
+
+            if (runTimeSec > 0) System.out.println("Running TunnelStream reject cleanup test.");
+            startTime = System.nanoTime();
+            runCount = 0;
+            do
+            {
+                for (int i = 0; i < tunnelStreamCount; ++i)
+                {
+                    tsOpenOpts.streamId(i+5);
+                    assertEquals(ReactorReturnCodes.SUCCESS, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
+                }
+
+                consumerReactor.dispatch(0);
+                providerReactor.dispatch(tunnelStreamCount);
+                for (int i = 0; i < tunnelStreamCount; ++i)
+                {
+                    event = providerReactor.pollEvent();
+                    assertEquals(event.type(), TestReactorEventTypes.TUNNEL_STREAM_REQUEST);
+                    if (!_enableWatchlist) /* Watchlist will likely use different stream ID. */
+                    {
+                        TunnelStreamRequestEvent requestEvent = event.tunnelStreamRequestEvent();
+                        assertEquals(5+i, requestEvent.streamId());
+                    }
+                }
+
+                consumerReactor.dispatch(0); // dispatch for request retry
+
+                // provider receives request retry
+                providerReactor.dispatch(tunnelStreamCount);
+                for (int i = 0; i < tunnelStreamCount; ++i)
+                {
+                    event = providerReactor.pollEvent();
+                    assertEquals(event.type(), TestReactorEventTypes.TUNNEL_STREAM_REQUEST);
+                    if (!_enableWatchlist) /* Watchlist will likely use different stream ID. */
+                    {
+                        TunnelStreamRequestEvent requestEvent = event.tunnelStreamRequestEvent();
+                        assertEquals(5+i, requestEvent.streamId());
+                    }
+                }
+
+                consumerReactor.dispatch(tunnelStreamCount);
+
+                for (int i = 0; i < tunnelStreamCount; ++i)
+                {
+                    event = consumerReactor.pollEvent();
+                    assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
+                    TunnelStreamStatusEvent tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
+                    assertEquals(null, tsStatusEvent.authInfo());
+                    assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
+                    assertEquals(StreamStates.CLOSED, tsStatusEvent.state().streamState());
+                    assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
+                    assertEquals(StateCodes.NOT_ENTITLED, tsStatusEvent.state().code());
+                    assertNotNull(tsStatusEvent.tunnelStream());
+                    assertEquals(ReactorReturnCodes.SUCCESS, tsStatusEvent.tunnelStream().close(false, _errorInfo));
+                }
+                System.gc();
+
+                assertEquals(0, rejectProvider.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
+                assertEquals(0, rejectProvider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
+                assertEquals(0, rejectProvider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
+                assertEquals(0, rejectProvider.reactorChannel().streamIdtoTunnelStreamTable().size());
+
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamDispatchList.count());
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
+                assertEquals(0, consumer.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
+                assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
+
+            }
+            while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
+            TestReactorComponent.closeSession(consumer, rejectProvider);
         }
-        while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
-
-        TestReactorComponent.closeSession(consumer, rejectProvider);
-
-        consumerReactor.close();
-        providerReactor.close();
-
-
+        finally
+        {
+            consumerReactor.close();
+            providerReactor.close();
+        }
     }
 
     /* Encodes a sample message. Used with TunnelStreamBufferLengthAndCopyTest*/
@@ -1041,6 +1068,9 @@ public class TunnelStreamJunit
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
 
+        TunnelStream consTunnelStream = null;
+        TunnelStream provTunnelStream = null;
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -1063,102 +1093,101 @@ public class TunnelStreamJunit
         providerRole.defaultMsgCallback(provider);
         providerRole.tunnelStreamListenerCallback(provider);
 
-        /* Connect the consumer and provider. Setup login & directory streams automatically. */
-        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-        opts.setupDefaultLoginStream(true);
-        opts.setupDefaultDirectoryStream(true);
-        provider.bind(opts);
-        TestReactor.openSession(consumer, provider, opts);
+        try
+        {
+            /* Connect the consumer and provider. Setup login & directory streams automatically. */
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
 
-        /* Open a TunnelStream. */
-        TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
-        tsOpenOpts.name("Tunnel1");
-        tsOpenOpts.statusEventCallback(consumer);
-        tsOpenOpts.queueMsgCallback(consumer);
-        tsOpenOpts.defaultMsgCallback(consumer);
-        tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
-        tsOpenOpts.streamId(5);
-        tsOpenOpts.serviceId(Provider.defaultService().serviceId());
-        tsOpenOpts.domainType(DomainTypes.SYSTEM);
+            /* Open a TunnelStream. */
+            TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
+            tsOpenOpts.name("Tunnel1");
+            tsOpenOpts.statusEventCallback(consumer);
+            tsOpenOpts.queueMsgCallback(consumer);
+            tsOpenOpts.defaultMsgCallback(consumer);
+            tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+            tsOpenOpts.streamId(5);
+            tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+            tsOpenOpts.domainType(DomainTypes.SYSTEM);
 
-        Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
-        TunnelStream consTunnelStream = openedTsInfo.consumerTunnelStream();
-        TunnelStream provTunnelStream = openedTsInfo.providerTunnelStream();
-        TransportBuffer tunnelBuffer;
+            Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
+            consTunnelStream = openedTsInfo.consumerTunnelStream();
+            provTunnelStream = openedTsInfo.providerTunnelStream();
+            TransportBuffer tunnelBuffer;
 
-        provider.tunnelStream(provTunnelStream);
+            provider.tunnelStream(provTunnelStream);
 
-        assertNotNull(tunnelBuffer = consTunnelStream.getBuffer(500, _errorInfo));
-        assertEquals(500, tunnelBuffer.capacity());
-        assertEquals(500, tunnelBuffer.length());
+            assertNotNull(tunnelBuffer = consTunnelStream.getBuffer(500, _errorInfo));
+            assertEquals(500, tunnelBuffer.capacity());
+            assertEquals(500, tunnelBuffer.length());
 
-        /* Write two 4-byte integers into the buffer. */
-        int bufferStartPos = tunnelBuffer.data().position();
-        tunnelBuffer.data().putInt(5);
-        tunnelBuffer.data().putInt(7);
-        assertEquals(500, tunnelBuffer.capacity());
-        assertEquals(8, tunnelBuffer.length());
+            /* Write two 4-byte integers into the buffer. */
+            int bufferStartPos = tunnelBuffer.data().position();
+            tunnelBuffer.data().putInt(5);
+            tunnelBuffer.data().putInt(7);
+            assertEquals(500, tunnelBuffer.capacity());
+            assertEquals(8, tunnelBuffer.length());
 
-        /* Copy the buffer and test for correct value. */
-        ByteBuffer destBuffer = ByteBuffer.allocate(8);
-        assertEquals(ReactorReturnCodes.SUCCESS, tunnelBuffer.copy(destBuffer));
-        assertEquals(500, tunnelBuffer.capacity());
-        assertEquals(8, tunnelBuffer.length());
-        destBuffer.position(0);
+            /* Copy the buffer and test for correct value. */
+            ByteBuffer destBuffer = ByteBuffer.allocate(8);
+            assertEquals(ReactorReturnCodes.SUCCESS, tunnelBuffer.copy(destBuffer));
+            assertEquals(500, tunnelBuffer.capacity());
+            assertEquals(8, tunnelBuffer.length());
+            destBuffer.position(0);
 
-        tunnelBuffer.data().position(bufferStartPos);
-        assertEquals(5, tunnelBuffer.data().getInt());
-        assertEquals(7, tunnelBuffer.data().getInt());
+            tunnelBuffer.data().position(bufferStartPos);
+            assertEquals(5, tunnelBuffer.data().getInt());
+            assertEquals(7, tunnelBuffer.data().getInt());
 
-        assertEquals(5, destBuffer.getInt());
-        assertEquals(7, destBuffer.getInt());
+            assertEquals(5, destBuffer.getInt());
+            assertEquals(7, destBuffer.getInt());
 
-        /* Test that copying to a small buffer fails. */
-        destBuffer = ByteBuffer.allocate(7);
-        assertEquals(ReactorReturnCodes.INVALID_USAGE, tunnelBuffer.copy(destBuffer));
-        assertEquals(500, tunnelBuffer.capacity());
-    	assertEquals(8, tunnelBuffer.length());    	
+            /* Test that copying to a small buffer fails. */
+            destBuffer = ByteBuffer.allocate(7);
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, tunnelBuffer.copy(destBuffer));
+            assertEquals(500, tunnelBuffer.capacity());
+            assertEquals(8, tunnelBuffer.length());
 
-        /* Send this buffer to the provider. */
-        _tsSubmitOpts.clear();
-        _tsSubmitOpts.containerType(DataTypes.OPAQUE);
-        assertEquals(ReactorReturnCodes.SUCCESS, consTunnelStream.submit(tunnelBuffer, _tsSubmitOpts, _errorInfo));
-        consumerReactor.dispatch(0);
+            /* Send this buffer to the provider. */
+            _tsSubmitOpts.clear();
+            _tsSubmitOpts.containerType(DataTypes.OPAQUE);
+            assertEquals(ReactorReturnCodes.SUCCESS, consTunnelStream.submit(tunnelBuffer, _tsSubmitOpts, _errorInfo));
+            consumerReactor.dispatch(0);
 
-        /* Provider receives buffer (length & copy tests are done in the provider callback where the buffer is received;
-         * the buffer we would get here is just a CopiedTransportBuffer, not the actual received buffer). */
-        providerReactor.dispatch(1);
-        event = providerReactor.pollEvent();
-        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_MSG, event.type());
-        consumerReactor.dispatch(0);
+            /* Provider receives buffer (length & copy tests are done in the provider callback where the buffer is received;
+             * the buffer we would get here is just a CopiedTransportBuffer, not the actual received buffer). */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.TUNNEL_STREAM_MSG, event.type());
+            consumerReactor.dispatch(0);
 
-        /* Now try sending a message. */
-        assertNotNull(tunnelBuffer = consTunnelStream.getBuffer(500, _errorInfo));
-        encodeSampleMsg(consTunnelStream, tunnelBuffer);
-        provider.expectedMsgBufferLength(tunnelBuffer.length());
+            /* Now try sending a message. */
+            assertNotNull(tunnelBuffer = consTunnelStream.getBuffer(500, _errorInfo));
+            encodeSampleMsg(consTunnelStream, tunnelBuffer);
+            provider.expectedMsgBufferLength(tunnelBuffer.length());
 
-        _tsSubmitOpts.clear();
-        _tsSubmitOpts.containerType(DataTypes.MSG);
-        assertEquals(ReactorReturnCodes.SUCCESS, consTunnelStream.submit(tunnelBuffer, _tsSubmitOpts, _errorInfo));
-        consumerReactor.dispatch(0);
+            _tsSubmitOpts.clear();
+            _tsSubmitOpts.containerType(DataTypes.MSG);
+            assertEquals(ReactorReturnCodes.SUCCESS, consTunnelStream.submit(tunnelBuffer, _tsSubmitOpts, _errorInfo));
+            consumerReactor.dispatch(0);
 
 
-        /* Provider receives message (and decodes it in callback). */
-        providerReactor.dispatch(1);
-        event = providerReactor.pollEvent();
-        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_MSG, event.type());
-
-        consumer.closeTunnelStream(provider, consTunnelStream, provTunnelStream, true);
-        TestReactorComponent.closeSession(consumer, provider);
-        consumerReactor.close();
-        providerReactor.close();
+            /* Provider receives message (and decodes it in callback). */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.TUNNEL_STREAM_MSG, event.type());
+        }
+        finally
+        {
+            consumer.closeTunnelStream(provider, consTunnelStream, provTunnelStream, true);
+            TestReactorComponent.closeSession(consumer, provider);
+            consumerReactor.close();
+            providerReactor.close();
+        }
     }
-
-    
-    
-        
-        
-
 
     /* Mock channel used with the WriteCallAgainTest. Returns WRITE_CALL_AGAIN on the first write attempt*/
     class WriteCallAgainChannel implements Channel
@@ -1378,128 +1407,130 @@ public class TunnelStreamJunit
         TunnelStreamCoreProvider provider = new TunnelStreamCoreProvider();
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 
-        CoreComponent.openSession(consumer, provider, opts, false);
+        try
+        {
+            CoreComponent.openSession(consumer, provider, opts, false);
 
-        /* Open a TunnelStream. */
-        TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
-        tsOpenOpts.name("Tunnel1");
-        tsOpenOpts.statusEventCallback(consumer);
-        tsOpenOpts.queueMsgCallback(consumer);
-        tsOpenOpts.defaultMsgCallback(consumer);
-        tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
-        tsOpenOpts.streamId(5);
-        tsOpenOpts.serviceId(Provider.defaultService().serviceId());
-        tsOpenOpts.domainType(DomainTypes.SYSTEM);
-        tsOpenOpts.userSpecObject(consumer);     
-        tsOpenOpts.responseTimeout(responseTimeout);
+            /* Open a TunnelStream. */
+            TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
+            tsOpenOpts.name("Tunnel1");
+            tsOpenOpts.statusEventCallback(consumer);
+            tsOpenOpts.queueMsgCallback(consumer);
+            tsOpenOpts.defaultMsgCallback(consumer);
+            tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+            tsOpenOpts.streamId(5);
+            tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+            tsOpenOpts.domainType(DomainTypes.SYSTEM);
+            tsOpenOpts.userSpecObject(consumer);
+            tsOpenOpts.responseTimeout(responseTimeout);
 
-        assertEquals(ReactorReturnCodes.SUCCESS, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
-        timeOfOpenMs = System.currentTimeMillis();
-        consumerReactor.dispatch(0);
+            assertEquals(ReactorReturnCodes.SUCCESS, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
+            timeOfOpenMs = System.currentTimeMillis();
+            consumerReactor.dispatch(0);
 
 
-        /* Provider receives request (but does nothing with it). */
-        provider.dispatch(1);
-        readEvent = provider.pollEvent();
-        provMsg = readEvent.msg();
-        assertEquals(MsgClasses.REQUEST, provMsg.msgClass());
-        recvRequestMsg = (RequestMsg)provMsg;
-        assertEquals(tsOpenOpts.domainType(), recvRequestMsg.domainType());
-        assertTrue(recvRequestMsg.checkStreaming());
-        assertTrue(recvRequestMsg.checkPrivateStream());
-        assertTrue(recvRequestMsg.checkQualifiedStream());;
-        assertTrue(recvRequestMsg.msgKey().checkHasFilter());
-        assertTrue(recvRequestMsg.msgKey().checkHasServiceId());
-        assertEquals(DataTypes.FILTER_LIST, recvRequestMsg.containerType());
-        provTunnelStreamId = recvRequestMsg.streamId();
+            /* Provider receives request (but does nothing with it). */
+            provider.dispatch(1);
+            readEvent = provider.pollEvent();
+            provMsg = readEvent.msg();
+            assertEquals(MsgClasses.REQUEST, provMsg.msgClass());
+            recvRequestMsg = (RequestMsg)provMsg;
+            assertEquals(tsOpenOpts.domainType(), recvRequestMsg.domainType());
+            assertTrue(recvRequestMsg.checkStreaming());
+            assertTrue(recvRequestMsg.checkPrivateStream());
+            assertTrue(recvRequestMsg.checkQualifiedStream());;
+            assertTrue(recvRequestMsg.msgKey().checkHasFilter());
+            assertTrue(recvRequestMsg.msgKey().checkHasServiceId());
+            assertEquals(DataTypes.FILTER_LIST, recvRequestMsg.containerType());
+            provTunnelStreamId = recvRequestMsg.streamId();
 
-        /* Consumer receives timeout event (dispatch stops when event is received). */
-        consumerReactor.dispatch(1, responseTimeout * 1000 + 5000);
-        event = consumerReactor.pollEvent();
-        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
-        tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
-        assertEquals(StreamStates.CLOSED_RECOVER, tsStatusEvent.state().streamState());
-        assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
+            /* Consumer receives timeout event (dispatch stops when event is received). */
+            consumerReactor.dispatch(1, responseTimeout * 1000 + 5000);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
+            tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
+            assertEquals(StreamStates.CLOSED_RECOVER, tsStatusEvent.state().streamState());
+            assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
 
-        /* Check that status arrived at around the appropriate time. */
-        timeoutDeviationMs = System.currentTimeMillis() - (timeOfOpenMs + responseTimeout * 1000);
-        assertTrue( "TunnelStream response timeout was off by " + timeoutDeviationMs + "ms.", abs(timeoutDeviationMs) < allowedTimeoutDeviationMs);
+            /* Check that status arrived at around the appropriate time. */
+            timeoutDeviationMs = System.currentTimeMillis() - (timeOfOpenMs + responseTimeout * 1000);
+            assertTrue( "TunnelStream response timeout was off by " + timeoutDeviationMs + "ms.", abs(timeoutDeviationMs) < allowedTimeoutDeviationMs);
 
-        assertEquals(ReactorReturnCodes.SUCCESS, tsStatusEvent.tunnelStream().close(false, _errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, tsStatusEvent.tunnelStream().close(false, _errorInfo));
 
-        /* Open another tunnel stream. */
-        assertEquals(ReactorReturnCodes.SUCCESS, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
-        consumerReactor.dispatch(0);
+            /* Open another tunnel stream. */
+            assertEquals(ReactorReturnCodes.SUCCESS, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
+            consumerReactor.dispatch(0);
 
-        /* Provider accepts this one. */
-        provider.dispatch(1);
-        readEvent = provider.pollEvent();
-        provMsg = readEvent.msg();
-        assertEquals(MsgClasses.REQUEST, provMsg.msgClass());
-        recvRequestMsg = (RequestMsg)provMsg;
-        assertEquals(tsOpenOpts.domainType(), recvRequestMsg.domainType());
-        assertTrue(recvRequestMsg.checkStreaming());
-        assertTrue(recvRequestMsg.checkPrivateStream());
-        assertTrue(recvRequestMsg.checkQualifiedStream());;
-        assertTrue(recvRequestMsg.msgKey().checkHasFilter());
-        assertTrue(recvRequestMsg.msgKey().checkHasServiceId());
-        assertEquals(DataTypes.FILTER_LIST, recvRequestMsg.containerType());
-        provTunnelStreamId = recvRequestMsg.streamId();
-        provider.acceptTunnelStreamRequest(consumer, recvRequestMsg, null);
+            /* Provider accepts this one. */
+            provider.dispatch(1);
+            readEvent = provider.pollEvent();
+            provMsg = readEvent.msg();
+            assertEquals(MsgClasses.REQUEST, provMsg.msgClass());
+            recvRequestMsg = (RequestMsg)provMsg;
+            assertEquals(tsOpenOpts.domainType(), recvRequestMsg.domainType());
+            assertTrue(recvRequestMsg.checkStreaming());
+            assertTrue(recvRequestMsg.checkPrivateStream());
+            assertTrue(recvRequestMsg.checkQualifiedStream());;
+            assertTrue(recvRequestMsg.msgKey().checkHasFilter());
+            assertTrue(recvRequestMsg.msgKey().checkHasServiceId());
+            assertEquals(DataTypes.FILTER_LIST, recvRequestMsg.containerType());
+            provTunnelStreamId = recvRequestMsg.streamId();
+            provider.acceptTunnelStreamRequest(consumer, recvRequestMsg, null);
 
-        /* Consumer receives response. */
-        consumerReactor.dispatch(1);
-        event = consumerReactor.pollEvent();
-        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
-        tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
-        assertEquals(StreamStates.OPEN, tsStatusEvent.state().streamState());
-        assertEquals(DataStates.OK, tsStatusEvent.state().dataState());
-        consTunnelStream = tsStatusEvent.tunnelStream();
+            /* Consumer receives response. */
+            consumerReactor.dispatch(1);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
+            tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
+            assertEquals(StreamStates.OPEN, tsStatusEvent.state().streamState());
+            assertEquals(DataStates.OK, tsStatusEvent.state().dataState());
+            consTunnelStream = tsStatusEvent.tunnelStream();
 
-        /* Wait one second, then close the stream. */
-        consumerReactor.dispatch(0, 1000);
-        consumer.closeTunnelStream(provider, consTunnelStream, provTunnelStreamId, 1, true);
+            /* Wait one second, then close the stream. */
+            consumerReactor.dispatch(0, 1000);
+            consumer.closeTunnelStream(provider, consTunnelStream, provTunnelStreamId, 1, true);
 
-        /* Open another tunnel stream. */
-        assertEquals(ReactorReturnCodes.SUCCESS, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
-        timeOfOpenMs = System.currentTimeMillis();
-        consumerReactor.dispatch(0);
+            /* Open another tunnel stream. */
+            assertEquals(ReactorReturnCodes.SUCCESS, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
+            timeOfOpenMs = System.currentTimeMillis();
+            consumerReactor.dispatch(0);
 
-        /* Provider receives request (but does nothing with it). */
-        provider.dispatch(1);
-        readEvent = provider.pollEvent();
-        provMsg = readEvent.msg();
-        assertEquals(MsgClasses.REQUEST, provMsg.msgClass());
-        recvRequestMsg = (RequestMsg)provMsg;
-        assertEquals(tsOpenOpts.domainType(), recvRequestMsg.domainType());
-        assertTrue(recvRequestMsg.checkStreaming());
-        assertTrue(recvRequestMsg.checkPrivateStream());
-        assertTrue(recvRequestMsg.checkQualifiedStream());;
-        assertTrue(recvRequestMsg.msgKey().checkHasFilter());
-        assertTrue(recvRequestMsg.msgKey().checkHasServiceId());
-        assertEquals(DataTypes.FILTER_LIST, recvRequestMsg.containerType());
-        provTunnelStreamId = recvRequestMsg.streamId();
+            /* Provider receives request (but does nothing with it). */
+            provider.dispatch(1);
+            readEvent = provider.pollEvent();
+            provMsg = readEvent.msg();
+            assertEquals(MsgClasses.REQUEST, provMsg.msgClass());
+            recvRequestMsg = (RequestMsg)provMsg;
+            assertEquals(tsOpenOpts.domainType(), recvRequestMsg.domainType());
+            assertTrue(recvRequestMsg.checkStreaming());
+            assertTrue(recvRequestMsg.checkPrivateStream());
+            assertTrue(recvRequestMsg.checkQualifiedStream());;
+            assertTrue(recvRequestMsg.msgKey().checkHasFilter());
+            assertTrue(recvRequestMsg.msgKey().checkHasServiceId());
+            assertEquals(DataTypes.FILTER_LIST, recvRequestMsg.containerType());
+            provTunnelStreamId = recvRequestMsg.streamId();
 
-        /* Consumer receives timeout event (dispatch stops when event is received). */
-        consumerReactor.dispatch(1, responseTimeout * 1000 + 5000);
-        event = consumerReactor.pollEvent();
-        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
-        tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
-        assertEquals(StreamStates.CLOSED_RECOVER, tsStatusEvent.state().streamState());
-        assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
+            /* Consumer receives timeout event (dispatch stops when event is received). */
+            consumerReactor.dispatch(1, responseTimeout * 1000 + 5000);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
+            tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
+            assertEquals(StreamStates.CLOSED_RECOVER, tsStatusEvent.state().streamState());
+            assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
 
-        /* Check that status arrived at around the appropriate time. */
-        timeoutDeviationMs = System.currentTimeMillis() - (timeOfOpenMs + responseTimeout * 1000);
-        assertTrue( "TunnelStream response timeout was off by " + timeoutDeviationMs + "ms.", abs(timeoutDeviationMs) < allowedTimeoutDeviationMs);
-
-        assertEquals(ReactorReturnCodes.SUCCESS, tsStatusEvent.tunnelStream().close(false, _errorInfo));
-        provider.close();
-        consumer.close();
-        consumerReactor.close();
+            /* Check that status arrived at around the appropriate time. */
+            timeoutDeviationMs = System.currentTimeMillis() - (timeOfOpenMs + responseTimeout * 1000);
+            assertTrue( "TunnelStream response timeout was off by " + timeoutDeviationMs + "ms.", abs(timeoutDeviationMs) < allowedTimeoutDeviationMs);
+            assertEquals(ReactorReturnCodes.SUCCESS, tsStatusEvent.tunnelStream().close(false, _errorInfo));
+        }
+        finally
+        {
+            provider.close();
+            consumer.close();
+            consumerReactor.close();
+        }
     }
-
-
-    
 
     @Test
     public void tunnelStreamOpenWhileDisconnectedTest()
@@ -1524,7 +1555,6 @@ public class TunnelStreamJunit
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(_enableWatchlist);
 
-
         /* Create provider. */
         TunnelStreamProvider provider = new TunnelStreamProvider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -1535,56 +1565,61 @@ public class TunnelStreamJunit
         providerRole.defaultMsgCallback(provider);
         providerRole.tunnelStreamListenerCallback(provider);
 
-        /* Connect the consumer and provider. Setup login & directory streams automatically. */
-        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-        opts.setupDefaultLoginStream(true);
-        opts.setupDefaultDirectoryStream(true);
-        opts.reconnectAttemptLimit(-1);
-        provider.bind(opts);
-        TestReactor.openSession(consumer, provider, opts);
-
-        /* Disconnect channel. */
-        provider.close();
-
-        /* Consumer receives disconnection event. */
-        consumerReactor.dispatch(1 + (_enableWatchlist ? 2 : 0));
-        
-        event = consumer.testReactor().pollEvent();
-        assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-        ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
-        assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-
-        if (_enableWatchlist)
+        try
         {
-            RDMLoginMsgEvent loginMsgEvent;                
-            event = consumer.testReactor().pollEvent();
-            assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
-            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
-            assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());  
+            /* Connect the consumer and provider. Setup login & directory streams automatically. */
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            opts.reconnectAttemptLimit(-1);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
 
-            RDMDirectoryMsgEvent directoryMsgEvent;                
+            /* Disconnect channel. */
+            provider.close();
+
+            /* Consumer receives disconnection event. */
+            consumerReactor.dispatch(1 + (_enableWatchlist ? 2 : 0));
+
             event = consumer.testReactor().pollEvent();
-            assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
-            directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
-            assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
+            assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+            ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+            assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+
+            if (_enableWatchlist)
+            {
+                RDMLoginMsgEvent loginMsgEvent;
+                event = consumer.testReactor().pollEvent();
+                assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+                loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+                assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+                RDMDirectoryMsgEvent directoryMsgEvent;
+                event = consumer.testReactor().pollEvent();
+                assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+                directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+                assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
+            }
+
+            /* Open a TunnelStream. */
+            TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
+            tsOpenOpts.name("Tunnel1");
+            tsOpenOpts.statusEventCallback(consumer);
+            tsOpenOpts.queueMsgCallback(consumer);
+            tsOpenOpts.defaultMsgCallback(consumer);
+            tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+            tsOpenOpts.streamId(5);
+            tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+            tsOpenOpts.domainType(DomainTypes.SYSTEM);
+            tsOpenOpts.userSpecObject(consumer);
+            assertEquals(ReactorReturnCodes.FAILURE, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
         }
-
-        /* Open a TunnelStream. */
-        TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
-        tsOpenOpts.name("Tunnel1");
-        tsOpenOpts.statusEventCallback(consumer);
-        tsOpenOpts.queueMsgCallback(consumer);
-        tsOpenOpts.defaultMsgCallback(consumer);
-        tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
-        tsOpenOpts.streamId(5);
-        tsOpenOpts.serviceId(Provider.defaultService().serviceId());
-        tsOpenOpts.domainType(DomainTypes.SYSTEM);
-        tsOpenOpts.userSpecObject(consumer);     
-        assertEquals(ReactorReturnCodes.FAILURE, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
-
-        consumer.close();
-        providerReactor.close();
-        consumerReactor.close();
+        finally
+        {
+            consumer.close();
+            providerReactor.close();
+            consumerReactor.close();
+        }
     }
 
     @Test
@@ -1627,51 +1662,56 @@ public class TunnelStreamJunit
         providerRole.defaultMsgCallback(provider);
         providerRole.tunnelStreamListenerCallback(provider);
 
-        /* Connect the consumer and provider. Setup login & directory streams automatically. */
-        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-        opts.setupDefaultLoginStream(true);
-        opts.setupDefaultDirectoryStream(true);
-        provider.bind(opts);
-        TestReactor.openSession(consumer, provider, opts);
+        try
+        {
+            /* Connect the consumer and provider. Setup login & directory streams automatically. */
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
 
-        /* Negative test -- open a TunnelStream with a 256-character name. This should fail. */
-        TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
-        tsOpenOpts.name(tsName256);
-        tsOpenOpts.statusEventCallback(consumer);
-        tsOpenOpts.queueMsgCallback(consumer);
-        tsOpenOpts.defaultMsgCallback(consumer);
-        tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
-        tsOpenOpts.streamId(5);
-        tsOpenOpts.serviceId(Provider.defaultService().serviceId());
-        tsOpenOpts.domainType(DomainTypes.SYSTEM);
-        tsOpenOpts.userSpecObject(consumer);     
-        assertEquals(ReactorReturnCodes.FAILURE, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
+            /* Negative test -- open a TunnelStream with a 256-character name. This should fail. */
+            TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
+            tsOpenOpts.name(tsName256);
+            tsOpenOpts.statusEventCallback(consumer);
+            tsOpenOpts.queueMsgCallback(consumer);
+            tsOpenOpts.defaultMsgCallback(consumer);
+            tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+            tsOpenOpts.streamId(5);
+            tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+            tsOpenOpts.domainType(DomainTypes.SYSTEM);
+            tsOpenOpts.userSpecObject(consumer);
+            assertEquals(ReactorReturnCodes.FAILURE, consumer.reactorChannel().openTunnelStream(tsOpenOpts, _errorInfo));
 
-        /* Open a TunnelStream with a  255-character name. This should succeed. */
-        tsOpenOpts.clear();
-        tsOpenOpts.name(tsName255);
-        tsOpenOpts.statusEventCallback(consumer);
-        tsOpenOpts.queueMsgCallback(consumer);
-        tsOpenOpts.defaultMsgCallback(consumer);
-        tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
-        tsOpenOpts.streamId(5);
-        tsOpenOpts.serviceId(Provider.defaultService().serviceId());
-        tsOpenOpts.domainType(DomainTypes.SYSTEM);
-        tsOpenOpts.userSpecObject(consumer);     
+            /* Open a TunnelStream with a  255-character name. This should succeed. */
+            tsOpenOpts.clear();
+            tsOpenOpts.name(tsName255);
+            tsOpenOpts.statusEventCallback(consumer);
+            tsOpenOpts.queueMsgCallback(consumer);
+            tsOpenOpts.defaultMsgCallback(consumer);
+            tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+            tsOpenOpts.streamId(5);
+            tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+            tsOpenOpts.domainType(DomainTypes.SYSTEM);
+            tsOpenOpts.userSpecObject(consumer);
 
-        Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
-        consTunnelStream = openedTsInfo.consumerTunnelStream();
-        provTunnelStream = openedTsInfo.providerTunnelStream();
+            Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
+            consTunnelStream = openedTsInfo.consumerTunnelStream();
+            provTunnelStream = openedTsInfo.providerTunnelStream();
 
-        assertEquals(5, consTunnelStream.streamId());
-        if (!_enableWatchlist) /* Watchlist will likely use different stream ID. */
-            assertEquals(5, provTunnelStream.streamId());
-        assertEquals(tsName255, consTunnelStream.name());
-        assertEquals(tsName255, provTunnelStream.name());
-
-        TestReactorComponent.closeSession(consumer, provider);
-        consumerReactor.close();
-        providerReactor.close();
+            assertEquals(5, consTunnelStream.streamId());
+            if (!_enableWatchlist) /* Watchlist will likely use different stream ID. */
+                assertEquals(5, provTunnelStream.streamId());
+            assertEquals(tsName255, consTunnelStream.name());
+            assertEquals(tsName255, provTunnelStream.name());
+        }
+        finally
+        {
+            TestReactorComponent.closeSession(consumer, provider);
+            consumerReactor.close();
+            providerReactor.close();
+        }
     }
 
     @Test
@@ -1710,100 +1750,106 @@ public class TunnelStreamJunit
             providerRole.defaultMsgCallback(provider);
             providerRole.tunnelStreamListenerCallback(provider);
 
-            /* Connect the consumer and provider. Setup login & directory streams automatically. */
-            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-            opts.setupDefaultLoginStream(true);
-            opts.setupDefaultDirectoryStream(true);
-            provider.bind(opts);
-            TestReactor.openSession(consumer, provider, opts);
+            try
+            {
+                /* Connect the consumer and provider. Setup login & directory streams automatically. */
+                ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+                opts.setupDefaultLoginStream(true);
+                opts.setupDefaultDirectoryStream(true);
+                provider.bind(opts);
+                TestReactor.openSession(consumer, provider, opts);
 
-            /* Open a TunnelStream. */
-            TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
-            tsOpenOpts.name("Tunnel1");
-            tsOpenOpts.statusEventCallback(consumer);
-            tsOpenOpts.queueMsgCallback(consumer);
-            tsOpenOpts.defaultMsgCallback(consumer);
-            tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
-            tsOpenOpts.streamId(5);
-            tsOpenOpts.serviceId(Provider.defaultService().serviceId());
-            tsOpenOpts.domainType(DomainTypes.SYSTEM);
-            tsOpenOpts.userSpecObject(consumer);     
+                /* Open a TunnelStream. */
+                TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
+                tsOpenOpts.name("Tunnel1");
+                tsOpenOpts.statusEventCallback(consumer);
+                tsOpenOpts.queueMsgCallback(consumer);
+                tsOpenOpts.defaultMsgCallback(consumer);
+                tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+                tsOpenOpts.streamId(5);
+                tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+                tsOpenOpts.domainType(DomainTypes.SYSTEM);
+                tsOpenOpts.userSpecObject(consumer);
 
-            Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
-            consTunnelStream = openedTsInfo.consumerTunnelStream();
-            provTunnelStream = openedTsInfo.providerTunnelStream();
+                Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
+                consTunnelStream = openedTsInfo.consumerTunnelStream();
+                provTunnelStream = openedTsInfo.providerTunnelStream();
 
-            /* Test tunnel stream accessors */
-            assertEquals(5, consTunnelStream.streamId());
-            if (!_enableWatchlist) /* Watchlist will likely use different stream ID. */
-                assertEquals(5, provTunnelStream.streamId());
-            assertEquals(DomainTypes.SYSTEM, consTunnelStream.domainType());
-            assertEquals(DomainTypes.SYSTEM, provTunnelStream.domainType());
-            assertEquals(Provider.defaultService().serviceId(), consTunnelStream.serviceId());
-            assertEquals(Provider.defaultService().serviceId(), provTunnelStream.serviceId());
-            assertEquals(consumer.reactorChannel(), consTunnelStream.reactorChannel());
-            assertEquals(provider.reactorChannel(), provTunnelStream.reactorChannel());
-            assertEquals(false, consTunnelStream.isProvider());
-            assertEquals(true, provTunnelStream.isProvider());
-            assertEquals("Tunnel1", consTunnelStream.name());
-            assertEquals("Tunnel1", provTunnelStream.name());
-            assertEquals(consumer, consTunnelStream.userSpecObject());
-            assertEquals(null, provTunnelStream.userSpecObject());
-            assertEquals(StreamStates.OPEN, consTunnelStream.state().streamState());
-            assertEquals(DataStates.OK, consTunnelStream.state().dataState());
-            assertEquals(StateCodes.NONE, consTunnelStream.state().code());
-            assertEquals(StreamStates.OPEN, provTunnelStream.state().streamState());
-            assertEquals(DataStates.OK, provTunnelStream.state().dataState());
-            assertEquals(StateCodes.NONE, provTunnelStream.state().code());
+                /* Test tunnel stream accessors */
+                assertEquals(5, consTunnelStream.streamId());
+                if (!_enableWatchlist) /* Watchlist will likely use different stream ID. */
+                    assertEquals(5, provTunnelStream.streamId());
+                assertEquals(DomainTypes.SYSTEM, consTunnelStream.domainType());
+                assertEquals(DomainTypes.SYSTEM, provTunnelStream.domainType());
+                assertEquals(Provider.defaultService().serviceId(), consTunnelStream.serviceId());
+                assertEquals(Provider.defaultService().serviceId(), provTunnelStream.serviceId());
+                assertEquals(consumer.reactorChannel(), consTunnelStream.reactorChannel());
+                assertEquals(provider.reactorChannel(), provTunnelStream.reactorChannel());
+                assertEquals(false, consTunnelStream.isProvider());
+                assertEquals(true, provTunnelStream.isProvider());
+                assertEquals("Tunnel1", consTunnelStream.name());
+                assertEquals("Tunnel1", provTunnelStream.name());
+                assertEquals(consumer, consTunnelStream.userSpecObject());
+                assertEquals(null, provTunnelStream.userSpecObject());
+                assertEquals(StreamStates.OPEN, consTunnelStream.state().streamState());
+                assertEquals(DataStates.OK, consTunnelStream.state().dataState());
+                assertEquals(StateCodes.NONE, consTunnelStream.state().code());
+                assertEquals(StreamStates.OPEN, provTunnelStream.state().streamState());
+                assertEquals(DataStates.OK, provTunnelStream.state().dataState());
+                assertEquals(StateCodes.NONE, provTunnelStream.state().code());
 
-            /* Test consumer tunnel stream class of service values */
-            assertEquals(Codec.protocolType(), consTunnelStream.classOfService().common().protocolType());
-            assertEquals(Codec.majorVersion(), consTunnelStream.classOfService().common().protocolMajorVersion());
-            assertEquals(Codec.minorVersion(), consTunnelStream.classOfService().common().protocolMinorVersion());
-            assertEquals(maxMsgSize, consTunnelStream.classOfService().common().maxMsgSize());
-            assertEquals(AuthenticationTypes.NOT_REQUIRED, consTunnelStream.classOfService().authentication().type());
-            assertEquals(FlowControlTypes.BIDIRECTIONAL, consTunnelStream.classOfService().flowControl().type());
-            assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, consTunnelStream.classOfService().flowControl().sendWindowSize());
-            assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, consTunnelStream.classOfService().flowControl().recvWindowSize());
-            assertEquals(DataIntegrityTypes.RELIABLE, consTunnelStream.classOfService().dataIntegrity().type());
-            assertEquals(GuaranteeTypes.NONE, consTunnelStream.classOfService().guarantee().type());
+                /* Test consumer tunnel stream class of service values */
+                assertEquals(Codec.protocolType(), consTunnelStream.classOfService().common().protocolType());
+                assertEquals(Codec.majorVersion(), consTunnelStream.classOfService().common().protocolMajorVersion());
+                assertEquals(Codec.minorVersion(), consTunnelStream.classOfService().common().protocolMinorVersion());
+                assertEquals(maxMsgSize, consTunnelStream.classOfService().common().maxMsgSize());
+                assertEquals(AuthenticationTypes.NOT_REQUIRED, consTunnelStream.classOfService().authentication().type());
+                assertEquals(FlowControlTypes.BIDIRECTIONAL, consTunnelStream.classOfService().flowControl().type());
+                assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, consTunnelStream.classOfService().flowControl().sendWindowSize());
+                assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, consTunnelStream.classOfService().flowControl().recvWindowSize());
+                assertEquals(DataIntegrityTypes.RELIABLE, consTunnelStream.classOfService().dataIntegrity().type());
+                assertEquals(GuaranteeTypes.NONE, consTunnelStream.classOfService().guarantee().type());
 
-            /* Test provider tunnel stream class of service values */
-            assertEquals(Codec.protocolType(), provTunnelStream.classOfService().common().protocolType());
-            assertEquals(Codec.majorVersion(), provTunnelStream.classOfService().common().protocolMajorVersion());
-            assertEquals(Codec.minorVersion(), provTunnelStream.classOfService().common().protocolMinorVersion());
-            assertEquals(maxMsgSize, provTunnelStream.classOfService().common().maxMsgSize());
-            assertEquals(AuthenticationTypes.NOT_REQUIRED, provTunnelStream.classOfService().authentication().type());
-            assertEquals(FlowControlTypes.BIDIRECTIONAL, provTunnelStream.classOfService().flowControl().type());
-            assertEquals(provTunnelStream.classOfService().common().maxFragmentSize(), provTunnelStream.classOfService().flowControl().sendWindowSize());
-            assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, provTunnelStream.classOfService().flowControl().recvWindowSize());
-            assertEquals(DataIntegrityTypes.RELIABLE, provTunnelStream.classOfService().dataIntegrity().type());
-            assertEquals(GuaranteeTypes.NONE, provTunnelStream.classOfService().guarantee().type());
+                /* Test provider tunnel stream class of service values */
+                assertEquals(Codec.protocolType(), provTunnelStream.classOfService().common().protocolType());
+                assertEquals(Codec.majorVersion(), provTunnelStream.classOfService().common().protocolMajorVersion());
+                assertEquals(Codec.minorVersion(), provTunnelStream.classOfService().common().protocolMinorVersion());
+                assertEquals(maxMsgSize, provTunnelStream.classOfService().common().maxMsgSize());
+                assertEquals(AuthenticationTypes.NOT_REQUIRED, provTunnelStream.classOfService().authentication().type());
+                assertEquals(FlowControlTypes.BIDIRECTIONAL, provTunnelStream.classOfService().flowControl().type());
+                assertEquals(provTunnelStream.classOfService().common().maxFragmentSize(), provTunnelStream.classOfService().flowControl().sendWindowSize());
+                assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, provTunnelStream.classOfService().flowControl().recvWindowSize());
+                assertEquals(DataIntegrityTypes.RELIABLE, provTunnelStream.classOfService().dataIntegrity().type());
+                assertEquals(GuaranteeTypes.NONE, provTunnelStream.classOfService().guarantee().type());
 
-            /* Consumer gets a tunnelstream buffer. This should fail. */
-            assertNull(consTunnelStream.getBuffer(maxMsgSize + 1, _errorInfo));
+                /* Consumer gets a tunnelstream buffer. This should fail. */
+                assertNull(consTunnelStream.getBuffer(maxMsgSize + 1, _errorInfo));
 
-            /* Provider gets a tunnelstream buffer. This should fail. */
-            assertNull(provTunnelStream.getBuffer(maxMsgSize + 1, _errorInfo));
+                /* Provider gets a tunnelstream buffer. This should fail. */
+                assertNull(provTunnelStream.getBuffer(maxMsgSize + 1, _errorInfo));
 
-            /* Consumer gets a tunnelstream buffer. This should succeed. */
-            assertNotNull(consTunnelStream.getBuffer(maxMsgSize, _errorInfo));
+                /* Consumer gets a tunnelstream buffer. This should succeed. */
+                assertNotNull(consTunnelStream.getBuffer(maxMsgSize, _errorInfo));
 
-            /* Provider gets a tunnelstream buffer. This should succeed. */
-            assertNotNull(provTunnelStream.getBuffer(maxMsgSize, _errorInfo));
+                /* Provider gets a tunnelstream buffer. This should succeed. */
+                assertNotNull(provTunnelStream.getBuffer(maxMsgSize, _errorInfo));
 
-            /* Close the tunnelstreams. */
-            provTunnelStream.close(false, _errorInfo);
-            consTunnelStream.close(false, _errorInfo);
-
-            TestReactorComponent.closeSession(consumer, provider);
-            consumerReactor.close();
-            providerReactor.close();
+                /* Close the tunnelstreams. */
+                provTunnelStream.close(false, _errorInfo);
+                consTunnelStream.close(false, _errorInfo);
+            }
+            finally
+            {
+                TestReactorComponent.closeSession(consumer, provider);
+                consumerReactor.close();
+                providerReactor.close();
+            }
         }
     }
 
     @Test
     public void tunnelStreamInfoErrorsTest(){
+
         TestReactor testReactor = new TestReactor();
         ReactorChannel reactorChannel = mock(ReactorChannel.class, CALLS_REAL_METHODS);
         when(reactorChannel.reactor()).thenReturn(testReactor._reactor);
@@ -1882,153 +1928,158 @@ public class TunnelStreamJunit
             providerRole.defaultMsgCallback(provider);
             providerRole.tunnelStreamListenerCallback(provider);
 
-            /* Connect the consumer and provider. Setup login & directory streams automatically. */
-            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-            opts.setupDefaultLoginStream(true);
-            opts.setupDefaultDirectoryStream(true);
-            provider.bind(opts);
-            TestReactor.openSession(consumer, provider, opts);
+            try
+            {
+                /* Connect the consumer and provider. Setup login & directory streams automatically. */
+                ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+                opts.setupDefaultLoginStream(true);
+                opts.setupDefaultDirectoryStream(true);
+                provider.bind(opts);
+                TestReactor.openSession(consumer, provider, opts);
 
-            /* Open a TunnelStream. */
-            TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
-            tsOpenOpts.name("Tunnel1");
-            tsOpenOpts.statusEventCallback(consumer);
-            tsOpenOpts.queueMsgCallback(consumer);
-            tsOpenOpts.defaultMsgCallback(consumer);
-            tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
-            tsOpenOpts.streamId(5);
-            tsOpenOpts.serviceId(Provider.defaultService().serviceId());
-            tsOpenOpts.domainType(DomainTypes.SYSTEM);
-            tsOpenOpts.userSpecObject(consumer);
+                /* Open a TunnelStream. */
+                TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
+                tsOpenOpts.name("Tunnel1");
+                tsOpenOpts.statusEventCallback(consumer);
+                tsOpenOpts.queueMsgCallback(consumer);
+                tsOpenOpts.defaultMsgCallback(consumer);
+                tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+                tsOpenOpts.streamId(5);
+                tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+                tsOpenOpts.domainType(DomainTypes.SYSTEM);
+                tsOpenOpts.userSpecObject(consumer);
 
-            Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
-            consTunnelStream = openedTsInfo.consumerTunnelStream();
-            provTunnelStream = openedTsInfo.providerTunnelStream();
+                Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
+                consTunnelStream = openedTsInfo.consumerTunnelStream();
+                provTunnelStream = openedTsInfo.providerTunnelStream();
 
-            /* Test tunnel stream accessors */
-            assertEquals(5, consTunnelStream.streamId());
-            if (!_enableWatchlist) /* Watchlist will likely use different stream ID. */
-                assertEquals(5, provTunnelStream.streamId());
-            assertEquals(DomainTypes.SYSTEM, consTunnelStream.domainType());
-            assertEquals(DomainTypes.SYSTEM, provTunnelStream.domainType());
-            assertEquals(Provider.defaultService().serviceId(), consTunnelStream.serviceId());
-            assertEquals(Provider.defaultService().serviceId(), provTunnelStream.serviceId());
-            assertEquals(consumer.reactorChannel(), consTunnelStream.reactorChannel());
-            assertEquals(provider.reactorChannel(), provTunnelStream.reactorChannel());
-            assertEquals(false, consTunnelStream.isProvider());
-            assertEquals(true, provTunnelStream.isProvider());
-            assertEquals("Tunnel1", consTunnelStream.name());
-            assertEquals("Tunnel1", provTunnelStream.name());
-            assertEquals(consumer, consTunnelStream.userSpecObject());
-            assertEquals(null, provTunnelStream.userSpecObject());
-            assertEquals(StreamStates.OPEN, consTunnelStream.state().streamState());
-            assertEquals(DataStates.OK, consTunnelStream.state().dataState());
-            assertEquals(StateCodes.NONE, consTunnelStream.state().code());
-            assertEquals(StreamStates.OPEN, provTunnelStream.state().streamState());
-            assertEquals(DataStates.OK, provTunnelStream.state().dataState());
-            assertEquals(StateCodes.NONE, provTunnelStream.state().code());
+                /* Test tunnel stream accessors */
+                assertEquals(5, consTunnelStream.streamId());
+                if (!_enableWatchlist) /* Watchlist will likely use different stream ID. */
+                    assertEquals(5, provTunnelStream.streamId());
+                assertEquals(DomainTypes.SYSTEM, consTunnelStream.domainType());
+                assertEquals(DomainTypes.SYSTEM, provTunnelStream.domainType());
+                assertEquals(Provider.defaultService().serviceId(), consTunnelStream.serviceId());
+                assertEquals(Provider.defaultService().serviceId(), provTunnelStream.serviceId());
+                assertEquals(consumer.reactorChannel(), consTunnelStream.reactorChannel());
+                assertEquals(provider.reactorChannel(), provTunnelStream.reactorChannel());
+                assertEquals(false, consTunnelStream.isProvider());
+                assertEquals(true, provTunnelStream.isProvider());
+                assertEquals("Tunnel1", consTunnelStream.name());
+                assertEquals("Tunnel1", provTunnelStream.name());
+                assertEquals(consumer, consTunnelStream.userSpecObject());
+                assertEquals(null, provTunnelStream.userSpecObject());
+                assertEquals(StreamStates.OPEN, consTunnelStream.state().streamState());
+                assertEquals(DataStates.OK, consTunnelStream.state().dataState());
+                assertEquals(StateCodes.NONE, consTunnelStream.state().code());
+                assertEquals(StreamStates.OPEN, provTunnelStream.state().streamState());
+                assertEquals(DataStates.OK, provTunnelStream.state().dataState());
+                assertEquals(StateCodes.NONE, provTunnelStream.state().code());
 
-            /* Test consumer tunnel stream class of service values */
-            assertEquals(Codec.protocolType(), consTunnelStream.classOfService().common().protocolType());
-            assertEquals(Codec.majorVersion(), consTunnelStream.classOfService().common().protocolMajorVersion());
-            assertEquals(Codec.minorVersion(), consTunnelStream.classOfService().common().protocolMinorVersion());
-            assertEquals(maxMsgSize, consTunnelStream.classOfService().common().maxMsgSize());
-            assertEquals(AuthenticationTypes.NOT_REQUIRED, consTunnelStream.classOfService().authentication().type());
-            assertEquals(FlowControlTypes.BIDIRECTIONAL, consTunnelStream.classOfService().flowControl().type());
-            assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, consTunnelStream.classOfService().flowControl().sendWindowSize());
-            assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, consTunnelStream.classOfService().flowControl().recvWindowSize());
-            assertEquals(DataIntegrityTypes.RELIABLE, consTunnelStream.classOfService().dataIntegrity().type());
-            assertEquals(GuaranteeTypes.NONE, consTunnelStream.classOfService().guarantee().type());
+                /* Test consumer tunnel stream class of service values */
+                assertEquals(Codec.protocolType(), consTunnelStream.classOfService().common().protocolType());
+                assertEquals(Codec.majorVersion(), consTunnelStream.classOfService().common().protocolMajorVersion());
+                assertEquals(Codec.minorVersion(), consTunnelStream.classOfService().common().protocolMinorVersion());
+                assertEquals(maxMsgSize, consTunnelStream.classOfService().common().maxMsgSize());
+                assertEquals(AuthenticationTypes.NOT_REQUIRED, consTunnelStream.classOfService().authentication().type());
+                assertEquals(FlowControlTypes.BIDIRECTIONAL, consTunnelStream.classOfService().flowControl().type());
+                assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, consTunnelStream.classOfService().flowControl().sendWindowSize());
+                assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, consTunnelStream.classOfService().flowControl().recvWindowSize());
+                assertEquals(DataIntegrityTypes.RELIABLE, consTunnelStream.classOfService().dataIntegrity().type());
+                assertEquals(GuaranteeTypes.NONE, consTunnelStream.classOfService().guarantee().type());
 
-            /* Test provider tunnel stream class of service values */
-            assertEquals(Codec.protocolType(), provTunnelStream.classOfService().common().protocolType());
-            assertEquals(Codec.majorVersion(), provTunnelStream.classOfService().common().protocolMajorVersion());
-            assertEquals(Codec.minorVersion(), provTunnelStream.classOfService().common().protocolMinorVersion());
-            assertEquals(maxMsgSize, provTunnelStream.classOfService().common().maxMsgSize());
-            assertEquals(AuthenticationTypes.NOT_REQUIRED, provTunnelStream.classOfService().authentication().type());
-            assertEquals(FlowControlTypes.BIDIRECTIONAL, provTunnelStream.classOfService().flowControl().type());
-            assertEquals(provTunnelStream.classOfService().common().maxFragmentSize(), provTunnelStream.classOfService().flowControl().sendWindowSize());
-            assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, provTunnelStream.classOfService().flowControl().recvWindowSize());
-            assertEquals(DataIntegrityTypes.RELIABLE, provTunnelStream.classOfService().dataIntegrity().type());
-            assertEquals(GuaranteeTypes.NONE, provTunnelStream.classOfService().guarantee().type());
+                /* Test provider tunnel stream class of service values */
+                assertEquals(Codec.protocolType(), provTunnelStream.classOfService().common().protocolType());
+                assertEquals(Codec.majorVersion(), provTunnelStream.classOfService().common().protocolMajorVersion());
+                assertEquals(Codec.minorVersion(), provTunnelStream.classOfService().common().protocolMinorVersion());
+                assertEquals(maxMsgSize, provTunnelStream.classOfService().common().maxMsgSize());
+                assertEquals(AuthenticationTypes.NOT_REQUIRED, provTunnelStream.classOfService().authentication().type());
+                assertEquals(FlowControlTypes.BIDIRECTIONAL, provTunnelStream.classOfService().flowControl().type());
+                assertEquals(provTunnelStream.classOfService().common().maxFragmentSize(), provTunnelStream.classOfService().flowControl().sendWindowSize());
+                assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, provTunnelStream.classOfService().flowControl().recvWindowSize());
+                assertEquals(DataIntegrityTypes.RELIABLE, provTunnelStream.classOfService().dataIntegrity().type());
+                assertEquals(GuaranteeTypes.NONE, provTunnelStream.classOfService().guarantee().type());
 
-            TunnelStreamInfo tunnelStreamInfo = ReactorFactory.createTunnelStreamInfo();
-            TunnelStreamInfo zeroBuffersUsedInfo = ReactorFactory.createTunnelStreamInfo();
-            /* Consumer: check initial buffer used count before allocation, should be zero */
-            consTunnelStream.info(tunnelStreamInfo, _errorInfo);
-            assertEquals(zeroBuffersUsedInfo, tunnelStreamInfo);
-            /* Consumer gets a tunnelstream buffer. This should fail. */
-            assertNull(consTunnelStream.getBuffer(maxMsgSize + 1, _errorInfo));
-            /* used buffers still zero */
-            consTunnelStream.info(tunnelStreamInfo, _errorInfo);
-            assertEquals(zeroBuffersUsedInfo, tunnelStreamInfo);
+                TunnelStreamInfo tunnelStreamInfo = ReactorFactory.createTunnelStreamInfo();
+                TunnelStreamInfo zeroBuffersUsedInfo = ReactorFactory.createTunnelStreamInfo();
+                /* Consumer: check initial buffer used count before allocation, should be zero */
+                consTunnelStream.info(tunnelStreamInfo, _errorInfo);
+                assertEquals(zeroBuffersUsedInfo, tunnelStreamInfo);
+                /* Consumer gets a tunnelstream buffer. This should fail. */
+                assertNull(consTunnelStream.getBuffer(maxMsgSize + 1, _errorInfo));
+                /* used buffers still zero */
+                consTunnelStream.info(tunnelStreamInfo, _errorInfo);
+                assertEquals(zeroBuffersUsedInfo, tunnelStreamInfo);
 
-            /* Provider: same buffer used count checks, zero before allocation */
-            provTunnelStream.info(tunnelStreamInfo, _errorInfo);
-            assertEquals(zeroBuffersUsedInfo, tunnelStreamInfo);
-            /* Provider gets a tunnelstream buffer. This should fail. */
-            assertNull(provTunnelStream.getBuffer(maxMsgSize + 1, _errorInfo));
-            /* zero remains after failed attempt */
-            provTunnelStream.info(tunnelStreamInfo, _errorInfo);
-            assertEquals(zeroBuffersUsedInfo, tunnelStreamInfo);
+                /* Provider: same buffer used count checks, zero before allocation */
+                provTunnelStream.info(tunnelStreamInfo, _errorInfo);
+                assertEquals(zeroBuffersUsedInfo, tunnelStreamInfo);
+                /* Provider gets a tunnelstream buffer. This should fail. */
+                assertNull(provTunnelStream.getBuffer(maxMsgSize + 1, _errorInfo));
+                /* zero remains after failed attempt */
+                provTunnelStream.info(tunnelStreamInfo, _errorInfo);
+                assertEquals(zeroBuffersUsedInfo, tunnelStreamInfo);
 
-            // store allocated buffers so we can release them afterwards
-            int desiredGetBufferTestCount = 5;
-            TransportBuffer []consBuffers = new TransportBuffer[desiredGetBufferTestCount + 1];
-            TransportBuffer []provBuffers = new TransportBuffer[desiredGetBufferTestCount + 1];
-            TunnelStreamInfo expectedTunnelStreamInfo = null;
+                // store allocated buffers so we can release them afterwards
+                int desiredGetBufferTestCount = 5;
+                TransportBuffer []consBuffers = new TransportBuffer[desiredGetBufferTestCount + 1];
+                TransportBuffer []provBuffers = new TransportBuffer[desiredGetBufferTestCount + 1];
+                TunnelStreamInfo expectedTunnelStreamInfo = null;
 
-            // request buffer several times
-            for (int i=1; i<=desiredGetBufferTestCount; i++) {
-                //get consumer buffer
-                assertNotNull((consBuffers[i]=consTunnelStream.getBuffer(maxMsgSize, _errorInfo)));
-                assertEquals(consTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
-                expectedTunnelStreamInfo = getExpectedUsedBuffers(maxMsgSize, i);
-                assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
+                // request buffer several times
+                for (int i=1; i<=desiredGetBufferTestCount; i++) {
+                    //get consumer buffer
+                    assertNotNull((consBuffers[i]=consTunnelStream.getBuffer(maxMsgSize, _errorInfo)));
+                    assertEquals(consTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
+                    expectedTunnelStreamInfo = getExpectedUsedBuffers(maxMsgSize, i);
+                    assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
 
-                //same for provider
-                assertNotNull((provBuffers[i]=provTunnelStream.getBuffer(maxMsgSize, _errorInfo)));
-                assertEquals(provTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
-                assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
-            }
+                    //same for provider
+                    assertNotNull((provBuffers[i]=provTunnelStream.getBuffer(maxMsgSize, _errorInfo)));
+                    assertEquals(provTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
+                    assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
+                }
 
-            // release previously requested buffers
-            for (int i=desiredGetBufferTestCount; i>=1; i--) {
-                //release consumer buffer
-                assertEquals(consTunnelStream.releaseBuffer(consBuffers[i], _errorInfo), ReactorReturnCodes.SUCCESS);
-                assertEquals(consTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
-                expectedTunnelStreamInfo = getExpectedUsedBuffers(maxMsgSize, i-1);
-                assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
+                // release previously requested buffers
+                for (int i=desiredGetBufferTestCount; i>=1; i--) {
+                    //release consumer buffer
+                    assertEquals(consTunnelStream.releaseBuffer(consBuffers[i], _errorInfo), ReactorReturnCodes.SUCCESS);
+                    assertEquals(consTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
+                    expectedTunnelStreamInfo = getExpectedUsedBuffers(maxMsgSize, i-1);
+                    assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
 
-                //same for provider
-                assertEquals(provTunnelStream.releaseBuffer(provBuffers[i], _errorInfo), ReactorReturnCodes.SUCCESS);
-                assertEquals(provTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
-                assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
-            }
+                    //same for provider
+                    assertEquals(provTunnelStream.releaseBuffer(provBuffers[i], _errorInfo), ReactorReturnCodes.SUCCESS);
+                    assertEquals(provTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
+                    assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
+                }
 
             /* as far as API uses internal and user counters for sliced buffer
                requesting buffers once again to check UsedBuffer tunnelStreamInfo is still relevant
              */
-            for (int i=1; i<=desiredGetBufferTestCount; i++) {
-                //get consumer buffer
-                assertNotNull((consBuffers[i]=consTunnelStream.getBuffer(maxMsgSize, _errorInfo)));
-                assertEquals(consTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
-                expectedTunnelStreamInfo = getExpectedUsedBuffers(maxMsgSize, i);
-                assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
+                for (int i=1; i<=desiredGetBufferTestCount; i++) {
+                    //get consumer buffer
+                    assertNotNull((consBuffers[i]=consTunnelStream.getBuffer(maxMsgSize, _errorInfo)));
+                    assertEquals(consTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
+                    expectedTunnelStreamInfo = getExpectedUsedBuffers(maxMsgSize, i);
+                    assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
 
-                //same for provider
-                assertNotNull((provBuffers[i]=provTunnelStream.getBuffer(maxMsgSize, _errorInfo)));
-                assertEquals(provTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
-                assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
+                    //same for provider
+                    assertNotNull((provBuffers[i]=provTunnelStream.getBuffer(maxMsgSize, _errorInfo)));
+                    assertEquals(provTunnelStream.info(tunnelStreamInfo, _errorInfo), ReactorReturnCodes.SUCCESS);
+                    assertEquals(expectedTunnelStreamInfo, tunnelStreamInfo);
+                }
+
+                /* Close the tunnelstreams. */
+                provTunnelStream.close(false, _errorInfo);
+                consTunnelStream.close(false, _errorInfo);
             }
-
-            /* Close the tunnelstreams. */
-            provTunnelStream.close(false, _errorInfo);
-            consTunnelStream.close(false, _errorInfo);
-
-            TestReactorComponent.closeSession(consumer, provider);
-            consumerReactor.close();
-            providerReactor.close();
+            finally
+            {
+                TestReactorComponent.closeSession(consumer, provider);
+                consumerReactor.close();
+                providerReactor.close();
+            }
         }
     }
 

@@ -25,7 +25,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.mockito.Mockito;
 
 import com.refinitiv.eta.codec.Buffer;
@@ -76,6 +80,24 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType;
 
 public class ReactorJunit
 {
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
+
+    @After
+    public void tearDown() {
+
+        try { Thread.sleep(JUnitConfigVariables.WAIT_AFTER_TEST); }
+        catch (Exception e) { }
+    }
+
     static int _serverPort = 15400;
 
     final static int CONNECT_TIMEOUT_SECONDS = 10; // 10 seconds
@@ -620,7 +642,7 @@ public class ReactorJunit
     {
         Reactor reactor = null;
         ReactorErrorInfo errorInfo = null;
-
+        Selector selector = null;
         try
         {
             /*
@@ -642,7 +664,7 @@ public class ReactorJunit
             ReactorChannel theReactorChannel = reactor.reactorChannel();
             assertNotNull(theReactorChannel);
 
-            Selector selector = SelectorProvider.provider().openSelector();
+            selector = SelectorProvider.provider().openSelector();
             theReactorChannel.selectableChannel().register(selector, SelectionKey.OP_READ, theReactorChannel);
 
             /*
@@ -670,10 +692,12 @@ public class ReactorJunit
         }
         catch (Exception e)
         {
-            assertTrue("exception occurred" + e.getLocalizedMessage(), false);
+            assertTrue("exception occurred\n " + e.toString(), false);
+            e.printStackTrace();
         }
         finally
         {
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
             errorInfo.clear();
             assertNotNull(reactor);
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
@@ -838,7 +862,7 @@ public class ReactorJunit
         }
         catch (Exception e)
         {
-            assertTrue("exception occurred" + e.getLocalizedMessage(), false);
+            assertTrue("exception occurred" + e.toString(), false);
         }
         finally
         {
@@ -849,6 +873,8 @@ public class ReactorJunit
                 SelectionKey key = theReactorChannel.selectableChannel().keyFor(selector);
                 key.cancel();
             }
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             assertNotNull(reactor);
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
@@ -1092,7 +1118,7 @@ public class ReactorJunit
         }
         catch (Exception e)
         {
-            assertTrue("exception occurred" + e.getLocalizedMessage(), false);
+            assertTrue("exception occurred" + e.toString(), false);
         }
         finally
         {
@@ -1109,6 +1135,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -1267,6 +1295,8 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
+
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
@@ -1413,6 +1443,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -1731,6 +1763,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
         }
     }
 
@@ -2071,7 +2105,7 @@ public class ReactorJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.FD_CHANGE, event.eventType());
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             assertTrue(readFDChangeChannel.oldScktChannelCalled);
             assertTrue(readFDChangeChannel.scktChannelCalled);
         }
@@ -2095,6 +2129,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
         }
     }
 
@@ -2493,7 +2529,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).writeRetVal = 1;
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = TransportReturnCodes.SUCCESS;
             assertEquals(ReactorReturnCodes.SUCCESS, reactorChannel.submit(msgBuf, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             assertEquals(1, ((WriteFlushFailChannel)writeFlushFailChannel).flushCount);
             ReactorJunit.dispatchReactor(selector, reactor); /* Read FLUSH_DONE event internally. */
 
@@ -2503,7 +2539,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = 1;
             ((WriteFlushFailChannel)writeFlushFailChannel).resetRetValAfterFlush = true;
             assertEquals(ReactorReturnCodes.WRITE_CALL_AGAIN, reactorChannel.submit(msgBuf, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             /*
              * Worker thread will flush twice -- first attempt gets 1 returned,
              * second attempt gets 0.
@@ -2517,7 +2553,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = 1;
             ((WriteFlushFailChannel)writeFlushFailChannel).resetRetValAfterFlush = true;
             assertEquals(ReactorReturnCodes.SUCCESS, reactorChannel.submit(msgBuf, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
 
             /*
              * Worker thread will flush twice -- first attempt gets 1 returned,
@@ -2546,6 +2582,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -2693,7 +2731,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).writeRetVal = 1;
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = TransportReturnCodes.SUCCESS;
             assertEquals(ReactorReturnCodes.SUCCESS, reactorChannel.submit(msg, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             assertEquals(1, ((WriteFlushFailChannel)writeFlushFailChannel).flushCount);
             ReactorJunit.dispatchReactor(selector, reactor); /* Read FLUSH_DONE event internally. */
 
@@ -2703,7 +2741,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = 1;
             ((WriteFlushFailChannel)writeFlushFailChannel).resetRetValAfterFlush = true;
             assertEquals(ReactorReturnCodes.WRITE_CALL_AGAIN, reactorChannel.submit(msg, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             /*
              * Worker thread will flush twice -- first attempt gets 1 returned,
              * second gets 0.
@@ -2718,7 +2756,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = 1;
             ((WriteFlushFailChannel)writeFlushFailChannel).resetRetValAfterFlush = true;
             assertEquals(ReactorReturnCodes.SUCCESS, reactorChannel.submit(msg, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             /*
              * Worker thread will flush twice -- first attempt gets 1 returned,
              * second gets 0.
@@ -2746,6 +2784,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -2875,7 +2915,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).writeRetVal = 1;
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = TransportReturnCodes.SUCCESS;
             assertEquals(ReactorReturnCodes.SUCCESS, reactorChannel.submit(loginRequest, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             assertEquals(1, ((WriteFlushFailChannel)writeFlushFailChannel).flushCount);
 
             ReactorJunit.dispatchReactor(selector, reactor); /* Read FLUSH_DONE event internally. */
@@ -2886,7 +2926,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = 1;
             ((WriteFlushFailChannel)writeFlushFailChannel).resetRetValAfterFlush = true;
             assertEquals(ReactorReturnCodes.WRITE_CALL_AGAIN, reactorChannel.submit(loginRequest, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             /*
              * Worker thread will flush twice -- first attempt gets 1 returned,
              * second gets 0.
@@ -2901,7 +2941,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = 1;
             ((WriteFlushFailChannel)writeFlushFailChannel).resetRetValAfterFlush = true;
             assertEquals(ReactorReturnCodes.SUCCESS, reactorChannel.submit(loginRequest, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             /*
              * Worker thread will flush twice -- first attempt gets 1 returned,
              * second gets 0.
@@ -2930,6 +2970,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -3074,7 +3116,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.NO_BUFFERS, reactorChannel.submit(msg, submitOptions, errorInfo));
             ReactorJunit.dispatchReactor(selector, reactor); /* Read FLUSH_DONE event internally. */
 
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             assertEquals(0, ((WriteFlushFailChannel)writeFlushFailChannel).releaseBufferCount);
             assertEquals(1, ((WriteFlushFailChannel)writeFlushFailChannel).flushCount);
         }
@@ -3098,6 +3140,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -3221,7 +3265,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = TransportReturnCodes.SUCCESS;
             ((WriteFlushFailChannel)writeFlushFailChannel).noBuffers = true;
             assertEquals(ReactorReturnCodes.NO_BUFFERS, reactorChannel.submit(loginRequest, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             assertEquals(0, ((WriteFlushFailChannel)writeFlushFailChannel).releaseBufferCount);
             assertEquals(1, ((WriteFlushFailChannel)writeFlushFailChannel).flushCount);
 
@@ -3247,6 +3291,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -3390,7 +3436,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = TransportReturnCodes.SUCCESS;
             ((WriteFlushFailChannel)writeFlushFailChannel).smallBuffer = true;
             assertEquals(ReactorReturnCodes.SUCCESS, reactorChannel.submit(msg, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             assertEquals(1, ((WriteFlushFailChannel)writeFlushFailChannel).releaseBufferCount);
             assertEquals(0, ((WriteFlushFailChannel)writeFlushFailChannel).flushCount);
             ReactorJunit.dispatchReactor(selector, reactor); /* Read FLUSH_DONE event internally. */
@@ -3415,6 +3461,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -3540,7 +3588,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = TransportReturnCodes.SUCCESS;
             ((WriteFlushFailChannel)writeFlushFailChannel).smallBuffer = true;
             assertEquals(ReactorReturnCodes.SUCCESS, reactorChannel.submit(loginRequest, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             assertEquals(1, ((WriteFlushFailChannel)writeFlushFailChannel).releaseBufferCount);
             assertEquals(0, ((WriteFlushFailChannel)writeFlushFailChannel).flushCount);
             ReactorJunit.dispatchReactor(selector, reactor); /* Read FLUSH_DONE event internally. */
@@ -3565,6 +3613,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -3701,7 +3751,7 @@ public class ReactorJunit
             // set write return value to failure
             ((WriteFlushFailChannel)writeFlushFailChannel).writeRetVal = TransportReturnCodes.FAILURE;
             assertEquals(ReactorReturnCodes.FAILURE, reactorChannel.submit(msgBuf, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             assertEquals(0, ((WriteFlushFailChannel)writeFlushFailChannel).flushCount);
             ReactorJunit.dispatchReactor(selector, reactor); /* Read FLUSH_DONE event internally. */
         }
@@ -3725,6 +3775,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
         }
     }
 
@@ -3857,7 +3909,7 @@ public class ReactorJunit
             ((WriteFlushFailChannel)writeFlushFailChannel).writeRetVal = 1;
             ((WriteFlushFailChannel)writeFlushFailChannel).flushRetVal = TransportReturnCodes.FAILURE;
             assertEquals(ReactorReturnCodes.SUCCESS, reactorChannel.submit(msgBuf, submitOptions, errorInfo));
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             assertEquals(1, ((WriteFlushFailChannel)writeFlushFailChannel).flushCount);
 
             /*
@@ -3894,6 +3946,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
         }
     }
 
@@ -3973,7 +4027,7 @@ public class ReactorJunit
             // have our test client send a ConnectReq and clientKey to the
             // server
             testClient.writeMessageToSocket(replay.read());
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
             testClient.writeMessageToSocket(replay.read());
 
             // dispatch on the reactor's reactorChannel. There should
@@ -4014,6 +4068,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
         }
 
     }
@@ -4174,6 +4230,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -4370,6 +4428,8 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
+
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
@@ -4443,13 +4503,11 @@ public class ReactorJunit
             reactor.connect(rcOpts1, consumerRole, errorInfo);
             reactor.connect(rcOpts2, consumerRole, errorInfo);
 
-            Thread.sleep(1000);
-
             // wait for the TestServer to accept a connection.
             testServer1.wait(TestServer.State.ACCEPTED);
             testServer2.wait(TestServer.State.ACCEPTED);
 
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
 
             // have the TestServer read a message (the RIPC ConnectReq)
             assertTrue(testServer1.readMessageFromSocket() > 0);
@@ -4471,7 +4529,7 @@ public class ReactorJunit
                                                                      // KEY_EXCHANGE
                                                                      // flag
 
-            Thread.sleep(1000); // wait for all connections
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT); // wait for all connections
 
             /*
              * Call dispatchAll on the reactor. There should be one
@@ -4503,7 +4561,7 @@ public class ReactorJunit
             // have the TestServer send the LoginRefresh to the Reactor.
             testServer2.writeMessageToSocket(replay2.read());
 
-            Thread.sleep(1000); // wait for all messages
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT); // wait for all messages
 
             /*
              * Call dispatchAll which should read the LoginRefresh, invoke
@@ -4546,7 +4604,7 @@ public class ReactorJunit
             // have the TestServer send the DirectoryRefresh to the Reactor.
             testServer2.writeMessageToSocket(replay2.read());
 
-            Thread.sleep(1000); // wait for all messages
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT); // wait for all messages
 
             /*
              * Call dispatchAll which should read the DirectoryResponse, invoke
@@ -4590,6 +4648,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -4662,7 +4722,7 @@ public class ReactorJunit
                                                                     // KEY_EXCHANGE
                                                                     // flag
 
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
 
             /*
              * Call dispatchAll on the reactor. There should be one
@@ -4688,7 +4748,7 @@ public class ReactorJunit
             // have the TestServer send the LoginRefresh to the Reactor.
             testServer.writeMessageToSocket(replay.read());
 
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
 
             /*
              * Call dispatchAll which should read the LoginRefresh, invoke
@@ -4725,7 +4785,7 @@ public class ReactorJunit
             // have the TestServer send the DirectoryRefresh to the Reactor.
             testServer.writeMessageToSocket(replay.read());
 
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
 
             /*
              * Call dispatchAll which should read the DirectoryResponse, invoke
@@ -4831,13 +4891,11 @@ public class ReactorJunit
             reactor.connect(rcOpts1, consumerRole, errorInfo);
             reactor.connect(rcOpts2, consumerRole, errorInfo);
 
-            Thread.sleep(1000);
-
             // wait for the TestServer to accept a connection.
             testServer1.wait(TestServer.State.ACCEPTED);
             testServer2.wait(TestServer.State.ACCEPTED);
 
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
 
             // have the TestServer read a message (the RIPC ConnectReq)
             assertTrue(testServer1.readMessageFromSocket() > 0);
@@ -4859,7 +4917,7 @@ public class ReactorJunit
                                                                      // KEY_EXCHANGE
                                                                      // flag
 
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
 
             /*
              * Call dispatchAll on the reactor. There should be one
@@ -4898,7 +4956,7 @@ public class ReactorJunit
             // have the TestServer send the LoginRefresh to the Reactor.
             testServer2.writeMessageToSocket(replay2.read());
 
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
 
             /*
              * Call dispatchAll which should read the LoginRefresh, invoke
@@ -4943,7 +5001,7 @@ public class ReactorJunit
             // have the TestServer send the DirectoryRefresh to the Reactor.
             testServer2.writeMessageToSocket(replay2.read());
 
-            Thread.sleep(1000);
+            Thread.sleep(JUnitConfigVariables.REACTOR_TEST_SLEEP_TIMEOUT);
 
             /*
              * Call dispatchAll which should read the DirectoryResponse, invoke
@@ -5236,6 +5294,8 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
+
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
@@ -5426,6 +5486,8 @@ public class ReactorJunit
             assertNotNull(errorInfo);
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
+
+            try { if (selector != null && selector.isOpen()) selector.close(); } catch (Exception e) {}
 
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
@@ -6299,7 +6361,7 @@ public class ReactorJunit
         ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
         assertNotNull(rcOpts);
         assertEquals(ReactorReturnCodes.PARAMETER_OUT_OF_RANGE, connectInfo.initTimeout(0));
-        assertEquals(ReactorReturnCodes.SUCCESS, connectInfo.initTimeout(10));
+        assertEquals(ReactorReturnCodes.SUCCESS, connectInfo.initTimeout(60));
         connectInfo.connectOptions().connectionType(ConnectionTypes.SOCKET);
         connectInfo.connectOptions().majorVersion(Codec.majorVersion());
         connectInfo.connectOptions().minorVersion(Codec.minorVersion());

@@ -24,6 +24,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Buffer;
@@ -31,6 +35,7 @@ import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.test.network.replay.NetworkReplay;
 import com.refinitiv.eta.test.network.replay.NetworkReplayFactory;
 import com.refinitiv.eta.transport.Ripc.CompressionTypes;
+import org.junit.rules.TestName;
 
 public class RipcHandshakeJunitTest
 {
@@ -61,6 +66,17 @@ public class RipcHandshakeJunitTest
     final static String userSpecifiedComponentVersion = "User Specified Client Version 5.43";
 
     StringBuilder _sb = new StringBuilder();
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
 
     /*
      * Invokes RsslTransport.initialize()

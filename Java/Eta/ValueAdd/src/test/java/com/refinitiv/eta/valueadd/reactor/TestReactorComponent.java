@@ -261,8 +261,8 @@ public abstract class TestReactorComponent {
 	public static void closeSession(Consumer consumer, Provider provider, boolean expectConsumerFailure)
 	{
 		/* Make sure there's nothing left in the dispatch queue. */
-		consumer.testReactor().dispatch(0, expectConsumerFailure);
-		provider.testReactor().dispatch(0);
+		if (consumer.testReactor() != null) consumer.testReactor().dispatch(0, expectConsumerFailure);
+		if (provider.testReactor() != null) provider.testReactor().dispatch(0);
 		
 		consumer.close();
 		provider.close();

@@ -15,9 +15,11 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.*;
+import org.junit.rules.TestName;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 import com.refinitiv.eta.codec.Codec;
@@ -41,6 +43,17 @@ public class HttpSocketChannelJunitTest
     
 	private static final int HTTP_HEADER6 = 6;
 	private static final int CHUNKEND_SIZE = 2;
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
 
     /*
      * The default port NetworkReplay will listen on

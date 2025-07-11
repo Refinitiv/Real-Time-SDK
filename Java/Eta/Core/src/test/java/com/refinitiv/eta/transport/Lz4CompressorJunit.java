@@ -12,14 +12,13 @@ import java.nio.ByteBuffer;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.*;
 
 import com.refinitiv.eta.transport.Lz4Compressor;
 import com.refinitiv.eta.transport.TransportBufferImpl;
+import org.junit.rules.TestName;
 
 
 public class Lz4CompressorJunit
@@ -45,9 +44,15 @@ public class Lz4CompressorJunit
     {
     }
 
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Rule
+    public TestName testName = new TestName();
+
     @Before
-    public void setUp() throws Exception
-    {
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
     }
 
     @After

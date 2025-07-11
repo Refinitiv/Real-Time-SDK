@@ -8,8 +8,13 @@
 
 package com.refinitiv.eta.transport;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
 import com.refinitiv.eta.codec.Codec;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -65,6 +70,17 @@ public class HttpSocketReadWriteJunit {
         COMPRESSED_PACKED_RWF_MSG_1_MSG_2_ByteBuffer_RIPC_HEADER.putShort((short) RWF_MSG_2.length());
         COMPRESSED_PACKED_RWF_MSG_1_MSG_2_ByteBuffer_RIPC_HEADER.put(RWF_MSG_2.getBytes());
         COMPRESSED_PACKED_RWF_MSG_1_MSG_2_ByteBuffer_RIPC_HEADER.rewind();
+    }
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
     }
 
     /* Provides ZLIB compression functionality to verify the result of testing */

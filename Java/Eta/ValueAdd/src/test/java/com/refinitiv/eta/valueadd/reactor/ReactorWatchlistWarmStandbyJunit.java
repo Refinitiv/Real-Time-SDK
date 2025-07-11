@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Buffer;
@@ -63,6 +65,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
+import org.junit.rules.TestName;
 
 public class ReactorWatchlistWarmStandbyJunit {
 	private static final Buffer proxyHost = CodecFactory.createBuffer();
@@ -95,8 +98,16 @@ public class ReactorWatchlistWarmStandbyJunit {
 	/* This data dictionary is used by JSON converter library. */
 	final static DataDictionary dictionary = CodecFactory.createDataDictionary();
 
+	@Rule
+	public TestName testName = new TestName();
+
+	@Rule
+	public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
     @Before
     public void init() {
+
+		System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
 
         final String dictionaryFileName = "../../../Java/etc/RDMFieldDictionary";
         final String enumTypeFile = "../../../Java/etc/enumtype.def";
@@ -106,8 +117,14 @@ public class ReactorWatchlistWarmStandbyJunit {
         assertEquals(CodecReturnCodes.SUCCESS, dictionary.loadFieldDictionary(dictionaryFileName, error));
         assertEquals(CodecReturnCodes.SUCCESS,dictionary.loadEnumTypeDictionary(enumTypeFile, error));
     }
-    
-	
+
+	@After
+	public void tearDown()
+	{
+		try { Thread.sleep(JUnitConfigVariables.WAIT_AFTER_TEST); }
+		catch (Exception e) { }
+	}
+
 	/*
 	 * Inner class to handle default callbacks. It simply stores the event to be
 	 * retrieved later.

@@ -8,11 +8,15 @@
 
 package com.refinitiv.eta.transport;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -122,11 +126,19 @@ public class HttpWebSocketConfigurationJUnit {
         webSocketSession.setWebSocketOpts(webSocketOptions);
     }
 
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
     @Before
     public void beforeTest() {
         httpWebSocketConfiguration.clear();
         webSocketSession = httpWebSocketConfiguration.getWsSession();
         webSocketSession.setWebSocketOpts(webSocketOptions);
+
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
     }
 
     //Test 1

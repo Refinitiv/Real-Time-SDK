@@ -280,80 +280,93 @@ public class SelectableBiDirectionalQueueJunit
         Selector remoteSelector = null;
         try
         {
-            localSelector = SelectorProvider.provider().openSelector();
-            queue.readChannel().register(localSelector, SelectionKey.OP_READ);
-            remoteSelector = SelectorProvider.provider().openSelector();
-            queue.remote().readChannel().register(remoteSelector, SelectionKey.OP_READ);
+            try
+            {
+                localSelector = SelectorProvider.provider().openSelector();
+                queue.readChannel().register(localSelector, SelectionKey.OP_READ);
+                remoteSelector = SelectorProvider.provider().openSelector();
+                queue.remote().readChannel().register(remoteSelector, SelectionKey.OP_READ);
+            }
+            catch (IOException e)
+            {
+                System.out.println("testRandom: execption=" + e.getLocalizedMessage());
+                assertTrue(e.getLocalizedMessage(), false);
+            }
+
+            /* test writing on the local side and reading on the remote side */
+
+            // write on the local side of the queue
+            assertEquals(true, queue.write(obj));
+            assertEquals(true, queue._writeNotifier.isSet());
+            assertEquals(true, queue.remote()._readNotifier.isSet());
+            assertEquals(false, queue._readNotifier.isSet());
+            assertEquals(false, queue.remote()._writeNotifier.isSet());
+
+            // select on the remote side of the queue, to read on the remote side of
+            // queue.
+            try
+            {
+                remoteSelector.select(SELECT_TIME);
+            }
+            catch (IOException e)
+            {
+                assertTrue("remoteSelector.select failed, exception=" + e.getLocalizedMessage(), false);
+            }
+            Iterator<SelectionKey> iter = remoteSelector.selectedKeys().iterator();
+            assertTrue(iter.hasNext());
+            SelectionKey key = iter.next();
+            iter.remove();
+            assertTrue(key.isValid());
+            assertTrue(key.isReadable());
+            assertEquals(1, queue.remote().readQueueSize());
+            TestObject rcvedObj = (TestObject)queue.remote().read();
+            assertNotNull(rcvedObj);
+            assertEquals(0, queue.remote().readQueueSize());
+            assertEquals(false, queue.remote()._readNotifier.isSet());
+            assertEquals(false, queue._writeNotifier.isSet());
+
+            /* test writing on the remote side and reading on the local side */
+
+            // write on the remote side of the queue
+            assertEquals(true, queue.remote().write(obj));
+            assertEquals(true, queue.remote()._writeNotifier.isSet());
+            assertEquals(true, queue._readNotifier.isSet());
+            assertEquals(false, queue.remote()._readNotifier.isSet());
+            assertEquals(false, queue._writeNotifier.isSet());
+
+            // select on the remote side of the queue, to read on the remote side of
+            // queue.
+            try
+            {
+                localSelector.select(SELECT_TIME);
+            }
+            catch (IOException e)
+            {
+                assertTrue("localSelector.select failed, exception=" + e.getLocalizedMessage(), false);
+            }
+            iter = localSelector.selectedKeys().iterator();
+            assertTrue(iter.hasNext());
+            key = iter.next();
+            iter.remove();
+            assertTrue(key.isValid());
+            assertTrue(key.isReadable());
+            assertEquals(1, queue.readQueueSize());
+            rcvedObj = (TestObject)queue.read();
+            assertNotNull(rcvedObj);
+            assertEquals(0, queue.readQueueSize());
+            assertEquals(false, queue._readNotifier.isSet());
+            assertEquals(false, queue.remote()._writeNotifier.isSet());
         }
-        catch (IOException e)
+        finally
         {
-            System.out.println("testRandom: execption=" + e.getLocalizedMessage());
-            assertTrue(e.getLocalizedMessage(), false);
+            try
+            {
+                if (localSelector != null && localSelector.isOpen()) localSelector.close();
+                if (remoteSelector != null && remoteSelector.isOpen()) remoteSelector.close();
+            }
+            catch (Exception e) {}
+
         }
-
-        /* test writing on the local side and reading on the remote side */
-
-        // write on the local side of the queue
-        assertEquals(true, queue.write(obj));
-        assertEquals(true, queue._writeNotifier.isSet());
-        assertEquals(true, queue.remote()._readNotifier.isSet());
-        assertEquals(false, queue._readNotifier.isSet());
-        assertEquals(false, queue.remote()._writeNotifier.isSet());
-
-        // select on the remote side of the queue, to read on the remote side of
-        // queue.
-        try
-        {
-            remoteSelector.select(SELECT_TIME);
-        }
-        catch (IOException e)
-        {
-            assertTrue("remoteSelector.select failed, exception=" + e.getLocalizedMessage(), false);
-        }
-        Iterator<SelectionKey> iter = remoteSelector.selectedKeys().iterator();
-        assertTrue(iter.hasNext());
-        SelectionKey key = iter.next();
-        iter.remove();
-        assertTrue(key.isValid());
-        assertTrue(key.isReadable());
-        assertEquals(1, queue.remote().readQueueSize());
-        TestObject rcvedObj = (TestObject)queue.remote().read();
-        assertNotNull(rcvedObj);
-        assertEquals(0, queue.remote().readQueueSize());
-        assertEquals(false, queue.remote()._readNotifier.isSet());
-        assertEquals(false, queue._writeNotifier.isSet());
-
-        /* test writing on the remote side and reading on the local side */
-
-        // write on the remote side of the queue
-        assertEquals(true, queue.remote().write(obj));
-        assertEquals(true, queue.remote()._writeNotifier.isSet());
-        assertEquals(true, queue._readNotifier.isSet());
-        assertEquals(false, queue.remote()._readNotifier.isSet());
-        assertEquals(false, queue._writeNotifier.isSet());
-
-        // select on the remote side of the queue, to read on the remote side of
-        // queue.
-        try
-        {
-            localSelector.select(SELECT_TIME);
-        }
-        catch (IOException e)
-        {
-            assertTrue("localSelector.select failed, exception=" + e.getLocalizedMessage(), false);
-        }
-        iter = localSelector.selectedKeys().iterator();
-        assertTrue(iter.hasNext());
-        key = iter.next();
-        iter.remove();
-        assertTrue(key.isValid());
-        assertTrue(key.isReadable());
-        assertEquals(1, queue.readQueueSize());
-        rcvedObj = (TestObject)queue.read();
-        assertNotNull(rcvedObj);
-        assertEquals(0, queue.readQueueSize());
-        assertEquals(false, queue._readNotifier.isSet());
-        assertEquals(false, queue.remote()._writeNotifier.isSet());
     }
 
     /**
@@ -377,115 +390,126 @@ public class SelectableBiDirectionalQueueJunit
         Selector selector = null;
         try
         {
-            selector = SelectorProvider.provider().openSelector();
-            queue.readChannel().register(selector, SelectionKey.OP_READ);
-        }
-        catch (IOException e)
-        {
-            System.out.println("testRandom: execption=" + e.getLocalizedMessage());
-            assertTrue(e.getLocalizedMessage(), false);
-        }
-
-        long errorCount = 0;
-        long writeCount = 0;
-        long readCount = 0;
-        long totalWriteCount = 0;
-        long totalReadCount = 0;
-        long totalRemoteWriteCount = 0;
-        long totalRemoteReadCount = 0;
-        int count = 0;
-        int selectCount;
-
-        ExecutorService _executorService = Executors.newSingleThreadExecutor();
-
-        while (++count <= loopCount)
-        {
-            writeCount = 0;
-            readCount = 0;
-
-            // start threads
-            Worker worker = new Worker(pool, queue.remote(), SELECT_TIME);
-            _executorService.execute(worker);
-
-            boolean signaledWorkerShutdown = false;
-            boolean writeToWorker = true;
-            long endTime = System.currentTimeMillis() + (runTime * 1000);
-
             try
             {
-                while (true)
-                {
-                    // break out of this while loop if the runTime expired,
-                    // the read queue size is zero and the worker is shutdown.
-                    if (System.currentTimeMillis() > endTime)
-                    {
-                        writeToWorker = false;
-                        if (worker.isShutdown() && queue.readQueueSize() == 0)
-                            break;
-                    }
-
-                    selectCount = selector.select(SELECT_TIME);
-                    if (selectCount > 0)
-                    {
-                        Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
-                        while (iter.hasNext())
-                        {
-                            SelectionKey key = iter.next();
-                            iter.remove();
-                            if (key.isValid() == false)
-                                continue;
-                            if (key.isReadable())
-                                readCount += readQueue(queue);
-                        }
-                    }
-                    // randomly write if runtime has not expired
-                    if (writeToWorker)
-                    {
-                        int cnt = ThreadLocalRandom.current().nextInt(0, 10);
-                        while (--cnt >= 0)
-                            writeCount += writeQueue(queue, pool);
-                    }
-                    else if (signaledWorkerShutdown == false)
-                    {
-                        worker.shutdown();
-                        signaledWorkerShutdown = true;
-                    }
-                }
+                selector = SelectorProvider.provider().openSelector();
+                queue.readChannel().register(selector, SelectionKey.OP_READ);
             }
             catch (IOException e)
             {
-                System.out.println("testRandom: exception=" + e.getLocalizedMessage());
-                errorCount++;
+                System.out.println("testRandom: execption=" + e.getLocalizedMessage());
+                assertTrue(e.getLocalizedMessage(), false);
             }
 
-            if (writeCount != worker.readCount() || readCount != worker.writeCount())
-                errorCount++;
+            long errorCount = 0;
+            long writeCount = 0;
+            long readCount = 0;
+            long totalWriteCount = 0;
+            long totalReadCount = 0;
+            long totalRemoteWriteCount = 0;
+            long totalRemoteReadCount = 0;
+            int count = 0;
+            int selectCount;
 
-            totalWriteCount += writeCount;
-            totalReadCount += readCount;
-            totalRemoteWriteCount += worker.writeCount();
-            totalRemoteReadCount += worker.readCount();
-            System.out.format("main thread: count %d of %d, poolSize=%d errorCount=%d\n", count,
-                              loopCount, pool.size(), errorCount);
-            System.out
-                    .format("\t\tlocal: writeCount=%d readCount=%d\n\t\tremote: writeCount=%d readCount=%d\n",
-                            writeCount, readCount, worker.writeCount(), worker.readCount());
-            System.out
-                    .format("\t\ttotal local: writeCount=%d readCount=%d\n\t\ttotal remote: writeCount=%d readCount=%d\n",
-                            totalWriteCount, totalReadCount, totalRemoteWriteCount,
-                            totalRemoteReadCount);
+            ExecutorService _executorService = Executors.newSingleThreadExecutor();
 
-            System.out.format("\t\tqueue size: local_read=%d remote_write=%d\n",
-                              queue.readQueueSize(), queue.remote().writeQueueSize());
-            System.out.format("\t\tqueue size: local_write=%d remote_read=%d\n",
-                              queue.writeQueueSize(), queue.remote().readQueueSize());
+            while (++count <= loopCount)
+            {
+                writeCount = 0;
+                readCount = 0;
+
+                // start threads
+                Worker worker = new Worker(pool, queue.remote(), SELECT_TIME);
+                _executorService.execute(worker);
+
+                boolean signaledWorkerShutdown = false;
+                boolean writeToWorker = true;
+                long endTime = System.currentTimeMillis() + (runTime * 1000);
+
+                try
+                {
+                    while (true)
+                    {
+                        // break out of this while loop if the runTime expired,
+                        // the read queue size is zero and the worker is shutdown.
+                        if (System.currentTimeMillis() > endTime)
+                        {
+                            writeToWorker = false;
+                            if (worker.isShutdown() && queue.readQueueSize() == 0)
+                                break;
+                        }
+
+                        selectCount = selector.select(SELECT_TIME);
+                        if (selectCount > 0)
+                        {
+                            Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
+                            while (iter.hasNext())
+                            {
+                                SelectionKey key = iter.next();
+                                iter.remove();
+                                if (key.isValid() == false)
+                                    continue;
+                                if (key.isReadable())
+                                    readCount += readQueue(queue);
+                            }
+                        }
+                        // randomly write if runtime has not expired
+                        if (writeToWorker)
+                        {
+                            int cnt = ThreadLocalRandom.current().nextInt(0, 10);
+                            while (--cnt >= 0)
+                                writeCount += writeQueue(queue, pool);
+                        }
+                        else if (signaledWorkerShutdown == false)
+                        {
+                            worker.shutdown();
+                            signaledWorkerShutdown = true;
+                        }
+                    }
+                }
+                catch (IOException e)
+                {
+                    System.out.println("testRandom: exception=" + e.getLocalizedMessage());
+                    errorCount++;
+                }
+
+                if (writeCount != worker.readCount() || readCount != worker.writeCount())
+                    errorCount++;
+
+                totalWriteCount += writeCount;
+                totalReadCount += readCount;
+                totalRemoteWriteCount += worker.writeCount();
+                totalRemoteReadCount += worker.readCount();
+                System.out.format("main thread: count %d of %d, poolSize=%d errorCount=%d\n", count,
+                        loopCount, pool.size(), errorCount);
+                System.out
+                        .format("\t\tlocal: writeCount=%d readCount=%d\n\t\tremote: writeCount=%d readCount=%d\n",
+                                writeCount, readCount, worker.writeCount(), worker.readCount());
+                System.out
+                        .format("\t\ttotal local: writeCount=%d readCount=%d\n\t\ttotal remote: writeCount=%d readCount=%d\n",
+                                totalWriteCount, totalReadCount, totalRemoteWriteCount,
+                                totalRemoteReadCount);
+
+                System.out.format("\t\tqueue size: local_read=%d remote_write=%d\n",
+                        queue.readQueueSize(), queue.remote().writeQueueSize());
+                System.out.format("\t\tqueue size: local_write=%d remote_read=%d\n",
+                        queue.writeQueueSize(), queue.remote().readQueueSize());
+            }
+
+            queue.shutdown();
+
+            System.out.println("main thread: test complete, loopCount=" + loopCount + " poolSize="
+                    + pool.size() + " errorCount=" + errorCount);
+            assertEquals(0, errorCount);
         }
-
-        queue.shutdown();
-
-        System.out.println("main thread: test complete, loopCount=" + loopCount + " poolSize="
-                + pool.size() + " errorCount=" + errorCount);
-        assertEquals(0, errorCount);
+        finally
+        {
+            try
+            {
+                if (selector != null && selector.isOpen()) selector.close();
+            }
+            catch (Exception e) {}
+        }
     }
 
 }

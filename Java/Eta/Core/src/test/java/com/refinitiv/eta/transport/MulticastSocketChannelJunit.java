@@ -12,13 +12,28 @@ import static org.junit.Assert.assertEquals;
 
 import java.nio.BufferOverflowException;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Codec;
+import org.junit.rules.TestName;
 
 public class MulticastSocketChannelJunit
 {
-    
+	@Rule
+	public TestName testName = new TestName();
+
+	@Rule
+	public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+	@Before
+	public void printTestName() {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+	}
+
     @Test
     public void basicReadWriteTest()
     {

@@ -8,14 +8,18 @@
 
 package com.refinitiv.eta.transport;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.ElementNames;
 import com.refinitiv.eta.rdm.Login;
 import com.refinitiv.eta.transport.crypto.CryptoHelper;
-import com.refinitiv.eta.transport.crypto.SafeBuffer;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -47,6 +51,24 @@ public class EncryptionTest {
                 {"SunJSSE", "Conscrypt"},
                 {"Conscrypt", "SunJSSE"}
         };
+    }
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
+
+    @After
+    public void tearDown()
+    {
+        try { Thread.sleep(JUnitConfigVariables.WAIT_AFTER_TEST); }
+        catch (Exception e) { }
     }
 
     public EncryptionTest(String serverSecurityProvider, String clientSecurityProvider)

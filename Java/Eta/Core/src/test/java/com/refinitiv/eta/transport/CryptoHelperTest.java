@@ -27,9 +27,13 @@ import javax.net.ssl.*;
 import com.refinitiv.eta.transport.crypto.CryptoHelper;
 import com.refinitiv.eta.transport.crypto.CryptoHelperFactory;
 import org.conscrypt.Conscrypt;
+import com.refinitiv.eta.*;
 
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -48,16 +52,35 @@ public class CryptoHelperTest
 	public static String[] client_protocol_versions = {TLSv12, TLSv13};
 	private CryptoHelper cryptoHelper;
 	private SSLServerSocket serverSocket;
+	private SocketChannel socketChannel;
 
 	private String clientSecurityProvider;
 	private String engineClassName;
 
+	@Rule
+	public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+	@Rule
+	public TestName testName = new TestName();
+
+	@Before
+	public void printTestName() {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+	}
+
 	@After
 	public void tearDown() throws Exception
 	{
-		if(serverSocket != null && !serverSocket.isClosed()){
+		if (serverSocket != null && !serverSocket.isClosed()){
 			serverSocket.close();
 		}
+		if (cryptoHelper != null)
+			cryptoHelper.cleanup();
+		if (socketChannel != null && socketChannel.isOpen())
+			socketChannel.close();
+
+		try { Thread.sleep(JUnitConfigVariables.WAIT_AFTER_TEST); }
+		catch (Exception e) { }
 	}
 
 	@Parameterized.Parameters
@@ -193,7 +216,7 @@ public class CryptoHelperTest
 		options.unifiedNetworkInfo().address(LOCALHOST);
 		options.unifiedNetworkInfo().serviceName(Integer.toString(PORT));
 
-		SocketChannel socketChannel = SocketChannel.open();
+		socketChannel = SocketChannel.open();
 		socketChannel.connect(new InetSocketAddress(LOCALHOST, PORT));
 		socketChannel.configureBlocking(false);
 
@@ -202,7 +225,7 @@ public class CryptoHelperTest
 	}
 
 	static {
-		if(Security.getProvider("Conscrypt") == null)
+		if (Security.getProvider("Conscrypt") == null)
 		{
 			Security.addProvider(Conscrypt.newProvider());
 		}

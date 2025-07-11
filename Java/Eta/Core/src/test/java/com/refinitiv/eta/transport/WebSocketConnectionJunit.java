@@ -8,8 +8,13 @@
 
 package com.refinitiv.eta.transport;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
 import com.refinitiv.eta.codec.Codec;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -42,6 +47,18 @@ public class WebSocketConnectionJunit {
                 {"Conscrypt", "SunJSSE"}
         };
     }
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
+
 
     public WebSocketConnectionJunit(String serverSecurityProvider, String clientSecurityProvider)
     {

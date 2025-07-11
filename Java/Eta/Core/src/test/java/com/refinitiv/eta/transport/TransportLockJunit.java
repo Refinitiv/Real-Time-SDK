@@ -17,10 +17,15 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.transport.Ripc.CompressionTypes;
+import org.junit.rules.TestName;
 
 public class TransportLockJunit
 {
@@ -30,6 +35,17 @@ public class TransportLockJunit
     {
         INACTIVE, INITIALIZING, RUNNING, TERMINATED
     };
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
 
     /**
      * This server will accept connects and process messages until instructed to

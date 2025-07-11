@@ -20,7 +20,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.refinitiv.eta.transport.ConnectOptions;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Buffer;
@@ -38,6 +40,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
 import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
+import org.junit.rules.TestName;
 
 
 public class ReactorWatchlistLDPJunit
@@ -86,10 +89,15 @@ public class ReactorWatchlistLDPJunit
 	/* This data dictionary is used by JSON converter library. */
 	final static DataDictionary dictionary = CodecFactory.createDataDictionary();
 
+	@Rule
+	public TestName testName = new TestName();
+
     @Before
     public void init() {
 
-        final String dictionaryFileName = "../../../Java/etc/RDMFieldDictionary";
+		System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+
+		final String dictionaryFileName = "../../../Java/etc/RDMFieldDictionary";
         final String enumTypeFile = "../../../Java/etc/enumtype.def";
         com.refinitiv.eta.transport.Error error = TransportFactory.createError();
         dictionary.clear();
@@ -97,6 +105,13 @@ public class ReactorWatchlistLDPJunit
         assertEquals(CodecReturnCodes.SUCCESS, dictionary.loadFieldDictionary(dictionaryFileName, error));
         assertEquals(CodecReturnCodes.SUCCESS,dictionary.loadEnumTypeDictionary(enumTypeFile, error));
     }
+
+	@After
+	public void tearDown()
+	{
+		try { Thread.sleep(JUnitConfigVariables.WAIT_AFTER_TEST); }
+		catch (Exception e) { }
+	}
 	
 	/*
 	 * Inner class to handle default callbacks. It simply stores the event to be

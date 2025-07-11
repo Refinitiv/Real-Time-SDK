@@ -14,6 +14,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Buffer;
@@ -33,6 +37,7 @@ import com.refinitiv.eta.transport.TransportBuffer;
 import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.transport.TransportReturnCodes;
 import com.refinitiv.eta.transport.WriteArgs;
+import org.junit.rules.TestName;
 
 public class WriteBufferJunit
 {
@@ -49,7 +54,18 @@ public class WriteBufferJunit
     final static int CURRENT_RIPC_VERSION = 14;
 
     final static String receivedComponentVersion = "Component Test version 1.0";
-    
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
+
     /* gets a network replay channel to replay file data */
     public RsslSocketChannel getNetworkReplayChannel(Protocol transport, int numBuffers)
     {

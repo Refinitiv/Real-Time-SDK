@@ -25,12 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import com.refinitiv.eta.codec.Codec;
-import com.refinitiv.eta.codec.DataDictionary;
-import com.refinitiv.eta.codec.DataStates;
-import com.refinitiv.eta.codec.MsgClasses;
-import com.refinitiv.eta.codec.StateCodes;
-import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType;
@@ -1243,7 +1238,20 @@ public class TestReactor {
             assertEquals(ReactorReturnCodes.SUCCESS, _reactor.shutdown(_errorInfo));
             _reactor = null;
         }
-        
+
+		if (_selector != null && _selector.isOpen())
+		{
+			try
+			{
+				_selector.close();
+			}
+			catch (Exception e)
+			{
+				System.out.println("Caught exception while closing selector: " + e);
+				e.printStackTrace();
+			}
+		}
+
         if(_eventQueue != null)
         	_eventQueue.clear();
     }

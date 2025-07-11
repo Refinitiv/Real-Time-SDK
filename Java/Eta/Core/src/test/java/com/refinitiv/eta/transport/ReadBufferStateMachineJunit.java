@@ -12,12 +12,17 @@ import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.transport.ByteBufferPair;
 import com.refinitiv.eta.transport.ReadBufferState;
 import com.refinitiv.eta.transport.ReadBufferStateMachine;
 import com.refinitiv.eta.transport.RsslSocketChannel;
+import org.junit.rules.TestName;
 
 /**
  * These are some *very* basic tests of the
@@ -26,6 +31,17 @@ import com.refinitiv.eta.transport.RsslSocketChannel;
  */
 public class ReadBufferStateMachineJunit
 {
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
+
     /**
      * Given a valid {@link ByteBuffer}
      * When I create a {@link ReadBufferStateMachine} using said {@link ByteBuffer}

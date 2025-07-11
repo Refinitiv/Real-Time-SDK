@@ -15,15 +15,30 @@ import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
 
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.test.network.replay.NetworkReplay;
 import com.refinitiv.eta.test.network.replay.NetworkReplayFactory;
 import com.refinitiv.eta.transport.SocketProtocol.TrackingPool;
+import org.junit.rules.TestName;
 
 public class TransportJunit
 {
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
 
     private static final int DEFAULT_LISTEN_PORT = 4324;
     private static final String BASE_TEST_DATA_DIR_NAME = "src/test/resources/com/refinitiv/eta/transport/RsslSocketChannelJunit";

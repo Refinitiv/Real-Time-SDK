@@ -25,9 +25,10 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.*;
+import org.junit.rules.TestName;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
@@ -49,6 +50,17 @@ public class SocketChannelJunitTest
     public static void clearRunningInJunits()
     {
         ErrorImpl._runningInJunits = false;
+    }
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
     }
 
     final static int TIMEOUTMS = 10000; // 10 seconds.
@@ -7718,7 +7730,26 @@ public class SocketChannelJunitTest
                 bindOpts.serverBlocking(true);
 
                 // bind server
-                assertTrue((server = Transport.bind(bindOpts, error)) != null);
+                for (int i = 0; i < JUnitConfigVariables.SERVER_BIND_RETRY_COUNT; i++)
+                {
+                    try
+                    {
+                        server = Transport.bind(bindOpts, error);
+                        if (server != null)
+                            break;
+                        else
+                        {
+                            System.out.println("Error binding server: " + error.text());
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println("Retry count #" + i + ". Exception caught while trying to bind server: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+
+                assertTrue(server != null);
 
                 _serverReady = true; // tell client that server is ready
 

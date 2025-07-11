@@ -8,8 +8,13 @@
 
 package com.refinitiv.eta.transport;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
 import com.refinitiv.eta.codec.*;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import java.nio.ByteBuffer;
 import java.util.Base64;
@@ -29,6 +34,17 @@ public class XmlTraceDumpJunit {
 
     final EncodeIterator encodeIterator = CodecFactory.createEncodeIterator();
     final XmlTraceDump xmlTraceDump = CodecFactory.createXmlTraceDump();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
 
     @Test
     public void testTraceDumpTransportForJsonProtocol() {

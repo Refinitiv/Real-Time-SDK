@@ -12,6 +12,9 @@ import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Buffer;
@@ -43,12 +46,31 @@ import com.refinitiv.eta.rdm.ClassesOfService.AuthenticationTypes;
 import com.refinitiv.eta.rdm.ClassesOfService.DataIntegrityTypes;
 import com.refinitiv.eta.rdm.ClassesOfService.FlowControlTypes;
 import com.refinitiv.eta.rdm.ClassesOfService.GuaranteeTypes;
+import org.junit.rules.TestName;
 
 
 public class TunnelStreamFragmentationJUnit 
 {
     ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
     TunnelStreamSubmitOptions _tsSubmitOpts = ReactorFactory.createTunnelStreamSubmitOptions();
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
+
+    @After
+    public void tearDown()
+    {
+        try { Thread.sleep(JUnitConfigVariables.WAIT_AFTER_TEST); }
+        catch (Exception e) { }
+    }
 
     /* Tests the big buffer pool for tunnel stream fragmentation. */
     @Test

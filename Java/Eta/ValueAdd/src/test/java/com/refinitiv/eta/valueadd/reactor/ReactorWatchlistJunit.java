@@ -22,6 +22,9 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.AckMsg;
@@ -71,9 +74,26 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginStatus;
+import org.junit.rules.TestName;
 
 public class ReactorWatchlistJunit
 {
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
+    @After
+    public void tearDown()
+    {
+        try { Thread.sleep(JUnitConfigVariables.WAIT_AFTER_TEST); }
+        catch (Exception e) { }
+    }
 
 	/** this is just a dummy class only for testing */
 	public class MarketPriceRequestDummmy extends MsgBaseImpl
@@ -557,7 +577,8 @@ public class ReactorWatchlistJunit
             errorInfo.clear();
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
-    
+
+            assertNotNull(callbackHandler);
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
@@ -3503,10 +3524,10 @@ public class ReactorWatchlistJunit
         {
             testServer.shutDown();
     
-            if (theReactorChannel != null)
+            if (theReactorChannel != null && theReactorChannel.selectableChannel() != null)
             {
                 SelectionKey key = theReactorChannel.selectableChannel().keyFor(selector);
-                key.cancel();
+                if (key != null) key.cancel();
             }
     
             assertNotNull(reactor);

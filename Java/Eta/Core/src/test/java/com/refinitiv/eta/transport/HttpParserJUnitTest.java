@@ -8,8 +8,12 @@
 
 package com.refinitiv.eta.transport;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -99,6 +103,12 @@ public class HttpParserJUnitTest {
         httpMessageHandler.initialize();
     }
 
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
     @Before
     public void clearAllGlobals() {
         httpRequest.clear();
@@ -106,6 +116,8 @@ public class HttpParserJUnitTest {
         httpMessageHandler.clear();
         byteData.clear();
         error.clear();
+
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
     }
 
     //Test 1

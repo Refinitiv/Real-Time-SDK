@@ -14,14 +14,29 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.transport.TransportBuffer;
 import com.refinitiv.eta.transport.TransportBufferImpl;
 import com.refinitiv.eta.transport.TransportReturnCodes;
+import org.junit.rules.TestName;
 
 public class TransportBufferJunit
 {
+    @Rule
+    public TestName testName = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+    @Before
+    public void printTestName() {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+    }
 
     /**
      * GIVEN an RsslTransportBuffer with a read-only view of a backing ByteBuffer 

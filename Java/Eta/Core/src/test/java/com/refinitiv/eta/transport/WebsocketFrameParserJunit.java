@@ -12,12 +12,28 @@ import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
 import com.refinitiv.eta.transport.WebSocketFrameHdr;
 import com.refinitiv.eta.transport.WebSocketFrameParser;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 public class WebsocketFrameParserJunit 
 {
+	@Rule
+	public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+	@Rule
+	public TestName testName = new TestName();
+
+	@Before
+	public void printTestName() {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+	}
+
 	@Test
     public void encodeAndDecode4SmallPayloadOnClient()
     {

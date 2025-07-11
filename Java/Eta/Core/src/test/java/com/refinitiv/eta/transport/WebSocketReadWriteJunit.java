@@ -20,9 +20,14 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 
+import com.refinitiv.eta.JUnitConfigVariables;
+import com.refinitiv.eta.RetryRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Codec;
+import org.junit.rules.TestName;
 
 public class WebSocketReadWriteJunit
 {
@@ -91,7 +96,18 @@ public class WebSocketReadWriteJunit
 		COMPRESSED_PACKED_RWF_MSG_1_MSG_2_ByteBuffer_RIPC_HEADER.put(RWF_MSG_2.getBytes());
 		COMPRESSED_PACKED_RWF_MSG_1_MSG_2_ByteBuffer_RIPC_HEADER.rewind();
 	}
-	
+
+	@Rule
+	public RetryRule retryRule = new RetryRule(JUnitConfigVariables.TEST_RETRY_COUNT);
+
+	@Rule
+	public TestName testName = new TestName();
+
+	@Before
+	public void printTestName() {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>  " + testName.getMethodName() + " Test <<<<<<<<<<<<<<<<<<<<<<<");
+	}
+
 	/* Provides ZLIB compression functionality to verify the result of testing */ 
 	class ZlibCompressorTest
 	{
