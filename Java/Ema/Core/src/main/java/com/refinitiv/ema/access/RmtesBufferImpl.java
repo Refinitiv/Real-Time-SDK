@@ -33,7 +33,10 @@ class RmtesBufferImpl implements RmtesBuffer
 	private ByteBuffer _decodedUTF8ByteBuffer;
 	private boolean _applyToCache;
 	private String _toString;
-	
+
+	private boolean _hexBufferSet;
+	private ByteBuffer _hexBuffer;
+
 	public RmtesBufferImpl() 
 	{
 		_rsslRmtesCacheBuffer.data(ByteBuffer.allocate(RMTES_DECODE_BUFFER_INIT_SIZE));
@@ -69,6 +72,19 @@ class RmtesBufferImpl implements RmtesBuffer
 	}
 
 	@Override
+	public ByteBuffer asHex() {
+
+		if (!_hexBufferSet)
+		{
+			_hexBuffer = ByteBuffer.allocate(_rsslRmtesCacheBuffer.length());
+			_hexBuffer.put(_rsslRmtesCacheBuffer.byteData().array(), 0, _rsslRmtesCacheBuffer.length());
+			_hexBufferSet = true;
+		}
+
+		return _hexBuffer;
+	}
+
+	@Override
 	public String toString()
 	{
 		if (!_toStringSet)
@@ -96,6 +112,7 @@ class RmtesBufferImpl implements RmtesBuffer
 		_decodedUTF16BufferSet = false;
 		_decodedUTF8BufferSet = false;
 		_toStringSet = false;
+		_hexBufferSet = false;
 		_applyToCache = false;
 		
 		return this;
@@ -117,6 +134,7 @@ class RmtesBufferImpl implements RmtesBuffer
 			_decodedUTF16BufferSet = false;
 			_decodedUTF8BufferSet = false;
 			_toStringSet = false;
+			_hexBufferSet = false;
 		}
 		
 		ByteBuffer cacheByteBuffer = _rsslRmtesCacheBuffer.byteData();

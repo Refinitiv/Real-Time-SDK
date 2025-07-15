@@ -36,6 +36,13 @@ public interface RmtesBuffer
 	 * @return CharBuffer containing RMTES data converted to UTF16
 	 */
 	public CharBuffer asUTF16();
+
+	/**
+	 *  Returns raw data contained in the current RmtsBuffer
+	 *
+	 * @return ByteBuffer containing raw data
+	 */
+	public ByteBuffer asHex();
 	
 	/**
 	 * Returns a string representation of decoded RMTES data.

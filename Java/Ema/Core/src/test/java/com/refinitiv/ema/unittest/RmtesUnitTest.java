@@ -430,6 +430,72 @@ public class RmtesUnitTest  extends TestCase
 		 clearBuffer();
 	 }
 
+	@Test
+	public void testToHexBuffer()
+	{
+		TestUtilities.printTestHead("testToHexBuffer", "test RmtesBuffer function call" );
+
+		setupFirstBuffer();
+		setupSecondBuffer();
+
+		RmtesBuffer outputRmtesBuf = EmaFactory.createRmtesBuffer();
+		ByteBuffer outputCharBuffer = outputRmtesBuf.apply(inputRmtesBuf).asHex();
+
+		assertEquals(outputCharBuffer.capacity(), inputByte.length);
+		for (int i = 0; i < inputByte.length; i++)
+		{
+			assertEquals(outputCharBuffer.get(i), inputByteBuf.get(i));
+		}
+
+		outputCharBuffer = outputRmtesBuf.clear().apply(inputRmtesBuf1).asHex();
+		assertEquals(outputCharBuffer.capacity(), inputByte1.length);
+		for (int i = 0; i < inputByte1.length; i++)
+		{
+			assertEquals(outputCharBuffer.get(i), inputByteBuf1.get(i));
+		}
+
+		clearBuffer();
+	}
+
+	@Test
+	public void testToHexBufferEmpty()
+	{
+		TestUtilities.printTestHead("testToHexBufferEmpty", "test RmtesBuffer function call" );
+
+		RmtesBuffer outputRmtesBuf = EmaFactory.createRmtesBuffer();
+		ByteBuffer outputCharBuffer = outputRmtesBuf.asHex();
+
+		assertEquals(0, outputCharBuffer.array().length);
+	}
+
+	@Test
+	public void testToHexBufferDoubleCall()
+	{
+		TestUtilities.printTestHead("testToHexBufferDoubleCall", "test RmtesBuffer function call" );
+
+		setupFirstBuffer();
+		setupSecondBuffer();
+
+		RmtesBuffer outputRmtesBuf = EmaFactory.createRmtesBuffer();
+		ByteBuffer outputCharBuffer = outputRmtesBuf.apply(inputRmtesBuf).asHex();
+
+		assertEquals(outputCharBuffer.capacity(), inputByte.length);
+		for (int i = 0; i < inputByte.length; i++)
+		{
+			assertEquals(outputCharBuffer.get(i), inputByteBuf.get(i));
+		}
+
+		ByteBuffer outputCharBuffer1 = outputRmtesBuf.asHex();
+
+		assertEquals(outputCharBuffer1.capacity(), inputByte.length);
+		for (int i = 0; i < inputByte.length; i++)
+		{
+			assertEquals(outputCharBuffer1.get(i), inputByteBuf.get(i));
+		}
+
+		assertTrue(outputCharBuffer == outputCharBuffer1); // asHex returns precisely the same buffer in case it has already been set
+	}
+
 	private void setupFirstBuffer()
 	{
 		targetCharBuf.clear();
