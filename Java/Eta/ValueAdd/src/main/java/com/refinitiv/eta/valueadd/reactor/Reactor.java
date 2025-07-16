@@ -1921,6 +1921,8 @@ public class Reactor
 				RestConnectOptions restConnectOptions = new RestConnectOptions(_reactorOptions);
 				ReactorAuthTokenInfo authTokenInfo = new ReactorAuthTokenInfo();
 
+				restConnectOptions.applyProxyInfo(renewalOptions);
+
 				restAuthOptions.username(oAuthCredentialRenewalCopy.userName().toString());
 				restAuthOptions.clientId(oAuthCredentialRenewalCopy.clientId().toString());
 				restAuthOptions.password(oAuthCredentialRenewalCopy.password().toString());

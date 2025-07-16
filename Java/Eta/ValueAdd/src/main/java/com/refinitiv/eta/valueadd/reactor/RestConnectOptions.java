@@ -158,8 +158,13 @@ class RestConnectOptions {
 			proxyLocalHostName(connectOptions.credentialsInfo().HTTPproxyLocalHostname());
 			proxyKRB5ConfigFile(connectOptions.credentialsInfo().HTTPproxyKRB5configFile());
 		}
-		
-		if (restProxyOptions.proxyHostName() != null && restProxyOptions.proxyHostName().length() > 0 && 
+
+		applyProxyInfo(restProxyOptions);
+	}
+
+	void applyProxyInfo(ReactorRestProxyOptions restProxyOptions)
+	{
+		if (restProxyOptions.proxyHostName() != null && restProxyOptions.proxyHostName().length() > 0 &&
 				restProxyOptions.proxyPort() != null && restProxyOptions.proxyPort().length() > 0)
 		{
 			proxyHost(restProxyOptions.proxyHostName().toString());
@@ -186,7 +191,37 @@ class RestConnectOptions {
 			}
 		}
 	}
-	
+
+	void applyProxyInfo(ReactorOAuthCredentialRenewalOptions renewalOptions)
+	{
+		if (renewalOptions.proxyHostName() != null && renewalOptions.proxyHostName().length() > 0 &&
+				renewalOptions.proxyPort() != null && renewalOptions.proxyPort().length() > 0)
+		{
+			proxyHost(renewalOptions.proxyHostName().toString());
+			proxyPort(RestConnectOptions.convertToPortNumber(renewalOptions.proxyPort()));
+			if(renewalOptions.proxyUserName() != null && renewalOptions.proxyUserName().length() > 0)
+			{
+				proxyUserName(renewalOptions.proxyUserName().toString());
+			}
+			if(renewalOptions.proxyPassword() != null && renewalOptions.proxyPassword().length() > 0)
+			{
+				proxyPassword(renewalOptions.proxyPassword().toString());
+			}
+			if(renewalOptions.proxyDomain() != null && renewalOptions.proxyDomain().length() > 0)
+			{
+				proxyDomain(renewalOptions.proxyDomain().toString());
+			}
+			if(renewalOptions.proxyLocalHostName() != null && renewalOptions.proxyLocalHostName().length() > 0)
+			{
+				proxyLocalHostName(renewalOptions.proxyLocalHostName().toString());
+			}
+			if(renewalOptions.proxyKRB5ConfigFile() != null && renewalOptions.proxyKRB5ConfigFile().length() > 0)
+			{
+				proxyKRB5ConfigFile(renewalOptions.proxyKRB5ConfigFile().toString());
+			}
+		}
+	}
+
 	public void restResultClosure(RestResultClosure resultClosure)
 	{
 		_resultClosure = resultClosure;

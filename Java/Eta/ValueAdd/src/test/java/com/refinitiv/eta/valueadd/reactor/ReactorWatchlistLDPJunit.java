@@ -460,6 +460,7 @@ public class ReactorWatchlistLDPJunit
 		}
 
 		connectInfo.enableSessionManagement(true);
+		setupProxyForConnectOptions(connectInfo.connectOptions());
 		rcOpts.connectionList().add(connectInfo);
 		
 		rcOpts.reconnectAttemptLimit(5);
@@ -651,8 +652,25 @@ public class ReactorWatchlistLDPJunit
 		return -1;
 	}
 
+	private void setupProxyForReactorRestProxyOptions(ReactorRestProxyOptions reactorRestProxyOptions) {
+		if (reactorRestProxyOptions != null && checkProxy()) {
+			reactorRestProxyOptions.proxyHostName(proxyHost);
+			reactorRestProxyOptions.proxyPort(proxyPort);
+			if (checkProxyCredentials()) {
+				reactorRestProxyOptions.proxyUserName(proxyUser);
+				reactorRestProxyOptions.proxyPassword(proxyPassword);
+				reactorRestProxyOptions.proxyDomain(proxyDomain);
+				if (Objects.nonNull(proxyLocalHostname.toString())) {
+					reactorRestProxyOptions.proxyLocalHostName(proxyLocalHostname);
+				} else if (Objects.nonNull(proxyKRBConfigFile.toString())) {
+					reactorRestProxyOptions.proxyKrb5ConfigFile(proxyKRBConfigFile);
+				}
+			}
+		}
+	}
+
 	private void setupProxyForReactorRenewalOptions(ReactorOAuthCredentialRenewalOptions renewalOptions) {
-		if (checkProxy()) {
+		if (renewalOptions != null && checkProxy()) {
 			renewalOptions.proxyHostName(proxyHost);
 			renewalOptions.proxyPort(proxyPort);
 			if (checkProxyCredentials()) {
@@ -669,7 +687,7 @@ public class ReactorWatchlistLDPJunit
 	}
 
 	private void setupProxyForReactorServiceDiscoveryOptions(ReactorServiceDiscoveryOptions serviceDiscoveryOptions) {
-		if (checkProxy()) {
+		if (serviceDiscoveryOptions != null && checkProxy()) {
 			serviceDiscoveryOptions.proxyHostName(proxyHost);
 			serviceDiscoveryOptions.proxyPort(proxyPort);
 			if (checkProxyCredentials()) {
@@ -686,7 +704,7 @@ public class ReactorWatchlistLDPJunit
 	}
 
 	private static void setupProxyForConnectOptions(ConnectOptions connectOptions) {
-		if (checkProxy()) {
+		if (connectOptions != null && checkProxy()) {
 			connectOptions.tunnelingInfo().HTTPproxy(true);
 			connectOptions.tunnelingInfo().HTTPproxyHostName(proxyHost.toString());
 			connectOptions.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort.toString()));
@@ -893,6 +911,7 @@ public class ReactorWatchlistLDPJunit
 			}
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			ReactorServiceEndpointEventCallbackTest callback = new ReactorServiceEndpointEventCallbackTest()
 			{
@@ -1333,7 +1352,6 @@ public class ReactorWatchlistLDPJunit
 			connectInfo.connectOptions().userSpecObject(consumer);		
 			connectInfo.initTimeout(40);
 			connectInfo.enableSessionManagement(false);		
-			setupProxyForConnectOptions(connectInfo.connectOptions());
 
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 
@@ -1398,7 +1416,7 @@ public class ReactorWatchlistLDPJunit
 				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
-				assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused: no further information"));
+				assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused"));
 
 				event = consumerReactor.pollEvent();
 				assertNotNull("Did not receive CHANNEL_EVENT", event);
@@ -1480,7 +1498,6 @@ public class ReactorWatchlistLDPJunit
 			connectInfo.connectOptions().userSpecObject(consumer);		
 			connectInfo.initTimeout(40);
 			connectInfo.enableSessionManagement(false);		
-			setupProxyForConnectOptions(connectInfo.connectOptions());
 
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 
@@ -1494,7 +1511,7 @@ public class ReactorWatchlistLDPJunit
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals("localhost"));
-			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals("14002"));			
+			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals("14002"));
 			assertTrue(rcOpts.connectionList().get(1).connectOptions().unifiedNetworkInfo().address() == null);
 			assertTrue(rcOpts.connectionList().get(1).connectOptions().unifiedNetworkInfo().serviceName() == null);
 
@@ -1511,8 +1528,8 @@ public class ReactorWatchlistLDPJunit
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
-			assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused: no further information"));
-			
+			assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused"));
+
 			/* Authentication event for the second connection */
 			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
@@ -1535,7 +1552,7 @@ public class ReactorWatchlistLDPJunit
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
-			assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused: no further information"));
+			assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused"));
 			
 			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
@@ -2211,6 +2228,7 @@ public class ReactorWatchlistLDPJunit
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			ReactorServiceEndpointEventCallbackTest callback = new ReactorServiceEndpointEventCallbackTest()
 			{				
@@ -5090,13 +5108,17 @@ public class ReactorWatchlistLDPJunit
 				RestAuthOptions authOptions = new RestAuthOptions(true);
 				RestConnectOptions restConnectOptions = new RestConnectOptions(consumerReactor._reactor.reactorOptions());
 				ReactorAuthTokenInfo authTokenInfo = new ReactorAuthTokenInfo();
+
+				ReactorRestProxyOptions restProxyOptions = new ReactorRestProxyOptions();
+				setupProxyForReactorRestProxyOptions(restProxyOptions);
+				restConnectOptions.applyProxyInfo(restProxyOptions);
 				
 				authOptions.username(loginRequest.userName().toString());
 				authOptions.clientId(consumerRole.clientId().toString());
 				authOptions.password(loginRequest.password().toString());
 				
 				authTokenInfo.tokenVersion(TokenVersion.V1);
-				
+
 				assertTrue("Expected SUCCESS", restClient.getAuthAccessTokenInfo(authOptions, restConnectOptions, authTokenInfo, true, errorInfo) == ReactorReturnCodes.SUCCESS);
 			}
 			
@@ -5104,7 +5126,7 @@ public class ReactorWatchlistLDPJunit
 			{
 				consumerReactor.dispatch(-1, 1000);
 			}
-			
+
 			/* 2 success and 1 fails */
 			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls == 3);
 
