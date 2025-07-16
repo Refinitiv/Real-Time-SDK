@@ -683,6 +683,94 @@ public class TransportJunit
         	assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
+
+    @Test
+    public void socketProtocolChannelPoolLimitTest()
+    {
+        int[] limit = {5, -1, 7};
+        int numOfConnections = 15;
+
+        for (int k = 0; k < limit.length; k++)
+        {
+            final Error error = TransportFactory.createError();
+            Channel[] channel = new Channel[numOfConnections];
+            ConnectOptions connectOpts = getDefaultConnectOptions();
+            connectOpts.guaranteedOutputBuffers(2);
+
+            try
+            {
+                InitArgs initArgs = TransportFactory.createInitArgs();
+                initArgs.globalLocking(false);
+                initArgs.socketProtocolPoolLimit(limit[k]);
+
+                assertEquals(TransportReturnCodes.SUCCESS,
+                        Transport.initialize(initArgs, error));
+                for (int i = 0; i < numOfConnections; ++i)
+                {
+                    channel[i] = Transport.connect(connectOpts, error);
+                    assertNotNull(channel);
+                    int errorCode = error.errorId();
+                    assertEquals(TransportReturnCodes.SUCCESS, errorCode);
+                }
+
+                for (int i = 0; i < numOfConnections; i++)
+                {
+                    channel[i].close(error);
+                }
+
+                if (limit[k] != -1) assertEquals(limit[k], ((SocketProtocol)Transport._transports[ConnectionTypes.SOCKET])._channelPool.size());
+                else assertEquals(numOfConnections, ((SocketProtocol)Transport._transports[ConnectionTypes.SOCKET])._channelPool.size());
+            }
+            finally
+            {
+                assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
+            }
+        }
+
+    }
+
+    @Test
+    public void socketProtocolServerPoolLimitTest()
+    {
+        final Error error = TransportFactory.createError();
+
+        int[] limit = {5, -1, 7};
+        int numOfConnections = 15;
+
+        for (int k = 0; k < limit.length; k++)
+        {
+            Server[] servers = new Server[numOfConnections];
+            try
+            {
+                InitArgs initArgs = TransportFactory.createInitArgs();
+                initArgs.globalLocking(false);
+                initArgs.socketProtocolPoolLimit(limit[k]);
+                assertEquals(TransportReturnCodes.SUCCESS,
+                        Transport.initialize(initArgs, error));
+
+                for (int i = 0; i < numOfConnections; i++)
+                {
+                    BindOptions bindOpts = getDefaultBindOptions();
+                    bindOpts.serviceName(Integer.toString(14000 + i));
+                    servers[i] = Transport.bind(bindOpts, error);
+                }
+
+                for (int i = 0; i < numOfConnections; i++)
+                {
+                    if (servers[i] != null) servers[i].close(error);
+                }
+
+                if (limit[k] != -1) assertEquals(limit[k], ((SocketProtocol)Transport._transports[ConnectionTypes.SOCKET])._serverPool.size());
+                else assertEquals(numOfConnections, ((SocketProtocol)Transport._transports[ConnectionTypes.SOCKET])._serverPool.size());
+            }
+            finally
+            {
+                assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
+            }
+        }
+
+
+    }
     
     /**
      * GIVEN an initialized {@link Transport} and a valid
