@@ -210,6 +210,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			ReactorFactory.setWorkerEventPoolLimit(activeConfig.globalConfig.workerEventPoolLimit);
 			ReactorFactory.setTunnelStreamMsgEventPoolLimit(activeConfig.globalConfig.tunnelStreamMsgEventPoolLimit);
 			ReactorFactory.setTunnelStreamStatusEventPoolLimit(activeConfig.globalConfig.tunnelStreamStatusEventPoolLimit);
+
+			ReactorFactory.setSocketProtocolPoolLimit(activeConfig.globalConfig.socketProtocolPoolLimit);
 			
 			checkServerSharedSocketProperty();
 
@@ -766,7 +768,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 
 		ConfigAttributes globalConfigAttributes = config.xmlConfig().getGlobalConfig();
 
-		if(globalConfigAttributes != null){
+		if (globalConfigAttributes != null){
 			_activeServerConfig.globalConfig = new GlobalConfig();
 			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.WorkerEventPoolLimit)) != null)
 			{
@@ -793,8 +795,11 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			}
 			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.JsonConverterPoolsSize)) != null)
 			{
-				_activeServerConfig.globalConfig.jsonConverterPoolsSize =
-						getJsonConverterPoolsSize(ce, _activeServerConfig, strBuilder(), _loggerClient);
+				_activeServerConfig.globalConfig.jsonConverterPoolsSize = getJsonConverterPoolsSize(ce, _activeServerConfig, strBuilder(), _loggerClient);
+			}
+			if ( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.SocketProtocolPoolLimit)) != null)
+			{
+				_activeServerConfig.globalConfig.socketProtocolPoolLimit = ce.intValue();
 			}
 		}
 		

@@ -43,6 +43,9 @@ public class ReactorFactory
     static VaPool _wsbServicePool = new VaPool(true);
 
     private static final int DEFAULT_POOL_LIMIT = -1;
+
+    static int _socketProtocolPoolLimit = -1;
+
     /**
      * Instantiates a new reactor factory.
      */
@@ -103,6 +106,14 @@ public class ReactorFactory
      */
     public static void setTunnelStreamStatusEventPoolLimit(int tunnelStreamStatusEventPoolLimit) {
         ReactorFactory._tunnelStreamStatusEventPool.setLimit(tunnelStreamStatusEventPoolLimit > 0 ? tunnelStreamStatusEventPoolLimit : DEFAULT_POOL_LIMIT);
+    }
+
+    /**
+     * Sets maximum number of objects in pools that supply objects for Transport.SocketProtocol use, if value is negative then amount of events is unlimited
+     * @param socketProtocolPoolLimit value to set
+     */
+    public static void setSocketProtocolPoolLimit(int socketProtocolPoolLimit) {
+        ReactorFactory._socketProtocolPoolLimit = socketProtocolPoolLimit;
     }
 
     /**

@@ -324,6 +324,7 @@ public class Reactor
 	{
 		_initArgs.clear();
 		_initArgs.globalLocking(true);
+		_initArgs.socketProtocolPoolLimit(ReactorFactory._socketProtocolPoolLimit);
 		if (Transport.initialize(_initArgs, errorInfo.error()) != TransportReturnCodes.SUCCESS)
 		{
 			return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, "Reactor.initializeTransport",

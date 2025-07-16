@@ -13,6 +13,12 @@ import com.refinitiv.eta.transport.InitArgs;
 class InitArgsImpl implements InitArgs
 {
     boolean _globalLocking;
+    int _socketProtocolPoolLimit;
+
+    InitArgsImpl()
+    {
+        clear();
+    }
 
     @Override
     public void globalLocking(boolean globalLocking)
@@ -27,8 +33,21 @@ class InitArgsImpl implements InitArgs
     }
 
     @Override
+    public void socketProtocolPoolLimit(int socketProtocolPoolLimit)
+    {
+        _socketProtocolPoolLimit = socketProtocolPoolLimit;
+    }
+
+    @Override
+    public int socketProtocolPoolLimit()
+    {
+        return _socketProtocolPoolLimit;
+    }
+
+    @Override
     public void clear()
     {
         _globalLocking = false;
+        _socketProtocolPoolLimit = -1;
     }
 }

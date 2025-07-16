@@ -109,6 +109,8 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit value == 3000", intValue == 3000);
 		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.WatchlistObjectsPoolLimit).intValue();
 		TestUtilities.checkResult("WatchlistObjectsPoolLimit value == 50000", intValue == 50000);
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.SocketProtocolPoolLimit).intValue();
+		TestUtilities.checkResult("SocketProtocolPoolLimit value == 42", intValue == 42);
 
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.MaxDispatchCountApiThread);
 		TestUtilities.checkResult("MaxDispatchCountApiThread value == 400", intLongValue == 400 );

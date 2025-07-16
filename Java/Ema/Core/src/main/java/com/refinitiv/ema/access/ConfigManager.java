@@ -294,6 +294,7 @@ class ConfigManager
 	public static final int TunnelStreamMsgEventPoolLimit = 1104;
 	public static final int TunnelStreamStatusEventPoolLimit = 1105;
 	public static final int WatchlistObjectsPoolLimit = 1106;
+	public static final int SocketProtocolPoolLimit = 1108;
 
 	// WarmStandby
 	public static final int ConsumerWarmStandbyChannelSet = 1200;
@@ -621,6 +622,7 @@ class ConfigManager
 		GlobalConfigDict.add( "TunnelStreamStatusEventPoolLimit", TunnelStreamStatusEventPoolLimit );
 		GlobalConfigDict.add("JsonConverterPoolsSize", JsonConverterPoolsSize);
 		GlobalConfigDict.add( "WatchlistObjectsPoolLimit", WatchlistObjectsPoolLimit );
+		GlobalConfigDict.add( "SocketProtocolPoolLimit", SocketProtocolPoolLimit );
 
 		WarmStandbyGroupDict.add( "WarmStandbyGroup", WarmStandbyGroup);
 		WarmStandbyGroupDict.add( "WarmStandbyList", WarmStandbyList);
@@ -818,7 +820,8 @@ class ConfigManager
 		"ServiceDiscoveryRetryCount",
 		"TunnelStreamMsgEventPoolLimit",
 		"TunnelStreamStatusEventPoolLimit",
-		"WatchlistObjectsPoolLimit"
+		"WatchlistObjectsPoolLimit",
+		"SocketProtocolPoolLimit"
 	};
 
 	public static String UInt64Values[] = {

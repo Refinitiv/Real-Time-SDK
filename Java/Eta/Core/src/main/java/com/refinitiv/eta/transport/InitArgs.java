@@ -30,6 +30,20 @@ public interface InitArgs
     public boolean globalLocking();
 
     /**
+     * Sets maximum number of objects in pools that will be used by {@link Transport}.
+     * 
+     * @param socketProtocolPoolLimit the number to set
+     */
+    public void socketProtocolPoolLimit(int socketProtocolPoolLimit);
+
+    /**
+     * Gets maximum number of objects in pools that will be used by {@link Transport}.
+     * 
+     * @return the number
+     */
+    public int socketProtocolPoolLimit();
+
+    /**
      * Clears ETA Initialize Arguments.
      */
     public void clear();

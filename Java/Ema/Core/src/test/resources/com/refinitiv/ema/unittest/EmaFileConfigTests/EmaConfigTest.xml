@@ -8,6 +8,7 @@
 		<TunnelStreamMsgEventPoolLimit value="2500"/>
 		<TunnelStreamStatusEventPoolLimit value="3000"/>
 		<WatchlistObjectsPoolLimit value="50000"/>
+		<SocketProtocolPoolLimit value="42"/>
 	</GlobalConfig>
 	
 <!-- defaultConsumer parameter defines which consumer configuration is used by OmmConsumer		-->

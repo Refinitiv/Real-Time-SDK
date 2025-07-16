@@ -670,6 +670,7 @@ class ProgrammaticConfigure
 		ElementEntry tunnelStreamStatusEventPoolLimit = getIntElementEntry(globalConfigEntry, "TunnelStreamStatusEventPoolLimit");
 		ElementEntry jsonConverterPoolsSize = getIntElementEntry(globalConfigEntry, "JsonConverterPoolsSize");
 		ElementEntry watchlistObjectsPoolLimit = getIntElementEntry(globalConfigEntry, "WatchlistObjectsPoolLimit");
+		ElementEntry socketProtocolPoolLimit = getIntElementEntry(globalConfigEntry, "SocketProtocolPoolLimit");
 
 		if (reactorMsgEventPoolLimit != null) {
 			config.reactorMsgEventPoolLimit = convertToInt(reactorMsgEventPoolLimit.intValue());
@@ -691,6 +692,9 @@ class ProgrammaticConfigure
 		}
 		if (watchlistObjectsPoolLimit != null) {
 			config.watchlistObjectsPoolLimit = getWatchlistObjectsPoolsSize(watchlistObjectsPoolLimit.intValue());
+		}
+		if (socketProtocolPoolLimit != null) {
+			config.socketProtocolPoolLimit = getSocketProtocolPoolsSize(socketProtocolPoolLimit.intValue());
 		}
 		return config;
 	}
@@ -3921,6 +3925,29 @@ class ProgrammaticConfigure
 			return Integer.MAX_VALUE;
 		}
 		return (int) watchlistObjectsPoolsSize;
+	}
+
+	private int getSocketProtocolPoolsSize(long socketProtocolPoolsSize)
+	{
+		if (socketProtocolPoolsSize < -1)
+		{
+			_emaConfigErrList.append( "SocketProtocolPoolsSize value should be equal or greater than -1.")
+					.append( " It will be set to default value: -1 (no limit).")
+					.create(Severity.WARNING);
+			return GlobalConfig.DEFAULT_SOCKET_PROTOCOL_POOL_LIMIT;
+		}
+
+		if (socketProtocolPoolsSize > Integer.MAX_VALUE)
+		{
+			_emaConfigErrList.append("SocketProtocolPoolsSize value should not be greater than ")
+					.append(Integer.MAX_VALUE)
+					.append(". It will be set to ")
+					.append(Integer.MAX_VALUE)
+					.append(".")
+					.create(Severity.WARNING);
+			return Integer.MAX_VALUE;
+		}
+		return (int) socketProtocolPoolsSize;
 	}
 
 	private Predicate<MapEntry> filterMapEntry(String name) {

@@ -22,11 +22,12 @@ class SocketProtocol implements ProtocolInt
     private int _connectionType;
     private int _subProtocol;
 
-    class TrackingPool extends Pool
+    class TrackingPool extends LimitedPool
     {
         TrackingPool(Object o)
         {
             super(o);
+            setLimit(Transport.getSocketProtocolPoolLimit());
         }
 
         // This pool is used for channels and servers.

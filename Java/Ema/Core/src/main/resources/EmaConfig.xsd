@@ -1827,6 +1827,12 @@
                 </xs:complexType>
               </xs:element>
 
+              <xs:element name="SocketProtocolPoolLimit" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="value" type="xs:int" use="required" />
+                </xs:complexType>
+              </xs:element>
+
             </xs:all>
           </xs:complexType>
         </xs:element> <!-- end GlobalConfig -->

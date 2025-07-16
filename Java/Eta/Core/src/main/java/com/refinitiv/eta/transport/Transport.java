@@ -79,6 +79,17 @@ public class Transport
     private static final int HIDDEN_TCP_JNI = 111; // JNI TCP implementation (used only for testing)
     private static Protocol _hiddenTcpJni;         // JNI TCP implementation (used only for testing)
 
+    private static int _socketProtocolPoolLimit = -1;
+
+    /**
+     * Gets maximum number of objects in pools that supply channel objects for SocketProtocol use
+     * @return the number
+     */
+    static int getSocketProtocolPoolLimit()
+    {
+        return _socketProtocolPoolLimit;
+    }
+
     /**
      * Initializes the ETA transport API and all internal members.<BR>
      *
@@ -100,17 +111,28 @@ public class Transport
         _initLock.lock();
         if (_numInitCalls > 0) // subsequent initialize() call
         {
-            if (_globalLocking == initArgs.globalLocking())
+            if (_globalLocking == initArgs.globalLocking() && _socketProtocolPoolLimit == initArgs.socketProtocolPoolLimit())
             {
                 ++_numInitCalls;
             }
             else
             {
-                error.channel(null);
-                error.errorId(TransportReturnCodes.INIT_NOT_INITIALIZED);
-                error.sysError(0);
-                error.text("initialize() attempting to change locking from " + _globalLocking + " to " + initArgs.globalLocking());
-                ret = TransportReturnCodes.FAILURE;
+                if (_globalLocking != initArgs.globalLocking())
+                {
+                    error.channel(null);
+                    error.errorId(TransportReturnCodes.INIT_NOT_INITIALIZED);
+                    error.sysError(0);
+                    error.text("initialize() attempting to change locking from " + _globalLocking + " to " + initArgs.globalLocking());
+                    ret = TransportReturnCodes.FAILURE;
+                }
+                else if (_socketProtocolPoolLimit != initArgs.socketProtocolPoolLimit())
+                {
+                    error.channel(null);
+                    error.errorId(TransportReturnCodes.INIT_NOT_INITIALIZED);
+                    error.sysError(0);
+                    error.text("initialize() attempting to change socketProtocolPoolLimit from " + _socketProtocolPoolLimit + " to " + initArgs.socketProtocolPoolLimit());
+                    ret = TransportReturnCodes.FAILURE;
+                }
             }
         }
         else // first initialize() call
@@ -121,6 +143,7 @@ public class Transport
                 _globalLock = new DummyLock();
 
             _globalLocking = initArgs.globalLocking();
+            _socketProtocolPoolLimit = initArgs.socketProtocolPoolLimit();
             ++_numInitCalls;
         }
 
@@ -149,6 +172,7 @@ public class Transport
         else if (--_numInitCalls == 0)
         {
             _globalLock.lock();
+            _socketProtocolPoolLimit = -1;
             for (int i = 0; i < _transports.length; i++)
             {
                 if (_transports[i] != null)

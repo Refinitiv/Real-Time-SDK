@@ -232,7 +232,8 @@ abstract class ActiveConfig extends BaseConfig
 		.append("\n\t tunnelStreamMsgEventPoolLimit: ").append(globalConfig.tunnelStreamMsgEventPoolLimit)
 		.append("\n\t tunnelStreamStatusEventPoolLimit: ").append(globalConfig.tunnelStreamStatusEventPoolLimit)
 		.append("\n\t jsonConverterPoolsSize: ").append(globalConfig.jsonConverterPoolsSize)
-		.append("\n\t watchlistObjectsPoolLimit: ").append(globalConfig.watchlistObjectsPoolLimit);
+		.append("\n\t watchlistObjectsPoolLimit: ").append(globalConfig.watchlistObjectsPoolLimit)
+		.append("\n\t socketProtocolPoolLimit: ").append(globalConfig.socketProtocolPoolLimit);
 
 		return traceStr;
 	}

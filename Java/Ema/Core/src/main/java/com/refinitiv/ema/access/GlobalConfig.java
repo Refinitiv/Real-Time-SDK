@@ -12,6 +12,7 @@ class GlobalConfig
 {
 	final static int DEFAULT_EVENT_POOL_LIMIT = -1;
 	final static int DEFAULT_WATCHLIST_OBJECTS_POOL_LIMIT = -1;
+	final static int DEFAULT_SOCKET_PROTOCOL_POOL_LIMIT = -1;
 	static final int JSON_CONVERTER_DEFAULT_POOLS_SIZE = 10;
 
 	int reactorMsgEventPoolLimit;
@@ -21,6 +22,7 @@ class GlobalConfig
 	int tunnelStreamStatusEventPoolLimit;
 	int jsonConverterPoolsSize;
 	int watchlistObjectsPoolLimit;
+	int socketProtocolPoolLimit;
 
 	GlobalConfig()
 	{
@@ -32,6 +34,7 @@ class GlobalConfig
 		tunnelStreamStatusEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 		jsonConverterPoolsSize = JSON_CONVERTER_DEFAULT_POOLS_SIZE;
 		watchlistObjectsPoolLimit = DEFAULT_WATCHLIST_OBJECTS_POOL_LIMIT;
+		socketProtocolPoolLimit = DEFAULT_SOCKET_PROTOCOL_POOL_LIMIT;
 	}
 
 	void clear()
@@ -43,5 +46,6 @@ class GlobalConfig
 		tunnelStreamStatusEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 		jsonConverterPoolsSize = JSON_CONVERTER_DEFAULT_POOLS_SIZE;
 		watchlistObjectsPoolLimit = DEFAULT_WATCHLIST_OBJECTS_POOL_LIMIT;
+		socketProtocolPoolLimit = DEFAULT_SOCKET_PROTOCOL_POOL_LIMIT;
 	}
 }
