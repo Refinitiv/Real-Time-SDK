@@ -95,4 +95,11 @@ interface WebSocketHandler {
      * @param wSocketOpts - opts which should be added to the current {@link WebSocketSession}
      */
     void loadServerWebSocketOpts(WSocketOpts wSocketOpts);
+
+    /**
+     * @param userSpecObject - the userSpecObject to set.
+     * @see BindOptions
+     * @see ConnectOptions
+     */
+    void setUserSpecObject(Object userSpecObject);
 }

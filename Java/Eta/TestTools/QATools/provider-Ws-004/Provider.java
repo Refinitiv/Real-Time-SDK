@@ -239,7 +239,7 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
         bindOptions.wSocketOpts().protocols(CommandLine.value("pl"));
         
         if (CommandLine.booleanValue("httpHdr")) {
-            bindOptions.wSocketOpts().httpCallback();
+            bindOptions.wSocketOpts().httpCallback(this);
         }
 
         final JsonConverterInitOptions converterInitOptions = new JsonConverterInitOptions(

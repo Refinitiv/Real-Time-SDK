@@ -246,7 +246,7 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
         bindOptions.wSocketOpts().protocols(CommandLine.value("pl"));
 
         if (CommandLine.booleanValue("httpHdr")) {
-            bindOptions.wSocketOpts().httpCallback();
+            bindOptions.wSocketOpts().httpCallback(this);
         }
 
         if (CommandLine.booleanValue("serverSharedSocket")) {
@@ -691,6 +691,12 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
     public void httpCallback(HttpMessage httpMessage, Error error) {
         if (error.errorId() < TransportReturnCodes.SUCCESS) {
             System.out.printf("Http header error %s \n", error.text());
+        }
+
+        if (Objects.nonNull(httpMessage.getHttpRequestConnectionInfo())) {
+            if (Objects.nonNull(httpMessage.getHttpRequestConnectionInfo().getConnectionUri())) {
+                System.out.println("HTTP URI: " + httpMessage.getHttpRequestConnectionInfo().getConnectionUri());
+            }
         }
 
         final List<HttpHeader> httpHeaders = httpMessage.getHttpHeaders();

@@ -53,6 +53,8 @@ class WebSocketHandlerImpl implements WebSocketHandler {
 
     private boolean initialized;
 
+    protected Object _userSpecObject;
+
     public WebSocketHandlerImpl() {
         wsSession = new WebSocketSession();
     }
@@ -129,6 +131,7 @@ class WebSocketHandlerImpl implements WebSocketHandler {
             }
         }
         if (Objects.nonNull(callback)) {
+            httpRequestMsg.userSpecObject(_userSpecObject);
             getWsSession().getWebSocketOpts().httpCallback().httpCallback(httpRequestMsg, error);
         }
         return returnValue;
@@ -200,6 +203,7 @@ class WebSocketHandlerImpl implements WebSocketHandler {
             }
         }
         if (Objects.nonNull(callback)) {
+            httpResponseMessage.userSpecObject(_userSpecObject);
             getWsSession().getWebSocketOpts().httpCallback().httpCallback(httpResponseMessage, error);
         }
         return returnValue;
@@ -313,6 +317,11 @@ class WebSocketHandlerImpl implements WebSocketHandler {
     @Override
     public void loadServerWebSocketOpts(WSocketOpts wSocketOpts) {
         setWsProtocols(wSocketOpts, true);
+    }
+
+    @Override
+    public void setUserSpecObject(Object userSpecObject) {
+        _userSpecObject = userSpecObject;
     }
 
     private void setWsProtocols(WSocketOpts wSocketOpts, boolean server) {

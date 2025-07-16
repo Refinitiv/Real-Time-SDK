@@ -8,6 +8,10 @@
 
 package com.refinitiv.eta.transport;
 
+/**
+ * HttpResponseConnectionInfo class.
+ * 
+ */
 public class HttpResponseConnectionInfo {
 
     private String connectionLine;
@@ -18,44 +22,92 @@ public class HttpResponseConnectionInfo {
 
     private int contentLength;
 
+    /**
+     * Sets HTTP response connection line.
+     * 
+     * @param connectionLine connection line
+     */
     public void setConnectionLine(String connectionLine) {
         this.connectionLine = connectionLine;
     }
 
+    /**
+     * Returns HTTP response connection line.
+     * 
+     * @return connection line
+     */
     public String getConnectionLine() {
         return connectionLine;
     }
 
+    /**
+     * Returns HTTP response reason phrase.
+     * 
+     * @return response reason phrase
+     */
     public String getResponseReasonText() {
         return responseReasonText;
     }
 
+    /**
+     * Sets HTTP response reason phrase.
+     * 
+     * @param responseReasonText response reason phrase
+     */
     public void setResponseReasonText(String responseReasonText) {
         this.responseReasonText = responseReasonText;
     }
 
+    /**
+     * Returns HTTP response status code.
+     * 
+     * @return status code
+     */
     public int getResponseStatus() {
         return responseStatus;
     }
 
+    /**
+     * Sets HTTP response status code.
+     * 
+     * @param responseStatus status code
+     */
     public void setResponseStatus(int responseStatus) {
         this.responseStatus = responseStatus;
     }
 
+    /**
+     * Returns HTTP body length of the HTTP response.
+     * 
+     * @return HTTP body length
+     */
     public int getContentLength() {
         return contentLength;
     }
 
+    /**
+     * Sets HTTP body length of the HTTP response.
+     * 
+     * @param contentLength the length
+     */
     public void setContentLength(int contentLength) {
         this.contentLength = contentLength;
     }
 
+    /**
+     * Clears all information of the structure.
+     */
     public void clear() {
         this.connectionLine = "";
         this.responseStatus = 0;
         this.contentLength = 0;
     }
 
+    /**
+     * Copies all information from another structure.
+     * 
+     * @param connectionInfo information to copy
+     */
     public void copy(HttpResponseConnectionInfo connectionInfo) {
         connectionInfo.connectionLine = connectionLine;
         connectionInfo.responseStatus = responseStatus;

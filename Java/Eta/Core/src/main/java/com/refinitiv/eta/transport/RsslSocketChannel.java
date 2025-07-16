@@ -428,6 +428,7 @@ class RsslSocketChannel extends EtaNode implements Channel
             webSocketSession.applyCompressionSupport();
         }
         webSocketHandler.loadWebSocketOpts(wSocketOpts);
+        webSocketHandler.setUserSpecObject(userSpecObject());
     }
 
     protected void initializeProviderWebSocketSupport(BindOptions bindOptions) {
@@ -440,6 +441,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         }
         
         webSocketHandler.loadServerWebSocketOpts(wSocketOpts);
+        webSocketHandler.setUserSpecObject(userSpecObject());
     }
 
     /* TEST ONLY: This is not a valid constructor. (only for JUnit tests) */

@@ -8,6 +8,11 @@
 
 package com.refinitiv.eta.transport;
 
+/**
+ * HttpHeaderLineInfo class.
+ * @see HttpHeader
+ * @see HttpMessage
+ */
 class HttpHeaderLineInfo {
 
     private static final char DEFAULT_VALUE_DELIMITER = ',';

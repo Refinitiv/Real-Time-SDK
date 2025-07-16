@@ -12,7 +12,7 @@ class WSocketOptsImpl implements WSocketOpts {
 	
 	private String _protocolList = "";
 	private long _maxMsgSize = 61440;
-	private HttpCallback httpCallback;
+	private HttpCallback _httpCallback;
 
 	@Override
 	public void protocols(String protocolList) {
@@ -36,25 +36,26 @@ class WSocketOptsImpl implements WSocketOpts {
 
 	@Override
 	public void httpCallback(HttpCallback httpCallback) {
-		this.httpCallback = httpCallback;
+		_httpCallback = httpCallback;
 	}
 
 	@Override
 	public HttpCallback httpCallback() {
-		return httpCallback;
+		return _httpCallback;
 	}
 
 	void copy(WSocketOptsImpl destOpts)
 	{
 		destOpts.protocols(_protocolList);
 		destOpts.maxMsgSize(_maxMsgSize);
+		destOpts.httpCallback(_httpCallback);
 	}
 
 	@Override
 	public void clear() {
 		this._protocolList = "";
 		_maxMsgSize = 61440L;
-		httpCallback = null;
+		_httpCallback = null;
 	}
 
 	@Override
@@ -62,6 +63,7 @@ class WSocketOptsImpl implements WSocketOpts {
     {
         return "WSocketOpts" + "\n" + 
                "\t\tprotocols: " + _protocolList + 
-               "\t\tmaxMsgSize: " + _maxMsgSize;
+               "\t\tmaxMsgSize: " + _maxMsgSize +
+               "\t\thttpCallback: " + (_httpCallback != null);
     }
 }
