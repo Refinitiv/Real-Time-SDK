@@ -170,6 +170,7 @@ public class ItemRequestHandler
                     itemInfo.streamId(msg.streamId());
                     itemInfo.itemFlags(itemInfo.itemFlags() | ItemFlags.IS_SOLICITED);
                     providerSession.itemAttributesTable().put(itemAttributes, itemInfo);
+                    providerSession.itemStreamIdTable().put(msg.streamId(), itemInfo);
                 }
                 else
                 {
