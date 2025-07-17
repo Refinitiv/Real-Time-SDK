@@ -1,0 +1,118 @@
+Consumer initializing...
+Unable to load field dictionary.  Will attempt to download from provider.
+        Text: Can't open file: RDMFieldDictionary
+Unable to load enum dictionary.  Will attempt to download from provider.
+        Text: Can't open file: enumtype.def
+Starting connection...
+Attempting to connect to server localhost:14002...
+0000: 00 44 01 01 0a 00 00 00  00 09 18 00 03 3c 0e 01   .D...........<..
+0001: 00 01 00 08 01 18 05 88  1e d8 0b 19 ca bf 00 00   ................
+0002: 00 00 00 00 00 05 05 28  8e 8c ac 7f 0f 57 15 14   .......(.....W..
+0003: 65 74 61 6a 33 2e 39 2e  30 2e 4c 32 2e 61 6c 6c   etaj3.9.0.L2.all
+0004: 2e 72 72 67                                        .rrg............
+LoginRequest:
+        streamId: 1
+        userName: Xxxxxxx.Xxxxxx
+        streaming: true
+        nameType: 1
+        applicationId: 256
+        applicationName: Consumer
+        position: 127.0.0.1XXXXXXXXXX
+        role: 0
+
+-- begin read (212 of 280 total bytes) cur RIPC pos: 0 prev pos: 0 new pos: 212 limit: 196608 thread id: 1 --
+0000: 00 D4 02 00 CF 02 01 00  00 00 01 68 00 09 00 20   ...........h...
+0001: 4C 6F 67 69 6E 20 61 63  63 65 70 74 65 64 20 62   Login accepted b
+0002: 79 20 68 6F 73 74 20 58  58 58 58 58 58 58 58 58   y host XXXXXXXXX
+0003: 02 00 00 80 9F 26 0E 58  78 78 78 78 78 78 2E 58   .....&.Xxxxxxx.X
+0004: 78 78 78 78 78 01 05 80  8B 08 00 06 0D 41 70 70   xxxxx........App
+0005: 6C 69 63 61 74 69 6F 6E  49 64 11 03 32 35 36 0F   licationId..256.
+0006: 41 70 70 6C 69 63 61 74  69 6F 6E 4E 61 6D 65 11   ApplicationName.
+0007: 0C 45 54 41 20 50 72 6F  76 69 64 65 72 08 50 6F   .ETA Provider.Po
+0008: 73 69 74 69 6F 6E 11 14  31 32 37 2E 30 2E 30 2E   sition..127.0.0.
+0009: 31 2F 58 58 58 58 58 58  58 58 58 58 0A 53 69 6E   1/XXXXXXXXXX.Sin
+000A: 67 6C 65 4F 70 65 6E 04  01 00 0E 53 75 70 70 6F   gleOpen....Suppo
+000B: 72 74 4F 4D 4D 50 6F 73  74 04 01 01 14 53 75 70   rtOMMPost....Sup
+000C: 70 6F 72 74 42 61 74 63  68 52 65 71 75 65 73 74   portBatchRequest
+000D: 73 04 01 01                                        s...
+-- end read --
+Received Login Response for Username: Xxxxxxx.Xxxxxx
+LoginRefresh:
+        streamId: 1
+        name: Xxxxxxx.Xxxxxx
+        nameType: 1
+        State: Open/Ok/None - text: "Login accepted by host XXXXXXXXXX"
+        allowSuspectData: 1
+        applicationId: 256
+        appplicationName: rsslProvider
+        position: 127.0.0.1/XXXXXXXXXX
+        providePermExpr: 1
+        providePermProfile: 1
+        singleOpen: 0
+        isSolicited: true
+        supportBatchRequests: 1
+        supportOMMPost: 1
+        supportOptimizedPauseResume: 0
+        supportStandby: 0
+        supportViewRequests: 0
+
+DirectoryRequest:
+        streamId: 2
+        streaming: true
+        filter: INFO | GROUP | STATE
+
+-- begin read (424 of 704 total bytes) cur RIPC pos: 0 prev pos: 0 new pos: 424 limit: 196608 thread id: 1 --
+0000: 01 A8 02 00 38 02 04 00  00 00 02 81 68 09 09 00   ....8.......h...
+0001: 22 53 6F 75 72 63 65 20  44 69 72 65 63 74 6F 72   "Source Director
+0002: 79 20 52 65 66 72 65 73  68 20 43 6F 6D 70 6C 65   y Refresh Comple
+0003: 74 65 64 02 00 00 80 05  08 00 00 00 07 00 04 07   ted.............
+0004: 00 01 02 01 01 FE 01 60  00 05 02 02 01 FE 01 1D   .......`........
+0005: 08 00 0B 04 4E 61 6D 65  11 0B 44 49 52 45 43 54   ....Name..DIRECT
+0006: 5F 46 45 45 44 06 56 65  6E 64 6F 72 11 04 4C 53   _FEED.Vendor..LS
+0007: 45 47 08 49 73 53 6F 75  72 63 65 04 01 01 0C 43   EG.IsSource....C
+0008: 61 70 61 62 69 6C 69 74  69 65 73 0F FE 00 10 04   apabilities.....
+0009: 00 00 06 01 06 01 07 01  08 01 05 01 0A 01 16 14   ................
+000A: 44 69 63 74 69 6F 6E 61  72 69 65 73 50 72 6F 76   DictionariesProv
+000B: 69 64 65 64 0F FE 00 13  11 00 00 02 06 52 57 46   ided.........RWF
+000C: 46 6C 64 07 52 57 46 45  6E 75 6D 10 44 69 63 74   Fld.RWFEnum.Dict
+000D: 69 6F 6E 61 72 69 65 73  55 73 65 64 0F FE 00 13   ionariesUsed....
+000E: 11 00 00 02 06 52 57 46  46 6C 64 07 52 57 46 45   .....RWFFld.RWFE
+000F: 6E 75 6D 03 51 6F 53 0F  FE 00 0C 0C 00 00 03 01   num.QoS.........
+0010: 22 01 44 03 62 00 01 10  53 75 70 70 6F 72 74 73   ".D.b...Supports
+0011: 51 6F 53 52 61 6E 67 65  04 01 00 08 49 74 65 6D   QoSRange....Item
+0012: 4C 69 73 74 11 0E 5F 45  54 41 5F 49 54 45 4D 5F   List.._ETA_ITEM_
+0013: 4C 49 53 54 1A 53 75 70  70 6F 72 74 73 4F 75 74   LIST.SupportsOut
+0014: 4F 66 42 61 6E 64 53 6E  61 70 73 68 6F 74 73 04   OfBandSnapshots.
+0015: 01 00 17 41 63 63 65 70  74 69 6E 67 43 6F 6E 73   ...AcceptingCons
+0016: 75 6D 65 72 53 74 61 74  75 73 04 01 00 02 02 FE   umerStatus......
+0017: 00 36 08 00 03 0C 53 65  72 76 69 63 65 53 74 61   .6....ServiceSta
+0018: 74 65 04 01 01 11 41 63  63 65 70 74 69 6E 67 52   te....AcceptingR
+0019: 65 71 75 65 73 74 73 04  01 01 06 53 74 61 74 75   equests....Statu
+001A: 73 0D 05 09 00 02 4F 4B                            s.....OK
+-- end read --
+Received Source Directory Refresh
+DirectoryRefresh:
+        streamId: 2
+        State: Open/Ok/None - text: "Source Directory Refresh Completed"
+        clearCache: true
+        solicited: true
+        filter: INFO | GROUP | STATE
+        Service:
+                serviceId: 1
+                InfoFilter:
+                        serviceName: DIRECT_FEED
+                        vendor: LSEG
+                        isSource: 1
+                        supportsQosRange: 0
+                        supportsOutOfBandSnapshots: 0
+                        acceptingConsumerStatus: 0
+                        capabilities: [5, 6, 7, 8, 10, 22]
+                        dictionariesProvided: [RWFFld, RWFEnum]
+                        dictionariesUsed: [RWFFld, RWFEnum]
+                        qos: [Qos: Realtime/TickByTick/Static - timeInfo: 0 - rateInfo: 0]
+                StateFilter:
+                        ServiceState: 1
+                        AcceptingRequests: 1
+                        State: Open/Ok/None - text: "OK"
+
+Received serviceName: DIRECT_FEED

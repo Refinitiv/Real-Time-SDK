@@ -5,10 +5,11 @@ Unable to load enum dictionary.  Will attempt to download from provider.
         Text: Can't open file: enumtype.def
 Starting connection...
 Attempting to connect to server localhost:14002...
-0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
-0001: 00 01 09 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
-0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
-0003: 45 54 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   ETA Java Edition
+0000: 00 44 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .D...........<..
+0001: 00 01 05 08 01 18 01 E0  84 E6 4B 57 1B 85 00 00   ..........KW....
+0002: 00 00 00 00 00 05 00 2C  15 A3 32 6D 4C A6 15 14   .......,..2mL...
+0003: 65 74 61 6A 33 2E 39 2E  30 2E 4C 32 2E 61 6C 6C   etaj3.9.0.L2.all
+0004: 2E 72 72 67                                        .rrg
 
 LoginRequest:
         streamId: 1
@@ -17,28 +18,22 @@ LoginRequest:
         nameType: 1
         applicationId: 256
         applicationName: Consumer
-        position: 10.91.161.166/XXXXXXXXXX
+        position: 127.0.0.1/XXXXXXXXXX
         role: 0
 
--- begin read (281 of 300 total bytes) cur RIPC pos: 0 prev pos: 0 new pos: 281 limit: 131072 thread id: 1 --
-0000: 01 19 04 78 DA 64 8E 41  4F C2 40 10 46 77 11 13   ...x.d.AO.@.Fw..
-0001: 34 82 56 3D 90 E8 A1 5E  3C A2 25 B1 89 07 0F 6D   4.V=...^<.%....m
-0002: E4 60 14 A8 34 91 F3 D2  8E 74 92 ED EE BA BB 15   .`..4....t......
-0003: F1 86 BF DC C5 94 A0 F1  30 C9 E4 BD 2F DF 0C FD   ........0.../...
-0004: 6A 50 42 08 2D C8 1E B9  78 92 73 14 3E CB 32 50   jPB.-...x.s.>.2P
-0005: 16 72 7F B6 F4 0B 69 AC  3F 8E 1E 87 D3 78 30 19   .r....i.?....x0.
-0006: F5 1B 84 AC 9E 2F 3B 53  E4 1C 59 D9 8B 41 0B D0   ...../;S..Y..A..
-0007: 74 77 75 D7 22 ED 76 A4  14 C7 8C 59 94 E2 21 F7   twu.".v....Y..!.
-0008: 76 FA 37 E1 E1 2F 34 62  25 78 07 DA 18 9E 68 F9   v.7../4b%x....h.
-0009: 8E 39 E8 56 22 0D AE 95  D7 0D AE 7B B7 41 2F 08   .9.V"......{.A/.
-000A: D7 13 5E 6D EF 75 EB 6C  02 BA 44 63 5C D6 81 57   ..^m.u.l..Dc\..W
-000B: E4 D0 A4 F4 FC 9F 1B 7C  28 0D 3F 9B 71 7E 3F 45   .......|(.?.q~?E
-000C: 31 E7 30 56 20 9A 94 1C  45 9C CB 45 5A 19 05 99   1.0V ...E..EZ...
-000D: BD 67 96 B9 C4 71 5A 29  25 B5 4D 58 65 60 02 A6   .g...qZ)%.MXe`..
-000E: 2A 5D 2F 39 AB E9 58 59  2C F1 13 F2 BF BA B3 D1   *]/9..XY,.......
-000F: C3 A1 FB DF BA 9A 93 9A  BC 20 2C 26 F0 56 81 B1   ......... ,&.V..
-0010: EE 3E 39 AD 71 CC 6C 56  6C 39 DD 14 A4 96 89 7C   .>9.q.lVl9.....|
-0011: B6 74 C9 6F 00 00 00 FF  FF                        .t.o.....
+-- begin read (179 of 247 total bytes) cur RIPC pos: 0 prev pos: 0 new pos: 179 limit: 196608 thread id: 1 --
+0000: 00 B3 04 78 5E 62 38 CF  C4 C8 C0 C0 C0 98 C1 C0   ...x^b8.........
+0001: C9 A0 E0 93 9F 9E 99 A7  90 98 9C 9C 5A 50 92 9A   ............ZP..
+0002: A2 90 54 A9 90 91 5F 5C  A2 10 01 03 4C 0C 0C 0D   ..T..._\....L...
+0003: F3 D5 F8 22 2A C0 40 0F  42 33 B2 36 74 73 30 B0   ..."*.@.B3.6ts0.
+0004: F1 3A 16 14 E4 64 26 27  96 64 E6 E7 79 A6 08 32   .:...d&'.d..y..2
+0005: 1B 99 9A F1 23 09 F9 25  E6 A6 0A F2 B8 86 38 2A   ....#..%......8*
+0006: 04 14 E5 97 65 A6 A4 16  71 04 E4 17 67 82 A4 04   ....e...q...g...
+0007: 45 0C 8D CC F5 0C 80 D0  50 1F 6E 55 04 57 70 66   E.......P.nU.Wpf
+0008: 5E 7A 4E AA 7F 41 6A 1E  0B 23 03 5F 70 69 41 41   ^zN..Aj..#._piAA
+0009: 7E 51 89 BF AF 2F 50 5B  09 0B 23 A3 08 54 C4 29   ~Q.../P[..#..T.)
+000A: B1 24 39 23 28 B5 B0 34  B5 B8 A4 18 28 0E 00 00   .$9#(..4....(...
+000B: 00 FF FF                                           ...
 -- end read --
 Received Login Response for Username: Xxxxxxx.Xxxxxx
 LoginRefresh:
@@ -49,7 +44,7 @@ LoginRefresh:
         allowSuspectData: 1
         applicationId: 256
         appplicationName: rsslProvider
-        position: 10.91.161.166/XXXXXXXXXX
+        position: 127.0.0.1/XXXXXXXXXX
         providePermExpr: 1
         providePermProfile: 1
         singleOpen: 0
@@ -65,27 +60,26 @@ DirectoryRequest:
         streaming: true
         filter: INFO | GROUP | STATE
 
--- begin read (310 of 574 total bytes) cur RIPC pos: 0 prev pos: 0 new pos: 310 limit: 196608 thread id: 1 --
-0000: 01 36 04 74 52 4D 4B C3  40 14 7C BB F9 AC 8D B6   .6.tRMK.@.|.....
-0001: 41 51 10 84 D2 1F 21 DE  44 93 54 82 91 60 B7 EA   AQ....!.D.T..`..
-0002: 31 6C 93 D5 06 9A 6C D9  4D 04 8F FE F1 E0 4B 5B   1l....l.M.....K[
-0003: A5 17 4F EF 30 33 FB 66  E6 2D DC 50 13 23 D1 EF   ..O.03.f.-.P.#..
-0004: D5 60 00 53 26 5B 95 8B  49 58 2A 91 37 52 7D 4D   .`.S&[..IX*.7R}M
-0005: F0 7D 25 F4 6A 12 C8 6A  B3 16 98 B3 4F 65 B9 A8   .}%.j..j....Oe..
-0006: B8 05 D3 01 42 09 E9 B0  0E CB A0 38 AF 5C 18 9A   ....B......8.\..
-0007: DB 04 C3 30 9E 47 C1 22  9B 45 51 68 BF 8A BA 90   ...0.G.".EQh....
-0008: CA 37 13 16 3D B8 B1 DE  ED C0 D5 5E C0 37 7C 59   .7..=......^.7|Y
-0009: AE D1 BE D0 A3 0E C6 68  C4 26 36 71 88 4B 2C 72   .......h.&6q.K,r
-000A: 44 CE CF C2 32 EF 93 73  85 84 7D 1F 05 12 4F 7D   D...2..s..}...O}
-000B: 34 6C CF DF 66 B3 75 E1  E0 88 EA B6 1A 1F 72 5F   4l..f.u.......r_
-000C: F4 BF 3C E3 59 32 84 3C  0F C0 20 53 12 1A 4B 20   ..<.Y2.<.. S..K 
-000D: E3 7D 37 1A B1 39 AF 3F  D0 1C B8 71 23 AA A4 D4   .}7..9.?...q#...
-000E: 8D 7F 92 E1 39 B2 78 11  3D 65 49 CC 16 97 BF E4   ....9.x.=eI.....
-000F: B4 6D D2 F7 7B 5E 17 AC  E6 1B BD 92 7D 9D 70 71   .m..{^......}.pq
-0010: B7 FD 0F 78 8B 40 D6 BA  AD 84 62 0D 6F DA 1E A2   ...x.@....b.o...
-0011: 66 07 06 36 47 69 07 D7  2E 18 1E 13 EA B3 CC 45   f..6Gi.........E
-0012: 4F E8 EB F0 FF A4 07 E7  B1 77 F2 63 6B 00 34 7D   O........w.ck.4}
-0013: FC 01 00 00 FF FF                                  ......
+-- begin read (304 of 551 total bytes) cur RIPC pos: 0 prev pos: 0 new pos: 304 limit: 196608 thread id: 1 --
+0000: 01 30 04 74 52 4D 4B C3  40 10 9D DD 7C D6 46 6D   .0.tRMK.@...|.Fm
+0001: 50 14 04 A1 F4 47 88 57  4D 52 09 46 8A D9 A8 C7   P....G.WMR.F....
+0002: B8 4D B6 36 D0 64 CB 6E  22 78 F4 8F 17 27 6D 95   .M.6.d.n"x...'m.
+0003: 5E 3C CD E1 BD 61 DE C7  C0 2D 35 D1 10 FD 5E 0E   ^<...a...-5...^.
+0004: 06 30 61 B2 53 85 18 87  95 12 45 2B D5 D7 38 15   .0a.S.....E+..8.
+0005: 0B 25 F4 72 1C C8 7A BD  12 E8 B2 F7 64 B9 B8 E1   .%.r..z.....d...
+0006: 80 E9 00 A1 84 6C C8 3B  58 94 E2 BC 76 61 68 6E   .....l.;X...vahn
+0007: 95 0F C3 38 8D 82 2C 9F  46 51 68 BF 8A A6 94 CA   ...8..,.FQh.....
+0008: 37 13 16 3D B8 B1 DE DD  C0 D3 5E C0 D7 7C 5E AD   7..=......^..|^.
+0009: D0 95 D0 A7 1B 18 A1 10  9B D8 C4 21 2E B1 C8 11   ...........!....
+000A: B9 38 0F AB A2 77 CC 15  12 F6 39 94 48 3C F3 51   .8...w....9.H<.Q
+000B: B0 9D BE 4D A7 AB D2 C1  11 35 5D 3D 3A E4 BE E8   ...M.....5]=:...
+000C: 7F 79 C6 B3 64 08 79 1E  80 41 26 24 34 E6 40 46   .y..d.y..A&$4.@F
+000D: FB 6C 34 62 29 6F 3E 50  1C B8 71 2B EA A4 D2 AD   .l4b)o>P..q+....
+000E: 7F 92 63 0D 79 9C 45 4F  79 12 B3 EC EA 97 3C EB   ..c.y.EOy.....<.
+000F: DA D9 E2 9E 37 25 6B F8  5A 2F 65 1F 27 5C DE 6D   ....7%k.Z/e.'\.m
+0010: BF 01 BB 08 64 A3 BB 5A  28 D6 F2 B6 EB 21 4A 37   ....d..Z(....!J7
+0011: 70 E3 82 E1 31 A1 3E AB  42 F4 40 1F 83 FF B7 72   p...1.>.B.@....r
+0012: 50 8B BD 5B 3B B6 06 40  67 8F 3F 00 00 00 FF FF   P..[;..@g.?.....
 -- end read --
 Received Source Directory Refresh
 DirectoryRefresh:
@@ -98,7 +92,7 @@ DirectoryRefresh:
                 serviceId: 1
                 InfoFilter:
                         serviceName: DIRECT_FEED
-                        vendor: Refinitiv
+                        vendor: LSEG
                         isSource: 1
                         supportsQosRange: 0
                         supportsOutOfBandSnapshots: 0

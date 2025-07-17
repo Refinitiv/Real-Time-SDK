@@ -6252,6 +6252,79 @@ public class SocketChannelJunitTest
     }
 
     /*
+     * Decompress compressed login and source directory messages.
+     */
+    @Test
+    public void decompressConsumerMessages()
+    {
+        final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/UncompressedConsumerMessages.txt";
+
+        // Compression level is 5, compression type is ZLib
+        final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedConsumerMessages.txt";
+
+        NetworkReplay replay = null;
+
+        try
+        {
+            initTransport(false); // initialize RSSL
+
+            // the messages we expect from calls to RsslSocketChannel.read() (does not include RIPC headers)
+            final byte[][] expectedMessages = parseExpectedMessages(expectedFile);
+
+            // load the messages to replay
+            replay = parseReplayFile(inputFile);
+
+            replay.startListener(DEFAULT_LISTEN_PORT);
+
+            // allocate a channel that reads from our NetworkReplay
+            RsslSocketChannel consumerChannel = createReplaySocketChannel(replay);
+
+            connectChannel(consumerChannel, DEFAULT_LISTEN_PORT); // connect to the NetworkReplay
+            waitForChannelActive(consumerChannel); // wait for the channel to become active
+
+            // initialize variables required for reading from a channel
+            final ReadArgs readArgs = TransportFactory.createReadArgs();
+            final Error error = TransportFactory.createError();
+            TransportBuffer msgBuf = null;
+
+            // read login response from the channel
+            assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
+            assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
+
+            assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
+
+            // compare with expected output
+            byte[] msg = getBytesFromBuffer(msgBuf);
+            printMessage(msg, consumerChannel);
+            assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
+
+            // read source directory response from the channel
+            assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
+            assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
+
+            assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
+
+            // compare with expected output
+            msg = getBytesFromBuffer(msgBuf);
+            printMessage(msg, consumerChannel);
+            assertArrayEquals(expectedMessages[2], msg); //first array element is initial RIPC message
+        }
+        catch (IOException e)
+        {
+            fail(e.getLocalizedMessage());
+        }
+        finally
+        {
+            if (replay != null)
+            {
+                replay.stopListener();
+            }
+
+            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
+        }
+    }
+
+    /*
      * Decompress compressed packed message.
      */
     @Test
