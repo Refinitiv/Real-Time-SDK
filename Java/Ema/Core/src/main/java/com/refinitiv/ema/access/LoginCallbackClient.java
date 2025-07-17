@@ -129,6 +129,11 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		Msg msg = event.msg();
 		LoginMsg loginMsg = event.rdmLoginMsg();
 		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
+		
+		
+		if (chnlInfo.getParentChannel() != null)
+			chnlInfo = chnlInfo.getParentChannel();
+		
 		ReactorChannel rsslReactorChannel  = event.reactorChannel();
 		SessionChannelInfo<T> sessionChannelInfo =  chnlInfo.sessionChannelInfo() != null ? (SessionChannelInfo<T>) chnlInfo.sessionChannelInfo() : null;
 		ConsumerSession<T> consumerSession = sessionChannelInfo != null ? sessionChannelInfo.consumerSession() : null;

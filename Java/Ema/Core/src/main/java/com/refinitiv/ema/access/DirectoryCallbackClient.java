@@ -75,6 +75,10 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		DirectoryMsg directoryMsg = event.rdmDirectoryMsg();
 		ReactorChannel rsslReactorChannel = event.reactorChannel();
 		ChannelInfo channelInfo = (ChannelInfo)rsslReactorChannel.userSpecObj();
+		
+		if (channelInfo.getParentChannel() != null)
+			channelInfo = channelInfo.getParentChannel();
+		
 		SessionChannelInfo<OmmConsumerClient> sessionChannelInfo = channelInfo.sessionChannelInfo();
 		ConsumerSession<OmmConsumerClient> consumerSession = sessionChannelInfo!= null ? sessionChannelInfo.consumerSession() : null;
 		
@@ -110,7 +114,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 
 		Object item = event.streamInfo() != null ? event.streamInfo().userSpecObject() : null;
 		if (item != null)
-			return processCallback(event, rsslReactorChannel, (SingleItem<T>)item);
+			return processCallback(event, rsslReactorChannel, (SingleItem<T>)item, channelInfo);
 
 		switch (directoryMsg.rdmMsgType())
 		{
@@ -131,7 +135,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 					
 					if(consumerSession != null)
 					{
-						consumerSession.processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+						consumerSession.processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), channelInfo);
 						
 						_ommBaseImpl.closeSessionChannel((SessionChannelInfo<T>) sessionChannelInfo);
 					}
@@ -139,7 +143,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 					{
 						_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
 						
-						processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+						processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), channelInfo);
 					}
 	
 					break;
@@ -164,12 +168,12 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 							_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
 						}
 						
-						consumerSession.processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+						consumerSession.processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), channelInfo);
 					}
 					else
 					{
 						_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);						
-						processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+						processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), channelInfo);
 					}
 					break;
 				}
@@ -185,11 +189,11 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 						changeToOpenOk = true;
 					}
 					
-					consumerSession.processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+					consumerSession.processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), channelInfo);
 				}
 				else
 				{
-					processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+					processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), channelInfo);
 					changeToOpenOk = true;
 				}
 				
@@ -308,13 +312,13 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	
 				if(consumerSession != null)
 				{
-					consumerSession.processDirectoryPayload(((DirectoryUpdate)directoryMsg).serviceList(), rsslReactorChannel);
+					consumerSession.processDirectoryPayload(((DirectoryUpdate)directoryMsg).serviceList(), channelInfo);
 					
 					consumerSession.fanoutSourceDirectoryResponse(DirectoryMsgType.UPDATE);
 				}
 				else
 				{
-					processDirectoryPayload(((DirectoryUpdate)directoryMsg).serviceList(), rsslReactorChannel);
+					processDirectoryPayload(((DirectoryUpdate)directoryMsg).serviceList(), channelInfo);
 				}
 				
 				break;
@@ -338,10 +342,8 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 	
-	void processDirectoryPayload(List<Service> serviceList, ReactorChannel channel)
+	void processDirectoryPayload(List<Service> serviceList, ChannelInfo chnlInfo)
 	{
-		ChannelInfo chnlInfo = (ChannelInfo)channel.userSpecObj();
-		
 		if (serviceList == null)
 		{
 			if (_baseImpl.loggerClient().isErrorEnabled())
@@ -359,7 +361,6 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
         	}
 			return;
 		}
-
 
         for (Service oneService : serviceList)
         {
@@ -553,15 +554,14 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		}
 	}
 
-	int processCallback(RDMDirectoryMsgEvent event, ReactorChannel rsslReactorChannel, SingleItem<T> item)
+	int processCallback(RDMDirectoryMsgEvent event, ReactorChannel rsslReactorChannel, SingleItem<T> item, ChannelInfo channelInfo)
 	{
 		Msg rsslMsg = event.msg();
 		switch (event.rdmDirectoryMsg().rdmMsgType())
 		{
 			case REFRESH:
 				{
-					_refreshMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
-					((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
+					_refreshMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), channelInfo.rsslDictionary());
 	
 					_eventImpl._item = item;
 					
@@ -586,7 +586,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 						_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
 					
 					_updateMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
-							((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
+							channelInfo.rsslDictionary());
 	
 					_eventImpl._item = item;
 					

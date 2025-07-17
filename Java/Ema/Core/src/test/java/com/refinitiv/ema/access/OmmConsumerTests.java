@@ -10,18 +10,23 @@ package com.refinitiv.ema.access;
 import com.refinitiv.ema.JUnitConfigVariables;
 import com.refinitiv.ema.RetryRule;
 import com.refinitiv.ema.unittest.TestUtilities;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.rdm.Login.ServerTypes;
+
 import junit.framework.TestCase;
 
 import static org.junit.Assert.assertThrows;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.*;
 import org.junit.runners.MethodSorters;
 
 import com.refinitiv.ema.access.ChannelInformation.ChannelState;
+import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.access.OmmIProviderConfig.AdminControl;
 import com.refinitiv.ema.access.unittest.requestrouting.ConsumerTestClient;
 import com.refinitiv.ema.access.unittest.requestrouting.ConsumerTestOptions;
@@ -3265,5 +3270,391 @@ public class OmmConsumerTests extends TestCase
 
 		assertEquals(testAppId, testAppIdCfg);
 		assertEquals(testAppName, testAppNameCfg);
+	}
+	
+	public static void checkFieldListFromRefreshMsg(FieldList fieldList)
+	{
+		Iterator<FieldEntry> it = fieldList.iterator();
+		assertTrue(it.hasNext());
+		FieldEntry fieldEntry = it.next();
+		assertEquals(DataTypes.REAL, fieldEntry.loadType());
+		assertEquals(22, fieldEntry.fieldId());
+		assertTrue(it.hasNext());
+		fieldEntry = it.next();
+		assertEquals(DataTypes.REAL, fieldEntry.loadType());
+		assertEquals(25, fieldEntry.fieldId());
+		assertTrue(it.hasNext());
+		fieldEntry = it.next();
+		assertEquals(DataTypes.REAL, fieldEntry.loadType());
+		assertEquals(30, fieldEntry.fieldId());
+		assertTrue(it.hasNext());
+		fieldEntry = it.next();
+		assertEquals(DataTypes.REAL, fieldEntry.loadType());
+		assertEquals(31, fieldEntry.fieldId());
+		assertFalse(it.hasNext());
+	}
+	
+	@Test
+	public void testSingleItemWithWSBChannelsAndDownloadingDictionaryFromNetwork()
+	{
+        TestUtilities.printTestHead("testSingleItemWithWSBChannelsAndDownloadingDictionaryFromNetwork","");
+		
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
+		
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+		
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+		providerTestOptions.supportStandby = true;
+		providerTestOptions.sendRefreshAttrib = true;
+		
+		ProviderTestClient providerClient = new ProviderTestClient(providerTestOptions);
+		ProviderTestClient providerClient2 = new ProviderTestClient(providerTestOptions);
+		ProviderTestClient providerClient3 = new ProviderTestClient(providerTestOptions);
+		ProviderTestClient providerClient4 = new ProviderTestClient(providerTestOptions);
+		
+		/* WarmStandbyChannel_1 */
+		// Provider_5 provides the DIRECT_FEED service name for WSB channel(starting server)
+		OmmProvider ommprovider1 = EmaFactory.createOmmProvider(config.port("19003").providerName("Provider_5"), providerClient);
+		
+		assertNotNull(ommprovider1);
+		
+		// Provider_5 provides the DIRECT_FEED service name for WSB channel(standby server)
+		OmmProvider ommprovider2 = EmaFactory.createOmmProvider(config.port("19006").providerName("Provider_5"), providerClient2);
+		assertNotNull(ommprovider2);
+		
+		
+		/* WarmStandbyChannel_2 */
+		// Provider_5 provides the DIRECT_FEED service name for WSB channel(starting server)
+		OmmProvider ommprovider3 = EmaFactory.createOmmProvider(config.port("19007").providerName("Provider_5"), providerClient3);
+		
+		assertNotNull(ommprovider3);
+		
+		// Provider_5 provides the DIRECT_FEED service name for WSB channel(standby server)
+		OmmProvider ommprovider4 = EmaFactory.createOmmProvider(config.port("19008").providerName("Provider_5"), providerClient4);
+		assertNotNull(ommprovider4);
+		
+		OmmConsumer consumer = null;
+		ConsumerTestOptions consumerOption = new ConsumerTestOptions();
+		
+		consumerOption.getChannelInformation = true;
+		consumerOption.getSessionChannelInfo = true;
+		ConsumerTestClient consumerClient = new ConsumerTestClient(consumerOption);
+		
+		try
+		{
+			// Consumer_WSB_Channels is configured to download dictionary from network.
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_WSB_Channels"));
+			
+			ReqMsg reqMsg = EmaFactory.createReqMsg();
+			
+			long itemHandle = consumer.registerClient(reqMsg.name("IBM.N").serviceName("DIRECT_FEED"), consumerClient);
+			
+			Thread.sleep(4000);
+			
+			/* Receives one generic message and one request message of active server for the first connection */
+			assertEquals(2, providerClient.queueSize());
+			
+			Msg message = providerClient.popMessage();
+			
+			/* GenericMsg for active server for the first connection */
+			GenericMsg genericMsg = (GenericMsg)message;
+			assertEquals(1, genericMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, genericMsg.domainType());
+			assertEquals(EmaRdm.ENAME_CONS_CONN_STATUS, genericMsg.name());
+			assertEquals(DataTypes.MAP, genericMsg.payload().dataType());
+			
+			Map map = genericMsg.payload().map();
+			Iterator<MapEntry> mapIt = map.iterator();
+			assertTrue(mapIt.hasNext());
+			MapEntry mapEntry = mapIt.next();
+			assertEquals(EmaRdm.ENAME_WARMSTANDBY_INFO, mapEntry.key().ascii().toString());
+			assertEquals(DataTypes.ELEMENT_LIST, mapEntry.loadType());
+			
+			ElementList elementList = mapEntry.elementList();
+			Iterator<ElementEntry> elementListIt = elementList.iterator();
+			assertTrue(elementListIt.hasNext());
+			ElementEntry elementEntry = elementListIt.next();
+			assertEquals(EmaRdm.ENAME_WARMSTANDBY_MODE, elementEntry.name());
+			assertEquals(ServerTypes.ACTIVE, elementEntry.uintValue());
+			assertFalse(elementListIt.hasNext()); // End of ElementList
+			
+			assertFalse(mapIt.hasNext()); // End of Map
+			
+			/* Market price request message for active server for the first connection */
+			message = providerClient.popMessage();
+			ReqMsg recvReq = (ReqMsg)message;
+			
+			assertEquals(5, recvReq.streamId());
+			assertEquals("DIRECT_FEED", recvReq.serviceName());
+			assertEquals("IBM.N", recvReq.name());
+			assertEquals(1, recvReq.serviceId());
+			
+			Thread.sleep(1000);
+			
+			/* Receives one generic message and one request message of standby server for the first connection */
+			assertEquals(2, providerClient2.queueSize());
+			/* GenericMsg for standby server for the first connection */
+			message = providerClient2.popMessage();
+			genericMsg = (GenericMsg)message;
+			assertEquals(1, genericMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, genericMsg.domainType());
+			assertEquals(EmaRdm.ENAME_CONS_CONN_STATUS, genericMsg.name());
+			assertEquals(DataTypes.MAP, genericMsg.payload().dataType());
+			
+			map = genericMsg.payload().map();
+			mapIt = map.iterator();
+			assertTrue(mapIt.hasNext());
+			mapEntry = mapIt.next();
+			assertEquals(EmaRdm.ENAME_WARMSTANDBY_INFO, mapEntry.key().ascii().toString());
+			assertEquals(DataTypes.ELEMENT_LIST, mapEntry.loadType());
+			
+			elementList = mapEntry.elementList();
+			elementListIt = elementList.iterator();
+			assertTrue(elementListIt.hasNext());
+			elementEntry = elementListIt.next();
+			assertEquals(EmaRdm.ENAME_WARMSTANDBY_MODE, elementEntry.name());
+			assertEquals(ServerTypes.STANDBY, elementEntry.uintValue());
+			assertFalse(elementListIt.hasNext()); // End of ElementList
+			
+			assertFalse(mapIt.hasNext()); // End of Map
+			
+			/* Market price request message for standby server for the first connection */
+			message = providerClient2.popMessage();
+			recvReq = (ReqMsg)message;
+			
+			assertEquals(5, recvReq.streamId());
+			assertEquals("DIRECT_FEED", recvReq.serviceName());
+			assertEquals("IBM.N", recvReq.name());
+			assertEquals(1, recvReq.serviceId());
+			
+			/* Receives one refresh message from the active server of the first connection */
+			assertEquals(1, consumerClient.queueSize());
+			
+			message = consumerClient.popMessage();
+			
+			assertTrue(message instanceof RefreshMsg);
+			
+			RefreshMsg refreshMsg = (RefreshMsg)message;
+			
+			assertEquals(5, refreshMsg.streamId());
+			assertEquals(DomainTypes.MARKET_PRICE, refreshMsg.domainType());
+			assertEquals("Open / Ok / None / 'Refresh Completed'", refreshMsg.state().toString());
+			assertTrue(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+			assertTrue(refreshMsg.hasMsgKey());
+			assertEquals(1, refreshMsg.serviceId());
+			assertEquals("DIRECT_FEED", refreshMsg.serviceName());
+			assertEquals("IBM.N", refreshMsg.name());
+			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
+			
+			checkFieldListFromRefreshMsg(refreshMsg.payload().fieldList());
+			
+			assertEquals(1, consumerClient.channelInfoSize());
+			ChannelInformation channelInfo = consumerClient.popChannelInfo();
+			assertEquals("Channel_3", channelInfo.channelName());
+			
+			
+			/* Closes the active server for the first connection */
+			ommprovider1.uninitialize();
+			
+			Thread.sleep(2000);
+			
+			/* Receives one generic message to promote the standby to active server for the first connection.*/
+			assertEquals(1, providerClient2.queueSize());
+			/* GenericMsg for standby server for the first connection */
+			message = providerClient2.popMessage();
+			genericMsg = (GenericMsg)message;
+			assertEquals(1, genericMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, genericMsg.domainType());
+			assertEquals(EmaRdm.ENAME_CONS_CONN_STATUS, genericMsg.name());
+			assertEquals(DataTypes.MAP, genericMsg.payload().dataType());
+			
+			map = genericMsg.payload().map();
+			mapIt = map.iterator();
+			assertTrue(mapIt.hasNext());
+			mapEntry = mapIt.next();
+			assertEquals(EmaRdm.ENAME_WARMSTANDBY_INFO, mapEntry.key().ascii().toString());
+			assertEquals(DataTypes.ELEMENT_LIST, mapEntry.loadType());
+			
+			elementList = mapEntry.elementList();
+			elementListIt = elementList.iterator();
+			assertTrue(elementListIt.hasNext());
+			elementEntry = elementListIt.next();
+			assertEquals(EmaRdm.ENAME_WARMSTANDBY_MODE, elementEntry.name());
+			assertEquals(ServerTypes.ACTIVE, elementEntry.uintValue());
+			assertFalse(elementListIt.hasNext()); // End of ElementList
+			
+			assertFalse(mapIt.hasNext()); // End of Map
+			
+			assertEquals(2, consumerClient.queueSize());
+			
+			message = consumerClient.popMessage();
+			
+			StatusMsg statusMsg = (StatusMsg)message;
+			assertEquals(5, statusMsg.streamId());
+			assertEquals("DIRECT_FEED", statusMsg.serviceName());
+			assertEquals("IBM.N", statusMsg.name());
+			assertEquals(OmmState.StreamState.OPEN, statusMsg.state().streamState());
+			assertEquals(OmmState.DataState.SUSPECT, statusMsg.state().dataState());
+			assertEquals(OmmState.StatusCode.NONE, statusMsg.state().statusCode());
+			assertEquals("Service for this item was lost.", statusMsg.state().statusText());
+			
+			assertEquals(2, consumerClient.channelInfoSize());
+			channelInfo = consumerClient.popChannelInfo();
+			assertEquals("Channel_3", channelInfo.channelName());
+			
+			
+			message = consumerClient.popMessage();
+			refreshMsg = (RefreshMsg)message;
+			
+			assertEquals(5, refreshMsg.streamId());
+			assertEquals(DomainTypes.MARKET_PRICE, refreshMsg.domainType());
+			assertEquals("Open / Ok / None / 'Unsolicited Refresh Completed'", refreshMsg.state().toString());
+			assertFalse(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+			assertTrue(refreshMsg.hasMsgKey());
+			assertEquals(1, refreshMsg.serviceId());
+			assertEquals("DIRECT_FEED", refreshMsg.serviceName());
+			assertEquals("IBM.N", refreshMsg.name());
+			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
+			
+			checkFieldListFromRefreshMsg(refreshMsg.payload().fieldList());
+			
+			channelInfo = consumerClient.popChannelInfo();
+			assertEquals("Channel_6", channelInfo.channelName());
+			
+			/* Closes the new active server for the first connection */
+			ommprovider2.uninitialize();
+			
+			Thread.sleep(3000);
+			
+			assertEquals(2, providerClient3.queueSize());
+			
+			message = providerClient3.popMessage();
+			/* GenericMsg for active server for the second connection */
+			genericMsg = (GenericMsg)message;
+			assertEquals(1, genericMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, genericMsg.domainType());
+			assertEquals(EmaRdm.ENAME_CONS_CONN_STATUS, genericMsg.name());
+			assertEquals(DataTypes.MAP, genericMsg.payload().dataType());
+			
+			map = genericMsg.payload().map();
+			mapIt = map.iterator();
+			assertTrue(mapIt.hasNext());
+			mapEntry = mapIt.next();
+			assertEquals(EmaRdm.ENAME_WARMSTANDBY_INFO, mapEntry.key().ascii().toString());
+			assertEquals(DataTypes.ELEMENT_LIST, mapEntry.loadType());
+			
+			elementList = mapEntry.elementList();
+			elementListIt = elementList.iterator();
+			assertTrue(elementListIt.hasNext());
+			elementEntry = elementListIt.next();
+			assertEquals(EmaRdm.ENAME_WARMSTANDBY_MODE, elementEntry.name());
+			assertEquals(ServerTypes.ACTIVE, elementEntry.uintValue());
+			assertFalse(elementListIt.hasNext()); // End of ElementList
+			
+			assertFalse(mapIt.hasNext()); // End of Map
+			
+			/* Receives market price request message for active server for the second connection */
+			message = providerClient3.popMessage();
+			recvReq = (ReqMsg)message;
+			
+			assertEquals(6, recvReq.streamId());
+			assertEquals("DIRECT_FEED", recvReq.serviceName());
+			assertEquals("IBM.N", recvReq.name());
+			assertEquals(1, recvReq.serviceId());
+			
+			assertEquals(2, providerClient4.queueSize());
+			
+			/* GenericMsg for standby server for the second connection */
+			message = providerClient4.popMessage();
+			genericMsg = (GenericMsg)message;
+			assertEquals(1, genericMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, genericMsg.domainType());
+			assertEquals(EmaRdm.ENAME_CONS_CONN_STATUS, genericMsg.name());
+			assertEquals(DataTypes.MAP, genericMsg.payload().dataType());
+			
+			map = genericMsg.payload().map();
+			mapIt = map.iterator();
+			assertTrue(mapIt.hasNext());
+			mapEntry = mapIt.next();
+			assertEquals(EmaRdm.ENAME_WARMSTANDBY_INFO, mapEntry.key().ascii().toString());
+			assertEquals(DataTypes.ELEMENT_LIST, mapEntry.loadType());
+			
+			elementList = mapEntry.elementList();
+			elementListIt = elementList.iterator();
+			assertTrue(elementListIt.hasNext());
+			elementEntry = elementListIt.next();
+			assertEquals(EmaRdm.ENAME_WARMSTANDBY_MODE, elementEntry.name());
+			assertEquals(ServerTypes.STANDBY, elementEntry.uintValue());
+			assertFalse(elementListIt.hasNext()); // End of ElementList
+			assertFalse(mapIt.hasNext()); // End of Map
+			
+			/* Receives market price request message for standby server for the second connection */
+			message = providerClient4.popMessage();
+			recvReq = (ReqMsg)message;
+			
+			assertEquals(3, recvReq.streamId());
+			assertEquals("DIRECT_FEED", recvReq.serviceName());
+			assertEquals("IBM.N", recvReq.name());
+			assertEquals(1, recvReq.serviceId());
+			
+			assertEquals(2, consumerClient.queueSize());
+			
+			/* Receives Status message as the first connection is down */
+			message = consumerClient.popMessage();
+			
+			statusMsg = (StatusMsg)message;
+			assertEquals(5, statusMsg.streamId());
+			assertEquals("DIRECT_FEED", statusMsg.serviceName());
+			assertEquals("IBM.N", statusMsg.name());
+			assertEquals(OmmState.StreamState.OPEN, statusMsg.state().streamState());
+			assertEquals(OmmState.DataState.SUSPECT, statusMsg.state().dataState());
+			assertEquals(OmmState.StatusCode.NONE, statusMsg.state().statusCode());
+			assertEquals("channel down.", statusMsg.state().statusText());
+			
+			assertEquals(2, consumerClient.channelInfoSize());
+			channelInfo = consumerClient.popChannelInfo();
+			assertEquals("Channel_6", channelInfo.channelName());
+			
+			message = consumerClient.popMessage();
+			
+			/* Receives Refresh message from the active server of the second connection */
+			refreshMsg = (RefreshMsg)message;	
+			assertEquals(5, refreshMsg.streamId());
+			assertEquals(DomainTypes.MARKET_PRICE, refreshMsg.domainType());
+			assertEquals("Open / Ok / None / 'Refresh Completed'", refreshMsg.state().toString());
+			assertTrue(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+			assertTrue(refreshMsg.hasMsgKey());
+			assertEquals(1, refreshMsg.serviceId());
+			assertEquals("DIRECT_FEED", refreshMsg.serviceName());
+			assertEquals("IBM.N", refreshMsg.name());
+			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
+			
+			checkFieldListFromRefreshMsg(refreshMsg.payload().fieldList());
+			
+			channelInfo = consumerClient.popChannelInfo();
+			assertEquals("Channel_7", channelInfo.channelName());
+			
+			consumer.unregister(itemHandle);
+		}
+		catch(OmmException ex)
+		{
+			assertFalse(true);
+		} catch (InterruptedException e) {
+
+			e.printStackTrace();
+		}
+		finally
+		{
+			assertNotNull(consumer);
+		
+			System.out.println("Uninitilizing...");
+		
+			consumer.uninitialize();
+			ommprovider3.uninitialize();
+			ommprovider4.uninitialize();
+		}
 	}
 }

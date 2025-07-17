@@ -158,6 +158,11 @@ class ChannelInfo
 	
 	void sessionChannelInfo(SessionChannelInfo<OmmConsumerClient> sessionChannelInfo)
 	{
+		if(_parentChannel != null)
+		{
+			_parentChannel.sessionChannelInfo(sessionChannelInfo);
+		}
+		
 		_sessionChannelInfo = sessionChannelInfo;
 	}
 
@@ -227,6 +232,10 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
 		ReactorChannel rsslReactorChannel  = event.reactorChannel();
 		ChannelConfig channelConfig = chnlInfo._channelConfig;
+		
+		if (chnlInfo.getParentChannel() != null)
+			chnlInfo = chnlInfo.getParentChannel();
+		
 		SessionChannelInfo<OmmConsumerClient> sessionChannelInfo = chnlInfo.sessionChannelInfo();
 		chnlInfo.reactorChannelType(event.reactorChannel().reactorChannelType());
 
@@ -244,7 +253,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				{
 					StringBuilder temp = _baseImpl.strBuilder();
     	        	temp.append("Received ChannelOpened on channel ");
-					temp.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+					temp.append(channelConfig.name).append(OmmLoggerClient.CR)
 						.append("Instance Name ").append(_baseImpl.instanceName());
 					_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 				}
@@ -280,7 +289,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		    	        	{
 			    	        	StringBuilder temp = _baseImpl.strBuilder();
 			    	        	temp.append("Selector failed to register channel ")
-									.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+									.append(channelConfig.name).append(OmmLoggerClient.CR)
 									.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
 			    	        		if (rsslReactorChannel != null && rsslReactorChannel.channel() != null )
 										temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
@@ -319,7 +328,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	    	        	{
 		    	        	StringBuilder temp = _baseImpl.strBuilder();
 		    	        	temp.append("Selector failed to register channel ")
-								.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+								.append(channelConfig.name).append(OmmLoggerClient.CR)
 								.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
 		    	        		if (rsslReactorChannel != null && rsslReactorChannel.channel() != null )
 									temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
@@ -348,7 +357,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
     	        	{
 	    	        	StringBuilder temp = _baseImpl.strBuilder();
 	    	        	temp.append("Failed to set send buffer size on channel ")
-							.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+							.append(channelConfig.name).append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
 	    	        	    if (rsslReactorChannel != null && rsslReactorChannel.channel() != null )
 								temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
@@ -374,7 +383,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
                 	if (_baseImpl.loggerClient().isErrorEnabled())
     	        	{
 	    	        	StringBuilder temp = _baseImpl.strBuilder();
-	    	        	temp.append("Failed to set recv buffer size on channel ").append(chnlInfo.name()).append(OmmLoggerClient.CR)
+	    	        	temp.append("Failed to set recv buffer size on channel ").append(channelConfig.name).append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
 	    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
 							temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
@@ -404,7 +413,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		    	        	StringBuilder temp = _baseImpl.strBuilder();
 							
 		    	        	temp.append("Failed to set compression threshold on channel ")
-								.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+								.append(channelConfig.name).append(OmmLoggerClient.CR)
 								.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
 			    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
 									temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
@@ -432,7 +441,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					
 					StringBuilder temp = _baseImpl.strBuilder();
     	        	temp.append("Received ChannelUp event on channel ");
-					temp.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+					temp.append(channelConfig.name).append(OmmLoggerClient.CR)
 						.append("Instance Name ").append(_baseImpl.instanceName());
 						
 						if ( count != 0 )
@@ -474,7 +483,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		    	        	StringBuilder temp = _baseImpl.strBuilder();
 							
 		    	        	temp.append("Failed to set high water mark on channel ")
-								.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+								.append(channelConfig.name).append(OmmLoggerClient.CR)
 								.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
 			    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
 									temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
@@ -498,7 +507,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					{
 						StringBuilder temp = _baseImpl.strBuilder();
 	    	        	temp.append("high water mark set on channel ");
-						temp.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+						temp.append(channelConfig.name).append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName());
 						_baseImpl.loggerClient().info(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.INFO));
 					}
@@ -542,7 +551,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		    	        	{
 			    	        	StringBuilder temp = _baseImpl.strBuilder();
 			    	        	temp.append("Selector failed to register channel ")
-									.append(chnlInfo.name()).append(OmmLoggerClient.CR);
+									.append(channelConfig.name).append(OmmLoggerClient.CR);
 				    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
 										temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
 										.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
@@ -579,7 +588,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	    	        	{
 		    	        	StringBuilder temp = _baseImpl.strBuilder();
 		    	        	temp.append("Selector failed to register channel ")
-								.append(chnlInfo.name()).append(OmmLoggerClient.CR);
+								.append(channelConfig.name).append(OmmLoggerClient.CR);
 			    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
 									temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
 									.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
@@ -596,7 +605,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
     			{
     	        	StringBuilder temp = _baseImpl.strBuilder();
     	        	temp.append("Received FD Change event on channel ")
-						.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+						.append(channelConfig.name).append(OmmLoggerClient.CR)
 						.append("Instance Name ").append(_baseImpl.instanceName());
     	        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
     			}
@@ -609,7 +618,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				{
 					StringBuilder temp = _baseImpl.strBuilder();
     	        	temp.append("Received ChannelReady event on channel ");
-					temp.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+					temp.append(channelConfig.name).append(OmmLoggerClient.CR)
 						.append("Instance Name ").append(_baseImpl.instanceName());
 					_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 				}
@@ -664,7 +673,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	            		 
 	  					StringBuilder temp = _baseImpl.strBuilder();
 	  		        	temp.append("Received ChannelDownReconnecting event on channel ")
-	  						.append(chnlInfo.name()).append(OmmLoggerClient.CR);
+	  						.append(channelConfig.name).append(OmmLoggerClient.CR);
 		    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
 								temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
 								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
@@ -733,7 +742,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		        		    ReactorErrorInfo errorInfo = event.errorInfo();
 							StringBuilder temp = _baseImpl.strBuilder();
 				        	temp.append("Received ChannelDown event on channel ")
-								.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+								.append(channelConfig.name).append(OmmLoggerClient.CR)
 								.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
 			    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null && rsslReactorChannel.reactor() != null)
 									temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
@@ -784,7 +793,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
             		 
   					StringBuilder temp = _baseImpl.strBuilder();
   		        	temp.append("Received Channel warning event on channel ")
-  						.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+  						.append(channelConfig.name).append(OmmLoggerClient.CR)
   						.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
 	    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
 							temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
@@ -808,7 +817,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
          		    ReactorErrorInfo errorInfo = event.errorInfo();
  					StringBuilder temp = _baseImpl.strBuilder();
  		        	temp.append("Received unknown channel event type ")
- 						.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+ 						.append(channelConfig.name).append(OmmLoggerClient.CR)
  						.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
 	    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null )
 							temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)

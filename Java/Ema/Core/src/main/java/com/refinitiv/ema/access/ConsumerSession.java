@@ -906,11 +906,10 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		return _loginRefresh;
 	}
 	
-	void processDirectoryPayload(List<Service> serviceList, ReactorChannel reactorChannel)
+	void processDirectoryPayload(List<Service> serviceList, ChannelInfo channelInfo)
 	{
 		_sendDirectoryResponse = false; 
 		
-		ChannelInfo channelInfo = (ChannelInfo)reactorChannel.userSpecObj();
 		@SuppressWarnings("unchecked")
 		SessionChannelInfo<T> sessionChannelInfo = (SessionChannelInfo<T>) channelInfo.sessionChannelInfo();
 		

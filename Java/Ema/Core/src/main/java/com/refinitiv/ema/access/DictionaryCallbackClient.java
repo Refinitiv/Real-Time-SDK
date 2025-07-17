@@ -913,6 +913,9 @@ class ChannelDictionary<T>
 		ReactorChannel rsslChannel = event.reactorChannel();
 		ChannelInfo channelInfo = (ChannelInfo)rsslChannel.userSpecObj();
 		
+		if (channelInfo.getParentChannel() != null)
+			channelInfo = channelInfo.getParentChannel();
+		
 		if (msg == null)
 		{
 			com.refinitiv.eta.transport.Error error = event.errorInfo().error();

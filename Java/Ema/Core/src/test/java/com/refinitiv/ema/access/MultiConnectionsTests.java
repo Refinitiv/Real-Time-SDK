@@ -7931,7 +7931,7 @@ public class MultiConnectionsTests {
     }
 
     @Test
-    public void testMultiConnectionsForSingleItemWithWSBChannels()
+    public void testMultiConnectionsForSingleItemWithWSBChannelsAndDownloadingNetworkDictionary()
     {
         TestUtilities.printTestHead("testMultiConnectionsForSingleItemWithWSBChannels","");
 
@@ -7978,7 +7978,8 @@ public class MultiConnectionsTests {
 
         try
         {
-            consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_13"));
+        	// Consumer_13_1 is configured to download dictionary from network
+            consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_13_1"));
 
             ReqMsg reqMsg = EmaFactory.createReqMsg();
 
@@ -8019,7 +8020,7 @@ public class MultiConnectionsTests {
             message = providerClient.popMessage();
             ReqMsg recvReq = (ReqMsg)message;
 
-            assertEquals(3, recvReq.streamId());
+            assertEquals(5, recvReq.streamId());
             assertEquals("DIRECT_FEED", recvReq.serviceName());
             assertEquals("IBM.N", recvReq.name());
             assertEquals(1, recvReq.serviceId());
@@ -8057,7 +8058,7 @@ public class MultiConnectionsTests {
             message = providerClient2.popMessage();
             recvReq = (ReqMsg)message;
 
-            assertEquals(3, recvReq.streamId());
+            assertEquals(5, recvReq.streamId());
             assertEquals("DIRECT_FEED", recvReq.serviceName());
             assertEquals("IBM.N", recvReq.name());
             assertEquals(1, recvReq.serviceId());
@@ -8136,6 +8137,8 @@ public class MultiConnectionsTests {
             assertEquals("DIRECT_FEED", refreshMsg.serviceName());
             assertEquals("IBM.N", refreshMsg.name());
             assertEquals(DataType.DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
+            
+            OmmConsumerTests.checkFieldListFromRefreshMsg(refreshMsg.payload().fieldList());
 
             assertEquals(1, consumerClient.channelInfoSize());
             ChannelInformation channelInfo = consumerClient.popChannelInfo();
@@ -8231,6 +8234,8 @@ public class MultiConnectionsTests {
             assertEquals("DIRECT_FEED", refreshMsg.serviceName());
             assertEquals("IBM.N", refreshMsg.name());
             assertEquals(DataType.DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
+            
+            OmmConsumerTests.checkFieldListFromRefreshMsg(refreshMsg.payload().fieldList());
 
             channelInfo = consumerClient.popChannelInfo();
             assertEquals("Channel_6", channelInfo.channelName());
@@ -8319,6 +8324,8 @@ public class MultiConnectionsTests {
             assertEquals("DIRECT_FEED", refreshMsg.serviceName());
             assertEquals("IBM.N", refreshMsg.name());
             assertEquals(DataType.DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
+            
+            OmmConsumerTests.checkFieldListFromRefreshMsg(refreshMsg.payload().fieldList());
 
             channelInfo = consumerClient.popChannelInfo();
             assertEquals("Channel_7", channelInfo.channelName());

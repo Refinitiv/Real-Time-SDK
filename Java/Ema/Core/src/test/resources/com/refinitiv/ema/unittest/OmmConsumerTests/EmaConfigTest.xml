@@ -74,6 +74,17 @@
 			<RequestTimeout value="5000"/>
 		</Consumer>
 		<Consumer>
+			<Name value="Consumer_13_1"/>
+			<SessionChannelSet value="Connection_3, Connection_4"/>
+			<Dictionary value="Dictionary_1"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="5000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+		</Consumer>
+		<Consumer>
 			<Name value="Consumer_14"/>
 			<SessionChannelSet value="Connection_5, Connection_6"/>
 			<Dictionary value="Dictionary_3"/>
@@ -94,6 +105,17 @@
 			<LoginRequestTimeOut value="5000"/>
 			<DirectoryRequestTimeOut value="5000"/>
 			<RequestTimeout value="5000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_WSB_Channels"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
+			<Dictionary value="Dictionary_1"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+			<LoginRequestTimeOut value="15000"/>
+			<DirectoryRequestTimeOut value="15000"/>
+			<DictionaryRequestTimeOut value="15000"/>
 		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
