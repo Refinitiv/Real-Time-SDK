@@ -81,7 +81,7 @@ LoginReqImpl& LoginReqImpl::clear()
 	_authenticationExtendedSet = false;
 	_pauseSet = false;
 	_pause = false;
-	_updateTypeFilterSet = true;
+	_updateTypeFilterSet = false;
 	_negativeUpdateTypeFilterSet = false;
 	_nameSet = true;
 	_nameTypeSet = true;
