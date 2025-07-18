@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -647,6 +647,46 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
     public void applyHasAuthenticationExtended()
     {
         rdmLoginRequest().applyHasAuthenticationExtended();
+    }
+
+    @Override
+    public boolean checkHasUpdateTypeFilter() {
+        return rdmLoginRequest().checkHasUpdateTypeFilter();
+    }
+
+    @Override
+    public void applyHasUpdateTypeFilter() {
+        rdmLoginRequest().applyHasUpdateTypeFilter();
+    }
+
+    @Override
+    public boolean checkHasNegativeUpdateTypeFilter() {
+        return rdmLoginRequest().checkHasNegativeUpdateTypeFilter();
+    }
+
+    @Override
+    public void applyHasNegativeUpdateTypeFilter() {
+        rdmLoginRequest().applyHasNegativeUpdateTypeFilter();
+    }
+
+    @Override
+    public long updateTypeFilter() {
+        return rdmLoginRequest().updateTypeFilter();
+    }
+
+    @Override
+    public void updateTypeFilter(long updateTypeFilter) {
+        rdmLoginRequest().updateTypeFilter(updateTypeFilter);
+    }
+
+    @Override
+    public long negativeUpdateTypeFilter() {
+        return rdmLoginRequest().negativeUpdateTypeFilter();
+    }
+
+    @Override
+    public void negativeUpdateTypeFilter(long negativeUpdateTypeFilter) {
+        rdmLoginRequest().negativeUpdateTypeFilter(negativeUpdateTypeFilter);
     }
 
     @Override

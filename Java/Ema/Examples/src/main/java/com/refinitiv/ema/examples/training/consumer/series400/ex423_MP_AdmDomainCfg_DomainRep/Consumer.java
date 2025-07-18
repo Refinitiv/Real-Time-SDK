@@ -1,10 +1,9 @@
-/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
- *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2024 LSEG. All rights reserved.
- *|-----------------------------------------------------------------------------
- */
+///*|----------------------------------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019,2024-2025 LSEG. All rights reserved.
+///*|----------------------------------------------------------------------------------------------------
 
 package com.refinitiv.ema.examples.training.consumer.series400.ex423_MP_AdmDomainCfg_DomainRep;
 
@@ -135,7 +134,15 @@ public class Consumer
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 
 			consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().operationModel(OmmConsumerConfig.OperationModel.USER_DISPATCH)
-					.addAdminMsg(loginReq.name("user").nameType(EmaRdm.USER_NAME).applicationId("127").position("127.0.0.1/net").allowSuspectData(true).message())
+					.addAdminMsg(loginReq.name("user")
+							.nameType(EmaRdm.USER_NAME)
+							.applicationId("127")
+							.position("127.0.0.1/net")
+							.allowSuspectData(true)
+							.updateTypeFilter(EmaRdm.RDM_UPDATE_TYPE_FILTER_QUOTE
+									| EmaRdm.RDM_UPDATE_TYPE_FILTER_TRADE
+									| EmaRdm.RDM_UPDATE_TYPE_FILTER_VERIFY)
+							.message())
 					.addAdminMsg(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(EmaRdm.SERVICE_INFO_FILTER  | EmaRdm.SERVICE_STATE_FILTER | EmaRdm.SERVICE_GROUP_FILTER))
 					.addAdminMsg(reqMsg.clear().domainType(EmaRdm.MMT_DICTIONARY).filter(EmaRdm.DICTIONARY_VERBOSE).name("RWFFld").serviceId(1))
 					.addAdminMsg(reqMsg.clear().domainType(EmaRdm.MMT_DICTIONARY).filter(EmaRdm.DICTIONARY_VERBOSE).name("RWFEnum").serviceId(1)));

@@ -362,6 +362,18 @@
                             </xs:complexType>
                           </xs:element>
 
+                          <xs:element name="UpdateTypeFilter" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="NegativeUpdateTypeFilter" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
                           <xs:element ref="XmlTraceToStdout" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTraceToFile" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTraceMaxFileSize" minOccurs="0" maxOccurs="1" />

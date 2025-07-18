@@ -38,6 +38,7 @@ import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.rdm.Dictionary;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.rdm.UpdateTypeFilter;
 import com.refinitiv.eta.shared.CommandLine;
 import com.refinitiv.eta.shared.network.ChannelHelper;
 import com.refinitiv.eta.transport.ConnectOptions;
@@ -356,7 +357,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		statisticTime = System.currentTimeMillis() + statisticInterval*1000;
 
 		// Set reactor statistics to keep track of
-		if(statisticInterval > 0)
+		if (statisticInterval > 0)
 		{
 			reactorOptions.statistics(ReactorOptions.StatisticFlags.READ | ReactorOptions.StatisticFlags.WRITE | ReactorOptions.StatisticFlags.PING);
 		}
@@ -1627,6 +1628,20 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 
 		if (consumerCmdLineParser.enableRtt()) {
 			chnlInfo.consumerRole.rdmLoginRequest().attrib().applyHasSupportRoundTripLatencyMonitoring();
+		}
+
+		if (consumerCmdLineParser.updateTypeFilter() != -1)
+		{
+			LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+			loginRequest.applyHasUpdateTypeFilter();
+			loginRequest.updateTypeFilter(consumerCmdLineParser.updateTypeFilter());
+		}
+
+		if (consumerCmdLineParser.negativeUpdateTypeFilter() != -1)
+		{
+			LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+			loginRequest.applyHasNegativeUpdateTypeFilter();
+			loginRequest.negativeUpdateTypeFilter(consumerCmdLineParser.negativeUpdateTypeFilter());
 		}
 
 		// if unable to load from file, enable consumer to download dictionary

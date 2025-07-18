@@ -891,77 +891,84 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 					_activeConfig.maxDispatchCountUserThread = value;
 			}
 				
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectAttemptLimit)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.ReconnectAttemptLimit)) != null)
 			{
 				_activeConfig.reconnectAttemptLimit(ce.intValue());
 			}
 			
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMinDelay)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMinDelay)) != null)
 			{
 				_activeConfig.reconnectMinDelay(ce.intValue());
 			}
 			
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMaxDelay)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMaxDelay)) != null)
 			{
 				_activeConfig.reconnectMaxDelay(ce.intValue());
 			}
 	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.MsgKeyInUpdates)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.MsgKeyInUpdates)) != null)
 			{
 				_activeConfig.msgKeyInUpdates = ce.intLongValue() != 0;
 			}
 	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 			{
 				_activeConfig.xmlTraceEnable = ce.intLongValue() != 0;
 			}
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToFile)) != null)
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToFile)) != null)
 			{
 				_activeConfig.xmlTraceToFileEnable = ce.intLongValue() != 0;
 			}
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceMaxFileSize)) != null)
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceMaxFileSize)) != null)
 			{
 				long xmlTraceMaxFileSize = ce.intLongValue();
 				if (xmlTraceMaxFileSize > 0)
 					_activeConfig.xmlTraceMaxFileSize = xmlTraceMaxFileSize;
 			}
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceFileName)) != null)
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceFileName)) != null)
 			{
 				_activeConfig.xmlTraceFileName = (String) ce.value();
 			}
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToMultipleFiles)) != null)
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToMultipleFiles)) != null)
 			{
 				_activeConfig.xmlTraceToMultipleFilesEnable = ce.intLongValue() != 0;
 			}
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceWrite)) != null)
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceWrite)) != null)
 			{
 				_activeConfig.xmlTraceWriteEnable = ce.intLongValue() != 0;
 			}
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceRead)) != null)
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceRead)) != null)
 			{
 				_activeConfig.xmlTraceReadEnable = ce.intLongValue() != 0;
 			}
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTracePing)) != null)
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.XmlTracePing)) != null)
 			{
 				_activeConfig.xmlTracePingEnable = ce.intLongValue() != 0;
 			}
 			
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReissueTokenAttemptLimit)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.ReissueTokenAttemptLimit)) != null)
 			{
 				_activeConfig.reissueTokenAttemptLimit(ce.intValue());
 			}
 			
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReissueTokenAttemptInterval)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.ReissueTokenAttemptInterval)) != null)
 			{
 				_activeConfig.reissueTokenAttemptInterval(ce.intValue());
 			}
 			
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.RestRequestTimeout)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.RestRequestTimeout)) != null)
 			{
 				_activeConfig.restRequestTimeout(ce.intLongValue());
 			}
 			
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.TokenReissueRatio)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.TokenReissueRatio)) != null)
 			{
 				double doubleValue = ce.doubleValue();
 				
@@ -969,14 +976,24 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 					_activeConfig.tokenReissueRatio = doubleValue;
 			}
 
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.EnableRtt)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.EnableRtt)) != null)
 			{
 				long rttVal = ce.intLongValue();
 				if (rttVal > 0) {
 					config.loginReq().attrib().applyHasSupportRoundTripLatencyMonitoring();
 				}
 			}
-			
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.UpdateTypeFilter)) != null)
+			{
+				_activeConfig.updateTypeFilter(ce.intLongValue());
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.NegativeUpdateTypeFilter)) != null)
+			{
+				_activeConfig.negativeUpdateTypeFilter(ce.intLongValue());
+			}
+
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.JsonExpandedEnumFields)) != null) {
 				_activeConfig.jsonExpandedEnumFields = ce.intLongValue() > 0;
 			}
@@ -1020,7 +1037,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			}
 			
 			// Get session channels from the programmatic configuration or file configuration.
-			 String sessionChannelSet = config.sessionChannel(_activeConfig.configuredName);
+			String sessionChannelSet = config.sessionChannel(_activeConfig.configuredName);
 			 
 			if (sessionChannelSet != null)
 			{
@@ -1127,9 +1144,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		}
 		
 		ProgrammaticConfigure pc = config.programmaticConfigure();
-		if ( pc != null)
+		if (pc != null)
 		{
-			pc .retrieveCommonConfig( _activeConfig.configuredName, _activeConfig );
+			pc.retrieveCommonConfig( _activeConfig.configuredName, _activeConfig );
 
 			GlobalConfig globalConfig = pc.retrieveGlobalConfig();
 			if(globalConfig != null){
@@ -1250,6 +1267,20 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 				_activeConfig.channelConfigSet.get(i).encryptedProtocolType = config.getUserSpecifiedEncryptedProtocolType();
 			}
+		}
+
+		if (!config.adminLoginMsgSet() && config.updateTypeFilter() == 0 && _activeConfig.updateTypeFilter != 0) {
+			config.updateTypeFilterInt(_activeConfig.updateTypeFilter);
+		}
+		else {
+			_activeConfig.updateTypeFilter = config.updateTypeFilter();
+		}
+
+		if (!config.adminLoginMsgSet() && config.negativeUpdateTypeFilter() == 0 && _activeConfig.negativeUpdateTypeFilter != 0) {
+			config.negativeUpdateTypeFilterInt(_activeConfig.negativeUpdateTypeFilter);
+		}
+		else {
+			_activeConfig.negativeUpdateTypeFilter = config.negativeUpdateTypeFilter();
 		}
 
 		_activeConfig.userDispatch = config.operationModel();

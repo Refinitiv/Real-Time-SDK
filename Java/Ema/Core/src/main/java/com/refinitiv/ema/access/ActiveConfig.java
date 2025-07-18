@@ -93,7 +93,9 @@ abstract class ActiveConfig extends BaseConfig
 	final static boolean DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG = true;
 	final static int DEFAULT_WSB_MODE							= ReactorWarmStandbyMode.LOGIN_BASED;
 	final static boolean DEFAULT_SESSION_ENHANCED_ITEM_RECOVERY = true;
-	
+	final static long DEFAULT_UPDATE_TYPE_FILTER = 0;
+	final static long DEFAULT_NEGATIVE_UPDATE_TYPE_FILTER = 0;
+
 	final static int SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL   = 0x01;  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 	final static int SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL = 0x02;  /*!< Indicates that server listen port set though EMA interface function call from server client*/
 	final static int TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL = 0x04;  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
@@ -102,7 +104,7 @@ abstract class ActiveConfig extends BaseConfig
 	final static int PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL 	= 0x20; /*!< Indicates that tunneling proxy user name set though EMA interface function calls */
 	final static int PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL 		= 0x40; /*!< Indicates that tunneling proxy password set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 	final static int PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL 		= 0x80; /*!< Indicates that tunneling proxy domain set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
-	
+
 	int						obeyOpenWindow;
 	int						postAckTimeout;
 	int						maxOutstandingPosts;
@@ -136,7 +138,9 @@ abstract class ActiveConfig extends BaseConfig
 	String					restProxyHostName;
 	String					restProxyPort;
 	boolean					sessionEnhancedItemRecovery;
-	
+	long 					updateTypeFilter;
+	long 					negativeUpdateTypeFilter;
+
 	ActiveConfig(String defaultServiceName)
 	{
 		super();
@@ -165,6 +169,8 @@ abstract class ActiveConfig extends BaseConfig
 		 configWarmStandbySet = new ArrayList<>();
 		 configSessionChannelSet = new ArrayList<>();
 		 sessionEnhancedItemRecovery = DEFAULT_SESSION_ENHANCED_ITEM_RECOVERY;
+		 updateTypeFilter = DEFAULT_UPDATE_TYPE_FILTER;
+		 negativeUpdateTypeFilter = DEFAULT_NEGATIVE_UPDATE_TYPE_FILTER;
 	}
 
 	void clear()
@@ -199,6 +205,9 @@ abstract class ActiveConfig extends BaseConfig
 		
 		restProxyHostName = null;
 		restProxyPort = null;
+
+		updateTypeFilter = DEFAULT_UPDATE_TYPE_FILTER;
+		negativeUpdateTypeFilter = DEFAULT_NEGATIVE_UPDATE_TYPE_FILTER;
 	}
 	
 	StringBuilder configTrace()
@@ -233,7 +242,10 @@ abstract class ActiveConfig extends BaseConfig
 		.append("\n\t tunnelStreamStatusEventPoolLimit: ").append(globalConfig.tunnelStreamStatusEventPoolLimit)
 		.append("\n\t jsonConverterPoolsSize: ").append(globalConfig.jsonConverterPoolsSize)
 		.append("\n\t watchlistObjectsPoolLimit: ").append(globalConfig.watchlistObjectsPoolLimit)
-		.append("\n\t socketProtocolPoolLimit: ").append(globalConfig.socketProtocolPoolLimit);
+		.append("\n\t socketProtocolPoolLimit: ").append(globalConfig.socketProtocolPoolLimit)
+		.append("\n\t sessionEnhancedItemRecovery: ").append(sessionEnhancedItemRecovery)
+		.append("\n\t updateTypeFilter: ").append(updateTypeFilter)
+		.append("\n\t negativeUpdateTypeFilter: ").append(negativeUpdateTypeFilter);
 
 		return traceStr;
 	}
@@ -275,7 +287,21 @@ abstract class ActiveConfig extends BaseConfig
 		else
 			restRequestTimeout = 0;
 	}
-	
+
+	void updateTypeFilter(long updateTypeFilterValue)
+	{
+		if (updateTypeFilterValue > 0) {
+			updateTypeFilter = updateTypeFilterValue;
+		}
+	}
+
+	void negativeUpdateTypeFilter(long negativeUpdateTypeFilterValue)
+	{
+		if (negativeUpdateTypeFilterValue > 0) {
+			negativeUpdateTypeFilter = negativeUpdateTypeFilterValue;
+		}
+	}
+
 	static boolean findWsbChannelConfig(List<WarmStandbyChannelConfig> cfgWsbChannelSet, String wsbChannelName, int pos)
 	{
 		return cfgWsbChannelSet.stream()

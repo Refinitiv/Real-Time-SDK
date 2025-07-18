@@ -146,7 +146,17 @@ public class LoginHelperTest {
 		assertEquals(true, loginReq.hasAuthenticationExtended());
 		
 		assertEquals(authenticationExtended, loginReq.authenticationExtended());
-		
+
+		loginReq.updateTypeFilter(EmaRdm.RDM_UPDATE_TYPE_FILTER_VOLUME_ALERT | EmaRdm.RDM_UPDATE_TYPE_FILTER_ORDER_INDICATION);
+		assertEquals(true, loginReq.hasUpdateTypeFilter());
+		assertEquals(EmaRdm.RDM_UPDATE_TYPE_FILTER_VOLUME_ALERT | EmaRdm.RDM_UPDATE_TYPE_FILTER_ORDER_INDICATION,
+				loginReq.updateTypeFilter());
+
+		loginReq.negativeUpdateTypeFilter(EmaRdm.RDM_UPDATE_TYPE_FILTER_CORRECTION | EmaRdm.RDM_UPDATE_TYPE_FILTER_MARKET_DIGEST);
+		assertEquals(true, loginReq.hasNegativeUpdateTypeFilter());
+		assertEquals(EmaRdm.RDM_UPDATE_TYPE_FILTER_CORRECTION | EmaRdm.RDM_UPDATE_TYPE_FILTER_MARKET_DIGEST,
+				loginReq.negativeUpdateTypeFilter());
+
 		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
 						.createDataDictionary();
 		TestUtilities.eta_encodeDictionaryMsg(dictionary);
@@ -165,7 +175,7 @@ public class LoginHelperTest {
 		ElementEntry elementEntry;
 		String elementName = null;
 		
-		while(iterator.hasNext())
+		while (iterator.hasNext())
 		{
 			elementEntry = iterator.next();
 			elementName = elementEntry.name();
@@ -242,6 +252,18 @@ public class LoginHelperTest {
 			    assertEquals(authenticationExtended, elementEntry.buffer().buffer());
 			}
 			    break;
+				case EmaRdm.ENAME_UPDATE_TYPE_FILTER:
+				{
+					assertEquals(EmaRdm.RDM_UPDATE_TYPE_FILTER_VOLUME_ALERT | EmaRdm.RDM_UPDATE_TYPE_FILTER_ORDER_INDICATION,
+							elementEntry.uintValue());
+				}
+				break;
+				case EmaRdm.ENAME_NEGATIVE_UPDATE_TYPE_FILTER:
+				{
+					assertEquals(EmaRdm.RDM_UPDATE_TYPE_FILTER_CORRECTION | EmaRdm.RDM_UPDATE_TYPE_FILTER_MARKET_DIGEST,
+							elementEntry.uintValue());
+				}
+				break;
 			default:
 				break;
 			}

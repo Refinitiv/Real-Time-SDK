@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -334,4 +334,55 @@ public interface LoginRequest extends LoginMsg
      */
     public void applyHasAuthenticationExtended();
 
+    /**
+     * Checks the presence of the UpdateTypeFilter data field.
+     * @return true - if updateTypeFilter data field is present, false -
+     *         if not.
+     */
+    public boolean checkHasUpdateTypeFilter();
+
+    /**
+     * Applies UpdateTypeFilter field flag.
+     *
+     * This flag can also be bulk-get by {@link #flags()}
+     */
+    public void applyHasUpdateTypeFilter();
+
+    /**
+     * Checks the presence of the NegativeUpdateTypeFilter data field.
+     * @return true - if negativeUpdateTypeFilter data field is present, false -
+     *         if not.
+     */
+    public boolean checkHasNegativeUpdateTypeFilter();
+
+    /**
+     * Applies NegativeUpdateTypeFilter field flag.
+     *
+     * This flag can also be bulk-get by {@link #flags()}
+     */
+    public void applyHasNegativeUpdateTypeFilter();
+
+    /**
+     * Fetches the value of UpdateTypeFilter data field
+     * @return the current UpdateTypeFilter value
+     */
+    public long updateTypeFilter();
+
+    /**
+     * Sets the value of UpdateTypeFilter data field
+     * @param updateTypeFilter - the value to set
+     */
+    public void updateTypeFilter(long updateTypeFilter);
+
+    /**
+     * Fetches the value of NegativeUpdateTypeFilter data field
+     * @return the current NegativeUpdateTypeFilter value
+     */
+    public long negativeUpdateTypeFilter();
+
+    /**
+     * Sets the value of NegativeUpdateTypeFilter data field
+     * @param negativeUpdateTypeFilter - the value to set
+     */
+    public void negativeUpdateTypeFilter(long negativeUpdateTypeFilter);
 }

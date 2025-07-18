@@ -261,6 +261,10 @@ public class ElementNames
 
     public static final Buffer BATCH_STREAMID_LIST = CodecFactory.createBuffer();
 
+    public static final Buffer UPDATE_TYPE_FILTER = CodecFactory.createBuffer();
+
+    public static final Buffer NEGATIVE_UPDATE_TYPE_FILTER  = CodecFactory.createBuffer();
+
     static
     {
         APPID.data("ApplicationId");
@@ -482,6 +486,10 @@ public class ElementNames
         TICKS.data("Ticks");
         /** TCP Retransmissions */
         TCP_RETRANS.data("TcpRetrans");
+        /** Update Type Filter **/
+        UPDATE_TYPE_FILTER.data("UpdateTypeFilter");
+        /** Negative Update Type Filter **/
+        NEGATIVE_UPDATE_TYPE_FILTER.data("NegativeUpdateTypeFilter");
 
         // Request Message Payload - Well known Element Names
         // Because these span domains, they are namespaced

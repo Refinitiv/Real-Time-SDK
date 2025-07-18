@@ -1,10 +1,9 @@
-/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
- *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2024 LSEG. All rights reserved.
- *|-----------------------------------------------------------------------------
- */
+///*|-----------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019,2024-2025 LSEG. All rights reserved.
+///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.domain.login;
 
@@ -170,7 +169,21 @@ public interface Login
 		 * @return reference to this object.
 		 */
 		public LoginReq nameType(int value);
-		
+
+		/**
+		 * Sets the UpdateTypeFilter value
+		 * @param filter value to be set
+		 * @return reference to the current LoginReq instance
+		 */
+		public LoginReq updateTypeFilter(long filter);
+
+		/**
+		 * Sets the NegativeUpdateTypeFilter value
+		 * @param filter value to be set
+		 * @return reference to the current LoginReq instance
+		 */
+		public LoginReq negativeUpdateTypeFilter(long filter);
+
 		/**
 		 * 
 		 * @return true if AllowSuspectData set, false if not set.
@@ -272,6 +285,32 @@ public interface Login
 		 * @return true if NameType set, false if not set.
 		 */
 		public boolean hasNameType();
+
+		/**
+		 * Checks whether UpdateTypeFilter field is set in the current Login message
+		 * @return true in case UpdateTypeFilter is set, false otherwise
+		 */
+		public boolean hasUpdateTypeFilter();
+
+		/**
+		 * Checks whether NegativeUpdateTypeFilter field is set in the current Login message
+		 * @return rue in case NegativeUpdateTypeFilter is set, false otherwise
+		 */
+		public boolean hasNegativeUpdateTypeFilter();
+
+		/**
+		 * Fetches the value of UpdateTypeFilter field currently set for the Login message instance
+		 * @return UpdateTypeFilter value
+		 * @throws OmmInvalidUsageException if hasUpdateTypeFilter() returns false
+		 */
+		public long updateTypeFilter();
+
+		/**
+		 * Fetches the value of NegativeUpdateTypeFilter field currently set for the Login message instance
+		 * @return NegativeUpdateTypeFilter value
+		 * @throws OmmInvalidUsageException if hasNegativeUpdateTypeFilter() returns false
+		 */
+		public long negativeUpdateTypeFilter();
 
 		/**
          * @throws OmmInvalidUsageException if hasAllowSuspectData() returns false

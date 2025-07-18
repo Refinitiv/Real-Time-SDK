@@ -597,7 +597,9 @@ public class EmaRdm
 	  public static final String ENAME_SEQ_NUM = "SequenceNumber";
 	  public static final String ENAME_STATE = "State";
 	  public static final String ENAME_SOLICITED = "Solicited";
-	  
+	  public static final String ENAME_UPDATE_TYPE_FILTER = "UpdateTypeFilter";
+	  public static final String ENAME_NEGATIVE_UPDATE_TYPE_FILTER = "NegativeUpdateTypeFilter";
+
 	  
 	//Well known source directory names.
 	  public static final String ENAME_NAME = "Name";
@@ -675,7 +677,7 @@ public class EmaRdm
 	  public static final String ENAME_VERSION = "Version";
 
 	  
-	//Well known batch and view names.
+	  //Well known batch and view names.
 	  public static final String ENAME_BATCH_ITEM_LIST = ":ItemList";
 	  public static final String ENAME_VIEW_TYPE = ":ViewType";
 	  public static final String ENAME_VIEW_DATA = ":ViewData";
@@ -683,4 +685,31 @@ public class EmaRdm
 	  public static final String ENAME_DATA_STREAMS = ":DataStreams";
 
 	  public static final long LOGIN_RTT_ELEMENT = 2;
+
+	  /*!< (0x000) No Update Event type specified */
+	  public static final long RDM_UPDATE_TYPE_FILTER_NONE = 0x000;
+	  /*!< (0x001) Unspecified Update Event */
+	  public static final long RDM_UPDATE_TYPE_FILTER_UNSPECIFIED = 0x001;
+	  /*!< (0x002) Update Event Quote */
+	  public static final long RDM_UPDATE_TYPE_FILTER_QUOTE = 0x002;
+	  /*!< (0x004) Update Event Trade */
+	  public static final long RDM_UPDATE_TYPE_FILTER_TRADE = 0x004;
+	  /*!< (0x008) Update Event News Alert */
+	  public static final long RDM_UPDATE_TYPE_FILTER_NEWS_ALERT = 0x008;
+	  /*!< (0x010) Update Event Volume Alert */
+	  public static final long RDM_UPDATE_TYPE_FILTER_VOLUME_ALERT = 0x010;
+	  /*!< (0x020) Update Event Order Indication */
+	  public static final long RDM_UPDATE_TYPE_FILTER_ORDER_INDICATION = 0x020;
+	  /*!< (0x040) Update Event Closing Run */
+	  public static final long RDM_UPDATE_TYPE_FILTER_CLOSING_RUN = 0x040;
+	  /*!< (0x080) Update Event Correction */
+	  public static final long RDM_UPDATE_TYPE_FILTER_CORRECTION = 0x080;
+	  /*!< (0x100) Update Event Market Digest */
+	  public static final long RDM_UPDATE_TYPE_FILTER_MARKET_DIGEST = 0x100;
+	  /*!< (0x200) Update Event Quotes followed by a Trade */
+	  public static final long RDM_UPDATE_TYPE_FILTER_QUOTES_TRADE = 0x200;
+	  /*!< (0x400) Update Event with filtering and conflation applied */
+	  public static final long RDM_UPDATE_TYPE_FILTER_MULTIPLE = 0x400;
+	  /*!< (0x800) Fields may have changed */
+	  public static final long RDM_UPDATE_TYPE_FILTER_VERIFY = 0x800;
 }

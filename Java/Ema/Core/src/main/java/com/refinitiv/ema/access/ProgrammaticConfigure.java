@@ -1051,6 +1051,18 @@ class ProgrammaticConfigure
 										if (eentry.name().equals("SendJsonConvError")) {
 											activeConfig.sendJsonConvError = eentry.uintValue() > 0 ? true : false;
 										}
+										else if (eentry.name().equals("UpdateTypeFilter"))
+										{
+											if (eentry.uintValue() > 0) {
+												((ActiveConfig)activeConfig).updateTypeFilter = eentry.uintValue();
+											}
+										}
+										else if (eentry.name().equals("NegativeUpdateTypeFilter"))
+										{
+											if (eentry.uintValue() > 0) {
+												((ActiveConfig)activeConfig).negativeUpdateTypeFilter = eentry.uintValue();
+											}
+										}
 										break;
 										case DataTypes.ASCII:
 											if (eentry.name().equals("XmlTraceFileName"))

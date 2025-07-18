@@ -129,6 +129,9 @@ class ConfigManager
 	
 	public static final int SessionChannel = 58;
 
+	public static final int UpdateTypeFilter = 59;
+	public static final int NegativeUpdateTypeFilter = 60;
+
 	// Channel: Global
 	public static final int ChannelGroup = 100;
 	public static final int ChannelList = 101;
@@ -399,6 +402,8 @@ class ConfigManager
 		ConsumerTagDict.add("RestProxyPort", RestProxyPort);
 		ConsumerTagDict.add("SessionChannelSet", ConsumerSessionChannelSet);
 		ConsumerTagDict.add("SessionEnhancedItemRecovery", ConsumerSessionEnhancedItemRecovery);
+		ConsumerTagDict.add("UpdateTypeFilter", UpdateTypeFilter);
+		ConsumerTagDict.add("NegativeUpdateTypeFilter", NegativeUpdateTypeFilter);
 
 		ChannelTagDict.add( "ChannelGroup",ChannelGroup );
 		ChannelTagDict.add( "ChannelList",ChannelList );
@@ -907,7 +912,9 @@ class ConfigManager
 		"LoadFactor",
 		"JsonConverterPoolsSize",
 		"SendJsonConvError",
-		"SessionEnhancedItemRecovery"
+		"SessionEnhancedItemRecovery",
+		"UpdateTypeFilter",
+		"NegativeUpdateTypeFilter"
 	};
 	public static String DoubleValues[] = {
 		"TokenReissueRatio"	
@@ -1138,7 +1145,7 @@ class ConfigManager
 		}
 	}
 	
-	class ConfigAttributes 
+	class ConfigAttributes
 	{
 		Map<Integer, List<ConfigElement>> _list;
 		

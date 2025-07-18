@@ -77,7 +77,9 @@ public class JUnitTestConnect
 	public static final int Location = ConfigManager.ChannelLocation;
 	public static final int EnableRtt = ConfigManager.EnableRtt;
 	public static final int SendJsonConvError = ConfigManager.SendJsonConvError;
-	
+	public static final int UpdateTypeFilter = ConfigManager.UpdateTypeFilter;
+	public static final int NegativeUpdateTypeFilter = ConfigManager.NegativeUpdateTypeFilter;
+
 	public static final int RestProxyHostName = ConfigManager.RestProxyHostName;
 	public static final int RestProxyPort = ConfigManager.RestProxyPort;
 	
@@ -1117,6 +1119,10 @@ public class JUnitTestConnect
 				return activeConfig.reissueTokenAttemptInterval;
 			else if (configParam == XmlTraceMaxFileSize)
 				return (int) activeConfig.xmlTraceMaxFileSize;
+			else if (configParam == UpdateTypeFilter)
+				return (int)activeConfig.updateTypeFilter;
+			else if (configParam == NegativeUpdateTypeFilter)
+				return (int)activeConfig.negativeUpdateTypeFilter;
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
@@ -1938,7 +1944,7 @@ public class JUnitTestConnect
     {
         ConfigReader.defaultXsdFileName = fileName;
     }
-    
+
     public static int getCopiedBufferCapacity(Msg msg)
     {
     	MsgImpl msgImpl = (MsgImpl)msg;
@@ -1948,7 +1954,7 @@ public class JUnitTestConnect
     	}
     	return 0;
     }
-    
+
     public static DataDictionary getDataDictionary(Msg msg)
     {
     	MsgImpl msgImpl = (MsgImpl)msg;

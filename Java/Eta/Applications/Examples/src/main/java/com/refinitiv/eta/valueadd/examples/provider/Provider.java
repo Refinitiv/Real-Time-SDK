@@ -711,6 +711,7 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
                 }
 
                 System.out.println("\nReceived Login Request for Username: " + loginRequest.userName());
+                System.out.println(loginRequest.toString());
 
                 /* send login response */
                 if (loginHandler.sendRefresh(reactorChannel, loginRequest, errorInfo) != CodecReturnCodes.SUCCESS)

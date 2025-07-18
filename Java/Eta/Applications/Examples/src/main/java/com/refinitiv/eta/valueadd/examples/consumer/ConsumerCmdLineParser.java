@@ -77,6 +77,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String restProxyPasswd;
 	private String restProxyDomain;
 	private String restProxyKrb5ConfigFile;
+	private long updateTypeFilter = -1;
+	private long negativeUpdateTypeFilter = -1;
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -423,6 +425,16 @@ class ConsumerCmdLineParser implements CommandLineParser
 					spTLSv13enable = true;
 					++argsCount;
 				}
+				else if ("-updateTypeFilter".equals(args[argsCount]))
+				{
+					updateTypeFilter = Integer.parseInt(args[++argsCount]);
+					++argsCount;
+				}
+				else if ("-negativeUpdateTypeFilter".equals(args[argsCount]))
+				{
+					negativeUpdateTypeFilter = Integer.parseInt(args[++argsCount]);
+					++argsCount;
+				}
 				else // unrecognized command line argument
 				{
 					System.out.println("\nUnrecognized command line argument...\n");
@@ -726,7 +738,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 	{
 		return restProxyKrb5ConfigFile;
 	}
-	
+
+	long updateTypeFilter() { return updateTypeFilter; }
+
+	long negativeUpdateTypeFilter() { return negativeUpdateTypeFilter; }
+
 	@Override
 	public void printUsage()
 	{
@@ -796,7 +812,9 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -rtt Enables rtt support by a consumer. If provider makes distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them." +
 						   "\n -sendJsonConvError enable send json conversion error to provider " +
 						   "\n -spTLSv1.2 specifies for an encrypted connection to be able to use TLS 1.2, default is 1.2 and 1.3 enabled" + 
-						   "\n -spTLSv1.3 specifies for an encrypted connection to be able to use TLS 1.3, default is 1.2 and 1.3 enabled" );
+						   "\n -spTLSv1.3 specifies for an encrypted connection to be able to use TLS 1.3, default is 1.2 and 1.3 enabled" +
+				           "\n -updateTypeFilter specifies the UpdateTypeFilter that will be set for the Login Request message" +
+				           "\n -negativeUpdateTypeFilter specifies the NegativeUpdateTypeFilter that will be set for the Login Request message");
 	}
 }
 

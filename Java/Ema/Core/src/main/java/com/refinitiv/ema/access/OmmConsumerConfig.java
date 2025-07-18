@@ -487,4 +487,18 @@ public interface OmmConsumerConfig
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig addServiceList(ServiceList serviceList);
+
+	/**
+	 * Specifies the UpdateTypeFilter to be used in Lgin REquest message
+	 * @param value the UpdateTypeFilter value to be set
+	 * @return current OmmConsumerConfig instance
+	 */
+	public OmmConsumerConfig updateTypeFilter(long value);
+
+	/**
+	 * Specifies the NegativeUpdateTypeFilter to be used in Lgin REquest message
+	 * @param value the NegativeUpdateTypeFilter value to be set
+	 * @return current OmmConsumerConfig instance
+	 */
+	public OmmConsumerConfig negativeUpdateTypeFilter(long value);
 }

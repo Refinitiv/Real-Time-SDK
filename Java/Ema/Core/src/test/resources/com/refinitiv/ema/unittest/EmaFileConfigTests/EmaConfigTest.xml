@@ -29,6 +29,8 @@
 			
 			<XmlTraceFileName value="EmaMyTrace"/>
 			<EnableRtt value="0" />
+			<UpdateTypeFilter value="4" />
+			<NegativeUpdateTypeFilter value="8" />
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_2"/>
@@ -65,6 +67,7 @@
 			
 			<RestProxyHostName value="restProxyNonLocalHost"/>
 			<RestProxyPort value="9083"/>
+			<UpdateTypeFilter value="4" />
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>
@@ -88,6 +91,7 @@
 			<XmlTraceRead value="0"/>
 			<XmlTracePing value="0"/>
 			<MsgKeyInUpdates value="1"/>
+			<NegativeUpdateTypeFilter value="8" />
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_4"/>

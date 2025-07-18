@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -54,7 +54,17 @@ public class LoginRequestFlags
      * {@link com.refinitiv.eta.rdm.ElementNames#AUTHN_TOKEN}
      */
     public static final int HAS_AUTHENTICATION_EXTENDED = 0x0200;
-    
+
+    /**
+     * (0x0400) Indicates presence of UpdateTypeFilter member.
+     */
+    public static final int HAS_UPDATE_TYPE_FILTER = 0x0400;
+
+    /**
+     * (0x0800) Indicates presence of NegativeUpdateTypeFilter member.
+     */
+    public static final int HAS_NEGATIVE_UPDATE_TYPE_FILTER = 0x0800;
+
     private LoginRequestFlags()
     {
         throw new AssertionError();

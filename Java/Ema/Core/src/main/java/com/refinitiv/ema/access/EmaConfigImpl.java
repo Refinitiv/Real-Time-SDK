@@ -1,10 +1,9 @@
-/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
- *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022-2025 LSEG. All rights reserved.
- *|-----------------------------------------------------------------------------
- */
+///*|-----------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019-2025 LSEG. All rights reserved.
+///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
@@ -150,6 +149,10 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
     private Buffer								_restProxyDomain = CodecFactory.createBuffer();
     private Buffer								_restProxyLocalHostName = CodecFactory.createBuffer();
     private Buffer								_restProxyKrb5ConfigFile = CodecFactory.createBuffer();
+	private long 								_updateTypeFilter;
+	private long								_negativeUpdateTypeFilter;
+
+	private boolean 							_adminLoginMsgSet = false;
 
 	EmaConfigImpl()
 	{
@@ -219,6 +222,33 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		_tokenScope.clear();
 		_clientJwk.clear();
 		_audience.clear();
+
+		_updateTypeFilter = 0;
+		_negativeUpdateTypeFilter = 0;
+
+		_adminLoginMsgSet = false;
+	}
+
+	protected void updateTypeFilterInt(long value) {
+		if (0 >= value) {
+			configStrBuilder().append("EmaConfigImpl:UpdateTypeFilter input value must be greater than 0.");
+			throw ( ommIUExcept().message( _configStrBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT));
+		}
+
+		_updateTypeFilter = value;
+		_rsslLoginReq.applyHasUpdateTypeFilter();
+		_rsslLoginReq.updateTypeFilter(value);
+	}
+
+	protected void negativeUpdateTypeFilterInt(long value) {
+		if (0 >= value) {
+			configStrBuilder().append("EmaConfigImpl:NegatveUpdateTypeFilter input value must be greater than 0.");
+			throw ( ommIUExcept().message( _configStrBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT));
+		}
+
+		_negativeUpdateTypeFilter = value;
+		_rsslLoginReq.applyHasNegativeUpdateTypeFilter();
+		_rsslLoginReq.negativeUpdateTypeFilter(value);
 	}
 	
 	protected void usernameInt(String username)
@@ -360,6 +390,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		switch (rsslRequestMsg.domainType())
 		{
 			case com.refinitiv.eta.rdm.DomainTypes.LOGIN :
+				_adminLoginMsgSet = true;
 				ret = setLoginRequest(rsslRequestMsg);
 				
 				break;
@@ -621,6 +652,26 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	                flags |= LoginRequestFlags.HAS_AUTHENTICATION_EXTENDED;
 	                _rsslLoginReq.authenticationExtended().data(elementEntry.encodedData().data(), elementEntry.encodedData().position(), elementEntry.encodedData().length());
 	            }
+				else if (elementEntry.name().equals(ElementNames.UPDATE_TYPE_FILTER))
+				{
+					if (elementEntry.dataType() != DataTypes.UINT)
+						return CodecReturnCodes.FAILURE;
+					ret = tmpUInt.decode(dIter);
+					if (ret != CodecReturnCodes.SUCCESS)
+						return ret;
+					flags |= LoginRequestFlags.HAS_UPDATE_TYPE_FILTER;
+					updateTypeFilterInt(tmpUInt.toLong());
+				}
+				else if (elementEntry.name().equals(ElementNames.NEGATIVE_UPDATE_TYPE_FILTER))
+				{
+					if (elementEntry.dataType() != DataTypes.UINT)
+						return CodecReturnCodes.FAILURE;
+					ret = tmpUInt.decode(dIter);
+					if (ret != CodecReturnCodes.SUCCESS)
+						return ret;
+					flags |= LoginRequestFlags.HAS_NEGATIVE_UPDATE_TYPE_FILTER;
+					negativeUpdateTypeFilterInt(tmpUInt.toLong());
+				}
         	}
 		}
 	     
@@ -1038,6 +1089,18 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	{
 		return _restProxyKrb5ConfigFile;
 	}
+
+	long updateTypeFilter()
+	{
+		return _updateTypeFilter;
+	}
+
+	long negativeUpdateTypeFilter()
+	{
+		return _negativeUpdateTypeFilter;
+	}
+
+	boolean adminLoginMsgSet() { return _adminLoginMsgSet; }
 }
 
 abstract class EmaConfigServerImpl extends EmaConfigBaseImpl

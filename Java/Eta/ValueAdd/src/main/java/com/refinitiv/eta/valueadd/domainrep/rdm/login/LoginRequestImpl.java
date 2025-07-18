@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -27,6 +27,7 @@ import com.refinitiv.eta.codec.UInt;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.ElementNames;
 import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.rdm.UpdateTypeFilter;
 import com.refinitiv.eta.valueadd.domainrep.rdm.MsgBaseImpl;
 
 class LoginRequestImpl extends MsgBaseImpl
@@ -42,6 +43,8 @@ class LoginRequestImpl extends MsgBaseImpl
     private long role;
     private Buffer authenticationToken;
     private Buffer authenticationExtended;
+    private long updateTypeFilter = 65533;
+    private long negativeUpdateTypeFilter = 0;
 
     private static final String blankStringConst = new String(new byte[] { 0x0 });
     private static String defaultUsername;
@@ -118,7 +121,17 @@ class LoginRequestImpl extends MsgBaseImpl
             destRequestMsg.applyHasAuthenticationExtended();
             destRequestMsg.authenticationExtended().data(byteBuffer);
         }
-        
+
+        if (checkHasUpdateTypeFilter()) {
+            destRequestMsg.applyHasUpdateTypeFilter();
+            destRequestMsg.updateTypeFilter(updateTypeFilter);
+        }
+
+        if (checkHasNegativeUpdateTypeFilter()) {
+            destRequestMsg.applyHasNegativeUpdateTypeFilter();
+            destRequestMsg.negativeUpdateTypeFilter(negativeUpdateTypeFilter);
+        }
+
         return CodecReturnCodes.SUCCESS;
     }
 
@@ -169,6 +182,8 @@ class LoginRequestImpl extends MsgBaseImpl
         attrib.clear();
         authenticationToken.clear();
         authenticationExtended.clear();
+        updateTypeFilter = 65533;
+        negativeUpdateTypeFilter = 0;
     }
     
     public int decode(DecodeIterator dIter, Msg msg)
@@ -394,6 +409,26 @@ class LoginRequestImpl extends MsgBaseImpl
                 applyHasAttrib();
                 attrib.applyHasSupportRoundTripLatencyMonitoring();
                 attrib.supportRTTMonitoring(tmpUInt.toLong());
+            } else if (elementEntry.name().equals(ElementNames.UPDATE_TYPE_FILTER)) {
+                if (elementEntry.dataType() != DataTypes.UINT) {
+                    return CodecReturnCodes.FAILURE;
+                }
+                ret = tmpUInt.decode(dIter);
+                if (ret != CodecReturnCodes.SUCCESS) {
+                    return ret;
+                }
+                applyHasUpdateTypeFilter();
+                updateTypeFilter = tmpUInt.toLong();
+            } else if (elementEntry.name().equals(ElementNames.NEGATIVE_UPDATE_TYPE_FILTER)) {
+                if (elementEntry.dataType() != DataTypes.UINT) {
+                    return CodecReturnCodes.FAILURE;
+                }
+                ret = tmpUInt.decode(dIter);
+                if (ret != CodecReturnCodes.SUCCESS) {
+                    return ret;
+                }
+                applyHasNegativeUpdateTypeFilter();
+                negativeUpdateTypeFilter = tmpUInt.toLong();
             }
         }
         return CodecReturnCodes.SUCCESS;
@@ -590,6 +625,26 @@ class LoginRequestImpl extends MsgBaseImpl
             }
         }
 
+        if (checkHasUpdateTypeFilter()) {
+            elementEntry.dataType(DataTypes.UINT);
+            elementEntry.name(ElementNames.UPDATE_TYPE_FILTER);
+            tmpUInt.value(updateTypeFilter);
+            ret = elementEntry.encode(encodeIter, tmpUInt);
+            if (ret != CodecReturnCodes.SUCCESS) {
+                return ret;
+            }
+        }
+
+        if (checkHasNegativeUpdateTypeFilter()) {
+            elementEntry.dataType(DataTypes.UINT);
+            elementEntry.name(ElementNames.NEGATIVE_UPDATE_TYPE_FILTER);
+            tmpUInt.value(negativeUpdateTypeFilter);
+            ret = elementEntry.encode(encodeIter, tmpUInt);
+            if (ret != CodecReturnCodes.SUCCESS) {
+                return ret;
+            }
+        }
+
         if ((ret = elementList.encodeComplete(encodeIter, true)) != CodecReturnCodes.SUCCESS)
             return ret;
         
@@ -720,7 +775,23 @@ class LoginRequestImpl extends MsgBaseImpl
             stringBuf.append(authenticationExtended());
             stringBuf.append(eol);
         }
-        
+
+        if (checkHasUpdateTypeFilter())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("updateTypeFilter: ");
+            stringBuf.append(updateTypeFilter()).append('(').append(UpdateTypeFilter.updateTypeFilterToString(updateTypeFilter())).append(')');
+            stringBuf.append(eol);
+        }
+
+        if (checkHasNegativeUpdateTypeFilter())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("negativeUpdateTypeFilter: ");
+            stringBuf.append(negativeUpdateTypeFilter()).append('(').append(UpdateTypeFilter.updateTypeFilterToString(negativeUpdateTypeFilter())).append(')');
+            stringBuf.append(eol);
+        }
+
         return stringBuf.toString();
     }
     
@@ -851,7 +922,39 @@ class LoginRequestImpl extends MsgBaseImpl
     {
         flags |= LoginRequestFlags.HAS_AUTHENTICATION_EXTENDED;
     }
-    
+
+    public boolean checkHasUpdateTypeFilter() {
+        return (flags & LoginRequestFlags.HAS_UPDATE_TYPE_FILTER) != 0;
+    }
+
+    public void applyHasUpdateTypeFilter() {
+        flags |= LoginRequestFlags.HAS_UPDATE_TYPE_FILTER;
+    }
+
+    public boolean checkHasNegativeUpdateTypeFilter() {
+        return (flags & LoginRequestFlags.HAS_NEGATIVE_UPDATE_TYPE_FILTER) != 0;
+    }
+
+    public void applyHasNegativeUpdateTypeFilter() {
+        flags |= LoginRequestFlags.HAS_NEGATIVE_UPDATE_TYPE_FILTER;
+    }
+
+    public long updateTypeFilter() {
+        return updateTypeFilter;
+    }
+
+    public void updateTypeFilter(long updateFilterType) {
+        this.updateTypeFilter = updateFilterType;
+    }
+
+    public long negativeUpdateTypeFilter() {
+        return negativeUpdateTypeFilter;
+    }
+
+    public void negativeUpdateTypeFilter(long negativeUpdateFilterType) {
+        this.negativeUpdateTypeFilter = negativeUpdateFilterType;
+    }
+
     @Override
     public int domainType()
     {

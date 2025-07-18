@@ -153,7 +153,9 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("TokenReissueRatio == 0.5", doubleValue == 0.5);
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt);
 		TestUtilities.checkResult("EnableRtt value > 0", intLongValue > 0 );
-		
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.UpdateTypeFilter);
+		TestUtilities.checkResult("UpdateTypeFilter == 4", intLongValue == 4 );
+
 		// Check values of Consumer_1
 		System.out.println("\nRetrieving Consumer_1 configuration values "); 
 
@@ -165,11 +167,17 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, "Consumer_1", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt);
 		TestUtilities.checkResult("EnableRtt value == 0", intLongValue == 0 );
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, "Consumer_1", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.UpdateTypeFilter);
+		TestUtilities.checkResult("UpdateTypeFilter == 4", intLongValue == 4 );
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, "Consumer_1", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.NegativeUpdateTypeFilter);
+		TestUtilities.checkResult("NegativeUpdateTypeFilter == 8", intLongValue == 8 );
 
 		// Check SendJsonConvError in Consumer_2
 		System.out.println("\nCheck SendJsonConvError in Consumer_2 ");
 		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, "Consumer_2", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.SendJsonConvError);
 		TestUtilities.checkResult("SendJsonConvError == 1", boolValue);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, "Consumer_2", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.UpdateTypeFilter);
+		TestUtilities.checkResult("UpdateTypeFilter == 4", intLongValue == 4 );
 
 		// Check values of Consumer_3
 		System.out.println("\nRetrieving Consumer_3 configuration values "); 
@@ -180,6 +188,8 @@ public class EmaFileConfigJunitTests extends TestCase
 		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_3");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, "Consumer_3", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.NegativeUpdateTypeFilter);
+		TestUtilities.checkResult("NegativeUpdateTypeFilter == 8", intLongValue == 8 );
 
 		// Check values of Consumer_4
 		System.out.println("\nRetrieving Consumer_4 configuration values "); 
@@ -1389,12 +1399,16 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnableRtt", 1 ));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("RestProxyHostName", "restProxyNonLocalHost"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("RestProxyPort", "9083"));
-			
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("UpdateTypeFilter", 32));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("NegativeUpdateTypeFilter", 64));
+
+
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
 			innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_2"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("Dictionary", "Dictionary_1"));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("UpdateTypeFilter", 32));
 
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_2", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -1507,6 +1521,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("XmlTraceRead == 0", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
 			TestUtilities.checkResult("XmlTracePing == 0", boolValue == true);
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.UpdateTypeFilter, -1);
+			TestUtilities.checkResult("UpdateTypeFilter == 32", intValue == 32);
 
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 			TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
@@ -1545,7 +1561,11 @@ public class EmaFileConfigJunitTests extends TestCase
 			ConsDictionary = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryName, -1);
 			TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 			TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
-			
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.UpdateTypeFilter, -1);
+			TestUtilities.checkResult("UpdateTypeFilter == 32", intValue == 32);
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.NegativeUpdateTypeFilter, -1);
+			TestUtilities.checkResult("NegativeUpdateTypeFilter == 64", intValue == 64);
+
 			// Check Channel configuration:
 			// Check Channel_1 configuration.
 			ConsChannelVal = "Channel_1";

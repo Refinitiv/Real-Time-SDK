@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2021,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020-2021,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -56,7 +56,9 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	private String    _authenticationToken;
 	private ByteBuffer _authenticationExtended;
 	private boolean _pause;
-	
+	private long _updateTypeFilter;
+	private long _negativeUpdateTypeFilter;
+
 	private boolean	_allowSuspectDataSet;
 	private boolean	_downloadConnectionConfigSet;
 	private boolean	_providePermissionProfileSet;
@@ -72,11 +74,15 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	private boolean	_positionSet;
 	private boolean   _pauseSet;
 	private boolean   _authenticationExtendedSet;
-	
+	private boolean _updateTypeFilterSet;
+	private boolean _negativeUpdateTypeFilterSet;
+
 	private static final String defaultApplicationId = "256";
     private static final String defaultApplicationName = "ema"; 
     private static String defaultPosition;
     private static String defaultUserName;
+	private static final long defaultUpdateTypeFilter = 65533;
+	private static final long defaultNegativeUpdateTypeFilter = 0;
 
 	LoginReqImpl()
 	{
@@ -111,7 +117,9 @@ class LoginReqImpl extends LoginImpl implements LoginReq
         _nameSet = false;
         _nameTypeSet = true;
         _pauseSet = false;
-        
+		_updateTypeFilterSet = false;
+		_negativeUpdateTypeFilterSet = false;
+
         _pause = false;
 
         if (_authenticationExtended != null)
@@ -148,7 +156,10 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 		applicationName(defaultApplicationName);
 		applicationId(defaultApplicationId);
 		name(defaultUserName);
-		
+
+		_updateTypeFilter = defaultUpdateTypeFilter;
+		_negativeUpdateTypeFilter = defaultNegativeUpdateTypeFilter;
+
 		return this;
 	}
 	
@@ -337,7 +348,27 @@ class LoginReqImpl extends LoginImpl implements LoginReq
         return this;
     }
 
-    @Override
+	@Override
+	public LoginReq updateTypeFilter(long filter) {
+
+		_changed = true;
+		_updateTypeFilterSet = true;
+		_updateTypeFilter = filter;
+
+		return this;
+	}
+
+	@Override
+	public LoginReq negativeUpdateTypeFilter(long filter) {
+
+		_changed = true;
+		_negativeUpdateTypeFilterSet = true;
+		_negativeUpdateTypeFilter = filter;
+
+		return this;
+	}
+
+	@Override
     public boolean hasAuthenticationExtended()
     {
         return _authenticationExtendedSet;
@@ -432,7 +463,39 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	{
 	    return _nameTypeSet;
 	}
-	
+
+	@Override
+	public boolean hasUpdateTypeFilter() {
+		return _updateTypeFilterSet;
+	}
+
+	@Override
+	public boolean hasNegativeUpdateTypeFilter() {
+		return _negativeUpdateTypeFilterSet;
+	}
+
+	@Override
+	public long updateTypeFilter() {
+
+		if (!_updateTypeFilterSet)
+		{
+			throw ommIUExcept().message( EmaRdm.ENAME_UPDATE_TYPE_FILTER + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+		}
+
+		return _updateTypeFilter;
+	}
+
+	@Override
+	public long negativeUpdateTypeFilter() {
+
+		if (!_negativeUpdateTypeFilterSet)
+		{
+			throw ommIUExcept().message( EmaRdm.ENAME_NEGATIVE_UPDATE_TYPE_FILTER + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+		}
+
+		return _negativeUpdateTypeFilter;
+	}
+
 	@Override
 	public boolean hasPause()
 	{
@@ -465,7 +528,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
         if (_pauseSet)
             reqMsg.pause(_pause);
         
-		if(!_changed)
+		if (!_changed)
 		{
 		    reqMsg.attrib(_elementList);
 			return reqMsg;
@@ -493,7 +556,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	@Override
     public String applicationId()
 	{
-		if(!_applicationIdSet)
+		if (!_applicationIdSet)
 		{
 			throw ommIUExcept().message( EmaRdm.ENAME_APP_ID + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
@@ -720,7 +783,17 @@ class LoginReqImpl extends LoginImpl implements LoginReq
         {
             text.append("\r\n" + EmaRdm.ENAME_USERNAME_TYPE + " : " + _nameType);
         }
-		
+
+		if (_updateTypeFilterSet)
+		{
+			text.append("\r\n" + EmaRdm.ENAME_UPDATE_TYPE_FILTER + " : " + _updateTypeFilter);
+		}
+
+		if (_negativeUpdateTypeFilterSet)
+		{
+			text.append("\r\n" + EmaRdm.ENAME_NEGATIVE_UPDATE_TYPE_FILTER + " : " + _negativeUpdateTypeFilter);
+		}
+
 		return text.toString();
 	}
 	
@@ -746,7 +819,9 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 		_positionSet = false;
 		_pauseSet = false;
 		_authenticationExtendedSet = false;
-	    
+		_updateTypeFilterSet = false;
+		_negativeUpdateTypeFilterSet = false;
+
 	    if (reqMsg.hasNameType())
 	        nameType(reqMsg.nameType());
 	    if (reqMsg.hasName())
@@ -940,6 +1015,12 @@ class LoginReqImpl extends LoginImpl implements LoginReq
     				    name(elementEntry.ascii().ascii());
     				}
     				    break;
+						case EmaRdm.ENAME_UPDATE_TYPE_FILTER:
+							updateTypeFilter(elementEntry.uintValue());
+							break;
+						case EmaRdm.ENAME_NEGATIVE_UPDATE_TYPE_FILTER:
+							negativeUpdateTypeFilter(elementEntry.uintValue());
+							break;
     				default:
     					break;
     				}
@@ -1037,7 +1118,17 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	            _elementList.add(EmaFactory.createElementEntry().buffer(EmaRdm.ENAME_AUTHN_EXTENDED, _authenticationExtended));
 	        }
 		}
-        
+
+		if (_updateTypeFilterSet)
+		{
+			_elementList.add(EmaFactory.createElementEntry().uintValue(EmaRdm.ENAME_UPDATE_TYPE_FILTER, _updateTypeFilter));
+		}
+
+		if (_negativeUpdateTypeFilterSet)
+		{
+			_elementList.add(EmaFactory.createElementEntry().uintValue(EmaRdm.ENAME_NEGATIVE_UPDATE_TYPE_FILTER, _negativeUpdateTypeFilter));
+		}
+
         reqMsg.attrib(_elementList);
 
 	}

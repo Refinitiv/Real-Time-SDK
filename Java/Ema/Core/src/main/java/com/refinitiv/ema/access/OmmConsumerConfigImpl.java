@@ -210,7 +210,21 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		_configSessionName = consumerName;
 		return this;
 	}
-	
+
+	@Override
+	public OmmConsumerConfig updateTypeFilter(long filter) {
+
+		updateTypeFilterInt(filter);
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig negativeUpdateTypeFilter(long filter) {
+
+		negativeUpdateTypeFilterInt(filter);
+		return this;
+	}
+
 	void validateSpecifiedSessionName()
 	{
 		if(_configSessionName == null || _configSessionName.isEmpty())
