@@ -133,7 +133,7 @@ eclipse {
 }
 
 dependencies {
-    testImplementation('org.mockito:mockito-core:5.14.2'){
+    testImplementation('org.mockito:mockito-core:5.18.0'){
         exclude group: 'org.hamcrest'
     }
 

@@ -34,8 +34,8 @@ import com.refinitiv.eta.codec.UpdateMsg;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * This is the market price decoder for the ConsPerf application.
@@ -111,10 +111,9 @@ public class MarketPriceDecoderJson
 			return CodecReturnCodes.FAILURE;
 		}
 
-		Iterator<Map.Entry<String, JsonNode>> fields = fieldsNode.fields();
-		while (fields.hasNext())
+		Set<Map.Entry<String, JsonNode>> fields = fieldsNode.properties();
+		for (Map.Entry<String, JsonNode> field : fields)
 		{
-			Map.Entry<String, JsonNode> field = fields.next();
 			String fieldName = field.getKey();
 			JsonNode fieldNode = field.getValue();
 

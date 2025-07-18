@@ -151,7 +151,7 @@ dependencies {
     api group: 'org.lz4', name: 'lz4-java', version: '1.8.0'
     implementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 
-    testImplementation('org.mockito:mockito-core:5.14.2'){
+    testImplementation('org.mockito:mockito-core:5.18.0'){
         exclude group: 'org.hamcrest'
     }
 }
