@@ -2,14 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.proxy.authentication;
 
-import org.apache.http.util.EncodingUtils;
-
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class BasicAuthenticationScheme implements IAuthenticationScheme
@@ -67,7 +67,8 @@ public class BasicAuthenticationScheme implements IAuthenticationScheme
                 _proxyAuthenticator.getCredentials().get(CredentialName.USERNAME),
                 _proxyAuthenticator.getCredentials().get(CredentialName.PASSWORD));
 
-        credentails = EncodingUtils.getAsciiString(Base64.getEncoder().encode(EncodingUtils.getBytes(credentails, DEFAULT_CHARSET)));
+        credentails = new String(Base64.getEncoder().encode(credentails.getBytes(Charset.forName(DEFAULT_CHARSET))),
+                StandardCharsets.US_ASCII);
 
         validateCredentials(); // throws an exception if invalid
 

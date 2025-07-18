@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 import org.json.JSONArray;
 
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel.SessionMgntState;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel.State;
 
-class RestClient implements Runnable, RestCallback {
+class RestClient implements RestCallback {
 	
 	static final String EDP_RT_TRANSPORT = "transport";
 	static final String EDP_RT_DATAFORMAT = "dataformat";
@@ -49,8 +49,6 @@ class RestClient implements Runnable, RestCallback {
     	_restReactor = new RestReactor(_restReactorOptions, errorInfo);
     	
     	_reactorServiceEndpointInfoList = new ArrayList<ReactorServiceEndpointInfo>();
-    	
-    	new Thread(this).start();
     }
     
     int getAuthAccessTokenInfo(RestAuthOptions authOptions, RestConnectOptions connectOptions, ReactorAuthTokenInfo authTokenInfo,
@@ -60,7 +58,7 @@ class RestClient implements Runnable, RestCallback {
     	
     	try
     	{	
-    		if(isBlocking)
+    		if (isBlocking)
     		{
     			ret = _restReactor.submitAuthRequestBlocking(authOptions, connectOptions, 
     					authTokenInfo, errorInfo);
@@ -93,7 +91,7 @@ class RestClient implements Runnable, RestCallback {
     	
     	try
     	{
-    		if(isBlocking)
+    		if (isBlocking)
     		{
     			ret = _restReactor.submitServiceDiscoveryRequestBlocking(restRequest, connectOptions, authTokenInfo, reactorServiceEndpointInfoList, errorInfo);
     		}
@@ -241,19 +239,6 @@ class RestClient implements Runnable, RestCallback {
 		restRequest.queryParameter(map);
 		
 		return restRequest;
-	}
-
-	@Override
-	public void run()
-	{
-		if (_restReactor == null || _restReactor.isShutdown())
-			return;
-		
-		ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
-    	if (_restReactor.dispatch(errorInfo) != ReactorReturnCodes.SUCCESS)
-    	{
-    		_restReactor.shutdown(errorInfo);
-    	}
 	}
 	
 	void shutdown()

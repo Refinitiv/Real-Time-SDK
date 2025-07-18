@@ -143,8 +143,9 @@ eclipse.classpath.file.whenMerged {
 
 dependencies {
     api group: 'org.json', name: 'json', version: '20240303'
-    api group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.16'
-    api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
+    implementation('org.apache.httpcomponents.client5:httpclient5:5.5') {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
     api group: 'org.slf4j', name: 'slf4j-jdk14', version: '2.0.16'
     api group: 'org.slf4j', name: 'slf4j-api', version: '2.0.16'
 	api group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.9.6'

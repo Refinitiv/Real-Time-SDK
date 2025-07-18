@@ -10,11 +10,12 @@ package com.refinitiv.eta.transport;
 
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
-import org.apache.commons.codec.Charsets;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -22,9 +23,11 @@ import java.util.UUID;
 
 class HeaderWebSocketSessionKeyHandler implements HeaderWebSocketHandler {
 
+    private static final String SHA_1 = "SHA-1";
+
     private static final String WEB_SOCKET_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-    private static final MessageDigest SHA_MSG_DIGEST = DigestUtils.getSha1Digest();
+    private static final MessageDigest SHA_MSG_DIGEST;
 
     private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder();
 
@@ -33,6 +36,15 @@ class HeaderWebSocketSessionKeyHandler implements HeaderWebSocketHandler {
     private final ByteBuffer uuidBuffer = ByteBuffer.allocate(16);
 
     private final boolean response;
+
+    static {
+        try {
+            SHA_MSG_DIGEST = MessageDigest.getInstance(SHA_1);
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 
     public HeaderWebSocketSessionKeyHandler(boolean response) {
         this.response = response;
@@ -78,7 +90,7 @@ class HeaderWebSocketSessionKeyHandler implements HeaderWebSocketHandler {
         if (!response) {
             generateWebSocketSessionKey(session.getWsSessionKey());
         }
-        byte[] concatenatedWebSocketAcceptKey = (session.getWsSessionKey() + WEB_SOCKET_GUID).getBytes(Charsets.US_ASCII);
+        byte[] concatenatedWebSocketAcceptKey = (session.getWsSessionKey() + WEB_SOCKET_GUID).getBytes(StandardCharsets.US_ASCII);
         SHA_MSG_DIGEST.update(concatenatedWebSocketAcceptKey);
         final byte[] wsKeyAccepted = BASE64_ENCODER.encode(SHA_MSG_DIGEST.digest());
         session.getWsSessionAcceptKey().data(new String(wsKeyAccepted));

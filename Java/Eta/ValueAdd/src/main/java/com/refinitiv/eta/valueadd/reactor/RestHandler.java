@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,13 +12,11 @@ package com.refinitiv.eta.valueadd.reactor;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.message.AbstractHttpMessage;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +25,7 @@ import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
 
 
-class RestHandler implements FutureCallback<HttpResponse> {
+class RestHandler implements FutureCallback<ClassicHttpResponse> {
 	
     private RestResultClosure _resultClosure;
     private RestReactor _restReactor;
@@ -44,7 +42,7 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	ReactorErrorInfo _errorInfo = null;
 	RestRequest _request = null;
 	List<ReactorServiceEndpointInfo> _reactorServiceEndpointInfoList = null;
-	AbstractHttpMessage _currentRequest = null;
+	SimpleHttpRequest _currentRequestAsync = null;
      
     RestHandler(RestReactor restReactor, RestResultClosure resultClosure)
 	{
@@ -102,12 +100,11 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	}
 
 	@Override
-	public void completed(HttpResponse response)
+	public void completed(ClassicHttpResponse response)
 	{
-		if (_currentRequest != null && loggerClient.isTraceEnabled()) {
-			loggerClient.trace(_restReactor.prepareRequestString(_currentRequest, _restConnectOptions));
+		if (_currentRequestAsync != null && loggerClient.isTraceEnabled()) {
+			loggerClient.trace(_restReactor.prepareRequestString(_currentRequestAsync, _restConnectOptions));
 		}
-
 		_event.clear();
 		_event.eventType(RestEventTypes.COMPLETED);
 		_event.resultClosure(_resultClosure);
@@ -119,7 +116,7 @@ class RestHandler implements FutureCallback<HttpResponse> {
   		Exception extractingContentException = null;
   		
   		/* Checks whether the content string is available */
-  		if(Objects.isNull(contentString))
+  		if (Objects.isNull(contentString))
   		{
 	  		try {
 	  			contentString =  EntityUtils.toString(entityFromResponse);
@@ -133,10 +130,10 @@ class RestHandler implements FutureCallback<HttpResponse> {
 					contentString, extractingContentException));
 		}
   		
-		int statusCode = response.getStatusLine().getStatusCode();
+		int statusCode = response.getCode();
 		switch (statusCode) {
 		case HttpStatus.SC_OK:
-			RestReactor.convertResponse(_restReactor, response, _response, _event.errorInfo(),
+			RestReactor.convertResponse(response, _response, _event.errorInfo(),
 					contentString, extractingContentException);
 			if ((_id == RestReactor.AUTH_HANDLER) && (_restConnectOptions.authRedirect())) {
 				clearAuthRedirectParameters();
@@ -196,7 +193,7 @@ class RestHandler implements FutureCallback<HttpResponse> {
 					}
 				}
 			}
-			RestReactor.convertResponse(_restReactor, response, _response, _event.errorInfo(),
+			RestReactor.convertResponse(response, _response, _event.errorInfo(),
 					contentString, extractingContentException);
 			_event.eventType(RestEventTypes.FAILED);
 			if ((_id == RestReactor.AUTH_HANDLER) && (_restConnectOptions.authRedirect())) {
@@ -211,7 +208,7 @@ class RestHandler implements FutureCallback<HttpResponse> {
 		case HttpStatus.SC_GONE:
 		case 451: //  Unavailable For Legal Reasons
 			
-			RestReactor.convertResponse(_restReactor, response, _response, _event.errorInfo(),
+			RestReactor.convertResponse(response, _response, _event.errorInfo(),
 					contentString, extractingContentException);
 			_event.eventType(RestEventTypes.STOPPED);
 			if ((_id == RestReactor.AUTH_HANDLER) && (_restConnectOptions.authRedirect())) {
@@ -224,7 +221,7 @@ class RestHandler implements FutureCallback<HttpResponse> {
 			break;
 
 		default:
-			RestReactor.convertResponse(_restReactor, response, _response, _event.errorInfo(),
+			RestReactor.convertResponse(response, _response, _event.errorInfo(),
 					contentString, extractingContentException);
 			_event.eventType(RestEventTypes.FAILED);
 			if ((_id == RestReactor.AUTH_HANDLER) && (_restConnectOptions.authRedirect())) {
@@ -233,6 +230,7 @@ class RestHandler implements FutureCallback<HttpResponse> {
 			if ((_id == RestReactor.DISCOVERY_HANDLER) && (_restConnectOptions.discoveryRedirect())) {
 				clearDiscoveryRedirectParameters();
 			}
+			break;
 		}
 			
 		RestReactor.processResponse(_restReactor, _response, _event);
@@ -252,8 +250,8 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	@Override
 	public void failed(Exception ex)
 	{
-		if (_currentRequest != null && loggerClient.isTraceEnabled()) {
-			loggerClient.trace(_restReactor.prepareRequestString(_currentRequest, _restConnectOptions));
+		if (_currentRequestAsync != null && loggerClient.isTraceEnabled()) {
+			loggerClient.trace(_restReactor.prepareRequestString(_currentRequestAsync, _restConnectOptions));
 		}
 
 		_event.clear();
@@ -270,8 +268,8 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	@Override
 	public void cancelled()
 	{
-		if (_currentRequest != null && loggerClient.isTraceEnabled()) {
-			loggerClient.trace(_restReactor.prepareRequestString(_currentRequest, _restConnectOptions));
+		if (_currentRequestAsync != null && loggerClient.isTraceEnabled()) {
+			loggerClient.trace(_restReactor.prepareRequestString(_currentRequestAsync, _restConnectOptions));
 		}
 
 		_event.clear();
@@ -306,7 +304,7 @@ class RestHandler implements FutureCallback<HttpResponse> {
     	_contentString = contentString;
     }
 
-    void setCurrentRequest(AbstractHttpMessage currentRequest) {
-    	_currentRequest = currentRequest;
+	void setCurrentRequest(SimpleHttpRequest currentRequest) {
+		_currentRequestAsync = currentRequest;
 	}
 }

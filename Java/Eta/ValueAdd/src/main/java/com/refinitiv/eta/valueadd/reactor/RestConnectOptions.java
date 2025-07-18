@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022-2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -11,9 +11,9 @@ package com.refinitiv.eta.valueadd.reactor;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.client.utils.URIUtils;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.hc.client5.http.utils.URIUtils;
 
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
@@ -266,11 +266,11 @@ class RestConnectOptions {
     		{
     			if(_tokenServiceHost.getSchemeName().equals(DEFAULT_SCHEME))
     			{
-    				_tokenServiceHost = new HttpHost(_tokenServiceHost.getHostName(), DEFAULT_HTTPS_PORT, _tokenServiceHost.getSchemeName());
+    				_tokenServiceHost = new HttpHost(_tokenServiceHost.getSchemeName(), _tokenServiceHost.getHostName(), DEFAULT_HTTPS_PORT);
     			}
     			else
     			{
-    				_tokenServiceHost = new HttpHost(_tokenServiceHost.getHostName(), DEFAULT_HTTP_PORT, _tokenServiceHost.getSchemeName());
+    				_tokenServiceHost = new HttpHost(_tokenServiceHost.getSchemeName(), _tokenServiceHost.getHostName(), DEFAULT_HTTP_PORT);
     			}
     		}
     		
@@ -301,15 +301,15 @@ class RestConnectOptions {
     		_tokenServiceHostV2 = tokenServiceHost;
     		
     		/* Checks whether the port is specified */
-    		if(_tokenServiceHostV2.getPort() == -1)
+    		if (_tokenServiceHostV2.getPort() == -1)
     		{
-    			if(_tokenServiceHostV2.getSchemeName().equals(DEFAULT_SCHEME))
+    			if (_tokenServiceHostV2.getSchemeName().equals(DEFAULT_SCHEME))
     			{
-    				_tokenServiceHostV2 = new HttpHost(_tokenServiceHostV2.getHostName(), DEFAULT_HTTPS_PORT, _tokenServiceHostV2.getSchemeName());
+    				_tokenServiceHostV2 = new HttpHost(_tokenServiceHostV2.getSchemeName(), _tokenServiceHostV2.getHostName(), DEFAULT_HTTPS_PORT);
     			}
     			else
     			{
-    				_tokenServiceHostV2 = new HttpHost(_tokenServiceHostV2.getHostName(), DEFAULT_HTTP_PORT, _tokenServiceHostV2.getSchemeName());
+    				_tokenServiceHostV2 = new HttpHost(_tokenServiceHostV2.getSchemeName(), _tokenServiceHostV2.getHostName(), DEFAULT_HTTP_PORT);
     			}
     		}
     		

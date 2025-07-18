@@ -12,9 +12,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.client.utils.URIUtils;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.hc.client5.http.utils.URIUtils;
 
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
@@ -190,11 +190,11 @@ public class ReactorOptions
     		{
     			if(_serviceDiscoveryHost.getSchemeName().equals(DEFAULT_SCHEME))
     			{
-    				_serviceDiscoveryHost = new HttpHost(_serviceDiscoveryHost.getHostName(), DEFAULT_HTTPS_PORT, _serviceDiscoveryHost.getSchemeName());
+    				_serviceDiscoveryHost = new HttpHost(_serviceDiscoveryHost.getSchemeName(), _serviceDiscoveryHost.getHostName(), DEFAULT_HTTPS_PORT);
     			}
     			else
     			{
-    				_serviceDiscoveryHost = new HttpHost(_serviceDiscoveryHost.getHostName(), DEFAULT_HTTP_PORT, _serviceDiscoveryHost.getSchemeName());
+    				_serviceDiscoveryHost = new HttpHost(_serviceDiscoveryHost.getSchemeName(), _serviceDiscoveryHost.getHostName(), DEFAULT_HTTP_PORT);
     			}
     		}
     		
@@ -479,7 +479,7 @@ public class ReactorOptions
         _xmlTracePing = true;
         _statistics = StatisticFlags.NONE;
         _serviceDiscoveryURL.data(DEFAULT_SCHEME + "://" + API_GATEWAY_HOST + SERVICE_DISCOVERY_PATH);
-        _serviceDiscoveryHost = new HttpHost(API_GATEWAY_HOST, DEFAULT_HTTPS_PORT, DEFAULT_SCHEME);
+        _serviceDiscoveryHost = new HttpHost(DEFAULT_SCHEME, API_GATEWAY_HOST, DEFAULT_HTTPS_PORT);
         _restRequestTimeout = 45000;
         _tokenReissueRatio = 0.8;
         _reissueTokenAttemptLimit = -1;
@@ -512,8 +512,8 @@ public class ReactorOptions
         	ByteBuffer byteBuffer = ByteBuffer.allocate(options._serviceDiscoveryURL.length());
         	options._serviceDiscoveryURL.copy(byteBuffer);
         	_serviceDiscoveryURL.data(byteBuffer);
-        	_serviceDiscoveryHost = new HttpHost(options.serviceDiscoveryHost().getHostName(),
-        			options.serviceDiscoveryHost().getPort(), options.serviceDiscoveryHost().getSchemeName());
+        	_serviceDiscoveryHost = new HttpHost(options.serviceDiscoveryHost().getSchemeName(), options.serviceDiscoveryHost().getHostName(),
+        			options.serviceDiscoveryHost().getPort());
         }
         
         if(options._tokenServiceURL_V1 != null)

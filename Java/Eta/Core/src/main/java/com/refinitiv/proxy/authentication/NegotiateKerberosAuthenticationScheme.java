@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -11,10 +11,10 @@ package com.refinitiv.proxy.authentication;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedActionException;
 import java.util.Base64;
-
-import org.apache.http.util.EncodingUtils;
 
 public class NegotiateKerberosAuthenticationScheme extends KerberosAuthenticationScheme
 {
@@ -64,7 +64,7 @@ public class NegotiateKerberosAuthenticationScheme extends KerberosAuthenticatio
             throws ProxyAuthenticationException
     {
         StringBuilder proxyAuthorizationValue = new StringBuilder();
-        String credentials = EncodingUtils.getAsciiString(Base64.getEncoder().encode(serviceTicket));
+        String credentials = new String(Base64.getEncoder().encode(serviceTicket), StandardCharsets.US_ASCII);
 
         if (httpResponseCode == 407)
             proxyAuthorizationValue.append(PROXY_AUTHORIZATION_PREFIX);

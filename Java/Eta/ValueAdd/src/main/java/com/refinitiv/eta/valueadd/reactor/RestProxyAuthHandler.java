@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -25,35 +25,22 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.auth.AuthSchemeProvider;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.NTCredentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.AuthSchemes;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.auth.BasicSchemeFactory;
-import org.apache.http.impl.auth.KerberosSchemeFactory;
-import org.apache.http.impl.auth.NTLMSchemeFactory;
-import org.apache.http.impl.auth.SPNegoSchemeFactory;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.ProxyAuthenticationStrategy;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.auth.*;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.client5.http.impl.auth.*;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.DefaultAuthenticationStrategy;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("deprecation")
 class RestProxyAuthHandler
 {
 	final static int BASIC = 0x10;
@@ -62,17 +49,15 @@ class RestProxyAuthHandler
 	final static int NEGOTIATE = 0x80;
 	
 	private int authSchemeFlag;
-	private SSLConnectionSocketFactory _sslconSocketFactory;
 	private RestReactor _restReactor;
 	private RequestConfig _defaultRequestConfig;
 	
 	private Logger loggerClient = null;
 	
-	RestProxyAuthHandler(RestReactor restReactor, SSLConnectionSocketFactory sslconSocketFactory)
+	RestProxyAuthHandler(RestReactor restReactor)
 	{
 		clear();
-		
-		_sslconSocketFactory = sslconSocketFactory;
+
 		_restReactor = restReactor;
 		
 		_defaultRequestConfig = RequestConfig.custom()
@@ -87,158 +72,193 @@ class RestProxyAuthHandler
 		authSchemeFlag = 0;
 	}
 	
-	int executeSync(HttpRequestBase httpRequest, RestConnectOptions connOptions, RestResponse restResponse, ReactorErrorInfo errorInfo) 
-			throws ClientProtocolException, IOException
+	int executeSync(HttpUriRequestBase httpRequest, RestConnectOptions connOptions, RestResponse restResponse, ReactorErrorInfo errorInfo)
+			throws IOException
 	{
 		return execute(httpRequest, connOptions, errorInfo, null, restResponse);
 	}
 	
-	int executeAsync(HttpRequestBase httpRequest, RestConnectOptions connOptions, RestHandler restHandler, ReactorErrorInfo errorInfo) 
-			throws ClientProtocolException, IOException
+	int executeAsync(HttpUriRequestBase httpRequest, RestConnectOptions connOptions, RestHandler restHandler, ReactorErrorInfo errorInfo)
+			throws IOException
 	{
 		return execute(httpRequest, connOptions, errorInfo, restHandler, null);
 	}
 	
-	private int execute(HttpRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo, 
-			RestHandler restHandler, RestResponse restResponse) 
-			throws ClientProtocolException, IOException
-	{	
-		boolean done = false;
+	private int execute(HttpUriRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo,
+			RestHandler restHandler, RestResponse restResponse)
+			throws IOException
+	{
+		HttpHost proxy = new HttpHost("http", connOptions.proxyHost(), connOptions.proxyPort());
+		CloseableHttpClient httpClient = HttpClientBuilder.create()
+				.setConnectionManager(_restReactor.getHttpClientConnectionManager())
+				.setProxy(proxy)
+				.build();
+
+		RestHttpHandlerResponse handlerResponse = null;
 		int attemptCount = 0;
-		while ((attemptCount <= 1) && (!done)) {
-			final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
+		try {
+			while (attemptCount <= 1) {
 
-			try
-			{
-				final HttpResponse response = _restReactor.executeRequest(httpRequest, connOptions, httpClient, loggerClient);
-				
-		  		// Extracting content string for further logging and processing
-		  		HttpEntity entityFromResponse = response.getEntity();
-		  		String contentString = null;
-		  		Exception extractingContentException = null;
-		  		try {
-		  			contentString =  EntityUtils.toString(entityFromResponse);
-		  			
-		  			if(Objects.nonNull(restHandler))
-		  			{
-		  				restHandler.contentString(contentString);
-		  			}
-		  			
-		  		} catch (Exception e) {
-		  			extractingContentException = e;
-		  		}
-				
-				if (loggerClient.isTraceEnabled()) {
-					loggerClient.trace(_restReactor.prepareResponseString(response, contentString,
-							extractingContentException));
-				}
-				
-				switch(response.getStatusLine().getStatusCode()) {
-					case HttpStatus.SC_OK:                  // 200
-						if (restHandler == null)
-						{
-							RestReactor.convertResponse(_restReactor, response, restResponse, errorInfo,
-									contentString, extractingContentException);
-						}
-						else
-						{
-							restHandler.completed(response);
-						}
-						done = true;
-						break;
-					case HttpStatus.SC_MOVED_PERMANENTLY:   // 301
-					case HttpStatus.SC_MOVED_TEMPORARILY:	// 302
-					case HttpStatus.SC_TEMPORARY_REDIRECT:  // 307
-					case 308:                               // HttpStatus.SC_PERMANENT_REDIRECT:
-						if(restHandler == null)
-						{
-	   	   					Header header = response.getFirstHeader("Location");
-	   	   					try {
-		   	   	                if( header != null && header.getValue() != null)
-		   	   	                {
-		   	   	                    httpRequest.setURI(new URI(header.getValue()));
-		   	   	                    done = false;
-		   	   	                    break;
-		   	   	                }
-		   	   	                else
-		   	   	                {
-		   	   	                	RestReactor.populateErrorInfo(errorInfo,   				
-		   	   	                		ReactorReturnCodes.FAILURE,
-		   	   	                		"RestProxyAuthHandler.execute", 
-		   	   	                		"Failed to send request. " 
-		   	   	                		+ "Malformed redirection response.");
-	   	   	                    
-		   	   	                	return ReactorReturnCodes.FAILURE;
-		   	   	                }
-	   	   					} catch ( URISyntaxException e)  {
-	   	   	   	                RestReactor.populateErrorInfo(errorInfo,
-	   	   	                            ReactorReturnCodes.FAILURE,
-	   	   	                            "RestProxyAuthHandler.execute",
-	   	   	                            "Failed to request authentication token information with HTTP error "
-	   	   	                            + response.getStatusLine().getStatusCode() + ". "
-	   	   	                            + "Incorrect redirecting.");
-	
-	   	   	   	                return ReactorReturnCodes.FAILURE;
-	   	   					}
-						}
-						else
-						{
-							restHandler.completed(response);
-							done = true;
-							break;
-						}
-					case HttpStatus.SC_PROXY_AUTHENTICATION_REQUIRED:  // 407
-						processProxyAuthResponse(response);
+				handlerResponse = _restReactor.executeRequest(httpRequest,
+						connOptions,
+						httpClient,
+						loggerClient,
+						classicResponse -> {
 
-						if( (authSchemeFlag & NEGOTIATE) != 0 )
-						{
-							return sendKerborosRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
-						}
-						else if ( (authSchemeFlag & KERBEROS) != 0 )
-						{
-							return sendKerborosRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
-						}
-						else if ( (authSchemeFlag & NTLM) != 0 )
-						{
-							return sendNTLMRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
-						}
-						else if ( (authSchemeFlag & BASIC) != 0 )
-						{
-							return sendBasicAuthRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
-						}
-						done = true;
+							RestHttpHandlerResponse hr = new RestHttpHandlerResponse();
+
+							// Extracting content string for further logging and processing
+							HttpEntity entityFromResponse = classicResponse.getEntity();
+							String contentString = null;
+							Exception extractingContentException = null;
+							try {
+								contentString =  EntityUtils.toString(entityFromResponse);
+
+								if (Objects.nonNull(restHandler))
+								{
+									restHandler.contentString(contentString);
+								}
+
+							} catch (Exception e) {
+								extractingContentException = e;
+							}
+
+							if (loggerClient.isTraceEnabled()) {
+								loggerClient.trace(_restReactor.prepareResponseString(classicResponse, contentString, extractingContentException));
+							}
+
+							switch (classicResponse.getCode()) {
+								case HttpStatus.SC_OK:                  // 200
+									if (restHandler == null)
+									{
+										RestReactor.convertResponse(classicResponse, restResponse, errorInfo, contentString, extractingContentException);
+									}
+									else
+									{
+										restHandler.completed(classicResponse);
+									}
+									hr.finished = true;
+									break;
+								case HttpStatus.SC_MOVED_PERMANENTLY:   // 301
+								case HttpStatus.SC_MOVED_TEMPORARILY:	// 302
+								case HttpStatus.SC_TEMPORARY_REDIRECT:  // 307
+								case 308:                               // HttpStatus.SC_PERMANENT_REDIRECT:
+									if (restHandler == null)
+									{
+										Header header = classicResponse.getFirstHeader("Location");
+										try {
+											if (header != null && header.getValue() != null)
+											{
+												httpRequest.setUri(new URI(header.getValue()));
+												hr.finished = false;
+												break;
+											}
+											else
+											{
+												RestReactor.populateErrorInfo(errorInfo,
+														ReactorReturnCodes.FAILURE,
+														"RestProxyAuthHandler.execute",
+														"Failed to send request. "
+																+ "Malformed redirection response.");
+												hr.finished = true;
+												hr.returnCode = ReactorReturnCodes.FAILURE;
+												return hr;
+											}
+										}
+										catch ( URISyntaxException e)  {
+											RestReactor.populateErrorInfo(errorInfo,
+													ReactorReturnCodes.FAILURE,
+													"RestProxyAuthHandler.execute",
+													"Failed to request authentication token information with HTTP error "
+															+ classicResponse.getCode() + ". "
+															+ "Incorrect redirecting.");
+											hr.finished = true;
+											hr.returnCode = ReactorReturnCodes.FAILURE;
+											return hr;
+										}
+									}
+									else
+									{
+										restHandler.completed(classicResponse);
+										hr.finished = true;
+										break;
+									}
+								case HttpStatus.SC_PROXY_AUTHENTICATION_REQUIRED:  // 407
+									processProxyAuthResponse(classicResponse);
+
+									if( (authSchemeFlag & NEGOTIATE) != 0 )
+									{
+										hr.action = RestHttpHandlerResponse.Action.SEND_KERBOROS_AUTH;
+									}
+									else if ((authSchemeFlag & KERBEROS) != 0)
+									{
+										hr.action = RestHttpHandlerResponse.Action.SEND_KERBOROS_AUTH;
+									}
+									else if ((authSchemeFlag & NTLM) != 0)
+									{
+										hr.action = RestHttpHandlerResponse.Action.SEND_NTLM_AUTH;
+									}
+									else if ((authSchemeFlag & BASIC) != 0)
+									{
+										hr.action = RestHttpHandlerResponse.Action.SEND_BASIC_AUTH_REQUEST;
+									}
+									hr.finished = true;
+									return hr;
+								case HttpStatus.SC_FORBIDDEN:
+								case HttpStatus.SC_NOT_FOUND:
+								case HttpStatus.SC_GONE:
+								case 451: //  Unavailable For Legal Reasons
+								default:
+									if (restHandler == null)
+									{
+										RestReactor.populateErrorInfo(errorInfo,
+												ReactorReturnCodes.FAILURE,
+												"RestProxyAuthHandler.execute",
+												"Failed to request authentication token information with HTTP error "
+														+ classicResponse.getCode() + ". Text: "
+														+  (Objects.nonNull(contentString) ? contentString : ""));
+									}
+									else
+									{
+										restHandler.completed(classicResponse);
+									}
+									hr.finished = true;
+									hr.action = RestHttpHandlerResponse.Action.NO_ACTION;
+									hr.returnCode = ReactorReturnCodes.FAILURE;
+									break;
+							}
+							return hr;
+						});
+
+				if (handlerResponse.finished) {
+					if (handlerResponse.action == RestHttpHandlerResponse.Action.NO_ACTION)
+						return handlerResponse.returnCode;
+					else
 						break;
-					case HttpStatus.SC_FORBIDDEN:
-					case HttpStatus.SC_NOT_FOUND:
-					case HttpStatus.SC_GONE:
-					case 451: //  Unavailable For Legal Reasons
-					default:
-						if(restHandler == null)
-						{
-							RestReactor.populateErrorInfo(errorInfo,
-			                    ReactorReturnCodes.FAILURE,
-			                    "RestProxyAuthHandler.execute", 
-			                    "Failed to request authentication token information with HTTP error "
-			                    + response.getStatusLine().getStatusCode() + ". Text: " 
-			                    +  (Objects.nonNull(contentString) ? contentString : ""));
-							return ReactorReturnCodes.FAILURE;
-						}
-						else
-						{
-							restHandler.completed(response);
-							done = true;
-							break;	
-						}				
 				}
+
+				attemptCount++;
 			}
-			finally
-			{
-				httpClient.close();
-			}
-			attemptCount++;
 		}
-		if ((attemptCount > 1) && (!done)) {
-			if(restHandler == null)
+		finally {
+			httpClient.close();
+		}
+
+		if (handlerResponse != null) {
+			switch (handlerResponse.action) {
+				case NO_ACTION:
+					break;
+				case SEND_BASIC_AUTH_REQUEST:
+					return sendBasicAuthRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
+				case SEND_KERBOROS_AUTH:
+					return sendKerborosRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
+				case SEND_NTLM_AUTH:
+					return sendNTLMRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
+			}
+		}
+
+		if ((attemptCount > 1)) {
+			if (restHandler == null)
 			{
 				RestReactor.populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
@@ -251,15 +271,14 @@ class RestProxyAuthHandler
 		}
 		return ReactorReturnCodes.SUCCESS;
 	}
-	
+
 	private void processProxyAuthResponse(HttpResponse httpResponse)
 	{
-		Header headers[] = httpResponse.getAllHeaders();
+		Header headers[] = httpResponse.getHeaders();
 		
 		authSchemeFlag = 0;
-		
 		// Check all available proxy authentication types
-		for(int index = 0; index < headers.length; index++)
+		for (int index = 0; index < headers.length; index++)
 		{
 			if(headers[index].getName().indexOf("Proxy-Authenticate") != -1)
 			{
@@ -283,87 +302,94 @@ class RestProxyAuthHandler
 		}
 	}
 	
-	private int sendBasicAuthRequest(HttpRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo,
-			RestHandler restHandler, RestResponse restResponse) throws ClientProtocolException, IOException
+	private int sendBasicAuthRequest(HttpUriRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo,
+			RestHandler restHandler, RestResponse restResponse) throws IOException
 	{
-		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
-		            .register(AuthSchemes.BASIC, new BasicSchemeFactory()).build();
-		
-		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+		Registry<AuthSchemeFactory> authSchemeRegistry = RegistryBuilder.<AuthSchemeFactory>create()
+		            .register(StandardAuthScheme.BASIC, new BasicSchemeFactory()).build();
+
+		BasicCredentialsProvider credsProvider = new BasicCredentialsProvider();
 		credsProvider.setCredentials(
-        		AuthScope.ANY,
-                new UsernamePasswordCredentials(connOptions.proxyUserName(), connOptions.proxyPassword()));
-	        
+				new AuthScope(null, null, -1, null, null),
+                new UsernamePasswordCredentials(connOptions.proxyUserName(), connOptions.proxyPassword().toCharArray()));
+
+		PoolingHttpClientConnectionManager connectionManager = _restReactor.getHttpClientConnectionManager();
 	    HttpClientBuilder httpBuilder  = HttpClientBuilder.create()
-			            .useSystemProperties()
-			            .setDefaultAuthSchemeRegistry(authSchemeRegistry)
-			            .setDefaultCredentialsProvider(credsProvider)
-			            .setSSLSocketFactory(_sslconSocketFactory);
+				.useSystemProperties()
+			    .setDefaultAuthSchemeRegistry(authSchemeRegistry)
+			    .setDefaultCredentialsProvider(credsProvider)
+				.setConnectionManager(connectionManager);
 	    
 	    final CloseableHttpClient httpClient = httpBuilder
 		            .setProxy(new HttpHost(connOptions.proxyHost(), connOptions.proxyPort()))
-		            .setProxyAuthenticationStrategy(ProxyAuthenticationStrategy.INSTANCE)
+		            .setProxyAuthenticationStrategy(DefaultAuthenticationStrategy.INSTANCE)
 		            .build();
 	    
 	    httpRequest.setConfig(_defaultRequestConfig);
 	    
 	    try
 	    {
-			HttpResponse response = _restReactor.executeRequest(httpRequest, connOptions, httpClient, loggerClient);
+			RestHttpHandlerResponse resp = _restReactor.executeRequest(httpRequest,
+					connOptions,
+					httpClient,
+					loggerClient, classicResponse -> {
+
+						// Extracting content string for further logging and processing
+						HttpEntity entityFromResponse = classicResponse.getEntity();
+						String contentString = null;
+						Exception extractingContentException = null;
+						try {
+							contentString =  EntityUtils.toString(entityFromResponse);
+
+							if (Objects.nonNull(restHandler))
+							{
+								restHandler.contentString(contentString);
+							}
+						}
+						catch (Exception e) {
+							extractingContentException = e;
+						}
+
+						if (loggerClient.isTraceEnabled()) {
+							loggerClient.trace(_restReactor.prepareResponseString(classicResponse, contentString, extractingContentException));
+						}
+
+						if (classicResponse.getCode() != HttpStatus.SC_OK)
+						{
+							if (restHandler == null)
+							{
+								RestReactor.populateErrorInfo(errorInfo,
+										ReactorReturnCodes.FAILURE,
+										"RestProxyAuthHandler.sendBasicAuthRequest",
+										"Failed to request authentication token information with HTTP error "
+												+ classicResponse.getCode() + ". Text: "
+												+  (Objects.nonNull(contentString) ? contentString : ""));
+							}
+							else
+							{
+								restHandler.completed(classicResponse);
+							}
+
+							return new RestHttpHandlerResponse(ReactorReturnCodes.FAILURE, true, RestHttpHandlerResponse.Action.NO_ACTION);
+						}
+						else
+						{
+							if( restHandler == null )
+							{
+								RestReactor.convertResponse(classicResponse, restResponse, errorInfo,
+										contentString, extractingContentException);
+							}
+							else
+							{
+								restHandler.completed(classicResponse);
+							}
+
+							return new RestHttpHandlerResponse(ReactorReturnCodes.SUCCESS, true, RestHttpHandlerResponse.Action.NO_ACTION);
+						}
+					}
+			);
 		    
-	  		// Extracting content string for further logging and processing
-	  		HttpEntity entityFromResponse = response.getEntity();
-	  		String contentString = null;
-	  		Exception extractingContentException = null;
-	  		try {
-	  			contentString =  EntityUtils.toString(entityFromResponse);
-	  			
-	  			if(Objects.nonNull(restHandler))
-	  			{
-	  				restHandler.contentString(contentString);
-	  			}
-	  			
-	  		} catch (Exception e) {
-	  			extractingContentException = e;
-	  		}
-	  		
-			if (loggerClient.isTraceEnabled()) {
-				loggerClient.trace(_restReactor.prepareResponseString(response, 
-						contentString, extractingContentException));
-			}
-			
-			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
-			{
-		    	if ( restHandler == null)
-		    	{
-					return RestReactor.populateErrorInfo(errorInfo,   				
-		                    ReactorReturnCodes.FAILURE,
-		                    "RestProxyAuthHandler.sendBasicAuthRequest", 
-		                    "Failed to request authentication token information with HTTP error "
-		                    + response.getStatusLine().getStatusCode() + ". Text: "  
-		                    +  (Objects.nonNull(contentString) ? contentString : ""));
-		    	}
-		    	else
-		    	{
-		    		restHandler.completed(response);
-		    	}
-				
-				return ReactorReturnCodes.SUCCESS;
-			}
-			else
-			{
-				if( restHandler == null )
-				{
-					RestReactor.convertResponse(_restReactor, response, restResponse, errorInfo,
-							contentString, extractingContentException);
-				}
-				else
-				{
-					restHandler.completed(response);
-				}
-				
-				return ReactorReturnCodes.SUCCESS;
-			}
+	  		return resp.returnCode;
 	    }
 	    finally
 	    {
@@ -371,92 +397,102 @@ class RestProxyAuthHandler
 	    }
 	}
 	
-	private int sendNTLMRequest(HttpRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo, 
-			RestHandler restHandler, RestResponse restResponse) throws ClientProtocolException, IOException
+	private int sendNTLMRequest(HttpUriRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo, 
+			RestHandler restHandler, RestResponse restResponse) throws IOException
 	{
-		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
-	            .register(AuthSchemes.NTLM, new NTLMSchemeFactory())
-	            .register(AuthSchemes.BASIC, new BasicSchemeFactory())
+		Registry<AuthSchemeFactory> authSchemeRegistry = RegistryBuilder.<AuthSchemeFactory>create()
+	            .register(StandardAuthScheme.NTLM, new NTLMSchemeFactory())
+	            .register(StandardAuthScheme.BASIC, new BasicSchemeFactory())
 	            .build();
-	
-		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+
+		BasicCredentialsProvider credsProvider = new BasicCredentialsProvider();
 		credsProvider.setCredentials(
-        		AuthScope.ANY,
-                new UsernamePasswordCredentials(connOptions.proxyUserName(), connOptions.proxyPassword()));
-	        credsProvider.setCredentials(
-	        		AuthScope.ANY, new NTCredentials(connOptions.proxyUserName(), connOptions.proxyPassword()
-				        ,connOptions.proxyLocalHostName(), connOptions.proxyDomain()));
-	        
+				new AuthScope(null, null, -1, null, null),
+                new UsernamePasswordCredentials(connOptions.proxyUserName(), connOptions.proxyPassword().toCharArray())
+		);
+	    credsProvider.setCredentials(
+				new AuthScope(null, null, -1, null, null),
+				new NTCredentials(connOptions.proxyUserName(),
+						connOptions.proxyPassword().toCharArray(),
+						connOptions.proxyLocalHostName(),
+						connOptions.proxyDomain())
+		);
+
+		PoolingHttpClientConnectionManager connectionManager = _restReactor.getHttpClientConnectionManager();
 	    HttpClientBuilder httpBuilder  = HttpClientBuilder.create()
-			            .useSystemProperties()
-			            .setDefaultAuthSchemeRegistry(authSchemeRegistry)
-			            .setDefaultCredentialsProvider(credsProvider)
-			            .setSSLSocketFactory(_sslconSocketFactory);
+				.useSystemProperties()
+				.setDefaultAuthSchemeRegistry(authSchemeRegistry)
+				.setDefaultCredentialsProvider(credsProvider)
+				.setConnectionManager(connectionManager);
 	    
 	    final CloseableHttpClient httpClient = httpBuilder
-		            .setProxy(new HttpHost(connOptions.proxyHost(), connOptions.proxyPort()))
-		            .setProxyAuthenticationStrategy(ProxyAuthenticationStrategy.INSTANCE)
-		            .build();
+				.setProxy(new HttpHost(connOptions.proxyHost(), connOptions.proxyPort()))
+				.setProxyAuthenticationStrategy(DefaultAuthenticationStrategy.INSTANCE)
+				.build();
 	    
 	    httpRequest.setConfig(_defaultRequestConfig);
 	    
 	    try
 	    {
-	    	HttpResponse response = _restReactor.executeRequest(httpRequest, connOptions, httpClient, loggerClient);
+	    	RestHttpHandlerResponse resp = _restReactor.executeRequest(httpRequest,
+					connOptions,
+					httpClient,
+					loggerClient,
+					classicResponse -> {
+
+						// Extracting content string for further logging and processing
+						HttpEntity entityFromResponse = classicResponse.getEntity();
+						String contentString = null;
+						Exception extractingContentException = null;
+						try {
+							contentString =  EntityUtils.toString(entityFromResponse);
+
+							if (Objects.nonNull(restHandler))
+							{
+								restHandler.contentString(contentString);
+							}
+
+						} catch (Exception e) {
+							extractingContentException = e;
+						}
+
+						if (loggerClient.isTraceEnabled()) {
+							loggerClient.trace(_restReactor.prepareResponseString(classicResponse, contentString, extractingContentException));
+						}
+
+						if (classicResponse.getCode() != HttpStatus.SC_OK)
+						{
+							if (restHandler == null)
+							{
+								RestReactor.populateErrorInfo(errorInfo,
+										ReactorReturnCodes.FAILURE,
+										"RestProxyAuthHandler.sendNTLMRequest",
+										"Failed to request authentication token information with HTTP error "
+												+ classicResponse.getCode() + ". Text: "
+												+  (Objects.nonNull(contentString) ? contentString : ""));
+								return new RestHttpHandlerResponse(ReactorReturnCodes.FAILURE, true, RestHttpHandlerResponse.Action.NO_ACTION);
+							}
+							else
+							{
+								restHandler.completed(classicResponse);
+							}
+							return new RestHttpHandlerResponse(ReactorReturnCodes.FAILURE, true, RestHttpHandlerResponse.Action.NO_ACTION);
+						}
+						else
+						{
+							if (restHandler == null)
+							{
+								RestReactor.convertResponse(classicResponse, restResponse, errorInfo, contentString, extractingContentException);
+							}
+							else
+							{
+								restHandler.completed(classicResponse);
+							}
+							return new RestHttpHandlerResponse(ReactorReturnCodes.SUCCESS, true, RestHttpHandlerResponse.Action.NO_ACTION);
+						}
+					});
 		    
-	  		// Extracting content string for further logging and processing
-	  		HttpEntity entityFromResponse = response.getEntity();
-	  		String contentString = null;
-	  		Exception extractingContentException = null;
-	  		try {
-	  			contentString =  EntityUtils.toString(entityFromResponse);
-	  			
-	  			if(Objects.nonNull(restHandler))
-	  			{
-	  				restHandler.contentString(contentString);
-	  			}
-	  			
-	  		} catch (Exception e) {
-	  			extractingContentException = e;
-	  		}
-		    
-			if (loggerClient.isTraceEnabled()) {
-				loggerClient.trace(_restReactor.prepareResponseString(response, 
-						contentString, extractingContentException));
-			}
-			
-			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
-			{
-		    	if(restHandler == null)
-		    	{
-					return RestReactor.populateErrorInfo(errorInfo,   				
-			                ReactorReturnCodes.FAILURE,
-			                "RestProxyAuthHandler.sendNTLMRequest", 
-		                    "Failed to request authentication token information with HTTP error "
-		                    + response.getStatusLine().getStatusCode() + ". Text: " 
-			                +  (Objects.nonNull(contentString) ? contentString : ""));
-		    	}
-		    	else
-		    	{
-		    		restHandler.completed(response);
-		    	}
-				
-				return ReactorReturnCodes.SUCCESS;
-			}
-			else
-			{
-				if(restHandler == null)
-				{
-					RestReactor.convertResponse(_restReactor, response, restResponse, errorInfo,
-							contentString, extractingContentException);
-				}
-				else
-				{
-					restHandler.completed(response);
-				}
-				
-				return ReactorReturnCodes.SUCCESS;
-			}
+	  		return resp.returnCode;
 	    }
 	    finally
 	    {
@@ -465,22 +501,22 @@ class RestProxyAuthHandler
 	}
 
 	@SuppressWarnings("removal") //Subject.doAs cannot be replaced for backward compatibility reasons. No equivalent method supporting both java 8 (Subject.doAs) and java >=19 (AccessController.doPrivilaged) without warnings.
-	private int sendKerborosRequest(final HttpRequestBase httpRequest, RestConnectOptions connOptions, final ReactorErrorInfo errorInfo, 
-			final RestHandler restHandler, RestResponse restResponse) throws ClientProtocolException, IOException
+	private int sendKerborosRequest(final HttpUriRequestBase httpRequest, RestConnectOptions connOptions, final ReactorErrorInfo errorInfo, 
+			final RestHandler restHandler, RestResponse restResponse) throws IOException
 	{
 		System.setProperty("java.security.krb5.conf", connOptions.proxyKRB5ConfigFile());
 		
 		loadLoginConfig();
 			
-		LoginContext loginCOntext;
+		LoginContext loginContext;
 		try {
-			loginCOntext = new LoginContext("etaj-restclient-kerberos", new KerberosCallBackHandler(connOptions.proxyUserName(), 
+			loginContext = new LoginContext("etaj-restclient-kerberos", new KerberosCallBackHandler(connOptions.proxyUserName(),
 					connOptions.proxyPassword()));
 			
-			 loginCOntext.login();
+			 loginContext.login();
 		} catch (LoginException e) {
 			
-			if(restHandler == null)
+			if (restHandler == null)
 			{
 				return RestReactor.populateErrorInfo(errorInfo,   				
 		                ReactorReturnCodes.FAILURE,
@@ -496,53 +532,122 @@ class RestProxyAuthHandler
 			return ReactorReturnCodes.SUCCESS;
 		}
          
-        Subject serviceSubject = loginCOntext.getSubject();
+        Subject serviceSubject = loginContext.getSubject();
         
-        Registry<AuthSchemeProvider> authSchemeRegistry;
+        Registry<AuthSchemeFactory> authSchemeRegistry;
         
-    	authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
-    			.register(AuthSchemes.NTLM, new NTLMSchemeFactory())
-    			.register(AuthSchemes.BASIC, new BasicSchemeFactory())
-		        .register(AuthSchemes.SPNEGO, new SPNegoSchemeFactory())
-		        .register(AuthSchemes.KERBEROS, new KerberosSchemeFactory())
+    	authSchemeRegistry = RegistryBuilder.<AuthSchemeFactory>create()
+    			.register(StandardAuthScheme.NTLM, new NTLMSchemeFactory())
+    			.register(StandardAuthScheme.BASIC, new BasicSchemeFactory())
+		        .register(StandardAuthScheme.SPNEGO, SPNegoSchemeFactory.DEFAULT)
+		        .register(StandardAuthScheme.KERBEROS, KerberosSchemeFactory.DEFAULT)
     			.build();
-  
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+
+		BasicCredentialsProvider credsProvider = new BasicCredentialsProvider();
         
-        credsProvider.setCredentials(AuthScope.ANY, new NTCredentials(connOptions.proxyUserName(), connOptions.proxyPassword()
-        		,connOptions.proxyLocalHostName(), connOptions.proxyDomain()));
+        credsProvider.setCredentials(new AuthScope(null, null, -1, null, null),
+				new NTCredentials(connOptions.proxyUserName(),
+						connOptions.proxyPassword().toCharArray(),
+						connOptions.proxyLocalHostName(),
+						connOptions.proxyDomain())
+		);
 
         HttpClientBuilder httpBuilder  = HttpClientBuilder.create()
 	            .useSystemProperties()
 	            .setDefaultAuthSchemeRegistry(authSchemeRegistry)
 	            .setDefaultCredentialsProvider(credsProvider)
-	            .setSSLSocketFactory(_sslconSocketFactory);
+	            .setConnectionManager(_restReactor.getHttpClientConnectionManager());
         
         final CloseableHttpClient httpClient = httpBuilder
 		            .setProxy(new HttpHost(connOptions.proxyHost(), connOptions.proxyPort()))
-		            .setProxyAuthenticationStrategy(ProxyAuthenticationStrategy.INSTANCE)
+		            .setProxyAuthenticationStrategy(DefaultAuthenticationStrategy.INSTANCE)
 		            .build();
         
         httpRequest.setConfig(_defaultRequestConfig);
-			
-        HttpResponse  response = Subject.doAs(serviceSubject,  new PrivilegedAction<HttpResponse>() {
-			
-        	@Override
-			public HttpResponse run() {
-				
-				HttpResponse response = null;
-				
+		RestHttpHandlerResponse response;
+
+		try {
+			response = Subject.doAs(serviceSubject,  new PrivilegedAction<RestHttpHandlerResponse>() {
+
+				@Override
+				public RestHttpHandlerResponse run() {
+
+					RestHttpHandlerResponse response = null;
+
 					try {
-						response = _restReactor.executeRequest(httpRequest, connOptions, httpClient, loggerClient);
-					} catch (IOException e) {
-						
-						if(restHandler == null)
+						response = _restReactor.executeRequest(httpRequest,
+								connOptions,
+								httpClient,
+								loggerClient,
+								classicResponse -> {
+									if (classicResponse != null)
+									{
+										// Extracting content string for further logging and processing
+										HttpEntity entityFromResponse = classicResponse.getEntity();
+										String contentString = null;
+										Exception extractingContentException = null;
+										try {
+											contentString =  EntityUtils.toString(entityFromResponse);
+
+											if (Objects.nonNull(restHandler))
+											{
+												restHandler.contentString(contentString);
+											}
+
+										} catch (Exception e) {
+											extractingContentException = e;
+										}
+
+										if (loggerClient.isTraceEnabled()) {
+											loggerClient.trace(_restReactor.prepareResponseString(classicResponse, contentString, extractingContentException));
+										}
+
+										if (classicResponse.getCode() != HttpStatus.SC_OK)
+										{
+											if (restHandler == null)
+											{
+												RestReactor.populateErrorInfo(errorInfo,
+														ReactorReturnCodes.FAILURE,
+														"RestProxyAuthHandler.sendKerborosRequest",
+														"Failed to request authentication token information with HTTP error "
+																+ classicResponse.getCode() + ". Text: "
+																+  (Objects.nonNull(contentString) ? contentString : ""));
+											}
+											else
+											{
+												restHandler.completed(classicResponse);
+											}
+											return new RestHttpHandlerResponse(ReactorReturnCodes.FAILURE, true, RestHttpHandlerResponse.Action.NO_ACTION);
+										}
+										else
+										{
+											if (restHandler == null)
+											{
+												RestResponse resp = new RestResponse();
+												RestReactor.convertResponse(classicResponse, resp, errorInfo, contentString, extractingContentException);
+											}
+											else
+											{
+												restHandler.completed(classicResponse);
+											}
+											return new RestHttpHandlerResponse(ReactorReturnCodes.SUCCESS, true, RestHttpHandlerResponse.Action.NO_ACTION);
+										}
+									}
+									else
+									{
+										return new RestHttpHandlerResponse(ReactorReturnCodes.FAILURE, true, RestHttpHandlerResponse.Action.NO_ACTION);
+									}
+								});
+					}
+					catch (IOException e) {
+
+						if (restHandler == null)
 						{
-							RestReactor.populateErrorInfo(errorInfo,   				
-					                ReactorReturnCodes.FAILURE,
-					                "RestProxyAuthHandler.sendKerborosRequest", 
-					                "Failed to request authentication token information. Text: " 
-					                + e.getMessage());
+							RestReactor.populateErrorInfo(errorInfo,
+									ReactorReturnCodes.FAILURE,
+									"RestProxyAuthHandler.sendKerborosRequest",
+									"Failed to request authentication token information. Text: "
+											+ e.getMessage());
 						}
 						else
 						{
@@ -557,76 +662,23 @@ class RestProxyAuthHandler
 							// Do nothing
 						}
 					}
-			
-				return response;
-			}
-        });
-        
-        if(response != null)
-        {
-	  		// Extracting content string for further logging and processing
-	  		HttpEntity entityFromResponse = response.getEntity();
-	  		String contentString = null;
-	  		Exception extractingContentException = null;
-	  		try {
-	  			contentString =  EntityUtils.toString(entityFromResponse);
-	  			
-	  			if(Objects.nonNull(restHandler))
-	  			{
-	  				restHandler.contentString(contentString);
-	  			}
-	  			
-	  		} catch (Exception e) {
-	  			extractingContentException = e;
-	  		}
-	  		
-			if (loggerClient.isTraceEnabled()) {
-				loggerClient.trace(_restReactor.prepareResponseString(response, 
-						contentString, extractingContentException));
-			}
-			
-			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
-			{
-	        	if(restHandler == null)
-	        	{
-					return RestReactor.populateErrorInfo(errorInfo,   				
-			                ReactorReturnCodes.FAILURE,
-			                "RestProxyAuthHandler.sendKerborosRequest", 
-		                    "Failed to request authentication token information with HTTP error "
-		                    + response.getStatusLine().getStatusCode() + ". Text: " 
-			               +  (Objects.nonNull(contentString) ? contentString : ""));
-	        	}
-	        	else
-	        	{
-	        		restHandler.completed(response);
-	        	}
-			}
-			else
-			{
-				if(restHandler == null)
-				{
-					RestResponse resp = new RestResponse();
-					RestReactor.convertResponse(_restReactor, response, resp, errorInfo,
-							contentString, extractingContentException);
+
+					return response;
 				}
-				else
-				{
-					restHandler.completed(response);
-				}
-			}
-        }
-        else
-        {
-        	 return ReactorReturnCodes.FAILURE;
-        }
+			});
+		}
+		finally {
+			httpClient.close();
+		}
+
         
         try {
-			loginCOntext.logout();
+			loginContext.logout();
 		} catch (LoginException e) {
 			// Do nothing
 		}
         
-        return ReactorReturnCodes.SUCCESS;
+        return response.returnCode;
 	}
 	
 	private static class KerberosCallBackHandler implements CallbackHandler {

@@ -141,9 +141,13 @@ eclipse {
 
 dependencies {
     apply plugin: 'java'
-    api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
-    api group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.14'
-    api group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.14'
+    implementation('org.apache.httpcomponents.client5:httpclient5:5.5') {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+    implementation('org.apache.httpcomponents.client5:httpclient5-cache:5.5') {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+    api group: 'org.slf4j', name: 'slf4j-api', version: '2.0.16'
     api group: 'org.lz4', name: 'lz4-java', version: '1.8.0'
     implementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 

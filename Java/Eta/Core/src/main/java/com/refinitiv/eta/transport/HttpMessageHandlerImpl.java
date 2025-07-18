@@ -10,10 +10,11 @@ package com.refinitiv.eta.transport;
 
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecReturnCodes;
-import org.apache.commons.codec.Charsets;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -289,9 +290,9 @@ class HttpMessageHandlerImpl implements HttpMessageHandler {
         try {
             //encode first line of request
             messageRequestBuffer
-                    .put(connectionInfo.getRequestMethod().getBytes(Charsets.US_ASCII))
+                    .put(connectionInfo.getRequestMethod().getBytes(StandardCharsets.US_ASCII))
                     .put(SPACE)
-                    .put(connectionInfo.getConnectionUri().getBytes(Charsets.US_ASCII))
+                    .put(connectionInfo.getConnectionUri().getBytes(StandardCharsets.US_ASCII))
                     .put(SPACE)
                     .put(HTTP_PROTOCOL_BYTES)
                     .put(CR).put(LF);
@@ -299,10 +300,10 @@ class HttpMessageHandlerImpl implements HttpMessageHandler {
             //encode headers
             httpRequest.getRequestHeaders().getHeaders().forEach(
                     header -> messageRequestBuffer
-                            .put(header.getHeaderName().getBytes(Charsets.US_ASCII))
+                            .put(header.getHeaderName().getBytes(StandardCharsets.US_ASCII))
                             .put(HEADER_TAG_DELIMITER)
                             .put(SPACE)
-                            .put(header.getSimpleHeaderValue().getBytes(Charsets.US_ASCII))
+                            .put(header.getSimpleHeaderValue().getBytes(StandardCharsets.US_ASCII))
                             .put(CR).put(LF)
             );
 
@@ -328,18 +329,18 @@ class HttpMessageHandlerImpl implements HttpMessageHandler {
             messageResponseBuffer
                     .put(HTTP_PROTOCOL_BYTES)
                     .put(SPACE)
-                    .put(String.valueOf(httpResponse.getHttpResponseConnectionInfo().getResponseStatus()).getBytes(Charsets.US_ASCII))
+                    .put(String.valueOf(httpResponse.getHttpResponseConnectionInfo().getResponseStatus()).getBytes(StandardCharsets.US_ASCII))
                     .put(SPACE)
-                    .put(connectionInfo.getResponseReasonText().getBytes(Charsets.US_ASCII))
+                    .put(connectionInfo.getResponseReasonText().getBytes(StandardCharsets.US_ASCII))
                     .put(CR).put(LF);
 
             //encode response headers
             httpResponse.getResponseHeaders().getHeaders().forEach(
                     header -> messageResponseBuffer
-                            .put(header.getHeaderName().getBytes(Charsets.US_ASCII))
+                            .put(header.getHeaderName().getBytes(StandardCharsets.US_ASCII))
                             .put(HEADER_TAG_DELIMITER)
                             .put(SPACE)
-                            .put(header.getSimpleHeaderValue().getBytes(Charsets.US_ASCII))
+                            .put(header.getSimpleHeaderValue().getBytes(StandardCharsets.US_ASCII))
                             .put(CR).put(LF)
             );
 
