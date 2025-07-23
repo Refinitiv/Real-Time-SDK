@@ -2379,7 +2379,7 @@ RsslRet _reactorSubmitWatchlistMsg(RsslReactorImpl* pReactorImpl, RsslReactorCha
 RsslBool isCurrentReactorChannelPreferred(RsslReactorChannelImpl* pReactorChannelImpl);
 
 /* Calculate the next time to switch over to a preferred host */
-RsslInt64 getNextFallbackPreferredHostTime(RsslPreferredHostOptions* pPreferredHostOpts, RsslInt64 lastRecordedTimeMs);
+RSSL_VA_API RsslInt64 getNextFallbackPreferredHostTime(RsslPreferredHostOptions* pPreferredHostOpts, RsslInt64 currentTimeMs);
 
 RsslRet _writeDebugInfoFallbackToPreferredHost(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel, const char* text, RsslErrorInfo* pError);
 

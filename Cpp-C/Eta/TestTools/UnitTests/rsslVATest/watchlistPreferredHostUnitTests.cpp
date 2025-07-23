@@ -830,6 +830,55 @@ INSTANTIATE_TEST_SUITE_P(
 
 	));
 
+#include <ctime>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	RSSL_VA_API RsslInt64 getNextFallbackPreferredHostTime(RsslPreferredHostOptions* pPreferredHostOpts, RsslInt64 lastRecordedTimeMs);
+#ifdef __cplusplus
+};
+#endif
+
+void test_cron_minutes(const char* detectionTimeSchedule, RsslInt64 minutes)
+{
+	RsslInt64 lastRecordedTimeMs = 0;
+	RsslInt64 next = 0;
+
+	//RsslInt64 getNextFallbackPreferredHostTime(RsslPreferredHostOptions* pPreferredHostOpts, RsslInt64 lastRecordedTimeMs);
+	RsslPreferredHostOptions preferredHostOpts{};
+	preferredHostOpts.enablePreferredHostOptions = RSSL_TRUE;
+
+	preferredHostOpts.detectionTimeSchedule.data = (char*)detectionTimeSchedule;
+	preferredHostOpts.detectionTimeSchedule.length = (RsslUInt32)strlen(detectionTimeSchedule);
+	lastRecordedTimeMs = 0;
+	next = getNextFallbackPreferredHostTime(&preferredHostOpts, lastRecordedTimeMs);
+
+	auto now = std::time(nullptr);
+	auto t = std::localtime(&now);
+	next /= 1000;
+	RsslInt64 wait;
+	if (t->tm_min >= minutes)
+	{
+		wait = ((60LL - t->tm_min) + (minutes - 1)) * 60 + (60LL - t->tm_sec);
+	}
+	else
+	{
+		wait = ((minutes - 1) - t->tm_min) * 60 + (60LL - t->tm_sec);
+	}
+	RsslInt64 diff = next - wait;
+	EXPECT_EQ(next, wait);
+}
+
+TEST_F(PreferredHostUnitTest, Cron)
+{
+	test_cron_minutes("15 * * * *", 15);
+	test_cron_minutes("05 * * * *", 05);
+	test_cron_minutes("25 * * * *", 25);
+	test_cron_minutes("55 * * * *", 55);
+	test_cron_minutes("00 * * * *", 00);
+}
+
 TEST_P(PreferredHostUnitTest, PHChannelListFunctionCall)
 {
 	preferredHost_ChannelList_FallbackFunctionCall(GetParam());

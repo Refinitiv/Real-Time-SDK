@@ -16439,11 +16439,12 @@ RSSL_VA_API RsslRet rsslReactorFallbackToPreferredHost(RsslReactorChannel* pReac
 }
 
 /* Calculate the next time to switch over to a preferred host */
-RsslInt64 getNextFallbackPreferredHostTime(RsslPreferredHostOptions* pPreferredHostOpts, RsslInt64 currentTimeMs)
+RSSL_VA_API RsslInt64 getNextFallbackPreferredHostTime(RsslPreferredHostOptions* pPreferredHostOpts, RsslInt64 currentTimeMs)
 {
 	RsslInt64 nextFallbackTimeMs = 0LL;  // in millisecond
 	time_t dataInit = 0LL;
 	time_t dataNext = 0LL;
+	time_t deltaTime = 0LL;
 	const char* err = NULL;
 	cron_expr parsed;
 	char cronStr[RSSL_REACTOR_MAX_BUFFER_LEN_INFO_CRON];
@@ -16460,10 +16461,17 @@ RsslInt64 getNextFallbackPreferredHostTime(RsslPreferredHostOptions* pPreferredH
 
 			// No need to handle error in this call because CRON string was verified in _validatePreferedHostOptions()
 			cron_parse_expr(cronStr, &parsed, &err);
-			dataInit = (time_t)(currentTimeMs / 1000);
-			dataNext = cron_next(&parsed, dataInit); 
 
-			nextFallbackTimeMs = (RsslInt64)dataNext * 1000;
+			// Get the Unix epoch time in seconds here.
+			dataInit = time(NULL);
+
+			dataNext = cron_next(&parsed, dataInit);
+
+			deltaTime = dataNext - dataInit;
+
+			// Next fallback time will be compared to the currentTimeMs in milliseconds, which is either based on GetTimeOfDay(Linux seconds & milliseconds from epoch) 
+			// or QueryPerformanceCounter(Windows ticks from startup)
+			nextFallbackTimeMs = currentTimeMs + (RsslInt64)deltaTime * 1000;
 		}
 		/* If Cron schedule is not set  then check detection time interval */
 		if (nextFallbackTimeMs <= 0 && pPreferredHostOpts->detectionTimeInterval > 0)
