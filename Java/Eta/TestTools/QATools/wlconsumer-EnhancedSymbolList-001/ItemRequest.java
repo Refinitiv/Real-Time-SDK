@@ -1,3 +1,11 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
+ *|-----------------------------------------------------------------------------
+ */
+
 package com.refinitiv.eta.valueadd.examples.watchlistconsumer;
 
 import java.util.ArrayList;
@@ -25,6 +33,9 @@ import com.refinitiv.eta.rdm.InstrumentNameTypes;
 import com.refinitiv.eta.rdm.SymbolList;
 import com.refinitiv.eta.rdm.ViewTypes;
 
+/**
+ * The Class ItemRequest.
+ */
 public class ItemRequest
 {
    private List<String> itemNames;
@@ -41,8 +52,14 @@ public class ItemRequest
    private int flags;
    private boolean isSymbolListData;
     
+   /**
+    * The Constant VIEW_TYPE.
+    */
    public static final Buffer VIEW_TYPE = CodecFactory.createBuffer();
-   /** :ViewData */
+   
+   /**
+    *  :ViewData.
+    */
    public static final Buffer VIEW_DATA = CodecFactory.createBuffer();
    
    RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
@@ -59,12 +76,20 @@ public class ItemRequest
    private Buffer elementNameBuf = CodecFactory.createBuffer();
    private Array viewArray = CodecFactory.createArray();
          
+   /**
+    * Instantiates a new item request.
+    */
    public ItemRequest()
    {
        this(DomainTypes.MARKET_PRICE);
        this.isSymbolListData = false;
    }
 
+   /**
+    * Instantiates a new item request.
+    *
+    * @param domainType the domain type
+    */
    public ItemRequest(int domainType)
    {
        qos = CodecFactory.createQos();
@@ -78,16 +103,31 @@ public class ItemRequest
        this.domainType = domainType;
    }
       
+   /**
+    * Stream id.
+    *
+    * @return the int
+    */
    public int streamId()
    {
        return streamId;
    }
 
+   /**
+    * Stream id.
+    *
+    * @param streamId the stream id
+    */
    public void streamId(int streamId)
    {
        this.streamId = streamId;
    }
    
+   /**
+    * Symbol list data.
+    *
+    * @param isSymbolListData the is symbol list data
+    */
    public void symbolListData(boolean isSymbolListData)
    {
 	   this.isSymbolListData = isSymbolListData;
@@ -129,7 +169,8 @@ public class ItemRequest
    }
 
    /**
-    * 
+    * Service id.
+    *
     * @return service id
     */
    public int serviceId()
@@ -138,7 +179,10 @@ public class ItemRequest
    }
 
    /**
-    * @param serviceId
+    * Service id.
+    *
+    * @param serviceId the service id
+    * @return the item request
     */
    public ItemRequest serviceId(int serviceId)
    {
@@ -147,7 +191,8 @@ public class ItemRequest
    }
 
    /**
-    * 
+    * Item names.
+    *
     * @return list of item names
     */
    public List<String> itemNames()
@@ -156,7 +201,8 @@ public class ItemRequest
    }
    
    /**
-    * 
+    * Item names.
+    *
     * @param itemNames list of item names
     */
    public void itemNames(List<String> itemNames)
@@ -165,7 +211,8 @@ public class ItemRequest
    }   
 
    /**
-    * 
+    * Adds the item.
+    *
     * @param itemName item name
     */
    public void addItem(String itemName)
@@ -174,7 +221,8 @@ public class ItemRequest
    }   
    
    /**
-    * 
+    * Priority class.
+    *
     * @return priority class used by request
     */
    public int priorityClass()
@@ -183,7 +231,8 @@ public class ItemRequest
    }
 
    /**
-    * 
+    * Priority count.
+    *
     * @return priority count used by request
     */
    public int priorityCount()
@@ -192,10 +241,10 @@ public class ItemRequest
    }
 
    /**
-    * 
-    * @param priorityClass
-    * @param priorityCount
-    * 
+    * Priority.
+    *
+    * @param priorityClass the priority class
+    * @param priorityCount the priority count
     */
    public void priority(int priorityClass, int priorityCount)
    {
@@ -312,7 +361,8 @@ public class ItemRequest
    }
 
    /**
-    * 
+    * Qos.
+    *
     * @return Qos used by request
     */
    public Qos qos()
@@ -321,7 +371,8 @@ public class ItemRequest
    }
 
    /**
-    * 
+    * Worst qos.
+    *
     * @return WorstQos used by request
     */
    public Qos worstQos()
@@ -330,7 +381,8 @@ public class ItemRequest
    }
 
    /**
-    * 
+    * View fields.
+    *
     * @return list of view fields
     */
    public List<Integer> viewFields()
@@ -339,15 +391,18 @@ public class ItemRequest
    }
    
    /**
-    * 
+    * View element names.
+    *
     * @return list of view elementNames
     */
    public List<String> viewElementNames()
    {
        return viewElementNameList;
    }
+   
    /**
-    * 
+    * View fields.
+    *
     * @param viewList list of view fields
     */
    public void viewFields(List<Integer> viewList)
@@ -356,7 +411,8 @@ public class ItemRequest
    }
          
    /**
-    * 
+    * View element names.
+    *
     * @param elementNameList list of element names
     */
    public void viewElementNames(List<String> elementNameList)
@@ -381,7 +437,8 @@ public class ItemRequest
    }
 
    /**
-    * 
+    * Domain type.
+    *
     * @return Domain type
     */
    public int domainType()
@@ -390,7 +447,8 @@ public class ItemRequest
    }
    
    /**
-    * 
+    * Domain type.
+    *
     * @param domainType Domain type
     */
    public void domainType(int domainType)
@@ -399,7 +457,9 @@ public class ItemRequest
    }
    
    /**
-    * Set the identifier for the msg Key
+    * Set the identifier for the msg Key.
+    *
+    * @param setIdentifier the set identifier
     */
    
    public void identifier(int setIdentifier)
@@ -416,7 +476,8 @@ public class ItemRequest
    }
    
    /**
-    * Checks the presence of an identifier
+    * Checks the presence of an identifier.
+    *
     * @return true - if exists; false if does not exist;
     */
    public boolean checkHasIdentifier()
@@ -427,6 +488,9 @@ public class ItemRequest
            return false;
    }
 
+   /**
+    * Encode.
+    */
    public void encode()
    {
        requestMsg.clear();
@@ -736,6 +800,12 @@ public class ItemRequest
 	       return CodecReturnCodes.SUCCESS;
    }
    
+   /**
+    * Encode symbol list data.
+    *
+    * @param encodeIter the encode iter
+    * @return the int
+    */
    public int encodeSymbolListData(EncodeIterator encodeIter)
    {
 	   int ret = CodecReturnCodes.SUCCESS;	   
@@ -765,11 +835,10 @@ public class ItemRequest
     	   tempUInt.value(SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_STREAMS);
        else
     	   tempUInt.value(SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS);
-           //APIQA
-            tempUInt.value(SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_STREAMS);
-	      // END APIQA 
-	   
-	   if ((ret = dataStreamEntry.encode(encodeIter, tempUInt)) < CodecReturnCodes.SUCCESS)
+       //APIQA
+       tempUInt.value(SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_STREAMS);
+       // END APIQA
+       if ((ret = dataStreamEntry.encode(encodeIter, tempUInt)) < CodecReturnCodes.SUCCESS)
        {
            return ret;
        }

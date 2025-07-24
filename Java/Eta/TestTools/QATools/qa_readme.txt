@@ -109,8 +109,6 @@ vaconsumer-OAuthV2-003: Alter VAConsumer to create 1 reactor, 6 connections, 1st
 
 vaconsumer-Jwt-001: Alter VAConsumer to create 1 reactor, 2 connections, both for OAuth V2 JWT but can identify either same / diff credential.
 
-vaconsumer-sd-001: Alter VAConsumer to perform implicit service discovery. To perform implicit SD host and port need to be skipped. Arg ex: '-c : '
-
 Module:  Watchlist Consumer 
 ---------------------------
 
@@ -154,8 +152,6 @@ Further extended to add event "-e4", for reissue on an item expressing View chan
       10::1:1,P send reissue after 10 updates on item indexed 1 which is 'TRI.N' in the above example. (because end index is also 1 '1:1'.
       ',' after comma the reissue action V3 -View change V3, P pause, R resume. In the above example reissue action is P i.e pause.
 	  
-wlconsumer-ConsFunc-002: Extended wlconsumer-ConsFunc-001 to add options for warmstandby.
-
 wlconsumer-GenM-001:  Alters WLConsumer to send genericMsg on login, directory and market price streams. 
 GenericMsg contains ElementList with one ElementEntry. 
 Also added is the ability to decode genericMsg from a provider. 

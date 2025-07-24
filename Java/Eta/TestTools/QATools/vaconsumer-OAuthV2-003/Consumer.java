@@ -1,3 +1,11 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2019-2025 LSEG. All rights reserved.
+ *|-----------------------------------------------------------------------------
+ */
+
 package com.refinitiv.eta.valueadd.examples.consumer;
 
 import java.io.IOException;
@@ -8,6 +16,11 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.refinitiv.eta.codec.Buffer;
@@ -28,11 +41,10 @@ import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.rdm.Dictionary;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.shared.CommandLine;
 import com.refinitiv.eta.shared.network.ChannelHelper;
-import com.refinitiv.eta.transport.ConnectOptions;
-import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.transport.*;
 import com.refinitiv.eta.transport.Error;
-import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.valueadd.cache.CacheFactory;
 import com.refinitiv.eta.valueadd.cache.PayloadEntry;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
@@ -137,13 +149,43 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *  </li>
  * </ul>
  * </li>
- * <li>-uname changes the username used when logging into the provider
+ * <li>-uname1 changes the username used when logging into the provider
  *
- * <li>-passwd changes the password used when logging into the provider
+ * <li>-passwd1 changes the password used when logging into the provider
  *
- * <li>-clientId specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator
+ * <li>-clientId1_1 specifies clientID for a V1.
+ *
+ * <li>-uname2 changes the username used when logging into the provider
+ *
+ * <li>-passwd2 changes the password used when logging into the provider
+ *
+ * <li>-clientId1_2 specifies clientID for a V1.
+ *
+ * <li>-uname3 changes the username used when logging into the provider
+ *
+ * <li>-passwd3 changes the password used when logging into the provider
+ *
+ * <li>-clientId1_3 specifies clientID for a V1.
+ *
+ * <li>-clientSecret1 associated client secret for the client ID with the v2 login.
+ *
+ * <li>-clientId2_1 specifies the Client ID login v2.
+ *
+ * <li>-clientSecret2 associated client secret for the client ID with the v2 login.
+ *
+ * <li>-clientId2_2 specifies the Client ID login v2.
+ *
+ * <li>-clientSecret3 associated client secret for the client ID with the v2 login.
+ *
+ * <li>-clientId2_3 specifies the Client ID login v2.
+ * 
+ * <li>-jwkFile Specifies the file containing the JWK encoded private key for V2 JWT logins.
  *
  * <li>-sessionMgnt enables the session management in the Reactor
+ * 
+ * <li>-tokenURLV1 Specifies the token URL for V1 token oauthpasswd grant type.
+ * 
+ * <li>-tokenURLV2 Specifies the token URL for V2 token oauthclientcreds grant type.
  *
  * <li>-view specifies each request using a basic dynamic view
  *
@@ -193,21 +235,40 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *
  * <li>-rtt enables rtt support by a consumer. If provider make distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.
  *
+ * <li>Options for Preferred host:
+ * <ul>
+ *  <li>-enablePH enables Preferred host feature.
+ *  <li>-preferredHostIndex specifies the preferred host as the index in the connection list. Default is 0.
+ *  <li>-detectionTimeInterval specifies time interval (in seconds) to switch over to a preferred host. 0 indicates that the detection time interval is disabled. Default is 0.
+ *  <li>-detectionTimeSchedule specifies Cron time format to switch over to a preferred host. detectionTimeInterval is used instead if this member is set to empty. Default is empty.
+ * </ul>
+ * </li>
+ *
+ * <li>Options for IOCtl and Fallback calls:
+ * <ul>
+ *  <li>-fallBackInterval specifies time interval (in seconds) in application before Ad Hoc Fallback function is invoked. O indicates that function won't be invoked. Default is 0.
+ *  <li>-ioctlInterval specifies time interval (in seconds) before IOCtl function is invoked. O indicates that function won't be invoked. Default is 0.
+ *  <li>-ioctlEnablePH enables Preferred host feature. Default is a value of enablePH.
+ *  <li>-ioctlConnectListIndex specifies the preferred host as the index in the connection list. Default is a value of preferredHostIndex.
+ *  <li>-ioctlDetectionTimeInterval specifies time interval (in seconds) to switch over to a preferred host. 0 indicates that the detection time interval is disabled. Default is a value of detectionTimeInterval.
+ *  <li>-ioctlDetectionTimeSchedule specifies Cron time format to switch over to a preferred host. Default is a value of detectionTimeSchedule.
+ * </ul>
+ * </li>
  * </ul>
  */
 public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback, ReactorOAuthCredentialEventCallback,
 		ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback
 {
-	private final String FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";
-	private final String ENUM_TABLE_FILE_NAME = "enumtype.def";
+	private static final String FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";
+	private static final String ENUM_TABLE_FILE_NAME = "enumtype.def";
 
 	private Reactor reactor;
-	private ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
-	private ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
-	private ReactorDispatchOptions dispatchOptions = ReactorFactory.createReactorDispatchOptions();
-	private ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
-	private ReactorJsonConverterOptions jsonConverterOptions = ReactorFactory.createReactorJsonConverterOptions();
-	private ConsumerCmdLineParser consumerCmdLineParser = new ConsumerCmdLineParser();
+	private final ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+	private final ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
+	private final ReactorDispatchOptions dispatchOptions = ReactorFactory.createReactorDispatchOptions();
+	private final ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+	private final ReactorJsonConverterOptions jsonConverterOptions = ReactorFactory.createReactorJsonConverterOptions();
+	private final ConsumerCmdLineParser consumerCmdLineParser = new ConsumerCmdLineParser();
 	private Selector selector;
 
 	private long runtime;
@@ -229,17 +290,20 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	// default item name 2
 	private static final String defaultItemName2 = ".DJI";
 
-	private Error error;    // error information
+	private final Error error;    // error information
 
 	private DataDictionary dictionary;
 
 	private boolean fieldDictionaryLoadedFromFile;
 	private boolean enumTypeDictionaryLoadedFromFile;
 
-	ArrayList<ChannelInfo> chnlInfoList = new ArrayList<ChannelInfo>();
+	ArrayList<ChannelInfo> chnlInfoList = new ArrayList<>();
 
 	private TunnelStreamHandler tunnelStreamHandler;
 	private String tsServiceName;
+
+	private final DateTimeFormatter formatter;
+	private static final String TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
 	long cacheTime;
 	long cacheInterval;
@@ -249,12 +313,31 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	Buffer cacheEntryBuffer;
 
 	boolean _finalStatusEvent;
-	private long closetime;
+	private final long closetime;
 	private long closeRunTime;
 	boolean closeHandled;
 
-	private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
-	private Map<ReactorChannel, Integer> socketFdValueMap = new HashMap<>();
+	private long ioctlTime;
+	private long ioctlInterval;
+	private long fallbackTime;
+	private long fallbackInterval;
+
+	private boolean isIOCtlCalled;
+	private boolean isFallbackCalled;
+
+	private final ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+	private final Map<ReactorChannel, Integer> socketFdValueMap = new HashMap<>();
+
+	// Reconnection options
+	private static final int RECONNECTION_ATTEMPT_LIMIT = -1;
+	// Default reconnection minimum delay is 500 milliseconds
+	private static final int RECONNECTION_MIN_DELAY = 500;
+	// Default reconnection maximum delay is 6000 milliseconds
+	private static final int RECONNECTION_MAX_DELAY = 6000;
+
+	private StringBuilder stringBuilder;
+	private final ReactorChannelInfo reactorChannelInfo = ReactorFactory.createReactorChannelInfo();
+	private final ReactorErrorInfo reactorErrorInfo = ReactorFactory.createReactorErrorInfo();
 
 	public Consumer()
 	{
@@ -264,6 +347,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		dispatchOptions.maxMessages(1);
 		_finalStatusEvent = true;
 		closetime = 10; // 10 sec
+		formatter = DateTimeFormatter.ofPattern(TIMESTAMP_FORMAT);
 		try
 		{
 			selector = Selector.open();
@@ -287,11 +371,11 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		}
 
 		// add default connections to arguments if none specified
-		if (consumerCmdLineParser.connectionList().size() == 0 &&
+		if (consumerCmdLineParser.connectionList().isEmpty() &&
 			!consumerCmdLineParser.enableSessionMgnt())
 		{
 			// first connection - localhost:14002 DIRECT_FEED mp:TRI.N
-			List<ItemArg> itemList = new ArrayList<ItemArg>();
+			List<ItemArg> itemList = new ArrayList<>();
 			ItemArg itemArg = new ItemArg(DomainTypes.MARKET_PRICE, defaultItemName, false);
 			itemList.add(itemArg);
 			ConnectionArg connectionArg = new ConnectionArg(ConnectionTypes.SOCKET,
@@ -302,7 +386,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			consumerCmdLineParser.connectionList().add(connectionArg);
 
 			// second connection - localhost:14002 DIRECT_FEED mp:TRI.N mp:.DJI
-			List<ItemArg> itemList2 = new ArrayList<ItemArg>();
+			List<ItemArg> itemList2 = new ArrayList<>();
 			ItemArg itemArg2 = new ItemArg(DomainTypes.MARKET_PRICE, defaultItemName2, false);
 			itemList2.add(itemArg);
 			itemList2.add(itemArg2);
@@ -318,8 +402,8 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		System.out.println(Codec.queryVersion().toString());
 		System.out.println("Consumer initializing...");
 
-		runtime = System.currentTimeMillis() + consumerCmdLineParser.runtime() * 1000;
-		closeRunTime = System.currentTimeMillis() + (consumerCmdLineParser.runtime() + closetime) * 1000;
+		runtime = System.currentTimeMillis() + consumerCmdLineParser.runtime() * 1000L;
+		closeRunTime = System.currentTimeMillis() + (consumerCmdLineParser.runtime() + closetime) * 1000L;
 
 		// load dictionary
 		loadDictionary();
@@ -329,6 +413,10 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		{
 			reactorOptions.enableXmlTracing();
 		}
+
+		ioctlInterval = consumerCmdLineParser.ioctlInterval();
+
+		fallbackInterval = consumerCmdLineParser.fallBackInterval();
 
 		cacheInterval = consumerCmdLineParser.cacheInterval();
 		cacheTime = System.currentTimeMillis() + cacheInterval*1000;
@@ -343,21 +431,68 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		}
 		
 		// Set Token Generator URLs
-		if(consumerCmdLineParser.tokenURLV1() != null && !consumerCmdLineParser.tokenURLV1().equals(""))
+		if(consumerCmdLineParser.tokenURLV1() != null && !consumerCmdLineParser.tokenURLV1().isEmpty())
 		{
 			reactorOptions.tokenServiceURL_V1().data(consumerCmdLineParser.tokenURLV1());
 		}
 		
-		if(consumerCmdLineParser.tokenURLV2() != null && !consumerCmdLineParser.tokenURLV2().equals(""))
+		if(consumerCmdLineParser.tokenURLV2() != null && !consumerCmdLineParser.tokenURLV2().isEmpty())
 		{
 			reactorOptions.tokenServiceURL_V2().data(consumerCmdLineParser.tokenURLV2());
+		}
+		
+		if(consumerCmdLineParser.restProxyHostName() != null && !consumerCmdLineParser.restProxyHostName().isEmpty())
+		{
+			Buffer hostName = CodecFactory.createBuffer();
+			hostName.data(consumerCmdLineParser.restProxyHostName());
+			reactorOptions.restProxyOptions().proxyHostName(hostName);
+		}
+		
+		if(consumerCmdLineParser.restProxyPort() != null && !consumerCmdLineParser.restProxyPort().isEmpty())
+		{
+			Buffer port = CodecFactory.createBuffer();
+			port.data(consumerCmdLineParser.restProxyPort());
+			reactorOptions.restProxyOptions().proxyPort(port);
+		}
+		
+		if(consumerCmdLineParser.restProxyUserName() != null && !consumerCmdLineParser.restProxyUserName().isEmpty())
+		{
+			Buffer userName = CodecFactory.createBuffer();
+			userName.data(consumerCmdLineParser.restProxyUserName());
+			reactorOptions.restProxyOptions().proxyUserName(userName);
+		}
+		
+		if(consumerCmdLineParser.restProxyPasswd() != null && !consumerCmdLineParser.restProxyPasswd().isEmpty())
+		{
+			Buffer passwd = CodecFactory.createBuffer();
+			passwd.data(consumerCmdLineParser.restProxyPasswd());
+			reactorOptions.restProxyOptions().proxyPassword(passwd);
+		}
+		
+		if(consumerCmdLineParser.restProxyDomain() != null && !consumerCmdLineParser.restProxyDomain().isEmpty())
+		{
+			Buffer domain = CodecFactory.createBuffer();
+			domain.data(consumerCmdLineParser.restProxyDomain());
+			reactorOptions.restProxyOptions().proxyDomain(domain);
+		}
+		
+		if(consumerCmdLineParser.restProxyKrb5ConfigFile() != null && !consumerCmdLineParser.restProxyKrb5ConfigFile().isEmpty())
+		{
+			Buffer krb5ConfigFile = CodecFactory.createBuffer();
+			krb5ConfigFile.data(consumerCmdLineParser.restProxyKrb5ConfigFile());
+			reactorOptions.restProxyOptions().proxyKrb5ConfigFile(krb5ConfigFile);
+		}
+
+		if (consumerCmdLineParser.serviceDiscoveryURL() != null && !consumerCmdLineParser.serviceDiscoveryURL().isEmpty())
+		{
+			reactorOptions.serviceDiscoveryURL().data(consumerCmdLineParser.serviceDiscoveryURL());
 		}
 
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
 		{
-			System.out.println("createReactor() failed: " + errorInfo.toString());
+			System.out.println("createReactor() failed: " + errorInfo);
 			System.exit(ReactorReturnCodes.FAILURE);
 		}
 
@@ -376,126 +511,126 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 
 		/* create channel info, initialize channel info, and connect channels
 		 * for each connection specified */
-		
+
 		int index = 0;
 		for (ConnectionArg connectionArg : consumerCmdLineParser.connectionList())
 		{
 			// create channel info
 			ChannelInfo chnlInfo = new ChannelInfo();
 			chnlInfo.connectionArg = connectionArg;
-			
+
 			//APIQA
-        	chnlInfo.consumerRole.initDefaultRDMLoginRequest();
-        	
-        	if (index==0)
-        	{
-        		// connection1 is for STS
-        		oAuthCredential.clear();
-                if (consumerCmdLineParser.userName1() != null && !consumerCmdLineParser.userName1().equals(""))
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.userName().data(consumerCmdLineParser.userName1());
-                }
-                if (consumerCmdLineParser.passwd1() != null)
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.password().data(consumerCmdLineParser.passwd1());
-                    loginRequest.applyHasPassword();
-                    oAuthCredential.password().data(consumerCmdLineParser.passwd1());
-                    /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-        			oAuthCredential.reactorOAuthCredentialEventCallback(this);
-                }
-                if (consumerCmdLineParser.clientId1_1() != null && !consumerCmdLineParser.clientId1_1().equals(""))
-                {
-                	oAuthCredential.clientId().data(consumerCmdLineParser.clientId1_1());
-                	oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
-                }
-        	}
-        	else if (index==1)
-        	{
-        		// connection2 is for STS
-        		oAuthCredential.clear();
-                if (consumerCmdLineParser.userName2() != null && !consumerCmdLineParser.userName2().equals(""))
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.userName().data(consumerCmdLineParser.userName2());
-                }
-                if (consumerCmdLineParser.passwd2() != null)
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.password().data(consumerCmdLineParser.passwd2());
-                    loginRequest.applyHasPassword();
-                    oAuthCredential.password().data(consumerCmdLineParser.passwd2());
-                    /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-        			oAuthCredential.reactorOAuthCredentialEventCallback(this);
-                }
-                if (consumerCmdLineParser.clientId1_2() != null && !consumerCmdLineParser.clientId1_2().equals(""))
-                {
-                	oAuthCredential.clientId().data(consumerCmdLineParser.clientId1_2());
-                	oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
-                }
-        	}
-        	else if (index==2)
-        	{
-        		// connection3 is for STS
-        		oAuthCredential.clear();
-                if (consumerCmdLineParser.userName3() != null && !consumerCmdLineParser.userName3().equals(""))
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.userName().data(consumerCmdLineParser.userName3());
-                }
-                if (consumerCmdLineParser.passwd3() != null)
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.password().data(consumerCmdLineParser.passwd3());
-                    loginRequest.applyHasPassword();
-                    oAuthCredential.password().data(consumerCmdLineParser.passwd3());
-                    /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-        			oAuthCredential.reactorOAuthCredentialEventCallback(this);
-                }
-                if (consumerCmdLineParser.clientId1_3() != null && !consumerCmdLineParser.clientId1_3().equals(""))
-                {
-                	oAuthCredential.clientId().data(consumerCmdLineParser.clientId1_3());
-                	oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
-                }
-        	}
-        	else if (index==3)
-        	{
-        		 // connection4 is for OAuthV2 
-        		 oAuthCredential.clear();
-        		 if (consumerCmdLineParser.clientId2_1() != null && !consumerCmdLineParser.clientId2_1().equals(""))
-                 {
-        			 oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret1());
-        			 oAuthCredential.clientId().data(consumerCmdLineParser.clientId2_1());
-                     /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-        			 oAuthCredential.reactorOAuthCredentialEventCallback(this);
-                 }
-        	}
-        	else if (index==4)
-        	{
-        		 // connection5 is for OAuthV2 
-        		 oAuthCredential.clear();
-        		 if (consumerCmdLineParser.clientId2_2() != null && !consumerCmdLineParser.clientId2_2().equals(""))
-                 {
-        			 oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret2());
-        			 oAuthCredential.clientId().data(consumerCmdLineParser.clientId2_2());
-                     /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-        			 oAuthCredential.reactorOAuthCredentialEventCallback(this);
-                 }
-        	}
-        	else
-        	{
-        		 // connection6 is for OAuthV2 
-        		 oAuthCredential.clear();
-        		 if (consumerCmdLineParser.clientId2_3() != null && !consumerCmdLineParser.clientId2_3().equals(""))
-                 {
-        			 oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret3());
-        			 oAuthCredential.clientId().data(consumerCmdLineParser.clientId2_3());
-                     /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-        			 oAuthCredential.reactorOAuthCredentialEventCallback(this);
-                 }
-        	}
-			// initialize channel info        	
+			chnlInfo.consumerRole.initDefaultRDMLoginRequest();
+
+			if (index==0)
+			{
+				// connection1 is for STS
+				oAuthCredential.clear();
+				if (consumerCmdLineParser.userName1() != null && !consumerCmdLineParser.userName1().isEmpty())
+				{
+					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+					loginRequest.userName().data(consumerCmdLineParser.userName1());
+				}
+				if (consumerCmdLineParser.passwd1() != null)
+				{
+					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+					loginRequest.password().data(consumerCmdLineParser.passwd1());
+					loginRequest.applyHasPassword();
+					oAuthCredential.password().data(consumerCmdLineParser.passwd1());
+					/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+					oAuthCredential.reactorOAuthCredentialEventCallback(this);
+				}
+				if (consumerCmdLineParser.clientId1_1() != null && !consumerCmdLineParser.clientId1_1().isEmpty())
+				{
+					oAuthCredential.clientId().data(consumerCmdLineParser.clientId1_1());
+					oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
+				}
+			}
+			else if (index==1)
+			{
+				// connection2 is for STS
+				oAuthCredential.clear();
+				if (consumerCmdLineParser.userName2() != null && !consumerCmdLineParser.userName2().isEmpty())
+				{
+					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+					loginRequest.userName().data(consumerCmdLineParser.userName2());
+				}
+				if (consumerCmdLineParser.passwd2() != null)
+				{
+					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+					loginRequest.password().data(consumerCmdLineParser.passwd2());
+					loginRequest.applyHasPassword();
+					oAuthCredential.password().data(consumerCmdLineParser.passwd2());
+					/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+					oAuthCredential.reactorOAuthCredentialEventCallback(this);
+				}
+				if (consumerCmdLineParser.clientId1_2() != null && !consumerCmdLineParser.clientId1_2().isEmpty())
+				{
+					oAuthCredential.clientId().data(consumerCmdLineParser.clientId1_2());
+					oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
+				}
+			}
+			else if (index==2)
+			{
+				// connection3 is for STS
+				oAuthCredential.clear();
+				if (consumerCmdLineParser.userName3() != null && !consumerCmdLineParser.userName3().isEmpty())
+				{
+					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+					loginRequest.userName().data(consumerCmdLineParser.userName3());
+				}
+				if (consumerCmdLineParser.passwd3() != null)
+				{
+					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+					loginRequest.password().data(consumerCmdLineParser.passwd3());
+					loginRequest.applyHasPassword();
+					oAuthCredential.password().data(consumerCmdLineParser.passwd3());
+					/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+					oAuthCredential.reactorOAuthCredentialEventCallback(this);
+				}
+				if (consumerCmdLineParser.clientId1_3() != null && !consumerCmdLineParser.clientId1_3().isEmpty())
+				{
+					oAuthCredential.clientId().data(consumerCmdLineParser.clientId1_3());
+					oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
+				}
+			}
+			else if (index==3)
+			{
+				// connection4 is for OAuthV2
+				oAuthCredential.clear();
+				if (consumerCmdLineParser.clientId2_1() != null && !consumerCmdLineParser.clientId2_1().isEmpty())
+				{
+					oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret1());
+					oAuthCredential.clientId().data(consumerCmdLineParser.clientId2_1());
+					/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+					oAuthCredential.reactorOAuthCredentialEventCallback(this);
+				}
+			}
+			else if (index==4)
+			{
+				// connection5 is for OAuthV2
+				oAuthCredential.clear();
+				if (consumerCmdLineParser.clientId2_2() != null && !consumerCmdLineParser.clientId2_2().isEmpty())
+				{
+					oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret2());
+					oAuthCredential.clientId().data(consumerCmdLineParser.clientId2_2());
+					/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+					oAuthCredential.reactorOAuthCredentialEventCallback(this);
+				}
+			}
+			else
+			{
+				// connection6 is for OAuthV2
+				oAuthCredential.clear();
+				if (consumerCmdLineParser.clientId2_3() != null && !consumerCmdLineParser.clientId2_3().isEmpty())
+				{
+					oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret3());
+					oAuthCredential.clientId().data(consumerCmdLineParser.clientId2_3());
+					/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+					oAuthCredential.reactorOAuthCredentialEventCallback(this);
+				}
+			}
+			// initialize channel info
 			initChannelInfo(chnlInfo);
 
 			// connect channel
@@ -506,11 +641,11 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 				//API QA commented out to let app continue for success channel
 				//System.exit(ReactorReturnCodes.FAILURE);
 			} else {
-	        	 System.out.println("QA reactor.connect SUCCESS for index:" + index);
-	        }
+				System.out.println("QA reactor.connect SUCCESS for index:" + index);
+			}
 			//APIQA
-	        chnlInfo.consumerRole.watchlistOptions().enableWatchlist(true);
-	        //END APIQA
+			chnlInfo.consumerRole.watchlistOptions().enableWatchlist(true);
+			//END APIQA
 			// add to ChannelInfo list
 			chnlInfoList.add(chnlInfo);
 			index ++;
@@ -519,11 +654,12 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		jsonConverterOptions.dataDictionary(dictionary);
 		jsonConverterOptions.serviceNameToIdCallback(this);
 		jsonConverterOptions.jsonConversionEventCallback(this);
+		jsonConverterOptions.sendJsonConvError(consumerCmdLineParser.sendJsonConvError());
 
 		// Initialize the JSON converter
 		if ( reactor.initJsonConverter(jsonConverterOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
 		{
-			System.out.println("Reactor.initJsonConverter() failed: " + errorInfo.toString());
+			System.out.println("Reactor.initJsonConverter() failed: " + errorInfo);
 			System.exit(ReactorReturnCodes.FAILURE);
 		}
 	}
@@ -575,12 +711,35 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 				statisticTime = currentTime + statisticInterval*1000;
 			}
 
+			if (isModifyIOCtlReady(currentTime))
+			{
+				if (isPreferredHostOptionsChanged()) {
+					for (ChannelInfo chnlInfo : chnlInfoList)
+					{
+						if (chnlInfo.reactorChannel != null)
+							modifyIOCtl(chnlInfo.reactorChannel);
+					}
+				}
+
+				isIOCtlCalled = true;
+			}
+
+			if (isFallbackPreferredHostReady(currentTime))
+			{
+				for (ChannelInfo chnlInfo : chnlInfoList)
+				{
+					if (chnlInfo.reactorChannel != null)
+						fallbackPreferredHost(chnlInfo.reactorChannel);
+				}
+
+				isFallbackCalled = true;
+			}
 
 			// nothing to read
 			if (keySet != null)
 			{
 				Iterator<SelectionKey> iter = keySet.iterator();
-				int ret = ReactorReturnCodes.SUCCESS;
+				int ret;
 				while (iter.hasNext())
 				{
 					SelectionKey key = iter.next();
@@ -627,6 +786,10 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			}
 			if (!closeHandled)
 			{
+				if(isAllChannelsClosed()) {
+					break;
+				}
+
 				handlePosting();
 				handleTunnelStream();
 
@@ -640,7 +803,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 						continue;
 					}
 
-					if (chnlInfo.canSendLoginReissue && (consumerCmdLineParser.enableSessionMgnt() == false) &&
+					if (chnlInfo.canSendLoginReissue && (!consumerCmdLineParser.enableSessionMgnt()) &&
 						System.currentTimeMillis() >= chnlInfo.loginReissueTime)
 					{
 						LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
@@ -661,6 +824,55 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			if(closeHandled && tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null &&
 			   !tunnelStreamHandler._chnlInfo.isTunnelStreamUp)
 				break;
+		}
+	}
+
+	private boolean isAllChannelsClosed() {
+		return chnlInfoList.stream().allMatch(channelInfo -> channelInfo.isChannelClosed);
+	}
+
+	private boolean isPreferredHostOptionsChanged() {
+        return consumerCmdLineParser.ioctlEnablePH() != consumerCmdLineParser.enablePH()
+				|| consumerCmdLineParser.ioctlConnectListIndex() != consumerCmdLineParser.preferredHostIndex()
+				|| consumerCmdLineParser.ioctlDetectionTimeInterval() != consumerCmdLineParser.detectionTimeInterval()
+				|| !consumerCmdLineParser.ioctlDetectionTimeSchedule().trim().equals(consumerCmdLineParser.detectionTimeSchedule().trim());
+	}
+
+	private boolean isFallbackPreferredHostReady(long currentTime) {
+		return fallbackInterval > 0 && fallbackTime > 0 && currentTime >= fallbackTime && !isFallbackCalled;
+	}
+
+	private boolean isModifyIOCtlReady(long currentTime) {
+		return ioctlInterval > 0 && ioctlTime > 0 && currentTime >= ioctlTime && !isIOCtlCalled;
+	}
+
+	private void modifyIOCtl(ReactorChannel reactorChannel) {
+		ReactorPreferredHostOptions preferredHostOptions = ReactorFactory.createReactorPreferredHostOptions();
+		preferredHostOptions.isPreferredHostEnabled(consumerCmdLineParser.ioctlEnablePH());
+		preferredHostOptions.detectionTimeInterval(consumerCmdLineParser.ioctlDetectionTimeInterval());
+		if (!consumerCmdLineParser.ioctlDetectionTimeSchedule().trim().isEmpty()) {
+			preferredHostOptions.detectionTimeSchedule(consumerCmdLineParser.ioctlDetectionTimeSchedule());
+		}
+		if (consumerCmdLineParser.ioctlConnectListIndex() < consumerCmdLineParser.connectionList().get(0).consumerHostnames().size()) {
+			preferredHostOptions.connectionListIndex(consumerCmdLineParser.ioctlConnectListIndex());
+		} else {
+			System.out.println("IOCtl preferred host connection list index is out of the bound of connection list!");
+		}
+
+		if (reactorChannel.ioctl(ReactorChannelIOCtlCode.FALLBACK_PREFERRED_HOST_OPTIONS, preferredHostOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
+		{
+			System.out.println("channel.ioctl() was failed: " + errorInfo.error().text());
+		} else {
+			System.out.println("channel.ioctl() was successful");
+		}
+	}
+
+	private void fallbackPreferredHost(ReactorChannel reactorChannel) {
+		if (reactorChannel.fallbackPreferredHost(errorInfo) != ReactorReturnCodes.SUCCESS)
+		{
+			System.out.println("channel.fallbackPreferredHost() was failed: " + errorInfo.error().text());
+		} else {
+			System.out.println("channel.fallbackPreferredHost() was successful");
 		}
 	}
 
@@ -706,14 +918,23 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	{
 		ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
 		ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
-		ReactorOAuthCredential reactorOAuthCredential = (ReactorOAuthCredential)reactorOAuthCredentialEvent.userSpecObj();
 
 		renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
-		oAuthCredentialRenewal.password().data(reactorOAuthCredential.password().toString());
-
+		if (oAuthCredential.password() != null && oAuthCredential.password().length() != 0)
+			oAuthCredentialRenewal.password().data(oAuthCredential.password().toString());
+		else if (oAuthCredential.clientSecret() != null && oAuthCredential.clientSecret().length() != 0)
+			oAuthCredentialRenewal.clientSecret().data(oAuthCredential.clientSecret().toString());
+		else
+			oAuthCredentialRenewal.clientJWK().data(oAuthCredential.clientJwk().toString());
+		
 		reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
 
 		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	private void dumpTimestamp()
+	{
+		System.out.println("<!-- " + LocalDateTime.now(ZoneOffset.UTC).format(formatter) + " (UTC) -->");
 	}
 
 	@Override
@@ -721,6 +942,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	{
 		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
 
+		dumpTimestamp();
 		switch(event.eventType())
 		{
 			case ReactorChannelEventTypes.CHANNEL_UP:
@@ -748,6 +970,13 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 					System.out.println("selector register failed: " + e.getLocalizedMessage());
 					return ReactorCallbackReturnCodes.SUCCESS;
 				}
+
+				// Initialize timers for ioctl and fallback calls
+				if(ioctlTime == 0)
+					ioctlTime = System.currentTimeMillis() + ioctlInterval*1000;
+				if(fallbackTime == 0)
+					fallbackTime = System.currentTimeMillis() + fallbackInterval*1000;
+
 				break;
 			}
 			case ReactorChannelEventTypes.FD_CHANGE:
@@ -789,6 +1018,10 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 				else
 					System.out.println("Channel Ready Event");
 
+				if (event.reactorChannel().info(reactorChannelInfo, reactorErrorInfo) == ReactorReturnCodes.SUCCESS) {
+					printPreferredHostInfo(reactorChannelInfo.preferredHostInfo());
+				}
+
 				if (isRequestedServiceUp(chnlInfo))
 				{
 					checkAndInitPostingSupport(chnlInfo);
@@ -828,12 +1061,18 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
 			{
 				if (event.reactorChannel().selectableChannel() != null)
-					System.out.println("\nConnection down reconnecting: Channel " + event.reactorChannel().selectableChannel());
+					System.out.println("\nConnection down reconnecting: Channel " + event.reactorChannel().selectableChannel()
+							+ " Host: " + event.reactorChannel().hostname() + ":" + event.reactorChannel().port());
 				else
 					System.out.println("\nConnection down reconnecting");
 
 				if (event.errorInfo() != null && event.errorInfo().error().text() != null)
 					System.out.println("	Error text: " + event.errorInfo().error().text() + "\n");
+
+				if (event.reactorChannel().info(reactorChannelInfo, reactorErrorInfo) == ReactorReturnCodes.SUCCESS)
+				{
+					printPreferredHostInfo(reactorChannelInfo.preferredHostInfo());
+				}
 
 				// allow Reactor to perform connection recovery
 
@@ -846,8 +1085,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 				}
 
 				// reset dictionary if not loaded from file
-				if (fieldDictionaryLoadedFromFile == false &&
-					enumTypeDictionaryLoadedFromFile == false)
+				if (!fieldDictionaryLoadedFromFile && !enumTypeDictionaryLoadedFromFile)
 				{
 					if (chnlInfo.dictionary != null)
 					{
@@ -879,25 +1117,36 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 				if (event.errorInfo() != null && event.errorInfo().error().text() != null)
 					System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
 
-				// unregister selectableChannel from Selector
-				if (event.reactorChannel().selectableChannel() != null)
-				{
-					SelectionKey key = event.reactorChannel().selectableChannel().keyFor(selector);
-					if (key != null)
-						key.cancel();
-				}
+				closeConnection(chnlInfo);
 
-				// close ReactorChannel
-				if (chnlInfo.reactorChannel != null)
-				{
-					chnlInfo.reactorChannel.close(errorInfo);
-				}
 				break;
 			}
 			case ReactorChannelEventTypes.WARNING:
 				System.out.println("Received ReactorChannel WARNING event.");
 				if (event.errorInfo() != null && event.errorInfo().error().text() != null)
 					System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
+
+				break;
+			case ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE:
+				System.out.println("Received ReactorChannel PREFERRED_HOST_COMPLETE event.");
+				if (event.errorInfo() != null && event.errorInfo().error().text() != null)
+					System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
+
+				if (event.reactorChannel().info(reactorChannelInfo, reactorErrorInfo) == ReactorReturnCodes.SUCCESS)
+				{
+					printPreferredHostInfo(reactorChannelInfo.preferredHostInfo());
+				}
+
+				break;
+			case ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK:
+				System.out.println("Received ReactorChannel PREFERRED_HOST_START_FALLBACK event.");
+				if (event.errorInfo() != null && event.errorInfo().error().text() != null)
+					System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
+
+				if (event.reactorChannel().info(reactorChannelInfo, reactorErrorInfo) == ReactorReturnCodes.SUCCESS)
+				{
+					printPreferredHostInfo(reactorChannelInfo.preferredHostInfo());
+				}
 
 				break;
 			default:
@@ -908,6 +1157,30 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		}
 
 		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	private void printPreferredHostInfo(ReactorPreferredHostInfo reactorPreferredHostInfo) {
+		if (!reactorPreferredHostInfo.isPreferredHostEnabled()) {
+			return;
+		}
+
+		if (stringBuilder == null ) {
+			stringBuilder = new StringBuilder(256);
+		} else {
+			stringBuilder.setLength(0);
+		}
+
+		stringBuilder.append("\nPreferredHostInfo:");
+		stringBuilder.append("\n\tPreferredHostEnabled=").append(reactorPreferredHostInfo.isPreferredHostEnabled());
+		stringBuilder.append("\n\tDetectionTimeSchedule='").append(reactorPreferredHostInfo.detectionTimeSchedule()).append('\'');
+		stringBuilder.append("\n\tDetectionTimeInterval=").append(reactorPreferredHostInfo.detectionTimeInterval());
+		stringBuilder.append("\n\tConnectionListIndex=").append(reactorPreferredHostInfo.connectionListIndex());
+		stringBuilder.append("\n\tWSBGroupListIndex=").append(reactorPreferredHostInfo.warmStandbyGroupListIndex());
+		stringBuilder.append("\n\tFallBackWithInWSBGroup=").append(reactorPreferredHostInfo.fallBackWithInWSBGroup());
+		stringBuilder.append("\n\tRemainingDetectionTime=").append(reactorPreferredHostInfo.remainingDetectionTime());
+		stringBuilder.append("\n");
+
+		System.out.println(stringBuilder);
 	}
 
 	@Override
@@ -922,19 +1195,9 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			 * the error and close the channel. If desired, the un-decoded message buffer
 			 * is available in event.transportBuffer(). */
 			System.out.printf("defaultMsgCallback: %s(%s)\n", event.errorInfo().error().text(), event.errorInfo().location());
-			// unregister selectableChannel from Selector
-			if (event.reactorChannel().selectableChannel() != null)
-			{
-				SelectionKey key = event.reactorChannel().selectableChannel().keyFor(selector);
-				if (key != null)
-					key.cancel();
-			}
 
-			// close ReactorChannel
-			if (chnlInfo.reactorChannel != null)
-			{
-				chnlInfo.reactorChannel.close(errorInfo);
-			}
+			closeConnection(chnlInfo);
+
 			return ReactorCallbackReturnCodes.SUCCESS;
 		}
 
@@ -967,21 +1230,27 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		switch (msgType)
 		{
 			case REFRESH:
-				System.out.println("Received Login Refresh for Username: " + ((LoginRefresh)event.rdmLoginMsg()).userName());
-				System.out.println(event.rdmLoginMsg().toString());
+				LoginRefresh loginRefresh = (LoginRefresh)event.rdmLoginMsg();
+				System.out.println("Received Login Refresh for Username: " + loginRefresh.userName());
+				System.out.println(loginRefresh);
 
 				// save loginRefresh
-				((LoginRefresh)event.rdmLoginMsg()).copy(chnlInfo.loginRefresh);
+				loginRefresh.copy(chnlInfo.loginRefresh);
 
 				// set login stream id in MarketPriceHandler and YieldCurveHandler
-				chnlInfo.marketPriceHandler.loginStreamId(event.rdmLoginMsg().streamId());
-				chnlInfo.yieldCurveHandler.loginStreamId(event.rdmLoginMsg().streamId());
+				chnlInfo.marketPriceHandler.loginStreamId(loginRefresh.streamId());
+				chnlInfo.yieldCurveHandler.loginStreamId(loginRefresh.streamId());
 
 				// get login reissue time from authenticationTTReissue
 				if (chnlInfo.loginRefresh.checkHasAuthenticationTTReissue())
 				{
 					chnlInfo.loginReissueTime = chnlInfo.loginRefresh.authenticationTTReissue() * 1000;
 					chnlInfo.canSendLoginReissue = true;
+				}
+
+				if (loginRefresh.state().streamState() != StreamStates.OPEN) {
+					System.out.println("Login attempt failed");
+					closeConnection(chnlInfo);
 				}
 				break;
 			case STATUS:
@@ -990,6 +1259,11 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 				if (loginStatus.checkHasState())
 				{
 					System.out.println("	" + loginStatus.state());
+
+					if (loginStatus.state().streamState() != StreamStates.OPEN) {
+						System.out.println("Login attempt failed");
+						closeConnection(chnlInfo);
+					}
 				}
 				break;
 			case RTT:
@@ -1010,6 +1284,26 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		}
 
 		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	private void closeConnection(ChannelInfo chnlInfo) {
+		if (chnlInfo.isChannelClosed) return;
+
+		// unregister selectableChannel from Selector
+		if (chnlInfo.reactorChannel.selectableChannel() != null)
+		{
+			SelectionKey key = chnlInfo.reactorChannel.selectableChannel().keyFor(selector);
+			if (key != null)
+				key.cancel();
+		}
+
+		// close ReactorChannel
+		if (chnlInfo.reactorChannel != null)
+		{
+			chnlInfo.reactorChannel.close(errorInfo);
+		}
+
+		chnlInfo.isChannelClosed = true;
 	}
 
 	@Override
@@ -1124,7 +1418,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 							break;
 						default:
 							System.out.println("Unknown dictionary type " + dictionaryRefresh.dictionaryType() + " from message on stream " + dictionaryRefresh.streamId());
-							chnlInfo.reactorChannel.close(errorInfo);
+							closeConnection(chnlInfo);
 							return ReactorCallbackReturnCodes.SUCCESS;
 					}
 				}
@@ -1156,7 +1450,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 					else
 					{
 						System.out.println("Decoding Field Dictionary failed: " + error.text());
-						chnlInfo.reactorChannel.close(errorInfo);
+						closeConnection(chnlInfo);
 					}
 				}
 				else if (dictionaryRefresh.streamId() == chnlInfo.enumDictionaryStreamId)
@@ -1171,7 +1465,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 					else
 					{
 						System.out.println("Decoding EnumType Dictionary failed: " + error.text());
-						chnlInfo.reactorChannel.close(errorInfo);
+						closeConnection(chnlInfo);
 					}
 				}
 				else
@@ -1576,8 +1870,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		chnlInfo.consumerRole.channelEventCallback(this);
 		chnlInfo.consumerRole.loginMsgCallback(this);
 		chnlInfo.consumerRole.directoryMsgCallback(this);
-		if (fieldDictionaryLoadedFromFile == false ||
-			enumTypeDictionaryLoadedFromFile == false)
+		if (!fieldDictionaryLoadedFromFile || !enumTypeDictionaryLoadedFromFile)
 		{
 			chnlInfo.consumerRole.dictionaryMsgCallback(this);
 		}
@@ -1588,8 +1881,8 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		chnlInfo.consumerRole.initDefaultRDMDirectoryRequest();
 
 		/* API QA commented out
-		// use command line login user name if specified
-		if (consumerCmdLineParser.userName() != null && !consumerCmdLineParser.userName().equals(""))
+		// use command line login username if specified
+		if (consumerCmdLineParser.userName() != null && !consumerCmdLineParser.userName().isEmpty())
 		{
 			LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
 			loginRequest.userName().data(consumerCmdLineParser.userName());
@@ -1601,16 +1894,12 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			loginRequest.applyHasPassword();
 
 			oAuthCredential.password().data(consumerCmdLineParser.passwd());
-
-			/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. 
-			oAuthCredential.reactorOAuthCredentialEventCallback(this);
 		}
-	
-		if (consumerCmdLineParser.clientId() != null && !consumerCmdLineParser.clientId().equals(""))
+		if (consumerCmdLineParser.clientId() != null && !consumerCmdLineParser.clientId().isEmpty())
 		{
 			oAuthCredential.clientId().data(consumerCmdLineParser.clientId());
-			
-			if(consumerCmdLineParser.clientSecret() != null && !consumerCmdLineParser.clientSecret().equals(""))
+
+			if(consumerCmdLineParser.clientSecret() != null && !consumerCmdLineParser.clientSecret().isEmpty())
 			{
 				oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret());
 			}
@@ -1618,20 +1907,54 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			{
 				oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
 			}
+
+			/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service.
+			oAuthCredential.reactorOAuthCredentialEventCallback(this);
 		}
 		// END API QA */
+		
+		if(consumerCmdLineParser.jwkFile() != null && !consumerCmdLineParser.jwkFile().isEmpty())
+		{
+			try
+			{
+				// Get the full contents of the JWK file.
+				byte[] jwkFile = Files.readAllBytes(Paths.get(consumerCmdLineParser.jwkFile()));
+				String jwkText = new String(jwkFile);
+				
+				oAuthCredential.clientJwk().data(jwkText);
+			}
+			catch(Exception e)
+			{
+				System.err.println("Error loading JWK file: " + e.getMessage());
+				System.err.println();
+				System.err.println(CommandLine.optionHelpString());
+				System.out.println("Consumer exits...");
+				System.exit(CodecReturnCodes.FAILURE);
+			}
+		}
+		
+		if(consumerCmdLineParser.tokenScope() != null && !consumerCmdLineParser.tokenScope().isEmpty())
+		{
+			oAuthCredential.tokenScope().data(consumerCmdLineParser.tokenScope());
+		}
+		
+		if(consumerCmdLineParser.audience() != null && !consumerCmdLineParser.audience().isEmpty())
+		{
+			oAuthCredential.audience().data(consumerCmdLineParser.audience());
+		}
+			
 				
 		oAuthCredential.userSpecObj(oAuthCredential);
 		chnlInfo.consumerRole.reactorOAuthCredential(oAuthCredential);
 
 		// use command line authentication token and extended authentication information if specified
-		if (consumerCmdLineParser.authenticationToken() != null && !consumerCmdLineParser.authenticationToken().equals(""))
+		if (consumerCmdLineParser.authenticationToken() != null && !consumerCmdLineParser.authenticationToken().isEmpty())
 		{
 			LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
 			loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
 			loginRequest.userName().data(consumerCmdLineParser.authenticationToken());
 
-			if (consumerCmdLineParser.authenticationExtended() != null && !consumerCmdLineParser.authenticationExtended().equals(""))
+			if (consumerCmdLineParser.authenticationExtended() != null && !consumerCmdLineParser.authenticationExtended().isEmpty())
 			{
 				loginRequest.applyHasAuthenticationExtended();
 				loginRequest.authenticationExtended().data(consumerCmdLineParser.authenticationExtended());
@@ -1639,7 +1962,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		}
 
 		// use command line application id if specified
-		if (consumerCmdLineParser.applicationId() != null && !consumerCmdLineParser.applicationId().equals(""))
+		if (consumerCmdLineParser.applicationId() != null && !consumerCmdLineParser.applicationId().isEmpty())
 		{
 			LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
 			loginRequest.attrib().applicationId().data(consumerCmdLineParser.applicationId());
@@ -1650,8 +1973,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		}
 
 		// if unable to load from file, enable consumer to download dictionary
-		if (fieldDictionaryLoadedFromFile == false ||
-			enumTypeDictionaryLoadedFromFile == false)
+		if (!fieldDictionaryLoadedFromFile || !enumTypeDictionaryLoadedFromFile)
 		{
 			chnlInfo.consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
 			dictionary = CodecFactory.createDataDictionary(); //drop the old dictionary
@@ -1677,7 +1999,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 					}
 				}
 			}
-			if (mpItemFound == false)
+			if (!mpItemFound)
 			{
 				System.out.println("\nPosting will not be performed for this channel as no Market Price items were requested");
 				chnlInfo.shouldOnStreamPost = false;
@@ -1697,9 +2019,23 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		createItemLists(chnlInfo);
 
 		// set up reactor connect options
-		chnlInfo.connectOptions.reconnectAttemptLimit(-1); // attempt to recover forever
-		chnlInfo.connectOptions.reconnectMinDelay(1000); // 1 second minimum
-		chnlInfo.connectOptions.reconnectMaxDelay(60000); // 60 second maximum
+		chnlInfo.connectOptions.reconnectAttemptLimit(RECONNECTION_ATTEMPT_LIMIT);
+		chnlInfo.connectOptions.reconnectMinDelay(RECONNECTION_MIN_DELAY);
+		chnlInfo.connectOptions.reconnectMaxDelay(RECONNECTION_MAX_DELAY);
+		
+		// Preferred Host
+		if (consumerCmdLineParser.enablePH()) {
+			int preferredHostIndex = consumerCmdLineParser.preferredHostIndex();
+			if (preferredHostIndex < consumerCmdLineParser.connectionList().get(0).consumerHostnames().size()) {
+				chnlInfo.connectOptions.reactorPreferredHostOptions().isPreferredHostEnabled(true);
+				chnlInfo.connectOptions.reactorPreferredHostOptions().connectionListIndex(preferredHostIndex);
+				chnlInfo.connectOptions.reactorPreferredHostOptions().detectionTimeInterval(consumerCmdLineParser.detectionTimeInterval());
+				chnlInfo.connectOptions.reactorPreferredHostOptions().detectionTimeSchedule(consumerCmdLineParser.detectionTimeSchedule());
+			} else {
+				System.out.println("Preferred host connection list index is out of the bound of connection list!");
+			}
+		}
+
 		chnlInfo.connectOptions.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
 		chnlInfo.connectOptions.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
 		chnlInfo.connectOptions.connectionList().get(0).connectOptions().connectionType(chnlInfo.connectionArg.connectionType());
@@ -1711,36 +2047,49 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			chnlInfo.connectOptions.connectionList().get(0).reactorAuthTokenEventCallback(this);
 		}
 
-		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
-		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
+		if (chnlInfo.connectionArg.consumerHostnames() != null && chnlInfo.connectionArg.consumerPorts() != null &&
+                !chnlInfo.connectionArg.consumerHostnames().isEmpty() && !chnlInfo.connectionArg.consumerPorts().isEmpty())
+		{
+			chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.consumerPorts().get(0));
+			chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.consumerHostnames().get(0));
 
+		}
+		else
+		{
+			chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
+			chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
+		}
+		
 		chnlInfo.connectOptions.connectionList().get(0).connectOptions().userSpecObject(chnlInfo);
 		chnlInfo.connectOptions.connectionList().get(0).connectOptions().guaranteedOutputBuffers(1000);
-		// add backup connection if specified
-		if (consumerCmdLineParser.backupHostname() != null && consumerCmdLineParser.backupPort() != null)
-		{
-			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
-			chnlInfo.connectOptions.connectionList().add(connectInfo);
-			chnlInfo.connectOptions.connectionList().get(1).connectOptions().majorVersion(Codec.majorVersion());
-			chnlInfo.connectOptions.connectionList().get(1).connectOptions().minorVersion(Codec.minorVersion());
-			chnlInfo.connectOptions.connectionList().get(1).connectOptions().connectionType(chnlInfo.connectionArg.connectionType());
-			chnlInfo.connectOptions.connectionList().get(1).connectOptions().unifiedNetworkInfo().serviceName(consumerCmdLineParser.backupPort());
-			chnlInfo.connectOptions.connectionList().get(1).connectOptions().unifiedNetworkInfo().address(consumerCmdLineParser.backupHostname());
-			chnlInfo.connectOptions.connectionList().get(1).connectOptions().userSpecObject(chnlInfo);
-			chnlInfo.connectOptions.connectionList().get(1).connectOptions().guaranteedOutputBuffers(1000);
 
-			if (consumerCmdLineParser.enableSessionMgnt())
-			{
-				chnlInfo.connectOptions.connectionList().get(1).enableSessionManagement(true);
-				// register for authentication callback
-				chnlInfo.connectOptions.connectionList().get(1).reactorAuthTokenEventCallback(this);
+		if (consumerCmdLineParser.serviceDiscoveryLocation() != null && !consumerCmdLineParser.serviceDiscoveryLocation().isEmpty())
+			chnlInfo.connectOptions.connectionList().get(0).location(consumerCmdLineParser.serviceDiscoveryLocation());
 
-				ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(1).connectOptions();
-				cOpt.connectionType(ConnectionTypes.ENCRYPTED);
-				cOpt.tunnelingInfo().tunnelingType("encrypted");
-				setEncryptedConfiguration(cOpt);
+		if (chnlInfo.connectionArg.consumerHostnames() != null && chnlInfo.connectionArg.consumerPorts() != null)
+			for (int i = 1; i < chnlInfo.connectionArg.consumerHostnames().size(); i++) {
+				ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+	
+				if (consumerCmdLineParser.serviceDiscoveryLocation() != null && !consumerCmdLineParser.serviceDiscoveryLocation().isEmpty())
+					connectInfo.location(consumerCmdLineParser.serviceDiscoveryLocation());
+	
+				connectInfo.connectOptions().majorVersion(Codec.majorVersion());
+				connectInfo.connectOptions().minorVersion(Codec.minorVersion());
+				connectInfo.connectOptions().connectionType(chnlInfo.connectionArg.connectionType());
+				connectInfo.connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.consumerPorts().get(i));
+				connectInfo.connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.consumerHostnames().get(i));
+				connectInfo.connectOptions().userSpecObject(chnlInfo);
+				connectInfo.connectOptions().guaranteedOutputBuffers(1000);
+	
+				if (consumerCmdLineParser.enableSessionMgnt())
+				{
+					connectInfo.enableSessionManagement(true);
+					// register for authentication callback
+					connectInfo.reactorAuthTokenEventCallback(this);
+				}
+	
+				chnlInfo.connectOptions.connectionList().add(connectInfo);
 			}
-		}
 
 		// handler encrypted or http connection
 		chnlInfo.shouldEnableEncrypted = consumerCmdLineParser.enableEncrypted();
@@ -1749,16 +2098,18 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 
 		if (chnlInfo.shouldEnableEncrypted)
 		{
-			ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(0).connectOptions();
-			cOpt.connectionType(ConnectionTypes.ENCRYPTED);
-			cOpt.encryptionOptions().connectionType(consumerCmdLineParser.encryptedConnectionType());
+			for (int i = 0; i < chnlInfo.connectionArg.consumerHostnames().size(); i++) {
+				ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(i).connectOptions();
+				cOpt.connectionType(ConnectionTypes.ENCRYPTED);
+				cOpt.encryptionOptions().connectionType(consumerCmdLineParser.encryptedConnectionType());
 
-			if(consumerCmdLineParser.encryptedConnectionType() == ConnectionTypes.WEBSOCKET)
-			{
-				cOpt.wSocketOpts().protocols(consumerCmdLineParser.protocolList());
+				if (consumerCmdLineParser.encryptedConnectionType() == ConnectionTypes.WEBSOCKET)
+				{
+					cOpt.wSocketOpts().protocols(consumerCmdLineParser.protocolList());
+				}
+
+				setEncryptedConfiguration(cOpt);
 			}
-
-			setEncryptedConfiguration(cOpt);
 		}
 		else if (chnlInfo.shouldEnableWebsocket)
 		{
@@ -1916,7 +2267,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			cacheDisplayStr.append("Total Items in Cache: ");
 			cacheDisplayStr.append(chnlInfo.cacheInfo.cache.entryCount());
 			cacheDisplayStr.append("\n");
-			System.out.println(cacheDisplayStr.toString());
+			System.out.println(cacheDisplayStr);
 		}
 
 		displayCacheDomain(chnlInfo, DomainTypes.MARKET_PRICE, false);
@@ -1955,7 +2306,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 
 				cacheDisplayStr.append(entry.itemState.toString());
 				cacheDisplayStr.append("\n");
-				System.out.println(cacheDisplayStr.toString());
+				System.out.println(cacheDisplayStr);
 
 				int ret = decodeEntryFromCache(chnlInfo, entry.cacheEntry, domainType);
 				if (ret != CodecReturnCodes.SUCCESS)
@@ -1963,7 +2314,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 					cacheDisplayStr.setLength(0);
 					cacheDisplayStr.append("Error decoding cache content: ");
 					cacheDisplayStr.append(ret);
-					System.out.println(cacheDisplayStr.toString());
+					System.out.println(cacheDisplayStr);
 				}
 			}
 			else if (entry.domainType == domainType && entry.isPrivateStream == isPrivateStream)
@@ -1974,14 +2325,14 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 				cacheDisplayStr.setLength(0);
 				cacheDisplayStr.append(entry.itemName);
 				cacheDisplayStr.append("\tno data in cache\n");
-				System.out.println(cacheDisplayStr.toString());
+				System.out.println(cacheDisplayStr);
 			}
 		}
 	}
 
 	private int decodeEntryFromCache(ChannelInfo chnlInfo, PayloadEntry cacheEntry, int domainType)
 	{
-		int ret = CodecReturnCodes.SUCCESS;
+		int ret;
 		EncodeIterator eIter = CodecFactory.createEncodeIterator();
 		DecodeIterator dIter = CodecFactory.createDecodeIterator();
 		int majorVersion;
@@ -2095,6 +2446,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 
 		String keyFile = consumerCmdLineParser.keyStoreFile();
 		String keyPasswd = consumerCmdLineParser.keystorePassword();
+		String securityProvider = consumerCmdLineParser.securityProvider();
 
 		if (keyFile != null && !keyFile.isEmpty() )
 		{
@@ -2104,23 +2456,23 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		{
 			options.encryptionOptions().KeystorePasswd(keyPasswd);
 		}
+		if (securityProvider != null && !securityProvider.isEmpty())
+		{
+			options.encryptionOptions().SecurityProvider(securityProvider);
+		}
 
-		options.encryptionOptions().KeystoreType("JKS");
-		options.encryptionOptions().SecurityProtocol("TLS");
-		options.encryptionOptions().SecurityProvider("SunJSSE");
-		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
-		options.encryptionOptions().TrustManagerAlgorithm("PKIX");
+		options.encryptionOptions().SecurityProtocol(consumerCmdLineParser.securityProtocol());
+		if (consumerCmdLineParser.securityProtocolVersions() != null &&
+                !consumerCmdLineParser.securityProtocolVersions().isEmpty())
+		{
+			options.encryptionOptions().SecurityProtocolVersions(consumerCmdLineParser.securityProtocolVersions().split(","));
+		}
 	}
 
 
 	private void setHTTPConfiguration(ConnectOptions options)
 	{
 		options.tunnelingInfo().objectName("");
-		options.tunnelingInfo().KeystoreType("JKS");
-		options.tunnelingInfo().SecurityProtocol("TLS");
-		options.tunnelingInfo().SecurityProvider("SunJSSE");
-		options.tunnelingInfo().KeyManagerAlgorithm("SunX509");
-		options.tunnelingInfo().TrustManagerAlgorithm("PKIX");
 	}
 
 	/*
@@ -2133,7 +2485,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	private void setCredentials(ConnectOptions options)
 	{
 		String localIPaddress = null;
-		String localHostName = null;
+		String localHostName;
 
 		String proxyUsername = consumerCmdLineParser.proxyUsername();
 		if ( proxyUsername == null)
@@ -2242,7 +2594,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 
 	private void sendSymbolListRequests(ChannelInfo chnlInfo)
 	{
-		if (chnlInfo.slItemList.size() == 0)
+		if (chnlInfo.slItemList.isEmpty())
 			return;
 
 		if (!chnlInfo.serviceInfo.checkHasInfo())
@@ -2252,7 +2604,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		}
 
 		Service.ServiceInfo info = chnlInfo.serviceInfo.info();
-		if (info.qosList().size() > 0)
+		if (!info.qosList().isEmpty())
 		{
 			Qos qos = info.qosList().get(0);
 			chnlInfo.symbolListHandler.qos().dynamic(qos.isDynamic());
@@ -2301,7 +2653,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			}
 		}
 
-		if (chnlInfo.mbppsItemList.size() > 0 && !chnlInfo.mbppsRequestSent)
+		if (!chnlInfo.mbppsItemList.isEmpty() && !chnlInfo.mbppsRequestSent)
 		{
 			if (chnlInfo.marketByPriceHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mbppsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
 			{
@@ -2330,7 +2682,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			}
 		}
 
-		if (chnlInfo.mbopsItemList.size() > 0 && !chnlInfo.mbopsRequestSent)
+		if (!chnlInfo.mbopsItemList.isEmpty() && !chnlInfo.mbopsRequestSent)
 		{
 			if (chnlInfo.marketByOrderHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mbopsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
 			{
@@ -2359,7 +2711,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			}
 		}
 
-		if (chnlInfo.mppsItemList.size() > 0 && !chnlInfo.mppsRequestSent)
+		if (!chnlInfo.mppsItemList.isEmpty() && !chnlInfo.mppsRequestSent)
 		{
 			if (chnlInfo.marketPriceHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mppsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
 			{
@@ -2388,7 +2740,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			}
 		}
 
-		if (chnlInfo.ycpsItemList.size() > 0 && !chnlInfo.ycpsRequestSent)
+		if (!chnlInfo.ycpsItemList.isEmpty() && !chnlInfo.ycpsRequestSent)
 		{
 			if (chnlInfo.yieldCurveHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.ycpsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
 			{
