@@ -623,8 +623,8 @@ TEST(LoginHelperTest, LoginReqClearTest)
 	EXPECT_FALSE( loginReq.hasPause() ) << "Check Login::LoginReq::clear()";
 	EXPECT_FALSE( loginReq.getPause() ) << "Check Login::LoginReq::clear()";
 
-	EXPECT_TRUE(loginReq.hasUpdateTypeFilter()) << "Check Login::LoginReq::clear()";
-	EXPECT_EQ(loginReq.getUpdateTypeFilter(), DEFAULT_UPDATE_TYPE_FILTER) << "Check Login::LoginReq::clear()";
+	EXPECT_FALSE(loginReq.hasUpdateTypeFilter()) << "Check Login::LoginReq::clear()";
+	EXPECT_THROW({ auto filterType = loginReq.getUpdateTypeFilter(); }, OmmInvalidUsageException) << "Check Login::LoginReq::clear()";
 	EXPECT_FALSE(loginReq.hasNegativeUpdateTypeFilter()) << "Check Login::LoginReq::clear()";
 }
 
