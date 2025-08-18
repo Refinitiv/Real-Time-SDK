@@ -16,6 +16,7 @@ import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.codec.CopyMsgFlags;
 import com.refinitiv.eta.codec.RequestMsg;
+import com.refinitiv.eta.transport.ChannelState;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
@@ -36,6 +37,7 @@ public class TestReactorEvent
     ReactorEvent _event;
     TunnelStreamRequestEvent _tunnelStreamRequestEvent;
     long _nanoTime = System.nanoTime();
+    int state;	// Get copy of Channel State stored in event to check against later
         
     /** Returns the type of the ComponentEvent. */
     public TestReactorEventTypes type()
@@ -72,6 +74,10 @@ public class TestReactorEvent
     public TestReactorEvent(TestReactorEventTypes type, ReactorEvent event)
     {
         _type = type;
+        if (event.reactorChannel().channel() != null)
+        	state = event.reactorChannel().channel().state();
+        else
+        	state = ChannelState.INACTIVE;
         
         /* Copy event, based on which type it is. */
         switch(type)

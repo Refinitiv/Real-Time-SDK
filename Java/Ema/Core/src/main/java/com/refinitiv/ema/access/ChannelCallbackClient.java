@@ -1363,7 +1363,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					if (_baseImpl.loggerClient().isErrorEnabled())
 						_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 					
-					for(int k = 0; i <  sessionChannelConfig.connectOptions().connectionList().size(); k++ )
+					for(int k = 0; k <  sessionChannelConfig.connectOptions().connectionList().size(); k++ )
 					{
 						ChannelInfo checkChannelInfo = (ChannelInfo) sessionChannelConfig.connectOptions().connectionList().get(k).connectOptions().userSpecObject();
 						if( checkChannelInfo != null)

@@ -639,7 +639,8 @@ public class TestReactor {
     					
     					if(fdChangeChannel != null && !component.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(fdChangeChannel))
     					{
-    						fdChangeChannel.keyFor(_selector).cancel();
+    						if (fdChangeChannel.keyFor(_selector) != null)
+    							fdChangeChannel.keyFor(_selector).cancel();
     					}
     				}
     			}

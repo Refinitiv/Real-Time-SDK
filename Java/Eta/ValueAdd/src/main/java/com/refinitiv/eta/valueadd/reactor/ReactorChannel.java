@@ -153,7 +153,8 @@ public class ReactorChannel extends VaNode
 	boolean _reconnectImmedietlyToPH; // Used when reconnection to preferred WSB group occurs forcefully, skip reconnect delay
 	boolean _ignoreClosedStandbyCount; // Used during Reactor callback check to ensure that we can move from ChannelList to WSB Group
 	boolean _queueRequestsForDiscovery; // Used during Reactor callback check to ensure that old Standby servers have their requests queued up
-	
+	boolean _phSwitchingFromChannelListToWSB; // Used during Reactor callback check to reset main channel state to Initializing if switching from ChannelList to WSB
+	boolean _phSwitchingFromWSBToChannelList; // Used during Reactor callback to check to reset main channel state to Initializing if switching from WSB to ChannelList
 	ReactorConnectInfo _phTempReactorConnectInfo; // Used to store temporary information for our new connection switching to PH, moved over when our connection succeeds
 	ConnectOptionsInfo _phTempConnectOptionsInfo; // Used to store temporary information for our new connection switching to PH, moved over when our connection succeeds
 	Object _phTempUserSpecObj; // Used to store temporary information for our new connection switching to PH, moved over when our connection succeeds
@@ -603,6 +604,11 @@ public class ReactorChannel extends VaNode
         return _channel;
     }
     
+    void channel(Channel channel)
+    {
+    	_channel = channel;
+    }
+    
     Channel preferredHostChannel()
     {
     	return _preferredHostChannel;
@@ -882,6 +888,12 @@ public class ReactorChannel extends VaNode
 			if(_reactor.reactorHandlesWarmStandby(channelImpl))
 			{
 				return _reactor.submitWSBMsg(this, msg, submitOptions, errorInfo);
+			}
+			else if (warmStandByHandlerImpl != null)
+			{
+				// We are currently on the ChannelList while we have WSB handler active.
+				// Get the watchlist from the channel on the WSB Handler Starting Active server to submit the message
+				return warmStandByHandlerImpl.startingReactorChannel().watchlist().submitMsg(msg, submitOptions, errorInfo);
 			}
 			else if (_watchlist == null) // watchlist not enabled, submit normally
             {
@@ -1317,14 +1329,14 @@ public class ReactorChannel extends VaNode
 	    	if (warmStandByHandlerImpl != null)
 	    	{
 		    	if (warmStandByHandlerImpl.startingReactorChannel()._nextReconnectTimeMs > 0 && warmStandByHandlerImpl.startingReactorChannel()._nextReconnectTimeMs > System.currentTimeMillis())
-		    		info.preferredHostInfo()._remainingDetectionTime = warmStandByHandlerImpl.startingReactorChannel()._nextReconnectTimeMs - System.currentTimeMillis();
+		    		info.preferredHostInfo()._remainingDetectionTime = (warmStandByHandlerImpl.startingReactorChannel()._nextReconnectTimeMs - System.currentTimeMillis()) / 1000;
 		    	else
 		    		info.preferredHostInfo()._remainingDetectionTime = 0;
 	    	}
 	    	else
 	    	{
 		    	if (_nextReconnectTimeMs > 0 && _nextReconnectTimeMs > System.currentTimeMillis())
-		    		info.preferredHostInfo()._remainingDetectionTime = _nextReconnectTimeMs - System.currentTimeMillis();
+		    		info.preferredHostInfo()._remainingDetectionTime = (_nextReconnectTimeMs - System.currentTimeMillis()) / 1000;
 		    	else
 		    		info.preferredHostInfo()._remainingDetectionTime = 0;
 	    	}
@@ -1509,7 +1521,7 @@ public class ReactorChannel extends VaNode
     			try {
     				if (tempOptions.detectionTimeSchedule() != null
     				&& !tempOptions.detectionTimeSchedule().isEmpty())
-    					_cronExpressionIoctl = new CronExpression("0 " + tempOptions.detectionTimeSchedule());
+    					_cronExpressionIoctl = new CronExpression(tempOptions.detectionTimeSchedule());
     			} catch (ParseException e) {
     				return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, "ReactorChannel.ioctl",
     						"Parse exception occured on preferredHostOptions scheduled cron time, aborting ioctl call.");
@@ -2445,17 +2457,17 @@ public class ReactorChannel extends VaNode
     			&& !_preferredHostOptions.isPreferredHostEnabled())
     		return ReactorReturnCodes.FAILURE;
 
-    	// If we are currently reconnecting to a channel, abandon this fallback and log to API with failure return
+    	// If we are currently reconnecting to a channel, abandon this fallback and log to API with failure success
     	if (state() == State.DOWN
     			|| state() == State.DOWN_RECONNECTING)
     	{
             if (_reactor._reactorOptions.debuggerOptions().debugConnectionLevel()) {
-                _reactor.debugger.writeDebugInfo(ReactorDebugger.PREFERRED_HOST_CANNOT_SWITCH_DURING_RECONNECTING,
+                _reactor.debugger.writeDebugInfo(ReactorDebugger.PREFERRED_HOST_IGNORE_SWITCH_DURING_RECONNECTING,
                         _reactor.hashCode(),
                         this.hashCode()
                 );
             }
-    		return ReactorReturnCodes.FAILURE;
+    		return ReactorReturnCodes.SUCCESS;
     	}
 
         // Send PREFERRED_HOST_START_FALLBACK event to Reactor event queue
@@ -2697,7 +2709,7 @@ public class ReactorChannel extends VaNode
      * Initiates switch for WSB or ChannelList Preferred Host feature,
      * sending and handling channel event callbacks and swapping in the new active transport channel.
      */
-    void initiateSwitch(boolean shouldInitiate)
+    void initiateSwitch(boolean shouldInitiate, boolean switchingFromChannelListToWSB)
     {
     	if (shouldInitiate && warmStandByHandlerImpl != null)
     	{
@@ -2706,8 +2718,9 @@ public class ReactorChannel extends VaNode
     		
    			// Set expected channel state
    			warmStandByHandlerImpl.warmStandbyHandlerState(ReactorWarmStandbyHandlerState.CONNECTING_TO_A_STARTING_SERVER);
-   			warmStandByHandlerImpl.startingReactorChannel().reactorChannelType(ReactorChannelType.WARM_STANDBY);
-   			
+   			if (!switchingFromChannelListToWSB)
+   				warmStandByHandlerImpl.startingReactorChannel().reactorChannelType(ReactorChannelType.WARM_STANDBY);
+
     		// Send forced channel down events to each active channel in our current warm standby group
     		//	This forces us into the reconnect logic where we will change to the next WSB group (or preferred WSB group) as needed, or fall into connection list
     		for (int i = 0; i < warmStandByHandlerImpl.channelList().size(); ++i)
@@ -2718,12 +2731,13 @@ public class ReactorChannel extends VaNode
     			{
     				// Ensure that this standby server's requests are queued up for discovery
     				warmStandByHandlerImpl.channelList().get(i)._queueRequestsForDiscovery = true;
-    				// Set old UserSpec object information
-    	    		userSpecObj(warmStandByHandlerImpl.channelList().get(i).userSpecObj());
     				// send FD_CHANGE via CHANNEL_DOWN to user app via reactorChannelEventCallback.
-    				_reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.CHANNEL_DOWN,
-    						warmStandByHandlerImpl.channelList().get(i), _errorInfoEDP);
-    				
+    				if (!switchingFromChannelListToWSB)
+	    				_reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.CHANNEL_DOWN,
+	    						warmStandByHandlerImpl.channelList().get(i), _errorInfoEDP);
+    				else
+    					_reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING,
+	    						warmStandByHandlerImpl.channelList().get(i), _errorInfoEDP);
     			}
     			else
     			{
@@ -2731,6 +2745,7 @@ public class ReactorChannel extends VaNode
     				warmStandByHandlerImpl.channelList().get(i)._phForcingChannelDown_isStartingActive = true;
     				startingActive = warmStandByHandlerImpl.channelList().get(i);
     				movingToNextWSBGroup = true;
+    				startingActive._switchingToPreferredWSBGroup = true;
     			}
     		}
     		
@@ -2740,25 +2755,18 @@ public class ReactorChannel extends VaNode
     			{
     				warmStandByHandlerImpl.warmStandbyHandlerState(ReactorWarmStandbyHandlerState.MOVE_TO_NEXT_WSB_GROUP);
     			}
-    			if (warmStandByHandlerImpl.mainReactorChannelImpl()._reactorConnectOptions != null)
-    			{
-        			for (ReactorConnectInfo connectInfo : warmStandByHandlerImpl.mainReactorChannelImpl()._reactorConnectOptions._connectionList)
-        			{
-        				if (startingActive._currentConnectInfo == connectInfo)
-        				{
-        					// We are currently on a channel list, set flag for the Reactor to allow us to switch to the WSB group
-        					startingActive._ignoreClosedStandbyCount = true;
-        					break;
-        				}
-        			}	
-    			}
     			
 				// Set old UserSpec object information
 	    		userSpecObj(warmStandByHandlerImpl.startingReactorChannel().userSpecObj());
     			
-        		// Now that the Standby servers are down, we need to close the starting active (Or, if Channel List, kill off old connection for the new one)
-    			_reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.CHANNEL_DOWN, startingActive, _errorInfoEDP);
-    			
+	    		// Now that the Standby servers are down, we need to close the starting active (Or, if Channel List, kill off old connection for the new one)
+				if (!switchingFromChannelListToWSB)
+    				_reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.CHANNEL_DOWN,
+    						startingActive,_errorInfoEDP);
+				else
+					_reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING,
+							startingActive, _errorInfoEDP);
+	
     			// Set our previous warm standby group to the current one
 				warmStandByHandlerImpl.previousWarmStandbyGroupIndex(warmStandByHandlerImpl.currentWarmStandbyGroupIndex());
     			// Set our current warm standby group to the preferred group
@@ -2775,10 +2783,12 @@ public class ReactorChannel extends VaNode
     	{
     		// Kill off old connection and switch with the new, active one
     		_phForcingChannelDown = true;
+
+    		_reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.CHANNEL_DOWN, this, _errorInfoEDP);
+    		
 			// Set old UserSpec object information
     		userSpecObj(_reactorConnectOptions.connectionList().get(_reactorConnectOptions.reactorPreferredHostOptions().connectionListIndex()).connectOptions().userSpecObject());
 			
-    		_reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.CHANNEL_DOWN, this, _errorInfoEDP);
     		_currentConnectInfo = _reactorConnectOptions.connectionList().get(_preferredHostOptions.connectionListIndex());
         	// Debug log output that fallback has finished connecting to particular connection list index
             if (_reactor._reactorOptions.debuggerOptions().debugConnectionLevel()) {

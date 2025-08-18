@@ -39,7 +39,7 @@ interface ReactorDebugger {
     String TUNNELSTREAM_STREAM_CLOSE = "Reactor@%d, Reactor channel@%d handles tunnel stream closes (stream ID=%d) on channel fd=%d.]\n";
 
     String PREFERRED_HOST_ALREADY_CONNECTED = "Reactor@%d, Reactor channel@%d is already connected to the preferred host.]\\n";
-    String PREFERRED_HOST_CANNOT_SWITCH_DURING_RECONNECTING = "Reactor@%d, Reactor channel@%d cannot fallback to preferred host during reconnection or down state.]\\n";
+    String PREFERRED_HOST_IGNORE_SWITCH_DURING_RECONNECTING = "Reactor@%d, Reactor channel@%d ignores fallback to preferred host during reconnection or down state.]\\n";
     /**
      * Gets the fd value associated with the underlying channel
      * @param reactorChannel the ReactorChannel instance whose Channel's fd is evaluated

@@ -42,6 +42,7 @@ import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.codec.UpdateMsg;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.Login.ServerTypes;
+import com.refinitiv.eta.transport.ChannelState;
 import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryConsumerStatus;
@@ -478,8 +479,28 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			int compare = Integer.valueOf(channelEvent.reactorChannel().reactor()._reactorChannelQueue.peek().getCurrentReactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName());
 			assertEquals("ChannelDownReconnecting check failed. ", port, compare);
-			
 		}
+	}
+	
+	void checkCallbackEventAndReactorChannels(ReactorChannel mainReactorChannel, ReactorChannel reactorChannel, TestReactorEvent event)
+	{
+		// Check Channel Info to ensure we have the correct info in MainReactorChannel that callback expects to have
+		assertEquals(reactorChannel.port(), mainReactorChannel.port());
+		assertEquals(reactorChannel.hostname(), mainReactorChannel.hostname());
+		assertEquals(reactorChannel.userSpecObj(), mainReactorChannel.userSpecObj());
+		assertEquals(reactorChannel.channel(), mainReactorChannel.channel());
+		assertEquals(reactorChannel.protocolType(), mainReactorChannel.protocolType());
+		assertEquals(reactorChannel.majorVersion(), mainReactorChannel.majorVersion());
+		assertEquals(reactorChannel.minorVersion(), mainReactorChannel.minorVersion());
+		assertEquals(reactorChannel.reactor(), mainReactorChannel.reactor());
+		assertEquals(reactorChannel.state(), mainReactorChannel.state());
+		// Check event's reactor channel to ensure it is the MainReactorChannel
+		assertEquals(mainReactorChannel, event.reactorEvent().reactorChannel());
+	}
+	
+	void checkChannelStateAfterChannelDownReconnecting(TestReactorEvent event)
+	{
+		assertTrue(event.state <= ChannelState.INITIALIZING);
 	}
 
 	@Test
@@ -578,7 +599,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
-
+			
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
@@ -590,6 +611,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+			
+			assertEquals(ReactorChannelType.NORMAL, channelEvent.reactorChannel().reactorChannelType());
 			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
@@ -1178,6 +1201,8 @@ public class ReactorWatchlistPreferredHostJunit {
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
     		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
     		
     		/* Login Status Suspect Open */
     		event = consumer.testReactor().pollEvent();
@@ -1817,6 +1842,14 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
 
+    		/* Channel down reconnecting */
+    		event = consumer.testReactor().pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+    		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			/* Login Status Suspect Open */
     		event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -1831,13 +1864,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-			
-    		/* Channel down reconnecting */
-    		event = consumer.testReactor().pollEvent();
-    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
-    		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-			
+    		
 			/* Consumer gets channel up event from new connection to preferred host (provider 3) */
     		event = consumer.testReactor().pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
@@ -2200,9 +2227,9 @@ public class ReactorWatchlistPreferredHostJunit {
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
     		assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
     		
-    		// Consumer calls ioctl to set detectionTimeSchedule to occur every minute.
+    		// Consumer calls ioctl to set detectionTimeSchedule to occur every 1 minute.
     		ReactorPreferredHostOptions ioctlCall = ReactorFactory.createReactorPreferredHostOptions();
-    		ioctlCall.detectionTimeSchedule("* * ? * *");
+    		ioctlCall.detectionTimeSchedule("0 * * ? * *");
     		ioctlCall.isPreferredHostEnabled(true);
     		ioctlCall.connectionListIndex(2);
     		consumer.reactorChannel().ioctl(ReactorChannelIOCtlCode.FALLBACK_PREFERRED_HOST_OPTIONS, ioctlCall, consumer.reactorChannel().getEDPErrorInfo());
@@ -2224,7 +2251,15 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
-
+			
+			/* Consumer gets CHANNEL_DOWN_RECONNECTING */
+    		event = consumer.testReactor().pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+    		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+    		
+    		checkChannelStateAfterChannelDownReconnecting(event);
+			
 			/* Login Status Suspect Open */
     		event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -2239,13 +2274,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-			
-			/* Consumer gets CHANNEL_DOWN_RECONNECTING */
-    		event = consumer.testReactor().pollEvent();
-    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
-    		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-			
+
 			/* Consumer gets channel up */
     		event = consumer.testReactor().pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
@@ -2632,6 +2661,14 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
     		
+			/* Consumer gets channel down reconnecting */
+    		event = consumer.testReactor().pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+    		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+    		
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
     		/* Login Status Suspect Open */
     		event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -2647,12 +2684,6 @@ public class ReactorWatchlistPreferredHostJunit {
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
 
-			/* Consumer gets channel down reconnecting */
-    		event = consumer.testReactor().pollEvent();
-    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
-    		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-			
 			/* Consumer gets channel up */
     		event = consumer.testReactor().pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
@@ -3032,6 +3063,14 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
 
+			/* Consumer gets channel down reconnecting */
+    		event = consumer.testReactor().pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+    		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			/* Login Status Suspect Open */
     		event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -3047,12 +3086,6 @@ public class ReactorWatchlistPreferredHostJunit {
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
 
-			/* Consumer gets channel down reconnecting */
-    		event = consumer.testReactor().pollEvent();
-    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
-    		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-			
 			/* Consumer gets channel up */
     		event = consumer.testReactor().pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
@@ -3442,6 +3475,8 @@ public class ReactorWatchlistPreferredHostJunit {
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
     		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
     		
     		/* Login Status Suspect Open */
     		event = consumer.testReactor().pollEvent();
@@ -3808,8 +3843,8 @@ public class ReactorWatchlistPreferredHostJunit {
     		consumer.info(reactorChannelInfo);
     		
     		// Ensure remaining detection time is between 30-60 seconds remaining, since this test shouldn't take that long
-    		assertTrue(reactorChannelInfo.preferredHostInfo()._remainingDetectionTime > 30000
-    				&& reactorChannelInfo.preferredHostInfo()._remainingDetectionTime < 60000);
+    		assertTrue(reactorChannelInfo.preferredHostInfo()._remainingDetectionTime > 30
+    				&& reactorChannelInfo.preferredHostInfo()._remainingDetectionTime < 60);
     		
     		// Ensure connection list index is 0
     		assertEquals(0, reactorChannelInfo.preferredHostInfo()._connectionListIndex);
@@ -3936,7 +3971,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			// Set correct opts
 			connectOpts.reactorPreferredHostOptions().warmStandbyGroupListIndex(0);
 			connectOpts.reactorPreferredHostOptions().isPreferredHostEnabled(true);
-			connectOpts.reactorPreferredHostOptions().detectionTimeSchedule("* * ? * *");
+			connectOpts.reactorPreferredHostOptions().detectionTimeSchedule("0 * * ? * *");
 			
 			assertEquals(ReactorReturnCodes.SUCCESS, consumerReactor.connectWsbFailureTest(connectOpts, opts, consumer, wsbGroup1, null, null, null));
 		}
@@ -4084,6 +4119,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			assertEquals(ReactorChannelType.WARM_STANDBY, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -4210,6 +4249,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -4551,6 +4592,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -4677,6 +4720,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -5048,6 +5093,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -5167,6 +5214,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -5550,6 +5599,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -5676,6 +5727,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -5866,33 +5919,30 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             /* Provider 3 and 2 closes, Consumer should reconnect to WSB Group 1, where the active server is up but standby is down */
-            provider3.close();
-            provider2.close();
+            provider2.close();	// Close standby
             
-            /* Consumer receives FD Change, open suspect, channel down reconnecting, login status open suspect, directory update, and channel down events */
-            consumer.testReactor().dispatch(6);
+            // Consumer receives FD_Change
+            consumer.testReactor().dispatch(1);
             
             // FD_CHANGE event
             event = consumerReactor.pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+
+            provider3.close();	// Close starting active
             
-			// MSG open suspect, "Service for this item was lost."
-            event = consumerReactor.pollEvent();
-            assertEquals(TestReactorEventTypes.MSG, event.type());
-            msgEvent = (ReactorMsgEvent)event.reactorEvent();
-            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
-            assertEquals(((StatusMsg)msgEvent.msg()).state().dataState(), DataStates.SUSPECT);
-            assertEquals(((StatusMsg)msgEvent.msg()).state().streamState(), StreamStates.OPEN);
-            System.out.println(((StatusMsg)msgEvent.msg()).state().text().toString());
-            
+            /* Consumer receives FD Change, open suspect, channel down reconnecting, login status open suspect, directory update, and channel down reconnecting events */
+            consumer.testReactor().dispatch(6, 5000);
+
 			// Channel down reconnecting
             event = consumerReactor.pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+
 			// Login status open suspect
             event = consumerReactor.pollEvent();
             assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -5916,30 +5966,23 @@ public class ReactorWatchlistPreferredHostJunit {
             assertEquals(((StatusMsg)msgEvent.msg()).state().dataState(), DataStates.SUSPECT);
             assertEquals(((StatusMsg)msgEvent.msg()).state().streamState(), StreamStates.OPEN);
             System.out.println(((StatusMsg)msgEvent.msg()).state().text().toString());
-
-            consumer.testReactor().dispatch(2, 5000);
             
-        	int channel_down_reconnecting = 0;
-            //There are two channel_down_reconnecting events
-            for (int i = 0; i < 2; i++)
-            {
-            	event = consumerReactor.pollEvent();
-            	if (event == null)
-            		break;
-            	switch (event.type())
-            	{
-            		case CHANNEL_EVENT:
-            			channelEvent = (ReactorChannelEvent)event.reactorEvent();
-            			if (channelEvent.eventType() == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
-            				channel_down_reconnecting++;
-            			break;
-        			default:
-        				assertEquals(true, false);
-        				break;
-            	}
-            }
-        	assertEquals(2, channel_down_reconnecting);
-
+			// Channel down reconnecting
+            event = consumerReactor.pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
+			// Channel down reconnecting
+            event = consumerReactor.pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
             provider.testReactor().accept(opts, provider, 10000);
             
 			/* Provider 1 receives channel-up/channel-ready */
@@ -5957,12 +6000,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			
 			consumer.testReactor().dispatch(1);
 			
-			// Consumer receives Channel_Up
+			// Consumer receives Channel Up
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 						
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			/* Provider 1 receives login request */
 			provider.testReactor().dispatch(1);
@@ -6220,6 +6264,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -6339,6 +6385,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -6540,33 +6588,30 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             /* Provider 3 and 2 closes, Consumer should reconnect to WSB Group 1, where the active server is up but standby is down */
-            provider3.close();
-            provider2.close();
-            
-            /* Consumer receives FD Change, open suspect, channel down reconnecting, login status open suspect, directory update, and channel down events */
-            consumer.testReactor().dispatch(6);
+            provider2.close();	// Close standby first
+
+            /* Consumer receives FD Change */
+            consumer.testReactor().dispatch(1);
             
             // FD_CHANGE event
             event = consumerReactor.pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+
+            provider3.close();  // Close starting active second
             
-			// MSG open suspect, "Service for this item was lost."
-            event = consumerReactor.pollEvent();
-            assertEquals(TestReactorEventTypes.MSG, event.type());
-            msgEvent = (ReactorMsgEvent)event.reactorEvent();
-            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
-            assertEquals(((StatusMsg)msgEvent.msg()).state().dataState(), DataStates.SUSPECT);
-            assertEquals(((StatusMsg)msgEvent.msg()).state().streamState(), StreamStates.OPEN);
-            System.out.println(((StatusMsg)msgEvent.msg()).state().text().toString());
-            
+            /* Consumer receives FD Change, open suspect, channel down reconnecting, login status open suspect, directory update, and channel down events */
+            consumer.testReactor().dispatch(6, 5000);
+
 			// Channel down reconnecting
             event = consumerReactor.pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+
 			// Login status open suspect
             event = consumerReactor.pollEvent();
             assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -6591,28 +6636,21 @@ public class ReactorWatchlistPreferredHostJunit {
             assertEquals(((StatusMsg)msgEvent.msg()).state().streamState(), StreamStates.OPEN);
             System.out.println(((StatusMsg)msgEvent.msg()).state().text().toString());
 
-            consumer.testReactor().dispatch(2, 5000);
-            
-        	int channel_down_reconnecting = 0;
-			//There are two channel_down_reconnecting events
-            for (int i = 0; i < 2; i++)
-            {
-            	event = consumerReactor.pollEvent();
-            	if (event == null)
-            		break;
-            	switch (event.type())
-            	{
-            		case CHANNEL_EVENT:
-            			channelEvent = (ReactorChannelEvent)event.reactorEvent();
-            			if (channelEvent.eventType() == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
-            				channel_down_reconnecting++;
-            			break;
-        			default:
-        				assertEquals(true, false);
-        				break;
-            	}
-            }
-        	assertEquals(2, channel_down_reconnecting);
+			// Channel down reconnecting
+            event = consumerReactor.pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+
+			// Channel down reconnecting
+            event = consumerReactor.pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
 
             provider.testReactor().accept(opts, provider, 10000);
             
@@ -6631,12 +6669,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			
 			consumer.testReactor().dispatch(1);
 			
-			// Consumer receives Channel_Up
+			// Consumer receives Channel Up
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 						
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			/* Provider 1 receives login request */
 			provider.testReactor().dispatch(1);
@@ -6877,6 +6916,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			
 			try {
 				Thread.sleep(5000);
@@ -6902,20 +6943,22 @@ public class ReactorWatchlistPreferredHostJunit {
 				e.printStackTrace();
 			}
 			
-			consumer.testReactor().dispatch(1);
+			consumer.testReactor().dispatch(2, 5000);
 			
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
-			consumer.testReactor().dispatch(1);
-			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			provider3.testReactor().accept(opts, provider3, 5000);
 
 			/* Provider 3 receives channel-up/channel-ready */
@@ -6937,6 +6980,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
@@ -7057,6 +7102,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -7382,20 +7429,23 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 			
 			// Attempt to connect to Provider 1 (Group 1) twice
-			consumer.testReactor().dispatch(1);
+			consumer.testReactor().dispatch(2, 5000);
 			/* Channel down reconnecting */
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			/* Channel down reconnecting */
-			consumer.testReactor().dispatch(1);
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			consumer.testReactor().dispatch(0);
 			
 			consumer.testReactor().switchingReactorChannel = true;
@@ -7421,6 +7471,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
@@ -7727,6 +7779,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			assertEquals(ReactorChannelType.WARM_STANDBY, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -7853,6 +7909,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			assertEquals(ReactorChannelType.WARM_STANDBY, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -8072,6 +8132,8 @@ public class ReactorWatchlistPreferredHostJunit {
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			// Login status open suspect
             event = consumerReactor.pollEvent();
             assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -8149,6 +8211,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+			
+			assertEquals(ReactorChannelType.NORMAL, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider.testReactor().dispatch(1);
 			event = provider.testReactor().pollEvent();
@@ -8446,6 +8512,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			assertEquals(ReactorChannelType.WARM_STANDBY, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -8565,6 +8635,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			assertEquals(ReactorChannelType.WARM_STANDBY, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -8793,6 +8867,10 @@ public class ReactorWatchlistPreferredHostJunit {
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+			assertEquals(ReactorChannelType.WARM_STANDBY, channelEvent.reactorChannel().reactorChannelType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			// Login status open suspect
             event = consumerReactor.pollEvent();
             assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -8874,6 +8952,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+			
+			assertEquals(ReactorChannelType.NORMAL, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider.testReactor().dispatch(1);
 			event = provider.testReactor().pollEvent();
@@ -9028,11 +9110,10 @@ public class ReactorWatchlistPreferredHostJunit {
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
 
-            // Kill provider 1
+            // Kill provider 1 (Channel list)
             provider.close();
             
-            // Consumer reconnects to group 1
-            
+            // Consumer reconnects to group 1 (WSB)
             consumer.testReactor().dispatch(4);
 			
 			event = consumer.testReactor().pollEvent();
@@ -9040,6 +9121,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+			assertEquals(ReactorChannelType.NORMAL, channelEvent.reactorChannel().reactorChannelType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
 			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
@@ -9078,6 +9163,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+			
+			assertEquals(ReactorChannelType.WARM_STANDBY, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
@@ -9198,6 +9287,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -9420,6 +9511,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			assertEquals(ReactorChannelType.WARM_STANDBY, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -9547,6 +9642,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -9769,6 +9866,10 @@ public class ReactorWatchlistPreferredHostJunit {
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+			assertEquals(ReactorChannelType.WARM_STANDBY, channelEvent.reactorChannel().reactorChannelType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			// Login status open suspect
             event = consumerReactor.pollEvent();
             assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -9850,6 +9951,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+			
+			assertEquals(ReactorChannelType.NORMAL, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider.testReactor().dispatch(1);
 			event = provider.testReactor().pollEvent();
@@ -10016,6 +10121,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
+			assertEquals(ReactorChannelType.NORMAL, channelEvent.reactorChannel().reactorChannelType());
+			
+    		checkChannelStateAfterChannelDownReconnecting(event);
+    		
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
 			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
@@ -10054,6 +10163,10 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+			
+			assertEquals(ReactorChannelType.WARM_STANDBY, channelEvent.reactorChannel().reactorChannelType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
@@ -10175,6 +10288,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -10406,6 +10521,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider.testReactor().dispatch(1);
 			event = provider.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -10532,6 +10649,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -10876,6 +10995,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider.testReactor().dispatch(1);
 			event = provider.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -11002,6 +11123,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -11213,7 +11336,7 @@ public class ReactorWatchlistPreferredHostJunit {
     		consumerReactor.dispatch(-1);
             
             //FD_CHANGE or MSG event could be first
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 10; i++)
             {
             	event = consumerReactor.pollEvent();
             	if (event == null)
@@ -11233,6 +11356,11 @@ public class ReactorWatchlistPreferredHostJunit {
                 		{
                 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, channelEvent.eventType());
                 			System.out.println("Preferred Host Complete Event.");
+                		}
+                		else if (channelEvent.eventType() == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+                		{
+                			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+                			System.out.println("Channel Down Reconnecting Event.");
                 		}
             			break;
             		case MSG:
@@ -11607,6 +11735,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider.testReactor().dispatch(1);
 			event = provider.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -11733,6 +11863,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -11924,13 +12056,13 @@ public class ReactorWatchlistPreferredHostJunit {
             
     		// Consumer calls ioctl to set detectionTimeSchedule to 1 minute.
     		ReactorPreferredHostOptions ioctlCall = ReactorFactory.createReactorPreferredHostOptions();
-    		ioctlCall.detectionTimeSchedule("* * ? * *");
+    		ioctlCall.detectionTimeSchedule("0 * * ? * *");
     		ioctlCall.isPreferredHostEnabled(true);
     		ioctlCall.warmStandbyGroupListIndex(2);
     		ReactorChannel reactorChannel = consumer._testReactor._reactor._reactorChannelQueue.peek();
     		reactorChannel.ioctl(ReactorChannelIOCtlCode.FALLBACK_PREFERRED_HOST_OPTIONS, ioctlCall, reactorChannel.getEDPErrorInfo());
 
-    		// Wait up to 60 seconds (with some buffer time) for ioctl to kick in and detectionTimeSchedule to occur.
+    		// Wait up to 1 minute (with some buffer time) for ioctl to kick in and detectionTimeSchedule to occur.
 
     		try {
 				Thread.sleep(60100);
@@ -11944,7 +12076,7 @@ public class ReactorWatchlistPreferredHostJunit {
             consumerReactor.dispatch(-1);
             
             //FD_CHANGE or MSG event could be first
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < 11; i++)
             {
             	event = consumerReactor.pollEvent();
             	if (event == null)
@@ -11962,6 +12094,11 @@ public class ReactorWatchlistPreferredHostJunit {
                 		else if (channelEvent.eventType() == ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
                 		{
                 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, channelEvent.eventType());
+                		}
+                		else if (channelEvent.eventType() == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+                		{
+                			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+                			System.out.println("Channel Down Reconnecting Event.");
                 		}
             			break;
             		case MSG:
@@ -12355,6 +12492,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider.testReactor().dispatch(1);
 			event = provider.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -12481,6 +12620,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -12693,7 +12834,7 @@ public class ReactorWatchlistPreferredHostJunit {
     		consumerReactor.dispatch(-1);
             
             //FD_CHANGE or MSG event could be first
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 10; i++)
             {
             	event = consumerReactor.pollEvent();
             	if (event == null)
@@ -12713,6 +12854,21 @@ public class ReactorWatchlistPreferredHostJunit {
                 		{
                 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, channelEvent.eventType());
                 			System.out.println("Preferred Host Complete Event.");
+                		}
+                		else if (channelEvent.eventType() == ReactorChannelEventTypes.CHANNEL_UP)
+                		{
+                			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+                			System.out.println("Channel Up Event.");
+                		}
+                		else if (channelEvent.eventType() == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+                		{
+                			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+                			System.out.println("Channel Down Reconnecting Event.");
+                		}
+                		else if (channelEvent.eventType() == ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
+                		{
+                			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
+                			System.out.println("Preferred Host Starting Fallback Event.");
                 		}
             			break;
             		case MSG:
@@ -12988,6 +13144,673 @@ public class ReactorWatchlistPreferredHostJunit {
 		}
 
 	}
+	@Test
+	public void PreferredHostWarmStandby_PreferredDown_SwitchToStandby()
+	{
+		System.out.println("\n>>>>>>>>> Running PreferredHostWarmStandby_SwitchToStandby <<<<<<<<<<\n");
+
+		// Start only Providers 1, 2, and 3
+		// Consumer should connect to Group 1, marked as the Preferred group
+		// After connecting to Group 1, Starting Server is shutdown and connection should switch to Standby. 
+		// Then second Standby is shutdown and reconnection should switch to another Standby.
+
+		// Group 1 (Preferred) = Starting: 1, Standby 2, Standby 3
+		// Group 2 = Starting: 2, Standby 1
+		// Group 3 = Starting: 4
+		
+		TestReactor consumerReactor = null;
+		TestReactor providerReactor = null;
+		TestReactor providerReactor2 = null;
+		TestReactor providerReactor3 = null;
+		TestReactor providerReactor4 = null;
+		Consumer consumer = null;
+		Provider provider = null;
+		Provider provider2 = null;
+		Provider provider3 = null;
+		Provider provider4 = null;
+		
+		TestReactorEvent event;
+		ReactorChannelEvent channelEvent;
+		RDMLoginMsgEvent loginMsgEvent;
+		RDMDirectoryMsgEvent directoryMsgEvent;
+		ReactorMsgEvent msgEvent;
+		ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+		Msg msg = CodecFactory.createMsg();
+        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg receivedRefreshMsg;
+        int providerStreamId;
+		
+		List<Provider> wsbGroup1 = new ArrayList<Provider>();
+		List<Provider> wsbGroup2 = new ArrayList<Provider>();
+		List<Provider> wsbGroup3 = new ArrayList<Provider>();
+		 
+		try {		
+			/* Create consumer reactor. */
+			consumerReactor = new TestReactor(true);
+			ReactorCallbackHandler consumerCallbackHandler = null;
+			Selector consumerSelector = null;	  
+			
+			/* Create consumer. */
+			consumerCallbackHandler = new ReactorCallbackHandler(consumerSelector);
+			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
+			
+			consumer = new Consumer(consumerReactor);
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			consumerRole.initDefaultRDMLoginRequest();
+			consumerRole.initDefaultRDMDirectoryRequest();
+			consumerRole.channelEventCallback(consumer);
+			consumerRole.loginMsgCallback(consumer);      
+			consumerRole.directoryMsgCallback(consumer);
+			consumerRole.dictionaryMsgCallback(consumer);
+			consumerRole.defaultMsgCallback(consumer);
+			
+			consumerRole.watchlistOptions().enableWatchlist(true);
+			
+			// Connect the consumer and providers.
+			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			opts.reconnectAttemptLimit(1);
+			
+			/* Create provider reactor. */
+			providerReactor = new TestReactor(true);
+			
+			/* Create provider. */
+			provider = createDefaultProvider(provider, providerReactor);
+			
+			provider.bind(opts);
+			
+			wsbGroup1.add(provider);
+			
+			/* Create provider reactor 2. */
+			providerReactor2 = new TestReactor(true);
+			
+			/* Create provider 2. */
+			provider2 = createDefaultProvider(provider2, providerReactor2);
+			
+			provider2.bind(opts);
+			    
+			// Add this provider as standby for group 1 and starting for group 2
+			wsbGroup1.add(provider2);
+			wsbGroup2.add(provider2);
+			// Add provider 1 as standby for group 2
+			wsbGroup2.add(provider);
+			
+			/* Create provider reactor 3. */
+			providerReactor3 = new TestReactor(true);
+			
+			/* Create provider 3. */
+			provider3 = createDefaultProvider(provider3, providerReactor3);
+			
+			provider3.bind(opts);
+
+			// Add provider 3 as standby for Group 1
+			wsbGroup1.add(provider3);
+			
+			/* Create provider reactor 4. */
+			providerReactor4 = new TestReactor(true);
+			
+			/* Create provider 4. */
+			provider4 = createDefaultProvider(provider4, providerReactor4);
+			
+			provider4.bind(opts);
+
+			// Add provider 4 as Starting for Group 3
+			wsbGroup3.add(provider4);
+			 
+			// Set preferred host options, with WSB group index to 0
+			ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
+			connectOpts.reactorPreferredHostOptions().isPreferredHostEnabled(false);
+			
+			consumerReactor.connectWsb(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, null);
+		
+			consumer.testReactor().dispatch(0);
+			
+			provider.testReactor().accept(opts, provider);
+
+			/* Provider receives channel-up/channel-ready */
+			provider.testReactor().dispatch(2);
+			
+			event = provider.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+
+			event = provider.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
+			
+			consumer.testReactor().dispatch(1);
+			
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
+			provider.testReactor().dispatch(1);
+			event = provider.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.REQUEST, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			
+			/* Provider sends a default login refresh. */
+			LoginRequest loginRequest = (LoginRequest)loginMsgEvent.rdmLoginMsg();
+			LoginRefresh loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
+
+	        loginRefresh.clear();
+	        loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
+	        loginRefresh.applySolicited();
+	        loginRefresh.userName(loginRequest.userName());
+	        loginRefresh.streamId(loginRequest.streamId());
+	        loginRefresh.applyHasAttrib();
+	        loginRefresh.applyHasFeatures();
+	        loginRefresh.features().applyHasSupportOptimizedPauseResume();
+	        loginRefresh.features().supportOptimizedPauseResume(1);
+	        loginRefresh.features().applyHasSupportViewRequests();
+	        loginRefresh.features().supportViewRequests(1);
+	        loginRefresh.features().applyHasSupportPost();
+	        loginRefresh.features().supportOMMPost(1);
+	        loginRefresh.features().applyHasSupportStandby();
+	        loginRefresh.features().supportStandby(1);
+	        loginRefresh.features().applyHasSupportStandbyMode();
+	        loginRefresh.features().supportStandbyMode(3);
+	        loginRefresh.state().streamState(StreamStates.OPEN);
+	        loginRefresh.state().dataState(DataStates.OK);
+	        loginRefresh.state().code(StateCodes.NONE);
+	        loginRefresh.state().text().data("Login OK");
+	        
+	        submitOptions.clear();
+	        assertTrue(provider.submitAndDispatch(loginRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
+	        
+	        consumer.testReactor().dispatch(1);
+			
+			/* Save the stream ID used by each component to open the login stream (may be different if the watchlist is enabled). */
+			consumer.defaultSessionLoginStreamId(consumerRole.rdmLoginRequest().streamId());
+			provider.defaultSessionLoginStreamId(loginRequest.streamId());
+			
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.REFRESH, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			
+
+			/* Provider receives consumer connection status and directory request. */
+			provider.testReactor().dispatch(2);
+			event = provider.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.CONSUMER_CONNECTION_STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			assertTrue(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).checkHasWarmStandbyInfo());
+			/* 1st connection, so this should set to 0 */
+			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.ACTIVE);
+
+			event = provider.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+			assertEquals(DirectoryMsgType.REQUEST, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
+			
+			/* Provider sends a default directory refresh. */
+			DirectoryRequest directoryRequest = (DirectoryRequest)directoryMsgEvent.rdmDirectoryMsg();
+			DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
+
+	        directoryRefresh.rdmMsgType(DirectoryMsgType.REFRESH);
+
+	        directoryRefresh.clear();
+	        directoryRefresh.streamId(directoryRequest.streamId());
+	        directoryRefresh.filter(directoryRequest.filter());
+	        directoryRefresh.applySolicited();
+	        directoryRefresh.applyClearCache();
+	        directoryRefresh.state().streamState(StreamStates.OPEN);
+	        directoryRefresh.state().dataState(DataStates.OK);
+	        directoryRefresh.state().code(StateCodes.NONE);
+	        directoryRefresh.state().text().data("Source Directory Refresh Complete");
+
+	        Service service = DirectoryMsgFactory.createService();
+	        Provider.defaultService().copy(service);
+	        
+	        directoryRefresh.serviceList().add(service);
+	        
+	        submitOptions.clear();
+	        assertTrue(provider.submitAndDispatch(directoryRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+	        consumer.testReactor().dispatch(2);
+
+	        /* Consumer receives directory refresh. */
+			event = consumer.testReactor().pollEvent();
+    		assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+    		directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+		    assertEquals(DirectoryMsgType.REFRESH, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
+    			    		
+    		/* Save the stream ID used by each component to open the directory stream (may be different if the watchlist is enabled). */
+    		consumer.defaultSessionDirectoryStreamId(consumerRole.rdmDirectoryRequest().streamId());
+    		provider.defaultSessionDirectoryStreamId(directoryRequest.streamId());
+    		
+    		/* Consumer receives channel-ready. */
+    		event = consumer.testReactor().pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+    		assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
+    		
+    		/* Now handle the first Standby */
+    		provider2.testReactor().accept(opts, provider2);
+
+			/* Provider receives channel-up/channel-ready */
+			provider2.testReactor().dispatch(2);
+			
+			event = provider2.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+
+			event = provider2.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
+			
+			consumer.testReactor().dispatch(1);
+			
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
+			provider2.testReactor().dispatch(1);
+			event = provider2.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.REQUEST, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			
+			/* Provider sends a default login refresh. */
+			loginRequest = (LoginRequest)loginMsgEvent.rdmLoginMsg();
+
+			loginRefresh.clear();
+	        loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
+	        loginRefresh.applySolicited();
+	        loginRefresh.userName(loginRequest.userName());
+	        loginRefresh.streamId(loginRequest.streamId());
+	        loginRefresh.applyHasFeatures();
+	        loginRefresh.features().applyHasSupportOptimizedPauseResume();
+	        loginRefresh.features().supportOptimizedPauseResume(1);
+	        loginRefresh.features().applyHasSupportViewRequests();
+	        loginRefresh.features().supportViewRequests(1);
+	        loginRefresh.features().applyHasSupportPost();
+	        loginRefresh.features().supportOMMPost(1);
+	        loginRefresh.features().applyHasSupportStandby();
+	        loginRefresh.features().supportStandby(1);
+	        loginRefresh.features().applyHasSupportStandbyMode();
+	        loginRefresh.features().supportStandbyMode(3);
+	        loginRefresh.state().streamState(StreamStates.OPEN);
+	        loginRefresh.state().dataState(DataStates.OK);
+	        loginRefresh.state().code(StateCodes.NONE);
+	        loginRefresh.state().text().data("Login OK");
+	        
+	        submitOptions.clear();
+	        assertTrue(provider2.submitAndDispatch(loginRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
+	        
+	        consumer.testReactor().dispatch(0);
+			
+			/* Provider receives consumer connection status and directory request. */
+			provider2.testReactor().dispatch(2);
+			event = provider2.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.CONSUMER_CONNECTION_STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			assertTrue(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).checkHasWarmStandbyInfo());
+			/* 1st connection, so this should set to 0 */
+			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.STANDBY);
+
+			event = provider2.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+			assertEquals(DirectoryMsgType.REQUEST, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
+			
+			/* Provider sends a default directory refresh. */
+			directoryRequest = (DirectoryRequest)directoryMsgEvent.rdmDirectoryMsg();
+			directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
+
+	        directoryRefresh.rdmMsgType(DirectoryMsgType.REFRESH);
+
+	        directoryRefresh.clear();
+	        directoryRefresh.streamId(directoryRequest.streamId());
+	        directoryRefresh.filter(directoryRequest.filter());
+	        directoryRefresh.applySolicited();
+	        directoryRefresh.applyClearCache();
+	        directoryRefresh.state().streamState(StreamStates.OPEN);
+	        directoryRefresh.state().dataState(DataStates.OK);
+	        directoryRefresh.state().code(StateCodes.NONE);
+	        directoryRefresh.state().text().data("Source Directory Refresh Complete");
+
+	        Provider.defaultService().copy(service);
+	        
+	        directoryRefresh.serviceList().add(service);
+	        
+	        submitOptions.clear();
+	        assertTrue(provider2.submitAndDispatch(directoryRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+	        consumer.testReactor().dispatch(1);
+
+	        /* Consumer receives directory refresh. */
+			event = consumer.testReactor().pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
+    			    		
+    		/* Save the stream ID used by each component to open the directory stream (may be different if the watchlist is enabled). */
+    		provider2.defaultSessionDirectoryStreamId(directoryRequest.streamId());
+    		
+    		/* Now handle the second Standby */
+    		provider3.testReactor().accept(opts, provider3);
+
+			/* Provider receives channel-up/channel-ready */
+			provider3.testReactor().dispatch(2);
+			
+			event = provider3.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+
+			event = provider3.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
+			
+			consumer.testReactor().dispatch(1);
+			
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
+			provider3.testReactor().dispatch(1);
+			event = provider3.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.REQUEST, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			
+			/* Provider sends a default login refresh. */
+			loginRequest = (LoginRequest)loginMsgEvent.rdmLoginMsg();
+
+			loginRefresh.clear();
+	        loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
+	        loginRefresh.applySolicited();
+	        loginRefresh.userName(loginRequest.userName());
+	        loginRefresh.streamId(loginRequest.streamId());
+	        loginRefresh.applyHasFeatures();
+	        loginRefresh.features().applyHasSupportOptimizedPauseResume();
+	        loginRefresh.features().supportOptimizedPauseResume(1);
+	        loginRefresh.features().applyHasSupportViewRequests();
+	        loginRefresh.features().supportViewRequests(1);
+	        loginRefresh.features().applyHasSupportPost();
+	        loginRefresh.features().supportOMMPost(1);
+	        loginRefresh.features().applyHasSupportStandby();
+	        loginRefresh.features().supportStandby(1);
+	        loginRefresh.features().applyHasSupportStandbyMode();
+	        loginRefresh.features().supportStandbyMode(3);
+	        loginRefresh.state().streamState(StreamStates.OPEN);
+	        loginRefresh.state().dataState(DataStates.OK);
+	        loginRefresh.state().code(StateCodes.NONE);
+	        loginRefresh.state().text().data("Login OK");
+	        
+	        submitOptions.clear();
+	        assertTrue(provider3.submitAndDispatch(loginRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
+	        
+	        consumer.testReactor().dispatch(0);
+			
+			/* Provider receives consumer connection status and directory request. */
+			provider3.testReactor().dispatch(2);
+			event = provider3.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.CONSUMER_CONNECTION_STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			assertTrue(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).checkHasWarmStandbyInfo());
+			/* 1st connection, so this should set to 0 */
+			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.STANDBY);
+
+			event = provider3.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+			assertEquals(DirectoryMsgType.REQUEST, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
+			
+			/* Provider sends a default directory refresh. */
+			directoryRequest = (DirectoryRequest)directoryMsgEvent.rdmDirectoryMsg();
+			directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
+
+	        directoryRefresh.rdmMsgType(DirectoryMsgType.REFRESH);
+
+	        directoryRefresh.clear();
+	        directoryRefresh.streamId(directoryRequest.streamId());
+	        directoryRefresh.filter(directoryRequest.filter());
+	        directoryRefresh.applySolicited();
+	        directoryRefresh.applyClearCache();
+	        directoryRefresh.state().streamState(StreamStates.OPEN);
+	        directoryRefresh.state().dataState(DataStates.OK);
+	        directoryRefresh.state().code(StateCodes.NONE);
+	        directoryRefresh.state().text().data("Source Directory Refresh Complete");
+
+	        Provider.defaultService().copy(service);
+	        
+	        directoryRefresh.serviceList().add(service);
+	        
+	        submitOptions.clear();
+	        assertTrue(provider3.submitAndDispatch(directoryRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+	        consumer.testReactor().dispatch(1);
+
+	        /* Consumer receives directory refresh. */
+			event = consumer.testReactor().pollEvent();
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+    		channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
+    			    		
+    		/* Save the stream ID used by each component to open the directory stream (may be different if the watchlist is enabled). */
+    		provider3.defaultSessionDirectoryStreamId(directoryRequest.streamId());
+    		
+            /* Consumer sends request. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(5);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyStreaming();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            
+            /* Provider 1 receives request. */
+            provider.testReactor().dispatch(1);
+            event = provider.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            
+            receivedRequestMsg = (RequestMsg)msgEvent.msg();
+            assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+            assertTrue(receivedRequestMsg.checkStreaming());
+            assertFalse(receivedRequestMsg.checkNoRefresh());
+            assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+            assertTrue(receivedRequestMsg.msgKey().checkHasName());
+            assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+            assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+            
+            providerStreamId = receivedRequestMsg.streamId();
+            
+            /* Provider 1 sends refresh .*/
+            refreshMsg.clear();
+            refreshMsg.msgClass(MsgClasses.REFRESH);
+            refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+            refreshMsg.streamId(providerStreamId);
+            refreshMsg.containerType(DataTypes.NO_DATA);
+            refreshMsg.applyHasMsgKey();
+            refreshMsg.msgKey().applyHasServiceId();
+            refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+            refreshMsg.msgKey().applyHasName();
+            refreshMsg.msgKey().name().data("TRI.N");
+            refreshMsg.state().streamState(StreamStates.OPEN);
+            refreshMsg.state().dataState(DataStates.OK);
+            
+            assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            
+            /* Provider 2 receives request. */
+            provider2.testReactor().dispatch(1);
+            event = provider2.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            
+            receivedRequestMsg = (RequestMsg)msgEvent.msg();
+            assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+            assertTrue(receivedRequestMsg.checkStreaming());
+            assertFalse(receivedRequestMsg.checkNoRefresh());
+            assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+            assertTrue(receivedRequestMsg.msgKey().checkHasName());
+            assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+            assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+            
+            providerStreamId = receivedRequestMsg.streamId();
+            
+            /* Provider 2 sends refresh... this is to make sure that the consumer gets the correct refresh .*/
+            refreshMsg.clear();
+            refreshMsg.msgClass(MsgClasses.REFRESH);
+            refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+            refreshMsg.streamId(providerStreamId);
+            refreshMsg.containerType(DataTypes.NO_DATA);
+            refreshMsg.applyHasMsgKey();
+            refreshMsg.msgKey().applyHasServiceId();
+            refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+            refreshMsg.msgKey().applyHasName();
+            refreshMsg.msgKey().name().data("TRI.N");
+            refreshMsg.msgKey().applyHasIdentifier();
+            refreshMsg.msgKey().identifier(1);
+            refreshMsg.state().streamState(StreamStates.OPEN);
+            refreshMsg.state().dataState(DataStates.OK);
+            
+            assertTrue(provider2.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            
+            /* Provider 3 receives request. */
+            provider3.testReactor().dispatch(1);
+            event = provider3.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            
+            receivedRequestMsg = (RequestMsg)msgEvent.msg();
+            assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+            assertTrue(receivedRequestMsg.checkStreaming());
+            assertFalse(receivedRequestMsg.checkNoRefresh());
+            assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+            assertTrue(receivedRequestMsg.msgKey().checkHasName());
+            assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+            assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+            
+            providerStreamId = receivedRequestMsg.streamId();
+            
+            
+            /* Consumer receives refresh. */
+            consumerReactor.dispatch(1);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+            
+            receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+            assertTrue(receivedRefreshMsg.checkHasMsgKey());
+            assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+            assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+            assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+            assertTrue(receivedRefreshMsg.msgKey().name().toString().equals("TRI.N"));
+            assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+            assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+            assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+            assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+            assertFalse(receivedRefreshMsg.msgKey().checkHasIdentifier());
+            assertNotNull(msgEvent.streamInfo());
+            assertNotNull(msgEvent.streamInfo().serviceName());
+            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+
+    		// Close Provider 1, Consumer should switch to first Standby (Provider 2)
+    		provider.close();
+    		
+    		consumer.testReactor().dispatch(2);
+    		
+            /* Consumer receives FD_Change . */
+            event = consumerReactor.pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			/* Consumer receives Status MSG */
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+
+            // Check that the user spec obj on the standby is equal to the Consumer
+            assertEquals(consumer.reactorChannel().warmStandByHandlerImpl.activeReactorChannel().userSpecObj(), consumer);
+            
+    		/* Provider 2 receives Login Msg setting to ACTIVE */
+    		provider2.testReactor().dispatch(1);
+    		event = provider2.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.CONSUMER_CONNECTION_STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			assertTrue(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).checkHasWarmStandbyInfo());
+			/* 1st connection, so this should set to 0 */
+			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.ACTIVE);
+
+			// Close Provider 2, Consumer should switch to second Standby (Provider 3)
+    		provider2.close();
+    		
+    		consumer.testReactor().dispatch(2);
+    		
+            /* Consumer receives FD_Change . */
+            event = consumerReactor.pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			/* Consumer receives Status MSG */
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+
+            // Check that the user spec obj on the standby is equal to the Consumer
+            assertEquals(consumer.reactorChannel().warmStandByHandlerImpl.activeReactorChannel().userSpecObj(), consumer);
+            
+    		/* Provider 3 receives Login Msg setting to ACTIVE */
+    		provider3.testReactor().dispatch(1);
+    		event = provider3.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.CONSUMER_CONNECTION_STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			assertTrue(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).checkHasWarmStandbyInfo());
+			/* 1st connection, so this should set to 0 */
+			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.ACTIVE);
+
+		}
+		finally
+		{
+	       consumer.close();
+	       provider3.close();
+	       provider4.close();
+	       
+	       consumerReactor.close();
+	       providerReactor.close();
+	       providerReactor2.close();
+	       providerReactor3.close();
+	       providerReactor4.close();
+		}
+
+	}
 	
 	@Test
 	public void PreferredHostWarmStandby_ServceBased_FallbackMethodTest()
@@ -13120,6 +13943,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider.testReactor().dispatch(1);
 			event = provider.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -13238,6 +14063,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -13458,7 +14285,7 @@ public class ReactorWatchlistPreferredHostJunit {
     		consumerReactor.dispatch(-1);
             
             //FD_CHANGE or MSG event could be first
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 10; i++)
             {
             	event = consumerReactor.pollEvent();
             	if (event == null)
@@ -13477,6 +14304,11 @@ public class ReactorWatchlistPreferredHostJunit {
                 		else if (channelEvent.eventType() == ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
                 		{
                 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, channelEvent.eventType());
+                			System.out.println("Preferred Host Complete Event.");
+                		}
+                		else if (channelEvent.eventType() == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+                		{
+                			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
                 			System.out.println("Preferred Host Complete Event.");
                 		}
             			break;
@@ -13913,6 +14745,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -14039,7 +14873,7 @@ public class ReactorWatchlistPreferredHostJunit {
             
             providerStreamId = receivedRequestMsg.streamId();
             
-            /* Provider 1 sends refresh .*/
+            /* Provider 3 sends refresh .*/
             refreshMsg.clear();
             refreshMsg.msgClass(MsgClasses.REFRESH);
             refreshMsg.domainType(DomainTypes.MARKET_PRICE);
@@ -14056,7 +14890,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(provider3.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
             
             /* Consumer receives refresh. */
-            consumerReactor.dispatch(1);
+            consumer.testReactor().dispatch(1);
             event = consumerReactor.pollEvent();
             assertEquals(TestReactorEventTypes.MSG, event.type());
             msgEvent = (ReactorMsgEvent)event.reactorEvent();
@@ -14097,12 +14931,19 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 			
-			consumer.testReactor().dispatch(5);
+			consumer.testReactor().dispatch(7);
 
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 			
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -14113,16 +14954,29 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
+
+			// MSG open suspect, "Service for this item was lost."
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            assertEquals(((StatusMsg)msgEvent.msg()).state().dataState(), DataStates.SUSPECT);
+            assertEquals(((StatusMsg)msgEvent.msg()).state().streamState(), StreamStates.OPEN);
+            System.out.println(((StatusMsg)msgEvent.msg()).state().text().toString());
 			
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider.testReactor().dispatch(1);
 			event = provider.testReactor().pollEvent();
@@ -14242,6 +15096,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider2.testReactor().dispatch(1);
 			event = provider2.testReactor().pollEvent();
@@ -14432,10 +15288,12 @@ public class ReactorWatchlistPreferredHostJunit {
 			/* Create provider 3. */
 			provider3 = createDefaultProvider(provider3, providerReactor3);
 			
-			provider3.bind(opts);
+			int port3 = provider3.bindGetPort(opts);
 			
 			// Add Provider 3 to channel list
 			channelList.add(provider3);
+			
+			System.out.println("WSB Ports: " + port1 + "/" + port2 + "\nConnectionList Port: " + port3);
 			 
 			// Set preferred host options, with WSB group index to 0
 			ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
@@ -14493,6 +15351,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
@@ -14620,7 +15480,7 @@ public class ReactorWatchlistPreferredHostJunit {
             
             providerStreamId = receivedRequestMsg.streamId();
             
-            /* Provider 1 sends refresh .*/
+            /* Provider 3 sends refresh .*/
             refreshMsg.clear();
             refreshMsg.msgClass(MsgClasses.REFRESH);
             refreshMsg.domainType(DomainTypes.MARKET_PRICE);
@@ -14678,7 +15538,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 			
-			consumer.testReactor().dispatch(5);
+			consumer.testReactor().dispatch(7);
 
 			/* Consumer gets Preferred Host Starting Fallback */
 			event = consumer.testReactor().pollEvent();
@@ -14686,6 +15546,11 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, channelEvent.eventType());
 			
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
 			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
@@ -14695,16 +15560,31 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
+
+			// MSG open suspect, "Service for this item was lost."
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            assertEquals(((StatusMsg)msgEvent.msg()).state().dataState(), DataStates.SUSPECT);
+            assertEquals(((StatusMsg)msgEvent.msg()).state().streamState(), StreamStates.OPEN);
+            System.out.println(((StatusMsg)msgEvent.msg()).state().text().toString());
+			
+            checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider.testReactor().dispatch(1);
 			event = provider.testReactor().pollEvent();
@@ -15079,6 +15959,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -15205,6 +16087,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider4.testReactor().dispatch(1);
 			event = provider4.testReactor().pollEvent();
@@ -15813,6 +16697,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
+			
 			provider3.testReactor().dispatch(1);
 			event = provider3.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -15927,6 +16813,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
+			
+			checkCallbackEventAndReactorChannels(consumer.reactorChannel().warmStandByHandlerImpl.mainReactorChannelImpl(), consumer.reactorChannel(), event);
 			
 			provider4.testReactor().dispatch(1);
 			event = provider4.testReactor().pollEvent();

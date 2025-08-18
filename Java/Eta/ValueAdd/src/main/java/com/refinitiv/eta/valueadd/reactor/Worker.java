@@ -205,7 +205,7 @@ class Worker implements Runnable
                     				 !event.reactorChannel()._preferredHostOptions.detectionTimeSchedule().isEmpty())
                     		 {
                     			 try {
-        							CronExpression tr = new CronExpression("0 " + event.reactorChannel()._preferredHostOptions.detectionTimeSchedule());
+        							CronExpression tr = new CronExpression(event.reactorChannel()._preferredHostOptions.detectionTimeSchedule());
         							Date currentTime = new Date(System.currentTimeMillis());
         							Date nextTime = tr.getNextValidTimeAfter(currentTime);
 
@@ -433,7 +433,7 @@ class Worker implements Runnable
                         				if (event.reactorChannel().preferredHostChannel().hostname().equals(event.reactorChannel().warmStandByHandlerImpl.startingReactorChannel().channel().hostname()) &&
                                 				event.reactorChannel().preferredHostChannel().port() == event.reactorChannel().warmStandByHandlerImpl.startingReactorChannel().channel().port())
                                 		{
-                    						event.reactorChannel().initiateSwitch(false);
+                    						event.reactorChannel().initiateSwitch(false, false);
                     						if (_previousReactorChannelState != null)
                     						{
                     							event.reactorChannel().state(_previousReactorChannelState);	// Reset state
@@ -449,7 +449,7 @@ class Worker implements Runnable
                         				if (event.reactorChannel().preferredHostChannel().hostname().equals(event.reactorChannel().channel().hostname()) &&
                                 				event.reactorChannel().preferredHostChannel().port() == event.reactorChannel().channel().port())
                                 		{
-                    						event.reactorChannel().initiateSwitch(false);
+                    						event.reactorChannel().initiateSwitch(false, false);
                     						if (_previousReactorChannelState != null)
                     						{
                     							event.reactorChannel().state(_previousReactorChannelState);	// Reset state
@@ -465,7 +465,7 @@ class Worker implements Runnable
                         		catch (Exception e)
                         		{
                         			// Failed to initiate a switch, likely due to channel being down. Abandon switchover attempt.
-            						event.reactorChannel().initiateSwitch(false);
+            						event.reactorChannel().initiateSwitch(false, false);
             						if (_previousReactorChannelState != null)
             						{
             							event.reactorChannel().state(_previousReactorChannelState);	// Reset state
@@ -510,7 +510,7 @@ class Worker implements Runnable
                                                 }
                                             	else if (ret == TransportReturnCodes.FAILURE || System.currentTimeMillis() > event.reactorChannel().initializationEndTimeMs())
                                             	{
-                                            		event.reactorChannel().initiateSwitch(false);
+                                            		event.reactorChannel().initiateSwitch(false, false);
                             						if (_previousReactorChannelState != null)
                             						{
                             							event.reactorChannel().state(_previousReactorChannelState);	// Reset state
@@ -527,7 +527,7 @@ class Worker implements Runnable
                         				{
                         					if (event.reactorChannel().preferredHostChannel() == null)
                         					{
-                        						event.reactorChannel().initiateSwitch(false);
+                        						event.reactorChannel().initiateSwitch(false, false);
                         						if (_previousReactorChannelState != null)
                         						{
                         							event.reactorChannel().state(_previousReactorChannelState);	// Reset state
@@ -558,7 +558,7 @@ class Worker implements Runnable
 	                                        }
 	                                    	else if (ret == TransportReturnCodes.FAILURE || System.currentTimeMillis() > event.reactorChannel().initializationEndTimeMs())
 	                                    	{
-	                                    		event.reactorChannel().initiateSwitch(false);
+	                                    		event.reactorChannel().initiateSwitch(false, false);
 	                    						if (_previousReactorChannelState != null)
 	                    						{
 	                    							event.reactorChannel().state(_previousReactorChannelState);	// Reset state
@@ -574,7 +574,7 @@ class Worker implements Runnable
                         				{
                         					if (event.reactorChannel() == null || event.reactorChannel().preferredHostChannel() == null)
                         					{
-                        						event.reactorChannel().initiateSwitch(false);
+                        						event.reactorChannel().initiateSwitch(false, false);
                         						if (_previousReactorChannelState != null)
                         						{
                         							event.reactorChannel().state(_previousReactorChannelState);	// Reset state
@@ -602,7 +602,7 @@ class Worker implements Runnable
                                     }
                                 	else if (ret == TransportReturnCodes.FAILURE || System.currentTimeMillis() > event.reactorChannel().initializationEndTimeMs())
                                 	{
-                                		event.reactorChannel().initiateSwitch(false);
+                                		event.reactorChannel().initiateSwitch(false, false);
                 						if (_previousReactorChannelState != null)
                 						{
                 							event.reactorChannel().state(_previousReactorChannelState);	// Reset state
@@ -798,6 +798,7 @@ class Worker implements Runnable
                         		|| (reactorChannel._preferredHostOptions.isPreferredHostEnabled() 
                         				&& reactorChannel.warmStandByHandlerImpl != null))
                         {
+                        	reactorChannel._phSwitchingFromWSBToChannelList = false;	// Reset this flag
                             if (reactorChannel._reconnectAttempts + 1 >= reactorChannel.reconnectAttemptLimit() 
                             		&& reactorChannel.reconnectAttemptLimit() >= 0
                             		&& reactorChannel._haveAttemptedFirstConnection)
@@ -818,6 +819,13 @@ class Worker implements Runnable
 		                   			// If we were not switching to preferred WSB Group, do this now
 		                   			if (!reactorChannel._switchingToPreferredWSBGroup)
 			                   		 {
+		                   				// Check if we are currently on Channel List and set switch from Channel List to WSB
+		                   				if ((reactorChannel.warmStandByHandlerImpl.warmStandbyHandlerState() 
+		                   						& ReactorWarmStandbyHandlerState.MOVED_TO_CHANNEL_LIST) != 0)
+		                   				{
+		                   					reactorChannel._phSwitchingFromChannelListToWSB = true;
+		                   				}
+		                   					
 		                   				reactorChannel._switchingToPreferredWSBGroup = true;
 			                   			reactorChannel.warmStandByHandlerImpl.previousWarmStandbyGroupIndex(reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupIndex());
 			                   			reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupIndex(reactorChannel.getReactorConnectOptions().reactorPreferredHostOptions().warmStandbyGroupListIndex());
@@ -1012,6 +1020,9 @@ class Worker implements Runnable
 	                        			{
 	                        				reactorChannel.warmStandByHandlerImpl.setMoveToChannelListState();
 	                        				reactorChannel._reconnectAttempts = 1;
+	    	
+	                        				reactorChannel.warmStandByHandlerImpl.startingReactorChannel()
+	    											.reactorChannelType(ReactorChannelType.NORMAL);
 	                        			}
 	                        			
 	                        			if (reactorChannel.getReactorConnectOptions().connectionList().size() > 1)
@@ -1230,7 +1241,6 @@ class Worker implements Runnable
 	                            reactorChannel.selectableChannelFromChannel(channel);
 	                            reactorChannel.state(State.INITIALIZING);
 	                            _reconnectingChannelQueue.remove(reactorChannel);
-	
 	                            processChannelInit(reactorChannel);
 	                        }
                         }
@@ -1269,6 +1279,8 @@ class Worker implements Runnable
 		
 		// Next time we need to check preferred ChannelList
 		reactorChannel._checkedPreferredHostInChannelList_WSBEnabled = false;
+		
+		reactorChannel._phSwitchingFromWSBToChannelList = true;
 
 		// Check if we are on preferred channel, in which case, skip it
 		if (reactorChannel._listIndex == reactorChannel._preferredHostOptions.connectionListIndex())
@@ -1320,6 +1332,8 @@ class Worker implements Runnable
 		
 		// Set that we have attempted our first channel list entry
 		reactorChannel._haveAttemptedFirstConnectionListEntry = true;
+		
+		reactorChannel._phSwitchingFromWSBToChannelList = true;
 
 		// Set to preferred ChannelList channel
 		reactorChannel.setCurrentReactorConnectInfo(reactorChannel.getReactorConnectOptions().connectionList().get(reactorChannel._preferredHostOptions.connectionListIndex()));
@@ -1484,10 +1498,24 @@ class Worker implements Runnable
         		_timerEventQueue.add(event); 
         		return;
             case PREFERRED_HOST_CHANNEL_CLOSE:
-            	processPreferredChannelClose(reactorChannel);
+            	processChannelClose(reactorChannel);
+                if(reactorChannel.warmStandByHandlerImpl != null)
+                {
+                	/* Remove the channel from any session management lists */
+            		_reactor.removeReactorChannel(reactorChannel);
+
+                }
+            	sendWorkerEvent(reactorChannel, WorkerEventTypes.PREFERRED_HOST_CHANNEL_CLOSE_ACK,
+                        ReactorReturnCodes.SUCCESS, null, null);
             	break;
             case PREFERRED_HOST_CHANNEL_DOWN:
-            	processChannelInit(reactorChannel);
+            	processChannelClose(reactorChannel);	
+                if(reactorChannel.warmStandByHandlerImpl != null)
+                {
+                	/* Remove the channel from any session management lists */
+            		_reactor.removeReactorChannel(reactorChannel);
+
+                }
             	break;
             default:
                 System.out.println("Worker.processWorkerEvent(): received unexpected eventType=" + eventType);
@@ -1501,7 +1529,6 @@ class Worker implements Runnable
     {
         // add the reactorChannel to the init queue
         _initChannelQueue.add(reactorChannel);
-
         // register the channel with the selector
         try
         {
@@ -1530,7 +1557,7 @@ class Worker implements Runnable
         if (reactorChannel.channel() != null && reactorChannel.channel().state() != ChannelState.INACTIVE)
         {
             // sckt.close will implicitly cancel any registered keys.
-            reactorChannel.channel().close(_error);
+        	reactorChannel.channel().close(_error);
             reactorChannel.selectableChannelFromChannel(null);
             reactorChannel.flushRequested(false);
         }
@@ -1540,21 +1567,6 @@ class Worker implements Runnable
             {
                 _reconnectingChannelQueue.remove(reactorChannel);
             }
-    }
-    
-    // The worker will call this when the preferred host channel stored is the old channel we swapped from
-    private void processPreferredChannelClose(ReactorChannel reactorChannel)
-    {
-        if (reactorChannel == null)
-            return;
-        if (reactorChannel.preferredHostChannel() != null)
-        {
-            // sckt.close will implicitly cancel any registered keys.
-            reactorChannel.preferredHostChannel().close(_error);
-            
-            // Reset the temporary preferred host channel to null
-            reactorChannel.preferredHostChannel(null);
-        }
     }
 
     private void processChannelFlush(ReactorChannel reactorChannel)

@@ -67,7 +67,9 @@ enum WorkerEventTypes
 	// Sent from Reactor to Worker
 	PREFERRED_HOST_CHANNEL_CLOSE,
 	// Sent from Reactor to Worker
-	PREFERRED_HOST_CHANNEL_DOWN;
+	PREFERRED_HOST_CHANNEL_DOWN,
+	// sent from Worker to Reactor
+    PREFERRED_HOST_CHANNEL_CLOSE_ACK;
     
     /* Returns a String representation of the specified WorkerEventTypes type. */
     static String toString(WorkerEventTypes type)
