@@ -4607,7 +4607,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 						pGroupImpl->downloadConfigActiveServer = RSSL_REACTOR_WSB_STARTING_SERVER_INDEX;
 						pGroupImpl->isStartingServerIsDown = RSSL_FALSE;
 
-						if (pGroupImpl->warmStandbyMode == RDM_LG_WSBM_SERVICE_BASED && pGroupImpl->pActiveServiceConfigList != NULL)
+						if (pGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED && pGroupImpl->pActiveServiceConfigList != NULL)
 						{
 							RSSL_QUEUE_FOR_EACH_LINK(pGroupImpl->pActiveServiceConfigList, pServiceLink)
 							{
@@ -5855,7 +5855,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 									pWsbGroupImpl->downloadConfigActiveServer = RSSL_REACTOR_WSB_STARTING_SERVER_INDEX;
 									pWsbGroupImpl->isStartingServerIsDown = RSSL_FALSE;
 
-									if (pWsbGroupImpl->warmStandbyMode == RDM_LG_WSBM_SERVICE_BASED && pWsbGroupImpl->pActiveServiceConfigList != NULL)
+									if (pWsbGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED && pWsbGroupImpl->pActiveServiceConfigList != NULL)
 									{
 										RSSL_QUEUE_FOR_EACH_LINK(pWsbGroupImpl->pActiveServiceConfigList, pLink)
 										{
@@ -5928,7 +5928,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							// Send the switchover complete event to the reactor worker so it can cleanup everything.
 							pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
 							rsslClearReactorChannelEventImpl(pEvent);
-							pEvent->channelEvent.channelEventType = RSSL_RCIMPL_CET_PREFERRED_HOST_SWITCHOVER_COMPLETE;
+							pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_PREFERRED_HOST_SWITCHOVER_COMPLETE;
 							pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 
 							if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorWorker.workerQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))

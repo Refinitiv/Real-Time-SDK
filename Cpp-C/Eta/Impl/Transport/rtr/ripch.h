@@ -132,6 +132,8 @@ typedef struct {
 	u32					intConnState;
 } ripcSessInProg;
 
+#define RSSL_INIT_SESS_IN_PROG_INFO { RIPC_INPROG_INIT, 0, 0, 0 }
+
 typedef enum {
 	RIPC_WRITE_DO_NOT_COMPRESS		= 0x01
 } ripcWriteFlags;

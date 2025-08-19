@@ -5513,7 +5513,7 @@ static ripcSessInit ipcRejectSession(RsslSocketChannel *rsslSocketChannel, RsslU
 
 	/* end of shutting down code */
 
-	return RSSL_RET_SUCCESS;
+	return (ripcSessInit)RSSL_RET_SUCCESS;
 }
 
 static ripcSessInit ipcFinishSess(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *inPr, RsslError *error)
@@ -6739,7 +6739,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 			"<%s:%d> Error: 1002 Pipe Read failed.  System errno: %i\n",
 			__FILE__, __LINE__, errno );
 		/* Return with failure. Both rsslSocketChannel and rsslChannelImpl will clear when call rsslCloseChannel(). */
-		return RSSL_RET_FAILURE;
+		return RIPC_CONN_ERROR;
 	}
 
 	if ((curlFuncs = rsslGetCurlFuncs()) == NULL)
@@ -6749,7 +6749,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 			"<%s:%d> Error: 1002 Curl not initialized.\n",
 			__FILE__, __LINE__);
 		/* Return with failure. Both rsslSocketChannel and rsslChannelImpl will clear when call rsslCloseChannel(). */
-		return RSSL_RET_FAILURE;
+		return RIPC_CONN_ERROR;
 	}
 
 	/* The CURL thread has finished, and set the thread status to either DONE or ERRROR.  If ERROR, cleanup the channel and return.  CURL should have already closed everything */
@@ -6759,7 +6759,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 			"%s", rsslSocketChannel->curlThreadInfo.error.text);
 		/* Return with failure. Both rsslSocketChannel and rsslChannelImpl will clear when call rsslCloseChannel(). */
-		return RSSL_RET_FAILURE;
+		return RIPC_CONN_ERROR;
 	}
 
 	inPr->types = RIPC_INPROG_NEW_FD;
@@ -6773,7 +6773,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 			"<%s:%d> Error: 1000 Curl failed. %i\n",
 			__FILE__, __LINE__, curlret);
 		/* Return with failure. Both rsslSocketChannel and rsslChannelImpl will clear when call rsslCloseChannel(). */
-		return RSSL_RET_FAILURE;
+		return RIPC_CONN_ERROR;
 	}
 	rsslSocketChannel->stream = inPr->newSocket.stream;
 
@@ -8544,7 +8544,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	_DEBUG_TRACE_CONN("connType %d intState %d\n", rsslSocketChannel->connType, rsslSocketChannel->intState)
 	if (rsslSocketChannel->blocking)
 	{
-		ripcSessInProg inPr = RSSL_INIT_IN_PROG_INFO;
+		ripcSessInProg inPr = RSSL_INIT_SESS_IN_PROG_INFO;
 		ripcSessInit ret = RIPC_CONN_IN_PROGRESS;
 
 		while (ret == RIPC_CONN_IN_PROGRESS)
@@ -12055,7 +12055,7 @@ ripcSessInit ipcSessionInit(RsslSocketChannel *rsslSocketChannel, ripcSessInProg
 
 		IPC_MUTEX_UNLOCK(rsslSocketChannel);
 
-		return RSSL_RET_FAILURE;
+		return RIPC_CONN_ERROR;
 	}
 	else
 	{

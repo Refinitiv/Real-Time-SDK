@@ -233,7 +233,7 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 						break;
 					}
 					else
-						return RSSL_RET_SUCCESS;
+						return RSSL_RC_CRET_SUCCESS;
 				}
 			}
 			printf("Received login RTT message from Consumer "SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
@@ -247,7 +247,7 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 
 			printf("\tLast RTT message latency is " RTR_LLU "us.\n", reqInfo->lastLatency);
 
-			return RSSL_RET_SUCCESS;
+			return RSSL_RC_CRET_SUCCESS;
 		}
 		default:
 			printf("\nReceived unhandled login msg type: %d\n", pLoginMsg->rdmMsgBase.rdmMsgType);

@@ -1785,7 +1785,7 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 			return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_RET_FAILURE);
 		}
 
-		pEvent->channelEvent.channelEventType = RSSL_RCIMPL_CET_PREFERRED_HOST_RECONNECT_COMPLETE;
+		pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_PREFERRED_HOST_RECONNECT_COMPLETE;
 
 		// This is needed for failure conditions.
 		pReactorChannel->sentReconnectCompleteEvent = RSSL_TRUE;
@@ -4083,7 +4083,7 @@ RsslRet _reactorWorkerHandlePreferredHostTimeout(RsslReactorChannelImpl* pReacto
 				RsslReactorChannelEventImpl* pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
 
 				rsslClearReactorChannelEventImpl(pEvent);
-				pEvent->channelEvent.channelEventType = RSSL_RCIMPL_CET_PREFERRED_HOST_START_FALLBACK;
+				pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_PREFERRED_HOST_START_FALLBACK;
 				pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorWorker.workerQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorChannel->channelWorkerCerr))
 					return RSSL_RET_FAILURE;
