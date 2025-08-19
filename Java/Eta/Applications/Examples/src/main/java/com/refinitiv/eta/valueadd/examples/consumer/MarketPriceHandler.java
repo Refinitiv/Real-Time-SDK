@@ -686,7 +686,7 @@ class MarketPriceHandler
                 ret = fidRealValue.decode(dIter);
                 if (ret == CodecReturnCodes.SUCCESS)
                 {
-                    fieldValue.append(fidRealValue.toDouble());
+                    fieldValue.append(fidRealValue.toString());
                 }
                 else if (ret != CodecReturnCodes.BLANK_DATA)
                 {

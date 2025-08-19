@@ -915,7 +915,7 @@ class ChannelDictionary<T>
 		
 		if (channelInfo.getParentChannel() != null)
 			channelInfo = channelInfo.getParentChannel();
-		
+
 		if (msg == null)
 		{
 			com.refinitiv.eta.transport.Error error = event.errorInfo().error();

@@ -22,17 +22,7 @@ import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.ema.access.OmmState.DataState;
 import com.refinitiv.ema.access.OmmState.StatusCode;
 import com.refinitiv.ema.access.OmmState.StreamState;
-import com.refinitiv.eta.codec.Buffer;
-import com.refinitiv.eta.codec.Codec;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.eta.codec.EncodeIterator;
-import com.refinitiv.eta.codec.MapEntryActions;
-import com.refinitiv.eta.codec.MsgClasses;
-import com.refinitiv.eta.codec.MsgKey;
-import com.refinitiv.eta.codec.Qos;
-import com.refinitiv.eta.codec.State;
-import com.refinitiv.eta.codec.StateCodes;
+import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsg;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
@@ -201,6 +191,8 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 	/* This is used to download data dictionary from network */
 	private ChannelDictionary<T>		_channelDictionary;
 
+	private int _currentRsslDataState;
+
 	/* This is used to indicate whether the ConsumerSession instance is initialized and ready to use. */
 	private boolean				_isConsumerSessionInitialized = false;
 	
@@ -240,7 +232,9 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		_statusMsgImpl = new StatusMsgImpl(_ommBaseImpl.objManager());
 		
 		_eventImpl = new OmmEventImpl<T>(baseImpl);
-		
+
+		_currentRsslDataState = DataStates.SUSPECT;
+
 		/* Generate an unique service ID for ServiceList if any */
 		generateServiceIdForServiceMap();
 	}
@@ -1927,7 +1921,9 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		{
 			_rsslState.dataState(DataState.SUSPECT);
 		}
-		
+
+		_currentRsslDataState = _rsslState.dataState();
+
 		_rsslState.code(StateCodes.NONE);
 		_rsslState.text().data("session channel closed");
 		_rsslStatusMsg.state(_rsslState);
@@ -1999,7 +1995,9 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			_rsslState.text().data("session channel up");
 			_rsslStatusMsg.state(_rsslState);
 			_rsslStatusMsg.applyHasState();
-			
+
+			_currentRsslDataState = _rsslState.dataState();
+
 			_statusMsgImpl.decode(_rsslStatusMsg, event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion(), null);
 			
 			for (int idx = 0; idx < loginItemList.size(); ++idx)
@@ -2026,7 +2024,9 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 				_rsslState.dataState(DataState.OK);
 			else
 				_rsslState.dataState(DataState.SUSPECT);
-			
+
+			_currentRsslDataState = _rsslState.dataState();
+
 			_rsslState.code(StateCodes.NONE);
 			_rsslState.text().data("session channel up");
 			_rsslStatusMsg.state(_rsslState);
@@ -2084,7 +2084,9 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			{
 				_rsslState.dataState(DataState.SUSPECT);
 			}
-			
+
+			_currentRsslDataState = _rsslState.dataState();
+
 			_rsslState.code(StateCodes.NONE);
 			_rsslState.text().data("session channel down reconnecting");
 			_rsslStatusMsg.state(_rsslState);
@@ -2108,6 +2110,53 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			
 			handleLoginStreamForChannelDown(loginItemList, event.reactorChannel(), _sessionChannelList.size());
 			
+			break;
+		case ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK:
+
+			populateStatusMsg();
+
+			_rsslState.streamState(StreamState.OPEN);
+			_rsslState.dataState(_currentRsslDataState);
+
+			_rsslState.code(StateCodes.NONE);
+			_rsslState.text().data("preferred host starting fallback");
+			_rsslStatusMsg.state(_rsslState);
+			_rsslStatusMsg.applyHasState();
+
+			_statusMsgImpl.decode(_rsslStatusMsg, event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion(), null);
+
+			for (int idx = 0; idx < loginItemList.size(); ++idx)
+			{
+				_eventImpl._item = loginItemList.get(idx);
+				_eventImpl._channel = event.reactorChannel();
+
+				((OmmConsumerClient)_eventImpl._item.client()).onAllMsg(_statusMsgImpl, _eventImpl);
+				((OmmConsumerClient) _eventImpl._item.client()).onStatusMsg(_statusMsgImpl, _eventImpl);
+			}
+
+			break;
+		case ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE:
+
+			populateStatusMsg();
+
+			_rsslState.streamState(StreamState.OPEN);
+			_rsslState.dataState(_currentRsslDataState);
+
+			_rsslState.code(StateCodes.NONE);
+			_rsslState.text().data("preferred host complete");
+			_rsslStatusMsg.state(_rsslState);
+			_rsslStatusMsg.applyHasState();
+
+			_statusMsgImpl.decode(_rsslStatusMsg, event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion(), null);
+
+			for (int idx = 0; idx < loginItemList.size(); ++idx)
+			{
+				_eventImpl._item = loginItemList.get(idx);
+				_eventImpl._channel = event.reactorChannel();
+
+				((OmmConsumerClient)_eventImpl._item.client()).onAllMsg(_statusMsgImpl, _eventImpl);
+				((OmmConsumerClient) _eventImpl._item.client()).onStatusMsg(_statusMsgImpl, _eventImpl);
+			}
 			break;
 		default:
 			break;

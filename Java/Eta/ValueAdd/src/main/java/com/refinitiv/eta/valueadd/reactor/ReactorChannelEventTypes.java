@@ -39,6 +39,13 @@ public class ReactorChannelEventTypes
     /** Channel was opened by the application and can be used (occurs when watchlist is enabled and only appears
      * in the channelOpenCallback). */
     public static final int CHANNEL_OPENED = 7;
+    /** The current attempt to switch the active channel to the preferred host or preferred group channel has been completed,
+     * regardless of whether the actual switchover was successful or unsuccessful. */
+    public static final int PREFERRED_HOST_COMPLETE = 8;
+    /** The current attempt to switch the active channel to the preferred host or preferred group channel has begun,
+     * the actual switchover can be successful or unsuccessful. */
+    public static final int PREFERRED_HOST_STARTING_FALLBACK = 9;
+
 
     /**
      * Returns a String representation of the specified ReactorChannelEventTypes
@@ -68,6 +75,8 @@ public class ReactorChannelEventTypes
                 return "ReactorChannelEventTypes.FD_CHANGE";
             case 7:
                 return "ReactorChannelEventTypes.CHANNEL_OPENED";
+            case 8:
+            	return "ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE";
             default:
                 return "ReactorChannelEventTypes " + type + " - undefined.";
         }

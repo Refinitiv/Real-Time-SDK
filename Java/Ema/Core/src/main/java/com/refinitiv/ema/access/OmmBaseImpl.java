@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.valueadd.reactor.*;
@@ -1021,19 +1022,26 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.RestProxyPort)) != null) {
 				_activeConfig.restProxyPort = ce.asciiValue();
 			}
-			
+
+			// Preferred Host attributes
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.EnablePreferredHostOptions)) != null) {
+				_activeConfig.enablePreferredHostOptions = ce.intLongValue() > 0;
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.PreferredFallBackWithInWSBGroup)) != null) {
+				_activeConfig.fallBackWithInWSBGroup = ce.intLongValue() > 0;
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.PreferredDetectionTimeSchedule)) != null) {
+				_activeConfig.detectionTimeSchedule = ce.asciiValue();
+			}
+
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.PreferredDetectionTimeInterval)) != null) {
+				_activeConfig.detectionTimeInterval(ce.intLongValue());
+			}
+
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerSessionEnhancedItemRecovery)) != null) {
 				_activeConfig.sessionEnhancedItemRecovery = ce.intLongValue() > 0;
-			}
-			
-			// WarmStandbyChannel
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerWarmStandbyChannelSet)) != null) {
-				
-				String[] pieces = ce.asciiValue().split(",");
-				for (int i = 0; i < pieces.length; i++)
-				{
-					_activeConfig.configWarmStandbySet.add( readWSBChannelConfig(config,  pieces[i].trim()));
-				}
 			}
 			
 			// Get session channels from the programmatic configuration or file configuration.
@@ -1052,14 +1060,24 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		// .........................................................................
 		// WarmStandby
 		//
-		
+
 		String warmStandbyChannelSet = config.warmStandbyChannelSet(_activeConfig.configuredName);
 		if (warmStandbyChannelSet != null && warmStandbyChannelSet.trim().length() > 0)
 		{
+			String phWsbChannelName = config.preferredWarmStandbyChannelName(_activeConfig.configuredName);
 			String[] pieces = warmStandbyChannelSet.split(",");
+			boolean isFound = false;
 			for (int i = 0; i < pieces.length; i++)
 			{
-				readWSBChannelConfig(config,  pieces[i].trim());
+				if(pieces[i].trim().equalsIgnoreCase(phWsbChannelName)) {
+					_activeConfig.warmStandbyGroupListIndex = i;
+					isFound = true;
+				}
+				_activeConfig.configWarmStandbySet.add(readWSBChannelConfig(config, pieces[i].trim()));
+			}
+
+			if (phWsbChannelName != null && !phWsbChannelName.isEmpty() && !isFound) {
+				throwOmmIUExceptIfNameIsNotInList(phWsbChannelName, "PreferredWSBChannelName", warmStandbyChannelSet, "WarmStandbyChannelSet");
 			}
 		}
 
@@ -1070,13 +1088,23 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		String channelName = config.channelName(_activeConfig.configuredName);
 		if (channelName != null  && channelName.trim().length() > 0)
 		{
+			String phChannelName = config.preferredChannelName(_activeConfig.configuredName);
 			String[] pieces = channelName.split(",");
+			boolean isFound = false;
 			for (int i = 0; i < pieces.length; i++)
 			{
-				_activeConfig.channelConfigSet.add( readChannelConfig(config,  pieces[i].trim()));
+				if(pieces[i].trim().equalsIgnoreCase(phChannelName)) {
+					_activeConfig.connectionListIndex = i;
+					isFound = true;
+				}
+				_activeConfig.channelConfigSet.add(readChannelConfig(config,  pieces[i].trim()));
+			}
+
+			if (phChannelName != null && !phChannelName.isEmpty() && !isFound) {
+				throwOmmIUExceptIfNameIsNotInList(phChannelName, "PreferredChannelName", channelName, "ChannelSet");
 			}
 		}
-		else
+		else if (warmStandbyChannelSet == null || warmStandbyChannelSet.trim().isEmpty())
 		{
 			SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig();
 			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
@@ -1231,8 +1259,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		{
 			if (warmStandbyChannelSet != null && warmStandbyChannelSet.trim().length() > 0)
 			{
-				String temp = _strBuilder.toString();
-				temp = "Specifying connection type with API call is not applicable for WarmStandby channels.";
+				String temp = "Specifying connection type with API call is not applicable for WarmStandby channels.";
 				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 
@@ -1247,8 +1274,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		{
 			if (warmStandbyChannelSet != null && warmStandbyChannelSet.trim().length() > 0)
 			{
-				String temp = _strBuilder.toString();
-				temp = "Specifying encrypted connection type with API call is not applicable for WarmStandby channels.";
+				String temp = "Specifying encrypted connection type with API call is not applicable for WarmStandby channels.";
 				throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 
@@ -1260,8 +1286,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				connectionType = _activeConfig.channelConfigSet.get(i).rsslConnectionType;
 
 				if (connectionType != ConnectionTypes.ENCRYPTED) {
-					String temp = _strBuilder.toString();
-					temp = "Encrypted protocol type can not be set for non-encrypted channel type.";
+					String temp = "Encrypted protocol type can not be set for non-encrypted channel type.";
 					throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 				}
 
@@ -1286,7 +1311,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		_activeConfig.userDispatch = config.operationModel();
 		_activeConfig.rsslRDMLoginRequest = config.loginReq();
 	}
-	
+
 	SessionChannelConfig readSessionChannelConfig(ActiveConfig activeConfig, EmaConfigImpl configImpl, String sessionChannel) {
 		ConfigElement ce = null;
 		SessionChannelConfig newSessionChannelConfig = new SessionChannelConfig(sessionChannel);
@@ -1382,7 +1407,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			String warmStandbyChannelSet = pc.activeEntryNames(_activeConfig.configuredName, InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG);
 			if (warmStandbyChannelSet != null && !warmStandbyChannelSet.isEmpty())
 			{
-				pc.retrieveWSBChannelConfig(wsbChannelName.trim(), _activeConfig, newWSBChannelConfig);
+				newWSBChannelConfig = pc.retrieveWSBChannelConfig(wsbChannelName.trim(), _activeConfig, newWSBChannelConfig);
 			}
 
 			String channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNEL_FLAG );
@@ -1414,9 +1439,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 					pc.retrieveChannelConfig( pieces[i].trim(), _activeConfig, _activeConfig.channelConfigSet, chanConfigByFuncCall, fileChannelConfig );
 					if ( _activeConfig.channelConfigSet.size() == i )
 						_activeConfig.channelConfigSet.add( fileChannelConfig );
-					else
-						fileChannelConfig = null;
-				}
+                }
 			}
 		}
 
@@ -2390,6 +2413,103 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			
 			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
 		}
+	}
+
+	protected void modifyIOCtl(int code, Object value, ChannelInfo activeChannelInfo)
+	{
+		if(activeChannelInfo == null || activeChannelInfo.rsslReactorChannel() == null)
+		{
+			strBuilder().append("No active channel to modify I/O option.");
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
+			return;
+		}
+
+		ReactorChannel reactorChannel = activeChannelInfo.rsslReactorChannel();
+		ReactorErrorInfo error = ReactorFactory.createReactorErrorInfo();
+		Object etaConfigValue  = null;
+		if(value instanceof PreferredHostOptions) {
+			etaConfigValue = convertPreferredHostOptionsIntoReactorPreferredHostOptions((PreferredHostOptions) value);
+		}
+
+		int ret = reactorChannel.ioctl(code, etaConfigValue, error);
+
+		if(ret != TransportReturnCodes.SUCCESS)
+		{
+			strBuilder().append("Failed to modify I/O option = ")
+					.append(code).append(". Reason: ")
+					.append(ReactorReturnCodes.toString(ret))
+					.append(". Error text: ")
+					.append(error.error().text());
+
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+		}
+	}
+
+	private ReactorPreferredHostOptions convertPreferredHostOptionsIntoReactorPreferredHostOptions(PreferredHostOptions emaPreferredHostOptions) {
+		ReactorPreferredHostOptions reactorPreferredHostOptions = ReactorFactory.createReactorPreferredHostOptions();
+		reactorPreferredHostOptions.isPreferredHostEnabled(emaPreferredHostOptions.isPreferredHostEnabled());
+		reactorPreferredHostOptions.detectionTimeSchedule(emaPreferredHostOptions.getDetectionTimeSchedule());
+		reactorPreferredHostOptions.detectionTimeInterval(emaPreferredHostOptions.getDetectionTimeInterval());
+		reactorPreferredHostOptions.connectionListIndex(getConnectionListIndex(emaPreferredHostOptions.getChannelName(), _activeConfig.channelConfigSet));
+		reactorPreferredHostOptions.warmStandbyGroupListIndex(getWarmStandbyGroupListIndex(emaPreferredHostOptions.getWsbChannelName(), _activeConfig.configWarmStandbySet));
+		reactorPreferredHostOptions.fallBackWithInWSBGroup(emaPreferredHostOptions.isFallBackWithInWSBGroup());
+
+		return reactorPreferredHostOptions;
+	}
+
+	private int getConnectionListIndex(String channelName, List<ChannelConfig> channelConfigSet) {
+		if (channelName == null || channelName.isEmpty()) {
+			return 0;
+		}
+
+		for(int i = 0; i < channelConfigSet.size(); i++) {
+			if(channelConfigSet.get(i).name.equalsIgnoreCase(channelName)) {
+				return i;
+			}
+		}
+
+		String nameList = channelConfigSet.stream()
+				.map(channelConfig -> channelConfig.name)
+				.collect(Collectors.joining(", "));
+
+		throwOmmIUExceptIfNameIsNotInList(channelName, "PreferredChannelName", nameList, "ChannelSet");
+
+		return 0;
+	}
+
+	private int getWarmStandbyGroupListIndex(String channelName, List<WarmStandbyChannelConfig> channelConfigSet) {
+		if (channelName == null || channelName.isEmpty()) {
+			return 0;
+		}
+
+		for(int i = 0; i < channelConfigSet.size(); i++) {
+			if(channelConfigSet.get(i).name.equalsIgnoreCase(channelName)) {
+				return i;
+			}
+		}
+
+		String nameList = channelConfigSet.stream()
+				.map(channelConfig -> channelConfig.name)
+				.collect(Collectors.joining(", "));
+
+		throwOmmIUExceptIfNameIsNotInList(channelName, "PreferredWSBChannelName", nameList, "WarmStandbyChannelSet");
+
+		return 0;
+	}
+
+	private void throwOmmIUExceptIfNameIsNotInList(String name, String nameLabel, String list, String listLabel) {
+		strBuilder().append(nameLabel);
+		_strBuilder.append(": ");
+		_strBuilder.append(name);
+		_strBuilder.append(" is not present in ");
+		_strBuilder.append(listLabel);
+		_strBuilder.append(": ");
+		_strBuilder.append(list);
+		String temp = _strBuilder.toString();
+		if (_loggerClient.isErrorEnabled())
+			_loggerClient.error(formatLogMessage(_activeConfig.instanceName, temp, Severity.ERROR));
+
+		throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 	}
 
 	protected boolean checkClient(T client) {

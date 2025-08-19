@@ -67,6 +67,8 @@ class ChannelInfo
 	long loginReissueTime; // represented by epoch time in milliseconds
 	boolean canSendLoginReissue;
 
+    boolean isChannelClosed;
+
 	ChannelInfo()
     {
     	connectOptions.connectionList().add(connectInfo);

@@ -20,9 +20,7 @@ import java.util.List;
  */
 class ConsumerCmdLineParser implements CommandLineParser
 {
-	private ConnectionArgsParser connectionArgsParser = new ConnectionArgsParser();
-	private String backupHostname;
-	private String backupPort;
+	private final ConnectionArgsParser connectionArgsParser = new ConnectionArgsParser();
 	private String userName;
 	private String passwd;
 	private String clientId;
@@ -80,12 +78,27 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private long updateTypeFilter = -1;
 	private long negativeUpdateTypeFilter = -1;
 
+	// Preferred host options
+	private boolean enablePH = false;
+	private int preferredHostIndex;
+	private int detectionTimeInterval;
+	private String detectionTimeSchedule = "";
+
+	// IOCtl options
+	private int fallBackInterval;
+	private int ioctlInterval;
+	private boolean ioctlEnablePH = false;
+	private int ioctlConnectListIndex;
+	private int ioctlDetectionTimeInterval;
+	private String ioctlDetectionTimeSchedule = "";
+
 	@Override
 	public boolean parseArgs(String[] args)
 	{
 		try
 		{
 			int argsCount = 0;
+			boolean ioctlSet = false;
 
 			while (argsCount < args.length)
 			{
@@ -101,31 +114,6 @@ class ConsumerCmdLineParser implements CommandLineParser
 					{
 						// error
 						System.out.println("\nError parsing connection arguments...\n");
-						return false;
-					}
-				}
-				else if ("-bc".equals(args[argsCount]))
-				{
-					if (args[argsCount+1].contains(":"))
-					{
-						String[] tokens = args[++argsCount].split(":");
-						if (tokens.length == 2)
-						{
-							backupHostname = tokens[0];
-							backupPort = tokens[1];
-							++argsCount;
-						}
-						else
-						{
-							// error
-							System.out.println("\nError parsing backup connection arguments...\n");
-							return false;
-						}
-					}
-					else
-					{
-						// error
-						System.out.println("\nError parsing backup connection arguments...\n");
 						return false;
 					}
 				}
@@ -435,13 +423,84 @@ class ConsumerCmdLineParser implements CommandLineParser
 					negativeUpdateTypeFilter = Integer.parseInt(args[++argsCount]);
 					++argsCount;
 				}
+				// Preferred host options
+				else if ("-enablePH".equals(args[argsCount]))
+				{
+					enablePH = true;
+					ioctlEnablePH = true;
+					++argsCount;
+				}
+				else if ("-preferredHostIndex".equals(args[argsCount]))
+				{
+					preferredHostIndex = Integer.parseInt(args[++argsCount]);
+					ioctlConnectListIndex = preferredHostIndex;
+					++argsCount;
+				}
+				else if ("-detectionTimeInterval".equals(args[argsCount]))
+				{
+					detectionTimeInterval = Integer.parseInt(args[++argsCount]);
+					ioctlDetectionTimeInterval = detectionTimeInterval;
+					++argsCount;
+				}
+				else if ("-detectionTimeSchedule".equals(args[argsCount]))
+				{
+					detectionTimeSchedule = args[++argsCount];
+					ioctlDetectionTimeSchedule = detectionTimeSchedule;
+					++argsCount;
+				}
+				// IOCtl options
+				else if ("-fallBackInterval".equals(args[argsCount]))
+				{
+					fallBackInterval = Integer.parseInt(args[++argsCount]);
+					++argsCount;
+				}
+				else if ("-ioctlInterval".equals(args[argsCount]))
+				{
+					ioctlInterval = Integer.parseInt(args[++argsCount]);
+					++argsCount;
+				}
+				else if ("-ioctlEnablePH".equals(args[argsCount]))
+				{
+					String ioctlEnablePHStr = args[++argsCount];
+
+					if(ioctlEnablePHStr.equalsIgnoreCase("true"))
+						ioctlEnablePH = true;
+					else if (ioctlEnablePHStr.equalsIgnoreCase("false"))
+						ioctlEnablePH = false;
+
+					ioctlSet = true;
+					++argsCount;
+				}
+				else if ("-ioctlConnectListIndex".equals(args[argsCount]))
+				{
+					ioctlConnectListIndex = Integer.parseInt(args[++argsCount]);
+					ioctlSet = true;
+					++argsCount;
+				}
+				else if ("-ioctlDetectionTimeInterval".equals(args[argsCount]))
+				{
+					ioctlDetectionTimeInterval = Integer.parseInt(args[++argsCount]);
+					ioctlSet = true;
+					++argsCount;
+				}
+				else if ("-ioctlDetectionTimeSchedule".equals(args[argsCount]))
+				{
+					ioctlDetectionTimeSchedule = args[++argsCount];
+					ioctlSet = true;
+					++argsCount;
+				}
 				else // unrecognized command line argument
 				{
-					System.out.println("\nUnrecognized command line argument...\n");
+					System.out.println("\nUnrecognized command line argument: " + args[argsCount]);
 					return false;
 				}
 			}
-			
+
+			if(ioctlSet && ioctlInterval <= 0) {
+				System.out.println("\nioctlInterval should have a positive value if any ioctl parameters are specified");
+				return false;
+			}
+
 			// Set TLS options (default sets both 1.2 and 1.3)
 			if ((spTLSv12enable && spTLSv13enable) || (!spTLSv12enable && !spTLSv13enable))
 			{
@@ -467,17 +526,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 
 		return true;
 	}
-
-	String backupHostname()
-	{
-		return backupHostname;
-	}
-
-	String backupPort()
-	{
-		return backupPort;
-	}
-
+	
 	List<ConnectionArg> connectionList()
 	{
 		return connectionArgsParser.connectionList();
@@ -743,10 +792,60 @@ class ConsumerCmdLineParser implements CommandLineParser
 
 	long negativeUpdateTypeFilter() { return negativeUpdateTypeFilter; }
 
+	boolean enablePH()
+	{
+		return enablePH;
+	}
+
+	int preferredHostIndex()
+	{
+		return preferredHostIndex;
+	}
+
+	int detectionTimeInterval()
+	{
+		return detectionTimeInterval;
+	}
+
+	String detectionTimeSchedule()
+	{
+		return detectionTimeSchedule;
+	}
+
+	int fallBackInterval()
+	{
+		return fallBackInterval;
+	}
+
+	int ioctlInterval()
+	{
+		return ioctlInterval;
+	}
+
+	boolean ioctlEnablePH()
+	{
+		return ioctlEnablePH;
+	}
+
+	int ioctlConnectListIndex()
+	{
+		return ioctlConnectListIndex;
+	}
+
+	int ioctlDetectionTimeInterval()
+	{
+		return ioctlDetectionTimeInterval;
+	}
+
+	String ioctlDetectionTimeSchedule()
+	{
+		return ioctlDetectionTimeSchedule;
+	}
+
 	@Override
 	public void printUsage()
 	{
-		System.out.println("Usage: Consumer or\nConsumer [-c <hostname>:<port> <service name> <domain>:<item name>,...] [-bc <hostname>:<port>] [-uname <LoginUsername>] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>]" +
+		System.out.println("Usage: Consumer or\nConsumer [-c <hostname>:<port>[,<hostname>:<port>,...] <service name> <domain>:<item name>,...] [-bc <hostname>:<port>] [-uname <LoginUsername>] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>]" +
 						   "\n -c specifies a connection to open and a list of items to request or use for queue messaging:\n" +
 						   "\n     hostname:        Hostname of provider to connect to" +
 						   "\n     port:            Port of provider to connect to" +
@@ -755,7 +854,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n         A comma-separated list of these may be specified." +
 						   "\n         The domain may be any of: mp(MarketPrice), mbo(MarketByOrder), mbp(MarketByPrice), yc(YieldCurve), sl(SymbolList)" +
 						   "\n         The domain may also be any of the private stream domains: mpps(MarketPrice PS), mbops(MarketByOrder PS), mbpps(MarketByPrice PS), ycps(YieldCurve PS)" +
-						   "\n         Example Usage: -c localhost:14002 DIRECT_FEED mp:TRI,mp:GOOG,mpps:FB,mbo:MSFT,mbpps:IBM,sl" +
+						   "\n         Example Usage: -c localhost:14002,localhost:14003 DIRECT_FEED mp:TRI,mp:GOOG,mpps:FB,mbo:MSFT,mbpps:IBM,sl" +
 						   "\n           (for SymbolList requests, a name can be optionally specified)\n" +
 						   "\n     -qSourceName (optional) specifies the source name for queue messages (if specified, configures consumer to receive queue messages)\n" +
 						   "\n     -qDestName (optional) specifies the destination name for queue messages (if specified, configures consumer to send queue messages to this name, multiple instances may be specified)\n" +
@@ -763,7 +862,6 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n     -tsServiceName (optional) specifies the service name for queue messages (if not specified, the service name specified in -c/-tcp is used)\n" +
 						   "\n     -tsAuth (optional) causes consumer to request authentication when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging.\n" +
 						   "\n     -tsDomain (optional) specifes the domain a consumer uses when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging.\n" +
-						   "\n -bc specifies a backup connection that is attempted if the primary connection fails\n" +
 						   "\n -pl protocol list (defaults to rssl.rwf, tr_json2, rssl.json.v2)\n" +
 						   "\n -uname changes the username used when logging into the provider(required for V1 password credential logins)\n" +
 						   "\n -passwd changes the password used when logging into the provider(required for V1 password credential logins)\n" +
@@ -815,6 +913,18 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -spTLSv1.3 specifies for an encrypted connection to be able to use TLS 1.3, default is 1.2 and 1.3 enabled" +
 				           "\n -updateTypeFilter specifies the UpdateTypeFilter that will be set for the Login Request message" +
 				           "\n -negativeUpdateTypeFilter specifies the NegativeUpdateTypeFilter that will be set for the Login Request message");
+							"\n Options for Preferred host (optional):" +
+							"\n -enablePH enables Preferred host feature. By default, all the connections will set as a connection list in ReactorConnectOptions" +
+							"\n -preferredHostIndex <index> specifies the preferred host as the index in the connection list. Default is 0" +
+							"\n -detectionTimeInterval <time interval> specifies time interval (in seconds) to switch over to a preferred host. 0 indicates that the detection time interval is disabled. Default is 0" +
+							"\n -detectionTimeSchedule <Cron time> specifies Cron time format to switch over to a preferred host. detectionTimeInterval is used instead if this member is set to empty. Default is empty\n" +
+							"\n Options for IOCtl and Fallback calls (optional):" +
+							"\n -fallBackInterval <time interval> specifies time interval (in seconds) in application before Ad Hoc Fallback function is invoked. O indicates that function won't be invoked. Default is 0" +
+							"\n -ioctlInterval <time interval> specifies time interval (in seconds) before IOCtl function is invoked. O indicates that function won't be invoked. Default is 0" +
+							"\n -ioctlEnablePH <true/false> enables Preferred host feature. Default is a value of enablePH" +
+							"\n -ioctlConnectListIndex <index> specifies the preferred host as the index in the connection list. Default is a value of preferredHostIndex" +
+							"\n -ioctlDetectionTimeInterval <time interval> specifies time interval (in seconds) to switch over to a preferred host. 0 indicates that the detection time interval is disabled. Default is a value of detectionTimeInterval" +
+							"\n -ioctlDetectionTimeSchedule <Cron time> specifies Cron time format to switch over to a preferred host. Default is a value of detectionTimeSchedule\n");
 	}
 }
 

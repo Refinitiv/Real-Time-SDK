@@ -619,6 +619,59 @@ Series400Consumer490-Dict-003
 	Note: RDMFieldDictionart1 must append this into last line
 	NEG_ACVOL_1    "NEG VOL ACCUMULATED"       -32  NULL        INTEGER            15  REAL64           7
 
+Module:  Series500Consumer500
+-----------------------------
+Series500Consumer500-ConsFunc-001
+	Alters to subscribe for two different services and items.
+	-serviceName1 - specifies first service name;
+	-serviceName2 - specifies second service name;
+	-itemName1 - specifies first item name;
+	-itemName2 - specifies second item name.
+
+Series500Consumer500-RTO-001
+	Alters to make it possible to connect to RTO.
+	-username machine ID to perform authorization with the token service (mandatory for V1 password credentials).
+	-password password to perform authorization with the token service (mandatory for V1 password credentials).
+	-clientId client ID for application making the request to (mandatory).
+	-clientSecret client secret for application making the request to (mandatory for V2 oAuth client credentials).
+	-jwkFile file containing the private JWK encoded in JSON format. (mandatory for V2 client credentials grant with JWT).
+	-audience Audience value for JWT (optional for V2 oAuth client credentials with JWT).
+	-websocket Use the WebSocket transport protocol (optional) RDP token service, also known as AppKey generated using an AppGenerator (mandatory).
+	-takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional, only for V1 oAuth password credentials).
+	-keyfile keystore file for encryption (mandatory).
+	-keypasswd keystore password for encryption (mandatory).
+	-tokenURL URL to perform authentication to get access and refresh tokens for V1 oAuth password credentials (optional).
+	-tokenURLV1 URL to perform authentication to get access and refresh tokens for V1 oAuth password credentials (optional).
+	-tokenURLV2 URL to perform authentication to get access and refresh tokens for V2 oAuth password credentials (optional).
+	-serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional). 
+	Optional parameters for establishing a connection and sending requests through a proxy server:
+		-itemName Request item name (optional).
+		-serviceName Service name (optional).
+		-ph Proxy host name (optional).
+		-pp Proxy port number (optional).
+		-plogin User name on proxy server (optional).
+		-ppasswd Password on proxy server (optional).
+		-pdomain Proxy Domain (optional).
+		-krbfile KRB File location and name. Needed for Negotiate/Kerberos and Kerberos authentications (optional).
+		-spTLSv1.2 Enable TLS 1.2 security protocol. Default enables both TLS 1.2 and TLS 1.3 (optional).
+		-spTLSv1.3 Enable TLS 1.3 security protocol. Default enables both TLS 1.2 and TLS 1.3 (optional).
+
+Module:  Series500Consumer501
+-----------------------------
+Series500Consumer501-ConsFunc-001
+	Alters for special config with large number of hosts, channels and WSB groups.
+
+Module:  Series500Consumer502
+-----------------------------
+Series500Consumer502-ConsFunc-001
+	Alters to subscribe for two different services and items.
+	-serviceName1 - specifies first service name;
+	-serviceName2 - specifies second service name;
+	-itemName1 - specifies first item name;
+	-itemName2 - specifies second item name.
+
+Module:  Series500Consumer510
+-----------------------------
 Series500Consumer510-ConsFunc-001
 	Alters to add options for testing qos on ReqMsg and prin event.ChannelInformation instead of SessionInformation.
 	-test0 Testing default, no qos in ReqMsg.
@@ -773,6 +826,9 @@ Series100Provider100-ProvFunc-011
 
 Series100Provider100-ProvFunc-012	
 	 Alters IProvider100 to accept -p (portNumber) and -delayLogin (to delay LoginResponse in milliseconds) as commandline argument.
+
+Series100Provider100-ProvFunc-013	
+	 Alters IProvider100 to accept -p (portNumber) -s (serviceName) and -runtime (application runtime in seconds) as commandline argument.
 
 Series100Provider100-InitAuthFail-001
     Alters Interactive provide to reject login request

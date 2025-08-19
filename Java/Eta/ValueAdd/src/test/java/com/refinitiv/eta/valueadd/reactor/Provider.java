@@ -33,6 +33,9 @@ public class Provider extends TestReactorComponent implements ProviderCallback, 
     @Override
     public int reactorChannelEventCallback(ReactorChannelEvent event)
     {
+    	// Reactor has already been closed
+    	if (_testReactor == null)
+    		return ReactorReturnCodes.SUCCESS;
         return _testReactor.handleChannelEvent(event);
     }
 

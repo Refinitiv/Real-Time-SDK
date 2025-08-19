@@ -29,12 +29,8 @@ import com.refinitiv.eta.shared.CommandLine;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.transport.ConnectOptions;
 import com.refinitiv.eta.transport.ConnectionTypes;
-import com.refinitiv.eta.valueadd.reactor.ReactorConnectInfo;
-import com.refinitiv.eta.valueadd.reactor.ReactorConnectOptions;
-import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
-import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyGroup;
-import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyMode;
-import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyServerInfo;
+import com.refinitiv.eta.transport.EncryptionOptions;
+import com.refinitiv.eta.valueadd.reactor.*;
 
 public class wsbConsumerConfig
 {	
@@ -55,32 +51,35 @@ public class wsbConsumerConfig
 	private static final String defaultConfigFile = "WSBConfig.json";
 
 
-	private String protocolList = "tr_json2";
+	private static final String protocolList = "tr_json2";
 
 	private static final int defaultRuntime = 600;
 
-	private int MAX_ITEMS = 128;
-	private int ITEMS_MIN_STREAM_ID = 5;
+	private static final int MAX_ITEMS = 128;
+	private static final int ITEMS_MIN_STREAM_ID = 5;
 
-	
-	private ArrayList<ItemInfo> itemList = new ArrayList<ItemInfo>();
+	// default preferred host options
+	private static final int CONNECT_LIST_INDEX = 0;
+	private static final int WSB_GROUP_LIST_INDEX = 0;
+	private static final int DETECTION_TIME_INTERVAL = 0;
+	private static final String DETECTION_TIME_SCHEDULE = "";
+
+	private final ArrayList<ItemInfo> itemList = new ArrayList<>();
 	private String[] securityProtocolVersions = new String[] {"1.3", "1.2"};
 	private String configFileName;
 	
-	private ObjectMapper mapper = new ObjectMapper();
+	private final ObjectMapper mapper = new ObjectMapper();
 	private JsonNode root;
 	
-	private ReactorConnectOptions reactorConnectOpts = ReactorFactory.createReactorConnectOptions();
+	private final ReactorConnectOptions reactorConnectOpts = ReactorFactory.createReactorConnectOptions();
+	private ReactorPreferredHostOptions reactorPreferredHostOpts = ReactorFactory.createReactorPreferredHostOptions();
 
-	class ItemInfo
+	static class ItemInfo
 	{
 		int	domain;
 		String name;
 		String serviceName;
 		int	streamId;
-		boolean	symbolListData;
-		boolean isPrivateStream;
-		boolean isBatchStream;
 		State state = CodecFactory.createState();
 
 		public int domain()
@@ -142,7 +141,7 @@ public class wsbConsumerConfig
 		boolean ret;
 
 
-		if ((ret = parseArgs(args, channelInfo)) == false )
+		if (!(ret = parseArgs(args, channelInfo)))
 		{
 			return ret;
 		}
@@ -203,17 +202,20 @@ public class wsbConsumerConfig
 			configFileName = CommandLine.value("configJson");
 
 			List<String> itemNames = CommandLine.values("mp");
-			if ( itemNames != null && itemNames.size() > 0 )
+			if ( itemNames != null && !itemNames.isEmpty())
 				parseItems(itemNames, DomainTypes.MARKET_PRICE);
 
 			itemNames = CommandLine.values("mbo");
-			if ( itemNames != null && itemNames.size() > 0 )
+			if ( itemNames != null && !itemNames.isEmpty())
 				parseItems(itemNames, DomainTypes.MARKET_BY_ORDER);
 
 			itemNames = CommandLine.values("mbp");
-			if ( itemNames != null && itemNames.size() > 0 )
+			if ( itemNames != null && !itemNames.isEmpty())
 				parseItems(itemNames, DomainTypes.MARKET_BY_PRICE);
-			
+
+			if(isIoctlArgsIncorrect()) {
+				throw new IllegalArgumentException("\nioctlInterval should have a positive value if any ioctl parameters are specified");
+			}
 		}
 		catch (IllegalArgumentException ile)
 		{
@@ -225,7 +227,7 @@ public class wsbConsumerConfig
 			System.exit(CodecReturnCodes.FAILURE);
 		}
 		
-		if(itemList.size() == 0)
+		if(itemList.isEmpty())
 		{
 			addItem(defaultItemName, serviceName(), DomainTypes.MARKET_PRICE);
 		}
@@ -240,11 +242,14 @@ public class wsbConsumerConfig
 			JsonNode tmpNode;
 			
 			root = mapper.readTree(jsonText);
+
+			reactorPreferredHostOpts = parsePreferredHostOptions();
+
 			arrayNode = (ArrayNode)root.get("WSBGroups");
 			
 			if(arrayNode != null)
 			{
-				if(arrayNode.isArray() == false)
+				if(!arrayNode.isArray())
 				{
 					System.err.println("WSB Group is not a Json array");
 					System.exit(CodecReturnCodes.FAILURE);
@@ -262,11 +267,11 @@ public class wsbConsumerConfig
 						System.exit(CodecReturnCodes.FAILURE);
 					}
 					
-					if(tmpNode.asText().toLowerCase().equals("login"))
+					if(tmpNode.asText().equalsIgnoreCase("login"))
 					{
 						wsbGroup.warmStandbyMode(ReactorWarmStandbyMode.LOGIN_BASED);
 					}
-					else if(tmpNode.asText().toLowerCase().equals("service"))
+					else if(tmpNode.asText().equalsIgnoreCase("service"))
 					{
 						wsbGroup.warmStandbyMode(ReactorWarmStandbyMode.SERVICE_BASED);
 					}
@@ -290,7 +295,7 @@ public class wsbConsumerConfig
 					
 					if(tmpChannelNode != null)  
 					{
-						if(tmpChannelNode.isArray() == false)
+						if(!tmpChannelNode.isArray())
 						{
 							System.err.println("WSB Group's WSBStandby list is not a JSON array.");
 							System.exit(CodecReturnCodes.FAILURE);
@@ -311,12 +316,12 @@ public class wsbConsumerConfig
 				}
 			}
 			
-			root = mapper.readTree(jsonText);
+			//root = mapper.readTree(jsonText);
 			arrayNode = (ArrayNode)root.get("ConnectionList");
 			
 			if(arrayNode != null)
 			{
-				if(arrayNode.isArray() == false)
+				if(!arrayNode.isArray())
 				{
 					System.err.println("ConnectionList is not a Json array");
 					System.exit(CodecReturnCodes.FAILURE);
@@ -346,18 +351,31 @@ public class wsbConsumerConfig
 			System.exit(CodecReturnCodes.FAILURE);
 		}
 		
-		reactorConnectOpts.reconnectAttemptLimit(reconnectCount()); // attempt to recover forever
-		reactorConnectOpts.reconnectMinDelay(500); // 0.5 second minimum
-		reactorConnectOpts.reconnectMaxDelay(3000); // 3 second maximum
-		
+		reactorConnectOpts.reconnectAttemptLimit(reconnectAttemptLimit()); // attempt to recover forever
+		reactorConnectOpts.reconnectMinDelay(reconnectMinDelay()); // minimum delay
+		reactorConnectOpts.reconnectMaxDelay(reconnectMaxDelay()); // maximum delay
 
-		
 		return true;
 	}
-	
+
+	private boolean isIoctlArgsIncorrect() {
+		return (ioctlInterval() <= 0) &&
+				(hasIoctlEnablePH() ||
+						hasIoctlConnectListIndex() ||
+						hasIoctlDetectionTimeInterval() ||
+						hasIoctlDetectionTimeSchedule() ||
+						hasIoctlWarmstandbyGroupListIndex() ||
+						hasIoctlFallBackWithinWSBGroup());
+	}
+
 	ReactorConnectOptions connectOpts()
 	{
 		return reactorConnectOpts;
+	}
+
+	ReactorPreferredHostOptions preferredHostOpts()
+	{
+		return reactorPreferredHostOpts;
 	}
 
 	String userName()
@@ -484,11 +502,91 @@ public class wsbConsumerConfig
 		return Objects.nonNull(CommandLine.value("pl")) ? CommandLine.value("pl") : protocolList;
 	}
 	
-	int reconnectCount()
+	int reconnectAttemptLimit()
 	{
-		return CommandLine.intValue("reconnectCount");
+		return CommandLine.intValue("reconnectAttemptLimit");
 	}
 
+	int reconnectMinDelay()
+	{
+		return CommandLine.intValue("reconnectMinDelay");
+	}
+
+	int reconnectMaxDelay()
+	{
+		return CommandLine.intValue("reconnectMaxDelay");
+	}
+
+	int fallBackInterval()
+	{
+		return CommandLine.intValue("fallBackInterval");
+	}
+
+	int ioctlInterval()
+	{
+		return CommandLine.intValue("ioctlInterval");
+	}
+
+	boolean ioctlEnablePH()
+	{
+		return CommandLine.booleanValue("ioctlEnablePH");
+	}
+
+	boolean hasIoctlEnablePH()
+	{
+		return CommandLine.hasArg("ioctlEnablePH");
+	}
+
+	int ioctlConnectListIndex()
+	{
+		return CommandLine.intValue("ioctlConnectListIndex");
+	}
+
+	boolean hasIoctlConnectListIndex()
+	{
+		return CommandLine.hasArg("ioctlConnectListIndex");
+	}
+
+	int ioctlDetectionTimeInterval()
+	{
+		return CommandLine.intValue("ioctlDetectionTimeInterval");
+	}
+
+	boolean hasIoctlDetectionTimeInterval()
+	{
+		return CommandLine.hasArg("ioctlDetectionTimeInterval");
+	}
+
+	String ioctlDetectionTimeSchedule()
+	{
+		return CommandLine.value("ioctlDetectionTimeSchedule");
+	}
+
+	boolean hasIoctlDetectionTimeSchedule()
+	{
+		return CommandLine.hasArg("ioctlDetectionTimeSchedule");
+	}
+
+	int ioctlWarmstandbyGroupListIndex()
+	{
+		return CommandLine.intValue("ioctlWarmstandbyGroupListIndex");
+	}
+
+	boolean hasIoctlWarmstandbyGroupListIndex()
+	{
+		return CommandLine.hasArg("ioctlWarmstandbyGroupListIndex");
+	}
+
+	boolean ioctlFallBackWithinWSBGroup()
+	{
+		return CommandLine.booleanValue("ioctlFallBackWithinWSBGroup");
+	}
+
+	boolean hasIoctlFallBackWithinWSBGroup()
+	{
+		return CommandLine.hasArg("ioctlFallBackWithinWSBGroup");
+	}
+	
 	int itemCount()
 	{
 		return itemList.size();
@@ -526,7 +624,70 @@ public class wsbConsumerConfig
 			}
 		}
 	}
-	
+
+	private ReactorPreferredHostOptions parsePreferredHostOptions()
+	{
+		JsonNode preferredHostNode = root.get("PreferredHost");
+
+		ReactorPreferredHostOptions rphOptions = ReactorFactory.createReactorPreferredHostOptions();
+		if(preferredHostNode != null)
+		{
+			JsonNode tmpNode = preferredHostNode.get("enablePH");
+
+			if(tmpNode != null)
+			{
+                rphOptions.isPreferredHostEnabled(tmpNode.asBoolean());
+			}
+
+			tmpNode = preferredHostNode.get("fallBackWithinWSBGroup");
+
+			if(tmpNode != null)
+			{
+                rphOptions.fallBackWithInWSBGroup(tmpNode.asBoolean());
+			}
+
+			tmpNode = preferredHostNode.get("detectionTimeInterval");
+
+			if(tmpNode != null)
+			{
+				rphOptions.detectionTimeInterval(tmpNode.asInt());
+			} else {
+				rphOptions.detectionTimeInterval(DETECTION_TIME_INTERVAL);
+			}
+
+			tmpNode = preferredHostNode.get("connectListIndex");
+
+			if(tmpNode != null)
+			{
+				rphOptions.connectionListIndex(tmpNode.asInt());
+			} else {
+				rphOptions.connectionListIndex(CONNECT_LIST_INDEX);
+			}
+
+			tmpNode = preferredHostNode.get("warmstandbyGroupListIndex");
+
+			if(tmpNode != null)
+			{
+				rphOptions.warmStandbyGroupListIndex(tmpNode.asInt());
+			} else {
+				rphOptions.warmStandbyGroupListIndex(WSB_GROUP_LIST_INDEX);
+			}
+
+			tmpNode = preferredHostNode.get("detectionTimeSchedule");
+
+			if(tmpNode != null)
+			{
+				rphOptions.detectionTimeSchedule(tmpNode.asText(DETECTION_TIME_SCHEDULE));
+			} else {
+				rphOptions.detectionTimeSchedule(DETECTION_TIME_SCHEDULE);
+			}
+		} else {
+			System.out.println("Preferred host options is missing. Default preferred host options will be used.");
+		}
+
+		return rphOptions;
+	}
+
 	private void parseWsbChannel(JsonNode channelJson, ReactorWarmStandbyServerInfo wsbServerInfo, ChannelInfo channelInfo)
 	{
 		ArrayNode tmpJsonNode;
@@ -535,7 +696,7 @@ public class wsbConsumerConfig
 		
 		if(tmpJsonNode != null)
 		{
-			if(tmpJsonNode.isArray() == false)
+			if(!tmpJsonNode.isArray())
 			{
 				System.err.println("WSB Channel's Service List is not an array.");
 				System.exit(CodecReturnCodes.FAILURE);
@@ -557,7 +718,7 @@ public class wsbConsumerConfig
 		JsonNode tmpJsonNode;
 		
 		String localIPaddress = null;
-		String localHostName = null;
+		String localHostName;
 
 		try
 		{
@@ -727,7 +888,7 @@ public class wsbConsumerConfig
 
 	void addCommandLineArgs()
 	{
-		CommandLine.programName("WatchlistConsumer");
+		CommandLine.programName("wsbConsumer");
 		CommandLine.addOption("mp", "For each occurrence, requests item using Market Price domain. Item names can be optionally <service_name>:<item_name> to specify a specific service");
 		CommandLine.addOption("mbo", "For each occurrence, requests item using Market By Order domain. Default is no market by order requests.");
 		CommandLine.addOption("mbp", "For each occurrence, requests item using Market By Price domain. Default is no market by price requests.");
@@ -757,8 +918,15 @@ public class wsbConsumerConfig
 		CommandLine.addOption("audience", "", "Optionally specifies the audience used with V2 JWT logins");
 		CommandLine.addOption("serviceDiscoveryURL", "Specifies the service discovery URL.");
 		CommandLine.addOption("takeExclusiveSignOnControl", "true", "Specifies the exclusive sign on control to force sign-out for the same credentials., default is true");
-		
-		CommandLine.addOption("reconnectCount", -1, "Reconnection attempt count");
+
+		CommandLine.addOption("fallBackInterval", 0, "Specifies time interval (in second) in application before Ad Hoc Fallback function is invoked. O indicates that function won't be invoked. Default is 0");
+		CommandLine.addOption("ioctlInterval", 0, "Specifies time interval (in second) before IOCtl function is invoked. O indicates that function won't be invoked. Default is 0");
+		CommandLine.addOption("ioctlEnablePH", false, "Enables Preferred host feature. Possible values are true/false");
+		CommandLine.addOption("ioctlConnectListIndex", 0, "Specifies the preferred host as the index in the connection list");
+		CommandLine.addOption("ioctlDetectionTimeInterval", 0, "Specifies time interval (in second) to switch over to a preferred host. 0 indicates that the detection time interval is disabled");
+		CommandLine.addOption("ioctlDetectionTimeSchedule", "", "Specifies Cron time format to switch over to a preferred host");
+		CommandLine.addOption("ioctlWarmstandbyGroupListIndex", 0, "Specifies the preferred WSB group as the index in the WarmStandbyGroup list");
+		CommandLine.addOption("ioctlFallBackWithinWSBGroup", false, "Specifies whether to fallback within a WSB group instead of moving into a preferred WSB group. Possible values are true/false");
 		
 		CommandLine.addOption("restProxyHost", "", "Specifies the hostname of the proxy server for rest protocol connections.");
 		CommandLine.addOption("restProxyPort", "", "Specifies the port of the proxy server for rest protocol connections.");
@@ -766,6 +934,10 @@ public class wsbConsumerConfig
 		CommandLine.addOption("restProxyPasswd", "", "Specifies the password for the proxy server during rest protocol connections.");
 		CommandLine.addOption("restProxyDomain", "", "Specifies the domain of the proxy server for rest protocol connections.");
 		CommandLine.addOption("restProxyKrb5ConfigFile", "", "Specifies the kerberos5 config file used for the proxy server for rest protocol connections.");
+
+		CommandLine.addOption("reconnectAttemptLimit", -1, "Specifies the maximum number of reconnection attempts. Default is -1");
+		CommandLine.addOption("reconnectMinDelay", 500, "Specifies minimum delay (in milliseconds) between reconnection attempts. Default is 500");
+		CommandLine.addOption("reconnectMaxDelay", 6000, "Specifies maximum delay (in milliseconds) between reconnection attempts. Default is 6000");
 
 	}
 }

@@ -146,7 +146,7 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 			if ( _configSessionName.equals(ActiveConfig.DEFAULT_NIPROV_NAME) )
 			{
 				boolean bFoundChild = xmlConfig().isNiProviderChildAvailable();
-				if( bFoundChild == false )
+				if( !bFoundChild )
 					return;
 			}
 
@@ -159,7 +159,7 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
  		else //if ( name != null ) 
 		{
  			boolean bSetAttributeValue = xmlConfig().setDefaultNiProvider(name);
-			if ( bSetAttributeValue == false )
+			if ( !bSetAttributeValue )
 			{
 				xmlConfig().appendAttributeValue(ConfigManager.NIPROVIDER_GROUP, "DefaultNiProvider", ConfigManager.DefaultNiProvider,_configSessionName);
 				xmlConfig().verifyAndGetDefaultNiProvider();
@@ -202,7 +202,7 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 		if (_configSessionName != null && !_configSessionName.isEmpty())
 			return _configSessionName;
 		
-		String defaultNiProviderName = null;
+		String defaultNiProviderName;
 
 		if ( _programmaticConfigure != null  && (defaultNiProviderName = _programmaticConfigure.defaultNiProvider()) != null)
 			return defaultNiProviderName;
@@ -236,7 +236,7 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	@Override
 	String channelName(String instanceName)
 	{
-		String channelName = null;
+		String channelName;
 
 		if ( _programmaticConfigure != null )
 		{
@@ -254,7 +254,7 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	@Override
 	String directoryName(String instanceName)
 	{
-		String directoryName = null;
+		String directoryName;
 
 		if ( _programmaticConfigure != null &&
 			(directoryName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.DIRECTORY_FLAG)) != null)
@@ -384,6 +384,16 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 
 	@Override
 	String warmStandbyChannelSet(String instanceName) {
+		return null;
+	}
+
+	@Override
+	String preferredWarmStandbyChannelName(String instanceName) {
+		return null;
+	}
+
+	@Override
+	String preferredChannelName(String instanceName) {
 		return null;
 	}
 

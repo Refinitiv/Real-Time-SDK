@@ -466,7 +466,7 @@ public class ReactorInteractionJunit
         
         /* Obtain reference to ReactorChannel ConsumerRole and verify that
          * user ConsumerRole and ReactorChannel ConsumerRole are not the same. */
-        ConsumerRole reactorChnlConsumerRole = (ConsumerRole)consumer.channel().role();
+        ConsumerRole reactorChnlConsumerRole = (ConsumerRole)consumer.reactorChannel().role();
         assertFalse(consumerRole == reactorChnlConsumerRole);
 
         /* Verify that user ConsumerRole messages and ReactorChannel
@@ -491,7 +491,7 @@ public class ReactorInteractionJunit
        
         /* Obtain reference to ReactorChannel ProviderRole and verify that
          * user ProviderRole and ReactorChannel ProviderRole are not the same. */
-        ProviderRole reactorChnlProviderRole = (ProviderRole)provider.channel().role();
+        ProviderRole reactorChnlProviderRole = (ProviderRole)provider.reactorChannel().role();
         assertFalse(providerRole == reactorChnlProviderRole);
 
         /* Verify that other user ProviderRole and ReactorChannel ProviderRole attributes are equal. */

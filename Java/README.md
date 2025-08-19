@@ -37,6 +37,7 @@ External modules used by this version of RTSDK Java:
 	mockito-core 				5.18.0
 	slf4j-api				2.0.17
 	slf4j-jdk14				2.0.17
+	quartz					2.3.2
 	xpp3					1.1.4c
 
 

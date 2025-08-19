@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2017-2020,2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -45,19 +45,18 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
     private TunnelStreamSubmitOptions _tunnelStreamSubmitOptions = ReactorFactory.createTunnelStreamSubmitOptions();
     private int _msgCount;
     private boolean _finalStatusEvent;
-    private boolean _tunnelAuth;
-    private int _tunnelDomain;
+	private boolean _tunnelAuth;
+	private int _tunnelDomain;
     // APIQA: buffer size and fill size
     private int _tunnelBufSize;
     private int _tunnelFillSize;
-
     // END APIQA:
 
-    public TunnelStreamHandler(boolean tunnelAuth, int tunnelDomain)
-    {
-        _tunnelAuth = tunnelAuth;
-        _tunnelDomain = tunnelDomain;
-    }
+	public TunnelStreamHandler(boolean tunnelAuth, int tunnelDomain)
+	{
+		_tunnelAuth = tunnelAuth;
+		_tunnelDomain = tunnelDomain;
+	}
 
     // APIQA: set buffer size and fill size
     public void setTunnelBufSize(int tunnelBufSize)
@@ -69,7 +68,6 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
     {
         _tunnelFillSize = tunnelFillSize;
     }
-
     // END APIQA:
 
     /*
@@ -81,7 +79,7 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
         int ret;
 
         _serviceId = chnlInfo.tsServiceInfo.serviceId();
-
+        
         _tunnelStreamOpenOptions.clear();
         _tunnelStreamOpenOptions.name("BasicTunnelStream");
         _tunnelStreamOpenOptions.classOfService().flowControl().type(ClassesOfService.FlowControlTypes.BIDIRECTIONAL);
@@ -95,18 +93,18 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
         _tunnelStreamOpenOptions.defaultMsgCallback(this);
         _tunnelStreamOpenOptions.statusEventCallback(this);
 
-        if (_tunnelAuth)
-            _tunnelStreamOpenOptions.classOfService().authentication().type(ClassesOfService.AuthenticationTypes.OMM_LOGIN);
-
+		if (_tunnelAuth)
+			_tunnelStreamOpenOptions.classOfService().authentication().type(ClassesOfService.AuthenticationTypes.OMM_LOGIN);
+        
         if ((ret = chnlInfo.reactorChannel.openTunnelStream(_tunnelStreamOpenOptions, errorInfo)) != ReactorReturnCodes.SUCCESS)
         {
             System.out.println("ReactorChannel.openTunnelStream() failed: " + CodecReturnCodes.toString(ret)
                     + "(" + errorInfo.error().text() + ")");
         }
-
+        
         chnlInfo.tunnelStreamOpenSent = true;
         _chnlInfo = chnlInfo;
-
+    
         return ReactorReturnCodes.SUCCESS;
     }
 
@@ -114,7 +112,7 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
      * Used by the Consumer to close any tunnel streams it opened
      * for the reactor channel.
      */
-    public int closeStreams(ChannelInfo chnlInfo, boolean finalStatusEvent, ReactorErrorInfo errorInfo)
+    public int closeStreams(ChannelInfo chnlInfo,  boolean finalStatusEvent,  ReactorErrorInfo errorInfo)
     {
         int ret;
         _finalStatusEvent = finalStatusEvent;
@@ -122,18 +120,18 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
         if (chnlInfo.tunnelStream == null)
             return ReactorReturnCodes.SUCCESS;
 
-        if ((ret = chnlInfo.tunnelStream.close(finalStatusEvent, errorInfo)) < ReactorReturnCodes.SUCCESS)
+        if ((ret =  chnlInfo.tunnelStream.close(finalStatusEvent, errorInfo)) < ReactorReturnCodes.SUCCESS)
         {
             System.out.println("TunnelStream.close() failed with return code: " + ret);
             return ReactorCallbackReturnCodes.SUCCESS;
         }
 
-        if (!finalStatusEvent)
-        {
-            chnlInfo.tunnelStreamOpenSent = false;
-            chnlInfo.tunnelStream = null;
-        }
-
+		if (!finalStatusEvent)
+		{
+			chnlInfo.tunnelStreamOpenSent = false;
+			chnlInfo.tunnelStream = null;
+		}
+        
         return ReactorReturnCodes.SUCCESS;
     }
 
@@ -144,13 +142,13 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
     public void sendMsg(ReactorChannel reactorChannel)
     {
         long currentTime = System.currentTimeMillis();
-        int ret;
+        int ret; 
 
         if (currentTime < _nextSubmitMsgTime)
         {
             return;
         }
-
+        
         _nextSubmitMsgTime = currentTime + TUNNEL_SEND_FREQUENCY * 1000;
 
         if (_chnlInfo != null && _chnlInfo.tunnelStream != null && _chnlInfo.isTunnelStreamUp)
@@ -158,7 +156,7 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
             // APIQA:
             System.out.println("Get tunnel stream buffer size = " + _tunnelBufSize + " by calling TunnelStream.getBuffer()");
             // END APIQA:
-			
+
             // get buffer to encode message into
             // APIQA: get a buffer
             // TransportBuffer buffer = _chnlInfo.tunnelStream.getBuffer(1024,
@@ -167,21 +165,21 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
             // END APIQA:
             if (buffer == null)
             {
-            	 System.out.println("TunnelStream.getBuffer() failed: " + CodecReturnCodes.toString(_errorInfo.error().errorId())
-                 + "(" + _errorInfo.error().text() + ")");
+                System.out.println("TunnelStream.getBuffer() failed: " + CodecReturnCodes.toString(_errorInfo.error().errorId())
+                        + "(" + _errorInfo.error().text() + ")");
                 return;
             }
-			
+
             // APIQA:
             TunnelStreamInfo tunnelStreamInfo = ReactorFactory.createTunnelStreamInfo();
             if(_chnlInfo.tunnelStream.info(tunnelStreamInfo, _errorInfo) != ReactorReturnCodes.SUCCESS)
             {
-            	System.out.println("TunnelStream.info() failed: " + CodecReturnCodes.toString(_errorInfo.error().errorId())
-                + "(" + _errorInfo.error().text() + ")");
+                System.out.println("TunnelStream.info() failed: " + CodecReturnCodes.toString(_errorInfo.error().errorId())
+                        + "(" + _errorInfo.error().text() + ")");
             }
             else
             {
-            	System.out.println("tunnelStreamInfo.buffersUsed() = " + tunnelStreamInfo.buffersUsed() + " after calling TunnelStream.getBuffer()");
+                System.out.println("tunnelStreamInfo.buffersUsed() = " + tunnelStreamInfo.buffersUsed() + " after calling TunnelStream.getBuffer()");
             }
             // END APIQA:
 
@@ -213,17 +211,17 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
                 _chnlInfo.tunnelStream.releaseBuffer(buffer, _errorInfo);
                 return;
             }
-			
+
             // APIQA:
             tunnelStreamInfo.clear();
             if(_chnlInfo.tunnelStream.info(tunnelStreamInfo, _errorInfo) != ReactorReturnCodes.SUCCESS)
             {
-            	System.out.println("TunnelStream.info() failed: " + CodecReturnCodes.toString(_errorInfo.error().errorId())
-                + "(" + _errorInfo.error().text() + ")");
+                System.out.println("TunnelStream.info() failed: " + CodecReturnCodes.toString(_errorInfo.error().errorId())
+                        + "(" + _errorInfo.error().text() + ")");
             }
             else
             {
-            	System.out.println("tunnelStreamInfo.buffersUsed() = " + tunnelStreamInfo.buffersUsed() + " after calling TunnelStream.submit()");
+                System.out.println("tunnelStreamInfo.buffersUsed() = " + tunnelStreamInfo.buffersUsed() + " after calling TunnelStream.submit()");
             }
             // END APIQA:
         }
@@ -253,10 +251,10 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
     {
         State state = event.state();
         int ret;
-
+        
         System.out.println("Received TunnelStreamStatusEvent for Stream ID " + event.tunnelStream().streamId() + " with " + state + "\n");
-
-        switch (state.streamState())
+        
+        switch(state.streamState())
         {
             case StreamStates.OPEN:
                 if (state.dataState() == DataStates.OK && _chnlInfo.tunnelStream == null)
@@ -265,7 +263,7 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
 
                     // Add it to our ChannelInfo
                     _chnlInfo.tunnelStream = event.tunnelStream();
-
+                    
                     _chnlInfo.isTunnelStreamUp = true;
                 }
                 break;
@@ -283,10 +281,10 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
                 _chnlInfo.tunnelStreamOpenSent = false;
                 _chnlInfo.tunnelStream = null;
                 _chnlInfo.isTunnelStreamUp = false;
-
+                
                 // reset message count
                 _msgCount = 0;
-
+                
                 break;
         }
 

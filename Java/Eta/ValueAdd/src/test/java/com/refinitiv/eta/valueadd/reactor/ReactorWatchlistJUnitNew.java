@@ -19425,8 +19425,8 @@ public class ReactorWatchlistJUnitNew
 		dIter.clear();
 		int numOfFields = 0;
 		int ret;
-		int majorVersion =  provider.channel().majorVersion();
-		int minorVersion =  provider.channel().minorVersion();
+		int majorVersion =  provider.reactorChannel().majorVersion();
+		int minorVersion =  provider.reactorChannel().minorVersion();
 		
 		dIter.setBufferAndRWFVersion(requestMsg.encodedDataBody(), majorVersion, minorVersion);
 				

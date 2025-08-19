@@ -170,12 +170,18 @@ public interface OmmState extends Data
 		public final static int DACS_USER_ACCESS_TO_APP_DENIED	= 32;
 		
 	    /** Content is intended to fill a recognized gap */
-	    public static final int GAP_FILL = 34;
+	    public static final int GAP_FILL 						= 34;
 	    
 	    /** Application Authorization Failed */
-	    public static final int APP_AUTHORIZATION_FAILED = 35;
+	    public static final int APP_AUTHORIZATION_FAILED 		= 35;
 
-	    /** @deprecated Not Used */
+		/** Preferred host switchover completed */
+		public static final int PREFERRED_HOST_COMPLETE 		= 201;
+
+		/** Preferred host switchover started */
+		public static final int PREFERRED_HOST_START_FALLBACK = 202;
+
+		/** @deprecated Not Used */
 	    @Deprecated
 		public final static int INVALID_FORMED_MSG				= 256;
 	    /** @deprecated Not Used */

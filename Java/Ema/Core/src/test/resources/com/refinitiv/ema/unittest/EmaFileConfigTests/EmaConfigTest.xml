@@ -144,6 +144,11 @@
 			<Name value="Consumer_8"/>
 			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
 			<Dictionary value="Dictionary_2"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeSchedule value="* * ? * *"/>
+			<PHDetectionTimeInterval value="10"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_2"/>
+			<PHFallBackWithInWSBGroup value="1"/>
 			<XmlTraceToStdout value="0" />
 			<XmlTraceToFile value="0" />
 			<XmlTraceMaxFileSize value="40000"/>
@@ -153,8 +158,20 @@
 			<XmlTraceRead value="0"/>
 			<XmlTracePing value="0"/>
 		</Consumer>
+		<!-- Consumer for fallback to preferred host feature -->
 		<Consumer>
 			<Name value="Consumer_9"/>
+			<ChannelSet value="Channel_4, Channel_10"/>
+			<Dictionary value="Dictionary_2"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeSchedule value="* * ? * *"/>
+			<PHDetectionTimeInterval value="10"/>
+			<PreferredChannelName value="Channel_10"/>
+			<PHFallBackWithInWSBGroup value="0"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_10"/>
 			<SessionChannelSet value="Connection_1, Connection_2"/>
 			<Dictionary value="Dictionary_2"/>
 			<ReconnectAttemptLimit value="10"/>

@@ -53,8 +53,23 @@ enum WorkerEventTypes
     // sent from Reactor to itself for dispatching to the application
 	TOKEN_CREDENTIAL_RENEWAL,
 	// sent from Worker to Reactor
-	WARM_STANDBY;
-    
+	WARM_STANDBY,
+	// sent from Reactor to Worker
+	PREFERRED_HOST_TIMER,
+	// sent from Reactor to Worker, then Worker to Reactor when ready
+	PREFERRED_HOST_START_FALLBACK,
+    // Sent from Worker to Reactor
+    PREFERRED_HOST_COMPLETE,
+	// sent from Reactor to Worker
+	PREFERRED_HOST_IOCTL,
+	// Sent from Worker to Reactor
+	PREFERRED_HOST_SWITCH_CHANNEL,
+	// Sent from Reactor to Worker
+	PREFERRED_HOST_CHANNEL_CLOSE,
+	// Sent from Reactor to Worker
+	PREFERRED_HOST_CHANNEL_DOWN,
+	// sent from Worker to Reactor
+    PREFERRED_HOST_CHANNEL_CLOSE_ACK;
     
     /* Returns a String representation of the specified WorkerEventTypes type. */
     static String toString(WorkerEventTypes type)
@@ -98,7 +113,13 @@ enum WorkerEventTypes
             case WATCHLIST_TIMEOUT:
                 return "ReactorChannelEventTypes.WATCHLIST_TIMEOUT";
             case TOKEN_MGNT:
-                return "ReactorChannelEventTypes.TOKEN_MGNT";                
+                return "ReactorChannelEventTypes.TOKEN_MGNT";     
+            case TOKEN_CREDENTIAL_RENEWAL:
+                return "ReactorChannelEventTypes.TOKEN_CREDENTIAL_RENEWAL";  
+            case WARM_STANDBY:
+                return "ReactorChannelEventTypes.WARM_STANDBY";  
+            case PREFERRED_HOST_TIMER:
+                return "ReactorChannelEventTypes.PREFERRED_HOST_TIMER";  
             default:
                 return "ReactorChannelEventTypes " + type + " - undefined.";
         }

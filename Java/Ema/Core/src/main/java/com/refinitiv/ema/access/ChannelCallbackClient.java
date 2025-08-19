@@ -16,6 +16,7 @@ import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import com.refinitiv.ema.access.OmmBaseImpl.OmmImplState;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
@@ -61,6 +62,7 @@ class ChannelInfo
 	private ReactorChannel		_rsslReactorChannel;
 	private int					_reactorChannelType;
 	private ChannelInfo			_parentChannel;
+	private ActiveConfig		_activeConfig;
 	private SessionChannelInfo<OmmConsumerClient> _sessionChannelInfo;
 	protected int _majorVersion;
 	protected int _minorVersion;
@@ -166,6 +168,16 @@ class ChannelInfo
 		_sessionChannelInfo = sessionChannelInfo;
 	}
 
+	ActiveConfig getActiveConfig()
+	{
+		return _activeConfig;
+	}
+
+	void setActiveConfig(ActiveConfig activeConfig)
+	{
+		_activeConfig = activeConfig;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -193,15 +205,15 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 {
 	private static final String CLIENT_NAME = "ChannelCallbackClient";
 	
-	private List<ChannelInfo>			_channelPool = new ArrayList<ChannelInfo>();
-	private List<ChannelInfo>			_channelList = new ArrayList<ChannelInfo>();
-	private OmmBaseImpl<T>				_baseImpl;
-	private Reactor						_rsslReactor;
-	private ReactorConnectOptions 		_rsslReactorConnOptions = ReactorFactory.createReactorConnectOptions();
+	private final List<ChannelInfo>		_channelPool = new ArrayList<>();
+	private final List<ChannelInfo>		_channelList = new ArrayList<>();
+	private final OmmBaseImpl<T>		_baseImpl;
+	private final Reactor				_rsslReactor;
+	private final ReactorConnectOptions _rsslReactorConnOptions = ReactorFactory.createReactorConnectOptions();
 	private ReactorRole 				_rsslReactorRole = null;
 	private ChannelInfo					_warmStandbyChannelInfo = null;
 	private boolean						_bInitialChannelReadyEventReceived;
-	private static String		 	_productVersion = null;
+	private static String		 		_productVersion = null;
 	{
 		_productVersion = ChannelCallbackClient.class.getPackage().getImplementationVersion();
 		if (_productVersion == null) {
@@ -213,14 +225,13 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	{
 		_baseImpl = baseImpl;
 		_rsslReactor = rsslReactor;
-		_rsslReactorConnOptions.connectionList().add(ReactorFactory.createReactorConnectInfo());
 		_bInitialChannelReadyEventReceived = false;
 		
 		if (_baseImpl.loggerClient().isTraceEnabled())
 		{
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME,
 																		"Created ChannelCallbackClient",
-																		Severity.TRACE).toString());
+																		Severity.TRACE));
 		}
 	}
 
@@ -258,7 +269,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 				}
 				
-				if(sessionChannelInfo != null)
+				if (sessionChannelInfo != null)
 				{
 					sessionChannelInfo.reactorChannel(event.reactorChannel());
 					chnlInfo.rsslReactorChannel(event.reactorChannel());
@@ -305,7 +316,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					}
 					
 					setRsslReactorChannelOnChnlInfo(event.reactorChannel(), chnlInfo);
-    				
+					event.reactorChannel().info(reactorChannelInfo, rsslReactorErrorInfo);
+
 					if(sessionChannelInfo != null)
 					{
 						sessionChannelInfo.reactorChannel(event.reactorChannel());
@@ -359,7 +371,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	    	        	temp.append("Failed to set send buffer size on channel ")
 							.append(channelConfig.name).append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
-	    	        	    if (rsslReactorChannel != null && rsslReactorChannel.channel() != null )
+	    	        	    if (rsslReactorChannel.channel() != null )
 								temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
 								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
 							else
@@ -385,7 +397,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	    	        	StringBuilder temp = _baseImpl.strBuilder();
 	    	        	temp.append("Failed to set recv buffer size on channel ").append(channelConfig.name).append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
-	    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+	    	        	if (rsslReactorChannel.channel() != null)
 							temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
 							.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
 						else
@@ -415,7 +427,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		    	        	temp.append("Failed to set compression threshold on channel ")
 								.append(channelConfig.name).append(OmmLoggerClient.CR)
 								.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
-			    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+			    	        	if (rsslReactorChannel.channel() != null)
 									temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
 									.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
 								else
@@ -435,26 +447,26 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	                }
                 }
 
-				if (_baseImpl.loggerClient().isInfoEnabled() && reactorChannelInfo.channelInfo().componentInfo() != null)
+				if (_baseImpl.loggerClient().isInfoEnabled())
 				{
-					int count = reactorChannelInfo.channelInfo().componentInfo().size();
-					
 					StringBuilder temp = _baseImpl.strBuilder();
     	        	temp.append("Received ChannelUp event on channel ");
 					temp.append(channelConfig.name).append(OmmLoggerClient.CR)
 						.append("Instance Name ").append(_baseImpl.instanceName());
-						
-						if ( count != 0 )
-						{
+
+					if (reactorChannelInfo.channelInfo().componentInfo() != null)
+					{
+						int count = reactorChannelInfo.channelInfo().componentInfo().size();
+						if (count != 0) {
 							temp.append(OmmLoggerClient.CR).append("Component Version ");
-							for (int i = 0; i < count; ++i)
-							{
+							for (int i = 0; i < count; ++i) {
 								temp.append(reactorChannelInfo.channelInfo().componentInfo().get(i).componentVersion());
 								if (i < count - 1)
 									temp.append(", ");
 							}
 						}
-					
+					}
+
 					_baseImpl.loggerClient().info(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.INFO));
 				}
 				
@@ -485,7 +497,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		    	        	temp.append("Failed to set high water mark on channel ")
 								.append(channelConfig.name).append(OmmLoggerClient.CR)
 								.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
-			    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+			    	        	if (rsslReactorChannel.channel() != null)
 									temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
 									.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
 								else
@@ -610,7 +622,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
     	        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
     			}
 
-    	        return ReactorCallbackReturnCodes.SUCCESS;
+				return ReactorCallbackReturnCodes.SUCCESS;
     		}
     		case ReactorChannelEventTypes.CHANNEL_READY:
     		{
@@ -666,30 +678,30 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	                    	key.cancel();
 	                }
 	                catch (Exception e) { }
-	    			
-	                if (_baseImpl.loggerClient().isWarnEnabled())
-	          	   	{
-	            		ReactorErrorInfo errorInfo = event.errorInfo();
-	            		 
-	  					StringBuilder temp = _baseImpl.strBuilder();
-	  		        	temp.append("Received ChannelDownReconnecting event on channel ")
-	  						.append(channelConfig.name).append(OmmLoggerClient.CR);
-		    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
-								temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
-								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
-							else
-								temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
-		    	        	
-							temp.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
-	  						.append("Internal sysError ").append(errorInfo.error().sysError()).append(OmmLoggerClient.CR)
-	  						.append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR)
-	  						.append("Error text ").append(errorInfo.error().text());
-	  	
-	  		        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
-	          	   	}
 				}
-                
-        		if(sessionChannelInfo != null)
+
+				if (_baseImpl.loggerClient().isWarnEnabled())
+				{
+					ReactorErrorInfo errorInfo = event.errorInfo();
+
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Received ChannelDownReconnecting event on channel ")
+	  						.append(channelConfig.name).append(OmmLoggerClient.CR);
+					if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+						temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+					else
+						temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+
+					temp.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
+							.append("Internal sysError ").append(errorInfo.error().sysError()).append(OmmLoggerClient.CR)
+							.append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR)
+							.append("Error text ").append(errorInfo.error().text());
+
+					_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
+				}
+
+				if(sessionChannelInfo != null)
 				{
 					sessionChannelInfo.state(OmmImplState.RSSLCHANNEL_DOWN);
 					
@@ -736,27 +748,27 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		                      	key.cancel();
 		               }
 		               catch (Exception e) {}
+				}
 
-		        	   if (_baseImpl.loggerClient().isErrorEnabled())
-		        	   {
-		        		    ReactorErrorInfo errorInfo = event.errorInfo();
-							StringBuilder temp = _baseImpl.strBuilder();
-				        	temp.append("Received ChannelDown event on channel ")
+				if (_baseImpl.loggerClient().isErrorEnabled())
+				{
+					ReactorErrorInfo errorInfo = event.errorInfo();
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Received ChannelDown event on channel ")
 								.append(channelConfig.name).append(OmmLoggerClient.CR)
-								.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
-			    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null && rsslReactorChannel.reactor() != null)
-									temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
-									.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
-								else
-									temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
-			    	        	
-								temp.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
-								.append("Internal sysError ").append(errorInfo.error().sysError()).append(OmmLoggerClient.CR)
-								.append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR)
-								.append("Error text ").append(errorInfo.error().text());
-			
-				        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	   }
+							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
+					if (rsslReactorChannel != null && rsslReactorChannel.channel() != null && rsslReactorChannel.reactor() != null)
+						temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+					else
+						temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+
+					temp.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
+							.append("Internal sysError ").append(errorInfo.error().sysError()).append(OmmLoggerClient.CR)
+							.append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR)
+							.append("Error text ").append(errorInfo.error().text());
+
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 				}
 
         	   if(sessionChannelInfo != null)
@@ -810,6 +822,56 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
           	   	}
             	return ReactorCallbackReturnCodes.SUCCESS;
             }
+			case ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE:
+			{
+				if (_baseImpl.loggerClient().isInfoEnabled())
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Received PreferredHostSwitchoverComplete event on channel ");
+					temp.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+							.append("Instance Name ").append(_baseImpl.instanceName());
+					_baseImpl.loggerClient().info(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.INFO));
+				}
+
+				_baseImpl.processChannelEvent(event);
+
+				if (sessionChannelInfo != null)
+				{
+					sessionChannelInfo.phOperationInProgress(false);
+					sessionChannelInfo.consumerSession().processChannelEvent(sessionChannelInfo, event);
+				}
+				else
+				{
+					_baseImpl.loginCallbackClient().processChannelEvent(event);
+				}
+
+				return ReactorCallbackReturnCodes.SUCCESS;
+			}
+			case ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK:
+			{
+				if (_baseImpl.loggerClient().isInfoEnabled())
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Received PreferredHostStartFallback event on channel ");
+					temp.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+							.append("Instance Name ").append(_baseImpl.instanceName());
+					_baseImpl.loggerClient().info(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.INFO));
+				}
+
+				_baseImpl.processChannelEvent(event);
+
+				if (sessionChannelInfo != null)
+				{
+					sessionChannelInfo.phOperationInProgress(true);
+					sessionChannelInfo.consumerSession().processChannelEvent(sessionChannelInfo, event);
+				}
+				else
+				{
+					_baseImpl.loginCallbackClient().processChannelEvent(event);
+				}
+
+				return ReactorCallbackReturnCodes.SUCCESS;
+			}
             default:
             {
             	if (_baseImpl.loggerClient().isErrorEnabled())
@@ -927,7 +989,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		.append( "Channel name " ).append( channelCfg.name ).append( OmmLoggerClient.CR )
 		.append( "Instance Name " ).append( _baseImpl.instanceName() ).append( OmmLoggerClient.CR );
 
-		if( bValidChType == true)
+		if (bValidChType)
 		{
 			tempBlder.append("RsslReactor ").append("@").append(Integer.toHexString(_rsslReactor.hashCode())).append(OmmLoggerClient.CR)
 			.append( "InterfaceName " ).append( channelCfg.interfaceName ).append( OmmLoggerClient.CR )
@@ -954,6 +1016,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		ReactorConnectInfo reactorConnectInfo = ReactorFactory.createReactorConnectInfo();
 
 		ChannelInfo channelInfo = channelInfo(channelConfig.name, _rsslReactor);
+		channelInfo.setActiveConfig(_baseImpl.activeConfig());
 		channelInfo._channelConfig = channelConfig;
 		channelConfig.channelInfo = channelInfo;
 		channelInfo.setParentChannel(wsbChannelInfo);
@@ -991,8 +1054,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					channelConfig.encryptedProtocolType == com.refinitiv.eta.transport.ConnectionTypes.SOCKET ||
 					channelConfig.encryptedProtocolType == com.refinitiv.eta.transport.ConnectionTypes.WEBSOCKET)
 			{
-				reactorConnectInfo.enableSessionManagement(((EncryptedChannelConfig)channelConfig).enableSessionMgnt);
-				reactorConnectInfo.location(((EncryptedChannelConfig)channelConfig).location);
+				reactorConnectInfo.enableSessionManagement(channelConfig.enableSessionMgnt);
+				reactorConnectInfo.location(channelConfig.location);
 
 				reactorConnectInfo.connectOptions().unifiedNetworkInfo().address(((HttpChannelConfig) channelConfig).hostName);
 				try
@@ -1014,8 +1077,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				reactorConnectInfo.connectOptions().tunnelingInfo().objectName(((HttpChannelConfig) channelConfig).objectName);
 				reactorConnectInfo.connectOptions().encryptionOptions().connectionType(channelConfig.encryptedProtocolType);
 				tunnelingConfiguration(reactorConnectInfo.connectOptions(), (HttpChannelConfig)channelConfig);
-				break;
-			}
+            }
 			else /* Multiple checks prior to this point, so we don't need additional verification */
 			{
 				reactorConnectInfo.connectOptions().unifiedNetworkInfo().address(((SocketChannelConfig) channelConfig).hostName);
@@ -1036,14 +1098,14 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				}
 				reactorConnectInfo.connectOptions().tcpOpts().tcpNoDelay(((SocketChannelConfig) channelConfig).tcpNodelay);
 				socketProxyConfiguration(reactorConnectInfo.connectOptions(), (SocketChannelConfig)channelConfig);
-				break;
-			}
-		}
+            }
+            break;
+        }
 		case com.refinitiv.eta.transport.ConnectionTypes.WEBSOCKET:
 		case com.refinitiv.eta.transport.ConnectionTypes.SOCKET:
 		{
 			if ( channelConfig.channelInfo != null &&
-					((ChannelInfo)reactorConnectInfo.connectOptions().userSpecObject())._channelConfig.name == channelConfig.name)
+                    Objects.equals(((ChannelInfo) reactorConnectInfo.connectOptions().userSpecObject())._channelConfig.name, channelConfig.name))
 			{
 				try
 				{
@@ -1118,7 +1180,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		StringBuilder temp = new StringBuilder();
 		temp.append("Attempt to connect using session channels");
 		
-		String channelParams = "";
+		String channelParams;
 
 		StringBuilder errorStrUnsupportedConnectionType = new StringBuilder();		
 		errorStrUnsupportedConnectionType.append( "Unsupported connection type. Passed in type is ");
@@ -1131,13 +1193,13 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			sessionChannelConfig.connectOptions().reconnectMinDelay(sessionChannelConfig.reconnectMinDelay);
 			sessionChannelConfig.connectOptions().reconnectMaxDelay(sessionChannelConfig.reconnectMaxDelay);
 			
-			SessionChannelInfo<T> sessionChannelInfo = new SessionChannelInfo<T>(sessionChannelConfig, consumerSession);
+			SessionChannelInfo<T> sessionChannelInfo = new SessionChannelInfo<>(sessionChannelConfig, consumerSession);
 			
 			consumerSession.addSessionChannelInfo(sessionChannelInfo);
 			
-			ReactorConnectInfo reactorConnectInfo = null;
-			ChannelConfig activeChannelConfig = null;
-			int rsslReactorConnListSize = 0;
+			ReactorConnectInfo reactorConnectInfo;
+			ChannelConfig activeChannelConfig;
+			int rsslReactorConnListSize;
 			String channelNames = "";
 			int supportedConnectionTypeChannelCount = 0;
 			
@@ -1156,25 +1218,16 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					supportedConnectionTypeChannelCount++;
 					channelNames += (activeChannelConfig.name + " ");
 					rsslReactorConnListSize = sessionChannelConfig.connectOptions().connectionList().size();
-					if( j < rsslReactorConnListSize )
-					{
-						reactorConnectInfo.connectOptions().copy(sessionChannelConfig.connectOptions().connectionList().get(j).connectOptions());
-						sessionChannelConfig.connectOptions().connectionList().get(j).location(reactorConnectInfo.location());
-						sessionChannelConfig.connectOptions().connectionList().get(j).enableSessionManagement(reactorConnectInfo.enableSessionManagement());
-						sessionChannelConfig.connectOptions().connectionList().get(j).initTimeout(activeChannelConfig.initializationTimeout);
-						sessionChannelConfig.connectOptions().connectionList().get(j).serviceDiscoveryRetryCount(activeChannelConfig.serviceDiscoveryRetryCount);
-					}
-					else
-					{
-						sessionChannelConfig.connectOptions().connectionList().add(reactorConnectInfo);
-						reactorConnectInfo.connectOptions().copy(sessionChannelConfig.connectOptions().connectionList().get(j).connectOptions());
-						sessionChannelConfig.connectOptions().connectionList().get(j).location(reactorConnectInfo.location());
-						sessionChannelConfig.connectOptions().connectionList().get(j).enableSessionManagement(reactorConnectInfo.enableSessionManagement());
-						sessionChannelConfig.connectOptions().connectionList().get(j).initTimeout(activeChannelConfig.initializationTimeout);
-						sessionChannelConfig.connectOptions().connectionList().get(j).serviceDiscoveryRetryCount(activeChannelConfig.serviceDiscoveryRetryCount);
-					}
-					
-					if (_baseImpl.loggerClient().isTraceEnabled())
+                    if (j >= rsslReactorConnListSize) {
+                        sessionChannelConfig.connectOptions().connectionList().add(reactorConnectInfo);
+                    }
+                    reactorConnectInfo.connectOptions().copy(sessionChannelConfig.connectOptions().connectionList().get(j).connectOptions());
+                    sessionChannelConfig.connectOptions().connectionList().get(j).location(reactorConnectInfo.location());
+                    sessionChannelConfig.connectOptions().connectionList().get(j).enableSessionManagement(reactorConnectInfo.enableSessionManagement());
+                    sessionChannelConfig.connectOptions().connectionList().get(j).initTimeout(activeChannelConfig.initializationTimeout);
+                    sessionChannelConfig.connectOptions().connectionList().get(j).serviceDiscoveryRetryCount(activeChannelConfig.serviceDiscoveryRetryCount);
+
+                    if (_baseImpl.loggerClient().isTraceEnabled())
 					{
 						channelParams = channelParametersToString( _baseImpl.activeConfig(), activeChannelConfig );
 						temp.append( OmmLoggerClient.CR ).append( i + 1 ).append( "] " ).append( channelParams );
@@ -1192,10 +1245,10 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			}
 			
 			// Handling the WSB channel set of SessionChannel
-			WarmStandbyChannelConfig warmStandbyChannelConfig = null;
+			WarmStandbyChannelConfig warmStandbyChannelConfig;
 			ReactorConnectInfo wsbStartingActiveServerReactorConnectInfo = null;
 			
-			if (sessionChannelConfig.configWarmStandbySet.size() > 0)
+			if (!sessionChannelConfig.configWarmStandbySet.isEmpty())
 			{		
 				for (int k = 0; k < sessionChannelConfig.configWarmStandbySet.size(); ++k)
 				{
@@ -1227,7 +1280,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 						.append( warmStandbyChannelConfig.startingActiveServer.channelConfig.name ).append( ", " );
 					}
 				
-					if (warmStandbyChannelConfig.startingActiveServer.perServiceNameSet.size() > 0)
+					if (!warmStandbyChannelConfig.startingActiveServer.perServiceNameSet.isEmpty())
 					{
 						sessionChannelConfig.connectOptions().reactorWarmStandbyGroupList().get(k).startingActiveServer().perServiceBasedOptions().serviceNameList(new ArrayList<Buffer>());
 						
@@ -1244,7 +1297,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				}
 				
 				// Handle active config going to StandbyServerSet of this Warm Standby Group
-				if (warmStandbyChannelConfig.standbyServerSet.size() > 0)
+				if (!warmStandbyChannelConfig.standbyServerSet.isEmpty())
 				{
 					for (int j = 0; j < warmStandbyChannelConfig.standbyServerSet.size(); ++j)
 					{
@@ -1252,7 +1305,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					}
 				}
 				
-				ReactorWarmStandbyServerInfo warmStandbyServerInfo = null;
+				ReactorWarmStandbyServerInfo warmStandbyServerInfo;
 				ReactorConnectInfo wsbStandbyChannelReactorConnectInfo = null;
 				
 				// Handle active config going to each Standby Server of this Warm Standby Group
@@ -1278,7 +1331,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 								errorStrUnsupportedConnectionType.append( ", " );
 						}
 					
-					if (warmStandbyChannelConfig.standbyServerSet.get(j).perServiceNameSet.size() > 0)
+					if (!warmStandbyChannelConfig.standbyServerSet.get(j).perServiceNameSet.isEmpty())
 					{
 						warmStandbyServerInfo.perServiceBasedOptions().serviceNameList(new ArrayList<Buffer>());
 						
@@ -1320,7 +1373,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					if (_baseImpl.loggerClient().isErrorEnabled())
 						_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 					
-					for(int k = 0; i <  sessionChannelConfig.connectOptions().connectionList().size(); k++ )
+					for(int k = 0; k <  sessionChannelConfig.connectOptions().connectionList().size(); k++ )
 					{
 						ChannelInfo checkChannelInfo = (ChannelInfo) sessionChannelConfig.connectOptions().connectionList().get(k).connectOptions().userSpecObject();
 						if( checkChannelInfo != null)
@@ -1344,10 +1397,10 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			}
 			else
 			{
-				if(sessionChannelConfig.configChannelSet.size() == 0 && sessionChannelConfig.configWarmStandbySet.size() == 0)
+				if(sessionChannelConfig.configChannelSet.isEmpty() && sessionChannelConfig.configWarmStandbySet.isEmpty())
 				{
 					errorStrUnsupportedConnectionType.setLength(0);
-					errorStrUnsupportedConnectionType.append("There is no valid channel for session name: " + sessionChannelConfig.name);
+					errorStrUnsupportedConnectionType.append("There is no valid channel for session name: ").append(sessionChannelConfig.name);
 				}
 				
 				if (_baseImpl.loggerClient().isErrorEnabled())
@@ -1362,7 +1415,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	{
 		ActiveConfig activeConfig = _baseImpl.activeConfig();
 		List<ChannelConfig>	activeConfigChannelSet = activeConfig.channelConfigSet;
-		String channelNames = "";
+		StringBuilder channelNames = new StringBuilder();
 		int supportedConnectionTypeChannelCount = 0;
 		
 		StringBuilder temp = new StringBuilder();
@@ -1373,15 +1426,13 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		
 		int channelCfgSetLastIndex = activeConfigChannelSet.size() - 1;
 
-		String channelParams = "";
-
-		StringBuilder errorStrUnsupportedConnectionType = new StringBuilder();		
+		StringBuilder errorStrUnsupportedConnectionType = new StringBuilder();
 		errorStrUnsupportedConnectionType.append( "Unsupported connection type. Passed in type is ");
 
 		
 		List<WarmStandbyChannelConfig> warmStandbyChannelSet = _baseImpl.activeConfig().configWarmStandbySet;
 		
-		if (warmStandbyChannelSet.size() > 0)
+		if (!warmStandbyChannelSet.isEmpty())
 		{		
 			for (int i = 0; i < warmStandbyChannelSet.size(); ++i)
 			{
@@ -1391,11 +1442,18 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		_rsslReactorConnOptions.reconnectAttemptLimit(activeConfig.reconnectAttemptLimit);
 		_rsslReactorConnOptions.reconnectMinDelay(activeConfig.reconnectMinDelay);
 		_rsslReactorConnOptions.reconnectMaxDelay(activeConfig.reconnectMaxDelay);
-			
-		ReactorConnectInfo reactorConnectInfo = null;
-		ChannelConfig activeChannelConfig = null;
-		int rsslReactorConnListSize = 0;
-		
+
+		// Preferred Host fallback attributes
+		_rsslReactorConnOptions.reactorPreferredHostOptions().isPreferredHostEnabled(activeConfig.enablePreferredHostOptions);
+		_rsslReactorConnOptions.reactorPreferredHostOptions().detectionTimeSchedule(activeConfig.detectionTimeSchedule);
+		_rsslReactorConnOptions.reactorPreferredHostOptions().detectionTimeInterval(activeConfig.detectionTimeInterval);
+		_rsslReactorConnOptions.reactorPreferredHostOptions().connectionListIndex(activeConfig.connectionListIndex);
+		_rsslReactorConnOptions.reactorPreferredHostOptions().warmStandbyGroupListIndex(activeConfig.warmStandbyGroupListIndex);
+		_rsslReactorConnOptions.reactorPreferredHostOptions().fallBackWithInWSBGroup(activeConfig.fallBackWithInWSBGroup);
+
+		ReactorConnectInfo reactorConnectInfo;
+		ChannelConfig activeChannelConfig;
+
 		// Handle activeConfig information going to channelList
 		for (int i = 0; i < activeConfigChannelSet.size(); i++)
 		{
@@ -1405,32 +1463,23 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					activeChannelConfig.rsslConnectionType == com.refinitiv.eta.transport.ConnectionTypes.HTTP ||
 					activeChannelConfig.rsslConnectionType == com.refinitiv.eta.transport.ConnectionTypes.ENCRYPTED ||
 					activeChannelConfig.rsslConnectionType == com.refinitiv.eta.transport.ConnectionTypes.WEBSOCKET)
-			{	
+			{
 				reactorConnectInfo = channelConfigToReactorConnectInfo(activeChannelConfig, activeConfigChannelSet, null, null);
 				supportedConnectionTypeChannelCount++;
-				channelNames += activeChannelConfig.name;	
-				rsslReactorConnListSize = _rsslReactorConnOptions.connectionList().size();
-				if( i < rsslReactorConnListSize )
+				channelNames.append(activeChannelConfig.name);
+				int rsslReactorConnListSize = _rsslReactorConnOptions.connectionList().size();
+                if (i >= rsslReactorConnListSize) {
+                    _rsslReactorConnOptions.connectionList().add(reactorConnectInfo);
+                }
+                reactorConnectInfo.connectOptions().copy(_rsslReactorConnOptions.connectionList().get(i).connectOptions());
+                _rsslReactorConnOptions.connectionList().get(i).location(reactorConnectInfo.location());
+                _rsslReactorConnOptions.connectionList().get(i).enableSessionManagement(reactorConnectInfo.enableSessionManagement());
+                _rsslReactorConnOptions.connectionList().get(i).initTimeout(activeChannelConfig.initializationTimeout);
+                _rsslReactorConnOptions.connectionList().get(i).serviceDiscoveryRetryCount(activeChannelConfig.serviceDiscoveryRetryCount);
+
+                if (_baseImpl.loggerClient().isTraceEnabled())
 				{
-					reactorConnectInfo.connectOptions().copy(_rsslReactorConnOptions.connectionList().get(i).connectOptions());
-					_rsslReactorConnOptions.connectionList().get(i).location(reactorConnectInfo.location());
-					_rsslReactorConnOptions.connectionList().get(i).enableSessionManagement(reactorConnectInfo.enableSessionManagement());
-					_rsslReactorConnOptions.connectionList().get(i).initTimeout(activeChannelConfig.initializationTimeout);
-					_rsslReactorConnOptions.connectionList().get(i).serviceDiscoveryRetryCount(activeChannelConfig.serviceDiscoveryRetryCount);
-				}
-				else
-				{
-					_rsslReactorConnOptions.connectionList().add(reactorConnectInfo);
-					reactorConnectInfo.connectOptions().copy(_rsslReactorConnOptions.connectionList().get(i).connectOptions());
-					_rsslReactorConnOptions.connectionList().get(i).location(reactorConnectInfo.location());
-					_rsslReactorConnOptions.connectionList().get(i).enableSessionManagement(reactorConnectInfo.enableSessionManagement());
-					_rsslReactorConnOptions.connectionList().get(i).initTimeout(activeChannelConfig.initializationTimeout);
-					_rsslReactorConnOptions.connectionList().get(i).serviceDiscoveryRetryCount(activeChannelConfig.serviceDiscoveryRetryCount);
-				}
-				
-				if (_baseImpl.loggerClient().isTraceEnabled())
-				{
-					channelParams = channelParametersToString( _baseImpl.activeConfig(), activeConfigChannelSet.get( i ) );
+					String channelParams = channelParametersToString( _baseImpl.activeConfig(), activeConfigChannelSet.get( i ) );
 					temp.append( OmmLoggerClient.CR ).append( i + 1 ).append( "] " ).append( channelParams );
 					if ( i == ( channelCfgSetLastIndex ) )				
 						_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.TRACE));
@@ -1445,12 +1494,15 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			}
 		}
 
-		WarmStandbyChannelConfig warmStandbyChannelConfig = null;
+		WarmStandbyChannelConfig warmStandbyChannelConfig;
 		ReactorConnectInfo wsbStartingActiveServerReactorConnectInfo = null;
 
 		// Handle active config going to Warm Standby Groups
 		for (int i = 0; i < _rsslReactorConnOptions.reactorWarmStandbyGroupList().size(); ++i)
 		{
+			_warmStandbyChannelInfo = new ChannelInfo("", _rsslReactor, ReactorChannelType.WARM_STANDBY);
+			_warmStandbyChannelInfo.setActiveConfig(activeConfig);
+			
 			warmStandbyChannelConfig = warmStandbyChannelSet.get(i);
 			
 			_warmStandbyChannelInfo = new ChannelInfo(warmStandbyChannelConfig.name, _rsslReactor, ReactorChannelType.WARM_STANDBY);
@@ -1465,7 +1517,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				{
 					wsbStartingActiveServerReactorConnectInfo = channelConfigToReactorConnectInfo(warmStandbyChannelConfig.startingActiveServer.channelConfig, activeConfigChannelSet, null, _warmStandbyChannelInfo);
 					supportedConnectionTypeChannelCount++;
-					channelNames += warmStandbyChannelConfig.startingActiveServer.channelConfig.name;	
+					channelNames.append(warmStandbyChannelConfig.startingActiveServer.channelConfig.name);
 				}
 				else
 				{
@@ -1475,7 +1527,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 						errorStrUnsupportedConnectionType.append( ", " );
 				}
 			
-				if (warmStandbyChannelConfig.startingActiveServer.perServiceNameSet.size() > 0)
+				if (!warmStandbyChannelConfig.startingActiveServer.perServiceNameSet.isEmpty())
 				{
 					_rsslReactorConnOptions.reactorWarmStandbyGroupList().get(i).startingActiveServer().perServiceBasedOptions().serviceNameList(new ArrayList<Buffer>());
 					
@@ -1492,7 +1544,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			}
 			
 			// Handle active config going to StandbyServerSet of this Warm Standby Group
-			if (warmStandbyChannelConfig.standbyServerSet.size() > 0)
+			if (!warmStandbyChannelConfig.standbyServerSet.isEmpty())
 			{
 				for (int j = 0; j < warmStandbyChannelConfig.standbyServerSet.size(); ++j)
 				{
@@ -1500,7 +1552,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				}
 			}
 			
-			ReactorWarmStandbyServerInfo warmStandbyServerInfo = null;
+			ReactorWarmStandbyServerInfo warmStandbyServerInfo;
 			ReactorConnectInfo wsbStandbyChannelReactorConnectInfo = null;
 			
 			// Handle active config going to each Standby Server of this Warm Standby Group
@@ -1516,7 +1568,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					{
 						wsbStandbyChannelReactorConnectInfo = channelConfigToReactorConnectInfo(warmStandbyChannelConfig.standbyServerSet.get(j).channelConfig, activeConfigChannelSet, null, _warmStandbyChannelInfo);
 						supportedConnectionTypeChannelCount++;
-						channelNames += warmStandbyChannelConfig.standbyServerSet.get(j).channelConfig.name;
+						channelNames.append(warmStandbyChannelConfig.standbyServerSet.get(j).channelConfig.name);
 					}
 					else
 					{
@@ -1526,7 +1578,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 							errorStrUnsupportedConnectionType.append( ", " );
 					}
 				
-				if (warmStandbyChannelConfig.standbyServerSet.get(j).perServiceNameSet.size() > 0)
+				if (!warmStandbyChannelConfig.standbyServerSet.get(j).perServiceNameSet.isEmpty())
 				{
 					warmStandbyServerInfo.perServiceBasedOptions().serviceNameList(new ArrayList<Buffer>());
 					
@@ -1544,7 +1596,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			
 			_rsslReactorConnOptions.reactorWarmStandbyGroupList().get(i).warmStandbyMode(warmStandbyChannelConfig.warmStandbyMode);
 		}
-		
+
 		// Check to make sure we have support connections and call connect
 		if( supportedConnectionTypeChannelCount > 0 )
 		{
@@ -1659,7 +1711,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		watchlistOptions.channelOpenCallback(this);
 		watchlistOptions.enableWatchlist(true);
 		watchlistOptions.itemCountHint(_baseImpl.activeConfig().itemCountHint);
-		watchlistOptions.obeyOpenWindow(_baseImpl.activeConfig().obeyOpenWindow > 0 ? true : false);
+		watchlistOptions.obeyOpenWindow(_baseImpl.activeConfig().obeyOpenWindow > 0);
 		watchlistOptions.postAckTimeout(_baseImpl.activeConfig().postAckTimeout);
 		watchlistOptions.requestTimeout(_baseImpl.activeConfig().requestTimeout);
 		watchlistOptions.maxOutstandingPosts(_baseImpl.activeConfig().maxOutstandingPosts);
@@ -1667,7 +1719,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		_rsslReactorRole = consumerRole;
 		
 		
-		if(_baseImpl.activeConfig().configSessionChannelSet.size() > 0)
+		if(!_baseImpl.activeConfig().configSessionChannelSet.isEmpty())
 		{
 			if (_baseImpl.loggerClient().isTraceEnabled())
 			{
@@ -1678,7 +1730,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	        	for(SessionChannelConfig config : _baseImpl.activeConfig().configSessionChannelSet)
 	        	{
 	        		if(--count > 0)
-	        			temp.append(config.name + ", ");
+	        			temp.append(config.name).append(", ");
 					else
 						temp.append(config.name).append(OmmLoggerClient.CR);
 	        	}
@@ -1761,7 +1813,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
             if (channelConfig.httpProxyLocalHostName == null)
             {
             	 String localIPaddress = null;
-                 String localHostName = null;
+                 String localHostName;
             	   try
                    {
                        localIPaddress = InetAddress.getLocalHost().getHostAddress();
@@ -1786,7 +1838,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
         
         if (channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
         {
-			readEncryptedChannelConfig(rsslOptions,((EncryptedChannelConfig) channelConfig).encryptionConfig);
+			readEncryptedChannelConfig(rsslOptions, channelConfig.encryptionConfig);
 		}
         else
         	rsslOptions.tunnelingInfo().tunnelingType("http"); 
@@ -1876,7 +1928,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
             if (channelConfig.httpProxyLocalHostName == null)
             {
             	 String localIPaddress = null;
-                 String localHostName = null;
+                 String localHostName;
             	   try
                    {
                        localIPaddress = InetAddress.getLocalHost().getHostAddress();

@@ -361,7 +361,7 @@
                               <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                             </xs:complexType>
                           </xs:element>
-
+                          
                           <xs:element name="UpdateTypeFilter" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:unsignedLong" use="required" />
@@ -369,6 +369,43 @@
                           </xs:element>
 
                           <xs:element name="NegativeUpdateTypeFilter" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          
+
+                          <xs:element name="EnablePreferredHostOptions" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PHDetectionTimeSchedule" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PHDetectionTimeInterval" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PreferredChannelName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PreferredWSBChannelName" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="PHFallBackWithInWSBGroup" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                             </xs:complexType>

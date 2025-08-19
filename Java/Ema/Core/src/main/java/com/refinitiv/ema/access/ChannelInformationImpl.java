@@ -11,11 +11,9 @@ package com.refinitiv.ema.access;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.ConnectionTypes;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannelInfo;
-import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
-import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
-import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.*;
+
+import java.util.List;
 
 class ChannelInformationImpl implements ChannelInformation
 {
@@ -74,6 +72,7 @@ class ChannelInformationImpl implements ChannelInformation
 		_compressionThreshold = 0;
 		_encryptedConnectionType = -1;
 		_securityProtocol = null;
+		_preferredHostInfo = null;
 		_confChannelName = "";
 		_confSessionChannelName = "";
 	}
@@ -110,8 +109,24 @@ class ChannelInformationImpl implements ChannelInformation
 				_sysRecvBufSize = rci.channelInfo().sysRecvBufSize();
 				_compressionType = rci.channelInfo().compressionType();
 				_compressionThreshold = rci.channelInfo().compressionThreshold();
+			}
+
+			if (rci.channelInfo() == null ||
+				rci.channelInfo().securityProtocol() == null ||
+				rci.channelInfo().securityProtocol().isEmpty())
+			{
+				_securityProtocol = "unavailable";
+			}
+			else {
 				_securityProtocol = rci.channelInfo().securityProtocol();
 			}
+
+			ActiveConfig activeConfig = null;
+			if (reactorChannel.userSpecObj() instanceof ChannelInfo) {
+				ChannelInfo chnlInfo = (ChannelInfo)reactorChannel.userSpecObj();
+				activeConfig = chnlInfo.getActiveConfig();
+			}
+			_preferredHostInfo = convertReactorPreferredHostInfoIntoPreferredHostInfo(rci.preferredHostInfo(), activeConfig);
 		}
 
 		// _hostname will be null for Consumer and NiProvider applications.
@@ -133,24 +148,59 @@ class ChannelInformationImpl implements ChannelInformation
 			_encryptedConnectionType = channel.encryptedConnectionType();
 		}
 		else {
+			_channelState = com.refinitiv.eta.transport.ChannelState.INACTIVE;
 			_connectionType = _protocolType = -1;
 			_majorVersion = _minorVersion = _pingTimeout = 0;
 		}
 	}
-	
-	@Override
+
+	private PreferredHostInfo convertReactorPreferredHostInfoIntoPreferredHostInfo(ReactorPreferredHostInfo reactorPreferredHostInfo,
+                                                                                   ActiveConfig activeConfig) {
+		PreferredHostInfo preferredHostInfo = EmaFactory.createPreferredHostInfo();
+		preferredHostInfo.setPreferredHostEnabled(reactorPreferredHostInfo.isPreferredHostEnabled());
+		preferredHostInfo.setDetectionTimeSchedule(reactorPreferredHostInfo.detectionTimeSchedule());
+		preferredHostInfo.setDetectionTimeInterval(reactorPreferredHostInfo.detectionTimeInterval());
+		preferredHostInfo.setFallBackWithInWSBGroup(reactorPreferredHostInfo.fallBackWithInWSBGroup());
+		preferredHostInfo.setRemainingDetectionTime(reactorPreferredHostInfo.remainingDetectionTime());
+
+        if(activeConfig != null) {
+            preferredHostInfo.setChannelName(getChannelName(reactorPreferredHostInfo.connectionListIndex(), activeConfig.channelConfigSet));
+            preferredHostInfo.setWsbChannelName(getWsbChannelName(reactorPreferredHostInfo.warmStandbyGroupListIndex(), activeConfig.configWarmStandbySet));
+        }
+
+		return preferredHostInfo;
+	}
+
+    private String getWsbChannelName(int warmStandbyGroupListIndex, List<WarmStandbyChannelConfig> configWarmStandbySet) {
+        return (configWarmStandbySet == null || configWarmStandbySet.size() <= warmStandbyGroupListIndex)
+                ? "" : configWarmStandbySet.get(warmStandbyGroupListIndex).name;
+    }
+
+    private String getChannelName(int connectionListIndex, List<ChannelConfig> channelConfigSet) {
+		return (channelConfigSet == null || channelConfigSet.size() <= connectionListIndex)
+				? "" : channelConfigSet.get(connectionListIndex).name;
+    }
+
+    @Override
 	public String toString() {
 		_stringBuilder.setLength(0);
-		
+
 		if(!_confChannelName.isEmpty())
 			_stringBuilder.append("channelName: " + _confChannelName + "\n");
-		
+
 		if(!_confSessionChannelName.isEmpty())
 			_stringBuilder.append("sessionChannelName: " + _confSessionChannelName + "\n");
-		
-		_stringBuilder.append("hostname: " + _hostname + "\n\tIP address: " + _ipAddress + "\n\tport: " + _port
-				+ "\n\tconnected component info: " + _componentInfo + "\n\tchannel state: ");
-		
+
+		_stringBuilder.append("hostname: ")
+						.append(_hostname)
+						.append("\n\tIP address: ")
+						.append(_ipAddress)
+						.append("\n\tport: ")
+						.append(_port)
+						.append("\n\tconnected component info: ")
+						.append(_componentInfo)
+						.append("\n\tchannel state: ");
+
 		switch (_channelState)
 		{
 			case ChannelState.CLOSED:
@@ -173,8 +223,9 @@ class ChannelInformationImpl implements ChannelInformation
 		if(_connectionType == ConnectionType.UNIDENTIFIED)
 			_stringBuilder.append( "\n\tconnection type: unknown" + "\n\tprotocol type: ");
 		else
-			_stringBuilder.append( "\n\tconnection type: " + ConnectionTypes.toString(_connectionType)
-				+ "\n\tprotocol type: ");
+			_stringBuilder.append("\n\tconnection type: ")
+							.append(ConnectionTypes.toString(_connectionType))
+							.append("\n\tprotocol type: ");
 			
 		if (_protocolType == ProtocolType.RWF)
 			_stringBuilder.append("Rssl wire format");
@@ -185,19 +236,30 @@ class ChannelInformationImpl implements ChannelInformation
 		
 		if(_connectionType == ConnectionType.ENCRYPTED)
 		{
-			_stringBuilder.append( "\n\tencrypted connection type: " + ConnectionTypes.toString(_encryptedConnectionType));
+			_stringBuilder.append("\n\tencrypted connection type: ")
+							.append(ConnectionTypes.toString(_encryptedConnectionType));
 		}
 		
-		_stringBuilder.append("\n\tmajor version: " + _majorVersion + "\n\tminor version: " + _minorVersion
-				+ "\n\tping timeout: " + _pingTimeout);
+		_stringBuilder.append("\n\tmajor version: ")
+						.append(_majorVersion)
+						.append("\n\tminor version: ")
+						.append(_minorVersion)
+						.append("\n\tping timeout: ")
+						.append(_pingTimeout);
 		
-		_stringBuilder.append("\n\tmax fragmentation size: " + _maxFragmentSize)
-		.append("\n\tmax output buffers: " + _maxOutputBuffers)
-		.append("\n\tguaranteed output buffers: " + _guaranteedOutputBuffers)
-		.append("\n\tnumber input buffers: " + _numInputBuffers)
-		.append("\n\tsystem send buffer size: " + _sysSendBufSize)
-		.append("\n\tsystem receive buffer size: " + _sysRecvBufSize)
-		.append("\n\tcompression type: ");
+		_stringBuilder.append("\n\tmax fragmentation size: ")
+						.append(_maxFragmentSize)
+						.append("\n\tmax output buffers: ")
+						.append(_maxOutputBuffers)
+						.append("\n\tguaranteed output buffers: ")
+						.append(_guaranteedOutputBuffers)
+						.append("\n\tnumber input buffers: ")
+						.append(_numInputBuffers)
+						.append("\n\tsystem send buffer size: ")
+						.append(_sysSendBufSize)
+						.append("\n\tsystem receive buffer size: ")
+						.append(_sysRecvBufSize)
+						.append("\n\tcompression type: ");
 		switch (_compressionType)
 		{
 			case CompressionType.ZLIB:
@@ -212,9 +274,13 @@ class ChannelInformationImpl implements ChannelInformation
 				break;
 		}
 		
-		_stringBuilder.append("\n\tcompression threshold: " + _compressionThreshold);
+		_stringBuilder.append("\n\tcompression threshold: ").append(_compressionThreshold);
 		
-		_stringBuilder.append("\n\tsecurity protocol: " + _securityProtocol);
+		_stringBuilder.append("\n\tsecurity protocol: ").append(_securityProtocol);
+
+		if (_preferredHostInfo != null && _preferredHostInfo.isPreferredHostEnabled()) {
+			_stringBuilder.append("\n\tpreferred host info: ").append(_preferredHostInfo.toString());
+		}
 		
 		return _stringBuilder.toString();
 	}
@@ -353,9 +419,10 @@ class ChannelInformationImpl implements ChannelInformation
 	private String _securityProtocol;
 	private String _confChannelName;
 	private String _confSessionChannelName;
-	
-	private StringBuilder _stringBuilder = new StringBuilder();
-	
+	private PreferredHostInfo _preferredHostInfo;
+
+	private final StringBuilder _stringBuilder = new StringBuilder();
+
 	@Override
 	public int maxFragmentSize() {
 		return _maxFragmentSize;
@@ -447,17 +514,25 @@ class ChannelInformationImpl implements ChannelInformation
 	}
 	
 	@Override
-	public String securityProtocol()
-	{
+	public String securityProtocol() {
 		return _securityProtocol;
 	}
 	
 	@Override
-	public void securityProtocol(String securityProtocol)
-	{
+	public void securityProtocol(String securityProtocol) {
 		_securityProtocol = securityProtocol;
 	}
-	
+
+	@Override
+	public PreferredHostInfo preferredHostInfo() {
+		return _preferredHostInfo;
+	}
+
+	@Override
+	public void preferredHostInfo(PreferredHostInfo preferredHostInfo) {
+		_preferredHostInfo = preferredHostInfo;
+	}
+
 	void channelName(String channelName)
 	{
 		_confChannelName = channelName;

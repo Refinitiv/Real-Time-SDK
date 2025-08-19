@@ -68,4 +68,9 @@ public final class IOCtlCode
 	 * When compression is on, this value is the smallest size packet that will be compressed.
 	 */
 	public static final int COMPRESSION_THRESHOLD = 9;
+
+	/**
+	 * Used to dynamically change the preferred host options.
+	 */
+	public static final int FALLBACK_PREFERRED_HOST_OPTIONS = 201;
 }

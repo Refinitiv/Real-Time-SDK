@@ -21,6 +21,7 @@ class WorkerEvent extends ReactorEvent
 	ReactorWSBService _warmStandbyService;
 	int _serviceId;
 	int _streamId;
+	boolean _isCanceled;
 
 	WorkerEventTypes eventType()
     {
@@ -103,7 +104,7 @@ class WorkerEvent extends ReactorEvent
         _warmStandbyService = null;
         _streamId = 0;
         _serviceId = 0;
-        
+        _isCanceled = false;
     }
     
     @Override
@@ -113,6 +114,7 @@ class WorkerEvent extends ReactorEvent
         _restClient = null;
         _tokenSession = null;
         _warmStandbyService = null;
+        _isCanceled = false;
     	
     	super.returnToPool();
     }

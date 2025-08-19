@@ -47,6 +47,8 @@ class ChannelInfo
 	long loginReissueTime; // represented by epoch time in milliseconds
 	boolean canSendLoginReissue;
 
+    boolean isChannelClosed;
+
 	ChannelInfo()
     {
     	loginRefresh.rdmMsgType(LoginMsgType.REFRESH);

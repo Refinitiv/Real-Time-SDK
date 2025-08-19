@@ -26,6 +26,7 @@ public class ConsumerProviderSessionOptions {
     private long _openWindow = -1;
     private int numOfGuaranteedBuffers = 50;
     private int _compressionType = CompressionTypes.NONE;
+    private ReactorPreferredHostOptions preferredHostOptions;
     
     private int _wsbMode = ReactorWarmStandbyMode.LOGIN_BASED;
 	
@@ -198,5 +199,15 @@ public class ConsumerProviderSessionOptions {
 
 	public void wsbMode(int wsbMode) {
 		this._wsbMode = wsbMode;
+	}
+	
+	public void preferredHostOptions(ReactorPreferredHostOptions preferredHostOptions)
+	{
+		this.preferredHostOptions = preferredHostOptions;
+	}
+	
+	public ReactorPreferredHostOptions preferredHostOptions()
+	{
+		return preferredHostOptions;
 	}
 }

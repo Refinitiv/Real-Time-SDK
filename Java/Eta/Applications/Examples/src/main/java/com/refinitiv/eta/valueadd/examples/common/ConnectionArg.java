@@ -23,12 +23,15 @@ public class ConnectionArg
 	String hostname; /* hostname of provider to connect to */
 	String port; /* port of provider to connect to */
 
+	List<String> consumerHostnames; /* list of hostnames for consumer to connect to */
+	List<String> consumerPorts; /* list of ports for consumer to connect to */
+
 	/* segmented connection */
 	String sendAddress;	/* multicast address that the provider will be sending data to */
 	String sendPort; /* port on the send multicast address that the provider will be sending data to */
 	String interfaceName; /* interface that the provider will be using.  This is optional */
 	String recvAddress; /* multicast address that the provider will be reading data from */
-	String recvPort; /* port on the receive multicast address that the provider will be reading data from */
+	String recvPort; /* port on the receiving multicast address that the provider will be reading data from */
 	String unicastPort; /* unicast port for unicast data */
 	
 	List<ItemArg> itemList; /* item list for this connection */
@@ -156,7 +159,7 @@ public class ConnectionArg
 	 */
 	public String port()
 	{
-		return port;		
+		return port;
 	}
 	
 	/**
@@ -166,9 +169,49 @@ public class ConnectionArg
 	 */
 	public void port(String port)
 	{
-		this.port = port;		
+		this.port = port;
 	}
 	
+	/**
+	 * Hostnames.
+	 *
+	 * @return list of strings
+	 */
+	public List<String> consumerHostnames()
+	{
+		return consumerHostnames;
+	}
+
+	/**
+	 * Hostnames.
+	 *
+	 * @param hostnames list of hostnames
+	 */
+	public void consumerHostnames(List<String> hostnames)
+	{
+		this.consumerHostnames = hostnames;
+	}
+
+	/**
+	 * Ports.
+	 *
+	 * @return list of strings
+	 */
+	public List<String> consumerPorts()
+	{
+		return consumerPorts;
+	}
+
+	/**
+	 * Ports.
+	 *
+	 * @param ports list of ports
+	 */
+	public void consumerPorts(List<String> ports)
+	{
+		this.consumerPorts = ports;
+	}
+
 	/**
 	 * Send address.
 	 *

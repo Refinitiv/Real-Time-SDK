@@ -10,6 +10,8 @@ package com.refinitiv.eta.valueadd.reactor;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.Msg;
 import com.refinitiv.eta.transport.BindOptions;
@@ -74,11 +76,6 @@ public abstract class TestReactorComponent {
 		_testReactor = testReactor;
 	}
 	
-	ReactorChannel channel()
-	{
-		return _reactorChannel;
-	}
-		
 	protected TestReactorComponent(TestReactor testReactor)
 	{
 
@@ -194,6 +191,63 @@ public abstract class TestReactorComponent {
         _testReactor.registerComponentServer(this);
 	}	
 	
+	public void bind(ConsumerProviderSessionOptions opts, int port)
+	{
+        if (opts.connectionType() != ConnectionTypes.RELIABLE_MCAST)
+        {
+        	BindOptions bindOpts = TransportFactory.createBindOptions();
+            bindOpts.clear();
+            bindOpts.majorVersion(Codec.majorVersion());
+            bindOpts.minorVersion(Codec.minorVersion());
+            bindOpts.pingTimeout(opts.pingTimeout());
+            bindOpts.minPingTimeout(opts.pingTimeout());
+			bindOpts.guaranteedOutputBuffers(opts.getNumOfGuaranteedBuffers());
+			bindOpts.compressionType(opts.compressionType());
+
+            if (opts.getProtocolList() != null)
+            	bindOpts.wSocketOpts().protocols(opts.getProtocolList());
+            /* allow multiple tests to run at the same time, if the port is in use it might mean that
+               another parallel test is using this port, so just try to get another port */
+            while (_server == null)
+            {
+                bindOpts.serviceName(String.valueOf(port));
+                _server = Transport.bind(bindOpts, _errorInfo.error());
+                
+            }
+        }
+        
+        _testReactor.registerComponentServer(this);
+	}	
+	
+	public int bindGetPort(ConsumerProviderSessionOptions opts)
+	{
+        if (opts.connectionType() != ConnectionTypes.RELIABLE_MCAST)
+        {
+        	BindOptions bindOpts = TransportFactory.createBindOptions();
+            bindOpts.clear();
+            bindOpts.majorVersion(Codec.majorVersion());
+            bindOpts.minorVersion(Codec.minorVersion());
+            bindOpts.pingTimeout(opts.pingTimeout());
+            bindOpts.minPingTimeout(opts.pingTimeout());
+			bindOpts.guaranteedOutputBuffers(opts.getNumOfGuaranteedBuffers());
+			bindOpts.compressionType(opts.compressionType());
+
+            if (opts.getProtocolList() != null)
+            	bindOpts.wSocketOpts().protocols(opts.getProtocolList());
+            /* allow multiple tests to run at the same time, if the port is in use it might mean that
+               another parallel test is using this port, so just try to get another port */
+            while (_server == null)
+            {
+                bindOpts.serviceName(String.valueOf(++_portToBind));
+                _server = Transport.bind(bindOpts, _errorInfo.error());
+                
+            }
+        }
+        
+        _testReactor.registerComponentServer(this);
+        return _portToBind;
+	}	
+	
     /** Sends a Msg to the component's channel. */
     int submit(Msg msg, ReactorSubmitOptions submitOptions)
     {
@@ -271,7 +325,8 @@ public abstract class TestReactorComponent {
     /** Closes the component's channel. */
     void closeChannel()
     {
-        if(ReactorChannel.State.CLOSED !=_reactorChannel.state()){
+        if(ReactorChannel.State.CLOSED !=_reactorChannel.state()
+        		&& _reactorChannel.reactor() != null){
             assertEquals(ReactorReturnCodes.SUCCESS, _reactorChannel.close(_errorInfo));
         }
         _reactorChannelIsUp = false;
@@ -289,10 +344,21 @@ public abstract class TestReactorComponent {
 			_server = null;
 		}
 		
+		try {
+			_testReactor._selector.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		if (_reactorChannel != null)
             closeChannel();
 
         _testReactor.removeComponent(this);
         _testReactor = null;
+	}
+	
+	int info(ReactorChannelInfo info)
+	{
+		return _reactorChannel.info(info, _errorInfo);
 	}
 }

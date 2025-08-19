@@ -2872,7 +2872,7 @@ class WlItemHandler implements WlHandler
 	        		}
         		}
         		
-        		// Checks whether there is a channel down for others channel.
+        		// Checks whether there is a channel down for others channel, or other channels provide this service as well.
         		ReactorChannel processChannel;
         		boolean hasChannelDown = false;
         		for (int i = 0; i < wsbHandler.channelList().size(); i++)
@@ -2887,8 +2887,14 @@ class WlItemHandler implements WlHandler
         					break;
         				}
         			}
-        		}
 
+        			if (processChannel.watchlist().directoryHandler()._serviceCache._servicesByIdTable.get(wlService.tableKey()) != null)
+    				{
+        				hasService = true;
+        				break;
+    				}
+        		}
+        		
         		if(!hasChannelDown && hasService == false)
         		{
         			forceClose = true;

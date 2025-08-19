@@ -189,6 +189,7 @@ class ReactorWSBService extends VaNode
 	int serviceAction;				// Map entry action for this service state, again to be fanned out to the user.
 	Buffer serviceName;				// Name of the service.
 	int standbyListIndex;	
+	boolean preferredHostSwitched;
 	
 	ReactorWSBService()
 	{

@@ -10,15 +10,16 @@ package com.refinitiv.eta.valueadd.examples.wsbconsumer;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.refinitiv.eta.codec.AckMsg;
-import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CloseMsg;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
@@ -30,6 +31,7 @@ import com.refinitiv.eta.codec.MsgClasses;
 import com.refinitiv.eta.codec.RefreshMsg;
 import com.refinitiv.eta.codec.RequestMsg;
 import com.refinitiv.eta.codec.StatusMsg;
+import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.codec.UpdateMsg;
 import com.refinitiv.eta.shared.CommandLine;
 import com.refinitiv.eta.rdm.Dictionary;
@@ -60,8 +62,9 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <H2>Summary</H2>
  * <p>
  * This is the main file for the wsbConsumer application.  It is a single-threaded
- * client application that utilizes the ETA Reactor's watchlist and the ETA Reactor's 
- * Warm Standby functionality to provide recovery of data.
+ * client application that utilizes the ETA Reactor's watchlist, the ETA Reactor's
+ * Warm Standby and fallback to preferred host functionality to provide recovery
+ * of data.
  *
  * The main consumer file provides the callback for channel events and 
  * the default callback for processing RsslMsgs. The main function
@@ -69,6 +72,9 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * dispatches for events.
  * This application makes use of the RDM package for easier decoding of Login &amp; Source Directory
  * messages.
+ * The fallback to preferred host performs full connection recovery to establish
+ * a new connection, handle admin domains (login, source directory, dictionary),
+ * re-request market data items when the watchlist is enabled.
  * </p>
  * <p>
  * This application supports consuming Level I Market Price, Level II Market By Price, and 
@@ -85,11 +91,13 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * </p>
  * <H2>Json Configuration file format</H2>
  * <p>
- * The Json format is 2 named arrays.  Please note that these are all case sensitive:
+ * The Json format is 2 named arrays and preferred host options object.
+ * Please note that these are all case sensitive:
  * </p>
  * <ul>
  * <li>WSBGroups : Array of warm standby groups consisting of an active server and standby servers.
  * <li>ConnectionList : Ordered list of connections. 
+ * <li>PreferredHost : Preferred host options.
  * </ul>
  * <p>
  * WSBGroups values:
@@ -123,11 +131,29 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * </li>
  * </ul>
  * <p>
+ * PreferredHost options:
+ * </p>
+ * <ul>
+ * <li>	enablePH : boolean value, used to enable or disable the preferred host feature.
+ * <li> connectListIndex : numeric value, specifies an index in ReactorConnectOptions.connectionList to set as preferred host.
+ * <li>	warmstandbyGroupListIndex : numeric value, specifies an index in ReactorConnectOptions.reactorWarmStandbyGroupList to set as preferred WSB group.
+ * <li>	detectionTimeInterval : numeric value, specifies time interval in second unit to switch over to a preferred host or WSB group. 0 indicates that the detection time interval is disabled. If detectionTimeSchedule is specified this parameter is ignored.
+ * <li>	detectionTimeSchedule : string specifies Cron time format to switch over to a preferred host or WSB group. detectionTimeInterval is used instead if this member is set to empty.
+ * <li>	fallBackWithinWSBGroup : boolean value, specifies whether to fallback within a WSB group instead of moving into a preferred WSB group.
+ * </ul>
+ * <p>
  * Example config:
  * </p>
  * <p>
  * {
- *
+ * 	"PreferredHost" : {
+ * 		"enablePH" : "true",
+ * 		"connectListIndex" : "1",
+ * 		"warmstandbyGroupListIndex" : "1",
+ * 		"detectionTimeInterval" : "15",
+ * 		"detectionTimeSchedule" : "* * ? * *",
+ * 		"fallBackWithinWSBGroup" : "false"
+ * 	    },
  *	"WSBGroups" : [
  *		{
  *			"WSBMode" : "login",
@@ -212,47 +238,72 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <li>-restProxyDomain rest proxy domain.
  * <li>-restProxyKrb5ConfigFile rest proxy Krb5 file.
  * <li>
+ * <li>Reconnection options:
+ * <ul>
+ * <li>-reconnectAttemptLimit Specifies the maximum number of reconnection attempts.
+ * <li>-reconnectMinDelay Specifies minimum delay (in milliseconds) between reconnection attempts.
+ * <li>-reconnectMaxDelay Specifies maximum delay (in milliseconds) between reconnection attempts.
+ * </ul>
+ * </li>
+ * <li>Options for IOCtl and Fallback calls:
+ * <ul>
+ *  <li>-fallBackInterval specifies time interval (in second) in application before Ad Hoc Fallback function is invoked. O indicates that function won't be invoked.
+ *  <li>-ioctlInterval specifies time interval (in second) before IOCtl function is invoked. O indicates that function won't be invoked.
+ *  <li>-ioctlEnablePH enables Preferred host feature.
+ *  <li>-ioctlConnectListIndex specifies the preferred host as the index in the connection list.
+ *  <li>-ioctlDetectionTimeInterval specifies time interval (in second) to switch over to a preferred host. 0 indicates that the detection time interval is disabled.
+ *  <li>-ioctlDetectionTimeSchedule specifies Cron time format to switch over to a preferred host.
+ *  <li>-ioctlWarmstandbyGroupListIndex specifies the preferred WSB group as the index in the WarmStandbyGroup list.
+ *  <li>-ioctlFallBackWithinWSBGroup specifies whether to fallback within a WSB group instead of moving into a preferred WSB group.
+ * </ul>
+ * </li>
  * </ul>
  */
 public class wsbConsumer implements ConsumerCallback,
-		ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback
+		ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback, ReactorOAuthCredentialEventCallback
 {
-	private final String FIELD_DICTIONARY_DOWNLOAD_NAME = "RWFFld";
-	private final String ENUM_TABLE_DOWNLOAD_NAME = "RWFEnum";
+	private static final String FIELD_DICTIONARY_DOWNLOAD_NAME = "RWFFld";
+	private static final String ENUM_TABLE_DOWNLOAD_NAME = "RWFEnum";
 
 	private Reactor reactor;
-	private ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
-	private ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
-	private ReactorDispatchOptions dispatchOptions = ReactorFactory.createReactorDispatchOptions();
-	private ReactorJsonConverterOptions jsonConverterOptions = ReactorFactory.createReactorJsonConverterOptions();
+	private final ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+	private final ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
+	private final ReactorDispatchOptions dispatchOptions = ReactorFactory.createReactorDispatchOptions();
+	private final ReactorJsonConverterOptions jsonConverterOptions = ReactorFactory.createReactorJsonConverterOptions();
 	private wsbConsumerConfig watchlistConsumerConfig;
 	private Selector selector;
 
 	private long runtime;
-	private Error error;    // error information
+	private final Error error;    // error information
 
-	private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+	private final ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
 	ReactorOAuthCredential reactorOAuthCredential = ReactorFactory.createReactorOAuthCredential();
 
-	long cacheTime;
-	long cacheInterval;
-	StringBuilder cacheDisplayStr;
-	Buffer cacheEntryBuffer;
+	private final DateTimeFormatter formatter;
+	private static final String TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
 	boolean _finalStatusEvent;
-	private long closetime;
+	private final long closetime;
 	private long closeRunTime;
 	boolean closeHandled;
 
-	private int FIELD_DICTIONARY_STREAM_ID = 3;
-	private int ENUM_DICTIONARY_STREAM_ID = 4;
+	private long ioctlTime;
+	private long ioctlInterval;
+	private long fallbackTime;
+	private long fallbackInterval;
+
+	private boolean isIOCtlCalled;
+	private boolean isFallbackCalled;
+
+	private static final int FIELD_DICTIONARY_STREAM_ID = 3;
+	private static final int ENUM_DICTIONARY_STREAM_ID = 4;
 
 	ItemDecoder itemDecoder;
 	boolean itemsRequested = false;
 	
 	ChannelInfo chnlInfo = new ChannelInfo();
 	
-	private HashMap<String, Service> serviceMap = new HashMap<String, Service>();
+	private final HashMap<String, Service> serviceMap = new HashMap<>();
 
 	public static final int MAX_MSG_SIZE = 1024;
 
@@ -261,11 +312,14 @@ public class wsbConsumer implements ConsumerCallback,
 	boolean fieldDictionaryLoaded;
 	boolean enumDictionaryLoaded;
 
-	private CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
-	private ItemRequest itemRequest;
-	Buffer payload;
+	private final CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
+	private final ItemRequest itemRequest;
 
-	private Map<ReactorChannel, Integer> socketFdValueMap = new HashMap<>();
+	private final Map<ReactorChannel, Integer> socketFdValueMap = new HashMap<>();
+
+	private StringBuilder stringBuilder;
+	private final ReactorChannelInfo reactorChannelInfo = ReactorFactory.createReactorChannelInfo();
+	private final ReactorErrorInfo reactorErrorInfo = ReactorFactory.createReactorErrorInfo();
 
 	public wsbConsumer()
 	{
@@ -275,6 +329,8 @@ public class wsbConsumer implements ConsumerCallback,
 		_finalStatusEvent = true;
 
 		closetime = 10; // 10 sec
+
+		formatter = DateTimeFormatter.ofPattern(TIMESTAMP_FORMAT);
 
 		itemDecoder = new ItemDecoder();
 
@@ -312,7 +368,7 @@ public class wsbConsumer implements ConsumerCallback,
 		System.out.println(Codec.queryVersion().toString());
 		System.out.println("WatchlistConsumer initializing...");
 
-		runtime = System.currentTimeMillis() + watchlistConsumerConfig.runtime() * 1000;
+		runtime = System.currentTimeMillis() + watchlistConsumerConfig.runtime() * 1000L;
 		closeRunTime = System.currentTimeMillis() + (watchlistConsumerConfig.runtime() + closetime) * 1000;
 
 		// enable Reactor XML tracing if specified
@@ -326,6 +382,7 @@ public class wsbConsumer implements ConsumerCallback,
 		{
 			reactorOptions.tokenServiceURL_V1().data(watchlistConsumerConfig.tokenUrlV1());
 		}
+		reactorOptions.debuggerOptions().enableLevel(ReactorDebuggerLevels.LEVEL_CONNECTION);
 		
 		if (watchlistConsumerConfig.tokenUrlV2() != null && !watchlistConsumerConfig.tokenUrlV2().isEmpty())
 		{
@@ -341,37 +398,37 @@ public class wsbConsumer implements ConsumerCallback,
 		{
 			reactorOptions.restProxyOptions().proxyHostName().data(watchlistConsumerConfig.restProxyHost());
 		}
-		
+
 		if (watchlistConsumerConfig.restProxyPort() != null && !watchlistConsumerConfig.restProxyPort().isEmpty())
 		{
 			reactorOptions.restProxyOptions().proxyPort().data(watchlistConsumerConfig.restProxyPort());
 		}
-		
+
 		if (watchlistConsumerConfig.restProxyUserName() != null && !watchlistConsumerConfig.restProxyUserName().isEmpty())
 		{
 			reactorOptions.restProxyOptions().proxyUserName().data(watchlistConsumerConfig.restProxyUserName());
 		}
-		
+
 		if (watchlistConsumerConfig.restProxyPasswd() != null && !watchlistConsumerConfig.restProxyPasswd().isEmpty())
 		{
 			reactorOptions.restProxyOptions().proxyPassword().data(watchlistConsumerConfig.restProxyPasswd());
 		}
-		
+
 		if (watchlistConsumerConfig.restProxyDomain() != null && !watchlistConsumerConfig.restProxyDomain().isEmpty())
 		{
 			reactorOptions.restProxyOptions().proxyDomain().data(watchlistConsumerConfig.restProxyDomain());
 		}
-		
+
 		if (watchlistConsumerConfig.restProxyKrb5ConfigFile() != null && !watchlistConsumerConfig.restProxyKrb5ConfigFile().isEmpty())
 		{
 			reactorOptions.restProxyOptions().proxyKrb5ConfigFile().data(watchlistConsumerConfig.restProxyKrb5ConfigFile());
 		}
-		
+
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
 		{
-			System.out.println("createReactor() failed: " + errorInfo.toString());
+			System.out.println("createReactor() failed: " + errorInfo);
 			System.exit(ReactorReturnCodes.FAILURE);
 		}
 
@@ -382,7 +439,7 @@ public class wsbConsumer implements ConsumerCallback,
 		// Initialize the JSON converter
 		if ( reactor.initJsonConverter(jsonConverterOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
 		{
-			System.out.println("Reactor.initJsonConverter() failed: " + errorInfo.toString());
+			System.out.println("Reactor.initJsonConverter() failed: " + errorInfo);
 			System.exit(ReactorReturnCodes.FAILURE);
 		}
 
@@ -412,6 +469,8 @@ public class wsbConsumer implements ConsumerCallback,
 			System.exit(ReactorReturnCodes.FAILURE);
 		}
 
+		ioctlInterval = watchlistConsumerConfig.ioctlInterval();
+		fallbackInterval = watchlistConsumerConfig.fallBackInterval();
 	}
 
 	protected ItemRequest createItemRequest()
@@ -440,6 +499,29 @@ public class wsbConsumer implements ConsumerCallback,
 				System.exit(ReactorReturnCodes.FAILURE);
 			}
 
+			long currentTime = System.currentTimeMillis();
+			if (isModifyIOCtlReady(currentTime))
+			{
+				ReactorChannel rc = chnlInfo.reactorChannel;
+				if (isPreferredHostOptionsChanged()) {
+					if (rc != null) {
+						modifyIOCtl(rc);
+					}
+				}
+
+				isIOCtlCalled = true;
+			}
+
+			if (isFallbackPreferredHostReady(currentTime))
+			{
+				ReactorChannel rc = chnlInfo.reactorChannel;
+				if (rc != null) {
+					fallbackPreferredHost(rc);
+				}
+
+				isFallbackCalled = true;
+			}
+
 			// nothing to read
 			if (keySet != null)
 			{
@@ -462,6 +544,105 @@ public class wsbConsumer implements ConsumerCallback,
 				System.out.println("Consumer closetime expired, shutdown reactor.");
 				break;
 			}
+
+			if(chnlInfo.isChannelClosed) {
+				break;
+			}
+		}
+	}
+
+	private boolean isFallbackPreferredHostReady(long currentTime) {
+		return fallbackInterval > 0 && fallbackTime > 0 && currentTime >= fallbackTime && !isFallbackCalled;
+	}
+
+	private boolean isModifyIOCtlReady(long currentTime) {
+		return ioctlInterval > 0 && ioctlTime > 0 && currentTime >= ioctlTime && !isIOCtlCalled;
+	}
+
+	private boolean isPreferredHostOptionsChanged() {
+		ReactorPreferredHostOptions rphOptions = watchlistConsumerConfig.preferredHostOpts();
+		boolean isChanged = false;
+		if (watchlistConsumerConfig.hasIoctlEnablePH()) {
+			if (watchlistConsumerConfig.ioctlEnablePH() != rphOptions.isPreferredHostEnabled()) {
+				isChanged = true;
+			}
+		}
+
+		if (watchlistConsumerConfig.hasIoctlConnectListIndex()) {
+			if (watchlistConsumerConfig.ioctlConnectListIndex() != rphOptions.connectionListIndex()) {
+				isChanged = true;
+			}
+		}
+
+		if (watchlistConsumerConfig.hasIoctlDetectionTimeInterval()) {
+			if (watchlistConsumerConfig.ioctlDetectionTimeInterval() != rphOptions.detectionTimeInterval()) {
+				isChanged = true;
+			}
+		}
+
+		if (watchlistConsumerConfig.hasIoctlDetectionTimeSchedule()) {
+			if (!watchlistConsumerConfig.ioctlDetectionTimeSchedule().trim().equals(rphOptions.detectionTimeSchedule().trim())) {
+				isChanged = true;
+			}
+		}
+
+		if (watchlistConsumerConfig.hasIoctlWarmstandbyGroupListIndex()) {
+			if (watchlistConsumerConfig.ioctlWarmstandbyGroupListIndex() != rphOptions.warmStandbyGroupListIndex()) {
+				isChanged = true;
+			}
+		}
+
+		if (watchlistConsumerConfig.hasIoctlFallBackWithinWSBGroup()) {
+			if (watchlistConsumerConfig.ioctlFallBackWithinWSBGroup() != rphOptions.fallBackWithInWSBGroup()) {
+				isChanged = true;
+			}
+		}
+
+		return isChanged;
+	}
+
+	private void modifyIOCtl(ReactorChannel reactorChannel) {
+		ReactorPreferredHostOptions ioctlPreferredHostOptions = ReactorFactory.createReactorPreferredHostOptions();
+		ReactorPreferredHostOptions jsonPreferredHostOptions = watchlistConsumerConfig.preferredHostOpts();
+
+		boolean ioctlEnablePH = watchlistConsumerConfig.hasIoctlEnablePH() ?
+				watchlistConsumerConfig.ioctlEnablePH() : jsonPreferredHostOptions.isPreferredHostEnabled();
+		ioctlPreferredHostOptions.isPreferredHostEnabled(ioctlEnablePH);
+
+		int ioctlConnectListIndex = watchlistConsumerConfig.hasIoctlConnectListIndex() ?
+				watchlistConsumerConfig.ioctlConnectListIndex() : jsonPreferredHostOptions.connectionListIndex();
+		ioctlPreferredHostOptions.connectionListIndex(ioctlConnectListIndex);
+
+		long ioctlDetectionTimeInterval = watchlistConsumerConfig.hasIoctlDetectionTimeInterval() ?
+				watchlistConsumerConfig.ioctlDetectionTimeInterval() : jsonPreferredHostOptions.detectionTimeInterval();
+		ioctlPreferredHostOptions.detectionTimeInterval(ioctlDetectionTimeInterval);
+
+		String ioctlDetectionTimeSchedule = watchlistConsumerConfig.hasIoctlDetectionTimeSchedule() ?
+				watchlistConsumerConfig.ioctlDetectionTimeSchedule().trim() : jsonPreferredHostOptions.detectionTimeSchedule();
+		ioctlPreferredHostOptions.detectionTimeSchedule(ioctlDetectionTimeSchedule);
+
+		int ioctlWarmStandbyGroupListIndex = watchlistConsumerConfig.hasIoctlWarmstandbyGroupListIndex() ?
+				watchlistConsumerConfig.ioctlWarmstandbyGroupListIndex() : jsonPreferredHostOptions.warmStandbyGroupListIndex();
+		ioctlPreferredHostOptions.warmStandbyGroupListIndex(ioctlWarmStandbyGroupListIndex);
+
+		boolean ioctlFallBackWithinWSBGroup = watchlistConsumerConfig.hasIoctlFallBackWithinWSBGroup() ?
+				watchlistConsumerConfig.ioctlFallBackWithinWSBGroup() : jsonPreferredHostOptions.fallBackWithInWSBGroup();
+		ioctlPreferredHostOptions.fallBackWithInWSBGroup(ioctlFallBackWithinWSBGroup);
+
+		if (reactorChannel.ioctl(ReactorChannelIOCtlCode.FALLBACK_PREFERRED_HOST_OPTIONS, ioctlPreferredHostOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
+		{
+			System.out.println("channel.ioctl() was failed: " + errorInfo.error().text());
+		} else {
+			System.out.println("channel.ioctl() was successful");
+		}
+	}
+
+	private void fallbackPreferredHost(ReactorChannel reactorChannel) {
+		if (reactorChannel.fallbackPreferredHost(errorInfo) != ReactorReturnCodes.SUCCESS)
+		{
+			System.out.println("channel.fallbackPreferredHost() was failed: " + errorInfo.error().text());
+		} else {
+			System.out.println("channel.fallbackPreferredHost() was successful");
 		}
 	}
 
@@ -475,7 +656,7 @@ public class wsbConsumer implements ConsumerCallback,
 
 		for(int itemListIndex = 0; itemListIndex < watchlistConsumerConfig.itemList().size(); ++itemListIndex)
 		{
-			int ret = CodecReturnCodes.SUCCESS;
+			int ret;
 
 			itemRequest.clear();
 
@@ -538,35 +719,42 @@ public class wsbConsumer implements ConsumerCallback,
 
 	}
 
+	private void dumpTimestamp()
+	{
+		System.out.println("<!-- " + LocalDateTime.now(ZoneOffset.UTC).format(formatter) + " (UTC) -->");
+	}
+
 	@Override
 	public int reactorChannelEventCallback(ReactorChannelEvent event)
 	{
-		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
+		ReactorChannel reactorChannel = event.reactorChannel();
+		ChannelInfo chnlInfo = (ChannelInfo) reactorChannel.userSpecObj();
 
+		dumpTimestamp();
 		switch(event.eventType())
 		{
 			case ReactorChannelEventTypes.CHANNEL_UP:
 			{
-				if (event.reactorChannel().selectableChannel() != null)
-					System.out.println("Channel Up Event: " + event.reactorChannel().selectableChannel());
+				if (reactorChannel.selectableChannel() != null)
+					System.out.println("Channel Up Event: " + reactorChannel.selectableChannel());
 				else
 					System.out.println("Channel Up Event");
 				// register selector with channel event's reactorChannel
 
-				if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+				if(reactorChannel.reactorChannelType() == ReactorChannelType.WARM_STANDBY)
 				{
 					/* Add all the current selectable channels */
-					for(int i = 0; i < event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().size(); i++)
+					for(int i = 0; i < reactorChannel.warmStandbyChannelInfo().selectableChannelList().size(); i++)
 					{
 						// define socket fd value
 						final int fdSocketId =
-								ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i));
-						socketFdValueMap.put(event.reactorChannel(), fdSocketId);
+								ChannelHelper.defineFdValueOfSelectableChannel(reactorChannel.warmStandbyChannelInfo().selectableChannelList().get(i));
+						socketFdValueMap.put(reactorChannel, fdSocketId);
 						try
 						{
-							event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i).register(selector,
+							reactorChannel.warmStandbyChannelInfo().selectableChannelList().get(i).register(selector,
 									SelectionKey.OP_READ,
-									event.reactorChannel());
+									reactorChannel);
 						}
 						catch (ClosedChannelException e)
 						{
@@ -579,61 +767,55 @@ public class wsbConsumer implements ConsumerCallback,
 				{
 					// define socket fd value
 					final int fdSocketId =
-							ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().channel().selectableChannel());
-					socketFdValueMap.put(event.reactorChannel(), fdSocketId);
+							ChannelHelper.defineFdValueOfSelectableChannel(reactorChannel.channel().selectableChannel());
+					socketFdValueMap.put(reactorChannel, fdSocketId);
 					try
 					{
-						event.reactorChannel().selectableChannel().register(selector,
+						reactorChannel.selectableChannel().register(selector,
 								SelectionKey.OP_READ,
-								event.reactorChannel());
+								reactorChannel);
 					}
 					catch (ClosedChannelException e)
 					{
 						System.out.println("selector register failed: " + e.getLocalizedMessage());
 						return ReactorCallbackReturnCodes.SUCCESS;
 					}
-				}	
+				}
+
+				// Initialize timers for ioctl and fallback calls
+				if(ioctlTime == 0)
+					ioctlTime = System.currentTimeMillis() + ioctlInterval*1000;
+				if(fallbackTime == 0)
+					fallbackTime = System.currentTimeMillis() + fallbackInterval*1000;
 
 				break;
 			}
 			case ReactorChannelEventTypes.FD_CHANGE:
 			{
 				System.out.println("Channel Change - Old Channel: "
-								   + event.reactorChannel().oldSelectableChannel() + " New Channel: "
-								   + event.reactorChannel().selectableChannel());
+								   + reactorChannel.oldSelectableChannel() + " New Channel: "
+								   + reactorChannel.selectableChannel());
 				
-				if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+				if(reactorChannel.reactorChannelType() == ReactorChannelType.WARM_STANDBY)
 				{
 					/* Remove all the old keys from the selectable key list */
-					SelectableChannel oldSelectChannel;
-					/* Remove all the old keys from the selectable key list */
-					for(int i = 0; i < event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().size(); i++)
-					{
-						oldSelectChannel = event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().get(i);
-						if(!event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(oldSelectChannel))
-						{
-							SelectionKey key = oldSelectChannel.keyFor(selector);
-							System.out.println("Removing socket from list" + oldSelectChannel);
-							if (key != null)
-								key.cancel();
-						}
-					}
-					
+					removeOldSelectableKeys(reactorChannel);
+
 					/* Add all the current selectable channels */
-					for(int i = 0; i < event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().size(); i++)
+					for(int i = 0; i < reactorChannel.warmStandbyChannelInfo().selectableChannelList().size(); i++)
 					{
 						// define socket fd value
 						final int fdSocketId =
-								ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i));
-						socketFdValueMap.put(event.reactorChannel(), fdSocketId);
+								ChannelHelper.defineFdValueOfSelectableChannel(reactorChannel.warmStandbyChannelInfo().selectableChannelList().get(i));
+						socketFdValueMap.put(reactorChannel, fdSocketId);
 						try
 						{
-							if(event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i).keyFor(selector) == null)
+							if(reactorChannel.warmStandbyChannelInfo().selectableChannelList().get(i).keyFor(selector) == null)
 							{
-								System.out.println("Adding socket to list" + event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i));
-								event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i).register(selector,
+								System.out.println("Adding socket to list" + reactorChannel.warmStandbyChannelInfo().selectableChannelList().get(i));
+								reactorChannel.warmStandbyChannelInfo().selectableChannelList().get(i).register(selector,
 										SelectionKey.OP_READ,
-										event.reactorChannel());
+										reactorChannel);
 							}
 						}
 						catch (Exception e)
@@ -647,21 +829,21 @@ public class wsbConsumer implements ConsumerCallback,
 				{
 
 					// cancel old reactorChannel select
-					SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(selector);
+					SelectionKey key = reactorChannel.oldSelectableChannel().keyFor(selector);
 					if (key != null)
 						key.cancel();
 	
 					// define new socket fd value
 					final int fdSocketId =
-							ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().channel().selectableChannel());
-					socketFdValueMap.put(event.reactorChannel(), fdSocketId);
+							ChannelHelper.defineFdValueOfSelectableChannel(reactorChannel.channel().selectableChannel());
+					socketFdValueMap.put(reactorChannel, fdSocketId);
 	
 					// register selector with channel event's new reactorChannel
 					try
 					{
-						event.reactorChannel().selectableChannel().register(selector,
+						reactorChannel.selectableChannel().register(selector,
 								SelectionKey.OP_READ,
-								event.reactorChannel());
+								reactorChannel);
 					}
 					catch (Exception e)
 					{
@@ -673,68 +855,57 @@ public class wsbConsumer implements ConsumerCallback,
 			}
 			case ReactorChannelEventTypes.CHANNEL_READY:
 			{
-				if (event.reactorChannel().selectableChannel() != null)
-					System.out.println("Channel Ready Event: " + event.reactorChannel().selectableChannel());
+				if (reactorChannel.selectableChannel() != null)
+					System.out.println("Channel Ready Event: " + reactorChannel.selectableChannel());
 				else
 					System.out.println("Channel Ready Event");
 
-				break;
+				if (reactorChannel.info(reactorChannelInfo, reactorErrorInfo) == ReactorReturnCodes.SUCCESS)
+				{
+					printPreferredHostInfo(reactorChannelInfo.preferredHostInfo());
+				}
 
+				break;
 			}
 			case ReactorChannelEventTypes.CHANNEL_OPENED:
 			{
 				// set ReactorChannel on ChannelInfo, again need this?
-				chnlInfo.reactorChannel = event.reactorChannel();
+				chnlInfo.reactorChannel = reactorChannel;
 
 				if (fieldDictionaryLoaded && enumDictionaryLoaded
 					|| itemDecoder.fieldDictionaryLoadedFromFile && itemDecoder.enumTypeDictionaryLoadedFromFile)
-					requestItems(reactor, event.reactorChannel());
+					requestItems(reactor, reactorChannel);
 				else
-					requestDictionaries(event.reactorChannel(), chnlInfo);
+					requestDictionaries(reactorChannel, chnlInfo);
 
 				break;
 			}
 			case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
 			{
-				if (event.reactorChannel().selectableChannel() != null)
-					System.out.println("\nConnection down reconnecting: Channel " + event.reactorChannel().selectableChannel());
+				if (reactorChannel.selectableChannel() != null)
+					System.out.println("\nConnection down reconnecting: Channel " + reactorChannel.selectableChannel()
+							+ " Host: " + reactorChannel.hostname() + ":" + reactorChannel.port());
 				else
 					System.out.println("\nConnection down reconnecting");
 
 				if (event.errorInfo() != null && event.errorInfo().error().text() != null)
 					System.out.println("	Error text: " + event.errorInfo().error().text() + "\n");
-				
+
+				if (reactorChannel.info(reactorChannelInfo, reactorErrorInfo) == ReactorReturnCodes.SUCCESS)
+				{
+					printPreferredHostInfo(reactorChannelInfo.preferredHostInfo());
+				}
+
 				// unregister selectableChannel from Selector
-				if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
-				{
-					/* Remove all the old keys from the selectable key list */
-					event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().forEach((oldSelectChannel) -> {
-						// cancel old reactorChannel select if it's not in the current list
-						if(!event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(oldSelectChannel))
-						{
-							SelectionKey key = oldSelectChannel.keyFor(selector);
-							if (key != null)
-								key.cancel();
-						}
-					});
-				}
-				else
-				{
-					if (event.reactorChannel().selectableChannel() != null)
-					{
-						SelectionKey key = event.reactorChannel().selectableChannel().keyFor(selector);
-						if (key != null)
-							key.cancel();
-					}
-				}
+				unregisterSelectableChannel(reactorChannel, false);
 
 				itemsRequested = false;
 				break;
 			}
 			case ReactorChannelEventTypes.CHANNEL_DOWN:
 			{
-				if (event.reactorChannel().selectableChannel() != null)
-					System.out.println("\nConnection down: Channel " + event.reactorChannel().selectableChannel());
+				if (reactorChannel.selectableChannel() != null)
+					System.out.println("\nConnection down: Channel " + reactorChannel.selectableChannel());
 				else
 					System.out.println("\nConnection down");
 
@@ -742,40 +913,38 @@ public class wsbConsumer implements ConsumerCallback,
 					System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
 
 				// unregister selectableChannel from Selector
-				if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
-				{
-					/* Remove all the old keys from the selectable key list */
-					event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().forEach((oldSelectChannel) -> {
-						// cancel old reactorChannel select if it's not in the current list
-						if(!event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(oldSelectChannel))
-						{
-							SelectionKey key = oldSelectChannel.keyFor(selector);
-							if (key != null)
-								key.cancel();
-						}
-					});
-				}
-				else
-				{
-					if (event.reactorChannel().selectableChannel() != null)
-					{
-						SelectionKey key = event.reactorChannel().selectableChannel().keyFor(selector);
-						if (key != null)
-							key.cancel();
-					}
-				}
+				unregisterSelectableChannel(reactorChannel, true);
 
 				// close ReactorChannel
-				if (chnlInfo.reactorChannel != null)
-				{
-					chnlInfo.reactorChannel.close(errorInfo);
-				}
+				closeReactorChannel(chnlInfo);
 				break;
 			}
 			case ReactorChannelEventTypes.WARNING:
 				System.out.println("Received ReactorChannel WARNING event.");
 				if (event.errorInfo() != null && event.errorInfo().error().text() != null)
 					System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
+
+				break;
+			case ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE:
+				System.out.println("Received ReactorChannel PREFERRED_HOST_COMPLETE event.");
+				if (event.errorInfo() != null && event.errorInfo().error().text() != null)
+					System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
+
+				if (reactorChannel.info(reactorChannelInfo, reactorErrorInfo) == ReactorReturnCodes.SUCCESS)
+				{
+					printPreferredHostInfo(reactorChannelInfo.preferredHostInfo());
+				}
+
+				break;
+			case ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK:
+				System.out.println("Received ReactorChannel PREFERRED_HOST_START_CALLBACK event.");
+				if (event.errorInfo() != null && event.errorInfo().error().text() != null)
+					System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
+
+				if (reactorChannel.info(reactorChannelInfo, reactorErrorInfo) == ReactorReturnCodes.SUCCESS)
+				{
+					printPreferredHostInfo(reactorChannelInfo.preferredHostInfo());
+				}
 
 				break;
 			default:
@@ -788,11 +957,85 @@ public class wsbConsumer implements ConsumerCallback,
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
+	private void closeReactorChannel(ChannelInfo chnlInfo) {
+		if (chnlInfo.isChannelClosed) return;
+
+		if (chnlInfo.reactorChannel != null)
+		{
+			chnlInfo.reactorChannel.close(errorInfo);
+		}
+		chnlInfo.isChannelClosed = true;
+	}
+
+	private void removeOldSelectableKeys(ReactorChannel reactorChannel) {
+		reactorChannel.warmStandbyChannelInfo().oldSelectableChannelList().forEach(oldSelectChannel -> {
+			// cancel old reactorChannel select if it's not in the current list
+			if (!reactorChannel.warmStandbyChannelInfo().selectableChannelList().contains(oldSelectChannel))
+			{
+				System.out.println("Removing socket from list" + oldSelectChannel);
+				SelectionKey key = oldSelectChannel.keyFor(selector);
+				if (key != null)
+					key.cancel();
+			}
+		});
+	}
+
+	private void removeAllSelectableKeys(ReactorChannel reactorChannel) {
+		removeOldSelectableKeys(reactorChannel);
+
+		reactorChannel.warmStandbyChannelInfo().selectableChannelList().forEach(selectableChannel -> {
+			SelectionKey key = selectableChannel.keyFor(selector);
+			if (key != null)
+				key.cancel();
+		});
+	}
+
+	private void unregisterSelectableChannel(ReactorChannel reactorChannel, boolean deleteAllKeys) {
+		if (reactorChannel.reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+		{
+			if (deleteAllKeys)
+			{
+				removeAllSelectableKeys(reactorChannel);
+			} else
+			{
+				removeOldSelectableKeys(reactorChannel);
+			}
+		}
+		else
+		{
+			removeSelectableKey(reactorChannel);
+		}
+	}
+
+	private void printPreferredHostInfo(ReactorPreferredHostInfo reactorPreferredHostInfo) {
+		if (!reactorPreferredHostInfo.isPreferredHostEnabled()) {
+			return;
+		}
+
+		if (stringBuilder == null ) {
+			stringBuilder = new StringBuilder(256);
+		} else {
+			stringBuilder.setLength(0);
+		}
+
+		stringBuilder.append("\nPreferredHostInfo:");
+		stringBuilder.append("\n\tPreferredHostEnabled=").append(reactorPreferredHostInfo.isPreferredHostEnabled());
+		stringBuilder.append("\n\tDetectionTimeSchedule='").append(reactorPreferredHostInfo.detectionTimeSchedule()).append('\'');
+		stringBuilder.append("\n\tDetectionTimeInterval=").append(reactorPreferredHostInfo.detectionTimeInterval());
+		stringBuilder.append("\n\tConnectionListIndex=").append(reactorPreferredHostInfo.connectionListIndex());
+		stringBuilder.append("\n\tWSBGroupListIndex=").append(reactorPreferredHostInfo.warmStandbyGroupListIndex());
+		stringBuilder.append("\n\tFallBackWithInWSBGroup=").append(reactorPreferredHostInfo.fallBackWithInWSBGroup());
+		stringBuilder.append("\n\tRemainingDetectionTime=").append(reactorPreferredHostInfo.remainingDetectionTime());
+		stringBuilder.append("\n");
+
+		System.out.println(stringBuilder);
+	}
+
 	@Override
 	public int defaultMsgCallback(ReactorMsgEvent event)
 	{
 		String itemName = null;
-		ItemInfo item = null;
+		ItemInfo item;
 
 		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
 		Msg msg = event.msg();
@@ -804,18 +1047,10 @@ public class wsbConsumer implements ConsumerCallback,
 			 * is available in event.transportBuffer(). */
 			System.out.printf("defaultMsgCallback: %s(%s)\n", event.errorInfo().error().text(), event.errorInfo().location());
 			// unregister selectableChannel from Selector
-			if (event.reactorChannel().selectableChannel() != null)
-			{
-				SelectionKey key = event.reactorChannel().selectableChannel().keyFor(selector);
-				if (key != null)
-					key.cancel();
-			}
+			removeSelectableKey(event.reactorChannel());
 
 			// close ReactorChannel
-			if (chnlInfo.reactorChannel != null)
-			{
-				chnlInfo.reactorChannel.close(errorInfo);
-			}
+			closeReactorChannel(chnlInfo);
 			return ReactorCallbackReturnCodes.SUCCESS;
 		}
 
@@ -935,23 +1170,30 @@ public class wsbConsumer implements ConsumerCallback,
 		switch (msgType)
 		{
 			case REFRESH:
-				System.out.println("Received Login Refresh for Username: " + ((LoginRefresh)event.rdmLoginMsg()).userName());
-				System.out.println(event.rdmLoginMsg().toString());
+				LoginRefresh loginRefresh = (LoginRefresh)event.rdmLoginMsg();
+				System.out.println("Received Login Refresh for Username: " + loginRefresh.userName());
+				System.out.println(loginRefresh);
 
 				// save loginRefresh
-				((LoginRefresh)event.rdmLoginMsg()).copy(chnlInfo.loginRefresh);
+				loginRefresh.copy(chnlInfo.loginRefresh);
 
-				System.out.println("Domain: " + DomainTypes.toString(DomainTypes.LOGIN) + ", StreamId: " + event.rdmLoginMsg().streamId());
+				System.out.println("Domain: " + DomainTypes.toString(DomainTypes.LOGIN) + ", StreamId: " + loginRefresh.streamId());
 
 				System.out.println(" State: "  + chnlInfo.loginRefresh.state());
-				if ( chnlInfo.loginRefresh.checkHasUserName())
+				if (chnlInfo.loginRefresh.checkHasUserName())
 					System.out.println(" UserName: " + chnlInfo.loginRefresh.userName().toString());
 
 				// get login reissue time from authenticationTTReissue
 				if (chnlInfo.loginRefresh.checkHasAuthenticationTTReissue())
 				{
 					chnlInfo.loginReissueTime = chnlInfo.loginRefresh.authenticationTTReissue() * 1000;
-					chnlInfo.canSendLoginReissue = watchlistConsumerConfig.enableSessionManagement() ? false : true;
+					chnlInfo.canSendLoginReissue = !watchlistConsumerConfig.enableSessionManagement();
+				}
+
+				if (loginRefresh.state().streamState() != StreamStates.OPEN) {
+					System.out.println("Login attempt failed");
+					unregisterSelectableChannel(event.reactorChannel(), true);
+					chnlInfo.isChannelClosed = true;
 				}
 
 				break;
@@ -963,6 +1205,12 @@ public class wsbConsumer implements ConsumerCallback,
 				if (loginStatus.checkHasState())
 				{
 					System.out.println("	" + loginStatus.state());
+
+					if (loginStatus.state().streamState() != StreamStates.OPEN) {
+						System.out.println("Login attempt failed");
+						unregisterSelectableChannel(event.reactorChannel(), true);
+						chnlInfo.isChannelClosed = true;
+					}
 				}
 				if (loginStatus.checkHasUserName())
 					System.out.println(" UserName: " + loginStatus.userName().toString());
@@ -978,16 +1226,25 @@ public class wsbConsumer implements ConsumerCallback,
 				if (loginRTT.checkHasTCPRetrans()) {
 					System.out.printf("\tProvider side TCP Retransmissions: %du\n", loginRTT.tcpRetrans());
 				}
-				System.out.printf("RTT Response sent to provider by watchlist.\n\n");
+				System.out.print("RTT Response sent to provider by watchlist.\n\n");
 				break;
 			default:
 				System.out.println("Received Unhandled Login Msg Type: " + msgType);
 				break;
 		}
 
-		System.out.println("");
+		System.out.println();
 
 		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	private void removeSelectableKey(ReactorChannel reactorChannel) {
+		if (reactorChannel.selectableChannel() != null)
+		{
+			SelectionKey key = reactorChannel.selectableChannel().keyFor(selector);
+			if (key != null)
+				key.cancel();
+		}
 	}
 
 	@Override
@@ -1130,7 +1387,7 @@ public class wsbConsumer implements ConsumerCallback,
 			}
 		}
 
-		System.out.println("");
+		System.out.println();
 
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
@@ -1168,7 +1425,7 @@ public class wsbConsumer implements ConsumerCallback,
 							break;
 						default:
 							System.out.println("Unknown dictionary type " + dictionaryRefresh.dictionaryType() + " from message on stream " + dictionaryRefresh.streamId());
-							chnlInfo.reactorChannel.close(errorInfo);
+							closeReactorChannel(chnlInfo);
 							return ReactorCallbackReturnCodes.SUCCESS;
 					}
 				}
@@ -1200,7 +1457,7 @@ public class wsbConsumer implements ConsumerCallback,
 					else
 					{
 						System.out.println("Decoding Field Dictionary failed: " + error.text());
-						chnlInfo.reactorChannel.close(errorInfo);
+						closeReactorChannel(chnlInfo);
 					}
 				}
 				else if (dictionaryRefresh.streamId() == chnlInfo.enumDictionaryStreamId)
@@ -1218,7 +1475,7 @@ public class wsbConsumer implements ConsumerCallback,
 					else
 					{
 						System.out.println("Decoding EnumType Dictionary failed: " + error.text());
-						chnlInfo.reactorChannel.close(errorInfo);
+						closeReactorChannel(chnlInfo);
 					}
 				}
 				else
@@ -1251,7 +1508,7 @@ public class wsbConsumer implements ConsumerCallback,
 				break;
 		}
 
-		System.out.println("");
+		System.out.println();
 
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
@@ -1293,8 +1550,7 @@ public class wsbConsumer implements ConsumerCallback,
 		chnlInfo.consumerRole.watchlistOptions().obeyOpenWindow(true);
 		chnlInfo.consumerRole.watchlistOptions().channelOpenCallback(this);
 
-		if (itemDecoder.fieldDictionaryLoadedFromFile == false &&
-			itemDecoder.enumTypeDictionaryLoadedFromFile == false)
+		if (!itemDecoder.fieldDictionaryLoadedFromFile && !itemDecoder.enumTypeDictionaryLoadedFromFile)
 		{
 			chnlInfo.consumerRole.dictionaryMsgCallback(this);
 		}
@@ -1303,7 +1559,7 @@ public class wsbConsumer implements ConsumerCallback,
 		chnlInfo.consumerRole.initDefaultRDMLoginRequest();
 		chnlInfo.consumerRole.initDefaultRDMDirectoryRequest();
 
-		// use command line login user name if specified
+		// use command line login username if specified
 		if (watchlistConsumerConfig.userName() != null && !watchlistConsumerConfig.userName().isEmpty())
 		{
 			chnlInfo.consumerRole.rdmLoginRequest().userName().data(watchlistConsumerConfig.userName());
@@ -1343,6 +1599,9 @@ public class wsbConsumer implements ConsumerCallback,
 					System.exit(CodecReturnCodes.FAILURE);
 				}
 			}
+
+			/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+			reactorOAuthCredential.reactorOAuthCredentialEventCallback(this);
 			
 			reactorOAuthCredential.takeExclusiveSignOnControl(watchlistConsumerConfig.takeExclusiveSignOnControl());
 			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
@@ -1359,9 +1618,11 @@ public class wsbConsumer implements ConsumerCallback,
 			reactorOAuthCredential.audience().data(watchlistConsumerConfig.audience());
 			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
 		}
+		
+		reactorOAuthCredential.userSpecObj(reactorOAuthCredential);
 
 		// use command line application id if specified
-		if (watchlistConsumerConfig.applicationId() != null && !watchlistConsumerConfig.applicationId().equals(""))
+		if (watchlistConsumerConfig.applicationId() != null && !watchlistConsumerConfig.applicationId().isEmpty())
 		{
 			chnlInfo.consumerRole.rdmLoginRequest().attrib().applicationId().data(watchlistConsumerConfig.applicationId());
 		}
@@ -1371,14 +1632,38 @@ public class wsbConsumer implements ConsumerCallback,
 		chnlInfo.consumerRole.rdmLoginRequest().attrib().applyHasAllowSuspectData();
 		chnlInfo.consumerRole.rdmLoginRequest().attrib().allowSuspectData(1);
 
-		if ((itemDecoder.fieldDictionaryLoadedFromFile == true &&
-			itemDecoder.enumTypeDictionaryLoadedFromFile == true)) 
+		if ((itemDecoder.fieldDictionaryLoadedFromFile && itemDecoder.enumTypeDictionaryLoadedFromFile))
 		{
 
 			chnlInfo.dictionary = itemDecoder.getDictionary();
 		}
 
 		chnlInfo.connectOptions = watchlistConsumerConfig.connectOpts();
+		ReactorPreferredHostOptions rphOptions = watchlistConsumerConfig.preferredHostOpts();
+		chnlInfo.connectOptions.reactorPreferredHostOptions().isPreferredHostEnabled(rphOptions.isPreferredHostEnabled());
+		chnlInfo.connectOptions.reactorPreferredHostOptions().connectionListIndex(rphOptions.connectionListIndex());
+		chnlInfo.connectOptions.reactorPreferredHostOptions().detectionTimeInterval(rphOptions.detectionTimeInterval());
+		chnlInfo.connectOptions.reactorPreferredHostOptions().detectionTimeSchedule(rphOptions.detectionTimeSchedule());
+		chnlInfo.connectOptions.reactorPreferredHostOptions().warmStandbyGroupListIndex(rphOptions.warmStandbyGroupListIndex());
+		chnlInfo.connectOptions.reactorPreferredHostOptions().fallBackWithInWSBGroup(rphOptions.fallBackWithInWSBGroup());
+	}
+	
+	@Override
+	public int reactorOAuthCredentialEventCallback(ReactorOAuthCredentialEvent reactorOAuthCredentialEvent) {
+		ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+		ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
+
+		renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
+		if (reactorOAuthCredential.password() != null && reactorOAuthCredential.password().length() != 0)
+			oAuthCredentialRenewal.password().data(reactorOAuthCredential.password().toString());
+		else if (reactorOAuthCredential.clientSecret() != null && reactorOAuthCredential.clientSecret().length() != 0)
+			oAuthCredentialRenewal.clientSecret().data(reactorOAuthCredential.clientSecret().toString());
+		else
+			oAuthCredentialRenewal.clientJWK().data(reactorOAuthCredential.clientJwk().toString());
+		
+		reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
+
+		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
 	private void closeItemStreams(ChannelInfo chnlInfo)

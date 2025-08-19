@@ -316,6 +316,14 @@ public interface ChannelInformation
 	 * @return the security protocol used in the connection.
 	 */
 	public String securityProtocol();
+
+	/**
+	 * Gets the preferred host information
+	 * see @{@link PreferredHostInfo}
+	 *
+	 * @return the preferred host information.
+	 */
+	public PreferredHostInfo preferredHostInfo();
 	
 	/** Sets host name
 	 *
@@ -453,4 +461,12 @@ public interface ChannelInformation
 	 * 
 	 */
 	public void securityProtocol(String securityProtocol);
+
+	/** Specifies the preferred host information
+	 * see @{@link PreferredHostInfo}
+	 *
+	 * @param preferredHostInfo specifies preferred host information
+	 *
+	 */
+	public void preferredHostInfo(PreferredHostInfo preferredHostInfo);
 }

@@ -996,4 +996,14 @@ public class ReactorFactory
 	public static ReactorRestProxyOptions createReactorRestProxyOptions() {
 		return new ReactorRestProxyOptions();
 	}
+	
+    /**
+     * Creates {@link ReactorPreferredHostOptions}
+     *
+     * @return the reactor preferred host options
+     * @see ReactorPreferredHostOptions
+     */
+	public static ReactorPreferredHostOptions createReactorPreferredHostOptions() {
+		return new ReactorPreferredHostOptions();
+	}
 }

@@ -8,6 +8,7 @@
 package com.refinitiv.ema.access.unittest.requestrouting;
 
 import com.refinitiv.ema.access.ChannelInformation;
+import com.refinitiv.ema.access.PreferredHostInfo;
 
 public class ChannelInformationTest implements ChannelInformation {
 
@@ -33,6 +34,7 @@ public class ChannelInformationTest implements ChannelInformation {
 	private String _securityProtocol;
 	public String _confChannelName;
 	public String _confSessionChannelName;
+	private PreferredHostInfo _preferredHostInfo;
 	
 	public ChannelInformationTest(ChannelInformation channelInformation)
 	{
@@ -58,6 +60,7 @@ public class ChannelInformationTest implements ChannelInformation {
 		_securityProtocol = channelInformation.securityProtocol();
 		_confChannelName = channelInformation.channelName();
 		_confSessionChannelName = channelInformation.sessionChannelName();
+		_preferredHostInfo = channelInformation.preferredHostInfo();
 	}
 	
 	@Override
@@ -90,6 +93,7 @@ public class ChannelInformationTest implements ChannelInformation {
 		_securityProtocol = null;
 		_confChannelName = "";
 		_confSessionChannelName = "";
+		_preferredHostInfo = null;
 	}
 
 	@Override
@@ -193,6 +197,11 @@ public class ChannelInformationTest implements ChannelInformation {
 	}
 
 	@Override
+	public PreferredHostInfo preferredHostInfo() {
+		return _preferredHostInfo;
+	}
+
+	@Override
 	public void hostname(String hostname) {
 		_hostname = hostname;
 	}
@@ -291,5 +300,10 @@ public class ChannelInformationTest implements ChannelInformation {
 	@Override
 	public void securityProtocol(String securityProtocol) {
 		_securityProtocol = securityProtocol;
+	}
+
+	@Override
+	public void preferredHostInfo(PreferredHostInfo preferredHostInfo) {
+		_preferredHostInfo = preferredHostInfo;
 	}
 }

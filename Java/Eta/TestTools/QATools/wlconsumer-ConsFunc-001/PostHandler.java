@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2018,2020,2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2022,2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -10,6 +10,7 @@ package com.refinitiv.eta.valueadd.examples.watchlistconsumer;
 
 //APIQA
 import java.math.BigInteger;
+//END APIQA
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
@@ -98,8 +99,10 @@ class PostHandler
         itemData = 12.00;
         postItemName = CodecFactory.createBuffer();
         postRefresh = true;
+        //APIQA
         postMultipart = false;
         numMultipartMsgs = 9;
+        //END APIQA
     }
 
     /* Enables offstream posting mode */

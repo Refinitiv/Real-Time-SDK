@@ -143,6 +143,7 @@ eclipse.classpath.file.whenMerged {
 
 dependencies {
     api group: 'org.json', name: 'json', version: '20250517'
+    api group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
     implementation('org.apache.httpcomponents.client5:httpclient5:5.5') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }

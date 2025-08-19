@@ -129,8 +129,16 @@ class ConfigManager
 	
 	public static final int SessionChannel = 58;
 
-	public static final int UpdateTypeFilter = 59;
-	public static final int NegativeUpdateTypeFilter = 60;
+	public static final int EnablePreferredHostOptions = 58;
+	public static final int PreferredDetectionTimeSchedule = 59;
+	public static final int PreferredDetectionTimeInterval = 60;
+
+	public static final int PreferredChannelName = 61;
+	public static final int PreferredWSBChannelName = 62;
+	public static final int PreferredFallBackWithInWSBGroup = 63;
+	
+	public static final int UpdateTypeFilter = 64;
+	public static final int NegativeUpdateTypeFilte = 65;
 
 	// Channel: Global
 	public static final int ChannelGroup = 100;
@@ -400,6 +408,12 @@ class ConfigManager
 		ConsumerTagDict.add("SendJsonConvError", SendJsonConvError);
 		ConsumerTagDict.add("RestProxyHostName", RestProxyHostName);
 		ConsumerTagDict.add("RestProxyPort", RestProxyPort);
+		ConsumerTagDict.add("EnablePreferredHostOptions", EnablePreferredHostOptions);
+		ConsumerTagDict.add("PHDetectionTimeSchedule", PreferredDetectionTimeSchedule);
+		ConsumerTagDict.add("PHDetectionTimeInterval", PreferredDetectionTimeInterval);
+		ConsumerTagDict.add("PreferredChannelName", PreferredChannelName);
+		ConsumerTagDict.add("PreferredWSBChannelName", PreferredWSBChannelName);
+		ConsumerTagDict.add("PHFallBackWithInWSBGroup", PreferredFallBackWithInWSBGroup);
 		ConsumerTagDict.add("SessionChannelSet", ConsumerSessionChannelSet);
 		ConsumerTagDict.add("SessionEnhancedItemRecovery", ConsumerSessionEnhancedItemRecovery);
 		ConsumerTagDict.add("UpdateTypeFilter", UpdateTypeFilter);
@@ -796,6 +810,9 @@ class ConfigManager
 			"PerServiceNameSet",
 			"RestProxyHostName",
 			"RestProxyPort",
+			"PHDetectionTimeSchedule",
+			"PreferredChannelName",
+			"PreferredWSBChannelName",
 			"SessionChannelSet"
 	};
 	
@@ -915,6 +932,9 @@ class ConfigManager
 		"SessionEnhancedItemRecovery",
 		"UpdateTypeFilter",
 		"NegativeUpdateTypeFilter"
+		"EnablePreferredHostOptions",
+		"PHDetectionTimeInterval",
+		"PHFallBackWithInWSBGroup",
 	};
 	public static String DoubleValues[] = {
 		"TokenReissueRatio"	
