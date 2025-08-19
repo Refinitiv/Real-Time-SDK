@@ -138,7 +138,7 @@ class ConfigManager
 	public static final int PreferredFallBackWithInWSBGroup = 63;
 	
 	public static final int UpdateTypeFilter = 64;
-	public static final int NegativeUpdateTypeFilte = 65;
+	public static final int NegativeUpdateTypeFilter = 65;
 
 	// Channel: Global
 	public static final int ChannelGroup = 100;
@@ -931,7 +931,7 @@ class ConfigManager
 		"SendJsonConvError",
 		"SessionEnhancedItemRecovery",
 		"UpdateTypeFilter",
-		"NegativeUpdateTypeFilter"
+		"NegativeUpdateTypeFilter",
 		"EnablePreferredHostOptions",
 		"PHDetectionTimeInterval",
 		"PHFallBackWithInWSBGroup",

@@ -784,7 +784,10 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		
 		try
 		{
-			super.modifyIOCtl(code, value, _loginCallbackClient.activeChannelInfo());
+			 ReactorChannel reactorChannel = _loginCallbackClient.activeChannelInfo() != null ?
+					 _loginCallbackClient.activeChannelInfo().rsslReactorChannel() : null;
+			 
+			super.modifyIOCtl(code, value, reactorChannel);
 		}
 		finally
 		{
@@ -816,7 +819,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 						 _loginCallbackClient.activeChannelInfo().rsslReactorChannel() : null;
 				
 				super.modifyIOCtl(code, value, reactorChannel);
-			}			super.modifyIOCtl(code, value, _loginCallbackClient.activeChannelInfo());
+			}
 		}
 		finally
 		{

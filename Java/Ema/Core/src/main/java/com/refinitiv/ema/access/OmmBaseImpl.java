@@ -2415,16 +2415,15 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		}
 	}
 
-	protected void modifyIOCtl(int code, Object value, ChannelInfo activeChannelInfo)
+	protected void modifyIOCtl(int code, Object value, ReactorChannel reactorChannel)
 	{
-		if(activeChannelInfo == null || activeChannelInfo.rsslReactorChannel() == null)
+		if(reactorChannel == null)
 		{
 			strBuilder().append("No active channel to modify I/O option.");
 			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
 			return;
 		}
 
-		ReactorChannel reactorChannel = activeChannelInfo.rsslReactorChannel();
 		ReactorErrorInfo error = ReactorFactory.createReactorErrorInfo();
 		Object etaConfigValue  = null;
 		if(value instanceof PreferredHostOptions) {

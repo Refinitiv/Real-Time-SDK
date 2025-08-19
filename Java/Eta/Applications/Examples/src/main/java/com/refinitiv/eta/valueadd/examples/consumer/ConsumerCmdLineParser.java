@@ -912,7 +912,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -spTLSv1.2 specifies for an encrypted connection to be able to use TLS 1.2, default is 1.2 and 1.3 enabled" + 
 						   "\n -spTLSv1.3 specifies for an encrypted connection to be able to use TLS 1.3, default is 1.2 and 1.3 enabled" +
 				           "\n -updateTypeFilter specifies the UpdateTypeFilter that will be set for the Login Request message" +
-				           "\n -negativeUpdateTypeFilter specifies the NegativeUpdateTypeFilter that will be set for the Login Request message");
+				           "\n -negativeUpdateTypeFilter specifies the NegativeUpdateTypeFilter that will be set for the Login Request message" +
 							"\n Options for Preferred host (optional):" +
 							"\n -enablePH enables Preferred host feature. By default, all the connections will set as a connection list in ReactorConnectOptions" +
 							"\n -preferredHostIndex <index> specifies the preferred host as the index in the connection list. Default is 0" +

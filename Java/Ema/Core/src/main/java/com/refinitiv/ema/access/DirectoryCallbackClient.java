@@ -559,7 +559,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	int processCallback(RDMDirectoryMsgEvent event, ReactorChannel rsslReactorChannel, SingleItem<T> item, ChannelInfo channelInfo)
 	{
 		Msg rsslMsg = event.msg();
-		ChannelInfo channelInfo = (ChannelInfo)rsslReactorChannel.userSpecObj();
+
 		if (channelInfo.getParentChannel() != null)
 			channelInfo = channelInfo.getParentChannel();
 
