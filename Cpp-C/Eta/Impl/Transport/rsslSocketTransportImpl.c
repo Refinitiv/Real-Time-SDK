@@ -4856,12 +4856,20 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 
 			if (opCode & RIPC_WININET_TUNNELING)
 			{
-				rsslSocketChannel->connType = RSSL_CONN_TYPE_HTTP;
+				/* Don't change the connection type when it is set to RSSL_CONN_TYPE_ENCRYPTED as the RsslSocketChannel.transportInfo is set to ripcSSLSession
+				instead of ripcSocketSession so that ETA can handle it properly in the ipcRejectSession() and rsslSocketChannelClose() function */
+				if(rsslSocketChannel->connType != RSSL_CONN_TYPE_ENCRYPTED)
+					rsslSocketChannel->connType = RSSL_CONN_TYPE_HTTP;
+
 				rsslSocketChannel->httpHeaders = 1;
 			}
 			else if (opCode & RIPC_JAVA_WITH_HTTP_TUNNELING)
 			{
-				rsslSocketChannel->connType = RSSL_CONN_TYPE_HTTP;
+				/* Don't change the connection type when it is set to RSSL_CONN_TYPE_ENCRYPTED as the RsslSocketChannel.transportInfo is set to ripcSSLSession
+				instead of ripcSocketSession so that ETA can handle it properly in the ipcRejectSession() and rsslSocketChannelClose() function */
+				if (rsslSocketChannel->connType != RSSL_CONN_TYPE_ENCRYPTED)
+					rsslSocketChannel->connType = RSSL_CONN_TYPE_HTTP;
+
 				rsslSocketChannel->httpHeaders = 1;
 				rsslSocketChannel->isJavaTunnel = 1;
 			}
@@ -5485,7 +5493,11 @@ static ripcSessInit ipcRejectSession(RsslSocketChannel *rsslSocketChannel, RsslU
 			else
 				ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);			
 			
+			if(rsslSocketChannel->transportInfo == rsslSocketChannel->tunnelTransportInfo)
+				rsslSocketChannel->transportInfo = NULL;
+
 			rsslSocketChannel->tunnelTransportInfo = NULL;
+
 			/* we used to make the socket invalid here, but the FDs werent always cleaned up properly */
 			/* if we do not change the state, they shoudl get a notification and this will cause them
 			to call a function that will then go ahead and properly close and clean up resources */
@@ -5499,6 +5511,9 @@ static ripcSessInit ipcRejectSession(RsslSocketChannel *rsslSocketChannel, RsslU
 				ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
 			else
 				ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
+
+			if (rsslSocketChannel->transportInfo == rsslSocketChannel->tunnelTransportInfo)
+				rsslSocketChannel->transportInfo = NULL;
 
 			rsslSocketChannel->tunnelTransportInfo = NULL;
 			/* we used to make the socket invalid here, but the FDs weren't always cleaned up properly */
@@ -8700,6 +8715,9 @@ static RsslSocketChannel *ipcClientChannel(rsslServerImpl* serverImpl, RsslError
 	case RSSL_CONN_TYPE_ENCRYPTED:
 		info = (ripcSSLServer*)rsslServerSocketChannel->transportInfo;
 		rsslSocketChannel->sslProtocolBitmap = info->chnl->encryptionProtocolFlags;
+
+		/* Set the connection type which is used to free the RsslSocketChannel.transportInfo properly */
+		rsslSocketChannel->connType = RSSL_CONN_TYPE_ENCRYPTED;
 		
 		/* Set the protocol functions for the encrypted connection. */
 		rsslSocketChannel->protocolFuncs = &(protHdrFuncs[RSSL_CONN_TYPE_SOCKET]);
