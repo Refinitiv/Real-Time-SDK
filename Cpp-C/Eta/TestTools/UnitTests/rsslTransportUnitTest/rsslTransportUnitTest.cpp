@@ -6,7 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
- 
 /************************************************************************
  *	Transport Unit Test
  *
@@ -14,7 +13,7 @@
  *  Includes multithreaded tests.
  *
  /**********************************************************************/
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,7 +90,7 @@ void time_sleep(int millisec)
 #endif
 }
 
- 
+
 /**************************************************************************
  *	Global test suite variables 
  *	Google Test only runs one test at a time, so these are safe to reuse 
@@ -510,6 +509,75 @@ public:
 	}
 };
 
+/* Check the expected read error cases. */
+class ReadErrorCheck {
+public:
+	/* Error case configuration index */
+	int configReadErrorIndex;
+
+	ReadErrorCheck(int configReadErrorInd) :
+		configReadErrorIndex(configReadErrorInd)
+	{ }
+
+	/**
+	 * Checks if the RsslError text matches expected read error patterns for specific test configurations.
+	 * @param pRsslError RsslError containing the error text to check.
+	 * @return true if the error text matches the expected pattern for the configReadErrorIndex; false otherwise.
+	*/
+	bool checkErrorText(RsslError* pRsslError)
+	{
+		char* str = NULL;
+
+		switch(configReadErrorIndex) {
+		case 1:
+			str = strstr(pRsslError->text,
+				"Error: 1004 rsslSocketRead() Not enough space in packed buffer to read message length. unpackOffset:");
+			if (str != NULL)
+			{
+				str = strstr(str, "packed buffer len:");
+			}
+			break;
+		case 2:
+			str = strstr(pRsslError->text,
+				"Error: 1004 rsslSocketRead() unpacked buffer length");
+			if (str != NULL)
+			{
+				str = strstr(str, "is greater than total packed buffer length");
+				if (str != NULL)
+				{
+					str = strstr(str, "Last invalid msg length");
+				}
+			}
+			break;
+		case 3:
+			str = strstr(pRsslError->text,
+				"Error: 1004 rsslSocketRead() Not enough space in packed buffer to read message length. ripcBuffer len:");
+			break;
+		case 4:
+			str = strstr(pRsslError->text,
+				"Error: 1004 rsslSocketRead() unpacked buffer length");
+			if (str != NULL)
+			{
+				str = strstr(str, "is greater than total packed buffer length");
+				if (str != NULL)
+				{
+					str = strstr(str, "The invalid msg length");
+				}
+			}
+			break;
+		case 5:
+			str = strstr(pRsslError->text,
+				"Error: 1007 Invalid Message Size. Message size is:");
+			if (str != NULL)
+			{
+				str = strstr(str, "Websocket frame payload length is");
+			}
+			break;
+		}
+		return (str != NULL ? true : false);
+	}
+};
+
 class ReadChannel
 {
 public:
@@ -525,6 +593,11 @@ public:
 	int expectedReadCount;     // If > 0, there is a limit on the number of read operations
 	
 	int selectCount;
+
+	ReadErrorCheck* pReadErrorCheck;  // Check the expected read error cases
+
+	std::atomic<bool> expectedErrorDetected;  // If true, the expected read error was detected
+
 	//const static size_t szArrSelectCount = 32;
 	//int arrSelectCount[szArrSelectCount];
 
@@ -539,6 +612,8 @@ public:
 		pSystemTestHandler = NULL;
 		expectedReadCount = 0;
 		selectCount = 0;
+		pReadErrorCheck = NULL;
+		expectedErrorDetected = false;
 		//memset(arrSelectCount, 0, sizeof(arrSelectCount));
 	}
 
@@ -550,7 +625,6 @@ public:
 	*/
 	void readLoop(RsslBool blocking)
 	{
-		//fd_set readfds;
 		fd_set useRead;
 		fd_set useExcept;
 		RsslRet readRet;
@@ -560,14 +634,13 @@ public:
 		bool shouldForceSelect = false;
 		char errorText[256] = "";
 
-		//FD_ZERO(&readfds);
-		//FD_ZERO(&useread);
-
 		RsslBuffer* readBuf;
 
 		struct timeval selectTime;
 		int selRet;
 		//bool selectReturnedNoData = false;
+		bool isMutexLocked = false;
+		bool isDeadlockTimerReset = false;
 
 		if ( pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE )
 		{
@@ -583,9 +656,7 @@ public:
 				shouldForceSelect = true;
 		}
 
-		//FD_SET(pChnl->socketId, &readfds);
-
-		while ( !shutdownTest && !failTest )
+		while ( !shutdownTest && !failTest && !expectedErrorDetected )
 		{
 			if ( expectedReadCount > 0 && expectedReadCount <= readmsg )
 				break;
@@ -598,7 +669,6 @@ public:
 				FD_ZERO(&useExcept);
 				FD_SET(pChnl->socketId, &useRead);
 				FD_SET(pChnl->socketId, &useExcept);
-				//useRead = readfds;
 
 				selectTime.tv_sec = 0L;
 				selectTime.tv_usec = 40000; // 500000;
@@ -623,7 +693,7 @@ public:
 
 			/* Special tests use an additional lock on entire read operation */
 			/* It allows read and write operations to be performed step by step */
-			if ( lockReadWrite != NULL )
+			if ( lockReadWrite != NULL && !isMutexLocked )
 			{
 				RSSL_MUTEX_LOCK(lockReadWrite);
 
@@ -632,6 +702,7 @@ public:
 					RSSL_MUTEX_UNLOCK(lockReadWrite);
 					break;
 				}
+				isMutexLocked = true;
 			}
 
 			do
@@ -655,11 +726,24 @@ public:
 				}
 				else
 				{
-					if (readRet < RSSL_RET_SUCCESS && readRet != RSSL_RET_READ_PING && readRet != RSSL_RET_READ_IN_PROGRESS && readRet != RSSL_RET_READ_WOULD_BLOCK)
+					if ( readRet < RSSL_RET_SUCCESS && readRet != RSSL_RET_READ_PING
+						&& readRet != RSSL_RET_READ_IN_PROGRESS && readRet != RSSL_RET_READ_WOULD_BLOCK )
 					{
-						if ( lockReadWrite != NULL )
+						/* If the error is expected, the test is complete */
+						if ( pReadErrorCheck && readRet == RSSL_RET_FAILURE )
+						{
+							if ( pReadErrorCheck->checkErrorText(&err) )
+							{
+								/* Break the loops and return */
+								expectedErrorDetected = true;
+								break;
+							}
+						}
+
+						if ( lockReadWrite != NULL && isMutexLocked )
 						{
 							RSSL_MUTEX_UNLOCK(lockReadWrite);
+							isMutexLocked = false;
 						}
 
 						/* We're shutting down, so there is no failure case here */
@@ -678,9 +762,10 @@ public:
 					RsslSocketChannel* rsslSocketChannel = (RsslSocketChannel*)rsslChnlImpl->transportInfo;
 					if (rsslSocketChannel->inputBufCursor > rsslSocketChannel->inputBuffer->length)
 					{
-						if ( lockReadWrite != NULL )
+						if ( lockReadWrite != NULL && isMutexLocked )
 						{
 							RSSL_MUTEX_UNLOCK(lockReadWrite);
+							isMutexLocked = false;
 						}
 
 						/* We're shutting down, so there is no failure case here */
@@ -696,13 +781,14 @@ public:
 				{
 					if ( !pSystemTestHandler->handleDataBuffer(readBuf, errorText, sizeof(errorText)) )
 					{
-						if ( lockReadWrite != NULL )
+						if ( lockReadWrite != NULL && isMutexLocked )
 						{
 							RSSL_MUTEX_UNLOCK(lockReadWrite);
+							isMutexLocked = false;
 						}
 
 						failTest = true;
-						ASSERT_TRUE(false) << "ReadChannel. handleDataBuffer failed. Error:" << errorText << " readCount: " << *(readCount) << " readmsg: " << readmsg;
+						ASSERT_TRUE(false) << "ReadChannel. handleDataBuffer failed. Error: " << errorText << " readCount: " << *(readCount) << " readmsg: " << readmsg;
 					}
 				}
 
@@ -713,19 +799,25 @@ public:
 
 			/* Special tests use an additional lock on entire read operation */
 			/* It allows read and write operations to be performed step by step */
-			if ( lockReadWrite != NULL )
+			if ( lockReadWrite != NULL && isMutexLocked )
 			{
 				RSSL_MUTEX_UNLOCK(lockReadWrite);
+				isMutexLocked = false;
 
 				/* Sets the event-signal for a write loop: the read loop is ready for reading next chunk */
 				signalForWrite->setSignal();
 			}
 
 			/* readIncrement stops us from resetting the deadlock timer more than once per readCount */
-			if ( readmsg % 5000 == 1 && readIncrement == true )
+			if ( readmsg % 5000 < 100 && readIncrement && !isDeadlockTimerReset )
 			{
 				resetDeadlockTimer();
 				readIncrement = false;
+				isDeadlockTimerReset = true;
+			}
+			else if ( readmsg % 5000 >= 100 )
+			{
+				isDeadlockTimerReset = false;
 			}
 		}
 	}
@@ -1912,7 +2004,13 @@ public:
 			if (sz > 0)
 			{
 				*bufferLength = ((RsslUInt32)sz);
-				*numMessagesInBuffer = 4;
+				if (configIndex < 20)
+					*numMessagesInBuffer = 4;
+				else if (configIndex == 20 || configIndex == 21)
+					*numMessagesInBuffer = 1;
+				else if (configIndex == 22 || configIndex == 23)
+					*numMessagesInBuffer = 10;
+
 			}
 			else
 			{
@@ -2161,7 +2259,35 @@ public:
 			return 6;
 		}
 		break;
+
+		// Socket. TcpDump. Real tcp packets.
+		// "cap_packet_wrong.bin".
+		case 20:
+			return 0;  // No chunks, just one packet.
+		case 21:
+		{	// 5956 bytes = 1460 * 4 + 116
+			arrChunkLengths[0] = 1460;
+			arrChunkLengths[1] = 1460;
+			arrChunkLengths[2] = 1460;
+			arrChunkLengths[3] = 1460;
+			arrChunkLengths[4] = 116;
+			return 5;
 		}
+
+		// Socket. TcpDump. Real tcp packets.
+		// "cap_packet_ok.bin". 10 messages inside.
+		case 22:
+			return 0;  // No chunks, just one packet.
+		case 23:
+		{	// 5958 bytes = 1460 * 4 + 118
+			arrChunkLengths[0] = 1460;
+			arrChunkLengths[1] = 1460;
+			arrChunkLengths[2] = 1460;
+			arrChunkLengths[3] = 1460;
+			arrChunkLengths[4] = 118;
+			return 5;
+		}
+		}  // switch (configIndex)
 
 		return 0;
 	}
@@ -2191,6 +2317,15 @@ public:
 		case 12:
 			// "inpbuf_ws_rwf_01.bin". 5 messages inside. WebSocket + RWF
 			return new MsgFileBuffer("inpbuf_ws_rwf_01.bin");
+
+		case 20:
+		case 21:
+			// "cap_packet_wrong.bin". Socket
+			return new MsgFileBuffer("cap_packet_wrong.bin");
+		case 22:
+		case 23:
+			// "cap_packet_ok.bin". Socket
+			return new MsgFileBuffer("cap_packet_ok.bin");
 		default:
 			return NULL;
 		}
@@ -2417,6 +2552,377 @@ public:
 		return;
 	}
 };
+
+class WriteChannelSpecialPackedBuffer : public WriteChannelTransport
+{
+public:
+	WriteChannelSpecialPackedBuffer(RsslUInt32 msgLength, RsslUInt32 msgWriteCount, int _configReadErrIdx, const char* title,
+		RsslMutex* lockRW, EventSignal* eventSignalRW,
+		RsslConnectionTypes _connType, RsslConnectionTypes _encryptedConnType, RsslUInt8 _wsProtocolType) :
+		WriteChannelTransport(msgLength, msgWriteCount, title, lockRW, eventSignalRW),
+		configReadErrorIdx(_configReadErrIdx),
+		connType(_connType),
+		wsProtocolType(_wsProtocolType)
+	{
+	}
+
+	int						configReadErrorIdx;	/* Read error configuration index */
+	RsslConnectionTypes		connType;			/* Connection type for this provider */
+	RsslUInt8				wsProtocolType;
+
+	/* Special buffer. 3 packed messages. */
+	/* Structure of the buffer with packed messages.  Socket.
+	 * General header (3 bytes): the total length of buffer (2 bytes), flags (1 byte).
+	 * Message(s). Message header (2 bytes): the message length. Message body.
+	*/
+	/* 3 packed messages (50 bytes in each).
+	 * Total length of the packed buffer: 3 bytes (general header) + (2 + 50) bytes * 3 (messages) = 159 bytes
+	*/
+	static constexpr unsigned char dataSocket[]{
+		0x00, 0x9F, 0x12, 0x00, 0x32, 0x5B, 0x30, 0x3A, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61,
+		0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F,
+		0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74,
+		0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x5D, 0x00, 0x32, 0x5B, 0x31, 0x3A, 0x54, 0x65, 0x73, 0x74,
+		0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61,
+		0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F,
+		0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x5D, 0x00, 0x32, 0x5B, 0x32, 0x3A,
+		0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74,
+		0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61,
+		0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x5D
+	};
+
+	static constexpr unsigned char dataWebSockJSON[]{
+		0x81, 0x7E, 0x00, 0x9A, 0x5B, 0x5B, 0x30, 0x3A, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61,
+		0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F,
+		0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74,
+		0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x5D, 0x2C, 0x5B, 0x31, 0x3A, 0x54, 0x65, 0x73, 0x74, 0x44,
+		0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49,
+		0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54,
+		0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x5D, 0x2C, 0x5B, 0x32, 0x3A, 0x54, 0x65,
+		0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61,
+		0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E,
+		0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x5D, 0x5D
+	};
+
+	static constexpr unsigned char dataWebSockRWF[]{
+		0x82, 0x7E, 0x00, 0x9F, 0x00, 0x9F, 0x12, 0x00, 0x32, 0x5B, 0x30, 0x3A, 0x54, 0x65, 0x73, 0x74,
+		0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61,
+		0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F,
+		0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x5D, 0x00, 0x32, 0x5B, 0x31, 0x3A,
+		0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74,
+		0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61,
+		0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x5D, 0x00,
+		0x32, 0x5B, 0x32, 0x3A, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F,
+		0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74,
+		0x44, 0x61, 0x74, 0x61, 0x49, 0x6E, 0x66, 0x6F, 0x54, 0x65, 0x73, 0x74, 0x44, 0x61, 0x74, 0x61,
+		0x49, 0x6E, 0x5D
+	};
+
+	const unsigned char* getData()
+	{
+		if (connType == RSSL_CONN_TYPE_SOCKET)
+		{
+			return dataSocket;
+		}
+		else if (connType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			if (wsProtocolType == RSSL_JSON_PROTOCOL_TYPE)
+				return dataWebSockJSON;
+			else if (wsProtocolType == RSSL_RWF_PROTOCOL_TYPE)
+				return dataWebSockRWF;
+		}
+		return NULL;
+	}
+
+	RsslUInt32 getDataSize()
+	{
+		if (connType == RSSL_CONN_TYPE_SOCKET)
+		{
+			return sizeof(dataSocket);
+		}
+		else if (connType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			if (wsProtocolType == RSSL_JSON_PROTOCOL_TYPE)
+				return sizeof(dataWebSockJSON);
+			else if (wsProtocolType == RSSL_RWF_PROTOCOL_TYPE)
+				return sizeof(dataWebSockRWF);
+		}
+		return 0;
+	}
+
+	/*
+	  Modify trail bytes for "good" test cases when an error is not expected.
+	*/
+	void modifyTrailBytes(RsslBuffer* writeBuf, RsslUInt32 fillLength)
+	{
+		/* Modification need only for WebSocket/JSON */
+		if (connType == RSSL_CONN_TYPE_WEBSOCKET && wsProtocolType == RSSL_JSON_PROTOCOL_TYPE)
+		{
+			/* Check that we send full message(s) without truncate. */
+			/* I.e. no errors are expected in test cases. */
+			switch (fillLength)
+			{
+			case 56:	// one message
+			case 107:	// two messages
+				/* [[The 1-st item],[The 2-nd item],[The 3-rd item]] */
+				// End of the Json array item is ']'
+				ASSERT_EQ(writeBuf->data[fillLength - 2], ']') << "Warning! WebSocket Json test should be fixed! \']\'\n";
+
+				// Divider between two Json array items is ','
+				ASSERT_EQ(writeBuf->data[fillLength - 1], ',') << "Warning! WebSocket Json test should be fixed! \',\'\n";
+
+				/* ETA sends packed messages as an item in JSON array */
+				/* Fixing the closing bracket to ensure JSON validity */
+				writeBuf->data[fillLength - 1] = ']';  // change Divider char ',' to End of array char ']' 
+			}
+		}
+		return;
+	}
+
+	/*
+	  Modify a test configurable field: the total length of the packed buffer.
+	*/
+	void modifyProtocolLength(RsslBuffer* writeBuf, RsslUInt32 fillLength)
+	{
+		RsslUInt32 dataSize = getDataSize();
+		if (connType == RSSL_CONN_TYPE_SOCKET)
+		{
+			/* Change the protocol field: total length of packed messages. data[0]data[1] */
+			writeBuf->data[1] = (char)(fillLength & 0xFF);
+			writeBuf->data[0] = (char)((fillLength >> 8) & 0xFF);
+		}
+		else if (connType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			fillLength -= 4;  // 4 bytes are reserved for the Websocket header and are excluded from the total length
+			RsslUInt32 offset = 2; // offset to total length field in the Websocket header (2 bytes)
+
+			if (wsProtocolType == RSSL_JSON_PROTOCOL_TYPE)
+			{
+				/* Change the Websocket header: total length of the message. data[2]data[3] */
+				writeBuf->data[offset + 1] = (char)(fillLength & 0xFF);
+				writeBuf->data[offset + 0] = (char)((fillLength >> 8) & 0xFF);
+
+				/* ETA sends packed messages as an item in JSON array  */
+				/* There is no field the total length of packed buffer */
+				/* [[The 1-st item],[The 2-nd item],[The 3-rd item]]   */
+			}
+			else if (wsProtocolType == RSSL_RWF_PROTOCOL_TYPE)
+			{
+				RsslUInt32 offset = 2; // offset to total length field in Websocket/RWF header (2 bytes)
+				/* Change the Websocket header: total length of the message. data[2]data[3] */
+				writeBuf->data[offset + 1] = (char)(fillLength & 0xFF);
+				writeBuf->data[offset + 0] = (char)((fillLength >> 8) & 0xFF);
+
+				if (configReadErrorIdx < 5)
+				{
+					offset = 4; // offset to total length field in the packed buffer
+					/* Change the protocol field in the packed buffer: total length of packed messages. data[4]data[5] */
+					writeBuf->data[offset + 1] = (char)(fillLength & 0xFF);
+					writeBuf->data[offset + 0] = (char)((fillLength >> 8) & 0xFF);
+				}
+			}
+		}
+		return;
+	}
+
+	/* Fill up the buffer by simulated data */
+	RsslUInt32 fillBuffer(RsslBuffer* writeBuf, RsslUInt32 fillLength)
+	{
+
+		RsslUInt32 dataSize = getDataSize();
+		const unsigned char* pData = getData();
+
+		if (pData == NULL || dataSize == 0 || writeBuf == NULL || writeBuf->data == NULL || writeBuf->length == 0)
+		{
+			printf("WriteChannelSpecialPackedBuffer::fillBuffer: Invalid parameters. pData=%p, dataSize=%u, writeBuf=%p, writeBuf->data=%p, writeBuf->length=%u\n",
+				pData, dataSize, writeBuf, writeBuf->data, writeBuf->length);
+			return 0;
+		}
+
+		RsslUInt32 partlen = dataSize;
+		RsslUInt32 k = 0;
+
+		if (fillLength > writeBuf->length)
+		{
+			fillLength = writeBuf->length;
+		}
+
+		if (partlen > fillLength)
+		{
+			partlen = fillLength;
+		}
+
+		/* Copy special buffer (3 packed messages) to the buffer */
+		memcpy(writeBuf->data, pData, partlen);
+		k = partlen;
+
+		if (k < fillLength)
+		{
+			/* Fill the rest of the buffer */
+			for (unsigned i = 0; i < (fillLength - k); ++i)
+			{
+				char c = (0x30 + (i % 10));  // digits only  '0', '1', '2' ... '9'
+				*(writeBuf->data + (k + i)) = c;
+			}
+			k = fillLength;
+		}
+
+		/* Test configurable field: Total length of the packed message */
+		/* Change the protocol field: total length of packed messages. data[0]data[1] */
+		if (fillLength < dataSize)
+		{
+			modifyTrailBytes(writeBuf, fillLength);
+			modifyProtocolLength(writeBuf, fillLength);
+		}
+		return k;
+	}
+
+	void writeLoop(RsslBool blocking)
+	{
+		int writeMax = (msgWriteCount != 0 ? msgWriteCount : MAX_MSG_WRITE_COUNT);
+
+		unsigned writeCountRetZeroBytes = 0;
+		const unsigned MAX_LIMIT_SEND_RET_ZERO = 1;
+
+		RsslBuffer writeBuf;
+		char testBuffer[256];
+
+		const RsslUInt32 bufferlen = getDataSize();  // size of the test data buffer
+		RsslUInt32 len = 0;
+
+		RsslUInt32 filledLength;
+		RsslUInt32 numBytes;
+		int k;
+
+		if ( pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE )
+		{
+			failTest = true;
+			ASSERT_NE(pChnl, (RsslChannel*)NULL) << "Channel should not equal to NULL";
+			ASSERT_EQ(pChnl->state, RSSL_CH_STATE_ACTIVE) << "Channel state is not active";
+		}
+
+		bool isMutexLocked = false;
+
+		if ( !isMutexLocked && lockReadWrite != NULL )
+		{
+			RSSL_MUTEX_LOCK(lockReadWrite);
+			isMutexLocked = true;
+		}
+
+		writeCount = 0;
+		/* Write messages until the maximum. */
+		while ( !shutdownTest && writeCount < writeMax && !failTest )
+		{
+			// Special tests use an additional lock on entire read operation
+			// It allows read and write operations to be performed step by step
+			if ( !isMutexLocked && lockReadWrite != NULL )
+			{
+				RSSL_MUTEX_LOCK(lockReadWrite);
+				isMutexLocked = true;
+
+				if ( shutdownTest || failTest )
+					break;
+			}
+
+			writeBuf.data = &testBuffer[0];
+			writeBuf.length = sizeof(testBuffer);
+
+			/* The test case is when we send the last buffer */
+			/* So set required length of the buffer */
+			if ( writeCount >= (writeMax - 1) )
+			{
+				len = requiredMsgLength;
+			}
+			else
+			{
+				len = bufferlen;
+			}
+
+			filledLength = fillBuffer(&writeBuf, len);
+
+			if ( filledLength < writeBuf.length )
+				writeBuf.length = filledLength;
+
+			if ( shutdownTest || failTest )
+				break;
+
+			//dumpBuffer(writeBuf);
+
+			numBytes = 0;
+
+			// Sends the message buffer
+			while ( numBytes < filledLength && !shutdownTest && !failTest )
+			{
+				k = send(pChnl->socketId, (testBuffer + numBytes), (filledLength - numBytes), 0);
+
+				if ( k > 0 )
+				{
+					numBytes += k;
+					writeCountRetZeroBytes = 0;
+				}
+				else if ( k <= 0 )
+				{
+					if ( k < 0 ) // send return an error
+					{
+						if ( !((errno == _IPC_WOULD_BLOCK) || (errno == EINTR)) )
+						{
+							if ( isMutexLocked && lockReadWrite != NULL )
+							{
+								isMutexLocked = false;
+								RSSL_MUTEX_UNLOCK(lockReadWrite);
+							}
+
+							failTest = true;
+							ASSERT_TRUE(false) << "Write failed. errno=" << errno << "; writeCount=" << writeCount << " numBytes=" << numBytes << " (" << filledLength << ")";
+						}
+					}
+
+					if ( writeCountRetZeroBytes++ > MAX_LIMIT_SEND_RET_ZERO )
+					{
+						if ( isMutexLocked && lockReadWrite != NULL )
+						{
+							isMutexLocked = false;
+							RSSL_MUTEX_UNLOCK(lockReadWrite);
+						}
+
+						failTest = true;
+						ASSERT_TRUE(false) << "Write failed. send returned zero bytes more than " << MAX_LIMIT_SEND_RET_ZERO << " times" << "; writeCount=" << writeCount << " numBytes=" << numBytes << " (" << filledLength << ")";
+					}
+				}
+			}  // while ( numBytes < filledLength )
+
+			++writeCount;
+
+			if ( isMutexLocked && lockReadWrite != NULL )
+			{
+				isMutexLocked = false;
+				RSSL_MUTEX_UNLOCK(lockReadWrite);
+
+				if ( !shutdownTest && writeCount < writeMax && !failTest )
+				{
+					// Waits for an event-signal that a read loop is ready for reading next chunk
+					eventSignalReadWrite->waitSignal(0, 50000);
+				}
+			}
+
+			if ( writeCount % 10000 == 1 )
+				resetDeadlockTimer();
+		}
+
+		if ( isMutexLocked && lockReadWrite != NULL )
+		{
+			isMutexLocked = false;
+			RSSL_MUTEX_UNLOCK(lockReadWrite);
+		}
+
+		//std::cout << "WriteChannelSpecialPackedBuffer.writeLoop Finished. " << channelTitle << " writeCount: " << writeCount << std::endl;
+		return;
+	}
+};
+
+constexpr unsigned char WriteChannelSpecialPackedBuffer::dataSocket[];
+constexpr unsigned char WriteChannelSpecialPackedBuffer::dataWebSockJSON[];
+constexpr unsigned char WriteChannelSpecialPackedBuffer::dataWebSockRWF[];
 
 class ManyThreadChannel
 {
@@ -2806,6 +3312,13 @@ RSSL_THREAD_DECLARE(nonBlockingWriteEncryptBufferTransportThread, pArg)
 	return 0;
 }
 
+RSSL_THREAD_DECLARE(nonBlockingWriteSpecialPackedBuffersThread, pArg)
+{
+	((WriteChannelSpecialPackedBuffer*)pArg)->writeLoop(RSSL_FALSE);
+
+	return 0;
+}
+
 RSSL_THREAD_DECLARE(nonBlockingManyChannelWriteThread, pArg)
 {
 	((ManyThreadChannel*)pArg)->manyChannelWriter(RSSL_FALSE);
@@ -2874,6 +3387,13 @@ RSSL_THREAD_DECLARE(blockingWriteSystemThread, pArg)
 RSSL_THREAD_DECLARE(blockingWriteSeveralBufferTransportThread, pArg)
 {
 	((WriteChannelSeveralBufferTransport*)pArg)->writeLoop(RSSL_TRUE);
+
+	return 0;
+}
+
+RSSL_THREAD_DECLARE(blockingWriteSpecialPackedBuffersThread, pArg)
+{
+	((WriteChannelSpecialPackedBuffer*)pArg)->writeLoop(RSSL_TRUE);
 
 	return 0;
 }
@@ -3087,14 +3607,23 @@ public:
 
 		do {
 			if (*p != '[')
+			{
+				snprintf(pErrorText, szErrorText, "ReadBuffer. Wrong the 1-st character. Should be \'[\'.");
 				break;
+			}
 			while (k < buflen && *(p + k) == '[')
 				k++;
 			if (k >= buflen)
+			{
+				snprintf(pErrorText, szErrorText, "ReadBuffer. Incorrect length. k: %u, buflen: %u.", k, buflen);
 				break;
+			}
 
 			if (!isdigit(*(p + k)))
+			{
+				snprintf(pErrorText, szErrorText, "ReadBuffer. Bad format. Waiting for a digit. k: %u, buflen: %u.", k, buflen);
 				break;
+			}
 
 			ind = atoi(p + k);
 			while (k < buflen && *(p + k) != ':')
@@ -3102,7 +3631,10 @@ public:
 
 			k++;  // skip ':'
 			if (k >= buflen)
+			{
+				snprintf(pErrorText, szErrorText, "ReadBuffer. Bad format. Waiting for \':\'. k: %u, buflen: %u, ind: %d.", k, buflen, ind);
 				break;
+			}
 
 			if (buflen - k > lenTestBuffer)
 				len = lenTestBuffer;
@@ -3110,7 +3642,11 @@ public:
 				len = buflen - k;
 
 			if (strncmp(p + k, testBuffer, len) != 0)
+			{
+				snprintf(pErrorText, szErrorText, "ReadBuffer. Bad format. Waiting for \"%s\". k: %u, buflen: %u, ind: %d, len: %zu.",
+					testBuffer, k, buflen, ind, len);
 				break;
+			}
 
 			indices.push_back(ind);
 
@@ -3162,6 +3698,48 @@ public:
 		dumpIndices(outputStream, -100);
 		std::cout << "Test failed. [" << title << "]. indices: " << outputStream.str() << std::endl;
 		return;
+	}
+};
+
+class PackedBufferChecker : public SimpleBufferChecker
+{
+public:
+	RsslChannel* pRsslChannel;
+	bool checkTestData;  // Check test data in packed buffer
+
+	PackedBufferChecker(RsslChannel* _pChnl, bool _checkTestData = true) :
+		SimpleBufferChecker(),
+		pRsslChannel(_pChnl),
+		checkTestData(_checkTestData)
+	{
+	}
+
+	bool handleDataBuffer(RsslBuffer* pReadBuffer, char* pErrorText, size_t szErrorText)
+	{
+		bool isTextCorrect = false;
+		rsslChannelImpl* rsslChnlImpl = (rsslChannelImpl*)pRsslChannel;
+
+		do {  // Check all the conditions
+			if (rsslChnlImpl->packedBuffer == NULL && rsslChnlImpl->unpackOffset != 0)
+			{
+				snprintf(pErrorText, szErrorText, "rsslChnlImpl. unpackOffset must be equal 0 when packedBuffer is Null.");
+				break;
+			}
+
+			if (rsslChnlImpl->packedBuffer != NULL && rsslChnlImpl->unpackOffset > rsslChnlImpl->packedBuffer->length)
+			{
+				snprintf(pErrorText, szErrorText, "rsslChnlImpl. packedBuffer total length (%zu) must be greater or equal unpackOffset (%u).",
+					rsslChnlImpl->packedBuffer->length, rsslChnlImpl->unpackOffset);
+				break;
+			}
+
+			if (checkTestData)
+				isTextCorrect = SimpleBufferChecker::handleDataBuffer(pReadBuffer, pErrorText, szErrorText);
+			else
+				isTextCorrect = true;  // Do not check test data in packed buffer
+		} while (false);
+
+		return isTextCorrect;
 	}
 };
 
@@ -3465,7 +4043,7 @@ TEST_P(GlobalLockTestsPackedFixture, NonBlockingTwoWayClientServerPacked)
 	clientWriteOpts.pChnl = clientChannel;
 
 	// TestHandler checks the data buffer on Read (server and client) side
-	SimpleBufferChecker checkerSrvR, checkerCliR;
+	PackedBufferChecker checkerSrvR(serverChannel), checkerCliR(clientChannel);
 	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
 	clientReadOpts.pSystemTestHandler = &checkerCliR;
 
@@ -3760,7 +4338,7 @@ TEST_P(GlobalLockTestsPackedFixture, BlockingTwoWayClientServerPacked)
 	clientWriteOpts.pChnl = clientChannel;
 
 	// TestHandler checks the data buffer on Read (server and client) side
-	SimpleBufferChecker checkerSrvR, checkerCliR;
+	PackedBufferChecker checkerSrvR(serverChannel), checkerCliR(clientChannel);
 	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
 	clientReadOpts.pSystemTestHandler = &checkerCliR;
 
@@ -4697,7 +5275,7 @@ TEST_P(GlobalLockChannelTestsPackedFixture, NonBlockingTwoWayClientServerPacked)
 	clientWriteOpts.pChnl = connectionB.pClientChannel;
 
 	// TestHandler checks the data buffer on Read (server and client) side
-	SimpleBufferChecker checkerSrvR, checkerCliR;
+	PackedBufferChecker checkerSrvR(connectionB.pServerChannel), checkerCliR(connectionA.pClientChannel);
 	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
 	clientReadOpts.pSystemTestHandler = &checkerCliR;
 
@@ -4826,7 +5404,7 @@ TEST_P(GlobalLockChannelTestsPackedFixture, BlockingTwoWayClientServerPacked)
 	clientWriteOpts.pChnl = connectionB.pClientChannel;
 
 	// TestHandler checks the data buffer on Read (server and client) side
-	SimpleBufferChecker checkerSrvR, checkerCliR;
+	PackedBufferChecker checkerSrvR(connectionB.pServerChannel), checkerCliR(connectionA.pClientChannel);
 	serverReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
 	clientReadOpts.pSystemTestHandler = &checkerCliR;
 
@@ -5347,7 +5925,7 @@ INSTANTIATE_TEST_SUITE_P(
 	MsgLengthWebSockJSONFile,
 	SystemTestsFixture,
 	::testing::Values(
-		GLobalLockSystemTestParams( 0, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 2000000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockSystemTestParams( 0, 0, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 2000000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -5355,12 +5933,12 @@ INSTANTIATE_TEST_SUITE_P(
 	ReadWriteStepsWebSockJSON,
 	SystemTestsFixture,
 	::testing::Values(
-		GLobalLockSystemTestParams( 1, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 2, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 3, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 4, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 5, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 6, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockSystemTestParams( 1, 0, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 2, 0, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 3, 0, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 4, 0, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 5, 0, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 6, 0, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -5368,12 +5946,12 @@ INSTANTIATE_TEST_SUITE_P(
 	ReadWriteStepsWebSockRWF,
 	SystemTestsFixture,
 	::testing::Values(
-		GLobalLockSystemTestParams(  7, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams(  8, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams(  9, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 10, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 11, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 12, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockSystemTestParams(  7, 0, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams(  8, 0, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams(  9, 0, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 10, 0, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 11, 0, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 12, 0, RSSL_CONN_TYPE_WEBSOCKET, 526, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -5647,8 +6225,8 @@ INSTANTIATE_TEST_SUITE_P(
 	WebSockJSONClients,
 	SystemTestsSendBuffersFixture,
 	::testing::Values(
-		GLobalLockSystemTestParams( 0, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 24, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 1, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 28, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+		GLobalLockSystemTestParams( 0, 0, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 24, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 1, 0, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 28, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
 	)
 );
 
@@ -5656,8 +6234,8 @@ INSTANTIATE_TEST_SUITE_P(
 	WebSockRWFClients,
 	SystemTestsSendBuffersFixture,
 	::testing::Values(
-		GLobalLockSystemTestParams( 2, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 36, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 3, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 14, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockSystemTestParams( 2, 0, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 36, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 3, 0, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 14, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
@@ -5809,9 +6387,9 @@ INSTANTIATE_TEST_SUITE_P(
 	SocketClient,
 	TestEncrDecrFixture,
 	::testing::Values(
-		GLobalLockSystemTestParams( 0, RSSL_CONN_TYPE_SOCKET, 3000,  100, 1024, RSSL_CONN_TYPE_SOCKET, 0 ),
-		GLobalLockSystemTestParams( 0, RSSL_CONN_TYPE_SOCKET, 3000, 3000, 1024, RSSL_CONN_TYPE_SOCKET, 0 ),
-		GLobalLockSystemTestParams( 0, RSSL_CONN_TYPE_SOCKET, 3000,    0, 1024, RSSL_CONN_TYPE_SOCKET, 0 )
+		GLobalLockSystemTestParams( 0, 0, RSSL_CONN_TYPE_SOCKET, 3000,  100, 1024, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 0, 0, RSSL_CONN_TYPE_SOCKET, 3000, 3000, 1024, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 0, 0, RSSL_CONN_TYPE_SOCKET, 3000,    0, 1024, RSSL_CONN_TYPE_SOCKET, 0 )
 	)
 );
 
@@ -5819,9 +6397,397 @@ INSTANTIATE_TEST_SUITE_P(
 	WebSockRWFClient,
 	TestEncrDecrFixture,
 	::testing::Values(
-		GLobalLockSystemTestParams( 0, RSSL_CONN_TYPE_WEBSOCKET, 3000,  100, 1024, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 0, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 1024, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
-		GLobalLockSystemTestParams( 0, RSSL_CONN_TYPE_WEBSOCKET, 3000,    0, 1024, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+		GLobalLockSystemTestParams( 0, 0, RSSL_CONN_TYPE_WEBSOCKET, 3000,  100, 1024, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 0, 0, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 1024, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 0, 0, RSSL_CONN_TYPE_WEBSOCKET, 3000,    0, 1024, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+	)
+);
+
+
+class SystemTestsSendSpecialPackedBuffersFixture
+	: public SystemTests, public ::testing::WithParamInterface<GLobalLockSystemTestParams>
+{
+public:
+	// Calculate the number of messages that will be read correctly in this test case
+	unsigned getExpectedReadCountOk(int msgWriteCount)
+	{
+		unsigned expectedReadCountOk = 0;
+		const GLobalLockSystemTestParams& testParams = GetParam();
+
+		unsigned offsetProtocol = 0;
+
+		if (testParams.connType == RSSL_CONN_TYPE_SOCKET)
+		{
+			offsetProtocol = 0;
+		}
+		else if (testParams.connType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			if (testParams.wsProtocolType == RSSL_JSON_PROTOCOL_TYPE)
+				offsetProtocol = 0;
+			else if (testParams.wsProtocolType == RSSL_RWF_PROTOCOL_TYPE)
+				offsetProtocol = 4;
+		}
+
+		switch (testParams.configReadErrorIndex)
+		{
+		case 0: // all messages ok - an error is not expected
+			if (testParams.connType == RSSL_CONN_TYPE_WEBSOCKET && testParams.wsProtocolType == RSSL_JSON_PROTOCOL_TYPE)
+			{
+				// Websocket/Json - ETA sends packed messages as one message - JSON array with items
+				expectedReadCountOk = 1;
+			}
+			else
+			{
+				if (testParams.msgLength == 55 + offsetProtocol)
+					expectedReadCountOk = msgWriteCount * 1;
+				else if (testParams.msgLength == 107 + offsetProtocol)
+					expectedReadCountOk = msgWriteCount * 2;
+				else
+					expectedReadCountOk = msgWriteCount * 3;
+			}
+			break;
+		case 1: // the error is in the message's header, not in the first (2 or 3), but send only 1 byte of header, must be 2
+			if (testParams.msgLength == 56 + offsetProtocol) // the 2-nd message header is 56,57 bytes
+				expectedReadCountOk = 1;
+			else  // the 3-rd message header is 108,109 bytes
+				expectedReadCountOk = 2;
+			break;
+		case 2: // the error is inside the message, not in the first (2 or 3)
+			if (testParams.msgLength < 108 + offsetProtocol) // the 2-nd message is 58 .. 107 bytes
+				expectedReadCountOk = 1;
+			else  // the 3-rd message header is 108 .. 159 bytes
+				expectedReadCountOk = 2;
+			break;
+		case 3: // the error is in the 1-st message's header
+			expectedReadCountOk = 0; break;
+		case 4: // the error is inside the 1-st message
+			expectedReadCountOk = 0; break;
+		case 5: // Websocket/RWF implementation
+			expectedReadCountOk = 0; break;
+		}
+
+		return expectedReadCountOk;
+	}
+};
+
+TEST_P(SystemTestsSendSpecialPackedBuffersFixture, ExpectedReadErrorSim)
+{
+	RsslThreadId serverWriteThread, clientReadThread;
+
+	const GLobalLockSystemTestParams& testParams = GetParam();
+
+	// Synchronization objects for step-by-step test
+	// i.e. after send several buffers the test waits for read is completed
+	// and only then sends a next chunk
+	RsslMutex* pReadWriteLock = &readwriteLock;
+	EventSignal* pReadWriteSignal = &eventSignalRW;
+
+	RsslError err;
+	int readCount = 0;
+	int readCountPrev = 0;
+	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+
+	WriteChannelSpecialPackedBuffer
+		serverWriteOpts(testParams.msgLength, msgWriteCount, testParams.configReadErrorIndex, "SrvW",
+			pReadWriteLock, pReadWriteSignal,
+			testParams.connType, testParams.encryptedProtocol, testParams.wsProtocolType
+		);
+
+	ReadChannel clientReadOpts;
+	ReadErrorCheck readErrorCheck(testParams.configReadErrorIndex);
+
+	startupServerAndConections(0, RSSL_FALSE,
+		testParams.maxFragmentSize,
+		testParams.connType, testParams.encryptedProtocol, testParams.wsProtocolType,
+		testParams.compressionType, testParams.compressionLevel, &connectionA);
+
+	clientReadOpts.pThreadId = &clientReadThread;
+	clientReadOpts.pChnl = connectionA.pClientChannel;
+	clientReadOpts.readCount = &msgsRead;
+	clientReadOpts.lock = &readLock;
+	clientReadOpts.pReadErrorCheck = &readErrorCheck;  // checks that the received read error is expected
+
+	serverWriteOpts.pThreadId = &clientReadThread;
+	serverWriteOpts.pChnl = connectionA.pServerChannel;
+
+	// TestHandler checks the data buffer on Read (server and client) side
+	PackedBufferChecker checkerSrvR(clientReadOpts.pChnl, true);
+	clientReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
+
+	// Calculate the number of messages that will be read correctly in this test case
+	unsigned expectedReadCountOk = getExpectedReadCountOk(msgWriteCount);
+
+	// When the test does not expect an error, set the expectedReadCount
+	if (testParams.configReadErrorIndex == 0)
+		clientReadOpts.expectedReadCount = expectedReadCountOk;  // allow break read loop when all expected messages were read
+
+	RSSL_THREAD_START(&serverWriteThread, nonBlockingWriteSpecialPackedBuffersThread, (void*)&serverWriteOpts);
+
+	RSSL_THREAD_START(&clientReadThread, nonBlockingReadThread, (void*)&clientReadOpts);
+
+	do
+	{
+		time_sleep(50);
+		RSSL_MUTEX_LOCK(&readLock);
+		readCount = msgsRead;
+		RSSL_MUTEX_UNLOCK(&readLock);
+
+		//EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount;
+		if (testParams.configReadErrorIndex == 0 && expectedReadCountOk > 0 && expectedReadCountOk <= (unsigned)readCount)
+			break;
+	} while ( !clientReadOpts.expectedErrorDetected && !failTest );
+
+	shutdownTest = true;
+	//std::cout << "SystemTestsSendSpecialPackedBuffersFixture  Loop finished. failTest: " << failTest << " readCount/writeCount: " << readCount << "/" << msgWriteCount << std::endl;
+
+	time_sleep(50);
+
+	if (failTest)
+	{
+		RSSL_THREAD_KILL(&serverWriteThread);
+	}
+	else
+	{
+		RSSL_THREAD_JOIN(serverWriteThread);
+	}
+
+	rsslCloseChannel(connectionA.pServerChannel, &err);
+	rsslCloseChannel(connectionA.pClientChannel, &err);
+
+	if (failTest)
+	{
+		RSSL_THREAD_KILL(&clientReadThread);
+	}
+	else
+	{
+		RSSL_THREAD_JOIN(clientReadThread);
+	}
+
+	if (!failTest)
+	{
+		ASSERT_EQ(expectedReadCountOk, readCount) << "Expected read message is " << expectedReadCountOk
+			<< ", read msgs: " << readCount
+			<< ". expectedErrorDetected: " << clientReadOpts.expectedErrorDetected;
+	}
+
+	ASSERT_FALSE(failTest) << "Test failed.";
+}
+
+class SystemTestsSendSpecialPackedBuffersFixture1
+	: public SystemTests, public ::testing::WithParamInterface<GLobalLockSystemTestParams>
+{
+};
+
+TEST_P(SystemTestsSendSpecialPackedBuffersFixture1, ExpectedReadErrorRel)
+{
+	RsslThreadId serverWriteThread, clientReadThread;
+	ReadChannel clientReadOpts;
+
+	const GLobalLockSystemTestParams& testParams = GetParam();
+
+	RsslMutex* pReadWriteLock = NULL;
+	EventSignal* pReadWriteSignal = NULL;
+	if (testParams.configIndex == 21	// cap_packet_wrong.bin Socket
+		|| testParams.configIndex == 23	// cap_packet_ok.bin Socket
+		)
+	{   // all the tests 20 .. 21, 22 .. 23 are: step-by-step
+		// i.e. after each send the test waits for read is completed
+		// and only then sends a next chunk 
+		pReadWriteLock = &readwriteLock;
+		pReadWriteSignal = &eventSignalRW;
+	}
+
+	WriteChannelSystem serverWriteOpts(testParams.msgLength, testParams.msgWriteCount, testParams.configIndex, pReadWriteLock, pReadWriteSignal);
+
+	RsslError err;
+	int readCount = 0;
+	int readCountPrev = 0;
+	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+
+	ReadErrorCheck readErrorCheck(testParams.configReadErrorIndex);
+
+
+	startupServerAndConections(0, RSSL_FALSE,
+		testParams.maxFragmentSize,
+		testParams.connType, testParams.encryptedProtocol, testParams.wsProtocolType,
+		testParams.compressionType, testParams.compressionLevel, &connectionA);
+
+	serverWriteOpts.pThreadId = &serverWriteThread;
+	serverWriteOpts.pChnl = connectionA.pServerChannel;
+
+	clientReadOpts.pThreadId = &clientReadThread;
+	clientReadOpts.pChnl = connectionA.pClientChannel;
+	clientReadOpts.readCount = &msgsRead;
+	clientReadOpts.lock = &readLock;
+	clientReadOpts.lockReadWrite = pReadWriteLock;
+	clientReadOpts.signalForWrite = pReadWriteSignal;
+	clientReadOpts.pReadErrorCheck = &readErrorCheck;  // checks that the received read error is expected
+
+	// TestHandler checks the data buffer on Read side
+	PackedBufferChecker checkerSrvR(clientReadOpts.pChnl, false);
+	clientReadOpts.pSystemTestHandler = &checkerSrvR; // should have handleDataBuffer
+
+	// Calculate the number of messages that will be read correctly in this test case
+	unsigned expectedReadCountOk = 0;
+	if (22 <= testParams.configIndex && testParams.configIndex <= 23)
+		expectedReadCountOk = msgWriteCount; // cap_packet_ok.bin Socket - 10 messages in each packet are expected to be read
+
+	// When the test does not expect an error, set the expectedReadCount
+	if (testParams.configReadErrorIndex == 0)
+		clientReadOpts.expectedReadCount = expectedReadCountOk;  // allow break read loop when all expected messages were read
+
+
+	RSSL_THREAD_START(&serverWriteThread, nonBlockingWriteSystemThread, (void*)&serverWriteOpts);
+
+	RSSL_THREAD_START(&clientReadThread, nonBlockingReadThread, (void*)&clientReadOpts);
+
+	do
+	{
+		time_sleep(50);
+		RSSL_MUTEX_LOCK(&readLock);
+		readCount = msgsRead;
+		RSSL_MUTEX_UNLOCK(&readLock);
+
+		if (testParams.configReadErrorIndex == 0 && expectedReadCountOk > 0 && expectedReadCountOk <= (unsigned)readCount)
+			break;
+	} while ( !clientReadOpts.expectedErrorDetected && !failTest );
+
+	shutdownTest = true;
+	//std::cout << "SystemTestsSendSpecialPackedBuffersFixture1  Loop finished. failTest: " << failTest << " readCount/writeCount: " << readCount << "/" << msgWriteCount << std::endl;
+
+	time_sleep(50);
+
+	if (failTest)
+	{
+		RSSL_THREAD_KILL(&serverWriteThread);
+	}
+	else
+	{
+		RSSL_THREAD_JOIN(serverWriteThread);
+	}
+
+	rsslCloseChannel(connectionA.pServerChannel, &err);
+	rsslCloseChannel(connectionA.pClientChannel, &err);
+
+	if (failTest)
+	{
+		RSSL_THREAD_KILL(&clientReadThread);
+	}
+	else
+	{
+		RSSL_THREAD_JOIN(clientReadThread);
+	}
+
+	ASSERT_FALSE(failTest) << "Test failed.";
+}
+
+//GLobalLockSystemTestParams(
+//	int configTestBufferIndex,
+//	int configReadErrIndex,
+//	RsslConnectionTypes cnType,
+//	RsslUInt32 msgLen, RsslUInt32 maxFragSz, RsslUInt32 msgCount,
+//	RsslConnectionTypes encrProt, RsslUInt8 wsProt,
+//	RsslCompTypes compressType = RSSL_COMP_NONE, RsslUInt32 compressLevel = 0U)
+
+INSTANTIATE_TEST_SUITE_P(
+	SocketClient,
+	SystemTestsSendSpecialPackedBuffersFixture,
+	::testing::Values(
+		// all messages ok
+		GLobalLockSystemTestParams( 15, 0, RSSL_CONN_TYPE_SOCKET,  55, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 0, RSSL_CONN_TYPE_SOCKET, 107, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 0, RSSL_CONN_TYPE_SOCKET, 159, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+
+		// the error is in the message's header, not in the first (2 or 3) - send only 1 byte of header, must be 2
+		GLobalLockSystemTestParams( 15, 1, RSSL_CONN_TYPE_SOCKET,  56, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 1, RSSL_CONN_TYPE_SOCKET, 108, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+
+		// the error is inside the message, not in the first (2 or 3)
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_SOCKET,  57, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_SOCKET,  58, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_SOCKET,  99, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_SOCKET, 106, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_SOCKET, 109, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_SOCKET, 110, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_SOCKET, 123, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_SOCKET, 158, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+
+		// the error is in the 1-st message's header - send only 1 byte of header, must be 2
+		GLobalLockSystemTestParams( 15, 3, RSSL_CONN_TYPE_SOCKET,   4, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+
+		// the error is inside the 1-st message
+		GLobalLockSystemTestParams( 15, 4, RSSL_CONN_TYPE_SOCKET,   5, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 4, RSSL_CONN_TYPE_SOCKET,   6, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 4, RSSL_CONN_TYPE_SOCKET,  23, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 15, 4, RSSL_CONN_TYPE_SOCKET,  54, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 )
+	)
+);
+
+INSTANTIATE_TEST_SUITE_P(
+	WebSockRWF,
+	SystemTestsSendSpecialPackedBuffersFixture,
+	::testing::Values(
+		// all messages ok
+		GLobalLockSystemTestParams( 15, 0, RSSL_CONN_TYPE_WEBSOCKET,  59, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 0, RSSL_CONN_TYPE_WEBSOCKET, 111, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 0, RSSL_CONN_TYPE_WEBSOCKET, 163, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+
+		// the error is in the message's header, not in the first (2 or 3) - send only 1 byte of header, must be 2
+		GLobalLockSystemTestParams( 15, 1, RSSL_CONN_TYPE_WEBSOCKET,  60, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 1, RSSL_CONN_TYPE_WEBSOCKET, 112, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+
+		// the error is inside the message, not in the first (2 or 3)
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_WEBSOCKET,  61, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_WEBSOCKET,  62, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_WEBSOCKET,  99, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_WEBSOCKET, 110, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_WEBSOCKET, 113, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_WEBSOCKET, 114, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_WEBSOCKET, 123, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 2, RSSL_CONN_TYPE_WEBSOCKET, 162, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+
+		// the error is in the 1-st message's header - send only 1 byte of header, must be 2
+		GLobalLockSystemTestParams( 15, 3, RSSL_CONN_TYPE_WEBSOCKET,   8, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+
+		// the error is inside the 1-st message
+		GLobalLockSystemTestParams( 15, 4, RSSL_CONN_TYPE_WEBSOCKET,   9, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 4, RSSL_CONN_TYPE_WEBSOCKET,  10, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 4, RSSL_CONN_TYPE_WEBSOCKET,  23, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 4, RSSL_CONN_TYPE_WEBSOCKET,  58, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+
+		// error case: difference between websocket frame length and packed buffer length
+		// WebSocket/RWF implementation expects that packed buffer length is equal to websocket frame length
+		GLobalLockSystemTestParams( 15, 5, RSSL_CONN_TYPE_WEBSOCKET,  23, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 5, RSSL_CONN_TYPE_WEBSOCKET,  59, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 5, RSSL_CONN_TYPE_WEBSOCKET, 111, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 5, RSSL_CONN_TYPE_WEBSOCKET, 123, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
+	)
+);
+
+INSTANTIATE_TEST_SUITE_P(
+	WebSockJSON,
+	SystemTestsSendSpecialPackedBuffersFixture,
+	::testing::Values(
+		// all messages ok
+		GLobalLockSystemTestParams( 15, 0, RSSL_CONN_TYPE_WEBSOCKET,  56, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 0, RSSL_CONN_TYPE_WEBSOCKET, 107, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 15, 0, RSSL_CONN_TYPE_WEBSOCKET, 159, 0, 1, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+	)
+);
+
+INSTANTIATE_TEST_SUITE_P(
+	SocketClient,
+	SystemTestsSendSpecialPackedBuffersFixture1,
+	::testing::Values(
+		// cap_packet_wrong.bin
+		// the error is inside the 1-st message
+		GLobalLockSystemTestParams( 20, 4, RSSL_CONN_TYPE_SOCKET, 5956, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 21, 4, RSSL_CONN_TYPE_SOCKET, 5956, 0, 1, RSSL_CONN_TYPE_SOCKET, 0 ),
+
+		// cap_packet_ok.bin
+		// all messages ok
+		GLobalLockSystemTestParams( 22, 0, RSSL_CONN_TYPE_SOCKET, 5958, 0, 1000, RSSL_CONN_TYPE_SOCKET, 0 ),
+		GLobalLockSystemTestParams( 23, 0, RSSL_CONN_TYPE_SOCKET, 5958, 0, 1000, RSSL_CONN_TYPE_SOCKET, 0 )
 	)
 );
 
@@ -8869,4 +9835,3 @@ int main(int argc, char* argv[])
 	}
 	return ret;
 }
- 

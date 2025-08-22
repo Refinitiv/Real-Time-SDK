@@ -127,8 +127,12 @@ if ( CMAKE_HOST_UNIX )
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/inpbuf_01.bin
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_ws_rwf_01.bin
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/inpbuf_ws_rwf_01.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_ok.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cap_packet_ok.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_wrong.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cap_packet_wrong.bin
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    COMMENT "Copying inpbuf_01.bin, inpbuf_ws_rwf_01.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Unit Tests .... "
+                    COMMENT "Copying inpbuf_01.bin, inpbuf_ws_rwf_01.bin, cap_packet_ok.bin, cap_packet_wrong.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Unit Tests .... "
                     )
 
     add_custom_command(
@@ -144,8 +148,12 @@ if ( CMAKE_HOST_UNIX )
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/inpbuf_01.bin
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_ws_rwf_01.bin
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/inpbuf_ws_rwf_01.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_ok.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/cap_packet_ok.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_wrong.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/cap_packet_wrong.bin
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    COMMENT "Copying inpbuf_01.bin, inpbuf_ws_rwf_01.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Shared Unit Tests .... "
+                    COMMENT "Copying inpbuf_01.bin, inpbuf_ws_rwf_01.bin, cap_packet_ok.bin, cap_packet_wrong.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Shared Unit Tests .... "
                     )
 else()
 
@@ -162,6 +170,10 @@ else()
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/inpbuf_01.bin
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_ws_rwf_01.bin
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/inpbuf_ws_rwf_01.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_ok.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/cap_packet_ok.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_wrong.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/cap_packet_wrong.bin
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/enumtype.def
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/enumtype.def
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary
@@ -172,8 +184,12 @@ else()
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/inpbuf_01.bin
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_ws_rwf_01.bin
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/inpbuf_ws_rwf_01.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_ok.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/cap_packet_ok.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_wrong.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/cap_packet_wrong.bin
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    COMMENT "Copying inpbuf_01.bin, inpbuf_ws_rwf_01.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Unit Tests .... "     
+                    COMMENT "Copying inpbuf_01.bin, inpbuf_ws_rwf_01.bin, cap_packet_ok.bin, cap_packet_wrong.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Unit Tests .... "     
                     )
                     
     add_custom_command(
@@ -189,6 +205,10 @@ else()
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/inpbuf_01.bin
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_ws_rwf_01.bin
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/inpbuf_ws_rwf_01.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_ok.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/cap_packet_ok.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_wrong.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/cap_packet_wrong.bin
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/enumtype.def
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/enumtype.def
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary
@@ -199,9 +219,13 @@ else()
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/inpbuf_01.bin
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_ws_rwf_01.bin
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/inpbuf_ws_rwf_01.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_ok.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/cap_packet_ok.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/cap_packet_wrong.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/cap_packet_wrong.bin
 
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    COMMENT "Copying inpbuf_01.bin, inpbuf_ws_rwf_01.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Shared Unit Tests .... "
+                    COMMENT "Copying inpbuf_01.bin, inpbuf_ws_rwf_01.bin, cap_packet_ok.bin, cap_packet_wrong.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Shared Unit Tests .... "
                     )
 
 endif()

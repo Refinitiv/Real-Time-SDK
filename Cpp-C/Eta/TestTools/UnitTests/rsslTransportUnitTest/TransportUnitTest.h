@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2023-2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2023-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -140,6 +140,7 @@ public:
 class GLobalLockSystemTestParams {
 public:
 	int						configIndex;		// test buffer configuration index
+	int						configReadErrorIndex;	// expected rsslRead error configuration index
 
 	RsslConnectionTypes		connType;			// the connection type
 	RsslUInt32				msgLength;			// the specific value for length of each separated message
@@ -152,12 +153,14 @@ public:
 
 	GLobalLockSystemTestParams(
 		int configTestBufferIndex,
+		int configReadErrIndex,
 		RsslConnectionTypes cnType,
 		RsslUInt32 msgLen, RsslUInt32 maxFragSz, RsslUInt32 msgCount,
 		RsslConnectionTypes encrProt, RsslUInt8 wsProt,
 		RsslCompTypes compressType = RSSL_COMP_NONE, RsslUInt32 compressLevel = 0U)
 		:
 		configIndex(configTestBufferIndex),
+		configReadErrorIndex(configReadErrIndex),
 		connType(cnType),
 		msgLength(msgLen),
 		maxFragmentSize(maxFragSz),
@@ -173,6 +176,7 @@ public:
 	{
 		out << "["
 			"configIndex:" << params.configIndex << ","
+			"configReadErrorIndex:" << params.configReadErrorIndex << ","
 			"connType:" << params.connType << ","
 			"msgLength:" << params.msgLength << ","
 			"maxFragmentSize:" << params.maxFragmentSize << ","

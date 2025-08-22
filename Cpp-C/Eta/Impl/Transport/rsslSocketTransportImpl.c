@@ -191,6 +191,13 @@ static RsslUInt8 conndebug = 0;
 static RsslUInt8 readdebug = 0;
 static RsslUInt8 refdebug = 0;
 
+/* debug - set to 0 is off, set to 1 will print debug msgs */
+#ifdef NDEBUG
+static RsslUInt8 packetDebug = 0;
+#else
+static RsslUInt8 packetDebug = 1;
+#endif
+
 RsslUInt8 getConndebug()
 {
 	return conndebug;
@@ -918,6 +925,24 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 		{
 			cont = 0;
 			break;
+		}
+
+		/* Check if the message size differs from the websocket frame length. */
+		if (rsslSocketChannel->rwsSession)
+		{
+			rwsSession_t	*wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
+			rwsFrameHdr_t	*frame = &(wsSess->frameHdr);
+
+			if (!frame->partial && frame->finSet
+				&& ipcLen > frame->payloadLen)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1007 Invalid Message Size. Message size is: (%u). Websocket frame payload length is (%llu)\n",
+					__FILE__, __LINE__, ipcLen, frame->payloadLen);
+				*readret = RSSL_RET_FAILURE;
+				return 0;
+			}
 		}
 
 		cOpcode = rsslSocketChannel->inputBuffer->buffer[rsslSocketChannel->inputBufCursor + 2];
@@ -9240,6 +9265,140 @@ RsslRet rsslSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error)
 	return retVal;
 }
 
+/* Dump the buffer as hex
+ * pBuf pointer to the input buffer containing the raw data to dump as a hexadecimal string
+ * dumpLen number of bytes from pBuf to convert to hex
+ * outputBuf pointer to the output buffer where the function will write the resulting hex string
+ * outputBufLen size (in bytes) of the outputBuf
+*/
+static int dumpBufferAsHex(const char* pBuf, unsigned dumpLen, char* outputBuf, size_t outputBufLen)
+{
+	const unsigned hexInLine = 16;
+	unsigned nLines = (dumpLen / hexInLine) + (dumpLen % hexInLine > 0 ? 1 : 0);
+	unsigned iLine, j;
+	unsigned k = 0;
+
+	int n = 0;
+
+	for (iLine = 0; iLine < nLines && k < dumpLen && n < outputBufLen; ++iLine)
+	{
+		for (j = 0; j < hexInLine && k < dumpLen && n < outputBufLen; ++j, ++k)
+		{
+			n += snprintf(outputBuf + n, outputBufLen - n,
+				"%2.2X%s", *(pBuf + k) & 0xFF, (j < (hexInLine - 1) ? " " : ""));
+		}
+		if (n < outputBufLen)
+			n += snprintf(outputBuf + n, outputBufLen - n, "\n");
+	}
+	return n;
+}
+
+/* Dump first nBytes of the message from the packed buffer pPackedBuffer
+ * msgOffset offset in the packed buffer to the message
+ * outputBuf pointer to the output buffer where the function will write the resulting hex string
+ * outputBufLen size(in bytes) of the outputBuf
+*/
+static int dumpMessagePackedBufferAsHex(RsslBuffer* pPackedBuffer, size_t msgOffset, unsigned nBytes,
+	char* outputBuf, size_t outputBufLen)
+{
+	if (msgOffset >= pPackedBuffer->length || nBytes == 0 || outputBuf == NULL || outputBufLen == 0)
+	{
+		return 0; // nothing to dump
+	}
+
+	const char* pBuf = pPackedBuffer->data + msgOffset;  // pointer to the message in the packed buffer
+	size_t bufLen = pPackedBuffer->length - msgOffset;
+
+	RsslUInt16 msgLen;
+	size_t msgHdr = rwfGet16(msgLen, pBuf);  
+
+	unsigned dumpLen = (nBytes < msgHdr + msgLen ? nBytes : (unsigned)(msgHdr + msgLen));
+	if (dumpLen > bufLen)
+		dumpLen = (unsigned)bufLen;
+
+	return dumpBufferAsHex(pBuf, dumpLen, outputBuf, outputBufLen);
+}
+
+/* Add information about messages in the packed buffer pPackedBuffer to the error object
+ * offsetInvalidMsg offset in the packed buffer where the last invalid message starts
+*/
+static void setPackedBufferError(RsslBuffer* pPackedBuffer, size_t offsetInvalidMsg, RsslError* error)
+{
+	if (pPackedBuffer == NULL || pPackedBuffer->data == NULL || pPackedBuffer->length == 0 || error == NULL)
+	{
+		return;
+	}
+
+	/* Dump first 64 bytes of the invalid message including msg header */
+	dumpMessagePackedBufferAsHex(pPackedBuffer, offsetInvalidMsg, 64,
+		error->text + strlen(error->text), MAX_RSSL_ERROR_TEXT - strlen(error->text));
+
+	/* Analyze messages in the packed buffer */
+	size_t bufLen = pPackedBuffer->length;
+	size_t offset = 0;
+
+	size_t msgHdr;
+	RsslUInt16 msgLen;
+
+	int validMsgCount = 0;
+	int foundInvalid = 0;
+
+	while (offset + 1 < bufLen)  // Need at least 2 bytes to read message length field
+	{
+		msgHdr = rwfGet16(msgLen, (pPackedBuffer->data + offset));
+		// at least 1 byte of the message
+		if (msgLen == 0 || offset + msgHdr + msgLen > bufLen)
+		{
+			foundInvalid = 1;
+			break;
+		}
+		validMsgCount++;
+		offset += msgHdr + msgLen;
+	}
+	snprintf(error->text + strlen(error->text), MAX_RSSL_ERROR_TEXT - strlen(error->text),
+		"Packed buffer contains %d valid message(s)%s. Length of valid msgs: %zu\n",
+		validMsgCount, foundInvalid ? " and 1 invalid/truncated message" : "", offset);
+
+	/* Add details about each message in the packed buffer */
+	int msgIdx = 0;
+	size_t offsetValidMsg = 0;
+	offset = 0;
+
+	while (offset + 1 < bufLen) // Need at least 2 bytes to read message length field
+	{
+		msgHdr = rwfGet16(msgLen, (pPackedBuffer->data + offset));
+		snprintf(error->text + strlen(error->text), MAX_RSSL_ERROR_TEXT - strlen(error->text),
+			"Msg[%d] offset=%zu, hdr=%zu, len=%u", msgIdx, offset, msgHdr, msgLen);
+
+		if (msgLen == 0 || offset + msgHdr + msgLen > bufLen)
+		{
+			snprintf(error->text + strlen(error->text), MAX_RSSL_ERROR_TEXT - strlen(error->text),
+				"  (Invalid)\n");
+			break;
+		}
+		snprintf(error->text + strlen(error->text), MAX_RSSL_ERROR_TEXT - strlen(error->text), "\n");
+
+		offsetValidMsg = offset;
+
+		offset += msgHdr + msgLen;
+		++msgIdx;
+	}
+	if (offset < bufLen)
+	{
+		snprintf(error->text + strlen(error->text), MAX_RSSL_ERROR_TEXT - strlen(error->text),
+			"(Trailing %zu bytes at end of packed buffer)\n", bufLen - offset);
+	}
+
+	/* Dump first 64 bytes of the last valid message */
+	if (validMsgCount > 0)
+	{
+		dumpMessagePackedBufferAsHex(pPackedBuffer, offsetValidMsg, 64,
+			error->text + strlen(error->text), MAX_RSSL_ERROR_TEXT - strlen(error->text));
+	}
+
+	return;
+}
+
 /* rssl Socket Read */
 RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnlImpl, RsslReadOutArgs *readOutArgs, RsslRet *readRet, RsslError *error)
 {
@@ -9297,11 +9456,70 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 			readOutArgs->uncompressedBytesRead = 0;
 		}
 
+		if (rsslChnlImpl->packedBuffer->length < rsslChnlImpl->unpackOffset + 2)
+		{
+			/* There is not enough space in the packed buffer for the message header. */
+			_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1004 rsslSocketRead() Not enough space in packed buffer to read message length. unpackOffset: %u, packed buffer len: %zu\n",
+				__FILE__, __LINE__,
+				rsslChnlImpl->unpackOffset, rsslChnlImpl->packedBuffer->length);
+
+			/* Add information about messages in the packed buffer */
+			if (packetDebug != 0)
+			{
+				RsslBuffer packedBuffer;
+				packedBuffer.data = rsslChnlImpl->packedBuffer->buffer;
+				packedBuffer.length = (RsslUInt32)rsslChnlImpl->packedBuffer->length;
+
+				setPackedBufferError(&packedBuffer, rsslChnlImpl->unpackOffset, error);
+			}
+
+			if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			{
+				(void)RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+					_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", rsslChnlImpl, rsslChnlImpl->chanMutex)
+			}
+
+			*readRet = RSSL_RET_FAILURE;
+			return NULL;
+		}
+
 		rsslChnlImpl->unpackOffset += rwfGet16(bufLength, (rsslChnlImpl->packedBuffer->buffer + rsslChnlImpl->unpackOffset));
 		rsslChnlImpl->returnBuffer.length = bufLength;
 		rsslChnlImpl->returnBuffer.data = rsslChnlImpl->packedBuffer->buffer + rsslChnlImpl->unpackOffset;
 
-		if ((rsslChnlImpl->packedBuffer->buffer + rsslChnlImpl->packedBuffer->length) != (rsslChnlImpl->returnBuffer.data + rsslChnlImpl->returnBuffer.length))
+		if ((rsslChnlImpl->packedBuffer->buffer + rsslChnlImpl->packedBuffer->length) < (rsslChnlImpl->returnBuffer.data + rsslChnlImpl->returnBuffer.length))
+		{
+			/* Unpacked buffer length is greater than total packed buffer length */
+			RsslUInt32 unpackedLength = rsslChnlImpl->returnBuffer.length + rsslChnlImpl->unpackOffset;
+			_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1004 rsslSocketRead() unpacked buffer length (%u) is greater than total packed buffer length (%zu). Last invalid msg length (%u).\n",
+				__FILE__, __LINE__,
+				unpackedLength, rsslChnlImpl->packedBuffer->length, bufLength
+			);
+
+			/* Add information about messages in the packed buffer */
+			if (packetDebug != 0)
+			{
+				RsslBuffer packedBuffer;
+				packedBuffer.data = rsslChnlImpl->packedBuffer->buffer;
+				packedBuffer.length = (RsslUInt32)rsslChnlImpl->packedBuffer->length;
+
+				setPackedBufferError(&packedBuffer, (rsslChnlImpl->unpackOffset - 2), error);
+			}
+
+			if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			{
+				(void)RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+					_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", rsslChnlImpl, rsslChnlImpl->chanMutex)
+			}
+
+			*readRet = RSSL_RET_FAILURE;
+			return NULL;
+		}
+		else if ((rsslChnlImpl->packedBuffer->buffer + rsslChnlImpl->packedBuffer->length) > (rsslChnlImpl->returnBuffer.data + rsslChnlImpl->returnBuffer.length))
 		{
 			/* packedBuffer should already be set */
 			rsslChnlImpl->unpackOffset += rsslChnlImpl->returnBuffer.length;
@@ -9373,15 +9591,63 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				if (packing != 0)
 				{
 					RsslUInt16 bufLength = 0;
+
+					if (ripcBuffer->length < 2)
+					{
+						/* There is not enough space in the ripcBuffer for the message header. */
+						_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Error: 1004 rsslSocketRead() Not enough space in packed buffer to read message length. ripcBuffer len: %zu\n",
+							__FILE__, __LINE__, ripcBuffer->length);
+
+						if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+						{
+							(void)RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+								_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", rsslChnlImpl, rsslChnlImpl->chanMutex)
+						}
+
+						*readRet = RSSL_RET_FAILURE;
+						return NULL;
+					}
+
 					/* packing occurred */
 					/* set the length */
 					rsslChnlImpl->unpackOffset = rwfGet16(bufLength, ripcBuffer->buffer);
 					rsslChnlImpl->returnBuffer.length = bufLength;
 					rsslChnlImpl->returnBuffer.data = ripcBuffer->buffer + rsslChnlImpl->unpackOffset;
 
+					if ((ripcBuffer->buffer + ripcBuffer->length) < (rsslChnlImpl->returnBuffer.data + rsslChnlImpl->returnBuffer.length))
+					{
+						/* Unpacked buffer length is greater than total packed buffer length */
+						RsslUInt32 unpackedLength = rsslChnlImpl->returnBuffer.length + rsslChnlImpl->unpackOffset;
+						_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Error: 1004 rsslSocketRead() unpacked buffer length (%u) is greater than total packed buffer length (%zu). The invalid msg length (%u).\n",
+							__FILE__, __LINE__,
+							unpackedLength, ripcBuffer->length, bufLength
+						);
+
+						/* Add information about messages in the packed buffer */
+						if (packetDebug != 0)
+						{
+							RsslBuffer packedBuffer;
+							packedBuffer.data = ripcBuffer->buffer;
+							packedBuffer.length = (RsslUInt32)ripcBuffer->length;
+
+							setPackedBufferError(&packedBuffer, (rsslChnlImpl->unpackOffset - 2), error);
+						}
+
+						if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+						{
+							(void)RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+								_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", rsslChnlImpl, rsslChnlImpl->chanMutex)
+						}
+						*readRet = RSSL_RET_FAILURE;
+						return NULL;
+					}
 					/* check if this is the only message in the packed buffer -
 					  if so, just continue like normal */
-					if ((ripcBuffer->buffer + ripcBuffer->length) != (rsslChnlImpl->returnBuffer.data + rsslChnlImpl->returnBuffer.length))
+					else if ((ripcBuffer->buffer + ripcBuffer->length) > (rsslChnlImpl->returnBuffer.data + rsslChnlImpl->returnBuffer.length))
 					{
 						/* we have more data to unpack */
 						rsslChnlImpl->packedBuffer = ripcBuffer;
