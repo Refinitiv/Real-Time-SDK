@@ -11,7 +11,6 @@ package com.refinitiv.eta.valueadd.reactor;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -32,7 +31,6 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManager;
 import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
-import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
 import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
@@ -1490,18 +1488,14 @@ class RestReactor
 
 		try
 		{
-			response = httpClient.execute(httpRequest, handler);
-		} catch (Exception e) {
 			if (loggerClient.isTraceEnabled())
 			{
 				loggerClient.trace(prepareRequestString(httpRequest, connOptions));
 			}
+			
+			response = httpClient.execute(httpRequest, handler);
+		} catch (Exception e) {
 			throw e;
-		}
-
-		if (loggerClient.isTraceEnabled())
-		{
-			loggerClient.trace(prepareRequestString(httpRequest, connOptions));
 		}
 
 		return response;
