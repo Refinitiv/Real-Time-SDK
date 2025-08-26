@@ -830,8 +830,8 @@ public class NIProvider implements NIProviderCallback, RDMDictionaryMsgCallback
         	chnlInfo.connectOptions.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
         	chnlInfo.connectOptions.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
         	chnlInfo.connectOptions.connectionList().get(0).connectOptions().connectionType(connectionType);
-        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
-        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
+        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.consumerPorts().get(0));
+        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.consumerHostnames().get(0));
         	chnlInfo.connectOptions.connectionList().get(0).connectOptions().userSpecObject(chnlInfo);
         }
         else if (connectionType == ConnectionTypes.RELIABLE_MCAST)
