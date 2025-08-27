@@ -40,7 +40,7 @@ public class ReactorPreferredHostOptions {
     /**
      * Sets whether preferred host feature is configured for this channel.
      *
-     * @param boolean isPreferredHostEnabled
+     * @param isPreferredHostEnabled the preferred host is enabled
      */
     public void isPreferredHostEnabled(boolean isPreferredHostEnabled)
     {
@@ -59,7 +59,7 @@ public class ReactorPreferredHostOptions {
     /**
      * Sets Cron time schedule to switch over to a preferred host or WSB group.
      *
-     * @param String cron expression
+     * @param detectionTimeSchedule the string cron expression
      */
     public void detectionTimeSchedule(String detectionTimeSchedule)
     {
@@ -80,7 +80,7 @@ public class ReactorPreferredHostOptions {
      * Sets time interval in second to switch over to a preferred host or WSB
      * group.
      *
-     * @param long time interval
+     * @param detectionTimeInterval the detection time interval
      */
     public void detectionTimeInterval(long detectionTimeInterval) {
         _detectionTimeInterval = detectionTimeInterval;
@@ -100,7 +100,7 @@ public class ReactorPreferredHostOptions {
      * Sets the index of {@link ReactorConnectOptions#connectionList()} to set a
      * preferred host.
      *
-     * @param int the preferred host index
+     * @param connectionListIndex the preferred host index
      */
     public void connectionListIndex(int connectionListIndex) {
         _connectionListIndex = connectionListIndex;
@@ -122,7 +122,7 @@ public class ReactorPreferredHostOptions {
      * {@link ReactorConnectOptions#reactorWarmStandbyGroupList()} to set a
      * preferred WSB.
      *
-     * @param int preferred WSB group index
+     * @param warmStandbyGroupListIndex the preferred WSB group index
      */
     public void warmStandbyGroupListIndex(int warmStandbyGroupListIndex) {
         _warmStandbyGroupListIndex = warmStandbyGroupListIndex;
@@ -142,7 +142,7 @@ public class ReactorPreferredHostOptions {
      * Sets boolean value of whether to fallback within a warmstandby group. 
      * If true, the reactorChannel will fallback within a warmstandby group to the starting active channel when possible.
      *
-     * @param boolean to fallback within warmstandby group
+     * @param fallBackWithInWSBGroup fallback within warmstandby group
      */
     public void fallBackWithInWSBGroup(boolean fallBackWithInWSBGroup) {
         _fallBackWithInWSBGroup = fallBackWithInWSBGroup;

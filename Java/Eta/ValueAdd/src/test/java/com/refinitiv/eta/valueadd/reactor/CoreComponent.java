@@ -296,7 +296,6 @@ public class CoreComponent
      * store any received events for later review.
      * Waiting for notification stops once the expected number of events is received (unless that number is zero, in which case it waits for the full specified time). 
      * @param expectedEventCount The exact number of events that should be received.
-     * @param timeoutMsec The maximum time to wait for all events.
      */
     public void dispatch(int expectedEventCount)
     {

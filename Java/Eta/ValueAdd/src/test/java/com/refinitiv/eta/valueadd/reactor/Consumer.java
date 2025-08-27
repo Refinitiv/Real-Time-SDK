@@ -313,7 +313,7 @@ public class Consumer extends TestReactorComponent implements ReactorAuthTokenEv
     }
 
     /**  Convenience function for establishing a queue messaging stream.
-     * Initializes the consumer's role, and opens up a session & tunnel stream with queue 
+     * Initializes the consumer's role, and opens up a session and tunnel stream with queue 
      * messaging enabled. */
     public OpenedTunnelStreamInfo openSessionAndQueueMessagingTunnelStream(TunnelStreamCoreProvider provider, boolean persistLocally, boolean recoveringChannel, ClassOfService provClassOfService,
             boolean enableWatchlist)
@@ -356,7 +356,7 @@ public class Consumer extends TestReactorComponent implements ReactorAuthTokenEv
      * @param provider Provider component.
      * @param consTunnelStream Consumer's tunnel stream.
      * @param consTunnelStream Provider's tunnel stream.
-     * @param finalStatusEvent Whether the consumer & provider want to get the final TunnelStreamStatusEvent.
+     * @param finalStatusEvent Whether the consumer and provider want to get the final TunnelStreamStatusEvent.
      */
     public void closeTunnelStream(TunnelStreamProvider provider, TunnelStream consTunnelStream,
             TunnelStream provTunnelStream, boolean finalStatusEvent)

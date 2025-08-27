@@ -40,7 +40,7 @@ public class ReactorChannelInfo
     
     /**
      * Sets the preferred host information based on configured options.
-     * @param the preferred host options
+     * @param preferredHostOptions the preferred host options
      */
     public void preferredHostInfo(ReactorPreferredHostOptions preferredHostOptions)
     {
