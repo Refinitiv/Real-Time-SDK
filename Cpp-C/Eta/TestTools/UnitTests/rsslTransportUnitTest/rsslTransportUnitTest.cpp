@@ -2920,10 +2920,6 @@ public:
 	}
 };
 
-constexpr unsigned char WriteChannelSpecialPackedBuffer::dataSocket[];
-constexpr unsigned char WriteChannelSpecialPackedBuffer::dataWebSockJSON[];
-constexpr unsigned char WriteChannelSpecialPackedBuffer::dataWebSockRWF[];
-
 class ManyThreadChannel
 {
 public:
