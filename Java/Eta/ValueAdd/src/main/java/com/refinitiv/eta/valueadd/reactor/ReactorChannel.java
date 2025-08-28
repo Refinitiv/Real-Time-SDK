@@ -2627,9 +2627,9 @@ public class ReactorChannel extends VaNode
     /**
      * Triggers an immediate attempt to switch the current connection to the preferred host.
      * 
-     * Returns {@link ReactorReturnCodes} with success if switch has initiated, failure if preferred host is not enabled or connection is currently on preferred host already
-     *
-     * @return int ReactorReturnCode
+     * @param errorInfo error structure to be populated in the event of failure
+     * 
+     * @return {@link ReactorReturnCodes} with success if switch has initiated, failure if preferred host is not enabled or connection is currently on preferred host already
      */
     public int fallbackPreferredHost(ReactorErrorInfo errorInfo)
     {
