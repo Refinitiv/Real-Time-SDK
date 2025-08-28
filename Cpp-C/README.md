@@ -255,8 +255,6 @@ Alternatively, to build using CMake command line instead of Visual Studio, use t
      cmake --build . --config Debug_MDd.  
      # In the command above, options for config are Debug_MDd or Release_MD.
 
-Note that your installation of Visual Studio needs to be updated to add Microsoft Foundation Classes per Microsoft when encountering this build error: fatal error RC105: cannot open include file 'afxres.h'.
-
 **32 bit support**:
 
 CMake has build support for 32 bit platforms. This 32-bit support is available only for ETA core RSSL layer.
