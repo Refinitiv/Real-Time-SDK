@@ -123,7 +123,8 @@ class RestProxyAuthHandler
 								extractingContentException = e;
 							}
 
-							if (loggerClient.isTraceEnabled()) {
+							/* Don't dump REST response for the asynchronous request as the RestHandler will eventually dump it later. */
+							if (loggerClient.isTraceEnabled() && restHandler == null) {
 								loggerClient.trace(_restReactor.prepareResponseString(classicResponse, contentString, extractingContentException));
 							}
 
