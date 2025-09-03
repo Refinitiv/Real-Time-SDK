@@ -142,6 +142,12 @@ class ProgrammaticConfigure
 		final static int RECONNECT_ATTEMPT_LIMIT = 0x004;
 		final static int RECONNECT_MIN_DELAY = 0x008;
 		final static int RECONNECT_MAX_DELAY = 0x010;
+		final static int ENABLE_PH_OPTIONS_FLAG = 0x020;
+		final static int PREFERRED_CHANNEL_NAME_FLAG = 0x040;
+		final static int PREFERRED_WSB_CHANNEL_NAME_FLAG = 0x080;
+		final static int PH_DETECTION_TIME_SCHEDULE_FLAG = 0x100;
+		final static int PH_DETECTION_TIME_INTERVAL_FLAG = 0x200;
+		final static int PH_FALLBACK_WITHIN_WSBGROUP_FLAG = 0x400;
 	}
 	
 	
@@ -2847,10 +2853,16 @@ class ProgrammaticConfigure
 	{
 		String channelSet = "";
 		String warmStandbyChannelSet = "";
+		String preferredChannelName = "";
+		String preferredWSBChannelName = "";
+		String detectionTimeSchedule = "";
 
 		int reconnectAttemptLimit = 0;
 		int reconnectMinDelay = 0;
 		int reconnectMaxDelay = 0;
+		int enablePreferredHostOptions = 0;
+		int detectionTimeInterval = 0;
+		int fallbackWithInWSBGroup = 0;
 		int flags = 0;
 		
 		for(ElementEntry sessionChannelEntry : mapEntry.elementList())
@@ -2858,16 +2870,31 @@ class ProgrammaticConfigure
 		switch (sessionChannelEntry.loadType())
 		{
 			case DataTypes.ASCII:
-			if(sessionChannelEntry.name().equalsIgnoreCase("ChannelSet"))
-			{
-				channelSet = sessionChannelEntry.ascii().ascii();
-				flags |= SessionChannelFlag.CHANNELSET_FLAG;
-			}
-			else if(sessionChannelEntry.name().equalsIgnoreCase("WarmStandbyChannelSet"))
-			{
-				warmStandbyChannelSet = sessionChannelEntry.ascii().ascii();
-				flags |= SessionChannelFlag.WSB_CHANNELSET_FLAG;
-			}
+				if(sessionChannelEntry.name().equalsIgnoreCase("ChannelSet"))
+				{
+					channelSet = sessionChannelEntry.ascii().ascii();
+					flags |= SessionChannelFlag.CHANNELSET_FLAG;
+				}
+				else if(sessionChannelEntry.name().equalsIgnoreCase("WarmStandbyChannelSet"))
+				{
+					warmStandbyChannelSet = sessionChannelEntry.ascii().ascii();
+					flags |= SessionChannelFlag.WSB_CHANNELSET_FLAG;
+				}
+				else if(sessionChannelEntry.name().equalsIgnoreCase("PreferredChannelName"))
+				{
+					preferredChannelName = sessionChannelEntry.ascii().ascii();
+					flags |= SessionChannelFlag.PREFERRED_CHANNEL_NAME_FLAG;
+				}
+				else if(sessionChannelEntry.name().equalsIgnoreCase("PreferredWSBChannelName"))
+				{
+					preferredWSBChannelName = sessionChannelEntry.ascii().ascii();
+					flags |= SessionChannelFlag.PREFERRED_WSB_CHANNEL_NAME_FLAG;
+				}
+				else if(sessionChannelEntry.name().equalsIgnoreCase("PHDetectionTimeSchedule"))
+				{
+					detectionTimeSchedule = sessionChannelEntry.ascii().ascii();
+					flags |= SessionChannelFlag.PH_DETECTION_TIME_SCHEDULE_FLAG;
+				}
 			break;
 			case DataTypes.INT:
 				if (sessionChannelEntry.name().equals("ReconnectAttemptLimit"))
@@ -2893,8 +2920,25 @@ class ProgrammaticConfigure
 						reconnectMaxDelay = convertToInt(sessionChannelEntry.intValue());
 						flags |= SessionChannelFlag.RECONNECT_MAX_DELAY;
 					}
-				} 
-			break;
+				}
+				break;
+			case DataTypes.UINT:
+				if (sessionChannelEntry.name().equals("EnablePreferredHostOptions"))
+				{
+					enablePreferredHostOptions = convertToInt(sessionChannelEntry.uintValue());
+					flags |= SessionChannelFlag.ENABLE_PH_OPTIONS_FLAG;
+				}
+				else if (sessionChannelEntry.name().equals("PHDetectionTimeInterval"))
+				{
+					detectionTimeInterval = convertToInt(sessionChannelEntry.uintValue());
+					flags |= SessionChannelFlag.PH_DETECTION_TIME_INTERVAL_FLAG;
+				}
+				else if (sessionChannelEntry.name().equals("PHFallBackWithInWSBGroup"))
+				{
+					fallbackWithInWSBGroup = convertToInt(sessionChannelEntry.uintValue());
+					flags |= SessionChannelFlag.PH_FALLBACK_WITHIN_WSBGROUP_FLAG;
+				}
+				break;
 			}
 		}
 		
@@ -2903,6 +2947,9 @@ class ProgrammaticConfigure
 		sessionChannelConfig.reconnectAttemptLimit = activeConfig.reconnectAttemptLimit;
 		sessionChannelConfig.reconnectMaxDelay = activeConfig.reconnectMaxDelay;
 		sessionChannelConfig.reconnectMinDelay = activeConfig.reconnectMinDelay;
+		sessionChannelConfig.detectionTimeInterval = activeConfig.detectionTimeInterval;
+		sessionChannelConfig.detectionTimeSchedule = activeConfig.detectionTimeSchedule;
+		sessionChannelConfig.fallBackWithInWSBGroup = activeConfig.fallBackWithInWSBGroup;
 		
 		if ((flags & SessionChannelFlag.RECONNECT_ATTEMPT_LIMIT) != 0)
 		{
@@ -2917,6 +2964,36 @@ class ProgrammaticConfigure
 		if ((flags & SessionChannelFlag.RECONNECT_MAX_DELAY) != 0)
 		{
 			sessionChannelConfig.reconnectMaxDelay = reconnectMaxDelay;
+		}
+		
+		if ((flags & SessionChannelFlag.PREFERRED_CHANNEL_NAME_FLAG) != 0)
+		{
+			sessionChannelConfig.preferredChannelName = preferredChannelName;
+		}
+		
+		if ((flags & SessionChannelFlag.PREFERRED_WSB_CHANNEL_NAME_FLAG) != 0)
+		{
+			sessionChannelConfig.preferredWSBChannelName = preferredWSBChannelName;
+		}
+		
+		if ((flags & SessionChannelFlag.PH_DETECTION_TIME_SCHEDULE_FLAG) != 0)
+		{
+			sessionChannelConfig.detectionTimeSchedule = detectionTimeSchedule;
+		}
+		
+		if ((flags & SessionChannelFlag.ENABLE_PH_OPTIONS_FLAG) != 0)
+		{
+			sessionChannelConfig.enablePerferredHostOptions = enablePreferredHostOptions > 0 ? true : false;
+		}
+		
+		if ((flags & SessionChannelFlag.PH_DETECTION_TIME_INTERVAL_FLAG) != 0)
+		{
+			sessionChannelConfig.detectionTimeInterval = detectionTimeInterval;
+		}
+		
+		if ((flags & SessionChannelFlag.PH_FALLBACK_WITHIN_WSBGROUP_FLAG) != 0)
+		{
+			sessionChannelConfig.fallBackWithInWSBGroup = fallbackWithInWSBGroup > 0 ? true : false;
 		}
 		
 		if( (flags & (SessionChannelFlag.CHANNELSET_FLAG | SessionChannelFlag.WSB_CHANNELSET_FLAG)) != 0)

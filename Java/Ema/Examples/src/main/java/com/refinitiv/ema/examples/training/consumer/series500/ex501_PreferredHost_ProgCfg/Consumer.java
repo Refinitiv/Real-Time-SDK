@@ -24,24 +24,17 @@ class AppClient implements OmmConsumerClient
 
         if (DataTypes.FIELD_LIST == refreshMsg.payload().dataType())
             decode(refreshMsg.payload().fieldList());
-
-        System.out.println("\nEvent channel info (refresh)\n" + event.channelInformation());
-        System.out.println();
     }
 
     public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event)
     {
         if (!updateCalled)
         {
-            updateCalled = true;
             System.out.println("Item Name: " + (updateMsg.hasName() ? updateMsg.name() : "<not set>"));
             System.out.println("Service Name: " + (updateMsg.hasServiceName() ? updateMsg.serviceName() : "<not set>"));
 
             if (DataTypes.FIELD_LIST == updateMsg.payload().dataType())
                 decode(updateMsg.payload().fieldList());
-
-            System.out.println("\nEvent channel info (update)\n" + event.channelInformation());
-            System.out.println();
         }
         else {
             System.out.println("skipped printing updateMsg");
@@ -55,9 +48,6 @@ class AppClient implements OmmConsumerClient
 
         if (statusMsg.hasState())
             System.out.println("Item State: " +statusMsg.state());
-
-        System.out.println("\nEvent channel info (status)\n" + event.channelInformation());
-        System.out.println();
     }
 
     public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent){}
@@ -119,9 +109,6 @@ class AppClient implements OmmConsumerClient
 
 public class Consumer
 {
-    private static final String DEFAULT_SERVICE_NAME = "DIRECT_FEED";
-    private static final String DEFAULT_ITEM_NAME = "IBM.N";
-
     private static final boolean DEFAULT_ENABLE_PREFERRED_HOST_OPTIONS = true;
     private static final String DEFAULT_DETECTION_TIME_SCHEDULE = "";
     private static final int DEFAULT_DETECTION_TIME_INTERVAL = 15;
@@ -273,8 +260,8 @@ public class Consumer
             Map progConfig = createProgrammaticConfig(enablePreferredHostOptions, detectionTimeInterval, detectionTimeSchedule, channelName);
             consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().config(progConfig));
             consumer.registerClient(EmaFactory.createReqMsg()
-                                                .serviceName(DEFAULT_SERVICE_NAME)
-                                                .name(DEFAULT_ITEM_NAME), appClient);
+                                                .serviceName("DIRECT_FEED")
+                                                .name("IBM.N"), appClient);
 
             int printInterval = 1;
             ChannelInformation ci = EmaFactory.createChannelInformation();

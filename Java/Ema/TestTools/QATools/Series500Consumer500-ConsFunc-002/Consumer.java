@@ -23,17 +23,28 @@ class AppClient implements OmmConsumerClient
 
         if (DataTypes.FIELD_LIST == refreshMsg.payload().dataType())
             decode(refreshMsg.payload().fieldList());
+
+	/*API QA commented out
+        System.out.println("\nEvent channel info (refresh)\n" + event.channelInformation());
+	*/
+        System.out.println();
     }
 
     public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event)
     {
         if (!updateCalled)
         {
+            updateCalled = true;
             System.out.println("Item Name: " + (updateMsg.hasName() ? updateMsg.name() : "<not set>"));
             System.out.println("Service Name: " + (updateMsg.hasServiceName() ? updateMsg.serviceName() : "<not set>"));
 
             if (DataTypes.FIELD_LIST == updateMsg.payload().dataType())
                 decode(updateMsg.payload().fieldList());
+
+            /*API QA commented out
+	    System.out.println("\nEvent channel info (update)\n" + event.channelInformation());
+	    */
+            System.out.println();
         }
         else {
             System.out.println("skipped printing updateMsg");
@@ -47,6 +58,11 @@ class AppClient implements OmmConsumerClient
 
         if (statusMsg.hasState())
             System.out.println("Item State: " +statusMsg.state());
+
+        /*API QA commented out
+	System.out.println("\nEvent channel info (status)\n" + event.channelInformation());
+	*/
+        System.out.println();
     }
 
     public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent){}
@@ -108,6 +124,11 @@ class AppClient implements OmmConsumerClient
 
 public class Consumer
 {
+    private static final String DEFAULT_SERVICE_NAME = "DIRECT_FEED";
+    private static final String INFRA_SERVICE_NAME = "ELEKTRON_DD";
+    private static final String DEFAULT_CONSUMER_NAME = "Consumer_9";
+    private static final String DEFAULT_ITEM_NAME = "IBM.N";
+
     public static void main(String[] args)
     {
         OmmConsumer consumer = null;
@@ -116,12 +137,12 @@ public class Consumer
             AppClient appClient = new AppClient();
 
             consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig()
-                                                                .consumerName("Consumer_9"));
+                                                                .consumerName(DEFAULT_CONSUMER_NAME));
             consumer.registerClient(EmaFactory.createReqMsg()
-                                                .serviceName("DIRECT_FEED")
-                                                .name("IBM.N"), appClient, 0);
+                                                .serviceName(DEFAULT_SERVICE_NAME)
+                                                .name(DEFAULT_ITEM_NAME), appClient, 0);
 
-            int printInterval = 1;
+            int printInterval = 5;
             ChannelInformation ci = EmaFactory.createChannelInformation();
             for (int i = 0; i < 600; i++) {
                 Thread.sleep(1000); // API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()

@@ -768,7 +768,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			if (reactorChannel == null)
 				reactorChannel = _loginCallbackClient.loginChannelList().get(0).rsslReactorChannel();
 
-			((ChannelInformationImpl)channelInformation).set(reactorChannel);
+			((ChannelInformationImpl)channelInformation).set(reactorChannel, null);
 			channelInformation.ipAddress("not available for OmmConsumer connections");
 		}
 		finally {
@@ -802,23 +802,38 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 
 		try
 		{
-			if(consumerSession() != null)
+			if(_consumerSession != null)
 			{
-				 // Applies for all session channels for the preferred host feature
-				 for(SessionChannelInfo<OmmConsumerClient> sessionChannelInfo : consumerSession().sessionChannelList())
-				 {
-					 if(sessionChannelInfo.reactorChannel() != null)
-					 {
-						 super.modifyIOCtl(code, value, sessionChannelInfo.reactorChannel());
-					 }
-				 }
+				for(SessionChannelInfo<OmmConsumerClient> sessionChannelInfo : _consumerSession.sessionChannelList())
+				{
+					if(sessionChannelInfo.reactorChannel() != null && value instanceof PreferredHostOptions)
+					{
+						PreferredHostOptions preferredHostOptions = (PreferredHostOptions)value;
+						
+						if(preferredHostOptions.sesionChannelName() != null && 
+								preferredHostOptions.sesionChannelName().equalsIgnoreCase(sessionChannelInfo.sessionChannelConfig().name))
+						{
+							super.modifyIOCtl(code, value, sessionChannelInfo.reactorChannel(), sessionChannelInfo.sessionChannelConfig());
+						}
+					}
+					else
+					{
+						// Returns this exception as a session channel name is required to modify a ReactorChannel.
+						strBuilder().append("Failed to modify I/O option = ")
+						.append(code).append(". Reason: ")
+						.append("The request routing feature supports only the ")
+						.append(IOCtlCode.FALLBACK_PREFERRED_HOST_OPTIONS).append(" code");
+
+						handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+					}
+				}
 			}
 			else
 			{
-				 ReactorChannel reactorChannel = _loginCallbackClient.activeChannelInfo() != null ?
-						 _loginCallbackClient.activeChannelInfo().rsslReactorChannel() : null;
-				
-				super.modifyIOCtl(code, value, reactorChannel);
+				ReactorChannel reactorChannel = _loginCallbackClient.activeChannelInfo() != null ? 
+					_loginCallbackClient.activeChannelInfo().rsslReactorChannel() : null;
+			
+				super.modifyIOCtl(code, value, reactorChannel, null);
 			}
 		}
 		finally
@@ -834,26 +849,50 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 
 		try
 		{
-			ChannelInfo activeChannelInfo = _loginCallbackClient.activeChannelInfo();
-			if(activeChannelInfo == null || activeChannelInfo.rsslReactorChannel() == null)
+			if(_consumerSession != null)
 			{
-				strBuilder().append("No active channel for switching to preferred host.");
-				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
-				return;
+				for(SessionChannelInfo<OmmConsumerClient> sessionChannelInfo : _consumerSession.sessionChannelList())
+				{
+					ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
+					if(sessionChannelInfo.reactorChannel() != null)
+					{
+						int result = sessionChannelInfo.reactorChannel().fallbackPreferredHost(errorInfo);
+						
+						if(result != ReactorReturnCodes.SUCCESS) {
+							strBuilder().append("Failed to switch to preferred host.")
+									.append(". Reason: ")
+									.append(ReactorReturnCodes.toString(result))
+									.append(". Error text: ")
+									.append(errorInfo.error().text());
+			
+							handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+						}
+					}
+				}
 			}
-
-			ReactorChannel reactorChannel = activeChannelInfo.rsslReactorChannel();
-			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
-			int result = reactorChannel.fallbackPreferredHost(errorInfo);
-
-			if(result != ReactorReturnCodes.SUCCESS) {
-				strBuilder().append("Failed to switch to preferred host.")
-						.append(". Reason: ")
-						.append(ReactorReturnCodes.toString(result))
-						.append(". Error text: ")
-						.append(errorInfo.error().text());
-
-				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+			else
+			{
+				ChannelInfo activeChannelInfo = _loginCallbackClient.activeChannelInfo();
+				if(activeChannelInfo == null || activeChannelInfo.rsslReactorChannel() == null)
+				{
+					strBuilder().append("No active channel for switching to preferred host.");
+					handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
+					return;
+				}
+	
+				ReactorChannel reactorChannel = activeChannelInfo.rsslReactorChannel();
+				ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
+				int result = reactorChannel.fallbackPreferredHost(errorInfo);
+	
+				if(result != ReactorReturnCodes.SUCCESS) {
+					strBuilder().append("Failed to switch to preferred host.")
+							.append(". Reason: ")
+							.append(ReactorReturnCodes.toString(result))
+							.append(". Error text: ")
+							.append(errorInfo.error().text());
+	
+					handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+				}
 			}
 		}
 		finally
@@ -935,18 +974,26 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	private void populateChannelInfomation(ChannelInformationImpl channelInfoImpl, ReactorChannel reactorChannel, ChannelInfo channelInfo)
 	{
 		if (reactorChannel != null) {
-			channelInfoImpl.set(reactorChannel);
 			
 			if(channelInfo != null)
 			{
 				SessionChannelInfo<OmmConsumerClient> sessionChannelInfo = channelInfo.sessionChannelInfo();
 				
-				channelInfoImpl.channelName(channelInfo._channelConfig.name);
-				
 				if(sessionChannelInfo != null)
 				{
+					channelInfoImpl.set(reactorChannel, sessionChannelInfo.sessionChannelConfig());
 					channelInfoImpl.sessionChannelName(sessionChannelInfo.sessionChannelConfig().name);
 				}
+				else
+				{
+					channelInfoImpl.set(reactorChannel, null);
+				}
+				
+				channelInfoImpl.channelName(channelInfo._channelConfig.name);
+			}
+			else
+			{
+				channelInfoImpl.set(reactorChannel, null);
 			}
 			
 			channelInfoImpl.ipAddress("not available for OmmConsumer connections");

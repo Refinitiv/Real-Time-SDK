@@ -12,11 +12,14 @@ import static org.junit.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.refinitiv.ema.access.Map;
 import com.refinitiv.ema.rdm.DataDictionary;
 import com.refinitiv.ema.rdm.EmaRdm;
 import com.refinitiv.eta.rdm.DomainTypes;
@@ -47,6 +50,11 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 	
 	private HashMap<String, RequestAttributes> _itemNameToHandleMap = new HashMap<>(10);
 	
+	private HashMap<Long, Long> _serviceBasedWSBModeMap = new HashMap<>(20);
+
+	private HashMap<Long, List<String>> _serviceIdToItemNamesMap = new HashMap<>(5);
+
+
 	private int _serviceId = -1; /* This is service Id from the request message. -1 indicates that the service Id is not set */
 	
 	private static DataDictionary DataDictionary;
@@ -58,8 +66,10 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 	private int currentValue;
 	private boolean result;
 	
-	private long warmStandbyMode = -1;
-	
+	private long warmStandbyMode = 0; // This is used for login based WSB only as the service based uses the mode from _serviceBasedWSBModeMap
+
+	public String name = "";
+
 	public ProviderTestClient(ProviderTestOptions testOptions)
 	{
 		_providerTestOptions = testOptions;
@@ -102,6 +112,20 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 			_accessLock.unlock();
 		}
 	}
+	
+	public void clearQueue() 
+	{
+		_accessLock.lock();
+		try
+		{
+			_messageQueue.clear();
+		}
+		finally
+		{
+			_accessLock.unlock();
+		}
+		
+	}
 
 	@Override
 	public void onRefreshMsg(RefreshMsg refreshMsg, OmmProviderEvent providerEvent) {
@@ -121,7 +145,8 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 		try
 		{
 			GenericMsg cloneMsg = EmaFactory.createGenericMsg(genericMsg);
-			
+
+			System.out.println("---- Provider " + name + " ----");
 			System.out.println(cloneMsg);
 			
 			_messageQueue.add(cloneMsg);
@@ -198,28 +223,37 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 				assertTrue(mapIt.hasNext());
 				MapEntry mapEntry = mapIt.next();
 				
-				long recvWarmStandbyMode = warmStandbyMode;
+				long prevWarmStandbyMode = -1;
+				long recvWarmStandbyMode = -1;
 				long serviceId = mapEntry.key().uintValue();
+				Long tempServiceId = Long.valueOf(serviceId);
 				
-				//if(mapEntry.key().ascii().toString().equals(EmaRdm.ENAME_WARMSTANDBY_INFO) )
-				//{
-					ElementList elementList = mapEntry.elementList();
-					Iterator<ElementEntry> elementListIt = elementList.iterator();
-					assertTrue(elementListIt.hasNext());
-					ElementEntry elementEntry = elementListIt.next();
-					if(elementEntry.name().equals(EmaRdm.ENAME_WARMSTANDBY_MODE))
+				if(_serviceBasedWSBModeMap.containsKey(tempServiceId))
+				{
+					prevWarmStandbyMode = _serviceBasedWSBModeMap.get(tempServiceId).longValue();
+				}
+				
+				ElementList elementList = mapEntry.elementList();
+				Iterator<ElementEntry> elementListIt = elementList.iterator();
+				assertTrue(elementListIt.hasNext());
+				ElementEntry elementEntry = elementListIt.next();
+				if(elementEntry.name().equals(EmaRdm.ENAME_WARMSTANDBY_MODE))
+				{
+					recvWarmStandbyMode = elementEntry.uintValue();
+					_serviceBasedWSBModeMap.put(tempServiceId, recvWarmStandbyMode);
+				}
+				
+				/* Standby server is changed to active server */
+				if(prevWarmStandbyMode == 1 && recvWarmStandbyMode == 0)
+				{
+					/* Send unsolicited refresh message for the requested items */ 
+					Iterator<RequestAttributes>  it = _itemNameToHandleMap.values().iterator();
+					while(it.hasNext())
 					{
-						recvWarmStandbyMode = elementEntry.uintValue();
-					}
-					
-					/* Standby server is changed to active server */
-					if(warmStandbyMode == 1 && recvWarmStandbyMode == 0)
-					{
-						/* Send unsolicited refresh message for the requested items */ 
-						Iterator<RequestAttributes>  it = _itemNameToHandleMap.values().iterator();
-						while(it.hasNext())
+						RequestAttributes reqAttributes = it.next();
+						
+						if(reqAttributes.serviceId == serviceId)
 						{
-							RequestAttributes reqAttributes = it.next();
 							FieldList fieldList = EmaFactory.createFieldList();
 							fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
 							fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
@@ -237,11 +271,9 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 							
 							providerEvent.provider().submit( refreshMsg, reqAttributes.handle );
 						}
-						
 					}
 					
-					warmStandbyMode = recvWarmStandbyMode;
-				//}
+				}
 			}
 		}
 		finally
@@ -380,7 +412,8 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 				try
 				{
 					ReqMsg cloneMsg = EmaFactory.createReqMsg(reqMsg);
-				
+
+					System.out.println("---- Provider " + name + " ----");
 					System.out.println(cloneMsg);
 					
 					_messageQueue.add(cloneMsg);
@@ -405,7 +438,16 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 								providerEvent.handle() );
 						break;
 					}
-					
+
+					if (reqMsg.hasServiceId())
+					{
+						if (!_serviceIdToItemNamesMap.containsKey(Long.valueOf(reqMsg.serviceId())))
+							_serviceIdToItemNamesMap.put(Long.valueOf(reqMsg.serviceId()), new ArrayList<>());
+
+						List<String> itemNames = _serviceIdToItemNamesMap.get(Long.valueOf(reqMsg.serviceId()));
+						itemNames.add(reqMsg.name());
+					}
+
 					FieldList fieldList = EmaFactory.createFieldList();
 					fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
 					fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
@@ -419,14 +461,26 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 					
 					if(_providerTestOptions.supportStandby) 
 					{
+						long tempWarmStandbyMode = warmStandbyMode;
+						Long tempServiceId = Long.valueOf(_serviceId);
+						
+						/* Checks whether the service based is used and get the mode from service Id */
+						if(_serviceBasedWSBModeMap.size() > 0 && _serviceBasedWSBModeMap.containsKey(tempServiceId))
+						{
+							tempWarmStandbyMode = _serviceBasedWSBModeMap.get(tempServiceId).longValue();
+						}
+						
 						/* Send payload only on the active server */
-						if( warmStandbyMode == 0)
+						if( tempWarmStandbyMode == 0)
 						{
 							refreshMsg.payload(fieldList);
+							
+							System.out.println("Send RefreshMsg with filed list");
 						}
 						else
 						{
 							/* Send blank payload for the standby server */
+							System.out.println("Send RefreshMsg with no data as payload");
 						}
 					}
 					else
@@ -437,7 +491,7 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 					if(_providerTestOptions.itemGroupId != null)
 					{
 						refreshMsg.itemGroup(_providerTestOptions.itemGroupId);
-					}
+					}			
 					
 					providerEvent.provider().submit( refreshMsg, providerEvent.handle() );
 					
@@ -487,7 +541,9 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 				try
 				{
 					ReqMsg cloneMsg = EmaFactory.createReqMsg(reqMsg);
-					
+
+					System.out.println("---- Provider " + name + " ----");
+
 					System.out.println(cloneMsg);
 					
 					_messageQueue.add(cloneMsg);
@@ -564,7 +620,8 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 			try
 			{
 				ReqMsg cloneMsg = EmaFactory.createReqMsg(reqMsg);
-				
+
+				System.out.println("---- Provider " + name + " ----");
 				System.out.println(cloneMsg);
 				
 				_messageQueue.add(cloneMsg);
@@ -583,7 +640,9 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 
 	@Override
 	public void onClose(ReqMsg reqMsg, OmmProviderEvent providerEvent) {
-		
+
+		System.out.println("---- Provider " + name + " ----");
+
 		ReqMsg cloneMsg = EmaFactory.createReqMsg(reqMsg);
 		
 		System.out.println("onClose(): " + reqMsg);
@@ -652,6 +711,15 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 		}
 	}
 
+	public void processServiceDown(long serviceId)
+	{
+		if (_serviceIdToItemNamesMap.containsKey(Long.valueOf(serviceId)))
+		{
+			List<String> itemsToGetRidOf = _serviceIdToItemNamesMap.remove(Long.valueOf(serviceId));
+			itemsToGetRidOf.forEach(itemName -> _itemNameToHandleMap.remove(itemName));
+		}
+	}
+
 	@Override
 	public void run() {
 				
@@ -680,5 +748,4 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 		}
 		
 	}
-
 }

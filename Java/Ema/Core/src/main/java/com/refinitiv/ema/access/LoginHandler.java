@@ -359,6 +359,7 @@ class LoginHandler implements RDMLoginMsgCallback
 			
 			if( clientSession == itemInfo.clientSession() )
 			{
+				ReqMsgImpl reqMsg = _ommServerBaseImpl.reqMsg();
 				RequestMsg rsslReqMsg = _ommServerBaseImpl.rsslRequestMsg();
 				
 				rsslReqMsg.applyNoRefresh();
@@ -378,8 +379,6 @@ class LoginHandler implements RDMLoginMsgCallback
 				}
 				
 				rsslReqMsg.domainType(EmaRdm.MMT_LOGIN);
-				
-				ReqMsgImpl reqMsg = _ommServerBaseImpl.reqMsg();
 				
 				reqMsg.decode(rsslReqMsg, clientSession.channel().majorVersion(),
 						clientSession.channel().minorVersion(), null);

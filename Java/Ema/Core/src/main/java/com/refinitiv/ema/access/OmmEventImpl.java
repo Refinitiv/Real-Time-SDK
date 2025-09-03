@@ -74,19 +74,27 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 	void populateChannelInfomation(ChannelInformationImpl channelInfoImpl, ReactorChannel reactorChannel, ChannelInfo channelInfo)
 	{
 		if (reactorChannel != null) {
-			channelInfoImpl.set(reactorChannel);
 			
 			if(channelInfo != null)
 			{
 				@SuppressWarnings("unchecked")
 				SessionChannelInfo<T> sessionChannelInfo = (SessionChannelInfo<T>) channelInfo.sessionChannelInfo();
 				
-				channelInfoImpl.channelName(channelInfo._channelConfig.name);
-				
 				if(sessionChannelInfo != null)
 				{
+					channelInfoImpl.set(reactorChannel, sessionChannelInfo.sessionChannelConfig());
 					channelInfoImpl.sessionChannelName(sessionChannelInfo.sessionChannelConfig().name);
 				}
+				else
+				{
+					channelInfoImpl.set(reactorChannel, null);
+				}
+				
+				channelInfoImpl.channelName(channelInfo._channelConfig.name);
+			}
+			else
+			{
+				channelInfoImpl.set(reactorChannel, null);
 			}
 			
 			if (_ommProvider == null) {
@@ -109,7 +117,7 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 		if (_channel != null) {
 
 			if (_ommProvider != null && _ommProvider.providerRole() == ProviderRole.INTERACTIVE) {
-				_channelInfo.set(_channel);
+				_channelInfo.set(_channel, null);
 			}
 			else { //Consumer & NiProvider
 				ChannelInfo channelInfo = (ChannelInfo)_channel.userSpecObj();
@@ -127,7 +135,7 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 				List<ChannelInfo> chInfo = (((OmmNiProviderImpl)(_ommProvider))._loginCallbackClient).loginChannelList();
 				if (!chInfo.isEmpty()) {
 					if (chInfo.get(0).rsslReactorChannel() != null) {
-						_channelInfo.set(chInfo.get(0).rsslReactorChannel());
+						_channelInfo.set(chInfo.get(0).rsslReactorChannel(), null);
 						_channelInfo.ipAddress("not available for OmmNiProvider connections");
 						return _channelInfo;
 					}

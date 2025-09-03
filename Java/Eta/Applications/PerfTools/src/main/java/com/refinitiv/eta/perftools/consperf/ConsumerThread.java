@@ -2883,7 +2883,9 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         
         try 
         {
-			_channel.selectableChannel().register(_selector, newoption, attachment);
+			SelectionKey key2 = _channel.selectableChannel().register(_selector, newoption, attachment);
+			
+			key2.isReadable();
 		} 
         catch (ClosedChannelException e) 
         {

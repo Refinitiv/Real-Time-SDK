@@ -529,32 +529,38 @@ class SessionWatchlist<T>
 					{
 						if(item.directory().channelInfo().getReactorChannelType() == ReactorChannelType.NORMAL)
 						{
-							/* This is used to close this stream with the watchlist only */
-							singleItem.state(SingleItem.ItemStates.CLOSING_STREAM);
+							@SuppressWarnings("unchecked")
+							SessionChannelInfo<T> sessionChannelInfo = (SessionChannelInfo<T>) item.directory().channelInfo().sessionChannelInfo();
 							
-							try
+							if(sessionChannelInfo.phOperationInProgress() == false)
 							{
-								singleItem.close();
-							}
-							catch(OmmInvalidUsageException iue)
-							{
-								/* This will be closed later when the ReactorChannel is operational  */
-								if (singleItem.directory().channelInfo().rsslReactorChannel().state() == ReactorChannel.State.CLOSED)
+								/* This is used to close this stream with the watchlist only */
+								singleItem.state(SingleItem.ItemStates.CLOSING_STREAM);
+								
+								try
 								{
-									_closingItemQueue.addLast(singleItem);
-									break;
+									singleItem.close();
 								}
-								else if(iue.errorCode() == OmmInvalidUsageException.ErrorCode.SHUTDOWN)
+								catch(OmmInvalidUsageException iue)
 								{
-									/* Remove this item as Reactor is shutdown */
-									singleItem.remove();
-									
-									state.streamState(StreamStates.CLOSED);
-									break;
+									/* This will be closed later when the ReactorChannel is operational  */
+									if (singleItem.directory().channelInfo().rsslReactorChannel().state() == ReactorChannel.State.CLOSED)
+									{
+										_closingItemQueue.addLast(singleItem);
+										break;
+									}
+									else if(iue.errorCode() == OmmInvalidUsageException.ErrorCode.SHUTDOWN)
+									{
+										/* Remove this item as Reactor is shutdown */
+										singleItem.remove();
+										
+										state.streamState(StreamStates.CLOSED);
+										break;
+									}
 								}
 							}
 							
-							if(handleConnectionRecovering)
+							if(handleConnectionRecovering || sessionChannelInfo.phOperationInProgress())
 							{
 								/* Sets the state that the item is being recovered */
 								singleItem.state(SingleItem.ItemStates.RECOVERING);
@@ -587,7 +593,7 @@ class SessionWatchlist<T>
 								int wsbMode = sessionChannelInfo.getWarmStandbyMode(sessionChannelInfo.reactorChannel());
 								
 								/* Checks whether the WSB channel in the DOWN_RECONNECTING/DOWN state in order to recover with another connection if any for both login and service based.*/
-								if(sessionChannelInfo.state() == OmmImplState.RSSLCHANNEL_DOWN)
+								if(sessionChannelInfo.state() == OmmImplState.RSSLCHANNEL_DOWN && !sessionChannelInfo.phOperationInProgress())
 								{	
 									/* This is used to close this stream with the watchlist only */
 									singleItem.state(SingleItem.ItemStates.CLOSING_STREAM);

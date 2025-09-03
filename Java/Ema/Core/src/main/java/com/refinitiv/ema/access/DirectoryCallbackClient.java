@@ -362,8 +362,6 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			return;
 		}
 
-		if (chnlInfo.getParentChannel() != null)
-			chnlInfo = chnlInfo.getParentChannel();
         for (Service oneService : serviceList)
         {
 			switch (oneService.action())
@@ -559,16 +557,11 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	int processCallback(RDMDirectoryMsgEvent event, ReactorChannel rsslReactorChannel, SingleItem<T> item, ChannelInfo channelInfo)
 	{
 		Msg rsslMsg = event.msg();
-
-		if (channelInfo.getParentChannel() != null)
-			channelInfo = channelInfo.getParentChannel();
-
 		switch (event.rdmDirectoryMsg().rdmMsgType())
 		{
 			case REFRESH:
 				{
 					_refreshMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), channelInfo.rsslDictionary());
-
 					_eventImpl._item = item;
 					
 					notifyOnAllMsg(_refreshMsg);
@@ -591,7 +584,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 					if (_updateMsg == null)
 						_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
 					
-					_updateMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(),
+					_updateMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
 							channelInfo.rsslDictionary());
 	
 					_eventImpl._item = item;

@@ -107,6 +107,384 @@
 			<RequestTimeout value="5000"/>
 		</Consumer>
 		<Consumer>
+			<Name value="Consumer_16"/>
+			<SessionChannelSet value="Connection_9, Connection_10"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_16_1"/>
+			<SessionChannelSet value="Connection_11, Connection_12"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_17"/>
+			<SessionChannelSet value="Connection_11, Connection_12"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_18"/>
+			<SessionChannelSet value="Connection_13, Connection_14"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_18_1"/>
+			<SessionChannelSet value="Connection_13_1, Connection_14_1"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_19"/>
+			<SessionChannelSet value="Connection_15, Connection_16"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_19_1"/>
+			<SessionChannelSet value="Connection_15_1, Connection_16_1"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_20"/>
+			<SessionChannelSet value="Connection_17, Connection_18"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_21"/>
+			<SessionChannelSet value="Connection_19, Connection_20"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_22"/>
+			<SessionChannelSet value="Connection_21, Connection_2"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_23"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3, WarmStandbyChannel_7"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="45000"/>
+			<RequestTimeout value="45000"/>
+			<XmlTraceToStdout value="0"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeInterval value="3"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_3"/>
+		</Consumer>
+		<Consumer>
+			<!-- Preferred host is not enabled for this test -->
+			<Name value="Consumer_24"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3_1, WarmStandbyChannel_4_1"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="45000"/>
+			<RequestTimeout value="45000"/>
+			<XmlTraceToStdout value="0"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_25"/>
+			<SessionChannelSet value="Connection_22, Connection_23"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="10"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_26"/>
+			<SessionChannelSet value="Connection_1_1, Connection_24"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="10"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_27"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2, WarmStandbyChannel_5"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="7"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_1"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="1000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_28"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_10, WarmStandbyChannel_11"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHFallBackWithInWSBGroup value="1" />
+			<PHDetectionTimeInterval value="0"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_11"/>
+			<ReconnectAttemptLimit value="3"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="1000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_29"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_11, WarmStandbyChannel_12"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHFallBackWithInWSBGroup value="1" />
+			<PHDetectionTimeInterval value="0"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_11"/>
+			<ReconnectAttemptLimit value="3"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="1000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_31"/>
+			<SessionChannelSet value="Connection_1_1, Connection_25"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="10"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_32"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3_1, WarmStandbyChannel_4_1"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="1"/>
+			<PHDetectionTimeInterval value="10"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_4_1"/>
+			<PHFallBackWithInWSBGroup value="1"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="1000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_34"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3,WarmStandbyChannel_4,WarmStandbyChannel_7"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="12"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_4"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+			<PHFallBackWithInWSBGroup value="1"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_35"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3,WarmStandbyChannel_4"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="12"/>
+			<EnablePreferredHostOptions value="0"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_3"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+			<PHFallBackWithInWSBGroup value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_36"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3,WarmStandbyChannel_4"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="12"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_3"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+			<PHFallBackWithInWSBGroup value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_35_1"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_13,WarmStandbyChannel_14,WarmStandbyChannel_15"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="11"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_14"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+			<PHFallBackWithInWSBGroup value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_35_2"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_16,WarmStandbyChannel_17"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="30"/>
+			<EnablePreferredHostOptions value="0"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_17"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="3000" />
+			<ReconnectMaxDelay value="3000" />
+			<PHFallBackWithInWSBGroup value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_35_3"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1,WarmStandbyChannel_2"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="10"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_2"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="3000" />
+			<ReconnectMaxDelay value="3000" />
+			<PHFallBackWithInWSBGroup value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_35_4"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1,WarmStandbyChannel_2"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="30"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_2"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="3000" />
+			<ReconnectMaxDelay value="3000" />
+			<PHFallBackWithInWSBGroup value="1"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_37"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2, WarmStandbyChannel_5"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<PHDetectionTimeInterval value="10"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_2"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+			<PHFallBackWithInWSBGroup value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_38"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3_2" />
+			<ChannelSet value="Channel_1" />
+			<PreferredChannelName value="Channel_1" />
+			<PreferredWSBChannelName value="WarmStandbyChannel_3_2" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeSchedule value="0/40 * * * * ?" />
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+		<Consumer>
 			<Name value="Consumer_WSB_Channels"/>
 			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
 			<Dictionary value="Dictionary_1"/>
@@ -116,6 +494,70 @@
 			<LoginRequestTimeOut value="15000"/>
 			<DirectoryRequestTimeOut value="15000"/>
 			<DictionaryRequestTimeOut value="15000"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_39"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2, WarmStandbyChannel_5" />
+			<ChannelSet value="Channel_11, Channel_12, Channel_13" />
+			<PreferredChannelName value="Channel_12" />
+			<PreferredWSBChannelName value="WarmStandbyChannel_2" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="70000"/>
+			<DirectoryRequestTimeOut value="70000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<EnablePreferredHostOptions value="1"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="1000" />
+			<PHDetectionTimeInterval value="50"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_40"/>
+			<ChannelSet value="Channel_1, Channel_2, Channel_3" />
+			<PreferredChannelName value="Channel_2" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<EnablePreferredHostOptions value="1"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="1000" />
+			<PHDetectionTimeInterval value="7"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_41"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_18, WarmStandbyChannel_19" />
+			<PreferredWSBChannelName value="WarmStandbyChannel_19" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<EnablePreferredHostOptions value="1"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="3000" />
+			<ReconnectMaxDelay value="3000" />
+			<PHDetectionTimeInterval value="30"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_42"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1" />
+			<ChannelSet value="Channel_1" />
+			<PreferredChannelName value="Channel_1" />
+			<PreferredWSBChannelName value="WarmStandbyChannel_1" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeInterval value="8"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
 		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
@@ -202,6 +644,116 @@
 			<RefreshFirstRequired value="1" />
 			<SendJsonConvError value="1" />
 		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                           -->
+			<Name value="Provider_7"/>
+			<!-- Server is optional: now it specifies RSSL_WEBSOCKET connection options      -->
+			<Server value="Server_4"/>
+			<!-- Directory is optional: defaulted to AdminControl::UserControlEnum           -->
+			<!-- source directory configuration to use if OmmIProviderConfig::adminModel()   -->
+			<!-- was set to ApiControlEnum                                                   -->
+			<!-- this configuration also decides which dictionaries will be loaded at startup -->
+			<!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()  -->
+			<Directory value="Directory_5"/>
+			<!-- Directory_5 provides the DIRECT_FEED and DIRECT_FEED1 service -->
+			<ItemCountHint value="10000"/>
+			<ServiceCountHint value="10000" />
+			<DispatchTimeoutApiThread value="500" />
+			<MaxDispatchCountApiThread value="500" />
+			<MaxDispatchCountUserThread value="500" />
+			<RefreshFirstRequired value="1" />
+			<SendJsonConvError value="1" />
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                           -->
+			<Name value="Provider_8"/>
+			<!-- Server is optional: now it specifies RSSL_WEBSOCKET connection options      -->
+			<Server value="Server_4"/>
+			<!-- Directory is optional: defaulted to AdminControl::UserControlEnum           -->
+			<!-- source directory configuration to use if OmmIProviderConfig::adminModel()   -->
+			<!-- was set to ApiControlEnum                                                   -->
+			<!-- this configuration also decides which dictionaries will be loaded at startup -->
+			<!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()  -->
+			<Directory value="Directory_5"/>
+			<!-- Directory_5 provides the DIRECT_FEED and DIRECT_FEED1 service -->
+			<ItemCountHint value="10000"/>
+			<ServiceCountHint value="10000" />
+			<DispatchTimeoutApiThread value="500" />
+			<MaxDispatchCountApiThread value="500" />
+			<MaxDispatchCountUserThread value="500" />
+			<RefreshFirstRequired value="1" />
+			<SendJsonConvError value="1" />
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                           -->
+			<Name value="Provider_9"/>
+			<!-- Server is optional: now it specifies RSSL_WEBSOCKET connection options      -->
+			<Server value="Server_4"/>
+			<!-- Directory is optional: defaulted to AdminControl::UserControlEnum           -->
+			<!-- source directory configuration to use if OmmIProviderConfig::adminModel()   -->
+			<!-- was set to ApiControlEnum                                                   -->
+			<!-- this configuration also decides which dictionaries will be loaded at startup -->
+			<!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()  -->
+			<Directory value="Directory_6"/>
+			<!-- Directory_5 provides the DIRECT_FEED and DIRECT_FEED1 service -->
+			<ItemCountHint value="10000"/>
+			<ServiceCountHint value="10000" />
+			<DispatchTimeoutApiThread value="500" />
+			<MaxDispatchCountApiThread value="500" />
+			<MaxDispatchCountUserThread value="500" />
+			<RefreshFirstRequired value="1" />
+			<SendJsonConvError value="1" />
+			<XmlTraceToStdout value="0"/>
+		</IProvider>
+
+		<IProvider>
+			<!-- Name is mandatory                                                           -->
+			<Name value="Provider_10"/>
+			<!-- Server is optional: now it specifies RSSL_WEBSOCKET connection options      -->
+			<Server value="Server_4"/>
+			<!-- Directory_5 provides the DIRECT_FEED_2 and DIRECT_FEED_3 service -->
+			<Directory value="Directory_7"/>
+
+			<ItemCountHint value="10000"/>
+			<ServiceCountHint value="10000" />
+			<DispatchTimeoutApiThread value="500" />
+			<MaxDispatchCountApiThread value="500" />
+			<MaxDispatchCountUserThread value="500" />
+			<RefreshFirstRequired value="1" />
+			<SendJsonConvError value="1" />
+			<XmlTraceToStdout value="0"/>
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                           -->
+			<Name value="Provider_11"/>
+			<!-- Server is optional: now it specifies RSSL_WEBSOCKET connection options      -->
+			<Server value="Server_4"/>
+			<!-- Directory_5 provides the DIRECT_FEED_2 and DIRECT_FEED_3 service -->
+			<Directory value="Directory_8"/>
+
+			<ItemCountHint value="10000"/>
+			<ServiceCountHint value="10000" />
+			<DispatchTimeoutApiThread value="500" />
+			<MaxDispatchCountApiThread value="500" />
+			<MaxDispatchCountUserThread value="500" />
+			<RefreshFirstRequired value="1" />
+			<SendJsonConvError value="1" />
+			<XmlTraceToStdout value="0"/>
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                           -->
+			<Name value="Provider_12"/>
+			<Server value="Server_4"/>
+			<Directory value="Directory_9"/>
+			<ItemCountHint value="10000"/>
+			<ServiceCountHint value="10000" />
+			<DispatchTimeoutApiThread value="500" />
+			<MaxDispatchCountApiThread value="500" />
+			<MaxDispatchCountUserThread value="500" />
+			<RefreshFirstRequired value="1" />
+			<SendJsonConvError value="1" />
+			<XmlTraceToStdout value="0"/>
+		</IProvider>
     </IProviderList>
 </IProviderGroup>
 
@@ -285,6 +837,46 @@
 			<Host value="localhost"/>
 			<Port value="19008"/>
 		</Channel>
+		<Channel>
+			<Name value="Channel_9"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="19009"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_10"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="19010"/>
+		</Channel>
+	    <Channel>
+			<Name value="Channel_11"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="19011"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_12"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="19012"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_13"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="19013"/>
+		</Channel>
 	</ChannelList>
 </ChannelGroup>
 
@@ -350,6 +942,15 @@
                         <ReconnectMinDelay value="2000"/>
                         <ReconnectMaxDelay value="4000"/>
                 </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_1_1"/>
+                        <ChannelSet value="Channel_1"/>
+                        <ReconnectAttemptLimit value="1"/>
+                        <ReconnectMinDelay value="2000"/>
+                        <ReconnectMaxDelay value="4000"/>
+						<EnablePreferredHostOptions value="1"/>
+						<!-- PreferredChannelName value="Channel_1"/ -->
+                </SessionChannelInfo>
                 <SessionChannelInfo>
                         <Name value="Connection_2"/>
                         <ChannelSet value="Channel_4,Channel_5"/>
@@ -399,6 +1000,201 @@
                         <ReconnectMinDelay value="5000"/>
                         <ReconnectMaxDelay value="8000"/>
                 </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_9"/>
+                        <ChannelSet value="Channel_1,Channel_2"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="4"/>
+						<PreferredChannelName value="Channel_1"/>
+                        <ReconnectAttemptLimit value="-1"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_10"/>
+                        <ChannelSet value="Channel_4,Channel_5"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="4"/>
+						<PreferredChannelName value="Channel_4"/>
+                        <ReconnectAttemptLimit value="40"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_11"/>
+                        <ChannelSet value="Channel_1,Channel_2"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="0"/>
+						<PreferredChannelName value="Channel_1"/>
+                        <ReconnectAttemptLimit value="-1"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_12"/>
+                        <ChannelSet value="Channel_4,Channel_5"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="0"/>
+						<PreferredChannelName value="Channel_4"/>
+                        <ReconnectAttemptLimit value="40"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_13"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_5"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="6"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_1"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_14"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_2, WarmStandbyChannel_6"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="6"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_2"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_13_1"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_5"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="0"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_1"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_14_1"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_2, WarmStandbyChannel_6"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="0"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_2"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_15"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_3, WarmStandbyChannel_7"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="6"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_3"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_15_1"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_3, WarmStandbyChannel_7"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="0"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_3"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_16"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_4, WarmStandbyChannel_8"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="6"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_4"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_16_1"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_4, WarmStandbyChannel_8"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="0"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_4"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_17"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_5"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_18"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_2, WarmStandbyChannel_6"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_19"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_3, WarmStandbyChannel_7"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_20"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_4, WarmStandbyChannel_8"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_21"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_1"/>
+						<ChannelSet value="Channel_1"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PHDetectionTimeInterval value="6"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_1"/>
+                        <ReconnectAttemptLimit value="2"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+						<Name value="Connection_22"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_3_2, WarmStandbyChannel_4_1"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_3_2"/>
+                        <ReconnectAttemptLimit value="1"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+				</SessionChannelInfo>
+				<SessionChannelInfo>
+						<Name value="Connection_23"/>
+						<ChannelSet value="Channel_1"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PreferredChannelName value="Channel_1"/>
+                        <ReconnectAttemptLimit value="1"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+				</SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_24"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_4, WarmStandbyChannel_8"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_4"/>
+                        <ReconnectAttemptLimit value="1"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="Connection_25"/>
+                        <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
+						<EnablePreferredHostOptions value="1"/>
+						<PreferredWSBChannelName value="WarmStandbyChannel_1"/>
+                        <ReconnectAttemptLimit value="1"/>
+                        <ReconnectMinDelay value="1000"/>
+                        <ReconnectMaxDelay value="1000"/>
+                </SessionChannelInfo>
         </SessionChannelList>
 </SessionChannelGroup>
 
@@ -415,6 +1211,26 @@
             <PerServiceNameSet value=""/>
         </WarmStandbyServerInfo>
 		<WarmStandbyServerInfo>
+            <Name value="Server_Info_1_1"/>
+            <Channel value="Channel_3"/>
+            <PerServiceNameSet value="DIRECT_FEED1"/>
+        </WarmStandbyServerInfo>
+        <WarmStandbyServerInfo>
+            <Name value="Server_Info_2_1"/>
+            <Channel value="Channel_6"/>
+            <PerServiceNameSet value="DIRECT_FEED"/>
+        </WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+            <Name value="Server_Info_1_2"/>
+            <Channel value="Channel_3"/>
+            <PerServiceNameSet value="DIRECT_FEED"/>
+        </WarmStandbyServerInfo>
+        <WarmStandbyServerInfo>
+            <Name value="Server_Info_2_2"/>
+            <Channel value="Channel_6"/>
+            <PerServiceNameSet value="DIRECT_FEED1"/>
+        </WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
             <Name value="Server_Info_3"/>
             <Channel value="Channel_7"/>
             <PerServiceNameSet value=""/>
@@ -424,6 +1240,59 @@
             <Channel value="Channel_8"/>
             <PerServiceNameSet value=""/>
         </WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+            <Name value="Server_Info_3_1"/>
+            <Channel value="Channel_7"/>
+            <PerServiceNameSet value="DIRECT_FEED"/>
+        </WarmStandbyServerInfo>
+        <WarmStandbyServerInfo>
+            <Name value="Server_Info_4_1"/>
+            <Channel value="Channel_8"/>
+            <PerServiceNameSet value="DIRECT_FEED1"/>
+        </WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+            <Name value="Server_Info_5"/>
+            <Channel value="Channel_9"/>
+            <PerServiceNameSet value=""/>
+        </WarmStandbyServerInfo>
+        <WarmStandbyServerInfo>
+            <Name value="Server_Info_6"/>
+            <Channel value="Channel_10"/>
+            <PerServiceNameSet value=""/>
+        </WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+            <Name value="Server_Info_7"/>
+            <Channel value="Channel_11"/>
+            <PerServiceNameSet value=""/>
+        </WarmStandbyServerInfo>
+        <WarmStandbyServerInfo>
+            <Name value="Server_Info_8"/>
+            <Channel value="Channel_12"/>
+            <PerServiceNameSet value=""/>
+        </WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+			<Name value="Server_Info_9"/>
+			<Channel value="Channel_13"/>
+			<PerServiceNameSet value=""/>
+		</WarmStandbyServerInfo>
+
+		<WarmStandbyServerInfo>
+			<Name value="Server_Info_10"/>
+			<Channel value="Channel_10"/>
+			<PerServiceNameSet value="DIRECT_FEED_2"/>
+		</WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+			<Name value="Server_Info_11"/>
+			<Channel value="Channel_11"/>
+			<PerServiceNameSet value="DIRECT_FEED_3"/>
+		</WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+			<Name value="Server_Info_12"/>
+			<Channel value="Channel_12"/>
+			<PerServiceNameSet value="DIRECT_FEED_2"/>
+		</WarmStandbyServerInfo>
+
+
     </WarmStandbyServerInfoList>
 </WarmStandbyServerInfoGroup>
 
@@ -453,6 +1322,117 @@
             <StandbyServerSet value="Server_Info_4"/>
             <WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
         </WarmStandbyChannel>
+		<WarmStandbyChannel>
+            <Name value="WarmStandbyChannel_3_1"/>
+            <StartingActiveServer value="Server_Info_1_1"/>
+            <StandbyServerSet value="Server_Info_2_1"/>
+            <WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+        </WarmStandbyChannel>
+		<WarmStandbyChannel>
+            <Name value="WarmStandbyChannel_4_1"/>
+            <StartingActiveServer value="Server_Info_3_1"/>
+            <StandbyServerSet value="Server_Info_4_1"/>
+            <WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+        </WarmStandbyChannel>
+		<WarmStandbyChannel>
+            <Name value="WarmStandbyChannel_3_2"/>
+            <StartingActiveServer value="Server_Info_1_2"/>
+            <StandbyServerSet value="Server_Info_2_2"/>
+            <WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+        </WarmStandbyChannel>
+		<WarmStandbyChannel>
+            <Name value="WarmStandbyChannel_5"/>
+            <StartingActiveServer value="Server_Info_5"/>
+            <StandbyServerSet value="Server_Info_6"/>
+            <WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+        </WarmStandbyChannel>
+		<WarmStandbyChannel>
+            <Name value="WarmStandbyChannel_6"/>
+            <StartingActiveServer value="Server_Info_7"/>
+            <StandbyServerSet value="Server_Info_8"/>
+            <WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+        </WarmStandbyChannel>
+		<WarmStandbyChannel>
+            <Name value="WarmStandbyChannel_7"/>
+            <StartingActiveServer value="Server_Info_5"/>
+            <StandbyServerSet value="Server_Info_6"/>
+            <WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+        </WarmStandbyChannel>
+		<WarmStandbyChannel>
+            <Name value="WarmStandbyChannel_8"/>
+            <StartingActiveServer value="Server_Info_7"/>
+            <StandbyServerSet value="Server_Info_8"/>
+            <WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+        </WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_9"/>
+			<StartingActiveServer value="Server_Info_7"/>
+			<StandbyServerSet value="Server_Info_8, Server_Info_9"/>
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_10"/>
+			<StartingActiveServer value="Server_Info_1_1"/>
+			<StandbyServerSet value="Server_Info_2_1"/>
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_11"/>
+			<StartingActiveServer value="Server_Info_3_1"/>
+			<StandbyServerSet value="Server_Info_4_1,Server_Info_5"/>
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_12"/>
+			<StartingActiveServer value="Server_Info_2_1"/> <!-- DIRECT_FEED/DIRECT_FEED1 -->
+			<StandbyServerSet value="Server_Info_10"/>       <!-- NI_PUB/TEST_NI_PUB -->
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_13"/>
+			<StartingActiveServer value="Server_Info_10"/> <!-- service DF_2 -->
+			<StandbyServerSet value="Server_Info_2_1"/>    <!-- service DF -->
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_14"/>
+			<StartingActiveServer value="Server_Info_1_2"/>
+			<StandbyServerSet value="Server_Info_12"/>
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_15"/>
+			<StartingActiveServer value="Server_Info_2_1"/>
+			<StandbyServerSet value="Server_Info_12"/>
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_16"/>
+			<StartingActiveServer value="Server_Info_2_1"/> <!-- DIRECT_FEED -->
+			<StandbyServerSet value="Server_Info_1_1"/> <!-- 1_1 - DIRECT_FEED1 -->
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_17"/>
+			<StartingActiveServer value="Server_Info_5"/> <!-- no preferred service specified -->
+			<StandbyServerSet value="Server_Info_3_1,Server_Info_4_1"/> <!-- 3_1 - DIRECT_FEED, 4_1 - DIRECT_FEED1 -->
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_18"/>
+			<StartingActiveServer value="Server_Info_3_1"/>
+			<StandbyServerSet value="Server_Info_4_1"/>
+			<WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_19"/>
+			<StartingActiveServer value="Server_Info_2_1"/>
+			<StandbyServerSet value="Server_Info_1_1"/>
+			<WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+		</WarmStandbyChannel>
+
     </WarmStandbyList>
 </WarmStandbyGroup>
 
@@ -712,9 +1692,9 @@
 				</StateFilter>
 			</Service>
 			<Service>
-				<Name value="DIRECT_FEED_2"/>
+				<Name value="DIRECT_FEED1"/>
 				<InfoFilter>
-					<ServiceId value="1"/>
+					<ServiceId value="2"/>
 					<DictionariesProvided>
 						<DictionariesProvidedEntry value="Dictionary_3"/>
 					</DictionariesProvided>
@@ -752,6 +1732,82 @@
 				</StateFilter>
 			</Service>
 		</Directory>
+		<Directory>
+			<Name value="Directory_6"/>
+			<Service>
+				<Name value="DIRECT_FEED"/>
+				<InfoFilter>
+					<ServiceId value="1"/>
+					<DictionariesProvided>
+						<DictionariesProvidedEntry value="Dictionary_3"/>
+					</DictionariesProvided>
+
+					<DictionariesUsed>
+						<DictionariesUsedEntry value="Dictionary_3"/>
+					</DictionariesUsed>
+					<Vendor value="company name"/>
+					<IsSource value="0"/>
+					<Capabilities>
+						<CapabilitiesEntry value="6"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_PRICE"/>
+						<CapabilitiesEntry value="MMT_DICTIONARY"/>
+						<CapabilitiesEntry value="MMT_SYMBOL_LIST"/>
+						<CapabilitiesEntry value="200"/>
+					</Capabilities>
+					<QoS>
+						<QoSEntry>
+							<Timeliness value="Timeliness::RealTime"/>
+							<Rate value="Rate::TickByTick"/>
+						</QoSEntry>
+					</QoS>
+					<SupportsQoSRange value="0"/>
+					<ItemList value="#.itemlist"/>
+					<AcceptingConsumerStatus value="0"/>
+					<SupportsOutOfBandSnapshots value="0"/>
+				</InfoFilter>
+				<StateFilter>
+					<ServiceState value="1"/>
+					<AcceptingRequests value="1"/>
+				</StateFilter>
+			</Service>
+			<Service>
+				<Name value="DIRECT_FEED1"/>
+				<InfoFilter>
+					<ServiceId value="2"/>
+					<DictionariesProvided>
+						<DictionariesProvidedEntry value="Dictionary_3"/>
+					</DictionariesProvided>
+					<DictionariesUsed>
+						<DictionariesUsedEntry value="Dictionary_3"/>
+					</DictionariesUsed>
+					<Vendor value="company name"/>
+					<IsSource value="0"/>
+					<Capabilities>
+						<CapabilitiesEntry value="6"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_PRICE"/>
+						<CapabilitiesEntry value="MMT_DICTIONARY"/>
+						<CapabilitiesEntry value="MMT_SYMBOL_LIST"/>
+						<CapabilitiesEntry value="200"/>
+					</Capabilities>
+					<QoS>
+						<QoSEntry>
+							<Timeliness value="Timeliness::RealTime"/>
+							<Rate value="Rate::JustInTimeConflated"/>
+						</QoSEntry>
+					</QoS>
+					<SupportsQoSRange value="0"/>
+					<ItemList value="#.itemlist"/>
+					<AcceptingConsumerStatus value="0"/>
+					<SupportsOutOfBandSnapshots value="0"/>
+				</InfoFilter>
+				<StateFilter>
+					<ServiceState value="1"/>
+					<AcceptingRequests value="1"/>
+				</StateFilter>
+			</Service>
+		</Directory>
         <Directory>
             <Name value="Perf_Directory_1"/>
             <Service>
@@ -764,7 +1820,7 @@
                     <DictionariesUsed>
                         <DictionariesUsedEntry value="Dictionary_3"/>
                     </DictionariesUsed>
-                    <Vendor value="LSEGDevTestLab"/>
+                    <Vendor value="RefinitivDevTestLab"/>
                     <IsSource value="0"/>
                     <Capabilities>
                         <CapabilitiesEntry value="MMT_DICTIONARY"/>
@@ -794,6 +1850,212 @@
                 </StateFilter>
             </Service>
         </Directory>
+		<Directory>
+			<Name value="Directory_7"/>
+			<Service>
+				<Name value="DIRECT_FEED_2"/>
+				<InfoFilter>
+					<!-- optional value; if not specified EMA will assign it -->
+					<ServiceId value="14"/>
+					<!-- optional value	-->
+					<Vendor value="company name"/>
+					<!-- possible values: 0 - means consolidation service, 1 - means original provider	-->
+					<IsSource value="0"/>
+					<!-- an array of market domains supported by this service	-->
+					<!-- domains defined in the RDM Usage Guide may be refered by name -->
+					<!-- names of the RDM defined domains are listed in the EmaRdm.h file -->
+					<!-- e.g. MMT_MARKET_PRICE, MMT_MARKET_BY_ORDER 	-->
+					<!-- note that the capabilities may be specified with names and or numbers -->
+					<Capabilities>
+						<CapabilitiesEntry value="MMT_MARKET_PRICE"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
+						<CapabilitiesEntry value="MMT_DICTIONARY"/>
+					</Capabilities>
+					<!-- list of dictionary names specified in the DictionaryGroup	-->
+					<!-- EMA will populate the Service::InfoFilter::DictionariesProvided element -->
+					<!-- with the respective <>ItemName values -->
+					<DictionariesProvided>
+						<DictionariesProvidedEntry value="Dictionary_3"/>
+					</DictionariesProvided>
+
+					<!-- list of dictionary names specified in the DictionaryGroup	-->
+					<!-- EMA will populate the Service::InfoFilter::DictionariesUsed element -->
+					<!-- with the respective <>ItemName values	-->
+					<DictionariesUsed>
+						<DictionariesUsedEntry value="Dictionary_3"/>
+					</DictionariesUsed>
+					<!-- list of QoS values supported by this service	-->
+					<!-- possible values are listed in the OmmQos.h file of the EMA	-->
+					<QoS>
+						<QoSEntry>
+							<Timeliness value="Timeliness::RealTime"/>
+							<Rate value="Rate::TickByTick"/>
+						</QoSEntry>
+						<QoSEntry>
+							<Timeliness value="Timeliness::InexactDelayed"/>
+							<Rate value="Rate::JustInTimeConflated"/>
+						</QoSEntry>
+					</QoS>
+					<!-- 0 means does not support, 1 - means supports QoS range -->
+					<SupportsQoSRange value="0"/>
+					<!-- name of item list	-->
+					<ItemList value="#.itemlist"/>
+					<!-- 0 means does not accept, 1 - means accepts consumer status	-->
+					<AcceptingConsumerStatus value="0"/>
+					<!-- 0 means does not support, 1 - means supports out of band snapshots -->
+					<SupportsOutOfBandSnapshots value="0"/>
+				</InfoFilter>
+				<!-- StateFilter is optional	-->
+				<!-- EMA will default the values as follows: -->
+				<!-- for interactive provider		-->
+				<!--	- ServiceState is "up" and AcceptingRequests is "Yes"	-->
+				<!-- for non interactive provider	-->
+				<!--	- ServiceState is "up" and AcceptingRequests is "No"	-->
+				<StateFilter>
+					<!-- 0 means service is down, 1 - means service is up (default; 1) -->
+					<ServiceState value="1"/>
+					<!-- 0 means service does not accept, 1 - means service accepts (default; 1) -->
+					<AcceptingRequests value="1"/>
+					<!-- optional; specifies status change to apply to all items provided by this service -->
+					<!-- possible values are listed in the OmmState.h file of the EMA -->
+					<Status>
+						<!-- possible values are: Open, Close, CloseRecover -->
+						<StreamState value="StreamState::Open"/>
+						<!-- possibe values are: NoChange, Ok, Suspect	-->
+						<DataState value="DataState::Ok"/>
+						<!-- possible values are: None, DacsDown, etc	-->
+						<StatusCode value="StatusCode::None"/>
+						<!-- a text field	-->
+						<StatusText value=""/>
+					</Status>
+				</StateFilter>
+			</Service>
+			<Service>
+				<Name value="DIRECT_FEED_3"/>
+				<InfoFilter>
+					<ServiceId value="15"/>
+					<DictionariesProvided>
+						<DictionariesProvidedEntry value="Dictionary_3"/>
+					</DictionariesProvided>
+					<DictionariesUsed>
+						<DictionariesUsedEntry value="Dictionary_3"/>
+					</DictionariesUsed>
+					<Vendor value="company name"/>
+					<IsSource value="0"/>
+					<Capabilities>
+						<CapabilitiesEntry value="6"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
+						<CapabilitiesEntry value="MMT_DICTIONARY"/>
+					</Capabilities>
+					<QoS>
+						<QoSEntry>
+							<Timeliness value="Timeliness::RealTime"/>
+							<Rate value="Rate::TickByTick"/>
+						</QoSEntry>
+					</QoS>
+					<SupportsQoSRange value="0"/>
+					<ItemList value="#.itemlist"/>
+					<AcceptingConsumerStatus value="0"/>
+					<SupportsOutOfBandSnapshots value="0"/>
+				</InfoFilter>
+				<StateFilter>
+					<ServiceState value="1"/>
+					<AcceptingRequests value="1"/>
+					<Status>
+						<StreamState value="StreamState::Open"/>
+						<DataState value="DataState::Ok"/>
+						<StatusCode value="StatusCode::None"/>
+						<StatusText value=""/>
+					</Status>
+				</StateFilter>
+			</Service>
+		</Directory>
+		<Directory>
+			<Name value="Directory_8"/>
+			<Service>
+				<Name value="DIRECT_FEED_2"/>
+				<InfoFilter>
+					<ServiceId value="2"/>
+					<DictionariesProvided>
+						<DictionariesProvidedEntry value="Dictionary_3"/>
+					</DictionariesProvided>
+					<DictionariesUsed>
+						<DictionariesUsedEntry value="Dictionary_3"/>
+					</DictionariesUsed>
+					<Vendor value="company name"/>
+					<IsSource value="0"/>
+					<Capabilities>
+						<CapabilitiesEntry value="6"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_PRICE"/>
+						<CapabilitiesEntry value="MMT_DICTIONARY"/>
+						<CapabilitiesEntry value="MMT_SYMBOL_LIST"/>
+						<CapabilitiesEntry value="200"/>
+					</Capabilities>
+					<QoS>
+						<QoSEntry>
+							<Timeliness value="Timeliness::RealTime"/>
+							<Rate value="Rate::TickByTick"/>
+						</QoSEntry>
+						<QoSEntry>
+							<Timeliness value="100"/>
+							<Rate value="100"/>
+						</QoSEntry>
+					</QoS>
+					<SupportsQoSRange value="0"/>
+					<ItemList value="#.itemlist"/>
+					<AcceptingConsumerStatus value="0"/>
+					<SupportsOutOfBandSnapshots value="0"/>
+				</InfoFilter>
+				<StateFilter>
+					<ServiceState value="1"/>
+					<AcceptingRequests value="1"/>
+				</StateFilter>
+			</Service>
+		</Directory>
+		<Directory>
+			<Name value="Directory_9"/>
+			<Service>
+				<Name value="DIRECT_FEED1"/>
+				<InfoFilter>
+					<ServiceId value="3"/>
+					<DictionariesProvided>
+						<DictionariesProvidedEntry value="Dictionary_3"/>
+					</DictionariesProvided>
+					<DictionariesUsed>
+						<DictionariesUsedEntry value="Dictionary_3"/>
+					</DictionariesUsed>
+					<Vendor value="company name"/>
+					<IsSource value="0"/>
+					<Capabilities>
+						<CapabilitiesEntry value="6"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_PRICE"/>
+						<CapabilitiesEntry value="MMT_DICTIONARY"/>
+						<CapabilitiesEntry value="MMT_SYMBOL_LIST"/>
+						<CapabilitiesEntry value="200"/>
+					</Capabilities>
+					<QoS>
+						<QoSEntry>
+							<Timeliness value="Timeliness::RealTime"/>
+							<Rate value="Rate::TickByTick"/>
+						</QoSEntry>
+						<QoSEntry>
+							<Timeliness value="100"/>
+							<Rate value="100"/>
+						</QoSEntry>
+					</QoS>
+					<SupportsQoSRange value="0"/>
+					<ItemList value="#.itemlist"/>
+					<AcceptingConsumerStatus value="0"/>
+					<SupportsOutOfBandSnapshots value="0"/>
+				</InfoFilter>
+				<StateFilter>
+					<ServiceState value="1"/>
+					<AcceptingRequests value="1"/>
+				</StateFilter>
+			</Service>
+		</Directory>
 	</DirectoryList>
 </DirectoryGroup>
 <DictionaryGroup>

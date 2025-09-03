@@ -30,6 +30,29 @@ public abstract class SessionInfo {
 
     protected void loadSessionInfo(ReactorChannel channel) {
         channelInformation.clear();
-        channelInformation.set(channel);
+        
+        if(channel == null)
+        	return;
+        
+        /* Checks whether the SessionChannelInfo is available */
+        if(channel.userSpecObj() != null && channel.userSpecObj() instanceof ChannelInfo)
+        {
+        	ChannelInfo chnlInfo = (ChannelInfo)channel.userSpecObj();
+        	
+        	if(chnlInfo.sessionChannelInfo() != null)
+        	{
+        		channelInformation.set(channel, chnlInfo.sessionChannelInfo().sessionChannelConfig());
+        	}
+        	else
+        	{
+        		channelInformation.set(channel, null);
+        	}
+        	
+        	channelInformation.channelName(chnlInfo._channelConfig.name);
+        }
+        else
+        {
+        	channelInformation.set(channel, null);
+        }
     }
 }

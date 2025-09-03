@@ -159,4 +159,19 @@ public class ReactorPreferredHostOptions {
         _warmStandbyGroupListIndex = 0;
         _fallBackWithInWSBGroup = false;
     }
+    
+    /**
+     * Performs deep copy to the passed in parameter
+     * 
+     * @param destOptions the parameter getting populated with the values of the calling Object
+     */
+    public void copy(ReactorPreferredHostOptions destOptions)
+    {
+    	destOptions._isPreferredHostEnabled = _isPreferredHostEnabled;
+    	destOptions._detectionTimeSchedule = _detectionTimeSchedule;
+    	destOptions._detectionTimeInterval = _detectionTimeInterval;
+    	destOptions._connectionListIndex = _connectionListIndex;
+    	destOptions._warmStandbyGroupListIndex = _warmStandbyGroupListIndex;
+    	destOptions._fallBackWithInWSBGroup = _fallBackWithInWSBGroup;
+    }
 }

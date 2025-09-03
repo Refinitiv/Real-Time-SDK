@@ -1908,7 +1908,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			}
 			
 			/* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-			oAuthCredential.reactorOAuthCredentialEventCallback(this);
+			//oAuthCredential.reactorOAuthCredentialEventCallback(this);
 		}
 		
 		if(consumerCmdLineParser.jwkFile() != null && !consumerCmdLineParser.jwkFile().isEmpty())

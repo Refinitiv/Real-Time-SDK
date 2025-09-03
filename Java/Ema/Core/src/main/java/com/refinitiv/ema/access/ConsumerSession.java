@@ -198,6 +198,7 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 	
 	/* Keeps a list of mismatch service names between session channels that need to be handled */
 	private HashSet<String>		_mismatchServiceSet;
+
 	ConsumerSession(OmmBaseImpl<T> baseImpl, Map<String, ServiceListImpl> serviceListMap)
 	{
 		_ommBaseImpl = baseImpl;
@@ -1564,6 +1565,9 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			if(_isConsumerSessionInitialized)
 			{
 				handlePendingRequestsForServiceList((SessionDirectory<OmmConsumerClient>) newSessionDirectory);
+				
+				/* Recover items in the item recovery queue if any. */
+				nextDispatchTime(1000);
 			}
 		}
 		else if (sessionDirectory.service().checkHasInfo() == false) 
@@ -1913,7 +1917,10 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			}
 			else
 			{
-				_rsslState.dataState(DataState.OK);
+				if(checkUserStillLogin())
+					_rsslState.dataState(DataState.OK);
+				else
+					_rsslState.dataState(DataState.SUSPECT);
 			}
 			
 		}
@@ -2112,6 +2119,9 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 			
 			break;
 		case ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK:
+			
+			if (loginItemList == null)
+				return;
 
 			populateStatusMsg();
 
@@ -2136,6 +2146,9 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 
 			break;
 		case ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE:
+			
+			if (loginItemList == null)
+				return;
 
 			populateStatusMsg();
 
@@ -2213,5 +2226,10 @@ class ConsumerSession<T> implements DirectoryServiceClient<T>
 		}
 		
 		return false;
+	}
+	
+	public void currentLoginDataState(int dataState)
+	{
+		_currentRsslDataState = dataState;	
 	}
 }

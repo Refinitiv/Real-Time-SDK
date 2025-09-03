@@ -50,8 +50,9 @@ class ChannelInformationImpl implements ChannelInformation
 		this._securityProtocol = securityProtocol;
 	}
 
+	// This is used by EMA uni testing only
 	public ChannelInformationImpl(ReactorChannel channel) {
-		set(channel);
+		set(channel, null);
 	}
 
 	@Override
@@ -77,7 +78,7 @@ class ChannelInformationImpl implements ChannelInformation
 		_confSessionChannelName = "";
 	}
 
-	public void set(ReactorChannel reactorChannel) {
+	public void set(ReactorChannel reactorChannel, SessionChannelConfig sessionChannelConfig) {
 		clear();
 		
 		if (reactorChannel == null)
@@ -124,9 +125,32 @@ class ChannelInformationImpl implements ChannelInformation
 			ActiveConfig activeConfig = null;
 			if (reactorChannel.userSpecObj() instanceof ChannelInfo) {
 				ChannelInfo chnlInfo = (ChannelInfo)reactorChannel.userSpecObj();
-				activeConfig = chnlInfo.getActiveConfig();
+				
+				if(chnlInfo != null)
+				{
+					_confChannelName = chnlInfo._channelConfig.name;
+					activeConfig = chnlInfo.getActiveConfig();
+					
+					if(chnlInfo.sessionChannelInfo() != null)
+					{
+						_confSessionChannelName = chnlInfo.sessionChannelInfo().sessionChannelConfig().name;
+					}
+				}
+				
 			}
-			_preferredHostInfo = convertReactorPreferredHostInfoIntoPreferredHostInfo(rci.preferredHostInfo(), activeConfig);
+			
+			if(sessionChannelConfig != null)
+			{
+				_preferredHostInfo = convertReactorPreferredHostInfoIntoPreferredHostInfo(rci.preferredHostInfo(), sessionChannelConfig.configChannelSet,
+						sessionChannelConfig.configWarmStandbySet);
+				
+				_confSessionChannelName = sessionChannelConfig.name;
+			}
+			else if(activeConfig != null)
+			{
+				_preferredHostInfo = convertReactorPreferredHostInfoIntoPreferredHostInfo(rci.preferredHostInfo(), activeConfig.channelConfigSet,
+						activeConfig.configWarmStandbySet);
+			}
 		}
 
 		// _hostname will be null for Consumer and NiProvider applications.
@@ -155,7 +179,7 @@ class ChannelInformationImpl implements ChannelInformation
 	}
 
 	private PreferredHostInfo convertReactorPreferredHostInfoIntoPreferredHostInfo(ReactorPreferredHostInfo reactorPreferredHostInfo,
-                                                                                   ActiveConfig activeConfig) {
+                                                                                   List<ChannelConfig> channelConfigSet, List<WarmStandbyChannelConfig> configWarmStandbySet) {
 		PreferredHostInfo preferredHostInfo = EmaFactory.createPreferredHostInfo();
 		preferredHostInfo.setPreferredHostEnabled(reactorPreferredHostInfo.isPreferredHostEnabled());
 		preferredHostInfo.setDetectionTimeSchedule(reactorPreferredHostInfo.detectionTimeSchedule());
@@ -163,10 +187,15 @@ class ChannelInformationImpl implements ChannelInformation
 		preferredHostInfo.setFallBackWithInWSBGroup(reactorPreferredHostInfo.fallBackWithInWSBGroup());
 		preferredHostInfo.setRemainingDetectionTime(reactorPreferredHostInfo.remainingDetectionTime());
 
-        if(activeConfig != null) {
-            preferredHostInfo.setChannelName(getChannelName(reactorPreferredHostInfo.connectionListIndex(), activeConfig.channelConfigSet));
-            preferredHostInfo.setWsbChannelName(getWsbChannelName(reactorPreferredHostInfo.warmStandbyGroupListIndex(), activeConfig.configWarmStandbySet));
-        }
+		if(channelConfigSet != null)
+		{
+			preferredHostInfo.setChannelName(getChannelName(reactorPreferredHostInfo.connectionListIndex(), channelConfigSet));
+		}
+		
+		if (configWarmStandbySet != null)
+		{
+			preferredHostInfo.setWsbChannelName(getWsbChannelName(reactorPreferredHostInfo.warmStandbyGroupListIndex(), configWarmStandbySet));
+		}
 
 		return preferredHostInfo;
 	}
@@ -278,7 +307,7 @@ class ChannelInformationImpl implements ChannelInformation
 		
 		_stringBuilder.append("\n\tsecurity protocol: ").append(_securityProtocol);
 
-		if (_preferredHostInfo != null && _preferredHostInfo.isPreferredHostEnabled()) {
+		if (_preferredHostInfo != null) {
 			_stringBuilder.append("\n\tpreferred host info: ").append(_preferredHostInfo.toString());
 		}
 		

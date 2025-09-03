@@ -37,8 +37,10 @@ import com.refinitiv.eta.valueadd.reactor.TunnelStreamMsg.TunnelStreamAck;
 
 /** Represents a consumer component. */
 public class Consumer extends TestReactorComponent implements ReactorAuthTokenEventCallback, ReactorServiceEndpointEventCallback, ConsumerCallback, TunnelStreamStatusEventCallback,
-        TunnelStreamDefaultMsgCallback, TunnelStreamQueueMsgCallback, ServiceNameIdConverter, ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback
+        TunnelStreamDefaultMsgCallback, TunnelStreamQueueMsgCallback, ServiceNameIdConverter, ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback, ReactorOAuthCredentialEventCallback
 {
+	ReactorOAuthCredential reactorOAuthCredential = ReactorFactory.createReactorOAuthCredential();
+
     AckRangeList _ackRangeList = new AckRangeList();
     AckRangeList _nakRangeList = new AckRangeList();
     
@@ -46,6 +48,11 @@ public class Consumer extends TestReactorComponent implements ReactorAuthTokenEv
     {
         super(testReactor);
         _reactorRole = ReactorFactory.createConsumerRole();
+    }
+    
+    public void setReactorOAuthCredentialInfo(ReactorOAuthCredential reactorOAuthCredential)
+    {
+    	reactorOAuthCredential.copy(this.reactorOAuthCredential);
     }
     
     @Override
@@ -481,4 +488,22 @@ public class Consumer extends TestReactorComponent implements ReactorAuthTokenEv
         msg = readEvent.msg();
         assertEquals(MsgClasses.CLOSE, msg.msgClass());
     }
+
+	@Override
+	public int reactorOAuthCredentialEventCallback(ReactorOAuthCredentialEvent reactorOAuthCredentialEvent) {
+		ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+		ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
+
+		renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
+		if (reactorOAuthCredential.password() != null && reactorOAuthCredential.password().length() != 0)
+			oAuthCredentialRenewal.password().data(reactorOAuthCredential.password().toString());
+		else if (reactorOAuthCredential.clientSecret() != null && reactorOAuthCredential.clientSecret().length() != 0)
+			oAuthCredentialRenewal.clientSecret().data(reactorOAuthCredential.clientSecret().toString());
+		else
+			oAuthCredentialRenewal.clientJWK().data(reactorOAuthCredential.clientJwk().toString());
+		
+		reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, reactorChannel().getEDPErrorInfo());
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
 }

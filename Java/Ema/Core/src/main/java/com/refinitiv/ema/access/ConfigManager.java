@@ -667,6 +667,12 @@ class ConfigManager
 		SessionChannelGroupDict.add( "ReconnectAttemptLimit", ReconnectAttemptLimit);
 		SessionChannelGroupDict.add( "ReconnectMinDelay", ReconnectMinDelay);
 		SessionChannelGroupDict.add( "ReconnectMaxDelay", ReconnectMaxDelay);
+		SessionChannelGroupDict.add( "EnablePreferredHostOptions", EnablePreferredHostOptions);
+		SessionChannelGroupDict.add( "PHDetectionTimeSchedule", PreferredDetectionTimeSchedule);
+		SessionChannelGroupDict.add( "PHDetectionTimeInterval", PreferredDetectionTimeInterval);
+		SessionChannelGroupDict.add( "PreferredChannelName", PreferredChannelName);
+		SessionChannelGroupDict.add( "PreferredWSBChannelName", PreferredWSBChannelName);
+		SessionChannelGroupDict.add( "PHFallBackWithInWSBGroup", PreferredFallBackWithInWSBGroup);
 		
 		CONSUMER_GROUP = ConfigManager.acquire().new Branch();
 		CONSUMER_GROUP.add(ConfigManager.ConsumerGroup,ConfigManager.ConsumerTagDict);

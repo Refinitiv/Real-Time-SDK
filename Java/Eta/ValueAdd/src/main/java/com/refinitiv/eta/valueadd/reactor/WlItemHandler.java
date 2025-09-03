@@ -169,6 +169,9 @@ class WlItemHandler implements WlHandler
     // Points to the state of a message being fanned out on a stream. 
     // Set to null if recovery is not needed.
     com.refinitiv.eta.codec.State _msgState;
+    
+    // This is used to keep a list of streamId to remove from _statusMsgDispatchList
+    LinkedList<WlInteger> _removeStatusMsgList = new LinkedList<WlInteger>();
 		
     WlItemHandler(Watchlist watchlist)
     {
@@ -2405,6 +2408,7 @@ class WlItemHandler implements WlHandler
         // send any queued status messages to the user
         StatusMsg statusMsg = null;
         Iterator<Map.Entry<WlInteger, StatusMsg>> statusMsgIter = _statusMsgDispatchList.entrySet().iterator();
+        _removeStatusMsgList.clear();
         while (statusMsgIter.hasNext())
         {
             Map.Entry<WlInteger, StatusMsg> entry = statusMsgIter.next(); // Get an entry and use it to access both key and value
@@ -2427,13 +2431,25 @@ class WlItemHandler implements WlHandler
             // return WlInteger to pool
             entry.getKey().returnToPool();
             
-            statusMsgIter.remove();
+            _removeStatusMsgList.add(entry.getKey());
             
             if (ret < ReactorReturnCodes.SUCCESS)
             {
+            	/* Removes every element in the removeList.*/
+            	Iterator<WlInteger> it = _removeStatusMsgList.iterator();
+            	while(it.hasNext())
+            	{
+            		WlInteger key = it.next();
+            		_statusMsgDispatchList.remove(key);
+            	}
+            	
                 return ret;
             }
         }
+        
+        _removeStatusMsgList.clear();
+        /* Clears all status message after the while loop */
+        _statusMsgDispatchList.clear();
         
         // re-submit user requests that had request timeout
         WlRequest wlRequest = null;

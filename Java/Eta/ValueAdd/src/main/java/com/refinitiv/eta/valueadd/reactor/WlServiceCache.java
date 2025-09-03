@@ -189,7 +189,7 @@ class WlServiceCache
 								_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
 								ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, _watchlist.reactorChannel(), errorInfo);
 							} else // server channel or no more retries
-							{
+							{								
 								// Do not return failure here because it's in a dispatch call
 								_watchlist.reactorChannel().state(State.DOWN);
 								_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
@@ -296,6 +296,7 @@ class WlServiceCache
 				wsbHandler.freeSubmitMsgQueue().add(submitOpts);
 			}
 
+            _watchlist._reactorChannel.warmStandByHandlerImpl.queuedRecoveryMessage(false);
     		_watchlist._reactorChannel.lastSubmitOptionsTime = System.nanoTime();
         	_watchlist._reactorChannel.sendReqFromQueue = true;
         }
@@ -720,6 +721,7 @@ class WlServiceCache
 						} else // server channel or no more retries
 						{
 							reactorChannel.state(State.DOWN);
+							
 							reactor.sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
 									ReactorChannelEventTypes.CHANNEL_DOWN, reactorChannel,
 									errorInfo);
@@ -823,6 +825,7 @@ class WlServiceCache
 						} else // server channel or no more retries
 						{
 							reactorChannel.state(State.DOWN);
+							
 							_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
 									ReactorChannelEventTypes.CHANNEL_DOWN, reactorChannel, errorInfo);
 							return;

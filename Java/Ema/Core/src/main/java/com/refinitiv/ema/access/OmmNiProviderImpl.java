@@ -1914,7 +1914,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			if (reactorChannel == null)
 				reactorChannel = _loginCallbackClient.loginChannelList().get(0).rsslReactorChannel();
 
-			((ChannelInformationImpl)channelInformation).set(reactorChannel);
+			((ChannelInformationImpl)channelInformation).set(reactorChannel, null);
 			channelInformation.ipAddress("not available for OmmNiProvider connections");
 		}
 		finally {

@@ -995,15 +995,7 @@ class MsgImpl extends DataImpl implements Msg
 			{
 				com.refinitiv.eta.codec.StatusMsg statusMsg = (com.refinitiv.eta.codec.StatusMsg)other._rsslMsg;
 				com.refinitiv.eta.codec.StatusMsg encodeStatusMsg = (com.refinitiv.eta.codec.StatusMsg)CodecFactory.createMsg();
-				
-				if(_rsslEncodeIter == null)
-				{
-					_rsslEncodeIter = com.refinitiv.eta.codec.CodecFactory.createEncodeIterator();
-				}
-				else
-				{
-					_rsslEncodeIter.clear();
-				}
+				EncodeIterator encodeIterator = com.refinitiv.eta.codec.CodecFactory.createEncodeIterator();
 								
 		        encodeStatusMsg.msgClass(MsgClasses.STATUS);
 				encodeStatusMsg.domainType(statusMsg.domainType());
@@ -1041,8 +1033,8 @@ class MsgImpl extends DataImpl implements Msg
 				else
 					destMsg._copiedBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
 				
-				_rsslEncodeIter.setBufferAndRWFVersion(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer);
-				encodeStatusMsg.encode(_rsslEncodeIter);
+				encodeIterator.setBufferAndRWFVersion(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer);
+				encodeStatusMsg.encode(encodeIterator);
 				
 				destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
 			
@@ -1052,15 +1044,7 @@ class MsgImpl extends DataImpl implements Msg
 			{
 				com.refinitiv.eta.codec.RequestMsg reqMsg = (com.refinitiv.eta.codec.RequestMsg)other._rsslMsg;
 				com.refinitiv.eta.codec.RequestMsg encodeReqMsg = (com.refinitiv.eta.codec.RequestMsg)CodecFactory.createMsg();
-				
-				if(_rsslEncodeIter == null)
-				{
-					_rsslEncodeIter = com.refinitiv.eta.codec.CodecFactory.createEncodeIterator();
-				}
-				else
-				{
-					_rsslEncodeIter.clear();
-				}
+				EncodeIterator encodeIterator = com.refinitiv.eta.codec.CodecFactory.createEncodeIterator();
 				
 				encodeReqMsg.msgClass(MsgClasses.REQUEST);
 				encodeReqMsg.domainType(reqMsg.domainType());
@@ -1086,8 +1070,8 @@ class MsgImpl extends DataImpl implements Msg
 				else
 					destMsg._copiedBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
 				
-				_rsslEncodeIter.setBufferAndRWFVersion(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer);
-				encodeReqMsg.encode(_rsslEncodeIter);
+				encodeIterator.setBufferAndRWFVersion(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer);
+				encodeReqMsg.encode(encodeIterator);
 				
 				destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
 			

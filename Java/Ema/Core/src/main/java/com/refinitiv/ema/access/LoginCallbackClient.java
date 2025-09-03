@@ -121,7 +121,6 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		LoginMsg loginMsg = event.rdmLoginMsg();
 		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
 		
-		
 		if (chnlInfo.getParentChannel() != null)
 			chnlInfo = chnlInfo.getParentChannel();
 		
@@ -164,6 +163,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				if (_rsslRefreshMsg == null)
 				{
 					_rsslRefreshMsg = (RefreshMsg)CodecFactory.createMsg();
+					_rsslRefreshMsg.msgClass(MsgClasses.REFRESH);
+					msg.copy(_rsslRefreshMsg, CopyMsgFlags.ALL_FLAGS);
                 }
 				else
 				{
@@ -223,6 +224,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 						{
 							_ommBaseImpl.ommImplState(OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN);
 						}
+						
+						consumerSession.currentLoginDataState(state.dataState());
 					}
 					else
 					{
@@ -267,6 +270,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 						
 						sessionChannelInfo.loginRefresh().state().streamState(state.streamState());
 						sessionChannelInfo.loginRefresh().state().dataState(state.dataState());
+						
+						consumerSession.currentLoginDataState(state.dataState());
 					}
 					else
 					{
@@ -295,6 +300,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 							msg = null;
 							
 							consumerSession.sendInitialLoginRefresh(true);
+							
+							consumerSession.currentLoginDataState(state.dataState());
 						}
 						else
 						{
@@ -385,6 +392,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 							if(consumerSession.checkAllSessionChannelHasState(OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN))
 							{
 								_ommBaseImpl.ommImplState(OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN);
+								
+								consumerSession.currentLoginDataState(state.dataState());
 							}
 							else
 							{
@@ -437,6 +446,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 							if(result)
 							{
 								_ommBaseImpl.ommImplState(OmmImplState.LOGIN_STREAM_OPEN_SUSPECT);
+								
+								consumerSession.currentLoginDataState(state.dataState());
 							}
 							else
 							{
@@ -480,6 +491,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 								consumerSession.aggregateLoginResponse();
 								
 								processRefreshMsg(null, sessionChannelInfo.reactorChannel(), consumerSession.loginRefresh());
+								
+								consumerSession.currentLoginDataState(state.dataState());
 								
 								consumerSession.sendInitialLoginRefresh(true);
 								notifyStatusMsg = false;
@@ -579,10 +592,12 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		    if(_ommBaseImpl.consumerSession().checkUserStillLogin())
 		    {
 		    	((OmmStateImpl)_refreshMsg.state()).setDataState(DataState.OK);
+		    	_refreshMsg._isUpdatedAfterCopying = true;
 		    }
 		    else
 		    {
 		    	((OmmStateImpl)_refreshMsg.state()).setDataState(DataState.SUSPECT);
+		    	_refreshMsg._isUpdatedAfterCopying = true;
 		    }
 		}
 		
@@ -641,10 +656,12 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		    if(_statusMsg.hasState() && _ommBaseImpl.consumerSession().checkUserStillLogin())
 		    {
 		    	((OmmStateImpl)_statusMsg.state()).setDataState(DataState.OK);
+		    	_statusMsg._isUpdatedAfterCopying = true;
 		    }
 		    else
 		    {
 		    	((OmmStateImpl)_statusMsg.state()).setDataState(DataState.SUSPECT);
+		    	_statusMsg._isUpdatedAfterCopying = true;
 		    }
 		}
 		
@@ -1179,11 +1196,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			break;
 		case ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE:
 			state.streamState(StreamState.OPEN);
-			state.dataState(DataState.OK);
+			state.dataState(_currentRsslDataState);
 			state.code(OmmState.StatusCode.PREFERRED_HOST_COMPLETE);
 			state.text().data("preferred host complete");
-
-			_currentRsslDataState = state.dataState();
 
 			prepareAndSendStatusMsg(event, state);
 
@@ -1228,6 +1243,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		_rsslStatusMsg.applyHasState();
 
 		_statusMsg.decode(_rsslStatusMsg, event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion(), null);
+		
+		_eventImpl._channel = event.reactorChannel();
 
 		for (int idx = 0; idx < _loginItemList.size(); ++idx)
 		{

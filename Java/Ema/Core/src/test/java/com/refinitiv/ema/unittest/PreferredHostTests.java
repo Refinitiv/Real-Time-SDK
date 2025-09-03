@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PreferredHostTests {
 
     private static final String OLD_DETECTION_TIME_SCHEDULE = "";
-    private static final String NEW_DETECTION_TIME_SCHEDULE = "* * ? * *";
+    private static final String NEW_DETECTION_TIME_SCHEDULE = "0 * * ? * *";
     private static final int OLD_DETECTION_TIME_INTERVAL = 15;
     private static final int NEW_DETECTION_TIME_INTERVAL = 5;
     private static final String OLD_CHANNEL_NAME = "Channel_B";
@@ -543,7 +543,7 @@ public class PreferredHostTests {
         }
 
         checkForAssertionError("Something was wrong during fallback to preferred host");
-        TestUtilities.checkResult("There is no switching to preferred host after fallbackPreferredHost calling", isRefreshMessageReceived.get());
+        TestUtilities.checkResult("There is no switch to preferred host after fallbackPreferredHost is called", isRefreshMessageReceived.get());
 
         System.out.println("End EMA call FallbackPreferredHost");
         System.out.println();

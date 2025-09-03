@@ -159,6 +159,11 @@ class ReactorWarmStandbyGroupImpl implements ReactorWarmStandbyGroup
 		return closingStandbyCount;
 	}
 	
+	void resetClosingStandbyCount()
+	{
+		closingStandbyCount = 0;
+	}
+	
 	/* Deep copies the config portion of the warm standby group. */
 	public void copy(ReactorWarmStandbyGroupImpl copyTo)
 	{

@@ -76,6 +76,20 @@ public class ConsumerTestClient implements OmmConsumerClient
 		}
 	}
 	
+	public void clearQueue() 
+	{
+		_userLock.lock();
+		try
+		{
+			_messageQueue.clear();
+		}
+		finally
+		{
+			_userLock.unlock();
+		}
+		
+	}
+	
 	public int channelInfoSize()
 	{
 		_userLock.lock();
@@ -171,7 +185,9 @@ public class ConsumerTestClient implements OmmConsumerClient
 			RefreshMsg cloneMsg = EmaFactory.createRefreshMsg(1280);
 			
 			refreshMsg.copy(cloneMsg);
-		
+			System.out.println("\n>>>>>>>>>>>>>> Consumer received refresh message in domain " + cloneMsg.domainType()
+					+ (cloneMsg.hasServiceName() ? ", serviceName: " + refreshMsg.serviceName() : ""));
+
 			if(refreshMsg.domainType() == EmaRdm.MMT_DICTIONARY)
 			{
 				if(_consumerTestOptions.dumpDictionaryRefreshMsg)

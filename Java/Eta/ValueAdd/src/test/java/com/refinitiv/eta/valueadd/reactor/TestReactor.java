@@ -23,6 +23,7 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 
 import com.refinitiv.eta.codec.*;
@@ -75,7 +76,12 @@ public class TestReactor {
     boolean isPreferredHostTest = false;
     
     final String DEFAULT_SERVICE = "DEFAULT_SERVICE";
+    
+    final String LDP_ENDPOINT_ADDRESS = "ap-northeast-1-aws-1-med.optimized-pricing-api.refinitiv.net";
+    final String LDP_ENDPOINT_PORT = "14002";
 
+    final String LDP_ENDPOINT_ADDRESS_WEBSOCKET = "ap-northeast-1-aws-1-lrg.optimized-pricing-api.refinitiv.net";
+    final String LDP_ENDPOINT_PORT_WEBSOCKET = "443";
 	/** Creates a TestReactor. */
 	public TestReactor()
 	{
@@ -962,6 +968,8 @@ public class TestReactor {
         ReactorWarmStandbyServerInfo wsbServerInfo;
         int ret;
         
+        connectOpts.clear();
+        
         connectOpts.reconnectAttemptLimit(opts.reconnectAttemptLimit());
         connectOpts.reconnectMinDelay(opts.reconnectMinDelay());
         connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
@@ -970,7 +978,6 @@ public class TestReactor {
         if(channelList != null)
         {
 	        ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
-	        connectOpts.clear();
 	        connectOpts.connectionList().add(connectInfo);
 	        connectOpts.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
 	        connectOpts.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
@@ -1081,6 +1088,452 @@ public class TestReactor {
 
         /* Clear ReactorConnectOptions after connecting -- this tests whether the Reactor is properly saving the options. */
         connectOpts.clear();
+
+    }
+	
+	/** Associates a component with this reactor and opens a connection using session management. */
+	ReactorConnectOptions connectWsb_ByPort_SessionManagement_NoStart(ConsumerProviderSessionOptions opts, ReactorConnectOptions rcOpts, TestReactorComponent component, Consumer consumer, String protocolList, boolean isWebsocket, DataDictionary dictionary, List<Integer> wsbGroup1, List<Integer> wsbGroup2, Integer channelPort)
+	{
+		ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
+		rcOpts.copy(connectOpts);
+        ReactorWarmStandbyGroup wsbGroup;
+        ReactorWarmStandbyServerInfo wsbServerInfo;
+        int ret;
+        
+        /*
+         * For each of these, integers help tell what kind of connection we're testing with
+         * -1 = not used and not put into configuration
+         * 0 = Used for Session Management = Service Discovery
+         * 1 = Misconfigured, cannot connect to it, Session Management disabled and port is 1.
+         * 2 = Session Management enabled, Endpoint specified
+         * 
+         * Over 100 = port as-is, no Session Management enabled
+         */
+
+        if(channelPort != -1)
+        {
+	        ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+	        connectOpts.connectionList().add(connectInfo);
+	        connectOpts.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
+	        connectOpts.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
+	        connectOpts.connectionList().get(0).connectOptions().connectionType(opts.connectionType());
+	        connectOpts.connectionList().get(0).connectOptions().userSpecObject(consumer);
+	        connectOpts.connectionList().get(0).connectOptions().compressionType(opts.compressionType());
+	        connectOpts.connectionList().get(0).connectOptions().numInputBuffers(20);
+	        connectOpts.connectionList().get(0).initTimeout(opts.consumerChannelInitTimeout());
+
+	        connectOpts.connectionList().get(0).connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				connectOpts.connectionList().get(0).connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        if (channelPort == 1 || channelPort > 100)
+	        {
+		        connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("localhost");
+		        connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(0));	
+	        }
+	        else if (channelPort == 2)
+	        {
+	        	String address = LDP_ENDPOINT_ADDRESS;
+	        	if (isWebsocket)
+	        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
+	        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(address);
+	        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
+	        }
+	        
+	        // Handle session management options
+	        if (channelPort == 0 || channelPort == 2)
+	        {
+	        	connectOpts.connectionList().get(0).connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+				if (isWebsocket) {
+					connectOpts.connectionList().get(0).connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
+					connectOpts.connectionList().get(0).connectOptions().wSocketOpts().protocols(protocolList);
+				}	        	
+	        }
+
+			connectOpts.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
+			connectOpts.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
+
+			if(isWebsocket)
+			{
+				if(Objects.nonNull(System.getProperty("keyfile")))
+					connectOpts.connectionList().get(0).connectOptions().encryptionOptions().KeystoreFile(System.getProperty("keyfile"));
+
+				if(Objects.nonNull(System.getProperty("keypasswd")))
+					connectOpts.connectionList().get(0).connectOptions().encryptionOptions().KeystorePasswd(System.getProperty("keypasswd"));
+
+				connectOpts.connectionList().get(0).connectOptions().encryptionOptions().KeystoreType("JKS");
+				connectOpts.connectionList().get(0).connectOptions().encryptionOptions().SecurityProtocol("TLS");
+				connectOpts.connectionList().get(0).connectOptions().encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
+				connectOpts.connectionList().get(0).connectOptions().encryptionOptions().SecurityProvider("SunJSSE");
+				connectOpts.connectionList().get(0).connectOptions().encryptionOptions().KeyManagerAlgorithm("SunX509");
+				connectOpts.connectionList().get(0).connectOptions().encryptionOptions().TrustManagerAlgorithm("PKIX");
+				connectOpts.connectionList().get(0).connectOptions().userSpecObject(consumer);
+				
+				if (protocolList.contains("tr_json2") || protocolList.contains("rssl.json.v2")) {
+					consumer.testReactor().initJsonConverter(dictionary);
+	            		}
+			}
+			else
+			{
+				if(Objects.nonNull(System.getProperty("keyfile")))
+					connectOpts.connectionList().get(0).connectOptions().tunnelingInfo().KeystoreFile(System.getProperty("keyfile"));
+
+				if(Objects.nonNull(System.getProperty("keypasswd")))
+					connectOpts.connectionList().get(0).connectOptions().tunnelingInfo().KeystorePasswd(System.getProperty("keypasswd"));
+
+				connectOpts.connectionList().get(0).connectOptions().tunnelingInfo().objectName("");
+				connectOpts.connectionList().get(0).connectOptions().tunnelingInfo().KeystoreType("JKS");
+				connectOpts.connectionList().get(0).connectOptions().tunnelingInfo().SecurityProtocol("TLS");
+				connectOpts.connectionList().get(0).connectOptions().tunnelingInfo().SecurityProvider("SunJSSE");
+				connectOpts.connectionList().get(0).connectOptions().tunnelingInfo().KeyManagerAlgorithm("SunX509");
+				connectOpts.connectionList().get(0).connectOptions().tunnelingInfo().TrustManagerAlgorithm("PKIX");		
+				connectOpts.connectionList().get(0).connectOptions().tunnelingInfo().tunnelingType("encrypted");			
+				connectOpts.connectionList().get(0).connectOptions().userSpecObject(consumer);
+			}
+
+			if (channelPort == 0 || channelPort == 2)
+				connectOpts.connectionList().get(0).enableSessionManagement(true);
+			connectOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);	
+        }
+        
+        if(wsbGroup1 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(consumer);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        if (wsbGroup1.get(0) == 1 || wsbGroup1.get(0) > 100)
+	        {
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup1.get(0)));	
+	        }
+	        else if (wsbGroup1.get(0) == 2)
+	        {
+	        	String address = LDP_ENDPOINT_ADDRESS;
+	        	if (isWebsocket)
+	        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
+	        }
+	        
+	        // Handle session management options
+	        if (wsbGroup1.get(0) == 0 || wsbGroup1.get(0) == 2)
+	        {
+		        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+				if (isWebsocket) {
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(protocolList);
+				}	        	
+	        }
+
+			wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+			wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+
+			if(isWebsocket)
+			{
+				if(Objects.nonNull(System.getProperty("keyfile")))
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().KeystoreFile(System.getProperty("keyfile"));
+
+				if(Objects.nonNull(System.getProperty("keypasswd")))
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().KeystorePasswd(System.getProperty("keypasswd"));
+
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().KeystoreType("JKS");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().SecurityProtocol("TLS");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().SecurityProvider("SunJSSE");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().KeyManagerAlgorithm("SunX509");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().TrustManagerAlgorithm("PKIX");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(consumer);
+				
+				if (protocolList.contains("tr_json2") || protocolList.contains("rssl.json.v2")) {
+					consumer.testReactor().initJsonConverter(dictionary);
+	            		}
+			}
+			else
+			{
+				if(Objects.nonNull(System.getProperty("keyfile")))
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().KeystoreFile(System.getProperty("keyfile"));
+
+				if(Objects.nonNull(System.getProperty("keypasswd")))
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().KeystorePasswd(System.getProperty("keypasswd"));
+
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().objectName("");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().KeystoreType("JKS");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().SecurityProtocol("TLS");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().SecurityProvider("SunJSSE");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().KeyManagerAlgorithm("SunX509");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().TrustManagerAlgorithm("PKIX");		
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().tunnelingType("encrypted");			
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(consumer);
+			}
+
+			if (wsbGroup1.get(0) == 0 || wsbGroup1.get(0) == 2)
+				wsbGroup.startingActiveServer().reactorConnectInfo().enableSessionManagement(true);
+			wsbGroup.startingActiveServer().reactorConnectInfo().reactorAuthTokenEventCallback(consumer);	
+	        
+	        for(int i = 1; i < wsbGroup1.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(consumer);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        if (wsbGroup1.get(1) != null && (wsbGroup1.get(1) == 1 || wsbGroup1.get(1) > 100))
+		        {
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup1.get(wsbGroup1.get(1))));	
+		        }
+		        else if (wsbGroup1.get(1) != null && wsbGroup1.get(1) == 2)
+		        {
+		        	String address = LDP_ENDPOINT_ADDRESS;
+		        	if (isWebsocket)
+		        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
+		        }
+		        
+		     // Handle session management options
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+				if (isWebsocket) {
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(protocolList);
+				}
+				wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+				wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+
+				if(isWebsocket)
+				{
+					if(Objects.nonNull(System.getProperty("keyfile")))
+						wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().KeystoreFile(System.getProperty("keyfile"));
+
+					if(Objects.nonNull(System.getProperty("keypasswd")))
+						wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().KeystorePasswd(System.getProperty("keypasswd"));
+
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().KeystoreType("JKS");
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().SecurityProtocol("TLS");
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().SecurityProvider("SunJSSE");
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().KeyManagerAlgorithm("SunX509");
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().TrustManagerAlgorithm("PKIX");
+					wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(consumer);
+					
+					if (protocolList.contains("tr_json2") || protocolList.contains("rssl.json.v2")) {
+						consumer.testReactor().initJsonConverter(dictionary);
+		            		}
+				}
+				else
+				{
+					if(Objects.nonNull(System.getProperty("keyfile")))
+						wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().KeystoreFile(System.getProperty("keyfile"));
+
+					if(Objects.nonNull(System.getProperty("keypasswd")))
+						wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().KeystorePasswd(System.getProperty("keypasswd"));
+
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().objectName("");
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().KeystoreType("JKS");
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().SecurityProtocol("TLS");
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().SecurityProvider("SunJSSE");
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().KeyManagerAlgorithm("SunX509");
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().TrustManagerAlgorithm("PKIX");		
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().tunnelingType("encrypted");			
+					wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(consumer);
+				}
+
+				if (wsbGroup1.get(1) == 0 || wsbGroup1.get(1) == 2)
+					wsbServerInfo.reactorConnectInfo().enableSessionManagement(true);
+				wsbServerInfo.reactorConnectInfo().reactorAuthTokenEventCallback(consumer);	
+		        
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+        if(wsbGroup2 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(consumer);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        if (wsbGroup2.get(0) == 1 || wsbGroup2.get(0) > 100)
+	        {
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(0)));	
+	        }
+	        else if (wsbGroup2.get(0) == 2)
+	        {
+	        	String address = LDP_ENDPOINT_ADDRESS;
+	        	if (isWebsocket)
+	        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
+	        }
+	        
+	        // Handle session management options
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+			if (isWebsocket) {
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(protocolList);
+			}
+			wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+			wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+
+			if(isWebsocket)
+			{
+				if(Objects.nonNull(System.getProperty("keyfile")))
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().KeystoreFile(System.getProperty("keyfile"));
+
+				if(Objects.nonNull(System.getProperty("keypasswd")))
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().KeystorePasswd(System.getProperty("keypasswd"));
+
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().KeystoreType("JKS");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().SecurityProtocol("TLS");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().SecurityProvider("SunJSSE");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().KeyManagerAlgorithm("SunX509");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().TrustManagerAlgorithm("PKIX");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(consumer);
+				
+				if (protocolList.contains("tr_json2") || protocolList.contains("rssl.json.v2")) {
+					consumer.testReactor().initJsonConverter(dictionary);
+	            		}
+			}
+			else
+			{
+				if(Objects.nonNull(System.getProperty("keyfile")))
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().KeystoreFile(System.getProperty("keyfile"));
+
+				if(Objects.nonNull(System.getProperty("keypasswd")))
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().KeystorePasswd(System.getProperty("keypasswd"));
+
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().objectName("");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().KeystoreType("JKS");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().SecurityProtocol("TLS");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().SecurityProvider("SunJSSE");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().KeyManagerAlgorithm("SunX509");
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().TrustManagerAlgorithm("PKIX");		
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().tunnelingType("encrypted");			
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(consumer);
+			}
+
+			if (wsbGroup2.get(0) == 0 || wsbGroup2.get(0) == 2)
+				wsbGroup.startingActiveServer().reactorConnectInfo().enableSessionManagement(true);
+			wsbGroup.startingActiveServer().reactorConnectInfo().reactorAuthTokenEventCallback(consumer);	
+	        
+	        for(int i = 1; i < wsbGroup2.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(consumer);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        if (wsbGroup2.get(1) != null && (wsbGroup2.get(1) == 1 || wsbGroup2.get(1) >= 100))
+		        {
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(wsbGroup2.get(1))));	
+		        }
+		        else if (wsbGroup2.get(1) != null && wsbGroup2.get(1) == 2)
+		        {
+		        	String address = LDP_ENDPOINT_ADDRESS;
+		        	if (isWebsocket)
+		        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
+		        }
+		        
+		        // Handle session management options
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+				if (isWebsocket) {
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(protocolList);
+				}
+				wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+				wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+
+				if(isWebsocket)
+				{
+					if(Objects.nonNull(System.getProperty("keyfile")))
+						wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().KeystoreFile(System.getProperty("keyfile"));
+
+					if(Objects.nonNull(System.getProperty("keypasswd")))
+						wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().KeystorePasswd(System.getProperty("keypasswd"));
+
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().KeystoreType("JKS");
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().SecurityProtocol("TLS");
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().SecurityProvider("SunJSSE");
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().KeyManagerAlgorithm("SunX509");
+					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().TrustManagerAlgorithm("PKIX");
+					wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(consumer);
+					
+					if (protocolList.contains("tr_json2") || protocolList.contains("rssl.json.v2")) {
+						consumer.testReactor().initJsonConverter(dictionary);
+		            		}
+				}
+				else
+				{
+					if(Objects.nonNull(System.getProperty("keyfile")))
+						wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().KeystoreFile(System.getProperty("keyfile"));
+
+					if(Objects.nonNull(System.getProperty("keypasswd")))
+						wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().KeystorePasswd(System.getProperty("keypasswd"));
+
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().objectName("");
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().KeystoreType("JKS");
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().SecurityProtocol("TLS");
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().SecurityProvider("SunJSSE");
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().KeyManagerAlgorithm("SunX509");
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().TrustManagerAlgorithm("PKIX");		
+					wsbServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().tunnelingType("encrypted");			
+					wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(consumer);
+				}
+
+				if (wsbGroup2.get(1) == 0 || wsbGroup2.get(1) == 2)
+				wsbServerInfo.reactorConnectInfo().enableSessionManagement(true);
+				wsbServerInfo.reactorConnectInfo().reactorAuthTokenEventCallback(consumer);	
+		        
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+        return connectOpts;
 
     }
 	
@@ -1450,6 +1903,18 @@ public class TestReactor {
 
 	}
 	
+	void lateStartConnect(ReactorConnectOptions connectOpts, TestReactorComponent component, boolean clearConnectOpts)
+	{
+        int ret = _reactor.connect(connectOpts, component.reactorRole(), _errorInfo);
+        assertEquals("Connect failed: " + ret + "(" + _errorInfo.location() + " -- "+ _errorInfo.error().text() + ")",
+        		ReactorReturnCodes.SUCCESS, ret);
+
+        /* Clear ReactorConnectOptions after connecting -- this tests whether the Reactor is properly saving the options. */
+        if (clearConnectOpts)
+        	connectOpts.clear();
+
+	}
+	
 	/** Associates a component with this reactor and opens a connection. This is meant to test failure scenarios */
 	int connectWsbFailureTest(ReactorConnectOptions connectOpts, ConsumerProviderSessionOptions opts, TestReactorComponent component, List<Provider> wsbGroup1, List<Provider> wsbGroup2, List<Provider> wsbGroup3, Provider channelList)
 	{
@@ -1465,7 +1930,6 @@ public class TestReactor {
         if(channelList != null)
         {
 	        ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
-	        connectOpts.clear();
 	        connectOpts.connectionList().add(connectInfo);
 	        connectOpts.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
 	        connectOpts.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());

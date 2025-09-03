@@ -686,7 +686,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Received ChannelDownReconnecting event on channel ")
-	  						.append(channelConfig.name).append(OmmLoggerClient.CR);
+							.append(channelConfig.name).append(OmmLoggerClient.CR);
 					if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
 						temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
 								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
@@ -755,7 +755,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					ReactorErrorInfo errorInfo = event.errorInfo();
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Received ChannelDown event on channel ")
-								.append(channelConfig.name).append(OmmLoggerClient.CR)
+							.append(channelConfig.name).append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
 					if (rsslReactorChannel != null && rsslReactorChannel.channel() != null && rsslReactorChannel.reactor() != null)
 						temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
@@ -828,7 +828,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				{
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Received PreferredHostSwitchoverComplete event on channel ");
-					temp.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+					temp.append(channelConfig.name).append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName());
 					_baseImpl.loggerClient().info(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.INFO));
 				}
@@ -853,7 +853,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				{
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Received PreferredHostStartFallback event on channel ");
-					temp.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+					temp.append(channelConfig.name).append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName());
 					_baseImpl.loggerClient().info(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.INFO));
 				}
@@ -1170,10 +1170,22 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		return reactorConnectInfo;
 	}
 	
+	private void validateSessionChannelSetForPreferredHost(OmmBaseImpl<T> ommBaseImpl, List<SessionChannelConfig> sessionChannelSet)
+	{
+		for(int i = 0;i < sessionChannelSet.size(); i++)
+		{
+			SessionChannelConfig sessionChannelConfig = sessionChannelSet.get(i);
+			sessionChannelConfig.validatePreferChannelAndWSBChannes(ommBaseImpl);
+		}
+	}
+	
 	private void initalizeSessionChannel()
 	{
 		ActiveConfig activeConfig = _baseImpl.activeConfig();
 		List<SessionChannelConfig>	activeSessionChannelSet = activeConfig.configSessionChannelSet;
+		
+		/* Validates the preferred channel and/or WSB channel for the preferred host feature */
+		validateSessionChannelSetForPreferredHost(_baseImpl, activeSessionChannelSet);
 
 		ConsumerSession<T> consumerSession = _baseImpl.consumerSession();
 		
@@ -1192,6 +1204,14 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			sessionChannelConfig.connectOptions().reconnectAttemptLimit(sessionChannelConfig.reconnectAttemptLimit);
 			sessionChannelConfig.connectOptions().reconnectMinDelay(sessionChannelConfig.reconnectMinDelay);
 			sessionChannelConfig.connectOptions().reconnectMaxDelay(sessionChannelConfig.reconnectMaxDelay);
+			
+			/* Additional options for the preferred host feature */
+			sessionChannelConfig.connectOptions().reactorPreferredHostOptions().detectionTimeInterval(sessionChannelConfig.detectionTimeInterval);
+			sessionChannelConfig.connectOptions().reactorPreferredHostOptions().detectionTimeSchedule(sessionChannelConfig.detectionTimeSchedule);
+			sessionChannelConfig.connectOptions().reactorPreferredHostOptions().fallBackWithInWSBGroup(sessionChannelConfig.fallBackWithInWSBGroup);
+			sessionChannelConfig.connectOptions().reactorPreferredHostOptions().isPreferredHostEnabled(sessionChannelConfig.enablePerferredHostOptions);
+			sessionChannelConfig.connectOptions().reactorPreferredHostOptions().connectionListIndex(sessionChannelConfig.preferredChannelIndex);
+			sessionChannelConfig.connectOptions().reactorPreferredHostOptions().warmStandbyGroupListIndex(sessionChannelConfig.preferredWSBChannelIndex);
 			
 			SessionChannelInfo<T> sessionChannelInfo = new SessionChannelInfo<>(sessionChannelConfig, consumerSession);
 			

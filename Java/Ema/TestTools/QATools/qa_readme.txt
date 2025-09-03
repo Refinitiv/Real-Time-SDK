@@ -622,11 +622,14 @@ Series400Consumer490-Dict-003
 Module:  Series500Consumer500
 -----------------------------
 Series500Consumer500-ConsFunc-001
-	Alters to subscribe for two different services and items.
+	Alters to subscribe for two different services and items. Also print ChannelInformation for each event callback.
 	-serviceName1 - specifies first service name;
 	-serviceName2 - specifies second service name;
 	-itemName1 - specifies first item name;
 	-itemName2 - specifies second item name.
+
+Series500Consumer500-ConsFunc-002
+	Alters to print consumer's channelInformation every 5 seconds 
 
 Series500Consumer500-RTO-001
 	Alters to make it possible to connect to RTO.

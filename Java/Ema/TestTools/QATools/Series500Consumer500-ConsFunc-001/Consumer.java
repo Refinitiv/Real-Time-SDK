@@ -26,7 +26,7 @@ class AppClient implements OmmConsumerClient
             decode(refreshMsg.payload().fieldList());
 
         // APIQA
-//        System.out.println("\nEvent channel info (refresh)\n" + event.channelInformation());
+        System.out.println("\nEvent channel info (refresh)\n" + event.channelInformation());
         // APIQA END
         System.out.println();
     }
@@ -46,7 +46,7 @@ class AppClient implements OmmConsumerClient
                 decode(updateMsg.payload().fieldList());
 
             // APIQA
-//            System.out.println("\nEvent channel info (update)\n" + event.channelInformation());
+            System.out.println("\nEvent channel info (update)\n" + event.channelInformation());
             // APIQA END
             System.out.println();
         }
@@ -64,7 +64,7 @@ class AppClient implements OmmConsumerClient
             System.out.println("Item State: " +statusMsg.state());
 
         // APIQA
-//        System.out.println("\nEvent channel info (status)\n" + event.channelInformation());
+        System.out.println("\nEvent channel info (status)\n" + event.channelInformation());
         // APIQA END
         System.out.println();
     }
@@ -196,7 +196,7 @@ public class Consumer
                                                 .name(CommandLine.value(ITEM_NAME_2)), appClient2, 0);
             // APIQA END
 
-            int printInterval = 5;
+            int printInterval = 1;
             ChannelInformation ci = EmaFactory.createChannelInformation();
             for (int i = 0; i < 600; i++) {
                 Thread.sleep(1000); // API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()

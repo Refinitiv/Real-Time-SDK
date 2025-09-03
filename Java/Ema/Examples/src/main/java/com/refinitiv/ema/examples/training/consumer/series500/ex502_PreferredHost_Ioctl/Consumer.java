@@ -25,32 +25,21 @@ class AppClient implements OmmConsumerClient
 
         if (DataTypes.FIELD_LIST == refreshMsg.payload().dataType())
             decode(refreshMsg.payload().fieldList());
-
-        System.out.println();
-
-        //System.out.println("Event channel info (refresh)\n" + event.channelInformation());
-        //System.out.println();
     }
 
     public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event)
     {
         if (!updateCalled)
         {
-            updateCalled = true;
             System.out.println("Item Name: " + (updateMsg.hasName() ? updateMsg.name() : "<not set>"));
             System.out.println("Service Name: " + (updateMsg.hasServiceName() ? updateMsg.serviceName() : "<not set>"));
 
             if (DataTypes.FIELD_LIST == updateMsg.payload().dataType())
                 decode(updateMsg.payload().fieldList());
-
-            System.out.println();
         }
         else {
             System.out.println("skipped printing updateMsg");
         }
-
-        //System.out.println("Event channel info (update)\n" + event.channelInformation());
-        //System.out.println();
     }
 
     public void onStatusMsg(StatusMsg statusMsg, OmmConsumerEvent event)
@@ -60,11 +49,6 @@ class AppClient implements OmmConsumerClient
 
         if (statusMsg.hasState())
             System.out.println("Item State: " +statusMsg.state());
-
-        System.out.println();
-
-        //System.out.println("Event channel info (status)\n" + event.channelInformation());
-        //System.out.println();
     }
 
     public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent){}
@@ -126,11 +110,6 @@ class AppClient implements OmmConsumerClient
 
 public class Consumer
 {
-    private static final String DEFAULT_SERVICE_NAME = "DIRECT_FEED";
-    private static final String INFRA_SERVICE_NAME = "ELEKTRON_DD";
-    private static final String DEFAULT_CONSUMER_NAME = "Consumer_9";
-    private static final String DEFAULT_ITEM_NAME = "IBM.N";
-
     private static final int DEFAULT_IOCTL_CALL_TIME_INTERVAL = 0;
     private static final int DEFAULT_FALLBACK_CALL_TIME_INTERVAL = 0;
 
@@ -333,10 +312,10 @@ public class Consumer
             }
 
             consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig()
-                                                                .consumerName(DEFAULT_CONSUMER_NAME));
+                                                                .consumerName("Consumer_9"));
             consumer.registerClient(EmaFactory.createReqMsg()
-                                                .serviceName(DEFAULT_SERVICE_NAME)
-                                                .name(DEFAULT_ITEM_NAME), appClient, 0);
+                                                .serviceName("DIRECT_FEED")
+                                                .name("IBM.N"), appClient, 0);
 
             boolean isModifyIOCtlDone = false;
             int printInterval = 1;
@@ -344,7 +323,8 @@ public class Consumer
             System.out.println("\nInitial channel information (consumer):\n\t" + ci);
             System.out.println();
 
-            long startTime = System.currentTimeMillis();
+            long startTimeFallback = System.currentTimeMillis();
+            long startTimeIoctl = System.currentTimeMillis();
             for (int i = 0; i < 600; i++) {
                 Thread.sleep(1000); // API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 
@@ -356,8 +336,9 @@ public class Consumer
                 }
 
                 long currentTime = System.currentTimeMillis();
-                int period = (int) (currentTime - startTime) / 1000;
-                if (ioctlInterval > 0 && period >= ioctlInterval && !isModifyIOCtlDone) {
+                int periodFallback = (int) (currentTime - startTimeFallback) / 1000;
+                int periodIoctl = (int) (currentTime - startTimeIoctl) / 1000;
+                if (ioctlInterval > 0 && periodIoctl >= ioctlInterval && !isModifyIOCtlDone) {
                     boolean isChanged = isPHInfoChanged(ci.preferredHostInfo(), enablePreferredHostOptions,
                             fallBackWithInWSBGroup, channelName, wsbChannelName, detectionTimeInterval, detectionTimeSchedule);
 
@@ -372,19 +353,19 @@ public class Consumer
                     isModifyIOCtlDone = true;
                 }
 
-                if (fallbackInterval > 0 && period >= fallbackInterval) {
+                if (fallbackInterval > 0 && periodFallback >= fallbackInterval) {
                     consumer.fallbackPreferredHost();
                     System.out.println( "FallbackPreferredHost() is called!");
-                    startTime = System.currentTimeMillis();
+                    startTimeFallback = System.currentTimeMillis();
                 }
 
                 if (i % printInterval == 0) {
                     if(ioctlInterval > 0 && !isModifyIOCtlDone) {
-                        printModifyIOCtlData(ioctlInterval, period);
+                        printModifyIOCtlData(ioctlInterval, periodIoctl);
                     }
 
                     if(fallbackInterval > 0) {
-                        printFallbackPreferredHostData(fallbackInterval, period);
+                        printFallbackPreferredHostData(fallbackInterval, periodFallback);
                     }
                 }
             }

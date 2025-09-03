@@ -41,6 +41,9 @@ class AppClient implements OmmConsumerClient
 	private static int postId = 1;
 	//API QA
 	List<ChannelInformation> channelInList = new ArrayList<ChannelInformation>();
+	public long _loginEventHandle = 0;
+	String statusStr = "";
+	private static int _counter = 0;
 	
 	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
 	{		
@@ -51,26 +54,31 @@ class AppClient implements OmmConsumerClient
 
 		System.out.println("Item State: " + refreshMsg.state());
 
+		//APIQA: Offstream post is fanned out to all active connections on which a Source Directory has been established
 		if ( refreshMsg.domainType() == EmaRdm.MMT_LOGIN && 
 				refreshMsg.state().streamState() == OmmState.StreamState.OPEN &&
-				refreshMsg.state().dataState() == OmmState.DataState.OK )
-			{
-				PostMsg postMsg = EmaFactory.createPostMsg();
-				RefreshMsg nestedRefreshMsg = EmaFactory.createRefreshMsg();
-				FieldList nestedFieldList = EmaFactory.createFieldList();
-				
-				//FieldList is a collection in java
-				nestedFieldList.add(EmaFactory.createFieldEntry().real(22, 34, OmmReal.MagnitudeType.EXPONENT_POS_1));
-				nestedFieldList.add(EmaFactory.createFieldEntry().real(25, 35, OmmReal.MagnitudeType.EXPONENT_POS_1));
-				nestedFieldList.add(EmaFactory.createFieldEntry().time(18, 11, 29, 30));
-				nestedFieldList.add(EmaFactory.createFieldEntry().enumValue(37, 3));
-				
-				nestedRefreshMsg.payload(nestedFieldList ).complete(true);
+				refreshMsg.state().dataState() == OmmState.DataState.OK && _counter < 2)
+		{
+			_loginEventHandle = event.handle();
+			PostMsg postMsg = EmaFactory.createPostMsg();
+			postMsg.streamId(1);
+			RefreshMsg nestedRefreshMsg = EmaFactory.createRefreshMsg();
+			FieldList nestedFieldList = EmaFactory.createFieldList();
+			
+			//FieldList is a collection in java
+			nestedFieldList.add(EmaFactory.createFieldEntry().real(22, 34, OmmReal.MagnitudeType.EXPONENT_POS_1));
+			nestedFieldList.add(EmaFactory.createFieldEntry().real(25, 35, OmmReal.MagnitudeType.EXPONENT_POS_1));
+			nestedFieldList.add(EmaFactory.createFieldEntry().time(18, 11, 29, 30));
+			nestedFieldList.add(EmaFactory.createFieldEntry().enumValue(37, 3));
+			
+			nestedRefreshMsg.payload(nestedFieldList ).complete(true);
+				nestedRefreshMsg.streamId(1);
 				
 				((OmmConsumer)event.closure()).submit( postMsg.postId( postId++ ).serviceName( "DIRECT_FEED" )
-															.name( "LSEG.L" ).solicitAck( true ).complete(true)
-															.payload(nestedRefreshMsg), event.handle() );
-			}
+					.name( "LSEG.L" ).solicitAck( true ).complete(true)
+					.payload(nestedRefreshMsg), _loginEventHandle );
+			_counter++;
+		}
 
 		decode( refreshMsg );
 			
@@ -86,7 +94,7 @@ class AppClient implements OmmConsumerClient
 		
 		System.out.println("Item Name: " + (updateMsg.hasName() ? updateMsg.name() : "<not set>"));
 		System.out.println("Service Name: " + (updateMsg.hasServiceName() ? updateMsg.serviceName() : "<not set>"));
-		
+
 		decode( updateMsg );
 		
 		System.out.println();
@@ -102,11 +110,37 @@ class AppClient implements OmmConsumerClient
 		System.out.println("Item Name: " + (statusMsg.hasName() ? statusMsg.name() : "<not set>"));
 		System.out.println("Service Name: " + (statusMsg.hasServiceName() ? statusMsg.serviceName() : "<not set>"));
 
-		if (statusMsg.hasState())
+		if (statusMsg.hasState()) {
 			System.out.println("Item State: " +statusMsg.state());
+			statusStr = statusMsg.state().statusText();
+		} else
+			statusStr = ""; 
 		
 		System.out.println();
+
 		//API QA	
+		if ( statusStr.equals("session channel up") )
+		{
+			PostMsg postMsg = EmaFactory.createPostMsg();
+			postMsg.streamId(1);
+			RefreshMsg nestedRefreshMsg = EmaFactory.createRefreshMsg();
+			FieldList nestedFieldList = EmaFactory.createFieldList();
+
+			//FieldList is a collection in java
+			nestedFieldList.add(EmaFactory.createFieldEntry().real(22, 34, OmmReal.MagnitudeType.EXPONENT_POS_1));
+			nestedFieldList.add(EmaFactory.createFieldEntry().real(25, 35, OmmReal.MagnitudeType.EXPONENT_POS_1));
+			nestedFieldList.add(EmaFactory.createFieldEntry().time(18, 11, 29, 30));
+			nestedFieldList.add(EmaFactory.createFieldEntry().enumValue(37, 3));
+
+			nestedRefreshMsg.payload(nestedFieldList ).complete(true);
+			nestedRefreshMsg.streamId(1);
+			
+			((OmmConsumer)event.closure()).submit( postMsg.postId( postId++ )
+				.serviceName( "DIRECT_FEED" ) 
+				.name( "LSEG.L" ).solicitAck( true ).complete(true) 
+				.payload(nestedRefreshMsg),  _loginEventHandle );
+		}
+		
 		System.out.println("event session info (status)\n");
 		printSessionInfo(event);		
 	}

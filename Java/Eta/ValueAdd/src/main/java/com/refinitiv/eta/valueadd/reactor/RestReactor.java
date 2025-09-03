@@ -1359,7 +1359,7 @@ class RestReactor
 			requestLogBuffer.append("\n");
 		}
 
-		ByteArrayEntity entity = new ByteArrayEntity(request.getBodyBytes(), contentType);
+		ByteArrayEntity entity = contentType != null ? new ByteArrayEntity(request.getBodyBytes(), contentType) : null;
 
 		if (entity != null) {
 

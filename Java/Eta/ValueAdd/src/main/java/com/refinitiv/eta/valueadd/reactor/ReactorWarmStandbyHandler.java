@@ -69,6 +69,11 @@ class ReactorWarmStandbyHandler
 	private int rdmFieldVersion;
 	private int rdmEnumTypeVersion;
 	
+	boolean isPHTimersStartedByChannelUp;
+	
+	long latestMsgSubmissionTime; // This is used to keep the latest submission time to check with the message recovery queue for the WSB feature.
+	long lastMsgRecoveryCheckTime; // This is used to keep the last time that checks for adding recovery message queue for the WSB feature.
+	
 	ReactorWarmStandbyHandler()
 	{	
 		clear();
@@ -117,6 +122,9 @@ class ReactorWarmStandbyHandler
 		systemWriteBuffers = 0;
 		compressionThreshold = 0;
 		hasConnectionList = false;
+		isPHTimersStartedByChannelUp = false;
+		latestMsgSubmissionTime = 0;
+		lastMsgRecoveryCheckTime = 0;
 	}
 
 	VaNode reactorQueueLink() 

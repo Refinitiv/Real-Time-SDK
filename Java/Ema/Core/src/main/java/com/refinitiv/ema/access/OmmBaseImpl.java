@@ -1317,13 +1317,20 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		SessionChannelConfig newSessionChannelConfig = new SessionChannelConfig(sessionChannel);
 		ConfigAttributes attributes = null;
 		
+		/* Initializes these parameters to be the same as OmmConsumer instance which can be overwritten by SessionChannelInfo */
 		newSessionChannelConfig.reconnectAttemptLimit = activeConfig.reconnectAttemptLimit;
 		newSessionChannelConfig.reconnectMaxDelay = activeConfig.reconnectMaxDelay;
 		newSessionChannelConfig.reconnectMinDelay = activeConfig.reconnectMinDelay;
+		newSessionChannelConfig.detectionTimeInterval = activeConfig.detectionTimeInterval;
+		newSessionChannelConfig.detectionTimeSchedule = activeConfig.detectionTimeSchedule;
+		newSessionChannelConfig.fallBackWithInWSBGroup = activeConfig.fallBackWithInWSBGroup;
 		
 		attributes = configImpl.xmlConfig().getSessionChannelGroupAttributes(sessionChannel);
 		
-		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelSet)) != null)
+		if(attributes == null)
+			return newSessionChannelConfig;
+		
+		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelSet)) != null)
 		{
 			String[] pieces = ce.asciiValue().split(",");
 			for (int i = 0; i < pieces.length; i++)
@@ -1332,7 +1339,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			}
 		}
 		
-		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ConsumerWarmStandbyChannelSet)) != null)
+		if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerWarmStandbyChannelSet)) != null)
 		{
 			String[] pieces = ce.asciiValue().split(",");
 			for (int i = 0; i < pieces.length; i++)
@@ -1341,19 +1348,44 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			}
 		}
 		
-		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectAttemptLimit)) != null)
+		if ((ce = attributes.getPrimitiveValue(ConfigManager.ReconnectAttemptLimit)) != null)
 		{
 			newSessionChannelConfig.reconnectAttemptLimit = ce.intValue();
 		}
 		
-		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMinDelay)) != null)
+		if ((ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMinDelay)) != null)
 		{
 			newSessionChannelConfig.reconnectMinDelay = ce.intValue();
 		}
 		
-		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMaxDelay)) != null)
+		if ((ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMaxDelay)) != null)
 		{
 			newSessionChannelConfig.reconnectMaxDelay = ce.intValue();
+		}
+		
+		// Preferred Host attributes
+		if ((ce = attributes.getPrimitiveValue(ConfigManager.PreferredChannelName)) != null) {
+			newSessionChannelConfig.preferredChannelName = ce.asciiValue();
+		}
+		
+		if ((ce = attributes.getPrimitiveValue(ConfigManager.PreferredWSBChannelName)) != null) {
+			newSessionChannelConfig.preferredWSBChannelName = ce.asciiValue();
+		}
+		
+		if ((ce = attributes.getPrimitiveValue(ConfigManager.EnablePreferredHostOptions)) != null) {
+			newSessionChannelConfig.enablePerferredHostOptions = ce.intLongValue() > 0;
+		}
+
+		if ((ce = attributes.getPrimitiveValue(ConfigManager.PreferredFallBackWithInWSBGroup)) != null) {
+			newSessionChannelConfig.fallBackWithInWSBGroup = ce.intLongValue() > 0;
+		}
+
+		if ((ce = attributes.getPrimitiveValue(ConfigManager.PreferredDetectionTimeSchedule)) != null) {
+			newSessionChannelConfig.detectionTimeSchedule = ce.asciiValue();
+		}
+
+		if( (ce = attributes.getPrimitiveValue(ConfigManager.PreferredDetectionTimeInterval)) != null) {
+			newSessionChannelConfig.detectionTimeInterval = ce.intLongValue();
 		}
 		
 		return newSessionChannelConfig;
@@ -1924,21 +1956,34 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if (_eventTimeout)
 			{
 				ChannelInfo channelInfo = _loginCallbackClient.activeChannelInfo();
-				ChannelConfig currentConfig = (channelInfo != null ) ? channelInfo._channelConfig : _activeConfig.channelConfigSet.get(  _activeConfig.channelConfigSet.size() -1 );
+				ChannelConfig lastChannelConfig = null;
+				
+				int size = _activeConfig.channelConfigSet.size();
+				if(size > 0)
+				{
+					lastChannelConfig = _activeConfig.channelConfigSet.get(  _activeConfig.channelConfigSet.size() -1 );
+				}
+				
+				ChannelConfig currentConfig = (channelInfo != null ) ? channelInfo._channelConfig : lastChannelConfig;
 				strBuilder().append("login failed (timed out after waiting ")
-						.append(_activeConfig.loginRequestTimeOut).append(" milliseconds) for ");
-				if (currentConfig.rsslConnectionType == ConnectionTypes.SOCKET ||
-						currentConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
+						.append(_activeConfig.loginRequestTimeOut).append(" milliseconds)");
+				
+				if(currentConfig != null)
 				{
-					SocketChannelConfig channelConfig = (SocketChannelConfig) currentConfig;
-					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
-				} else if (currentConfig.rsslConnectionType == ConnectionTypes.HTTP || 
-						 currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
-				{
-					HttpChannelConfig channelConfig = ((HttpChannelConfig) currentConfig);
-					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
+					_strBuilder.append(" for ");
+					if (currentConfig.rsslConnectionType == ConnectionTypes.SOCKET ||
+							currentConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
+					{
+						SocketChannelConfig channelConfig = (SocketChannelConfig) currentConfig;
+						_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
+								.append(")");
+					} else if (currentConfig.rsslConnectionType == ConnectionTypes.HTTP || 
+							 currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					{
+						HttpChannelConfig channelConfig = ((HttpChannelConfig) currentConfig);
+						_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
+								.append(")");
+					}
 				}
 
 				String excepText = _strBuilder.toString();
@@ -2376,7 +2421,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	
 	void unsetActiveRsslReactorChannel(ChannelInfo cancelChannelInfo) {}
 	
-	
 	protected void modifyIOCtl(int code, int value, ReactorChannel reactorChannel)
 	{
 		if(reactorChannel == null || reactorChannel.channel() == null)
@@ -2415,7 +2459,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		}
 	}
 
-	protected void modifyIOCtl(int code, Object value, ReactorChannel reactorChannel)
+	protected void modifyIOCtl(int code, Object value, ReactorChannel reactorChannel, SessionChannelConfig sessionChannelConfig)
 	{
 		if(reactorChannel == null)
 		{
@@ -2427,7 +2471,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		ReactorErrorInfo error = ReactorFactory.createReactorErrorInfo();
 		Object etaConfigValue  = null;
 		if(value instanceof PreferredHostOptions) {
-			etaConfigValue = convertPreferredHostOptionsIntoReactorPreferredHostOptions((PreferredHostOptions) value);
+			etaConfigValue = convertPreferredHostOptionsIntoReactorPreferredHostOptions((PreferredHostOptions) value, sessionChannelConfig);
 		}
 
 		int ret = reactorChannel.ioctl(code, etaConfigValue, error);
@@ -2444,13 +2488,17 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		}
 	}
 
-	private ReactorPreferredHostOptions convertPreferredHostOptionsIntoReactorPreferredHostOptions(PreferredHostOptions emaPreferredHostOptions) {
+	private ReactorPreferredHostOptions convertPreferredHostOptionsIntoReactorPreferredHostOptions(PreferredHostOptions emaPreferredHostOptions, 
+			SessionChannelConfig sessionChannelConfig) 
+	{
 		ReactorPreferredHostOptions reactorPreferredHostOptions = ReactorFactory.createReactorPreferredHostOptions();
 		reactorPreferredHostOptions.isPreferredHostEnabled(emaPreferredHostOptions.isPreferredHostEnabled());
 		reactorPreferredHostOptions.detectionTimeSchedule(emaPreferredHostOptions.getDetectionTimeSchedule());
 		reactorPreferredHostOptions.detectionTimeInterval(emaPreferredHostOptions.getDetectionTimeInterval());
-		reactorPreferredHostOptions.connectionListIndex(getConnectionListIndex(emaPreferredHostOptions.getChannelName(), _activeConfig.channelConfigSet));
-		reactorPreferredHostOptions.warmStandbyGroupListIndex(getWarmStandbyGroupListIndex(emaPreferredHostOptions.getWsbChannelName(), _activeConfig.configWarmStandbySet));
+		reactorPreferredHostOptions.connectionListIndex(getConnectionListIndex(emaPreferredHostOptions.getChannelName(), 
+				sessionChannelConfig != null ? sessionChannelConfig.configChannelSet : _activeConfig.channelConfigSet));
+		reactorPreferredHostOptions.warmStandbyGroupListIndex(getWarmStandbyGroupListIndex(emaPreferredHostOptions.getWsbChannelName(), 
+				sessionChannelConfig != null ? sessionChannelConfig.configWarmStandbySet : _activeConfig.configWarmStandbySet));
 		reactorPreferredHostOptions.fallBackWithInWSBGroup(emaPreferredHostOptions.isFallBackWithInWSBGroup());
 
 		return reactorPreferredHostOptions;
@@ -2496,7 +2544,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		return 0;
 	}
 
-	private void throwOmmIUExceptIfNameIsNotInList(String name, String nameLabel, String list, String listLabel) {
+	void throwOmmIUExceptIfNameIsNotInList(String name, String nameLabel, String list, String listLabel) {
 		strBuilder().append(nameLabel);
 		_strBuilder.append(": ");
 		_strBuilder.append(name);

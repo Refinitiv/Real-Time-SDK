@@ -134,6 +134,8 @@ public class GetServiceByName
 	
     public synchronized static int getServiceByName(String tcpipService)
     {
+    	if (tcpipService == null)
+    		return TransportReturnCodes.FAILURE; // Return -1 because the service name is null
         if (_servicesFile != null)
         {
             try
@@ -185,7 +187,7 @@ public class GetServiceByName
         else if (tcpipService.equals("_provider"))
             return 14003;
         else
-            return -1;
+            return TransportReturnCodes.FAILURE; // Return -1 because we cannot map from service name to port
     }
 
 }
