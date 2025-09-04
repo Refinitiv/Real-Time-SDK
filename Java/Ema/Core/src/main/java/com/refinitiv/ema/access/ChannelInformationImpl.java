@@ -128,7 +128,9 @@ class ChannelInformationImpl implements ChannelInformation
 				
 				if(chnlInfo != null)
 				{
-					_confChannelName = chnlInfo._channelConfig.name;
+					if(chnlInfo._channelConfig != null)
+						_confChannelName = chnlInfo._channelConfig.name;
+					
 					activeConfig = chnlInfo.getActiveConfig();
 					
 					if(chnlInfo.sessionChannelInfo() != null)
