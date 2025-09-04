@@ -332,10 +332,28 @@ public abstract class TestReactorComponent {
         _reactorChannelIsUp = false;
         _reactorChannel = null;
     }
-	
+    
 	/** Close a component and remove it from its associated TestReactor. 
      * Closes any associated server and reactor channel. */
 	void close()
+	{
+        assertNotNull(_testReactor);
+		if (_server != null)
+		{
+			assertEquals(TransportReturnCodes.SUCCESS, _server.close(_errorInfo.error()));
+			_server = null;
+		}
+		
+		if (_reactorChannel != null)
+            closeChannel();
+
+        _testReactor.removeComponent(this);
+        _testReactor = null;
+	}
+	
+	/** Close a component and remove it from its associated TestReactor. 
+     * Closes any associated server and reactor channel including Selector */
+	void closeChannelAndSelector()
 	{
         assertNotNull(_testReactor);
 		if (_server != null)

@@ -936,8 +936,8 @@ public class ReactorWatchlistPreferredHostJunit {
     		assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
     		
     		// Disconnect Providers 1 and 2
-    		provider.close();
-    		provider2.close();
+    		provider.closeChannelAndSelector();
+    		provider2.closeChannelAndSelector();
     		
     		// Call ioctl to change preferred index to 0
     		ReactorPreferredHostOptions ioctlCall = ReactorFactory.createReactorPreferredHostOptions();
@@ -1191,7 +1191,7 @@ public class ReactorWatchlistPreferredHostJunit {
     		assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
     		
     		/* Bring down provider 3. */
-    		provider3.close();
+    		provider3.closeChannelAndSelector();
     		providerReactor3.close();
     		
     		consumer.testReactor().dispatch(3);
@@ -3316,7 +3316,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			port3 = provider3.bindGetPort(opts);
 			
 			// Close provider right away now that we got the port
-			provider3.close();
+			provider3.closeChannelAndSelector();
 			providerReactor3.close();
 
 			// Set preferred host options, with connection list index to 0
@@ -3466,7 +3466,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			}
     		
     		// Bring down provider 1
-    		provider.close();
+    		provider.closeChannelAndSelector();
     		
     		consumer.testReactor().dispatch(3);
     		
@@ -4097,7 +4097,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsb(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, null);
 			
 			// Kill Provider 2 (Standby of Group 3)
-			provider2.close();
+			provider2.closeChannelAndSelector();
 			
 			consumer.testReactor().dispatch(0);
 			
@@ -4447,7 +4447,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsb(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, null);
 			
 			// Kill Provider 2 (Standby of Group 3)
-			provider2.close();
+			provider2.closeChannelAndSelector();
 			
 			consumer.testReactor().dispatch(0);
 			
@@ -5598,7 +5598,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             // Close provider 1
-            provider.close();
+            provider.closeChannelAndSelector();
             
             // Consumer calls ioctl to switch to WSB PH Group index 0
     		ReactorPreferredHostOptions ioctlCall = ReactorFactory.createReactorPreferredHostOptions();
@@ -6605,7 +6605,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             /* Provider 3 and 2 closes, Consumer should reconnect to WSB Group 1, where the active server is up but standby is down */
-            provider2.close();	// Close standby
+            provider2.closeChannelAndSelector();	// Close standby
             
             // Consumer receives FD_Change
             consumer.testReactor().dispatch(1);
@@ -6616,7 +6616,7 @@ public class ReactorWatchlistPreferredHostJunit {
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
 
-            provider3.close();	// Close starting active
+            provider3.closeChannelAndSelector();	// Close starting active
             
             /* Consumer receives FD Change, open suspect, channel down reconnecting, login status open suspect, directory update, and channel down reconnecting events */
             consumer.testReactor().dispatch(6, 5000);
@@ -7274,7 +7274,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             /* Provider 3 and 2 closes, Consumer should reconnect to WSB Group 1, where the active server is up but standby is down */
-            provider2.close();	// Close standby first
+            provider2.closeChannelAndSelector();	// Close standby first
 
             /* Consumer receives FD Change */
             consumer.testReactor().dispatch(1);
@@ -7285,7 +7285,7 @@ public class ReactorWatchlistPreferredHostJunit {
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
 
-            provider3.close();  // Close starting active second
+            provider3.closeChannelAndSelector();  // Close starting active second
             
             /* Consumer receives FD Change, open suspect, channel down reconnecting, login status open suspect, directory update, and channel down events */
             consumer.testReactor().dispatch(6, 5000);
@@ -7589,9 +7589,9 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, null);
 			
 			// Close all providers
-			provider.close();
-			provider2.close();
-			provider3.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 			
@@ -8109,8 +8109,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, null, null, channelList);
 			
 			// Kill WSB group 1
-			provider.close();
-			provider2.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 			
@@ -8789,8 +8789,8 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             // Kill Group 1
-			provider3.close();	// Starting for group 1
-			provider2.close();	// Standby for group 1
+			provider3.closeChannelAndSelector();	// Starting for group 1
+			provider2.closeChannelAndSelector();	// Standby for group 1
 			
 			consumer.testReactor().switchingReactorChannel = true;
 			
@@ -9524,8 +9524,8 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             // Kill Group 1
-			provider3.close();
-			provider2.close();
+			provider3.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
 			
 			consumer.testReactor().switchingReactorChannel = true;
 			
@@ -9797,7 +9797,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
 
             // Kill provider 1 (Channel list)
-            provider.close();
+            provider.closeChannelAndSelector();
             
             // Consumer reconnects to group 1 (WSB)
             consumer.testReactor().dispatch(4);
@@ -10523,8 +10523,8 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             // Kill Group 1
-			provider3.close();
-			provider2.close();
+			provider3.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
 			
 			consumer.testReactor().switchingReactorChannel = true;
 			
@@ -10796,7 +10796,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
 
             // Kill provider 1
-            provider.close();
+            provider.closeChannelAndSelector();
             
             // Consumer reconnects to group 1
             
@@ -13498,7 +13498,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             // Provider 1 is killed, Consumer should switch to Provider 2 (Standby of Group 1)
-            provider.close();
+            provider.closeChannelAndSelector();
             
             /* Consumer receives FD_Change. */
             consumerReactor.dispatch(2);
@@ -15223,7 +15223,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
 
     		// Close Provider 1, Consumer should switch to first Standby (Provider 2)
-    		provider.close();
+    		provider.closeChannelAndSelector();
     		
     		consumer.testReactor().dispatch(2);
     		
@@ -15253,7 +15253,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.ACTIVE);
 
 			// Close Provider 2, Consumer should switch to second Standby (Provider 3)
-    		provider2.close();
+    		provider2.closeChannelAndSelector();
     		
     		consumer.testReactor().dispatch(2);
     		
@@ -16523,7 +16523,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             // Provider 1 is killed, Consumer should switch to Provider 2 (Standby of Group 1)
-            provider.close();
+            provider.closeChannelAndSelector();
             
             /* Consumer receives FD_Change. */
             consumerReactor.dispatch(2);
@@ -16973,8 +16973,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, null, channelList);
 			
 			// Kill providers 1 and 2
-			provider.close();
-			provider2.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 		
@@ -17580,8 +17580,8 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, null, channelList);
 			
 			// Kill providers 1 and 2
-			provider.close();
-			provider2.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 		
@@ -18571,7 +18571,7 @@ public class ReactorWatchlistPreferredHostJunit {
     		
     		// Kill Provider 3. Consumer should switch Provider 4 to active.
     		
-    		provider3.close();
+    		provider3.closeChannelAndSelector();
     		providerReactor3.close();
     		
     		consumer.testReactor().dispatch(2);
@@ -19294,7 +19294,7 @@ public class ReactorWatchlistPreferredHostJunit {
     		
     		// Kill Provider 3. Consumer should switch Provider 4 to active.
     		
-    		provider3.close();
+    		provider3.closeChannelAndSelector();
     		providerReactor3.close();
     		
     		consumer.testReactor().dispatch(2);
@@ -20025,7 +20025,7 @@ public class ReactorWatchlistPreferredHostJunit {
     		
     		// Kill Provider 3. Consumer should switch Provider 4 to active.
     		
-    		provider3.close();
+    		provider3.closeChannelAndSelector();
     		providerReactor3.close();
     		
     		consumer.testReactor().dispatch(2);
@@ -20699,7 +20699,7 @@ public class ReactorWatchlistPreferredHostJunit {
 
     		// Kill Provider 3. Consumer should switch Provider 4 to active.
     		
-    		provider3.close();
+    		provider3.closeChannelAndSelector();
     		providerReactor3.close();
     		
     		consumer.testReactor().dispatch(2);
@@ -21074,13 +21074,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
-			provider4.close();
-			provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -21312,13 +21312,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
-			provider4.close();
-			provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 			
@@ -21550,13 +21550,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
-			provider4.close();
-			provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -21783,13 +21783,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, null, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
-			provider4.close();
-			provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -22000,13 +22000,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
-			provider4.close();
-			provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -22185,13 +22185,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
-			provider4.close();
-			provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -22388,13 +22388,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
-			provider4.close();
-			provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -22604,13 +22604,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, null, channelList);
 
 			// Kill all of the active providers except for Group 2 Starting active and Channel 1
-			provider.close();
-			//provider2.close();
-			provider3.close();
-			provider4.close();
-			//provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			//provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			//provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -22759,7 +22759,7 @@ public class ReactorWatchlistPreferredHostJunit {
     		
     		
     		// Kill Provider 2 (Group 2 Starting Active)
-    		provider2.close();
+    		provider2.closeChannelAndSelector();
     		
     		consumer.testReactor().dispatch(3);
     		
@@ -23350,7 +23350,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
     		// Kill Provider 1, switch to Standby
-            provider.close();
+            provider.closeChannelAndSelector();
 
             consumer.testReactor().dispatch(2);
             
@@ -23377,7 +23377,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.ACTIVE);
 			
             // Kill Provider 2, switch to next group (Skip Group 2 since it's down, go to Group 3)
-			provider2.close();
+			provider2.closeChannelAndSelector();
 			
             consumer.testReactor().dispatch(4);
 			
@@ -23761,7 +23761,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             // Kill Provider 3, switch to Standby Provider 4 (Group 2 Standby)
-            provider3.close();
+            provider3.closeChannelAndSelector();
 
             consumer.testReactor().dispatch(2);
             
@@ -23788,7 +23788,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.ACTIVE);
 			
             // Kill Provider 4, switch to channel list
-			provider4.close();
+			provider4.closeChannelAndSelector();
 			
             consumer.testReactor().dispatch(4);
 			
@@ -24007,7 +24007,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             // Kill Provider 5, switching to Provider 6
-            provider5.close();
+            provider5.closeChannelAndSelector();
             
             consumer.testReactor().dispatch(4);
 			
@@ -24212,7 +24212,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
            // Kill Provider 6, switching to Provider 7 (Channel List 3)
-            provider6.close();
+            provider6.closeChannelAndSelector();
             
             consumer.testReactor().dispatch(4);
 			
@@ -24417,7 +24417,7 @@ public class ReactorWatchlistPreferredHostJunit {
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             
             // Kill Provider 7, giving us Channel Down due to being out of channels
-            provider7.close();
+            provider7.closeChannelAndSelector();
             
             consumer.testReactor().dispatch(4);
 			
@@ -24451,8 +24451,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			channelEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, channelEvent.eventType());
-			
+			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, channelEvent.eventType());	
 		}
 		finally
 		{
@@ -24629,13 +24628,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
-			provider4.close();
-			provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -24842,13 +24841,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
-			provider4.close();
-			provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -25056,13 +25055,13 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, wsbGroup3, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
-			provider4.close();
-			provider5.close();
-			provider6.close();
-			provider7.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
+			provider4.closeChannelAndSelector();
+			provider5.closeChannelAndSelector();
+			provider6.closeChannelAndSelector();
+			provider7.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -25203,9 +25202,9 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, null, null, null, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -25334,9 +25333,9 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, null, null, null, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -25458,9 +25457,9 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, null, null, null, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -25588,9 +25587,9 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, null, null, null, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 		
@@ -25701,7 +25700,7 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, null, null, null, channelList);
 
 			// Kill all of the active providers
-			provider.close();
+			provider.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
@@ -25824,9 +25823,9 @@ public class ReactorWatchlistPreferredHostJunit {
 			consumerReactor.connectWsbNoStart(connectOpts, opts, consumer, wsbGroup1, null, null, channelList);
 
 			// Kill all of the active providers
-			provider.close();
-			provider2.close();
-			provider3.close();
+			provider.closeChannelAndSelector();
+			provider2.closeChannelAndSelector();
+			provider3.closeChannelAndSelector();
 			
 			consumerReactor.lateStartConnect(connectOpts, consumer);
 
