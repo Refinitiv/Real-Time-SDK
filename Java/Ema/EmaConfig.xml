@@ -84,7 +84,7 @@
 			<!-- WarmStandbyChannelSet value="WarmStandbyChannel_2, WarmStandbyChannel_1"/ -->
 			<Dictionary value="Dictionary_2"/>
 			<EnablePreferredHostOptions value="1"/>
-			<PHDetectionTimeSchedule value="* * ? * *"/>
+			<PHDetectionTimeSchedule value="0 * * ? * *"/>
 			<PHDetectionTimeInterval value="15"/>
 			<!-- PreferredChannelName or PreferredWSBChannelName may be specified for different test scenarios -->
 			<PreferredChannelName value="Channel_1"/>
