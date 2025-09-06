@@ -151,7 +151,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * 		"connectListIndex" : "1",
  * 		"warmstandbyGroupListIndex" : "1",
  * 		"detectionTimeInterval" : "15",
- * 		"detectionTimeSchedule" : "* * ? * *",
+ * 		"detectionTimeSchedule" : "0 * * ? * *",
  * 		"fallBackWithinWSBGroup" : "false"
  * 	    },
  *	"WSBGroups" : [

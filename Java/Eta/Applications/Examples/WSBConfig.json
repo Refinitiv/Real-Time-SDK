@@ -2,7 +2,7 @@
 	"PreferredHost" : {
 		"enablePH" : false,
 		"detectionTimeInterval" : 10,
-		"detectionTimeSchedule" : "* * ? * *",
+		"detectionTimeSchedule" : "0 * * ? * *",
 		"warmstandbyGroupListIndex" : 1,
 		"fallbackWithinWSBGroup" : false
 	},
