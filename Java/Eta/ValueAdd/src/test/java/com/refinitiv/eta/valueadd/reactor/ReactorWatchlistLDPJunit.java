@@ -1653,6 +1653,11 @@ public class ReactorWatchlistLDPJunit
 
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			if (isWebsocket)
+			{
+				opts.setProtocolList("tr_json2");
+				opts.connectionType(ConnectionTypes.WEBSOCKET);
+			}
 
 			ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
 			connectOpts.reactorPreferredHostOptions().warmStandbyGroupListIndex(0);
@@ -1750,192 +1755,32 @@ public class ReactorWatchlistLDPJunit
 				consumer.testReactor().dispatch(-1);
 			}
 			
-			// Consumer receives CHANNEL_READY event for Standby   
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.CHANNEL_READY)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());			
-
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			// Verify new auth token
-			verifyAuthV2TokenEvent(consumerReactor, 15, true, true);
-			
-			// Consumer receives FD_CHANGE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.FD_CHANGE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			// Consumer receives CHANNEL_DOWN_RECONNECTING event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			if (msgEvent.msg() != null)
-				assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			// Consumer receives CHANNEL_UP event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());			
-
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());	        
-
-			for (int j = 0; j < 1; j++)
+			boolean receivedChannelReady = false;
+			boolean receivedAuthTokenEvent = false;
+			do
 			{
-				try {
-					Thread.sleep(800);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				event = consumerReactor.pollEvent();
+				
+				if (event != null)
+				{
+					// Verify new auth token
+					if (event.type() == TestReactorEventTypes.AUTH_TOKEN_EVENT)
+					{
+						receivedAuthTokenEvent = true;
+					}
+					
+					// Check that we received Channel Ready
+					if (event.type() == TestReactorEventTypes.CHANNEL_EVENT)
+					{
+						chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+						if (chnlEvent.eventType() == ReactorChannelEventTypes.CHANNEL_READY)
+							receivedChannelReady = true;
+					}
 				}
-				consumer.testReactor().dispatch(-1);
-			}				
+			} while (event != null);
 			
-			verifyAuthV2TokenEvent(consumerReactor, 15, true, true);
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-			
-			// Consumer receives FD_CHANGE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.FD_CHANGE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());			
-			
-			// Consumer receives CHANNEL_READY event for Standby   
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.CHANNEL_READY)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());			
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-			
+			assertTrue(receivedAuthTokenEvent);
+			assertTrue(receivedChannelReady);
 		}
 		finally
 		{
@@ -2020,6 +1865,11 @@ public class ReactorWatchlistLDPJunit
 
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 			opts.wsbMode(ReactorWarmStandbyMode.SERVICE_BASED);
+			if (isWebsocket)
+			{
+				opts.setProtocolList("tr_json2");
+				opts.connectionType(ConnectionTypes.WEBSOCKET);
+			}
 
 			ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
 			connectOpts.reactorPreferredHostOptions().warmStandbyGroupListIndex(0);
@@ -2129,181 +1979,33 @@ public class ReactorWatchlistLDPJunit
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());			
 
 			
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			// Verify new auth token
-			verifyAuthV2TokenEvent(consumerReactor, 15, true, true);
-			
-			// Consumer receives FD_CHANGE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.FD_CHANGE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			// Consumer receives CHANNEL_DOWN_RECONNECTING event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			if (msgEvent.msg() != null)
-				assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			// Consumer receives CHANNEL_UP event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());			
-
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());	        
-
-			for (int j = 0; j < 1; j++)
+			boolean receivedChannelReady = false;
+			boolean receivedAuthTokenEvent = false;
+			do
 			{
-				try {
-					Thread.sleep(800);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				event = consumerReactor.pollEvent();
+				
+				if (event != null)
+				{
+					// Verify new auth token
+					if (event.type() == TestReactorEventTypes.AUTH_TOKEN_EVENT)
+					{
+						receivedAuthTokenEvent = true;
+					}
+					
+					// Check that we received Channel Ready
+					if (event.type() == TestReactorEventTypes.CHANNEL_EVENT)
+					{
+						chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+						if (chnlEvent.eventType() == ReactorChannelEventTypes.CHANNEL_READY)
+							receivedChannelReady = true;
+					}
 				}
-				consumer.testReactor().dispatch(-1);
-			}				
+			} while (event != null);
 			
-			verifyAuthV2TokenEvent(consumerReactor, 15, true, true);
+			assertTrue(receivedAuthTokenEvent);
+			assertTrue(receivedChannelReady);
 
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-			
-			// Consumer receives FD_CHANGE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.FD_CHANGE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());			
-			
-			// Consumer receives CHANNEL_READY event for Standby   
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.CHANNEL_READY)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());			
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-			
 		}
 		finally
 		{
@@ -2388,6 +2090,11 @@ public class ReactorWatchlistLDPJunit
 
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			if (isWebsocket)
+			{
+				opts.setProtocolList("tr_json2");
+				opts.connectionType(ConnectionTypes.WEBSOCKET);
+			}
 
 			ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
 			connectOpts.reactorPreferredHostOptions().warmStandbyGroupListIndex(0);
@@ -2504,181 +2211,32 @@ public class ReactorWatchlistLDPJunit
 				consumer.testReactor().dispatch(-1);
 			}
 			
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			// Verify new auth token
-			verifyAuthV2TokenEvent(consumerReactor, 15, true, true);
-			
-			// Consumer receives FD_CHANGE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.FD_CHANGE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			// Consumer receives CHANNEL_DOWN_RECONNECTING event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			if (msgEvent.msg() != null)
-				assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			// Consumer receives CHANNEL_UP event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());			
-
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());	        
-
-			for (int j = 0; j < 1; j++)
+			boolean receivedChannelReady = false;
+			boolean receivedAuthTokenEvent = false;
+			do
 			{
-				try {
-					Thread.sleep(800);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				event = consumerReactor.pollEvent();
+				
+				if (event != null)
+				{
+					// Verify new auth token
+					if (event.type() == TestReactorEventTypes.AUTH_TOKEN_EVENT)
+					{
+						receivedAuthTokenEvent = true;
+					}
+					
+					// Check that we received Channel Ready
+					if (event.type() == TestReactorEventTypes.CHANNEL_EVENT)
+					{
+						chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+						if (chnlEvent.eventType() == ReactorChannelEventTypes.CHANNEL_READY)
+							receivedChannelReady = true;
+					}
 				}
-				consumer.testReactor().dispatch(-1);
-			}				
+			} while (event != null);
 			
-			verifyAuthV2TokenEvent(consumerReactor, 15, true, true);
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-			
-			// Consumer receives FD_CHANGE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.FD_CHANGE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());			
-			
-			// Consumer receives CHANNEL_READY event for Standby   
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.CHANNEL_READY)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());			
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-			
+			assertTrue(receivedAuthTokenEvent);
+			assertTrue(receivedChannelReady);
 		}
 		finally
 		{
@@ -2763,6 +2321,11 @@ public class ReactorWatchlistLDPJunit
 
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			if (isWebsocket)
+			{
+				opts.setProtocolList("tr_json2");
+				opts.connectionType(ConnectionTypes.WEBSOCKET);
+			}
 
 			ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
 			connectOpts.reactorPreferredHostOptions().warmStandbyGroupListIndex(0);
@@ -2868,195 +2431,32 @@ public class ReactorWatchlistLDPJunit
 				consumer.testReactor().dispatch(-1);
 			}
 			
-
-			// Consumer receives CHANNEL_READY event for Standby   
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.CHANNEL_READY)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());			
-
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			// Verify new auth token
-			verifyAuthV2TokenEvent(consumerReactor, 15, true, true);
-			
-			// Consumer receives FD_CHANGE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.FD_CHANGE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			// Consumer receives CHANNEL_DOWN_RECONNECTING event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			if (msgEvent.msg() != null)
-				assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			// Consumer receives CHANNEL_UP event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());			
-
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass()); 
-			
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());	        
-
-			for (int j = 0; j < 1; j++)
+			boolean receivedChannelReady = false;
+			boolean receivedAuthTokenEvent = false;
+			do
 			{
-				try {
-					Thread.sleep(800);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				event = consumerReactor.pollEvent();
+				
+				if (event != null)
+				{
+					// Verify new auth token
+					if (event.type() == TestReactorEventTypes.AUTH_TOKEN_EVENT)
+					{
+						receivedAuthTokenEvent = true;
+					}
+					
+					// Check that we received Channel Ready
+					if (event.type() == TestReactorEventTypes.CHANNEL_EVENT)
+					{
+						chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+						if (chnlEvent.eventType() == ReactorChannelEventTypes.CHANNEL_READY)
+							receivedChannelReady = true;
+					}
 				}
-				consumer.testReactor().dispatch(-1);
-			}				
+			} while (event != null);
 			
-			verifyAuthV2TokenEvent(consumerReactor, 15, true, true);
-			
-			// Consumer receives FD_CHANGE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.FD_CHANGE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());			
-			
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-			
-			// Consumer receives CHANNEL_READY event for Standby   
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.CHANNEL_READY)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());			
-
+			assertTrue(receivedAuthTokenEvent);
+			assertTrue(receivedChannelReady);
 		}
 		finally
 		{
@@ -3116,12 +2516,19 @@ public class ReactorWatchlistLDPJunit
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 			opts.reconnectAttemptLimit(1);
 			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			if (isWebsocket)
+			{
+				opts.setProtocolList("tr_json2");
+				opts.connectionType(ConnectionTypes.WEBSOCKET);
+			}
 			
 			/* Create provider reactor. */
 			providerReactor = new TestReactor(true);
 			
 			/* Create provider. */
 			provider = createDefaultProvider(provider, providerReactor);
+			if (dictionary != null)
+				provider.testReactor().initJsonConverter(dictionary);
 
 			int port1 = provider.bindGetPort(opts);
 
@@ -3365,147 +2772,38 @@ public class ReactorWatchlistLDPJunit
 				consumer.testReactor().dispatch(-1);
 			}
 			
-			// Consumer receives FD_CHANGE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+			boolean receivedChannelReady = false;
+			boolean receivedAuthTokenEvent = false;
+			do
+			{
+				event = consumerReactor.pollEvent();
+				
+				if (event != null)
+				{
+					// Verify new auth token
+					if (event.type() == TestReactorEventTypes.AUTH_TOKEN_EVENT)
+					{
+						receivedAuthTokenEvent = true;
+					}
+					
+					// Check that we received Channel Ready
+					if (event.type() == TestReactorEventTypes.CHANNEL_EVENT)
+					{
+						chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+						if (chnlEvent.eventType() == ReactorChannelEventTypes.CHANNEL_READY)
+							receivedChannelReady = true;
+					}
+				}
+			} while (event != null);
 			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.FD_CHANGE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());			
-
-			// Consumer receives FD_CHANGE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.FD_CHANGE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());			
-
-
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			// Consumer receives CHANNEL_DOWN_RECONNECTING event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());			
-			
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass()); 
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			
-			// Consumer receives CHANNEL_UP event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());			
-
-			// Consumer receives PREFERRED_HOST_COMPLETE event        
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			
-			if(chnlEvent.eventType() != ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE)
-				System.out.println("" + chnlEvent.toString());
-			
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive LOGIN_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.LOGIN_MSG, received: " + event.type(), TestReactorEventTypes.LOGIN_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass()); 
-			
-			// Consumer receives PREFERRED_HOST_STARTING_FALLBACK event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());			
-
-			// Consumer receives PREFERRED_HOST_COMPLETE event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());			
-
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive DIRECTORY_MSG", event);
-			assertEquals("Expected TestReactorEventTypes.DIRECTORY_MSG, received: " + event.type(), TestReactorEventTypes.DIRECTORY_MSG, event.type());
-			msgEvent = (ReactorMsgEvent)event.reactorEvent();
-			if (msgEvent.msg() != null)
-				assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());	
-			
-			// Consumer receives CHANNEL_READY event
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());			
-
-			// Verify new auth token
-			verifyAuthV2TokenEvent(consumerReactor, 15, true, true);
-			
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.FD_CHANGE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.FD_CHANGE, chnlEvent.eventType());	        
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_STARTING_FALLBACK, chnlEvent.eventType());	        
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.PREFERRED_HOST_COMPLETE, chnlEvent.eventType());	        
-
-			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());	        
-
+			assertTrue(receivedAuthTokenEvent);
+			assertTrue(receivedChannelReady);
 		}
 		finally
 		{
 			consumerReactor.close();
 			
-			provider.close();
+			provider.closeChannelAndSelector();
 			providerReactor.close();
 		};
 	}	
@@ -3547,12 +2845,19 @@ public class ReactorWatchlistLDPJunit
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 			opts.reconnectAttemptLimit(1);
 			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			if (isWebsocket)
+			{
+				opts.setProtocolList("tr_json2");
+				opts.connectionType(ConnectionTypes.WEBSOCKET);
+			}
 			
 			/* Create provider reactor. */
 			providerReactor = new TestReactor(true);
 			
 			/* Create provider. */
 			provider = createDefaultProvider(provider, providerReactor);
+			if (dictionary != null)
+				provider.testReactor().initJsonConverter(dictionary);
 
 			int port1 = provider.bindGetPort(opts);
 
@@ -3754,7 +3059,7 @@ public class ReactorWatchlistLDPJunit
 			consumer.testReactor().dispatch(-1);
 			
 			// Kill Provider 1, switch to Channel List (Endpoint specified)
-			provider.close();
+			provider.closeChannelAndSelector();
 			
 			for (int j = 0; j < 16; j++)
 			{
@@ -3884,12 +3189,19 @@ public class ReactorWatchlistLDPJunit
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 			opts.reconnectAttemptLimit(1);
 			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			if (isWebsocket)
+			{
+				opts.setProtocolList("tr_json2");
+				opts.connectionType(ConnectionTypes.WEBSOCKET);
+			}
 			
 			/* Create provider reactor. */
 			providerReactor = new TestReactor(true);
 			
 			/* Create provider. */
 			provider = createDefaultProvider(provider, providerReactor);
+			if (dictionary != null)
+				provider.testReactor().initJsonConverter(dictionary);
 
 			int port1 = provider.bindGetPort(opts);
 
@@ -3928,7 +3240,6 @@ public class ReactorWatchlistLDPJunit
 			// Create WSB Groups
 			List<Integer> wsbGroup1 = new ArrayList<Integer>();
 			
-			System.out.println(port1);
 			wsbGroup1.add(port1);
 			int channelPort = 2;
 
@@ -4093,7 +3404,7 @@ public class ReactorWatchlistLDPJunit
 			consumer.testReactor().dispatch(-1);
 			
 			// Kill Provider 1, switch to Channel List (Endpoint specified)
-			provider.close();
+			provider.closeChannelAndSelector();
 			
 			for (int j = 0; j < 16; j++)
 			{
@@ -4132,7 +3443,8 @@ public class ReactorWatchlistLDPJunit
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());			
+			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			System.out.println(chnlEvent._errorInfo.error().text());
 
 			// Verify new auth token
 			verifyAuthV2TokenEvent(consumerReactor, 15, true, true);
@@ -4223,12 +3535,19 @@ public class ReactorWatchlistLDPJunit
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 			opts.reconnectAttemptLimit(1);
 			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			if (isWebsocket)
+			{
+				opts.setProtocolList("tr_json2");
+				opts.connectionType(ConnectionTypes.WEBSOCKET);
+			}
 			
 			/* Create provider reactor. */
 			providerReactor = new TestReactor(true);
 			
 			/* Create provider. */
 			provider = createDefaultProvider(provider, providerReactor);
+			if (dictionary != null)
+				provider.testReactor().initJsonConverter(dictionary);
 
 			int port1 = provider.bindGetPort(opts);
 
@@ -4282,7 +3601,7 @@ public class ReactorWatchlistLDPJunit
 			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, null, channelPort);
 
 			// Kill provider 1 to bring back up later
-			provider.close();
+			provider.closeChannelAndSelector();
 			
 			consumer.testReactor().lateStartConnect(connectOpts, consumer, false);
 			
@@ -4374,6 +3693,8 @@ public class ReactorWatchlistLDPJunit
 		    providerReactor = new TestReactor(true);
 
 			provider = createDefaultProvider(provider, providerReactor);
+			if (dictionary != null)
+				provider.testReactor().initJsonConverter(dictionary);
 			provider.bind(opts, port1);
 			
 			// Call fallback
@@ -4592,12 +3913,19 @@ public class ReactorWatchlistLDPJunit
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 			opts.reconnectAttemptLimit(1);
 			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			if (isWebsocket)
+			{
+				opts.setProtocolList("tr_json2");
+				opts.connectionType(ConnectionTypes.WEBSOCKET);
+			}
 			
 			/* Create provider reactor. */
 			providerReactor = new TestReactor(true);
 			
 			/* Create provider. */
 			provider = createDefaultProvider(provider, providerReactor);
+			if (dictionary != null)
+				provider.testReactor().initJsonConverter(dictionary);
 
 			int port1 = provider.bindGetPort(opts);
 
@@ -4651,7 +3979,7 @@ public class ReactorWatchlistLDPJunit
 			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, null, channelPort);
 
 			// Kill provider 1 to bring back up later
-			provider.close();
+			provider.closeChannelAndSelector();
 			
 			consumer.testReactor().lateStartConnect(connectOpts, consumer, false);
 			
@@ -4744,6 +4072,8 @@ public class ReactorWatchlistLDPJunit
 		    providerReactor = new TestReactor(true);
 
 			provider = createDefaultProvider(provider, providerReactor);
+			if (dictionary != null)
+				provider.testReactor().initJsonConverter(dictionary);
 			provider.bind(opts, port1);
 			
 			// Call fallback

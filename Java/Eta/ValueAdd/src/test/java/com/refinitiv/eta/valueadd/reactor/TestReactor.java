@@ -77,10 +77,10 @@ public class TestReactor {
     
     final String DEFAULT_SERVICE = "DEFAULT_SERVICE";
     
-    final String LDP_ENDPOINT_ADDRESS = "ap-northeast-1-aws-1-med.optimized-pricing-api.refinitiv.net";
+    final String LDP_ENDPOINT_ADDRESS = "us-east-1-aws-1-med.optimized-pricing-api.refinitiv.net";
     final String LDP_ENDPOINT_PORT = "14002";
 
-    final String LDP_ENDPOINT_ADDRESS_WEBSOCKET = "ap-northeast-1-aws-1-lrg.optimized-pricing-api.refinitiv.net";
+    final String LDP_ENDPOINT_ADDRESS_WEBSOCKET = "us-east-1-aws-3-lrg.optimized-pricing-api.refinitiv.net";
     final String LDP_ENDPOINT_PORT_WEBSOCKET = "443";
 	/** Creates a TestReactor. */
 	public TestReactor()
@@ -1128,15 +1128,20 @@ public class TestReactor {
 	        if (channelPort == 1 || channelPort > 100)
 	        {
 		        connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("localhost");
-		        connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(0));	
+		        connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(channelPort));	
 	        }
 	        else if (channelPort == 2)
 	        {
 	        	String address = LDP_ENDPOINT_ADDRESS;
 	        	if (isWebsocket)
+	        	{
 	        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
+		        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT_WEBSOCKET));	
+	        	}
+	        	else
+		        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
 	        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(address);
-	        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
+
 	        }
 	        
 	        // Handle session management options
@@ -1145,9 +1150,12 @@ public class TestReactor {
 	        	connectOpts.connectionList().get(0).connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
 				if (isWebsocket) {
 					connectOpts.connectionList().get(0).connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
-					connectOpts.connectionList().get(0).connectOptions().wSocketOpts().protocols(protocolList);
 				}	        	
 	        }
+	        
+			if (isWebsocket) {
+				connectOpts.connectionList().get(0).connectOptions().wSocketOpts().protocols(protocolList);
+			}	        	
 
 			connectOpts.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
 			connectOpts.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
@@ -1221,9 +1229,13 @@ public class TestReactor {
 	        {
 	        	String address = LDP_ENDPOINT_ADDRESS;
 	        	if (isWebsocket)
-	        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
+	        	{
+	        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;	
+		        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT_WEBSOCKET));	
+	        	}
+	        	else
+		        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
 	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
-	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
 	        }
 	        
 	        // Handle session management options
@@ -1232,9 +1244,12 @@ public class TestReactor {
 		        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
 				if (isWebsocket) {
 					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
-					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(protocolList);
 				}	        	
 	        }
+	        
+			if (isWebsocket) {
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(protocolList);
+			}	      
 
 			wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
 			wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
@@ -1304,17 +1319,24 @@ public class TestReactor {
 		        {
 		        	String address = LDP_ENDPOINT_ADDRESS;
 		        	if (isWebsocket)
+		        	{
 		        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
+			        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT_WEBSOCKET));	
+		        	}
+		        	else
+			        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
 		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
-		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
 		        }
 		        
 		     // Handle session management options
 		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
 				if (isWebsocket) {
 					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
-					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(protocolList);
 				}
+				
+				if (isWebsocket) {
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(protocolList);
+				}	      
 				wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
 				wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
 
@@ -1392,17 +1414,26 @@ public class TestReactor {
 	        {
 	        	String address = LDP_ENDPOINT_ADDRESS;
 	        	if (isWebsocket)
+	        	{
 	        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
+		        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT_WEBSOCKET));	
+	        	}
+	        	else
+		        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
 	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
-	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
 	        }
 	        
 	        // Handle session management options
-	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+	        if (wsbGroup2.get(0) == 0 || wsbGroup2.get(0) == 2)
+	        {
+		        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+				if (isWebsocket) {
+					wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
+				}	
+	        }
 			if (isWebsocket) {
-				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
 				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(protocolList);
-			}
+			}	      
 			wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
 			wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
 
@@ -1471,17 +1502,27 @@ public class TestReactor {
 		        {
 		        	String address = LDP_ENDPOINT_ADDRESS;
 		        	if (isWebsocket)
+		        	{
 		        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
+			        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT_WEBSOCKET));	
+		        	}
+		        	else
+			        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
 		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
-		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
 		        }
 		        
 		        // Handle session management options
-		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+		        if (wsbGroup2.get(0) == 0 || wsbGroup2.get(0) == 2)
+		        {
+			        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+					if (isWebsocket) {
+						wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
+					}
+		        }
 				if (isWebsocket) {
-					wsbServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
 					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(protocolList);
-				}
+				}	      
+
 				wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
 				wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
 
