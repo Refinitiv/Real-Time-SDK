@@ -2734,8 +2734,12 @@ public:
 
 		if (pData == NULL || dataSize == 0 || writeBuf == NULL || writeBuf->data == NULL || writeBuf->length == 0)
 		{
-			printf("WriteChannelSpecialPackedBuffer::fillBuffer: Invalid parameters. pData=%p, dataSize=%u, writeBuf=%p, writeBuf->data=%p, writeBuf->length=%u\n",
-				pData, dataSize, writeBuf, writeBuf->data, writeBuf->length);
+			if (writeBuf != NULL)
+				printf("WriteChannelSpecialPackedBuffer::fillBuffer: Invalid parameters. pData=%p, dataSize=%u, writeBuf=%p, writeBuf->data=%p, writeBuf->length=%u\n",
+					pData, dataSize, writeBuf, writeBuf->data, writeBuf->length);
+			else
+				printf("WriteChannelSpecialPackedBuffer::fillBuffer: Invalid parameters. pData=%p, dataSize=%u, writeBuf=%p\n",
+					pData, dataSize, writeBuf);
 			return 0;
 		}
 
