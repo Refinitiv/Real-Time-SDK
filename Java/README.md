@@ -15,30 +15,30 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 
 External modules used by this version of RTSDK Java:
 
-	Dependency				Version
-	----------				-------
-	commons-codec				1.16
-	commons-configuration2			2.12.0
-	commons-collections4			4.5.0	
-	commons-lang3				3.17.0
-	commons-logging				1.3.5
-	commons-text		 		1.13.1
-	Conscrypt OpenJDK Uber                  2.5.2
-	jackson-annotations	 		2.19.1
-	jackson-core	 			2.19.1  
-	jackson-databind 			2.19.1
-	jose4j					0.9.6
-	junit					4.13.2
-	json					20250517
-	httpclient5				5.5
-	httpclient5-cache 			5.5
-	httpcore5				5.3.4
-	lz4-java				1.8.0
-	mockito-core 				5.18.0
-	slf4j-api				2.0.17
-	slf4j-jdk14				2.0.17
-	quartz					2.3.2
-	xpp3					1.1.4c
+    Dependency                Version
+    ----------                -------
+    commons-codec             1.16
+    commons-configuration2    2.12.0
+    commons-collections4      4.5.0    
+    commons-lang3             3.17.0
+    commons-logging           1.3.5
+    commons-text              1.13.1
+    Conscrypt OpenJDK Uber    2.5.2
+    jackson-annotations       2.19.1
+    jackson-core              2.19.1  
+    jackson-databind          2.19.1
+    jose4j                    0.9.6
+    junit                     4.13.2
+    json                      20250517
+    httpclient5               5.5
+    httpclient5-cache         5.5
+    httpcore5                 5.3.4
+    lz4-java                  1.8.0
+    mockito-core              5.18.0
+    slf4j-api                 2.0.17
+    slf4j-jdk14               2.0.17
+    quartz                    2.3.2
+    xpp3                      1.1.4c
 
 
 ### Supported Platforms, OSs, Compilers
@@ -66,18 +66,18 @@ The LSEG Real-Time-SDK provides support for multicast connections using JNI libr
 
 Platforms:
 
-	Microsoft Windows Server 2016 Enterprise Edition or later 64-bit
-	Microsoft Windows Server 2019 Standard Edition or later 64-bit
-	Microsoft Windows Server 2022 Standard Edition or later 64-bit
-	Microsoft Windows 10 Professional 64-bit
-	Microsoft Windows 11 Professional 64-bit
+    Microsoft Windows Server 2016 Enterprise Edition or later 64-bit
+    Microsoft Windows Server 2019 Standard Edition or later 64-bit
+    Microsoft Windows Server 2022 Standard Edition or later 64-bit
+    Microsoft Windows 10 Professional 64-bit
+    Microsoft Windows 11 Professional 64-bit
 
 Compilers (only on OSs supported by Microsoft for JNI libraries):
 
-	Microsoft Visual Studio 14.0 (2015) 64-bit (JNI Libraries)
-	Microsoft Visual Studio 14.1 (2017) 64-bit (JNI Libraries)
-	Microsoft Visual Studio 14.2 (2019) 64-bit (JNI Libraries)
-	Microsoft Visual Studio 14.3 (2022) 64-bit (JNI Libraries)
+    Microsoft Visual Studio 14.0 (2015) 64-bit (JNI Libraries)
+    Microsoft Visual Studio 14.1 (2017) 64-bit (JNI Libraries)
+    Microsoft Visual Studio 14.2 (2019) 64-bit (JNI Libraries)
+    Microsoft Visual Studio 14.3 (2022) 64-bit (JNI Libraries)
 
 NOTE: To obtain JNI Libraries for deprecated versions, VS 2013, please use a BinaryPack from a version [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) at your own risk as changes to BinaryPacks will not be availble for deprecated compilers.
 
@@ -85,24 +85,24 @@ NOTE: To obtain JNI Libraries for deprecated versions, VS 2013, please use a Bin
 
 Platforms:
 
-        Red Hat Enterprise Server 8.X Release 64-bit
-        Red Hat Enterprise Server 9.X Release 64-bit
-	Ubuntu 20.04 64-bit Qualification
-        Galaxy Kylin 10, 64-bit
-        Amazon Linux 2, 64-bit
-        Amazon Linux 2023, 64-bit
+    Red Hat Enterprise Server 8.X Release 64-bit
+    Red Hat Enterprise Server 9.X Release 64-bit
+    Ubuntu 20.04 64-bit Qualification
+    Galaxy Kylin 10, 64-bit
+    Amazon Linux 2, 64-bit
+    Amazon Linux 2023, 64-bit
 
 #### Tested Versions
 
 This release has been tested with the following:
 
-	Oracle Java SE 11 (JDK 11)
-	Oracle Java SE 17 (JDK 17)
-	Oracle Java SE 21 (JDK 21)
-	Oracle OpenJDK 11
-	Oracle OpenJDK 17
-	Oracle OpenJDK 21
-	Amazon Corretto 11
+    Oracle Java SE 11 (JDK 11)
+    Oracle Java SE 17 (JDK 17)
+    Oracle Java SE 21 (JDK 21)
+    Oracle OpenJDK 11
+    Oracle OpenJDK 17
+    Oracle OpenJDK 21
+    Amazon Corretto 11
 
 #### Proxy Authentication Support
 
@@ -138,8 +138,8 @@ NOTE: Connectivity to Real-Time Direct is supported for Level 1 and Level 2 data
 
 This release has been tested with the following:
 
-- ADS 3.8.2
-- ADH 3.8.2
+- ADS 3.9.0
+- ADH 3.9.0
 - DACS 7.12
 
 # Documentation
@@ -170,40 +170,40 @@ Refer to the RTSDK Java Installation Guide for more detailed Gradle build instru
 
 Navigate to `RTSDK/Java` and issue the appropriate Gradle command as follows:
 
-	Windows: gradlew.bat jar
-	Linux: ./gradlew jar
-	
-	This command builds the jar files.
+    Windows: gradlew.bat jar
+    Linux: ./gradlew jar
+    
+    This command builds the jar files.
 
 #### Running examples
 
 To run an example, issue the appropriate command as follows:
-	  
-	Windows: gradlew.bat runExampleName  --args='<arguments>'
-	Linux: ./gradlew runExampleName --args='<arguments>'
-	 
+      
+    Windows: gradlew.bat runExampleName  --args='<arguments>'
+    Linux: ./gradlew runExampleName --args='<arguments>'
+     
 Issue the following command to get a list of all example names.
-	  
-	ETA Windows: gradlew.bat Eta:Applications:Examples:tasks --all
-	ETA Linux: ./gradlew Eta:Applications:Examples:tasks --all
-	EMA Windows: gradlew.bat Ema:Examples:tasks --all
-	EMA Linux: ./gradlew Ema:Examples:tasks --all
+      
+    ETA Windows: gradlew.bat Eta:Applications:Examples:tasks --all
+    ETA Linux: ./gradlew Eta:Applications:Examples:tasks --all
+    EMA Windows: gradlew.bat Ema:Examples:tasks --all
+    EMA Linux: ./gradlew Ema:Examples:tasks --all
 
 ETA example, the following command runs the VAConsumer example.
-		
-	Windows: gradlew.bat runVaConsumer --args='-c localhost:14002 DIRECT_FEED mp:TRI'
-	Linux: ./gradlew runVaConsumer --args='-c localhost:14002 DIRECT_FEED mp:TRI'
+        
+    Windows: gradlew.bat runVaConsumer --args='-c localhost:14002 DIRECT_FEED mp:TRI'
+    Linux: ./gradlew runVaConsumer --args='-c localhost:14002 DIRECT_FEED mp:TRI'
 
 EMA example, the following command runs the example270__SymbolList example.
-		
-	Windows: gradlew.bat runconsumer270
-	Linux: ./gradlew runconsumer270
+        
+    Windows: gradlew.bat runconsumer270
+    Linux: ./gradlew runconsumer270
 
 #### Running examples with Debug
 
 To debug a encrypted consumer connection, you can add the following JVM argument:
 
-	-Djavax.net.debug=all
+    -Djavax.net.debug=all
 
 This provides TLS details that can be useful if TLS handshake failed
 
@@ -218,43 +218,43 @@ For ease of product use, as of the RTSDK 1.2 release, LSEG maintains its RTSDK J
 
 You can download RTSDK libraries and dependencies from Maven Central using several different tools, specific procedural instructions are not included here. Maven uses the following syntax to specify RTSDK dependencies (this is *sample* code) :
 
-	<dependency>
-		<groupId>com.refinitiv.ema</groupId>
-		<artifactId>ema</artifactId>
-		<version>3.9.0.1</version>
-	</dependency>
+    <dependency>
+        <groupId>com.refinitiv.ema</groupId>
+        <artifactId>ema</artifactId>
+        <version>3.9.1.0</version>
+    </dependency>
 
-	<dependency>
-		<groupId>com.refinitiv.eta</groupId>
-		<artifactId>eta</artifactId>
-		<version>3.9.0.1</version>
-	</dependency>
+    <dependency>
+        <groupId>com.refinitiv.eta</groupId>
+        <artifactId>eta</artifactId>
+        <version>3.9.1.0</version>
+    </dependency>
 
-	<dependency>
-		<groupId>com.refinitiv.eta.valueadd</groupId>
-		<artifactId>etaValueAdd</artifactId>
-		<version>3.9.0.1</version>
-	</dependency>
+    <dependency>
+        <groupId>com.refinitiv.eta.valueadd</groupId>
+        <artifactId>etaValueAdd</artifactId>
+        <version>3.9.1.0</version>
+    </dependency>
 
-	<dependency>
-		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
-		<artifactId>etaValueAddCache</artifactId>
-		<version>3.9.0.1</version>
-	</dependency>
+    <dependency>
+        <groupId>com.refinitiv.eta.valueadd.cache</groupId>
+        <artifactId>etaValueAddCache</artifactId>
+        <version>3.9.1.0</version>
+    </dependency>
 
-	<dependency>
-		<groupId>com.refinitiv.eta.ansi</groupId>
-		<artifactId>ansipage</artifactId>
-		<version>3.9.0.1</version>
-	</dependency>
+    <dependency>
+        <groupId>com.refinitiv.eta.ansi</groupId>
+        <artifactId>ansipage</artifactId>
+        <version>3.9.1.0</version>
+    </dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.9.0.1'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.9.0.1'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.9.0.1'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.9.0.1'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.9.0.1'
+    compile group: 'com.refinitiv.ema', name: 'ema', version: '3.9.1.0'
+    compile group: 'com.refinitiv.eta', name: 'eta', version: '3.9.1.0'
+    compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.9.1.0'
+    compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.9.1.0'
+    compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.9.1.0'
 
 # Developing 
 

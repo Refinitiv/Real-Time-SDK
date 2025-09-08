@@ -9,25 +9,56 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.3.0.L2 aka EMA/ETA 3.9.0.L2 aka 3.9.0.1
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.3.1.L1 aka EMA/ETA 3.9.1.L1 aka 3.9.1.0
 ----------------------------------------------------------------------------------------
 
-This release introduces support for Conscrypt OpenJDK Uber, an alternative to Java encryption with client & server implementation and better performance. In addition, this release serves as a maintenance release with support for Amazon Linux versions, fixes related to Request Routing feature, customer issue fixes, a performance improvement with DispatchAll and other enhancements/fixes.
+This release has support for the Preferred Host feature which applies to both channelset/connection-recovery and warm standby: the feature allows a switch back to a preferred host in channelSet configuration or a preferred group in warm standby configuration. 
 
-Customer Issues Resolved
-----------------------------------------------------------------------------------------
+In this release is added support for update filtering feature which permits API users to request a filter on update type in the Login Request message. Used with a server side that supports this feature, there is a potential for bandwidth saving by limiting traffic to certain update types.  
 
-- [GitHub #290] - [RTSDK-9191] - Enhancement to address indefinite growth of Java EMA/ETA ReactorFactory pool due to peaks in usage 
-- [GitHub #293] - [RTSDK-9390] - Extend EMA OmmConsumerConfig to set application name
-- [GitHub #299] - [RTSDK-9336] - Poor performance in WlItemHandler.closeWlStream (WlStream) 
+In addition, this serves as a maintenance release with fixes.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK Java Release 2.3.1.L1 (Sep 9, 2025)
+--------------------------------------------
+
+EMA Java 3.9.1.L1 Issues Resolved
+---------------------------------
+- [RTSDK-8152] - New Feature: EMAJ: Enhance RmtesBuffer to add getAsHex
+- [RTSDK-8503] - New Feature: EMA Java support for Preferred Host with support for ChannelSet and Warm Standby
+- [RTSDK-9795] - EMAJ ConsPerf displays wrong item name when receiving an item closed status message
+- [RTSDK-9862] - EMA Java NoDictionary Error When Using WarmStandby with ChannelDictionary [Case Number: 14820311]
+
+ETA Java 3.9.1.L1 Issues Resolved
+---------------------------------
+- [RTSDK-70] - New Feature: Support for configurable limit to the size of the global pool
+- [RTSDK-1555] - Fix to intermittent Java unit test failures
+- [RTSDK-5223] - ReactorWatchlistRDPJunit fails due to setupProxyForConnectionOptions missing in several places
+- [RTSDK-6818] - ETAJ ProvPerf now adds item information to session table upon receiving item request
+- [RTSDK-8500] - New Feature: ETA Java Reactor support for Preferred Host with support for connection recovery and Warm Standby
+- [RTSDK-9148] - Added ETAJ decompressConsumerMessages unit test w/ regenerated packets
+- [RTSDK-9204] - Migrate Java to httpclient5
+- [RTSDK-10071] - Fixes for Session management and Warm Standby
+- [RTSDK-10113] - Missing ChannelName in EMAJ ChannelInformation printed from consumer instance
+
+Both ETA Java and EMA Java 3.9.1.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-9064] - Request for PreferredHost feature: OmmConsumer Channel Switching Notifications in EMA Java [Case Number: 13923568]
+- [RTSDK-9428] - Added event PREFERRED_HOST_STARTING_FALLBACK to support Preferred Host feature
+- [RTSDK-9541] - Integration of Request Routing and Preferred Host feature using new event created using RTSDK-9428
+- [RTSDK-9588] - New Feature: Abilty to obtain URL of connecting websocket application
+- [RTSDK-9600] - New Feature: Support for Update Filtering specified via Login Request
+- [RTSDK-9687] - Update to Java dependencies: see README for comprehensive list
+
+--------------------------------------------
 RTSDK Java Release 2.3.0.L2 (May 28, 2025)
 --------------------------------------------
+
+This release introduces support for Conscrypt OpenJDK Uber, an alternative to Java encryption with client & server implementation and better performance. In addition, this release serves as a maintenance release with support for Amazon Linux versions, fixes related to Request Routing feature, customer issue fixes, a performance improvement with DispatchAll and other enhancements/fixes.
 
 EMA Java 3.9.0.L2 Issues Resolved
 ---------------------------------

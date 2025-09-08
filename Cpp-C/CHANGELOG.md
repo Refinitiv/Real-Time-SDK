@@ -7,23 +7,36 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.3.0.L3 aka EMA/ETA 3.9.0.L3 aka 3.9.0.2
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.3.1.L1 aka EMA/ETA 3.9.1.L1 aka 3.9.1.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with support for the update filtering feature. Also included are a customer issue fix and bug fixes.
-
-Customer Issue Fixes
---------------------
-- [Case Number: 14885950] - [RTSDK-9931] - ETA C memory leak when calling rsslDeleteDataDictionary
-- [GitHub #314] - [RTSDK-9955] - EMA C++ Consumer crashes when requesting an item with invalid serviceName and calling unregister(handle)
+This is a maintenance release with critical fixes to ETA and a fix related to the Preferred Host feature.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
+EMA C++ 3.9.1.L1 Issues Resolved
+--------------------------------
+- [RTSDK-9991] - EMA C++ | Example Cons480 getting InvalidUsageException "Update type filter cannot be different in configured login request messages"
+- [RTSDK-10057] - EMA C++ | Missing OmmConsumerConfig CPU bind options in EMA Config Guide
+
+ETA C 3.9.1.L1 Issues Resolved
+--------------------------------
+- [RTSDK-9886] - Invalid total length of packed buffer
+- [RTSDK-9969] - ETAC provider crashes when freeing channel with invalid structure type for keeping FD
+
+Both ETA C and EMA C++ 3.9.1.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-9944] - Remove MFC dependency from EMAC++
+- [RTSDK-10033] - Preferred Host Detection time string not firing at correct time on Windows
+- [RTSDK-10079] - Compiler warnings with Visual Studio 17.14.11 (Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35214 for x64)
+
 --------------------------------------------
 RTSDK C++/C Release 2.3.0.L3 (Jun 30, 2025)
 --------------------------------------------
+
+This is a maintenance release with support for the update filtering feature. Also included are a customer issue fix and bug fixes.
 
 EMA C++ 3.9.0.L3 Issues Resolved
 --------------------------------

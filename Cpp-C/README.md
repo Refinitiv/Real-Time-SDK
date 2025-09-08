@@ -185,8 +185,8 @@ NOTE: Connectivity to Data Feed Direct (LDFD) is supported for Level 1 and Level
 
 This release has been tested with the following:
 
-- ADS 3.8.2 and 3.9.0-candidate
-- ADH 3.8.2
+- ADS 3.9.0 
+- ADH 3.9.0
 - DACS 7.12
 
 # Documentation

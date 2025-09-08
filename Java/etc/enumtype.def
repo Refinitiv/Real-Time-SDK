@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.67
-!tag Build_RDMD  4.20.67
-!tag DT_Version  25.41
-!tag Date        26-May-2025
+!tag RT_Version  4.20.68
+!tag Build_RDMD  4.20.68
+!tag DT_Version  25.61
+!tag Date        4-Aug-2025
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -446,6 +446,7 @@ SETT_CCY   13620
     380        "ITL"   Italian lira
     388        "JMD"   Jamaican dollar
     392        "JPY"   Japanese yen
+    396        "XAD"   Arab Accounting Dinar
     398        "KZT"   Kazakhstan Tenge 
     400        "JOD"   Jordanian dinar
     404        "KES"   Kenyan shilling
@@ -669,7 +670,8 @@ SETT_CCY   13620
    2046        "USM"   Millions of US Dollars
    2047        "ZIG"   Zimbabwe Gold (deprecated)
    2048        "WPU"   FTSE World Parity Unit
-   2049        "XAD"   Arab Accounting Dinar
+   2049        "XAD"   Arab Accounting Dinar (deprecated  use enum 396)
+   2050        "USG"   USD Dollar Guaranteed
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -1000,6 +1002,10 @@ BIDXID      3298
     233        "MPE"   MIAX Pearl Exchange
     234        "MMX"   Members Exchange
     235        "CES"   CSE Secondary Book - CSE2
+    236        "XNE"   24X National Exchange LLC
+    237        "GRI"   Green Impact Exchange
+    238        "TXE"   Texas Stock Exchange
+    239        "DRE"   Dream Exchange LLC
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8784,7 +8790,7 @@ CLS_A_EXID 13625
    1652        "LTI"   Lingtong Metal Information Co. Ltd
    1653        "GDN"   GUANGDONG NANCHU E-COMMERCE
    1654        "MGB"   MGB - MGB Mines &Geo sciences Bureau
-   1655        "SMT"   Steel Mint
+   1655        "SMT"   BigMint Technologies Private Ltd
    1656        "EBX"   Electronic Broking Services
    1657        "HBE"   China Hubei Emission Exchange
    1658        "TCX"   Tianjin Climate Exchange
@@ -8933,6 +8939,19 @@ CLS_A_EXID 13625
    1801        "TXE"   Texas Stock Exchange
    1802        "TXQ"   Consolidated Issue, listed by Texas SE
    1803        "DRE"   Dream Exchange LLC
+   1804        "XNS"   24X National Exchange - Nasdaq Global Select Market
+   1805        "XNG"   24X National Exchange - Nasdaq Global Market
+   1806        "XNC"   24X National Exchange - Nasdaq Capital Market
+   1807        "GRS"   Green Impact Exchange - Nasdaq Global Select Market
+   1808        "GRG"   Green Impact Exchange - Nasdaq Global Market
+   1809        "GRC"   Green Impact Exchange - Nasdaq Capital Market
+   1810        "TXS"   Texas Stock Exchange - Nasdaq Global Select Market
+   1811        "TXG"   Texas Stock Exchange - Nasdaq Global Market
+   1812        "TXC"   Texas Stock Exchange - Nasdaq Capital Market
+   1813        "DRS"   Dream Exchange - Nasdaq Global Select Market
+   1814        "DRG"   Dream Exchange - Nasdaq Global Market
+   1815        "DRC"   Dream Exchange - Nasdaq Capital Market
+   1816        "NZQ"   NZ ETS Auctions
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11682,6 +11701,7 @@ PR_FREQ     4236
      13     "TwWkly"   Twice Weekly Updates
      14     "TwMtly"   Twice Monthly
      15     "Wkdays"   Daily Weekday Updates
+     16     "EOmnth"   Every other month
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12611,6 +12631,17 @@ ORDSIZEIND  6305
 ! -----      -------   -------
       0          " "   Undefined
       1          "+"   Order size greater than standard amount
+!
+! ACRONYM    FID
+! -------    ---
+!
+DUDT_UP_PT  6462
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "IP "   IP
+      2        "OP "   OP
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18549,13 +18580,84 @@ VAL_METHOD 13117
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET417 13118
-PRE_1ET418 13119
-PRE_1ET419 13120
-PRE_1ET420 13121
-PRE_1ET421 13122
-PRE_1ET422 13123
-PRE_1ET423 13124
+NO_MKT_LMT 13118
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Nothing is prohibited for this type of order
+      1   "MOP     "   Only market order is prohibited
+      2   "MLOP    "   Both market and limit orders are prohibited
+!
+! ACRONYM    FID
+! -------    ---
+!
+NO_SIDE    13119
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Nothing is prohibited for this type of order
+      1   "SBP     "   Both sell and buy orders are prohibited
+      2   "SP      "   Only sell order is prohibited
+      3   "BP      "   Only buy order is prohibited
+!
+! ACRONYM    FID
+! -------    ---
+!
+NO_PR_BR   13120
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Nothing is prohibited for this type of order
+      1   "POP     "   Only proprietary order is prohibited
+      2   "PBOP    "   Both proprietary and brokerage orders are prohibited
+!
+! ACRONYM    FID
+! -------    ---
+!
+MGNT_SIDE  13121
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Nothing is prohibited for this type of order
+      1   "SBP     "   Both sell and buy orders are prohibited
+      2   "SP      "   Only sell order is prohibited
+      3   "BP      "   Only buy order is prohibited
+!
+! ACRONYM    FID
+! -------    ---
+!
+MGNT_PR_BR 13122
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Nothing is prohibited for this type of order
+      1   "POP     "   Only proprietary order is prohibited
+      2   "PBOP    "   Both proprietary and brokerage orders are prohibited
+!
+! ACRONYM    FID
+! -------    ---
+!
+SS_PR_BR   13123
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Nothing is prohibited for this type of order
+      1   "POP     "   Only proprietary order is prohibited
+      2   "PBOP    "   MGNT_SIDE
+!
+! ACRONYM    FID
+! -------    ---
+!
+ALL_ORD    13124
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Nothing is prohibited for this type of order
+      1   "ALLP    "   Prohibited for all orders
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET424 13125
 PRE_1ET425 13126
 PRE_1ET426 13127
@@ -18929,6 +19031,7 @@ EXCHCD_TP2 13415
       4        "GTA"   Group Ticker Plant ID -- Turquoise Lit Auction Book
       5        "BSC"   BSE Scrip Code
       6        "IER"   ICE Europe Rolling Market ID
+      7        "EIC"   Energy Identification Code
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21962,6 +22065,9 @@ ORGN_PORT  13579
     738   "AR LIM  "   Lima
     739   "AR LPS  "   Las Palmas
     740   "AR CMP  "   Campana
+    741   "SV AQJ  "   Acajutla
+    742   "IN JGD  "   Jaigad
+    743   "AU TSV  "   Townsville
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23634,6 +23740,7 @@ TNOV_UN3TP 13623
 ORD_SZ_QL  13626
 ORD_SZ_Q2  13627
 ORD_SZ_Q3  13637
+ORD_SZ_Q4  13639
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -23643,6 +23750,8 @@ ORD_SZ_Q3  13637
       3   "OFFBK   "   Offbook
       4   "CAL SPR "   Calendar Spread
       5   "FP      "   Fixed Price Trading
+      6   "PreOpen "   Pre Open
+      7   "PreClose"   Pre Close
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23999,7 +24108,6 @@ MET_TYP26  13638
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET318 13639
 PRE_2ET319 13640
 PRE_2ET320 13641
 PRE_2ET321 13642
@@ -24714,3 +24822,84 @@ TPACFL     15461
       0   "        "   undefined
       1   "N       "   No
       2   "Y       "   Yes
+!
+! ACRONYM    FID
+! -------    ---
+!
+DBOR_DM_TP 32303
+DM_TYPE    32304
+DEF_DMI    32312
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "LCM     "   Legacy Compatible Model
+      2   "UDM     "   UDM (NOT IN USE)
+      3   "UNSPC_DM"   UNSPEC_DM
+      4   "LDM     "   Legacy Data Model
+      5   "PDM     "   Platform Data Model
+      6   "MVP     "   MVP Data Model
+      7   "WFL     "   Web-grabber FID List
+!
+! ACRONYM    FID
+! -------    ---
+!
+UDM_DM_CLS 32306
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Equities"   Equities
+      2   "Indices "   Indices
+      3   "Warrants"   Warrants
+      4   "Spreads "   Spreads
+      5   "Options "   Options
+      6   "Futures "   Futures
+      7   "FI      "   FI
+!
+! ACRONYM    FID
+! -------    ---
+!
+RENDDIRECT 32311
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "L2U"   LCM to UDM
+      2        "U2L"   UDM to LCM
+!
+! ACRONYM    FID
+! -------    ---
+!
+FLTR_TYPE  32313
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Domain  "   Domain
+      2   "FLN     "   Field List Number
+      3   "ContxtID"   Context ID
+!
+! ACRONYM    FID
+! -------    ---
+!
+DEF_L_REND 32320
+DEF_U_REND 32321
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Dsbld   "   Rendition Disabled
+      2   "Opt     "   Rendition Optional
+      3   "Req     "   Rendition Required
+!
+! ACRONYM    FID
+! -------    ---
+!
+U_NOCID_H  32322
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0     "      "   Undefined
+      1     "Onpass"   Onpass
+      2     "Block "   Block
