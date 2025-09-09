@@ -49,7 +49,7 @@ ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.
 ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
 
 // NOTE! update with new asset version
-ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.3.0.L2'
+ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.3.1.L1'
 
 //=========================================================================================
 //
