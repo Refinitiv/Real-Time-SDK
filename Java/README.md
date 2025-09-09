@@ -17,7 +17,7 @@ External modules used by this version of RTSDK Java:
 
     Dependency                Version
     ----------                -------
-    commons-codec             1.16
+    c3p0                      0.9.5.4
     commons-configuration2    2.12.0
     commons-collections4      4.5.0    
     commons-lang3             3.17.0
@@ -28,17 +28,21 @@ External modules used by this version of RTSDK Java:
     jackson-core              2.19.1  
     jackson-databind          2.19.1
     jose4j                    0.9.6
-    junit                     4.13.2
     json                      20250517
+    HikariCP-java7            2.4.13
     httpclient5               5.5
     httpclient5-cache         5.5
     httpcore5                 5.3.4
     lz4-java                  1.8.0
-    mockito-core              5.18.0
+    mchange-commons-java      0.2.15
     slf4j-api                 2.0.17
     slf4j-jdk14               2.0.17
     quartz                    2.3.2
     xpp3                      1.1.4c
+
+Additional dependencies used for testing:
+    mockito-core              5.18.0
+    junit                     4.13.2
 
 
 ### Supported Platforms, OSs, Compilers
