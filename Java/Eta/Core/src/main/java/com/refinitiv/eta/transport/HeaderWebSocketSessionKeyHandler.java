@@ -23,6 +23,8 @@ import java.util.UUID;
 
 class HeaderWebSocketSessionKeyHandler implements HeaderWebSocketHandler {
 
+    private static final ReentrantLock _encodeLock = new ReentrantLock();
+
     private static final String SHA_1 = "SHA-1";
 
     private static final String WEB_SOCKET_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -30,10 +32,6 @@ class HeaderWebSocketSessionKeyHandler implements HeaderWebSocketHandler {
     private static final MessageDigest SHA_MSG_DIGEST;
 
     private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder();
-
-    private final Buffer internalKeyBuffer;
-
-    private final ByteBuffer uuidBuffer = ByteBuffer.allocate(16);
 
     private final boolean response;
 
@@ -48,7 +46,6 @@ class HeaderWebSocketSessionKeyHandler implements HeaderWebSocketHandler {
 
     public HeaderWebSocketSessionKeyHandler(boolean response) {
         this.response = response;
-        this.internalKeyBuffer = CodecFactory.createBuffer();
     }
 
     @Override
@@ -70,6 +67,7 @@ class HeaderWebSocketSessionKeyHandler implements HeaderWebSocketHandler {
             wsKey = wsKeyHeaders.get(0);
         }
 
+        Buffer internalKeyBuffer = CodecFactory.createBuffer();
         final Buffer keyBuffer = response ? internalKeyBuffer : session.getWsSessionKey();
         keyBuffer.clear();
         keyBuffer.data(wsKey);
@@ -91,8 +89,19 @@ class HeaderWebSocketSessionKeyHandler implements HeaderWebSocketHandler {
             generateWebSocketSessionKey(session.getWsSessionKey());
         }
         byte[] concatenatedWebSocketAcceptKey = (session.getWsSessionKey() + WEB_SOCKET_GUID).getBytes(StandardCharsets.US_ASCII);
-        SHA_MSG_DIGEST.update(concatenatedWebSocketAcceptKey);
-        final byte[] wsKeyAccepted = BASE64_ENCODER.encode(SHA_MSG_DIGEST.digest());
+        byte[] wsKeyAccepted = null;
+
+        try
+        {
+            _encodeLock.lock();
+            SHA_MSG_DIGEST.update(concatenatedWebSocketAcceptKey);
+            wsKeyAccepted = BASE64_ENCODER.encode(SHA_MSG_DIGEST.digest());
+        }
+        finally
+        {
+            _encodeLock.unlock();
+        }
+
         session.getWsSessionAcceptKey().data(new String(wsKeyAccepted));
         final String wsKeyHeader = response ? session.getWsSessionAcceptKey().toString() : session.getWsSessionKey().toString();
         httpHeaders.addHeader(headerName, HttpHeaderLineInfo.valueOf(wsKeyHeader));
@@ -101,7 +110,8 @@ class HeaderWebSocketSessionKeyHandler implements HeaderWebSocketHandler {
 
     private void generateWebSocketSessionKey(Buffer webSocketSessionKeyBuffer) {
         final UUID uuid = UUID.randomUUID();
-        uuidBuffer.clear();
+        ByteBuffer uuidBuffer = ByteBuffer.allocate(16);
+
         uuidBuffer
                 .putLong(uuid.getMostSignificantBits())
                 .putLong(uuid.getLeastSignificantBits());

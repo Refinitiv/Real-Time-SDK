@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2021-2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2021-2022,2024-2025 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ByteArrayPool {
 
@@ -20,6 +21,8 @@ public class ByteArrayPool {
 
     private int DEFAULT_ARRAY_SIZE = 4096;
     private int DEFAULT_NUM_OF_POOLS = 8;
+
+    private ReentrantLock _lock = new ReentrantLock();
 
 
     public ByteArrayPool() {
@@ -39,23 +42,41 @@ public class ByteArrayPool {
 
     public byte[] poll(int length) {
 
-        int n = length / DEFAULT_ARRAY_SIZE + 1;
-        int newLen = DEFAULT_ARRAY_SIZE * n;
-        ObjectPool<byte[]> pool = arrayPools.get(newLen);
-        if (pool == null) {
-            pool = new ObjectPool<>(true, () -> new byte[newLen]);
-            arrayPools.put(newLen, pool);
-        }
+        try
+        {
+            _lock.lock();
 
-        return pool.get();
+            int n = length / DEFAULT_ARRAY_SIZE + 1;
+            int newLen = DEFAULT_ARRAY_SIZE * n;
+            ObjectPool<byte[]> pool = arrayPools.get(newLen);
+            if (pool == null) {
+                pool = new ObjectPool<>(true, () -> new byte[newLen]);
+                arrayPools.put(newLen, pool);
+            }
+
+            return pool.get();
+        }
+        finally
+        {
+            _lock.unlock();
+        }
     }
 
     public void putBack(byte[] arr) {
 
-        if (arr != null) {
-            ObjectPool<byte[]> pool = arrayPools.get(arr.length);
-            if (pool != null)
-                pool.release(arr);
+        try
+        {
+            _lock.lock();
+
+            if (arr != null) {
+                ObjectPool<byte[]> pool = arrayPools.get(arr.length);
+                if (pool != null)
+                    pool.release(arr);
+            }
+        }
+        finally
+        {
+            _lock.unlock();
         }
     }
 
