@@ -37,7 +37,7 @@ repositories {
 
 ext.YEAR = '2025'
 
-ext.BuildDate = 'Wed Jul 30 8:00:00 CDT ' + "$YEAR"
+ext.BuildDate = 'Tue Sep 30 8:00:00 CDT ' + "$YEAR"
 ext.SpecificationVersion = '3.9.1.1'
 ext.SpecificationVersionShort = '3.9.1'
 
