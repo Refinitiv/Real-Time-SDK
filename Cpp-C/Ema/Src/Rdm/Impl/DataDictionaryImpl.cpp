@@ -128,32 +128,40 @@ DataDictionaryImpl::DataDictionaryImpl(const DataDictionaryImpl& other) :
 
 void DataDictionaryImpl::setRsslDataDictionary(const RsslDataDictionary* rsslDataDictionary)
 {
-	MutexLocker lock(_dataAccessMutex);
-
-	if (_pDictionaryEntryList)
+	if (_pRsslDataDictionary == rsslDataDictionary
+		&& _pRsslDataDictionary->info_DictionaryId == rsslDataDictionary->info_DictionaryId)
 	{
-		_pDictionaryEntryList->clear();
+		return;
 	}
-
-	if (_pEnumTypeTableList)
+	else
 	{
-		_pEnumTypeTableList->clear();
-	}
+		MutexLocker lock(_dataAccessMutex);
 
-	if (_pfieldNameToIdHash)
-	{
-		_pfieldNameToIdHash->clear();
-	}
-
-	if (!_ownRsslDataDictionary)
-	{
-		if (rsslDataDictionary->isInitialized)
+		if (_pDictionaryEntryList)
 		{
-			_loadedFieldDictionary = true;
-			_loadedEnumTypeDef = true;
+			_pDictionaryEntryList->clear();
 		}
 
-		_pRsslDataDictionary = const_cast<RsslDataDictionary*>(rsslDataDictionary);
+		if (_pEnumTypeTableList)
+		{
+			_pEnumTypeTableList->clear();
+		}
+
+		if (_pfieldNameToIdHash)
+		{
+			_pfieldNameToIdHash->clear();
+		}
+
+		if (!_ownRsslDataDictionary)
+		{
+			if (rsslDataDictionary->isInitialized)
+			{
+				_loadedFieldDictionary = true;
+				_loadedEnumTypeDef = true;
+			}
+
+			_pRsslDataDictionary = const_cast<RsslDataDictionary*>(rsslDataDictionary);
+		}
 	}
 }
 
@@ -983,9 +991,13 @@ DataDictionaryImpl::FieldNameToIdHash* DataDictionaryImpl::fieldNameToIdMap() co
 {
 	if ( _loadedFieldDictionary )
 	{
-		if ( _pfieldNameToIdHash == 0 )
+		if ( _pfieldNameToIdHash == nullptr )
 		{
 			_pfieldNameToIdHash = new FieldNameToIdHash(_pRsslDataDictionary->numberOfEntries);
+		}
+		else if ( _pfieldNameToIdHash->size() != _pRsslDataDictionary->numberOfEntries )
+		{
+			_pfieldNameToIdHash->clear();
 		}
 
 		if ( _pfieldNameToIdHash->empty() )
