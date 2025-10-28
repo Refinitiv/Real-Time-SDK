@@ -3350,8 +3350,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 					else if (rsslNotifierEventIsFdBad(pNotifierEvent))
 					{
 						/* When a bad file descriptor is encountered in the reactorWorker, it is likely because the
-						 * Reactor thread received an FD_CHANGE return from rsslRead. Update it. */
-						if (rsslNotifierUpdateEventFd(pReactorWorker->pNotifier, pWorkerNotifierEvent, (int)pRsslChannel->socketId) < 0)
+						 * Reactor thread received an FD_CHANGE return from rsslRead. Update it when the FD is still valid. */
+						if (pRsslChannel->socketId != REACTOR_INVALID_SOCKET && rsslNotifierUpdateEventFd(pReactorWorker->pNotifier, pWorkerNotifierEvent, (int)pRsslChannel->socketId) < 0)
 						{
 							rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
 									"Failed to update file descriptor for channel.%s", extraErrorText);

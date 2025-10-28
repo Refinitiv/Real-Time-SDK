@@ -707,7 +707,18 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 				rsslSocketChannel->stream = rsslSocketChannel->newStream;
 				rsslSocketChannel->transportInfo = rsslSocketChannel->newTransportInfo;
 				(*(rsslSocketChannel->transportFuncs->shutdownTransport))(tmpTransportInfo);
-				// Null out oldTransportInfo, because it has been free'd 
+
+				/* Update the tunnelTransportInfo with the new rsslSocketChannel->transportInfo as the old one is freed for the JAVA tunneling only */
+				if (rsslSocketChannel->isJavaTunnel)
+				{
+					if (rsslSocketChannel->tunnelTransportInfo != rsslSocketChannel->transportInfo)
+					{
+						rsslSocketChannel->tunnelTransportInfo = rsslSocketChannel->transportInfo;
+					}
+					rsslSocketChannel->newTunnelTransportInfo = NULL;
+				}
+
+				// Null out newTransportInfo, because it has been transferred to transportInfo
 				rsslSocketChannel->newStream = RIPC_INVALID_SOCKET;
 				rsslSocketChannel->newTransportInfo = NULL;
 				*readret = RSSL_RET_READ_FD_CHANGE;
@@ -857,7 +868,18 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 						rsslSocketChannel->stream = rsslSocketChannel->newStream;
 						rsslSocketChannel->transportInfo = rsslSocketChannel->newTransportInfo;
 						(*(rsslSocketChannel->transportFuncs->shutdownTransport))(tmpTransportInfo);
-						// Null out oldTransportInfo, because it has been free'd 
+
+						/* Update the tunnelTransportInfo with the new rsslSocketChannel->transportInfo as the old one is freed for the JAVA tunneling only */
+						if (rsslSocketChannel->isJavaTunnel)
+						{
+							if (rsslSocketChannel->tunnelTransportInfo != rsslSocketChannel->transportInfo)
+							{
+								rsslSocketChannel->tunnelTransportInfo = rsslSocketChannel->transportInfo;
+							}
+							rsslSocketChannel->newTunnelTransportInfo = NULL;
+						}
+
+						// Null out newTransportInfo, because it has been transferred to transportInfo
 						rsslSocketChannel->newStream = RIPC_INVALID_SOCKET;
 						rsslSocketChannel->newTransportInfo = NULL;
 						*readret = RSSL_RET_READ_FD_CHANGE;
@@ -1035,7 +1057,18 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 					rsslSocketChannel->stream = rsslSocketChannel->newStream;
 					rsslSocketChannel->transportInfo = rsslSocketChannel->newTransportInfo;
 					(*(rsslSocketChannel->transportFuncs->shutdownTransport))(tmpTransportInfo);
-					// Null out oldTransportInfo, because it has been free'd 
+
+					/* Update the tunnelTransportInfo with the new rsslSocketChannel->transportInfo as the old one is freed for the JAVA tunneling only */
+					if (rsslSocketChannel->isJavaTunnel)
+					{
+						if (rsslSocketChannel->tunnelTransportInfo != rsslSocketChannel->transportInfo)
+						{
+							rsslSocketChannel->tunnelTransportInfo = rsslSocketChannel->transportInfo;
+						}
+						rsslSocketChannel->newTunnelTransportInfo = NULL;
+					}
+
+					// Null out newTransportInfo, because it has been transferred to transportInfo
 					rsslSocketChannel->newStream = RIPC_INVALID_SOCKET;
 					rsslSocketChannel->newTransportInfo = NULL;
 					*readret = RSSL_RET_READ_FD_CHANGE;
