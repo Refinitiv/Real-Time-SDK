@@ -1416,7 +1416,7 @@ TEST_F(OmmNiProviderCreateTestFixture, NiProviderGenericMsgADHLogin)
 			testSleep(200);
 			k++;
 		} while (pNiProviderTestClient->getMessageQueueSize() == 0 && k < 20);
-		ASSERT_GE(pNiProviderTestClient->getMessageQueueSize(), 1) << "NiProvider receives the generic msg. k: " << k;
+		ASSERT_GE(pNiProviderTestClient->getMessageQueueSize(), 1u) << "NiProvider receives the generic msg. k: " << k;
 		ASSERT_GT(adh.getCountGeneric(), adhCountOfGenerics) << "ADH should receive generic from NiProvider.";
 		//cout << "NiProvider receives the generic msg. getMessageQueueSize: " << pNiProviderTestClient->getMessageQueueSize() << " k: " << k << endl;
 		//cout << "ADH count of generic msgs: " << adh.getCountGeneric() << " (" << adhCountOfGenerics << ")" << endl;
