@@ -274,6 +274,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
             if (msg.ContainerType != DataTypes.ELEMENT_LIST)
                 return CodecReturnCode.FAILURE;
 
+            bool ticksPresent = false;
             Clear();
             StreamId = msg.StreamId;
             if ((msg.Flags & GenericMsgFlags.PROVIDER_DRIVEN) != 0)
@@ -302,6 +303,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                     if (ret != CodecReturnCode.SUCCESS)
                         return ret;
                     Ticks = tmpUInt.ToLong();
+                    ticksPresent = true;
                 }
                 else if (elementEntry.Name.Equals(ElementNames.ROUND_TRIP_LATENCY))
                 {
@@ -326,6 +328,8 @@ namespace LSEG.Eta.ValueAdd.Rdm
                     TCPRetrans = tmpUInt.ToLong();
                 }
             }
+
+            if (!ticksPresent) return CodecReturnCode.FAILURE;
 
             return CodecReturnCode.SUCCESS;
         }
