@@ -3027,7 +3027,7 @@ public class MapTests extends TestCase
 
 		 // Create a ETA Buffer to encode into
 		 com.refinitiv.eta.codec.Buffer buf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		 buf.data(ByteBuffer.allocate(14000));
+		 buf.data(ByteBuffer.allocate(15000));
       
   		int majorVersion = Codec.majorVersion();  // This should be initialized to the MAJOR version of RWF being encoded
 		int minorVersion = Codec.minorVersion();  // This should be initialized to the MINOR version of RWF being encoded
@@ -3089,7 +3089,7 @@ public class MapTests extends TestCase
 
 		 // Create a ETA Buffer to encode into
 		 com.refinitiv.eta.codec.Buffer buf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-		 buf.data(ByteBuffer.allocate(14000));
+		 buf.data(ByteBuffer.allocate(15000));
       
   		int majorVersion = Codec.majorVersion();  // This should be initialized to the MAJOR version of RWF being encoded
 		int minorVersion = Codec.minorVersion();  // This should be initialized to the MINOR version of RWF being encoded

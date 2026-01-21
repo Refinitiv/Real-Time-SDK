@@ -742,6 +742,54 @@ public final class TestUtilities extends TestCase
 				}
 				System.out.println("\t\tFID " + fieldEntry.fieldId() + " Encoded : " + enumValue.toInt());
 				
+				// TWENTY FIRST Field Entry: encode entry from the  primitive type
+				fieldEntry.fieldId(115); 
+				fieldEntry.dataType(com.refinitiv.eta.codec.DataTypes.ENUM);
+				enumValue.value(1);
+				if ((retVal = fieldEntry.encode(encodeIter, enumValue)) < CodecReturnCodes.SUCCESS)
+				{
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
+					return retVal;
+				}
+				System.out.println("\t\tFID " + fieldEntry.fieldId() + " Encoded : " + enumValue.toInt());
+				
+				// TWENTY SECOND Field Entry: encode entry from the  primitive type
+				fieldEntry.fieldId(115); 
+				fieldEntry.dataType(com.refinitiv.eta.codec.DataTypes.ENUM);
+				enumValue.value(2);
+				if ((retVal = fieldEntry.encode(encodeIter, enumValue)) < CodecReturnCodes.SUCCESS)
+				{
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
+					return retVal;
+				}
+				System.out.println("\t\tFID " + fieldEntry.fieldId() + " Encoded : " + enumValue.toInt());
+				
+				// TWENTY THIRD Entry: encode entry from the  primitive type
+				fieldEntry.fieldId(270); 
+				fieldEntry.dataType(com.refinitiv.eta.codec.DataTypes.ENUM);
+				enumValue.value(26);
+				if ((retVal = fieldEntry.encode(encodeIter, enumValue)) < CodecReturnCodes.SUCCESS)
+				{
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
+					return retVal;
+				}
+				System.out.println("\t\tFID " + fieldEntry.fieldId() + " Encoded : " + enumValue.toInt());
+				
+				// TWENTY FOURTH Field Entry: encode entry from the  primitive type
+				fieldEntry.fieldId(54); 
+				fieldEntry.dataType(com.refinitiv.eta.codec.DataTypes.ENUM);
+				enumValue.value(70);
+				if ((retVal = fieldEntry.encode(encodeIter, enumValue)) < CodecReturnCodes.SUCCESS)
+				{
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
+					return retVal;
+				}
+				System.out.println("\t\tFID " + fieldEntry.fieldId() + " Encoded : " + enumValue.toInt());
+				
 				// TWENTY FIFTH Field Entry: encode entry from the  primitive type
 				fieldEntry.fieldId(8960); 
 				fieldEntry.dataType(com.refinitiv.eta.codec.DataTypes.ENUM);
@@ -9409,9 +9457,75 @@ public final class TestUtilities extends TestCase
 	        checkResult(fe20.hasEnumDisplay(), "hasEnumDisplay() == true");
 	        checkResult(fe20.enumDisplay().equals(" ") , "enumDisplay() == \" \"");
 	        
-
-
+	        // check twenty first field entry
+	        checkResult(iter.hasNext());
+	        com.refinitiv.ema.access.FieldEntry fe21 = iter.next();
+	        checkResult(fe21.fieldId(), 115);
+	        checkResult(fe21.name(), "BID_TICK_1");
+	        checkResult(fe21.loadType(), com.refinitiv.ema.access.DataType.DataTypes.ENUM);
+	        checkResult(fe21.load().dataType(), com.refinitiv.ema.access.DataType.DataTypes.ENUM);
+	        checkResult(fe21.code(), Data.DataCode.NO_CODE);
+	        checkResult(fe21.enumValue() == 1, "enumValue() == 1");
+	        checkResult(fe21.hasEnumDisplay(), "hasEnumDisplay() == true");
 	        
+	        char[] expectedFe21 = new char[1];
+	        expectedFe21[0] = 222;
+
+	        checkResult(Arrays.equals(fe21.enumDisplay().toCharArray(), expectedFe21) , "enumDisplay() == #DE#");
+	        
+	        // check twenty second field entry
+	        checkResult(iter.hasNext());
+	        com.refinitiv.ema.access.FieldEntry fe22 = iter.next();
+	        checkResult(fe22.fieldId(), 115);
+	        checkResult(fe22.name(), "BID_TICK_1");
+	        checkResult(fe22.loadType(), com.refinitiv.ema.access.DataType.DataTypes.ENUM);
+	        checkResult(fe22.load().dataType(), com.refinitiv.ema.access.DataType.DataTypes.ENUM);
+	        checkResult(fe22.code(), Data.DataCode.NO_CODE);
+	        checkResult(fe22.enumValue() == 2, "enumValue() == 2");
+	        checkResult(fe22.hasEnumDisplay(), "hasEnumDisplay() == true");
+	        
+	        char[] expectedFe22 = new char[1];
+	        expectedFe22[0] = 254;
+	        
+	        checkResult(Arrays.equals(fe22.enumDisplay().toCharArray(), expectedFe22) , "enumDisplay() == #FE#");
+	        
+	        // check twenty third field entry
+	        checkResult(iter.hasNext());
+	        com.refinitiv.ema.access.FieldEntry fe23 = iter.next();
+	        checkResult(fe23.fieldId(), 270);
+	        checkResult(fe23.name(), "ACT_TP_1");
+	        checkResult(fe23.loadType(), com.refinitiv.ema.access.DataType.DataTypes.ENUM);
+	        checkResult(fe23.load().dataType(), com.refinitiv.ema.access.DataType.DataTypes.ENUM);
+	        checkResult(fe23.code(), Data.DataCode.NO_CODE);
+	        checkResult(fe23.enumValue() == 26, "enumValue() == 26");
+	        checkResult(fe23.hasEnumDisplay(), "hasEnumDisplay() == true");
+	        
+	        char[] expectedFe23 = new char[2];
+	        expectedFe23[0] = 66;
+	        expectedFe23[1] = 222;
+	        
+	        checkResult(Arrays.equals(fe23.enumDisplay().toCharArray(), expectedFe23) , "enumDisplay() == #42DE#");
+	        
+	        // check twenty fourth field entry
+	        checkResult(iter.hasNext());
+	        com.refinitiv.ema.access.FieldEntry fe24 = iter.next();
+	        checkResult(fe24.fieldId(), 54);
+	        checkResult(fe24.name(), "LOTSZUNITS");
+	        checkResult(fe24.loadType(), com.refinitiv.ema.access.DataType.DataTypes.ENUM);
+	        checkResult(fe24.load().dataType(), com.refinitiv.ema.access.DataType.DataTypes.ENUM);
+	        checkResult(fe24.code(), Data.DataCode.NO_CODE);
+	        checkResult(fe24.enumValue() == 70, "enumValue() == 70");
+	        checkResult(fe24.hasEnumDisplay(), "hasEnumDisplay() == true");
+	        
+	        char[] expectedFe24 = new char[5];
+	        expectedFe24[0] = 75;
+	        expectedFe24[1] = 103;
+	        expectedFe24[2] = 53;
+	        expectedFe24[3] = 51;
+	        expectedFe24[4] = 189;
+	        
+	        checkResult(Arrays.equals(fe24.enumDisplay().toCharArray(), expectedFe24) , "enumDisplay() == #4B673533BD#");
+
 	        // check twenty fifth field entry
 	        checkResult(iter.hasNext());
 	        com.refinitiv.ema.access.FieldEntry fe25 = iter.next();
