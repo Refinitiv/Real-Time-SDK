@@ -304,6 +304,8 @@ static void providerThreadCleanup(ProviderThread *pProvThread)
 		fclose(pProvThread->statsFile);
 	if(pProvThread->latencyLogFile)
 		fclose(pProvThread->latencyLogFile);
+
+	rjcSessionUninitialize(&(pProvThread->rjcSess));
 }
 
 void providerThreadConfigCleanup()

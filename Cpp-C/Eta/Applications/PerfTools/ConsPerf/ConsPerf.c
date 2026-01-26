@@ -675,7 +675,6 @@ void consumerCleanupThreads()
 
 		consumerThreadCleanup(&consumerThreads[i]);
 	}
-
 }
 
 

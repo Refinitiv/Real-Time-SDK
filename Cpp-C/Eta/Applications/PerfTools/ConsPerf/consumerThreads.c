@@ -2164,7 +2164,10 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 		if (rsslBindThread(pConsumerThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
 			printf("Error: Failed to bind thread to core %s: %s\n", pConsumerThread->cpuId.data, rsslErrorInfo.rsslError.text);
-			exit(-1);
+			if (pConsumerThread->pChannel)
+				rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
 		}
 	}
 #endif
@@ -3891,6 +3894,8 @@ void consumerThreadCleanup(ConsumerThread *pConsumerThread)
 	{
 		free(pConsumerThread->jsonAllocatorPtr);
 	}
+
+	rjcSessionUninitialize(&(pConsumerThread->rjcSess));
 }
 
 /* 
