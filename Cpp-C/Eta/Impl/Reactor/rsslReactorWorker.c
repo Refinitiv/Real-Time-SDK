@@ -1804,6 +1804,9 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 	else
 	{
 		pEvent->channelEvent.channelEventType = RSSL_RC_CET_CHANNEL_UP;
+
+		// Set the next reconnect should be fallback here to make sure that we attempt this again when it goes down when the preferred host is enabled for the connection list.
+		pReactorChannel->nextReconnectShouldBeFallback = RSSL_TRUE;
 	}
 	pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))

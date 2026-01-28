@@ -2181,8 +2181,9 @@ void preferredHost_ChannelList_FallbackFunctionCall(PreferredHostTestParameters 
 	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
 	ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->msgBase.encDataBody, &mpDataBody));
 
-	// Close the provider channel.
+	// Close the preferred host channel and server.
 	wtfCloseChannel(WTF_TC_PROVIDER, 2);
+	wtfCloseServer(2);
 	
 	// Dispatch consumer, wait for down_reconnecting
 	wtfDispatch(WTF_TC_CONSUMER, 500);
@@ -2212,6 +2213,17 @@ void preferredHost_ChannelList_FallbackFunctionCall(PreferredHostTestParameters 
 
 	/* Consumer receives channel event. */
 	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
+
+	/* Consumer receives channel down reconnecting event when trying to connect to the preferred host again. */
+	wtfDispatch(WTF_TC_CONSUMER, 1000);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 300);
+	}
+
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
@@ -2363,6 +2375,9 @@ void preferredHost_ChannelList_FallbackFunctionCall(PreferredHostTestParameters 
 
 	/* Consumer should receive no more messages. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	// Restart the preferred host server
+	wtfRestartServer(2);
 
 	// Start the fallback
 	consumerChannel = wtfGetChannel(WTF_TC_CONSUMER);
@@ -2560,6 +2575,53 @@ void preferredHost_ChannelList_FallbackFunctionCall(PreferredHostTestParameters 
 	ASSERT_TRUE(pRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME);
 	ASSERT_TRUE(rsslBufferIsEqual(&pRequestMsg->msgBase.msgKey.name, &itemName1));
 	providerStreamId = pRequestMsg->msgBase.streamId;
+
+	// Close the preferred host channel and server again to ensure that the Reactor reconnect to the PH first.
+	wtfCloseChannel(WTF_TC_PROVIDER, 2);
+	wtfCloseServer(2);
+
+	// Dispatch consumer, wait for down_reconnecting
+	wtfDispatch(WTF_TC_CONSUMER, 500);
+
+	/* Consumer receives Open/Suspect login status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pLoginStatus = (RsslRDMLoginStatus*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.streamId == WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID);
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+	ASSERT_TRUE(pLoginStatus->rdmMsgBase.rdmMsgType == RDM_LG_MT_STATUS);
+	ASSERT_TRUE(pLoginStatus->flags & RDM_LG_STF_HAS_STATE);
+	ASSERT_TRUE(pLoginStatus->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pLoginStatus->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pLoginStatus->state.code == RSSL_SC_NONE);
+
+	/* Consumer receives item status. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+	ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
+	ASSERT_TRUE(pStatusMsg->msgBase.streamId == consumerStreamId);
+	ASSERT_TRUE(pStatusMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE);
+	ASSERT_TRUE(pStatusMsg->flags & RSSL_STMF_HAS_STATE);
+	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
+	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+
+	/* Consumer receives channel event. */
+	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
+
+	/* Consumer receives channel down reconnecting event when trying to connect to the preferred host again. */
+	wtfDispatch(WTF_TC_CONSUMER, 1000);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 300);
+	}
+
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 	
 	wtfFinishTest();
 }
@@ -2723,8 +2785,9 @@ void preferredHost_ChannelList_FallbackTimer(PreferredHostTestParameters paramet
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_NO_FALLBACK);
 
-	// Close the provider channel.
+	/// Close the preferred host channel and server.
 	wtfCloseChannel(WTF_TC_PROVIDER, 2);
+	wtfCloseServer(2);
 
 	// Dispatch consumer, wait for down_reconnecting
 	wtfDispatch(WTF_TC_CONSUMER, 500);
@@ -2754,6 +2817,17 @@ void preferredHost_ChannelList_FallbackTimer(PreferredHostTestParameters paramet
 
 	/* Consumer receives channel event. */
 	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
+
+	/* Consumer receives channel down reconnecting event when trying to connect to the preferred host again. */
+	wtfDispatch(WTF_TC_CONSUMER, 1000);
+	while (!(pEvent = wtfGetEvent()))
+		 {
+		wtfDispatch(WTF_TC_CONSUMER, 300);
+	}
+	
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
@@ -2902,6 +2976,9 @@ void preferredHost_ChannelList_FallbackTimer(PreferredHostTestParameters paramet
 	ASSERT_TRUE(pRefreshMsg->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
 	ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->msgBase.encDataBody, &mpDataBody));
+
+	// Restart the preferred host server
+	wtfRestartServer(2);
 
 	/* Consumer should the STARTING_FALLBACK event. */
 	wtfDispatch(WTF_TC_CONSUMER, 3000);
@@ -15089,8 +15166,9 @@ void preferredHost_ChannelList_IOCTL(PreferredHostTestParameters parameters)
 	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
 	ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->msgBase.encDataBody, &mpDataBody));
 
-	// Close the provider channel.
+	// Close the preferred host channel and server.
 	wtfCloseChannel(WTF_TC_PROVIDER, 2);
+	wtfCloseServer(2);
 
 	// Dispatch consumer, wait for down_reconnecting
 	wtfDispatch(WTF_TC_CONSUMER, 500);
@@ -15120,6 +15198,16 @@ void preferredHost_ChannelList_IOCTL(PreferredHostTestParameters parameters)
 
 	/* Consumer receives channel event. */
 	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
+
+	/* Consumer receives channel down reconnecting event when trying to connect to the preferred host again. */
+	wtfDispatch(WTF_TC_CONSUMER, 1000);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 300);
+	}
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
@@ -15271,6 +15359,9 @@ void preferredHost_ChannelList_IOCTL(PreferredHostTestParameters parameters)
 
 	/* Consumer should receive no more messages. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	// Restart the preferred host server
+	wtfRestartServer(2);
 
 	// Start testing the ioctl calls
 	consumerChannel = wtfGetChannel(WTF_TC_CONSUMER);
@@ -18227,8 +18318,9 @@ void preferredHost_ChannelList_InvalidServerFallbackFunctionCall(PreferredHostTe
 	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
 	ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->msgBase.encDataBody, &mpDataBody));
 
-	// Close the provider channel.
+	// Close the preferred host channel and server.
 	wtfCloseChannel(WTF_TC_PROVIDER, 2);
+	wtfCloseServer(2);
 
 	// Dispatch consumer, wait for down_reconnecting
 	wtfDispatch(WTF_TC_CONSUMER, 500);
@@ -18258,6 +18350,17 @@ void preferredHost_ChannelList_InvalidServerFallbackFunctionCall(PreferredHostTe
 
 	/* Consumer receives channel event. */
 	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
+
+	/* Consumer receives channel down reconnecting event when trying to connect to the preferred host again. */
+	wtfDispatch(WTF_TC_CONSUMER, 1000);
+	while (!(pEvent = wtfGetEvent()))
+	{
+		wtfDispatch(WTF_TC_CONSUMER, 300);
+	}
+	/* Consumer receives channel event. */
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
@@ -18409,6 +18512,9 @@ void preferredHost_ChannelList_InvalidServerFallbackFunctionCall(PreferredHostTe
 
 	/* Consumer should receive no more messages. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	// Restart the preferred host server
+	wtfRestartServer(2);
 
 	// Set ioctl to a index 1(bad server
 	consumerChannel = wtfGetChannel(WTF_TC_CONSUMER);

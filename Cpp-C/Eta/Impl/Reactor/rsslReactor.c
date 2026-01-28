@@ -5810,9 +5810,9 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							pReactorChannel->reactorChannel.majorVersion = pReactorChannel->reactorChannel.pRsslChannel->majorVersion;
 							pReactorChannel->reactorChannel.minorVersion = pReactorChannel->reactorChannel.pRsslChannel->minorVersion;
 							pReactorChannel->reactorChannel.protocolType = pReactorChannel->reactorChannel.pRsslChannel->protocolType;
-							
-							// Unset the next reconnect should be fallback here to make sure that we don't attempt this again when it goes down.
-							pReactorChannel->nextReconnectShouldBeFallback = RSSL_FALSE;
+
+							//Set the next reconnect should be fallback here to make sure that we attempt this again when it goes down when the preferred host is enabled for the connection list.
+							pReactorChannel->nextReconnectShouldBeFallback = RSSL_TRUE;
 
 							// Clear out the notifier
 							if (rsslNotifierRemoveEvent(pReactorImpl->pNotifier, pReactorChannel->pNotifierEvent) < 0)
