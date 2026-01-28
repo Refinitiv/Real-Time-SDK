@@ -3923,7 +3923,8 @@ RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg,
 					}
 
 					// This should cover the OPEN/OK refresh.  The watchlist should never send an OPEN/SUSPECT refresh, those should always be status messages(below)
-					if (pSingleItem->getItemList() == &ommBaseImpl.getConsumerRoutingSession()->pendingRequestList)
+					const ConsumerRoutingSession* pConsumerRoutingSession = ommBaseImpl.getConsumerRoutingSession();
+					if (pConsumerRoutingSession && pSingleItem->getItemList() == &pConsumerRoutingSession->pendingRequestList)
 					{
 						// This item was in pending, but the stream is now active, so move it to the session channel's request list.
 						pSingleItem->sessionChannel->routedRequestList.addItem(pSingleItem);
@@ -4209,7 +4210,8 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 								}
 							}
 
-							if (pSingleItem->getItemList() == &ommBaseImpl.getConsumerRoutingSession()->pendingRequestList)
+							const ConsumerRoutingSession* pConsumerRoutingSession = ommBaseImpl.getConsumerRoutingSession();
+							if (pConsumerRoutingSession && pSingleItem->getItemList() == &pConsumerRoutingSession->pendingRequestList)
 							{
 								// This item was in pending, but the stream is now active, so move it to the session channel's request list.
 								pSingleItem->sessionChannel->routedRequestList.addItem(pSingleItem);

@@ -129,6 +129,7 @@ void rsslWatchlistDestroy(RsslWatchlist *pWatchlist)
 {
 	RsslQueueLink *pLink;
 	RsslWatchlistImpl *pWatchlistImpl = (RsslWatchlistImpl*)pWatchlist;
+	WlLoginStream* pWatchlistImplLoginStream = pWatchlistImpl->login.pStream;
 	RsslUInt32 i;
 
 	if (pWatchlistImpl->login.pRequest)
@@ -163,7 +164,7 @@ void rsslWatchlistDestroy(RsslWatchlist *pWatchlist)
 					case RSSL_DMT_LOGIN:
 					{
 						WlLoginStream *pLoginStream = (WlLoginStream*)pStream;
-						if (pWatchlistImpl->login.pStream)
+						if (pLoginStream != pWatchlistImplLoginStream)
 						{
 							wlLoginStreamDestroy(pLoginStream);
 						}
