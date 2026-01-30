@@ -187,8 +187,8 @@ protected :
 
 	RsslMsg							_rsslMsg;
 
-	NoDataImpl						_attrib;
-	NoDataImpl						_payload;
+	Data*							_attrib;
+	Data*							_payload;
 
 	mutable EmaStringInt			_name;
 	EmaString						_nameData;
@@ -255,6 +255,9 @@ private :
 	// perform optional message-specific adjustments after payload is set, like ReqMsg
 	// handling batch requests
 	virtual void adjustPayload() { };
+
+	char _attrib_placeholder[sizeof(NoDataImpl)];
+	char _payload_placeholder[sizeof(NoDataImpl)];
 };
 
 }

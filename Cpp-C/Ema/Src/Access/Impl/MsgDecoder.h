@@ -92,13 +92,13 @@ bool MsgDecoder<MsgImplT>::setRsslData(UInt8 majVer, UInt8 minVer, RsslMsg* rssl
 	// clear flags for cached OmmQos and OmmState "views"
 	_pMsgImpl->resetRsslInt();
 
-	StaticDecoder::setRsslData( &_pMsgImpl->_attrib, &_pMsgImpl->_pRsslMsg->msgBase.msgKey.encAttrib,
+	StaticDecoder::setRsslData( _pMsgImpl->_attrib, &_pMsgImpl->_pRsslMsg->msgBase.msgKey.encAttrib,
 								_pMsgImpl->template hasAttrib<const MsgImplT>()
 								? rsslMsg->msgBase.msgKey.attribContainerType
 								: RSSL_DT_NO_DATA,
 								majVer, minVer, rsslDictionary );
 
-	StaticDecoder::setRsslData( &_pMsgImpl->_payload, &_pMsgImpl->_pRsslMsg->msgBase.encDataBody,
+	StaticDecoder::setRsslData( _pMsgImpl->_payload, &_pMsgImpl->_pRsslMsg->msgBase.encDataBody,
 								rsslMsg->msgBase.containerType,
 								majVer, minVer, rsslDictionary );
 
@@ -147,11 +147,11 @@ bool MsgDecoder<MsgImplT>::setRsslData(UInt8 majVer, UInt8 minVer, RsslBuffer* r
 	case RSSL_RET_SUCCESS:
 		_errorCode = OmmError::NoErrorEnum;
 
-		StaticDecoder::setRsslData( &_pMsgImpl->_attrib, &_pMsgImpl->_pRsslMsg->msgBase.msgKey.encAttrib,
+		StaticDecoder::setRsslData( _pMsgImpl->_attrib, &_pMsgImpl->_pRsslMsg->msgBase.msgKey.encAttrib,
 									_pMsgImpl->template hasAttrib<const MsgImplT>() ? _pMsgImpl->_pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA,
 									majVer, minVer, _pMsgImpl->_pRsslDictionary );
 
-		StaticDecoder::setRsslData( &_pMsgImpl->_payload, &_pMsgImpl->_pRsslMsg->msgBase.encDataBody,
+		StaticDecoder::setRsslData( _pMsgImpl->_payload, &_pMsgImpl->_pRsslMsg->msgBase.encDataBody,
 									_pMsgImpl->_pRsslMsg->msgBase.containerType,
 									majVer, minVer, _pMsgImpl->_pRsslDictionary );
 

@@ -27,8 +27,8 @@ MsgImpl::MsgImpl() :
  _serviceNameSet(false),
  _serviceListNameSet(false),
  _rsslMsg(),
- _attrib(),
- _payload(),
+ _attrib(new(_attrib_placeholder)NoDataImpl{}),
+ _payload(new(_payload_placeholder)NoDataImpl{}),
  _name(),
  _nameData(),
  _attribData(),
@@ -42,8 +42,8 @@ MsgImpl::MsgImpl() :
 
 MsgImpl::~MsgImpl()
 {
-	StaticDecoder::morph( &_payload, DataType::NoDataEnum );
-	StaticDecoder::morph( &_attrib, DataType::NoDataEnum );
+	_payload->~Data();
+	_attrib->~Data();
 }
 
 void MsgImpl::setAtExit()
@@ -108,7 +108,7 @@ void MsgImpl::addFilter( UInt32 filter )
 
 const Data& MsgImpl::getAttribData() const
 {
-	return _attrib;
+	return *_attrib;
 }
 
 void MsgImpl::setAttrib(const ComplexType& attrib)
@@ -150,7 +150,7 @@ void MsgImpl::setAttrib(const ComplexType& attrib)
 	getRsslMsgKey()->attribContainerType = Encoder::convertDataType( attrib.getDataType() );
 
 	// note: this decodes only Data header
-	StaticDecoder::setRsslData( &_attrib,
+	StaticDecoder::setRsslData( _attrib,
 								&getRsslMsgKey()->encAttrib,
 								getRsslMsgKey()->attribContainerType,
 								_rsslMajVer, _rsslMinVer, _pRsslDictionary );
@@ -166,7 +166,7 @@ bool MsgImpl::hasPayload() const
 
 const Data& MsgImpl::getPayloadData() const
 {
-	return _payload;
+	return *_payload;
 }
 
 void MsgImpl::setPayload(const ComplexType& load)
@@ -206,7 +206,7 @@ void MsgImpl::setPayload(const ComplexType& load)
 	getRsslMsg()->msgBase.containerType = payloadDataType;
 
 	// note: this decodes only Data header
-	StaticDecoder::setRsslData( &_payload,
+	StaticDecoder::setRsslData( _payload,
 								&getRsslMsg()->msgBase.encDataBody,
 								getRsslMsg()->msgBase.containerType,
 								_rsslMajVer, _rsslMinVer, _pRsslDictionary );
@@ -424,7 +424,7 @@ void MsgImpl::copyAttrib(const MsgImpl& other)
 {
 	if ( !other.hasAttrib<const MsgImpl>() || other.getRsslMsgKey()->encAttrib.length == 0)
 	{
-		StaticDecoder::setRsslData(&_attrib, &getRsslMsgKey()->encAttrib,
+		StaticDecoder::setRsslData(_attrib, &getRsslMsgKey()->encAttrib,
 			RSSL_DT_NO_DATA , _rsslMajVer, _rsslMinVer, _pRsslDictionary);
 		return;
 	}
@@ -441,7 +441,7 @@ void MsgImpl::copyAttrib(const MsgImpl& other)
 	}
 
 	// note: this decodes only Data header
-	StaticDecoder::setRsslData( &_attrib,
+	StaticDecoder::setRsslData( _attrib,
 								&getRsslMsgKey()->encAttrib,
 								getRsslMsgKey()->attribContainerType,
 								_rsslMajVer, _rsslMinVer, _pRsslDictionary );
@@ -467,7 +467,7 @@ void MsgImpl::copyPayload(const MsgImpl& other)
 	}
 
 	// note: this decodes only Data header
-	StaticDecoder::setRsslData( &_payload,
+	StaticDecoder::setRsslData( _payload,
 								&_pRsslMsg->msgBase.encDataBody,
 								_pRsslMsg->msgBase.containerType,
 								_rsslMajVer, _rsslMinVer, _pRsslDictionary );
