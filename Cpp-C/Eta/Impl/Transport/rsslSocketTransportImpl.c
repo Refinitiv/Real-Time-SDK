@@ -3982,7 +3982,6 @@ static ripcSessInit ipcReadHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInP
 		return(RIPC_CONN_ERROR);
 	}
 
-
 	//         What is the limit for an opening HS with additional headers
 	cc = (*(rsslSocketChannel->protocolFuncs->readTransportMsg))((void*)rsslSocketChannel,
 		(rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBuffer->length),
@@ -4882,7 +4881,13 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 			/* this is the HTTP version of the request - strip off the HTTP header and then
 			parse the tunnel header */
 
-			httpHeaderLen = ipcHttpHdrComplete(hdrStart, cc, 0);
+			httpHeaderLen = rsslReadHTTPOpeningHandshake(hdrStart, cc, 0, rsslSocketChannel, error);
+
+			if (httpHeaderLen < 0)
+			{
+				// Error structure was already set in rsslReadHTTPOpeningHandshake
+				return(RIPC_CONN_ERROR);
+			}
 
 			/* move past header length */
 			headerCursor += httpHeaderLen;
@@ -4900,6 +4905,17 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 
 		if (headerCursor < cc)
 		{
+			// Check to see if we've gotten a full header... if we haven't, error out.
+			if (headerCursor + 13 > cc)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1007 Invalid HTTP session request size\n",
+					__FILE__, __LINE__);
+
+				return(RIPC_CONN_ERROR);
+			}
+
 			/* we know we have tunneling header here - parse it */
 			_move_u16_swap(&hdrLen, (hdrStart + headerCursor));
 			headerCursor += 2;
@@ -4912,17 +4928,44 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 			_move_u32_swap(&ipAddr, (hdrStart + headerCursor));
 			headerCursor += 4;
 
+			// Acceptable opCodes:
+			// Wininet: combinations of RIPC_WININET_TUNNELING(0x40), RIPC_TUNNEL_RECONNECT(0x02) on reconnection, and either of the following: RIPC_TUNNEL_CONTROL (0x01),  RIPC_TUNNEL_STREAMING(0x00)
+			// RIPC_TUNNEL_STREAMING is assumed the default w/RIPC_WININET_TUNNELING set.
+			// Valid values: 0x40-0x43
+			// Java: RIPC_JAVA_WITH_HTTP_TUNNELING(0x80) MUST be set, with optional RIPC_JAVA_TUNNEL_RECONNECT(0x04)
+			// Valid values: 0x80 and 0x84
+
 			if (opCode & RIPC_WININET_TUNNELING)
 			{
+				if (opCode > 0x43 || opCode < 0x40)
+				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+						"<%s:%d> Error: 1007 Invalid HTTP OpCode\n",
+						__FILE__, __LINE__);
+
+					return(RIPC_CONN_ERROR);
+				}
+				
 				/* Don't change the connection type when it is set to RSSL_CONN_TYPE_ENCRYPTED as the RsslSocketChannel.transportInfo is set to ripcSSLSession
 				instead of ripcSocketSession so that ETA can handle it properly in the ipcRejectSession() and rsslSocketChannelClose() function */
-				if(rsslSocketChannel->connType != RSSL_CONN_TYPE_ENCRYPTED)
+				if (rsslSocketChannel->connType != RSSL_CONN_TYPE_ENCRYPTED)
 					rsslSocketChannel->connType = RSSL_CONN_TYPE_HTTP;
 
 				rsslSocketChannel->httpHeaders = 1;
 			}
 			else if (opCode & RIPC_JAVA_WITH_HTTP_TUNNELING)
 			{
+				if (opCode != 0x80 && opCode != 0x84)
+				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+						"<%s:%d> Error: 1007 Invalid HTTP OpCode\n",
+						__FILE__, __LINE__);
+
+					return(RIPC_CONN_ERROR);
+				}
+
 				/* Don't change the connection type when it is set to RSSL_CONN_TYPE_ENCRYPTED as the RsslSocketChannel.transportInfo is set to ripcSSLSession
 				instead of ripcSocketSession so that ETA can handle it properly in the ipcRejectSession() and rsslSocketChannelClose() function */
 				if (rsslSocketChannel->connType != RSSL_CONN_TYPE_ENCRYPTED)
@@ -4933,8 +4976,12 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 			}
 			else
 			{
-				/* this is OpensSL */
-				rsslSocketChannel->connType = RSSL_CONN_TYPE_ENCRYPTED;
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1007 Invalid HTTP OpCode\n",
+					__FILE__, __LINE__);
+
+				return(RIPC_CONN_ERROR);
 			}
 
 			rsslSocketChannel->inputBufCursor += headerCursor;
@@ -4951,7 +4998,6 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 			}
 			else
 			{
-				/* some error here */
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Error: 1007 Invalid mount request size <%d>\n",
@@ -4963,7 +5009,7 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 
 		if (sessionID)
 		{
-			/* lookup session based on ID, then compare pID and ipAddr */
+			/* lookup session based on ID, then compare pID and ipAddr. */
 			if (opCode & RIPC_TUNNEL_CONTROL)
 			{
 				RsslSocketChannel* oldSession = 0;
@@ -5052,6 +5098,7 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 				else
 				{
 					/* this could be a reconnection request for the control channel */
+					/* By this point, the new streaming channel has been established and ack'd, so that's why this is writing to the newTunnelTransportInfo */
 					if ((opCode & RIPC_TUNNEL_RECONNECT) && (oldSession->tunnelingState == RIPC_TUNNEL_ACTIVE))
 					{
 						/* in this case, put the newFD into the oldSession and close the new one */
@@ -5167,6 +5214,7 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 			}
 			else
 			{
+				/* This is expected to be a WinInet streaming reconnection */
 				/* attempt to establish a new streaming channel for an existing session - find it and set it up */
 				RsslSocketChannel* oldSession = 0;
 				if (multiThread)
@@ -5224,25 +5272,9 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 						(*(rsslSocketChannel->transportFuncs->writeTransport))(((void*)(intptr_t)rsslSocketChannel->transportInfo), outBuf, outLen, rwflags, error);
 					}
 
-					/* if we are OpenSSL tunneling, this is just one stream */
-					/* if not, it's WinInet so we have two streams */
-					if (opCode & RIPC_OPENSSL_TUNNELING)
-					{
-						oldSession->newStream = rsslSocketChannel->stream;
-						oldSession->newTransportInfo = rsslSocketChannel->transportInfo;
-					}
-					else if (opCode & RIPC_WININET_TUNNELING)
-						oldSession->newTunnelTransportInfo = (void*)rsslSocketChannel->transportInfo;
-					else
-					{
-						/* there is a problem */
-						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-							"<%s:%d> Error: 1007 Invalid tunneling reconnection request <%d>\n",
-							__FILE__, __LINE__, cc);
+					//  Set the current channel's TransportInfo on 
+					oldSession->newTunnelTransportInfo = (void*)rsslSocketChannel->transportInfo;
 
-						return (RIPC_CONN_ERROR);
-					}
 
 					/* now remove this session, but leave the fd */
 					rsslSocketChannel->tunnelingState = RIPC_TUNNEL_REMOVE_SESSION;
@@ -5307,29 +5339,29 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 
 				return RIPC_CONN_IN_PROGRESS;
 			}
-
-			if (opCode & RIPC_TUNNEL_CONTROL)
+			else if (opCode & RIPC_WININET_TUNNELING)
 			{
-				/* error */
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					"<%s:%d> Error: 1007 Invalid connection request <%d>\n",
-					__FILE__, __LINE__, cc);
+				/* this is the tunnel connect request - put together the ack and send it out.  */
+				/* initialize the pipe as we will need it later. */
+				/* most of this only has to be done for WinInet */
+				/* This is for the Streaming Channel, so everything should be sent on tunnelTransportInfo */
 
-				return(RIPC_CONN_ERROR);
-			}
+				if (opCode & RIPC_TUNNEL_CONTROL)
+				{
+					// Error here because there isn't a session, but the opCode says that it's a control channel.
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+						"<%s:%d> Error: 1007 Invalid connection request <%d>\n",
+						__FILE__, __LINE__, cc);
 
-			rsslSocketChannel->ipAddress = ipAddr;
-			rsslSocketChannel->pID = pID;
+					return(RIPC_CONN_ERROR);
+				}
 
-			rsslSocketChannel->tunnelingState = RIPC_TUNNEL_INIT;
+				rsslSocketChannel->ipAddress = ipAddr;
+				rsslSocketChannel->pID = pID;
 
+				rsslSocketChannel->tunnelingState = RIPC_TUNNEL_INIT;
 
-			/* this is the tunnel connect request - put together the ack and send it out.  */
-			/* initialize the pipe as we will need it later. */
-			/* most of this only has to be done for WinInet */
-			if (opCode & RIPC_WININET_TUNNELING)
-			{
 				if (!(rssl_pipe_create(&rsslSocketChannel->sessPipe)))
 				{
 					/* some error here */
@@ -5349,10 +5381,8 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 				rsslSocketChannel->stream = rssl_pipe_get_read_fd(&rsslSocketChannel->sessPipe);
 
 				_rsslSocketChannelToIpcSocket(&(inProg->newSocket), rsslSocketChannel);
-			}
 
-			if (rsslSocketChannel->httpHeaders)
-			{
+
 				ackLen = 7;
 
 				/* start the chunking! */
@@ -5361,31 +5391,27 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 				outLen += snprintf(outBuf + outLen, (1024 - outLen), "%s", "Content-Type: application/octet-stream\r\n");
 				outLen += snprintf((outBuf + outLen), (1024 - outLen), "%s", "\r\n");
 				outLen += snprintf((outBuf + outLen), (1024 - outLen), "%x\r\n", ackLen);  /* need to convert ackLen to hex first */
-			}
-			/* encode the ack message for tunneling */
-			hdrLen = 7;
-			_move_u16_swap((outBuf + outLen), &hdrLen);
-			outLen += 2;
-			outBuf[outLen] = outFlags;
-			++outLen;
-			/* Send actual sessionID from the session */
-			_move_u32_swap((outBuf + outLen), &rsslSocketChannel->sessionID);
-			outLen += 4;
 
-			/* apply trailer to end of actual data */
-			if (rsslSocketChannel->httpHeaders)
+				/* encode the ack message for tunneling */
+				hdrLen = 7;
+				_move_u16_swap((outBuf + outLen), &hdrLen);
+				outLen += 2;
+				outBuf[outLen] = outFlags;
+				++outLen;
+				/* Send actual sessionID from the session */
+				_move_u32_swap((outBuf + outLen), &rsslSocketChannel->sessionID);
+				outLen += 4;
+
+				/* apply trailer to end of actual data */
 				outLen += sprintf(outBuf + outLen, "%s", "\r\n");
 
-			if (rsslSocketChannel->httpHeaders)
 				(*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->tunnelTransportInfo, outBuf, outLen, rwflags, error);
-			else
-				(*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo, outBuf, outLen, rwflags, error);
 
-			return RIPC_CONN_IN_PROGRESS;
+				return RIPC_CONN_IN_PROGRESS;
+			}
 		}
 	}
 	}
-
 	if (!discoveredVersion)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
