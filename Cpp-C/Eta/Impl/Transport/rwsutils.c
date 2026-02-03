@@ -310,30 +310,32 @@ static const RsslBuffer rws_GUID							= { 36, (char*)"258EAFA5-E914-47DA-95CA-C
 																		/*           1         2         3         4 */
 																		/* 01234567890123456789012345678901234567890 */
 static RsslBuffer rwsHdr_GET		= {  3, (char*)"GET" }; 
+static RsslBuffer rwsHdr_POST		= { 4,  (char*)"POST" };
 static RsslBuffer rwsHdr_HTTP		= {  8, (char*)"HTTP/1.1" }; 
 
 static RsslBuffer rwsField_ACCEPT						= {  6, (char*)"Accept" }; 
 static RsslBuffer rwsField_CONNECTION					= { 10, (char*)"Connection" }; 
-static RsslBuffer rwsField_CONTENT_ENCODING			= { 16, (char*)"Content-Encoding" }; 
+static RsslBuffer rwsField_CONTENT_ENCODING				= { 16, (char*)"Content-Encoding" }; 
 static RsslBuffer rwsField_CONTENT_LENGTH				= { 14, (char*)"Content-Length" }; 
-static RsslBuffer rwsField_CONTENT_TYPE				= { 12, (char*)"Content-Type" }; 
+static RsslBuffer rwsField_CONTENT_TYPE					= { 12, (char*)"Content-Type" }; 
 static RsslBuffer rwsField_COOKIE						= {  6, (char*)"Cookie" }; 
-static RsslBuffer rwsField_DATE						= {  4, (char*)"Date" }; 
-static RsslBuffer rwsField_HOST						= {  4, (char*)"Host" }; 
+static RsslBuffer rwsField_DATE							= {  4, (char*)"Date" }; 
+static RsslBuffer rwsField_HOST							= {  4, (char*)"Host" }; 
 static RsslBuffer rwsField_ORIGIN						= {  6, (char*)"Origin" }; 
-static RsslBuffer rwsField_SEC_WEBSOCKET_ACCEPT		= { 20, (char*)"Sec-Websocket-Accept" }; 
-static RsslBuffer rwsField_SEC_WEBSOCKET_EXTENSIONS	= { 24, (char*)"Sec-Websocket-Extensions" }; 
+static RsslBuffer rwsField_SEC_WEBSOCKET_ACCEPT			= { 20, (char*)"Sec-Websocket-Accept" }; 
+static RsslBuffer rwsField_SEC_WEBSOCKET_EXTENSIONS		= { 24, (char*)"Sec-Websocket-Extensions" }; 
 static RsslBuffer rwsField_SEC_WEBSOCKET_KEY			= { 17, (char*)"Sec-Websocket-Key" }; 
 static RsslBuffer rwsField_SEC_WEBSOCKET_PROTOCOL		= { 22, (char*)"Sec-Websocket-Protocol" }; 
 static RsslBuffer rwsField_SEC_WEBSOCKET_VERSION		= { 21, (char*)"Sec-Websocket-Version" }; 
 static RsslBuffer rwsField_SET_COOKIE					= { 10, (char*)"Set-Cookie" }; 
-static RsslBuffer rwsField_UPGRADE					= {  7, (char*)"Upgrade" }; 
+static RsslBuffer rwsField_UPGRADE						= {  7, (char*)"Upgrade" }; 
 static RsslBuffer rwsField_USER_AGENT					= { 10, (char*)"User-Agent" }; 
 static RsslBuffer rwsField_WEBSOCKET					= {  9, (char*)"Websocket" }; 
 
 
 														/*           1         2         3         4 */
 														/* 01234567890123456789012345678901234567890 */
+static RsslBuffer fv_HTTPAcceptString		= { 24,	(char*)"application/octet-stream" };					// HTTP Accept type string
 static RsslBuffer fv_WebSocketURI			= { 10, (char*)"/WebSocket" }; 
 static RsslBuffer fv_Websocket				= {  9, (char*)"websocket" }; 
 static RsslBuffer fv_PerMsgDeflate			= { 18, (char*)"permessage-deflate" };
@@ -3330,6 +3332,92 @@ RsslInt32 rwsRejectSession(RsslSocketChannel *rsslSocketChannel, RsslRejectCodeT
 	return(retVal);
 }
 
+// parse the opening handshake HTTP POST request for WinInet and Java HTTP connections
+// The initial URI is defined by the rsslConnectOpts.ObjectName(POST /<objectName> HTTP/1.1)
+// This checks for User-Agent and Accept values.
+// Accept: only matches "application/octet-stream"
+// User-Agent: matches "RFA"(winInet), "ETA/Java"(current ETAJ), "UPA/Java"(legacy ETAJ)
+RsslInt32 rsslReadHTTPOpeningHandshake(char* data, RsslInt32 datalen, RsslInt32 startOffset, RsslSocketChannel* rsslSocketChannel, RsslError* error)
+{
+	RsslInt32 retVal = 0;
+	rwsHttpHdr_t* openHdrs = 0;
+	headerLine_t* hdrLine = 0;
+	rwsSession_t wsSess;
+
+	if (datalen == 0) return 0;
+
+	rwsClearSession(&wsSess);
+
+	_DEBUG_TRACE_CONN("fd "SOCKET_PRINT_TYPE" \n", rsslSocketChannel->stream)
+
+	openHdrs = &(wsSess.hsReceived);
+
+	retVal = rwsReadHttpHeader(data, datalen, startOffset, &wsSess, openHdrs, error);
+	if (retVal < 0) /* Fails to parse the received headers */
+	{
+		_freeHttpHeader(openHdrs);
+		return (retVal);
+	}
+	else if (retVal > 0)
+	{
+		RsslInt32 lnNum = 1;
+		RsslBuffer* pField, * pValue;
+
+		hdrLine = openHdrs->lines;
+
+		// Check the first line is a POST request and the field-value field
+		// The URI can be anyhting, as it's defined by the ObjectName config in connectOpts 
+		if (!(hdrLine &&
+			(hdrLine[0].field.length == rwsHdr_POST.length) &&
+			(memcmp(hdrLine[0].field.data, rwsHdr_POST.data, rwsHdr_POST.length) == 0)))
+		{
+			_freeHttpHeader(openHdrs);
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Invalid POST request received", __FUNCTION__, __LINE__);
+			return(-1);
+		}
+
+		for (lnNum = 1; lnNum < openHdrs->total; lnNum++)
+		{
+			pField = &(hdrLine[lnNum].field);
+			pValue = &(hdrLine[lnNum].value);
+
+			_DEBUG_TRACE_PARSE_HTTP("Checking http header line %d : %s\n",
+				lnNum, hdrLine[lnNum].data)
+				_DBG_HTTP_FIELD(pField->data, pField->length)
+				_DBG_HTTP_VALUE(pValue->data, pValue->length)
+				/* Process the HTTP Header fields related to the Opening handshake received*/
+
+			/* Checking for HTTP Header field
+			 * Accept: */
+			if (_rwsMatchField(pField, &rwsField_ACCEPT) && pValue->data)
+			{
+				if (!_rwsMatchBuffer(pValue->data, pValue->length, fv_HTTPAcceptString.data, fv_HTTPAcceptString.length))
+				{
+					_freeHttpHeader(openHdrs);
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+						"<%s:%d> Invalid HTTP POST accept string", __FUNCTION__, __LINE__);
+					return(-1);
+				}
+			}
+		}
+			
+	}
+	else // retval == 0
+	{
+		_freeHttpHeader(openHdrs);
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Invalid HTTP POST string", __FUNCTION__, __LINE__);
+		return(-1);
+	}
+	_freeHttpHeader(openHdrs);
+	return retVal;
+}
+
+	
 
 #define _WEBSOCKET_FRAME_HEADER_LENGTH(__buf)\
 	(	_WS_CONTROL_HEADER_LEN +\

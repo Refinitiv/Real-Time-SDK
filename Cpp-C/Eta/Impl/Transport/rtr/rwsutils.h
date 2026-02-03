@@ -429,6 +429,13 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *, char *, RsslInt32,
 ripcSessInit rwsAcceptWebSocket(RsslSocketChannel *, RsslError *);
 RsslInt32 rwsRejectSession(RsslSocketChannel *, RsslRejectCodeType , RsslError *);
 
+// parse the opening handshake HTTP POST request for WinInet and Java HTTP connections
+// The initial URI is defined by the rsslConnectOpts.ObjectName(POST /<objectName> HTTP/1.1)
+// This checks for User-Agent and Accept values.
+// Accept: only matches "application/octet-stream"
+// User-Agent: matches "RFA"(winInet), "ETA/Java"(current ETAJ), "UPA/Java"(legacy ETAJ)
+RsslInt32 rsslReadHTTPOpeningHandshake(char*, RsslInt32, RsslInt32, RsslSocketChannel*, RsslError*);
+
 /* creates and initializes new client/session structure */
 rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *, RsslRet *, RsslInt32 *, RsslInt32*, RsslInt32*, RsslInt32 *, RsslError *);
 RsslInt32 rwsReadWsConnMsg(void *, char *, int , ripcRWFlags , RsslError *);

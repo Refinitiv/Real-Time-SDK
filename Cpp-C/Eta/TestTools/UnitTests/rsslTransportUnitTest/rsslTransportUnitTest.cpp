@@ -9321,6 +9321,428 @@ TEST_F(WebsocketServerConnectionTest, WebsocketServerHandshakeTest)
 	clientSocket = RIPC_INVALID_SOCKET;
 }
 
+TEST_F(WebsocketServerConnectionTest, httpConnectionValidationTest)
+{
+	char				writeBuff[1000];
+	RsslInt32			cc;
+	struct timeval		selectTime;
+	int					selRet;
+	int					numBytes;
+	RsslError			error;
+	RsslInProgInfo		inProgInfo;
+
+	fd_set readfds;
+	fd_set useread;
+
+	RsslUInt16 outLen = 0;
+	RsslUInt16 pID = 0;
+	RsslUInt32 sessID = 0;
+	RsslUInt32 address = 0;
+	RsslUInt8  opCode = 0;
+
+	memset((void*)writeBuff, 0, sizeof(char) * 1000);
+	outLen = 0;
+	pID = 0;
+	sessID = 0;
+	address = 0;
+	opCode = 0;
+
+	// Connect up the client to the server
+	connectClient();
+
+	// Send bad accept type string, this should also error out
+	cc = snprintf(writeBuff, 1000, "POST / HTTP/1.1\r\nAccept: application/json\r\nUser-Agent: RFA\r\nHost: localhost:14002\r\nContent-Length: 13\r\nCache-Control: no-cache\r\n\r\n");
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+
+	// Send invalid opcodes
+
+	memset((void*)writeBuff, 0, sizeof(char) * 1000);
+	outLen = 13;
+
+	// Connect up the client to the server
+	connectClient();
+
+	pID = 0;
+	address = 0x7F000000;
+	sessID = 0;
+	opCode = 0x20;
+	cc = snprintf(writeBuff, 1000, "POST / HTTP/1.1\r\nAccept: application/octet-stream\r\nUser-Agent: RFA\r\nHost: localhost:14002\r\nContent-Length: 13\r\nCache-Control: no-cache\r\n\r\n");
+	
+	_move_u16_swap((writeBuff+cc), &outLen);
+	cc += 2;
+	writeBuff[cc] = opCode;
+	++cc;
+	_move_u32_swap((writeBuff + cc), &sessID);
+	cc += 4;
+	_move_u16_swap((writeBuff + cc), &pID);
+	cc += 2;
+	_move_u32_swap((writeBuff + cc), &address);
+	cc += 4;
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Send invalid opcodes
+
+	memset((void*)writeBuff, 0, sizeof(char) * 1000);
+	outLen = 13;
+
+	// Connect up the client to the server
+	connectClient();
+
+	pID = 0;
+	address = 0x7F000000;
+	sessID = 0;
+	opCode = 0x4F;
+	cc = snprintf(writeBuff, 1000, "POST / HTTP/1.1\r\nAccept: application/octet-stream\r\nUser-Agent: RFA\r\nHost: localhost:14002\r\nContent-Length: 13\r\nCache-Control: no-cache\r\n\r\n");
+
+	_move_u16_swap((writeBuff + cc), &outLen);
+	cc += 2;
+	writeBuff[cc] = opCode;
+	++cc;
+	_move_u32_swap((writeBuff + cc), &sessID);
+	cc += 4;
+	_move_u16_swap((writeBuff + cc), &pID);
+	cc += 2;
+	_move_u32_swap((writeBuff + cc), &address);
+	cc += 4;
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+
+	// Send invalid opcodes
+
+	memset((void*)writeBuff, 0, sizeof(char) * 1000);
+	outLen = 13;
+
+	// Connect up the client to the server
+	connectClient();
+
+	pID = 0;
+	address = 0x7F000000;
+	sessID = 0;
+	opCode = 0x8F;
+	cc = snprintf(writeBuff, 1000, "POST / HTTP/1.1\r\nAccept: application/octet-stream\r\nUser-Agent: RFA\r\nHost: localhost:14002\r\nContent-Length: 13\r\nCache-Control: no-cache\r\n\r\n");
+
+	_move_u16_swap((writeBuff + cc), &outLen);
+	cc += 2;
+	writeBuff[cc] = opCode;
+	++cc;
+	_move_u32_swap((writeBuff + cc), &sessID);
+	cc += 4;
+	_move_u16_swap((writeBuff + cc), &pID);
+	cc += 2;
+	_move_u32_swap((writeBuff + cc), &address);
+	cc += 4;
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Send invalid opcodes
+
+	memset((void*)writeBuff, 0, sizeof(char) * 1000);
+	outLen = 13;
+
+	// Connect up the client to the server
+	connectClient();
+
+	pID = 0;
+	address = 0x7F000000;
+	sessID = 0;
+	opCode = 0xFF;
+	cc = snprintf(writeBuff, 1000, "POST / HTTP/1.1\r\nAccept: application/octet-stream\r\nUser-Agent: RFA\r\nHost: localhost:14002\r\nContent-Length: 13\r\nCache-Control: no-cache\r\n\r\n");
+
+	_move_u16_swap((writeBuff + cc), &outLen);
+	cc += 2;
+	writeBuff[cc] = opCode;
+	++cc;
+	_move_u32_swap((writeBuff + cc), &sessID);
+	cc += 4;
+	_move_u16_swap((writeBuff + cc), &pID);
+	cc += 2;
+	_move_u32_swap((writeBuff + cc), &address);
+	cc += 4;
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Send too short of a header
+
+	memset((void*)writeBuff, 0, sizeof(char) * 1000);
+	outLen = 13;			// Says 13 but we're sending 9
+
+	// Connect up the client to the server
+	connectClient();
+
+	pID = 0;
+	address = 0x7F000000;
+	sessID = 0;
+	opCode = 0x40;
+	cc = snprintf(writeBuff, 1000, "POST / HTTP/1.1\r\nAccept: application/octet-stream\r\nUser-Agent: RFA\r\nHost: localhost:14002\r\nContent-Length: 13\r\nCache-Control: no-cache\r\n\r\n");
+
+	_move_u16_swap((writeBuff + cc), &outLen);
+	cc += 2;
+	writeBuff[cc] = opCode;
+	++cc;
+	_move_u32_swap((writeBuff + cc), &sessID);
+	cc += 4;
+	_move_u16_swap((writeBuff + cc), &pID);
+	cc += 2;
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Send a valid HTTP WinInet opcode but non-existant session ID
+
+	memset((void*)writeBuff, 0, sizeof(char) * 1000);
+	outLen = 13;			
+
+	// Connect up the client to the server
+	connectClient();
+
+	pID = 0;
+	address = 0x7F000000;
+	sessID = 1234;
+	opCode = 0x40;
+	cc = snprintf(writeBuff, 1000, "POST / HTTP/1.1\r\nAccept: application/octet-stream\r\nUser-Agent: RFA\r\nHost: localhost:14002\r\nContent-Length: 13\r\nCache-Control: no-cache\r\n\r\n");
+
+	_move_u16_swap((writeBuff + cc), &outLen);
+	cc += 2;
+	writeBuff[cc] = opCode;
+	++cc;
+	_move_u32_swap((writeBuff + cc), &sessID);
+	cc += 4;
+	_move_u16_swap((writeBuff + cc), &pID);
+	cc += 2;
+	_move_u32_swap((writeBuff + cc), &address);
+	cc += 4;
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+	// Send a valid HTTP Java opcode but non-existant session ID
+
+	memset((void*)writeBuff, 0, sizeof(char) * 1000);
+	outLen = 13;
+
+	// Connect up the client to the server
+	connectClient();
+
+	pID = 0;
+	address = 0x7F000000;
+	sessID = 1234;
+	opCode = 0x80;
+	cc = snprintf(writeBuff, 1000, "POST / HTTP/1.1\r\nAccept: application/octet-stream\r\nUser-Agent: RFA\r\nHost: localhost:14002\r\nContent-Length: 13\r\nCache-Control: no-cache\r\n\r\n");
+
+	_move_u16_swap((writeBuff + cc), &outLen);
+	cc += 2;
+	writeBuff[cc] = opCode;
+	++cc;
+	_move_u32_swap((writeBuff + cc), &sessID);
+	cc += 4;
+	_move_u16_swap((writeBuff + cc), &pID);
+	cc += 2;
+	_move_u32_swap((writeBuff + cc), &address);
+	cc += 4;
+
+	// This should be a single packet
+	numBytes = SOCK_SEND(clientSocket, writeBuff, cc, 0);
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&useread);
+
+	FD_SET(pServer->socketId, &readfds);
+	useread = readfds;
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &useread, NULL, NULL, &selectTime);
+
+	ASSERT_NE(selRet, 1) << "Select failure";
+
+	rsslClearInProgInfo(&inProgInfo);
+
+	// Expect failure here.
+	ASSERT_EQ(rsslInitChannel(pServerChannel, &inProgInfo, &error), RSSL_RET_FAILURE);
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	sock_close(clientSocket);
+	clientSocket = RIPC_INVALID_SOCKET;
+
+
+}
+
 
 class WebsocketClientConnectionTest : public ::testing::Test {
 protected:
@@ -9835,3 +10257,4 @@ int main(int argc, char* argv[])
 	}
 	return ret;
 }
+ 
