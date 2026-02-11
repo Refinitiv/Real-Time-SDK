@@ -236,7 +236,7 @@ class MarketItemHandler implements DefaultMsgCallback
 					
 					if (!_ommServerBaseImpl.activeConfig().acceptMessageSameKeyButDiffStream)
 					{
-						if (clientSession.checkingExistingReq(itemInfo))
+						if (clientSession.checkingExistingReq(itemInfo) && !itemInfo.isPrivateStream())
 						{
 							StringBuilder temp = _ommServerBaseImpl.strBuilder();
 							temp.append("Request Message rejected - Item already open with exact same message key on another stream.");
