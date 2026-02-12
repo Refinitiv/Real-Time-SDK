@@ -245,7 +245,7 @@ namespace LSEG.Ema.Access
 
                             if(!AcceptMessageSameKeyButDiffStream)
                             {
-                                if(clientSession.CheckingExistingReq(itemInfo))
+                                if(clientSession.CheckingExistingReq(itemInfo) && !itemInfo.IsPrivateStream)
                                 {
                                     using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
                                     StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()
