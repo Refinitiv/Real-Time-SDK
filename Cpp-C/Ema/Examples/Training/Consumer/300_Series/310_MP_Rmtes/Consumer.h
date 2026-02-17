@@ -14,11 +14,14 @@
 #ifdef WIN32
 #include <sys/timeb.h>
 #include <time.h>
+#include <map>
 #else
 #include <sys/time.h>
 #endif
 
 #include "Ema.h"
+
+using namespace std;
 
 unsigned long long getCurrentTime()
 {
@@ -44,6 +47,8 @@ public :
 
 	void decode( const refinitiv::ema::access::FieldList& );			// print content of passed in FieldList to screen
 
+	std::map<refinitiv::ema::access::EmaString, refinitiv::ema::access::RmtesBuffer*> rmtesBufferList;
+
 protected :
 
 	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
@@ -51,8 +56,6 @@ protected :
 	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
 	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
-	
-	refinitiv::ema::access::RmtesBuffer rmtesBuffer;
 };
 
 #endif // __ema_consumer_h_
