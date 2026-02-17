@@ -7,14 +7,18 @@
  */
 
 using LSEG.Ema.Access;
+using LSEG.Ema.Domain.Login;
+using LSEG.Ema.Rdm;
 using System;
+using System.Collections.Generic;
 using static LSEG.Ema.Access.OmmConsumerConfig;
+using static LSEG.Ema.Access.DataType;
 
 namespace LSEG.Ema.Example.Traning.Consumer;
 
 internal class AppClient : IOmmConsumerClient
 {
-    private readonly RmtesBuffer rmtesBuffer = new(new byte[0]);
+    private Dictionary<string, RmtesBuffer> rmtesBufferList = new Dictionary<string, RmtesBuffer>();
 
     public void OnRefreshMsg(RefreshMsg refreshMsg, IOmmConsumerEvent @event)
     {
@@ -56,20 +60,28 @@ internal class AppClient : IOmmConsumerClient
     private void Decode(FieldList fieldList)
     {
         // In the below loop partial updates for the specific field of RMTES type are handled.
-        // Note that in case it is necessary to handle partial updates for multiple fields,
-        // the application has to cache each RMTES string in a separate RmtesBuffer
-        // (e.g., use a hashmap to track RmtesBuffer instances corresponding to specific FIDs)
-        // and apply the updates accordingly.
+        // Note that in order to handle partial updates for multiple fields,
+        // the application caches each RMTES string in a separate RmtesBuffer
         foreach (FieldEntry fieldEntry in fieldList)
         {
-            if (fieldEntry.Name.Equals("HEADLINE1"))
-            {
-                Console.Write("Fid: " + fieldEntry.FieldId + " Name = " + fieldEntry.Name + " DataType: " + DataType.AsString(fieldEntry.Load!.DataType) + " Value: ");
+            Console.Write("Fid: " + fieldEntry.FieldId + " Name = " + fieldEntry.Name + " DataType: " + DataType.AsString(fieldEntry.Load!.DataType) + " Value: ");
 
-                if (Data.DataCode.BLANK == fieldEntry.Code)
-                    Console.WriteLine(" blank");
+            if (Data.DataCode.BLANK == fieldEntry.Code)
+                Console.WriteLine(" blank");
+            else if (fieldEntry.LoadType == DataTypes.RMTES)
+            {
+                RmtesBuffer rmtesBuffer = new RmtesBuffer();
+                rmtesBuffer.Apply(fieldEntry.OmmRmtesValue());
+                if (rmtesBufferList.ContainsKey(fieldEntry.Name))
+                    rmtesBufferList[fieldEntry.Name].Apply(rmtesBuffer);
                 else
-                    Console.WriteLine(rmtesBuffer.Apply(fieldEntry.OmmRmtesValue()).ToString());
+                    rmtesBufferList.Add(fieldEntry.Name, rmtesBuffer);
+
+                Console.WriteLine(rmtesBufferList[fieldEntry.Name].ToString());
+            }
+            else
+            {
+                Console.WriteLine(fieldEntry.ToString());
             }
         }
     }
