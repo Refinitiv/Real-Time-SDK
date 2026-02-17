@@ -16,6 +16,7 @@ import com.refinitiv.ema.access.FieldList;
 import com.refinitiv.ema.access.GenericMsg;
 import com.refinitiv.ema.access.Map;
 import com.refinitiv.ema.access.MapEntry.MapAction;
+import com.refinitiv.ema.access.OmmConsumerConfig.OperationModel;
 import com.refinitiv.ema.access.Msg;
 import com.refinitiv.ema.access.OmmException;
 import com.refinitiv.ema.access.OmmIProviderConfig;
@@ -116,7 +117,7 @@ public class IProvider
 
 			OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig();
 			
-			provider = EmaFactory.createOmmProvider(config.port("14002"), appClient);
+			provider = EmaFactory.createOmmProvider(config.operationModel(OperationModel.USER_DISPATCH), appClient);
 			
 			while( appClient.itemHandles.size() == 0 ) Thread.sleep(1000);
 				
