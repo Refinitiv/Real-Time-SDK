@@ -119,10 +119,16 @@ public class IProvider
 			
 			provider = EmaFactory.createOmmProvider(config.operationModel(OperationModel.USER_DISPATCH), appClient);
 			
-			while( appClient.itemHandles.size() == 0 ) Thread.sleep(1000);
+			while( appClient.itemHandles.size() == 0 ) 
+		    {
+			    provider.dispatch(1000);
+			    Thread.sleep(1000);
+		    }
 				
 			for( int i = 0; i < 60; i++ )
 			{
+			    provider.dispatch(1000);
+			    
 				map.clear();
 				summaryData.clear();
 				summaryData.add(EmaFactory.createFieldEntry().real( 22, 3990 + i, OmmReal.MagnitudeType.EXPONENT_NEG_2));
