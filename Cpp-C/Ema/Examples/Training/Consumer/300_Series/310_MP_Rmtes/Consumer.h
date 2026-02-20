@@ -10,11 +10,11 @@
 #define __ema_consumer_h_
 
 #include <iostream>
+#include <map>
 
 #ifdef WIN32
 #include <sys/timeb.h>
 #include <time.h>
-#include <map>
 #else
 #include <sys/time.h>
 #endif
