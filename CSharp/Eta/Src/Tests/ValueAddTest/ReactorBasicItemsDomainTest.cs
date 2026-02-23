@@ -132,7 +132,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         consumerRole.RdmLoginRequest.HasUserNameType = true;
         consumerRole.RdmLoginRequest.UserNameType = Login.UserIdTypes.NAME;
@@ -262,7 +262,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
         // it matches expectations.
 
         // Test is over, clean up
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -285,7 +285,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
         BasicDictionaryDirectoryRequestDo(submitOptions, consumerReactor, providerReactor, consumer, provider, out _);
 
         // Test is over, clean up
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -349,7 +349,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
         Assert.Equal((int)DomainType.MARKET_PRICE, msgEvent.Msg.DomainType);
 
         // Test is over, clean up
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -433,7 +433,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
         Assert.Equal(marketPriceRequest.StreamId, msgEvent.Msg.StreamId);
 
         // Test is over, clean up
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -541,7 +541,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // Consumer sends request.
         requestMsg.Clear();
@@ -703,7 +703,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
         // consumer did not explicitly ask for this refresh
         Assert.False(receivedRefreshMsg.CheckSolicited());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -755,7 +755,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // Consumer sends request.
         requestMsg.Clear();
@@ -878,7 +878,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
         Assert.True(receivedRefreshMsg.CheckRefreshComplete());
         Assert.False(receivedRefreshMsg.CheckSolicited());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -965,7 +965,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -1043,7 +1043,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedPostMsg.DomainType);
         Assert.Equal(Codec.DataTypes.NO_DATA, receivedPostMsg.ContainerType);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -1155,7 +1155,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -1279,7 +1279,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
 
         consumerReactor.Dispatch(0);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -1546,7 +1546,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // ConsumerRole requested a directory, provide it
         providerReactor.Dispatch(1);

@@ -580,7 +580,7 @@ public class MultithreadingTests
 		opts.SetupDefaultLoginStream = true;
 		opts.SetupDefaultDirectoryStream = true;
 		provider.Bind(opts);
-		TestReactor.OpenSession(consumer, provider, opts);
+		TestReactorSession.OpenSession(consumer, provider, opts);
 
 		provider.Start();
 		consumer.Start();

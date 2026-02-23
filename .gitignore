@@ -25,9 +25,9 @@
 **/OptimizedAssertStatic
 **/refman
 **/RefMan
-Cpp-C/Eta/Applications/Training/Consumer/Module_1a_Connect/CMakeLists.txt
 */Eta/Applications/Training/*/*/CMakeLists.txt
 */Ema/Examples/Training/*/*/*/CMakeLists.txt
+/RTSDK-BinaryPack
 Elektron-SDK-BinaryPack
 Elektron-SDK-BinaryPack-build
 googletest
@@ -107,7 +107,7 @@ $RECYCLE.BIN/
 **/CMakeFiles
 *.vcxproj
 *.vcxproj.filters
-*.sln
+/Cpp-C/**/*.sln
 CMakeCache.txt
 **/*_shared.dir
 **/*_static.dir
@@ -115,4 +115,7 @@ CMakeCache.txt
 *rsslVersion.h
 *rsslEtaJNIVersion.h
 *LinuxSoLink
-/.gradle/
+
+# Java
+/Java/.gradle/
+/Java/**/build/

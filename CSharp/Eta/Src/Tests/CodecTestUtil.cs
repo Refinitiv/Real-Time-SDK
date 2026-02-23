@@ -22,7 +22,7 @@ using Enum = LSEG.Eta.Codec.Enum;
 namespace LSEG.Eta.Tests
 {
 
-    class CodecTestUtil
+    static class CodecTestUtil
     {
         public static int length = 5;
         public static int defaultArrayDataType = DataTypes.QOS;
@@ -2540,6 +2540,28 @@ namespace LSEG.Eta.Tests
                 default:
                     break;
             }
+        }
+
+        /// <summary>
+        /// Converts any message to XML.
+        /// </summary>
+        /// <remarks>Pretty slow for production use.</remarks>
+        /// <param name="msg"></param>
+        /// <returns>Returns string with XML representation of <paramref name="msg"/>.</returns>
+        public static string ToXml(this IMsg msg)
+        {
+            var buf = new Buffer();
+            var byteBuf = new ByteBuffer(1024);
+            buf.Data(byteBuf);
+
+            var encIter = new EncodeIterator();
+            encIter.SetBufferAndRWFVersion(buf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+            msg.Encode(encIter);
+
+            var decIter = new DecodeIterator();
+            decIter.SetBufferAndRWFVersion(buf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+            var dummyMsg = new Msg();
+            return dummyMsg.DecodeToXml(decIter);
         }
     }
 

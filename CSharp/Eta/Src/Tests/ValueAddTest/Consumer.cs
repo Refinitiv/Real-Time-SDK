@@ -7,6 +7,7 @@
  */
 
 using LSEG.Eta.ValueAdd.Reactor;
+using System;
 
 
 namespace LSEG.Eta.Tests.ValueAddTest;
@@ -36,6 +37,14 @@ public class Consumer : TestReactorComponent, IConsumerCallback
         Role.DirectoryMsgCallback = this;
         Role.DictionaryMsgCallback = this;
         Role.DefaultMsgCallback = this;
+        return this;
+    }
+
+    public Consumer WithWatchlist(Action<ConsumerWatchlistOptions> configure = null)
+    {
+        Role.WatchlistOptions.EnableWatchlist = true;
+        Role.WatchlistOptions.ChannelOpenEventCallback = this;
+        configure?.Invoke(Role.WatchlistOptions);
         return this;
     }
 

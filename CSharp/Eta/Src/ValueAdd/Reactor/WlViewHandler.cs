@@ -8,6 +8,7 @@
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
+
 using Array = LSEG.Eta.Codec.Array;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
@@ -222,6 +223,55 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
 
             return CodecReturnCode.SUCCESS;
+        }
+
+        public bool AggregateViewContainsView(WlAggregateView aggView, WlItemRequest wlItemRequest)
+        {
+            int mergedCount = aggView.MergedViews.Count + aggView.CommittedViews.Count;
+            if (mergedCount == 0) return false;
+            if (wlItemRequest.ViewElemCount > aggView.ElementCount) return false;
+            if (aggView.ElementList == null) return false;
+
+            switch (aggView.ViewType)
+            {
+                case ViewTypes.FIELD_ID_LIST:
+                    {
+                        var aggViewFieldIdList = GetTrimmedList<int>(aggView.ElementList, aggView.ElementCount);
+                        var viewFieldIds = GetTrimmedSeq((IEnumerable<int>)wlItemRequest.ViewFieldList!, wlItemRequest.ViewElemCount);
+                        return ContainsAll(aggViewFieldIdList, viewFieldIds);
+                    }
+                case ViewTypes.ELEMENT_NAME_LIST:
+                    {
+                        var aggViewElementNameList = GetTrimmedList<string>(aggView.ElementList, aggView.ElementCount);
+                        var viewElementNames = GetTrimmedSeq((IEnumerable<string>)wlItemRequest.ViewFieldList!, wlItemRequest.ViewElemCount);
+                        return ContainsAll(aggViewElementNameList, viewElementNames);
+                    }
+                default:
+                    break;
+            }
+            return false;
+
+            static bool ContainsAll<T>(List<T> list, IEnumerable<T> itemsToSearch)
+            {
+                foreach (var item in itemsToSearch)
+                {
+                    var index = list.BinarySearch(item);
+                    if (index < 0) return false;
+                }
+                return true;
+            }
+
+            static List<T> GetTrimmedList<T>(object elementList, int count) =>
+                ((IEnumerable<WlViewElement<T>>)elementList)
+                    .Where(x => x.Count > 0 && x.Value != null)
+                    .Select(x => x.Value!)
+                    .Take(count)
+                    .ToList();
+
+            static IEnumerable<T> GetTrimmedSeq<T>(IEnumerable<T> seq, int count) =>
+                seq is ICollection<T> col && col.Count == count
+                    ? col
+                    : seq.Take(count);
         }
 
         private void CreateViewList<T>(WlView wlView, List<T> userReqFidList, List<T> wlViewList)

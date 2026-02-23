@@ -6,15 +6,17 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 using LSEG.Eta.Rdm;
-using LSEG.Eta.ValueAdd.Rdm;
-using System.Diagnostics;
-using Buffer = LSEG.Eta.Codec.Buffer;
-using Array = LSEG.Eta.Codec.Array;
 using LSEG.Eta.ValueAdd.Common;
-using System.Runtime.CompilerServices;
+using LSEG.Eta.ValueAdd.Rdm;
+
+using Array = LSEG.Eta.Codec.Array;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Eta.ValueAdd.Reactor
 {
@@ -2970,11 +2972,25 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
             else
             {
-                // WlItemStream is waiting a response for snapshot request and the user's request is snapshot without view
-                if (!wlItemRequest.RequestMsg.CheckStreaming() && (wlItemStream.RefreshState == WlItemStream.RefreshStateFlag.PENDING_REFRESH) &&
-                    !requestMsg.CheckStreaming() && !requestMsg.CheckHasView())
+                // WlStream is waiting a response for request and the user's request is snapshot with view
+                // and doesn't cause changes in aggregateView
+                if (!wlItemRequest.RequestMsg.CheckStreaming() && wlItemRequest.RequestMsg.CheckHasView() &&
+                        (wlItemStream.RefreshState == WlItemStream.RefreshStateFlag.PENDING_VIEW_REFRESH) &&
+                        m_ViewHandler.AggregateViewContainsView(wlItemStream.AggregateView!, wlItemRequest))
                 {
-                    // join the snapshot request to the esisting snapshot stream
+                    // add view into request
+                    if ((ret = HandleViews(wlItemRequest, out errorInfo)) < ReactorReturnCode.SUCCESS)
+                        return ret;
+
+                    // join the snapshot request to the existing snapshot stream
+                    wlItemRequest.ReqState = WlRequest.State.PENDING_REFRESH;
+                    wlItemStream.UserRequestDlList.PushBack(wlItemRequest);
+                }
+                // WlItemStream is waiting a response for snapshot request and the user's request is snapshot without view
+                else if (!wlItemRequest.RequestMsg.CheckStreaming() && (wlItemStream.RefreshState == WlItemStream.RefreshStateFlag.PENDING_REFRESH) &&
+                        !requestMsg.CheckStreaming() && !requestMsg.CheckHasView())
+                {
+                    // join the snapshot request to the existing snapshot stream
                     wlItemRequest.ReqState = WlRequest.State.PENDING_REFRESH;
                     wlItemStream.UserRequestDlList.PushBack(wlItemRequest);
                 }
@@ -4772,6 +4788,25 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         request.RequestMsg.CheckPrivateStream(), out _);
 
                     request = (WlItemRequest?)wlItemStream.UserRequestDlList.Pop();
+                }
+
+                // Checks whether there is a waiting list for the WlItemRequest waiting to be requested once the first request is completed.
+                var waitingRequest = wlItemStream.WaitingRequestDlList.Pop(WlItemRequest.WAIT_ITEM_REQUEST_LINK);
+                while (waitingRequest != null)
+                {
+                    // Add to request timeout list only if single open supported.
+                    if (m_Watchlist.LoginHandler.SupportSingleOpen)
+                    {
+                        RequestTimeoutDlList.PushBack(waitingRequest, WlItemRequest.TIMEOUT_ITEM_REQUEST_LINK);
+                    }
+                    else
+                    {
+                        // Send the status message to close the item request as single open is not supported.
+                        SendStatus(waitingRequest.RequestMsg.StreamId, waitingRequest.RequestMsg.DomainType, "Request timeout",
+                        waitingRequest.RequestMsg.CheckPrivateStream(), out _);
+                    }
+
+                    waitingRequest = wlItemStream.WaitingRequestDlList.Pop(WlItemRequest.WAIT_ITEM_REQUEST_LINK);
                 }
 
                 wlItemStream.ReturnToPool();

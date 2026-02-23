@@ -154,7 +154,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_LINK | ServiceFlags.HAS_DATA, serviceByNameAfterUpdate.RdmService.Flags);
             Assert.Equal(serviceByNameBeforeUpdate.Load.LoadFactor, serviceByNameAfterUpdate.RdmService.Load.LoadFactor);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -281,7 +281,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(0, servicesUpdated);
             Assert.Equal(0, servicesDeleted);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -404,7 +404,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(0, servicesUpdated);
             Assert.Equal(0, servicesDeleted);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -520,7 +520,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(0, servicesUpdated);
             Assert.Equal(5, servicesDeleted);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -623,7 +623,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(0, servicesUpdated);
             Assert.Equal(0, servicesDeleted);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -725,7 +725,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(0, servicesUpdated);
             Assert.Equal(0, servicesDeleted);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -860,7 +860,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(0, servicesUpdated);
             Assert.Equal(0, servicesDeleted);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -998,7 +998,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(2, servicesUpdated);
             Assert.Equal(0, servicesDeleted);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -1145,7 +1145,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(0, servicesUpdated);
             Assert.Equal(5, servicesDeleted);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -1243,7 +1243,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
                 Assert.Equal(MsgClasses.GENERIC, msgEvent.Msg.MsgClass);
             }
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -1333,7 +1333,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
                 Assert.Equal(MsgClasses.UPDATE, msgEvent.Msg.MsgClass);
             }
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -1464,7 +1464,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(5, servicesUpdated);
             Assert.Equal(0, servicesDeleted);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -1732,7 +1732,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.Equal(460, dirUpdate.ServiceList[0].ServiceId);
             Assert.Equal(ServiceFilterFlags.STATE | ServiceFilterFlags.LOAD, dirUpdate.Filter);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -1767,7 +1767,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             consumer.ReactorChannel.Watchlist.LoginHandler = new MockLoginHandler();
             consumer.ReactorChannel.Watchlist.ItemHandler = new MockItemHandler();

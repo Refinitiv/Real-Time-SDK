@@ -159,6 +159,7 @@ public class TestReactorEvent
             ReactorAuthTokenEvent evt => evt.ReactorAuthTokenInfo?.ToString(),
             ReactorOAuthCredentialEvent evt => evt.ReactorOAuthCredentialRenewal?.ToString(),
             ReactorServiceEndpointEvent evt => $"endpoints count {evt.ServiceEndpointInfoList?.Count}",
+            ReactorMsgEvent evt => MsgClasses.ToString(evt.Msg.MsgClass),
             _ => ReactorEvent.Type.ToString(),
         };
         var errorInfo = ReactorEvent.ReactorErrorInfo.Code < ReactorReturnCode.SUCCESS

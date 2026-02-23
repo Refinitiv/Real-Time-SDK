@@ -271,9 +271,10 @@ public abstract class TestReactorComponent : IDisposable
     /// <summary>
     /// Disconnect a consumer and provider component and clean them up.
     /// </summary>
+    [Obsolete("Use TestReactorSession instead")]
     public static void CloseSession(Consumer consumer, Provider provider)
     {
-        CloseSession(consumer, provider, false);
+        TestReactorSession.CloseSession(consumer, provider, false);
     }
 
 
@@ -281,14 +282,10 @@ public abstract class TestReactorComponent : IDisposable
     /// Disconnect a consumer and provider component and clean them up.
     /// Do additional checks to not fail on dirty client disonnection.
     /// </summary>
+    [Obsolete("Use TestReactorSession instead")]
     public static void CloseSession(Consumer consumer, Provider provider, bool expectConsumerFailure)
     {
-        /* Make sure there's nothing left in the dispatch queue. */
-        consumer.TestReactor.Dispatch(0, expectConsumerFailure);
-        provider.TestReactor.Dispatch(0);
-
-        consumer.Close();
-        provider.Close();
+        TestReactorSession.CloseSession(consumer, provider, expectConsumerFailure);
     }
 
     /// <summary>
