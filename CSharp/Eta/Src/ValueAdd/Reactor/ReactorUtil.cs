@@ -20,8 +20,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
             TicksPerSecond = Stopwatch.Frequency;
             TicksPerMilliSecond = Stopwatch.Frequency / 1000.0;
 
+            // Attempt to pricisely map current date time with system timer timestamp
+            // using average timestamp value between before & after DateTime.Now
+            var nowMs = GetCurrentTimeMilliSecond();
             _initialDT = DateTime.Now;
-            _initialTimeMs = GetCurrentTimeMilliSecond();
+            _initialTimeMs = nowMs + (GetCurrentTimeMilliSecond() - nowMs) / 2;
         }
 
         public static double TicksPerSecond { get; private set; }
