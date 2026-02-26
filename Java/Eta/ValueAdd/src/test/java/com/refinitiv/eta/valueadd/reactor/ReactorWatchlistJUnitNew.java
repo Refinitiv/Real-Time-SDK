@@ -749,6 +749,222 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
+    public void itemServiceUpdated_WithGroupIdTest_Socket() {
+
+    	itemServiceUpdated_WithGroupId(false, null);
+    }
+    
+    @Test
+    public void itemServiceUpdated_WithGroupIdTest_WebSocket_Rwf() {
+
+    	itemServiceUpdated_WithGroupId(true, "rssl.rwf");
+    }
+
+    /* JSON format doesn't properly support streamStates > 5, this scenario won't work properly */
+
+    private void itemServiceUpdated_WithGroupId(boolean isWebsocket, String protocolList) {
+
+        /* Test a request/refresh exchange with the watchlist enabled. 
+         * Send a Service Update containing the Group filter and setting a Group ID*/
+        
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        RDMDirectoryMsgEvent directoryMsgEvent;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
+        RefreshMsg receivedRefreshMsg;
+        StatusMsg receivedStatusMsg;
+        int providerStreamId;
+                
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+        
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        try
+        {
+            /* Connect the consumer and provider. Setup login & directory streams automatically. */
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+
+            setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+
+            provider.bind(opts);
+
+            TestReactor.openSession(consumer, provider, opts);
+
+            /* Consumer sends request. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(5);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyStreaming();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+            /* Provider receives request. */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+
+            receivedRequestMsg = (RequestMsg)msgEvent.msg();
+            assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+            assertTrue(receivedRequestMsg.checkStreaming());
+            assertFalse(receivedRequestMsg.checkNoRefresh());
+            assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+            assertTrue(receivedRequestMsg.msgKey().checkHasName());
+            assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+            assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+
+            providerStreamId = receivedRequestMsg.streamId();
+
+            /* Provider sends refresh .*/
+            refreshMsg.clear();
+            refreshMsg.msgClass(MsgClasses.REFRESH);
+            refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+            refreshMsg.streamId(providerStreamId);
+            refreshMsg.containerType(DataTypes.NO_DATA);
+            refreshMsg.applyHasMsgKey();
+            refreshMsg.msgKey().applyHasServiceId();
+            refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+            refreshMsg.msgKey().applyHasName();
+            refreshMsg.msgKey().name().data("TRI.N");
+            refreshMsg.applyRefreshComplete();
+            Buffer groupId = CodecFactory.createBuffer();
+            groupId.data("1234431");
+            refreshMsg.groupId(groupId);
+            refreshMsg.state().streamState(StreamStates.OPEN);
+            refreshMsg.state().dataState(DataStates.OK);
+
+            assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+            /* Consumer receives refresh. */
+            consumerReactor.dispatch(1);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+
+            receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+            assertTrue(receivedRefreshMsg.checkHasMsgKey());
+            assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+            assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+            assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+            assertTrue(receivedRefreshMsg.msgKey().name().toString().equals("TRI.N"));
+            assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+            assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+            assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+            assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+            assertNotNull(msgEvent.streamInfo());
+            assertNotNull(msgEvent.streamInfo().serviceName());
+            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+
+            /* Provider sends service update .*/
+            DirectoryUpdate directoryUpdateMsg = (DirectoryUpdate)DirectoryMsgFactory.createMsg();
+            directoryUpdateMsg.clear();
+            directoryUpdateMsg.rdmMsgType(DirectoryMsgType.UPDATE);
+            directoryUpdateMsg.streamId(2);
+            directoryUpdateMsg.applyHasFilter();
+            directoryUpdateMsg.filter(Directory.ServiceFilterFlags.GROUP);
+
+            WlService wlService = new WlService();
+            wlService.rdmService().applyHasState();
+            wlService.rdmService().action(MapEntryActions.UPDATE);
+            List<ServiceGroup> groupList = new LinkedList<ServiceGroup>();
+            ServiceGroup group = new ServiceGroup();
+            Buffer groupName = CodecFactory.createBuffer();
+            ByteBuffer byteBuffer = ByteBuffer.allocate(2); // Ensure two byte length for the buffer to conform to requirements
+            byteBuffer.putChar( 0, '5');
+            groupName.data(byteBuffer);
+            group.group(groupName);
+            group.applyHasMergedToGroup();
+            group.mergedToGroup(groupName);
+            groupList.add(group);
+            wlService.rdmService().groupStateList(groupList);
+            wlService.rdmService().state().applyHasStatus();
+            wlService.rdmService().state().status().dataState(2);
+            wlService.rdmService().state().status().streamState(12);
+            wlService.rdmService().serviceId(1);
+
+            directoryUpdateMsg.serviceList().add(wlService.rdmService());
+
+            assertTrue(provider.submitAndDispatch(directoryUpdateMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+            consumerReactor.dispatch(2);
+
+            /* Consumer receives status with StreamState 12 and dataState 2. */
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+
+            receivedStatusMsg = (StatusMsg)msgEvent.msg();
+            assertEquals(5, receivedStatusMsg.streamId());
+            assertEquals(DomainTypes.MARKET_PRICE, receivedStatusMsg.domainType());
+            assertEquals(DataTypes.NO_DATA, receivedStatusMsg.containerType());
+            assertEquals(12, receivedStatusMsg.state().streamState());
+            assertEquals(2, receivedStatusMsg.state().dataState());
+            assertNotNull(msgEvent.streamInfo());
+            assertNotNull(msgEvent.streamInfo().serviceName());
+            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+
+            /* Consumer receives update. */
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+            directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
+            DirectoryUpdate receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
+            assertTrue(receivedUpdateMsg.checkHasFilter());
+            assertEquals(Directory.ServiceFilterFlags.GROUP, receivedUpdateMsg.filter());
+            assertTrue(receivedUpdateMsg.serviceList().size() == 1);
+            assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
+            assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
+            assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasData());
+            assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasLink());
+            assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasLoad());
+            assertTrue(receivedUpdateMsg.serviceList().get(0).groupStateList().size() != 0);
+
+            /* Stream should be considered closed. */
+            assertEquals(0, consumerReactor._componentList.get(0).reactorChannel().watchlist().directoryHandler().service(1).streamList().size());
+        }
+        finally
+        {
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+        }
+    }
+    
+    @Test
     public void itemServiceUpDownMultipleItemsTest_Socket() {
 
         itemServiceUpDownMultipleItems(false, null);
