@@ -7,6 +7,7 @@
  */
 
 using System;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
 namespace LSEG.Eta.Codec
@@ -56,7 +57,6 @@ namespace LSEG.Eta.Codec
 		private static string notANumber = "NaN";
 		private readonly int MAX_STRLEN = 20;
 		internal UInt valueUInt =new UInt();
-		internal UInt tempValue =new UInt();
 		internal Int trailzerovalue = new Int();
 		internal Int trailzerocount = new Int();
 		internal Int foundDigit = new Int();
@@ -64,6 +64,9 @@ namespace LSEG.Eta.Codec
 		internal UInt denominator =new UInt();
 		internal Int expdiff = new Int();
 		internal UInt numerator =new UInt();
+
+        // internal flag to check whehter this is an overflow case for decimal value in string, used in Rwf_atonumber_end method
+        private bool isOverflow = false;
 
         /// <summary>
 		/// Creates <see cref="Real"/>.
@@ -158,16 +161,29 @@ namespace LSEG.Eta.Codec
 			}
 			else
 			{
+
+                try
+                {
+                    checked
+                    {
+                        if (value > 0)
+                        {
+                            _value = (long)(value * powHintsExp[hint] + 0.5);
+                        }
+                        else
+                        {
+                            _value = (long)(value * powHintsExp[hint] - 0.5);
+                        }
+                    }
+                }
+                catch (OverflowException)
+                {
+                    return CodecReturnCode.INVALID_ARGUMENT;
+                }
+
                 Hint = hint;
-				if (value > 0)
-				{
-					_value = (long)(value * powHintsExp[hint] + 0.5);
-				}
-				else
-				{
-					_value = (long)(value * powHintsExp[hint] - 0.5);
-				}
-			}
+
+            }
 			IsBlank = false;
 			_stringVal = null;
 			return CodecReturnCode.SUCCESS;
@@ -208,16 +224,27 @@ namespace LSEG.Eta.Codec
 			}
 			else
 			{
-				Hint = hint;
-				if (value > 0)
-				{
-					_value = (long)(value * powHintsExp[hint] + 0.5);
-				}
-				else
-				{
-					_value = (long)(value * powHintsExp[hint] - 0.5);
-				}
-			}
+                try
+                {
+                    checked
+                    {
+                        if (value > 0)
+                        {
+                            _value = (long)(value * powHintsExp[hint] + 0.5);
+                        }
+                        else
+                        {
+                            _value = (long)(value * powHintsExp[hint] - 0.5);
+                        }
+                    }
+                }
+                catch(OverflowException)
+                {
+                    return CodecReturnCode.INVALID_ARGUMENT;
+                }
+
+                Hint = hint;
+            }
 			IsBlank = false;
 			_stringVal = null;
 
@@ -458,7 +485,6 @@ namespace LSEG.Eta.Codec
 			_stringVal = null;
 
 			valueUInt.Clear();
-			tempValue.Clear();
 			trailzerovalue.Clear();
 			trailzerocount.Clear();
 			foundDigit.Clear();
@@ -533,7 +559,13 @@ namespace LSEG.Eta.Codec
 				valIdx++;
 			}
 
-			valIdx = Rwf_atonumber_end_trailzero(trimmedVal, valIdx, valueUInt, foundDigit, trailzerovalue, trailzerocount, nextDigit, tempValue);
+			valIdx = Rwf_atonumber_end_trailzero(trimmedVal, valIdx, valueUInt, foundDigit, trailzerovalue, trailzerocount, nextDigit, isNeg);
+
+            if(isOverflow)
+            {
+                // error
+                return CodecReturnCode.INVALID_ARGUMENT;
+            }
 
 			if (valIdx == trimmedVal.Length)
 			{
@@ -566,11 +598,11 @@ namespace LSEG.Eta.Codec
 					return CodecReturnCode.INVALID_ARGUMENT;
 				}
 
-				valIdx = Rwf_atonumber_end(trimmedVal, valIdx, valueUInt, foundDigit, nextDigit, tempValue);
+                valIdx = Rwf_atonumber_end(trimmedVal, valIdx, valueUInt, foundDigit, nextDigit, isNeg);
 
 				exponent = valIdx - startdec;
 
-				if (exponent == 0)
+				if (isOverflow || exponent == 0)
 				{
 					// error
 					return CodecReturnCode.INVALID_ARGUMENT;
@@ -590,13 +622,12 @@ namespace LSEG.Eta.Codec
 				/* Check for another digit. Then it might be a fraction. */
 				if ((trimmedVal[valIdx] >= '0' && trimmedVal[valIdx] <= '9'))
 				{
-					tempValue.Clear();
 					denominator.Clear();
 
-					valIdx = Rwf_atonumber_end(trimmedVal, valIdx, numerator, foundDigit, nextDigit, tempValue);
+					valIdx = Rwf_atonumber_end(trimmedVal, valIdx, numerator, foundDigit, nextDigit, isNeg);
 
 					/* Verify fraction */
-					if (trimmedVal[valIdx] != '/')
+					if (isOverflow || trimmedVal[valIdx] != '/')
 					{
 						// error
 						return CodecReturnCode.INVALID_ARGUMENT;
@@ -610,7 +641,13 @@ namespace LSEG.Eta.Codec
 					}
 
 					valIdx++;
-					valIdx = Rwf_atonumber_end(trimmedVal, valIdx, denominator, foundDigit, nextDigit, tempValue);
+					valIdx = Rwf_atonumber_end(trimmedVal, valIdx, denominator, foundDigit, nextDigit, isNeg);
+
+                    if(isOverflow)
+                    {
+                        // error
+                        return CodecReturnCode.INVALID_ARGUMENT;
+                    }
 
 					int hint = Rwf_SetFractionHint((int)denominator.ToLong());
 					if (hint == 0)
@@ -636,13 +673,18 @@ namespace LSEG.Eta.Codec
 			}
 			else if (trimmedVal[valIdx] == '/')
 			{
-				tempValue.Clear();
 				denominator.Clear();
 
 				valIdx++;
-				valIdx = Rwf_atonumber_end(trimmedVal, valIdx, denominator, foundDigit, nextDigit, tempValue);
+				valIdx = Rwf_atonumber_end(trimmedVal, valIdx, denominator, foundDigit, nextDigit, isNeg);
 
-				int hint = Rwf_SetFractionHint((int)denominator.ToLong());
+                if (isOverflow)
+                {
+                    // error
+                    return CodecReturnCode.INVALID_ARGUMENT;
+                }
+
+                int hint = Rwf_SetFractionHint((int)denominator.ToLong());
 				if (hint == 0)
 				{
 					// error
@@ -663,46 +705,124 @@ namespace LSEG.Eta.Codec
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		private int Rwf_atonumber_end_trailzero(string str, int index, UInt result, Int foundDigit, Int trailzerovalue, Int trailzerocount, Int nextDigit, UInt tempValue)
+		private int Rwf_atonumber_end_trailzero(string str, int index, UInt result, Int foundDigit, Int trailzerovalue, Int trailzerocount, Int nextDigit, bool isNeg)
 		{
+            isOverflow = false;
 			while ((index < str.Length) && (str[index] >= '0' && str[index] <= '9'))
 			{
-				tempValue.Value(result.ToLong() * 10);
-				nextDigit.Value((str[index] - 0x30));
-				if (str[index] == '0')
-				{
-					if (trailzerocount.ToLong() == 0)
-					{
-						trailzerovalue.Value(result.ToLong());
-					}
-					trailzerocount.Value(trailzerocount.ToLong() + 1);
-				}
-				else
-				{
-					trailzerocount.Value(0);
-				}
-				foundDigit.Value(1);
-				result.Value(tempValue.ToLong() + nextDigit.ToLong());
-				index++;
-			}
+                nextDigit.Value((str[index] - 0x30));
+                if (str[index] == '0')
+                {
+                    if (trailzerocount.ToLong() == 0)
+                    {
+                        trailzerovalue.Value(result.ToLong());
+                    }
+                    trailzerocount.Value(trailzerocount.ToLong() + 1);
+                }
+                else
+                {
+                    trailzerocount.Value(0);
+                }
+                foundDigit.Value(1);
+
+                try
+                {
+                    checked
+                    {
+                        // Temporary value to check for overflow on the boundary of long
+                        ulong ulongTemp = (ulong)(result.ToLong() * 10) + (ulong)nextDigit.ToLong();
+
+                        if (ulongTemp > long.MaxValue)
+                        {
+                            if (isNeg)
+                            {
+                                if (ulongTemp - 1 == (ulong)long.MaxValue)
+                                {
+                                    result.Value(long.MinValue);
+                                    index++;
+                                }
+                                else
+                                {
+                                    isOverflow = true;
+                                    return index;
+                                }
+                            }
+                            else
+                            {
+                                isOverflow = true;
+                                return index;
+                            }
+                        }
+                        else
+                        {
+                            result.Value((result.ToLong() * 10) + nextDigit.ToLong());
+                            index++;
+                        }
+                    }
+                }
+                catch (OverflowException)
+                {
+                    isOverflow = true;
+                    return index;
+                }
+            }
 
 			return index;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		private int Rwf_atonumber_end(string str, int index, UInt result, Int foundDigit, Int nextDigit, UInt tempValue)
+		private int Rwf_atonumber_end(string str, int index, UInt result, Int foundDigit, Int nextDigit, bool isNeg)
 		{
-			while ((index < str.Length) && (str[index] >= '0' && str[index] <= '9'))
-			{
-				foundDigit.Value(1);
-				tempValue.Value(result.ToLong() * 10);
-				nextDigit.Value((str[index] - 0x30));
-				result.Value(tempValue.ToLong() + nextDigit.ToLong());
-				index++;
-			}
+            isOverflow = false;
+            while ((index < str.Length) && (str[index] >= '0' && str[index] <= '9'))
+            {
+                foundDigit.Value(1);
+                nextDigit.Value((str[index] - 0x30));
 
-			return index;
-		}
+                try
+                {
+                    checked
+                    {
+                        // Checking for overflow before multiplying by 10 and adding next digit
+                        // Temporary value to check for overflow on the boundary of long
+                        ulong ulongTemp = (ulong)(result.ToLong() * 10) + (ulong)nextDigit.ToLong();
+                        if (ulongTemp > long.MaxValue)
+                        {
+                            if (isNeg)
+                            {
+                                if (ulongTemp - 1 == (ulong)long.MaxValue)
+                                {
+                                    result.Value(long.MinValue);
+                                    index++;
+                                }
+                                else
+                                {
+                                    isOverflow = true;
+                                    return index; // indicates overflow, return current index to handle error in caller
+                                }
+                            }
+                            else
+                            {
+                                isOverflow = true;
+                                return index; // indicates overflow, return current index to handle error in caller
+                            }
+                        }
+                        else
+                        {
+                            result.Value(result.ToLong() * 10 + nextDigit.ToLong());
+                            index++;
+                        }
+                    }
+                }
+                catch(OverflowException)
+                {
+                    isOverflow = true;
+                    return index; // indicates overflow, return current index to handle error in caller
+                }
+            }
+
+            return index;
+        }
 
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		private int Rwf_SetFractionHint(int denom)
