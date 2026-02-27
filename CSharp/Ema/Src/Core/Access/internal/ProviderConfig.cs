@@ -34,6 +34,8 @@ namespace LSEG.Ema.Access
         public bool XmlTraceRead { get; set; }
         public bool XmlTracePing { get; set; }
 
+        public bool CatchUnhandledExceptions { get; set; }
+
         internal ProviderConfig()
         {
             Clear();
@@ -61,6 +63,8 @@ namespace LSEG.Ema.Access
             XmlTraceWrite = oldConfig.XmlTraceWrite;
             XmlTraceRead = oldConfig.XmlTraceRead;
             XmlTracePing = oldConfig.XmlTracePing;
+
+            CatchUnhandledExceptions = oldConfig.CatchUnhandledExceptions;
         }
 
         internal void Copy(ProviderConfig destConfig)
@@ -85,6 +89,8 @@ namespace LSEG.Ema.Access
             destConfig.XmlTraceWrite = XmlTraceWrite;
             destConfig.XmlTraceRead = XmlTraceRead;
             destConfig.XmlTracePing = XmlTracePing;
+
+            destConfig.CatchUnhandledExceptions = CatchUnhandledExceptions;
         }
 
         internal void Clear()
@@ -109,6 +115,8 @@ namespace LSEG.Ema.Access
             XmlTraceWrite = true;
             XmlTraceRead = true;
             XmlTracePing = false;
+
+            CatchUnhandledExceptions = false;
         }
     }
 }

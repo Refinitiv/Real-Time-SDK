@@ -535,6 +535,7 @@ public class OmmConfigTests
         Assert.True(testNiProvConfig.XmlTraceWrite);
         Assert.True(testNiProvConfig.XmlTraceRead);
         Assert.False(testNiProvConfig.XmlTracePing);
+        Assert.True(testNiProvConfig.CatchUnhandledExceptions);
 
 
         // TestConsumer_2 has all defaults except for ChannelSet.
@@ -2244,6 +2245,7 @@ public class OmmConfigTests
             .AddUInt("XmlTraceWrite", 1)
             .AddUInt("XmlTraceRead", 1)
             .AddUInt("XmlTracePing", 0)
+            .AddUInt("CatchUnhandledExceptions", (ulong)1)
             .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgNiProvider_1", MapAction.ADD, encodeObjectList);
@@ -2531,6 +2533,7 @@ public class OmmConfigTests
         Assert.True(testNiProvConfig.XmlTraceWrite);
         Assert.True(testNiProvConfig.XmlTraceRead);
         Assert.False(testNiProvConfig.XmlTracePing);
+        Assert.True(testNiProvConfig.CatchUnhandledExceptions);
 
 
         // TestConsumer_2 has all defaults except for ChannelSet.
@@ -2564,6 +2567,7 @@ public class OmmConfigTests
         Assert.Equal(defaultNiProviderConfig.XmlTraceWrite, testNiProvConfig.XmlTraceWrite);
         Assert.Equal(defaultNiProviderConfig.XmlTraceRead, testNiProvConfig.XmlTraceRead);
         Assert.Equal(defaultNiProviderConfig.XmlTracePing, testNiProvConfig.XmlTracePing);
+        Assert.False(testNiProvConfig.CatchUnhandledExceptions);
 
 
         testChannelConfig = niProvConfigImpl.ClientChannelConfigMap["ProgChannel_1"];
@@ -4187,6 +4191,7 @@ public class OmmConfigTests
         Assert.True(testIProvConfig.EnforceAckIDValidation);
         Assert.Equal((int)90, testIProvConfig.EnumTypeFragmentSize);
         Assert.Equal((int)100, testIProvConfig.FieldDictionaryFragmentSize);
+        Assert.True(testIProvConfig.CatchUnhandledExceptions);
 
         // TestConsumer_2 has all defaults except for ChannelSet.
         testIProvConfig = iProvConfigImpl.IProviderConfigMap["TestIProv_2"];
@@ -4913,6 +4918,7 @@ public class OmmConfigTests
             .AddUInt("EnforceAckIDValidation", 1)
             .AddUInt("EnumTypeFragmentSize", 2080)
             .AddUInt("FieldDictionaryFragmentSize", 2090)
+            .AddUInt("CatchUnhandledExceptions", (ulong)1)
             .MarkForClear().Complete();
 
         innerMap.AddKeyAscii("ProgIProvider_1", MapAction.ADD, encodeObjectList);
@@ -5219,6 +5225,7 @@ public class OmmConfigTests
         Assert.True(testIProvConfig.EnforceAckIDValidation);
         Assert.Equal((int)2080, testIProvConfig.EnumTypeFragmentSize);
         Assert.Equal((int)2090, testIProvConfig.FieldDictionaryFragmentSize);
+        Assert.True(testIProvConfig.CatchUnhandledExceptions);
 
 
 

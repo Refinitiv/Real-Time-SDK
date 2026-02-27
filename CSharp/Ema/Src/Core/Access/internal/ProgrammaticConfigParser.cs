@@ -438,6 +438,11 @@ namespace LSEG.Ema.Access
                                         }
 
                                         break;
+                                    case "CatchUnhandledExceptions":
+                                        CheckElementEntry("Consumer", "CatchUnhandledExceptions", DataTypes.UINT, consumerEntry);
+
+                                        tmpConfig.CatchUnhandledExceptions = consumerEntry.UIntValue() > 0;
+                                        break;
 
                                     // begin Preferred Host configuration parameters
 
@@ -823,6 +828,14 @@ namespace LSEG.Ema.Access
                                         }
 
                                         break;
+                                    case "CatchUnhandledExceptions":
+                                        if (niProviderEntry.Load == null || niProviderEntry.Load.Code == DataCode.BLANK || niProviderEntry.LoadType != DataTypes.UINT)
+                                        {
+                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for NiProvider element CatchUnhandledExceptions. This element entry must contain an UINT and cannot be blank");
+                                        }
+
+                                        tmpConfig.CatchUnhandledExceptions = niProviderEntry.UIntValue() > 0;
+                                        break;
 
                                     default:
                                         if (!ParseXmlTraceConfigNodes("NiProvider", tmpConfig, niProviderEntry))
@@ -1140,6 +1153,14 @@ namespace LSEG.Ema.Access
                                         }
 
                                         tmpConfig.FieldDictionaryFragmentSize = Utilities.Convert_ulong_int(iProviderEntry.UIntValue());
+                                        break;
+                                    case "CatchUnhandledExceptions":
+                                        if (iProviderEntry.Load == null || iProviderEntry.Load.Code == DataCode.BLANK || iProviderEntry.LoadType != DataTypes.UINT)
+                                        {
+                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for IProvider element CatchUnhandledExceptions. This element entry must contain an UINT and cannot be blank");
+                                        }
+
+                                        tmpConfig.CatchUnhandledExceptions = iProviderEntry.UIntValue() > 0;
                                         break;
                                     default:
                                         if (!ParseXmlTraceConfigNodes("IProvider", tmpConfig, iProviderEntry))

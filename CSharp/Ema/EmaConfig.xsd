@@ -358,6 +358,12 @@
                           <xs:element ref="XmlTraceRead" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTracePing" minOccurs="0" maxOccurs="1" />
 
+                          <xs:element name="CatchUnhandledExceptions" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
                         </xs:all>
 
                       </xs:complexType>
@@ -520,6 +526,12 @@
                           <xs:element ref="XmlTraceWrite" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTraceRead" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTracePing" minOccurs="0" maxOccurs="1" />
+
+                          <xs:element name="CatchUnhandledExceptions" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
 
                         </xs:all>
                       </xs:complexType>
@@ -706,6 +718,12 @@
                           <xs:element ref="XmlTraceWrite" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTraceRead" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTracePing" minOccurs="0" maxOccurs="1" />
+
+                          <xs:element name="CatchUnhandledExceptions" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
 
                         </xs:all>
                       </xs:complexType>

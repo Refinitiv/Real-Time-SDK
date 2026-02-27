@@ -76,6 +76,7 @@ namespace LSEG.Ema.Access
             XmlTracePing = oldConfig.XmlTracePing;
             UpdateTypeFilter = oldConfig.UpdateTypeFilter;
             NegativeUpdateTypeFilter = oldConfig.NegativeUpdateTypeFilter;
+            CatchUnhandledExceptions = oldConfig.CatchUnhandledExceptions;
         }
 
         public string Name { get; set; } = string.Empty;
@@ -165,6 +166,7 @@ namespace LSEG.Ema.Access
         public bool XmlTracePing { get; set; }
         public ulong UpdateTypeFilter { get; set; }
         public ulong NegativeUpdateTypeFilter { get; set; }
+        public bool CatchUnhandledExceptions { get; set; }
 
         // Clears the Consumer structure and sets the default options.
         public void Clear()
@@ -216,6 +218,7 @@ namespace LSEG.Ema.Access
             XmlTracePing = false;
             UpdateTypeFilter = 0;
             NegativeUpdateTypeFilter = 0;
+            CatchUnhandledExceptions = false;
         }
 
         // Copy method, produces a deep copy into DestConfig.
@@ -271,6 +274,8 @@ namespace LSEG.Ema.Access
 
             DestConfig.UpdateTypeFilter = UpdateTypeFilter;
             DestConfig.NegativeUpdateTypeFilter = NegativeUpdateTypeFilter;
+
+            DestConfig.CatchUnhandledExceptions = CatchUnhandledExceptions;
         }
     }
 }

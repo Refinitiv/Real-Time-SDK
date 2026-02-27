@@ -56,6 +56,8 @@ namespace LSEG.Ema.Access
         protected int MaxDispatchCountApiThread;
         protected int MaxDispatchCountUserThread;
 
+        protected bool CatchUnhandledExceptions;
+
         private bool m_receivedEvent;
 
         private StringBuilder stringBuilder = new StringBuilder();
@@ -314,6 +316,7 @@ namespace LSEG.Ema.Access
                     DispatchTimeoutApiThread = configImpl.ConsumerConfig.DispatchTimeoutApiThread;
                     MaxDispatchCountApiThread = configImpl.ConsumerConfig.MaxDispatchCountApiThread;
                     MaxDispatchCountUserThread = configImpl.ConsumerConfig.MaxDispatchCountUserThread;
+                    CatchUnhandledExceptions = configImpl.ConsumerConfig.CatchUnhandledExceptions;
                 }
                 else
                 {
@@ -331,6 +334,7 @@ namespace LSEG.Ema.Access
                     DispatchTimeoutApiThread = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.DispatchTimeoutApiThread;
                     MaxDispatchCountApiThread = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.MaxDispatchCountApiThread;
                     MaxDispatchCountUserThread = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.MaxDispatchCountUserThread;
+                    CatchUnhandledExceptions = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.CatchUnhandledExceptions;
                 }
 
                 reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo? reactorErrInfo);
@@ -367,7 +371,16 @@ namespace LSEG.Ema.Access
                 if (operationModel == (int)OmmConsumerConfig.OperationModelMode.API_DISPATCH)
                 {
                     apiThreadRunning = true;
-                    apiDispatching = new Thread(new ThreadStart(Run));
+                    if (CatchUnhandledExceptions)
+                    {
+                        apiDispatching = new Thread(new ThreadStart(RunAndCatchExceptions));
+                    }
+                    else
+                    {
+                        apiDispatching = new Thread(new ThreadStart(Run));
+                    }
+
+
                     apiDispatching.Start();
                 }
             }
@@ -608,6 +621,36 @@ namespace LSEG.Ema.Access
             {
                 ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        private void RunAndCatchExceptions()
+        {
+            try
+            {
+                while (apiThreadRunning)
+                {
+                    ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
+                }
+            }
+            catch (Exception e)
+            {
+                apiThreadRunning = false;
+
+                if (LoggerClient.IsErrorEnabled)
+                {
+                    LoggerClient.Error(InstanceName, $"Call to ReactorDispatchLoop() failed with the following Exception: {e.Message}, aborting.\nStackTrace:\n{e.StackTrace}");
+                }
+
+
+                if (HasErrorClient())
+                {
+                    OnDispatchError(e.ToString(), DispatchErrorCode.FAILURE);
+                }
+
+                Uninitialize();
+            }
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -1099,10 +1142,10 @@ namespace LSEG.Ema.Access
                     .Append($"DirectoryRequestTimeOut: {configImpl.ConsumerConfig.DirectoryRequestTimeOut}{ILoggerClient.CR}")
                     .Append($"DictionaryRequestTimeOut: {configImpl.ConsumerConfig.DictionaryRequestTimeOut}{ILoggerClient.CR}")
                     .Append($"RestRequestTimeOut: {configImpl.ConsumerConfig.RestRequestTimeOut}{ILoggerClient.CR}")
-                    .Append($"LoginRequestTimeOut: {configImpl.ConsumerConfig.LoginRequestTimeOut}")
-                    .Append($"LoginRequestTimeOut: {configImpl.ConsumerConfig.LoginRequestTimeOut}")
-                    .Append($"UpdateTypeFilter: {configImpl.ConsumerConfig.UpdateTypeFilter}")
-                    .Append($"NegativeUpdateTypeFilter: {configImpl.ConsumerConfig.NegativeUpdateTypeFilter}");
+                    .Append($"LoginRequestTimeOut: {configImpl.ConsumerConfig.LoginRequestTimeOut}{ILoggerClient.CR}")
+                    .Append($"UpdateTypeFilter: {configImpl.ConsumerConfig.UpdateTypeFilter}{ILoggerClient.CR}")
+                    .Append($"NegativeUpdateTypeFilter: {configImpl.ConsumerConfig.NegativeUpdateTypeFilter}{ILoggerClient.CR}")
+                    .Append($"CatchUnhandledExceptions: {configImpl.ConsumerConfig.CatchUnhandledExceptions}");
 
                 if (configImpl.ConsumerConfig.EnablePreferredHostOptions)
                 {
@@ -1145,7 +1188,8 @@ namespace LSEG.Ema.Access
                    .Append($"RefreshFirstRequired: {configImpl.NiProviderConfig.RefreshFirstRequired}{ILoggerClient.CR}")
                    .Append($"MergeSourceDirectoryStreams: {configImpl.NiProviderConfig.MergeSourceDirectoryStreams}{ILoggerClient.CR}")
                    .Append($"RecoverUserSubmitSourceDirectory: {configImpl.NiProviderConfig.RecoverUserSubmitSourceDirectory}{ILoggerClient.CR}")
-                   .Append($"RemoveItemsOnDisconnect: {configImpl.NiProviderConfig.RemoveItemsOnDisconnect}{ILoggerClient.CR}");
+                   .Append($"RemoveItemsOnDisconnect: {configImpl.NiProviderConfig.RemoveItemsOnDisconnect}{ILoggerClient.CR}")
+                   .Append($"CatchUnhandledExceptions: {configImpl.NiProviderConfig.CatchUnhandledExceptions}");
             }
 
             return strBuilder.ToString();

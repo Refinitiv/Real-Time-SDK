@@ -355,9 +355,9 @@ namespace LSEG.Ema.Access
                     .Parse(() => tmpConfig.PHDetectionTimeInterval)
                     .Parse(() => tmpConfig.PreferredChannelName)
                     .Parse(() => tmpConfig.SessionEnhancedItemRecovery)
-                    .Parse(() => tmpConfig.SessionEnhancedItemRecovery)
                     .Parse(() => tmpConfig.UpdateTypeFilter, v => v > 0 ? v : tmpConfig.UpdateTypeFilter)
-                    .Parse(() => tmpConfig.NegativeUpdateTypeFilter, v => v > 0 ? v : tmpConfig.NegativeUpdateTypeFilter);
+                    .Parse(() => tmpConfig.NegativeUpdateTypeFilter, v => v > 0 ? v : tmpConfig.NegativeUpdateTypeFilter)
+                    .Parse<bool>("CatchUnhandledExceptions", v => tmpConfig.CatchUnhandledExceptions = v, TryParseBoolnumeric, CorrectBooleanFormatMessage);
 
                 ParseXmlTraceConfigNodes(consumerNodeParser, tmpConfig);
                 if (foundConfig == false)
@@ -476,7 +476,8 @@ namespace LSEG.Ema.Access
                     .Parse(() => tmpConfig.RefreshFirstRequired)
                     .Parse(() => tmpConfig.RemoveItemsOnDisconnect)
                     .Parse(() => tmpConfig.RequestTimeout)
-                    .Parse(() => tmpConfig.ServiceCountHint, v => v == 0 ? 513 : v);
+                    .Parse(() => tmpConfig.ServiceCountHint, v => v == 0 ? 513 : v)
+                    .Parse<bool>("CatchUnhandledExceptions", v => tmpConfig.CatchUnhandledExceptions = v, TryParseBoolnumeric, CorrectBooleanFormatMessage);
 
                 ParseXmlTraceConfigNodes(niProviderParser, tmpConfig);
 
@@ -582,7 +583,8 @@ namespace LSEG.Ema.Access
                     .Parse(() => tmpConfig.AcceptMessageWithoutQosInRange)
                     .Parse(() => tmpConfig.EnforceAckIDValidation)
                     .Parse(() => tmpConfig.EnumTypeFragmentSize)
-                    .Parse(() => tmpConfig.FieldDictionaryFragmentSize);
+                    .Parse(() => tmpConfig.FieldDictionaryFragmentSize)
+                    .Parse<bool>("CatchUnhandledExceptions", v => tmpConfig.CatchUnhandledExceptions = v, TryParseBoolnumeric, CorrectBooleanFormatMessage);
 
                 ParseXmlTraceConfigNodes(iProviderParser, tmpConfig);
                 if (foundConfig == false)

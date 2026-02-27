@@ -306,7 +306,12 @@ namespace LSEG.Ema.Access
                 if (m_OperationModel == OmmIProviderConfig.OperationModelMode.API_DISPATCH)
                 {
                     apiThreadRunning = true;
-                    apiDispatching = new Thread(new ThreadStart(Run));
+                    if (ConfigImpl.IProviderConfig.CatchUnhandledExceptions)
+                    {
+                        apiDispatching = new Thread(new ThreadStart(RunAndCatchExceptions));
+                    }
+                    else
+                        apiDispatching = new Thread(new ThreadStart(Run));
                     apiDispatching.Start();
                 }
             }
@@ -362,6 +367,30 @@ namespace LSEG.Ema.Access
             {
                 ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        private void RunAndCatchExceptions()
+        {
+            try
+            {
+                while (apiThreadRunning)
+                {
+                    ReactorDispatchLoop(DispatchTimeoutApiThread, MaxDispatchCountApiThread);
+                }
+            }
+            catch (Exception e)
+            {
+                apiThreadRunning = false;
+
+                if (m_LoggerClient.IsErrorEnabled)
+                {
+                    m_LoggerClient.Error(InstanceName, $"Call to ReactorDispatchLoop() failed with the following Exception: " +
+                        $"{e.Message}, aborting.\nStackTrace:\n{e.StackTrace}");
+                }
+
+                Uninitialize();
+            }     
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -631,7 +660,8 @@ namespace LSEG.Ema.Access
                 .Append($"DictionaryAdminControl: {configImpl.AdminControlDictionary}{ILoggerClient.CR}")
                 .Append($"RefreshFirstRequired: {configImpl.IProviderConfig.RefreshFirstRequired}{ILoggerClient.CR}")
                 .Append($"MaxFieldDictFragmentSize: {configImpl.IProviderConfig.FieldDictionaryFragmentSize}{ILoggerClient.CR}")
-                .Append($"MaxEnumTypeFragmentSize: {configImpl.IProviderConfig.EnumTypeFragmentSize}{ILoggerClient.CR}");
+                .Append($"MaxEnumTypeFragmentSize: {configImpl.IProviderConfig.EnumTypeFragmentSize}{ILoggerClient.CR}")
+                .Append($"CatchUnhandledExceptions: {configImpl.IProviderConfig.CatchUnhandledExceptions}{ILoggerClient.CR}");
 
             return strBuilder.ToString();
         }

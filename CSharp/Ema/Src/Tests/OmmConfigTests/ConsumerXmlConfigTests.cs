@@ -318,6 +318,31 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.Equal(defaultDictConfig.RdmFieldDictionaryItemName, testDictConfig.RdmFieldDictionaryItemName);
         }
 
+        [Fact]
+        public void SimpleConsumerXmlConfigTest()
+        {
+            OmmConsumerConfig consumerConfig;
+
+            consumerConfig = new OmmConsumerConfig("../../../OmmConfigTests/EmaTestConfig.xml");
+
+            OmmConsumerConfigImpl consConfigImpl = consumerConfig.OmmConsConfigImpl;
+            Assert.Equal("TestConsumer", consConfigImpl.FirstConfiguredConsumerName);
+            ConsumerConfig testConfig = consConfigImpl.ConsumerConfigMap["TestConsumer"];
+
+            Assert.Equal((ulong)1, testConfig.SessionEnhancedItemRecovery);
+            Assert.Equal(10, testConfig.DictionaryRequestTimeOut);
+            Assert.Equal(20, testConfig.DirectoryRequestTimeOut);
+            Assert.Equal(30, testConfig.LoginRequestTimeOut);
+            Assert.Equal(-1, testConfig.DispatchTimeoutApiThread);
+            Assert.True(testConfig.EnableRtt);
+            Assert.Equal((uint)50, testConfig.ItemCountHint);
+            Assert.Equal(60, testConfig.MaxDispatchCountApiThread);
+            Assert.Equal(70, testConfig.MaxDispatchCountUserThread);
+            Assert.Equal((uint)80, testConfig.MaxOutstandingPosts);
+            Assert.Equal(1300, testConfig.ReconnectMinDelay);
+            Assert.Equal(true, testConfig.CatchUnhandledExceptions);
+        }
+
         // Xml Config loading and parsing test
         // This loads a config that contains all elements used in the OmmConsumer config, tests the external setter and getter methods,
         // and verifies that the Reactor ConnectInfo and Reactor Role generation methods work, ensuring that all config members are correctly set
