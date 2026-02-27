@@ -214,7 +214,7 @@ public class OAuth2RenewalTests
     /// to establish a network connection to the servers.</para>
     ///
     /// </remarks>
-    [Fact(Skip = "Test depends on provider that refuses to connect")]
+    [Fact]
     public void SimpleRenewal_Test()
     {
         output.WriteLine("SimpleRenewal_Test() BEGIN");

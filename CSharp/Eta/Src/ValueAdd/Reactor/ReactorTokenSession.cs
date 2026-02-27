@@ -234,6 +234,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                                                     }
                                                     else
                                                     {
+                                                        SessionMgntState = SessionState.RECEIVED_ENDPOINT_INFO;
                                                         if (ReactorChannel.ApplyServiceDiscoveryEndpoint(out errorInfo) != ReactorReturnCode.SUCCESS)
                                                         {
                                                             ReactorChannel.State = ReactorChannelState.RDP_RT_FAILED;

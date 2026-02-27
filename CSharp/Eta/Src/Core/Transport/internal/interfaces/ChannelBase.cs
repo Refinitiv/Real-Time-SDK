@@ -638,8 +638,14 @@ namespace LSEG.Eta.Internal.Interfaces
                         {
                             return TransportReturnCode.FAILURE;
                         }
+                        else if(ret == TransportReturnCode.READ_WOULD_BLOCK)
+                        {
+                            /* There is no data to read from the proxy server yet, so we try again later. */
+                            ret = TransportReturnCode.CHAN_INIT_IN_PROGRESS;
+                            break;
+                        }
 
-                        if(m_ProxyAuthenticator.IsAuthenticated)
+                        if (m_ProxyAuthenticator.IsAuthenticated)
                         {
                             if (_socketChannel.IsEncrypted)
                             {
@@ -3228,6 +3234,10 @@ namespace LSEG.Eta.Internal.Interfaces
                     Text = "Could not read HTTP OK (reply to HTTP CONNECT)"
                 };
             }
+            else if (cc == (int)TransportReturnCode.READ_WOULD_BLOCK)
+            {
+                return TransportReturnCode.READ_WOULD_BLOCK;
+            }
 
             // do authentication handling
             ReadHttpConnectResponse(m_InitChnlReadBuffer, inProg, out error);
@@ -3243,7 +3253,24 @@ namespace LSEG.Eta.Internal.Interfaces
             dest.Clear(); // needed for recovery through a proxy
 
             // Proxy interactions are not encrypted, so do direct write to the socket.
-            int bytesRead = Socket.Receive(dest.Contents);
+            int bytesRead;
+
+            try
+            {
+                bytesRead = Socket.Receive(dest.Contents);
+            }
+            catch (SocketException socketException)
+            {
+                // Handles socket error and try again later with the next call.
+                if(socketException.SocketErrorCode == SocketError.WouldBlock ||
+                    socketException.SocketErrorCode == SocketError.TryAgain)
+                {
+                    return (int)TransportReturnCode.READ_WOULD_BLOCK;
+                }
+
+                throw;
+            }
+
             dest.WritePosition = bytesRead;
 
             if (bytesRead > 0)
