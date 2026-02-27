@@ -70,7 +70,7 @@ namespace LSEG.Ema.Access
         private volatile bool apiThreadRunning;
         private EventSignal eventSignal = new();
 
-        protected EmaObjectManager m_EmaObjectManager = new EmaObjectManager();
+        protected EmaObjectManager m_EmaObjectManager;
 
         private bool m_LogDispatchError = true;
 
@@ -232,6 +232,10 @@ namespace LSEG.Ema.Access
 
             operationModel = ((OmmConsumerConfigImpl)OmmConfigBaseImpl).DispatchModel;
 
+            m_EmaObjectManager = new EmaObjectManager(((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.EmaObjectManagerMsgTypeLimit,
+                ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.EmaObjectManagerComplexTypeLimit,
+                ((OmmConsumerConfigImpl)OmmConfigBaseImpl).ConsumerConfig.EmaObjectManagerDataTypeLimit);
+
             if (configImpl.DataDictionary() is not null)
             {
                 ((OmmConsumerConfigImpl)OmmConfigBaseImpl).DictionaryConfig.DataDictionary = configImpl.DataDictionary()!;
@@ -266,6 +270,10 @@ namespace LSEG.Ema.Access
             configImpl.ConfigErrorLog?.Log(LoggerClient, LoggerClient.Level);
 
             operationModel = ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).DispatchModel;
+
+            m_EmaObjectManager = new EmaObjectManager(((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.EmaObjectManagerMsgTypeLimit,
+                ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.EmaObjectManagerComplexTypeLimit,
+                ((OmmNiProviderConfigImpl)OmmConfigBaseImpl).NiProviderConfig.EmaObjectManagerDataTypeLimit);
         }
 
         public void Initialize()
@@ -1145,7 +1153,10 @@ namespace LSEG.Ema.Access
                     .Append($"LoginRequestTimeOut: {configImpl.ConsumerConfig.LoginRequestTimeOut}{ILoggerClient.CR}")
                     .Append($"UpdateTypeFilter: {configImpl.ConsumerConfig.UpdateTypeFilter}{ILoggerClient.CR}")
                     .Append($"NegativeUpdateTypeFilter: {configImpl.ConsumerConfig.NegativeUpdateTypeFilter}{ILoggerClient.CR}")
-                    .Append($"CatchUnhandledExceptions: {configImpl.ConsumerConfig.CatchUnhandledExceptions}");
+                    .Append($"CatchUnhandledExceptions: {configImpl.ConsumerConfig.CatchUnhandledExceptions}{ILoggerClient.CR}")
+                    .Append($"EmaObjectManagerMsgTypeLimit: {configImpl.ConsumerConfig.EmaObjectManagerMsgTypeLimit}{ILoggerClient.CR}")
+                    .Append($"EmaObjectManagerDataTypeLimit: {configImpl.ConsumerConfig.EmaObjectManagerDataTypeLimit}{ILoggerClient.CR}")
+                    .Append($"EmaObjectManagerComplexTypeLimit: {configImpl.ConsumerConfig.EmaObjectManagerComplexTypeLimit}");
 
                 if (configImpl.ConsumerConfig.EnablePreferredHostOptions)
                 {
@@ -1189,7 +1200,10 @@ namespace LSEG.Ema.Access
                    .Append($"MergeSourceDirectoryStreams: {configImpl.NiProviderConfig.MergeSourceDirectoryStreams}{ILoggerClient.CR}")
                    .Append($"RecoverUserSubmitSourceDirectory: {configImpl.NiProviderConfig.RecoverUserSubmitSourceDirectory}{ILoggerClient.CR}")
                    .Append($"RemoveItemsOnDisconnect: {configImpl.NiProviderConfig.RemoveItemsOnDisconnect}{ILoggerClient.CR}")
-                   .Append($"CatchUnhandledExceptions: {configImpl.NiProviderConfig.CatchUnhandledExceptions}");
+                   .Append($"CatchUnhandledExceptions: {configImpl.NiProviderConfig.CatchUnhandledExceptions}{ILoggerClient.CR}")
+                   .Append($"EmaObjectManagerMsgTypeLimit: {configImpl.NiProviderConfig.EmaObjectManagerMsgTypeLimit}{ILoggerClient.CR}")
+                   .Append($"EmaObjectManagerDataTypeLimit: {configImpl.NiProviderConfig.EmaObjectManagerDataTypeLimit}{ILoggerClient.CR}")
+                   .Append($"EmaObjectManagerComplexTypeLimit: {configImpl.NiProviderConfig.EmaObjectManagerComplexTypeLimit}{ILoggerClient.CR}");
             }
 
             return strBuilder.ToString();

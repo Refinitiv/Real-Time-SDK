@@ -349,6 +349,25 @@
                             </xs:complexType>
                           </xs:element>
 
+                          <xs:element name="EmaObjectManagerMsgTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          
+                          <xs:element name="EmaObjectManagerComplexTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EmaObjectManagerDataTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+
                           <xs:element ref="XmlTraceToStdout" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTraceToFile" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTraceMaxFileSize" minOccurs="0" maxOccurs="1" />
@@ -515,6 +534,24 @@
                           <xs:element name="ServiceCountHint" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EmaObjectManagerMsgTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EmaObjectManagerComplexTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EmaObjectManagerDataTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                             </xs:complexType>
                           </xs:element>
 
@@ -707,6 +744,24 @@
                           <xs:element name="FieldDictionaryFragmentSize" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EmaObjectManagerMsgTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EmaObjectManagerComplexTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="EmaObjectManagerDataTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                             </xs:complexType>
                           </xs:element>
 

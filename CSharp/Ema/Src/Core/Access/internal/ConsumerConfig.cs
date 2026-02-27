@@ -77,6 +77,9 @@ namespace LSEG.Ema.Access
             UpdateTypeFilter = oldConfig.UpdateTypeFilter;
             NegativeUpdateTypeFilter = oldConfig.NegativeUpdateTypeFilter;
             CatchUnhandledExceptions = oldConfig.CatchUnhandledExceptions;
+            EmaObjectManagerMsgTypeLimit = oldConfig.EmaObjectManagerMsgTypeLimit;
+            EmaObjectManagerDataTypeLimit = oldConfig.EmaObjectManagerDataTypeLimit;
+            EmaObjectManagerComplexTypeLimit = oldConfig.EmaObjectManagerComplexTypeLimit;
         }
 
         public string Name { get; set; } = string.Empty;
@@ -168,6 +171,11 @@ namespace LSEG.Ema.Access
         public ulong NegativeUpdateTypeFilter { get; set; }
         public bool CatchUnhandledExceptions { get; set; }
 
+        public int EmaObjectManagerDataTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+        public int EmaObjectManagerMsgTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+        public int EmaObjectManagerComplexTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+
+
         // Clears the Consumer structure and sets the default options.
         public void Clear()
         {
@@ -219,6 +227,10 @@ namespace LSEG.Ema.Access
             UpdateTypeFilter = 0;
             NegativeUpdateTypeFilter = 0;
             CatchUnhandledExceptions = false;
+
+            EmaObjectManagerDataTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+            EmaObjectManagerComplexTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+            EmaObjectManagerMsgTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
         }
 
         // Copy method, produces a deep copy into DestConfig.
@@ -276,6 +288,10 @@ namespace LSEG.Ema.Access
             DestConfig.NegativeUpdateTypeFilter = NegativeUpdateTypeFilter;
 
             DestConfig.CatchUnhandledExceptions = CatchUnhandledExceptions;
+
+            DestConfig.EmaObjectManagerComplexTypeLimit = EmaObjectManagerComplexTypeLimit;
+            DestConfig.EmaObjectManagerMsgTypeLimit = EmaObjectManagerMsgTypeLimit;
+            DestConfig.EmaObjectManagerDataTypeLimit = EmaObjectManagerDataTypeLimit;
         }
     }
 }

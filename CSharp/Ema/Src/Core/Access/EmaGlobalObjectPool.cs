@@ -10,7 +10,10 @@ namespace LSEG.Ema.Access
 {
     internal class EmaGlobalObjectPool
     {
-        private static EmaObjectManager m_globalEmaObjectManager = new EmaObjectManager(EmaObjectManager.INITIAL_POOL_SIZE, true);
+        private static EmaObjectManager m_globalEmaObjectManager = new EmaObjectManager(EmaObjectManager.INITIAL_POOL_SIZE, 
+            EmaObjectManager.INITIAL_POOL_SIZE, 
+            EmaObjectManager.INITIAL_POOL_SIZE, 
+            true);
 
         public static EmaObjectManager Instance { get => m_globalEmaObjectManager; }
     }

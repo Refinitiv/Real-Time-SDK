@@ -98,6 +98,9 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.True(testConsConfig.XmlTraceWrite);
             Assert.True(testConsConfig.XmlTraceRead);
             Assert.False(testConsConfig.XmlTracePing);
+            Assert.Equal(5, testConsConfig.EmaObjectManagerDataTypeLimit);
+            Assert.Equal(6, testConsConfig.EmaObjectManagerComplexTypeLimit);
+            Assert.Equal(7, testConsConfig.EmaObjectManagerMsgTypeLimit);
         }
 
         [Fact]

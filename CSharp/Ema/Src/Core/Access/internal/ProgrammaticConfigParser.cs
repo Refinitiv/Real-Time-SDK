@@ -544,6 +544,36 @@ namespace LSEG.Ema.Access
                                             tmpConfig.NegativeUpdateTypeFilter = 0;
                                         }
                                         break;
+                                    case "EmaObjectManagerMsgTypeLimit":
+                                        CheckElementEntry("Consumer", "EmaObjectManagerMsgTypeLimit", DataTypes.UINT, consumerEntry);
+                                        tmpConfig.EmaObjectManagerMsgTypeLimit = Utilities.Convert_ulong_int(consumerEntry.UIntValue());
+
+                                        if (tmpConfig.EmaObjectManagerMsgTypeLimit < 0)
+                                        {
+                                            tmpConfig.EmaObjectManagerMsgTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+                                        }
+
+                                        break;
+                                    case "EmaObjectManagerDataTypeLimit":
+                                        CheckElementEntry("Consumer", "EmaObjectManagerDataTypeLimit", DataTypes.UINT, consumerEntry);
+                                        tmpConfig.EmaObjectManagerDataTypeLimit = Utilities.Convert_ulong_int(consumerEntry.UIntValue());
+
+                                        if (tmpConfig.EmaObjectManagerDataTypeLimit < 0)
+                                        {
+                                            tmpConfig.EmaObjectManagerDataTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+                                        }
+
+                                        break;
+                                    case "EmaObjectManagerComplexTypeLimit":
+                                        CheckElementEntry("Consumer", "EmaObjectManagerComplexTypeLimit", DataTypes.UINT, consumerEntry);
+                                        tmpConfig.EmaObjectManagerComplexTypeLimit = Utilities.Convert_ulong_int(consumerEntry.UIntValue());
+
+                                        if (tmpConfig.EmaObjectManagerComplexTypeLimit < 0)
+                                        {
+                                            tmpConfig.EmaObjectManagerComplexTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+                                        }
+
+                                        break;
                                     default:
                                         if (!ParseXmlTraceConfigNodes("Consumer", tmpConfig, consumerEntry))
                                         {
@@ -835,6 +865,48 @@ namespace LSEG.Ema.Access
                                         }
 
                                         tmpConfig.CatchUnhandledExceptions = niProviderEntry.UIntValue() > 0;
+                                        break;
+                                    case "EmaObjectManagerMsgTypeLimit":
+                                        if (niProviderEntry.Load == null || niProviderEntry.Load.Code == DataCode.BLANK || niProviderEntry.LoadType != DataTypes.UINT)
+                                        {
+                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for IProvider element EmaObjectManagerMsgTypeLimit. This element entry must contain an UINT and cannot be blank");
+                                        }
+
+                                        tmpConfig.EmaObjectManagerMsgTypeLimit = Utilities.Convert_ulong_int(niProviderEntry.UIntValue());
+
+                                        if (tmpConfig.EmaObjectManagerMsgTypeLimit < 0)
+                                        {
+                                            tmpConfig.EmaObjectManagerMsgTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+                                        }
+
+                                        break;
+                                    case "EmaObjectManagerDataTypeLimit":
+                                        if (niProviderEntry.Load == null || niProviderEntry.Load.Code == DataCode.BLANK || niProviderEntry.LoadType != DataTypes.UINT)
+                                        {
+                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for IProvider element EmaObjectManagerDataTypeLimit. This element entry must contain an UINT and cannot be blank");
+                                        }
+
+                                        tmpConfig.EmaObjectManagerDataTypeLimit = Utilities.Convert_ulong_int(niProviderEntry.UIntValue());
+
+                                        if (tmpConfig.EmaObjectManagerDataTypeLimit < 0)
+                                        {
+                                            tmpConfig.EmaObjectManagerDataTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+                                        }
+
+                                        break;
+                                    case "EmaObjectManagerComplexTypeLimit":
+                                        if (niProviderEntry.Load == null || niProviderEntry.Load.Code == DataCode.BLANK || niProviderEntry.LoadType != DataTypes.UINT)
+                                        {
+                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for IProvider element EmaObjectManagerComplexTypeLimit. This element entry must contain an UINT and cannot be blank");
+                                        }
+
+                                        tmpConfig.EmaObjectManagerComplexTypeLimit = Utilities.Convert_ulong_int(niProviderEntry.UIntValue());
+
+                                        if (tmpConfig.EmaObjectManagerComplexTypeLimit < 0)
+                                        {
+                                            tmpConfig.EmaObjectManagerComplexTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+                                        }
+
                                         break;
 
                                     default:
@@ -1161,6 +1233,48 @@ namespace LSEG.Ema.Access
                                         }
 
                                         tmpConfig.CatchUnhandledExceptions = iProviderEntry.UIntValue() > 0;
+                                        break;
+                                    case "EmaObjectManagerMsgTypeLimit":
+                                        if (iProviderEntry.Load == null || iProviderEntry.Load.Code == DataCode.BLANK || iProviderEntry.LoadType != DataTypes.UINT)
+                                        {
+                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for IProvider element EmaObjectManagerMsgTypeLimit. This element entry must contain an UINT and cannot be blank");
+                                        }
+
+                                        tmpConfig.EmaObjectManagerMsgTypeLimit = Utilities.Convert_ulong_int(iProviderEntry.UIntValue());
+
+                                        if (tmpConfig.EmaObjectManagerMsgTypeLimit < 0)
+                                        {
+                                            tmpConfig.EmaObjectManagerMsgTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+                                        }
+
+                                        break;
+                                    case "EmaObjectManagerDataTypeLimit":
+                                        if (iProviderEntry.Load == null || iProviderEntry.Load.Code == DataCode.BLANK || iProviderEntry.LoadType != DataTypes.UINT)
+                                        {
+                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for IProvider element EmaObjectManagerDataTypeLimit. This element entry must contain an UINT and cannot be blank");
+                                        }
+
+                                        tmpConfig.EmaObjectManagerDataTypeLimit = Utilities.Convert_ulong_int(iProviderEntry.UIntValue());
+
+                                        if (tmpConfig.EmaObjectManagerDataTypeLimit < 0)
+                                        {
+                                            tmpConfig.EmaObjectManagerDataTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+                                        }
+
+                                        break;
+                                    case "EmaObjectManagerComplexTypeLimit":
+                                        if (iProviderEntry.Load == null || iProviderEntry.Load.Code == DataCode.BLANK || iProviderEntry.LoadType != DataTypes.UINT)
+                                        {
+                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for IProvider element EmaObjectManagerComplexTypeLimit. This element entry must contain an UINT and cannot be blank");
+                                        }
+
+                                        tmpConfig.EmaObjectManagerComplexTypeLimit = Utilities.Convert_ulong_int(iProviderEntry.UIntValue());
+
+                                        if (tmpConfig.EmaObjectManagerComplexTypeLimit < 0)
+                                        {
+                                            tmpConfig.EmaObjectManagerComplexTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+                                        }
+
                                         break;
                                     default:
                                         if (!ParseXmlTraceConfigNodes("IProvider", tmpConfig, iProviderEntry))

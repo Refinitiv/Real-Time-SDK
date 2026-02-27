@@ -25,6 +25,10 @@ namespace LSEG.Ema.Access
         public ulong RequestTimeout { get; set; }
         public int ServiceCountHint { get; set; }
 
+        public int EmaObjectManagerDataTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+        public int EmaObjectManagerMsgTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+        public int EmaObjectManagerComplexTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+
         public bool XmlTraceToFile { get; set; }
         public bool XmlTraceToStdout { get; set; }
         public string XmlTraceFileName { get; set; } = string.Empty;
@@ -54,6 +58,9 @@ namespace LSEG.Ema.Access
             RefreshFirstRequired = oldConfig.RefreshFirstRequired;
             RequestTimeout = oldConfig.RequestTimeout;
             ServiceCountHint = oldConfig.ServiceCountHint;
+            EmaObjectManagerComplexTypeLimit = oldConfig.EmaObjectManagerComplexTypeLimit;
+            EmaObjectManagerDataTypeLimit = oldConfig.EmaObjectManagerDataTypeLimit;
+            EmaObjectManagerMsgTypeLimit = oldConfig.EmaObjectManagerMsgTypeLimit;
 
             XmlTraceToStdout = oldConfig.XmlTraceToStdout;
             XmlTraceToFile = oldConfig.XmlTraceToFile;
@@ -91,6 +98,10 @@ namespace LSEG.Ema.Access
             destConfig.XmlTracePing = XmlTracePing;
 
             destConfig.CatchUnhandledExceptions = CatchUnhandledExceptions;
+
+            destConfig.EmaObjectManagerComplexTypeLimit = EmaObjectManagerComplexTypeLimit;
+            destConfig.EmaObjectManagerDataTypeLimit = EmaObjectManagerDataTypeLimit;
+            destConfig.EmaObjectManagerMsgTypeLimit = EmaObjectManagerMsgTypeLimit;
         }
 
         internal void Clear()
@@ -117,6 +128,10 @@ namespace LSEG.Ema.Access
             XmlTracePing = false;
 
             CatchUnhandledExceptions = false;
+
+            EmaObjectManagerDataTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+            EmaObjectManagerComplexTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+            EmaObjectManagerMsgTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
         }
     }
 }

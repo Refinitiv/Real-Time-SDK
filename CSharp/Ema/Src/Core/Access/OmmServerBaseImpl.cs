@@ -56,7 +56,7 @@ namespace LSEG.Ema.Access
         private volatile bool apiThreadRunning;
         private readonly EventSignal eventSignal = new();
 
-        protected EmaObjectManager m_EmaObjectManager = new ();
+        protected EmaObjectManager m_EmaObjectManager;
 
         private bool m_LogDispatchError = true;
 
@@ -170,6 +170,10 @@ namespace LSEG.Ema.Access
             OmmProviderEvent = new OmmEventImpl<IOmmProviderEvent>();
 
             m_OperationModel = (OmmIProviderConfig.OperationModelMode)ConfigImpl.DispatchModel;
+
+            m_EmaObjectManager = new EmaObjectManager(ConfigImpl.IProviderConfig.EmaObjectManagerMsgTypeLimit,
+                ConfigImpl.IProviderConfig.EmaObjectManagerComplexTypeLimit,
+                ConfigImpl.IProviderConfig.EmaObjectManagerDataTypeLimit);
 
             ServerPool = new ServerPool(this);
             ServerPool.Initialize(ConfigImpl.IProviderConfig.ClientSessionCountHint, ConfigImpl.IProviderConfig.ItemCountHint,
@@ -390,7 +394,7 @@ namespace LSEG.Ema.Access
                 }
 
                 Uninitialize();
-            }     
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -661,7 +665,10 @@ namespace LSEG.Ema.Access
                 .Append($"RefreshFirstRequired: {configImpl.IProviderConfig.RefreshFirstRequired}{ILoggerClient.CR}")
                 .Append($"MaxFieldDictFragmentSize: {configImpl.IProviderConfig.FieldDictionaryFragmentSize}{ILoggerClient.CR}")
                 .Append($"MaxEnumTypeFragmentSize: {configImpl.IProviderConfig.EnumTypeFragmentSize}{ILoggerClient.CR}")
-                .Append($"CatchUnhandledExceptions: {configImpl.IProviderConfig.CatchUnhandledExceptions}{ILoggerClient.CR}");
+                .Append($"CatchUnhandledExceptions: {configImpl.IProviderConfig.CatchUnhandledExceptions}{ILoggerClient.CR}")
+                .Append($"EmaObjectManagerMsgTypeLimit: {configImpl.IProviderConfig.EmaObjectManagerMsgTypeLimit}{ILoggerClient.CR}")
+                .Append($"EmaObjectManagerDataTypeLimit: {configImpl.IProviderConfig.EmaObjectManagerDataTypeLimit}{ILoggerClient.CR}")
+                .Append($"EmaObjectManagerComplexTypeLimit: {configImpl.IProviderConfig.EmaObjectManagerComplexTypeLimit}{ILoggerClient.CR}");
 
             return strBuilder.ToString();
         }
