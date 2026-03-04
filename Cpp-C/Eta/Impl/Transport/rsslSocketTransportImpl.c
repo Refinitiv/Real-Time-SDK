@@ -477,6 +477,11 @@ ripcSSLApiFuncs* ipcGetOpenSSLAPIFuncs(RsslError* error)
 			openSSLInit = 1;
 		else
 		{
+			if (error == NULL)
+			{
+				return NULL;
+			}
+
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Error: 0012 Unable to load openSSL Libraries.\n",
@@ -497,6 +502,11 @@ ripcCryptoApiFuncs* ipcGetOpenSSLCryptoFuncs(RsslError* error)
 			openSSLInit = 1;
 		else
 		{
+			if (error == NULL)
+			{
+				return NULL;
+			}
+
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Error: 0012 Unable to load openSSL Libraries.\n",
