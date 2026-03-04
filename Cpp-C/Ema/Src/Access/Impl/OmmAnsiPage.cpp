@@ -10,6 +10,7 @@
 #include "OmmAnsiPageDecoder.h"
 #include "Utilities.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageExceptionImpl.h"
 #include "GlobalPool.h"
 #include <new>
 
@@ -109,6 +110,8 @@ bool OmmAnsiPage::hasDecoder() const
 
 const Encoder& OmmAnsiPage::getEncoder() const
 {
+	if (!hasEncoder())
+		throw OmmInvalidUsageExceptionImpl::makeException("Attempt to getEncoder() while OmmAnsiPage encoder is not set.", OmmInvalidUsageException::InvalidOperationEnum);
 	return *static_cast<const Encoder*>( _pEncoder );
 }
 

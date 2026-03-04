@@ -10,6 +10,7 @@
 #include "OmmAsciiDecoder.h"
 #include "Utilities.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageExceptionImpl.h"
 #include <new>
 
 using namespace refinitiv::ema::access;
@@ -66,7 +67,7 @@ bool OmmAscii::hasDecoder() const
 
 const Encoder& OmmAscii::getEncoder() const
 {
-	return *static_cast<const Encoder*>( 0 );
+	throw OmmInvalidUsageExceptionImpl::makeException( "Attempt to getEncoder() while OmmAscii has NO encoder.", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 bool OmmAscii::hasEncoder() const

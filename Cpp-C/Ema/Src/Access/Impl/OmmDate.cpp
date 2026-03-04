@@ -10,6 +10,7 @@
 #include "OmmDateDecoder.h"
 #include "Utilities.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageExceptionImpl.h"
 #include <new>
 
 using namespace refinitiv::ema::access;
@@ -76,7 +77,7 @@ bool OmmDate::hasDecoder() const
 
 const Encoder& OmmDate::getEncoder() const
 {
-	return *static_cast<const Encoder*>( 0 );
+	throw OmmInvalidUsageExceptionImpl::makeException( "Attempt to getEncoder() while OmmDate has NO encoder.", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 bool OmmDate::hasEncoder() const

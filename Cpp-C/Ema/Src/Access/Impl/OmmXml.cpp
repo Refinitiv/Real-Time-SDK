@@ -10,6 +10,7 @@
 #include "OmmXmlDecoder.h"
 #include "Utilities.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageExceptionImpl.h"
 #include "GlobalPool.h"
 #include <new>
 
@@ -115,6 +116,8 @@ bool OmmXml::hasDecoder() const
 
 const Encoder& OmmXml::getEncoder() const
 {
+	if (!hasEncoder())
+		throw OmmInvalidUsageExceptionImpl::makeException("Attempt to getEncoder() while OmmXml encoder is not set.", OmmInvalidUsageException::InvalidOperationEnum);
 	return *static_cast<const Encoder*>( _pEncoder );
 }
 
