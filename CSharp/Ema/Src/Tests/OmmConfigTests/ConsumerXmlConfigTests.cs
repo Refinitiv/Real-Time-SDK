@@ -343,7 +343,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.Equal(70, testConfig.MaxDispatchCountUserThread);
             Assert.Equal((uint)80, testConfig.MaxOutstandingPosts);
             Assert.Equal(1300, testConfig.ReconnectMinDelay);
-            Assert.Equal(true, testConfig.CatchUnhandledExceptions);
+            Assert.True(testConfig.CatchUnhandledExceptions);
         }
 
         // Xml Config loading and parsing test
