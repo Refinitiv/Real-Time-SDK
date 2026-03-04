@@ -263,18 +263,18 @@ public partial class WatchlistConsumerConfig : CommandLine
     {
         foreach (string itemName in itemNames)
         {
-            StringTokenizer token = new(itemName, new[] { ':' });
+            StringTokenizer tokenizer = new(itemName, new[] { ':' });
             string name;
             string serviceName;
-            var segments = token.ToArray();
-            if (segments.Length == 1)
+            var segments = tokenizer.ToArray();
+            if (segments.Length == 1 && segments[0].HasValue)
             {
-                AddItem(segments[0].Value, ServiceName!, domain);
+                AddItem(segments[0].Value!, ServiceName!, domain);
             }
-            else if (segments.Length == 2)
+            else if (segments.Length == 2 && segments[0].HasValue && segments[1].HasValue)
             {
-                serviceName = segments[0].Value;
-                name = segments[1].Value;
+                serviceName = segments[0].Value!;
+                name = segments[1].Value!;
                 AddItem(name, serviceName, domain);
             }
             else

@@ -6,7 +6,7 @@ ETA CSharp contains open source components. The transport, decoder, encoder, val
 
 ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary transport implementations to connect to LSEG Real-Time Distribution System, LSEG Real-Time, and Data Feed Direct products.
 
-Copyright (C) 2022-2025 LSEG. All rights reserved.
+Copyright (C) 2022-2026 LSEG. All rights reserved.
 
 # ETA CSharp Documentation
 
@@ -105,14 +105,14 @@ Users can use Transport API to write non-interactive applications that start up 
 The distribution contains several DLL files (libraries), intended to allow for ease of integration into both production and development environments.
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    LSEG.Eta.Core.dll             eta3.5.0.0        The ETA - CSharp Edition library.  Includes
+    LSEG.Eta.Core.dll             eta3.5.1.0        The ETA - CSharp Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    LSEG.Eta.ValueAdd.dll         eta3.5.0.0        The Value Add library for ETA CSharp Edition.
+    LSEG.Eta.ValueAdd.dll         eta3.5.1.0        The Value Add library for ETA CSharp Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    LSEG.Eta.Ansi.dll             eta3.5.0.0        The ANSI decoders and encoders.
+    LSEG.Eta.Ansi.dll             eta3.5.1.0        The ANSI decoders and encoders.
     LSEG.Eta.AnsiPage.dll     
 
                   
@@ -125,10 +125,10 @@ The distribution contains several DLL files (libraries), intended to allow for e
     I-COS Questionnaire: 6212 
     LSEG Item Number: N/A
     Product Name: Enterprise Transport API - CSharp Edition
-    Release Number: 3.5.0
+    Release Number: 3.5.1
     Load Number: 1
-    Load ID: etacsharp3.5.0.L1.all
-        Supersedes: etacsharp3.4.0.L2.all
+    Load ID: etacsharp3.5.1.L1.all
+        Supersedes: etacsharp3.5.0.L1.all
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99

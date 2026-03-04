@@ -66,9 +66,13 @@ public sealed class PreferredHostInfo
         RemainingDetectionTime = 0;
     }
 
+
+
+
     /// <summary>
-    /// Returns a text representation of this Preferred Host Info instance.
+    /// Converts this Preferred Host Info instance to text representation.
     /// </summary>
+    /// <returns>Returns a text representation of this Preferred Host Info instance.</returns>
     public override string ToString()
     {
         if (m_StringBuilder == null)

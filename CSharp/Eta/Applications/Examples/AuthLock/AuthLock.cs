@@ -67,7 +67,7 @@ internal class AuthLock
         program.MyCombineLock(lockDataList, outLockData1);
         program.MyCompareLock(outLockData, outLockData1);      // identical
 
-        Console.WriteLine("\nAn invalid lock in the combined lock");
+        Console.WriteLine("\nTesting an invalid lock in the combined lock (should show a failure result in case of successful test with invalid lock)");
         AuthorizationLockData outLockData2 = new();
         lockDataList.Add(lockData4);
         program.MyCombineLock(lockDataList, outLockData2);      // Failure

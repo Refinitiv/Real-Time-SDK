@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source low-level Transport and OMM encoder/decoder API. It is used for optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2022-2025 LSEG. All rights reserved.
+Copyright (C) 2022-2026 LSEG. All rights reserved.
 
 # New In This Release
 
@@ -15,36 +15,36 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 
 External modules used by this version of RTSDK CSharp:
 
-        Dependency                                 Version
-        ----------                                 -------
-        K4os.Compression.LZ4                       1.3.8
-        Microsoft.Csharp                           4.5.0
-        Microsoft.IdentityModel.Abstractions       8.14.0
-        Microsoft.IdentityModel.Jsonwebtokends     8.14.0
-        Microsoft.IdentityModel.Logging            8.14.0
-        Microsoft.IdentityModel.Tokens             8.14.0
-        Microsoft.Netcore.Platforms                5.0.0
-        NLog                                       6.0.6
-        NLog.Extensions.Logging                    6.1.0
-        System.IdentityModel.Tokens.Jwt            8.14.0
+    Dependency                                 Version
+    ----------                                 -------
+    K4os.Compression.LZ4                       1.3.8
+    Microsoft.Csharp                           4.5.0
+    Microsoft.IdentityModel.Abstractions       8.14.0
+    Microsoft.IdentityModel.Jsonwebtokends     8.14.0
+    Microsoft.IdentityModel.Logging            8.14.0
+    Microsoft.IdentityModel.Tokens             8.14.0
+    Microsoft.Netcore.Platforms                5.0.0
+    NLog                                       6.0.6
+    NLog.Extensions.Logging                    6.1.0
+    System.IdentityModel.Tokens.Jwt            8.14.0
 
 
 # Software Requirements
-- Visual Studio 2022
-- .NET Core 6 or .NET Core 8. NOTE: .NET 8 is used in default build
-- xUnit 3.1.5 or higher for unit testing.
+- Visual Studio 2026
+- .NET Core 8 and .NET Core 10. NOTE: .NET 10 is used in default build
+- xUnit.x3 for unit testing
 
 ### Platforms and Compilers used in Test
 
-        Windows Server 2019 Standard Edition or later 64-bit, .NET SDK 6.0.421
-        Windows Server 2022 Standard Edition or later 64-bit, .NET SDK 8.0.403
-	Windows 11 64-bit, .NET SDK 8.0.403
-        Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 6.0.421
-        Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 8.0.401
-        Red Hat Enterprise Server 9.X Release 64-bit, .NET SDK 8.0.401
-        Ubuntu 20.04 64-bit, .NET SDK 6.0.421
-        Galaxy Kylin 10, 64-bit
-        Amazon Linux 2023, 64-bit
+    Windows Server 2019 Standard Edition or later 64-bit, .NET SDK 6.0.421
+    Windows Server 2022 Standard Edition or later 64-bit, .NET SDK 8.0.403
+    Windows 11 64-bit, .NET SDK 8.0.403
+    Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 6.0.421
+    Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 8.0.401
+    Red Hat Enterprise Server 9.X Release 64-bit, .NET SDK 8.0.401
+    Ubuntu 20.04 64-bit, .NET SDK 6.0.421
+    Galaxy Kylin 10, 64-bit
+    Amazon Linux 2023, 64-bit
 
 ### Encryption Support
 
@@ -102,45 +102,45 @@ Use the provided solution (or `sln`) file to build in **Visual Studio**.
 
 The RRG package contains all required external dependencies in the CSharp/NuGetPackages directory. In an environment without internet access, you must add this directory as a nuget source and disable other nuget sources for a build to succeed. Here are some dotnet commands to do so:
 
-        To check existing NuGet sources:   
-               dotnet nuget list source
+    To check existing NuGet sources:   
+           dotnet nuget list source
 
-        To add a new NuGet source:
-              dotnet nuget add source <full path to your RRG package/CSharp/NuGetPackages>.
+    To add a new NuGet source:
+          dotnet nuget add source <full path to your RRG package/CSharp/NuGetPackages>.
 
-        To disable certain NuGet sources:
-              dotnet nuget disable source <specify a source show in the list>.
-              Example: dotnet nuget disable source "nuget.org"
+    To disable certain NuGet sources:
+          dotnet nuget disable source <specify a source show in the list>.
+          Example: dotnet nuget disable source "nuget.org"
 
 
 To build, navigate to `RTSDK/CSharp` and issue the appropriate dotnet command as follows to build libraries and/or examples:
 
-        dotnet build --configuration <Release|Debug> -p:EsdkTargetFramework=<all|net6.0|net8.0> RTSDK.sln
+        dotnet build --configuration <Release|Debug> -p:EsdkTargetFramework=<all|net8.0|net10.0> RTSDK.sln
 
         NOTE: 
               - In a GitHub build, the command above builds libraries and places them into Eta/Libs or Ema/Libs and examples into Eta/Executables or Ema/Executables
               - In RRG package, it builds only libraries and places them into custom directories: Eta/Custom/Libs, Ema/Custom/Libs
 
-        GitHub Only, to build specific example: dotnet build -t:Consumer --configuration <Release|Debug> -p:EsdkTargetFramework=<all|net6.0|net8.0> RTSDK.sln
+        GitHub Only, to build specific example: dotnet build -t:Consumer --configuration <Release|Debug> -p:EsdkTargetFramework=<all|net8.0|net10.0> RTSDK.sln
 
 To build just libraries:
 
 Building RTSDK using dotnet command lines is platform agnostic; i.e., it works the same way on Linux and Windows platforms. To build using Visual Studio is applicable to only Windows. Sample commands:
 
-        dotnet build --configuration Release -p:EsdkTargetFramework=net8.0 Eta/Src/Core/Core.csproj
-        dotnet build --configuration Release -p:EsdkTargetFramework=all Eta/Src/ValueAdd/ValueAdd.csproj
-        dotnet build --configuration Release -p:EsdkTargetFramework=net6.0 Eta/Src/Ansi/Ansi.csproj
-        dotnet build --configuration Release -p:EsdkTargetFramework=all Eta/Src/AnsiPage/AnsiPage.csproj
-        dotnet build --configuration Release -p:EsdkTargetFramework=all Ema/Src/Core/EMA_Core.csproj
+    dotnet build --configuration Release -p:EsdkTargetFramework=net8.0 Eta/Src/Core/Core.csproj
+    dotnet build --configuration Release -p:EsdkTargetFramework=all Eta/Src/ValueAdd/ValueAdd.csproj
+    dotnet build --configuration Release -p:EsdkTargetFramework=net10.0 Eta/Src/Ansi/Ansi.csproj
+    dotnet build --configuration Release -p:EsdkTargetFramework=all Eta/Src/AnsiPage/AnsiPage.csproj
+    dotnet build --configuration Release -p:EsdkTargetFramework=all Ema/Src/Core/EMA_Core.csproj
 
         NOTE: In a GitHub build, this builds libraries and places them into Eta/Libs or Ema/Libs
               In RRG package, this builds libraries and places them into custom directories: Eta/Custom/Libs, Ema/Custom/Libs
 
 To build just examples: Each example may be built separately using the individual csproj files. Please note that the RRG package also contains a .sln file for each Eta example along with individual csproj files for each Ema example. Sample command lines to build examples:
 
-        dotnet build --configuration Release -p:EsdkTargetFramework=net8.0 Eta/Applications/Consumer/Consumer.csproj
-        dotnet build --configuration Release -p:EsdkTargetFramework=all Eta/Applications/Consumer/Consumer.sln
-        dotnet build --configuration Release -p:EsdkTargetFramework=net6.0 Ema/Examples/Training/Consumer/100_Series/100_MP_Streaming/Cons100.csproj
+    dotnet build --configuration Release -p:EsdkTargetFramework=net8.0 Eta/Applications/Consumer/Consumer.csproj
+    dotnet build --configuration Release -p:EsdkTargetFramework=all Eta/Applications/Consumer/Consumer.sln
+    dotnet build --configuration Release -p:EsdkTargetFramework=net10.0 Ema/Examples/Training/Consumer/100_Series/100_MP_Streaming/Cons100.csproj
 
         NOTE: The sln and/or csproj files build examples and places them into Eta/Executables or Ema/Executables
               Solution files exist only in RRG package
@@ -151,13 +151,13 @@ To build just examples: Each example may be built separately using the individua
 
 Navigate to `RTSDK/CSharp` and issue the appropriate dotnet command to run various examples:
 
-        dotnet [runtime-options] [path-to-application-executable] [arguments]
+    dotnet [runtime-options] [path-to-application-executable] [arguments]
 
 Sample command lines to run examples using .dll:
 
-        dotnet Eta/Applications/Consumer/bin/Debug/net8.0/Consumer.dll [arguments] 
-        dotnet Eta/Applications/Training/Consumer/Module_1a_Connect/bin/Debug/net8.0/Module_1a_Connect.dll [arguments]
-        dotnet Ema/Examples/Training/Consumer/100_Series/100_MP_Streaming/obj/Release/net8.0/Cons100.dll 
+    dotnet Eta/Applications/Consumer/bin/Debug/net8.0/Consumer.dll [arguments] 
+    dotnet Eta/Applications/Training/Consumer/Module_1a_Connect/bin/Debug/net8.0/Module_1a_Connect.dll [arguments]
+    dotnet Ema/Examples/Training/Consumer/100_Series/100_MP_Streaming/obj/Release/net8.0/Cons100.dll 
 
 - Linux: Run executable:  ./Consumer [arguments]
 - Windows: Run executable:  Consumer.exe [arguments]
@@ -174,15 +174,15 @@ For ease of product use, LSEG maintains its RTSDK CSharp libraries on NuGet.
 
 You can download RTSDK libraries and dependencies from NuGet. Choose the appropriate set of libraries depending on the layer of RTSDK to which application is being written. Below is *sample* code to build applications.
 
-        <dependency>
-                <ItemGroup>
-                    <PackageReference Include="LSEG.Eta.Core" Version="3.5.0.0"/>
-                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.5.0.0"/>
-                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.5.0.0"/>
-                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.5.0.0"/>
-                    <PackageReference Include="LSEG.Ema.Core" Version="3.5.0.0"/>
-                </ItemGroup/>
-        </dependency>
+    <dependency>
+            <ItemGroup>
+                <PackageReference Include="LSEG.Eta.Core" Version="3.5.1.0"/>
+                <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.5.1.0"/>
+                <PackageReference Include="LSEG.Eta.Ansi" Version="3.5.1.0"/>
+                <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.5.1.0"/>
+                <PackageReference Include="LSEG.Ema.Core" Version="3.5.1.0"/>
+            </ItemGroup/>
+    </dependency>
 
 
 # Developing 

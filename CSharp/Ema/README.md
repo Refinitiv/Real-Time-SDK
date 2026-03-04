@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2023-2025 LSEG. All rights reserved.
+Copyright (C) 2023-2026 LSEG. All rights reserved.
   
 # EMA C# Documentation
 
@@ -75,7 +75,7 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
 
     Library Name            Package Version
     ------------            ----------------
-    LSEG.Ema.Core.dll       ema3.5.0.0
+    LSEG.Ema.Core.dll       ema3.5.1.0
 
 # EMA CSharp Issues and Workarounds
 
@@ -85,10 +85,10 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - CSharp Edition
-    Release Number: 3.5.0
+    Release Number: 3.5.1
     Load Number: 1
-    Load ID: emacsharp3.5.0.L1.all
-        Supersedes: emacsharp3.4.0.L2.all 
+    Load ID: emacsharp3.5.1.L1.all
+        Supersedes: emacsharp3.5.0.L1.all 
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99

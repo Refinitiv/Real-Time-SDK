@@ -204,8 +204,10 @@ namespace LSEG.Eta.Codec
 		/// </summary>
 		public const int APP_AUTHORIZATION_FAILED = 35;
 
-		/* Max reserved value */
-		internal const int MAX_RESERVED = 255;
+        /// <summary>
+        /// Max reserved value
+        /// </summary>
+        public const int MAX_RESERVED = 255;
 
 		/// <summary>
 		/// Provide string representation for a state code.

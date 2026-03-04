@@ -28,24 +28,25 @@ public sealed class PreferredHostOptions
         Clear();
     }
 
-    /// Indicates whether preferred host feature is configured for this channel.
-    ///
+    /// <summary>
+    /// Gets or sets whether preferred host feature is configured for this channel.
+    /// </summary>
     /// <value>true if preferred host is enabled; false otherwise</value>
     public bool EnablePreferredHostOptions { get; set; } = false;
 
-    /// Returns Cron time schedule to switch over to a preferred host or WSB group.
-    ///
-    ///  <value>time format to switch over</value>
+    /// <summary>
+    /// Gets or sets Cron time schedule to switch over to a preferred host or WSB group.
+    /// </summary>
     public string DetectionTimeSchedule { get; set; } = string.Empty;
 
-    /// Returns time interval in second to switch over to a preferred host or WSB group.
-    ///
-    /// <value>time interval to switch over</value>
+    /// <summary>
+    /// Gets or sets time interval in second to switch over to a preferred host or WSB group.
+    /// </summary>
     public long DetectionTimeInterval { get; set; } = 0;
 
-    /// Returns a channel name to set a preferred host.
-    /// 
-    /// <value>the preferred host channel name</value>
+    /// <summary>
+    /// Gets or sets the preferred host channel name.
+    /// </summary>
     public string ChannelName { get; set; } = string.Empty;
 
     /// <summary>
@@ -53,7 +54,9 @@ public sealed class PreferredHostOptions
     /// </summary>
     public string SessionChannelName { get; set; } = string.Empty;
 
+    /// <summary>
     /// Clears this object to default.
+    /// </summary>
     public void Clear()
     {
         EnablePreferredHostOptions = false;
@@ -64,8 +67,9 @@ public sealed class PreferredHostOptions
     }
 
     /// <summary>
-    /// Returns textual representation of this instance parameters.
+    /// Converts object to its textual representation.
     /// </summary>
+    /// <returns>Returns textual representation of this instance parameters.</returns>
     public override string ToString()
     {
         if (m_StringBuilder is null)
