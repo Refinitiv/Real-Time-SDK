@@ -33,9 +33,17 @@ comparingEnumType( RsslEnumType* rsslEnumType, const EnumType& enumType, bool pa
   if ( ! comparingData( rsslEnumType->display, enumType.getDisplay() ) )
     return false;
 
+  if ( ! checkNullTerminatedEmaString( enumType.getDisplay() ) )
+    return false;
+
   if ( ! payloadOnly )
+  {
     if ( ! comparingData( rsslEnumType->meaning, enumType.getMeaning() ) )
       return false;
+
+    if ( !checkNullTerminatedEmaString( enumType.getMeaning() ) )
+      return false;
+  }
   return true;
 }
 

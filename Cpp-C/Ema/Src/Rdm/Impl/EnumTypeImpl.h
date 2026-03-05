@@ -44,7 +44,7 @@ public:
 
 private:
 
-	mutable refinitiv::ema::access::EmaStringInt	_stringDispaly;
+	mutable refinitiv::ema::access::EmaStringInt	_stringDisplay;
 	mutable refinitiv::ema::access::EmaStringInt	_stringMeaning;
 	mutable refinitiv::ema::access::EmaString		_stringToString;
 
