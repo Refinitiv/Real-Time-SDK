@@ -4,14 +4,14 @@
 ! LSEG. LSEG may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.70_RealTimeDistributionSystem_25.91		11/25/2025
-!	* Modified 11/25/2025 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.70.
+!   Version	 4.20.71_RealTimeDistributionSystem_26.11		02/02/2026
+!	* Modified 02/02/2026 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.71.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.70_RealTimeDistributionSystem
+!   Version: 4.20.71_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -24,14 +24,14 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! (C) Copyright 2025 LSEG. All rights reserved.
+! (C) Copyright 2026 LSEG. All rights reserved.
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.70
-!tag Build     1
-!tag Date      16-Oct-2025
+!tag Version   4.20.71
+!tag Build     3
+!tag Date      18-Dec-2025
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -73,7 +73,7 @@ TRDPRC_5   "LAST 4"                10  NULL        PRICE              17  REAL64
 !
 NETCHNG_1  "NET CHANGE"            11  NETCHNG_R2  PRICE              17  REAL64           9
 !
-! Difference between the lastest trading price or value and the adjusted historical 
+! Difference between the latest trading price or value and the adjusted historical 
 ! closing value or settlement price.
 !
 HIGH_1     "TODAY'S HIGH"          12  HIGH_2      PRICE              17  REAL64           9
@@ -98,7 +98,7 @@ TRADE_DATE "TRADE DATE"            16  TRADE_DT2   DATE               11  DATE  
 !
 ACTIV_DATE "ACTIVE DATE"           17  NULL        DATE               11  DATE             4
 !
-! The date when the time in TIMACT was updated.
+! The date when the time in TIMACT_NS was updated.
 !
 TRDTIM_1   "TRADE TIME"            18  NULL        TIME                5  TIME             8
 !
@@ -115,7 +115,7 @@ HST_CLOSE  "HISTORIC CLOSE"        21  NULL        PRICE              17  REAL64
 !
 BID        "BID"                   22  BID_1       PRICE              17  REAL64           9
 !
-! Latest Bid Price (price willing to buy)
+! Bid Price
 !
 BID_1      "BID 1"                 23  BID_2       PRICE              17  REAL64           9
 BID_2      "BID 2"                 24  BID_3       PRICE              17  REAL64           9
@@ -124,7 +124,7 @@ BID_2      "BID 2"                 24  BID_3       PRICE              17  REAL64
 !
 ASK        "ASK"                   25  ASK_1       PRICE              17  REAL64           9
 !
-! Latest Ask Price (price offering to sell)
+! Ask Price
 !
 ASK_1      "ASK 1"                 26  ASK_2       PRICE              17  REAL64           9
 ASK_2      "ASK 2"                 27  ASK_3       PRICE              17  REAL64           9
@@ -194,8 +194,7 @@ BLKCOUNT   "BLOCK COUNT"           42  NULL        INTEGER            15  REAL64
 !
 BLKVOLUM   "BLOCK VOLUME"          43  NULL        INTEGER            15  REAL64           9
 !
-! Today's total block trading volume.Updated whenever a trade occurs over a 
-! pre-defined, market-specific, number of shares occurs.
+! Accumulated Block Trade Volume.
 !
 TRDXID_1   "TRADE EXCH ID"         44  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
@@ -289,11 +288,11 @@ STRIKE_PRC "STRIKE PRICE"          66  NULL        PRICE              17  REAL64
 !
 EXPIR_DATE "EXPIRE DATE"           67  NULL        DATE               11  DATE             4
 !
-! The date on which the future, option or warrant expires.
+! The date on which the instrument expires.
 !
 MATUR_DATE "MATURITY DATE"         68  NULL        DATE               11  DATE             4
 !
-! The date on which a bond matures.
+! The date on which an instrument matures.
 !
 COUPN_RATE "COUPON RATE"           69  NULL        PRICE              17  REAL64           9
 !
@@ -301,8 +300,7 @@ COUPN_RATE "COUPON RATE"           69  NULL        PRICE              17  REAL64
 !
 SETTLE     "SETTLEMENT PRC"        70  NULL        PRICE              17  REAL64           9
 !
-! Settlement price. The official closing price of a futures or option contract set by 
-! the clearing house at the end of the trading day.
+! Settlement price
 !
 DIVIDEND   "DIVIDEND"              71  NULL        PRICE              17  REAL64           9
 !
@@ -406,7 +404,7 @@ LIFE_LOW   "LIFETIME LOW"          95  NULL        PRICE              17  REAL64
 !
 EPYHSTCLOS "PREV YEAR CLOSE"       98  NULL        PRICE              17  REAL64           9
 !
-! The historic close for the issue at the final trading day in the previous calendar 
+! The historical close for the issue at the final trading day in the previous calendar 
 ! year.
 !
 LIMIT_IND  "LIMIT INDICATOR"       99  NULL        ENUMERATED    2 ( 3 )  ENUM             1
@@ -416,9 +414,7 @@ LIMIT_IND  "LIMIT INDICATOR"       99  NULL        ENUMERATED    2 ( 3 )  ENUM  
 !
 TURNOVER   "TURNOVER"             100  NULL        PRICE              17  REAL64           9
 !
-! The daily turnover revenue or value of all shares for either a particular instrument 
-! or an exchange. Currently supplied by New Zealand SE Hong Kong SE and Copenhagen SE. 
-! Cleared during the pre-market clear. The value is scaled according to the field TN
+! Summation of traded value of all trades during single market day
 !
 NEW_LOWS   "NUM NEW LOWS"         101  NULL        INTEGER            15  REAL64           9
 !
@@ -430,9 +426,7 @@ COUPN_DATE "COUPON DATE"          102  NULL        DATE               11  DATE  
 !
 RATING     "BOND RATING"          103  NULL        ENUMERATED    3 ( 4 )  ENUM             1
 !
-! The rating for a bond. For example for US bonds this could be the Standard and 
-! Poor's rating. Where explicitly named rating fields are present in the same record 
-! this field will hold the lowest rating of them all.
+! The rating for an Instrument. Use FID RATING_ID to identify the source of rating
 !
 BOND_TYPE  "BOND TYPE"            104  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
@@ -477,7 +471,7 @@ RATING_ID  "RATING ID"            113  NULL        ENUMERATED    2 ( 3 )  ENUM  
 !
 BID_NET_CH "BID NET CHANGE"       114  NULL        PRICE              17  REAL64           9
 !
-! The difference between the latest bid and the historic closing bid.
+! The difference between the latest bid and the historical closing bid.
 !
 BID_TICK_1 "TICK:BID"             115  NULL        ENUMERATED    2 ( 1 )  ENUM             1
 !
@@ -489,8 +483,8 @@ DAYS_MAT   "DAYS MATURITY"        116  NULL        INTEGER            15  REAL64
 !
 CUM_EX_MKR "CUM/EX MARKER"        117  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! Instrument status field indicating that a corporate action is effective today, 
-! including the type of the corporate action.
+! Cum/ex security marker for capital events such as dividend payments, rights issues, 
+! etc.
 !
 PRC_QL_CD  "PRICE CODE"           118  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
@@ -573,8 +567,7 @@ MID_CLOSE  "MID-PRICE CLOSE"      136  NULL        PRICE              17  REAL64
 !
 TDY_UN_CLS "UNOFFICIAL CLS"       137  NULL        PRICE              17  REAL64           9
 !
-! Today's unofficial closing price as supplied by an exchange such as LIFFE. Cleared 
-! during the pre-market clear.
+! Today's unofficial closing price as supplied by an exchange.
 !
 AM_CLOSE   "AM CLOSE"             138  NULL        PRICE              17  REAL64           9
 PM_CLOSE   "PM CLOSE"             139  NULL        PRICE              17  REAL64           9
@@ -591,7 +584,7 @@ CEDEL_NO   "CEDEL NUMBER"         141  NULL        INTEGER            10  UINT64
 !
 VALOREN_NO "VALOREN NUMBER"       142  NULL        INTEGER            10  UINT64           8
 !
-! Valoren number.  Official code for swiss securities.
+! Valoren number.
 !
 TDY_OF_CLS "OFFICIAL CLS"         143  NULL        PRICE              17  REAL64           9
 !
@@ -780,11 +773,11 @@ CLSEXID    "CLSE XID"             200  NULL        ENUMERATED    3 ( 3 )  ENUM  
 !
 LF_HGH_DAT "LIFE HIGH DATE"       201  NULL        DATE               11  DATE             4
 !
-! Date on which the Lifetime High was reached
+! Date on which the life time high was reached
 !
 LF_LOW_DAT "LIFE LOW DATE"        202  NULL        DATE               11  DATE             4
 !
-! Date on which the Lifetime Low was established.
+! Date on which the life time low was established
 !
 BID_HIGH_1 "TODAY HIGH BID"       203  BID_HIGH_2  PRICE              17  REAL64           9
 !
@@ -973,23 +966,47 @@ ASK_TIME   "ASK TIME"             267  ASK_TIME2   TIME                5  TIME  
 ! Time of best ask quote update.
 !
 ACT_TP_1   "ACT TYPE 1"           270  ACT_TP_2    ENUMERATED    3 ( 2 )  ENUM             1
+!
+! For each of the last activity fields defined in PRIMACT_1 to PRIMACT_5 an associated 
+! activity indicator which indicates the nature of the last activity field.
+!
 ACT_TP_2   "ACT TYPE 2"           271  ACT_TP_3    ENUMERATED    3 ( 2 )  ENUM             1
+!
+! Ripple from ACT_TP_1
+!
 ACT_TP_3   "ACT TYPE 3"           272  ACT_TP_4    ENUMERATED    3 ( 2 )  ENUM             1
+!
+! Ripple from ACT_TP_2
+!
 ACT_TP_4   "ACT TYPE 4"           273  ACT_TP_5    ENUMERATED    3 ( 2 )  ENUM             1
+!
+! Ripple from ACT_TP_3
+!
 ACT_TP_5   "ACT TYPE 5"           274  ACT_TP_6    ENUMERATED    3 ( 2 )  ENUM             1
 !
-! Indicates the nature of the activity in associated primary activity fields PRIMACT_1 
-! to PRIMACT_5
+! Ripple from ACT_TP_4
 !
 SEC_ACT_1  "SECOND ACTIVY 1"      275  SEC_ACT_2   PRICE              17  REAL64           9
-SEC_ACT_2  "SECOND ACTIVY 2"      276  SEC_ACT_3   PRICE              17  REAL64           9
-SEC_ACT_3  "SECOND ACTIVY 3"      277  SEC_ACT_4   PRICE              17  REAL64           9
-SEC_ACT_4  "SECOND ACTIVY 4"      278  SEC_ACT_5   PRICE              17  REAL64           9
-SEC_ACT_5  "SECOND ACTIVY 5"      279  SEC_ACT_6   PRICE              17  REAL64           9
 !
 ! The activity type may involve one or two fields. In the latter case these field 
 ! holds the second half of the most recent activity. SEC_ACT_n is associated with 
 ! PRIMACT_n.
+!
+SEC_ACT_2  "SECOND ACTIVY 2"      276  SEC_ACT_3   PRICE              17  REAL64           9
+!
+! Ripple from SEC_ACT_1
+!
+SEC_ACT_3  "SECOND ACTIVY 3"      277  SEC_ACT_4   PRICE              17  REAL64           9
+!
+! Ripple from SEC_ACT_2
+!
+SEC_ACT_4  "SECOND ACTIVY 4"      278  SEC_ACT_5   PRICE              17  REAL64           9
+!
+! Ripple from SEC_ACT_3
+!
+SEC_ACT_5  "SECOND ACTIVY 5"      279  SEC_ACT_6   PRICE              17  REAL64           9
+!
+! Ripple from SEC_ACT_4
 !
 SC_ACT_TP1 "SEC ACT TYPE 1"       280  SC_ACT_TP2  ENUMERATED    3 ( 2 )  ENUM             1
 SC_ACT_TP2 "SEC ACT TYPE 2"       281  SC_ACT_TP3  ENUMERATED    3 ( 2 )  ENUM             1
@@ -1023,13 +1040,11 @@ ASK_VOLUME "ASK VOLUME"           289  NULL        INTEGER            15  REAL64
 !
 NO_BIDMMKR "NUM BID MMKR 1"       291  NULL        PRICE              17  REAL64           9
 !
-! The number of market-makers currently at the best bid for a particular equity.  
-! Alternatively, used illogically as the number of orders at the best bid.
+! The number of market-makers currently at the best bid.
 !
 NO_ASKMMKR "NUM ASK MMKR 1"       292  NULL        PRICE              17  REAL64           9
 !
-! The number of market-makers currently at the best bid for a particular equity.  
-! Alternatively, used illogically as the number of orders at the best ask.
+! The number of market-makers currently at the best ask.
 !
 BID_MMID1  "BID MMID 1"           293  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 BID_MMID2  "BID MMID 2"           294  NULL        ALPHANUMERIC        4  RMTES_STRING     4
@@ -1066,6 +1081,9 @@ SESSION6   "SESSION 6"            308  NULL        PRICE              17  REAL64
 ! first morning session price. Cleared during the pre-market clear.
 !
 SESS1_FLAG "SESSION 1 FLG"        309  NULL        ALPHANUMERIC        1  RMTES_STRING     1
+!
+! Session 1 Flag.
+!
 SESS2_FLAG "SESSION 2 FLG"        310  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 SESS3_FLAG "SESSION 3 FLG"        311  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 SESS4_FLAG "SESSION 4 FLG"        312  NULL        ALPHANUMERIC        1  RMTES_STRING     1
@@ -1140,11 +1158,11 @@ STOP_LOW   "STOP LOW"             349  NULL        ALPHANUMERIC        1  RMTES_
 !
 YRHIGHDAT  "YEAR HIGH DATE"       350  NULL        DATE               11  DATE             4
 !
-! Date on which the year high as held in the YRHIGH or LOCHIGH field was set.
+! Date on which the year high as held in the YRHIGH FID was set
 !
 YRLOWDAT   "YEAR LOW DATE"        351  NULL        DATE               11  DATE             4
 !
-! Date on which the year low as held in the YRLOW or LOCLOW field was set.
+! Date on which the year low as held in the YRLOW FID was set
 !
 DOM_EX_MKR "DOM/EX MARKER"        352  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 !
@@ -1158,7 +1176,7 @@ DOM_STATUS "DOM STATUS"           353  NULL        ALPHANUMERIC        1  RMTES_
 !
 PBR        "PRICE/BOOK RATIO"     354  NULL        PRICE              17  REAL64           9
 !
-! For Japanese equities the price to book ratio.
+! Price to Book ratio.
 !
 VOL_FLAG   "VOLUME FLAG"          355  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 !
@@ -1188,18 +1206,15 @@ ASK_YIELD  "ASK YIELD"            363  NULL        PRICE              17  REAL64
 !
 OPEN_YLD   "OPEN YIELD"           364  NULL        PRICE              17  REAL64           9
 !
-! The opening yield of the day for Japanese instruments cleared during the pre-market 
-! clear.
+! The opening yield of the day
 !
 HIGH_YLD   "HIGH YIELD"           365  NULL        PRICE              17  REAL64           9
 !
-! The day's highest yield as held in the RT_YIELD_1 field. This is cleared during the 
-! pre-market clear.
+! The day's highest yield.
 !
 LOW_YLD    "LOW YIELD"            366  NULL        PRICE              17  REAL64           9
 !
-! The day's lowest yield as held in the RT_YIELD_1 field. This is cleared during the 
-! pre-market clear.
+! The day's lowest yield.
 !
 HST_CLSYLD "HIST CLOSE YIELD"     367  NULL        PRICE              17  REAL64           9
 !
@@ -1211,24 +1226,22 @@ OPINT_2    "PRV OPEN INT"         368  NULL        INTEGER            15  REAL64
 !
 OPINT_DATE "OPN INT DATE"         369  NULL        DATE               11  DATE             4
 !
-! The date of the open interest value held in the OPINT_1 field. This is derived once 
-! daily.
+! The date of the open interest value held in the OPINT_1 field.
 !
 ISS_AMOUNT "ISSUE AMOUNT"         370  NULL        PRICE              17  REAL64           9
 !
-! The total issue size(in terms of dollar value) of debt instruments issued under a 
+! The total issue size(in terms of dollar value) of an instrument issued under a 
 ! single issue.
 !
 YLD_TICK   "TICK:YIELD"           371  NULL        ENUMERATED    2 ( 1 )  ENUM             1
 !
-! The yield tick - the direction of latest yield from the previous yield. The field is 
-! derived from RT_YIELD_1 and RT_YIELD_2 if the latter is non-zero  or from RT_YIELD_1 
-! and HST_CLSYLD otherwise. If HST_CLSYLD is zero then the field is not calculated.
+! Tick direction for each of the last Yield activity fields defined in RT_YIELD_1 to 
+! RT_YIELD_5; an associated activity indicator which indicates the nature of the last 
+! activity field.
 !
 IRGPRC     "IRG PRICE"            372  NULL        PRICE              17  REAL64           9
 !
-! A cancelled, inserted, retransmitted or irregular price.  Strategically to be used 
-! for "last Ineligble" trades only.
+! Price of an irregular trade
 !
 IRGVOL     "IRG VOLUME"           373  NULL        INTEGER            15  REAL64           9
 !
@@ -1309,15 +1322,27 @@ RSMRNGTP   "RESUMPTION TYPE"      391  NULL        ENUMERATED    3 ( 2 )  ENUM  
 !
 VOL_DATE   "VOLUME DATE"          392  NULL        DATE               11  DATE             4
 !
-! The date when a particular volume occurred  at present that held in HST_VOL.
+! Date associated with volume total in HST_VOL
 !
 PRIMACT_1  "PRIM ACT 1"           393  PRIMACT_2   PRICE              17  REAL64           9
-PRIMACT_2  "PRIM ACT 2"           394  PRIMACT_3   PRICE              17  REAL64           9
-PRIMACT_3  "PRIM ACT 3"           395  PRIMACT_4   PRICE              17  REAL64           9
-PRIMACT_4  "PRIM ACT 4"           396  PRIMACT_5   PRICE              17  REAL64           9
-PRIMACT_5  "PRIM ACT 5"           397  PRIMACT_6   PRICE              17  REAL64           9
 !
 ! Primary last activity fields  the most recent held in PRIMACT_1.
+!
+PRIMACT_2  "PRIM ACT 2"           394  PRIMACT_3   PRICE              17  REAL64           9
+!
+! Ripple from PRIMACT_1
+!
+PRIMACT_3  "PRIM ACT 3"           395  PRIMACT_4   PRICE              17  REAL64           9
+!
+! Ripple from PRIMACT_2
+!
+PRIMACT_4  "PRIM ACT 4"           396  PRIMACT_5   PRICE              17  REAL64           9
+!
+! Ripple from PRIMACT_3
+!
+PRIMACT_5  "PRIM ACT 5"           397  PRIMACT_6   PRICE              17  REAL64           9
+!
+! Ripple from PRIMACT_4
 !
 EQUIV_YLD  "EQUIVALENT YIELD"     398  NULL        PRICE              17  REAL64           9
 !
@@ -1386,13 +1411,11 @@ EXERCISED  "EXERCISED"            412  NULL        INTEGER            15  REAL64
 !
 ORDER_BID  "ORDER BID"            431  NULL        PRICE              17  REAL64           9
 !
-! Generic secondary bid field whose content is further described by the bid flag 
-! O_BID_TONE (FID 1065). For OM type options markets this is the order-book bid.
+! Best BID order price at trade execution.
 !
 ORDER_ASK  "ORDER ASK"            432  NULL        PRICE              17  REAL64           9
 !
-! Generic secondary ask field whose content is further described by the ask flag 
-! O_ASK_TONE (FID 1066). For OM type options markets this is the order-book ask.
+! Best ASK order price at trade execution.
 !
 BEST_BID1  "BEST BID 1"           436  NULL        PRICE              17  REAL64           9
 BEST_BID2  "BEST BID 2"           437  NULL        PRICE              17  REAL64           9
@@ -1409,7 +1432,7 @@ BEST_ASK3  "BEST ASK 3"           443  NULL        PRICE              17  REAL64
 BEST_ASK4  "BEST ASK 4"           444  NULL        PRICE              17  REAL64           9
 BEST_ASK5  "BEST ASK 5"           445  NULL        PRICE              17  REAL64           9
 !
-! The five best ask price levels with the best in BEST_BID1. Note that these fields 
+! The five best ask price levels with the best in BEST_ASK1. Note that these fields 
 ! are not rippled.
 !
 IDN_SERNO  "IDN SERNO"            450  NULL        BINARY              4  UINT64           3
@@ -1591,12 +1614,12 @@ DEAL_TYPE  "DEAL TYPE"            514  NULL        ENUMERATED    5 ( 8 )  ENUM  
 PERIOD1    "PERIOD 1"             515  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 !
 ! Period 1. The period between the date of the deal and when the transaction will take 
-! place or when the first and second legs of the transaction will take place.
+! place or when the first leg of the transaction will take place.
 !
 PERIOD2    "PERIOD 2"             516  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 !
 ! Period 2. The period between the date of the deal and when the transaction will take 
-! place or when the first and second legs of the transaction will take place.
+! place or when the second leg of the transaction will take place.
 !
 CCY1       "CCY 1"                517  NULL        ALPHANUMERIC        3  RMTES_STRING     3
 CCY2       "CCY 2"                518  NULL        ALPHANUMERIC        3  RMTES_STRING     3
@@ -1718,8 +1741,7 @@ BRATE_USD  "BASE RT CCY USD"      543  NULL        ALPHANUMERIC       17  RMTES_
 !
 BASE_CCY   "BASE CURRENCY"        544  NULL        ALPHANUMERIC        3  RMTES_STRING     3
 !
-! Base Currency. The SWIFT code of the currency chosen to be the bank's local base 
-! currency (see 543).
+! Base Currency.
 !
 CVOL_P1_C2 "CALCVOL P1 CCY2"      545  NULL        ALPHANUMERIC       17  RMTES_STRING    17
 !
@@ -2408,6 +2430,9 @@ LEG2_RIC   "LEG2 RIC"             797  NULL        ALPHANUMERIC       14  ASCII_
 ! The RIC associated with the second leg of a spread.
 !
 LEG1_TYPE  "LEG1 TYPE"            798  NULL        ENUMERATED    3 ( 4 )  ENUM             1
+!
+! The underlying contract type associated with the Nth leg.
+!
 LEG2_TYPE  "LEG2 TYPE"            799  NULL        ENUMERATED    3 ( 4 )  ENUM             1
 !
 ! The underlying contract type of the first and second legs respectively of a spread.
@@ -2690,9 +2715,8 @@ VALUE_TM5  "VALUE TIME 5"         884  VALUE_TM6   TIME                5  TIME  
 !
 MOD_DURTN  "MOD DURTN"            885  NULL        PRICE              17  REAL64           9
 !
-! Modified duration a measure of the sensitivity of a bond's price to changes in yield 
-! (e.g. if a bond has a modified duration of 4 and a price of 100 for every 10 basis 
-! points change in yield the price would change inversely by 0.4).
+! Modified Duration. A measure of the sensitivity of a bond's price to changes in 
+! yield.
 !
 PRC_VOLTY  "PRC VOLTY"            886  NULL        PRICE              17  REAL64           9
 !
@@ -2715,8 +2739,7 @@ THEO_HIGH  "THEO HIGH"            890  NULL        PRICE              17  REAL64
 !
 THEO_LOW   "THEO LOW"             891  NULL        PRICE              17  REAL64           9
 !
-! The theoretical low value. For Dow Jones averages this is calculated by DJ and is 
-! based on the end-of-day lows for all components of the average.
+! The theoretical low value.
 !
 THEO_YRHI  "THEO YRHI"            892  NULL        PRICE              17  REAL64           9
 THEO_YRLO  "THEO YRLO"            893  NULL        PRICE              17  REAL64           9
@@ -2912,7 +2935,7 @@ SESS1_HFLG "SESS1 HFLG"           948  NULL        ALPHANUMERIC        1  RMTES_
 !
 SESS1_LFLG "SESS1 LFLG"           949  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 !
-! Flags for the first session low. 
+! Flag for the first session low.
 !
 SESS2_HFLG "SESS2 HFLG"           950  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 !
@@ -2920,17 +2943,19 @@ SESS2_HFLG "SESS2 HFLG"           950  NULL        ALPHANUMERIC        1  RMTES_
 !
 SESS2_LFLG "SESS2 LFLG"           951  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 !
-! Flags for the second session low. 
+! Flag for the second session low.
 !
 PCT_VOLUME "PCT VOLUME"           952  NULL        PRICE              17  REAL64           9
 !
 ! Volume on a single market expressed as a percentage of consolidated volume. 
 !
 WTD_AVE1   "WTD AVE1"             953  NULL        PRICE              17  REAL64           9
+!
+! Weighted average field
+!
 WTD_AVE2   "WTD AVE2"             954  NULL        PRICE              17  REAL64           9
 !
-! Weighted average fields. For Instinet WTD_AVE1 is the average volume-weighted bid 
-! price whilst WTD_AVE2 is the average volume-weighted ask price.
+! Secondary weighted average field
 !
 QTE_CNT1   "QTE CNT1"             955  NULL        PRICE              17  REAL64           9
 QTE_CNT2   "QTE CNT2"             956  NULL        PRICE              17  REAL64           9
@@ -2965,7 +2990,7 @@ OPEN_PRC2  "OPEN PRC2"            961  NULL        PRICE              17  REAL64
 OPEN_TYPE  "OPEN TYPE"            962  NULL        ENUMERATED    3 ( 2 )  ENUM             1
 !
 ! Open fields indicator identifying the type of open prices held in the fields 
-! OPEN_PRC/OPEN_PRC2.
+! OPEN_PRC.
 !
 HST_CLOSE2 "HST CLOSE2"           963  NULL        PRICE              17  REAL64           9
 !
@@ -3014,19 +3039,19 @@ ACT_FLAG1  "ACT FLAG1"            975  ACT_FLAG2   ALPHANUMERIC        1  RMTES_
 !
 ACT_FLAG2  "ACT FLAG2"            976  ACT_FLAG3   ALPHANUMERIC        1  RMTES_STRING     1
 !
-! Flag field qualifying the primary activity field PRIMACT_2
+! Ripple from ACT_FLAG1
 !
 ACT_FLAG3  "ACT FLAG3"            977  ACT_FLAG4   ALPHANUMERIC        1  RMTES_STRING     1
 !
-! Flag field qualifying the primary activity field PRIMACT_3.
+! Ripple from ACT_FLAG2
 !
 ACT_FLAG4  "ACT FLAG4"            978  ACT_FLAG5   ALPHANUMERIC        1  RMTES_STRING     1
 !
-! Flag field qualifying the primary activity field PRIMACT_4.
+! Ripple from ACT_FLAG3
 !
 ACT_FLAG5  "ACT FLAG5"            979  ACT_FLAG6   ALPHANUMERIC        1  RMTES_STRING     1
 !
-! Flag field qualifying the primary activity field PRIMACT_5.
+! Ripple from ACT_FLAG4
 !
 SC_AFLAG1  "SC AFLAG1"            980  SC_AFLAG2   ALPHANUMERIC        1  RMTES_STRING     1
 !
@@ -3157,7 +3182,7 @@ IRGSELL    "IRGSELL"             1020  NULL        ALPHANUMERIC        4  RMTES_
 !
 SEQNUM     "SEQNUM"              1021  NULL        INTEGER            15  REAL64           9
 !
-! The message sequence number, used for trade events. 
+! This field contains the message sequence number.
 !
 PRNTYP     "PRNTYP"              1022  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 !
@@ -3283,7 +3308,7 @@ EXCHTIM    "EXCHANGE TIME"       1067  NULL        TIME_SECONDS        8  TIME  
 CONDCODE_1 "CONDITION CDE 1"     1068  NULL        ALPHANUMERIC        2  RMTES_STRING     2
 CONDCODE_2 "CONDITION CDE 2"     1069  NULL        ALPHANUMERIC        2  RMTES_STRING     2
 !
-! General two-character condition code field.
+! Secondary native trade condition code field for the last eligible trades.
 !
 COLID_1    "COLID 1"             1070  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 COLID_2    "COLID 2"             1071  NULL        ENUMERATED    3 ( 3 )  ENUM             1
@@ -3309,8 +3334,7 @@ BETA_VAL   "BETA VALUE"          1077  NULL        PRICE              17  REAL64
 !
 CONV_FAC   "CONVRSION FACTR"     1078  NULL        PRICE              17  REAL64           9
 !
-! Conversion factor. In the commodities market this is used to convert between weights 
-! and volumes.
+! Conversion factor.
 !
 BYTE_BMAP  "BIT MAP"             1079  NULL        INTEGER             3  UINT64           8
 !
@@ -3432,7 +3456,7 @@ CLOSE2_TP  "SECOND CLS TYPE"     1341  NULL        ENUMERATED    3 ( 1 )  ENUM  
 !
 HSTCL2_DAT "SECOND CLS DATE"     1342  NULL        DATE               11  DATE             4
 !
-! Date of the third close price HST_CLOSE2 FID 963.
+! Date of the secondary close price as held in HST_CLOSE2.
 !
 HST_CLOSE3 "THIRD CLS VALUE"     1343  NULL        PRICE              17  REAL64           9
 !
@@ -3567,8 +3591,7 @@ CLOSE_TIME "MRKT CLOSE TIME"     1392  NULL        TIME_SECONDS        8  TIME  
 !
 AVERG_PRC  "WGHTD AVGE PRCE"     1393  NULL        PRICE              17  REAL64           9
 !
-! Contains either the non-weighted average price of all trades throughout the day or 
-! the average price of the most recent trade if that trade is bundled.
+! Average Price
 !
 FLOOR_PRC  "FLOOR PRICE"         1394  NULL        PRICE              17  REAL64           9
 !
@@ -3615,7 +3638,7 @@ ODD_DEAL   "NO.ODD LOT DLS"      1403  NULL        INTEGER            15  REAL64
 !
 ODD_VOLUME "VOL ODD LOT DLS"     1404  NULL        INTEGER            15  REAL64           9
 !
-! The volume of odd lot trade deals done so far.
+! Accumulated Odd Trade Volume.
 !
 ODD_VALUE  "VAL ODD LOT DLS"     1405  NULL        INTEGER            15  REAL64           9
 !
@@ -3671,7 +3694,9 @@ STOCK_PRC  "STOCK PRICE"         1420  NULL        PRICE              17  REAL64
 !
 CONV_COST  "CONVERSION COST"     1421  NULL        PRICE              17  REAL64           9
 !
-! Conversion cost.
+! Conversion cost, also conversion premium, the price paid above the intrinsic price 
+! of the contract. The intrinsic price is the difference between the strike price and 
+! the market price of the underlying instrument.
 !
 COLID_6    "COLID 6"             1422  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 COLID_7    "COLID 7"             1423  NULL        ENUMERATED    3 ( 3 )  ENUM             1
@@ -3721,8 +3746,9 @@ ASKSIZ_5   "ASK SIZE 5"          1445  NULL        INTEGER            15  REAL64
 !
 CONVEXITY  "CONVEXITY"           1446  NULL        PRICE              17  REAL64           9
 !
-! A measure of the sensitivity of a bond's price to a change in yield. The calculation 
-! is derived from the difference between a straight line and a convex curve.
+! Convexity Mid value. A measure of the sensitivity of a bond's price to a change in 
+! yield. The calculation is derived from the difference between a straight line and a 
+! convex curve.
 !
 AUCTN_DATE "AUCTION DATE"        1447  NULL        DATE               11  DATE             4
 !
@@ -3801,7 +3827,9 @@ INC_DIFF   "INCM DIFFERENTL"     1463  NULL        PRICE              17  REAL64
 !
 WNT_GEAR   "SHR/WNT PRC RAT"     1464  NULL        PRICE              17  REAL64           9
 !
-! The ratio of share price to warrant price when expressed in the same currency.
+! The ratio of share price to warrant price when expressed in the same currency. Also 
+! termed warrant leverage ratio. Calculation formula, (WNT_GEAR = Underlying Price / 
+! (Warrant Price x Conversion Ratio))
 !
 ADJUST_CLS "ADJUSTED CLOSE"      1465  NULL        PRICE              17  REAL64           9
 !
@@ -3988,7 +4016,7 @@ FOR_AVAIL  "FOREIGN AVLBLTY"     1521  NULL        PRICE              17  REAL64
 !
 FOR_PREM   "FOREIGN PREMIUM"     1522  NULL        PRICE              17  REAL64           9
 !
-! Foreign premium
+! Price premium for the same instrument traded on the foreign (investors') board.
 !
 ROW66_1    "ROW66 1"             1523  NULL        ALPHANUMERIC       66  RMTES_STRING    66
 ROW66_2    "ROW66 2"             1524  NULL        ALPHANUMERIC       66  RMTES_STRING    66
@@ -4188,7 +4216,7 @@ CTRY_ISSUE "CNTRY OF ISSUE"      1652  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 CTRY_ISSR  "CNTRY OF ISSUER"     1653  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
-! The jurisdiction which the head office of the legal entity(issuer) is reside in
+! Country of Issuer.
 !
 RATING_3   "RATING 3"            1654  NULL        ENUMERATED    3 ( 4 )  ENUM             1
 !
@@ -4211,18 +4239,28 @@ ACCR_DAYS  "DAYS ACCRUED"        1658  NULL        INTEGER            15  REAL64
 ! The number of days that interest has accrued towards the next coupon payment.
 !
 THRD_BUY_Q "BUY QUEUE 3"         1659  NULL        INTEGER            15  REAL64           9
+!
+! The third buy-queue length.
+!
 FRTH_BUY_Q "BUY QUEUE 4"         1660  NULL        INTEGER            15  REAL64           9
+!
+! The fourth buy-queue length.
+!
 FFTH_BUY_Q "BUY QUEUE 5"         1661  NULL        INTEGER            15  REAL64           9
 !
-! The third, fourth and fifth buy-queue length or the number of orders at the third, , 
-! fourth and fifth best bid price level
+! The fifth buy-queue length.
 !
 THRD_ASK_Q "ASK QUEUE 3"         1662  NULL        INTEGER            15  REAL64           9
+!
+! The third ask-queue length.
+!
 FRTH_ASK_Q "ASK QUEUE 4"         1663  NULL        INTEGER            15  REAL64           9
+!
+! The fourth ask-queue length.
+!
 FFTH_ASK_Q "ASK QUEUE 5"         1664  NULL        INTEGER            15  REAL64           9
 !
-! The third, fourth and fifth ask-queue length or the number of orders at the third, 
-! fourth and fifth best ask price level.
+! The fifth ask-queue length.
 !
 GN_TX20_1  "GN TXT20 1"          1665  NULL        ALPHANUMERIC       20  RMTES_STRING    20
 GN_TX20_2  "GN TXT20 2"          1666  NULL        ALPHANUMERIC       20  RMTES_STRING    20
@@ -4301,7 +4339,7 @@ SL_PRIMFLG "SL PRIM FLAG"        1703  NULL        ALPHANUMERIC        1  RMTES_
 !
 ACVOL_TIM  "ACCUM VOL TIME"      1704  NULL        TIME                5  TIME             8
 !
-! Time when accumulated volume was updated. Minutes Granularity
+! Time when accumulated volume was updated.
 !
 SL_ACTTIME "SL ACC VOL TIME"     1705  NULL        TIME                5  TIME             8
 SL_HSTCLS  "SL HIST CLOSE"       1706  NULL        PRICE              17  REAL64           9
@@ -4516,9 +4554,12 @@ CNV_PTY_NO "CNV PARITY NO"       1786  NULL        INTEGER            15  REAL64
 ! Conversion parity number.
 !
 CP_ADJ_FCT "CAP ADJUST FCTR"     1787  NULL        PRICE              17  REAL64           9
+!
+! Capital adjustment factor
+!
 CP_ADJ_DAT "CAP ADJUST DATE"     1788  NULL        DATE               11  DATE             4
 !
-! Capital adjustment factor and date.
+! Capital adjustment factor date.
 !
 GV3_DATE   "GV3 DATE"            1789  NULL        DATE               11  DATE             4
 !
@@ -5085,6 +5126,9 @@ CCHDATE_6  "CCHDATE 6"           2114  NULL        DATE               11  DATE  
 ! Capital change date the latest and previous
 !
 ISSDATE_1  "ISSDATE 1"           2115  NULL        DATE               11  DATE             4
+!
+! Latest issue date for the security.
+!
 ISSDATE_2  "ISSDATE 2"           2116  NULL        DATE               11  DATE             4
 ISSDATE_3  "ISSDATE 3"           2117  NULL        DATE               11  DATE             4
 ISSDATE_4  "ISSDATE 4"           2118  NULL        DATE               11  DATE             4
@@ -5226,7 +5270,7 @@ TRAD_ID    "TRADE ID"            2157  NULL        ALPHANUMERIC        2  RMTES_
 !
 MRGN_ID    "MARGIN ID"           2158  NULL        ALPHANUMERIC        2  RMTES_STRING     2
 !
-! Indicator to clarify type for margin reported information.
+! Indicator to clarify margin type.
 !
 BOND_NO    "ISSUE NO BOND"       2159  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
@@ -5421,7 +5465,7 @@ ESPRD_TSRY "SPRD TO TREASURY"    2212  NULL        PRICE              17  REAL64
 !
 TSRY_BENCH "TREASURY BENCHMK"    2213  NULL        PRICE              17  REAL64           9
 !
-! The U.S. Treasury Benchmark. Comparable average life Treasury.
+! Treasury Benchmark price.
 !
 PRC_DURTN  "PRICE DURATION"      2214  NULL        PRICE              17  REAL64           9
 !
@@ -5829,9 +5873,12 @@ MKT_VOLT   "MARKET VOLATILITY"   2330  NULL        PRICE              17  REAL64
 ! Market volatility.
 !
 TRADE_CNT1 "NON BLK TRAD CNT1"   2331  NULL        INTEGER            15  REAL64           9
+!
+! Non-block trade count - first sessions
+!
 TRADE_CNT2 "NON BLK TRAD CNT2"   2332  NULL        INTEGER            15  REAL64           9
 !
-! Non-block trade count first and second sessions
+! Non-block trade count - second sessions
 !
 BLKCNT_2   "BLOCK TRADE CNT 2"   2333  NULL        INTEGER            15  REAL64           9
 !
@@ -5843,7 +5890,7 @@ BLKUNIT    "NUM SHRS PER BLK"    2334  NULL        INTEGER            15  REAL64
 !
 THEO_OPEN  "THEORETICAL OPEN"    2335  NULL        PRICE              17  REAL64           9
 !
-! Theoretical open. Initially used for Dow Jones Indices.
+! Theoretical open price
 !
 GV11_FLAG  "GV11 FLAG"           2336  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 GV12_FLAG  "GV12 FLAG"           2337  NULL        ALPHANUMERIC        1  RMTES_STRING     1
@@ -6115,7 +6162,7 @@ SLOT_CMPND "SL COMP YIELD"       2455  NULL        PRICE              17  REAL64
 !
 SLOT_CMPNC "SL COMP YLD NCH"     2456  NULL        PRICE              17  REAL64           9
 !
-! Compound yield net change for TSE JGB small lot.
+! Compound yield net change for small lot instruments.
 !
 SL_HCCMP   "SL COMP YLD HCL"     2457  NULL        PRICE              17  REAL64           9
 !
@@ -6477,8 +6524,7 @@ LSTTRDDATE "LST TR.DT CNTRCT"    2725  NULL        DATE               11  DATE  
 !
 ATM_FLAG   "AT THE MONEY FLG"    2726  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 !
-! Intrinsic value flag for an instruments, the possible value are; "A" - At-the-money, 
-! "I" - In-the-money, and "O" - Out-of-the-money
+! At the Money Flag.
 !
 AM_RANGE   "PRC RNG AM SESSN"    2727  NULL        PRICE              17  REAL64           9
 !
@@ -6995,9 +7041,8 @@ COLLA_TYPE "COLLATERAL TYPE"     2966  NULL        ALPHANUMERIC       10  RMTES_
 !
 DENOM_INC  "DENOM INCREMENT"     2967  NULL        INTEGER            15  REAL64           9
 !
-! Denomination Increment. The minimum incremental amount of the bond's face value that 
-! can be purchased (when the amount purchased is restricted to be a minimum 
-! denomination plus any multiple of the denomination increment).
+! Denomination Increment. The minimum incremental amount of the instrument's face 
+! value or minimum traded value.
 !
 EXCH_RATE  "FLOAT EXCH RATE"     2968  NULL        PRICE              17  REAL64           9
 !
@@ -7128,7 +7173,7 @@ RATING_ID5 "CRD RAT AGENCY 5"    2998  NULL        ENUMERATED    2 ( 3 )  ENUM  
 !
 RDM_AMT    "REDEMPTION AMNT"     2999  NULL        PRICE              17  REAL64           9
 !
-! The redemption amount for the same instrument from the previous auction.
+! Redemption Amount.
 !
 RDM_CUR    "REDEMPTION CURR"     3000  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
@@ -7170,7 +7215,7 @@ VAL_DT_RUL "VALUE DATE RULE"     3008  NULL        ALPHANUMERIC       20  RMTES_
 !
 FIN_CPN_DT "FINAL COUPON DAT"    3009  NULL        DATE               11  DATE             4
 !
-! The final coupon date before redemption.
+! The final coupon date
 !
 TAX_RATE   "LOCAL TAX RATE"      3010  NULL        PRICE              17  REAL64           9
 !
@@ -7787,16 +7832,28 @@ BC_100K    "BC 100K"             3249  NULL        INTEGER            15  REAL64
 ! Number of block transactions above 100K shares.
 !
 PMA_50D    "PMA 50D"             3250  NULL        PRICE              17  REAL64           9
+!
+! 50 Day Price Moving Average
+!
 PMA_150D   "PMA 150D"            3251  NULL        PRICE              17  REAL64           9
+!
+! 150 Day Price Moving Average
+!
 PMA_200D   "PMA 200D"            3252  NULL        PRICE              17  REAL64           9
 !
-! Price Moving Averages
+! 200 Day Price Moving Average
 !
 VMA_10D    "VMA 10D"             3253  NULL        INTEGER            15  REAL64           9
+!
+! 10 Day Volume Moving Average
+!
 VMA_25D    "VMA 25D"             3254  NULL        INTEGER            15  REAL64           9
+!
+! 25 Day Volume Moving Average
+!
 VMA_50D    "VMA 50D"             3255  NULL        INTEGER            15  REAL64           9
 !
-! Volume Moving Averages
+! 50 Day Volume Moving Average
 !
 OPN_NETCH  "OPN NET CH"          3256  NULL        PRICE              17  REAL64           9
 !
@@ -7864,11 +7921,11 @@ ASIA_HI_TM "TIME OF ASIA HIGH"   3271  NULL        TIME                5  TIME  
 !
 ASIA_HIGH  "HIGH AT ASIA TRADE"  3272  NULL        PRICE              17  REAL64           9
 !
-! FX and Money high price for the Tokyo trading session
+! FX and Money high price for the Asia trading session
 !
 ASIA_LOW   "LOW AT ASIA TRADE"   3273  NULL        PRICE              17  REAL64           9
 !
-! FX and Money low price for the Tokyo trading session
+! FX and Money low price for the Asia trading session
 !
 ASIA_LW_TM "TIME OF ASIA LOW"    3274  NULL        TIME                5  TIME             8
 !
@@ -7885,7 +7942,7 @@ ASIA_OP_TM "TIME AT ASIA MO"     3276  NULL        TIME                5  TIME  
 !
 ASIA_OPEN  "PRICE AT ASIA MO"    3277  NULL        PRICE              17  REAL64           9
 !
-! FX and Money open price for the Tokyo trading session
+! FX and Money open price for the Asia trading session
 !
 EURO_CL_DT "DATE OF EURO CL"     3278  NULL        DATE               11  DATE             4
 !
@@ -7903,11 +7960,11 @@ EURO_HI_TM "TIME OF EURO HIGH"   3280  NULL        TIME                5  TIME  
 !
 EURO_HIGH  "HIGH AT EURO TRADE"  3281  NULL        PRICE              17  REAL64           9
 !
-! FX and Money high price for the London trading session
+! FX and Money high price for the European market hours
 !
 EURO_LOW   "LOW AT EURO TRADE"   3282  NULL        PRICE              17  REAL64           9
 !
-! FX and Money low price for the London trading session
+! FX and Money low price during the European market hours
 !
 EURO_LW_TM "TIME OF EURO LOW"    3283  NULL        TIME                5  TIME             8
 !
@@ -7924,7 +7981,7 @@ EURO_OP_TM "TIME AT EURO MO"     3285  NULL        TIME                5  TIME  
 !
 EURO_OPEN  "PRICE AT EURO MO"    3286  NULL        PRICE              17  REAL64           9
 !
-! FX and Money open price for the London trading session
+! FX and Money open price from the European market hours
 !
 US_CL_DT   "DATE OF US CL"       3287  NULL        DATE               11  DATE             4
 !
@@ -7942,11 +7999,11 @@ US_HI_TM   "TIME OF US HIGH"     3289  NULL        TIME                5  TIME  
 !
 US_HIGH    "HIGH AT US TRADE"    3290  NULL        PRICE              17  REAL64           9
 !
-! FX and Money high price for the New York trading session
+! FX and Money high price for the Americas trading session
 !
 US_LOW     "LOW AT US TRADE"     3291  NULL        PRICE              17  REAL64           9
 !
-! FX and Money low price for the New York trading session
+! FX and Money low price for the Americas trading session
 !
 US_LW_TM   "TIME OF US LOW"      3292  NULL        TIME                5  TIME             8
 !
@@ -7963,7 +8020,7 @@ US_OP_TM   "TIME AT US MO"       3294  NULL        TIME                5  TIME  
 !
 US_OPEN    "PRICE AT US MO"      3295  NULL        PRICE              17  REAL64           9
 !
-! FX and Money open price for the New York trading session
+! FX and Money open price for the Americas trading session
 !
 ASK_SPREAD "ASK SPREAD"          3296  ASK_SPRD_2  PRICE              17  REAL64           9
 !
@@ -8002,7 +8059,8 @@ BID_SPREAD "BID SPREAD"          3303  BID_SPRD_2  PRICE              17  REAL64
 !
 BMK_SPD    "BENCHMARK SPREAD"    3304  NULL        PRICE              17  REAL64           9
 !
-! The spread in basis points between the yield on a bond and it's nearest benchmark.
+! The spread in basis points between the yield on an instrument and its nearest 
+! benchmark.
 !
 BPV        "BASIS POINT VALUE"   3305  NULL        PRICE              17  REAL64           9
 !
@@ -8018,11 +8076,11 @@ CASHINLIEU "CASH IN LIEU"        3307  NULL        PRICE              17  REAL64
 !
 CLASS_CODE "INSTRUMENT CLASS"    3308  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 !
-! Instrument classification
+! Instrument Industry classification
 !
 CLEAN_PRC  "CLEAN PRICE"         3309  CLEAN_PRC2  PRICE              17  REAL64           9
 !
-! Price excluding accrued interest.
+! Clean Price Bid. Price excluding accrued interest.
 !
 CLOSE_YLD2 "SECOND CLOSE YLD"    3310  NULL        PRICE              17  REAL64           9
 !
@@ -8121,8 +8179,7 @@ HANA       "HANA"                3338  NULL        INTEGER            15  REAL64
 !
 HIGH_YLD2  "SECOND HIGH YLD"     3339  NULL        PRICE              17  REAL64           9
 !
-! Second High yield field (ass to HIGH_YLD) for quotes involving more than one High 
-! yield field
+! Second High yield field
 !
 INCOME_DIS "INCOME DISTRIB"      3340  NULL        PRICE              17  REAL64           9
 !
@@ -8151,8 +8208,7 @@ LCAP_GAIN  "LONGTERM CAP GAIN"   3346  NULL        PRICE              17  REAL64
 !
 LOW_YLD2   "SECOND LOW YLD"      3347  NULL        PRICE              17  REAL64           9
 !
-! Second Low yield field (ass to LOW_YLD) for quotes involving more than one Low yield 
-! field
+! Second Low yield field
 !
 LT_RETURN  "LONGTERM RETURN"     3348  NULL        PRICE              17  REAL64           9
 !
@@ -8247,11 +8303,20 @@ PAR_VALUE  "PAR VALUE"           3377  NULL        PRICE              17  REAL64
 ! Par value
 !
 PCTCHG_3M  "PCT CHNG 3 MON"      3378  NULL        PRICE              17  REAL64           9
+!
+! 3-Month Percentage Change
+!
 PCTCHG_6M  "PCT CHNG 6 MON"      3379  NULL        PRICE              17  REAL64           9
+!
+! 6-Month Percentage Change
+!
 PCTCHG_MTD "PCT CHG MTD"         3380  NULL        PRICE              17  REAL64           9
+!
+! Month-To-Date Percentage Change
+!
 PCTCHG_YTD "PCT CHG YTD"         3381  NULL        PRICE              17  REAL64           9
 !
-! Percentage change over various periods
+! Year-To-Date Percentage Change
 !
 PCTCHG_TRT "PCT CHG TOT RET"     3382  NULL        PRICE              17  REAL64           9
 !
@@ -8279,7 +8344,10 @@ RANK       "RANK"                3387  NULL        ALPHANUMERIC       12  RMTES_
 !
 REC_DATE   "RECORD DATE"         3388  NULL        DATE               11  DATE             4
 !
-! Record date.
+! Record Date: The date established by an issuer of a security for the purpose of 
+! determining the holders who are entitled to receive a dividend or distribution. On 
+! the record date, a company looks to see who its shareholders or holders of record 
+! are.
 !
 REF_ASSET  "REF ASSET"           3389  NULL        ALPHANUMERIC       21  RMTES_STRING    21
 !
@@ -8397,12 +8465,24 @@ OR_RNK_RUL "ORDER RANK RULE"     3425  NULL        ENUMERATED    5 ( 4 )  ENUM  
 ! visual display of the depth of market information as published by the venue.
 !
 ORDER_ID   "ORDER ID"            3426  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Order ID
+!
 ORDER_PRC  "ORDER PRICE"         3427  NULL        PRICE              17  REAL64           9
+!
+! The Price of the order.
+!
 ORDER_SIDE "ORDER SIDE"          3428  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Order Side
+!
 ORDER_SIZE "ORDER SIZE"          3429  NULL        INTEGER            15  REAL64           9
+!
+! Order size - the quantity of the order.
+!
 NO_ORD     "NUMBER OF ORDERS"    3430  NULL        INTEGER            15  UINT64           8
 !
-! Order details
+! The number of orders in an orderbook row
 !
 LOT_SIZE2  "LOT SIZE 2"          3431  NULL        PRICE              17  REAL64           9
 !
@@ -8444,16 +8524,19 @@ CLOSE_IV   "CLOSE IV"            3438  NULL        ALPHANUMERIC        7  RMTES_
 !
 52W_HDAT   "52 WK HIGH DATE"     3448  NULL        DATE               11  DATE             4
 !
-! Indicator set when High Price breaches the current rolling 52 week high price
+! Date on which the high price breaches the current rolling 52 week high
 !
 52W_HIND   "52 WEEK HIGH IND"    3449  NULL        ENUMERATED    2 ( 1 )  ENUM             1
 !
-! Indicates todays high is higher than the current Rolling 52 week High Price 
+! Indicates today's high is higher than the current Rolling 52 week High Price
 !
 52W_LDAT   "52 WK LOW DATE"      3450  NULL        DATE               11  DATE             4
+!
+! Date on which the low price breaches the current rolling 52 week low
+!
 52W_LIND   "52 WEEK LOW IND"     3451  NULL        ENUMERATED    2 ( 1 )  ENUM             1
 !
-! Indicator set when Low Price breaches the current rolling 52 week low price
+! Indicates today's low is lower than the current Rolling 52 week Low Price
 !
 PRV_52WHI  "PRV 52 WK HIGH"      3452  NULL        PRICE              17  REAL64           9
 !
@@ -8676,7 +8759,7 @@ AM_CLS     "AM CLS"              3564  NULL        PRICE              17  REAL64
 !
 AM_CLS_FLG "AM CLS FLG"          3565  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Flag of AM close
+! Flag for AM close in a multi-session venue
 !
 AM_TNOV    "AM TURNOVER"         3566  NULL        PRICE              17  REAL64           9
 !
@@ -8801,7 +8884,7 @@ CRSTRD_SIZ "CROSS TRD SIZE"      3599  NULL        INTEGER            15  REAL64
 !
 DERV_CHN   "DERIVATIVE CHAIN"    3600  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
-! Derivative Chain <0#xxxx. JP>  
+! Derivative Chain
 !
 DIVIDEND_1 "DIVIDEND 1"          3601  NULL        PRICE              17  REAL64           9
 !
@@ -8817,7 +8900,7 @@ DIVIDEND_3 "DIVIDEND 3"          3603  NULL        PRICE              17  REAL64
 !
 DOM_CHN    "DOM CHAIN"           3604  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
-! DOM Chain <0#xxxx. Q>  
+! DOM Chain
 !
 DPS_DATE_1 "DPS DATE 1"          3605  NULL        DATE               11  DATE             4
 !
@@ -9089,7 +9172,7 @@ LST_TRD_IV "LAST TRADED IV"      3674  NULL        ALPHANUMERIC        7  RMTES_
 !
 LST_TRD_PR "LST TRD PR"          3675  NULL        PRICE              17  REAL64           9
 !
-! The last eligible trade price of the day.trading.
+! The last eligible trade price of the day.
 !
 LT_CL_DATE "LTS CLS PRC DATE"    3676  NULL        DATE               11  DATE             4
 !
@@ -9100,6 +9183,9 @@ LT_CLS_PRC "LATEST CLS PRC"      3677  NULL        PRICE              17  REAL64
 ! Latest Closing Price 
 !
 MA5        "MOVING AVG 5 DAY"    3678  NULL        PRICE              17  REAL64           9
+!
+! 5 Day Price Moving Average
+!
 MA10       "MOVING AVG 10 DAY"   3679  NULL        PRICE              17  REAL64           9
 MA30       "MOVING AVG 30 DAY"   3680  NULL        PRICE              17  REAL64           9
 MA60       "MOVING AVG 60 DAY"   3681  NULL        PRICE              17  REAL64           9
@@ -9169,7 +9255,7 @@ NETBUY_VOL "NET BUY VOLUME"      3699  NULL        INTEGER            15  REAL64
 !
 NETCHG_1W  "PRICE NETCHG 1W"     3700  NULL        PRICE              17  REAL64           9
 !
-! Net change between the latest value and 1 week ago value
+! 1-Week Net Change
 !
 NETCHG_2W  "PRICE NETCHG 2W"     3701  NULL        PRICE              17  REAL64           9
 !
@@ -9177,19 +9263,19 @@ NETCHG_2W  "PRICE NETCHG 2W"     3701  NULL        PRICE              17  REAL64
 !
 NETCHG_1M  "PRICE NETCHG 1M"     3702  NULL        PRICE              17  REAL64           9
 !
-! Net change between the latest value and 1 month ago value
+! 1-Month Net Change
 !
 NETCHG_3M  "PRICE NETCHG 3M"     3703  NULL        PRICE              17  REAL64           9
 !
-! Net change between the latest value and 3 month ago value
+! 3-Month Net Change
 !
 NETCHG_6M  "PRICE NETCHG 6M"     3704  NULL        PRICE              17  REAL64           9
 !
-! Net change between the latest value and 6 month ago value
+! 6-Month Net Change
 !
 NETCHG_1Y  "PRICE NETCHG 1Y"     3705  NULL        PRICE              17  REAL64           9
 !
-! Net change between the latest value and 1 year ago value
+! 1-Year Net Change
 !
 NEWS_TIME1 "NEWS TIME1"          3706  NULL        TIME_SECONDS        8  TIME             8
 !
@@ -9425,11 +9511,11 @@ SES2_OTIM1 "SESSION2 OPEN TIM1"  3766  NULL        TIME_SECONDS        8  TIME  
 !
 SESS_VWAP1 "SESS VWAP1"          3767  NULL        PRICE              17  REAL64           9
 !
-! Session VWAP for single issue trade
+! Session VWAP for the first trading session
 !
 SESS_VWAP2 "SESS VWAP2"          3768  NULL        PRICE              17  REAL64           9
 !
-! Session VWAP for fixed trade
+! Session VWAP for the second trading session
 !
 SH_STP_RTO "SHORT STOP RATIO"    3769  NULL        PRICE              17  REAL64           9
 !
@@ -9528,7 +9614,7 @@ STOCK      "PHYSICAL STOCK"      3792  NULL        PRICE              17  REAL64
 !
 STRIKE_PR2 "STRIKE PRICE 2"      3793  NULL        PRICE              17  REAL64           9
 !
-! Second strike reference rate for options
+! Second strike reference rate for options, warrants or other derivatives
 !
 SWP_SPRD1  "SPRD TO TRSURY ASK"  3794  NULL        PRICE              17  REAL64           9
 !
@@ -9554,7 +9640,7 @@ TIMACT1    "TIME OF UPDATE 1"    3798  NULL        TIME_SECONDS        8  TIME  
 !
 TK_LNK_PG  "TK LINK PAGE"        3799  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
-! Special Background <xxxx. TK1>   
+! Special Background
 !
 TMR_BS_PRC "TMR BS PRC"          3800  NULL        PRICE              17  REAL64           9
 !
@@ -9562,7 +9648,7 @@ TMR_BS_PRC "TMR BS PRC"          3800  NULL        PRICE              17  REAL64
 !
 TNOV_TIME  "TURNOVER TIME"       3801  NULL        TIME_SECONDS        8  TIME             8
 !
-! Turnover time
+! The time when turnover value was last updated
 !
 TRD_TNOV   "TRADED TURNOVER"     3802  NULL        PRICE              17  REAL64           9
 !
@@ -9706,7 +9792,7 @@ MKT_SEGMNT "MARKET SEGMENT"      3842  NULL        ALPHANUMERIC        4  RMTES_
 !
 NO_ASK_DIS "NUM ASK ORDER DISP"  3843  NULL        INTEGER            15  REAL64           9
 !
-! Number of ask orders displayed (top 10 consolidated)
+! Number of ask orders displayed
 !
 NO_ASK_TOT "NUM ASK ORDS TOTAL"  3844  NULL        INTEGER            15  REAL64           9
 !
@@ -9715,7 +9801,7 @@ NO_ASK_TOT "NUM ASK ORDS TOTAL"  3844  NULL        INTEGER            15  REAL64
 !
 NO_BID_DIS "NUM BID ORDER DISP"  3845  NULL        INTEGER            15  REAL64           9
 !
-! Number of ask orders displayed (top 10 consolidated)
+! Number of bid orders displayed
 !
 NO_BID_TOT "NUM BID ORDS TOTAL"  3846  NULL        INTEGER            15  REAL64           9
 !
@@ -9764,6 +9850,9 @@ TIMCOR_MS  "TIMCOR MS"           3856  NULL        INTEGER            15  UINT64
 ! Time of correction in milliseconds
 !
 MSG_TYPE   "MESSAGE TYPE"        3857  NULL        INTEGER            10  UINT64           8
+!
+! Message Type
+!
 REC_TYPE   "RECORD TYPE"         3858  NULL        INTEGER            10  UINT64           8
 !
 ! TIB contributions fields.
@@ -9778,7 +9867,7 @@ MIN_GAR_FL "MIN GUARTD FILL"     3860  NULL        INTEGER            15  REAL64
 !
 BLK_PRC1   "BLOCK PRICE"         3861  NULL        PRICE              17  REAL64           9
 !
-! Block price or big lot size price.
+! Block Trade Price
 !
 AUC_BIDSIZ "AUC BID SIZE"        3862  NULL        INTEGER            15  REAL64           9
 !
@@ -9834,7 +9923,7 @@ ORDBK_VWAP "ORDERBOOK VWAP"      3874  NULL        PRICE              17  REAL64
 !
 ORDBK_VOL  "ORDERBOOK VOL"       3875  NULL        INTEGER            15  REAL64           9
 !
-! Orderbook trade volume
+! Accumulated orderbook trade volume
 !
 OFFBK_VOL  "OFF BOOK VOL"        3876  NULL        INTEGER            15  REAL64           9
 !
@@ -9856,16 +9945,15 @@ MKT_HIGH   "MARKET HIGH"         3879  NULL        PRICE              17  REAL64
 !
 PDTRDPRC   "PREV DAY TRADE PRC"  3880  NULL        PRICE              17  REAL64           9
 !
-! Trade price for a trade reported more than one day after the trade was transacted
+! The trade price(s) reported today but executed on a previous day
 !
 PREDAYVOL  "PREV DAY TRADE VOL"  3881  NULL        INTEGER            15  REAL64           9
 !
-! Trade volume for an individual trade reported more than one day after the trade was 
-! transacted
+! The single trade volume(s) reported today but executed on a previous day
 !
 PDTRDDATE  "PREV DAY TRADE DAT"  3882  NULL        DATE               11  DATE             4
 !
-! Date for a trade reported more than one day after it was transacted
+! Date for a trade reported more than one day after it was executed
 !
 TIME_VALID "TIME VALID UNTIL"    3883  NULL        TIME_SECONDS        8  TIME             8
 !
@@ -9956,12 +10044,14 @@ INDAUCTYPE "IND AUC TYPE"        3914  NULL        ALPHANUMERIC        3  RMTES_
 !
 MKT_STATUS "MARKET STATUS"       3915  NULL        ALPHANUMERIC        5  RMTES_STRING     5
 !
-! Market/session indicator for instruments within a segment, market or submarket.
+! Market status indicator. Native exchange code indications for an entire Market or 
+! Market Segments to indicate Normal trading, Halts, Suspensions.
 !
 MARKET     "MARKET"              3916  NULL        ALPHANUMERIC       80  RMTES_STRING    80
 !
-! Describes the geographical elements of a trading environment its business calendar 
-! and the time zone the market operates in
+! Description of the market, including the full exchange name. Can also include any 
+! relevant aspects of its trading environment (including geography, time zones and 
+! markets it operates in).
 !
 EDSP       "EDSP"                3917  NULL        PRICE              17  REAL64           9
 !
@@ -10114,7 +10204,11 @@ PRCRSE_PAR "PRC RISE PART RATE"  3983  NULL        PRICE              17  REAL64
 !
 TRD_TYPE   "TRADING TYPE"        3984  NULL        ALPHANUMERIC        6  RMTES_STRING     6
 !
-! The native condition code for a single instrument status such as suspensions or halts
+! The native equivalent of the enumerated instrument trading status FID TRD_STATUS. 
+! Instrument trading status indicates halts, suspensions, opening and closing delays, 
+! normal trading and restricted trading. It does not indicate unscheduled volatility 
+! auctions or any other trading phase. That information is in the instrument phase 
+! FIDs, 8927 INST_PHASE (enumerated) and 8647 PERIOD_CD2 (native).
 !
 TRTY1_DATE "TRD TYPE1 DATE"      3985  NULL        DATE               11  DATE             4
 !
@@ -10174,7 +10268,8 @@ PBL_INFO   "PUBLICATION INFO"    4007  NULL        ENUMERATED    5 ( 6 )  ENUM  
 !
 SESSION_FL "SESSION FLAG"        4008  NULL        ALPHANUMERIC        6  RMTES_STRING     6
 !
-! Type of current market Session
+! Type of current market Session. For use with multiple session markets, shows 
+! indications of AM, PM, or overnight sessions.
 !
 SURPLS_VOL "SURPLUS VOLUME"      4009  NULL        INTEGER            15  REAL64           9
 !
@@ -10287,7 +10382,7 @@ CORR_ACT   "CORRECTION ACTUAL"   4034  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 CORR_REV   "CORRECTION REVISED"  4035  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 !
-! correction flag for revised data entered incorrectly and subsequently amended
+! Flag to identify corrected/updated values.
 !
 COUNTRY    "COUNTRY CODE"        4036  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
@@ -10295,7 +10390,7 @@ COUNTRY    "COUNTRY CODE"        4036  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 DOMICILE   "DOMICILE"            4037  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
-! The jurisdiction which the legal entity(issuer) is registered in
+! The jurisdiction which the head office of the legal entity(issue) is reside in
 !
 EIND_AREA  "ECON IND AREA"       4038  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
@@ -10634,8 +10729,7 @@ NETCHNG_2  "NET CHANGE 2"        4114  NULL        PRICE              17  REAL64
 !
 PROT_PRC   "PROTECTED PRICE"     4115  NULL        PRICE              17  REAL64           9
 !
-! This is the Knock out price, which means when this price is reached the certificate 
-! is automatically expired even if the maturity date is not reached
+! The Knock-out price or protected price of a warrant.
 !
 PCTCHNG_2  "PERCENT CHANGE 2"    4116  NULL        PRICE              17  REAL64           9
 !
@@ -10810,7 +10904,7 @@ THRD_ACT_3 "THIRD ACTIVITY 3"    4173  NULL        PRICE              17  REAL64
 !
 AVTURNOVER "AVERAGE TURNOVER"    4174  NULL        PRICE              17  REAL64           9
 !
-! Average turnover generated in a product over the last 5 business days
+! Average turnover generated over a set period
 !
 BIDASK_SPD "BID/ASK SPREAD"      4175  NULL        PRICE              17  REAL64           9
 !
@@ -10829,7 +10923,7 @@ KO_DIS_PCT "KNOCK OUT DIST PCT"  4177  NULL        PRICE              17  REAL64
 !
 KO_DIST    "KNOCK OUT DIST"      4178  NULL        PRICE              17  REAL64           9
 !
-! The relative distance between the knock-out level and actual underlying price.
+! The distance between the knock-out level and actual underlying price.
 !
 LEVERAGE   "LEVERAGE"            4179  NULL        PRICE              17  REAL64           9
 !
@@ -10977,11 +11071,11 @@ CANCELVOL2 "CANCEL VOLUME 2"     4214  NULL        INTEGER            15  REAL64
 !
 PCT1M      "1M PERCENT CHANGE"   4215  NULL        PRICE              17  REAL64           9
 !
-! Percentage change of current close price comparing to 1 month historic close
+! 1-Month Percentage Change
 !
 PCT1Y      "1Y PERCENT CHANGE"   4216  NULL        PRICE              17  REAL64           9
 !
-! Percentage change of current close price comparing to 1 year historic close
+! 1-Year Percentage Change
 !
 PCT3M      "3M PERCENT CHANGE"   4217  NULL        PRICE              17  REAL64           9
 !
@@ -11197,7 +11291,7 @@ WIND_DIR   "WIND DIRECTION"      4266  NULL        ALPHANUMERIC       20  RMTES_
 !
 FUTURES    "FUTURES CHAIN RIC"   4267  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
-! The primary futures chain that relates to this underlying RIC.
+! Futures chain RIC
 !
 OPTIONS    "OPTIONS CHAIN RIC"   4268  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
@@ -11363,13 +11457,16 @@ VWAP_EXCH  "EXCHANGE VWAP"       4313  NULL        PRICE              17  REAL64
 ASK_IM     "ASK IM"              4323  NULL        PRICE              17  REAL64           9
 BID_IM     "BID IM"              4324  NULL        PRICE              17  REAL64           9
 LST_TRD_IM "LAST TRADED IM"      4325  NULL        PRICE              17  REAL64           9
-CLOSE_IM   "CLOSE IM"            4326  NULL        PRICE              17  REAL64           9
 !
 ! Ask, Bid, Last and Close or Settle Implied Volatilities
 !
+CLOSE_IM   "CLOSE IM"            4326  NULL        PRICE              17  REAL64           9
+!
+! Close Implied Volatility.
+!
 ASK_VOL_DS "ASK VOL DIS"         4327  NULL        INTEGER            15  REAL64           9
 !
-! Volume of ask orders displayed (top 10 consolidated)
+! Volume of ask orders displayed
 !
 ASK_VOL_TT "ASK VOL TOTAL"       4328  NULL        INTEGER            15  REAL64           9
 !
@@ -11377,7 +11474,7 @@ ASK_VOL_TT "ASK VOL TOTAL"       4328  NULL        INTEGER            15  REAL64
 !
 BID_VOL_DS "BID VOL DIS"         4329  NULL        INTEGER            15  REAL64           9
 !
-! Volume of bid orders displayed (top 10 consolidated)
+! Volume of bid orders displayed
 !
 BID_VOL_TT "BID VOL TOTAL"       4330  NULL        INTEGER            15  REAL64           9
 !
@@ -11389,7 +11486,7 @@ CONTR_TRD  "CONTRACT TRADED"     4331  NULL        INTEGER            15  REAL64
 !
 SETTLE_DAY "SETTLEMENT DAYS"     4332  NULL        INTEGER            15  REAL64           9
 !
-! Settlement Days for a futures or options contract
+! Settlement Days
 !
 IMB_ACT_TP "IMB ACTIVITY TP"     4333  NULL        ENUMERATED    3 ( 2 )  ENUM             1
 !
@@ -11459,10 +11556,7 @@ IRG_TDTH_X "IRG TRD THRU EXMPT"  4346  NULL        ALPHANUMERIC        1  RMTES_
 !
 ALT_SETTLE "ALT SETTLE"          4347  NULL        PRICE              17  REAL64           9
 !
-! FID required for alternate settlement price, for some E-mini products, the minimum 
-! tick increment differs from the minimum tick of the full-size contract. Since these 
-! contracts are fungible, the E-mini contracts must settle to the same price as the 
-! full-s
+! Alternate settlement price.
 !
 ALTSETLDAT "ALT SETTLE DATE"     4348  NULL        DATE               11  DATE             4
 !
@@ -11508,7 +11602,8 @@ SVC_NAME   "SERVICE NAME"        4357  NULL        ALPHANUMERIC       14  RMTES_
 !
 ACVOL_GEN  "VOL AT GENERAL PRC"  4358  NULL        INTEGER            15  REAL64           9
 !
-! The activity volume at today's general prices (between limit high and limit low).
+! The activity volume at today's general prices (traded price within limit high and 
+! limit low).
 !
 ACVOL_LHI  "VOLUME LIMIT HIGH"   4359  NULL        INTEGER            15  REAL64           9
 ACVOL_LLO  "VOLUME LIMIT LOW"    4360  NULL        INTEGER            15  REAL64           9
@@ -11539,8 +11634,7 @@ IMP_BSIZE  "IMPLIED BID SIZE"    4367  NULL        INTEGER            15  REAL64
 !
 COMB_ACVOL "COMBINE ACC VOL"     4368  NULL        INTEGER            15  REAL64           9
 !
-! The day's total combined trading volume including spreads(strategy order) trades and 
-! implied order trades
+! The day's total combined trading volume including implied and outright trades
 !
 NO_COM_AO  "NUM COMB ASK ORDER"  4369  NULL        INTEGER            15  REAL64           9
 NO_COM_BO  "NUM COMB BID ORDER"  4370  NULL        INTEGER            15  REAL64           9
@@ -11607,12 +11701,12 @@ SUM_SPRD   "SUM OF SPREADS"      4384  NULL        PRICE              17  REAL64
 !
 BEVEN_INF  "BRKEVEN INFLATION"   4385  NULL        PRICE              17  REAL64           9
 !
-! Breakeven Inflation. Rate the non-zero indexed bond wld generate the same nominal 
+! Breakeven Inflation. Rate the non-zero indexed bond would generate the same nominal 
 ! return to maturity as the conventional bond.
 !
 DISC_ASK1  "DISCOUNT ASK1"       4386  DISC_ASK2   PRICE              17  REAL64           9
 !
-! The 5 best Ask Discount values 
+! Ask Discount Value
 !
 DISC_ASK2  "DISCOUNT ASK2"       4387  DISC_ASK3   PRICE              17  REAL64           9
 !
@@ -11624,7 +11718,7 @@ DISC_ASK3  "DISCOUNT ASK3"       4388  DISC_ASK4   PRICE              17  REAL64
 !
 DISC_BID1  "DISCOUNT BID1"       4389  DISC_BID2   PRICE              17  REAL64           9
 !
-! The 5 best Bid Discount values 
+! Bid Discount Value
 !
 DISC_BID2  "DISCOUNT BID2"       4390  DISC_BID3   PRICE              17  REAL64           9
 !
@@ -11688,14 +11782,20 @@ TOT_RETURN "TOTAL RETURN"        4403  NULL        PRICE              17  REAL64
 ! Total return yield data calculated for bonds
 !
 VWAP_BID   "VWAP BID PRICE"      4404  NULL        PRICE              17  REAL64           9
+!
+! Weighted Average Bid Prices
+!
 VWAP_ASK   "VWAP ASK PRICE"      4405  NULL        PRICE              17  REAL64           9
 !
-! Weighted Average Bid and Ask Prices
+! Weighted Average Ask Prices
 !
 TOT_ASKVOL "TOTAL ASK VOL"       4406  NULL        PRICE              17  REAL64           9
-TOT_BIDVOL "TOTAL BID VOL"       4407  NULL        PRICE              17  REAL64           9
 !
 ! Total BID and Ask Volumes
+!
+TOT_BIDVOL "TOTAL BID VOL"       4407  NULL        PRICE              17  REAL64           9
+!
+! Total BID Volumes
 !
 BIDQUEUE_1 "BID QUEUE 1"         4408  NULL        PRICE              17  REAL64           9
 ASKQUEUE_1 "ASK QUEUE 1"         4409  NULL        PRICE              17  REAL64           9
@@ -11707,19 +11807,28 @@ CP_EFF_DAT "CAP EFFECTIVE DATE"  4410  NULL        DATE               11  DATE  
 ! The effective date of the latest capital change
 !
 INAV       "INAV"                4411  NULL        PRICE              17  REAL64           9
+!
+! Indicative NAV
+!
 PEA        "PEA"                 4412  NULL        INTEGER            15  REAL64           9
-TAXES      "TAXES"               4413  NULL        PRICE              17  REAL64           9
 !
 ! Used to display the INAV, PEA, TAXES and Trade Group values for Euronext Funds
+!
+TAXES      "TAXES"               4413  NULL        PRICE              17  REAL64           9
+!
+! Applicable Tax
 !
 TRD_GRP    "TRD GRP"             4414  NULL        INTEGER            15  REAL64           9
 !
 ! Used to display the Trade Group for Euronext Instruments
 !
 ACVL_BASKT "BASKET TRD ACVOL"    4415  NULL        INTEGER            15  REAL64           9
+!
+! Accumulated Volume of Basket trading
+!
 ACVL_BLOCK "BLOCK TRADE ACVOL"   4416  NULL        INTEGER            15  REAL64           9
 !
-! Accumulated Volume of Block and Basket trading
+! Accumulated Volume of Block trading
 !
 ACVOL_AFT  "AFTER HOUR ACVOL"    4417  NULL        INTEGER            15  REAL64           9
 !
@@ -11730,19 +11839,28 @@ ACVOL_PRE  "PRE OPEN ACVOL"      4418  NULL        INTEGER            15  REAL64
 ! Accumulated Volume of pre-open market.
 !
 AV_AFT_BLK "AFTER BLOCK ACVOL"   4419  NULL        INTEGER            15  REAL64           9
+!
+! Accumulated Volume of Block trading during after-hour market.
+!
 AV_AFT_BSK "AFTER BASKET ACVOL"  4420  NULL        INTEGER            15  REAL64           9
 !
-! Accumulated Volume of Block and Basket trading during after-hour market.
+! Accumulated Volume of Basket trading during after-hour market.
 !
 AV_PRE_BLK "PREOPEN BLK ACVOL"   4421  NULL        INTEGER            15  REAL64           9
+!
+! Accumulated Volume of Block trading during Pre-open market.
+!
 AV_PRE_BSK "PRE BASKET ACVOL"    4422  NULL        INTEGER            15  REAL64           9
 !
-! Accumulated Volume of Block and Basket trading during Pre-open market.
+! Accumulated Volume of Basket trading during Pre-open market.
 !
 AV_REG_BLK "REGULAR BLK ACVOL"   4423  NULL        INTEGER            15  REAL64           9
+!
+! Accumulated Volume of Block trading during regular session.
+!
 AV_REG_BSK "REG BASKET ACVOL"    4424  NULL        INTEGER            15  REAL64           9
 !
-! Accumulated Volume of Block and Basket trading during regular session.
+! Accumulated Volume of Basket trading during regular session.
 !
 HST_NAV    "HISTORICAL NAV"      4425  NULL        PRICE              17  REAL64           9
 !
@@ -11768,9 +11886,12 @@ TN_REG_BSK "REG BASKET TRNOVER"  4432  NULL        PRICE              17  REAL64
 ! Turnover of Block and Basket trading during Regular session
 !
 TURN_PRE   "PRE OPEN TURNOVER"   4433  NULL        PRICE              17  REAL64           9
+!
+! Trade turnover for the pre-open market
+!
 TURN_AFT   "AFTER HOUR TURNOVR"  4434  NULL        PRICE              17  REAL64           9
 !
-! Turnover of Pre-Open  and After-hour Markets
+! Trade turnover for the after-hour market
 !
 TURN_BASKT "BASKET TRD TURNOVR"  4435  NULL        PRICE              17  REAL64           9
 !
@@ -11778,7 +11899,7 @@ TURN_BASKT "BASKET TRD TURNOVR"  4435  NULL        PRICE              17  REAL64
 !
 TURN_BLOCK "BLOCK TRD TURNOVER"  4436  NULL        PRICE              17  REAL64           9
 !
-! Turnover of all Basket and Block trades.
+! Turnover of today's Block trades.
 !
 UN_ADJ_CLS "UNADJUSTED CLOSING"  4437  NULL        PRICE              17  REAL64           9
 !
@@ -11867,12 +11988,24 @@ IRGVAL_TIM "IRGVAL TIME"         4464  NULL        TIME_SECONDS        8  TIME  
 ! Original trade execution time for trade being cancelled in IRGVAL 
 !
 TRD_IND_1  "TRADE IND 1"         4465  TRD_IND_2   ALPHANUMERIC        6  RMTES_STRING     6
+!
+! Trade indicators for FID TRDPRC_1
+!
 TRD_IND_2  "TRADE IND 2"         4466  TRD_IND_3   ALPHANUMERIC        6  RMTES_STRING     6
+!
+! Trade indicators for FID TRDPRC_2
+!
 TRD_IND_3  "TRADE IND 3"         4467  TRD_IND_4   ALPHANUMERIC        6  RMTES_STRING     6
+!
+! Trade indicators for FID TRDPRC_3
+!
 TRD_IND_4  "TRADE IND 4"         4468  TRD_IND_5   ALPHANUMERIC        6  RMTES_STRING     6
+!
+! Trade indicators for FID TRDPRC_4
+!
 TRD_IND_5  "TRADE IND 5"         4469  NULL        ALPHANUMERIC        6  RMTES_STRING     6
 !
-! Trade indicators for FID TRDPRC_1  thru TRDPRC_5
+! Trade indicators for FID TRDPRC_5
 !
 PRIM_SRC   "PRIMARY RIC EX ID"   4470  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
@@ -12269,7 +12402,7 @@ FOR_OPT_ID "FOR OPT ID"          4741  NULL        ALPHANUMERIC       18  RMTES_
 !
 CUSIP_CD   "CUSIP CD"            4742  NULL        ALPHANUMERIC        9  RMTES_STRING     9
 !
-! Replacement for CUSIP (2178) which was incorrectly defined as PRICE type.
+! Committee on Uniform Security Identification Procedures (CUSIP) code
 !
 ALT_ZSCORE "ALTMAN Z SCORE"      4743  NULL        PRICE              17  REAL64           9
 !
@@ -12310,8 +12443,7 @@ BOND_FLR   "BOND FLOOR"          4751  NULL        PRICE              17  REAL64
 !
 SHRS_IDX1  "SHARES INDEX"        4752  NULL        INTEGER            15  REAL64           9
 !
-! Number of listed shares for calculation of Indices. Correction to FID 3775 which was 
-! defined as Alphanumeric type
+! Number of listed shares for calculation of Indices.
 !
 IMP_YIELD  "IMPLIED YIELD"       4753  NULL        PRICE              17  REAL64           9
 !
@@ -12328,7 +12460,7 @@ FUT_RISK   "FUTURES RISK"        4755  NULL        PRICE              17  REAL64
 !
 LSTSALCOND "LAST SALE COND"      4756  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Native sale condition of Last trade.
+! Native sale condition of last eligible trade in FID TRDPRC_1
 !
 IRGSALCOND "IRG SALE COND"       4757  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
@@ -12344,7 +12476,7 @@ LAST_IND   "LAST INDICATOR"      4759  NULL        ENUMERATED    3 ( 1 )  ENUM  
 !
 THRESH_IND "THRESHOLD IND"       4760  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
-! Threshold Check Indicator
+! Flag to indicate if the trade has breached the threshold.
 !
 CANCEL_IND "CANCEL INDICATOR"    4761  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
@@ -12356,7 +12488,7 @@ COR_IND    "CORRECTION IND"      4762  NULL        ENUMERATED    3 ( 1 )  ENUM  
 !
 RETRAN_IND "RETRANS IND"         4763  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
-! Retransmission Indicator
+! Flag to indicate if the trade is sent as a retransmission.
 !
 CANCLSTIND "CANCEL LAST IND"     4764  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
@@ -12401,7 +12533,7 @@ CRV_UNIT   "CURVE UNIT"          4773  NULL        ALPHANUMERIC       12  RMTES_
 !
 HST_VWAP   "HISTORICAL VWAP"     4774  NULL        PRICE              17  REAL64           9
 !
-! Previous trading days volume weighted average price.
+! Previous trading day's volume weighted average price.
 !
 HST_VWAP_Y "HISTORICAL VWAP YD"  4775  NULL        PRICE              17  REAL64           9
 !
@@ -12505,7 +12637,7 @@ COMP_DATE  "COMPOSITE DATE"      4799  NULL        DATE               11  DATE  
 !
 COMP_DEPTH "COMPOSITE DEPTH"     4800  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! # of contributors used to build the composite
+! Composite Depth
 !
 CRED_EVENT "CREDIT EVENT"        4801  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 !
@@ -12546,7 +12678,7 @@ LIN        "LIN"                 4809  NULL        ALPHANUMERIC       13  RMTES_
 !
 MID_1_FLAG "MID 1 FLAG"          4810  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! 3 flag fields further qualifying the MID PRICE fields MID_n.
+! Price qualifier for MID_PRICE1
 !
 MID_1_TP   "MID 1 TP"            4811  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
@@ -12577,11 +12709,11 @@ MID_SP1_FL "MID SPREAD 1 FLAG"   4816  NULL        ALPHANUMERIC        4  RMTES_
 !
 MID_SPRD_2 "MID SPREAD 2"        4817  MID_SPRD_3  PRICE              17  REAL64           9
 !
-! For CDS. Basis point quote value that ripples from MID_SPREAD (FID 3352).
+! Difference in basis point using a mid yield value. Ripple from MID_SPREAD (FID 3352).
 !
 MID_SPRD_3 "MID SPREAD 3"        4818  NULL        PRICE              17  REAL64           9
 !
-! For CDS. Basis point quote value that ripples from MID_SPRD2.
+! Difference in basis point using a mid yield value. Ripple from MID_SPRD_2 (FID 4817)
 !
 ORG_ID1    "ORGANISATION ID 1"   4819  NULL        ALPHANUMERIC        9  RMTES_STRING     9
 !
@@ -12605,7 +12737,7 @@ RED_CODE   "RED_CODE"            4823  NULL        ALPHANUMERIC       12  RMTES_
 !
 REF_CDS    "REFERENCE CDS"       4824  NULL        ALPHANUMERIC       18  RMTES_STRING    18
 !
-! Reference Credit Default Swap
+! References the CDS Curve RIC for the instrument.
 !
 REF_ENTITY "REF_ENTITY"          4825  NULL        ALPHANUMERIC       80  RMTES_STRING    80
 !
@@ -12625,7 +12757,7 @@ SIGN_DATE  "SIGNING DATE"        4828  NULL        DATE               11  DATE  
 !
 STD_DEV    "STANDARD DEVIATION"  4829  NULL        PRICE              17  REAL64           9
 !
-! Standard deviation of bids for tranches included in the index.
+! Standard deviation.
 !
 TRD_CNV_FL "TRADING CONV FLAG"   4830  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 !
@@ -12789,7 +12921,7 @@ DURTN_P_U  "REAL PORT DURATION"  4869  NULL        PRICE              17  REAL64
 !
 DURTN_TW   "MAC DUR TO WORST"    4870  NULL        PRICE              17  REAL64           9
 !
-! Macauley Duration To Worst
+! Macaulay Duration To Worst
 !
 EFF_YLDSB  "SEMI ANN EFF YIELD"  4871  NULL        PRICE              17  REAL64           9
 !
@@ -12863,8 +12995,7 @@ IND_LEV1   "INDUSTRY SEC ASSET"  4887  NULL        ALPHANUMERIC       50  RMTES_
 !
 IND_LEV2   "INDUSTRY LEVEL"      4888  NULL        ALPHANUMERIC       50  RMTES_STRING    50
 !
-! Sector classification scheme derived with Dow Jones and used by iBoxx. Sector Level 
-! 2 - Industry
+! Secondary Instrument Classification Code (e.g. GICS).
 !
 IND_LEV3   "INDUSTRY SUPERSEC"   4889  NULL        ALPHANUMERIC       50  RMTES_STRING    50
 !
@@ -13243,11 +13374,11 @@ SPD_TSYYTD "GOVT SPREAD YTD"     4980  NULL        PRICE              17  REAL64
 !
 TRTN       "TOT RETURN"          4981  NULL        PRICE              17  REAL64           9
 !
-! Total Return
+! Daily Total Return
 !
 TRTN_3MT   "TOT RETURN 3MTH"     4982  NULL        PRICE              17  REAL64           9
 !
-! total return for the last 3 months
+! 3-Month Total Return
 !
 TRTN_6MT   "TOT RETURN 6MTH"     4983  NULL        PRICE              17  REAL64           9
 !
@@ -13524,7 +13655,7 @@ ITEM_ID    "ITEM ID"             5168  NULL        ALPHANUMERIC       64  RMTES_
 !
 RELEVANCE  "RELEVANCE"           5169  NULL        PRICE              17  REAL64           9
 !
-! Relevance of the item to the underlying scored entity (company, topic code) 
+! Relevance of the item to the underlying scored entity (company, topic code)
 !
 SENTIMENT  "SENTIMENT"           5170  NULL        INTEGER            15   INT64           8
 !
@@ -13644,9 +13775,12 @@ ASK_ORD_ID "SELL ORDER ID"       5207  NULL        ALPHANUMERIC       24  RMTES_
 ! Buy and Sell order identifiers
 !
 BIDID_CNL  "CANCEL BID ID"       5208  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Bid order identifier for cancelled trades
+!
 ASKID_CNL  "CANCEL ASK ID"       5209  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
-! Buy and Sell order identifiers for cancelled trades
+! Ask order identifier for cancelled trades
 !
 RM_BID_QTY "RMN BID QTY"         5210  NULL        INTEGER            15  REAL64           9
 RM_ASK_QTY "RMN ASK QTY"         5211  NULL        INTEGER            15  REAL64           9
@@ -13803,8 +13937,8 @@ FINC_VOL   "FINANCIAL VOL"       5288  NULL        PRICE              17  REAL64
 !
 IMPU_CLS   "IMPUTED CLOSE"       5289  NULL        PRICE              17  REAL64           9
 !
-! For options, gives an imputed closing price, which reflects either the last trade 
-! price, or last bid if higher than last trade, or last ask if lower.
+! Closing Price that reflects either the last trade price, or last bid if higher than 
+! last trade, or last ask if lower.
 !
 PCT_OB_VOL "PCT ORD BK VOL"      5290  NULL        PRICE              17  REAL64           9
 !
@@ -13871,7 +14005,7 @@ STL_IMPVLT "SETTLE IMP VOLT"     5303  NULL        PRICE              17  REAL64
 !
 OFFBK_DATE "OFF BOOK DATE"       5304  NULL        DATE               11  DATE             4
 !
-! Date of last off-book transaction price.  For Euronext, TCS is the off-book facility.
+! Date of trade in OFFBK_PRC
 !
 OFFBK_TIM  "OFF BOOK TIME"       5305  NULL        TIME_SECONDS        8  TIME             8
 !
@@ -13922,8 +14056,7 @@ STRIKE_ID  "STRIKE ID"           5315  NULL        ALPHANUMERIC        6  RMTES_
 OFF_FLRVOL "OFF FLOOR VOL"       5316  NULL        INTEGER            15  REAL64           9
 !
 ! Accumulated Off Floor Volume: The accumulated trades that take place outside of the 
-! regular trading facility of an exchange, such as off-book trades.  Deprecated in 
-! favor of OFFBK_VOL #3876.
+! regular trading facility of an exchange, such as off-book trades.
 !
 EFS_VOL    "FUT FOR SWAP VOL"    5317  NULL        INTEGER            15  REAL64           9
 !
@@ -13931,7 +14064,7 @@ EFS_VOL    "FUT FOR SWAP VOL"    5317  NULL        INTEGER            15  REAL64
 !
 EFP_VOL    "FUT FOR PHYS VOL"    5318  NULL        INTEGER            15  REAL64           9
 !
-! Volume of Futures exchanged for Physicals 
+! Total Volume of Futures exchanged for Physicals
 !
 PCT_OS     "PERCENT OUTSTAND"    5319  NULL        PRICE              17  REAL64           9
 !
@@ -13949,7 +14082,8 @@ FILT_ACVOL "FILTERED AC VOL"     5321  NULL        INTEGER            15  REAL64
 !
 FILT_TURN  "FILTERED TURNOVER"   5322  NULL        PRICE              17  REAL64           9
 !
-! Turnover of all regular trades. 
+! Turnover filtered to only include trade turnovers for trades that are used in VWAP 
+! calculation.
 !
 WNT_EFGEAR "WNT EFF GEAR RATIO"  5323  NULL        PRICE              17  REAL64           9
 !
@@ -14014,7 +14148,7 @@ STP_SELMAR "STOP SELL MARGIN"    5337  NULL        INTEGER            15  REAL64
 !
 FRNHLD_RTO "FRGN HOLD RATIO"     5338  NULL        PRICE              17  REAL64           9
 !
-! Ratio of Foreign to Domestic Holding
+! Foreigner Holding Ratio
 !
 FRNHLD_VOL "FRGN HOLD VOL"       5339  NULL        PRICE              17  REAL64           9
 !
@@ -14026,7 +14160,7 @@ FRNHLD_NET "FRGN HOLD VOL NET"   5340  NULL        PRICE              17  REAL64
 !
 FRNREM_RTO "FRGN REM INV RATIO"  5341  NULL        PRICE              17  REAL64           9
 !
-! Ratio of  foreign to domestic investment that remains for foreign investment
+! Foreigner Remain Invest Ratio
 !
 FRNREM_VOL "FRGN REM INV VOL"    5342  NULL        PRICE              17  REAL64           9
 !
@@ -14576,7 +14710,7 @@ WT_ISSNUM  "WRNT ISSUE NUM"      5578  NULL        INTEGER            15  REAL64
 !
 EFF_GEAR   "EFFECTIVE GEARING"   5579  NULL        PRICE              17  REAL64           9
 !
-! Effective Gearing for a warrant. This is calculated by using the formula : Gearing  
+! Effective Gearing for a warrant. This is calculated by using the formula : WNT_GEAR 
 ! * DELTA
 !
 WT_ISS_CAN "ISSUES CANCELLED"    5580  NULL        INTEGER            15  REAL64           9
@@ -14718,7 +14852,7 @@ YLDWST_DT  "WORKOUT WST YEARS"   5613  NULL        PRICE              17  REAL64
 !
 YLDWST_SB  "SA YIELD TO WORST"   5614  NULL        PRICE              17  REAL64           9
 !
-! Yield to Worst semi-annual
+! Yield to Worst in semi-annual terms
 !
 YR_TRTN    "TOTAL RETURN 12M"    5615  NULL        PRICE              17  REAL64           9
 !
@@ -15011,8 +15145,7 @@ MT_TRTNPCT "TOTAL RTN PCT MTH"   5736  NULL        PRICE              17  REAL64
 !
 IDX_VALUE  "INDEX VALUE"         5737  NULL        PRICE              17  REAL64           9
 !
-! An indicator providing a representation of the value of the securities which 
-! constitute it. 
+! Index Value.
 !
 SEMI_CONVX "SEMI CONVEXITY"      5738  NULL        PRICE              17  REAL64           9
 !
@@ -15045,8 +15178,8 @@ SPDTOWST   "SPREAD TO WORST"     5744  NULL        PRICE              17  REAL64
 !
 MAC_DURTN  "MACAULAY DURATION"   5745  NULL        PRICE              17  REAL64           9
 !
-! A measure how sensitive a bond or a bond portfolio's price is to changes in interest 
-! rates. 
+! Macaulay Duration Mid. A measure how sensitive a bond or a bond portfolio's price is 
+! to changes in interest rates.
 !
 FRA_RATE   "FRA RATE"            5746  NULL        PRICE              17  REAL64           9
 !
@@ -15099,8 +15232,7 @@ RELNEWS    "RELATED NEWS"        5757  NULL        ALPHANUMERIC       16  RMTES_
 !
 RELDATA2   "RELATED DATA2"       5758  NULL        ALPHANUMERIC       21  RMTES_STRING    21
 !
-! The related data for a bond.  For example for Cash Loan bonds, this could be the 
-! reference to a CDS.
+! Related data.
 !
 SENIORITY  "SENIORITY"           5759  NULL        ALPHANUMERIC        6  RMTES_STRING     6
 !
@@ -15136,11 +15268,11 @@ AVGPRC_YLD "AVG PRICE YIELD"     5766  NULL        ALPHANUMERIC        6  RMTES_
 !
 AVG_PRC1   "AVG PRICE 1"         5767  NULL        PRICE              17  REAL64           9
 !
-! Displays the average price for Fixed Income instruments.
+! Average Price. Qualified by AVGPRC_TP1.
 !
 AVG_PRC2   "AVG PRICE 2"         5768  NULL        PRICE              17  REAL64           9
 !
-! Second field to display the average price for fixed income instruments.
+! Secondary average price field. Qualified by AVGPRC_TP2.
 !
 AVG_PRC3   "AVG PRICE 3"         5769  NULL        PRICE              17  REAL64           9
 !
@@ -15277,13 +15409,13 @@ YTB_DATE   "YLD TO BEST DATE"    5803  NULL        DATE               11  DATE  
 !
 INT_BASIS  "INTERP CDS BASIS"    5804  NULL        PRICE              17  REAL64           9
 !
-! Interpolated CDS Spread - Asset Swap Spread (or equivalent).
+! Interpolated CDS Basis. The difference between the Interpolated CDS spread and the 
+! Z-spread of the underlying bond.
 !
 INT_CDS    "INTERP CDS SPREAD"   5805  NULL        PRICE              17  REAL64           9
 !
-! Interpolated CDS spread taking the difference of the yield to maturity of the 
-! underlying bond against the interpolated yield of the same maturity on the CDS 
-! reference curve.
+! Interpolated CDS Spread. Calculated by taking the CDS reference curve and 
+! interpolating the spread to match the underlying bond's maturity.
 !
 CDS_SPD_FL "CDS SPREAD FLAG"     5806  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 UPF_500_FL "UPFRONT 500 FLAG"    5807  NULL        ALPHANUMERIC        1  RMTES_STRING     1
@@ -15329,13 +15461,11 @@ UPF500MID3 "UPFRONT 500 MID3"    5826  NULL        PRICE              17  REAL64
 !
 BMK_SPDBID "BMK SPREAD BID"      5827  NULL        PRICE              17  REAL64           9
 !
-! The spread in basis points on bid side between the yield on a fixed income 
-! instrument and its nearest benchmark.
+! Benchmark Spread Bid
 !
 BMK_SPDASK "BMK SPREAD ASK"      5828  NULL        PRICE              17  REAL64           9
 !
-! The spread in basis points on ask side between the yield on a fixed income 
-! instrument and its nearest benchmark.
+! Benchmark Spread Ask
 !
 SWAP_SPRDB "SWAP SPREAD BID"     5829  NULL        PRICE              17  REAL64           9
 !
@@ -15516,7 +15646,7 @@ DENOM_INC3 "DENOM INCREMENT 3"   5884  NULL        INTEGER            15  REAL64
 !
 SWP_POINT  "SWAP POINT"          5885  NULL        PRICE              17  REAL64           9
 !
-! The Bonds corresponding swap point. 
+! Swap point
 !
 SWP_PT_REF "SWP_PT_REF"          5886  NULL        ALPHANUMERIC       12  RMTES_STRING    12
 !
@@ -16769,12 +16899,12 @@ IND_OPEN   "IND OPEN PRICE"      6215  NULL        PRICE              17  REAL64
 !
 CONDCODE_3 "CONDITION CODE 3"    6216  NULL        ALPHANUMERIC        2  RMTES_STRING     2
 !
-! Holds upto 3x2 charcater trade condition codes
+! Secondary native trade condition code field for the last eligible trades.
 !
 TRAN_PRICE "TRADE TRANSACT PR"   6217  NULL        PRICE              17  REAL64           9
 !
-! Transaction price of all trade related messages, includes off-book, on-book, 
-! off-floor trades,etc
+! Transaction price of all trade related messages, includes off-book, on-book, and 
+! other trade types.
 !
 TRD_DISC_1 "LAST DISCOUNT 1"     6218  TRD_DISC_2  PRICE              17  REAL64           9
 !
@@ -16968,8 +17098,7 @@ FRQ_UPDATE "FREQUENCY OF UPD"    6265  NULL        ALPHANUMERIC       20  RMTES_
 !
 MORE_INFO  "RELATED INFO"        6266  NULL        ALPHANUMERIC       18  RMTES_STRING    18
 !
-! This fid provides a link (direct link from IDN page or Customer Zone ID entry) to 
-! related information
+! Link to related information
 !
 REL_SPEED2 "PARENT SPEEDGUIDE"   6267  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
@@ -17451,7 +17580,7 @@ BR_BGD_REF "BR BKGD REF"         6425  NULL        ALPHANUMERIC       32  ASCII_
 !
 BR_CTB_BGD "BR CTBTR BKGD"       6426  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
-! A pointer to a record holding background contributor information. Big RIC equivalent.
+! A pointer to a record holding background contributor information.
 !
 BR_PRF_LNK "BR PREF LINK RECRD"  6427  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
@@ -17870,7 +17999,7 @@ ASK_SZ_TTL "ASK SIZE TOTAL"      6536  NULL        INTEGER            15   INT64
 !
 BID_SZ_DSP "BID SIZE DISPLAYED"  6537  NULL        INTEGER            15   INT64           8
 !
-! The total quantity of displayed shares on the Bid Side MBP book
+! The total quantity of Bid Side shares displayed in the MBP order book
 !
 ASK_SZ_DSP "ASK SIZE DISPLAYED"  6538  NULL        INTEGER            15   INT64           8
 !
@@ -17878,11 +18007,11 @@ ASK_SZ_DSP "ASK SIZE DISPLAYED"  6538  NULL        INTEGER            15   INT64
 !
 BID_DATE1  "BID DATE"            6539  BID_DATE2   DATE               11  DATE             4
 !
-! The date associated with BID_TIME1
+! Date associated with BID_TIM_NS
 !
 ASK_DATE1  "ASK DATE"            6540  ASK_DATE2   DATE               11  DATE             4
 !
-! The date associated with ASK_TIME1
+! Date associated with ASK_TIM_NS
 !
 INT_PR_RNK "INTRA PRICE RANK"    6541  NULL        INTEGER             3  UINT64           8
 !
@@ -17899,6 +18028,9 @@ MBP_AG_RUL "MBP AGGREGATE RUL"   6543  NULL        ENUMERATED    3 ( 3 )  ENUM  
 ! Rule for MBO>MBP Aggregation
 !
 NO_BIDORD1 "NUM BID ORDERS 1"    6544  NULL        INTEGER            15  UINT64           8
+!
+! Bid side number of orders of the 1st ranked row
+!
 NO_BIDORD2 "NUM BID ORDERS 2"    6545  NULL        INTEGER            15  UINT64           8
 NO_BIDORD3 "NUM BID ORDERS 3"    6546  NULL        INTEGER            15  UINT64           8
 NO_BIDORD4 "NUM BID ORDERS 4"    6547  NULL        INTEGER            15  UINT64           8
@@ -17912,6 +18044,9 @@ NO_BIDRD10 "NUM BID ORDERS 10"   6553  NULL        INTEGER            15  UINT64
 ! Number of Orders in the nth Ranked MBP Bid Side Row
 !
 NO_ASKORD1 "NUM ASK ORDERS 1"    6554  NULL        INTEGER            15  UINT64           8
+!
+! Ask side number of orders of the 1st ranked row
+!
 NO_ASKORD2 "NUM ASK ORDERS 2"    6555  NULL        INTEGER            15  UINT64           8
 NO_ASKORD3 "NUM ASK ORDERS 3"    6556  NULL        INTEGER            15  UINT64           8
 NO_ASKORD4 "NUM ASK ORDERS 4"    6557  NULL        INTEGER            15  UINT64           8
@@ -17955,8 +18090,7 @@ LEG_OP_DT  "LEG OPTION DELTA"    6571  NULL        PRICE              17  REAL64
 LEG1_OP_DT "LEG1 OPTION DELTA"   6572  NULL        PRICE              17  REAL64           9
 LEG2_OP_DT "LEG2 OPTION DELTA"   6573  NULL        PRICE              17  REAL64           9
 !
-! Delta used to calculate the quantity of futures used to cover the option or option 
-! spread.
+! The difference between the underlying price of the Strategy and the price of the Leg
 !
 LEG_PRICE  "LEG PRICE"           6574  NULL        PRICE              17  REAL64           9
 LEG1_PRICE "LEG1 PRICE"          6575  NULL        PRICE              17  REAL64           9
@@ -17966,7 +18100,7 @@ LEG2_PRICE "LEG2 PRICE"          6576  NULL        PRICE              17  REAL64
 !
 SH_SAL_RES "SHORT SALE RES"      6577  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
-! Indicates if the security is restricted for short selling.
+! Indicates if the security is available for short selling.
 !
 SHRT_VOXXX "SHORT SELL VOL XXX"  6578  NULL        INTEGER            15   INT64           8
 !
@@ -17986,7 +18120,7 @@ TRVOL_ONBK "TRADE VOL ON BOOK"   6581  NULL        INTEGER            15   INT64
 !
 TRVOLOFFBK "TRADE VOL OFF BOOK"  6582  NULL        INTEGER            15   INT64           8
 !
-! volume of the most recent individual off-book trade
+! Volume at the price reported in OFFBK_PRC
 !
 CAN_PRC    "CANCELLED TRD PR"    6583  NULL        PRICE              17  REAL64           9
 !
@@ -18003,18 +18137,18 @@ CAN_COND   "CANCELLED TRD COND"  6585  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 CAN_COND_N "CANCEL COND NATIVE"  6586  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Trade cancellation flag (native condition code  - alphanumeric 4 chars long)
+! Native trade cancellation flag
 !
 CAN_TRD_ID "CANCELLED TRD ID"    6587  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
-! Trade ID of a Cancelled Trade.  This should be same the identifier as found in field 
-! TRADE_ID for the executed trade that is now cancelled.
+! Trade ID of a Cancelled Trade. This should be the same identifier as found in the 
+! field TRADE_ID for the executed trade that is now cancelled.
 !
 REPORT_VOL "VOLUME REPORTED"     6588  NULL        INTEGER            15   INT64           8
 !
-! Aggregate volume of all trades reported today including those that have occurred 
-! prior to today. For multiple currency markets this, should always be reported trades 
-! in the primary currency.
+! Aggregate volume of trades reported today including those that have occurred prior 
+! to today. For multiple currency markets, the accumulated volume should always be 
+! reported trades in the primary currency.
 !
 MIC_CODE   "MIC CODE"            6589  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
@@ -18196,18 +18330,20 @@ RCD_TYP_LG "RECORD TYPE LRG"     6635  NULL        INTEGER            15   INT64
 !
 !
 BID_EXID   "BID EXCHANGE ID"     6636  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Code that identifies the exchange the latest bid originated from.
+!
 ASK_EXID   "ASK EXCHANGE ID"     6637  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
-! To point to same Enumerated table as RDNEXCHD2
+! Code that identifies the exchange the latest ask originated from.
 !
 TRADE_EXID "TRADE EXCHANGE ID"   6638  TRD_EXID2   ENUMERATED    5 ( 3 )  ENUM             2
 !
-! Identifier of the exchange that the last trade originated from. Used for 
-! consolidated feeds.
+! Identifier of the exchange that the last trade originated from.
 !
 OPEN_EXID  "OPEN EXCHANGE ID"    6639  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
-! To point to same Enumerated table as RDNEXCHD2
+! Code that identifies the exchange the open price originated from.
 !
 MI_TIME    "MI TIMESTAMP"        6640  NULL        TIME                5  TIME             8
 !
@@ -18286,7 +18422,7 @@ L_CNTR_TS  "LARGE LOT TRADE TS"  6684  NULL        TIME_SECONDS        8  TIME  
 !
 ADJ_ENDTIM "ADJUSTED END TIME"   6685  NULL        TIME_SECONDS        8  TIME             8
 !
-! New period end time following reduction or extension of a trading by the exchange
+! New trading session end time adjusted(extension/reduction) by venue market operation.
 !
 TRD_LM_TIM "TRD LIMIT UPT TM"    6686  NULL        TIME_SECONDS        8  TIME             8
 !
@@ -18318,7 +18454,8 @@ INSTRD_TIM "INSERT TRADE TIME"   6694  NULL        TIME_SECONDS        8  TIME  
 !
 IRGTIM     "IRGTIM"              6695  NULL        TIME_SECONDS        8  TIME             8
 !
-! The time of a irregular price update - the time of update to the IRGPRC (FID 372) 
+! Time of last ineligible trade with precision in second - the time of the last 
+! updated to the field IRGPRC(#372)
 !
 QUOTIM_2   "QUOTIM 2"            6696  QUOTIM_3    TIME_SECONDS        8  TIME             8
 QUOTIM_3   "QUOTIM 3"            6697  NULL        TIME_SECONDS        8  TIME             8
@@ -18451,9 +18588,7 @@ THRES_DT   "THRESHOLD DATE"      6764  NULL        DATE               11  DATE  
 !
 ANA_EXP_DT "ANALYTIC EXPIR DAT"  6765  NULL        DATE               11  DATE             4
 !
-! Analytics Expiration Date. Always populated Base the new expiration date on a 
-! European style date. Date for Opra and Montreal is expiry plus 1, this may vary if 
-! used in other markets
+! Analytics Expiration Date.
 !
 BASE_DATE  "BASE DATE"           6766  NULL        DATE               11  DATE             4
 !
@@ -18856,8 +18991,7 @@ RPI_IND    "RETAIL PR IMPR IND"  6887  NULL        INTEGER            15   INT64
 !
 ANA_EXP_DY "ANALYTIC EXPIR DYS"  6888  NULL        INTEGER            15   INT64           8
 !
-! Days remaining between current date and the Analytics Expiration Date. Always 
-! populated Base the new expiration date on a European style date.
+! Days remaining between current date and the Analytics Expiration Date.
 !
 REPURC_QTY "REPURCHASED QTY"     6889  NULL        INTEGER            15   INT64           8
 !
@@ -18871,11 +19005,11 @@ RESOLD_QTY "RESOLD QTY"          6890  NULL        INTEGER            15   INT64
 !
 DOM_BVOL   "DOM BUY VOL"         6891  NULL        INTEGER            15   INT64           8
 !
-! Buy Volume by Domestic Investor
+! Buy Volume for Domestic Investors
 !
 DOM_SVOL   "DOM SELL VOL"        6892  NULL        INTEGER            15   INT64           8
 !
-! Sell Volume by Domestic Investor
+! Sell Volume for Domestic Investors
 !
 FR_SRSHR   "SUB REG SH LMT"      6893  NULL        INTEGER            15   INT64           8
 !
@@ -18960,11 +19094,13 @@ PDACVOL    "PREV DAY ACC VOL"    6909  NULL        INTEGER            15   INT64
 !
 ALL_C_MOVE "ALL CCY MOVES"       6910  NULL        INTEGER            15   INT64           8
 !
-! Total number of trade reports for trades that have occurred today, in all currencies.
+! Total number of trade reports for trades that have occurred today. Trades in all 
+! currencies are included.
 !
 ALL_C_VOL  "ALL CCY VOL"         6911  NULL        INTEGER            15   INT64           8
 !
-! Total volume reported for trades that have occurred today, in all currencies.
+! Total volume reported for trades that have occurred today. Trades in all currencies 
+! are included.
 !
 A_C_RP_VOL "ALL CCY REPORT VOL"  6912  NULL        INTEGER            15   INT64           8
 !
@@ -18998,7 +19134,7 @@ AC_VOL_CRS "ACC CRS TRD VOL"     6918  NULL        INTEGER            15   INT64
 ORDER_PRIY "ORDER PRIORITY"      6919  NULL        INTEGER            15   INT64           8
 !
 ! Field indicating the relative priority to other orders when all factors in the price 
-! rank rule as defined by FID OR_RNK_RUL are equal
+! rank rule as defined by FID OR_RNK_RUL and ORDER_RNK are equal
 !
 MAX_ORD_SZ "MAX ORDER SIZE"      6920  NULL        INTEGER            15   INT64           8
 !
@@ -20007,7 +20143,10 @@ MIN_ORD_S4 "MIN ORDER SIZE 4"    7178  NULL        INTEGER            15   INT64
 !
 ! Additional Minimum Order Size.
 !
-PRE_INT300 "PRED INTEGER 300"    7179  NULL        INTEGER            15   INT64           8
+RFC_VOL    "RFC VOLUME"          7179  NULL        INTEGER            15   INT64           8
+!
+! Request for Cross (RFC) Volume.
+!
 PRE_INT301 "PRED INTEGER 301"    7180  NULL        INTEGER            15   INT64           8
 PRE_INT302 "PRED INTEGER 302"    7181  NULL        INTEGER            15   INT64           8
 PRE_INT303 "PRED INTEGER 303"    7182  NULL        INTEGER            15   INT64           8
@@ -20295,7 +20434,7 @@ VOL_OI_RTO "VOL OPEN INT RATIO"  7443  NULL        PRICE              17  REAL64
 !
 SSRFILE_PR "SSR FILE PRICE"      7444  NULL        PRICE              17  REAL64           9
 !
-! Filing Price for SSR?
+! Filing price for short selling restriction
 !
 VWAP_EVE   "VWAP EVENING"        7445  NULL        PRICE              17  REAL64           9
 !
@@ -20415,7 +20554,7 @@ INTRMKT_PR "INTERMKT DIFF PRC"   7468  NULL        PRICE              17  REAL64
 !
 KNOCK_IN   "KNOCK IN PRICE"      7469  NULL        PRICE              17  REAL64           9
 !
-! Knock-In Threshold price for put type warrants
+! Knock-In Threshold price
 !
 OMEGA      "OMEGA"               7470  NULL        PRICE              17  REAL64           9
 !
@@ -21035,8 +21174,7 @@ LST_CLN_PR "LAST CLEAN PRC"      7598  NULL        PRICE              17  REAL64
 !
 MID_IV     "MID IMPLIED VOLT"    7599  NULL        PRICE              17  REAL64           9
 !
-! Mid implied volatility computed from bid and ask or an approximation computed 
-! through interpolation, for an option(or an option embedded) instrument.
+! Mid implied volatility.
 !
 UPP_RNGLIM "UPPER RANGE LMT"     7600  NULL        PRICE              17  REAL64           9
 !
@@ -21886,7 +22024,7 @@ U_FRANKING "UNDLY FRANKING CDT"  7799  NULL        PRICE              17  REAL64
 !
 SUM_TRDPRC "SUMM MSG TRD PRC"    7800  NULL        PRICE              17  REAL64           9
 !
-! Trade price for the summary message
+! Trade price from the summary message
 !
 REGU_LPRC  "REGULATORY LOW PRC"  7801  NULL        PRICE              17  REAL64           9
 !
@@ -22150,11 +22288,11 @@ MONEYNESS  "MONEYNESS"           7867  NULL        PRICE              17  REAL64
 !
 YRASKHIGH  "YEAR ASK HIGH"       7868  NULL        PRICE              17  REAL64           9
 !
-! The highest ask price for the current year.
+! The highest Ask price for this calendar year.
 !
 YRASKLOW   "YEAR ASK LOW"        7869  NULL        PRICE              17  REAL64           9
 !
-! The lowest ask price for the current year.
+! The lowest Ask price for this calendar year.
 !
 OFFBK_CLS  "OFFBK CLOSE"         7870  NULL        PRICE              17  REAL64           9
 !
@@ -22227,7 +22365,7 @@ US_BNC     "US BID NETCHNG"      7888  NULL        PRICE              17  REAL64
 !
 WK_ASK_LO  "WEEKLY ASK LOW"      7889  NULL        PRICE              17  REAL64           9
 !
-! Weekly Highest ASK
+! Weekly Lowest ASK
 !
 WK_BID_HI  "WEEKLY BID HIGH"     7890  NULL        PRICE              17  REAL64           9
 !
@@ -22588,11 +22726,11 @@ SUBSCR_PRC "SUBSCRIPTION PRICE"  7976  NULL        PRICE              17  REAL64
 !
 STRGY_IMPA "ORTS IMP STRGY ASK"  7977  NULL        PRICE              17  REAL64           9
 !
-! Latest Implied Best Ask Price
+! Implied Best Ask Price
 !
 STRGY_IMPB "ORTS IMP STRGY BID"  7978  NULL        PRICE              17  REAL64           9
 !
-! Latest Implied Best Bid Price
+! Implied Best Bid Price
 !
 FPN        "FINAL PHY NOTIFN"    7979  NULL        PRICE              17  REAL64           9
 !
@@ -22648,7 +22786,7 @@ CPN_FIXED1 "FIXED COUPON 1"      7989  NULL        PRICE              17  REAL64
 !
 CRD_TOTAL  "CRD TOTAL"           7990  NULL        PRICE              17  REAL64           9
 !
-! CRD Total
+! Carry Roll Down Total
 !
 FWD_RATE   "FORWARD RATE"        7991  NULL        PRICE              17  REAL64           9
 !
@@ -23044,7 +23182,7 @@ OAUC_VMA5D "OPEN AUC VWA 5D"     8129  NULL        PRICE              17  REAL64
 !
 OPINTUN_NC "UNCOVERED OPINT NC"  8130  NULL        PRICE              17  REAL64           9
 !
-! Uncovered (net) open interest net change. 
+! Uncovered open interest net change.
 !
 PREMIUM2   "PREMIUM 2"           8131  NULL        PRICE              17  REAL64           9
 !
@@ -23263,7 +23401,7 @@ FV_DV01    "FAIR VAL DV01"       8183  NULL        PRICE              17  REAL64
 !
 OIS_SPREAD "OIS SPREAD"          8184  NULL        PRICE              17  REAL64           9
 !
-! The OIS spread is the difference between the bond yield mid and the OIS mid rate. 
+! Overnight Index Swap. OIS is the difference between the bond yield and the OIS rate.
 !
 QTD_MARGIN "QUOTED MARGIN"       8185  NULL        PRICE              17  REAL64           9
 !
@@ -23276,7 +23414,7 @@ THEO_YLD   "THEO YIELD"          8186  NULL        PRICE              17  REAL64
 !
 YLDNC_1M   "YLD NETCHNG 1M"      8187  NULL        PRICE              17  REAL64           9
 !
-! Monthly net yield change
+! Yield Net Change 1 month
 !
 YLDNC_1W   "YLD NETCHNG 1W"      8188  NULL        PRICE              17  REAL64           9
 !
@@ -23304,8 +23442,8 @@ INT_GV_SPD "INTERP GOVT SPRD"    8193  NULL        PRICE              17  REAL64
 !
 INT_GV_YLD "INTERP GOVT YIELD"   8194  NULL        PRICE              17  REAL64           9
 !
-! The interpolated yield of the government benchmark used to derive the interpolated 
-! government spread.
+! Interpolated Benchmark Yield. The interpolated yield of the government benchmark 
+! used to derive the interpolated government spread.
 !
 U_HVLT_90D "UNDLY HSTVLT 90D"    8195  NULL        PRICE              17  REAL64           9
 !
@@ -23317,8 +23455,9 @@ SHS_TV_RTO "SHS TNOV RATIO"      8196  NULL        PRICE              17  REAL64
 !
 TED_SPREAD "TED SPREAD"          8197  NULL        PRICE              17  REAL64           9
 !
-! The difference (in basis points), between the YTM of a hypothetical bond with 
-! identical coupons and maturity. The actual bonds cash flows are discounted 
+! Treasury-EuroDollar rate Spread. The difference (in basis points), between the YTM 
+! of a hypothetical bond with identical coupons and maturity. The actual bonds cash 
+! flows are discounted
 !
 ASK_C_DISC "ASK CLOSE DISC PRC"  8198  NULL        PRICE              17  REAL64           9
 !
@@ -23797,7 +23936,7 @@ SIVSRC_RIC "SETL IV SRC RIC"     8326  NULL        ALPHANUMERIC       32  ASCII_
 !
 CDS_RIC    "CDS RIC"             8327  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
-! CDS RIC
+! References to CDS EOD Curve RIC
 !
 FRNIDX_RIC "FRN INDEX RIC"       8328  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
@@ -24130,7 +24269,7 @@ CAN_CONCD4 "CAN COND CDE 4"      8482  NULL        ALPHANUMERIC        4  RMTES_
 !
 CONDCODE_4 "CONDITION CODE 4"    8483  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Secondary native trade condition code
+! Secondary native trade condition code field for the last eligible trades.
 !
 INS_CONCD1 "INS COND CDE 1"      8484  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 INS_CONCD2 "INS COND CDE 2"      8485  NULL        ALPHANUMERIC        4  RMTES_STRING     4
@@ -24161,7 +24300,8 @@ ORD_STATUS "ORDER STATUS"        8494  NULL        ALPHANUMERIC        4  RMTES_
 !
 LST_TRD_TN "LAST TRD PRC TONE"   8495  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Native condition code associated with the clean last trade of continuous trading.   
+! Native condition code associated with the FID LST_TRD_PR(#3675) - the clean last 
+! trade of continuous trading.
 !
 PD_CONCD1  "PRVD COND CDE 1"     8496  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PD_CONCD2  "PRVD COND CDE 2"     8497  NULL        ALPHANUMERIC        4  RMTES_STRING     4
@@ -24243,7 +24383,8 @@ CAN_XID    "CANCELLED TRD XID"   8518  NULL        ALPHANUMERIC       10  RMTES_
 !
 TRD_P_XID  "TRD PRC XID1"        8519  TRD_P_XID2  ALPHANUMERIC       10  RMTES_STRING    10
 !
-! Venue code that the last update TRDPRC_1 originated from.
+! MIC segment code or other identifier of the venue where the last update of TRDPRC_1 
+! originated from.
 !
 TRD_P_XID2 "TRD PRC XID2"        8520  TRD_P_XID3  ALPHANUMERIC       10  RMTES_STRING    10
 !
@@ -24344,8 +24485,7 @@ U_ASSET_TP "UNDLY ASSET TP"      8542  NULL        ALPHANUMERIC       10  RMTES_
 !
 U_CUSIP    "UNDERLYING CUSIP"    8543  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
-! Issue-level code assigned by CUSIP for identifying North American Securities for the 
-! underlying RIC of an instrument
+! Underlying CUSIP.
 !
 U_SEDOL    "UNDERLYING SEDOL"    8544  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
@@ -24499,7 +24639,8 @@ MATUR_AXIS "MAURITY AXIS"        8581  NULL        ALPHANUMERIC       16  RMTES_
 !
 MMT_CLASS  "MMT CLASS"           8582  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 !
-! MMT Classification of the Last Reported Trade, Cancellation or Amendment
+! MMT(Market Model Typology) Classification of the Last Reported Trade, Cancellation 
+! or Amendment. For more information, refer to the FIX Trading Community website.
 !
 STRK_AXIS  "STRIKE AXIS"         8583  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 !
@@ -24812,18 +24953,24 @@ BMK_CRV_ID "BMK CURVE ID"        8682  NULL        ALPHANUMERIC       24  RMTES_
 ! Native venue reference CURVE ID
 !
 EVENT_ID3  "EVENT ID 3"          8683  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Native ID for EVENT
+!
 PDSINT_IND "PRVD SINT IND"       8684  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Systematic internaliser indicator MiFID II for previous days trades
+!
+RFC_ORD_ID "RFC ORDER ID"        8685  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! The identifier of the Request for Cross (RFC) order that is unique for the day.
+!
+PRE_24T055 "PRED 24 TXT 055"     8686  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
 ! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
-PRE_24T054 "PRED 24 TXT 054"     8685  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T055 "PRED 24 TXT 055"     8686  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-!
-! TBD
-!
 UND_EXCH_N "UNDLY EXCH NAME"     8687  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
-! The primary exchange name for the underlying instrument of the derivative.
+! Native primary exchange name of the underlying instrument of the derivative.
 !
 PI_QSTAT_N "PRC IMP QTE STATUS"  8688  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
@@ -24857,8 +25004,7 @@ PRE_24T064 "PRED 24 TXT 064"     8695  NULL        ALPHANUMERIC       24  RMTES_
 !
 FEED_NAME  "FEED NAME"           8696  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
-! What the input feed name is - how long 32 chars. Came up in context of imbalance 
-! feed.
+! The name of the data feed
 !
 UN_RIC     "DS UNDERLYING RIC"   8697  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
@@ -24899,8 +25045,8 @@ SHRS_AMT   "SHARES AMT"          8704  NULL        ALPHANUMERIC       40  RMTES_
 !
 BAS_IDX_CD "BASE INDEX CODE"     8705  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
-! Code representing the index used in the bond's reset calculation (e.g. the 3-month 
-! U.S. LIBOR)
+! Code representing the index used in the instrument's reset calculation (e.g. the 
+! 3-month U.S. LIBOR)
 !
 CNV_RIC    "CONVERSION RIC"      8706  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
@@ -25150,7 +25296,7 @@ VOTE_DESC  "VOTING RIGHTS DESC"  8764  NULL        ALPHANUMERIC      255  RMTES_
 !
 SECTR_DESC "SECTOR DESC"         8765  NULL        ALPHANUMERIC      255  RMTES_STRING   255
 !
-! Main sector applicable to the instrument
+! Describes the sector of the instrument within the market segment
 !
 MDU_DPKEY1 "MDU DEDUP KEY 1"     8766  NULL        ALPHANUMERIC      255  RMTES_STRING   255
 !
@@ -25361,7 +25507,7 @@ SRC_HB_TZ  "SRC HB TIMEZONE"     8924  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 UNDLY_TYPE "UNDERLYING TYPE"     8925  NULL        ENUMERATED    3 ( 6 )  ENUM             1
 !
-! Type of option: Equity, ETF, Future
+! Type of derivative contract underlying: Equity, ETF, Future
 !
 SPRD_TYPE  "SPREAD TYPE"         8926  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 !
@@ -25411,15 +25557,10 @@ RETAIL_INT "RETAIL INTEREST TY"  8935  NULL        ENUMERATED    3 ( 3 )  ENUM  
 ! market, none, bid, ask or both has such orders.
 !
 LIMIT_IND2 "LMT UP DN IND 2"     8936  NULL        ENUMERATED    3 ( 3 )  ENUM             1
-!
-! Indicator of the changes is status of trade limits and its effects on the trading 
-! status of posted quotes.  Extends enumerated values found in LIMIT_IND FID 99.
-!
 LIMIT_INDQ "LMT UP DN IND QTE"   8937  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! Indicator of the changes is status of trade limits and its effects on the trading 
-! status of posted quotes, provides additional details.  Uses the same enum values as 
-! LIMIT_IND2
+! An indicator of the change in the status of trade limits and its effects on the 
+! trading status of posted quotes.
 !
 BOOK_TYPE  "BOOK TYPE"           8938  NULL        ENUMERATED    3 ( 5 )  ENUM             1
 !
@@ -25436,8 +25577,7 @@ VOLT_SC    "VOLATILITY SCALE"    8940  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 CLA_CD_IND "IDX CLASS CD IND"    8941  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 !
-! The indicator of the type of the classification code populated in FID CLASS_CODE 
-! (3308)
+! Enumerated descriptor for the classification code provided CLASS_CODE(#3308)
 !
 OI_ADJ_IND "OPINT ADJ IND"       8942  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
@@ -25959,7 +26099,8 @@ UMIDTIM_MS "UNDLY MID PRC MS"    9062  NULL        INTEGER            15  UINT64
 !
 IRGTIM_MS  "IRGTIM_MS"           9063  NULL        INTEGER            15  UINT64           8
 !
-! Time of correction in milliseconds
+! Time of last ineligible trade with precision in milliseconds - the time of the last 
+! updated to the field IRGPRC(#372)
 !
 BASEPRC_MS "BASE PRICE TIME"     9064  NULL        INTEGER            15  UINT64           8
 !
@@ -25971,11 +26112,11 @@ OFBKTIM_MS "OFFBK TRD TIME MS"   9065  NULL        INTEGER            15  UINT64
 !
 MAXAFIL_MS "MAX ASK ORD FIL TM"  9066  NULL        INTEGER            15  UINT64           8
 !
-! Maximum time taken for an ask order to be full filled 
+! Maximum time taken to fill an ask order.
 !
 MAXBFIL_MS "MAX BID ORD FIL TM"  9067  NULL        INTEGER            15  UINT64           8
 !
-! Maximum time taken for a bid order to be full filled 
+! Maximum time taken to fill a bid order.
 !
 MKRQTE_MS  "MKT MKR QT TIM"      9068  NULL        INTEGER            15  UINT64           8
 !
@@ -27844,7 +27985,7 @@ ORDER_SPRD "ORDER SPREAD"        9955  NULL        PRICE              17  REAL64
 !
 INT_BEI    "INTERP BRKEVEN INF"  9956  NULL        PRICE              17  REAL64           9
 !
-! Interpolated breakeven inflation for Index-linked bond
+! Interpolated Breakeven Inflation
 !
 CAN_PREM   "CAN PREMIUM"         9957  NULL        PRICE              17  REAL64           9
 !
@@ -28417,6 +28558,9 @@ BEY_MID5   "MID BND EQUIV YLD5" 10109  NULL        PRICE              17  REAL64
 ! Five rippled fields for Mid Bond Equivalent Yield
 !
 BID_DMRG1  "BID DISC MRGN 1"    10110  BID_DMRG2   PRICE              17  REAL64           9
+!
+! Bid Discount Margin
+!
 BID_DMRG2  "BID DISC MRGN 2"    10111  BID_DMRG3   PRICE              17  REAL64           9
 BID_DMRG3  "BID DISC MRGN 3"    10112  BID_DMRG4   PRICE              17  REAL64           9
 BID_DMRG4  "BID DISC MRGN 4"    10113  BID_DMRG5   PRICE              17  REAL64           9
@@ -28509,6 +28653,9 @@ MID_C_SPD  "MID CLOSE SPREAD"   10138  NULL        PRICE              17  REAL64
 ! Close Mid Spread
 !
 MID_DMRG1  "MID DISC MRGN 1"    10139  MID_DMRG2   PRICE              17  REAL64           9
+!
+! Mid Discount Margin
+!
 MID_DMRG2  "MID DISC MRGN 2"    10140  MID_DMRG3   PRICE              17  REAL64           9
 MID_DMRG3  "MID DISC MRGN 3"    10141  MID_DMRG4   PRICE              17  REAL64           9
 MID_DMRG4  "MID DISC MRGN 4"    10142  MID_DMRG5   PRICE              17  REAL64           9
@@ -28803,7 +28950,7 @@ YLD_PCT_16 "YIELD PCT 16"       10248  NULL        PRICE              17  REAL64
 !
 ADJ_MIDPRC "ADJUSTED MID PRICE" 10249  NULL        PRICE              17  REAL64           9
 !
-! Adjusted/Unadjusted price Mid
+! Adjusted price Mid
 !
 ASP_ANCHG  "ASP NCHG ASK"       10250  NULL        PRICE              17  REAL64           9
 !
@@ -28859,11 +29006,11 @@ BMK_SPDMID "BMK SPREAD MID"     10262  NULL        PRICE              17  REAL64
 !
 BPV_A      "BASIS PT VAL ASK"   10263  NULL        PRICE              17  REAL64           9
 !
-! BPV Ask
+! Basis Point Value Ask
 !
 BPV_B      "BASIS PT VAL BID"   10264  NULL        PRICE              17  REAL64           9
 !
-! BPV Bid Price
+! Basis Point Value Bid
 !
 CDS_BSMT_A "CTS CDS BASIS ASK"  10265  NULL        PRICE              17  REAL64           9
 !
@@ -28883,15 +29030,15 @@ CNVEXITY_B "CONVEXITY BID"      10268  NULL        PRICE              17  REAL64
 !
 DIRTY_MID  "DIRTY MID PRC"      10269  NULL        PRICE              17  REAL64           9
 !
-! Gross Price Mid
+! Mid price including accrued interest
 !
 INT_BEI_A  "INT BRKEN INFL ASK" 10270  NULL        PRICE              17  REAL64           9
 !
-! Interpolated BEI Ask
+! Interpolated Breakeven Inflation Ask
 !
 INT_BEI_M  "INT BRKEN INFL MID" 10271  NULL        PRICE              17  REAL64           9
 !
-! Interpolated BEI Mid
+! Interpolated Breakeven Inflation Mid
 !
 INT_BSIS_A "INT CDS BASIS ASK"  10272  NULL        PRICE              17  REAL64           9
 !
@@ -28947,11 +29094,11 @@ OAS_MID    "OAS MID"            10284  NULL        PRICE              17  REAL64
 !
 OIS_SPD_A  "OIS SPREAD ASK"     10285  NULL        PRICE              17  REAL64           9
 !
-! OIS Spread Ask (interpolate only - no extrapolate)
+! Overnight Index Swap Ask.
 !
 OIS_SPD_B  "OIS SPREAD BID"     10286  NULL        PRICE              17  REAL64           9
 !
-! OIS Bid Spread (interpolate only - no extrapolate)
+! Overnight Index Swap Bid.
 !
 SIMP_MGN_M "SIMPLE MARGIN MID"  10287  NULL        PRICE              17  REAL64           9
 !
@@ -28963,11 +29110,11 @@ SWAP_SPRDM "SWAP SPREAD MID"    10288  NULL        PRICE              17  REAL64
 !
 TED_SPD_A  "TED SPREAD ASK"     10289  NULL        PRICE              17  REAL64           9
 !
-! TED Spread Ask
+! Treasury-EuroDollar rate Spread Ask.
 !
 TED_SPD_M  "TED SPREAD MID"     10290  NULL        PRICE              17  REAL64           9
 !
-! TED Spread Mid
+! Treasury-EuroDollar rate Spread Mid.
 !
 BMK_CRV_AY "BMK CURVE ADJ YLD"  10291  NULL        PRICE              17  REAL64           9
 !
@@ -29214,7 +29361,7 @@ OFPK_LOW   "OFF PEAK LOW"       10349  NULL        PRICE              17  REAL64
 !
 OFPK_NETCH "OFF PEAK NETCHG"    10350  NULL        PRICE              17  REAL64           9
 !
-! Difference between the lastest offpeak power price or value and the historical 
+! Difference between the latest offpeak power price or value and the historical 
 ! offpeak closing value.
 !
 OFPK_OPEN  "OFF PEAK OPEN"      10351  NULL        PRICE              17  REAL64           9
@@ -29976,7 +30123,7 @@ BLK_MX_OSZ "BLK MAX ORD SZ"     10579  NULL        PRICE              17  REAL64
 !
 BLK_OS_OSZ "BLK OS SPRD ORD SZ" 10580  NULL        PRICE              17  REAL64           9
 !
-! Block Trade Outside Spread? Order Size.
+! Block Trade Outside Spread Order Size.
 !
 O_DISCFACT "OPEN DISC FACTOR"   10581  NULL        PRICE              17  REAL64           9
 !
@@ -30167,7 +30314,7 @@ TOT_SVOLP  "TOT SELL VOL PCT"   10626  NULL        PRICE              17  REAL64
 !
 CRSTRD_YLD "CROSS TRD YLD"      10627  NULL        PRICE              17  REAL64           9
 !
-! Cross trade price
+! Cross Trade Yield
 !
 MMEY_SNP1  "MM EQUIV YLD SNAP1" 10628  NULL        PRICE              17  REAL64           9
 !
@@ -31573,11 +31720,11 @@ B_NCHG_6M  "BID NET CHNG 6M"    10980  NULL        PRICE              17  REAL64
 !
 BAS_SPD_H  "BAS SPRD HIGH"      10981  NULL        PRICE              17  REAL64           9
 !
-! Secondary high value - Americas markets.
+! Bid-ask spread high.
 !
 BAS_SPD_L  "BAS SPRD LOW"       10982  NULL        PRICE              17  REAL64           9
 !
-! Secondary low value - Americas markets.
+! bid-ask spread low.
 !
 ALT_BIDCLS "ALT CLOSE BID"      10983  NULL        PRICE              17  REAL64           9
 !
@@ -31646,7 +31793,7 @@ FIXING_5   "FIXING 5"           10999  NULL        PRICE              17  REAL64
 !
 BIN_TRDPRC "BUYIN TRD PRC"      11000  NULL        PRICE              17  REAL64           9
 !
-! Last buy-in trade price
+! Date of the last buy-in trade
 !
 BUYIN_BID  "BUYIN BID"          11001  NULL        PRICE              17  REAL64           9
 !
@@ -32451,15 +32598,44 @@ AVGCYL_AUC "AVG CMP YLD IN AUC" 11199  NULL        PRICE              17  REAL64
 !
 ! Average compound yield in auction
 !
-PRERL2209  "PRED REAL 2209"     11200  NULL        PRICE              17  REAL64           9
-PRERL2210  "PRED REAL 2210"     11201  NULL        PRICE              17  REAL64           9
-PRERL2211  "PRED REAL 2211"     11202  NULL        PRICE              17  REAL64           9
-PRERL2212  "PRED REAL 2212"     11203  NULL        PRICE              17  REAL64           9
-PRERL2213  "PRED REAL 2213"     11204  NULL        PRICE              17  REAL64           9
-PRERL2214  "PRED REAL 2214"     11205  NULL        PRICE              17  REAL64           9
-PRERL2215  "PRED REAL 2215"     11206  NULL        PRICE              17  REAL64           9
-PRERL2216  "PRED REAL 2216"     11207  NULL        PRICE              17  REAL64           9
-PRERL2217  "PRED REAL 2217"     11208  NULL        PRICE              17  REAL64           9
+PD_YLD     "PD TRADE YIELD"     11200  NULL        PRICE              17  REAL64           9
+!
+! Yield of the most recent previous day trade.
+!
+PRCPRI_AUC "PRC PRIMARY AUC"    11201  NULL        PRICE              17  REAL64           9
+!
+! Auction price as a result of Primary Auction
+!
+INCAMT_AUC "INC AMT RPN AUC"    11202  NULL        PRICE              17  REAL64           9
+!
+! Increased Amount - the additional amount raised in Reopening auctions 
+!
+DECAMT_AUC "DEC AMT RDM AUC"    11203  NULL        PRICE              17  REAL64           9
+!
+! Decreased Amount - the amount absorbed in auctions
+!
+PRVAMT_AUC "PREV AMT OF AUC"    11204  NULL        PRICE              17  REAL64           9
+!
+! The amount offered in the previous Auction
+!
+PRORAT_CPT "PRO RATA COMP"      11205  NULL        PRICE              17  REAL64           9
+!
+! The average percentage of allotment relative to each participants tendered amount. 
+! The Amount Offered in an Auction / Tendered Competitive Bid Amount.
+!
+PRORAT_NCP "PRO RATA NON COMP"  11206  NULL        PRICE              17  REAL64           9
+!
+! The average percentage of allotment relative to each participants tendered amount. 
+! The Amount Offered in an Auction/Tendered Non Competitive Bid Amount.   
+!
+SSR_TG_PRC "SSR TRIGG PRICE"    11207  NULL        PRICE              17  REAL64           9
+!
+! Short Sale Restriction (SSR) triggering price.
+!
+SSR_TG_VOL "SSR TRIGG VOL"      11208  NULL        PRICE              17  REAL64           9
+!
+! Volume of the Short Sale Restriction (SSR) triggering price.
+!
 PRERL2218  "PRED REAL 2218"     11209  NULL        PRICE              17  REAL64           9
 PRERL2219  "PRED REAL 2219"     11210  NULL        PRICE              17  REAL64           9
 PRERL2220  "PRED REAL 2220"     11211  NULL        PRICE              17  REAL64           9
@@ -32962,7 +33138,7 @@ CAN_CONCD5 "CAN COND CDE 5"     11648  NULL        ALPHANUMERIC        4  RMTES_
 !
 CONDCODE_5 "CONDITION CODE 5"   11649  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Secondary native trade condition code
+! Secondary native trade condition code field for the last eligible trades.
 !
 CRS_CONCD5 "CRS COND CDE 5"     11650  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
@@ -33494,7 +33670,7 @@ STG_SELID  "STRGY SELLER ID"    11863  NULL        ALPHANUMERIC       10  RMTES_
 !
 PRE_10T139 "PRED 10 TXT 139"    11864  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
-! TBD
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
 MFD_TRANTP "MIFID TRAN TP"      11865  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
@@ -33718,7 +33894,7 @@ UN_LEI     "UNDERLYING LEI"     11994  NULL        ALPHANUMERIC       24  RMTES_
 !
 ISSR_LEI   "ISSR LEI"           11995  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
-! Legal Entity Identifier (LEI) of issuer
+! Issuer Legal Entity Identifier (LEI)
 !
 IOI_ID     "IOI ID"             11996  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
@@ -34123,7 +34299,7 @@ IDX_DVSOR1 "IDX DIVISOR 1"      12218  NULL        ALPHANUMERIC       40  RMTES_
 !
 IDX_NDVSOR "IDX DIVISOR NXTDAY" 12219  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
-! Next Day Index Devisor
+! Next Day Index Divisor
 !
 UN_IDX_VAL "INDEX VALUE UNS"    12220  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
@@ -34152,15 +34328,15 @@ DELIV_LOC  "DELIV LOCATION"     12225  NULL        ALPHANUMERIC       40  RMTES_
 !
 RFNY_OWNER "REFINERY OWNER"     12226  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
-! The name of the processing unit in the refinery
+! The refinery owner name
 !
 UNIT_NAME  "UNIT NAME"          12227  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
-! The type of the processing unit in the refinery
+! The name of the processing unit in the refinery
 !
 UNIT_TYPE  "UNIT TYPE"          12228  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
-! The outage ID of a refinery unit
+! The type of the processing unit in the refinery
 !
 PRE_40T042 "PRED 40 TXT 042"    12229  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T043 "PRED 40 TXT 043"    12230  NULL        ALPHANUMERIC       40  RMTES_STRING    40
@@ -35105,8 +35281,8 @@ IRG_R_PTY  "IRG RPT PARTY"      12869  NULL        ENUMERATED    3 ( 3 )  ENUM  
 !
 RPT_PTY_1  "REPORTING PARTY 1"  12870  RPT_PTY_2   ENUMERATED    3 ( 3 )  ENUM             1
 !
-! Reporting party side code.   Indicates the side(ie Buy OR Sell) of the reported deal 
-! from reporting party's perspective.
+! Reporting party condition code. Indicates which side(ie Buy OR Sell) and type(ie 
+! Customer OR Inter-dealer) of the reported deal from reporting party's perspective.
 !
 RPT_PTY_2  "REPORTING PARTY 2"  12871  RPT_PTY_3   ENUMERATED    3 ( 3 )  ENUM             1
 RPT_PTY_3  "REPORTING PARTY 3"  12872  RPT_PTY_4   ENUMERATED    3 ( 3 )  ENUM             1
@@ -35336,11 +35512,11 @@ FBBO_IND   "FINRA NBBO IND"     12930  NULL        ENUMERATED    3 ( 3 )  ENUM  
 !
 YR_HYIND   "YR HIGH YLD IND"    12931  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
-! Year Low Yield Indicator
+! Year High Yield Indicator
 !
 YR_LYIND   "YR LOW YLD IND"     12932  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
-! Year High Yield Indicator
+! Year Low Yield Indicator
 !
 BBO_LT_IND "BBO LT IND"         12933  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
@@ -36021,10 +36197,26 @@ REL_PRC_TP "REL PRICE TYPE"     13126  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 ! Indicates the type of price for REL_PRICE.
 !
-PRE_1ET426 "PRED 1 ET 426"      13127  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET427 "PRED 1 ET 427"      13128  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET428 "PRED 1 ET 428"      13129  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET429 "PRED 1 ET 429"      13130  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+PD_QTYIND  "PD QTY IND"         13127  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Previous Day trade - Quantity indicator. This field indicates if the quantity is 
+! actual or estimated.
+!
+PD_CM_IND  "PD TRD COMM IND"    13128  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Previous Day trade - Commission indicator. This field indicates if the price is 
+! inclusive of dealer commission.
+!
+PD_R_PTY   "PD RPT PARTY"       13129  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Previous Day trade - Reporting party side. This field identifies the side(i.e. Buy 
+! OR Sell) from the reporting party's perspective.
+!
+LEVG_IND   "LEVERAGE IND"       13130  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Indicates that the instrument provides amplified exposure to the price movements of 
+! its underlying asset.
+!
 PRE_1ET430 "PRED 1 ET 430"      13131  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET431 "PRED 1 ET 431"      13132  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET432 "PRED 1 ET 432"      13133  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -37077,7 +37269,7 @@ MET_TYP22  "METRIC TYPE 22"     13605  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 DELIV_METH "DELIV METHOD"       13606  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 !
-! Delivery Method.
+! The delivery methods like Pipeline, Waterborne etc.,
 !
 SC_REGU_CD "SEC REGU COND CD"   13607  NULL        ENUMERATED    5 ( 5 )  ENUM             2
 !
@@ -37094,7 +37286,7 @@ UNIT_STAT  "UNIT STATUS"        13609  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 DRK_EXID   "DARK TRD EXCH ID"   13610  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
-! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+! Dark Trade Exchange Identifier.
 !
 CNTR_SZ_UT "CONTRACT SIZE UNIT" 13611  NULL        ENUMERATED    5 ( 5 )  ENUM             2
 !
@@ -37212,10 +37404,23 @@ ASC_RATE   "ASC RATE NAME"      13641  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Associated Rate Name.
 !
-PRE_2ET321 "PRED 2 ET 321"      13642  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET322 "PRED 2 ET 322"      13643  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET323 "PRED 2 ET 323"      13644  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET324 "PRED 2 ET 324"      13645  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+PD_RP_TP   "PD RPT PTY TP"      13642  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Previous Day trades. The reporting party type code.
+!
+PD_CP_TP   "PD COUNTER PTY TP"  13643  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Previous Day trades. The type of counterparty for the reported trade.
+!
+AUC_EXCHID "AUCTION EXCHID"     13644  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Identifier of the exchange where auction imbalance occurs.
+!
+SSR_TG_EXD "SSR TRIGG EXCHID"   13645  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Identifier of the exchange where the Short Sale Restriction (SSR) triggered for a 
+! security.
+!
 PRE_2ET325 "PRED 2 ET 325"      13646  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET326 "PRED 2 ET 326"      13647  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET327 "PRED 2 ET 327"      13648  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -37936,7 +38141,7 @@ IPO_QR_MS  "IPO QTE RELEASE TM" 14204  NULL        INTEGER            15  TIME  
 !
 EFPTIM_MS  "EFPTIM MS"          14205  NULL        INTEGER            15  TIME             8
 !
-! Date of last Exchange for Physical trade
+! Time of the last Exchange for Physical trade
 !
 BLKTIM_MS  "BLKTIM MS"          14206  NULL        INTEGER            15  TIME             8
 !
@@ -38049,11 +38254,11 @@ LIQ_TIM_MS "LIQ VALUE TIM MS"   14232  NULL        INTEGER            15  TIME  
 !
 SES_END_MS "SESSION END TIME"   14233  NULL        INTEGER            15  TIME             8
 !
-! Current market Session End Time
+! Current Session End Time
 !
 SES_STA_MS "SESSION START TIME" 14234  NULL        INTEGER            15  TIME             8
 !
-! Current market Session Start Time
+! Current Session Start Time
 !
 ORD_RCD_MS "ORD RECEIVED TM MS" 14235  NULL        INTEGER            15  TIME             8
 !
@@ -38237,8 +38442,7 @@ PR_TIM_NS  "PRIORITY TIME NS"   14275  NULL        INTEGER            15  TIME  
 !
 OR_TIM_NS  "ORDER ACT TIME NS"  14276  NULL        INTEGER            15  TIME             8
 !
-! The time, in GMT, an orderbook row was most recently updated - self describing 
-! timestamp supporting up to nanosecond granularity
+! The time, in UTC, an orderbook row was most recently updated.
 !
 CAN_TIM_NS "CAN TIME NS"        14277  NULL        INTEGER            15  TIME             8
 !
@@ -38391,7 +38595,7 @@ CB_ETIM_NS "CIR BRK END TM NS"  14317  NULL        INTEGER            15  TIME  
 !
 CB_TIME_NS "CIR BRK TM NS"      14318  NULL        INTEGER            15  TIME             8
 !
-! Millisecond Time of Trade which triggered a circuit breaker
+! Time of Trade which triggered a circuit breaker
 !
 HALT_TM_NS "HALT TM NS"         14319  NULL        INTEGER            15  TIME             8
 !
@@ -38709,19 +38913,19 @@ REV_INS_NS "REVISED INS TM NS"  14503  NULL        INTEGER            15  TIME  
 !
 ASKHI1_NS  "ASK HI TM1 NS"      14504  ASKHI2_NS   INTEGER            15  TIME             8
 !
-! Ask High time in nanosecond granularity
+! Ask High time.
 !
 ASKLO1_NS  "ASK LO TM1 NS"      14505  ASKLO2_NS   INTEGER            15  TIME             8
 !
-! Ask Low time in nanosecond granularity
+! Ask Low time.
 !
 BIDHI1_NS  "BID HI TM1 NS"      14506  BIDHI2_NS   INTEGER            15  TIME             8
 !
-! Bid High time in nanosecond granularity
+! Bid High time.
 !
 BIDLO1_NS  "BID LO TM1 NS"      14507  BIDLO2_NS   INTEGER            15  TIME             8
 !
-! Bid Low time in nanosecond granularity
+! Bid Low time.
 !
 MIDHI1_NS  "MID HI TM1 NS"      14508  NULL        INTEGER            15  TIME             8
 !
@@ -38990,7 +39194,7 @@ SESS2_C_NS "SESS2 CLS TM NS"    14578  NULL        INTEGER            15  TIME  
 !
 TRD_LM_NS  "TRD LMT UPT NS"     14579  NULL        INTEGER            15  TIME             8
 !
-! The update time for trading price limit, UPLIMIT(75) and LOLIMIT(76).
+! The update time for trading price limit, UPLMIT(#75) and LOLIMIT(#76).
 !
 ALTSETL_NS "ALT SETL PRC TM NS" 14580  NULL        INTEGER            15  TIME             8
 !
@@ -39079,7 +39283,7 @@ SES_STA_NS "SESSION STA TM NS"  14600  NULL        INTEGER            15  TIME  
 !
 SES_END_NS "SESSION END TM NS"  14601  NULL        INTEGER            15  TIME             8
 !
-! Current market Session End Time
+! Current Session End Time
 !
 IN_MGN_NS  "INITIAL MRGN TM NS" 14602  NULL        INTEGER            15  TIME             8
 !
@@ -39468,8 +39672,14 @@ SRC2_ES_NS "SRC2 EGRESS TM NS"  14709  NULL        INTEGER            15  TIME  
 !
 ! Publication time from the secondary source.
 !
-PRE_280_NS "PRED TIME NS 280"   14710  NULL        INTEGER            15  TIME             8
-PRE_281_NS "PRED TIME NS 281"   14711  NULL        INTEGER            15  TIME             8
+RFC_CRT_NS "RFC CREATION TIME"  14710  NULL        INTEGER            15  TIME             8
+!
+! The time when Request for Cross (RFC) was created.
+!
+RFC_EXP_NS "RFC EXPIRY TIME"    14711  NULL        INTEGER            15  TIME             8
+!
+! The time Request for Cross (RFC) will expire.
+!
 PRE_282_NS "PRED TIME NS 282"   14712  NULL        INTEGER            15  TIME             8
 PRE_283_NS "PRED TIME NS 283"   14713  NULL        INTEGER            15  TIME             8
 PRE_284_NS "PRED TIME NS 284"   14714  NULL        INTEGER            15  TIME             8
@@ -42271,7 +42481,7 @@ MKT_ACVOL  "MARKET ACVOL"       32594  NULL        PRICE              17  REAL64
 !
 PRE_LRL037 "PRED LRG REAL 037"  32595  NULL        PRICE              17  REAL64           9
 !
-! TBD
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
 QCCY_ACVOL "QTE CCY ACVOL"      32596  NULL        PRICE              17  REAL64           9
 !
@@ -42299,7 +42509,7 @@ PDRPT_NOTL "PRVD TRD RPT NOTL"  32601  NULL        PRICE              17  REAL64
 !
 WADJ_ACVOL "WEIGHT ADJ ACVOL"   32602  NULL        PRICE              17  REAL64           9
 !
-! Weight-adjusted accumulated volume
+! Weighting-adjusted accumulated volume.
 !
 TOTBVL_DEC "TOT BUY VOL DEC"    32603  NULL        PRICE              17  REAL64           9
 !
@@ -42516,7 +42726,7 @@ CLO_AMT_OS "CLS HLD AMT OS UNS" 32673  NULL        INTEGER            15  UINT64
 !
 LIS_AMT_OS "LISTED AMT OS UNS"  32674  NULL        INTEGER            15  UINT64           8
 !
-! Shares listed/traded on a registered exchange.
+! Total number of listed shares.
 !
 PMD_AMT_OS "PRIM QTE AMT OS"    32675  NULL        INTEGER            15  UINT64           8
 !
@@ -42561,7 +42771,7 @@ TOT_SELVAL "TOT SELL VAL UNS"   32684  NULL        PRICE              17  REAL64
 !
 ISSAMT_UNS "ISS AMT UNS"        32685  NULL        PRICE              17  REAL64           9
 !
-! Un-scaled the total amount of debt instruments issued under a single issue.
+! Total amount of debt instruments issued under a single issue.
 !
 THEO_TNVO  "THEO TURNOVER"      32686  NULL        PRICE              17  REAL64           9
 !
@@ -42608,8 +42818,8 @@ OFBK_LTNOV "OFFBK LST TRD TNOV" 32695  NULL        PRICE              17  REAL64
 !
 ORTS_ACVOL "OUTRIGHT TRD ACVOL" 32696  NULL        INTEGER            15  UINT64           8
 !
-! Today's total number of shares or contract traded in outright.  (Today's total numbe 
-! rof shares traded exclude strategic trades) 
+! Today's total number of shares or contract traded in outright. (Today's total numbe 
+! rof shares traded exclude implied trades)
 !
 FF_AMT_OS  "FREE FLOAT AMT OS"  32697  NULL        INTEGER            15  UINT64           8
 !
