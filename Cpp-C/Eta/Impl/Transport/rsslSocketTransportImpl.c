@@ -16,6 +16,8 @@
 #include "rtr/ripcutils.h"
 #include "rtr/rtratomic.h"
 #include "rtr/rsslQueue.h"
+#include "rtr/ripc_int.h"
+#include "rtr/byteswap.h"
 #include "lz4.h"
  /* OpenSSL tunneling */
 #include "rtr/ripcsslutils.h"
@@ -9807,8 +9809,26 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 		}
 		else if (ripcFragSize > 0)
 		{
+			// If the buffer length is 0, error out.
+			if (ripcBuffer->length == 0)
+			{
+				/* error */
+				if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				{
+					(void)RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+					_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", rsslChnlImpl, rsslChnlImpl->chanMutex)
+				}
+
+				_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_BUFFER_NO_BUFFERS, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0014 rsslSocketRead() Received an invalid intial fragment length.\n", __FILE__, __LINE__);
+				*readRet = RSSL_RET_FAILURE;
+				return NULL;
+			}
+
 			/* first fragment in a fragmented message */
 			rsslAssemblyBuf = (rsslAssemblyBuffer*)_rsslMalloc(sizeof(rsslAssemblyBuffer));
+
+			
 
 			if (rsslAssemblyBuf)
 			{
@@ -9833,6 +9853,26 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 
 				_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_BUFFER_NO_BUFFERS, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0005 rsslSocketRead() Cannot allocate memory of size %d for read buffer.\n", __FILE__, __LINE__, ripcFragSize);
+				*readRet = RSSL_RET_FAILURE;
+				return NULL;
+			}
+
+			// Check for read buffer overflow 
+			if(ripcBuffer->length > ripcFragSize)
+			{
+				if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				{
+				  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+					_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", rsslChnlImpl, rsslChnlImpl->chanMutex)
+				}
+
+				// We just allocated both of these
+				_rsslFree(rsslAssemblyBuf->buffer.data);
+				_rsslFree(rsslAssemblyBuf);
+
+				_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0014 rsslSocketRead() Received fragment size %d is greater than the actual data length %zu.\n",
+					__FILE__, __LINE__, ripcBuffer->length, ripcFragSize);
 				*readRet = RSSL_RET_FAILURE;
 				return NULL;
 			}
@@ -9904,6 +9944,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 		{	/* should be another/subsequent fragment in the current message */
 			rsslAssemblyBuffer	rsslAssemblyBufferSearch;
 			RsslHashLink		*rsslHashLink;
+			rsslAssemblyBuf = NULL;
 
 			_rsslCleanAssemblyBuffer(&rsslAssemblyBufferSearch);
 
@@ -9926,7 +9967,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 			if (rsslHashLink)
 				rsslAssemblyBuf = RSSL_HASH_LINK_TO_OBJECT(rsslAssemblyBuffer, link1, rsslHashLink);
 
-			if (!rsslHashLink || !rsslAssemblyBuf->buffer.data)
+			if (!rsslHashLink)
 			{
 				/* error */
 				if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
@@ -9935,9 +9976,6 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 					_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", rsslChnlImpl, rsslChnlImpl->chanMutex)
 				}
 
-				if (rsslAssemblyBuf)
-					_rsslFree(rsslAssemblyBuf);
-
 				_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_BUFFER_NO_BUFFERS, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslRead() Error: 0014 Attempting to reassemble a message with frag ID %d without seeing first fragment.\n",
 						__FILE__, __LINE__, ripcFragId);
@@ -9945,9 +9983,34 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				return NULL;
 			}
 
+			// Check for read buffer overflow 
+			if ((rsslAssemblyBuf->readCursor + ripcBuffer->length) > rsslAssemblyBuf->buffer.length)
+			{
+				/* error - we should have received as much data as the frag size */
+				if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				{
+					(void)RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+					_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", rsslChnlImpl, rsslChnlImpl->chanMutex)
+				}
+
+				// This assembly buffer is invalid, so remove it from the hash table and free the associated data.
+				rsslHashTableRemoveLink(&rsslChnlImpl->assemblyBuffers, &rsslAssemblyBuf->link1);
+				_DEBUG_TRACE_BUFFER("removing from assemblyBuffers hash\n")
+
+				_rsslFree(rsslAssemblyBuf->buffer.data);
+				_rsslFree(rsslAssemblyBuf);
+
+				_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0014 rsslSocketRead() Received fragment size %d is greater than the actual data length %zu.\n",
+					__FILE__, __LINE__, rsslAssemblyBuf->readCursor + ripcBuffer->length, rsslAssemblyBuf->buffer.length);
+				*readRet = RSSL_RET_FAILURE;
+				return NULL;
+			}
+
 			MemCopyByInt((rsslAssemblyBuf->buffer.data) + rsslAssemblyBuf->readCursor, ripcBuffer->buffer, ripcBuffer->length);
 
 			rsslAssemblyBuf->readCursor += (RsslUInt32)ripcBuffer->length;
+
 
 			if (rsslAssemblyBuf->readCursor == rsslAssemblyBuf->buffer.length)
 			{

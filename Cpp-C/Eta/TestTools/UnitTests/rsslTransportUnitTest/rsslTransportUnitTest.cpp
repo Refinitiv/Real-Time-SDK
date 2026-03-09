@@ -271,7 +271,7 @@ public:
 		FD_ZERO(&readfds);
 
 		/* Protect against pChnl being already set */
-		ASSERT_EQ(serverChnl, (RsslChannel*)NULL) << "Server Channel has already been created, this is not supported.";
+		ASSERT_EQ(serverChnl, static_cast<RsslChannel*>(NULL)) << "Server Channel has already been created, this is not supported.";
 
 
 		if (blocking == RSSL_TRUE)
@@ -288,7 +288,7 @@ public:
 						continue;
 					}
 					failTest = true;
-					ASSERT_NE(serverChnl, (RsslChannel*)NULL) << "rsslAccept failed.  Error info: " << err.text;
+					ASSERT_NE(serverChnl, static_cast<RsslChannel*>(NULL)) << "rsslAccept failed.  Error info: " << err.text;
 				}
 			}
 
@@ -328,7 +328,7 @@ public:
 							continue;
 						}
 						failTest = true;
-						ASSERT_NE(serverChnl, (RsslChannel*)NULL) << "rsslAccept failed.  Error info: " << err.text;
+						ASSERT_NE(serverChnl, static_cast<RsslChannel*>(NULL)) << "rsslAccept failed.  Error info: " << err.text;
 					}
 					else
 					{
@@ -403,7 +403,7 @@ public:
 		RsslError err;
 		RsslChannel* pClientChnl;
 
-		ASSERT_EQ(pChnl, (RsslChannel*)NULL) << "Client channel already exists, this is not supported";
+		ASSERT_EQ(pChnl, static_cast<RsslChannel*>(NULL)) << "Client channel already exists, this is not supported";
 
 		if (pClientConfig == NULL)
 		{
@@ -645,7 +645,7 @@ public:
 		if ( pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE )
 		{
 			failTest = true;
-			ASSERT_NE(pChnl, (RsslChannel*)NULL) << "Channel should not equal to NULL";
+			ASSERT_NE(pChnl, static_cast<RsslChannel*>(NULL)) << "Channel should not equal to NULL";
 			ASSERT_EQ(pChnl->state, RSSL_CH_STATE_ACTIVE) << "Channel state is not active";
 		}
 
@@ -1376,7 +1376,7 @@ public:
 		if ( pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE )
 		{
 			failTest = true;
-			ASSERT_NE(pChnl, (RsslChannel*)NULL) << "Channel should not equal to NULL";
+			ASSERT_NE(pChnl, static_cast<RsslChannel*>(NULL)) << "Channel should not equal to NULL";
 			ASSERT_EQ(pChnl->state, RSSL_CH_STATE_ACTIVE) << "Channel state is not active";
 		}
 
@@ -1504,7 +1504,7 @@ public:
 		if ( pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE )
 		{
 			failTest = true;
-			ASSERT_NE(pChnl, (RsslChannel*)NULL) << "Channel should not equal to NULL";
+			ASSERT_NE(pChnl, static_cast<RsslChannel*>(NULL)) << "Channel should not equal to NULL";
 			ASSERT_EQ(pChnl->state, RSSL_CH_STATE_ACTIVE) << "Channel state is not active";
 		}
 
@@ -1651,7 +1651,7 @@ public:
 		if (pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE)
 		{
 			failTest = true;
-			ASSERT_NE(pChnl, (RsslChannel*)NULL) << "Channel should not equal to NULL";
+			ASSERT_NE(pChnl, static_cast<RsslChannel*>(NULL)) << "Channel should not equal to NULL";
 			ASSERT_EQ(pChnl->state, RSSL_CH_STATE_ACTIVE) << "Channel state is not active";
 		}
 
@@ -1717,7 +1717,7 @@ public:
 				RSSL_MUTEX_UNLOCK(lockReadWrite);
 			}
 
-			ASSERT_NE(msgLengths, (RsslUInt32*)NULL) << "Control data for the test do not initialized. msgLengths == NULL";
+			ASSERT_NE(msgLengths, static_cast<RsslUInt32*>(NULL)) << "Control data for the test do not initialized. msgLengths == NULL";
 			ASSERT_NE(nLen, 0) << "Control data for the test do not initialized. nLen == 0";
 			return;
 		}
@@ -1828,7 +1828,7 @@ public:
 		if (pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE)
 		{
 			failTest = true;
-			ASSERT_NE(pChnl, (RsslChannel*)NULL) << "Channel should not equal to NULL";
+			ASSERT_NE(pChnl, static_cast<RsslChannel*>(NULL)) << "Channel should not equal to NULL";
 			ASSERT_EQ(pChnl->state, RSSL_CH_STATE_ACTIVE) << "Channel state is not active";
 		}
 
@@ -2412,7 +2412,7 @@ public:
 		if ( pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE )
 		{
 			failTest = true;
-			ASSERT_NE(pChnl, (RsslChannel*)NULL) << "Channel should not equal to NULL";
+			ASSERT_NE(pChnl, static_cast<RsslChannel*>(NULL)) << "Channel should not equal to NULL";
 			ASSERT_EQ(pChnl->state, RSSL_CH_STATE_ACTIVE) << "Channel state is not active";
 		}
 
@@ -2801,7 +2801,7 @@ public:
 		if ( pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE )
 		{
 			failTest = true;
-			ASSERT_NE(pChnl, (RsslChannel*)NULL) << "Channel should not equal to NULL";
+			ASSERT_NE(pChnl, static_cast<RsslChannel*>(NULL)) << "Channel should not equal to NULL";
 			ASSERT_EQ(pChnl->state, RSSL_CH_STATE_ACTIVE) << "Channel state is not active";
 		}
 
@@ -2963,7 +2963,7 @@ public:
 			if (serverChnl.pChnl == NULL)
 			{
 				failTest = true;
-				ASSERT_NE(serverChnl.pChnl, (RsslChannel*)NULL) << "Server channel creation failed";
+				ASSERT_NE(serverChnl.pChnl, static_cast<RsslChannel*>(NULL)) << "Server channel creation failed";
 			}
 			chnl = serverChnl.pChnl;
 		}
@@ -2976,7 +2976,7 @@ public:
 			if (clientOpts.pChnl == NULL)
 			{
 				failTest = true;
-				ASSERT_NE(clientOpts.pChnl, (RsslChannel*)NULL) << "Client channel creation failed";
+				ASSERT_NE(clientOpts.pChnl, static_cast<RsslChannel*>(NULL)) << "Client channel creation failed";
 			}
 			chnl = clientOpts.pChnl;
 		}
@@ -3013,7 +3013,7 @@ public:
 			if (serverChnl.pChnl == NULL)
 			{
 				failTest = true;
-				ASSERT_NE(serverChnl.pChnl, (RsslChannel*)NULL) << "Server channel creation failed";
+				ASSERT_NE(serverChnl.pChnl, static_cast<RsslChannel*>(NULL)) << "Server channel creation failed";
 			}
 			chnl = serverChnl.pChnl;
 		}
@@ -3026,7 +3026,7 @@ public:
 			if (clientOpts.pChnl == NULL)
 			{
 				failTest = true;
-				ASSERT_NE(clientOpts.pChnl, (RsslChannel*)NULL) << "Client channel creation failed";
+				ASSERT_NE(clientOpts.pChnl, static_cast<RsslChannel*>(NULL)) << "Client channel creation failed";
 			}
 			chnl = clientOpts.pChnl;
 		}
@@ -3470,7 +3470,7 @@ protected:
 
 		server = startupServer(blocking);
 		
-		ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+		ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 		serverChnl.pServer = server;
 		
@@ -3519,7 +3519,7 @@ protected:
 
 		server = bindRsslServer(&serverConfig);
 
-		ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+		ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 		serverChnl.pServer = server;
 		serverChnl.setTUServerConfig(&serverConfig);
@@ -4825,7 +4825,7 @@ protected:
 
 		server = bindRsslServer(&serverConfig);
 
-		ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+		ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 		serverChnl.pServer = server;
 		serverChnl.setTUServerConfig(&serverConfig);
@@ -5772,7 +5772,7 @@ protected:
 
 		server = bindRsslServer(&serverConfig);
 
-		ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+		ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 		serverChnl.pServer = server;
 		serverChnl.setTUServerConfig(&serverConfig);
@@ -6839,7 +6839,7 @@ protected:
 		clientOpts.pThreadId = &clientThread;
 
 		server = startupServer(blocking);
-		ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+		ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 		serverChnl.pServer = server;
 		if (blocking == RSSL_FALSE)
 		{
@@ -7951,7 +7951,7 @@ TEST_F(ManyThreadConnectionTests, NonBlockingAllLockClientReadServerWrite)
 	rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &err);
 
 	server = startupServer(RSSL_FALSE);
-	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+	ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 
 	for (i = 0; i < MAX_THREADS; i++)
@@ -8019,7 +8019,7 @@ TEST_F(ManyThreadConnectionTests, NonBlockingAllLockClientWriteServerRead)
 	rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &err);
 
 	server = startupServer(RSSL_FALSE);
-	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+	ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 
 	for (i = 0; i < MAX_THREADS; i++)
@@ -8085,7 +8085,7 @@ TEST_F(ManyThreadConnectionTests, NonBlockingGlobalLockClientReadServerWrite)
 	rsslInitialize(RSSL_LOCK_GLOBAL, &err);
 
 	server = startupServer(RSSL_FALSE);
-	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+	ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 
 	for (i = 0; i < MAX_THREADS; i++)
@@ -8151,7 +8151,7 @@ TEST_F(ManyThreadConnectionTests, NonBlockingGlobalLockClientWriteServerRead)
 	rsslInitialize(RSSL_LOCK_GLOBAL, &err);
 
 	server = startupServer(RSSL_FALSE);
-	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+	ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 
 	for (i = 0; i < MAX_THREADS; i++)
@@ -8217,7 +8217,7 @@ TEST_F(ManyThreadConnectionTests, BlockingAllLockClientReadServerWrite)
 	rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &err);
 
 	server = startupServer(RSSL_TRUE);
-	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+	ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 
 	for (i = 0; i < MAX_THREADS; i++)
@@ -8283,7 +8283,7 @@ TEST_F(ManyThreadConnectionTests, BlockingAllLockClientWriteServerRead)
 	rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &err);
 
 	server = startupServer(RSSL_TRUE);
-	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+	ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 
 	for (i = 0; i < MAX_THREADS; i++)
@@ -8349,7 +8349,7 @@ TEST_F(ManyThreadConnectionTests, BlockingGlobalLockClientReadServerWrite)
 	rsslInitialize(RSSL_LOCK_GLOBAL, &err);
 
 	server = startupServer(RSSL_TRUE);
-	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+	ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 
 	for (i = 0; i < MAX_THREADS; i++)
@@ -8416,7 +8416,7 @@ TEST_F(ManyThreadConnectionTests, BlockingGlobalLockClientWriteServerRead)
 	rsslInitialize(RSSL_LOCK_GLOBAL, &err);
 
 	server = startupServer(RSSL_TRUE);
-	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+	ASSERT_NE(server, static_cast<RsslServer*>(NULL)) << "Server creation failed!";
 
 
 	for (i = 0; i < MAX_THREADS; i++)
@@ -8594,7 +8594,7 @@ protected:
 
 		pServer = rsslBind(&bindOpts, &err);
 
-		ASSERT_NE(pServer, (RsslServer*)NULL) << "Server creation failed! " << err.text;
+		ASSERT_NE(pServer, static_cast<RsslServer*>(NULL)) << "Server creation failed! " << err.text;
 		ASSERT_NE(pServer->socketId, 0) << "The server socket should be not Null";
 	}
 
@@ -8623,7 +8623,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenDefaultInitVa
 	RsslBindOptions bindOpts = RSSL_INIT_BIND_OPTS;
 
 	runRsslBind(bindOpts);
-	ASSERT_NE(pServer, (RsslServer*)NULL);
+	ASSERT_NE(pServer, static_cast<RsslServer*>(NULL));
 
 	// Tests the socket options: the server socket does not permit sharing
 #if defined(_WIN32)
@@ -8642,7 +8642,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenClearBindOpts
 	rsslClearBindOpts(&bindOpts);
 
 	runRsslBind(bindOpts);
-	ASSERT_NE(pServer, (RsslServer*)NULL);
+	ASSERT_NE(pServer, static_cast<RsslServer*>(NULL));
 
 	// Tests the socket options: the server socket does not permit sharing
 #if defined(_WIN32)
@@ -8662,7 +8662,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenSetFalse)
 	bindOpts.serverSharedSocket = RSSL_FALSE;
 
 	runRsslBind(bindOpts);
-	ASSERT_NE(pServer, (RsslServer*)NULL);
+	ASSERT_NE(pServer, static_cast<RsslServer*>(NULL));
 
 	// Tests the socket options: the server socket does not permit sharing
 #if defined(_WIN32)
@@ -8682,7 +8682,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOnWhenSetTrue)
 	bindOpts.serverSharedSocket = RSSL_TRUE;
 
 	runRsslBind(bindOpts);
-	ASSERT_NE(pServer, (RsslServer*)NULL);
+	ASSERT_NE(pServer, static_cast<RsslServer*>(NULL));
 
 	// Tests the socket options: the server socket permits sharing
 #if defined(_WIN32)
@@ -8702,7 +8702,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenDefaultInitVa
 	RsslBindOptions bindOpts = RSSL_INIT_BIND_OPTS;
 
 	runRsslBind(bindOpts);
-	ASSERT_NE(pServer, (RsslServer*)NULL);
+	ASSERT_NE(pServer, static_cast<RsslServer*>(NULL));
 
 	// Tests the socket options: the server socket does not permit sharing
 	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
@@ -8715,7 +8715,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenClearBindOpts
 	rsslClearBindOpts(&bindOpts);
 
 	runRsslBind(bindOpts);
-	ASSERT_NE(pServer, (RsslServer*)NULL);
+	ASSERT_NE(pServer, static_cast<RsslServer*>(NULL));
 
 	// Tests the socket options: the server socket does not permit sharing
 	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
@@ -8729,7 +8729,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenSetFalseLUP)
 	bindOpts.serverSharedSocket = RSSL_FALSE;
 
 	runRsslBind(bindOpts);
-	ASSERT_NE(pServer, (RsslServer*)NULL);
+	ASSERT_NE(pServer, static_cast<RsslServer*>(NULL));
 
 	// Tests the socket options: the server socket does not permit sharing
 	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
@@ -8749,7 +8749,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeErrorOnRsslBindLUP)
 	// Tests rsslBind returns NULL because SO_REUSEPORT option is unsupported
 	pServer = rsslBind(&bindOpts, &err);
 
-	ASSERT_EQ(pServer, (RsslServer*)NULL) << "rsslBind should return NULL when required set unsupported option SO_REUSEPORT";
+	ASSERT_EQ(pServer, static_cast<RsslServer*>(NULL)) << "rsslBind should return NULL when required set unsupported option SO_REUSEPORT";
 	ASSERT_EQ(err.rsslErrorId, RSSL_RET_FAILURE) << "Error ccode should set to General Failure";
 	ASSERT_EQ(err.sysError, 0) << "SysError should be equal to 0";
 }
@@ -8785,7 +8785,7 @@ protected:
 
 		pServer = rsslBind(&bindOpts, &err);
 
-		ASSERT_NE(pServer, (RsslServer*)NULL) << "Server creation failed! " << err.text;
+		ASSERT_NE(pServer, static_cast<RsslServer*>(NULL)) << "Server creation failed! " << err.text;
 		ASSERT_NE(pServer->socketId, 0) << "The server socket should be not Null";
 	}
 
@@ -9836,7 +9836,7 @@ protected:
 		copts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
 
 		pClientChannel = rsslConnect(&copts, &error);
-		ASSERT_NE(pClientChannel, (RsslChannel*)NULL) << "Client failed to connect " << error.text;
+		ASSERT_NE(pClientChannel, static_cast<RsslChannel*>(NULL)) << "Client failed to connect " << error.text;
 
 		FD_ZERO(&readfds);
 		FD_ZERO(&useread);
@@ -10185,6 +10185,358 @@ TEST_F(WebsocketClientConnectionTest, WebsocketClientHandshakeTest)
 
 	rsslCloseChannel(pClientChannel, &error);
 	pClientChannel = NULL;
+}
+
+class RsslSocketConnectionTest : public ::testing::Test {
+protected:
+
+	RsslChannel* pClientChannel;
+	RsslChannel* pServerChannel;
+	RsslServer* pServer;
+
+	virtual void SetUp()
+	{
+		RsslError err;
+		rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &err);
+	}
+
+	virtual void TearDown()
+	{
+		RsslError err;
+		if (pClientChannel != NULL)
+		{
+			rsslCloseChannel(pClientChannel, &err);
+		}
+
+		if (pServerChannel != NULL)
+		{
+			rsslCloseChannel(pServerChannel, &err);
+		}
+
+		if (pServer != NULL)
+		{
+			rsslCloseServer(pServer, &err);
+		}
+
+		rsslUninitialize();
+		resetDeadlockTimer();
+	}
+
+	void bindServerAndConnectClient(RsslBindOptions* pBindOpts, RsslConnectOptions* pConnectOpts)
+	{
+		RsslError			error;
+
+		pServer = rsslBind(pBindOpts, &error);
+		ASSERT_NE(pServer, static_cast<RsslServer*>(NULL)) << "Serer failed to bind" << error.text;
+
+		time_sleep(100);
+
+		connectClient(pConnectOpts);
+
+		resetDeadlockTimer();
+	}
+
+	void connectClient(RsslConnectOptions* pConnectOpts)
+	{
+		RsslError			error;
+		struct timeval		selectTime;
+		int					selRet;
+		RsslRet             ret;
+		RsslInProgInfo		inProg = RSSL_INIT_IN_PROG_INFO;
+		RsslAcceptOptions 	acceptOpts = RSSL_INIT_ACCEPT_OPTS;
+
+		fd_set readfds;
+		fd_set writefds;
+		fd_set useread;
+		fd_set usewrite;
+
+
+		selectTime.tv_sec = 0;
+		selectTime.tv_usec = 10000;
+
+		pClientChannel = rsslConnect(pConnectOpts, &error);
+		ASSERT_NE(pClientChannel, static_cast<RsslChannel*>(NULL)) << "Client failed to connect " << error.text;
+
+		FD_ZERO(&readfds);
+		FD_ZERO(&useread);
+		FD_ZERO(&writefds);
+		FD_ZERO(&usewrite);
+
+		FD_SET(pServer->socketId, &readfds);
+
+		useread = readfds;
+		usewrite = writefds;
+		selRet = select(FD_SETSIZE, &useread, &usewrite, NULL, &selectTime);
+
+		ASSERT_GE(selRet, 0) << "Select failure";
+
+		FD_CLR(pClientChannel->socketId, &useread);
+
+		if (FD_ISSET(pServer->socketId, &useread))
+		{
+			pServerChannel = rsslAccept(pServer, &acceptOpts, &error);
+			ASSERT_NE(pServerChannel, static_cast<RsslChannel*>(NULL)) << "Server failed to accept" << error.text;
+		}
+
+		// Initialize the connection.  This is just going to hard loop on this until it's complete.
+		while (pServerChannel->state != RSSL_CH_STATE_ACTIVE && pClientChannel->state != RSSL_CH_STATE_ACTIVE)
+		{
+			if (pClientChannel->state != RSSL_CH_STATE_ACTIVE)
+			{
+				rsslClearInProgInfo(&inProg);
+				ret = rsslInitChannel(pClientChannel, &inProg, &error);
+				ASSERT_NE(ret, RSSL_RET_FAILURE) << "Client failed to init channel " << error.text;
+			}
+
+			if (pServerChannel->state != RSSL_CH_STATE_ACTIVE)
+			{
+				rsslClearInProgInfo(&inProg);
+				ret = rsslInitChannel(pServerChannel, &inProg, &error);
+				ASSERT_NE(ret, RSSL_RET_FAILURE) << "Client failed to init channel " << error.text;
+			}
+		}
+
+		resetDeadlockTimer();
+
+	}
+};
+
+TEST_F(RsslSocketConnectionTest, socketFragmentationOverflowTest)
+{
+	RsslBindOptions bindOpts = RSSL_INIT_BIND_OPTS;
+	RsslConnectOptions connectOpts = RSSL_INIT_CONNECT_OPTS;
+	struct timeval		selectTime;
+	RsslInt32			cc = 0;
+	RsslUInt32			size = 0;
+	RsslUInt16			fragId = 0;
+	RsslUInt16			length = 0;;
+	RsslUInt8			flags = 0;
+	int					numBytes;
+	int					selRet;
+	RsslRet				ret;
+	RsslError			error;
+	RsslBuffer* readBuff;
+
+	fd_set readfds;
+
+	char writeBuff[1024];
+
+	bindOpts.serviceName = (char*)"15000";
+	bindOpts.protocolType = TEST_PROTOCOL_TYPE;  /* These tests are just sending a pre-set string across the wire, so protocol type should not be RWF */
+
+	connectOpts.connectionType = RSSL_CONN_TYPE_SOCKET;
+	connectOpts.connectionInfo.unified.address = (char*)"localhost";
+	connectOpts.connectionInfo.unified.serviceName = (char*)"15000";
+	connectOpts.protocolType = TEST_PROTOCOL_TYPE;
+	connectOpts.tcp_nodelay = true;
+
+	bindServerAndConnectClient(&bindOpts, &connectOpts);
+
+	// We've connected, so send an initial fragmented packet with the client's FD.  This should cause the server to return an error on rsslRead().
+
+	memset(static_cast<void*>(writeBuff), 0, 1024);
+	length = 120;
+	cc = _move_u16_swap(writeBuff + cc, &length);
+	cc += 2;
+	flags = IPC_EXTENDED_FLAGS | IPC_DATA;
+	cc += RTR_PUT_8(writeBuff + cc, flags);
+	flags = IPC_FRAG_HEADER;
+	cc += RTR_PUT_8(writeBuff + cc, flags);
+	size = 100;
+	_move_u32_swap(writeBuff + cc, &size);
+	cc += 4;
+	fragId = 100;
+	_move_u16_swap(writeBuff + cc, &fragId);
+	cc += 2;
+
+	numBytes = SOCK_SEND(pClientChannel->socketId, writeBuff, 120, 0);
+
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+
+	FD_SET(pServerChannel->socketId, &readfds);
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &readfds, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	readBuff = rsslRead(pServerChannel, &ret, &error);
+	ASSERT_EQ(readBuff, static_cast<RsslBuffer*>(NULL)) << "Expected rsslRead failure";
+	ASSERT_EQ(ret, RSSL_RET_FAILURE) << "Expected return RSSL_RET_FAILURE";
+
+	// reconnect
+	rsslCloseChannel(pClientChannel, &error);
+	pClientChannel = NULL;
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	connectClient(&connectOpts);
+	cc = 0;
+
+	memset(static_cast<void*>(writeBuff), 0, 1024);
+	length = 60;
+	_move_u16_swap(writeBuff + cc, &length);
+	cc += 2;
+	flags = IPC_EXTENDED_FLAGS | IPC_DATA;
+	cc += RTR_PUT_8(writeBuff + cc, flags);
+	flags = IPC_FRAG_HEADER;
+	cc += RTR_PUT_8(writeBuff + cc, flags);
+	size = 100;
+	_move_u32_swap(writeBuff + cc, &size);
+	cc += 4;
+	fragId = 101;
+	_move_u16_swap(writeBuff + cc, &fragId);
+	cc += 2;
+
+
+	numBytes = SOCK_SEND(pClientChannel->socketId, writeBuff, 60, 0);
+
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+
+	FD_SET(pServerChannel->socketId, &readfds);
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &readfds, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	readBuff = rsslRead(pServerChannel, &ret, &error);
+	ASSERT_EQ(readBuff, static_cast<RsslBuffer*>(NULL)) << "Expected rsslRead no buffer";
+
+	ASSERT_GE(ret, 0) << "Expected a positive read return code";
+
+	readBuff = rsslRead(pServerChannel, &ret, &error);
+	ASSERT_EQ(readBuff, static_cast<RsslBuffer*>(NULL)) << "Expected rsslRead no buffer";
+
+	ASSERT_EQ(ret, RSSL_RET_READ_WOULD_BLOCK) << "Expected RSSL_RET_READ_WOULD_BLOCK";
+
+	cc = 0;
+	memset(static_cast<void*>(writeBuff), 0, 1024);
+	length = 66;
+	cc = _move_u16_swap(writeBuff + cc, &length);
+	cc += 2;
+	flags = IPC_EXTENDED_FLAGS | IPC_DATA;
+	cc += RTR_PUT_8(writeBuff + cc, flags);
+	flags = IPC_FRAG;
+	cc += RTR_PUT_8(writeBuff + cc, flags);
+	fragId = 101;
+	_move_u16_swap(writeBuff + cc, &fragId);
+	cc += 2;
+
+
+	numBytes = SOCK_SEND(pClientChannel->socketId, writeBuff, 66, 0);
+
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+
+	FD_SET(pServerChannel->socketId, &readfds);
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &readfds, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	readBuff = rsslRead(pServerChannel, &ret, &error);
+	ASSERT_EQ(readBuff, static_cast<RsslBuffer*>(NULL)) << "Expected rsslRead no buffer";
+	ASSERT_EQ(ret, RSSL_RET_FAILURE) << "Expected RSSL_RET_FAILURE";
+
+	// reconnect
+	rsslCloseChannel(pClientChannel, &error);
+	pClientChannel = NULL;
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	connectClient(&connectOpts);
+	cc = 0;
+
+	// Send a fragment packet without sending the initial fragment
+	memset(static_cast<void*>(writeBuff), 0, 1024);
+	length = 60;
+	_move_u16_swap(writeBuff + cc, &length);
+	cc += 2;
+	flags = IPC_EXTENDED_FLAGS | IPC_DATA;
+	cc += RTR_PUT_8(writeBuff + cc, flags);
+	flags = IPC_FRAG;
+	cc += RTR_PUT_8(writeBuff + cc, flags);
+	fragId = 102;
+	_move_u16_swap(writeBuff + cc, &fragId);
+	cc += 2;
+
+
+	numBytes = SOCK_SEND(pClientChannel->socketId, writeBuff, 110, 0);
+
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+
+	FD_SET(pServerChannel->socketId, &readfds);
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &readfds, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	readBuff = rsslRead(pServerChannel, &ret, &error);
+	ASSERT_EQ(readBuff, static_cast<RsslBuffer*>(NULL)) << "Expected rsslRead no buffer";
+
+	ASSERT_GE(ret, RSSL_RET_FAILURE) << "Expected a RSSL_RET_FAILURE";
+
+	// reconnect
+	rsslCloseChannel(pClientChannel, &error);
+	pClientChannel = NULL;
+
+	rsslCloseChannel(pServerChannel, &error);
+	pServerChannel = NULL;
+
+	connectClient(&connectOpts);
+	cc = 0;
+
+	// Send a 0 length message with just the initial fragmentation header.
+	memset(static_cast<void*>(writeBuff), 0, 1024);
+	length = 10;
+	_move_u16_swap(writeBuff + cc, &length);
+	cc += 2;
+	flags = IPC_EXTENDED_FLAGS | IPC_DATA;
+	cc += RTR_PUT_8(writeBuff + cc, flags);
+	flags = IPC_FRAG_HEADER;
+	cc += RTR_PUT_8(writeBuff + cc, flags);
+	size = 100;
+	_move_u32_swap(writeBuff + cc, &size);
+	cc += 4;
+	fragId = 101;
+	_move_u16_swap(writeBuff + cc, &fragId);
+	cc += 2;
+
+	numBytes = SOCK_SEND(pClientChannel->socketId, writeBuff, 10, 0);
+
+	ASSERT_GE(numBytes, 1) << "SOCK_SEND failed";
+
+	FD_ZERO(&readfds);
+
+	FD_SET(pServerChannel->socketId, &readfds);
+
+	selectTime.tv_sec = 0L;
+	selectTime.tv_usec = 200000;
+	selRet = select(FD_SETSIZE, &readfds, NULL, NULL, &selectTime);
+
+	ASSERT_GE(selRet, 1) << "Select failure";
+
+	readBuff = rsslRead(pServerChannel, &ret, &error);
+	ASSERT_EQ(readBuff, static_cast<RsslBuffer*>(NULL)) << "Expected rsslRead no buffer";
+
+	ASSERT_GE(ret, RSSL_RET_FAILURE) << "Expected a RSSL_RET_FAILURE";
+
 }
 
 rsslServerCountersInfo* rsslGetServerCountersInfo(RsslServer* pServer)
