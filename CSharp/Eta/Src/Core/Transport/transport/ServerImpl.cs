@@ -327,7 +327,7 @@ namespace LSEG.Eta.Transports
                         options.BindEncryptionOpts.ServerPrivateKey);
 
                     /* This is workaround for SChannel on Windows as persisted store is required */
-                    ServerCertificate = X509CertificateLoader.LoadCertificate(serverCertificate.Export(X509ContentType.Pkcs12));
+                    ServerCertificate = X509CertificateLoader.LoadPkcs12(serverCertificate.Export(X509ContentType.Pkcs12), null);
                 }
                 catch (Exception ex)
                 {
