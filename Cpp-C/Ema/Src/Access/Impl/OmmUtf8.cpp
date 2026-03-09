@@ -10,6 +10,7 @@
 #include "OmmUtf8Decoder.h"
 #include "Utilities.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageExceptionImpl.h"
 #include <new>
 
 using namespace refinitiv::ema::access;
@@ -66,7 +67,7 @@ bool OmmUtf8::hasDecoder() const
 
 const Encoder& OmmUtf8::getEncoder() const
 {
-	return *static_cast<const Encoder*>( 0 );
+	throw OmmInvalidUsageExceptionImpl::makeException( "Attempt to getEncoder() while OmmUtf8 has NO encoder.", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 bool OmmUtf8::hasEncoder() const

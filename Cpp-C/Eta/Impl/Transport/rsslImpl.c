@@ -742,6 +742,14 @@ RsslRet rsslInitializeEx(RsslInitializeExOpts *rsslInitOpts, RsslError *error)
 	rsslChannelImpl *chnl=0;
 	rsslServerImpl  *srvr=0;
 	int i = 0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
+	if (RSSL_NULL_PTR(rsslInitOpts, "rsslInitializeEx", "rsslInitOpts", error))
+		return RSSL_RET_FAILURE;
 	
 	if (!initialized)
 	{
@@ -877,6 +885,11 @@ RsslRet rsslSetDebugFunctions(
 	RsslError *error)
 {
 	RsslRet retVal = RSSL_RET_SUCCESS;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	mutexFuncs.staticMutexLock();
 
@@ -938,6 +951,14 @@ void rsslClearDebugFunctionsEx()
 RSSL_API RsslRet rsslSetDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error)
 {
 	RsslRet retVal = RSSL_RET_SUCCESS;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
+	if (RSSL_NULL_PTR(pOpts, "rsslSetDebugFunctionsEx", "pOpts", error))
+		return RSSL_RET_FAILURE;
 
 	mutexFuncs.staticMutexLock();
 
@@ -1084,6 +1105,9 @@ RsslRet rsslHostByName(RsslBuffer *hostName, RsslUInt32 *ipAddr)
 	RsslRet retVal;
 	RsslUInt32 tempUInt;
 
+	if(hostName == NULL || ipAddr == NULL)
+		return RSSL_RET_FAILURE;
+
 	retVal = rsslGetHostByName(hostName->data, ipAddr);
 
 	if (retVal != -1)
@@ -1109,6 +1133,9 @@ RsslRet rsslGetUserName(RsslBuffer *userName)
 	char    pwd_buffer[1024];
 	struct  passwd pwd;
 #endif
+
+	if (userName == NULL || userName->data == NULL || userName->length == 0)
+		return RSSL_RET_FAILURE;
 
 #if defined(_WIN32)
 	if (!GetUserName(tempUserName, &tempUserNameSize))
@@ -1149,6 +1176,11 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 {
 	rsslServerImpl 	*rsslSrvrImpl=0;
 	int				retVal = RSSL_RET_FAILURE;
+
+	if(error == NULL)
+	{
+		return NULL;
+	}
 	
 	if (!initialized)
 	{
@@ -1260,7 +1292,12 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 RsslChannel* rsslAccept(RsslServer *srvr, RsslAcceptOptions *opts, RsslError *error)
 {
 	rsslChannelImpl	*rsslChnlImpl=0;
-	rsslServerImpl	*rsslSrvrImpl=0;	
+	rsslServerImpl	*rsslSrvrImpl=0;
+
+	if (error == NULL)
+	{
+		return NULL;
+	}
 
 	if (!initialized)
 	{
@@ -1316,6 +1353,11 @@ RsslRet rsslCloseServer(RsslServer *srvr, RsslError *error)
 {
 	rsslServerImpl *rsslSrvrImpl=0;
 
+	if(error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	if (!initialized)
 	{
 		_rsslSetError(error, (RsslChannel*)srvr, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -1346,6 +1388,11 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 {
 	rsslChannelImpl	*rsslChnlImpl=0;
 	int	retVal = RSSL_RET_FAILURE;
+
+	if (error == NULL)
+	{
+		return NULL;
+	}
 
 	if (!initialized)
 	{
@@ -1447,6 +1494,11 @@ RsslRet rsslReconnectClient(RsslChannel *chnl,  RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	if (!initialized)
 	{
 		_rsslSetError(error, chnl, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -1478,6 +1530,11 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 	/* We may need to worry about the INPROG case of 
 	   RIPC_INPROG_NEW_FD for tunneling, etc.  */
 	rsslChannelImpl *rsslChnlImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	if (!initialized)
 	{
@@ -1487,6 +1544,9 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 	}
 	
 	if (RSSL_NULL_PTR(chnl, "rsslInitChannel", "chnl", error))
+		return RSSL_RET_FAILURE;
+
+	if (RSSL_NULL_PTR(inProg, "rsslInitChannel", "inProg", error))
 		return RSSL_RET_FAILURE;
 
 	if (rtrUnlikely(chnl->state == RSSL_CH_STATE_CLOSED))
@@ -1529,6 +1589,11 @@ RsslRet rsslCloseChannel(RsslChannel *chnl, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 	RsslRet retVal = RSSL_RET_SUCCESS;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (!initialized)
 	{
@@ -1589,6 +1654,11 @@ RsslRet rsslServerIoctl(RsslServer *srvr, RsslIoctlCodes code, void *value, Rssl
 {
 	rsslServerImpl *rsslSrvrImpl=0;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	if (!initialized)
 	{
 		_rsslSetError(error, (RsslChannel*)srvr, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -1597,6 +1667,9 @@ RsslRet rsslServerIoctl(RsslServer *srvr, RsslIoctlCodes code, void *value, Rssl
 	}
 
 	if (RSSL_NULL_PTR(srvr, "rsslServerIoctl", "srvr", error))
+		return RSSL_RET_FAILURE;
+
+	if (RSSL_NULL_PTR(value, "rsslServerIoctl", "value", error))
 		return RSSL_RET_FAILURE;
 
 	rsslSrvrImpl = (rsslServerImpl*)srvr;
@@ -1629,6 +1702,11 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 	RsslTraceOptions *traceOptions=0;
+
+	if(error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (!initialized)
 	{
@@ -1770,6 +1848,16 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 	rsslChannelImpl *rsslChnlImpl=0;
 	RsslBuffer *retBuf;
 
+	if(error == NULL)
+	{
+		return NULL;
+	}
+
+	if (rtrUnlikely(RSSL_NULL_PTR(readRet, "rsslRead", "readRet", error)))
+	{
+		return NULL;
+	}
+
 	if (rtrUnlikely(!initialized))
 	{
 		_rsslSetError(error, chnl, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -1779,12 +1867,6 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 	}
 	
 	if (rtrUnlikely(RSSL_NULL_PTR(chnl, "rsslRead", "chnl", error)))
-	{
-		*readRet = RSSL_RET_FAILURE;
-		return NULL;
-	}
-
-	if (rtrUnlikely(RSSL_NULL_PTR(readRet, "rsslRead", "readRet", error)))
 	{
 		*readRet = RSSL_RET_FAILURE;
 		return NULL;
@@ -1865,6 +1947,11 @@ RsslRet rsslWrite(RsslChannel *chnl, RsslBuffer *buffer, RsslWritePriorities rss
 	writeInArgs.writeInFlags = (RsslUInt32)writeFlags;
 	writeInArgs.rsslPriority = rsslPriority;
 
+	if(error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	if (rtrUnlikely(!initialized))
 	{
 		_rsslSetError(error, chnl, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -1876,6 +1963,12 @@ RsslRet rsslWrite(RsslChannel *chnl, RsslBuffer *buffer, RsslWritePriorities rss
 		return RSSL_RET_FAILURE;
 
 	if (rtrUnlikely(RSSL_NULL_PTR(buffer, "rsslWrite", "buffer", error)))
+		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(bytesWritten, "rsslWrite", "bytesWritten", error)))
+		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(uncompressedBytesWritten, "rsslWrite", "uncompressedBytesWritten", error)))
 		return RSSL_RET_FAILURE;
 
 	if (rtrUnlikely(chnl->state != RSSL_CH_STATE_ACTIVE))
@@ -1964,6 +2057,11 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 	rsslBufferImpl *rsslBufImpl=0;
 	RsslInt32 priority;
 	RsslRet ret;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (rtrUnlikely(!initialized))
 	{
@@ -2069,6 +2167,11 @@ RSSL_API RsslRet rsslFlush(RsslChannel *chnl, RsslError *error)
 	RsslRet ret;
 	rsslChannelImpl *rsslChnlImpl=0;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	if (rtrUnlikely(!initialized))
 	{
 		_rsslSetError(error, chnl, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -2100,6 +2203,11 @@ RSSL_API RsslRet rsslFlush(RsslChannel *chnl, RsslError *error)
 RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	if (!initialized)
 	{
@@ -2107,6 +2215,9 @@ RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslPing() Error: 0001 RSSL not initialized.\n", __FILE__, __LINE__);
 		return RSSL_RET_INIT_NOT_INITIALIZED;
 	}
+
+	if (rtrUnlikely(RSSL_NULL_PTR(chnl, "rsslPing", "chnl", error)))
+		return RSSL_RET_FAILURE;
 
 	/* should only be pinging from the active state */
 	if (chnl->state != RSSL_CH_STATE_ACTIVE)
@@ -2144,6 +2255,11 @@ RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 RsslRet rsslGetChannelInfo(RsslChannel *chnl, RsslChannelInfo *info, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	if (!initialized)
 	{
@@ -2176,17 +2292,22 @@ RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslErro
 	RsslChannelInfo info;
 	RsslRet ret;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	if (!initialized)
 	{
 		_rsslSetError(error, chnl, RSSL_RET_INIT_NOT_INITIALIZED, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelInfo() Error: 0001 RSSL not initialized.\n", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStats() Error: 0001 RSSL not initialized.\n", __FILE__, __LINE__);
 		return RSSL_RET_INIT_NOT_INITIALIZED;
 	}
 
-	if (RSSL_NULL_PTR(chnl, "rsslGetChannelInfo", "chnl", error))
+	if (RSSL_NULL_PTR(chnl, "rsslGetChannelStats", "chnl", error))
 		return RSSL_RET_FAILURE;
 
-	if (RSSL_NULL_PTR(stats, "rsslGetChannelInfo", "stats", error))
+	if (RSSL_NULL_PTR(stats, "rsslGetChannelStats", "stats", error))
 		return RSSL_RET_FAILURE;
 
 	if (chnl->state != RSSL_CH_STATE_ACTIVE)
@@ -2219,7 +2340,7 @@ RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslErro
 	else
 	{
 		_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStats() Error: 0006 Only SOCKET, ENCRYPTED(non WinInet), and RELIABLE_MULTICAST channels supported by rsslGetChannelStats.\n", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStatss() Error: 0006 Only SOCKET, ENCRYPTED(non WinInet), and RELIABLE_MULTICAST channels supported by rsslGetChannelStats.\n", __FILE__, __LINE__);
 		return RSSL_RET_FAILURE;
 	}
 }
@@ -2227,6 +2348,11 @@ RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslErro
 RsslRet rsslGetServerInfo( RsslServer *srvr, RsslServerInfo *info, RsslError *error)
 {
 	rsslServerImpl *rsslSrvrImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (!initialized)
 	{
@@ -2257,6 +2383,11 @@ RSSL_API RsslInt32 rsslBufferUsage(RsslChannel *chnl, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	if (!initialized)
 	{
 		_rsslSetError(error, chnl, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -2283,6 +2414,11 @@ RSSL_API RsslInt32 rsslBufferUsage(RsslChannel *chnl, RsslError *error)
 RSSL_API RsslInt32 rsslServerBufferUsage(RsslServer *srvr, RsslError *error)
 {
 	rsslServerImpl *rsslSrvrImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	if (!initialized)
 	{
@@ -2348,6 +2484,11 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 {
 	rsslBufferImpl *rsslBufImpl = 0;
 	rsslChannelImpl *rsslChnlImpl = 0;
+
+	if (error == NULL)
+	{
+		return NULL;
+	}
 
 	if (rtrUnlikely(!initialized))
 	{
@@ -2425,6 +2566,11 @@ RSSL_API RsslBuffer* rsslGetBuffer(RsslChannel *chnl, RsslUInt32 size, RsslBool 
 	rsslChannelImpl *rsslChnlImpl=0;
 	rsslBufferImpl *rsslBufImpl = 0;
 
+	if (error == NULL)
+	{
+		return NULL;
+	}
+
 	if (rtrUnlikely(!initialized))
 	{
 		_rsslSetError(error, chnl, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -2483,6 +2629,11 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 	rsslBufferImpl* rsslBufImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (rtrUnlikely(!initialized))
 	{
@@ -2557,6 +2708,11 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 
 RSSL_API RsslUInt32 rsslCalculateEncryptedSize(const RsslBuffer *bufferToEncrypt)
 {
+	if (bufferToEncrypt == NULL)
+	{
+		return 0;
+	}
+
 	return CalculateEncryptedLength(bufferToEncrypt);
 }
 
@@ -2564,6 +2720,11 @@ RSSL_API RsslRet rsslEncryptBuffer(const RsslChannel *chnl, const RsslBuffer* un
 {
 	RsslInt32 retval;
 	rsslChannelImpl *rsslChnlImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	/* null pointer checks, ensure that shared key exists in channel */
 	if (rtrUnlikely(!initialized))
@@ -2630,6 +2791,11 @@ RSSL_API RsslRet rsslDecryptBuffer(const RsslChannel *chnl, const RsslBuffer* en
 	RsslInt32 retval;
 	rsslChannelImpl *rsslChnlImpl=0;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	/* null pointer checks, ensure that shared key exists in channel */
 	if (rtrUnlikely(!initialized))
 	{
@@ -2644,7 +2810,13 @@ RSSL_API RsslRet rsslDecryptBuffer(const RsslChannel *chnl, const RsslBuffer* en
 	if (rtrUnlikely(RSSL_NULL_PTR(encryptedInput, "rsslDecryptBuffer", "encryptedInput", error)))
 		return RSSL_RET_FAILURE;
 
+	if (rtrUnlikely(RSSL_NULL_PTR(encryptedInput->data, "rsslDecryptBuffer", "encryptedInput->data", error)))
+		return RSSL_RET_FAILURE;
+
 	if (rtrUnlikely(RSSL_NULL_PTR(decryptedOutput, "rsslDecryptBuffer", "decryptedOutput", error)))
+		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(decryptedOutput->data, "rsslDecryptBuffer", "decryptedOutput->data", error)))
 		return RSSL_RET_FAILURE;
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
@@ -2755,19 +2927,32 @@ RSSL_API RsslRet rsslBufferToHexDump(const RsslBuffer* bufferToHexDump, RsslBuff
 	char			*hexPtr;
 	char			*charPtr;
 	char			*oBufPtr;
-	char			*iBufCursor = bufferToHexDump->data;
+	char			*iBufCursor;
 	unsigned char	byte;
 	RsslUInt32				position = 0;
 	RsslInt32				curbyte = 0;
 	RsslInt32				eobyte = 0;
 	RsslUInt32	bufferNeeded;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	/* null checks */
 	if (rtrUnlikely(RSSL_NULL_PTR(bufferToHexDump, "rsslBufferToHexDump", "bufferToHexDump", error)))
 		return RSSL_RET_FAILURE;
 
+	if (rtrUnlikely(RSSL_NULL_PTR(bufferToHexDump->data, "rsslBufferToHexDump", "bufferToHexDump->data", error)))
+		return RSSL_RET_FAILURE;
+
 	if (rtrUnlikely(RSSL_NULL_PTR(hexDumpOutput, "rsslBufferToHexDump", "hexDumpOutput", error)))
 		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(hexDumpOutput->data, "rsslBufferToHexDump", "hexDumpOutput->data", error)))
+		return RSSL_RET_FAILURE;
+
+	iBufCursor = bufferToHexDump->data;
 
 	if (valuesPerLine == 0)
 	{
@@ -2878,19 +3063,32 @@ RSSL_API RsslRet rsslBufferToRawHexDump(const RsslBuffer* bufferToHexDump, RsslB
 	char			buf[RSSL_HEXDUMP_LINE_LEN];
 	char			*hexPtr;
 	char			*oBufPtr;
-	char			*iBufCursor = bufferToHexDump->data;
+	char			*iBufCursor;
 	unsigned char	byte;
 	RsslUInt32				position = 0;
 	RsslInt32				curbyte = 0;
 	RsslInt32				eobyte = 0;
 	RsslUInt32	bufferNeeded;
+
+	if(error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	/* null checks */
 	if (rtrUnlikely(RSSL_NULL_PTR(bufferToHexDump, "rsslBufferToRawHexDump", "bufferToHexDump", error)))
 		return RSSL_RET_FAILURE;
 
+	if (rtrUnlikely(RSSL_NULL_PTR(bufferToHexDump->data, "rsslBufferToRawHexDump", "bufferToHexDump->data", error)))
+		return RSSL_RET_FAILURE;
+
 	if (rtrUnlikely(RSSL_NULL_PTR(hexDumpOutput, "rsslBufferToRawHexDump", "hexDumpOutput", error)))
 		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(hexDumpOutput->data, "rsslBufferToRawHexDump", "hexDumpOutput->data", error)))
+		return RSSL_RET_FAILURE;
+
+	iBufCursor = bufferToHexDump->data;
 
 	if (valuesPerLine == 0)
 	{
@@ -2965,8 +3163,12 @@ RSSL_API RsslRet rsslBufferToRawHexDump(const RsslBuffer* bufferToHexDump, RsslB
 RSSL_API RsslRet rsslDumpBuffer(RsslChannel *channel, RsslUInt32 protocolType, RsslBuffer* buffer, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl = 0;
-	rsslBufferImpl *rsslBufImpl = 0;
 	RsslRet ret = RSSL_RET_SUCCESS;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (rtrUnlikely(!initialized))
 	{
@@ -2981,12 +3183,14 @@ RSSL_API RsslRet rsslDumpBuffer(RsslChannel *channel, RsslUInt32 protocolType, R
 	if (rtrUnlikely(RSSL_NULL_PTR(buffer, "rsslDumpBuffer", "buffer", error)))
 		return RSSL_RET_FAILURE;
 
+	if (rtrUnlikely(RSSL_NULL_PTR(buffer->data, "rsslDumpBuffer", "buffer->data", error)))
+		return RSSL_RET_FAILURE;
+
 	/* valid cases are a buffer with length was passed in, or it is a packed buffer and
 	   a 0 length buffer is passed in - this signifys that nothing is written into the last portion of the buffer */
 	if (rtrLikely((buffer->length > 0) || ((buffer->length == 0) && (((rsslBufferImpl*)buffer)->packingOffset > 0))))
 	{
 		rsslChnlImpl = (rsslChannelImpl*)channel;
-		rsslBufImpl = (rsslBufferImpl*)buffer;
 
 		if (rtrUnlikely( (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_DUMP)  && (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT))) )
 		{

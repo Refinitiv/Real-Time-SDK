@@ -10,6 +10,8 @@
 #include "EmaString.h"
 #include "Utilities.h"
 
+#include "OmmInvalidUsageExceptionImpl.h"
+
 using namespace refinitiv::ema::access;
 
 NoDataImpl::NoDataImpl() :
@@ -92,7 +94,7 @@ bool NoDataImpl::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 
 const Encoder& NoDataImpl::getEncoder() const
 {
-	return *static_cast<const Encoder*>( 0 );
+	throw OmmInvalidUsageExceptionImpl::makeException( "Attempt to getEncoder() while NoDataImpl has NO encoder.", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 const RsslBuffer& NoDataImpl::getRsslBuffer() const

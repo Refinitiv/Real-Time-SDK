@@ -1,6 +1,7 @@
 set ( rsslTransportUnitTestSrcFiles
 	rsslAllocateUnitTest.cpp
 	rsslTransportUnitTest.cpp
+	rsslTransportNullParamTest.cpp
 
 	TransportUnitTest.h
 )

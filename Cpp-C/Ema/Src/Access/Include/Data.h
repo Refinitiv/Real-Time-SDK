@@ -143,6 +143,8 @@ private :
 	friend class VectorEntry;
 	friend class SeriesEntry;
 
+	friend class EmaUnitTestConnect;
+
 	virtual Decoder& getDecoder() = 0;
 	virtual bool hasDecoder() const = 0;
 	virtual const EmaString& toString( UInt64 indent ) const = 0;

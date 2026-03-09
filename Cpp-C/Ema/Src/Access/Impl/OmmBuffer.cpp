@@ -10,6 +10,7 @@
 #include "OmmBufferDecoder.h"
 #include "Utilities.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageExceptionImpl.h"
 
 #include <new>
 
@@ -67,7 +68,7 @@ bool OmmBuffer::hasDecoder() const
 
 const Encoder& OmmBuffer::getEncoder() const
 {
-	return *static_cast<const Encoder*>( 0 );
+	throw OmmInvalidUsageExceptionImpl::makeException( "Attempt to getEncoder() while OmmBuffer has NO encoder.", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 bool OmmBuffer::hasEncoder() const

@@ -16,6 +16,7 @@ set(_UnitTestSrcFiles
         GenericMsgTests.cpp LoginHelperTest.cpp
         MapTests.cpp
         NiProviderTests.cpp
+        NoDataExceptionTest.cpp
         NoDataSizeTest.cpp
         OmmConsumerTests.cpp 
         OmmExceptionTests.cpp PackedMsgTest.cpp

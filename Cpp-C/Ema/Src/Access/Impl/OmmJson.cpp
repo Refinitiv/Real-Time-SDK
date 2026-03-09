@@ -10,6 +10,7 @@
 #include "OmmJsonDecoder.h"
 #include "Utilities.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageExceptionImpl.h"
 #include "GlobalPool.h"
 #include <new>
 
@@ -115,6 +116,8 @@ bool OmmJson::hasDecoder() const
 
 const Encoder& OmmJson::getEncoder() const
 {
+	if (!hasEncoder())
+		throw OmmInvalidUsageExceptionImpl::makeException("Attempt to getEncoder() while OmmJson encoder is not set.", OmmInvalidUsageException::InvalidOperationEnum);
 	return *static_cast<const Encoder*>( _pEncoder );
 }
 

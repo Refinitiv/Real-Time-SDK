@@ -44,16 +44,14 @@ refinitiv::ema::access::UInt16 EnumTypeImpl::getValue() const
 
 const refinitiv::ema::access::EmaString& EnumTypeImpl::getDisplay() const
 {
-	_stringDispaly.setInt(_pRsslEnumType->display.data, _pRsslEnumType->display.length,
-		_pRsslEnumType->display.length > 0 ? true : false);
+	_stringDisplay.setInt(_pRsslEnumType->display.data, _pRsslEnumType->display.length, false);
 
-	return _stringDispaly.toString();
+	return _stringDisplay.toString();
 }
 
 const refinitiv::ema::access::EmaString& EnumTypeImpl::getMeaning() const
 {
-	_stringMeaning.setInt(_pRsslEnumType->meaning.data, _pRsslEnumType->meaning.length,
-	_pRsslEnumType->meaning.length > 0 ? true : false);
+	_stringMeaning.setInt(_pRsslEnumType->meaning.data, _pRsslEnumType->meaning.length, false);
 
 	return _stringMeaning.toString();
 }

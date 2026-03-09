@@ -49,11 +49,9 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 void AppClient::decode( const FieldList& fl )
 {
 	// In the below loop partial updates for the specific field of RMTES type are handled.
-	// Note that in case it is necessary to handle partial updates for multiple fields,
-	// the application has to cache each RMTES string in a separate RmtesBuffer
-	// (e.g., use a hashmap to track RmtesBuffer instances corresponding to specific FIDs)
-	// and apply the updates accordingly.
-	while ( fl.forth( "HEADLINE1" ) )
+	// Note that in order to handle partial updates for multiple fields,
+	// the application caches each RMTES string in a separate RmtesBuffer
+	while (fl.forth())
 	{
 		const FieldEntry& fe = fl.getEntry();
 
@@ -61,16 +59,27 @@ void AppClient::decode( const FieldList& fl )
 
 		if (fe.getCode() == Data::BlankEnum)
 			cout << " blank" << endl;
+		else if (fe.getLoadType() == DataType::RmtesEnum)
+		{
+			if (rmtesBufferList.find(fe.getName()) != rmtesBufferList.end())
+				rmtesBufferList[fe.getName()]->apply(fe.getRmtes());
+			else
+			{
+				RmtesBuffer* rmtesBuffer = new RmtesBuffer();
+				rmtesBuffer->apply(fe.getRmtes());
+				rmtesBufferList[fe.getName()] = rmtesBuffer;
+			}
+
+			cout << rmtesBufferList[fe.getName()]->toString() << endl;
+		}
 		else
 		{
-			rmtesBuffer.apply(fe.getRmtes());
-			cout << rmtesBuffer.toString() << endl;
+			cout << fe.toString() << endl;
 		}
 	}
 }
 
-AppClient::AppClient() :
-	rmtesBuffer()
+AppClient::AppClient()
 {
 }
 
@@ -84,6 +93,12 @@ int main()
 		unsigned long long startTime = getCurrentTime();
 		while ( startTime + 60000 > getCurrentTime() )
 			consumer.dispatch( 10 );		// calls to onRefreshMsg(), onUpdateMsg(), or onStatusMsg() execute on this thread
+
+		for (auto& pair : client.rmtesBufferList) {
+			delete pair.second;
+		}
+		client.rmtesBufferList.clear();
+
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;
 	}

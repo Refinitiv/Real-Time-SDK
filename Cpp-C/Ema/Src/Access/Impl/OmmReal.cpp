@@ -10,6 +10,7 @@
 #include "OmmRealDecoder.h"
 #include "Utilities.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageExceptionImpl.h"
 #include <new>
 
 using namespace refinitiv::ema::access;
@@ -194,7 +195,7 @@ double OmmReal::getAsDouble() const
 
 const Encoder& OmmReal::getEncoder() const
 {
-	return *static_cast<const Encoder*>( 0 );
+	throw OmmInvalidUsageExceptionImpl::makeException( "Attempt to getEncoder() while OmmReal has NO encoder.", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 bool OmmReal::hasEncoder() const

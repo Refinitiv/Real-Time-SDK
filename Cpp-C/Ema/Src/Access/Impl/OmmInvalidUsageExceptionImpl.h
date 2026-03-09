@@ -25,6 +25,8 @@ public :
 
 	static void throwException( const char*, Int32 );
 
+	static OmmInvalidUsageExceptionImpl makeException( const char*, Int32 );
+
 	OmmInvalidUsageExceptionImpl();
 
 	virtual ~OmmInvalidUsageExceptionImpl();
@@ -33,6 +35,28 @@ private :
 
 	OmmInvalidUsageExceptionImpl( const OmmInvalidUsageExceptionImpl& );
 	OmmInvalidUsageExceptionImpl& operator=( const OmmInvalidUsageExceptionImpl& );
+
+	friend class NoDataImpl;
+
+	friend class OmmAnsiPage;
+	friend class OmmAscii;
+	friend class OmmBuffer;
+	friend class OmmDate;
+	friend class OmmDateTime;
+	friend class OmmDouble;
+	friend class OmmEnum;
+	friend class OmmError;
+	friend class OmmFloat;
+	friend class OmmInt;
+	friend class OmmJson;
+	friend class OmmQos;
+	friend class OmmReal;
+	friend class OmmRmtes;
+	friend class OmmState;
+	friend class OmmTime;
+	friend class OmmUInt;
+	friend class OmmUtf8;
+	friend class OmmXml;
 };
 
 }

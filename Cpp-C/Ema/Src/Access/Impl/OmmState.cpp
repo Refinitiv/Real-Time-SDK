@@ -10,6 +10,7 @@
 #include "OmmStateDecoder.h"
 #include "Utilities.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageExceptionImpl.h"
 #include <new>
 
 using namespace refinitiv::ema::access;
@@ -231,7 +232,7 @@ bool OmmState::hasDecoder() const
 
 const Encoder& OmmState::getEncoder() const
 {
-	return *static_cast<const Encoder*>( 0 );
+	throw OmmInvalidUsageExceptionImpl::makeException( "Attempt to getEncoder() while OmmState has NO encoder.", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 bool OmmState::hasEncoder() const

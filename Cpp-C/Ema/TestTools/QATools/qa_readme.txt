@@ -185,6 +185,17 @@ Module:  Series200Consumer200
 Series200Consumer200-ConsFunc-001
      Alters consumer to decode Date/Time/DateTime and print using ISO 8601
 
+Module:  Series200Consumer220
+-----------------------------
+
+Series200Consumer220-ConsFunc-001
+     Alters consumer to request 2 items with same item name and both on private stream.
+
+Series200Consumer220-ConsFunc-002
+     Alters consumer to request 2 items with same item name, one is on private stream and another one is on normal stream.
+
+Series200Consumer220-ConsFunc-003
+     Alters consumer to request 4 items with same item name, two are on private stream and another twe are on normal stream.
 
 Module:  Series200Consumer280
 -----------------------------

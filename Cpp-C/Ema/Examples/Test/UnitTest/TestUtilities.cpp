@@ -1390,6 +1390,12 @@ bool comparingData(RsslBuffer& rsslBuffer, const refinitiv::ema::access::EmaStri
 	return false;
 }
 
+bool checkNullTerminatedEmaString(const refinitiv::ema::access::EmaString& emaString)
+{
+	const char* charStr = emaString;
+	return ( charStr && charStr[emaString.length()] == '\0' );
+}
+
 void prepareMsgToCopy(RsslEncodeIterator& encIter, RsslBuffer& msgBuf,
 	RsslMsg* pRsslMsg, RsslDecodeIterator& decodeIter, RsslMsg* pRsslMsgDecode, Msg& respMsg,
 	RsslDataDictionary const& dictionary

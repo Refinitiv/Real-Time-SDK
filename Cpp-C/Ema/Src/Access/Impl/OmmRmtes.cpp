@@ -8,6 +8,7 @@
 
 #include "OmmRmtes.h"
 #include "OmmRmtesDecoder.h"
+#include "OmmInvalidUsageExceptionImpl.h"
 #include <new>
 
 using namespace refinitiv::ema::access;
@@ -70,7 +71,7 @@ Decoder& OmmRmtes::setDecoder( Decoder& decoder )
 
 const Encoder& OmmRmtes::getEncoder() const
 {
-	return *static_cast<const Encoder*>( 0 );
+	throw OmmInvalidUsageExceptionImpl::makeException( "Attempt to getEncoder() while OmmRmtes has NO encoder.", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 bool OmmRmtes::hasEncoder() const

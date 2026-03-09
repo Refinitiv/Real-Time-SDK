@@ -74,6 +74,7 @@ void EmaDecodeElementListAll( const refinitiv::ema::access::ElementList& el );
 void EmaDecodeMapAll( const refinitiv::ema::access::Map& map );
 
 bool comparingData(RsslBuffer& rsslBuffer, const refinitiv::ema::access::EmaString& emaString);
+bool checkNullTerminatedEmaString(const refinitiv::ema::access::EmaString& emaString);
 
 void prepareMsgToCopy(RsslEncodeIterator& encIter, RsslBuffer& msgBuf,
 	RsslMsg* pRsslMsg, RsslDecodeIterator& decodeIter, RsslMsg* pRsslMsgDecode, refinitiv::ema::access::Msg& respMsg,

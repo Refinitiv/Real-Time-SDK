@@ -25,6 +25,15 @@ namespace refinitiv {
 				{
 					return rmtesBuffer._pImpl;
 				}
+
+				static bool hasEncoder(const Data& data)
+				{
+					return data.hasEncoder();
+				}
+				static const Encoder& getEncoder(const Data& data)
+				{
+					return data.getEncoder();
+				}
 			};
 		}
 	}

@@ -280,7 +280,7 @@ RsslReactorCallbackRet MarketItemHandler::itemCallback(RsslReactor* pReactor, Rs
 
 				if (!ommServerBaseImpl->getActiveConfig().acceptMessageSameKeyButDiffStream)
 				{
-					if (clientSession->checkingExistingReq(itemInfo))
+					if (clientSession->checkingExistingReq(itemInfo) && !itemInfo->isPrivateStream())
 					{
 						EmaString temp("Request Message rejected - Item already open with exact same message key on another stream.");
 

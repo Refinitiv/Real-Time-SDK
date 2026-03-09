@@ -8,28 +8,32 @@
 
 package com.refinitiv.ema.examples.training.consumer.series300.ex310_MP_Rmtes;
 
-import com.refinitiv.ema.access.Msg;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+
 import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.Data;
+import com.refinitiv.ema.access.DataType;
+import com.refinitiv.ema.access.DataType.DataTypes;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.FieldEntry;
+import com.refinitiv.ema.access.FieldList;
 import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerConfig.OperationModel;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
 import com.refinitiv.ema.access.RefreshMsg;
 import com.refinitiv.ema.access.RmtesBuffer;
 import com.refinitiv.ema.access.StatusMsg;
 import com.refinitiv.ema.access.UpdateMsg;
-import com.refinitiv.ema.access.Data;
-import com.refinitiv.ema.access.DataType;
-import com.refinitiv.ema.access.EmaFactory;
-import com.refinitiv.ema.access.FieldEntry;
-import com.refinitiv.ema.access.FieldList;
-import com.refinitiv.ema.access.OmmConsumer;
-import com.refinitiv.ema.access.OmmConsumerClient;
-import com.refinitiv.ema.access.OmmConsumerEvent;
-import com.refinitiv.ema.access.OmmException;
-import com.refinitiv.ema.access.OmmConsumerConfig.OperationModel;
 
 
 class AppClient implements OmmConsumerClient
 {
-	private RmtesBuffer rmtesBuffer = EmaFactory.createRmtesBuffer();
+    private HashMap<String, RmtesBuffer> rmtesBufferList = new HashMap<String, RmtesBuffer>();
 	
 	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
 	{
@@ -79,21 +83,33 @@ class AppClient implements OmmConsumerClient
 	void decode(FieldList fieldList)
 	{
 		// In the below loop partial updates for the specific field of RMTES type are handled.
-		// Note that in case it is necessary to handle partial updates for multiple fields,
-		// the application has to cache each RMTES string in a separate RmtesBuffer
-		// (e.g., use a hashmap to track RmtesBuffer instances corresponding to specific FIDs)
-		// and apply the updates accordingly.
+		// Note that in order to handle partial updates for multiple fields,
+		// the application caches each RMTES string in a separate RmtesBuffer
 		for (FieldEntry fieldEntry : fieldList)
 		{
-			if (fieldEntry.name().equals("HEADLINE1"))
+			System.out.print("Fid: " + fieldEntry.fieldId() + " Name = " + fieldEntry.name() + " DataType: " + DataType.asString(fieldEntry.load().dataType()) + " Value: ");
+			
+			if (Data.DataCode.BLANK == fieldEntry.code())
+				System.out.println(" blank");
+
+			if (fieldEntry.loadType() == DataTypes.RMTES)
 			{
-				System.out.print("Fid: " + fieldEntry.fieldId() + " Name = " + fieldEntry.name() + " DataType: " + DataType.asString(fieldEntry.load().dataType()) + " Value: ");
-
-				if (Data.DataCode.BLANK == fieldEntry.code())
-					System.out.println(" blank");
+				if (rmtesBufferList.containsKey(fieldEntry.name()))
+						rmtesBufferList.get(fieldEntry.name()).apply(fieldEntry.rmtes());
 				else
-					System.out.println((rmtesBuffer.apply(fieldEntry.rmtes())).toString());
+					rmtesBufferList.put(fieldEntry.name(), EmaFactory.createRmtesBuffer().apply(fieldEntry.rmtes()));
+				
 
+				if (Data.DataCode.BLANK != fieldEntry.code())
+				{
+					// Output contents of rmtes buffer
+					System.out.println(StandardCharsets.UTF_8.decode(rmtesBufferList.get(fieldEntry.name()).asUTF8()));
+				}
+			}
+			else
+			{
+				// Output contents of rmtes buffer
+				System.out.println(fieldEntry.toString());
 			}
 		}
 	}

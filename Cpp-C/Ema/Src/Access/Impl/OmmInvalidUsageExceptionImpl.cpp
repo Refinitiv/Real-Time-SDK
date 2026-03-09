@@ -52,3 +52,13 @@ void OmmInvalidUsageExceptionImpl::throwException( const char* text, Int32 error
 
 	throw exception;
 }
+
+OmmInvalidUsageExceptionImpl OmmInvalidUsageExceptionImpl::makeException( const char* text, Int32 errorCode)
+{
+	OmmInvalidUsageExceptionImpl exception;
+
+	exception.statusText( text );
+	exception._errorCode = errorCode;
+
+	return exception;
+}

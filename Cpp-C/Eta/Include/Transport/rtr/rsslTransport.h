@@ -1717,7 +1717,7 @@ RTR_C_INLINE void rsslClearTraceOptions(RsslTraceOptions *traceOptions)
  * output can be passed to rsslEncryptBuffer().  
  * 
  * @param bufferToEncrypt RsslBuffer populated with content the user wants to calculate encrypted size of.  buffer->length should represent the number of bytes contained in buffer->data. 
- * @return RsslUInt32 Number of bytes needed in an RsslBuffer to encrypt contents into
+ * @return RsslUInt32 Number of bytes needed in an RsslBuffer to encrypt contents into, or 0 if bufferToEncrypt is NULL.
  */
 RSSL_API RsslUInt32 rsslCalculateEncryptedSize(const RsslBuffer *bufferToEncrypt);
 
