@@ -5,14 +5,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Product>Enterprise Transport API (ETA) C# Edition</Product>
-    <Copyright>Copyright @ 2024 LSEG. All Rights Reserved.</Copyright>
+    <Copyright>Copyright @ 2024,2026 LSEG. All Rights Reserved.</Copyright>
     <AssemblyName>AuthLock</AssemblyName>
     <TargetFramework Condition="'$(DotNetVersion)' == 'net8.0'">net8.0</TargetFramework>
     <TargetFramework Condition="'$(DotNetVersion)' == 'net10.0'">net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LSEG.Eta.Dacs" Version="7.12.2" />
+    <PackageReference Include="LSEG.Eta.Dacs" Version="8.2.0.2" />
   </ItemGroup>
 
 </Project>
