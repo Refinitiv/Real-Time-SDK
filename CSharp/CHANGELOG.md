@@ -10,28 +10,48 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.3.2.L1 aka EMA/ETA 3.5.0.L1 aka 3.5.0.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.4.0.L1 aka EMA/ETA 3.5.1.L1 aka 3.5.1.0
 ----------------------------------------------------------------------------------------
 
-This release has support for the Preferred Host feature which applies to both channelset and connection-recovery: the feature allows a switch back to a preferred host in channelSet or connection recovery configuration.
-
-In this release is added support for update filtering feature which permits API users to request a filter on update type in the Login Request message. Used with a server side that supports this feature, there is a potential for bandwidth saving by limiting traffic to certain update types.  
-
-In addition, this serves as a maintenance release with fixes.
-
-Customer Issues Resolved
-------------------------
-- [GitHub #306, #318] - [RTSDK-9607] - Added configuration parameters to adjust the number of client sessions and item information
-- [Case Number: 15424547] - [RTSDK-10307] - Fix for memory leak when subscribing to unknown service (pending items) upon repeated OmmConsumer unintialize 
-- [Case Number: 15449113] - [RTSDK-10326] - Missed refreshes when requesting view with a large number of items requests upon recovery 
+This is a maintenance release with support added for .NET 10 and removal of support for .NET 6. In addtion, this release introduces configurable limits to object pool sizes in EMA for granular control over memory allocation. 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 ---------------------------------------------
+RTSDK CSharp Release 2.4.0.L1 (Mar 13, 2026)
+---------------------------------------------
+
+EMA CSharp 3.5.1.L1 Issues Resolved
+-----------------------------------
+- [RTSDK-8890] - Update to Cons310 to "detect" partial update and apply to Rmtes buffer
+- [RTSDK-9396] - IProvider does not handle private streams properly
+- [RTSDK-10131] - Notify application when NullReferenceExceptions occur when CatchUnhandledExceptions configuration is enabled
+- [RTSDK-10369] - Introduce configurable limits on object pool sizes
+
+ETA CSharp 3.5.1.L1 Issues Resolved
+-----------------------------------
+- [RTSDK-10352] - Flaw in ConvertDateTimeToMilliSecondTime causes intermittent unit test failures
+- [RTSDK-10390] - Real.Value erroneously returns SUCCESS code while failing to encode certain values (edge cases)
+- [RTSDK-10418] - ETA C# prints incorrect group ID in the XML trace message
+- [RTSDK-10426] - The criteria used to determine if an incoming LOGIN GENERIC message is RTT now checks for mandatory field, "Ticks"
+
+Both ETA and EMA CSharp 3.5.1.L1 Issues Resolved
+------------------------------------------------
+- [RTSDK-7959] - Support for .NET 10 and removal of .NET 6
+- [RTSDK-8860] - Optimization to item aggregation with successive batch snapshot requests with overlapping item
+- [RTSDK-10309] - Fix to WouldBlock socket error when awaiting ack from proxy server that was resulting in intermittent failure of EMA OAuth2RenewalTests.SimpleRenewal_Test
+
+---------------------------------------------
 RTSDK CSharp Release 2.3.2.L1 (Dec 16, 2025)
 ---------------------------------------------
+
+This release has support for the Preferred Host feature which applies to both channelset and connection-recovery: the feature allows a switch back to a preferred host in channelSet or connection recovery configuration.
+
+In this release is added support for update filtering feature which permits API users to request a filter on update type in the Login Request message. Used with a server side that supports this feature, there is a potential for bandwidth saving by limiting traffic to certain update types.  
+
+In addition, this serves as a maintenance release with fixes.
 
 EMA CSharp 3.5.0.L1 Issues Resolved
 -----------------------------------
@@ -54,7 +74,7 @@ Both ETA and EMA CSharp 3.5.0.L1 Issues Resolved
 - [RTSDK-9601] - New Feature: Support for UpdateFilter feature with mask specified in login request used by server to filter updates by type
 - [RTSDK-9615] - New Feature: Supports pooling of cloned messages for better memory management
 - [RTSDK-10290] - Fix to error upon fallbackPreferredHost() method call with feature disabled
-- [RTSDK-10307] - Fix for memory leak when subscribing to unknown service (pending items) upon repeated OmmConsumer unintialize [Case Number: 15424547]
+- [RTSDK-10307] - Fix for memory leak when subscribing to unknown service (pending items) upon repeated OmmConsumer uninitialize [Case Number: 15424547]
 - [RTSDK-10326] - Missed refreshes when requesting view with a large number of items requests [Case Number: 15449113]
 - [RTSDK-9905] - C# Refman warnings "No comments found for member"; related to <inheritdoc/> tag
 - [RTSDK-9957] - C# fails to send very large dictionary message to client side
@@ -80,7 +100,7 @@ EMA CSharp 3.4.0.L2 Issues Resolved
 - [RTSDK-1143] - Improved EMA exception and error handling documentation
 - [RTSDK-8435] - EMA C# support for OmmJson to represent JSON data type
 - [RTSDK-8469] - EMA C# Request Routing: Add new configuration values for XML and programmatic config
-- [RTSDK-8470] - EMA C# Request Routing: OmmConsumer intialization and channel management
+- [RTSDK-8470] - EMA C# Request Routing: OmmConsumer initialization and channel management
 - [RTSDK-8471] - EMA C# Request Routing: Login stream aggregation and handling
 - [RTSDK-8472] - EMA C# Request Routing with SL: Service management and handling(Source Directory)
 - [RTSDK-8473] - EMA C# Request Routing: Dictionary handling
@@ -203,8 +223,8 @@ Both ETA and EMA CSharp 3.2.0.G1 Issues Resolved
 RTSDK CSharp Release 2.2.0.L1 (Apr 30, 2024)
 ---------------------------------------------
 
-This release introduces support for Enterprise Message API (EMA) Interactive and Non-Interative Providers. In addtion, several customer issues were addressed. Also included are the following features:
-- Abilty to set proxy for REST requests separately from Reactor channel proxy
+This release introduces support for Enterprise Message API (EMA) Interactive and Non-Interactive Providers. In addition, several customer issues were addressed. Also included are the following features:
+- Ability to set proxy for REST requests separately from Reactor channel proxy
 - Ability to add connection type to OmmConsumerConfig
 - Ability to pass in a dictionary object into a newly created OMMConsumer
 - Support for XmlTrace to file parameters in ETA & EMA C#
@@ -261,14 +281,14 @@ Both ETA and EMA CSharp 3.2.0.L1 Issues Resolved
 RTSDK CSharp Release 2.1.3.L1 (Nov 6, 2023)
 ---------------------------------------------
 
-This release introduces Enterprise Tranport API (ETA) C# watchlist support and Enterprise Message API (EMA) C# client side implementation. Included is support for socket encrypted and unencrypted connections, session management feature for Real-Time - Optimized (RTO) connectivity, round trip latency monitoring, and features required to consume/contribute content on multiple domains: batch, view, snapshot/streaming, etc.
+This release introduces Enterprise Transport API (ETA) C# watchlist support and Enterprise Message API (EMA) C# client side implementation. Included is support for socket encrypted and unencrypted connections, session management feature for Real-Time - Optimized (RTO) connectivity, round trip latency monitoring, and features required to consume/contribute content on multiple domains: batch, view, snapshot/streaming, etc.
 
 EMA CSharp 3.1.0.L1 
 -------------------
 - [RTSDK-7261] - EMA C# implementation
 - [RTSDK-7509] - EMA C#: Create EMA ConsPerf Tool
 - [RTSDK-7529] - EMA C#: Create EMA Examples: 100, 200, 300, 400 Series
-- [RTSDK-7510] - EMA C#: Support session management feature with V2 authenticaiton and service discovery 
+- [RTSDK-7510] - EMA C#: Support session management feature with V2 authentication and service discovery 
 - [RTSDK-7613] - Create CSharp PDF documentation
 - [RTSDK-7919] - Create EMA reference manual
 
@@ -338,7 +358,7 @@ RTSDK CSharp Release 2.0.8.L1 (Jan 23, 2023)
 
 New Features Added
 ------------------
-This is the first official RTSDK CSharp release with support for Enterprise Transport API. This initial release includes transport and value add Reactor layers with both client and server side implemenation. The transport layer API supports TCP/IP transport, buffer management (such as read, write), fragmentation, packing, compression, a codec to implement open message model (OMM). Transport layer supports socket and encrypted socket connections. In addition, the value add layer handles adminitrative messages and implements a dispatching/callback mechanism to simplify the application. Also included in the API at Reactor Layer are Session Management (authentication) and Service Discovery (discovering host/port information based on Cloud region and type of connection) features. Documentation is available for all supported features in two formats: HTML (reference manuals) and PDF. 
+This is the first official RTSDK CSharp release with support for Enterprise Transport API. This initial release includes transport and value add Reactor layers with both client and server side implementation. The transport layer API supports TCP/IP transport, buffer management (such as read, write), fragmentation, packing, compression, a codec to implement open message model (OMM). Transport layer supports socket and encrypted socket connections. In addition, the value add layer handles administrative messages and implements a dispatching/callback mechanism to simplify the application. Also included in the API at Reactor Layer are Session Management (authentication) and Service Discovery (discovering host/port information based on Cloud region and type of connection) features. Documentation is available for all supported features in two formats: HTML (reference manuals) and PDF. 
 
 ETA CSharp 3.0.0.L1  
 -------------------

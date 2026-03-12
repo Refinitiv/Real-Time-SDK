@@ -24,7 +24,7 @@ In addtion, HTML documentation is available in CSharp/Eta/Docs. For addtional do
 
 # ETA Features and Functionality
 
-- 64-bit, CSharp over .NET Core 6.0 and .NET Core 8.0 based API
+- 64-bit, CSharp over .NET Core 10.0 and .NET Core 8.0 based API
 
 - Thread safe and thread aware
 
@@ -135,14 +135,14 @@ The distribution contains several DLL files (libraries), intended to allow for e
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.70_RealTimeDistributionSystem_25.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.71_RealTimeDistributionSystem_26.11 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2025.1.1, https://www.blackducksoftware.com/
-    Coverity, 2023.12.2, https://scan.coverity.com/ 
+    Black Duck by Synopsis, 2025.12.0.1338, https://www.blackducksoftware.com/
+    Coverity, 2024.12.0, https://scan.coverity.com/ 
     SemGrep 1.136.0, https://semgrep.dev/
 
 # Notes:

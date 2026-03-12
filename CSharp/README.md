@@ -17,34 +17,36 @@ External modules used by this version of RTSDK CSharp:
 
     Dependency                                 Version
     ----------                                 -------
+    Cronos                                     0.11.1
     K4os.Compression.LZ4                       1.3.8
     Microsoft.Csharp                           4.5.0
-    Microsoft.IdentityModel.Abstractions       8.14.0
-    Microsoft.IdentityModel.Jsonwebtokends     8.14.0
-    Microsoft.IdentityModel.Logging            8.14.0
-    Microsoft.IdentityModel.Tokens             8.14.0
+    Microsoft.IdentityModel.Abstractions       8.16.0
+    Microsoft.IdentityModel.Jsonwebtokens      8.16.0
+    Microsoft.IdentityModel.Logging            8.16.0
+    Microsoft.IdentityModel.Tokens             8.16.0
     Microsoft.Netcore.Platforms                5.0.0
-    NLog                                       6.0.6
-    NLog.Extensions.Logging                    6.1.0
-    System.IdentityModel.Tokens.Jwt            8.14.0
+    NLog                                       6.1.0
+    NLog.Extensions.Logging                    6.1.1
+    System.IdentityModel.Tokens.Jwt            8.16.0
 
 
 # Software Requirements
-- Visual Studio 2026
-- .NET Core 8 and .NET Core 10. NOTE: .NET 10 is used in default build
-- xUnit.x3 for unit testing
+- .NET 8 using Visual Studio 2022
+- .NET 10 using Visual Studio 2026 (18.0 or higher)
+- xUnit for unit testing
+
+NOTE: the default .NET version used for build may be altered in this file: CSharp/Directory.Build.props
 
 ### Platforms and Compilers used in Test
 
-    Windows Server 2019 Standard Edition or later 64-bit, .NET SDK 6.0.421
-    Windows Server 2022 Standard Edition or later 64-bit, .NET SDK 8.0.403
-    Windows 11 64-bit, .NET SDK 8.0.403
-    Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 6.0.421
-    Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 8.0.401
-    Red Hat Enterprise Server 9.X Release 64-bit, .NET SDK 8.0.401
-    Ubuntu 20.04 64-bit, .NET SDK 6.0.421
-    Galaxy Kylin 10, 64-bit
-    Amazon Linux 2023, 64-bit
+On the following platforms .NET SDK 8.X and 10.X were used in test
+
+    Windows Server 2022 Standard Edition or later 64-bit
+    Windows 11 64-bit
+    Red Hat Enterprise Server 8.X Release 64-bit
+    Red Hat Enterprise Server 9.X Release 64-bit
+    Galaxy Kylin 10 64-bit
+    Amazon Linux 2023 64-bit
 
 ### Encryption Support
 
